@@ -125,7 +125,6 @@ if ($dateWonLocal === "" && isset($user)) {
 
 $achievedLocal = ($dateWonLocal !== "");
 
-$numArticleComments = getRecentArticleComments(ArticleType::Achievement, $achievementID, $commentData);
 ?>
 <x-app-layout
     pageTitle="{!! $achievementTitleRaw !!} in {!! $gameTitleRaw !!} ({{ $consoleName }})"
@@ -419,14 +418,9 @@ $numArticleComments = getRecentArticleComments(ArticleType::Achievement, $achiev
     }
 
     echo "<div class='mb-4'>";
-    RenderCommentsComponent(
-        $user,
-        $numArticleComments,
-        $commentData,
-        $achievementID,
-        ArticleType::Achievement,
-        $permissions
-    );
+        echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
+            ['articleType' => ArticleType::Achievement, 'articleId' => $achievementID]
+        );
     echo "</div>";
 
     echo "</div>"; // achievement

@@ -67,7 +67,7 @@ class UserRecentAchievementsTest extends TestCase
             ->assertJson([
                 [
                     'AchievementID' => $achievement3->ID,
-                    'Author' => $achievement3->Author,
+                    'Author' => $achievement3->developer->User,
                     'BadgeName' => $achievement3->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
                     'ConsoleName' => $system2->Name,
@@ -90,7 +90,7 @@ class UserRecentAchievementsTest extends TestCase
             ->assertJson([
                 [
                     'AchievementID' => $achievement3->ID,
-                    'Author' => $achievement3->Author,
+                    'Author' => $achievement3->developer->User,
                     'BadgeName' => $achievement3->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
                     'ConsoleName' => $system2->Name,
@@ -107,7 +107,7 @@ class UserRecentAchievementsTest extends TestCase
                 ],
                 [
                     'AchievementID' => $achievement2->ID,
-                    'Author' => $achievement2->Author,
+                    'Author' => $achievement2->developer->User,
                     'BadgeName' => $achievement2->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement2->BadgeName . '.png',
                     'ConsoleName' => $system2->Name,
@@ -131,7 +131,7 @@ class UserRecentAchievementsTest extends TestCase
             ->assertJson([
                 [
                     'AchievementID' => $achievement3->ID,
-                    'Author' => $achievement3->Author,
+                    'Author' => $achievement3->developer->User,
                     'BadgeName' => $achievement3->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
                     'ConsoleName' => $system2->Name,
@@ -148,7 +148,7 @@ class UserRecentAchievementsTest extends TestCase
                 ],
                 [
                     'AchievementID' => $achievement2->ID,
-                    'Author' => $achievement2->Author,
+                    'Author' => $achievement2->developer->User,
                     'BadgeName' => $achievement2->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement2->BadgeName . '.png',
                     'ConsoleName' => $system2->Name,
@@ -172,7 +172,7 @@ class UserRecentAchievementsTest extends TestCase
             ->assertJson([
                 [
                     'AchievementID' => $achievement3->ID,
-                    'Author' => $achievement3->Author,
+                    'Author' => $achievement3->developer->User,
                     'BadgeName' => $achievement3->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
                     'ConsoleName' => $system2->Name,
@@ -189,7 +189,7 @@ class UserRecentAchievementsTest extends TestCase
                 ],
                 [
                     'AchievementID' => $achievement2->ID,
-                    'Author' => $achievement2->Author,
+                    'Author' => $achievement2->developer->User,
                     'BadgeName' => $achievement2->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement2->BadgeName . '.png',
                     'ConsoleName' => $system2->Name,
@@ -206,7 +206,7 @@ class UserRecentAchievementsTest extends TestCase
                 ],
                 [
                     'AchievementID' => $achievement1->ID,
-                    'Author' => $achievement1->Author,
+                    'Author' => $achievement1->developer->User,
                     'BadgeName' => $achievement1->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement1->BadgeName . '.png',
                     'ConsoleName' => $system1->Name,

@@ -84,7 +84,6 @@ class UpdateDeveloperContributionYieldTest extends TestCase
             $achievements[] = Achievement::factory()->published()->create([
                 'GameID' => $game->id,
                 'Points' => $pointValue,
-                'Author' => $author->User,
                 'user_id' => $author->id,
             ]);
         }
@@ -177,7 +176,6 @@ class UpdateDeveloperContributionYieldTest extends TestCase
             $achievements[] = Achievement::factory()->published()->create([
                 'GameID' => $game->id,
                 'Points' => $pointValue,
-                'Author' => $author->User,
                 'user_id' => $author->id,
             ]);
         }

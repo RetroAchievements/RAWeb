@@ -26,6 +26,16 @@ class UserAgentServiceTest extends TestCase
         ], $this->parseUserAgent($userAgent));
     }
 
+    public function testNotProvidedUserAgent(): void
+    {
+        $userAgent = '[not provided]';
+
+        $this->assertEquals([
+            'client' => 'Unknown',
+            'clientVersion' => 'Unknown',
+        ], $this->parseUserAgent($userAgent));
+    }
+
     public function testNoVersionUserAgent(): void
     {
         $userAgent = 'MyApp';

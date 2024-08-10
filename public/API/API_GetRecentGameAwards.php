@@ -60,7 +60,7 @@ if (!empty($awardKindsCsv) && empty($awardKinds)) {
 }
 
 // Construct the initial base query, which pulls beaten and mastery awards.
-$baseQuery = PlayerBadge::where(function ($query) {
+$baseQuery = PlayerBadge::with('user')->where(function ($query) {
     $query->where('AwardType', AwardType::Mastery)
         ->orWhere('AwardType', AwardType::GameBeaten);
 });
@@ -113,7 +113,7 @@ $mappedGameAwards = $fetchedGameAwards->map(function ($gameAward) use ($associat
         : ($gameAward->AwardDataExtra ? 'mastered' : 'completed');
 
     $mappedAward = [
-        'User' => $gameAward->User,
+        'User' => $gameAward->user->display_name,
         'AwardKind' => $awardKind,
         'AwardDate' => $gameAward->AwardDate->toIso8601String(),
         'GameID' => $gameAward->AwardData,

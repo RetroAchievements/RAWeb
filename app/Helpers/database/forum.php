@@ -85,7 +85,7 @@ function getUnauthorisedForumLinks(): ?array
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ForumTopicID = ft.ID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
                 LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID
-                WHERE ftc.Authorised = 0 AND ft.deleted_at IS NULL
+                WHERE ftc.Authorised = 0 AND ftc.deleted_at IS NULL AND ft.deleted_at IS NULL
                 GROUP BY ft.ID, LatestCommentPostedDate
                 ORDER BY LatestCommentPostedDate DESC ";
 
@@ -112,22 +112,14 @@ function submitNewTopic(
     string $topicTitle,
     string $topicPayload,
 ): ForumTopicComment {
-    // TODO why do we even allow users to submit topic titles this short? just throw a validation error.
-    if (mb_strlen($topicTitle) < 2) {
-        $topicTitle = "{$user->User}'s topic";
-    }
-
-    $topicTitle = htmlspecialchars($topicTitle, ENT_QUOTES);
-
-    // Create the new topic.
-    $newTopic = new ForumTopic([
+    // First, create the topic.
+    $newTopic = ForumTopic::create([
         'ForumID' => $forumID,
         'Title' => $topicTitle,
         'author_id' => $user->id,
         'LatestCommentID' => 0,
         'RequiredPermissions' => 0,
     ]);
-    $newTopic->save();
 
     // Finally, submit the first comment of the new topic.
     return submitTopicComment($user, $newTopic->id, $topicTitle, $topicPayload);
@@ -143,7 +135,7 @@ function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
         log_sql_fail();
     }
 
-    // Propogate to Forum table
+    // Propagate to Forum table
     $query = "  UPDATE Forum AS f
                 INNER JOIN ForumTopic AS ft ON ft.ForumID = f.ID
                 SET f.LatestCommentID = ft.LatestCommentID
@@ -158,42 +150,15 @@ function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
     return true;
 }
 
-function editTopicComment(int $commentID, string $newPayload): bool
+function editTopicComment(int $commentId, string $newPayload): void
 {
-    $newPayload = str_replace("'", "''", $newPayload);
-    $newPayload = str_replace("<", "&lt;", $newPayload);
-    $newPayload = str_replace(">", "&gt;", $newPayload);
-
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $newPayload = normalize_shortcodes($newPayload);
 
-    $query = "UPDATE ForumTopicComment SET Payload = '$newPayload' WHERE ID=$commentID";
-
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);    // TBD: unprotected to allow all characters..
-    if ($dbResult !== false) {
-        return true;
-    }
-    log_sql_fail();
-
-    return false;
-}
-
-function getIsForumDoublePost(
-    User $user,
-    int $topicId,
-    string $commentPayload,
-): bool {
-    $latestPost = $user->forumPosts()->latest('DateCreated')->first();
-
-    if (!$latestPost) {
-        return false;
-    }
-
-    return
-        $latestPost->body === $commentPayload
-        && $latestPost->forum_topic_id === $topicId;
+    $comment = ForumTopicComment::findOrFail($commentId);
+    $comment->Payload = $newPayload;
+    $comment->save();
 }
 
 function submitTopicComment(
@@ -201,17 +166,18 @@ function submitTopicComment(
     int $topicId,
     ?string $topicTitle,
     string $commentPayload,
-): ?ForumTopicComment {
-    if (getIsForumDoublePost($user, $topicId, $commentPayload)) {
-        // Do nothing.
-        return null;
-    }
-
-    $commentPayload = htmlspecialchars($commentPayload, ENT_QUOTES);
-
+): ForumTopicComment {
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $commentPayload = normalize_shortcodes($commentPayload);
+
+    // if this exact message was just posted by this user, assume it's an
+    // accidental double submission and ignore.
+    $latestPost = $user->forumPosts()->latest('DateCreated')->first();
+    if ($latestPost && $latestPost->forum_topic_id === $topicId
+        && $latestPost->body === $commentPayload) {
+        return $latestPost;
+    }
 
     $newComment = new ForumTopicComment([
         'ForumTopicID' => $topicId,

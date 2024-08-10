@@ -12,7 +12,7 @@ name('achievement.report-issue');
 
 render(function (View $view, Achievement $achievement) {
     if (!Auth::user()->can('view', $achievement)) {
-        return abort('401');
+        return abort(401);
     }
     
     // TODO migrate this logic to a service
@@ -54,6 +54,7 @@ render(function (View $view, Achievement $achievement) {
         'unlockedHardcore' => $unlockedHardcore,
         'hasSession' => $hasSession,
         'ticketType' => $ticketType,
+        'extra' => request()->input('extra'),
     ]);
 });
 
@@ -63,6 +64,7 @@ render(function (View $view, Achievement $achievement) {
     'hasSession' => false,
     'ticketType' => 2, // TicketType
     'unlockedHardcore' => false,
+    'extra' => null,
 ])
 
 <x-app-layout
@@ -98,64 +100,96 @@ render(function (View $view, Achievement $achievement) {
     @if (!$hasSession)
         {{-- don't allow player to create tickets if they've never loaded the game --}}
     @elseif ($ticketType === TicketType::DidNotTrigger)
-        <x-ticket.guide-link buttonText="Create Ticket"
-                             href="{{ route('achievement.create-ticket', ['achievement' => $achievement]) }}?type={{ TicketType::DidNotTrigger }}">
+        <x-ticket.guide-link
+            buttonText="Create Ticket"
+            href="{{ route('achievement.create-ticket', ['achievement' => $achievement]) }}?type={{ TicketType::DidNotTrigger }}"
+        >
             I met the requirements, but the achievement did not trigger.
         </x-ticket.guide-link>
 
-        <x-ticket.guide-link buttonText="Create Ticket"
-                             href="{{ route('achievement.create-ticket', ['achievement' => $achievement]) }}?type={{ TicketType::TriggeredAtWrongTime }}">
+        @php
+            $url = route('achievement.create-ticket', ['achievement' => $achievement]) . '?type=' . TicketType::TriggeredAtWrongTime;
+            if (!empty($extra)) { $url .= '&extra=' . urlencode($extra); }
+        @endphp
+        <x-ticket.guide-link
+            buttonText="Create Ticket"
+            href="{!! $url !!}"
+        >
             I unlocked this achievement without meeting the requirements, and then I reset it.
         </x-ticket.guide-link>
 
         @php
-            $subject = urlencode("Manual Unlock: $achievement->title ({$achievement->game->title})");
-            $message = urlencode("I'd like a manual unlock for [ach=$achievement->id]:\n(provide link to video/screenshot showing evidence)");
+            $subject = urlencode("Manual Unlock: {$achievement->title} [{$achievement->id}] ({$achievement->game->title})");
+            $message = urlencode("I'd like a manual unlock for [ach={$achievement->id}]:\n(Provide link to video/screenshot showing evidence)");
         @endphp
-        <x-ticket.guide-link buttonText="Request Manual Unlock"
-                             href="{{ route('message.create') }}?to=RAdmin&subject={{ $subject }}&message={{ $message }}">
+        <x-ticket.guide-link
+            buttonText="Request Manual Unlock"
+            href="{{ route('message.create') }}?to=RAdmin&subject={{ $subject }}&message={{ $message }}&templateKind=manual-unlock"
+        >
             The achievement triggered, but the unlock didn't appear on my profile.
         </x-ticket.guide-link>
     @else
-        <x-ticket.guide-link buttonText="Create Ticket"
-                             href="{{ route('achievement.create-ticket', ['achievement' => $achievement]) }}?type={{ TicketType::TriggeredAtWrongTime }}">
+        @php
+            $url = route('achievement.create-ticket', ['achievement' => $achievement]) . '?type=' . TicketType::TriggeredAtWrongTime;
+            if (!empty($extra)) { $url .= '&extra=' . urlencode($extra); }
+        @endphp
+        <x-ticket.guide-link
+            buttonText="Create Ticket"
+            href="{!! $url !!}"
+        >
             I unlocked this achievement without meeting the requirements.
         </x-ticket.guide-link>
     @endif
 
     @php
-        $subject = urlencode("Typo: $achievement->title ({$achievement->game->title})");
-        $message = urlencode("I'd like to report a spelling/grammar error in [ach=$achievement->id]:\n(Describe the issue here)");
+        $subject = urlencode("Typo: {$achievement->title} [{$achievement->id}] ({$achievement->game->title})");
+        $message = urlencode("I'd like to report a spelling/grammar error in [ach={$achievement->id}]:\n(Describe the issue here)");
     @endphp
-    <x-ticket.guide-link buttonText="Message WritingTeam"
-                         href="{{ route('message.create') }}?to=WritingTeam&subject={{ $subject }}&message={{ $message }}">
+    <x-ticket.guide-link
+        buttonText="Message WritingTeam"
+        href="{{ route('message.create') }}?to=WritingTeam&subject={{ $subject }}&message={{ $message }}&templateKind=writing-error"
+    >
         There is a spelling or grammatical error in the title or description.
     </x-ticket.guide-link>
 
     @php
-        $subject = urlencode("Incorrect type: $achievement->title ({$achievement->game->title})");
-        $message = urlencode("I'd like to report a misclassification error in [ach=$achievement->id]:\n(Describe the issue here)");
+        $subject = urlencode("Incorrect type: {$achievement->title} [{$achievement->id}] ({$achievement->game->title})");
+        $message = urlencode("I'd like to report a misclassification error in [ach={$achievement->id}]:\n(Describe the issue here)");
     @endphp
-    <x-ticket.guide-link buttonText="Message QATeam"
-                         href="{{ route('message.create') }}?to=QATeam&subject={{ $subject }}&message={{ $message }}">
+    <x-ticket.guide-link
+        buttonText="Message QATeam"
+        href="{{ route('message.create') }}?to=QATeam&subject={{ $subject }}&message={{ $message }}&templateKind=misclassification"
+    >
         The achievement type (progression/win/missable) is not correct.
     </x-ticket.guide-link>
 
     @php
-        $subject = urlencode("Unwelcome Concept: $achievement->title ({$achievement->game->title})");
-        $message = urlencode("I'd like to report an unwelcome concept in [ach=$achievement->id]:\n(Describe the issue here)");
+        $subject = urlencode("Unwelcome Concept: {$achievement->title} [{$achievement->id}] ({$achievement->game->title})");
+        $message = urlencode(
+            "I'd like to report an unwelcome concept in [ach={$achievement->id}].\n\n" .
+
+            "- Which Unwelcome Concept:\n" .
+            "(Insert which concept from the docs here)\n\n" .
+
+            "- Detailed Explanation:\n" .
+            "(Provide as much detail as possible here. Assume the reader may not have played the game before. The more detail you provide, the better your case.)"
+        );
     @endphp
-    <x-ticket.guide-link buttonText="Message DevCompliance"
-                         href="{{ route('message.create') }}?to=DevCompliance&subject={{ $subject }}&message={{ $message }}">
-        The achievement contains an <a href="https://docs.retroachievements.org/Unwelcome-Concepts/">unwelcome concept</a>.
+    <x-ticket.guide-link
+        buttonText="Message DevCompliance"
+        href="{{ route('message.create') }}?to=DevCompliance&subject={{ $subject }}&message={{ $message }}&templateKind=unwelcome-concept"
+    >
+        The achievement contains an <a href="https://docs.retroachievements.org/guidelines/content/unwelcome-concepts.html">unwelcome concept</a>.
     </x-ticket.guide-link>
 
     @php
-        $subject = urlencode("Issue: $achievement->title ({$achievement->game->title})");
-        $message = urlencode("I'd like to report an issue with [ach=$achievement->id]:\n(Describe the issue here)");
+        $subject = urlencode("Issue: {$achievement->title} [{$achievement->id}] ({$achievement->game->title})");
+        $message = urlencode("I'd like to report an issue with [ach={$achievement->id}]:\n(Describe the issue here)");
     @endphp
-    <x-ticket.guide-link buttonText="Message RAdmin"
-                         href="{{ route('message.create') }}?to=RAdmin&subject={{ $subject }}&message={{ $message }}">
+    <x-ticket.guide-link
+        buttonText="Message QATeam"
+        href="{{ route('message.create') }}?to=QATeam&subject={{ $subject }}&message={{ $message }}&templateKind=achievement-issue"
+    >
         I have an issue with this achievement that is not described above.
     </x-ticket.guide-link>
 </x-app-layout>

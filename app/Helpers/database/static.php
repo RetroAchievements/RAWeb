@@ -16,24 +16,6 @@ function static_addnewachievement(int $id): void
 /**
  * @deprecated
  */
-function static_addnewgame(int $id): void
-{
-    // Subquery to get # of games that have achievements
-    $query = "UPDATE StaticData AS sd ";
-    $query .= "SET sd.NumGames = (SELECT COUNT(DISTINCT ach.GameID) ";
-    $query .= "                   FROM GameData gd ";
-    $query .= "                   INNER JOIN Achievements ach ON ach.GameID = gd.ID), sd.LastCreatedGameID = '$id'";
-    // $query = "UPDATE StaticData AS sd ";
-    // $query .= "SET sd.NumGames = sd.NumGames+1, sd.LastCreatedGameID = '$id'";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-    }
-}
-
-/**
- * @deprecated
- */
 function static_addnewregistereduser(string $user): void
 {
     sanitize_sql_inputs($user);

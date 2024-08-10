@@ -27,6 +27,7 @@ class ForumRecentPostsPageService
             $maxPerPage,
             $currentOffset,
             count($recentForumPosts),
+            $targetUser,
         );
 
         return [
@@ -41,21 +42,34 @@ class ForumRecentPostsPageService
     private function buildPaginationUrls(
         int $maxPerPage,
         int $currentOffset,
-        int $recentForumPostsCount
+        int $recentForumPostsCount,
+        ?User $targetUser = null,
     ): array {
         $previousPageUrl = null;
         $nextPageUrl = null;
 
+        $routeName = $targetUser ? 'user.posts' : 'forum.recent-posts';
+        $routeArgs = [];
+        if ($targetUser) {
+            $routeArgs['user'] = $targetUser;
+        }
+
         if ($currentOffset > 0) {
             // Don't let a crawler try to index a URL with "?offset=0".
             if ($currentOffset === $maxPerPage) {
-                $previousPageUrl = route('forum.recent-posts');
+                $previousPageUrl = route($routeName, $routeArgs);
             } else {
-                $previousPageUrl = route('forum.recent-posts', ['offset' => $currentOffset - $maxPerPage]);
+                $previousPageUrl = route($routeName, [
+                    ...$routeArgs,
+                    'offset' => $currentOffset - $maxPerPage,
+                ]);
             }
         }
         if ($recentForumPostsCount === $maxPerPage) {
-            $nextPageUrl = route('forum.recent-posts', ['offset' => $currentOffset + $maxPerPage]);
+            $nextPageUrl = route($routeName, [
+                ...$routeArgs,
+                'offset' => $currentOffset + $maxPerPage,
+            ]);
         }
 
         return [$previousPageUrl, $nextPageUrl];

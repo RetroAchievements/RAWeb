@@ -117,6 +117,7 @@ function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User 
 
         // Also ban the spammy user!
         SetAccountPermissionsJSON($sourceUser->User, $sourcePermissions, $targetUser->User, Permissions::Spam);
+        $targetUser->roles()->detach();
 
         return true;
     }
@@ -128,7 +129,7 @@ function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User 
 
     authorizeAllForumPostsForUser($targetUser);
 
-    addArticleComment('Server', ArticleType::UserModeration, $sourceUser->id,
+    addArticleComment('Server', ArticleType::UserModeration, $targetUser->id,
         $sourceUser->User . ' authorized user\'s forum posts'
     );
 

@@ -10,8 +10,8 @@ use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
 use App\Platform\Jobs\UpdateGameMetricsJob;
+use App\Platform\Jobs\UpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
-use App\Platform\Jobs\UpdatePlayerStatsJob;
 
 class ResetPlayerProgress
 {
@@ -50,6 +50,11 @@ class ResetPlayerProgress
 
         if ($achievementID !== null) {
             $playerAchievement = $user->playerAchievements()->where('achievement_id', $achievementID)->first();
+            if (!$playerAchievement) {
+                // already deleted? do nothing.
+                return;
+            }
+
             $achievement = $playerAchievement->achievement;
             if ($achievement->isPublished) {
                 // resetting a published achievement removes the completion/mastery badge.
@@ -104,7 +109,7 @@ class ResetPlayerProgress
             }
         }
 
-        dispatch(new UpdatePlayerStatsJob($user->id));
+        dispatch(new UpdatePlayerBeatenGamesStatsJob($user->id));
 
         $user->save();
     }

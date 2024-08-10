@@ -3,12 +3,11 @@
 @props([
     'variant' => 'base', // 'base' | 'destructive',
     'title' => 'Title',
-    'description' => 'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Alias, dignissimos?',
 ])
 
 <div
     role="alert"
-    class="flex gap-x-4 w-full rounded border-2 p-4 {{ $variant === 'destructive' ? 'border-red-500 text-red-400 bg-red-950 light:bg-red-100' : 'border-text bg-embed' }}"
+    class="flex gap-x-4 w-full rounded border-2 p-4 {{ $variant === 'destructive' ? 'border-red-500 text-red-400 bg-red-950 light:bg-red-100' : 'border-embed-highlight bg-embed' }}"
 >
     <div class="text-2xl leading-none -mt-0.5">
         @if ($variant === 'base')
@@ -23,6 +22,6 @@
             {{ $title }}
         </p>
 
-        <p>{{ $description }}</p>
+        <p>{{ $slot }}</p>
     </div>
 </div>

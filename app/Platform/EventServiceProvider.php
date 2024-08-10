@@ -17,22 +17,25 @@ use App\Platform\Events\PlayerAchievementLocked;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Events\PlayerBadgeAwarded;
 use App\Platform\Events\PlayerBadgeLost;
+use App\Platform\Events\PlayerBeatenGamesStatsUpdated;
 use App\Platform\Events\PlayerGameAttached;
 use App\Platform\Events\PlayerGameBeaten;
 use App\Platform\Events\PlayerGameCompleted;
 use App\Platform\Events\PlayerGameMetricsUpdated;
 use App\Platform\Events\PlayerGameRemoved;
 use App\Platform\Events\PlayerMetricsUpdated;
+use App\Platform\Events\PlayerPointsStatsUpdated;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Events\PlayerSessionHeartbeat;
-use App\Platform\Events\PlayerStatsUpdated;
 use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
 use App\Platform\Listeners\DispatchUpdateGameMetricsJob;
+use App\Platform\Listeners\DispatchUpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerGameMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
-use App\Platform\Listeners\DispatchUpdatePlayerStatsJob;
+use App\Platform\Listeners\DispatchUpdatePlayerPointsStatsJob;
 use App\Platform\Listeners\ResetPlayerProgress;
 use App\Platform\Listeners\ResumePlayerSession;
+use App\Platform\Listeners\UpdateTotalGamesCount;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -47,11 +50,13 @@ class EventServiceProvider extends ServiceProvider
         AchievementPublished::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
+            UpdateTotalGamesCount::class,
             // TODO Notify player/developer when moved to AchievementSetPublished event
         ],
         AchievementUnpublished::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
+            UpdateTotalGamesCount::class,
             // TODO Notify player/developer when moved to AchievementSetUnpublished event
         ],
         AchievementPointsChanged::class => [
@@ -77,11 +82,11 @@ class EventServiceProvider extends ServiceProvider
         ],
         PlayerBadgeAwarded::class => [
             // TODO Notify player
-            DispatchUpdatePlayerStatsJob::class, // dispatches PlayerStatsUpdated
+            DispatchUpdatePlayerBeatenGamesStatsJob::class, // dispatches PlayerBeatenGamesStatsUpdated
         ],
         PlayerBadgeLost::class => [
             // TODO Notify player
-            DispatchUpdatePlayerStatsJob::class, // dispatches PlayerStatsUpdated
+            DispatchUpdatePlayerBeatenGamesStatsJob::class, // dispatches PlayerBeatenGamesStatsUpdated
         ],
         PlayerGameAttached::class => [
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
@@ -101,6 +106,7 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
         PlayerMetricsUpdated::class => [
+            DispatchUpdatePlayerPointsStatsJob::class, // dispatches PlayerPointsStatsUpdated
         ],
         PlayerSessionHeartbeat::class => [
             ResumePlayerSession::class, // dispatches PlayerGameAttached for new entries
@@ -108,9 +114,12 @@ class EventServiceProvider extends ServiceProvider
         PlayerRankedStatusChanged::class => [
             // TODO Update all affected games
             // TODO Notify player
-            DispatchUpdatePlayerStatsJob::class, // dispatches PlayerStatsUpdated
+            DispatchUpdatePlayerBeatenGamesStatsJob::class, // dispatches PlayerBeatenGamesStatsUpdated
+            DispatchUpdatePlayerPointsStatsJob::class, // dispatches PlayerPointsStatsUpdated
         ],
-        PlayerStatsUpdated::class => [
+        PlayerBeatenGamesStatsUpdated::class => [
+        ],
+        PlayerPointsStatsUpdated::class => [
         ],
         UserDeleted::class => [
             ResetPlayerProgress::class, // dispatches PlayerGameMetricsUpdated

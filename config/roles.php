@@ -10,6 +10,7 @@ $rootAssignable = [
     Role::ENGINEER,
     Role::FOUNDER,
     Role::RELEASE_MANAGER,
+    Role::TEAM_ACCOUNT,
 ];
 
 $adminAssignable = [
@@ -166,6 +167,11 @@ return [
         'name' => Role::ENGINEER,
         'display' => 1,
         'staff' => true,
+        'legacy_role' => Permissions::Registered,
+    ],
+    [
+        'name' => Role::TEAM_ACCOUNT,
+        'display' => 1,
         'legacy_role' => Permissions::Registered,
     ],
     [

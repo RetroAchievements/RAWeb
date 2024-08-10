@@ -4,6 +4,8 @@ use App\Community\Enums\ActivityType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameHash;
+use App\Models\Leaderboard;
 use App\Models\PlayerAchievement;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
@@ -297,6 +299,7 @@ switch ($requestType) {
 
     case "ping":
         $game = Game::find($gameID);
+        $gameHash = null;
         if ($user === null || $game === null) {
             $response['Success'] = false;
         } else {
@@ -305,7 +308,15 @@ switch ($requestType) {
                 $activityMessage = utf8_sanitize($activityMessage);
             }
 
-            PlayerSessionHeartbeat::dispatch($user, $game, $activityMessage);
+            $gameHashMd5 = request()->input('x');
+            if ($gameHashMd5) {
+                $gameHash = GameHash::whereMd5($gameHashMd5)->first();
+                if ($gameHash?->isMultiDiscGameHash()) {
+                    $gameHash = null;
+                }
+            }
+
+            PlayerSessionHeartbeat::dispatch($user, $game, $activityMessage, $gameHash);
 
             $response['Success'] = true;
         }
@@ -324,6 +335,7 @@ switch ($requestType) {
         $achIDToAward = (int) request()->input('a', 0);
         $hardcore = (bool) request()->input('h', 0);
         $validationHash = request()->input('v');
+        $gameHashMd5 = request()->input('m');
 
         $foundAchievement = Achievement::where('ID', $achIDToAward)->first();
         if ($foundAchievement !== null) {
@@ -337,14 +349,19 @@ switch ($requestType) {
                 return DoRequestError('Access denied.', 403, 'access_denied');
             }
 
+            $gameHash = null;
+            if ($gameHashMd5) {
+                $gameHash = GameHash::whereMd5($gameHashMd5)->first();
+            }
+
             /**
              * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
              * TODO refactor to optimistic update without unlock in place. what are the returned values used for?
              */
-            $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore));
+            $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore, $gameHash));
 
             if ($response['Success']) {
-                dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore))
+                dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore, gameHashId: $gameHash?->id))
                     ->onQueue('player-achievements');
             }
         } else {
@@ -465,7 +482,9 @@ switch ($requestType) {
         $lbID = (int) request()->input('i', 0);
         // Note: Nearby entry behavior has no effect if $username is null
         // TBD: friendsOnly
-        $response['LeaderboardData'] = GetLeaderboardData($lbID, $username, $count, $offset, nearby: true);
+        $leaderboard = Leaderboard::find($lbID);
+        $response['LeaderboardData'] = $leaderboard ?
+            GetLeaderboardData($leaderboard, User::firstWhere('User', $username), $count, $offset, nearby: true) : [];
         break;
 
     case "patch":
@@ -496,11 +515,18 @@ switch ($requestType) {
 
     case "startsession":
         $game = Game::find($gameID);
+        $gameHash = null;
+
         if (!$game) {
             return DoRequestError("Unknown game");
         }
 
-        PlayerSessionHeartbeat::dispatch($user, $game);
+        $gameHashMd5 = request()->input('m');
+        if ($gameHashMd5) {
+            $gameHash = GameHash::whereMd5($gameHashMd5)->first();
+        }
+
+        PlayerSessionHeartbeat::dispatch($user, $game, null, $gameHash);
 
         $response['Success'] = true;
         $userUnlocks = getUserAchievementUnlocksForGame($username, $gameID);
@@ -546,10 +572,16 @@ switch ($requestType) {
         $lbID = (int) request()->input('i', 0);
         $score = (int) request()->input('s', 0);
         $validation = request()->input('v'); // Ignore for now?
+        $gameHashMd5 = request()->input('m');
 
         // TODO dispatch job or event/listener using an action
 
-        $response['Response'] = SubmitLeaderboardEntry($user, $lbID, $score, $validation);
+        $gameHash = null;
+        if ($gameHashMd5) {
+            $gameHash = GameHash::whereMd5($gameHashMd5)->first();
+        }
+
+        $response['Response'] = SubmitLeaderboardEntry($user, $lbID, $score, $validation, $gameHash);
         $response['Success'] = $response['Response']['Success']; // Passthru
         if (!$response['Success']) {
             $response['Error'] = $response['Response']['Error'];

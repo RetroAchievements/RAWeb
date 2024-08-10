@@ -11,8 +11,7 @@ use function Laravel\Folio\{middleware, name, render};
 middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
 name('developer.tickets.resolved-for-others');
 
-render(function (View $view, User $user) {
-    $ticketListService = new TicketListService();
+render(function (View $view, User $user, TicketListService $ticketListService) {
     $ticketListService->perPage = 50;
     $selectFilters = $ticketListService->getSelectFilters(showStatus: false);
     $filterOptions = $ticketListService->getFilterOptions(request());

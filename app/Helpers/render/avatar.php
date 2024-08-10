@@ -16,6 +16,7 @@ function avatar(
     ?string $context = null,
     bool $sanitize = true,
     ?string $altText = null,
+    ?string $loading = 'lazy',
 ): string {
     $escapedName = attributeEscape($altText ?? $label);
     if ($sanitize) {
@@ -23,7 +24,7 @@ function avatar(
     }
 
     if ($iconUrl) {
-        $iconLabel = "<img loading='lazy' decoding='async' width='$iconSize' height='$iconSize' src='$iconUrl' alt='$escapedName' class='$iconClass'>";
+        $iconLabel = "<img loading='$loading' decoding='async' width='$iconSize' height='$iconSize' src='$iconUrl' alt='$escapedName' class='$iconClass'>";
 
         $label = $iconLabel . ' ' . $label;
     }

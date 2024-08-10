@@ -85,6 +85,9 @@ return [
     'badge' => [
         'title' => __('badge') . '|' . __('badges'),
     ],
+    'claim' => [
+        'title' => __('claim') . '|' . __('claims'),
+    ],
     'comment' => [
         'title' => __('comment') . '|' . __('comments'),
     ],

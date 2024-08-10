@@ -24,6 +24,9 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
+use App\Platform\Commands\ConvertGameReleasedToTimestamp;
+use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
+use App\Platform\Commands\EnqueueStaleGamePlayerGamesUpdates;
 use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ResetPlayerAchievement;
@@ -45,9 +48,11 @@ use App\Platform\Commands\UpdateGameAchievementsMetrics;
 use App\Platform\Commands\UpdateGameMetrics;
 use App\Platform\Commands\UpdateGamePlayerGames;
 use App\Platform\Commands\UpdateLeaderboardMetrics;
+use App\Platform\Commands\UpdatePlayerBeatenGamesStats;
 use App\Platform\Commands\UpdatePlayerGameMetrics;
 use App\Platform\Commands\UpdatePlayerMetrics;
-use App\Platform\Commands\UpdatePlayerStats;
+use App\Platform\Commands\UpdatePlayerPointsStats;
+use App\Platform\Commands\UpdateTotalGamesCount;
 use App\Platform\Components\GameCard;
 use App\Platform\Components\GameTitle;
 use Illuminate\Console\Scheduling\Schedule;
@@ -62,6 +67,8 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 // Games
+                ConvertGameReleasedToTimestamp::class,
+                EnqueueStaleGamePlayerGamesUpdates::class,
                 TrimGameMetadata::class,
                 UpdateGameMetrics::class,
                 UpdateGameAchievementsMetrics::class,
@@ -81,10 +88,15 @@ class AppServiceProvider extends ServiceProvider
                 UnlockPlayerAchievement::class,
                 UpdatePlayerGameMetrics::class,
                 UpdatePlayerMetrics::class,
-                UpdatePlayerStats::class,
 
-                // Awards & Badges
+                // Player Stats
+                DeleteStalePlayerPointsStatsEntries::class,
+                UpdatePlayerBeatenGamesStats::class,
+                UpdatePlayerPointsStats::class,
+
+                // Static Data
                 UpdateAwardsStaticData::class,
+                UpdateTotalGamesCount::class,
 
                 // Developer
                 UpdateDeveloperContributionYield::class,
@@ -108,6 +120,9 @@ class AppServiceProvider extends ServiceProvider
             $schedule = $this->app->make(Schedule::class);
 
             $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
+            // $schedule->command(EnqueueStaleGamePlayerGamesUpdates::class)->everyFifteenMinutes();
+            $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
+            $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
         });
 
         $this->loadMigrationsFrom([database_path('migrations/platform')]);

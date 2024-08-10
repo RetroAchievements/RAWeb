@@ -95,7 +95,7 @@ class UpdateGameMetrics
         $tmp = $playersHardcoreChange;
 
         if ($achievementSetVersionChanged) {
-            Log::info('Achievement set version changed for ' . $game->id . '. Queueing all outdated player games.');
+            Log::info("Hash change detected for game [" . $game->id . "]. Queueing all outdated player games.");
             dispatch(new UpdateGamePlayerGamesJob($game->id))
                 ->onQueue('game-player-games');
         }

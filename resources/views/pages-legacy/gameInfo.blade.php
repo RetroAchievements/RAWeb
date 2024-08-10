@@ -17,6 +17,7 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\GameListService;
+use Illuminate\Support\Carbon;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {
@@ -45,7 +46,7 @@ if ($flagParam !== $unofficialFlag) {
 $userModel = null;
 $defaultSort = 1;
 if (isset($user)) {
-    $userModel = User::firstWhere('User', $user);
+    $userModel = User::find($userID);
     $defaultSort = 13;
 }
 $sortBy = requestInputSanitized('s', $defaultSort, 'integer');
@@ -123,14 +124,11 @@ if ($v != 1) {
 $softcoreUnlocks = null;
 $hardcoreUnlocks = null;
 $authorInfo = [];
-$commentData = null;
 $gameTopAchievers = null;
 $lbData = null;
-$numArticleComments = null;
 $numDistinctPlayers = null;
 $numEarnedCasual = null;
 $numEarnedHardcore = null;
-$numLeaderboards = null;
 $screenshotMaxHeight = null;
 $screenshotWidth = null;
 $totalEarnedCasual = null;
@@ -158,16 +156,12 @@ if ($isFullyFeaturedGame) {
     $softcoreUnlocks = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
     $hardcoreUnlocks = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
 
-    $numArticleComments = getRecentArticleComments(ArticleType::Game, $gameID, $commentData);
-
-    $numLeaderboards = $gameModel->visibleLeaderboards()->count();
-
     if (isset($user)) {
         // Determine if the logged in user is the sole author of the set
         $isSoleAuthor = checkIfSoleDeveloper($userModel, $gameID);
 
         // Determine if the logged in user has any progression awards for this set
-        $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user);
+        $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $userModel);
         $hasBeatenSoftcoreAward = !is_null($userGameProgressionAwards['beaten-hardcore']);
         $hasBeatenHardcoreAward = !is_null($userGameProgressionAwards['beaten-softcore']);
     }
@@ -473,10 +467,6 @@ if ($isFullyFeaturedGame) {
                 :includeAddToListButton="true"
             />
             <x-game.primary-meta
-                :developer="$developer"
-                :publisher="$publisher"
-                :genre="$genre"
-                :released="$released"
                 :imageIcon="$imageIcon"
                 :metaKind="$isFullyFeaturedGame ? 'Game' : 'Hub'"
             >
@@ -489,16 +479,34 @@ if ($isFullyFeaturedGame) {
                     <x-game.primary-meta-row-item label="Publisher" :metadataValue="$publisher" />
                     <x-game.primary-meta-row-item label="Genre" :metadataValue="$genre" />
                 @endif
-                <x-game.primary-meta-row-item label="Released" :metadataValue="$released" />
+
+                @php
+                    $releasedAtDisplay = null;
+
+                    if ($gameModel->released_at && $gameModel->released_at_granularity) {
+                        $releasedAtDisplay = match ($gameModel->released_at_granularity) {
+                            'year' => $gameModel->released_at->format('Y'),
+                            'month' => $gameModel->released_at->format('F Y'),
+                            default => $gameModel->released_at->format('F j, Y'),
+                        };
+                    }
+                @endphp
+                <x-game.primary-meta-row-item label="Released" :metadataValue="$releasedAtDisplay" />
             </x-game.primary-meta>
 
         @if ($isFullyFeaturedGame)
             <x-game.screenshots :titleImageSrc="$imageTitle" :ingameImageSrc="$imageIngame" />
         @endif
 
+        @if ($isFullyFeaturedGame)
+            @can('manage', $gameModel)
+                <a class="btn mb-1" href="{{ route('filament.admin.resources.games.view', ['record' => $gameModel->id]) }}">Manage</a>
+            @endcan
+        @endif
+
         <?php
         // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
-        // TODO use a policy
+        // TODO migrate devbox entirely to filament
         if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper))) {
             // TODO use a policy
             $hasMinimumDeveloperPermissions = (
@@ -525,8 +533,8 @@ if ($isFullyFeaturedGame) {
                     echo "<div><a class='btn btn-link' href='/achievementinspector.php?g=$gameID'>Manage Core Achievements</a></div>";
                 }
 
-                // Display leaderboard management options depending on the current number of leaderboards
-                if ($numLeaderboards != 0) {
+                // Display leaderboard management options depending on if the game has any leaderboards (including hidden)
+                if ($gameModel->leaderboards()->exists()) {
                     echo "<div><a class='btn btn-link' href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
                 }
 
@@ -555,30 +563,32 @@ if ($isFullyFeaturedGame) {
                 echo "</div>";
                 // right column
                 echo "<div class='grow'>";
-
-                RenderUpdateSubscriptionForm(
-                    "updateachievementssub",
-                    SubscriptionSubjectType::GameAchievements,
-                    $gameID,
-                    isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID),
-                    'Achievement Comments'
-                );
-
-                RenderUpdateSubscriptionForm(
-                    "updateticketssub",
-                    SubscriptionSubjectType::GameTickets,
-                    $gameID,
-                    isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID),
-                    'Tickets'
-                );
                 ?>
+
+                <x-update-subscription-button
+                    name="updateachievementssub"
+                    subjectType="{{ SubscriptionSubjectType::GameAchievements }}"
+                    subjectId="{{ $gameID }}"
+                    isSubscribed="{{ isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID) }}"
+                    resource="Achievement Comments"
+                />
+
+                <x-update-subscription-button
+                    name="updateticketssub"
+                    subjectType="{{ SubscriptionSubjectType::GameTickets }}"
+                    subjectId="{{ $gameID }}"
+                    isSubscribed="{{ isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID) }}"
+                    resource="Tickets"
+                />
+
                 {{-- Display the claims links if not an event game --}}
                 @if (!$isEventGame)
                     @if ($permissions >= Permissions::Developer)
-                            <x-game.add-to-list
-                                :gameId="$gameID"
-                                :type="UserGameListType::Develop"
-                            />
+                        <livewire:game.add-to-list-button
+                            label="Want to Develop"
+                            :gameId="$gameID"
+                            :listType="UserGameListType::Develop"
+                        />
                     @endif
                     <x-game.devbox-claim-management
                         :claimData="$claimData"
@@ -621,8 +631,6 @@ if ($isFullyFeaturedGame) {
                 echo "<label for='game_publisher'>Publisher</label><input type='text' name='publisher' id='game_publisher' value='" . attributeEscape($publisher) . "' class='w-full'>";
                 echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                 echo "<label for='game_genre'>Genre</label><input type='text' name='genre' id='game_genre' value='" . attributeEscape($genre) . "' class='w-full'>";
-                echo "<div class='text-right'><button class='btn'>Submit</button></div>";
-                echo "<label for='game_release'>First Released</label><input type='text' name='release' id='game_release' value='" . attributeEscape($released) . "' class='w-full'>";
                 echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                 echo "</div>";
                 echo "</form>";
@@ -745,7 +753,7 @@ if ($isFullyFeaturedGame) {
                 }
             }
             if ($isFullyFeaturedGame) {
-                echo "<div><label for='game_rich_presence'><a href='https://docs.retroachievements.org/Rich-Presence/'>Rich Presence</a> Script</label></div>";
+                echo "<div><label for='game_rich_presence'><a href='https://docs.retroachievements.org/developer-docs/rich-presence.html'>Rich Presence</a> Script</label></div>";
                 if ($hasMinimumDeveloperPermissions) {
                     echo "<form class='mb-2' method='post' action='/request/game/update-rich-presence.php'>";
                     echo csrf_field();
@@ -758,8 +766,9 @@ if ($isFullyFeaturedGame) {
                 }
             }
 
-            $numModificationComments = getRecentArticleComments(ArticleType::GameModification, $gameID, $modificationCommentData);
-            RenderCommentsComponent(null, $numModificationComments, $modificationCommentData, $gameID, ArticleType::GameModification, $permissions);
+            echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
+                ['articleType' => ArticleType::GameModification, 'articleId' => $gameID]
+            );
 
             echo "</div>"; // devboxcontent
             echo "</div>"; // devbox
@@ -950,7 +959,9 @@ if ($isFullyFeaturedGame) {
                 echo "</div>";
             }
 
-            RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions);
+            echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
+                ['articleType' => ArticleType::Game, 'articleId' => $gameID]
+            );
         }
         ?>
     </div>

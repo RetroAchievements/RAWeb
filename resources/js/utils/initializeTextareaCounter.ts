@@ -6,7 +6,7 @@ export function initializeTextareaCounter() {
     'textarea-counter',
   ) as HTMLCollectionOf<HTMLInputElement>;
 
-  Array.from(textareaCounterEls).forEach((textareaCounterEl) => {
+  for (const textareaCounterEl of Array.from(textareaCounterEls)) {
     const textareaId = textareaCounterEl.dataset.textareaId;
     const textareaEl = document.getElementById(textareaId ?? 'no-id-found') as HTMLInputElement;
 
@@ -20,14 +20,14 @@ export function initializeTextareaCounter() {
           textareaCounterEl.classList.toggle('text-danger', currentCharacterCount > max);
         };
 
-        ['input', 'change', 'blur'].forEach(function (eventName) {
+        for (const eventName of ['input', 'change', 'blur']) {
           textareaEl.addEventListener(eventName, updateCount);
-        });
+        }
 
         updateCount();
       }
     }
-  });
+  }
 }
 
 window.addEventListener('load', initializeTextareaCounter);

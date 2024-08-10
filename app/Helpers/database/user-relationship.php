@@ -8,8 +8,8 @@ use App\Models\UserRelation;
 
 function changeFriendStatus(User $senderUser, User $targetUser, int $newStatus): string
 {
-    $existingUserRelation = UserRelation::where('User', $senderUser->User)
-        ->where('Friend', $targetUser->User)
+    $existingUserRelation = UserRelation::where('user_id', $senderUser->id)
+        ->where('related_user_id', $targetUser->id)
         ->first();
 
     $newRelationship = false;
@@ -31,9 +31,7 @@ function changeFriendStatus(User $senderUser, User $targetUser, int $newStatus):
         $existingUserRelation->save();
     } else {
         UserRelation::create([
-            'User' => $senderUser->User,
             'user_id' => $senderUser->id,
-            'Friend' => $targetUser->User,
             'related_user_id' => $targetUser->id,
             'Friendship' => $newStatus,
         ]);
@@ -59,8 +57,8 @@ function changeFriendStatus(User $senderUser, User $targetUser, int $newStatus):
         case UserRelationship::Blocked:
             if (!$targetUser->isBlocking($senderUser)) {
                 // if the other user hasn't blocked the user, clear out their friendship status too
-                UserRelation::where('User', $targetUser->User)
-                    ->where('Friend', $senderUser->User)
+                UserRelation::where('user_id', $targetUser->id)
+                    ->where('related_user_id', $senderUser->id)
                     ->update(['Friendship' => UserRelationship::NotFollowing]);
             }
 

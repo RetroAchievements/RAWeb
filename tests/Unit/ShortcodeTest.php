@@ -42,8 +42,8 @@ final class ShortcodeTest extends TestCase
         );
 
         $this->assertSame(
-            '<a href="https://docs.retroachievements.org/Working-with-the-Right-ROM">https://docs.retroachievements.org/Working-with-the-Right-ROM</a>',
-            Shortcode::render('docs.retroachievements.org/Working-with-the-Right-ROM')
+            '<a href="https://docs.retroachievements.org/guidelines/content/working-with-the-right-rom.html">https://docs.retroachievements.org/guidelines/content/working-with-the-right-rom.html</a>',
+            Shortcode::render('docs.retroachievements.org/guidelines/content/working-with-the-right-rom.html')
         );
 
         $this->assertSame(

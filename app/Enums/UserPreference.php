@@ -39,4 +39,6 @@ abstract class UserPreference
     public const Forum_ShowAbsoluteDates = 15;
 
     public const Game_HideMissableIndicators = 16;
+
+    public const User_OnlyContactFromFollowing = 17;
 }

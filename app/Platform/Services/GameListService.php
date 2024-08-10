@@ -101,6 +101,8 @@ class GameListService
                 $gameProgress = $this->userProgress[$gameModel->ID]['achievements_unlocked_hardcore'] ?? 0;
                 $game['CompletionPercentage'] = $gameModel->achievements_published ?
                     ($gameProgress * 100 / $gameModel->achievements_published) : 0;
+            } else {
+                $game['CompletionPercentage'] = 0;
             }
 
             $game['RetroRatio'] = $gameModel->points_total ? $gameModel->TotalTruePoints / $gameModel->points_total : 0.0;
@@ -258,6 +260,10 @@ class GameListService
     {
         $reverse = substr($sortOrder, 0, 1) === '-';
         $sortMatch = $reverse ? substr($sortOrder, 1) : $sortOrder;
+
+        if ($sortMatch === 'tickets' && !$this->withTicketCounts) {
+            $sortMatch = 'title';
+        }
 
         $sortFunction = match ($sortMatch) {
             default => function ($a, $b) {
@@ -580,13 +586,9 @@ class GameListService
             'width' => 6,
             'tooltip' => 'Whether or not the game is on your want to play list',
             'align' => 'center',
-            'javascript' => function () {
-                echo Blade::render('
-                    <x-game-list-item.backlog-button-javascript />
-                ');
-            },
             'render' => function ($game) {
                 echo '<td class="text-center">';
+
                 echo Blade::render('
                     <x-game-list-item.backlog-button
                         :gameId="$gameId"

@@ -54,6 +54,7 @@ class GameCard extends Component
         return view('components.cards.game', $cardViewValues);
     }
 
+    // TODO remove in-memory caching and better leverage collections. this will always be from a unique atomic request.
     /**
      * Retrieves the game data for a given game ID.
      * It first checks if the data is available in cache. If it is, the cached data is returned.
@@ -87,7 +88,14 @@ class GameCard extends Component
             $foundGameConsoleId = $foundGame->system->ID;
             $foundGameAchievements = $foundGame->achievements->toArray();
 
-            $foundClaims = AchievementSetClaim::where('game_id', $gameId)->get()->toArray();
+            $foundClaims = AchievementSetClaim::with('user')->where('game_id', $gameId)->get();
+            $processedClaims = [];
+            foreach ($foundClaims as $foundClaim) {
+                $processedClaim = $foundClaim->toArray();
+                $processedClaim['User'] = $foundClaim->user->username;
+
+                $processedClaims[] = $processedClaim;
+            }
 
             $foundAltGames = [];
             if ($foundGameConsoleId === $this->hubConsoleId) {
@@ -99,7 +107,7 @@ class GameCard extends Component
                     'ConsoleID' => $foundGameConsoleId,
                     'ConsoleName' => $foundGame->system->Name,
                     'Achievements' => $foundGameAchievements,
-                    'Claims' => $foundClaims,
+                    'Claims' => $processedClaims,
                     'AltGames' => $foundAltGames,
                 ]
             );

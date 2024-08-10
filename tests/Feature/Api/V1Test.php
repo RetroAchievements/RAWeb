@@ -247,7 +247,7 @@ class V1Test extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'Points' => 100, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
+        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'Points' => 100, 'user_id' => $this->user->id]);
 
         $unlockTime = Carbon::now()->subMinutes(5);
         $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
@@ -324,6 +324,7 @@ class V1Test extends TestCase
                     [
                         'User' => $this->user->User,
                         'RAPoints' => $this->user->RAPoints,
+                        'RASoftcorePoints' => $this->user->RASoftcorePoints,
                         'HardcoreMode' => 0,
                     ],
                 ],

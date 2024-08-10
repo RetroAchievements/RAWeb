@@ -8,17 +8,17 @@ $menu = collect([
         'items' => [
             [
                 'label' => __('Developers Code of Conduct'),
-                'url' => 'https://docs.retroachievements.org/Developers-Code-of-Conduct',
+                'url' => 'https://docs.retroachievements.org/guidelines/developers/code-of-conduct.html',
                 'visible' => true,
             ],
             [
                 'label' => __('Users Code of Conduct'),
-                'url' => 'https://docs.retroachievements.org/Users-Code-of-Conduct',
+                'url' => 'https://docs.retroachievements.org/guidelines/users/code-of-conduct.html',
                 'visible' => true,
             ],
             [
                 'label' => __('FAQ'),
-                'url' => 'https://docs.retroachievements.org/FAQ',
+                'url' => 'https://docs.retroachievements.org/general/faq.html',
                 'visible' => true,
             ],
             [

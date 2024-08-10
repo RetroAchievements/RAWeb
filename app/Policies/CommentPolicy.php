@@ -9,6 +9,7 @@ use App\Enums\Permissions;
 use App\Models\Comment;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserComment;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,7 +21,7 @@ class CommentPolicy
     {
         return $user->hasAnyRole([
             Role::MODERATOR,
-        ]);
+        ]) || $user->getAttribute('Permissions') >= Permissions::Moderator;
     }
 
     public function view(?User $user, Comment $comment): bool
@@ -28,7 +29,7 @@ class CommentPolicy
         return true;
     }
 
-    public function create(User $user, ?Model $commentable = null): bool
+    public function create(User $user, ?Model $commentable = null, ?int $articleType = null): bool
     {
         if ($user->isMuted()) {
             // Even when muted, developers may still comment on tickets for their own achievements.
@@ -55,6 +56,14 @@ class CommentPolicy
 
         if (!$user->hasVerifiedEmail()) {
             return false;
+        }
+
+        if (
+            $commentable !== null
+            && $commentable instanceof User
+            && $articleType !== ArticleType::UserModeration
+        ) {
+            return $user->can('create', [UserComment::class, $commentable]);
         }
 
         return true;

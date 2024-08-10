@@ -7,6 +7,7 @@ namespace Tests\Feature\Connect;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Models\User;
@@ -30,12 +31,14 @@ class PingTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var GameHash $gameHash */
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
 
         $this->user->LastGameID = $game->ID;
         $this->user->save();
 
         // this API requires POST
-        $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->ID, 'm' => 'Doing good']))
+        $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->ID, 'm' => 'Doing good', 'x' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -49,6 +52,7 @@ class PingTest extends TestCase
         $this->assertModelExists($playerSession);
         $this->assertEquals(1, $playerSession->duration);
         $this->assertEquals('Doing good', $playerSession->rich_presence);
+        $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
 
         /** @var User $user1 */
         $user1 = User::firstWhere('User', $this->user->User);
@@ -56,7 +60,7 @@ class PingTest extends TestCase
         $this->assertEquals('Doing good', $user1->RichPresenceMsg);
 
         // string sent by GET will not update user's rich presence message
-        $this->get($this->apiUrl('ping', ['g' => $game->ID, 'm' => 'Doing better']))
+        $this->get($this->apiUrl('ping', ['g' => $game->ID, 'm' => 'Doing better', 'x' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -76,7 +80,7 @@ class PingTest extends TestCase
         $this->assertEquals('Doing good', $user1->RichPresenceMsg);
 
         // invalid UTF-8 should be sanitized
-        $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->ID, 'm' => "T\xC3\xA9st t\xC3st"]))
+        $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->ID, 'm' => "T\xC3\xA9st t\xC3st", 'x' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -90,6 +94,7 @@ class PingTest extends TestCase
         $this->assertEquals($playerSession->id, $playerSession2->id);
         $this->assertEquals(1, $playerSession2->duration);
         $this->assertEquals('Tést t?st', $playerSession2->rich_presence);
+        $this->assertEquals($gameHash->id, $playerSession2->game_hash_id);
 
         $user1 = User::firstWhere('User', $this->user->User);
         $this->assertEquals($game->ID, $user1->LastGameID);
@@ -258,7 +263,6 @@ class PingTest extends TestCase
         // The integration user is the sole author of all the set's achievements.
         Achievement::factory()->published()->count(6)->create([
             'GameID' => $gameOne->id,
-            'Author' => $integrationUser->User,
             'user_id' => $integrationUser->id,
         ]);
 
@@ -315,7 +319,7 @@ class PingTest extends TestCase
         $gameThree = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
         /** @var User $randomUser */
         $randomUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
-        Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->id, 'Author' => $randomUser->username, 'user_id' => $randomUser->id]);
+        Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->id, 'user_id' => $randomUser->id]);
         $params['g'] = $gameThree->id;
 
         $this->post('dorequest.php', $params)

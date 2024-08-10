@@ -56,5 +56,6 @@ $id = $id ?: 'input_' . Str::random();
         {{ $disabled ? 'disabled' : '' }}
         {{ $readonly ? 'readonly' : '' }}
         {{ ($required || $requiredSilent) ? 'required' : '' }}
+        {{ $attributes }}
     >
 </x-base.form-field>

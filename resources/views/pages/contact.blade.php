@@ -47,7 +47,6 @@ name('contact');
                     </p>
                     <ul class="list-disc list-inside">
                         <li>Reporting a broken set, leaderboard, or rich presence.</li>
-                        <li>Reporting achievements with grammatical mistakes.</li>
                         <li>Requesting a set be playtested.</li>
                         <li>Hash compatibility questions.</li>
                         <li>Hub organizational questions.</li>
@@ -90,7 +89,7 @@ name('contact');
                     <p class="mb-2">
                         <a href='{{ route("message.create") }}?to=RACheats'>Send a message to RACheats</a>
                         if you believe someone is in violation of our
-                        <a href="https://docs.retroachievements.org/Global-Leaderboard-and-Achievement-Hunting-Rules/#not-allowed">Global Leaderboard and Achievement Hunting Rules</a>.
+                        <a href="https://docs.retroachievements.org/guidelines/users/global-leaderboard-and-achievement-hunting-rules.html#not-allowed">Global Leaderboard and Achievement Hunting Rules</a>.
                     </p>
                     <p>
                         Please include as much evidence as possible to support your claim. This could

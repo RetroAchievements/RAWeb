@@ -42,17 +42,13 @@ class ClearAccountDataTest extends TestCase
         $this->assertNotEquals('', $user2->EmailAddress);
 
         UserRelation::create([
-            'User' => $user1->User,
             'user_id' => $user1->id,
-            'Friend' => $user2->User,
             'related_user_id' => $user2->id,
             'Friendship' => UserRelationship::Following,
         ]);
 
         UserRelation::create([
-            'User' => $user2->User,
             'user_id' => $user2->id,
-            'Friend' => $user1->User,
             'related_user_id' => $user1->id,
             'Friendship' => UserRelationship::Following,
         ]);

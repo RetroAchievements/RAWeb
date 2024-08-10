@@ -10,22 +10,21 @@ $devFilter = requestInputSanitized('f', 7, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 
 $maxItemsPerPage = 25;
-$devStatsList = GetDeveloperStatsFull($maxItemsPerPage, $offset, $type, $devFilter);
+$devStatsList = GetDeveloperStatsFull($maxItemsPerPage, max(0, $offset), $type, $devFilter);
 $filteredDevCount = sizeof($devStatsList);
 $totalDevCount = getDeveloperStatsTotalCount($devFilter);
 $totalPages = ceil($totalDevCount / $maxItemsPerPage);
 $currentPage = ($offset / $maxItemsPerPage) + 1;
 
-$previousPageHref = null;
-$nextPageHref = null;
-if ($currentPage > 1) {
-    $previousOffset = $offset - $filteredDevCount;
-    $previousPageHref = url('developerstats.php?t=' . $type . '&f=' . $devFilter . '&o=' . $previousOffset);
-}
-if ($currentPage < $totalPages) {
-    $nextOffset = $offset + $filteredDevCount;
-    $nextPageHref = url('developerstats.php?t=' . $type . '&f=' . $devFilter . '&o=' . $nextOffset);
-}
+$previousOffset = max(0, $offset - $maxItemsPerPage);
+$nextOffset = $offset + $maxItemsPerPage;
+
+$previousPageHref = ($currentPage > 1)
+    ? url('developerstats.php?t=' . $type . '&f=' . $devFilter . '&o=' . $previousOffset)
+    : null;
+$nextPageHref = ($currentPage < $totalPages)
+    ? url('developerstats.php?t=' . $type . '&f=' . $devFilter . '&o=' . $nextOffset)
+    : null;
 ?>
 
 <x-app-layout pageTitle="Developer Stats">
@@ -118,7 +117,7 @@ if ($currentPage < $totalPages) {
         echo "<td class='text-right'><a href='" . route('developer.tickets.resolved-for-others', ['user' => $devStats['Author']]) ."'>" . localized_number($devStats['TicketsResolvedForOthers']) . "</a></td>";
         echo "<td class='text-right'>" . localized_number($devStats['ContribCount']) . "</td>";
         echo "<td class='text-right'>" . localized_number($devStats['ContribYield']) . "</td>";
-        echo "<td class='text-right'><a href='/claimlist.php?u=" . $devStats['Author'] . "'>" . $devStats['ActiveClaims'] . "</a></td>";
+        echo "<td class='text-right'><a href='" . route('developer.claims', ['user' => $devStats['Author']]) . "'>" . $devStats['ActiveClaims'] . "</a></td>";
     }
     echo "</tbody></table></div>";
     ?>

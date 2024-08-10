@@ -14,6 +14,7 @@ function achievementAvatar(
     string $iconClass = 'badgeimg',
     bool|string|array $tooltip = true,
     ?string $context = null,
+    ?string $loading = 'lazy',
 ): string {
     $id = $achievement;
     $title = null;
@@ -62,6 +63,7 @@ function achievementAvatar(
         context: $context,
         sanitize: $title === null,
         altText: $title ?? (is_string($label) ? $label : null),
+        loading: $loading,
     );
 }
 

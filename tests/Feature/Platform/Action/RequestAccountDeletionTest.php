@@ -75,13 +75,11 @@ class RequestAccountDeletionTest extends TestCase
         $game3 = $this->seedGame(withHash: false);
 
         $claim1 = AchievementSetClaim::factory()->create([
-            'User' => $user->username,
             'user_id' => $user->id,
             'game_id' => $game1->id,
         ]);
 
         $claim2 = AchievementSetClaim::factory()->create([
-            'User' => $user->username,
             'user_id' => $user->id,
             'game_id' => $game2->id,
             'ClaimType' => ClaimType::Collaboration,
@@ -89,7 +87,6 @@ class RequestAccountDeletionTest extends TestCase
         ]);
 
         $claim3 = AchievementSetClaim::factory()->create([
-            'User' => $user->username,
             'user_id' => $user->id,
             'game_id' => $game3->id,
             'Status' => ClaimStatus::Complete,

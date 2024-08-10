@@ -21,14 +21,14 @@ $embedUrl = $input['video'];
 
 $achievement = Achievement::find($achievementId);
 
-$currentVideoUrl = $achievement['AssocVideo'];
+$currentVideoUrl = $achievement->AssocVideo;
 
 // Only allow jr. devs to update achievement embed if they are the author and the achievement is not core/official
 if (
-    $permissions == Permissions::JuniorDeveloper
-    && ($user != $achievement['Author'] || $achievement['Flags'] == AchievementFlag::OfficialCore)
+    $permissions === Permissions::JuniorDeveloper
+    && ($user !== $achievement->developer?->User || $achievement->Flags === AchievementFlag::OfficialCore)
 ) {
-    abort(401);
+    abort(403);
 }
 
 if (updateAchievementEmbedVideoUrl($achievementId, $embedUrl)) {

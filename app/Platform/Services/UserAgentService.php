@@ -15,6 +15,13 @@ class UserAgentService
 
     private function parseUserAgent(string $userAgent): array
     {
+        if (empty($userAgent) || $userAgent === '[not provided]') {
+            return [
+                'client' => 'Unknown',
+                'clientVersion' => 'Unknown',
+            ];
+        }
+
         // expected format: <product>/<product-version> (<system-information>) <extensions>
 
         $userAgentLength = strlen($userAgent);

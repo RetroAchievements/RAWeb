@@ -83,7 +83,7 @@ if (isset($achievement['DateEarnedHardcore'])) {
             <p class="leading-4">
                 {{ $achievement['Description'] }}
 
-                @if ($showAuthorName)
+                @if ($showAuthorName && $achievement['Author']) {{-- TODO: handle deleted author --}}
                     <span class="flex gap-x-1 text-[0.6rem] mt-2">
                         Author:
                         <a href="{{ route('user.show', $achievement['Author']) }}">

@@ -19,7 +19,7 @@ use Illuminate\Support\Carbon;
  *   string     BadgeURL                site-relative path to the badge image for the achievement
  *   datetime   DateCreated             when the achievement was created
  *   datetime   DateModified            when the achievement was last modified
- *  object     Console                  information about the console associated to the game associated to the achievemnt
+ *  object     Console                  information about the console associated to the game associated to the achievement
  *   int        ID                      unique identifier of the console
  *   string     Title                   name of the console
  *  object     Game                     information about the game associated to the achievement
@@ -34,6 +34,7 @@ use Illuminate\Support\Carbon;
  *  array      Unlocks                  requested unlock information
  *   string     User                    user who unlocked the achievement
  *   int        RAPoints                number of points the user has
+ *   int        RASoftcorePoints        number of softcore points the user has
  *   datetime   DateAwarded             when the achievement was unlocked
  *   int        HardcoreMode            1 if unlocked in hardcore, otherwise 0
  */

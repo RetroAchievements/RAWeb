@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Models\Message;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -45,5 +46,38 @@ class MessagePolicy
     public function forceDelete(User $user, Message $message): bool
     {
         return false;
+    }
+
+    public function sendToRecipient(User $user, User $targetUser): bool
+    {
+        $canUserSendWhileBlocked = $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+            Role::TEAM_ACCOUNT,
+        ]);
+        if ($targetUser->isBlocking($user) && !$canUserSendWhileBlocked) {
+            return false;
+        }
+
+        /**
+         * TODO check user privacy settings
+         */
+        $canUserAlwaysPierceNoContactPreference = $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::DEVELOPER_JUNIOR,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::EVENT_MANAGER,
+            Role::FORUM_MANAGER,
+            Role::MODERATOR,
+            Role::TEAM_ACCOUNT,
+        ]);
+        if (!$canUserAlwaysPierceNoContactPreference) {
+            if ($targetUser->only_allows_contact_from_followers && !$targetUser->isFollowing($user)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

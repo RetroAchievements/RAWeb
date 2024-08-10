@@ -4,7 +4,9 @@ use App\Models\User;
 use App\Platform\Services\DeveloperSetsService;
 use Illuminate\View\View;
 
-use function Laravel\Folio\{name, render};
+use function Laravel\Folio\{name, render, withTrashed};
+
+withTrashed();
 
 name('developer.sets');
 

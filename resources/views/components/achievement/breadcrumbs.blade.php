@@ -4,7 +4,7 @@
 ])
 
 <?php
-$achievement->load('game');
+$achievement->loadMissing('game.system');
 ?>
 
 {{-- All Games >> Console Name >> Game Name >> Achievement Name >> Page Name --}}

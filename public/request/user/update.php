@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\UserAction;
 use App\Enums\Permissions;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -28,13 +29,30 @@ $foundTargetUser = User::firstWhere('User', $targetUsername);
 if ($propertyType === UserAction::UpdatePermissions) {
     $response = SetAccountPermissionsJSON($foundSourceUser->User, $permissions, $targetUsername, $value);
 
-    // auto-apply forums permissions
-    if (
-        $response['Success']
-        && $value >= Permissions::JuniorDeveloper
-        && !$foundTargetUser->ManuallyVerified
-    ) {
-        setAccountForumPostAuth($foundSourceUser, $permissions, $foundTargetUser, authorize: true);
+    if ($response['Success']) {
+        // Auto-apply forums permissions.
+        if ($value >= Permissions::JuniorDeveloper && !$foundTargetUser->ManuallyVerified) {
+            setAccountForumPostAuth($foundSourceUser, $permissions, $foundTargetUser, authorize: true);
+        }
+
+        // Adjust attached roles.
+        if ($value <= Permissions::Unregistered) {
+            $foundTargetUser->roles()->detach();
+        } elseif ($value === Permissions::Registered) {
+            $foundTargetUser->removeRole(Role::DEVELOPER_JUNIOR);
+            $foundTargetUser->removeRole(Role::DEVELOPER);
+            $foundTargetUser->removeRole(Role::MODERATOR);
+        } elseif ($value === Permissions::JuniorDeveloper) {
+            $foundTargetUser->removeRole(Role::DEVELOPER);
+            $foundTargetUser->removeRole(Role::MODERATOR);
+
+            $foundTargetUser->assignRole(Role::DEVELOPER_JUNIOR);
+        } elseif ($value === Permissions::Developer) {
+            $foundTargetUser->removeRole(Role::DEVELOPER_JUNIOR);
+            $foundTargetUser->removeRole(Role::MODERATOR);
+
+            $foundTargetUser->assignRole(Role::DEVELOPER);
+        }
     }
 
     return back()->with('success', __('legacy.success.ok'));

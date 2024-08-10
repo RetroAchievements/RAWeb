@@ -34,7 +34,6 @@ class AchievementFactory extends Factory
             'Title' => ucwords(fake()->words(2, true)),
             'Description' => fake()->sentence(),
             'MemAddr' => '0x000000',
-            'Author' => $user?->username ?? $this->fakeUsername(),
             'user_id' => $user?->id ?? 1,
             'Flags' => AchievementFlag::Unofficial,
             'type' => null,

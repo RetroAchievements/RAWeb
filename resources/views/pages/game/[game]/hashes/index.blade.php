@@ -67,7 +67,7 @@ render(function (View $view, Game $game) {
 
         <p>
             Details on how the hash is generated for each system can be found
-            <a href='https://docs.retroachievements.org/Game-Identification/'>here</a>.
+            <a href="https://docs.retroachievements.org/developer-docs/game-identification.html">here</a>.
 
             @if ($game->ForumTopicID > 0)
                 Additional information for these hashes may be listed on the

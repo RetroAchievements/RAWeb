@@ -65,16 +65,19 @@ class AchievementOfTheWeekTest extends TestCase
                     [
                         'User' => $user3->User,
                         'RAPoints' => $user3->RAPoints,
+                        'RASoftcorePoints' => $user3->RASoftcorePoints,
                         'HardcoreMode' => 1,
                     ],
                     [
                         'User' => $this->user->User,
                         'RAPoints' => $this->user->RAPoints,
+                        'RASoftcorePoints' => $this->user->RASoftcorePoints,
                         'HardcoreMode' => 0,
                     ],
                     [
                         'User' => $user2->User,
                         'RAPoints' => $user2->RAPoints,
+                        'RASoftcorePoints' => $user2->RASoftcorePoints,
                         'HardcoreMode' => 0,
                     ],
                 ],

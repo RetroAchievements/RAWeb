@@ -41,7 +41,7 @@ class ClearAccountDataAction
 
         // use action to delete each participation so threads with no remaining active participants get cleaned up
         $deleteMessageThreadAction = new DeleteMessageThreadAction();
-        foreach ($user->messageThreadParticipations()->get() as $participation) {
+        foreach ($user->messageThreadParticipations()->with('thread')->get() as $participation) {
             $deleteMessageThreadAction->execute($participation->thread, $user);
         }
 

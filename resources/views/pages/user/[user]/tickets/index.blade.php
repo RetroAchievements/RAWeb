@@ -5,14 +5,14 @@ use App\Models\Ticket;
 use App\Platform\Services\TicketListService;
 use Illuminate\View\View;
 
-use function Laravel\Folio\{middleware, name, render};
+use function Laravel\Folio\{middleware, name, render, withTrashed};
+
+withTrashed();
 
 middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
 name('developer.tickets');
 
-render(function (View $view, User $user) {
-    $ticketListService = new TicketListService();
-
+render(function (View $view, User $user, TicketListService $ticketListService) {
     $ticketListService->perPage = 50;
     $selectFilters = $ticketListService->getSelectFilters(showDevType: false);
     $filterOptions = $ticketListService->getFilterOptions(request());

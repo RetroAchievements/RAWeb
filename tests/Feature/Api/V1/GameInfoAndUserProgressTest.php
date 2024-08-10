@@ -8,6 +8,7 @@ use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -113,7 +114,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement1->Points,
                         'BadgeName' => $achievement1->BadgeName,
                         'DisplayOrder' => $achievement1->DisplayOrder,
-                        'Author' => $achievement1->Author,
+                        'Author' => $achievement1->developer->User,
                         'DateCreated' => $achievement1->DateCreated->__toString(),
                         'DateModified' => $achievement1->DateModified->__toString(),
                         'NumAwarded' => 4,
@@ -126,7 +127,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement3->Points,
                         'BadgeName' => $achievement3->BadgeName,
                         'DisplayOrder' => $achievement3->DisplayOrder,
-                        'Author' => $achievement3->Author,
+                        'Author' => $achievement3->developer->User,
                         'DateCreated' => $achievement3->DateCreated->__toString(),
                         'DateModified' => $achievement3->DateModified->__toString(),
                         'NumAwarded' => 3,
@@ -139,7 +140,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
                         'DisplayOrder' => $achievement2->DisplayOrder,
-                        'Author' => $achievement2->Author,
+                        'Author' => $achievement2->developer->User,
                         'DateCreated' => $achievement2->DateCreated->__toString(),
                         'DateModified' => $achievement2->DateModified->__toString(),
                         'NumAwarded' => 4,
@@ -218,7 +219,7 @@ class GameInfoAndUserProgressTest extends TestCase
             'Released' => 'Jan 1989',
         ]);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1, 'type' => AchievementType::Progression]);
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
         /** @var Achievement $achievement3 */
@@ -285,7 +286,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement1->Points,
                         'BadgeName' => $achievement1->BadgeName,
                         'DisplayOrder' => $achievement1->DisplayOrder,
-                        'Author' => $achievement1->Author,
+                        'Author' => $achievement1->developer->User,
                         'DateCreated' => $achievement1->DateCreated->__toString(),
                         'DateModified' => $achievement1->DateModified->__toString(),
                         'NumAwarded' => 3,
@@ -298,7 +299,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement3->Points,
                         'BadgeName' => $achievement3->BadgeName,
                         'DisplayOrder' => $achievement3->DisplayOrder,
-                        'Author' => $achievement3->Author,
+                        'Author' => $achievement3->developer->User,
                         'DateCreated' => $achievement3->DateCreated->__toString(),
                         'DateModified' => $achievement3->DateModified->__toString(),
                         'NumAwarded' => 2,
@@ -311,7 +312,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
                         'DisplayOrder' => $achievement2->DisplayOrder,
-                        'Author' => $achievement2->Author,
+                        'Author' => $achievement2->developer->User,
                         'DateCreated' => $achievement2->DateCreated->__toString(),
                         'DateModified' => $achievement2->DateModified->__toString(),
                         'NumAwarded' => 3,
@@ -357,7 +358,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement1->Points,
                         'BadgeName' => $achievement1->BadgeName,
                         'DisplayOrder' => $achievement1->DisplayOrder,
-                        'Author' => $achievement1->Author,
+                        'Author' => $achievement1->developer->User,
                         'DateCreated' => $achievement1->DateCreated->__toString(),
                         'DateModified' => $achievement1->DateModified->__toString(),
                         'NumAwarded' => 3,
@@ -370,7 +371,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement3->Points,
                         'BadgeName' => $achievement3->BadgeName,
                         'DisplayOrder' => $achievement3->DisplayOrder,
-                        'Author' => $achievement3->Author,
+                        'Author' => $achievement3->developer->User,
                         'DateCreated' => $achievement3->DateCreated->__toString(),
                         'DateModified' => $achievement3->DateModified->__toString(),
                         'NumAwarded' => 2,
@@ -383,7 +384,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
                         'DisplayOrder' => $achievement2->DisplayOrder,
-                        'Author' => $achievement2->Author,
+                        'Author' => $achievement2->developer->User,
                         'DateCreated' => $achievement2->DateCreated->__toString(),
                         'DateModified' => $achievement2->DateModified->__toString(),
                         'NumAwarded' => 3,
@@ -429,7 +430,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement1->Points,
                         'BadgeName' => $achievement1->BadgeName,
                         'DisplayOrder' => $achievement1->DisplayOrder,
-                        'Author' => $achievement1->Author,
+                        'Author' => $achievement1->developer->User,
                         'DateCreated' => $achievement1->DateCreated->__toString(),
                         'DateModified' => $achievement1->DateModified->__toString(),
                         'NumAwarded' => 3,
@@ -442,7 +443,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement3->Points,
                         'BadgeName' => $achievement3->BadgeName,
                         'DisplayOrder' => $achievement3->DisplayOrder,
-                        'Author' => $achievement3->Author,
+                        'Author' => $achievement3->developer->User,
                         'DateCreated' => $achievement3->DateCreated->__toString(),
                         'DateModified' => $achievement3->DateModified->__toString(),
                         'NumAwarded' => 2,
@@ -455,7 +456,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
                         'DisplayOrder' => $achievement2->DisplayOrder,
-                        'Author' => $achievement2->Author,
+                        'Author' => $achievement2->developer->User,
                         'DateCreated' => $achievement2->DateCreated->__toString(),
                         'DateModified' => $achievement2->DateModified->__toString(),
                         'NumAwarded' => 3,
@@ -501,7 +502,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement1->Points,
                         'BadgeName' => $achievement1->BadgeName,
                         'DisplayOrder' => $achievement1->DisplayOrder,
-                        'Author' => $achievement1->Author,
+                        'Author' => $achievement1->developer->User,
                         'DateCreated' => $achievement1->DateCreated->__toString(),
                         'DateModified' => $achievement1->DateModified->__toString(),
                         'NumAwarded' => 3,
@@ -514,7 +515,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement3->Points,
                         'BadgeName' => $achievement3->BadgeName,
                         'DisplayOrder' => $achievement3->DisplayOrder,
-                        'Author' => $achievement3->Author,
+                        'Author' => $achievement3->developer->User,
                         'DateCreated' => $achievement3->DateCreated->__toString(),
                         'DateModified' => $achievement3->DateModified->__toString(),
                         'NumAwarded' => 2,
@@ -527,7 +528,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
                         'DisplayOrder' => $achievement2->DisplayOrder,
-                        'Author' => $achievement2->Author,
+                        'Author' => $achievement2->developer->User,
                         'DateCreated' => $achievement2->DateCreated->__toString(),
                         'DateModified' => $achievement2->DateModified->__toString(),
                         'NumAwarded' => 3,
