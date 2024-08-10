@@ -119,7 +119,7 @@ class NotifyMessageThreadParticipants
             'Incorrect type:' => 'incorrect_type_url',
             'Issue:' => 'achievement_issues_url',
             'Unwelcome Concept:' => 'unwelcome_concept_url',
-            'Writing:' => 'writing_url',
+            'Writing:' => 'url',
         ];
         foreach ($structuredTitlePrefixes as $prefix => $configKey) {
             if (mb_strpos($messageThread->title, $prefix) !== false) {
