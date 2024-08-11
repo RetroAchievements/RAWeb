@@ -14,7 +14,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'body' => 'required|string|max:60000',
 ]);
 
-$withUserIds = convertUserShortcodesToUseIds($input['body']);
+$withUserIds = Shortcode::convertUserShortcodesToUseIds($input['body']);
 $normalized = normalize_shortcodes($withUserIds);
 $sanitized = htmlspecialchars($normalized, ENT_QUOTES, 'UTF-8');
 

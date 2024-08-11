@@ -12,6 +12,7 @@ use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
+use App\Support\Shortcode\Shortcode;
 use Illuminate\Http\RedirectResponse;
 
 class MessageController extends Controller
@@ -24,6 +25,7 @@ class MessageController extends Controller
         $user = request()->user();
 
         $input = $request->validated();
+        $body = Shortcode::convertUserShortcodesToUseIds($input['body']);
 
         if (array_key_exists('thread_id', $input) && $input['thread_id'] != null) {
             $thread = MessageThread::firstWhere('id', $input['thread_id']);
@@ -44,7 +46,7 @@ class MessageController extends Controller
                 }
             }
 
-            (new AddToMessageThreadAction())->execute($thread, $user, $input['body']);
+            (new AddToMessageThreadAction())->execute($thread, $user, $body);
         } else {
             $recipient = User::firstWhere('User', $input['recipient']);
 
@@ -52,7 +54,7 @@ class MessageController extends Controller
                 return back()->withErrors(__('legacy.error.cannot_message_user'));
             }
 
-            $thread = (new CreateMessageThreadAction())->execute($user, $recipient, $input['title'], $input['body']);
+            $thread = (new CreateMessageThreadAction())->execute($user, $recipient, $input['title'], $body);
         }
 
         return redirect(route("message-thread.show", ['messageThread' => $thread->id]))->with('success', __('legacy.success.message_send'));

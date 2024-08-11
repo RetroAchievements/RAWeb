@@ -42,6 +42,29 @@ final class Shortcode
         return (new Shortcode())->parse($input, $options);
     }
 
+    public static function convertUserShortcodesToUseIds(string $input): string
+    {
+        // Extract all usernames from the payload. We want to make a single
+        // query so someone doesn't inadvertently slam the database.
+        preg_match_all('/\[user=(.*?)\]/', $input, $matches);
+        $usernames = $matches[1];
+
+        if (empty($usernames)) {
+            return $input;
+        }
+
+        // Fetch all users by username in a single query.
+        $users = User::whereIn('User', $usernames)->get()->keyBy('User');
+
+        // Replace each username with the corresponding user ID.
+        return preg_replace_callback('/\[user=(.*?)\]/', function ($matches) use ($users) {
+            $username = $matches[1];
+            $user = $users->get($username);
+
+            return $user ? "[user={$user->id}]" : $matches[0];
+        }, $input);
+    }
+
     public static function stripAndClamp(string $input, int $previewLength = 100): string
     {
         // Inject game and achievement data for shortcodes.
