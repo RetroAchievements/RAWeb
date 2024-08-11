@@ -97,9 +97,16 @@ if ($canSeeOpenTickets) {
     @endif
 
     @if ($canSeeOpenTickets)
+        @php
+            $href = route('game.tickets', ['game' => $game, 'filter[achievement]' => 'core']);
+            if (!$isViewingOfficial) {
+                $href = route('game.tickets', ['game' => $game, 'filter[achievement]' => 'unofficial']);
+            }
+        @endphp
+
         <x-game.link-buttons.game-link-button
             icon="🎫"
-            href="{{ route('game.tickets', ['game' => $game]) }}"
+            :$href
         >
             Open @if (!$isViewingOfficial) Unofficial @endif Tickets ({{ $numOpenTickets }})
         </x-game.link-buttons.game-link-button>
