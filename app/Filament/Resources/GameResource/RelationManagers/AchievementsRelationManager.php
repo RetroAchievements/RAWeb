@@ -103,7 +103,8 @@ class AchievementsRelationManager extends RelationManager
                         AchievementFlag::OfficialCore => 'Published',
                         AchievementFlag::Unofficial => 'Unpublished',
                     ])
-                    ->default(AchievementFlag::OfficialCore),
+                    ->default(AchievementFlag::OfficialCore)
+                    ->selectablePlaceholder(false),
             ])
             ->headerActions([
 
