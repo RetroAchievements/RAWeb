@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Shortcode;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Thunder\Shortcode\Event\FilterShortcodesEvent;
 use Thunder\Shortcode\EventContainer\EventContainer;
@@ -16,6 +17,7 @@ use Thunder\Shortcode\Shortcode\ShortcodeInterface;
 final class Shortcode
 {
     private HandlerContainer $handlers;
+    private array $usersCache = [];
 
     public function __construct()
     {
@@ -64,6 +66,17 @@ final class Shortcode
 
                 return "";
             },
+
+            // "[user=1]" --> "@Scott"
+            '~\[user=(\d+)]~i' => function ($matches) {
+                $userId = (int) $matches[1];
+                $user = User::find($userId);
+                if ($user) {
+                    return "@{$user->display_name}";
+                }
+
+                return "@Deleted User";
+            },
         ];
 
         foreach ($injectionShortcodes as $pattern => $callback) {
@@ -86,9 +99,6 @@ final class Shortcode
 
             // "[ticket=123]" --> "Ticket 123"
             '~\[ticket(=)?(\d+)]~i' => 'Ticket $2',
-
-            // "[user=Scott]" --> "@Scott"
-            '~\[user(=)?([^]]+)]~i' => '@$2',
 
             // Fragments: opening tags without closing tags.
             '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)\b[^\]]*?\]~i' => '',
@@ -125,8 +135,23 @@ final class Shortcode
         return $input;
     }
 
+    private function prefetchUsers(string $input): void
+    {
+        // Extract all user IDs from the input. We want to fetch them all
+        // in a single burst to avoid an N+1 query problem.
+        preg_match_all('/\[user=(\d+)\]/', $input, $matches);
+        $userIds = array_map('intval', $matches[1]);
+
+        if (!empty($userIds)) {
+            $users = User::whereIn('ID', $userIds)->get()->keyBy('ID');
+            $this->usersCache = $users->all();
+        }
+    }
+
     private function parse(string $input, array $options = []): string
     {
+        $this->prefetchUsers($input);
+
         // make sure to use attribute delimiter for string values
         // integers work with and without delimiter (ach, game, ticket, ...)
         $input = preg_replace('~\[img="?([^]"]*)"?]~i', '[img="$1"]', $input);
@@ -291,13 +316,22 @@ final class Shortcode
         return ticketAvatar($ticketModel, iconSize: 24);
     }
 
-    private function embedUser(?string $username): string
+    private function embedUser(?string $userId): string
     {
-        if (empty($username)) {
+        if (!$userId) {
             return '';
         }
 
-        return userAvatar($username, icon: false);
+        if (!isset($this->usersCache[$userId])) {
+            return userAvatar($userId, icon: false);
+        }
+
+        $user = $this->usersCache[$userId];
+        if (!$user) {
+            return userAvatar($userId, icon: false);
+        }
+
+        return userAvatar($user, icon: false);
     }
 
     private function autolinkRetroachievementsUrls(string $text): string

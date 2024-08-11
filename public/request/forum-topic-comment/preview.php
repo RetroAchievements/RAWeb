@@ -1,7 +1,5 @@
 <?php
 
-// TODO migrate to Livewire
-
 use App\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Arr;
@@ -16,7 +14,8 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'body' => 'required|string|max:60000',
 ]);
 
-$normalized = normalize_shortcodes($input['body']);
+$withUserIds = convertUserShortcodesToUseIds($input['body']);
+$normalized = normalize_shortcodes($withUserIds);
 $sanitized = htmlspecialchars($normalized, ENT_QUOTES, 'UTF-8');
 
 return response()->json([

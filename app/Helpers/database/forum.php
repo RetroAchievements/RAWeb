@@ -150,8 +150,34 @@ function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
     return true;
 }
 
+function convertUserShortcodesToUseIds(string $payload): string
+{
+    // Extract all usernames from the payload. We want to make a single
+    // query so someone doesn't inadvertently slam the database.
+    preg_match_all('/\[user=(.*?)\]/', $payload, $matches);
+    $usernames = $matches[1];
+
+    if (empty($usernames)) {
+        return $payload;
+    }
+
+    // Fetch all users by username in a single query.
+    $users = User::whereIn('User', $usernames)->get()->keyBy('User');
+
+    // Replace each username with the corresponding user ID.
+    return preg_replace_callback('/\[user=(.*?)\]/', function ($matches) use ($users) {
+        $username = $matches[1];
+        $user = $users->get($username);
+
+        return $user ? "[user={$user->id}]" : $matches[0];
+    }, $payload);
+}
+
 function editTopicComment(int $commentId, string $newPayload): void
 {
+    // Convert [user=$user->username] to [user=$user->id].
+    $newPayload = convertUserShortcodesToUseIds($newPayload);
+
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $newPayload = normalize_shortcodes($newPayload);
@@ -167,6 +193,9 @@ function submitTopicComment(
     ?string $topicTitle,
     string $commentPayload,
 ): ForumTopicComment {
+    // Convert [user=$user->username] to [user=$user->id].
+    $commentPayload = convertUserShortcodesToUseIds($commentPayload);
+
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $commentPayload = normalize_shortcodes($commentPayload);
