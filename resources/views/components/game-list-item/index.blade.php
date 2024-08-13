@@ -114,7 +114,7 @@ $doesGameHaveAchievements = !!$game['MaxPossible'];
             x-transition:leave="ease-in-out duration-200"
             x-transition:leave-start="opacity-1 max-h-[1000px] overflow-hidden"
             x-transition:leave-end="opacity-0 max-h-0 overflow-hidden"
-            class="transition-all"
+            class="transition-all will-change-transform"
         >
             <hr class="mt-2 border-embed-highlight">
 
