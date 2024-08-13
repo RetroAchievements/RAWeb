@@ -65,9 +65,7 @@
     @endif
     {{-- END v1 compat --}}
 
-    {{-- BEGIN Analytics --}}
     <x-head-analytics />
-    {{-- END Analytics --}}
 
     @stack('head')
 </head>
