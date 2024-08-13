@@ -50,14 +50,16 @@ if ($username) {
 
 $articleId = $user ? $user->ID : $gameOrAchievementId;
 
-$comments = Comment::where('ArticleType', $commentType)
+$comments = Comment::withTrashed()
+    ->where('ArticleType', $commentType)
     ->where('ArticleID', $articleId)
     ->offset($offset)
     ->limit($count)
     ->with('user')
     ->get();
 
-$totalComments = Comment::where('ArticleType', $commentType)
+$totalComments = Comment::withTrashed()
+    ->where('ArticleType', $commentType)
     ->where('ArticleID', $articleId)
     ->whereHas('user', function ($query) {
         $query->whereNull('banned_at');
