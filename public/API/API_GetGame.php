@@ -19,7 +19,7 @@
  *  string     Publisher                  publisher information for the game
  *  string     Developer                  developer information for the game
  *  string     Genre                      genre information for the game
- *  string?    Released                   a timestamp of the game's earliest release date, or null. also see ReleasedAtGranularity.
+ *  string?    Released                   a YYYY-MM-DD of the game's earliest release date, or null. also see ReleasedAtGranularity.
  *  string?    ReleasedAtGranularity      how precise the Released value is. possible values are "day", "month", "year", and null.
  */
 
@@ -49,6 +49,6 @@ return response()->json([
     'Publisher' => $game->Publisher,
     'Developer' => $game->Developer,
     'Genre' => $game->Genre,
-    'Released' => $game->released_at?->format('Y-m-d H:i:s'),
+    'Released' => $game->released_at?->format('Y-m-d'),
     'ReleasedAtGranularity' => $game->released_at_granularity,
 ]);
