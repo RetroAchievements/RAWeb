@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-use App\Models\ForumTopic;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Data;
@@ -27,31 +26,32 @@ class ForumTopicData extends Data
     ) {
     }
 
-    public static function fromRecentlyActiveTopic(ForumTopic $topic): self
+    public static function fromRecentlyActiveTopic(array $topic): self
     {
         return new self(
-            id: $topic->id,
-            title: $topic->title,
-            createdAt: $topic->DateCreated,
+            id: $topic['ForumTopicID'],
+            title: $topic['ForumTopicTitle'],
+            createdAt: Carbon::parse($topic['PostedAt']),
 
-            user: null, // TODO
+            user: null,
 
-            commentCount24h: Lazy::create(fn () => $topic->comment_count_24h),
-            oldestComment24hId: Lazy::create(fn () => $topic->oldest_comment_id_24h),
-            commentCount7d: Lazy::create(fn () => $topic->comment_count_7d),
-            oldestComment7dId: Lazy::create(fn () => $topic->oldest_comment_id_7d),
+            commentCount24h: Lazy::create(fn () => $topic['Count_1d']),
+            oldestComment24hId: Lazy::create(fn () => $topic['CommentID_1d']),
+            commentCount7d: Lazy::create(fn () => $topic['Count_7d']),
+            oldestComment7dId: Lazy::create(fn () => $topic['CommentID_7d']),
 
             latestComment: Lazy::when(
-                fn () => $topic->latestComment !== null,
+                fn () => isset($topic['CommentID']),
                 fn () => new ForumTopicCommentData(
-                    id: $topic->latestComment->id,
-                    body: Shortcode::stripAndClamp($topic->latestComment->body, 200),
-                    createdAt: $topic->latestComment->DateCreated,
-                    updatedAt: $topic->latestComment->DateModified,
-                    user: UserData::from($topic->latestComment->user),
-                    authorized: $topic->latestComment->Authorised,
+                    id: $topic['CommentID'],
+                    body: Shortcode::stripAndClamp($topic['ShortMsg'], 200),
+                    createdAt: Carbon::parse($topic['PostedAt']),
+                    updatedAt: null, // If no updated date is available, you can set it to null or handle accordingly
+                    user: UserData::fromRecentForumTopic($topic),
+                    authorized: true // Assuming it's authorized
                 )
             ),
+
         );
     }
 }

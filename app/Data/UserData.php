@@ -19,19 +19,34 @@ class UserData extends Data
         public string $avatarUrl,
 
         public Lazy|int $id,
-        public Lazy|string $username,
-        public Lazy|int $legacyPermissions,
+        public Lazy|string|null $username,
+        public Lazy|int|null $legacyPermissions,
 
         #[TypeScriptType([
             'prefersAbsoluteDates' => 'boolean',
         ])]
-        public Lazy|array $preferences,
+        public Lazy|array|null $preferences,
 
         #[LiteralTypeScriptType('App.Models.UserRole[]')]
-        public Lazy|array $roles,
+        public Lazy|array|null $roles,
 
-        public Lazy|int $unreadMessageCount,
+        public Lazy|int|null $unreadMessageCount,
     ) {
+    }
+
+    public static function fromRecentForumTopic(array $topic): self
+    {
+        return new self(
+            displayName: $topic['AuthorDisplayName'] ?? $topic['Author'],
+            avatarUrl: media_asset('UserPic/' . $topic['Author'] . '.png'),
+            id: Lazy::create(fn () => (int) $topic['author_id']),
+            username: Lazy::create(fn () => $topic['Author']),
+
+            legacyPermissions: null,
+            preferences: null,
+            roles: null,
+            unreadMessageCount: null,
+        );
     }
 
     public static function fromUser(User $user): self
