@@ -223,7 +223,7 @@ class AchievementsRelationManager extends RelationManager
                 if ($user->can('update', $record)) {
                     return route('filament.admin.resources.achievements.edit', ['record' => $record]);
                 }
-                
+
                 return route('filament.admin.resources.achievements.view', ['record' => $record]);
             })
             ->paginated([50, 100, 150])
