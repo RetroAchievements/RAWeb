@@ -23,7 +23,7 @@ class Details extends ViewRecord
             route('filament.admin.resources.leaderboards.index') => 'Leaderboards',
             route('filament.admin.resources.games.view', $game) => $game->title,
             route('filament.admin.resources.leaderboards.view', $leaderboard) => $leaderboard->title,
-            'Audit Log',
+            'View',
         ];
     }
 
