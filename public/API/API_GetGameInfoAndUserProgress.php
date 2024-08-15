@@ -45,7 +45,7 @@
  *  string     Publisher                  publisher information for the game
  *  string     Developer                  developer information for the game
  *  string     Genre                      genre information for the game
- *  string?    Released                   a timestamp of the game's earliest release date, or null. also see ReleasedAtGranularity.
+ *  string?    Released                   a YYYY-MM-DD date of the game's earliest release date, or null. also see ReleasedAtGranularity.
  *  string?    ReleasedAtGranularity      how precise the Released value is. possible values are "day", "month", "year", and null.
  *  bool       IsFinal
  *  string     RichPresencePatch          md5 of the script for generating the rich presence for the game
@@ -86,7 +86,7 @@ $gameData['NumAwardedToUserHardcore'] = 0;
 $gameData['NumDistinctPlayersCasual'] = $gameData['NumDistinctPlayers'];
 $gameData['NumDistinctPlayersHardcore'] = $gameData['NumDistinctPlayers'];
 
-$gameData['Released'] = $gameData['released_at'] ? Carbon::parse($gameData['released_at'])->format('Y-m-d H:i:s') : null;
+$gameData['Released'] = $gameData['released_at'] ? Carbon::parse($gameData['released_at'])->format('Y-m-d') : null;
 $gameData['ReleasedAtGranularity'] = $gameData['released_at_granularity'];
 
 if (!empty($achData)) {
