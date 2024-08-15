@@ -32,7 +32,7 @@ $rank = $numMasters;
                         $masteryDate = Carbon::createFromTimestamp($mastery['last_unlock_hardcore_at']);
                     @endphp
 
-                    <x-game.top-achievers.mastery-row :rank="$rank" :masteryUser="$masteryUser" :masteryDate="$masteryDate" />
+                    <x-game.top-achievers.mastery-row :rank="$rank" :masteryUser="$masteryUser" :masteryDate="$masteryDate" includeTime="false" />
 
                     @php
                         $rank--;

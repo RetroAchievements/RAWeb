@@ -2,6 +2,7 @@
     'rank' => 1,
     'masteryUser' => null, // User
     'masteryDate' => null, // Carbon
+    'includeTime' => true,
     'iconSize' => 'xs',
 ])
 
@@ -16,5 +17,10 @@
             <x-user.avatar display="icon" :icon-size="$iconSize" :user="$masteryUser" />
             <x-user.avatar hasHref="true" :user="$masteryUser" />
         </td>
-        <td><span class="smalldate">{{ $masteryDate->format('F j Y, g:ia') }}</span></td>
+
+        @if ($includeTime === true)
+            <td><span class="smalldate">{{ $masteryDate->format('F j Y, g:ia') }}</span></td>
+        @else
+            <td><span class="smalldate">{{ $masteryDate->format('F j Y') }}</span></td>
+        @endif
     </tr>
