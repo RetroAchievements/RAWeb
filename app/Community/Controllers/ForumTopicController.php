@@ -126,7 +126,7 @@ class ForumTopicController extends \App\Http\Controller
         }
 
         $topics = $this->getRecentForumTopics(
-            page: $request->input('page', 1),
+            page: (int) $request->input('page', 1),
             permissions: $permissions,
         );
 
