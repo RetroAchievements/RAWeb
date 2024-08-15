@@ -29,14 +29,16 @@ class ResumePlayerSession
         $playerGame->last_played_at = $timestamp;
         $playerGame->save();
 
+        $isMultiDiscGameHash = $gameHash?->isMultiDiscGameHash();
+
         $timestamp ??= Carbon::now();
 
         // look for an active session
         /** @var ?PlayerSession $playerSession */
         $playerSession = $user->playerSessions()
             ->where('game_id', $game->id)
-            ->where(function ($query) use ($gameHash) {
-                if ($gameHash) {
+            ->where(function ($query) use ($gameHash, $isMultiDiscGameHash) {
+                if ($gameHash && !$isMultiDiscGameHash) {
                     $query->where('game_hash_id', $gameHash->id)
                         ->orWhereNull('game_hash_id');
                 }
@@ -71,7 +73,7 @@ class ResumePlayerSession
             }
             $playerSession->rich_presence_updated_at = $timestamp > $playerSession->rich_presence_updated_at ? $timestamp : $playerSession->rich_presence_updated_at;
 
-            if ($gameHash && !$playerSession->game_hash_id) {
+            if ($gameHash && !$playerSession->game_hash_id && !$isMultiDiscGameHash) {
                 $playerSession->game_hash_id = $gameHash->id;
             }
 

@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Platform\Actions\ResumePlayerSession;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
 // TODO migrate to action
 function SubmitLeaderboardEntry(
@@ -46,8 +47,12 @@ function SubmitLeaderboardEntry(
     $retVal['Score'] = $newEntry;
     $retVal['ScoreFormatted'] = ValueFormat::format($newEntry, $leaderboard->Format);
 
-    $playerSession = app()->make(ResumePlayerSession::class)
-        ->execute($user, $leaderboard->game, $gameHash);
+    $playerSession = app()->make(ResumePlayerSession::class)->execute(
+        $user,
+        $leaderboard->game,
+        ($gameHash && !$gameHash->isMultiDiscGameHash()) ? $gameHash : null,
+        timestamp: Carbon::now(),
+    );
 
     $existingLeaderboardEntry = LeaderboardEntry::withTrashed()
         ->where('leaderboard_id', $leaderboard->id)

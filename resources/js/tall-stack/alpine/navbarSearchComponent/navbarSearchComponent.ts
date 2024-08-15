@@ -1,4 +1,4 @@
-import { autoUpdate, computePosition, ReferenceElement } from '@floating-ui/dom';
+import { autoUpdate, computePosition, type ReferenceElement } from '@floating-ui/dom';
 
 import { fetcher } from '@/utils';
 
@@ -36,11 +36,13 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
       if (this.selectedIndex !== -1) {
         return this.getOptionId(this.results[this.selectedIndex]);
       }
+
       return '';
     },
 
     get optionsCount() {
       const searchBoxDropdownEl = document.querySelector('#search-listbox');
+
       return searchBoxDropdownEl && searchBoxDropdownEl.childNodes.length > 3
         ? searchBoxDropdownEl.childNodes.length - 3
         : 0;
@@ -149,6 +151,7 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
       if (this.searchText.length < 2) {
         this.showSearchResults = false;
         this.selectedIndex = -1;
+
         return;
       }
 
