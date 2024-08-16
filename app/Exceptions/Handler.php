@@ -72,6 +72,7 @@ class Handler extends ExceptionHandler
                     unset($params['p']);
                 }
             } elseif (str_contains($context['url'], '/API/')) {
+                unset($params['z']);
                 unset($params['y']);
             }
 
