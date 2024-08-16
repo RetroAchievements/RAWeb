@@ -14,7 +14,7 @@ use App\Models\User;
 
     <div class="max-h-[980px] overflow-y-auto">
         @if (empty($highestPointEarners))
-        <tr colspan="3">No points have been earned yet.</tr>
+        <p>No points have been earned yet.</p>
         @else
         <table class='table-highlight'>
             <thead>
