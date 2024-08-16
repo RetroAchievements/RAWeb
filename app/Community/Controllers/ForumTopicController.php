@@ -131,7 +131,12 @@ class ForumTopicController extends \App\Http\Controller
         );
 
         $transformedTopics = array_map(
-            fn ($topic) => ForumTopicData::fromRecentlyActiveTopic($topic),
+            fn ($topic) => ForumTopicData::fromRecentlyActiveTopic($topic)->include(
+                'commentCount24h',
+                'oldestComment24hId',
+                'commentCount7d',
+                'oldestComment7dId',
+            ),
             $topics
         );
 
