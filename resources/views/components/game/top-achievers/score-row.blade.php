@@ -15,5 +15,5 @@
             <x-user.avatar display="icon" icon-size="xs" :user="$user" />
             <x-user.avatar hasHref="true" :user="$user" />
         </td>
-        <td class="text-right">{{ $score }}</td>
+        <td class="text-right">{{ localized_number($score) }}</td>
     </tr>
