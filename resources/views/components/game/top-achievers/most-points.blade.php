@@ -13,6 +13,9 @@ use App\Models\User;
     <h2 class="text-h3">Most Points Earned</h2>
 
     <div class="max-h-[980px] overflow-y-auto">
+        @if (empty($highestPointEarners))
+        <tr colspan="3">No points have been earned yet.</tr>
+        @else
         <table class='table-highlight'>
             <thead>
                 <tr class='do-not-highlight'>
@@ -45,5 +48,6 @@ use App\Models\User;
                 @endforeach
             </tbody>
         </table>
+        @endif
     </div>
 </div>
