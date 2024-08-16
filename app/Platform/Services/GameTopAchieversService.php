@@ -77,12 +77,11 @@ class GameTopAchieversService
      */
     public function highestPointEarners(int $count = 10): Collection
     {
-        $query = $this->baseQuery();
+        $query = $this->baseQuery()->where('achievements_unlocked_hardcore', '>', 0);
 
         if ($this->masteryPoints === 0) {
             // event with no points. primary sort by number of achievements unlocked.
-            $query = $query->where('achievements_unlocked_hardcore', '>', 0)
-                ->orderByDesc('achievements_unlocked_hardcore');
+            $query = $query->orderByDesc('achievements_unlocked_hardcore');
         } else {
             // standard game. primary sort by number of points earned.
             $query = $query->orderByDesc('points_hardcore');
@@ -141,7 +140,7 @@ class GameTopAchieversService
                 'user_id' => $playerGame->user_id,
                 'achievements_unlocked_hardcore' => $playerGame->achievements_unlocked_hardcore,
                 'points_hardcore' => $playerGame->points_hardcore,
-                'last_unlock_hardcore_at' => $playerGame->last_unlock_hardcore_at->unix(),
+                'last_unlock_hardcore_at' => $playerGame->last_unlock_hardcore_at?->unix() ?? 0,
             ];
         }
 
