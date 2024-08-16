@@ -26,6 +26,7 @@ export function modalComponent(
     async fetchDynamicHtmlContent() {
       if (window.cachedDialogHtmlContent) {
         this.dynamicHtmlContent = window.cachedDialogHtmlContent;
+
         return;
       }
 
