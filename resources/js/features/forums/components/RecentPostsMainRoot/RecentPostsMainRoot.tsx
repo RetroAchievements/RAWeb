@@ -20,7 +20,7 @@ export const RecentPostsMainRoot: FC = () => {
         <RecentPostsTable />
       </div>
 
-      <div className="flex w-full justify-end mt-2">
+      <div className="mt-2 flex w-full justify-end">
         <RecentPostsPagination />
       </div>
     </div>

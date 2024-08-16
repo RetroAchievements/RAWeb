@@ -39,6 +39,7 @@ export async function loadDynamicTooltip(
   // don't refetch the content. Display the cached content instead.
   if (store.dynamicContentCache[cacheKey]) {
     displayDynamicTooltip(anchorEl, store.dynamicContentCache[cacheKey]);
+
     return;
   }
 

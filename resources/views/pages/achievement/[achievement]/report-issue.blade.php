@@ -142,7 +142,7 @@ render(function (View $view, Achievement $achievement) {
     @endif
 
     @php
-        $subject = urlencode("Typo: {$achievement->title} [{$achievement->id}] ({$achievement->game->title})");
+        $subject = urlencode("Writing: {$achievement->title} [{$achievement->id}] ({$achievement->game->title})");
         $message = urlencode("I'd like to report a spelling/grammar error in [ach={$achievement->id}]:\n(Describe the issue here)");
     @endphp
     <x-ticket.guide-link
