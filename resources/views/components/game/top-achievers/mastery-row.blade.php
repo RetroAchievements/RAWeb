@@ -14,8 +14,11 @@
 
         <td class="text-right">{{ $rank }}</td>
         <td class="whitespace-nowrap">
-            <x-user.avatar display="icon" :icon-size="$iconSize" :user="$masteryUser" />
-            <x-user.avatar hasHref="true" :user="$masteryUser" />
+            @if ($iconSize === 'xs')
+                {!! userAvatar($masteryUser, iconSize: 16, iconClass: 'icon-xs') !!}
+            @elseif ($iconSize == 'sm')
+                {!! userAvatar($masteryUser, iconSize: 32, iconClass: 'icon-sm') !!}
+            @endif
         </td>
 
         @if ($includeTime === true)
