@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameHash;
+use App\Models\Leaderboard;
 use App\Models\System;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Database\Seeder;
@@ -46,6 +47,18 @@ class GamesTableSeeder extends Seeder
                 'GameID' => $game->ID,
                 'Flags' => AchievementFlag::OfficialCore,
             ]));
+        });
+
+        Game::all()->each(function (Game $game) {
+            $leaderboardCount = random_int(0, 10);
+
+            $leaderboards = Leaderboard::factory()->count($leaderboardCount)->make()->each(function (Leaderboard $leaderboard) use ($game) {
+                $leaderboard->GameID = $game->ID;
+                $leaderboard->Title = ucwords(fake()->words(2, true));
+                $leaderboard->Description = fake()->sentence();
+            });
+
+            $game->leaderboards()->saveMany($leaderboards);
         });
     }
 }

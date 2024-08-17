@@ -125,6 +125,7 @@ const newsCarouselStore = {
     }
 
     this.updateActiveSlideTextVisibility();
+
     return null;
   },
 
