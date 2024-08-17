@@ -153,12 +153,12 @@ function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
 
 function editTopicComment(int $commentId, string $newPayload): void
 {
-    // Convert [user=$user->username] to [user=$user->id].
-    $newPayload = Shortcode::convertUserShortcodesToUseIds($newPayload);
-
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $newPayload = normalize_shortcodes($newPayload);
+
+    // Convert [user=$user->username] to [user=$user->id].
+    $newPayload = Shortcode::convertUserShortcodesToUseIds($newPayload);
 
     $comment = ForumTopicComment::findOrFail($commentId);
     $comment->Payload = $newPayload;
