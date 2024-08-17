@@ -153,17 +153,9 @@ class UserPolicy
         return $user->unranked_at === null;
     }
 
-    public function viewFriends(User $user, User $model): bool
+    public function viewFriends(User $user, User $targetUser): bool
     {
-        if (!$user->is($model)) {
-            return false;
-        }
-
-        /*
-         * TODO: check privacy settings
-         */
-
-        return true;
+        return $user->is($targetUser) || $user->isFriendsWith($targetUser);
     }
 
     public function updateProfileSettings(User $user, User $model): bool
