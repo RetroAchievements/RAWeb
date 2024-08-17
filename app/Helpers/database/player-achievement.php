@@ -52,8 +52,6 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
     }
 
     if (!$alreadyAwarded) {
-        $now = Carbon::now();
-
         // The client is expecting to receive the number of AchievementsRemaining in the response, and if
         // it's 0, a mastery placard will be shown. Multiple achievements may be unlocked by the client at
         // the same time using separate requests, so we need to update the unlock counts for the
