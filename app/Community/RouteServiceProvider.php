@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Controllers\ForumTopicCommentController;
+use App\Community\Controllers\ForumTopicController;
 use App\Community\Controllers\MessageController;
 use App\Community\Controllers\MessageThreadController;
 use App\Community\Controllers\UserCommentController;
@@ -38,7 +39,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware(['web', 'csp'])
             ->group(function () {
                 Route::middleware(['inertia'])->group(function () {
-                    Route::get('forums/recent-posts2', [ForumTopicCommentController::class, 'showRecentPosts'])->name('forum.recent-posts2');
+                    Route::get('forums/recent-posts', [ForumTopicController::class, 'recentlyActive'])->name('forum.recent-posts');
                 });
 
                 /*
