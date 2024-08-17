@@ -98,8 +98,9 @@ if ($canSeeOpenTickets) {
 
     @if ($canSeeOpenTickets)
         @php
-            $href = route('game.tickets', ['game' => $game, 'filter[achievement]' => 'core']);
-            if (!$isViewingOfficial) {
+            if ($isViewingOfficial) {
+                $href = route('game.tickets', ['game' => $game, 'filter[achievement]' => 'core']);
+            } else {
                 $href = route('game.tickets', ['game' => $game, 'filter[achievement]' => 'unofficial']);
             }
         @endphp
