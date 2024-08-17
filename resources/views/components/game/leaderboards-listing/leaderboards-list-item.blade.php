@@ -21,7 +21,7 @@ use App\Platform\Enums\ValueFormat;
             <p>No entries.</p>
         @else
             <div class="flex justify-between">
-                {!! userAvatar($leaderboard->topEntry->user->username, iconSize: 16, iconClass: 'rounded-sm') !!}
+                {!! userAvatar($leaderboard->topEntry->user, iconSize: 16, iconClass: 'rounded-sm') !!}
                 <a href="{{ '/leaderboardinfo.php?i=' . $leaderboard->id }}">
                     {{ ValueFormat::format($leaderboard->topEntry->score, $leaderboard->format) }}
                 </a>
