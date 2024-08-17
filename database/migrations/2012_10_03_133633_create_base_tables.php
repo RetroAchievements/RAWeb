@@ -185,6 +185,7 @@ return new class() extends Migration {
 
         if (!Schema::hasTable('EmailConfirmations')) {
             Schema::create('EmailConfirmations', function (Blueprint $table) {
+                $table->increments('id');
                 $table->string('User', 20);
                 $table->string('EmailCookie', 20)->index();
                 $table->date('Expires');
