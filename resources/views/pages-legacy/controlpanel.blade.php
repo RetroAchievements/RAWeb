@@ -163,7 +163,7 @@ function handleResetConnectApiKeyClick() {
         url: '{{ route('settings.keys.connect.destroy') }}',
         type: 'DELETE',
         success: () => {
-            showStatusSuccess('{{ _("legacy.success.reset") }}');
+            showStatusSuccess('{{ __("legacy.success.reset") }}');
         }
     });
 }
@@ -174,7 +174,7 @@ function handleDeleteAllUserComments() {
     }
 
     $.ajax({
-        url: '{{ route('user.comment.destroyAll', $userModel) }}',
+        url: '{{ route('user.comment.destroyAll', $userModel->id) }}',
         type: 'DELETE',
         success: () => {
             showStatusSuccess('{{ __("legacy.success.delete") }}');
@@ -199,6 +199,10 @@ function handleChangePasswordSubmit(formValues) {
         data: JSON.stringify({ currentPassword, newPassword }),
         success: () => {
             showStatusSuccess('{{ __("legacy.success.change") }}');
+            setTimeout(() => {
+                const destinationUrl = '{{ route("login") }}';
+                window.location.href = destinationUrl;
+            }, 1000);
         }
     });
 }

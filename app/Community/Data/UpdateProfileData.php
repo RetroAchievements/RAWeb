@@ -22,8 +22,8 @@ class UpdateProfileData extends Data
         $user = $request->user();
 
         return new self(
-            motto: isset($request->motto) ? $request->motto : $user->Motto,
-            userWallActive: isset($request->userWallActive) ? $request->userWallActive : $user->UserWallActive,
+            motto: $request->motto ?? $user->Motto,
+            userWallActive: $request->userWallActive ?? $user->UserWallActive,
         );
     }
 

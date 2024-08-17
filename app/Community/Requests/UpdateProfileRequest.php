@@ -18,7 +18,7 @@ class UpdateProfileRequest extends FormRequest
             return false;
         }
 
-        $isMottoBeingUpdated = $this->input('motto') !== $user->Motto;
+        $isMottoBeingUpdated = $this->has('motto') && $this->input('motto') !== $user->Motto;
         if ($isMottoBeingUpdated && !$user->can('updateMotto', $user)) {
             return false;
         }

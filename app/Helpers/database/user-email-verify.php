@@ -20,7 +20,7 @@ function generateEmailVerificationToken(User $user): string
 
     // Clear permissions til they validate their email.
     if (!$user->isBanned) {
-        SetAccountPermissionsJSON('Server', Permissions::Moderator, $user, Permissions::Unregistered);
+        SetAccountPermissionsJSON('Server', Permissions::Moderator, $user->username, Permissions::Unregistered);
     }
 
     return $emailCookie;
@@ -54,10 +54,10 @@ function validateEmailVerificationToken(string $emailCookie, ?string &$user): bo
 
     $emailConfirmation->delete();
 
-    $response = SetAccountPermissionsJSON('Server', Permissions::Moderator, $user, Permissions::Registered);
+    $response = SetAccountPermissionsJSON('Server', Permissions::Moderator, $user->username, Permissions::Registered);
     if ($response['Success']) {
-        static_addnewregistereduser($user);
-        generateAPIKey($user);
+        static_addnewregistereduser($user->username);
+        generateAPIKey($user->username);
 
         $user->email_verified_at = Carbon::now();
         $user->save();
