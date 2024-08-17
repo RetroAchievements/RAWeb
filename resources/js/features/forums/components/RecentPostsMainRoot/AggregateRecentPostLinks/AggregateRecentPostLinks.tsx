@@ -14,8 +14,7 @@ export const AggregateRecentPostLinks: FC<AggregateRecentPostLinksProps> = ({ to
   }
 
   const canShowDailyPostCount = commentCount24h && commentCount24h > 1;
-  const canShowWeeklyPostCount =
-    commentCount24h && commentCount7d && commentCount7d > commentCount24h;
+  const canShowWeeklyPostCount = commentCount7d && commentCount7d > (commentCount24h ?? 0);
 
   return (
     <div className="smalltext whitespace-nowrap">

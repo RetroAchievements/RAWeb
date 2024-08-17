@@ -70,4 +70,25 @@ describe('Component: AggregateRecentPostLinks', () => {
     expect(weeklyLinkEl).toBeVisible();
     expect(weeklyLinkEl).toHaveAttribute('href', `/viewtopic.php?t=120&c=99999#99999`);
   });
+
+  it('given there are no daily posts but there are weekly posts, shows the weekly link', () => {
+    // ARRANGE
+    const recentActiveForumTopic = createRecentActiveForumTopic({
+      id: 120,
+      commentCount24h: undefined,
+      oldestComment24hId: undefined,
+      commentCount7d: 8,
+      oldestComment7dId: 99999,
+    });
+
+    render(<AggregateRecentPostLinks topic={recentActiveForumTopic} />);
+
+    // ASSERT
+    const linkEls = screen.getAllByRole('link');
+    expect(linkEls.length).toEqual(1);
+
+    const weeklyLinkEl = screen.getByRole('link', { name: /8 posts in the last 7 days/i });
+    expect(weeklyLinkEl).toBeVisible();
+    expect(weeklyLinkEl).toHaveAttribute('href', `/viewtopic.php?t=120&c=99999#99999`);
+  });
 });
