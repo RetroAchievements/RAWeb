@@ -81,6 +81,21 @@ trait ActsAsCommunityMember
         return $this->inverseRelatedUsers()->where('Friendship', '=', UserRelationship::Following);
     }
 
+    /**
+     * @return BelongsToMany<User>
+     */
+    public function friends(): BelongsToMany
+    {
+        return $this->relatedUsers()
+            ->where('Friendship', UserRelationship::Following)
+            ->whereIn('related_user_id', function ($query) {
+                $query->select('user_id')
+                    ->from((new UserRelation())->getTable())
+                    ->where('Friendship', UserRelationship::Following)
+                    ->where('related_user_id', $this->id);
+            });
+    }
+
     public function getRelationship(User $user): int
     {
         $relatedUser = $this->relatedUsers()->where('related_user_id', $user->id)->first();
