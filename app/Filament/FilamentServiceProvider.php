@@ -14,6 +14,7 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Enums\MaxWidth;
 use Filament\Tables\Table;
 use Filament\Widgets\AccountWidget;
+use Illuminate\Support\Facades\Blade;
 
 class FilamentServiceProvider extends PanelProvider
 {
@@ -76,6 +77,10 @@ class FilamentServiceProvider extends PanelProvider
                 AccountWidget::class,
                 Widgets\SiteInfoWidget::class,
             ])
+            ->renderHook(
+                'panels::head.start',
+                fn () => Blade::render('<x-head-analytics />')
+            )
             ->middleware([
                 'web',
                 DisableBladeIconComponents::class,
