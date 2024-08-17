@@ -14,9 +14,9 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'body' => 'required|string|max:60000',
 ]);
 
-$normalized = normalize_shortcodes($withUserIds);
-$withUserIds = Shortcode::convertUserShortcodesToUseIds($input['body']);
-$sanitized = htmlspecialchars($normalized, ENT_QUOTES, 'UTF-8');
+$normalized = normalize_shortcodes($input['body']);
+$withUserIds = Shortcode::convertUserShortcodesToUseIds($normalized);
+$sanitized = htmlspecialchars($withUserIds, ENT_QUOTES, 'UTF-8');
 
 return response()->json([
     'message' => __('legacy.success.ok'),
