@@ -1,21 +1,19 @@
 <?php
 
 /*
- *  API_GetUserFriendList - returns a list of Games, with basic data, that a user has saved on their WantToPlayList
+ *  API_GetUserFriendList - returns a list of Friends, with basic data, for a user
  *    u : username
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of entries to return (default: 100, max: 500)
- *  int         Count                       number of want to play game records returned in the response
- *  int         Total                       number of want to play game records the user actually has overall
+ *  int         Count                       number of friend records returned in the response
+ *  int         Total                       number of friend records the user actually has overall
  *  array       Results
  *   object      [value]
- *    int        ID                         unique identifier of the game
- *    string     Title                      name of the game
- *    int        ConsoleID                  unique identifier of the console associated to the game
- *    string     ConsoleName                name of the console associated to the game
- *    string     ImageIcon                  site-relative path to the game's icon image
- *    int        PointsTotal                total points able to be earned
- *    int        AchievementsPublished      total number of achievements to be unlocked
+ *    string     Friend                     username of the friend
+ *    int        Points                     number of hardcore points the friend has earned
+ *    int        PointsSoftcore             number of softcore points the friend has earned
+ *    string     LastSeen                   rich presence message for the friend
+ *    int        ID                         unique id of the friend
  */
 
 use App\Enums\Permissions;
