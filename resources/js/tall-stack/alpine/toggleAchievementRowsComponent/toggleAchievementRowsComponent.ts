@@ -6,7 +6,7 @@ export function toggleAchievementRowsComponent() {
     updateRowsVisibility(): void {
       const allRows = document.querySelectorAll<HTMLLIElement>('#set-achievements-list > li');
 
-      allRows.forEach((row) => {
+      for (const row of allRows) {
         let shouldBeHidden = false;
 
         if (this.isUsingHideUnlockedAchievements && row.classList.contains('unlocked-row')) {
@@ -18,7 +18,7 @@ export function toggleAchievementRowsComponent() {
         }
 
         row.classList.toggle('hidden', shouldBeHidden);
-      });
+      }
     },
 
     toggleUnlockedRows(): void {

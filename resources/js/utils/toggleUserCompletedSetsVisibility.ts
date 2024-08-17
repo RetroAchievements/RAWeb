@@ -24,12 +24,12 @@ export function toggleUserCompletedSetsVisibility() {
     const isChecked = checkboxEl.checked;
     setCookie(cookieName, isChecked ? 'true' : 'false');
 
-    completionProgressRowEls.forEach((rowEl) => {
+    for (const rowEl of completionProgressRowEls) {
       if (isChecked) {
         rowEl.classList.add('hidden');
       } else {
         rowEl.classList.remove('hidden');
       }
-    });
+    }
   }
 }
