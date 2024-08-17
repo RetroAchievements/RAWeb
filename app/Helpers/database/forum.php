@@ -171,12 +171,12 @@ function submitTopicComment(
     ?string $topicTitle,
     string $commentPayload,
 ): ForumTopicComment {
-    // Convert [user=$user->username] to [user=$user->id].
-    $commentPayload = Shortcode::convertUserShortcodesToUseIds($commentPayload);
-
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $commentPayload = normalize_shortcodes($commentPayload);
+
+    // Convert [user=$user->username] to [user=$user->id].
+    $commentPayload = Shortcode::convertUserShortcodesToUseIds($commentPayload);
 
     // if this exact message was just posted by this user, assume it's an
     // accidental double submission and ignore.

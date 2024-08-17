@@ -6,6 +6,7 @@ namespace App\Support\Shortcode;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Thunder\Shortcode\Event\FilterShortcodesEvent;
 use Thunder\Shortcode\EventContainer\EventContainer;
 use Thunder\Shortcode\Events;
@@ -53,12 +54,18 @@ final class Shortcode
             return $input;
         }
 
+        // Normalize usernames to lowercase to ensure matching is not case-sensitive.
+        $normalizedUsernames = array_map('strtolower', $usernames);
+
         // Fetch all users by username in a single query.
-        $users = User::whereIn('User', $usernames)->get()->keyBy('User');
+        $users = User::withTrashed()
+            ->whereIn(DB::raw('LOWER(User)'), $normalizedUsernames)
+            ->get(['ID', 'User'])
+            ->keyBy(fn ($user) => strtolower($user->User));
 
         // Replace each username with the corresponding user ID.
         return preg_replace_callback('/\[user=(.*?)\]/', function ($matches) use ($users) {
-            $username = $matches[1];
+            $username = strtolower($matches[1]);
             $user = $users->get($username);
 
             return $user ? "[user={$user->id}]" : $matches[0];
