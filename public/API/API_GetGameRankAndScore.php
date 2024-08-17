@@ -13,17 +13,52 @@
  *    datetime   LastAward           when the user's latest achievement for the game was unlocked
  */
 
+use App\Models\Game;
+use App\Models\User;
+use App\Platform\Services\GameTopAchieversService;
+use Carbon\Carbon;
+
 $gameId = (int) request()->query('g');
 if ($gameId <= 0) {
     return response()->json(['success' => false]);
 }
 
-$type = (int) request()->query('t');
-
-$gameTopAchievers = getGameTopAchievers($gameId);
-
-if ($type == 1) {
-    return response()->json($gameTopAchievers['Masters']);
+$game = Game::find($gameId);
+if (!$game) {
+    return response()->json(['success' => false]);
 }
 
-return response()->json($gameTopAchievers['HighScores']);
+$gameTopAchievers = [];
+
+$service = new GameTopAchieversService();
+$service->initialize($game);
+
+[$numMasteries, $topAchievers] = $service->getTopAchieversComponentData();
+
+$type = (int) request()->query('t');
+if (($type === 1 && $numMasteries >= 10) || ($type !== 1 && $numMasteries < 10)) {
+    // component caches the 10 most recent masteries if there are at least 10 masteries,
+    // or the top earners if there are less than 10 masteries.
+    foreach ($topAchievers as $playerGame) {
+        $gameTopAchievers[] = [
+            'User' => User::find($playerGame['user_id'])->User,
+            'NumAchievements' => $playerGame['achievements_unlocked_hardcore'],
+            'TotalScore' => $playerGame['points_hardcore'],
+            'LastAward' => Carbon::createFromTimestamp($playerGame['last_unlock_hardcore_at'])->format('Y-m-d H:i:s'),
+        ];
+    }
+} else {
+    // cannot use component cached data. run the query.
+    $playerGames = ($type === 1) ? $service->recentMasteries() : $service->highestPointEarners();
+
+    foreach ($playerGames as $playerGame) {
+        $gameTopAchievers[] = [
+            'User' => $playerGame->user->User,
+            'NumAchievements' => $playerGame->achievements_unlocked_hardcore,
+            'TotalScore' => $playerGame->points_hardcore,
+            'LastAward' => $playerGame->last_unlock_hardcore_at->format('Y-m-d H:i:s'),
+        ];
+    }
+}
+
+return response()->json($gameTopAchievers);
