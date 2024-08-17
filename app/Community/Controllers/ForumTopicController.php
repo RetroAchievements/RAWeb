@@ -168,8 +168,8 @@ class ForumTopicController extends \App\Http\Controller
                    f.ID as ForumID, f.Title as ForumTitle,
                    lc.CommentID, lftc.DateCreated as PostedAt, lftc.author_id,
                    ua.User AS Author, ua.display_name AS AuthorDisplayName,
-                   LEFT(lftc.Payload, 90) AS ShortMsg,
-                   LENGTH(lftc.Payload) > 90 AS IsTruncated,
+                   LEFT(lftc.Payload, 260) AS ShortMsg,
+                   LENGTH(lftc.Payload) > 260 AS IsTruncated,
                    d1.CommentID as CommentID_1d, d1.Count as Count_1d,
                    d7.CommentID as CommentID_7d, d7.Count as Count_7d
             FROM ForumTopic AS ft
