@@ -38,7 +38,8 @@
  *  string     Publisher                  publisher information for the game
  *  string     Developer                  developer information for the game
  *  string     Genre                      genre information for the game
- *  string     Released                   release date information for the game
+ *  string?    Released                   a YYYY-MM-DD date of the game's earliest release date, or null. also see ReleasedAtGranularity.
+ *  string?    ReleasedAtGranularity      how precise the Released value is. possible values are "day", "month", "year", and null.
  *  bool       IsFinal
  *  string     RichPresencePatch          md5 of the script for generating the rich presence for the game
  *  array      Claims
@@ -81,7 +82,8 @@ $gameData = [
     'Publisher' => $game->Publisher,
     'Developer' => $game->Developer,
     'Genre' => $game->Genre,
-    'Released' => $game->Released,
+    'Released' => $game->released_at?->format('Y-m-d'),
+    'ReleasedAtGranularity' => $game->released_at_granularity,
     'IsFinal' => $game->IsFinal,
     'RichPresencePatch' => md5($game->RichPresencePatch),
     'GuideURL' => $game->GuideURL,
