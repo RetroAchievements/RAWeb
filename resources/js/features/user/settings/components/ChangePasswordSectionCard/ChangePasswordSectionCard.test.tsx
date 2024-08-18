@@ -38,7 +38,7 @@ describe('Component: ChangePasswordSectionCard', () => {
   it('given the user attempts to make a valid form submission, submits the request to the server', async () => {
     // ARRANGE
     vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
-    const putSpy = vi.spyOn(axios, 'put');
+    const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });
 
     render(<ChangePasswordSectionCard />, {
       pageProps: {},
