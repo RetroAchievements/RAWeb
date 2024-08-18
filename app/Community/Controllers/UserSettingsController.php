@@ -15,27 +15,41 @@ use App\Community\Requests\UpdateEmailRequest;
 use App\Community\Requests\UpdatePasswordRequest;
 use App\Community\Requests\UpdateProfileRequest;
 use App\Community\Requests\UpdateWebsitePrefsRequest;
+use App\Data\UserData;
 use App\Enums\Permissions;
 use App\Http\Controller;
 use App\Models\User;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class UserSettingsController extends Controller
 {
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Request $request, string $section = 'profile'): View
+    public function show(): InertiaResponse
     {
-        $this->authorize('updateSettings', $section);
+        $this->authorize('updateSettings');
 
-        if (!view()->exists("settings.$section")) {
-            abort(404, 'Not found');
-        }
+        /** @var User $user */
+        $user = Auth::user();
 
-        return view("settings.$section");
+        $extendedUserData = UserData::fromUser($user)->include(
+            'apiKey',
+            'deleteRequested',
+            'emailAddress',
+            'motto',
+            'userWallActive',
+            'visibleRole',
+        );
+
+        return Inertia::render('settings', [
+            'userSettings' => $extendedUserData,
+            'can' => [
+                'manipulateApiKeys' => $user->can('manipulateApiKeys', $user),
+                'updateAvatar' => $user->can('updateAvatar', $user),
+                'updateMotto' => $user->can('updateMotto', $user),
+            ],
+        ]);
     }
 
     public function updatePassword(UpdatePasswordRequest $request): JsonResponse

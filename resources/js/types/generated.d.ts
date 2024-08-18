@@ -35,13 +35,42 @@ declare namespace App.Data {
   export type User = {
     displayName: string;
     avatarUrl: string;
+    isMuted: boolean;
     id?: number;
-    username?: string;
-    legacyPermissions?: number;
+    username?: string | null;
+    motto?: string;
+    legacyPermissions?: number | null;
     preferences?: { prefersAbsoluteDates: boolean };
     roles?: App.Models.UserRole[];
-    unreadMessageCount?: number;
+    apiKey?: string | null;
+    deleteRequested?: string | null;
+    emailAddress?: string | null;
+    unreadMessageCount?: number | null;
+    userWallActive?: boolean | null;
+    visibleRole?: string | null;
+    websitePrefs?: number | null;
   };
+}
+declare namespace App.Enums {
+  export type UserPreference =
+    | 0
+    | 1
+    | 2
+    | 3
+    | 4
+    | 5
+    | 6
+    | 7
+    | 8
+    | 9
+    | 10
+    | 11
+    | 12
+    | 13
+    | 14
+    | 15
+    | 16
+    | 17;
 }
 declare namespace App.Models {
   export type UserRole =
@@ -69,6 +98,18 @@ declare namespace App.Models {
     | 'beta'
     | 'developer-veteran';
 }
-declare namespace App.Platform.Enums {
-  export type AchievementFlag = 3 | 5;
+declare namespace App.Platform.Data {
+  export type PlayerResettableGameAchievement = {
+    id: number;
+    title: string;
+    points: number;
+    isHardcore: boolean;
+  };
+  export type PlayerResettableGame = {
+    id: number;
+    title: string;
+    consoleName: string;
+    numAwarded: number;
+    numPossible: number;
+  };
 }

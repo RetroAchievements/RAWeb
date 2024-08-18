@@ -4,6 +4,8 @@ import * as InertiajsReactModule from '@inertiajs/react';
 import { render as defaultRender } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
+import { AppProviders } from '@/common/components/AppProviders';
+
 export * from '@testing-library/react';
 
 vi.mock('@inertiajs/react', () => ({
@@ -31,7 +33,7 @@ interface WrapperProps {
 }
 
 export function render(ui: RenderUI, { wrapper, pageProps = {}, ...options }: RenderOptions = {}) {
-  vi.spyOn(InertiajsReactModule, 'usePage').mockImplementationOnce(() => ({
+  vi.spyOn(InertiajsReactModule, 'usePage').mockImplementation(() => ({
     component: '',
     props: pageProps as any,
     rememberedState: {},
@@ -41,7 +43,7 @@ export function render(ui: RenderUI, { wrapper, pageProps = {}, ...options }: Re
   }));
 
   if (!wrapper) {
-    wrapper = ({ children }: WrapperProps) => <>{children}</>;
+    wrapper = ({ children }: WrapperProps) => <AppProviders>{children}</AppProviders>;
   }
 
   return {

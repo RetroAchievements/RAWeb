@@ -201,6 +201,13 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.masters": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.suggest": [
         {
             "name": "game",
@@ -265,7 +272,36 @@ declare module 'ziggy-js' {
             "binding": "hash"
         }
     ],
+    "player.games.resettable": [],
+    "player.game.achievements.resettable": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "user.game.destroy": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "user.achievement.destroy": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "settings.show": [],
     "forum.recent-posts": [],
+    "user.comment.destroyAll": [
+        {
+            "name": "user",
+            "required": true
+        }
+    ],
     "message.store": [],
     "message-thread.destroy": [
         {
@@ -274,6 +310,12 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "settings.profile.update": [],
+    "settings.preferences.update": [],
+    "settings.password.update": [],
+    "settings.email.update": [],
+    "settings.keys.web.destroy": [],
+    "settings.keys.connect.destroy": [],
     "login": [],
     "logout": [],
     "password.confirmation": [],
@@ -321,7 +363,11 @@ declare module 'ziggy-js' {
             "name": "hashId",
             "required": true
         }
-    ]
+    ],
+    "user.delete-request.store": [],
+    "user.delete-request.destroy": [],
+    "user.avatar.store": [],
+    "user.avatar.destroy": []
 }
 }
 export {};
