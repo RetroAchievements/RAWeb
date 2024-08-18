@@ -49,7 +49,8 @@ class TicketListService
         ];
     }
 
-    public function getSelectFilters(bool $showStatus = true,
+    public function getSelectFilters(
+        bool $showStatus = true,
         bool $showAchievementType = true,
         bool $showDevType = true,
         bool $showDeveloper = false,
