@@ -34,20 +34,20 @@ export const ChangeEmailAddressSectionCard: FC = () => {
     >
       <div className="@container">
         <div className="flex flex-col gap-5">
-          <div className="@xl:flex-row @xl:items-center flex w-full flex-col">
-            <label id={visibleEmailFieldId} className="@xl:w-2/5 text-menu-link">
+          <div className="flex w-full flex-col @xl:flex-row @xl:items-center">
+            <label id={visibleEmailFieldId} className="text-menu-link @xl:w-2/5">
               Current Email Address
             </label>
             <p aria-labelledby={visibleEmailFieldId}>{currentEmailAddress}</p>
           </div>
 
-          <div className="@xl:gap-2 flex flex-col gap-5">
+          <div className="flex flex-col gap-5 @xl:gap-2">
             <BaseFormField
               control={form.control}
               name="newEmail"
               render={({ field }) => (
-                <BaseFormItem className="@xl:flex-row @xl:items-center flex w-full flex-col gap-1">
-                  <BaseFormLabel className="@xl:w-2/5 text-menu-link">
+                <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
+                  <BaseFormLabel className="text-menu-link @xl:w-2/5">
                     New Email Address
                   </BaseFormLabel>
 
@@ -71,8 +71,8 @@ export const ChangeEmailAddressSectionCard: FC = () => {
               control={form.control}
               name="confirmEmail"
               render={({ field }) => (
-                <BaseFormItem className="@xl:flex-row @xl:items-center flex w-full flex-col gap-1">
-                  <BaseFormLabel className="@xl:w-2/5 text-menu-link">
+                <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
+                  <BaseFormLabel className="text-menu-link @xl:w-2/5">
                     Confirm New Email Address
                   </BaseFormLabel>
 

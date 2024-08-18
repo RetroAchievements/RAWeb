@@ -32,7 +32,7 @@ export const ManageConnectApiKey: FC = () => {
 
   return (
     <div className="@container">
-      <div className="@lg:grid @lg:grid-cols-4 flex flex-col">
+      <div className="flex flex-col @lg:grid @lg:grid-cols-4">
         <p className="w-48 text-menu-link">Connect API Key</p>
 
         <div className="col-span-3 flex flex-col gap-2">
@@ -42,7 +42,7 @@ export const ManageConnectApiKey: FC = () => {
           </p>
 
           <BaseButton
-            className="@lg:max-w-fit flex w-full gap-2"
+            className="flex w-full gap-2 @lg:max-w-fit"
             size="sm"
             variant="destructive"
             onClick={handleResetApiKeyClick}

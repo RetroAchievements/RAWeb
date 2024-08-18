@@ -46,8 +46,8 @@ export const ChangePasswordSectionCard: FC = () => {
             control={form.control}
             name="currentPassword"
             render={({ field }) => (
-              <BaseFormItem className="@xl:flex-row @xl:items-center flex w-full flex-col gap-1">
-                <BaseFormLabel className="@xl:w-2/5 text-menu-link">Current Password</BaseFormLabel>
+              <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
+                <BaseFormLabel className="text-menu-link @xl:w-2/5">Current Password</BaseFormLabel>
 
                 <div className="flex flex-grow flex-col gap-1">
                   <BaseFormControl>
@@ -70,8 +70,8 @@ export const ChangePasswordSectionCard: FC = () => {
             control={form.control}
             name="newPassword"
             render={({ field }) => (
-              <BaseFormItem className="@xl:flex-row @xl:items-center flex w-full flex-col gap-1">
-                <BaseFormLabel className="@xl:w-2/5 text-menu-link">New Password</BaseFormLabel>
+              <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
+                <BaseFormLabel className="text-menu-link @xl:w-2/5">New Password</BaseFormLabel>
 
                 <div className="flex flex-grow flex-col gap-1">
                   <BaseFormControl>
@@ -97,8 +97,8 @@ export const ChangePasswordSectionCard: FC = () => {
             control={form.control}
             name="confirmPassword"
             render={({ field }) => (
-              <BaseFormItem className="@xl:flex-row @xl:items-center flex w-full flex-col gap-1">
-                <BaseFormLabel className="@xl:w-2/5 text-menu-link">Confirm Password</BaseFormLabel>
+              <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
+                <BaseFormLabel className="text-menu-link @xl:w-2/5">Confirm Password</BaseFormLabel>
 
                 <div className="flex flex-grow flex-col gap-1">
                   <BaseFormControl>

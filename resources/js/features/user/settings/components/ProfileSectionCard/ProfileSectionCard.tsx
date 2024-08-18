@@ -70,9 +70,9 @@ export const ProfileSectionCard: FC = () => {
       onSubmit={onSubmit}
       isSubmitting={formMutation.isPending}
     >
-      <div className="@container @xl:gap-5 flex flex-col gap-7">
-        <div className="@xl:flex-row @xl:items-center flex w-full flex-col">
-          <label id={visibleRoleFieldId} className="@xl:w-2/5 text-menu-link">
+      <div className="flex flex-col gap-7 @container @xl:gap-5">
+        <div className="flex w-full flex-col @xl:flex-row @xl:items-center">
+          <label id={visibleRoleFieldId} className="text-menu-link @xl:w-2/5">
             Visible Role
           </label>
           <p aria-labelledby={visibleRoleFieldId}>
@@ -89,8 +89,8 @@ export const ProfileSectionCard: FC = () => {
           name="motto"
           disabled={!can.updateMotto}
           render={({ field }) => (
-            <BaseFormItem className="@xl:flex-row @xl:items-center flex w-full flex-col gap-1">
-              <BaseFormLabel className="@xl:w-2/5 text-menu-link">User Motto</BaseFormLabel>
+            <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
+              <BaseFormLabel className="text-menu-link @xl:w-2/5">User Motto</BaseFormLabel>
 
               <div className="flex flex-grow flex-col gap-1">
                 <BaseFormControl>
@@ -116,8 +116,8 @@ export const ProfileSectionCard: FC = () => {
           control={form.control}
           name="userWallActive"
           render={({ field }) => (
-            <BaseFormItem className="@xl:flex-row @xl:items-center flex w-full flex-col gap-1">
-              <BaseFormLabel className="@xl:w-2/5 text-menu-link">
+            <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
+              <BaseFormLabel className="text-menu-link @xl:w-2/5">
                 Allow Comments on My User Wall
               </BaseFormLabel>
 
@@ -129,7 +129,7 @@ export const ProfileSectionCard: FC = () => {
         />
 
         <BaseButton
-          className="@lg:max-w-fit flex w-full gap-2"
+          className="flex w-full gap-2 @lg:max-w-fit"
           type="button"
           size="sm"
           variant="destructive"

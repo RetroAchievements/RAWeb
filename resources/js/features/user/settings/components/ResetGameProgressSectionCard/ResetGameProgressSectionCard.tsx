@@ -56,12 +56,12 @@ export const ResetGameProgressSectionCard: FC = () => {
       }}
     >
       <div className="@container">
-        <div className="@xl:gap-2 flex flex-col gap-5">
+        <div className="flex flex-col gap-5 @xl:gap-2">
           <BaseFormField
             control={form.control}
             name="gameId"
             render={({ field }) => (
-              <BaseFormItem className="@xl:grid @xl:grid-cols-5 @xl:items-center flex w-full flex-col gap-1">
+              <BaseFormItem className="flex w-full flex-col gap-1 @xl:grid @xl:grid-cols-5 @xl:items-center">
                 <BaseFormLabel className="col-span-2 text-menu-link">Game</BaseFormLabel>
 
                 <div ref={inViewRef} className="col-span-3 flex flex-grow flex-col gap-1">
@@ -101,7 +101,7 @@ export const ResetGameProgressSectionCard: FC = () => {
             control={form.control}
             name="achievementId"
             render={({ field }) => (
-              <BaseFormItem className="@xl:grid @xl:grid-cols-5 @xl:items-center flex w-full flex-col gap-1">
+              <BaseFormItem className="flex w-full flex-col gap-1 @xl:grid @xl:grid-cols-5 @xl:items-center">
                 <BaseFormLabel className="col-span-2 text-menu-link">Achievement</BaseFormLabel>
 
                 <div ref={inViewRef} className="col-span-3 flex flex-grow flex-col gap-1">

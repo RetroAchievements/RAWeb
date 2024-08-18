@@ -15,7 +15,9 @@ import { BaseFormProvider } from '@/common/components/+vendor/BaseForm';
 export interface SectionFormCardProps {
   headingLabel: string;
   children: ReactNode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- any is valid
   formMethods: UseFormReturn<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- any is valid
   onSubmit: (formValues: any) => void;
   isSubmitting: boolean;
 

@@ -74,7 +74,7 @@ export const AvatarSection: FC = () => {
                           {...field}
                           type="file"
                           accept=".png,.jpeg,.jpg,.gif"
-                          value={(field.value as any)?.fileName}
+                          value={(field.value as File & { fileName: string })?.fileName}
                           onChange={(event) => {
                             if (event.target.files) {
                               field.onChange(event.target.files[0]);

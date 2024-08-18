@@ -10,6 +10,7 @@ import { Ziggy } from './ziggy.js';
 /**
  * Ziggy depends on being in the global namespace.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- any is valid
 (global as any).Ziggy = Ziggy;
 
 beforeAll(async () => {
