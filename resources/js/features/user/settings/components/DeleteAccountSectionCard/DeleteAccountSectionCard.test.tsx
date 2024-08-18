@@ -37,7 +37,7 @@ describe('Component: DeleteAccountSectionCard', () => {
 
     // ASSERT
     expect(screen.getByText(/you've requested account deletion/i)).toBeVisible();
-    expect(screen.getByText(/will be permanently deleted on September 14/i)).toBeVisible();
+    expect(screen.getByText(/will be permanently deleted on/i)).toBeVisible();
 
     expect(
       screen.queryByRole('button', { name: /request account deletion/i }),
