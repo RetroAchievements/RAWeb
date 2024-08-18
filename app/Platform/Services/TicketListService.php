@@ -34,6 +34,8 @@ class TicketListService
             'filter.achievement' => 'sometimes|string|in:all,core,unofficial',
             'filter.mode' => 'sometimes|string|in:all,hardcore,softcore,unspecified',
             'filter.developerType' => 'sometimes|string|in:all,active,junior,inactive',
+            'filter.developer' => 'sometimes|string|in:all,self,others',
+            'filter.reporter' => 'sometimes|string|in:all,self,others',
         ]);
 
         return [
@@ -42,10 +44,16 @@ class TicketListService
             'achievement' => $validatedData['filter']['achievement'] ?? 'all',
             'mode' => $validatedData['filter']['mode'] ?? 'all',
             'developerType' => $validatedData['filter']['developerType'] ?? 'all',
+            'developer' => $validatedData['filter']['developer'] ?? 'all',
+            'reporter' => $validatedData['filter']['reporter'] ?? 'all',
         ];
     }
 
-    public function getSelectFilters(bool $showStatus = true, bool $showDevType = true, bool $showAchievementType = true): array
+    public function getSelectFilters(bool $showStatus = true,
+        bool $showAchievementType = true,
+        bool $showDevType = true,
+        bool $showDeveloper = false,
+        bool $showReporter = false): array
     {
         $availableSelectFilters = [];
 
@@ -103,6 +111,30 @@ class TicketListService
                     'active' => 'Active',
                     'junior' => 'Junior',
                     'inactive' => 'Inactive',
+                ],
+            ];
+        }
+
+        if ($showDeveloper) {
+            $availableSelectFilters[] = [
+                'kind' => 'developer',
+                'label' => 'Developer',
+                'options' => [
+                    'all' => 'All',
+                    'self' => 'Self',
+                    'others' => 'Others',
+                ],
+            ];
+        }
+
+        if ($showReporter) {
+            $availableSelectFilters[] = [
+                'kind' => 'reporter',
+                'label' => 'Reporter',
+                'options' => [
+                    'all' => 'All',
+                    'self' => 'Self',
+                    'others' => 'Others',
                 ],
             ];
         }
@@ -195,6 +227,38 @@ class TicketListService
                     });
                 });
                 break;
+        }
+
+        if (array_key_exists('userId', $filterOptions)) {
+            switch ($filterOptions['developer']) {
+                case 'all':
+                    break;
+
+                case 'self':
+                    $tickets->whereHas('achievement', function ($query) use ($filterOptions) {
+                        $query->where('user_id', '=', $filterOptions['userId']);
+                    });
+                    break;
+
+                case 'others':
+                    $tickets->whereHas('achievement', function ($query) use ($filterOptions) {
+                        $query->where('user_id', '!=', $filterOptions['userId']);
+                    });
+                    break;
+            }
+
+            switch ($filterOptions['reporter']) {
+                case 'all':
+                    break;
+
+                case 'self':
+                    $tickets->where('reporter_id', '=', $filterOptions['userId']);
+                    break;
+
+                case 'others':
+                    $tickets->where('reporter_id', '!=', $filterOptions['userId']);
+                    break;
+            }
         }
 
         $this->numFilteredTickets = $tickets->count();
