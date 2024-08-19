@@ -194,6 +194,7 @@ See <a href="https://docs.retroachievements.org/Emulator-Support-and-Issues/" ta
             'handle' => 'Dolphin',
             'active' => true,
             'link' => 'https://wiki.dolphin-emu.org/index.php?title=Main_Page',
+            'description' => '<strong>NOTE:</strong> Requires a development version of 2407-68 or higher.',
             'download_url' => 'https://dolphin-emu.org/download/',
             'systems' => [
                 16, // GameCube
