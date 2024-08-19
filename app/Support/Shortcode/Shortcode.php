@@ -153,8 +153,8 @@ final class Shortcode
 
         // If the string is over the preview length, clamp it and add "..."
         // This can happen as a result of the replacement from above.
-        if (strlen($input) > $previewLength) {
-            $input = substr($input, 0, $previewLength) . '...';
+        if (mb_strlen($input) > $previewLength) {
+            $input = mb_substr($input, 0, $previewLength) . '...';
         }
 
         // Handle edge case: if the input is just ellipses, show nothing.
