@@ -18,20 +18,8 @@ class DispatchUpdateDeveloperContributionYieldJob implements ShouldQueue
 
         switch ($event::class) {
             case AchievementPublished::class:
-                $achievement = $event->achievement;
-                $achievement->loadMissing('developer');
-                $user = $achievement->developer;
-                break;
             case AchievementUnpublished::class:
-                $achievement = $event->achievement;
-                $achievement->loadMissing('developer');
-                $user = $achievement->developer;
-                break;
             case AchievementPointsChanged::class:
-                $achievement = $event->achievement;
-                $achievement->loadMissing('developer');
-                $user = $achievement->developer;
-                break;
             case PlayerAchievementUnlocked::class:
                 $achievement = $event->achievement;
                 $achievement->loadMissing('developer');

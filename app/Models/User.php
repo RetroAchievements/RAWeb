@@ -158,6 +158,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'Untracked',
         'User', // fillable for registration
         'UserWallActive',
+        'websitePrefs',
     ];
 
     protected $visible = [

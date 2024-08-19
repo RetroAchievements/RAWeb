@@ -10,7 +10,12 @@ $tools = $settings['tools'] ?? null;
 
 ?>
 
-<x-nav-dropdown :class="$class ?? ''" dropdown-class="dropdown-menu-right" :title="__('Manage')">
+<x-nav-dropdown
+    :class="$class ?? ''"
+    dropdown-class="dropdown-menu-right"
+    :title="__('Manage')"
+    :desktopHref="route('filament.admin.pages.dashboard')"
+>
     <x-slot name="trigger">
         <x-fas-toolbox />
         <span class="ml-1 hidden sm:inline-block">{{ __('Manage') }}</span>
