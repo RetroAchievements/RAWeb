@@ -220,9 +220,16 @@ class AchievementsRelationManager extends RelationManager
                     ->label('Bulk set type')
                     ->visible(fn (): bool => $user->can('updateField', [Achievement::class, null, 'type'])),
             ])
-            ->recordUrl(
-                fn (Achievement $record): string => route('filament.admin.resources.achievements.view', ['record' => $record])
-            )
+            ->recordUrl(function (Achievement $record): string {
+                /** @var User $user */
+                $user = auth()->user();
+
+                if ($user->can('update', $record)) {
+                    return route('filament.admin.resources.achievements.edit', ['record' => $record]);
+                }
+
+                return route('filament.admin.resources.achievements.view', ['record' => $record]);
+            })
             ->paginated([50, 100, 150])
             ->defaultPaginationPageOption(50)
             ->defaultSort(function (Builder $query): Builder {
