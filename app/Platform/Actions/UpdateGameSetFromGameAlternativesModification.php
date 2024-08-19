@@ -29,11 +29,14 @@ class UpdateGameSetFromGameAlternativesModification
 
         $parentGameSet = GameSet::firstWhere('game_id', $parentGameId);
         if (!$parentGameSet) {
+            $isParentGameHub = $parentGame->ConsoleID === System::Hubs;
+
             $parentGameSet = GameSet::updateOrCreate(
                 ['game_id' => $parentGame->id],
                 [
                     'title' => $parentGame->title,
-                    'type' => $parentGame->ConsoleID === System::Hubs ? GameSetType::HUB : GameSetType::SIMILAR_GAMES,
+                    'type' => $isParentGameHub ? GameSetType::HUB : GameSetType::SIMILAR_GAMES,
+                    'image_asset_path' => $isParentGameHub ? $parentGame->ImageIcon : null,
                 ]
             );
         }

@@ -51,7 +51,7 @@ class SyncGameSets extends Command
             } else {
                 GameSet::updateOrCreate(
                     ['game_id' => $game->id],
-                    ['type' => GameSetType::SIMILAR_GAMES, 'title' => 'Similar Games'],
+                    ['type' => GameSetType::SIMILAR_GAMES, 'title' => 'Similar Games', 'image_asset_path' => null],
                 );
             }
 
