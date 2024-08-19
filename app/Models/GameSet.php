@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+// TODO drop image_asset_path, migrate to media
 class GameSet extends BaseModel
 {
     use SoftDeletes;
