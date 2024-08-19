@@ -11,7 +11,12 @@ import {
 import type { RecentPostsPageProps } from '@/features/forums/models';
 
 export const RecentPostsPagination: FC = () => {
-  const { previousPageUrl, nextPageUrl, maxPerPage } = usePage<RecentPostsPageProps>().props;
+  const { paginatedTopics } = usePage<RecentPostsPageProps>().props;
+
+  const {
+    perPage,
+    links: { nextPageUrl, previousPageUrl },
+  } = paginatedTopics;
 
   if (!previousPageUrl && !nextPageUrl) {
     return null;
@@ -23,14 +28,14 @@ export const RecentPostsPagination: FC = () => {
         {previousPageUrl ? (
           <BasePaginationItem>
             <BasePaginationPrevious href={previousPageUrl}>
-              Previous {maxPerPage}
+              Previous {perPage}
             </BasePaginationPrevious>
           </BasePaginationItem>
         ) : null}
 
         {nextPageUrl ? (
           <BasePaginationItem>
-            <BasePaginationNext href={nextPageUrl}>Next {maxPerPage}</BasePaginationNext>
+            <BasePaginationNext href={nextPageUrl}>Next {perPage}</BasePaginationNext>
           </BasePaginationItem>
         ) : null}
       </BasePaginationContent>
