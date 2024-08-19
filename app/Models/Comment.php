@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\CommentFactory;
 use Exception;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -16,6 +18,7 @@ class Comment extends BaseModel
 {
     use Searchable;
     use SoftDeletes;
+    use HasFactory;
 
     // TODO rename Comment table to comments
     // TODO rename ID column id
@@ -34,6 +37,11 @@ class Comment extends BaseModel
     protected $fillable = [
         'Payload',
     ];
+
+    protected static function newFactory(): CommentFactory
+    {
+        return CommentFactory::new();
+    }
 
     // == search
 

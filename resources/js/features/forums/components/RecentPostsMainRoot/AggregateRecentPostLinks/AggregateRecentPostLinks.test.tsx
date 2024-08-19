@@ -1,4 +1,4 @@
-import { createRecentForumPost } from '@/features/forums/models';
+import { createRecentActiveForumTopic } from '@/features/forums/models';
 import { render, screen } from '@/test';
 
 import { AggregateRecentPostLinks } from './AggregateRecentPostLinks';
@@ -7,7 +7,7 @@ describe('Component: AggregateRecentPostLinks', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <AggregateRecentPostLinks recentForumPost={createRecentForumPost()} />,
+      <AggregateRecentPostLinks topic={createRecentActiveForumTopic()} />,
     );
 
     // ASSERT
@@ -18,9 +18,9 @@ describe('Component: AggregateRecentPostLinks', () => {
     // ARRANGE
     render(
       <AggregateRecentPostLinks
-        recentForumPost={createRecentForumPost({
-          commentCountDay: 0,
-          commentCountWeek: 0,
+        topic={createRecentActiveForumTopic({
+          commentCount24h: 0,
+          commentCount7d: 0,
         })}
       />,
     );
@@ -31,15 +31,15 @@ describe('Component: AggregateRecentPostLinks', () => {
 
   it('given there are multiple posts in the last 24 hours, shows a link with the count', () => {
     // ARRANGE
-    const recentForumPost = createRecentForumPost({
-      forumTopicId: 120,
-      commentCountDay: 5,
-      commentIdDay: 12345,
-      commentCountWeek: 5,
-      commentIdWeek: 99999,
+    const recentActiveForumTopic = createRecentActiveForumTopic({
+      id: 120,
+      commentCount24h: 5,
+      oldestComment24hId: 12345,
+      commentCount7d: 5,
+      oldestComment7dId: 99999,
     });
 
-    render(<AggregateRecentPostLinks recentForumPost={recentForumPost} />);
+    render(<AggregateRecentPostLinks topic={recentActiveForumTopic} />);
 
     // ASSERT
     const linkEls = screen.getAllByRole('link');
@@ -52,19 +52,40 @@ describe('Component: AggregateRecentPostLinks', () => {
 
   it('given there are more weekly posts than daily posts, shows both links', () => {
     // ARRANGE
-    const recentForumPost = createRecentForumPost({
-      forumTopicId: 120,
-      commentCountDay: 5,
-      commentIdDay: 12345,
-      commentCountWeek: 8,
-      commentIdWeek: 99999,
+    const recentActiveForumTopic = createRecentActiveForumTopic({
+      id: 120,
+      commentCount24h: 5,
+      oldestComment24hId: 12345,
+      commentCount7d: 8,
+      oldestComment7dId: 99999,
     });
 
-    render(<AggregateRecentPostLinks recentForumPost={recentForumPost} />);
+    render(<AggregateRecentPostLinks topic={recentActiveForumTopic} />);
 
     // ASSERT
     const linkEls = screen.getAllByRole('link');
     expect(linkEls.length).toEqual(2);
+
+    const weeklyLinkEl = screen.getByRole('link', { name: /8 posts in the last 7 days/i });
+    expect(weeklyLinkEl).toBeVisible();
+    expect(weeklyLinkEl).toHaveAttribute('href', `/viewtopic.php?t=120&c=99999#99999`);
+  });
+
+  it('given there are no daily posts but there are weekly posts, shows the weekly link', () => {
+    // ARRANGE
+    const recentActiveForumTopic = createRecentActiveForumTopic({
+      id: 120,
+      commentCount24h: undefined,
+      oldestComment24hId: undefined,
+      commentCount7d: 8,
+      oldestComment7dId: 99999,
+    });
+
+    render(<AggregateRecentPostLinks topic={recentActiveForumTopic} />);
+
+    // ASSERT
+    const linkEls = screen.getAllByRole('link');
+    expect(linkEls.length).toEqual(1);
 
     const weeklyLinkEl = screen.getByRole('link', { name: /8 posts in the last 7 days/i });
     expect(weeklyLinkEl).toBeVisible();

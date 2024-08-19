@@ -32,6 +32,8 @@ class GameInfoAndUserProgressTest extends TestCase
 
     public function testGetGameInfoAndUserProgress(): void
     {
+        $releasedAt = Carbon::parse('1992-05-16');
+
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -46,6 +48,8 @@ class GameInfoAndUserProgressTest extends TestCase
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
             'Released' => 'Jan 1989',
+            'released_at' => $releasedAt,
+            'released_at_granularity' => 'week',
         ]);
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
@@ -96,7 +100,8 @@ class GameInfoAndUserProgressTest extends TestCase
                 'Publisher' => $game->Publisher,
                 'Developer' => $game->Developer,
                 'Genre' => $game->Genre,
-                'Released' => $game->Released,
+                'Released' => $releasedAt->format('Y-m-d'),
+                'ReleasedAtGranularity' => 'week',
                 'IsFinal' => 0,
                 'NumAchievements' => 3,
                 'NumDistinctPlayers' => 4,
@@ -152,6 +157,8 @@ class GameInfoAndUserProgressTest extends TestCase
 
     public function testGetGameInfoAndUserProgressNoAchievements(): void
     {
+        $releasedAt = Carbon::parse('1992-05-16');
+
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -166,6 +173,8 @@ class GameInfoAndUserProgressTest extends TestCase
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
             'Released' => 'Jan 1989',
+            'released_at' => $releasedAt,
+            'released_at_granularity' => 'week',
         ]);
 
         // issue #484: empty associative array should still return {}, not []
@@ -185,7 +194,8 @@ class GameInfoAndUserProgressTest extends TestCase
                 'Publisher' => $game->Publisher,
                 'Developer' => $game->Developer,
                 'Genre' => $game->Genre,
-                'Released' => $game->Released,
+                'Released' => $releasedAt->format('Y-m-d'),
+                'ReleasedAtGranularity' => 'week',
                 'IsFinal' => 0,
                 'NumAchievements' => 0,
                 'NumDistinctPlayers' => 0,
@@ -203,6 +213,8 @@ class GameInfoAndUserProgressTest extends TestCase
     {
         Carbon::setTestNow(Carbon::now());
 
+        $releasedAt = Carbon::parse('1992-05-16');
+
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -217,6 +229,8 @@ class GameInfoAndUserProgressTest extends TestCase
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
             'Released' => 'Jan 1989',
+            'released_at' => $releasedAt,
+            'released_at_granularity' => 'week',
         ]);
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1, 'type' => AchievementType::Progression]);
@@ -268,7 +282,8 @@ class GameInfoAndUserProgressTest extends TestCase
                 'Publisher' => $game->Publisher,
                 'Developer' => $game->Developer,
                 'Genre' => $game->Genre,
-                'Released' => $game->Released,
+                'Released' => $releasedAt->format('Y-m-d'),
+                'ReleasedAtGranularity' => 'week',
                 'IsFinal' => 0,
                 'NumAchievements' => 3,
                 'NumDistinctPlayers' => 4,
@@ -340,7 +355,8 @@ class GameInfoAndUserProgressTest extends TestCase
                 'Publisher' => $game->Publisher,
                 'Developer' => $game->Developer,
                 'Genre' => $game->Genre,
-                'Released' => $game->Released,
+                'Released' => $releasedAt->format('Y-m-d'),
+                'ReleasedAtGranularity' => 'week',
                 'IsFinal' => 0,
                 'NumAchievements' => 3,
                 'NumDistinctPlayers' => 4,
@@ -412,7 +428,8 @@ class GameInfoAndUserProgressTest extends TestCase
                 'Publisher' => $game->Publisher,
                 'Developer' => $game->Developer,
                 'Genre' => $game->Genre,
-                'Released' => $game->Released,
+                'Released' => $releasedAt->format('Y-m-d'),
+                'ReleasedAtGranularity' => 'week',
                 'IsFinal' => 0,
                 'NumAchievements' => 3,
                 'NumDistinctPlayers' => 4,
@@ -484,7 +501,8 @@ class GameInfoAndUserProgressTest extends TestCase
                 'Publisher' => $game->Publisher,
                 'Developer' => $game->Developer,
                 'Genre' => $game->Genre,
-                'Released' => $game->Released,
+                'Released' => $releasedAt->format('Y-m-d'),
+                'ReleasedAtGranularity' => 'week',
                 'IsFinal' => 0,
                 'NumAchievements' => 3,
                 'NumDistinctPlayers' => 4,
