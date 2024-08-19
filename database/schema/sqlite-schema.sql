@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS "migrations" ("id" integer primary key autoincrement not null, "migration" varchar not null, "batch" integer not null);
 CREATE TABLE IF NOT EXISTS "Console" ("ID" integer primary key autoincrement not null, "Name" varchar not null, "Created" datetime, "Updated" datetime, "name_full" varchar, "name_short" varchar, "manufacturer" varchar, "active" tinyint(1), "order_column" integer, "deleted_at" datetime);
-CREATE TABLE IF NOT EXISTS "EmailConfirmations" ("id" integer primary key autoincrement not null, "User" varchar not null, "EmailCookie" varchar not null, "Expires" date not null);
+CREATE TABLE IF NOT EXISTS "EmailConfirmations" ("id" integer primary key autoincrement not null, "User" varchar not null, "user_id" integer, "EmailCookie" varchar not null, "Expires" date not null);
 CREATE INDEX "emailconfirmations_emailcookie_index" on "EmailConfirmations" ("EmailCookie");
 CREATE TABLE IF NOT EXISTS "ForumCategory" ("ID" integer primary key autoincrement not null, "Name" varchar not null, "Description" varchar not null, "DisplayOrder" integer not null default '0', "Created" datetime, "Updated" datetime, "deleted_at" datetime);
 CREATE TABLE IF NOT EXISTS "GameAlternatives" ("gameID" integer, "gameIDAlt" integer, "Created" datetime, "Updated" datetime);

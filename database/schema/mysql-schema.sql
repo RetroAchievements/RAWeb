@@ -87,6 +87,7 @@ DROP TABLE IF EXISTS `EmailConfirmations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `EmailConfirmations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `User` varchar(20) NOT NULL,
   `user_id` bigint(20) unsigned DEFAULT NULL,
   `EmailCookie` varchar(20) NOT NULL,
