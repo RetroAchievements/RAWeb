@@ -18,6 +18,7 @@ class GameSet extends BaseModel
     protected $fillable = [
         'definition',
         'game_id',
+        'image_asset_path',
         'title',
         'type',
         'updated_at',

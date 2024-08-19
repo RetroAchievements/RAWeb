@@ -15,7 +15,7 @@ use Illuminate\Console\Command;
 
 class SyncGameSets extends Command
 {
-    protected $signature = 'ra:sync:game-sets {--f|full} {--p|no-post}';
+    protected $signature = 'ra:sync:game-sets';
     protected $description = 'Sync hubs to game_sets';
 
     public function __construct()
@@ -46,12 +46,12 @@ class SyncGameSets extends Command
             if ($game->ConsoleID === System::Hubs) {
                 GameSet::updateOrCreate(
                     ['game_id' => $game->id],
-                    ['title' => $game->title, 'type' => GameSetType::HUB],
+                    ['type' => GameSetType::HUB, 'title' => $game->title, 'image_asset_path' => $game->ImageIcon],
                 );
             } else {
                 GameSet::updateOrCreate(
                     ['game_id' => $game->id],
-                    ['type' => GameSetType::GAME]
+                    ['type' => GameSetType::SIMILAR_GAMES, 'title' => 'Similar Games'],
                 );
             }
 
@@ -65,24 +65,53 @@ class SyncGameSets extends Command
         $progressBar = $this->output->createProgressBar($gameAltsCount);
 
         foreach (GameAlternative::cursor() as $gameAlt) {
-            $parentGameSet = GameSet::firstWhere('game_id', $gameAlt->gameID);
-            $game = Game::find($gameAlt->gameID);
-            $altGame = Game::find($gameAlt->gameIDAlt);
+            $parentGame = Game::find($gameAlt->gameID);
+            $childGame = Game::find($gameAlt->gameIDAlt);
 
-            // Only process relationships in one direction so we avoid duplicate game_set_games and game_set_links.
-            if ($gameAlt->gameID < $gameAlt->gameIDAlt) {
-                if ($game->ConsoleID === System::Hubs || $altGame->ConsoleID === System::Hubs) {
-                    $childGameSet = GameSet::firstWhere('game_id', $altGame->id);
-                    GameSetLink::upsert([
-                        'parent_game_set_id' => $parentGameSet->id,
-                        'child_game_set_id' => $childGameSet->id,
-                    ], uniqueBy: ['parent_game_set_id', 'child_game_set_id']);
-                } else {
-                    GameSetGame::upsert([
-                        'game_set_id' => $parentGameSet->id,
-                        'game_id' => $altGame->id,
-                    ], uniqueBy: ['game_set_id', 'game_id']);
-                }
+            // Determine if a swap is needed to ensure the hub is always the parent.
+            if (
+                ($parentGame->ConsoleID !== System::Hubs && $childGame->ConsoleID === System::Hubs)
+                || ($gameAlt->gameID > $gameAlt->gameIDAlt)
+            ) {
+                // Swap to ensure the hub is the parent, or ensure consistent ordering.
+                $temp = $parentGame;
+                $parentGame = $childGame;
+                $childGame = $temp;
+            }
+
+            // Ensure the hub is always the parent in the relationship.
+            if ($childGame->ConsoleID === System::Hubs && $parentGame->ConsoleID !== System::Hubs) {
+                // Swap the parent and child so that the hub is always the parent.
+                $temp = $parentGame;
+                $parentGame = $childGame;
+                $childGame = $temp;
+            }
+
+            $parentGameSet = GameSet::firstWhere('game_id', $parentGame->id);
+            $childGameSet = GameSet::firstWhere('game_id', $childGame->id);
+
+            if ($parentGame->ConsoleID === System::Hubs && $childGame->ConsoleID === System::Hubs) {
+                GameSetLink::upsert([
+                    'parent_game_set_id' => $parentGameSet->id,
+                    'child_game_set_id' => $childGameSet->id,
+                    'created_at' => $childGame->Created,
+                    'updated_at' => $childGame->Updated,
+                ], uniqueBy: ['parent_game_set_id', 'child_game_set_id']);
+            } else {
+                GameSetGame::upsert([
+                    'game_set_id' => $parentGameSet->id,
+                    'game_id' => $childGame->id,
+                    'created_at' => $childGame->Created,
+                    'updated_at' => $childGame->Updated,
+                ], uniqueBy: ['game_set_id', 'game_id']);
+
+                // Ensure bi-directionality for non-hub games.
+                GameSetGame::upsert([
+                    'game_set_id' => $childGameSet->id,
+                    'game_id' => $parentGame->id,
+                    'created_at' => $parentGame->Created,
+                    'updated_at' => $parentGame->Updated,
+                ], uniqueBy: ['game_set_id', 'game_id']);
             }
 
             $progressBar->advance();
