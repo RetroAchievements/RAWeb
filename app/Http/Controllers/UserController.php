@@ -7,10 +7,15 @@ namespace App\Http\Controllers;
 use App\Http\Controller;
 use App\Models\PlayerGame;
 use App\Models\User;
+use App\Platform\Actions\RequestAccountDeletion;
+use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Log;
 use Jenssegers\Optimus\Optimus;
 
 class UserController extends Controller
@@ -78,5 +83,72 @@ class UserController extends Controller
         $this->authorize('view', $user);
 
         return redirect(route('user.show', $user));
+    }
+
+    public function uploadAvatar(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $this->authorize('updateAvatar', $user);
+
+        try {
+            UploadAvatar($user->username, $request->imageData);
+
+            return response()->json(['success' => true]);
+        } catch (Exception $exception) {
+            $error = $exception->getMessage();
+
+            // Handle specific error messages
+            if ($error == 'Invalid file type' || $error == 'File too large') {
+                return response()->json(['message' => $error], 400);
+            }
+
+            if (preg_match('/(not a .* file)/i', $exception->getMessage(), $match)) {
+                return response()->json(['message' => ucfirst($match[0])], 400);
+            }
+
+            // Log unexpected errors and return a 500 error
+            Log::error($exception->getMessage());
+
+            return response()->json(['message' => __('legacy.error.server')], 500);
+        }
+    }
+
+    public function deleteAvatar(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $this->authorize('updateAvatar', $user);
+
+        removeAvatar($user->username);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function requestAccountDeletion(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $this->authorize('update', $user);
+
+        (new RequestAccountDeletion())->execute($user);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function cancelAccountDeletion(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        /** @var User $user */
+        $this->authorize('update', $user);
+
+        cancelDeleteRequest($user->username);
+
+        return response()->json(['success' => true]);
     }
 }
