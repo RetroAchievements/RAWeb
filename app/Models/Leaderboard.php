@@ -263,6 +263,16 @@ class Leaderboard extends BaseModel
 
     // == helpers
 
+    public function submitValidationHash(User $user, int $score, int $offset = 0): string
+    {
+        $data = $this->id . $user->username . $score;
+        if ($offset > 0) {
+            $data .= $offset;
+        }
+
+        return md5($data);
+    }
+
     public function getRank(int $score): int
     {
         $entries = $this->entries();

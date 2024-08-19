@@ -191,9 +191,14 @@ class Achievement extends BaseModel implements HasComments
 
     // == helpers
 
-    public function unlockValidationHash(User $user, int $hardcore): string
+    public function unlockValidationHash(User $user, int $hardcore, int $offset = 0): string
     {
-        return md5($this->id . $user->username . $hardcore . $this->id);
+        $data = $this->id . $user->username . $hardcore . $this->id;
+        if ($offset > 0) {
+            $data .= $offset;
+        }
+
+        return md5($data);
     }
 
     // == accessors
