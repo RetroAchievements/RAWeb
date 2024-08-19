@@ -81,7 +81,7 @@ use \Illuminate\Support\Js;
                                                 {{ collect($oldValue)->where('id', $relatedModel->name)->get('attributes') }}
                                             </div>
                                         @endforeach
-                                    @elseif ($this->getIsImageField($field))
+                                    @elseif ($oldValue && $this->getIsImageField($field))
                                         <img src="{{ $oldValue }}" alt="Old Image" class="max-w-full h-auto"/>
                                     @elseif (is_array($oldValue))
                                         <pre class="text-xs text-gray-500">{{ json_encode($oldValue, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
