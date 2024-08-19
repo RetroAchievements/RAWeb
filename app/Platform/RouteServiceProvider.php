@@ -7,6 +7,7 @@ namespace App\Platform;
 use App\Models\GameHash;
 use App\Platform\Controllers\AchievementController;
 use App\Platform\Controllers\GameHashController;
+use App\Platform\Controllers\PlayerAchievementController;
 use App\Platform\Controllers\PlayerGameController;
 use App\Platform\Controllers\SystemController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -87,6 +88,12 @@ class RouteServiceProvider extends ServiceProvider
                 'middleware' => ['auth'], // TODO: 'verified'
             ], function () {
                 Route::resource('game-hash', GameHashController::class)->parameters(['game-hash' => 'gameHash'])->only(['update', 'destroy']);
+
+                Route::get('games/resettable', [PlayerGameController::class, 'resettableGames'])->name('player.games.resettable');
+                Route::get('game/{game}/achievements/resettable', [PlayerGameController::class, 'resettableGameAchievements'])->name('player.game.achievements.resettable');
+
+                Route::delete('user/game/{game}', [PlayerGameController::class, 'destroy'])->name('user.game.destroy');
+                Route::delete('user/achievement/{achievement}', [PlayerAchievementController::class, 'destroy'])->name('user.achievement.destroy');
             });
         });
     }

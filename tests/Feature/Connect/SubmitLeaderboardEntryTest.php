@@ -21,6 +21,16 @@ class SubmitLeaderboardEntryTest extends TestCase
     use BootstrapsConnect;
     use RefreshDatabase;
 
+    private function buildValidationHash(Leaderboard $leaderboard, User $user, int $score, int $offset = 0): string
+    {
+        $data = $leaderboard->id . $user->username . $score;
+        if ($offset > 0) {
+            $data .= $offset;
+        }
+
+        return md5($data);
+     }
+
     private function buildLBData(Leaderboard $leaderboard): array
     {
         return [
@@ -683,6 +693,102 @@ class SubmitLeaderboardEntryTest extends TestCase
                     ],
                     'TopEntriesFriends' => [
                         $this->buildEntry(1, $this->user, $bestScore, $now5),
+                    ],
+                ],
+            ]);
+    }
+
+    public function testSubmitLeaderboardEntryBackdated(): void
+    {
+        $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
+        Carbon::setTestNow($now);
+
+        /** @var Game $game */
+        $game = Game::factory()->create();
+        /** @var GameHash $gameHash */
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
+
+        // first submission
+        $offset = 30;
+        $submitDate = $now->clone()->subSeconds($offset);
+        $score = $bestScore = 55555;
+        $validationHash = $this->buildValidationHash($leaderboard, $this->user, $score, $offset);
+        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Success' => true,
+                    'Score' => $score,
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'BestScore' => $bestScore,
+                    'LBData' => $this->buildLBData($leaderboard),
+                    'RankInfo' => [
+                        'NumEntries' => 1,
+                        'Rank' => 1,
+                    ],
+                    'TopEntries' => [
+                        $this->buildEntry(1, $this->user, $bestScore, $submitDate),
+                    ],
+                    'TopEntriesFriends' => [
+                        $this->buildEntry(1, $this->user, $bestScore, $submitDate),
+                    ],
+                ],
+            ]);
+
+        // better submission
+        $offset = 10;
+        $submitDate2 = $now->clone()->subSeconds($offset);
+        $score = $bestScore = 66666;
+        $validationHash = $this->buildValidationHash($leaderboard, $this->user, $score, $offset);
+        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Success' => true,
+                    'Score' => $score,
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'BestScore' => $bestScore,
+                    'LBData' => $this->buildLBData($leaderboard),
+                    'RankInfo' => [
+                        'NumEntries' => 1,
+                        'Rank' => 1,
+                    ],
+                    'TopEntries' => [
+                        $this->buildEntry(1, $this->user, $bestScore, $submitDate2),
+                    ],
+                    'TopEntriesFriends' => [
+                        $this->buildEntry(1, $this->user, $bestScore, $submitDate2),
+                    ],
+                ],
+            ]);
+
+        // negative offset is ignored
+        $offset = -100;
+        $score = $bestScore = 77777;
+        $validationHash = $this->buildValidationHash($leaderboard, $this->user, $score, $offset);
+        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Success' => true,
+                    'Score' => $score,
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'BestScore' => $bestScore,
+                    'LBData' => $this->buildLBData($leaderboard),
+                    'RankInfo' => [
+                        'NumEntries' => 1,
+                        'Rank' => 1,
+                    ],
+                    'TopEntries' => [
+                        $this->buildEntry(1, $this->user, $bestScore, $now),
+                    ],
+                    'TopEntriesFriends' => [
+                        $this->buildEntry(1, $this->user, $bestScore, $now),
                     ],
                 ],
             ]);

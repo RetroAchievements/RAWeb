@@ -23,6 +23,8 @@ class LeaderboardEntry extends BaseModel
         'score',
         'trigger_id',
         'player_session_id',
+        'created_at',
+        'updated_at',
     ];
 
     protected static function newFactory(): LeaderboardEntryFactory
