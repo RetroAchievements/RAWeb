@@ -18,7 +18,7 @@ use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
 use Filament\Tables;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
@@ -340,13 +340,13 @@ class AchievementResource extends Resource
             ])
             ->defaultSort('DateModified', 'desc')
             ->filters([
-                SelectFilter::make('type')
+                Filters\SelectFilter::make('type')
                     ->multiple()
                     ->options(
                         collect(AchievementType::cases())
                             ->mapWithKeys(fn ($value) => [$value => __($value)])
                     ),
-                Tables\Filters\TrashedFilter::make(),
+                Filters\TrashedFilter::make(),
             ])
             ->deferFilters()
             ->actions([
