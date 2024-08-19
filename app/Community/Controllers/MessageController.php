@@ -25,7 +25,10 @@ class MessageController extends Controller
         $user = request()->user();
 
         $input = $request->validated();
-        $body = Shortcode::convertUserShortcodesToUseIds($input['body']);
+
+        $body = $input['body'];
+        $body = normalize_shortcodes($input['body']);
+        $body = Shortcode::convertUserShortcodesToUseIds($body);
 
         if (array_key_exists('thread_id', $input) && $input['thread_id'] != null) {
             $thread = MessageThread::firstWhere('id', $input['thread_id']);

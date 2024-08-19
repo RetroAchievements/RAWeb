@@ -100,7 +100,7 @@ final class Shortcode
             // "[user=1]" --> "@Scott"
             '~\[user=(\d+)]~i' => function ($matches) {
                 $userId = (int) $matches[1];
-                $user = User::find($userId);
+                $user = User::withTrashed()->find($userId);
                 if ($user) {
                     return "@{$user->display_name}";
                 }
@@ -173,7 +173,7 @@ final class Shortcode
         $userIds = array_map('intval', $matches[1]);
 
         if (!empty($userIds)) {
-            $users = User::whereIn('ID', $userIds)->get()->keyBy('ID');
+            $users = User::withTrashed()->whereIn('ID', $userIds)->get()->keyBy('ID');
             $this->usersCache = $users->all();
         }
     }
