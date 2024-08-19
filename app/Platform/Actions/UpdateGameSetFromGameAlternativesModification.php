@@ -34,7 +34,7 @@ class UpdateGameSetFromGameAlternativesModification
             $parentGameSet = GameSet::updateOrCreate(
                 ['game_id' => $parentGame->id],
                 [
-                    'title' => $parentGame->title,
+                    'title' => $isParentGameHub ? $parentGame->title : 'Similar Games',
                     'type' => $isParentGameHub ? GameSetType::HUB : GameSetType::SIMILAR_GAMES,
                     'image_asset_path' => $isParentGameHub ? $parentGame->ImageIcon : null,
                 ]
