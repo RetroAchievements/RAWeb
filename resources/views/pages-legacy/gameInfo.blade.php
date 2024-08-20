@@ -2,9 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
-use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
-use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
@@ -17,7 +15,6 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\GameListService;
-use Illuminate\Support\Carbon;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {
@@ -509,7 +506,7 @@ if ($isFullyFeaturedGame) {
                     && $permissions >= Permissions::JuniorDeveloper
                 )
             );
-            
+
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
             echo "<div id='devboxcontent' style='display: none'>";
