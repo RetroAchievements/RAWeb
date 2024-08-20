@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlayerBadge extends BaseModel
 {
+    /** @use HasFactory<PlayerBadgeFactory> */
     use HasFactory;
 
     // TODO Note: will be renamed and split into Community/UserBadge and Platform/PlayerBadge

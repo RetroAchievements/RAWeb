@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StaticData extends BaseModel
 {
+    /** @use HasFactory<StaticDataFactory> */
     use HasFactory;
 
     // TODO replace StaticData table

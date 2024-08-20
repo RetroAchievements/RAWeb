@@ -104,9 +104,9 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
                 :rawTitle="$rawTitle"
                 :showTags="$showTags"
             />', [
-                'rawTitle' => $mainTitle,
-                'showTags' => false,
-            ]
+            'rawTitle' => $mainTitle,
+            'showTags' => false,
+        ]
         );
 
         if ($renderedMain !== $mainTitle) {

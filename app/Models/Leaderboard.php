@@ -23,6 +23,7 @@ class Leaderboard extends BaseModel
     /*
      * Shared Traits
      */
+    /** @use HasFactory<LeaderboardFactory> */
     use HasFactory;
 
     use Searchable;

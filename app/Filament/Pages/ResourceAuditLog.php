@@ -75,7 +75,7 @@ abstract class ResourceAuditLog extends Page implements HasForms
     }
 
     /**
-     * @return Collection<string, \Illuminate\Contracts\Support\Htmlable|string|null>
+     * @return Collection<int|string, mixed>
      */
     protected function createFieldLabelMap(): Collection
     {

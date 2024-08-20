@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Concerns;
 
-use Spatie\Image\Manipulations;
+use Spatie\Image\Enums\Fit;
 
 trait HasAvatar
 {
@@ -50,8 +50,8 @@ trait HasAvatar
                     $this->addMediaConversion($iconSize)
                         ->nonQueued()
                         ->format('png')
-                        ->fit(Manipulations::FIT_CONTAIN, $width, $height)->apply()
-                        ->fit(Manipulations::FIT_FILL, $width, $height)
+                        ->fit(Fit::Contain, $width, $height)
+                        ->fit(Fit::Fill, $width, $height)
                         ->optimize();
                 }
             });
