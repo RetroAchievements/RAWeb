@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 
+import { createPaginatedData } from '@/common/models';
 import { render, screen } from '@/test';
 
 import { RecentPostsPagination } from './RecentPostsPagination';
@@ -7,7 +8,11 @@ import { RecentPostsPagination } from './RecentPostsPagination';
 describe('Component: RecentPostsPagination', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<RecentPostsPagination />);
+    const { container } = render(<RecentPostsPagination />, {
+      pageProps: {
+        paginatedTopics: createPaginatedData([]),
+      },
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -15,7 +20,11 @@ describe('Component: RecentPostsPagination', () => {
 
   it('given there are no pages, renders nothing', () => {
     // ARRANGE
-    render(<RecentPostsPagination />);
+    render(<RecentPostsPagination />, {
+      pageProps: {
+        paginatedTopics: createPaginatedData([]),
+      },
+    });
 
     // ASSERT
     const linkEls = screen.queryAllByRole('link');
@@ -28,7 +37,12 @@ describe('Component: RecentPostsPagination', () => {
     const previousPageUrl = faker.internet.url();
 
     render(<RecentPostsPagination />, {
-      pageProps: { nextPageUrl, previousPageUrl },
+      pageProps: {
+        paginatedTopics: createPaginatedData([], {
+          perPage: 25,
+          links: { nextPageUrl, previousPageUrl, firstPageUrl: null, lastPageUrl: null },
+        }),
+      },
     });
 
     // ASSERT

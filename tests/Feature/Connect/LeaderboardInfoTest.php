@@ -61,9 +61,9 @@ class LeaderboardInfoTest extends TestCase
         /** @var User $playerThree */
         $playerThree = User::factory()->create();
 
-        SubmitLeaderboardEntry($playerTwo, $leaderboard->id, 500, null);
-        SubmitLeaderboardEntry($playerOne, $leaderboard->id, 300, null);
-        SubmitLeaderboardEntry($playerThree, $leaderboard->id, 100, null);
+        SubmitLeaderboardEntry($playerTwo, $leaderboard, 500, null);
+        SubmitLeaderboardEntry($playerOne, $leaderboard, 300, null);
+        SubmitLeaderboardEntry($playerThree, $leaderboard, 100, null);
 
         $this->get($this->apiUrl('lbinfo', ['i' => $leaderboard->id]))
             ->assertStatus(200)
