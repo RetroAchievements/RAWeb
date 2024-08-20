@@ -380,15 +380,6 @@ class V1Test extends TestCase
     //         ->assertExactJson([]);
     // }
     //
-    // public function testGetGameExtended(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetGameExtended'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
     // public function testGetGameList(): void
     // {
     //     // TODO
