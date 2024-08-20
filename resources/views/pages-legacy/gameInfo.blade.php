@@ -34,9 +34,6 @@ $officialFlag = AchievementFlag::OfficialCore;
 $unofficialFlag = AchievementFlag::Unofficial;
 $flagParam = requestInputSanitized('f', $officialFlag, 'integer');
 
-//for testing
-//$flagParam = requestInputSanitized('f', $unofficialFlag, 'integer');
-
 $isOfficial = false;
 if ($flagParam !== $unofficialFlag) {
     $isOfficial = true;
