@@ -2,7 +2,6 @@
 
 /*
  *  API_GetUserFriendList - returns a list of Friends, with basic data, for a user
- *    u : username
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of entries to return (default: 100, max: 500)
  *  int         Count                       number of friend records returned in the response
@@ -25,23 +24,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
     'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
     'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
 ]);
 
 $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 100;
-
-$user = User::firstWhere('User', request()->query('u'));
-if (!$user) {
-    return response()->json([], 404);
-}
-
-$policy = new UserPolicy();
-if (!$policy->viewFriends(Auth::user(), $user)) {
-    return response()->json([], 401);
-}
+$user = Auth::user();
 
 $totalFriends = $user->friends()
     ->where('Permissions', '>=', Permissions::Unregistered)
