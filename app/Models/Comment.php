@@ -38,6 +38,11 @@ class Comment extends BaseModel
         'Payload',
     ];
 
+    protected static function newFactory(): CommentFactory
+    {
+        return CommentFactory::new();
+    }
+
     // == search
 
     public function toSearchableArray(): array
