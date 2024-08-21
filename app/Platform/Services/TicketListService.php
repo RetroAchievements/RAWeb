@@ -54,8 +54,8 @@ class TicketListService
         bool $showAchievementType = true,
         bool $showDevType = true,
         bool $showDeveloper = false,
-        bool $showReporter = false): array
-    {
+        bool $showReporter = false
+    ): array {
         $availableSelectFilters = [];
 
         if ($showStatus) {
