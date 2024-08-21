@@ -33,40 +33,9 @@ class UserFriendListTest extends TestCase
         return sprintf('API/API_%s.php?%s', $method, http_build_query($params));
     }
 
-    public function testItValidates(): void
-    {
-        $this->get($this->apiUrl('GetUserFriendList', ['u' => '1']))
-            ->assertJsonValidationErrors([
-                'u',
-            ]);
-    }
-
-    public function testGetUserWantToPlayListUnknownUser(): void
-    {
-        $this->get($this->apiUrl('GetUserFriendList', ['u' => 'nonExistant']))
-            ->assertNotFound()
-            ->assertJson([]);
-    }
-
     public function testGetUserWantToPlayList(): void
     {
         Carbon::setTestNow(Carbon::now());
-
-        /** @var User $followedUser */
-        $followedUser = User::factory()->create(['User' => 'followedUser']);
-        UserRelation::create([
-            'user_id' => $this->user->id,
-            'related_user_id' => $followedUser->id,
-            'Friendship' => UserRelationship::Following,
-        ]);
-
-        /** @var User $followingUser */
-        $followingUser = User::factory()->create(['User' => 'followingUser']);
-        UserRelation::create([
-            'user_id' => $followingUser->id,
-            'related_user_id' => $this->user->id,
-            'Friendship' => UserRelationship::Following,
-        ]);
 
         /** @var User $friend1 */
         $friend1 = User::factory()->create(['User' => 'myFriend1', 'RichPresenceMsg' => 'Playing Friendship 1']);
@@ -133,7 +102,7 @@ class UserFriendListTest extends TestCase
             'Friendship' => UserRelationship::Following,
         ]);
 
-        $this->get($this->apiUrl('GetUserFriendList', ['u' => $this->user->User]))
+        $this->get($this->apiUrl('GetUserFriendList'))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 5,
@@ -177,7 +146,7 @@ class UserFriendListTest extends TestCase
                 ],
             ]);
 
-            $this->get($this->apiUrl('GetUserFriendList', ['u' => $this->user->User, 'o' => 3]))
+            $this->get($this->apiUrl('GetUserFriendList', ['o' => 3]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -200,7 +169,7 @@ class UserFriendListTest extends TestCase
                     ],
                 ]);
 
-            $this->get($this->apiUrl('GetUserFriendList', ['u' => $this->user->User, 'c' => 2]))
+            $this->get($this->apiUrl('GetUserFriendList', ['c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -223,7 +192,7 @@ class UserFriendListTest extends TestCase
                     ],
                 ]);
 
-            $this->get($this->apiUrl('GetUserFriendList', ['u' => $this->user->User, 'o' => 1, 'c' => 2]))
+            $this->get($this->apiUrl('GetUserFriendList', ['o' => 1, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -245,13 +214,5 @@ class UserFriendListTest extends TestCase
                         ],
                     ],
                 ]);
-
-                $this->get($this->apiUrl('GetUserFriendList', ['u' => $followedUser->User]))
-                    ->assertUnauthorized()
-                    ->assertJson([]);
-
-                $this->get($this->apiUrl('GetUserFriendList', ['u' => $followingUser->User]))
-                    ->assertUnauthorized()
-                    ->assertJson([]);
     }
 }
