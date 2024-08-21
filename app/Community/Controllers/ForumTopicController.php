@@ -60,8 +60,8 @@ class ForumTopicController extends \App\Http\Controller
             'forum',
             'user',
             /*
-         * eager loading won't let us have a grid paginator for a morphed relationship
-         */
+             * eager loading won't let us have a grid paginator for a morphed relationship
+             */
             // 'comments' => function($query){
             //     $query->sort('created_at', 'asc')->paginate();
             // },

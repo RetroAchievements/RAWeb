@@ -53,8 +53,15 @@ class PlayerGameActivityService
             ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
             ->where('Achievements.GameID', '=', $game->id)
             ->orderBy('player_achievements.unlocked_at')
-            ->select(['player_achievements.*', 'Achievements.Flags', 'Achievements.Title',
-                'Achievements.Description', 'Achievements.Points', 'Achievements.BadgeName', 'Achievements.type'])
+            ->select([
+                'player_achievements.*',
+                'Achievements.Flags',
+                'Achievements.Title',
+                'Achievements.Description',
+                'Achievements.Points',
+                'Achievements.BadgeName',
+                'Achievements.type',
+            ])
             ->get();
         foreach ($playerAchievements as $playerAchievement) {
             if ($playerAchievement->unlocked_hardcore_at) {

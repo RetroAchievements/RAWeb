@@ -47,9 +47,7 @@ class GameTitleTest extends TestCase
             <x-game-title
                 rawTitle="~Prototype~ Hello, world! [Subset - Bonus]"
                 :showTags="$showTags"
-            />', [
-            'showTags' => false,
-        ]
+            />', ['showTags' => false]
         );
 
         $view->assertSeeText("Hello, world!");

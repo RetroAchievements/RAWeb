@@ -137,7 +137,7 @@ class FortifyServiceProvider extends ServiceProvider
                     'guest:' . config('fortify.guard'),
                     $limiter ? 'throttle:' . $limiter : null,
                 ])
-                );
+            );
 
             Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
                 ->name('logout');
@@ -230,7 +230,7 @@ class FortifyServiceProvider extends ServiceProvider
                         'guest:' . config('fortify.guard'),
                         $twoFactorLimiter ? 'throttle:' . $twoFactorLimiter : null,
                     ])
-                    );
+                );
 
                 $twoFactorMiddleware = Features::optionEnabled(Features::twoFactorAuthentication(), 'confirmPassword')
                     ? [config('fortify.auth_middleware', 'auth') . ':' . config('fortify.guard'), 'password.confirm']
