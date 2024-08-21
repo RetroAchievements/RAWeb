@@ -6,12 +6,15 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\AddCommentAction;
 use App\Community\Actions\GetUrlToCommentDestinationAction;
+use App\Community\Enums\ArticleType;
 use App\Community\Requests\CommentRequest;
 use App\Models\Comment;
 use App\Models\User;
 use App\Models\UserComment;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class UserCommentController extends CommentController
 {
@@ -95,12 +98,15 @@ class UserCommentController extends CommentController
             ->with('success', $this->resourceActionSuccessMessage('user.comment', 'delete'));
     }
 
-    public function destroyAll(User $user): RedirectResponse
+    public function destroyAll(Request $request, int $targetUserId): JsonResponse
     {
-        $this->authorize('deleteComments', $user);
+        $targetUser = User::findOrFail($targetUserId);
+        $this->authorize('clearUserWall', $targetUser);
 
-        $user->comments()->delete();
+        Comment::where('ArticleType', ArticleType::User)
+            ->where('ArticleID', $targetUser->id)
+            ->delete();
 
-        return back()->with('success', $this->resourceActionSuccessMessage('user.comment', 'delete'));
+        return response()->json(['success' => true]);
     }
 }

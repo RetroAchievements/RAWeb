@@ -4,8 +4,6 @@
 
 <div class="max-h-[980px] overflow-y-auto">
     @foreach ($gameLeaderboards as $leaderboard)
-        <x-game.leaderboards-listing.leaderboards-list-item
-            :leaderboard="$leaderboard"
-        />
+        <x-game.leaderboards-listing.leaderboards-list-item :$leaderboard />
     @endforeach
 </div>
