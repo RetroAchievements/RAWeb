@@ -27,7 +27,7 @@ class CommentsTest extends TestCase
     public function testGetCommentsUnknownUser(): void
     {
         $this->get($this->apiUrl('GetComments', ['u' => 'nonExistant', 't' => 3]))
-            ->assertSuccessful()
+            ->assertNotFound()
             ->assertJson([]);
     }
 
@@ -110,6 +110,13 @@ class CommentsTest extends TestCase
             'ArticleType' => 2,
             'user_id' => $bannedUser->ID,
             'Payload' => 'This comment is from a banned user!',
+        ]);
+        $deletedComment = Comment::factory()->create([
+            'ArticleID' => $game->ID,
+            'ArticleType' => 2,
+            'user_id' => $user1->ID,
+            'Payload' => 'This comment has been deleted!',
+            'deleted_at' => Carbon::now(),
         ]);
 
         // Act
@@ -206,10 +213,7 @@ class CommentsTest extends TestCase
 
         // Act
         $response = $this->get($this->apiUrl('GetComments', ['u' => $user->User, 't' => 3]))
-            ->assertSuccessful();
-
-        // Assert
-        $response->assertStatus(200);
-        $response->assertJsonStructure([]);
+            ->assertNotFound()
+            ->assertJson([]);
     }
 }

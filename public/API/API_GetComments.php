@@ -44,7 +44,7 @@ $user = null;
 if ($username) {
     $user = User::firstWhere('User', $username);
     if (!$user || !$user->UserWallActive) {
-        return response()->json(['Count' => 0, 'Total' => 0, 'Results' => []]);
+        return response()->json([], 404);
     }
 }
 
@@ -53,6 +53,7 @@ $articleId = $user ? $user->ID : $gameOrAchievementId;
 $comments = Comment::withTrashed()
     ->where('ArticleType', $commentType)
     ->where('ArticleID', $articleId)
+    ->whereNull('deleted_at')
     ->offset($offset)
     ->limit($count)
     ->with('user')
@@ -61,6 +62,7 @@ $comments = Comment::withTrashed()
 $totalComments = Comment::withTrashed()
     ->where('ArticleType', $commentType)
     ->where('ArticleID', $articleId)
+    ->whereNull('deleted_at')
     ->whereHas('user', function ($query) {
         $query->whereNull('banned_at');
     })
