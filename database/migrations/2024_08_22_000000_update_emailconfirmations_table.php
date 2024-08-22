@@ -14,21 +14,29 @@ return new class() extends Migration {
                 $table->increments('id')->first();
             }
 
-            $table->unsignedBigInteger('user_id')->nullable()->after('User');
+            if (!Schema::hasColumn('EmailConfirmations', 'user_id')) {
+                $table->unsignedBigInteger('user_id')->nullable()->after('User');
+            }
         });
 
         Schema::table('EmailConfirmations', function (Blueprint $table) {
-            $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
+            if (Schema::hasColumn('EmailConfirmations', 'user_id')) {
+                $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('EmailConfirmations', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
-            $table->dropColumn('user_id');
+            if (Schema::hasColumn('EmailConfirmations', 'user_id')) {
+                $table->dropForeign(['user_id']);
+                $table->dropColumn('user_id');
+            }
 
-            $table->dropColumn('id');
+            if (Schema::hasColumn('EmailConfirmations', 'id')) {
+                $table->dropColumn('id');
+            }
         });
     }
 };
