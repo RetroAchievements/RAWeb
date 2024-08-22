@@ -40,8 +40,11 @@ class GameTopAchieversService
      */
     private function masteryQuery(): Builder
     {
-        return $this->baseQuery()->where('achievements_unlocked_hardcore', $this->masteryAchievements);
-
+        if ($this->masteryAchievements > 0) {
+            return $this->baseQuery()->where('achievements_unlocked_hardcore', $this->masteryAchievements);
+        } else {
+            return $this->baseQuery()->where('achievements_unlocked_hardcore', '>', '0');
+        }
     }
 
     public function numMasteries(): int
