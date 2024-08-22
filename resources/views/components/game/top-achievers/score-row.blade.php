@@ -4,7 +4,7 @@
     'score' => 0,
 ])
 
-@if ($user->id === request()->user()->id)
+@if (request()->user() && $user->id === request()->user()->id)
     <tr style='outline: thin solid'>
 @else
     <tr>
