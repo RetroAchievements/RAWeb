@@ -15,6 +15,7 @@ use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
@@ -33,6 +34,8 @@ class GameExtendedTest extends TestCase
 
     public function testGetGame(): void
     {
+        $releasedAt = Carbon::parse('1992-05-16');
+
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -47,6 +50,8 @@ class GameExtendedTest extends TestCase
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
             'Released' => 'Jan 1989',
+            'released_at' => $releasedAt,
+            'released_at_granularity' => 'week',
         ]);
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
@@ -99,7 +104,8 @@ class GameExtendedTest extends TestCase
                 'Publisher' => $game->Publisher,
                 'Developer' => $game->Developer,
                 'Genre' => $game->Genre,
-                'Released' => $game->Released,
+                'Released' => $releasedAt->format('Y-m-d'),
+                'ReleasedAtGranularity' => 'week',
                 'IsFinal' => 0,
                 'NumAchievements' => 3,
                 'NumDistinctPlayers' => 4,
@@ -171,6 +177,8 @@ class GameExtendedTest extends TestCase
 
     public function testGetGameClaimed(): void
     {
+        $releasedAt = Carbon::parse('1992-05-16');
+
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -185,6 +193,8 @@ class GameExtendedTest extends TestCase
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
             'Released' => 'Jan 1989',
+            'released_at' => $releasedAt,
+            'released_at_granularity' => 'week',
         ]);
 
         /** @var User $user2 */
@@ -214,7 +224,8 @@ class GameExtendedTest extends TestCase
                 'Publisher' => $game->Publisher,
                 'Developer' => $game->Developer,
                 'Genre' => $game->Genre,
-                'Released' => $game->Released,
+                'Released' => $releasedAt->format('Y-m-d'),
+                'ReleasedAtGranularity' => 'week',
                 'IsFinal' => 0,
                 'Achievements' => [],
                 'Claims' => [
