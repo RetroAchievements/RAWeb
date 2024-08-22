@@ -70,11 +70,6 @@ if (!$game->save()) {
     return back()->withErrors(__('legacy.error.image_upload'));
 }
 
-$game->$field = $imagePath;
-if (!$game->save()) {
-    return back()->withErrors(__('legacy.error.image_upload'));
-}
-
 // Double write to game_sets.
 if ($field === 'ImageIcon' && $game->ConsoleID === System::Hubs) {
     $hubGameSet = GameSet::firstWhere('game_id', $game->id);
