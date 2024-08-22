@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community\Concerns;
 
 use App\Community\Enums\UserRelationship;
+use App\Models\EmailConfirmation;
 use App\Models\ForumTopicComment;
 use App\Models\MessageThreadParticipant;
 use App\Models\Subscription;
@@ -103,6 +104,11 @@ trait ActsAsCommunityMember
         return $this->isFollowing($user) && $user->isFollowing($this);
     }
 
+    public function isEmailVerified(): bool
+    {
+        return !empty($this->email_verified_at);
+    }
+
     public function isForumVerified(): bool
     {
         return !empty($this->forum_verified_at);
@@ -159,6 +165,14 @@ trait ActsAsCommunityMember
     public function comments(): MorphMany
     {
         return $this->morphMany(UserComment::class, 'commentable')->with('user');
+    }
+
+    /**
+     * @return HasMany<EmailConfirmation>
+     */
+    public function emailConfirmations(): HasMany
+    {
+        return $this->hasMany(EmailConfirmation::class, 'user_id', 'ID');
     }
 
     /**

@@ -14,22 +14,15 @@ use Illuminate\Support\Carbon;
 // TODO migrate to action
 function SubmitLeaderboardEntry(
     User $user,
-    int $lbID,
+    Leaderboard $leaderboard,
     int $newEntry,
     ?string $validation,
-    ?GameHash $gameHash = null
+    ?GameHash $gameHash = null,
+    ?Carbon $timestamp = null,
 ): array {
     $retVal = ['Success' => true];
 
-    $leaderboard = Leaderboard::with('game')->find($lbID);
-
-    if (!$leaderboard) {
-        $retVal['Success'] = false;
-        $retVal['Error'] = "Cannot find the leaderboard with ID: $lbID";
-
-        return $retVal;
-    }
-
+    $leaderboard->loadMissing('game');
     if ($leaderboard->game->ConsoleID && !isValidConsoleId($leaderboard->game->ConsoleID)) {
         $retVal['Success'] = false;
         $retVal['Error'] = "Cannot submit entry for unsupported console";
@@ -47,11 +40,12 @@ function SubmitLeaderboardEntry(
     $retVal['Score'] = $newEntry;
     $retVal['ScoreFormatted'] = ValueFormat::format($newEntry, $leaderboard->Format);
 
+    $timestamp ??= Carbon::now();
     $playerSession = app()->make(ResumePlayerSession::class)->execute(
         $user,
         $leaderboard->game,
         ($gameHash && !$gameHash->isMultiDiscGameHash()) ? $gameHash : null,
-        timestamp: Carbon::now(),
+        timestamp: $timestamp,
     );
 
     $existingLeaderboardEntry = LeaderboardEntry::withTrashed()
@@ -70,6 +64,7 @@ function SubmitLeaderboardEntry(
             // Update the player's entry.
             $existingLeaderboardEntry->score = $newEntry;
             $existingLeaderboardEntry->player_session_id = $playerSession->id;
+            $existingLeaderboardEntry->updated_at = $timestamp;
             $existingLeaderboardEntry->save();
 
             $retVal['BestScore'] = $newEntry;
@@ -84,6 +79,8 @@ function SubmitLeaderboardEntry(
             'user_id' => $user->id,
             'score' => $newEntry,
             'player_session_id' => $playerSession->id,
+            'created_at' => $timestamp,
+            'updated_at' => $timestamp,
         ]);
 
         $retVal['BestScore'] = $newEntry;

@@ -17,7 +17,7 @@
         @foreach ($processedRecentlyPlayedEntities as $processedRecentlyPlayedEntity)
             <x-game-list-item
                 :game="$processedRecentlyPlayedEntity"
-                :targetUserName="$targetUsername"
+                :targetUsername="$targetUsername"
                 :isExpandable="true"
                 :isDefaultExpanded="$loop->index === 0 && !empty($processedRecentlyPlayedEntity['AchievementAvatars'])"
                 variant="user-recently-played"

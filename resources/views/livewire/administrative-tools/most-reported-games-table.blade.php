@@ -40,6 +40,10 @@ new class extends Component implements HasForms, HasTable {
                     ->label('Tickets Opened Since')
                     ->since(),
 
+                Tables\Columns\TextColumn::make('NewestTicketDate')
+                    ->label('Newest Ticket Date')
+                    ->since(),
+
                 Tables\Columns\TextColumn::make('UniquelyTicketedAchievements')
                     ->label('Ticketed Achievements')
                     ->numeric()
@@ -69,6 +73,11 @@ new class extends Component implements HasForms, HasTable {
             ->select('AchievementID', DB::raw('MIN(ReportedAt) as OldestTicketDate'))
             ->groupBy('AchievementID');
 
+        $newestTicketSubquery = Ticket::unresolved()
+            ->officialCore()
+            ->select('AchievementID', DB::raw('MAX(ReportedAt) as NewestTicketDate'))
+            ->groupBy('AchievementID');
+
         return (
             Ticket::unresolved()
                 ->officialCore()
@@ -77,6 +86,9 @@ new class extends Component implements HasForms, HasTable {
                 ->join('Console', 'Console.ID', '=', 'GameData.ConsoleID')
                 ->leftJoinSub($oldestTicketSubquery, 'oldest_tickets', function ($join) {
                     $join->on('Ticket.AchievementID', '=', 'oldest_tickets.AchievementID');
+                })
+                ->leftJoinSub($newestTicketSubquery, 'newest_tickets', function ($join) {
+                    $join->on('Ticket.AchievementID', '=', 'newest_tickets.AchievementID');
                 })
                 ->select(
                     'GameData.ID',
@@ -88,6 +100,7 @@ new class extends Component implements HasForms, HasTable {
                     DB::raw('count(Ticket.ID) AS TicketCount'),
                     DB::raw('count(DISTINCT Ticket.AchievementID) AS UniquelyTicketedAchievements'),
                     DB::raw('MIN(oldest_tickets.OldestTicketDate) AS OldestTicketDate'),
+                    DB::raw('MAX(newest_tickets.NewestTicketDate) AS NewestTicketDate'),
                 )
                 ->groupBy(
                     'GameData.ID',
