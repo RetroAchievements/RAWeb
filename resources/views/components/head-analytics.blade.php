@@ -55,28 +55,28 @@
     }
 @endphp
 
-@if (!app()->environment('local'))
-    @if (app()->environment('stage'))
-        <script defer data-domain="stage.retroachievements.org" src="https://plausible.retroachievements.org/psa2.js"></script>
-    @elseif (app()->environment('production'))
-        <script defer data-domain="retroachievements.org" src="https://plausible.retroachievements.org/psa2.js"></script>
-    @endif
-
-    <script>
-        window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }
-    </script>
-
-    <script>
-        (function() {
-            var redactedUrl = "{{ $redactedUrl }}";
-            var props = @json($props);
-
-            let searchParams = '';
-            if (window.location.search.includes('t=play') || window.location.search.includes('t=develop')) {
-                searchParams = window.location.search;
-            }
-
-            plausible('pageview', { u: redactedUrl + searchParams, props });
-        })();
-    </script>
+@if (app()->environment('local'))
+    <script defer data-domain="localhost" src="https://plausible.io/js/script.tagged-events.pageview-props.local.manual.js"></script>
+@elseif (app()->environment('stage'))
+    <script defer data-domain="stage.retroachievements.org" src="https://plausible.retroachievements.org/psa2.js"></script>
+@elseif (app()->environment('production'))
+    <script defer data-domain="retroachievements.org" src="https://plausible.retroachievements.org/psa2.js"></script>
 @endif
+
+<script>
+    window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }
+</script>
+
+<script>
+    (function() {
+        var redactedUrl = "{{ $redactedUrl }}";
+        var props = @json($props);
+
+        let searchParams = '';
+        if (window.location.search.includes('t=play') || window.location.search.includes('t=develop')) {
+            searchParams = window.location.search;
+        }
+        
+        plausible('pageview', { u: redactedUrl + searchParams, props });
+    })();
+</script>
