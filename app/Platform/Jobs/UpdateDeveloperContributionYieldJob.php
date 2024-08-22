@@ -42,7 +42,13 @@ class UpdateDeveloperContributionYieldJob implements ShouldQueue, ShouldBeUnique
 
     public function handle(): void
     {
+        $user = User::withTrashed()->findOrFail($this->userId);
+
+        if ($user->trashed()) {
+            return;
+        }
+
         app()->make(UpdateDeveloperContributionYield::class)
-            ->execute(User::withTrashed()->findOrFail($this->userId));
+            ->execute($user);
     }
 }
