@@ -16,53 +16,69 @@ class UpdateGameSetFromGameAlternativesModification
         $parentGame = Game::find($parentGameId);
         $childGame = Game::find($childGameId);
 
+        // Prioritize hubs being the parent when one of the games is a hub.
         // Determine if a swap is needed to ensure the hub is always the parent or consistent ordering.
-        if (
-            ($parentGame->ConsoleID !== System::Hubs && $childGame->ConsoleID === System::Hubs)
-            || ($parentGameId > $childGameId)
-        ) {
-            // Swap to ensure the hub is the parent, or ensure consistent ordering.
+        if ($childGame->ConsoleID === System::Hubs) {
+            $temp = $parentGame;
+            $parentGame = $childGame;
+            $childGame = $temp;
+        } elseif ($parentGame->ConsoleID !== System::Hubs && $parentGame->id > $childGame->id) {
             $temp = $parentGame;
             $parentGame = $childGame;
             $childGame = $temp;
         }
 
-        $parentGameSet = GameSet::firstWhere('game_id', $parentGameId);
-        if (!$parentGameSet) {
-            $isParentGameHub = $parentGame->ConsoleID === System::Hubs;
+        $parentGameSet = GameSet::firstWhere('game_id', $parentGame->id) ?? $this->instantiateGameSetFromGame($parentGame);
+        $childGameSet = GameSet::firstWhere('game_id', $childGame->id) ?? $this->instantiateGameSetFromGame($childGame);
 
-            $parentGameSet = GameSet::updateOrCreate(
-                ['game_id' => $parentGame->id],
-                [
-                    'title' => $isParentGameHub ? $parentGame->title : 'Similar Games',
-                    'type' => $isParentGameHub ? GameSetType::HUB : GameSetType::SIMILAR_GAMES,
-                    'image_asset_path' => $isParentGameHub ? $parentGame->ImageIcon : null,
-                ]
-            );
-        }
-
-        $childGameSet = GameSet::firstWhere('game_id', $childGameId);
+        $isHubLink = $parentGame->ConsoleID === System::Hubs && $childGame->ConsoleID === System::Hubs;
+        $isSimilarGamesLink = $parentGame->ConsoleID !== System::Hubs && $childGame->ConsoleID !== System::Hubs;
 
         if ($isAttaching) {
-            if ($parentGame->ConsoleID === System::Hubs && $childGame->ConsoleID === System::Hubs) {
+            if (
+                !$parentGameSet->links()->where('child_game_set_id', $childGameSet->id)->exists()
+                && $isHubLink
+            ) {
                 $parentGameSet->links()->attach($childGameSet->id);
             } else {
                 // Ensure bi-directionality for non-hub games.
-                $parentGameSet->games()->attach($childGame->id);
-                if ($parentGame->ConsoleID !== System::Hubs && $childGame->ConsoleID !== System::Hubs) {
+                if (!$parentGameSet->games()->where('game_id', $childGame->id)->exists()) {
+                    $parentGameSet->games()->attach($childGame->id);
+                }
+
+                if (
+                    !$childGameSet->games()->where('game_id', $parentGame->id)->exists()
+                    && $isSimilarGamesLink
+                ) {
                     $childGameSet->games()->attach($parentGame->id);
                 }
             }
         } else {
-            if ($parentGame->ConsoleID === System::Hubs && $childGame->ConsoleID === System::Hubs) {
+            if ($isHubLink) {
                 $parentGameSet->links()->detach($childGameSet->id);
             } else {
                 // Ensure bi-directionality for non-hub games.
                 $parentGameSet->games()->detach($childGame->id);
-                if ($parentGame->ConsoleID !== System::Hubs && $childGame->ConsoleID !== System::Hubs) {
+                if ($isSimilarGamesLink) {
                     $childGameSet->games()->detach($parentGame->id);
                 }
             }
         }
+    }
+
+    private function instantiateGameSetFromGame(Game $game): GameSet
+    {
+        $isGameHub = $game->ConsoleID === System::Hubs;
+
+        $gameSet = GameSet::updateOrCreate(
+            ['game_id' => $game->id],
+            [
+                'title' => $isGameHub ? $game->title : 'Similar Games',
+                'type' => $isGameHub ? GameSetType::HUB : GameSetType::SIMILAR_GAMES,
+                'image_asset_path' => $isGameHub ? $game->ImageIcon : null,
+            ]
+        );
+
+        return $gameSet;
     }
 }
