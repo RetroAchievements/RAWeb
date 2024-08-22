@@ -9,25 +9,22 @@ use Illuminate\View\View;
 use function Laravel\Folio\{middleware, name, render};
 
 middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
-name('developer.tickets.resolved-for-others');
+name('developer.tickets.resolved');
 
 render(function (View $view, User $user, TicketListService $ticketListService) {
     $ticketListService->perPage = 50;
-    $selectFilters = $ticketListService->getSelectFilters(showStatus: false);
+    $selectFilters = $ticketListService->getSelectFilters(showStatus: false, showDevType: false, showDeveloper: true, showReporter: true);
     $filterOptions = $ticketListService->getFilterOptions(request());
-    $filterOptions['status'] = 'all'; // will be filtered to Resolved below
+    $filterOptions['status'] = 'all'; // will be filtered to Resolved below (status=resolved includes closed tickets)
+    $filterOptions['userId'] = $user->id;
 
     $ticketQuery = $user->resolvedTickets()->getQuery()
-        ->where('ReportState', '=', TicketState::Resolved)
-        ->where('reporter_id', '!=', $user->id)
-        ->whereHas('achievement', function ($query) use ($user) {
-            $query->where('user_id', '!=', $user->id);
-        });
+        ->where('ReportState', '=', TicketState::Resolved);
 
     $tickets = $ticketListService->getTickets($filterOptions, $ticketQuery);
 
     return $view->with([
-        'pageTitle' => 'Tickets Resolved for Others',
+        'pageTitle' => 'Tickets Resolved',
         'user' => $user,
         'tickets' => $tickets,
         'availableSelectFilters' => $selectFilters,

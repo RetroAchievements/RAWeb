@@ -694,7 +694,9 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
         echo "<table class='table-highlight'><tbody>";
 
         // Total tickets created
-        echo "<tr><td width='50%'>Total Tickets:</td><td>" . $userTickets['total'];
+        echo "<tr><td width='50%'>Total Tickets:</td><td>";
+        echo "<a href=\"" . route('developer.tickets', ['user' => $dev, 'filter[status]' => 'all']) . "\">" . $userTickets['total'] . "</a>";
+
         $parts = [];
         if ($userTickets['open'] > 0) {
             $parts[] = $userTickets['open'] . " Open";
@@ -763,8 +765,19 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
         }
         echo "</td></tr>";
 
+        // Tickets resolved
+        echo "<tr><td>Tickets Resolved:</td><td>";
+        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev]) . "\">";
+        echo $devUser->resolvedTickets()->where('ReportState', '=', TicketState::Resolved)->count();
+        echo "</a>";
+        echo "</td></tr>";
+
         // Tickets resolved for other users
-        echo "<tr><td>Tickets Resolved for Others:</td><td>" . $closedResolvedTicketInfo['ResolvedCount'] . "</td></tr>";
+        echo "<tr><td>Tickets Resolved for Others:</td><td>";
+        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev, 'filter[achievement]' => 'core', 'filter[developer]' => 'others', 'filter[reporter]' => 'others']) . "\">";
+        echo $closedResolvedTicketInfo['ResolvedCount'];
+        echo "</a>";
+        echo "</td></tr>";
 
         // Users you have resolved the most tickets for
         echo "<tr><td>User $dev Has Resolved the Most Tickets For:</td><td>";
