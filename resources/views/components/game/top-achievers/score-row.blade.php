@@ -17,9 +17,9 @@
             <x-user.avatar hasHref="true" :user="$user" />
         </td>
         <td>
-            <div class="flex items-center gap-1 float-right">
+            <div class="flex items-center gap-1 justify-end">
                 @if ($score === $maxScore)
-                    <div class="rounded-full bg-[gold] light:bg-yellow-600 w-2 h-2"></div>
+                    <div class="rounded-full bg-[gold] light:bg-yellow-600 w-2 h-2" title="Mastered"></div>
                 @endif
                 <p>{{ localized_number($score) }}</p>
             </div>
