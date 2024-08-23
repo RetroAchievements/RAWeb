@@ -56,7 +56,7 @@ class Handler extends ExceptionHandler
         $context = parent::buildExceptionContext($e);
 
         $request = request();
-        if ($request) {
+        if ($request && !app()->runningInConsole()) {
             $context['url'] = $request->url();
 
             // never log raw passwords
@@ -85,6 +85,12 @@ class Handler extends ExceptionHandler
 
             // capture any remaining parameters
             $context['params'] = http_build_query($params);
+        } elseif ($request) {
+            // running in console - dump command line parameters
+            $argv = $request->server('argv', null);
+            if ($argv) {
+                $context['argv'] = json_encode($argv);
+            }
         }
 
         return $context;
