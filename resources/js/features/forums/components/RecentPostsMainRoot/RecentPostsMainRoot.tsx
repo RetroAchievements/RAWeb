@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import { RecentPostsBreadcrumbs } from './RecentPostsBreadcrumbs';
@@ -6,11 +7,13 @@ import { RecentPostsPagination } from './RecentPostsPagination';
 import { RecentPostsTable } from './RecentPostsTable';
 
 export const RecentPostsMainRoot: FC = () => {
+  const { t } = useLaravelReactI18n();
+
   return (
     <div>
       <RecentPostsBreadcrumbs />
 
-      <h1 className="w-full">Recent Posts</h1>
+      <h1 className="w-full">{t('Recent Posts')}</h1>
 
       <div className="lg:hidden">
         <RecentPostsCards />
