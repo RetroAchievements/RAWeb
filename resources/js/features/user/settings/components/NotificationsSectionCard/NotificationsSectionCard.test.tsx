@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
-import { route } from 'ziggy-js';
 
 import { convertObjectToWebsitePrefs } from '@/common/utils/convertObjectToWebsitePrefs';
 import { UserPreference } from '@/common/utils/generatedAppConstants';

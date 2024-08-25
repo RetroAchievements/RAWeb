@@ -4,7 +4,6 @@ import axios from 'axios';
 import type { FC } from 'react';
 import { useId } from 'react';
 import { LuAlertCircle } from 'react-icons/lu';
-import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {

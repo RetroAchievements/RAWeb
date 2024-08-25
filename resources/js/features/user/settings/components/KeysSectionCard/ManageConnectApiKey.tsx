@@ -2,7 +2,6 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { type FC } from 'react';
 import { LuAlertCircle } from 'react-icons/lu';
-import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';

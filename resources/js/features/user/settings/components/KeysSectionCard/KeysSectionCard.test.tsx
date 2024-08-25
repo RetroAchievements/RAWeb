@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
-import { route } from 'ziggy-js';
 
 import { render, screen } from '@/test';
 
@@ -63,7 +62,7 @@ describe('Component: KeysSectionCard', () => {
   it('given the user presses the reset web API key button, sends a DELETE call to the server', async () => {
     // ARRANGE
     vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
-    const deleteSpy = vi.spyOn(axios, 'delete');
+    const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
 
     render(<KeysSectionCard />, { pageProps: createSettingsPageProps() });
 
@@ -94,7 +93,7 @@ describe('Component: KeysSectionCard', () => {
   it('given the user presses the reset Connect API key button, sends a DELETE call to the server', async () => {
     // ARRANGE
     vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
-    const deleteSpy = vi.spyOn(axios, 'delete');
+    const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
 
     render(<KeysSectionCard />, { pageProps: createSettingsPageProps() });
 

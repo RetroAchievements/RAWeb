@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
-import { route } from 'ziggy-js';
 import type { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';

@@ -3,7 +3,6 @@ import {
   mockAllIsIntersecting,
   resetIntersectionMocking,
 } from 'react-intersection-observer/test-utils';
-import { route } from 'ziggy-js';
 
 import { render } from '@/test';
 import { createPlayerResettableGame } from '@/test/factories';

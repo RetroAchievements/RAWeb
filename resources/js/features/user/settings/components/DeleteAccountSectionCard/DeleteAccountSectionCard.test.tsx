@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
-import { route } from 'ziggy-js';
 
 import { render, screen } from '@/test';
 

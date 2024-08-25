@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
-import { route } from 'ziggy-js';
 
 import { render, screen } from '@/test';
 
@@ -76,7 +75,7 @@ describe('Component: ChangeEmailAddressSectionCard', () => {
   it('given the user attempts to submit with valid form input, submits the data to the server', async () => {
     // ARRANGE
     vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
-    const putSpy = vi.spyOn(axios, 'put');
+    const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });
 
     render(<ChangeEmailAddressSectionCard />, {
       pageProps: {
