@@ -128,6 +128,7 @@ class Game extends BaseModel implements HasComments, HasMedia
                 'Publisher',
                 'Developer',
                 'Genre',
+                'ImageIcon',
                 'released_at',
                 'released_at_granularity',
             ])
