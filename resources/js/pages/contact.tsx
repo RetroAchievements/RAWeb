@@ -7,7 +7,10 @@ const Contact: AppPage = () => {
   return (
     <>
       <Head title="Contact Us">
-        <meta name="description" content="TODO" />
+        <meta
+          name="description"
+          content="Get in touch with RetroAchievements teams for reporting issues, seeking assistance, or contributing to the community. Contact admins, developers, QA, and more."
+        />
       </Head>
 
       <AppLayout.Main>
