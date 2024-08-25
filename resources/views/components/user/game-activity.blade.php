@@ -32,6 +32,18 @@ use App\Platform\Enums\AchievementFlag;
                         @if ($session['type'] === PlayerGameActivitySessionType::Player)
                             <td>
                                 <span class='text-muted'>Started Playing</span>
+                                @if ($session['playerSession'] && $session['playerSession']['gameHash'])
+                                    @php $hash = $session['playerSession']['gameHash']; @endphp
+                                    <span class="smalltext" title="{{ $hash['md5'] }}">
+                                        {{ $hash['name'] }}
+                                        @if ($hash->isMultiDiscGameHash())
+                                            <span title="Hashes associated to multi-disc game only reflect the first disc loaded">*</span>
+                                        @endif
+                                    </span>
+                                    @if ($session['userAgent'])
+                                        <span class="text-muted"> | </span>
+                                    @endif
+                                @endif
                                 @if ($session['userAgent'])
                                     <span class="smalltext" title="{{ $session['userAgent'] }}">
                                     @php $userAgent = $userAgentService->decode($session['userAgent']) @endphp
@@ -45,18 +57,6 @@ use App\Platform\Enums\AchievementFlag;
                                     @if (!empty($userAgent['os']))
                                         ({{ $userAgent['os'] }})
                                     @endif
-                                    </span>
-                                @endif
-                                @if ($session['playerSession'] && $session['playerSession']['gameHash'])
-                                    @if ($session['userAgent'])
-                                        <span class="text-muted"> | </span>
-                                    @endif
-                                    @php $hash = $session['playerSession']['gameHash']; @endphp
-                                    <span class="smalltext" title="{{ $hash['name'] }}">
-                                        {{ $hash['md5'] }}
-                                        @if ($hash->isMultiDiscGameHash())
-                                            <span title="Hashes associated to multi-disc game only reflect the first disc loaded">*</span>
-                                        @endif
                                     </span>
                                 @endif
                             </td>
