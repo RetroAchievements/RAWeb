@@ -47,6 +47,18 @@ use App\Platform\Enums\AchievementFlag;
                                     @endif
                                     </span>
                                 @endif
+                                @if ($session['playerSession'] && $session['playerSession']['gameHash'])
+                                    @if ($session['userAgent'])
+                                        <span class="text-muted"> | </span>
+                                    @endif
+                                    @php $hash = $session['playerSession']['gameHash']; @endphp
+                                    <span class="smalltext" title="{{ $hash['name'] }}">
+                                        {{ $hash['md5'] }}
+                                        @if ($hash->isMultiDiscGameHash())
+                                            <span title="Hashes associated to multi-disc game only reflect the first disc loaded">*</span>
+                                        @endif
+                                    </span>
+                                @endif
                             </td>
                         @elseif ($session['type'] === PlayerGameActivitySessionType::Generated)
                             <td class='text-muted' title='These events occurred outside of any captured play sessions'>Generated Session</td>
