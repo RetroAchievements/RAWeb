@@ -104,9 +104,4 @@ class Comment extends BaseModel
     {
         return $this->belongsTo(User::class, 'user_id', 'ID')->withDefault(['username' => 'Deleted User']);
     }
-
-    protected static function newFactory(): CommentFactory
-    {
-        return CommentFactory::new();
-    }
 }
