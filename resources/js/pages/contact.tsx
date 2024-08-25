@@ -1,5 +1,4 @@
 import { Head } from '@inertiajs/react';
-import { route } from 'ziggy-js';
 
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
