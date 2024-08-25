@@ -31,12 +31,11 @@ if (
     abort(403);
 }
 
-if (updateAchievementEmbedVideoUrl($achievementId, $embedUrl)) {
-    $auditLog = "$user set this achievement's embed URL.";
+$achievement->AssocVideo = strip_tags($embedUrl);
+$achievement->save();
 
-    addArticleComment('Server', ArticleType::Achievement, $achievementId, $auditLog, $user);
+$auditLog = "$user set this achievement's embed URL.";
 
-    return response()->json(['message' => __('legacy.success.ok')]);
-}
+addArticleComment('Server', ArticleType::Achievement, $achievementId, $auditLog, $user);
 
-abort(400);
+return response()->json(['message' => __('legacy.success.ok')]);

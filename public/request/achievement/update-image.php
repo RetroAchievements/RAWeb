@@ -32,11 +32,8 @@ try {
     return back()->withErrors(__('legacy.error.image_upload'));
 }
 
-$dbResult = legacyDbStatement('UPDATE Achievements AS a SET BadgeName=:badgeName WHERE a.ID = :achievementId', [
-    'achievementId' => $achievementId,
-    'badgeName' => $imagePath,
-]);
-if (!$dbResult) {
+$achievement->BadgeName = $imagePath;
+if (!$achievement->save()) {
     return back()->withErrors(__('legacy.error.image_upload'));
 }
 

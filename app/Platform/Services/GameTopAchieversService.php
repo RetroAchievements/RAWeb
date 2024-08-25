@@ -6,6 +6,7 @@ namespace App\Platform\Services;
 
 use App\Models\Game;
 use App\Models\PlayerGame;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -40,8 +41,11 @@ class GameTopAchieversService
      */
     private function masteryQuery(): Builder
     {
-        return $this->baseQuery()->where('achievements_unlocked_hardcore', $this->masteryAchievements);
-
+        if ($this->masteryAchievements > 0) {
+            return $this->baseQuery()->where('achievements_unlocked_hardcore', $this->masteryAchievements);
+        } else {
+            return $this->baseQuery()->where('achievements_unlocked_hardcore', '>', '0');
+        }
     }
 
     public function numMasteries(): int
@@ -105,7 +109,10 @@ class GameTopAchieversService
         $cacheKey = "game:{$this->gameId}:top-achievers";
         $retval = Cache::get($cacheKey);
         if ($retval !== null) {
-            return $retval;
+            $numTrashed = User::onlyTrashed()->whereIn('ID', array_column($retval[1], 'user_id'))->count();
+            if ($numTrashed === 0) {
+                return $retval;
+            }
         }
 
         $numMasteries = $this->numMasteries();
