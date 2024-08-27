@@ -1,7 +1,5 @@
 <?php
 
-// TODO migrate to Livewire
-
 use App\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Arr;
@@ -16,13 +14,14 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'body' => 'required|string|max:60000',
 ]);
 
-$normalized = normalize_shortcodes($input['body']);
-$sanitized = htmlspecialchars($normalized, ENT_QUOTES, 'UTF-8');
+$mutatedBody = $input['body'];
+$mutatedBody = normalize_shortcodes($mutatedBody);
+$mutatedBody = htmlspecialchars($mutatedBody, ENT_QUOTES, 'UTF-8');
 
 return response()->json([
     'message' => __('legacy.success.ok'),
     'postPreviewHtml' => Blade::render('<x-forum.topic-comment :$variant>{!! $body !!}</x-forum.topic-comment> ', [
-        'body' => Shortcode::render($sanitized),
+        'body' => Shortcode::render($mutatedBody),
         'variant' => 'preview',
     ]),
 ]);
