@@ -14,6 +14,7 @@ return [
         'game_modify' => __("Problems encountered while performing modification. Does the target game already exist? If so, try a merge instead on the target game title."),
         'image_upload' => "Image could not be uploaded.",
         'invalid_news_content' => __("Problems encountered with news content. Ensure any given HTML is valid."),
+        'muted_user' => __("Muted users can only message team accounts."),
         'permissions' => __('Insufficient permissions.'),
         'recaptcha' => __("Invalid ReCaptcha."),
         'subscription_update' => __("Failed to update topic subscription."),
