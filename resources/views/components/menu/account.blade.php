@@ -79,6 +79,7 @@ $user = request()->user();
         <div class="dropdown-divider"></div>
         <x-dropdown-item :href="url('achievementList.php?s=19&p=1')">Unlocked Achievements</x-dropdown-item>
         <x-dropdown-item :href="url('setRequestList.php?u=' . $user->username)">Requested Sets</x-dropdown-item>
+        <x-dropdown-item :href="route('user.tickets.created', ['user' => $user])">Created Tickets</x-dropdown-item>
         {{--<a class="dropdown-item" href="{{ route('history.index') }}">History</a>--}}
         <x-dropdown-item :href="url('history.php')">History</x-dropdown-item>
         {{--<x-dropdown-item :href="route('follower.index')">{{ __res('follower') }}</x-dropdown-item>--}}

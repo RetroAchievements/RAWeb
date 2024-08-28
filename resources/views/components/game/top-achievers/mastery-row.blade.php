@@ -6,7 +6,7 @@
     'iconSize' => 'xs',
 ])
 
-@if ($masteryUser->id === request()->user()->id)
+@if (request()->user() && $masteryUser->id === request()->user()->id)
     <tr style='outline: thin solid'>
 @else
     <tr>
