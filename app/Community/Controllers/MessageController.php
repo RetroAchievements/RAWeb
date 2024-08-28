@@ -12,6 +12,7 @@ use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
+use App\Support\Shortcode\Shortcode;
 use Illuminate\Http\RedirectResponse;
 
 class MessageController extends Controller
@@ -24,6 +25,10 @@ class MessageController extends Controller
         $user = request()->user();
 
         $input = $request->validated();
+
+        $body = $input['body'];
+        $body = normalize_shortcodes($input['body']);
+        $body = Shortcode::convertUserShortcodesToUseIds($body);
 
         if (array_key_exists('thread_id', $input) && $input['thread_id'] != null) {
             $thread = MessageThread::firstWhere('id', $input['thread_id']);
@@ -40,19 +45,23 @@ class MessageController extends Controller
 
             foreach ($thread->users as $threadUser) {
                 if (!$threadUser->is($user) && !$user->can('sendToRecipient', [Message::class, $threadUser])) {
-                    return back()->withErrors(__('legacy.error.cannot_message_user'));
+                    return back()->withErrors($user->isMuted() ?
+                        __('legacy.error.muted_user') :
+                        __('legacy.error.cannot_message_user'));
                 }
             }
 
-            (new AddToMessageThreadAction())->execute($thread, $user, $input['body']);
+            (new AddToMessageThreadAction())->execute($thread, $user, $body);
         } else {
             $recipient = User::firstWhere('User', $input['recipient']);
 
             if (!$user->can('sendToRecipient', [Message::class, $recipient])) {
-                return back()->withErrors(__('legacy.error.cannot_message_user'));
+                return back()->withErrors($user->isMuted() ?
+                    __('legacy.error.muted_user') :
+                    __('legacy.error.cannot_message_user'));
             }
 
-            $thread = (new CreateMessageThreadAction())->execute($user, $recipient, $input['title'], $input['body']);
+            $thread = (new CreateMessageThreadAction())->execute($user, $recipient, $input['title'], $body);
         }
 
         return redirect(route("message-thread.show", ['messageThread' => $thread->id]))->with('success', __('legacy.success.message_send'));
