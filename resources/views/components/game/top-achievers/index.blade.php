@@ -20,7 +20,7 @@ $service->initialize($game);
         </div>
     @endif
 @elseif ($game->points_total === 0)
-    <x-game.top-achievers.most-points :highestPointEarners="$topAchievers" isEvent="true" />
+    <x-game.top-achievers.most-points :highestPointEarners="$topAchievers" :maxScore="$game->achievements_published" isEvent="true" />
 @else
-    <x-game.top-achievers.most-points :highestPointEarners="$topAchievers" />
+    <x-game.top-achievers.most-points :highestPointEarners="$topAchievers" :maxScore="$game->points_total" />
 @endif
