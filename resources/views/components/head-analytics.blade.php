@@ -11,8 +11,9 @@
 --}}
 
 @php
-    // Get the current URL path.
+    // Get the current URL path and query parameters.
     $url = request()->path();
+    $queryParams = request()->query();
 
     // Check if the URL should be redacted
     if (preg_match('/\/\d+$/', $url) || preg_match('/\/\d+\//', $url) || preg_match('/^user\/[^\/]+/', $url)) {
@@ -53,6 +54,19 @@
             break;
         }
     }
+
+    // Extract the `t` parameter from gameList.php to track what kind of list users are opening.
+    if (str_ends_with($url, 'gameList.php') && isset($queryParams['t'])) {
+        $tParam = $queryParams['t'];
+        if ($tParam === 'play' || $tParam === 'develop') {
+            $props['type'] = $queryParams['t'];
+        }
+    }
+
+    // Track what topic ID users are viewing at viewtopic.php.
+    if (strpos($url, 'viewtopic') !== false && isset($queryParams['t'])) {
+        $props['topicId'] = $queryParams['t'];
+    }
 @endphp
 
 @if (app()->environment('local'))
@@ -71,12 +85,7 @@
     (function() {
         var redactedUrl = "{{ $redactedUrl }}";
         var props = @json($props);
-
-        let searchParams = '';
-        if (window.location.search.includes('t=play') || window.location.search.includes('t=develop')) {
-            searchParams = window.location.search;
-        }
         
-        plausible('pageview', { u: redactedUrl + searchParams, props });
+        plausible('pageview', { u: redactedUrl, props });
     })();
 </script>
