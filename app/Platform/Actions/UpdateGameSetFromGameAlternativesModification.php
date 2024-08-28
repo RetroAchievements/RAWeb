@@ -41,7 +41,7 @@ class UpdateGameSetFromGameAlternativesModification
         $isSimilarGamesLink = $parentGame->ConsoleID !== System::Hubs && $childGame->ConsoleID !== System::Hubs;
 
         // Use provided timestamps from $existingGameAlt if they're available, otherwise default to now.
-        $createdAt = $existingGameAlt?->Created ?? Carbon::now();
+        $createdAt = $existingGameAlt?->Created ?? $existingGameAlt?->Updated ?? Carbon::now();
         $updatedAt = $existingGameAlt?->Updated ?? Carbon::now();
 
         if ($isAttaching) {
