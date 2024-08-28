@@ -16,7 +16,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -102,24 +101,23 @@ class ForumTopicController extends \App\Http\Controller
 
     private function getTotalRecentForumTopics(int $permissions = Permissions::Unregistered): int
     {
-        $query = "
-            SELECT COUNT(*) as total
-            FROM ForumTopic
-            WHERE RequiredPermissions <= :permissions
-            AND deleted_at IS NULL
-            AND (
-                LatestCommentID IS NOT NULL
-                OR
-                ID IN (
-                    SELECT DISTINCT ForumTopicID
-                    FROM ForumTopicComment
-                    WHERE Authorised = 1
-                )
-            )";
-
-        $result = DB::selectOne($query, ['permissions' => $permissions]);
-
-        return $result->total;
+        return ForumTopic::query()
+            ->where("RequiredPermissions", "<=", $permissions)
+            ->whereNull("deleted_at")
+            ->where(function ($query) {
+                $query
+                    ->whereNotNull("LatestCommentID")
+                    ->orWhereIn("ID", function ($subQuery) {
+                        $subQuery
+                            ->select("ForumTopicID")
+                            ->distinct()
+                            ->from("ForumTopicComment")
+                            ->where("Authorised", 1);
+                        }
+                    );
+                }
+            )
+            ->count();
     }
 
     public function recentlyActive(Request $request): InertiaResponse
