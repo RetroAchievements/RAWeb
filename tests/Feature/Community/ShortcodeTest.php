@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use App\Models\User;
 use App\Support\Shortcode\Shortcode;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 final class ShortcodeTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function testProtocolPrefix(): void
     {
         $this->assertSame(
@@ -168,12 +172,18 @@ final class ShortcodeTest extends TestCase
 
     public function testNormalizeUserShortcodes(): void
     {
+        /** @var User $user */
+        $user = User::factory()->create([
+            'ID' => 123,
+            'User' => 'Jamiras',
+        ]);
+
         $rawString = 'https://retroachievements.org/user/Jamiras';
 
         $normalized = normalize_shortcodes($rawString);
 
         $this->assertEquals(
-            '[user=Jamiras]',
+            '[user=123]',
             $normalized
         );
     }

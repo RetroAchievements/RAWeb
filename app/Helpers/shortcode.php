@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\User;
 use App\Support\Shortcode\Converter\HTMLConverter;
 
 /**
@@ -58,11 +59,29 @@ function url2shortcode(string $url): string
     return $link;
 }
 
+function convertUserUrlsToShortcodes(string $input): string
+{
+    // Find all instances of user URLs in the input.
+    preg_match_all("~https?://(?:[\w\-]+\.)?retroachievements\.org/user/([\w\-]+)(/?(?![\w/?]))~i", $input, $matches);
+
+    // Map usernames to their corresponding IDs.
+    $usernames = array_unique($matches[1]);
+    $users = User::whereIn('User', $usernames)->get()->keyBy('User');
+
+    // Replace URLs with shortcodes.
+    foreach ($matches[1] as $username) {
+        $userId = $users[$username]->id ?? $username;  // Default to username if user not found
+        $input = str_replace("https://retroachievements.org/user/{$username}", "[user={$userId}]", $input);
+    }
+
+    return $input;
+}
+
 function normalize_shortcodes(string $input): string
 {
     // TODO somewhere, all these entities should be fetched in a batch
 
-    $modifiedInput = $input;
+    $modifiedInput = convertUserUrlsToShortcodes($input);
 
     $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'user');
     $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'game');
