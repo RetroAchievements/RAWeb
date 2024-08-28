@@ -3,7 +3,7 @@
 set -e
 
 # Properly handle SIGINT (Ctrl/Cmd+C) when running paratest.
-trap 'echo "Terminating..."; kill 0' SIGINT
+trap 'kill 0' SIGINT
 
 printf "\n⏳ composer lint\n"
 vendor/bin/pint --test
