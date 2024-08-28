@@ -18,12 +18,16 @@ const Terms: AppPage = () => {
         <h1 className="mb-4">Legal & Terms</h1>
 
         <div className="flex flex-col gap-y-4">
+          {/* 
+            scroll-margin-top doesn't seem to work here. Use an invisible div instead
+            so we provide some offset for the page sticky nav.
+          */}
+          <div className="absolute top-4 sr-only" id="conditions" />
+
           <div className="rounded bg-embed p-4">
             <div className="flex flex-col gap-y-6">
               <div>
-                <h2 className="text-h4" id="conditions">
-                  Terms and Conditions
-                </h2>
+                <h2 className="text-h4">Terms and Conditions</h2>
                 <p className="font-bold">
                   RetroAchievements.org's Terms of Use are subject to change.
                 </p>
