@@ -68,7 +68,8 @@ class SyncGameSets extends Command
             (new UpdateGameSetFromGameAlternativesModification())->execute(
                 parentGameId: $gameAlt->gameID,
                 childGameId: $gameAlt->gameIDAlt,
-                isAttaching: true
+                isAttaching: true,
+                existingGameAlt: $gameAlt,
             );
 
             $progressBar->advance();

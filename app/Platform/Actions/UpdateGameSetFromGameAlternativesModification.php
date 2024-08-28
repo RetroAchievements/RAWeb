@@ -5,14 +5,20 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Game;
+use App\Models\GameAlternative;
 use App\Models\GameSet;
 use App\Models\System;
 use App\Platform\Enums\GameSetType;
+use Illuminate\Support\Carbon;
 
 class UpdateGameSetFromGameAlternativesModification
 {
-    public function execute(int $parentGameId, int $childGameId, bool $isAttaching = true): void
-    {
+    public function execute(
+        int $parentGameId,
+        int $childGameId,
+        bool $isAttaching = true,
+        ?GameAlternative $existingGameAlt = null,
+    ): void {
         $parentGame = Game::find($parentGameId);
         $childGame = Game::find($childGameId);
 
@@ -34,23 +40,36 @@ class UpdateGameSetFromGameAlternativesModification
         $isHubLink = $parentGame->ConsoleID === System::Hubs && $childGame->ConsoleID === System::Hubs;
         $isSimilarGamesLink = $parentGame->ConsoleID !== System::Hubs && $childGame->ConsoleID !== System::Hubs;
 
+        // Use provided timestamps from $existingGameAlt if they're available, otherwise default to now.
+        $createdAt = $existingGameAlt?->Created ?? Carbon::now();
+        $updatedAt = $existingGameAlt?->Updated ?? Carbon::now();
+
         if ($isAttaching) {
             if (
                 !$parentGameSet->links()->where('child_game_set_id', $childGameSet->id)->exists()
                 && $isHubLink
             ) {
-                $parentGameSet->links()->attach($childGameSet->id);
+                $parentGameSet->links()->attach($childGameSet->id, [
+                    'created_at' => $createdAt,
+                    'updated_at' => $updatedAt,
+                ]);
             } else {
                 // Ensure bi-directionality for non-hub games.
                 if (!$parentGameSet->games()->where('game_id', $childGame->id)->exists()) {
-                    $parentGameSet->games()->attach($childGame->id);
+                    $parentGameSet->games()->attach($childGame->id, [
+                        'created_at' => $createdAt,
+                        'updated_at' => $updatedAt,
+                    ]);
                 }
 
                 if (
                     !$childGameSet->games()->where('game_id', $parentGame->id)->exists()
                     && $isSimilarGamesLink
                 ) {
-                    $childGameSet->games()->attach($parentGame->id);
+                    $childGameSet->games()->attach($parentGame->id, [
+                        'created_at' => $createdAt,
+                        'updated_at' => $updatedAt,
+                    ]);
                 }
             }
         } else {
