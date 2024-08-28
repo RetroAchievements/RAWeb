@@ -29,6 +29,9 @@ $rank = $numMasters;
                 @foreach ($latestMasters as $mastery)
                     @php
                         $masteryUser = User::find($mastery['user_id']);
+                        if (!$masteryUser) {
+                            continue;
+                        }
                         $masteryDate = Carbon::createFromTimestamp($mastery['last_unlock_hardcore_at']);
                     @endphp
 

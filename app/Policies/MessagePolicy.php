@@ -25,7 +25,7 @@ class MessagePolicy
 
     public function create(User $user): bool
     {
-        return $user->isNotMuted();
+        return true;
     }
 
     public function update(User $user, Message $message): bool
@@ -50,6 +50,10 @@ class MessagePolicy
 
     public function sendToRecipient(User $user, User $targetUser): bool
     {
+        if ($user->isMuted() && !$targetUser->hasRole(Role::TEAM_ACCOUNT)) {
+            return false;
+        }
+
         $canUserSendWhileBlocked = $user->hasAnyRole([
             Role::ADMINISTRATOR,
             Role::MODERATOR,
