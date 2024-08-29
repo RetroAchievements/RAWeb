@@ -2,9 +2,6 @@
 # exit on error
 set -e
 
-# Properly handle SIGINT (Ctrl/Cmd+C) when running paratest.
-trap 'kill 0' SIGINT
-
 printf "\n⏳ composer lint\n"
 vendor/bin/pint --test
 
@@ -21,14 +18,11 @@ npm run test
 if [ "$(uname)" = "Linux" ] || [ "$(uname)" = "Darwin" ]; then
   # Use --parallel if macOS or Linux are detected.
   printf "\n⏳ composer test -- --parallel\n"
-  vendor/bin/paratest &
+  vendor/bin/paratest
 else
   # If neither of those are detected, don't use --parallel.
   printf "\n⏳ composer test\n"
-  vendor/bin/phpunit &
+  vendor/bin/phpunit
 fi
-
-# Wait for all background tasks to finish.
-wait
 
 printf "\n✅ pre-push OK\n\n"
