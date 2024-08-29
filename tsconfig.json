@@ -20,6 +20,5 @@
     "resources/js/**/*.ts",
     "resources/js/**/*.tsx",
     "resources/js/**/*.d.ts"
-  ],
-  "exclude": ["resources/js/ziggy.js"]
+  ]
 }
