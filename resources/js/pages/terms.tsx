@@ -22,7 +22,7 @@ const Terms: AppPage = () => {
             scroll-margin-top doesn't seem to work here. Use an invisible div instead
             so we provide some offset for the page sticky nav.
           */}
-          <div className="absolute top-4 sr-only" id="conditions" />
+          <div className="sr-only absolute top-4" id="conditions" />
 
           <div className="rounded bg-embed p-4">
             <div className="flex flex-col gap-y-6">
@@ -124,7 +124,7 @@ const Terms: AppPage = () => {
                 </p>
               </div>
 
-              <ul className="list-disc list-inside">
+              <ul className="list-inside list-disc">
                 <li>
                   Without your explicit consent or a legal basis, your personal data is not passed
                   on to third parties.

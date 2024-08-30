@@ -7,6 +7,7 @@ extends:
   - plugin:@typescript-eslint/recommended
   - plugin:react/recommended
   - plugin:react-hooks/recommended
+  - plugin:@tanstack/eslint-plugin-query/recommended
 
 parser: "@typescript-eslint/parser"
 plugins:
@@ -15,8 +16,10 @@ plugins:
   - import
   - jsx-a11y
   - unicorn
+  - vitest
 
 ignorePatterns:
+  - generated.d.ts
   - ziggy.d.ts
 
 settings:
@@ -91,6 +94,7 @@ rules:
       "tabWidth": 2,
       "printWidth": 100,
       "singleQuote": true,
+      "plugins": ["prettier-plugin-tailwindcss"]
     }
 
   # some react recommended rules are fine to avoid in typescript projects
@@ -110,6 +114,13 @@ rules:
 
   # similar to pint, force a newline before return statements
   newline-before-return: error
+
+  # prevent accidental imports from libraries that build the Base* components
+  no-restricted-imports:
+    - error
+    - patterns:
+      - '@radix-ui/*'
+      - 'sonner'
 
 # don't enforce explicit-any rule in test files
 overrides:
