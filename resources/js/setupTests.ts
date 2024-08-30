@@ -3,15 +3,6 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 
 import { loadFaker } from './test/createFactory';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { Ziggy } from './ziggy.js';
-
-/**
- * Ziggy depends on being in the global namespace.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- any is valid
-(global as any).Ziggy = Ziggy;
 
 beforeAll(async () => {
   /**
