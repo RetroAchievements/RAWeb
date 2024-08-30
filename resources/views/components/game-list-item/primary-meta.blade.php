@@ -24,11 +24,11 @@ use Illuminate\Support\Carbon;
 $isEvent = $consoleId === System::Events;
 
 $firstUnlockDate = Carbon::parse($firstWonDate);
-$mostRecentUnlockDate = Carbon::parse($mostRecentWonDate);
+$mostRecentUnlockDate = $mostRecentWonDate ? Carbon::parse($mostRecentWonDate) : null;
 
 $timeToSiteAwardLabelPartOne = '';
 $timeToSiteAwardLabelPartTwo = '';
-$mostRecentUnlockDateLabel = $mostRecentUnlockDate->format('F j Y');
+$mostRecentUnlockDateLabel = $mostRecentUnlockDate?->format('F j Y');
 if ($highestAwardKind && $highestAwardDate && !$isEvent) {
     $highestAwardedAt = Carbon::createFromTimestamp($highestAwardDate);
 
@@ -114,12 +114,14 @@ if ($highestAwardKind && $highestAwardDate && !$isEvent) {
     @if (!$isEvent)
         {{-- c.progress-pmeta__root > div --}}
         <div @if ($variant === 'user-recently-played') class="flex !flex-col-reverse" @endif>
-            <p>
-                @if ($variant === 'user-recently-played')
-                    <span>Last played</span>
-                @endif
-                {{ $mostRecentUnlockDateLabel }}
-            </p>
+            @if ($mostRecentUnlockDateLabel)
+                <p>
+                    @if ($variant === 'user-recently-played')
+                        <span>Last played</span>
+                    @endif
+                    {{ $mostRecentUnlockDateLabel }}
+                </p>
+            @endif
 
             @if ($timeToSiteAwardLabelPartOne && $timeToSiteAwardLabelPartTwo)
                 <p>
