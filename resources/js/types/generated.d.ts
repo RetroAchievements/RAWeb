@@ -36,11 +36,11 @@ declare namespace App.Data {
     displayName: string;
     avatarUrl: string;
     id?: number;
-    username?: string;
-    legacyPermissions?: number;
+    username?: string | null;
+    legacyPermissions?: number | null;
     preferences?: { prefersAbsoluteDates: boolean };
     roles?: App.Models.UserRole[];
-    unreadMessageCount?: number;
+    unreadMessageCount?: number | null;
   };
 }
 declare namespace App.Models {
@@ -68,6 +68,21 @@ declare namespace App.Models {
     | 'team-account'
     | 'beta'
     | 'developer-veteran';
+}
+declare namespace App.Platform.Data {
+  export type PlayerResettableGameAchievement = {
+    id: number;
+    title: string;
+    points: number;
+    isHardcore: boolean;
+  };
+  export type PlayerResettableGame = {
+    id: number;
+    title: string;
+    consoleName: string;
+    numAwarded: number;
+    numPossible: number;
+  };
 }
 declare namespace App.Platform.Enums {
   export type AchievementFlag = 3 | 5;

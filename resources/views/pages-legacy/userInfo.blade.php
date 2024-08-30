@@ -156,7 +156,7 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
             :recentlyPlayedEntities="$userMassData['RecentlyPlayed'] ?? []"
             :recentAchievementEntities="$userMassData['RecentAchievements'] ?? []"
             :recentAwardedEntities="$userMassData['Awarded'] ?? []"
-            :targetUsername="$user ?? ''"
+            :targetUsername="$userPage ?? ''"
             :userAwards="$userAwards"
         />
     <?php
