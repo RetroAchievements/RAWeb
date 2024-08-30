@@ -64,7 +64,14 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "developer.tickets.resolved-for-others": [
+    "developer.tickets.resolved": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
+    "user.tickets.created": [
         {
             "name": "user",
             "required": true,
@@ -201,6 +208,13 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.masters": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.suggest": [
         {
             "name": "game",
@@ -244,9 +258,7 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "terms": [],
     "games.suggest": [],
-    "contact": [],
     "claims.index": [],
     "claims.expiring": [],
     "claims.completed": [],
@@ -265,7 +277,35 @@ declare module 'ziggy-js' {
             "binding": "hash"
         }
     ],
+    "player.games.resettable": [],
+    "player.game.achievements.resettable": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "user.game.destroy": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "user.achievement.destroy": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "forum.recent-posts": [],
+    "user.comment.destroyAll": [
+        {
+            "name": "user",
+            "required": true
+        }
+    ],
     "message.store": [],
     "message-thread.destroy": [
         {
@@ -274,6 +314,12 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "settings.profile.update": [],
+    "settings.preferences.update": [],
+    "settings.password.update": [],
+    "settings.email.update": [],
+    "settings.keys.web.destroy": [],
+    "settings.keys.connect.destroy": [],
     "login": [],
     "logout": [],
     "password.confirmation": [],
@@ -316,12 +362,18 @@ declare module 'ziggy-js' {
             "required": false
         }
     ],
+    "contact": [],
+    "terms": [],
     "user.permalink": [
         {
             "name": "hashId",
             "required": true
         }
-    ]
+    ],
+    "user.delete-request.store": [],
+    "user.delete-request.destroy": [],
+    "user.avatar.store": [],
+    "user.avatar.destroy": []
 }
 }
 export {};
