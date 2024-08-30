@@ -113,3 +113,6 @@ declare namespace App.Platform.Data {
     numPossible: number;
   };
 }
+declare namespace App.Platform.Enums {
+  export type GameSetType = 'hub' | 'similar-games';
+}

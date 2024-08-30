@@ -64,7 +64,14 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "developer.tickets.resolved-for-others": [
+    "developer.tickets.resolved": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
+    "user.tickets.created": [
         {
             "name": "user",
             "required": true,
@@ -251,9 +258,7 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "terms": [],
     "games.suggest": [],
-    "contact": [],
     "claims.index": [],
     "claims.expiring": [],
     "claims.completed": [],
@@ -358,6 +363,8 @@ declare module 'ziggy-js' {
             "required": false
         }
     ],
+    "contact": [],
+    "terms": [],
     "user.permalink": [
         {
             "name": "hashId",

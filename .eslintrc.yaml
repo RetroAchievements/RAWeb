@@ -21,7 +21,6 @@ plugins:
 ignorePatterns:
   - generated.d.ts
   - ziggy.d.ts
-  - ziggy.js
 
 settings:
   # allows for tsconfig path aliases
@@ -95,7 +94,7 @@ rules:
       "tabWidth": 2,
       "printWidth": 100,
       "singleQuote": true,
-      "plugins": ["prettier-plugin-tailwindcss"],
+      "plugins": ["prettier-plugin-tailwindcss"]
     }
 
   # some react recommended rules are fine to avoid in typescript projects
