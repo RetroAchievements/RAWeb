@@ -17,9 +17,9 @@ const BaseToaster = ({ ...props }: BaseToasterProps) => {
       toastOptions={{
         classNames: {
           toast: cn(
-            'group toast light:group-[.toaster]:bg-white light:group-[.toaster]:text-neutral-950 light:group-[.toaster]:border-neutral-200',
-            'group-[.toaster]:shadow-lg light:group-[.toaster]:bg-neutral-950 group-[.toaster]:text-neutral-50',
-            'group-[.toaster]:border-neutral-800',
+            'group toast transition-all duration-300',
+            'group-[.toaster]:bg-neutral-950 group-[.toaster]:shadow-lg group-[.toaster]:text-neutral-50 group-[.toaster]:border-neutral-800',
+            'light:group-[.toaster]:bg-white light:group-[.toaster]:text-neutral-950 light:group-[.toaster]:border-neutral-200',
           ),
 
           description: 'light:group-[.toast]:text-neutral-500 group-[.toast]:text-neutral-400',

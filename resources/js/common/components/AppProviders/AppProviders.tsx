@@ -16,10 +16,7 @@ export const AppProviders: FC<AppProvidersProps> = ({ children }) => {
       <BaseTooltipProvider delayDuration={300}>
         {children}
 
-        <BaseToaster
-          richColors={true}
-          toastOptions={{ classNames: { toast: 'transition-all duration-300' } }}
-        />
+        <BaseToaster richColors={true} />
       </BaseTooltipProvider>
     </QueryClientProvider>
   );
