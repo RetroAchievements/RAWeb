@@ -102,15 +102,22 @@ class ForumTopicController extends \App\Http\Controller
     private function getTotalRecentForumTopics(int $permissions = Permissions::Unregistered): int
     {
         return ForumTopic::query()
-            ->distinct('ForumTopic.ID')
-            ->leftJoin('Forum', 'Forum.ID', '=', 'ForumTopic.ForumID')
-            ->leftJoin('ForumTopicComment', function ($join) {
-                $join->on('ForumTopicComment.ForumTopicID', '=', 'ForumTopic.ID')
-                    ->where('ForumTopicComment.Authorised', '=', 1);
-            })
-            ->where('ForumTopic.RequiredPermissions', '<=', $permissions)
-            ->whereNull('ForumTopic.deleted_at')
-            ->count('ForumTopic.ID');
+            ->where("RequiredPermissions", "<=", $permissions)
+            ->whereNull("deleted_at")
+            ->where(function ($query) {
+                $query
+                    ->whereNotNull("LatestCommentID")
+                    ->orWhereIn("ID", function ($subQuery) {
+                        $subQuery
+                            ->select("ForumTopicID")
+                            ->distinct()
+                            ->from("ForumTopicComment")
+                            ->where("Authorised", 1);
+                        }
+                    );
+                }
+            )
+            ->count();
     }
 
     public function recentlyActive(Request $request): InertiaResponse
@@ -164,38 +171,46 @@ class ForumTopicController extends \App\Http\Controller
         $offset = ($page - 1) * $count;
 
         $query = "
-            SELECT ft.ID as ForumTopicID, ft.Title as ForumTopicTitle,
-                   f.ID as ForumID, f.Title as ForumTitle,
-                   lc.CommentID, lftc.DateCreated as PostedAt, lftc.author_id,
-                   ua.User AS Author, ua.display_name AS AuthorDisplayName,
-                   LEFT(lftc.Payload, 260) AS ShortMsg,
-                   LENGTH(lftc.Payload) > 260 AS IsTruncated,
-                   d1.CommentID as CommentID_1d, d1.Count as Count_1d,
-                   d7.CommentID as CommentID_7d, d7.Count as Count_7d
-            FROM ForumTopic AS ft
-            LEFT JOIN Forum AS f on f.ID = ft.ForumID
+            SELECT 
+                ft.ID AS ForumTopicID, 
+                ft.Title AS ForumTopicTitle,
+                f.ID AS ForumID, 
+                f.Title AS ForumTitle,
+                lftc.ID AS CommentID, 
+                lftc.DateCreated AS PostedAt, 
+                lftc.author_id,
+                ua.User AS Author, 
+                ua.display_name AS AuthorDisplayName,
+                LEFT(lftc.Payload, 260) AS ShortMsg,
+                LENGTH(lftc.Payload) > 260 AS IsTruncated,
+                d1.CommentID AS CommentID_1d,
+                d1.Count AS Count_1d,
+                d7.CommentID AS CommentID_7d,
+                d7.Count AS Count_7d
+            FROM (
+                SELECT ft.ID, ft.Title, ft.ForumID, ft.LatestCommentID
+                FROM ForumTopic ft
+                FORCE INDEX (idx_permissions_deleted_latest)
+                WHERE ft.RequiredPermissions <= :permissions AND ft.deleted_at IS NULL
+                ORDER BY ft.LatestCommentID DESC
+                LIMIT 100
+            ) AS ft
+            INNER JOIN Forum AS f ON f.ID = ft.ForumID
+            INNER JOIN ForumTopicComment AS lftc ON lftc.ID = ft.LatestCommentID AND lftc.Authorised = 1
+            LEFT JOIN UserAccounts AS ua ON ua.ID = lftc.author_id
             LEFT JOIN (
-                SELECT ftc.ForumTopicId, MAX(ftc.ID) as CommentID
-                FROM ForumTopicComment ftc
-                WHERE ftc.Authorised=1
-                GROUP BY ftc.ForumTopicId
-            ) AS lc ON lc.ForumTopicId = ft.ID
-            LEFT JOIN ForumTopicComment AS lftc ON lftc.ID = lc.CommentID
-            LEFT JOIN (
-                SELECT ftc.ForumTopicId, MIN(ftc.ID) as CommentID, COUNT(ftc.ID) as Count
-                FROM ForumTopicComment ftc
-                WHERE ftc.Authorised=1 AND DateCreated >= DATE_SUB(NOW(), INTERVAL 1 DAY)
-                GROUP BY ftc.ForumTopicId
+                SELECT ForumTopicId, MIN(ID) AS CommentID, COUNT(*) AS Count
+                FROM ForumTopicComment
+                WHERE Authorised = 1 AND DateCreated >= NOW() - INTERVAL 1 DAY
+                GROUP BY ForumTopicId
             ) AS d1 ON d1.ForumTopicId = ft.ID
             LEFT JOIN (
-                SELECT ftc.ForumTopicId, MIN(ftc.ID) as CommentID, COUNT(ftc.ID) as Count
-                FROM ForumTopicComment ftc
-                WHERE ftc.Authorised=1 AND DateCreated >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-                GROUP BY ftc.ForumTopicId
+                SELECT ForumTopicId, MIN(ID) AS CommentID, COUNT(*) AS Count
+                FROM ForumTopicComment
+                WHERE Authorised = 1 AND DateCreated >= NOW() - INTERVAL 7 DAY
+                GROUP BY ForumTopicId
             ) AS d7 ON d7.ForumTopicId = ft.ID
-            LEFT JOIN UserAccounts AS ua ON ua.ID = lftc.author_id
-            WHERE ft.RequiredPermissions <= :permissions AND ft.deleted_at IS NULL
-            ORDER BY PostedAt DESC
+            ORDER BY lftc.DateCreated DESC
             LIMIT :offset, :count";
 
         return legacyDbFetchAll($query, [

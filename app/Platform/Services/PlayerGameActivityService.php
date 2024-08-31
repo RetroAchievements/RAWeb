@@ -17,7 +17,7 @@ class PlayerGameActivityService
 
     public function initialize(User $user, Game $game): void
     {
-        $playerSessions = $user->playerSessions()->where('game_id', $game->id)->get();
+        $playerSessions = $user->playerSessions()->with('gameHash')->where('game_id', $game->id)->get();
 
         foreach ($playerSessions as $playerSession) {
             $session = [

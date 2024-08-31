@@ -8,6 +8,7 @@ module.exports = {
     './app/Helpers/util/*.php',
     './public/*.php',
     './resources/js/**/*.ts',
+    './resources/js/**/*.tsx',
     './resources/views/**/*.blade.php',
     './storage/framework/views/*.php',
     './vendor/filament/**/*.blade.php',
@@ -47,7 +48,7 @@ module.exports = {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'fade-in': 'fade-in 100ms ease',
         'collapse-open': 'collapse-open 200ms ease-in-out',
-        tilt: 'tilt 10s infinite linear',
+        tilt: 'tilt 10s infinite linear !important',
       },
       keyframes: {
         'accordion-down': {
@@ -116,6 +117,7 @@ module.exports = {
     }),
     require('@tailwindcss/typography'),
     require('@tailwindcss/aspect-ratio'),
+    require('@tailwindcss/container-queries'),
 
     // Add support for `light:` and `black:` prefixes to better support light & black mode users.
     // `dark` is considered the default scheme, thus a `dark:` prefix is always implied similar to `xs:`.

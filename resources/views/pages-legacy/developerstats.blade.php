@@ -114,7 +114,7 @@ $nextPageHref = ($currentPage < $totalPages)
         echo "</div></td>";
         echo "<td class='text-right'><a href='" . route('developer.tickets', ['user' => $devStats['Author']]) ."'>" . $devStats['OpenTickets'] . "</a></td>";
         echo "<td class='text-right'><a href='" . route('developer.sets', ['user' => $devStats['Author']]) . "'>" . localized_number($devStats['Achievements']) . "</a></td>";
-        echo "<td class='text-right'><a href='" . route('developer.tickets.resolved-for-others', ['user' => $devStats['Author']]) ."'>" . localized_number($devStats['TicketsResolvedForOthers']) . "</a></td>";
+        echo "<td class='text-right'><a href='" . route('developer.tickets.resolved', ['user' => $devStats['Author'], 'filter[achievement]' => 'core', 'filter[developer]' => 'others', 'filter[reporter]' => 'others']) ."'>" . localized_number($devStats['TicketsResolvedForOthers']) . "</a></td>";
         echo "<td class='text-right'>" . localized_number($devStats['ContribCount']) . "</td>";
         echo "<td class='text-right'>" . localized_number($devStats['ContribYield']) . "</td>";
         echo "<td class='text-right'><a href='" . route('developer.claims', ['user' => $devStats['Author']]) . "'>" . $devStats['ActiveClaims'] . "</a></td>";

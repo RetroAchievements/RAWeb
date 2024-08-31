@@ -34,7 +34,8 @@
                     <div class="flex flex-col items-end">
                         <p class="text-2xs whitespace-nowrap">
                             <span>
-                                {{ localized_number($stat['points_hardcore']) }} points
+                                {{ localized_number($stat['points_hardcore']) }}
+                                @choice('point|points', $stat['points_hardcore'])
                             </span>
                         </p>
 

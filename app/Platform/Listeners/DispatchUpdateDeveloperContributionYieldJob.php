@@ -27,7 +27,7 @@ class DispatchUpdateDeveloperContributionYieldJob implements ShouldQueue
                 break;
         }
 
-        if (!$user instanceof User) {
+        if (!$user instanceof User || $user->trashed()) {
             return;
         }
 

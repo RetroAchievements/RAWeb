@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-imports -- base components can import from @radix-ui */
+
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { type ButtonHTMLAttributes, forwardRef } from 'react';

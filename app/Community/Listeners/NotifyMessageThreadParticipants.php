@@ -76,7 +76,7 @@ class NotifyMessageThreadParticipants
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
         $webhookUrl = $inboxConfig['url'] ?? null;
 
-        if ($inboxConfig === null || $webhookUrl === null) {
+        if ($inboxConfig === null || empty($webhookUrl)) {
             return;
         }
 
