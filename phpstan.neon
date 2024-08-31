@@ -8,28 +8,28 @@ parameters:
         - resources/views
         - tests
     level: 6
-    checkMissingIterableValueType: false
     treatPhpDocTypesAsCertain: false
     # TODO figure out why github actions phpstan does not find the same
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
+        - identifier: missingType.iterableValue # replaces deprecated `checkMissingIterableValueType: false`
+        - '#Return type of call to method .+::map\(\) contains unresolvable type#'
         - '#Unsafe usage of new static#'
         # accessors to polymorphic relationships
-        - '#Access to an undefined property [a-zA-Z0-9\&\\_]+::\$[trigger|subject]#'
+        - '#Access to an undefined property [a-zA-Z0-9\&\\_]+::\$[trigger\|subject]#'
         - '#Access to an undefined property [a-zA-Z0-9\&\\_]+::\$[a-zA-Z0-9\&\\_]+[_count]#'
         - '#Access to an undefined property App\\Models\\.*#'
         # Builder::exists() is not private
         #- '#Call to private method exists\(\) of parent class Illuminate\\Database\\Eloquent\\Builder<Illuminate\\Database\\Eloquent\\Model>.#'
         - '#Parameter (.*) of function htmlentities expects#'
         # TODO views have been removed
-        - '#Parameter (.*) $view of function view expects view-string|null, string given.#'
+        - '#Parameter (.*) \$view of function view expects view-string\|null, string given.#'
         # lib/database/user-activity.php
         - '#Offset (.*) does not exist on#'
         # TODO check if still an issue with Laravel 10
         - '#Call to an undefined method Database\\Factories#'
         - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$#'
-        - '#Unable to resolve the template type TMapWithKeysValue in call to method Illuminate\\Database\\Eloquent\\Collection<int,App\\[a-zA-Z]+\\Models\\[a-zA-Z]+>::mapWithKeys\(\)#'
-        - '#Unable to resolve the template type TMapWithKeysValue in call to method Illuminate\\Support\\Collection<\(int\|string\),mixed>::mapWithKeys\(\)#'
+        - '#Unable to resolve the template type TMapWithKeysValue in call to method Illuminate\\Support\\Collection<\*NEVER\*,\*NEVER\*>::mapWithKeys\(\)#'
         - '#Command "ra:sync:(.*)" does not have argument "(.*)"#'
     excludePaths:
         # unrelated directories

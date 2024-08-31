@@ -17,13 +17,13 @@ class ForumTopicData extends Data
         public int $id,
         public string $title,
         public Carbon $createdAt,
-        public ?UserData $user = null,
         public Lazy|ForumTopicCommentData $latestComment,
         public Lazy|int $commentCount24h,
         public Lazy|int $oldestComment24hId,
         public Lazy|int $commentCount7d,
         public Lazy|int $oldestComment7dId,
-    ) {
+        public ?UserData $user = null,
+        ) {
     }
 
     public static function fromRecentlyActiveTopic(array $topic): self

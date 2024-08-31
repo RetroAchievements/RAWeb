@@ -41,6 +41,7 @@ class ConvertUserShortcodesToUseIds extends Command
             // Collect all usernames to fetch user IDs in bulk.
             $usernames = [];
 
+            /** @var ForumTopicComment $forumTopicComment */
             foreach ($forumTopicComments as $forumTopicComment) {
                 preg_match_all('/\[user=([^\]]+)\]/', $forumTopicComment->Payload, $matches);
                 $usernames = array_merge($usernames, array_map('strtolower', $matches[1]));
@@ -51,6 +52,7 @@ class ConvertUserShortcodesToUseIds extends Command
             $users = User::whereIn(DB::raw('LOWER(User)'), $usernames)->get()->keyBy(fn ($user) => strtolower($user->User));
 
             // Process each comment.
+            /** @var ForumTopicComment $forumTopicComment */
             foreach ($forumTopicComments as $forumTopicComment) {
                 $originalPayload = $forumTopicComment->Payload;
                 $updatedPayload = preg_replace_callback('/\[user=([^\]]+)\]/i', function ($matches) use ($users) {
@@ -86,6 +88,7 @@ class ConvertUserShortcodesToUseIds extends Command
             // Collect all usernames to fetch user IDs in bulk.
             $usernames = [];
 
+            /** @var Message $message */
             foreach ($messages as $message) {
                 preg_match_all('/\[user=([^\]]+)\]/', $message->body, $matches);
                 $usernames = array_merge($usernames, array_map('strtolower', $matches[1]));
@@ -96,6 +99,7 @@ class ConvertUserShortcodesToUseIds extends Command
             $users = User::whereIn(DB::raw('LOWER(User)'), $usernames)->get()->keyBy(fn ($user) => strtolower($user->User));
 
             // Process each message.
+            /** @var Message $message */
             foreach ($messages as $message) {
                 $originalBody = $message->body;
                 $updatedBody = preg_replace_callback('/\[user=([^\]]+)\]/i', function ($matches) use ($users) {
@@ -131,6 +135,7 @@ class ConvertUserShortcodesToUseIds extends Command
             // Collect all user IDs to fetch usernames in bulk.
             $userIds = [];
 
+            /** @var ForumTopicComment $forumTopicComment */
             foreach ($forumTopicComments as $forumTopicComment) {
                 preg_match_all('/\[user=(\d+)\]/i', $forumTopicComment->Payload, $matches);
                 $userIds = array_merge($userIds, $matches[1]);
@@ -141,6 +146,7 @@ class ConvertUserShortcodesToUseIds extends Command
             $users = User::whereIn('ID', $userIds)->get()->keyBy('ID');
 
             // Process each comment.
+            /** @var ForumTopicComment $forumTopicComment */
             foreach ($forumTopicComments as $forumTopicComment) {
                 $originalPayload = $forumTopicComment->Payload;
                 $updatedPayload = preg_replace_callback('/\[user=(\d+)\]/i', function ($matches) use ($users) {
@@ -176,6 +182,7 @@ class ConvertUserShortcodesToUseIds extends Command
             // Collect all user IDs to fetch usernames in bulk.
             $userIds = [];
 
+            /** @var Message $message */
             foreach ($messages as $message) {
                 preg_match_all('/\[user=(\d+)\]/i', $message->body, $matches);
                 $userIds = array_merge($userIds, $matches[1]);
@@ -186,6 +193,7 @@ class ConvertUserShortcodesToUseIds extends Command
             $users = User::whereIn('ID', $userIds)->get()->keyBy('ID');
 
             // Process each message.
+            /** @var Message $message */
             foreach ($messages as $message) {
                 $originalBody = $message->body;
                 $updatedBody = preg_replace_callback('/\[user=(\d+)\]/i', function ($matches) use ($users) {
