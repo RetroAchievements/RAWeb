@@ -86,7 +86,7 @@ class MemoryNotesRelationManager extends RelationManager
                                 ->label('Body')
                                 ->autosize()
                                 ->required(),
-                            ])
+                        ])
                         ->modalHeading(function (MemoryNote $memoryNote): string {
                             return "Edit Note at {$memoryNote->address_hex}";
                         })

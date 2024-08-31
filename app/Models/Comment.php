@@ -18,6 +18,7 @@ class Comment extends BaseModel
 {
     use Searchable;
     use SoftDeletes;
+    /** @use HasFactory<CommentFactory> */
     use HasFactory;
 
     // TODO rename Comment table to comments

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\ForumTopicFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,6 +17,7 @@ use Laravel\Scout\Searchable;
 
 class ForumTopic extends BaseModel
 {
+    /** @use HasFactory<ForumTopicFactory> */
     use HasFactory;
     use Searchable;
     use SoftDeletes;
