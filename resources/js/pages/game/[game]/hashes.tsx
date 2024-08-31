@@ -10,7 +10,7 @@ const Hashes: AppPage<App.Platform.Data.GameHashesPagePropsData> = ({ game, hash
       <Head title={`Supported Game Files - ${game.title}`}>
         <meta
           name="description"
-          content={`View the ${hashes.length} supported ROM hashes for ${game.title} achievements. Access additional details on hash generation and patch downloads.`}
+          content={`View the ${hashes.length} supported ROM ${hashes.length === 1 ? 'hash' : 'hashes'} for ${game.title} achievements. Access additional details on hash generation and patch downloads.`}
         />
       </Head>
 
