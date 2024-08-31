@@ -1,4 +1,3 @@
-import { usePage } from '@inertiajs/react';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import type { FC } from 'react';
@@ -17,21 +16,19 @@ import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { BaseSwitch } from '@/common/components/+vendor/BaseSwitch';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 
-import type { SettingsPageProps } from '../../models';
+import { usePageProps } from '../../hooks/usePageProps';
 import { SectionFormCard } from '../SectionFormCard';
 import { useProfileSectionForm } from './useProfileSectionForm';
 
 export const ProfileSectionCard: FC = () => {
-  const {
-    props: { can, userSettings, auth },
-  } = usePage<SettingsPageProps>();
+  const { auth, can, userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   const {
     form,
     mutation: formMutation,
     onSubmit,
   } = useProfileSectionForm({
-    motto: userSettings.motto,
+    motto: userSettings.motto ?? '',
     userWallActive: userSettings.userWallActive ?? false,
   });
 

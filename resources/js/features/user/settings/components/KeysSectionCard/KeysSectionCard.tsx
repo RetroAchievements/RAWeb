@@ -1,15 +1,12 @@
-import { usePage } from '@inertiajs/react';
 import { type FC } from 'react';
 
-import type { SettingsPageProps } from '../../models';
+import { usePageProps } from '../../hooks/usePageProps';
 import { SectionStandardCard } from '../SectionStandardCard';
 import { ManageConnectApiKey } from './ManageConnectApiKey';
 import { ManageWebApiKey } from './ManageWebApiKey';
 
 export const KeysSectionCard: FC = () => {
-  const {
-    props: { can },
-  } = usePage<SettingsPageProps>();
+  const { can } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   if (!can.manipulateApiKeys) {
     return null;

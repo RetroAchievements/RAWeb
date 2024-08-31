@@ -1,4 +1,3 @@
-import { usePage } from '@inertiajs/react';
 import type { FC } from 'react';
 
 import {
@@ -11,16 +10,14 @@ import {
 } from '@/common/components/+vendor/BaseForm';
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
 
-import type { SettingsPageProps } from '../../models';
+import { usePageProps } from '../../hooks/usePageProps';
 import { SectionFormCard } from '../SectionFormCard';
 import { useChangePasswordForm } from './useChangePasswordForm';
 
 export const ChangePasswordSectionCard: FC = () => {
   const { form, mutation, onSubmit } = useChangePasswordForm();
 
-  const {
-    props: { auth },
-  } = usePage<SettingsPageProps>();
+  const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   return (
     <SectionFormCard

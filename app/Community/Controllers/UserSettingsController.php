@@ -8,6 +8,7 @@ use App\Community\Data\UpdateEmailData;
 use App\Community\Data\UpdatePasswordData;
 use App\Community\Data\UpdateProfileData;
 use App\Community\Data\UpdateWebsitePrefsData;
+use App\Community\Data\UserSettingsPagePropsData;
 use App\Community\Enums\ArticleType;
 use App\Community\Requests\ResetConnectApiKeyRequest;
 use App\Community\Requests\ResetWebApiKeyRequest;
@@ -16,6 +17,7 @@ use App\Community\Requests\UpdatePasswordRequest;
 use App\Community\Requests\UpdateProfileRequest;
 use App\Community\Requests\UpdateWebsitePrefsRequest;
 use App\Data\UserData;
+use App\Data\UserPermissionsData;
 use App\Enums\Permissions;
 use App\Http\Controller;
 use App\Models\User;
@@ -33,7 +35,7 @@ class UserSettingsController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        $extendedUserData = UserData::fromUser($user)->include(
+        $userSettings = UserData::fromUser($user)->include(
             'apiKey',
             'deleteRequested',
             'emailAddress',
@@ -42,14 +44,15 @@ class UserSettingsController extends Controller
             'visibleRole',
         );
 
-        return Inertia::render('settings', [
-            'userSettings' => $extendedUserData,
-            'can' => [
-                'manipulateApiKeys' => $user->can('manipulateApiKeys', $user),
-                'updateAvatar' => $user->can('updateAvatar', $user),
-                'updateMotto' => $user->can('updateMotto', $user),
-            ],
-        ]);
+        $can = UserPermissionsData::fromUser($user)->include(
+            'manipulateApiKeys',
+            'updateAvatar',
+            'updateMotto'
+        );
+
+        $props = new UserSettingsPagePropsData($userSettings, $can);
+
+        return Inertia::render('settings', $props);
     }
 
     public function updatePassword(UpdatePasswordRequest $request): JsonResponse

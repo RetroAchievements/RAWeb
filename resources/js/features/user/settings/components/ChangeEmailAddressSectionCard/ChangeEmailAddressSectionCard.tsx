@@ -1,4 +1,3 @@
-import { usePage } from '@inertiajs/react';
 import { type FC, useId, useState } from 'react';
 
 import {
@@ -10,14 +9,12 @@ import {
 } from '@/common/components/+vendor/BaseForm';
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
 
-import type { SettingsPageProps } from '../../models';
+import { usePageProps } from '../../hooks/usePageProps';
 import { SectionFormCard } from '../SectionFormCard';
 import { useChangeEmailAddressForm } from './useChangeEmailAddressForm';
 
 export const ChangeEmailAddressSectionCard: FC = () => {
-  const {
-    props: { userSettings },
-  } = usePage<SettingsPageProps>();
+  const { userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   const [currentEmailAddress, setCurrentEmailAddress] = useState(userSettings.emailAddress ?? '');
 

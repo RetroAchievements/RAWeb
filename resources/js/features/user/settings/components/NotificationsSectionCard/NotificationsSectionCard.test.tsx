@@ -1,19 +1,26 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
+import { createAuthenticatedUser } from '@/common/models';
 import { convertObjectToWebsitePrefs } from '@/common/utils/convertObjectToWebsitePrefs';
 import { UserPreference } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
+import { createUser } from '@/test/factories';
 
-import { createSettingsPageProps } from '../../models';
 import { NotificationsSectionCard } from './NotificationsSectionCard';
 
 describe('Component: NotificationsSectionCard', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<NotificationsSectionCard />, {
-      pageProps: createSettingsPageProps(),
-    });
+    const { container } = render<App.Community.Data.UserSettingsPageProps>(
+      <NotificationsSectionCard />,
+      {
+        pageProps: {
+          can: {},
+          userSettings: createUser(),
+        },
+      },
+    );
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -29,9 +36,11 @@ describe('Component: NotificationsSectionCard', () => {
 
     const mockWebsitePrefs = convertObjectToWebsitePrefs(mappedPreferences);
 
-    render(<NotificationsSectionCard />, {
+    render<App.Community.Data.UserSettingsPageProps>(<NotificationsSectionCard />, {
       pageProps: {
-        auth: { user: { websitePrefs: mockWebsitePrefs } },
+        can: {},
+        userSettings: createUser(),
+        auth: { user: createAuthenticatedUser({ websitePrefs: mockWebsitePrefs }) },
       },
     });
 
@@ -52,9 +61,9 @@ describe('Component: NotificationsSectionCard', () => {
 
     const mockWebsitePrefs = convertObjectToWebsitePrefs(mappedPreferences);
 
-    render(<NotificationsSectionCard />, {
+    render<App.Community.Data.UserSettingsPageProps>(<NotificationsSectionCard />, {
       pageProps: {
-        auth: { user: { websitePrefs: mockWebsitePrefs } },
+        auth: { user: createAuthenticatedUser({ websitePrefs: mockWebsitePrefs }) },
       },
     });
 

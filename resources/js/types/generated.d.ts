@@ -1,3 +1,9 @@
+declare namespace App.Community.Data {
+  export type UserSettingsPageProps = {
+    userSettings: App.Data.User;
+    can: App.Data.UserPermissions;
+  };
+}
 declare namespace App.Data {
   export type ForumTopicComment = {
     id: number;
@@ -49,6 +55,11 @@ declare namespace App.Data {
     userWallActive?: boolean | null;
     visibleRole?: string | null;
     websitePrefs?: number | null;
+  };
+  export type UserPermissions = {
+    manipulateApiKeys?: boolean;
+    updateAvatar?: boolean;
+    updateMotto?: boolean;
   };
 }
 declare namespace App.Enums {

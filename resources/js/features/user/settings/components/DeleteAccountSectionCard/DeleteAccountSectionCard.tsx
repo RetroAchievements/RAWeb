@@ -1,4 +1,3 @@
-import { usePage } from '@inertiajs/react';
 import dayjs from 'dayjs';
 import { type FC, useState } from 'react';
 import { LuAlertCircle } from 'react-icons/lu';
@@ -11,14 +10,12 @@ import {
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 
-import type { SettingsPageProps } from '../../models';
+import { usePageProps } from '../../hooks/usePageProps';
 import { SectionStandardCard } from '../SectionStandardCard';
 import { useManageAccountDeletion } from './useManageAccountDeletion';
 
 export const DeleteAccountSectionCard: FC = () => {
-  const {
-    props: { userSettings },
-  } = usePage<SettingsPageProps>();
+  const { userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   const [isDeleteAlreadyRequested, setIsDeleteAlreadyRequested] = useState(
     !!userSettings.deleteRequested,

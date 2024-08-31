@@ -2,8 +2,8 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
 import { render, screen } from '@/test';
+import { createUser } from '@/test/factories';
 
-import { createSettingsPageProps } from '../../models';
 import { KeysSectionCard } from './KeysSectionCard';
 
 vi.mock('react-use', async (importOriginal) => {
@@ -18,7 +18,12 @@ vi.mock('react-use', async (importOriginal) => {
 describe('Component: KeysSectionCard', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<KeysSectionCard />, { pageProps: createSettingsPageProps() });
+    const { container } = render<App.Community.Data.UserSettingsPageProps>(<KeysSectionCard />, {
+      pageProps: {
+        can: {},
+        userSettings: createUser(),
+      },
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -26,8 +31,11 @@ describe('Component: KeysSectionCard', () => {
 
   it("given the user doesn't have permission to manipulate their API keys, doesn't render", () => {
     // ARRANGE
-    render(<KeysSectionCard />, {
-      pageProps: { can: { manipulateApiKeys: false }, userSettings: { apiKey: 'mockApiKey' } },
+    render<App.Community.Data.UserSettingsPageProps>(<KeysSectionCard />, {
+      pageProps: {
+        can: { manipulateApiKeys: false },
+        userSettings: createUser({ apiKey: 'mockApiKey' }),
+      },
     });
 
     // ASSERT
@@ -37,7 +45,12 @@ describe('Component: KeysSectionCard', () => {
 
   it('has a link to the RetroAchievements API documentation', () => {
     // ARRANGE
-    render(<KeysSectionCard />, { pageProps: createSettingsPageProps() });
+    render<App.Community.Data.UserSettingsPageProps>(<KeysSectionCard />, {
+      pageProps: {
+        can: { manipulateApiKeys: true },
+        userSettings: createUser(),
+      },
+    });
 
     // ASSERT
     expect(screen.getByRole('link')).toHaveAttribute(
@@ -50,8 +63,11 @@ describe('Component: KeysSectionCard', () => {
     // ARRANGE
     const mockApiKey = 'AAAAAAxxxxxxxxxxBBBBBB';
 
-    render(<KeysSectionCard />, {
-      pageProps: { can: { manipulateApiKeys: true }, userSettings: { apiKey: mockApiKey } },
+    render<App.Community.Data.UserSettingsPageProps>(<KeysSectionCard />, {
+      pageProps: {
+        can: { manipulateApiKeys: true },
+        userSettings: createUser({ apiKey: mockApiKey }),
+      },
     });
 
     // ASSERT
@@ -64,7 +80,12 @@ describe('Component: KeysSectionCard', () => {
     vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
     const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
 
-    render(<KeysSectionCard />, { pageProps: createSettingsPageProps() });
+    render<App.Community.Data.UserSettingsPageProps>(<KeysSectionCard />, {
+      pageProps: {
+        can: { manipulateApiKeys: true },
+        userSettings: createUser(),
+      },
+    });
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /reset web api key/i }));
@@ -79,8 +100,11 @@ describe('Component: KeysSectionCard', () => {
     vi.spyOn(axios, 'delete').mockResolvedValueOnce({ data: { newKey: 'BBBBBBxxxxxxxCCCCCC' } });
     const mockApiKey = 'AAAAAAxxxxxxxxxxBBBBBB';
 
-    render(<KeysSectionCard />, {
-      pageProps: { can: { manipulateApiKeys: true }, userSettings: { apiKey: mockApiKey } },
+    render<App.Community.Data.UserSettingsPageProps>(<KeysSectionCard />, {
+      pageProps: {
+        can: { manipulateApiKeys: true },
+        userSettings: createUser({ apiKey: mockApiKey }),
+      },
     });
 
     // ACT
@@ -95,7 +119,12 @@ describe('Component: KeysSectionCard', () => {
     vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
     const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
 
-    render(<KeysSectionCard />, { pageProps: createSettingsPageProps() });
+    render<App.Community.Data.UserSettingsPageProps>(<KeysSectionCard />, {
+      pageProps: {
+        can: { manipulateApiKeys: true },
+        userSettings: createUser(),
+      },
+    });
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /reset connect api key/i }));

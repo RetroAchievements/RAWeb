@@ -1,16 +1,20 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
+import { createUser } from '@/test/factories';
 
-import { createSettingsPageProps } from '../../models';
 import { ProfileSectionCard } from './ProfileSectionCard';
 
 describe('Component: ProfileSectionCard', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<ProfileSectionCard />, {
-      pageProps: createSettingsPageProps(),
+    const { container } = render<App.Community.Data.UserSettingsPageProps>(<ProfileSectionCard />, {
+      pageProps: {
+        can: {},
+        userSettings: createUser(),
+      },
     });
 
     // ASSERT
@@ -19,10 +23,10 @@ describe('Component: ProfileSectionCard', () => {
 
   it('given the user has no visible role, tells them', () => {
     // ARRANGE
-    render(<ProfileSectionCard />, {
+    render<App.Community.Data.UserSettingsPageProps>(<ProfileSectionCard />, {
       pageProps: {
         can: {},
-        userSettings: { visibleRole: null },
+        userSettings: createUser({ visibleRole: null }),
       },
     });
 
@@ -32,10 +36,10 @@ describe('Component: ProfileSectionCard', () => {
 
   it('given the user has a visible role, tells them', () => {
     // ARRANGE
-    render(<ProfileSectionCard />, {
+    render<App.Community.Data.UserSettingsPageProps>(<ProfileSectionCard />, {
       pageProps: {
         can: {},
-        userSettings: { visibleRole: 'Some Role' },
+        userSettings: createUser({ visibleRole: 'Some Role' }),
       },
     });
 
@@ -45,12 +49,12 @@ describe('Component: ProfileSectionCard', () => {
 
   it('given the user is unable to change their motto, tells them', () => {
     // ARRANGE
-    render(<ProfileSectionCard />, {
+    render<App.Community.Data.UserSettingsPageProps>(<ProfileSectionCard />, {
       pageProps: {
         can: {
           updateMotto: false,
         },
-        userSettings: { visibleRole: 'Some Role' },
+        userSettings: createUser({ visibleRole: 'Some Role' }),
       },
     });
 
@@ -65,13 +69,13 @@ describe('Component: ProfileSectionCard', () => {
 
     const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
 
-    render(<ProfileSectionCard />, {
+    render<App.Community.Data.UserSettingsPageProps>(<ProfileSectionCard />, {
       pageProps: {
         auth: {
-          user: { username: 'Scott', id: 1 },
+          user: createAuthenticatedUser({ username: 'Scott', id: 1 }),
         },
         can: {},
-        userSettings: { visibleRole: null },
+        userSettings: createUser({ visibleRole: null }),
       },
     });
 
@@ -90,10 +94,14 @@ describe('Component: ProfileSectionCard', () => {
     render(<ProfileSectionCard />, {
       pageProps: {
         auth: {
-          user: { username: 'Scott' },
+          user: createAuthenticatedUser({ username: 'Scott' }),
         },
         can: {},
-        userSettings: { visibleRole: null, motto: mockMotto, userWallActive: mockUserWallActive },
+        userSettings: createUser({
+          visibleRole: null,
+          motto: mockMotto,
+          userWallActive: mockUserWallActive,
+        }),
       },
     });
 
@@ -112,12 +120,16 @@ describe('Component: ProfileSectionCard', () => {
     render(<ProfileSectionCard />, {
       pageProps: {
         auth: {
-          user: { username: 'Scott' },
+          user: createAuthenticatedUser({ username: 'Scott' }),
         },
         can: {
           updateMotto: true,
         },
-        userSettings: { visibleRole: null, motto: mockMotto, userWallActive: mockUserWallActive },
+        userSettings: createUser({
+          visibleRole: null,
+          motto: mockMotto,
+          userWallActive: mockUserWallActive,
+        }),
       },
     });
 

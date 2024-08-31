@@ -1,9 +1,8 @@
-import { usePage } from '@inertiajs/react';
 import type { FC } from 'react';
 
 import { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
 
-import type { SettingsPageProps } from '../../models';
+import { usePageProps } from '../../hooks/usePageProps';
 import { SectionFormCard } from '../SectionFormCard';
 import { NotificationsSmallRow } from './NotificationsSmallRow';
 import { NotificationsTableRow } from './NotificationsTableRow';
@@ -42,9 +41,7 @@ const notificationSettings = [
 ];
 
 export const NotificationsSectionCard: FC = () => {
-  const {
-    props: { auth },
-  } = usePage<SettingsPageProps>();
+  const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   const { form, mutation, onSubmit } = useNotificationsSectionForm(auth?.user.websitePrefs ?? 0);
 

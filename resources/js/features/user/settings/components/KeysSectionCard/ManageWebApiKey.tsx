@@ -1,4 +1,3 @@
-import { usePage } from '@inertiajs/react';
 import { useMutation } from '@tanstack/react-query';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
@@ -10,12 +9,10 @@ import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { SimpleTooltip } from '@/common/components/SimpleTooltip';
 
-import type { SettingsPageProps } from '../../models';
+import { usePageProps } from '../../hooks/usePageProps';
 
 export const ManageWebApiKey: FC = () => {
-  const {
-    props: { userSettings },
-  } = usePage<SettingsPageProps>();
+  const { userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   const [, copyToClipboard] = useCopyToClipboard();
 

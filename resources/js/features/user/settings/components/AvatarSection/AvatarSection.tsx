@@ -1,4 +1,3 @@
-import { usePage } from '@inertiajs/react';
 import type { FC } from 'react';
 import { LuAlertCircle } from 'react-icons/lu';
 
@@ -15,15 +14,13 @@ import {
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 
+import { usePageProps } from '../../hooks/usePageProps';
 import { useResetNavbarUserPic } from '../../hooks/useResetNavbarUserPic';
-import type { SettingsPageProps } from '../../models';
 import { useAvatarSectionForm } from './useAvatarSectionForm';
 import { useResetAvatarMutation } from './useResetAvatarMutation';
 
 export const AvatarSection: FC = () => {
-  const {
-    props: { can },
-  } = usePage<SettingsPageProps>();
+  const { can } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   const { form, mutation: formMutation, onSubmit } = useAvatarSectionForm();
 

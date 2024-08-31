@@ -1,14 +1,11 @@
-import { usePage } from '@inertiajs/react';
 import type { FC } from 'react';
 
-import type { SettingsPageProps } from '../../models';
+import { usePageProps } from '../../hooks/usePageProps';
 import { AvatarSection } from '../AvatarSection';
 import { SiteAwardsSection } from '../SiteAwardsSection';
 
 export const SettingsSidebar: FC = () => {
-  const {
-    props: { auth },
-  } = usePage<SettingsPageProps>();
+  const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   // Just to improve type safety.
   if (!auth?.user) {

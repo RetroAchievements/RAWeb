@@ -1,17 +1,14 @@
-import { usePage } from '@inertiajs/react';
 import type { FC } from 'react';
 
 import { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
 
-import type { SettingsPageProps } from '../../models';
+import { usePageProps } from '../../hooks/usePageProps';
 import { SectionFormCard } from '../SectionFormCard';
 import { PreferencesSwitchField } from './PreferencesSwitchField';
 import { usePreferencesSectionForm } from './usePreferencesSectionForm';
 
 export const PreferencesSectionCard: FC = () => {
-  const {
-    props: { auth },
-  } = usePage<SettingsPageProps>();
+  const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   const { form, mutation, onSubmit } = usePreferencesSectionForm(auth?.user.websitePrefs ?? 0);
 

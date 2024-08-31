@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { usePage } from '@inertiajs/react';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
@@ -7,7 +6,7 @@ import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 
-import type { SettingsPageProps } from '../../models';
+import { usePageProps } from '../../hooks/usePageProps';
 
 const changeEmailAddressFormSchema = z
   .object({
@@ -24,9 +23,7 @@ type FormValues = z.infer<typeof changeEmailAddressFormSchema>;
 export function useChangeEmailAddressForm(props: {
   setCurrentEmailAddress: React.Dispatch<React.SetStateAction<string>>;
 }) {
-  const {
-    props: { auth },
-  } = usePage<SettingsPageProps>();
+  const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(changeEmailAddressFormSchema),
