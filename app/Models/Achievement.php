@@ -308,6 +308,15 @@ class Achievement extends BaseModel implements HasComments
     // == relations
 
     /**
+     * @return BelongsToMany<AchievementSet>
+     */
+    public function achievementSets(): BelongsToMany
+    {
+        return $this->belongsToMany(AchievementSet::class, 'achievement_set_achievements', 'achievement_id', 'achievement_set_id', 'ID', 'id')
+            ->withTimestamps();
+    }
+
+    /**
      * @return BelongsTo<User, Achievement>
      *
      * @deprecated make this multiple developers

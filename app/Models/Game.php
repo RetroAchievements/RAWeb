@@ -305,6 +305,14 @@ class Game extends BaseModel implements HasComments, HasMedia
     }
 
     /**
+     * @return BelongsToMany<AchievementSet>
+     */
+    public function achievementSets(): BelongsToMany
+    {
+        return $this->belongsToMany(AchievementSet::class, 'game_achievement_sets', 'game_id', 'achievement_set_id', 'ID', 'id');
+    }
+
+    /**
      * @return HasMany<AchievementSetClaim>
      */
     public function achievementSetClaims(): HasMany
@@ -378,7 +386,7 @@ class Game extends BaseModel implements HasComments, HasMedia
      */
     public function gameAchievementSets(): HasMany
     {
-        return $this->hasMany(GameAchievementSet::class, 'game_id');
+        return $this->hasMany(GameAchievementSet::class, 'game_id', 'ID');
     }
 
     /**
