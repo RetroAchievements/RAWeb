@@ -1,5 +1,8 @@
 import { buildTrackingClassNames } from './buildTrackingClassNames';
 
+// It isn't necessary log the warning for an empty customEventName.
+global.console.warn = vi.fn();
+
 describe('Util: buildTrackingClassNames', () => {
   it('is defined', () => {
     // ASSERT
