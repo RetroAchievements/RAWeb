@@ -10,9 +10,13 @@ return [
         ],
         'events' => [
             'created' => 'Created',
-            'updated' => 'Updated',
             'pivotAttached' => 'Attached',
             'pivotDetached' => 'Detached',
+            'reorderedAchievements' => 'Reordered achievements',
+            'reorderedLeaderboards' => 'Reordered leaderboards',
+            'resetAllLeaderboardEntries' => 'Reset all leaderboard entries',
+            'unlinkedHash' => 'Unlinked hash',
+            'updated' => 'Updated',
         ],
     ],
 ];

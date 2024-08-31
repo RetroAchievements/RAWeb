@@ -114,6 +114,23 @@ class TriggerDecoderService
             $mem = substr($mem, $count);
 
             return [$type, $size, $value, $mem];
+        } elseif ($end > 1 && ($mem[0] === '{')) {
+            $type = 'Variable';
+
+            $index = strpos($mem, '}');
+            if ($index === false) {
+                $value = substr($mem, 1);
+            } else {
+                $value = substr($mem, 1, $index - 1);
+                $mem = substr($mem, $index + 1);
+            }
+
+            if ($value === 'recall') {
+                $type = 'Recall';
+                $value = '';
+            }
+
+            return [$type, $size, $value, $mem];
         } else {
             $type = 'Value';
             if ($mem[0] === 'v' || $mem[0] === 'V') {
@@ -169,7 +186,7 @@ class TriggerDecoderService
     private function isScalerOperator(string $cmp): bool
     {
         return match ($cmp) {
-            '*', '/', '&' => true,
+            '*', '/', '&', '+', '-', '^', '%' => true,
             default => false,
         };
     }
@@ -211,6 +228,7 @@ class TriggerDecoderService
                 case 't': case 'T': $flag = 'Trigger'; break;
                 case 'z': case 'Z': $flag = 'Reset Next If'; break;
                 case 'g': case 'G': $flag = 'Measured %'; break;
+                case 'k': case 'K': $flag = 'Remember'; $scalable = true; break;
                 default: $flag = $mem[0]; break;
             }
 
@@ -340,11 +358,11 @@ class TriggerDecoderService
             }
         }
 
-        $codeNotes = MemoryNote::where('GameID', $gameId)
-            ->whereIn('Address', $memoryReferences)
+        $codeNotes = MemoryNote::where('game_id', $gameId)
+            ->whereIn('address', $memoryReferences)
             ->get()
             ->mapWithKeys(function ($row, $key) {
-                return [$row['Address'] => $row['Note']];
+                return [$row['address'] => $row['body']];
             })
             ->toArray();
 

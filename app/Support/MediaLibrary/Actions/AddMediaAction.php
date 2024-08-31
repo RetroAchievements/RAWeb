@@ -85,7 +85,7 @@ class AddMediaAction
 
         try {
             $fileAdder->withCustomProperties(['sha1' => $hash])->toMediaCollection($collection);
-        } catch (\Intervention\Image\Exception\NotReadableException) {
+        } catch (Exception) {
             /*
              * most likely a zero byte file
              */

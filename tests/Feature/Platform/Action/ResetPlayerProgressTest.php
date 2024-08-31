@@ -112,8 +112,13 @@ class ResetPlayerProgressTest extends TestCase
     public function testResetAuthoredAchievement(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RASoftcorePoints' => 123, 'RAPoints' => 1234, 'TrueRAPoints' => 2345,
-                                         'ContribCount' => 111, 'ContribYield' => 2222]);
+        $user = User::factory()->create([
+            'RASoftcorePoints' => 123,
+            'RAPoints' => 1234,
+            'TrueRAPoints' => 2345,
+            'ContribCount' => 111,
+            'ContribYield' => 2222,
+        ]);
         $game = $this->seedGame(withHash: false);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 5, 'TrueRatio' => 7, 'user_id' => $user->id]);

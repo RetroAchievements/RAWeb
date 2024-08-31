@@ -10,7 +10,12 @@ $tools = $settings['tools'] ?? null;
 
 ?>
 
-<x-nav-dropdown :class="$class ?? ''" dropdown-class="dropdown-menu-right" :title="__('Manage')">
+<x-nav-dropdown
+    :class="$class ?? ''"
+    dropdown-class="dropdown-menu-right"
+    :title="__('Manage')"
+    :desktopHref="route('filament.admin.pages.dashboard')"
+>
     <x-slot name="trigger">
         <x-fas-toolbox />
         <span class="ml-1 hidden sm:inline-block">{{ __('Manage') }}</span>
@@ -39,7 +44,7 @@ $tools = $settings['tools'] ?? null;
                     <x-dropdown-header>{{ __('Development') }}</x-dropdown-header>
                     {{--<x-dropdown-item :href="route('triggers.ticket.index')">{{ __res('ticket') }}</x-dropdown-item>--}}
                     <x-dropdown-item :href="route('tickets.index')">{{ __res('ticket') }}</x-dropdown-item>
-                    <x-dropdown-item :href="route('tickets.most-reported-games')">Most Reported Games</x-dropdown-item>
+                    <x-dropdown-item :href="route('filament.admin.pages.most-reported-games')">Most Reported Games</x-dropdown-item>
                     <x-dropdown-item :href="url('achievementinspector.php')">Achievement Inspector</x-dropdown-item>
                 @endcan
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Community\Enums\Rank;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -178,6 +179,28 @@ class UserPolicy
         return true;
     }
 
+    public function updateAvatar(User $user): bool
+    {
+        // Users may only upload a new avatar if they have been a member for at
+        // least 14 days or if they have earned at least a minimum number of points
+        // in either mode.
+
+        if ($user->isMuted()) {
+            return false;
+        }
+
+        if ($user->points >= Rank::MIN_POINTS || $user->points_softcore >= Rank::MIN_POINTS) {
+            return true;
+        }
+
+        $membershipDuration = now()->diffInDays($user->created_at ?? now());
+        if ($membershipDuration >= 14) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function deleteAvatar(User $user, User $model): bool
     {
         // users may delete their own avatar
@@ -188,9 +211,39 @@ class UserPolicy
         return $this->requireAdministrativePrivileges($user, $model);
     }
 
+    public function updateMotto(User $user, User $model): bool
+    {
+        // users may update their own motto
+        if ($user->is($model) && $user->isEmailVerified()) {
+            return true;
+        }
+
+        return $this->requireAdministrativePrivileges($user, $model);
+    }
+
     public function deleteMotto(User $user, User $model): bool
     {
-        // users may delete their own avatar
+        // users may delete their own motto
+        if ($user->is($model)) {
+            return true;
+        }
+
+        return $this->requireAdministrativePrivileges($user, $model);
+    }
+
+    public function manipulateApiKeys(User $user, User $model): bool
+    {
+        // users may manipulate their own web and connect api keys
+        if ($user->is($model) && $user->isEmailVerified()) {
+            return true;
+        }
+
+        return $this->requireAdministrativePrivileges($user, $model);
+    }
+
+    public function clearUserWall(User $user, User $model): bool
+    {
+        // users can clear their own profile walls
         if ($user->is($model)) {
             return true;
         }

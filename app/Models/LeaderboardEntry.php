@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LeaderboardEntry extends BaseModel
 {
+    /** @use HasFactory<LeaderboardEntryFactory> */
     use HasFactory;
     use SoftDeletes;
 
@@ -23,6 +24,8 @@ class LeaderboardEntry extends BaseModel
         'score',
         'trigger_id',
         'player_session_id',
+        'created_at',
+        'updated_at',
     ];
 
     protected static function newFactory(): LeaderboardEntryFactory
@@ -49,7 +52,7 @@ class LeaderboardEntry extends BaseModel
      */
     public function playerSession(): BelongsTo
     {
-        return $this->belongsTo(PlayerSession::class);
+        return $this->belongsTo(PlayerSession::class, 'player_session_id', 'id');
     }
 
     /**

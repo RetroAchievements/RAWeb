@@ -8,6 +8,7 @@ use App\Community\Enums\AwardType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
@@ -27,9 +28,14 @@ class AwardAchievementTest extends TestCase
     use RefreshDatabase;
     use TestsPlayerAchievements;
 
-    private function buildValidationHash(Achievement $achievement, User $user, int $hardcore): string
+    private function buildValidationHash(Achievement $achievement, User $user, int $hardcore, int $offset = 0): string
     {
-        return md5(strval($achievement->ID) . $user->User . strval($hardcore));
+        $data = $achievement->id . $user->username . $hardcore . $achievement->id;
+        if ($offset > 0) {
+            $data .= $offset;
+        }
+
+        return md5($data);
     }
 
     public function testHardcoreUnlock(): void
@@ -40,7 +46,7 @@ class AwardAchievementTest extends TestCase
         /** @var User $author */
         $author = User::factory()->create();
         $game = $this->seedGame(withHash: false);
-        $gameHash = '0123456789abcdeffedcba9876543210';
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
@@ -55,13 +61,14 @@ class AwardAchievementTest extends TestCase
         $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
 
         $unlock1Date = $now->clone()->subMinutes(65);
-        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date);
-        $this->addHardcoreUnlock($this->user, $achievement5, $unlock1Date);
-        $this->addHardcoreUnlock($this->user, $achievement6, $unlock1Date);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+        $this->addHardcoreUnlock($this->user, $achievement5, $unlock1Date, $gameHash);
+        $this->addHardcoreUnlock($this->user, $achievement6, $unlock1Date, $gameHash);
 
         $playerSession1 = PlayerSession::where([
             'user_id' => $this->user->id,
             'game_id' => $achievement3->game_id,
+            'game_hash_id' => $gameHash->id,
         ])->orderByDesc('id')->first();
         $this->assertModelExists($playerSession1);
 
@@ -75,7 +82,7 @@ class AwardAchievementTest extends TestCase
         $softcoreScoreBefore = $this->user->RASoftcorePoints;
         $truePointsBefore = $this->user->TrueRAPoints;
 
-        $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash, 'v' => $validationHash]))
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement3->ID,
@@ -89,6 +96,7 @@ class AwardAchievementTest extends TestCase
         $playerSession2 = PlayerSession::where([
             'user_id' => $this->user->id,
             'game_id' => $achievement3->game_id,
+            'game_hash_id' => $gameHash->id,
         ])->orderByDesc('id')->first();
         $this->assertModelExists($playerSession2);
 
@@ -96,6 +104,7 @@ class AwardAchievementTest extends TestCase
         $playerGame = PlayerGame::where([
             'user_id' => $this->user->id,
             'game_id' => $achievement3->game_id,
+            'game_hash_id' => $gameHash->id,
         ])->first();
         $this->assertModelExists($playerGame);
         $this->assertNotNull($playerGame->last_played_at);
@@ -104,6 +113,7 @@ class AwardAchievementTest extends TestCase
         $playerAchievement = PlayerAchievement::where([
             'user_id' => $this->user->id,
             'achievement_id' => $achievement3->id,
+            'player_session_id' => $playerSession2->id,
         ])->first();
         $this->assertModelExists($playerAchievement);
         $this->assertNotNull($playerAchievement->unlocked_at);
@@ -130,7 +140,7 @@ class AwardAchievementTest extends TestCase
         Carbon::setTestNow($newNow);
         $this->assertNotEquals($now, Carbon::now());
 
-        $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash, 'v' => $validationHash]))
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => false,
                 // client detects the "User already has" and does not report this as an error.
@@ -155,7 +165,7 @@ class AwardAchievementTest extends TestCase
 
         // unlock the rest of the set
         $validationHash = $this->buildValidationHash($achievement2, $this->user, 1);
-        $this->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 1, 'm' => $gameHash, 'v' => $validationHash]))
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement2->ID,
@@ -165,7 +175,7 @@ class AwardAchievementTest extends TestCase
             ]);
 
         $validationHash = $this->buildValidationHash($achievement4, $this->user, 1);
-        $this->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 1, 'm' => $gameHash, 'v' => $validationHash]))
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement4->ID,
@@ -193,7 +203,8 @@ class AwardAchievementTest extends TestCase
         $author = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
-        $gameHash = '0123456789abcdeffedcba9876543210';
+        /** @var GameHash $gameHash */
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
@@ -222,7 +233,7 @@ class AwardAchievementTest extends TestCase
         $softcoreScoreBefore = $this->user->RASoftcorePoints;
         $truePointsBefore = $this->user->TrueRAPoints;
 
-        $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 0, 'm' => $gameHash, 'v' => $validationHash]))
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement3->ID,
@@ -252,7 +263,7 @@ class AwardAchievementTest extends TestCase
         Carbon::setTestNow($newNow);
         $this->assertNotEquals($now, Carbon::now());
 
-        $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 0, 'm' => $gameHash, 'v' => $validationHash]))
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => false,
                 // client detects the "User already has" and does not report this as an error.
@@ -279,7 +290,7 @@ class AwardAchievementTest extends TestCase
         $scoreBefore = $user1->RAPoints;
         $softcoreScoreBefore = $user1->RASoftcorePoints;
 
-        $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash, 'v' => $validationHash]))
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement3->ID,
@@ -311,7 +322,7 @@ class AwardAchievementTest extends TestCase
         $softcoreScoreBefore = $user2->RASoftcorePoints;
 
         $validationHash = $this->buildValidationHash($achievement2, $this->user, 0);
-        $this->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 0, 'm' => $gameHash, 'v' => $validationHash]))
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement2->ID,
@@ -321,7 +332,7 @@ class AwardAchievementTest extends TestCase
             ]);
 
         $validationHash = $this->buildValidationHash($achievement4, $this->user, 0);
-        $this->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 0, 'm' => $gameHash, 'v' => $validationHash]))
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement4->ID,
@@ -521,6 +532,148 @@ class AwardAchievementTest extends TestCase
             ]);
     }
 
+    public function testBackdatedUnlock(): void
+    {
+        $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
+        Carbon::setTestNow($now);
+
+        /** @var User $author */
+        $author = User::factory()->create();
+        $game = $this->seedGame(withHash: false);
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
+        /** @var Achievement $achievement1 */
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        /** @var Achievement $achievement2 */
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        /** @var Achievement $achievement3 */
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        /** @var Achievement $achievement4 */
+        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        /** @var Achievement $achievement5 */
+        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        /** @var Achievement $achievement6 */
+        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+
+        // for responses to include updated scores, a session must exist
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+
+        // do the hardcore unlock
+        $offset = 30;
+        $validationHash = $this->buildValidationHash($achievement3, $this->user, 1, $offset);
+        $scoreBefore = $this->user->RAPoints;
+        $softcoreScoreBefore = $this->user->RASoftcorePoints;
+        $truePointsBefore = $this->user->TrueRAPoints;
+
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->ID,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore + $achievement3->Points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $scoreBefore += $achievement3->Points;
+
+        // player session created
+        $playerSession = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => $achievement3->game_id,
+            'game_hash_id' => $gameHash->id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession);
+
+        // game attached
+        $playerGame = PlayerGame::where([
+            'user_id' => $this->user->id,
+            'game_id' => $achievement3->game_id,
+            'game_hash_id' => $gameHash->id,
+        ])->first();
+        $this->assertModelExists($playerGame);
+        $this->assertNotNull($playerGame->last_played_at);
+
+        // achievement unlocked
+        $playerAchievement = PlayerAchievement::where([
+            'user_id' => $this->user->id,
+            'achievement_id' => $achievement3->id,
+            'player_session_id' => $playerSession->id,
+        ])->first();
+        $this->assertModelExists($playerAchievement);
+        $unlockDate = $now->clone()->subSeconds($offset);
+        $this->assertEquals($unlockDate, $playerAchievement->unlocked_at);
+        $this->assertEquals($unlockDate, $playerAchievement->unlocked_hardcore_at);
+        $this->assertEquals($playerAchievement->player_session_id, $playerSession->id);
+
+        // try to unlock another achievement with incorrect validation hash - should succeed, but not be backdated
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 1, 'm' => $gameHash->md5, 'o' => $offset, 'v' => 'XXXXXXXXX']))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement2->ID,
+                'AchievementsRemaining' => 3,
+                'Score' => $scoreBefore + $achievement2->Points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $scoreBefore += $achievement2->Points;
+
+        $playerAchievement2 = PlayerAchievement::where([
+            'user_id' => $this->user->id,
+            'achievement_id' => $achievement2->id,
+            'player_session_id' => $playerSession->id,
+        ])->first();
+        $this->assertModelExists($playerAchievement2);
+        $this->assertEquals($now, $playerAchievement2->unlocked_at);
+        $this->assertEquals($now, $playerAchievement2->unlocked_hardcore_at);
+        $this->assertEquals($playerAchievement2->player_session_id, $playerSession->id);
+
+        // negative offset is ignored
+        $offset = -100;
+        $validationHash = $this->buildValidationHash($achievement3, $this->user, 1, $offset);
+
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 1, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement4->ID,
+                'AchievementsRemaining' => 2,
+                'Score' => $scoreBefore + $achievement4->Points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $scoreBefore += $achievement4->Points;
+
+        $playerAchievement3 = PlayerAchievement::where([
+            'user_id' => $this->user->id,
+            'achievement_id' => $achievement4->id,
+            'player_session_id' => $playerSession->id,
+        ])->first();
+        $this->assertModelExists($playerAchievement3);
+        $this->assertEquals($now, $playerAchievement3->unlocked_at);
+        $this->assertEquals($now, $playerAchievement3->unlocked_hardcore_at);
+        $this->assertEquals($playerAchievement3->player_session_id, $playerSession->id);
+
+        // very large offset (30 days) is ignored
+        $offset = 30 * 25 * 60 * 60;
+        $validationHash = $this->buildValidationHash($achievement5, $this->user, 1, $offset);
+
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement5->ID, 'h' => 1, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement5->ID,
+                'AchievementsRemaining' => 1,
+                'Score' => $scoreBefore + $achievement5->Points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $scoreBefore += $achievement5->Points;
+
+        $playerAchievement4 = PlayerAchievement::where([
+            'user_id' => $this->user->id,
+            'achievement_id' => $achievement5->id,
+            'player_session_id' => $playerSession->id,
+        ])->first();
+        $this->assertModelExists($playerAchievement4);
+        $this->assertEquals($now, $playerAchievement4->unlocked_at);
+        $this->assertEquals($now, $playerAchievement4->unlocked_hardcore_at);
+        $this->assertEquals($playerAchievement4->player_session_id, $playerSession->id);
+    }
+
     public function testErrors(): void
     {
         $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
@@ -532,7 +685,8 @@ class AwardAchievementTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $gameHash = '0123456789abcdeffedcba9876543210';
+        /** @var GameHash $gameHash */
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
@@ -549,7 +703,7 @@ class AwardAchievementTest extends TestCase
         $softcoreScoreBefore = $this->user->RASoftcorePoints;
 
         $validationHash = md5('999999' . $this->user->User . '1');
-        $this->get($this->apiUrl('awardachievement', ['a' => 999999, 'h' => 1, 'm' => $gameHash, 'v' => $validationHash]))
+        $this->get($this->apiUrl('awardachievement', ['a' => 999999, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => false,
                 'Error' => 'Data not found for achievement 999999',
@@ -559,7 +713,7 @@ class AwardAchievementTest extends TestCase
             ]);
 
         $validationHash = $this->buildValidationHash($achievement4, $this->user, 1);
-        $this->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 1, 'm' => $gameHash, 'v' => $validationHash]))
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => false,
                 'Error' => 'Unofficial achievements cannot be unlocked',

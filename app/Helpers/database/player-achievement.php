@@ -2,17 +2,17 @@
 
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 /**
  * @deprecated see UnlockPlayerAchievementAction
  */
-function unlockAchievement(User $user, int $achievementId, bool $isHardcore): array
+function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?GameHash $gameHash = null): array
 {
     $retVal = [
         'Success' => false,
@@ -46,9 +46,11 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
         ->where('game_id', $achievement->GameID)
         ->first();
 
-    if (!$alreadyAwarded) {
-        $now = Carbon::now();
+    if ($playerGame && $gameHash) {
+        $playerGame->game_hash_id = $gameHash->id;
+    }
 
+    if (!$alreadyAwarded) {
         // The client is expecting to receive the number of AchievementsRemaining in the response, and if
         // it's 0, a mastery placard will be shown. Multiple achievements may be unlocked by the client at
         // the same time using separate requests, so we need to update the unlock counts for the
@@ -245,8 +247,7 @@ function getUnlocksInDateRange(array $achievementIDs, string $startTime, string 
             // invalid start, valid end
             $dateQuery = "AND pa.$column <= '$endTime'";
         } else {
-            // invalid start and end
-            // no date query needed
+            $dateQuery = "AND pa.$column IS NOT NULL";
         }
     }
 

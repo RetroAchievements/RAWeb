@@ -15,6 +15,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class AchievementSet extends BaseModel
 {
+    /** @use HasFactory<AchievementSetFactory> */
     use HasFactory;
     use SoftDeletes;
     // TODO use LogsActivity;

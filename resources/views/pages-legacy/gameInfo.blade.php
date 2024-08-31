@@ -120,12 +120,10 @@ if ($v != 1) {
 $achDist = null;
 $achDistHardcore = null;
 $authorInfo = [];
-$gameTopAchievers = null;
 $lbData = null;
 $numDistinctPlayers = null;
 $numEarnedCasual = null;
 $numEarnedHardcore = null;
-$numLeaderboards = null;
 $screenshotMaxHeight = null;
 $screenshotWidth = null;
 $totalEarnedCasual = null;
@@ -152,8 +150,6 @@ if ($isFullyFeaturedGame) {
 
     $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
     $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
-
-    $numLeaderboards = $gameModel->visibleLeaderboards()->count();
 
     if (isset($user)) {
         // Determine if the logged in user is the sole author of the set
@@ -261,9 +257,6 @@ if ($isFullyFeaturedGame) {
             && $totalEarnedWinConditionHardcore >= $neededWinConditions
         );
     }
-
-    // Get the top ten players at this game:
-    $gameTopAchievers = getGameTopAchievers($gameID);
 
     $claimData = getClaimData([$gameID], true);
 }
@@ -532,8 +525,8 @@ if ($isFullyFeaturedGame) {
                     echo "<div><a class='btn btn-link' href='/achievementinspector.php?g=$gameID'>Manage Core Achievements</a></div>";
                 }
 
-                // Display leaderboard management options depending on the current number of leaderboards
-                if ($numLeaderboards != 0) {
+                // Display leaderboard management options depending on if the game has any leaderboards (including hidden)
+                if ($gameModel->leaderboards()->exists()) {
                     echo "<div><a class='btn btn-link' href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
                 }
 
@@ -1016,27 +1009,25 @@ if ($isFullyFeaturedGame) {
         if (!empty($gameHubs)) {
             RenderGameAlts($gameHubs, 'Hubs');
         }
+        ?>
 
-        if ($user !== null && $numAchievements > 0) {
-            ?>
+        @if ($user !== null && $numAchievements > 0)
             <div class="mb-4">
                 <x-game.compare-progress
                     :game="$gameModel"
                     :user="$userModel"
                 />
             </div>
-            <?php
-        }
+        @endif
 
-        if ($numAchievements > 0 && $isOfficial) {
-            echo "<div id='achdistribution' class='component' >";
-            echo "<h2 class='text-h3'>Achievement Distribution</h2>";
-            echo "<div id='chart_distribution' class='min-h-[260px]'></div>";
-            echo "</div>";
+        @if ($numAchievements > 0 && $isOfficial)
+            <div id="achdistribution" class="component">
+                <h2 class="text-h3">Achievement Distribution</h2>
+                <div id="chart_distribution" class="min-h-[260px]"></div>
+            </div>
 
-            RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
-        }
-        ?>
+            <x-game.top-achievers :game="$gameModel" />
+        @endif
 
         @if (isValidConsoleId($consoleID))
             <x-game.leaderboards-listing :game="$gameModel" />

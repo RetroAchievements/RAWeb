@@ -14,7 +14,15 @@ npx eslint --quiet
 printf "\n⏳ npm run test\n"
 npm run test
 
-printf "\n⏳ composer test\n"
-vendor/bin/phpunit
+# Check the OS. Windows does not support the --parallel flag.
+if [ "$(uname)" = "Linux" ] || [ "$(uname)" = "Darwin" ]; then
+  # Use --parallel if macOS or Linux are detected.
+  printf "\n⏳ composer test -- --parallel\n"
+  vendor/bin/paratest
+else
+  # If neither of those are detected, don't use --parallel.
+  printf "\n⏳ composer test\n"
+  vendor/bin/phpunit
+fi
 
 printf "\n✅ pre-push OK\n\n"

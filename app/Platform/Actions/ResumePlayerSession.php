@@ -29,12 +29,20 @@ class ResumePlayerSession
         $playerGame->last_played_at = $timestamp;
         $playerGame->save();
 
+        $isMultiDiscGameHash = $gameHash?->isMultiDiscGameHash();
+
         $timestamp ??= Carbon::now();
 
         // look for an active session
         /** @var ?PlayerSession $playerSession */
         $playerSession = $user->playerSessions()
             ->where('game_id', $game->id)
+            ->where(function ($query) use ($gameHash, $isMultiDiscGameHash) {
+                if ($gameHash && !$isMultiDiscGameHash) {
+                    $query->where('game_hash_id', $gameHash->id)
+                        ->orWhereNull('game_hash_id');
+                }
+            })
             ->where(function ($query) use ($userAgent) {
                 if ($userAgent) {
                     $query->where('user_agent', $userAgent)
@@ -65,6 +73,10 @@ class ResumePlayerSession
             }
             $playerSession->rich_presence_updated_at = $timestamp > $playerSession->rich_presence_updated_at ? $timestamp : $playerSession->rich_presence_updated_at;
 
+            if ($gameHash && !$playerSession->game_hash_id && !$isMultiDiscGameHash) {
+                $playerSession->game_hash_id = $gameHash->id;
+            }
+
             if ($userAgent && !$playerSession->user_agent) {
                 $playerSession->user_agent = $userAgent;
             }
@@ -94,8 +106,8 @@ class ResumePlayerSession
         $playerSession = new PlayerSession([
             'user_id' => $user->id,
             'game_id' => $game->id,
+            'game_hash_id' => $gameHash?->id,
             // TODO add game hash set reference as soon as they are in place
-            // 'game_hash_id' => $game->gameHashSets()->first()->hashes()->first()->id,
             // 'game_hash_set_id' => $game->gameHashSets()->first()->id, // TODO
             'rich_presence' => $presence,
             'rich_presence_updated_at' => $timestamp,

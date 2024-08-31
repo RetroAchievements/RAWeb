@@ -44,6 +44,10 @@ return [
                 'achievement_issues_url' => env('DISCORD_WEBHOOK_QATEAM_ACHIEVEMENT_ISSUES'),
                 'incorrect_type_url' => env('DISCORD_WEBHOOK_QATEAM_INCORRECT_TYPE'),
             ],
+            'WritingTeam' => [
+                'url' => env('DISCORD_WEBHOOK_WRITING_TEAM'),
+                'is_forum' => true,
+            ],
             'QualityQuest' => [
                 'url' => env('DISCORD_WEBHOOK_QUALITYQUEST'),
             ],
