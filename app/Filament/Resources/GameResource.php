@@ -303,25 +303,25 @@ class GameResource extends Resource
                                 }
                             }),
 
-                Forms\Components\DatePicker::make('released_at')
-                    ->label('Earliest Release Date')
-                    ->native(false)
-                    ->minDate('1970-01-01')
-                    ->maxDate(now())
-                    ->displayFormat('F j, Y')
-                    ->reactive(),
+                        Forms\Components\DatePicker::make('released_at')
+                            ->label('Earliest Release Date')
+                            ->native(false)
+                            ->minDate('1970-01-01')
+                            ->maxDate(now())
+                            ->displayFormat('F j, Y')
+                            ->reactive(),
 
-                Forms\Components\ToggleButtons::make('released_at_granularity')
-                    ->label('Release Date Precision')
-                    ->options([
-                        'day' => 'Day',
-                        'month' => 'Month',
-                        'year' => 'Year',
-                    ])
-                    ->inline()
-                    ->default('day')
-                    ->reactive(),
-                ]),
+                        Forms\Components\ToggleButtons::make('released_at_granularity')
+                            ->label('Release Date Precision')
+                            ->options([
+                                'day' => 'Day',
+                                'month' => 'Month',
+                                'year' => 'Year',
+                            ])
+                            ->inline()
+                            ->default('day')
+                            ->reactive(),
+                    ]),
             ]);
     }
 
@@ -437,7 +437,7 @@ class GameResource extends Resource
                     Tables\Actions\Action::make('audit-log')
                         ->url(fn ($record) => GameResource::getUrl('audit-log', ['record' => $record]))
                         ->icon('fas-clock-rotate-left'),
-                    ]),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

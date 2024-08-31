@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlayerAchievement extends BasePivot
 {
+    /** @use HasFactory<PlayerAchievementFactory> */
     use HasFactory;
 
     protected $table = 'player_achievements';

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlayerStat extends BaseModel
 {
+    /** @use HasFactory<PlayerStatFactory> */
     use HasFactory;
 
     protected $table = 'player_stats';

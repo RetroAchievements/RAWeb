@@ -14,6 +14,7 @@ use Laravel\Scout\Searchable;
 
 class ForumTopicComment extends BaseModel
 {
+    /** @use HasFactory<ForumTopicCommentFactory> */
     use HasFactory;
     use Searchable;
     use SoftDeletes;
