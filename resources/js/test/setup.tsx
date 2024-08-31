@@ -3,7 +3,6 @@
 import * as InertiajsReactModule from '@inertiajs/react';
 import { render as defaultRender } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import type { PartialDeep } from 'type-fest';
 
 import { AppProviders } from '@/common/components/AppProviders';
 import type { AppGlobalProps } from '@/common/models';
