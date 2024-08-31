@@ -16,8 +16,8 @@ const BaseSwitch = React.forwardRef<
       'focus-visible:ring-offset-2 light:focus-visible:ring-offset-white',
       'disabled:cursor-not-allowed disabled:opacity-50',
       'light:data-[state=checked]:bg-text light:data-[state=unchecked]:bg-neutral-200',
-      'dark:focus-visible:ring-neutral-300',
-      'data-[state=checked]:bg-text dark:focus-visible:ring-offset-neutral-950',
+      'focus-visible:ring-neutral-300',
+      'focus-visible:ring-offset-neutral-950 data-[state=checked]:bg-text',
       'data-[state=unchecked]:bg-neutral-700',
       className,
     )}
@@ -26,8 +26,8 @@ const BaseSwitch = React.forwardRef<
   >
     <SwitchPrimitives.Thumb
       className={cn(
-        'pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform',
-        'data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0 dark:bg-neutral-950',
+        'pointer-events-none block h-5 w-5 rounded-full bg-neutral-50 shadow-lg ring-0 transition-transform light:bg-white',
+        'data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0',
       )}
     />
   </SwitchPrimitives.Root>
