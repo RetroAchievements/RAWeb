@@ -24,14 +24,19 @@ vi.mock('@inertiajs/react', () => ({
 
 type DefaultParams = Parameters<typeof defaultRender>;
 type RenderUI = DefaultParams[0];
-type RenderOptions = DefaultParams[1] & { pageProps?: Record<string, unknown> }; // augment this as necessary
+type RenderOptions<TPageProps = Record<string, unknown>> = DefaultParams[1] & {
+  pageProps?: TPageProps;
+};
 
 interface WrapperProps {
   children: ReactNode;
 }
 
-export function render(ui: RenderUI, { wrapper, pageProps = {}, ...options }: RenderOptions = {}) {
-  vi.spyOn(InertiajsReactModule, 'usePage').mockImplementationOnce(() => ({
+export function render<TPageProps = Record<string, unknown>>(
+  ui: RenderUI,
+  { wrapper, pageProps = {} as TPageProps, ...options }: RenderOptions<Partial<TPageProps>> = {},
+) {
+  vi.spyOn(InertiajsReactModule, 'usePage').mockImplementation(() => ({
     component: '',
     props: pageProps as any,
     rememberedState: {},

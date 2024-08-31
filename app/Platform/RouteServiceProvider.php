@@ -41,6 +41,10 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapWebRoutes(): void
     {
         Route::middleware(['web', 'csp'])->group(function () {
+            Route::middleware(['inertia'])->group(function () {
+                Route::get('game/{game}/hashes', [GameHashController::class, 'index'])->name('game.hashes.index');
+            });
+
             // Route::get('achievement/{achievement}{slug?}', [AchievementController::class, 'show'])->name('achievement.show');
             // Route::resource('achievements', AchievementController::class)->only('index')->names(['index' => 'achievement.index']);
             // Route::get(
