@@ -13,7 +13,7 @@ class LinkStorage extends StorageLinkCommand
                 {--relative : Create the symbolic link using relative paths}
                 {--force : Recreate existing symbolic links}';
 
-    protected static $defaultName = 'ra:storage:link';
+    protected static string $defaultName = 'ra:storage:link';
 
     public function handle(): void
     {

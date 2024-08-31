@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\EloquentSortable\SortableTrait;
-use Spatie\Image\Manipulations;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -40,15 +40,15 @@ class Emulator extends BaseModel implements HasMedia
                 $this->addMediaConversion('2xl')
                     ->nonQueued()
                     ->format('png')
-                    ->fit(Manipulations::FIT_MAX, 500, 500);
+                    ->fit(Fit::Max, 500, 500);
                 $this->addMediaConversion('32')
                     ->nonQueued()
                     ->format('png')
-                    ->fit(Manipulations::FIT_MAX, 64, 64);
+                    ->fit(Fit::Max, 64, 64);
                 $this->addMediaConversion('64')
                     ->nonQueued()
                     ->format('png')
-                    ->fit(Manipulations::FIT_MAX, 64, 64);
+                    ->fit(Fit::Max, 64, 64);
             });
     }
 

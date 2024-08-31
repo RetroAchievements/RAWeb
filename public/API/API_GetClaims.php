@@ -32,12 +32,12 @@ use Illuminate\Validation\Rule;
  */
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-   'k' => [
-       'nullable',
-       Rule::in(['1', '2', '3']),
-   ],
+    'k' => [
+        'nullable',
+        Rule::in(['1', '2', '3']),
+    ],
 ], [
-   'k.in' => 'k must be set to one of the following values: :values',
+    'k.in' => 'k must be set to one of the following values: :values',
 ]);
 
 $completedClaims = '1';

@@ -41,6 +41,7 @@ class Achievement extends BaseModel implements HasComments
     /*
      * Shared Traits
      */
+    /** @use HasFactory<AchievementFactory> */
     use HasFactory;
 
     use Searchable;
