@@ -12,12 +12,12 @@ declare namespace App.Data {
     id: number;
     title: string;
     createdAt: string;
-    user: App.Data.User | null;
     latestComment?: App.Data.ForumTopicComment;
     commentCount24h?: number;
     oldestComment24hId?: number;
     commentCount7d?: number;
     oldestComment7dId?: number;
+    user: App.Data.User | null;
   };
   export type __UNSAFE_PaginatedData = {
     currentPage: number;
@@ -91,7 +91,7 @@ declare namespace App.Platform.Data {
     label: string;
     imgSrc: string | null;
   };
-  export type GameHashesPagePropsData = {
+  export type GameHashesPageProps = {
     game: App.Platform.Data.Game;
     hashes: Array<App.Platform.Data.GameHash>;
     can: App.Data.UserPermissions;

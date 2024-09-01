@@ -20,7 +20,7 @@ class UserPermissionsData extends Data
     public static function fromUser(?User $user): self
     {
         return new self(
-            manageGameHashes: $user ? $user->can('manage', \App\Models\GameHash::class) : false
+            manageGameHashes: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameHash::class) : false),
         );
     }
 }

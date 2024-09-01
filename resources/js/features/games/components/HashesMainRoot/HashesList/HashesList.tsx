@@ -10,7 +10,7 @@ export const hashesListContainerTestId = 'hashes-list';
 export const HashesList: FC = () => {
   const {
     props: { hashes },
-  } = usePage<App.Platform.Data.GameHashesPagePropsData>();
+  } = usePage<App.Platform.Data.GameHashesPageProps>();
 
   if (!hashes.length) {
     return null;

@@ -8,7 +8,7 @@ use App\Data\UserPermissionsData;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript('GameHashesPagePropsData')]
+#[TypeScript('GameHashesPageProps')]
 class GameHashesPagePropsData extends Data
 {
     /**

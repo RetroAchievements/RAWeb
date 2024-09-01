@@ -12,7 +12,7 @@ import { HashesList } from './HashesList';
 export const HashesMainRoot: FC = () => {
   const {
     props: { can, game, hashes },
-  } = usePage<App.Platform.Data.GameHashesPagePropsData>();
+  } = usePage<App.Platform.Data.GameHashesPageProps>();
 
   return (
     <div>
