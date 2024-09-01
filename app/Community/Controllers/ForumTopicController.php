@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
+use App\Community\Data\RecentPostsPagePropsData;
 use App\Community\Requests\ForumTopicRequest;
 use App\Data\ForumTopicData;
 use App\Data\PaginatedData;
@@ -160,9 +161,9 @@ class ForumTopicController extends \App\Http\Controller
 
         $paginatedTopics = PaginatedData::fromLengthAwarePaginator($paginator);
 
-        return Inertia::render('forums/recent-posts', [
-            'paginatedTopics' => $paginatedTopics,
-        ]);
+        $props = new RecentPostsPagePropsData($paginatedTopics);
+
+        return Inertia::render('forums/recent-posts', $props);
     }
 
     private function getRecentForumTopics(int $page = 1, int $permissions = Permissions::Unregistered): array

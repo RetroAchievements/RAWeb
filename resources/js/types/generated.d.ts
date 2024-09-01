@@ -1,3 +1,8 @@
+declare namespace App.Community.Data {
+  export type RecentPostsPageProps<TItems = App.Data.ForumTopic> = {
+    paginatedTopics: App.Data.PaginatedData<TItems>;
+  };
+}
 declare namespace App.Data {
   export type ForumTopicComment = {
     id: number;
@@ -19,12 +24,12 @@ declare namespace App.Data {
     commentCount7d?: number;
     oldestComment7dId?: number;
   };
-  export type __UNSAFE_PaginatedData = {
+  export type PaginatedData<TItems> = {
     currentPage: number;
     lastPage: number;
     perPage: number;
     total: number;
-    items: Array<any>;
+    items: TItems[];
     links: {
       firstPageUrl: string | null;
       lastPageUrl: string | null;
