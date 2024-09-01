@@ -13,9 +13,6 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScriptType;
 #[TypeScript('PaginatedData<TItems>')]
 class PaginatedData extends Data
 {
-    /**
-     * @param TItems[] $items
-     */
     public function __construct(
         public int $currentPage,
         public int $lastPage,
@@ -37,7 +34,7 @@ class PaginatedData extends Data
     /**
      * @template TItems
      * @param LengthAwarePaginator<TItems> $paginator
-     * @return self<TItems>
+     * @return self
      */
     public static function fromLengthAwarePaginator(LengthAwarePaginator $paginator): self
     {

@@ -17,12 +17,12 @@ declare namespace App.Data {
     id: number;
     title: string;
     createdAt: string;
-    user: App.Data.User | null;
     latestComment?: App.Data.ForumTopicComment;
     commentCount24h?: number;
     oldestComment24hId?: number;
     commentCount7d?: number;
     oldestComment7dId?: number;
+    user: App.Data.User | null;
   };
   export type PaginatedData<TItems> = {
     currentPage: number;
@@ -90,5 +90,6 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
+  export type GameSetType = 'hub' | 'similar-games';
   export type AchievementFlag = 3 | 5;
 }
