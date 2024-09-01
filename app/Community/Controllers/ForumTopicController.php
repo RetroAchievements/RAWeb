@@ -121,7 +121,7 @@ class ForumTopicController extends \App\Http\Controller
             ->count();
     }
 
-    public function recentlyActive(Request $request): InertiaResponse
+    public function recentPosts(Request $request): InertiaResponse
     {
         $offset = $request->input('page', 1) - 1;
         $count = 25;

@@ -39,7 +39,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware(['web', 'csp'])
             ->group(function () {
                 Route::middleware(['inertia'])->group(function () {
-                    Route::get('forums/recent-posts', [ForumTopicController::class, 'recentlyActive'])->name('forum.recent-posts');
+                    Route::get('forums/recent-posts', [ForumTopicController::class, 'recentPosts'])->name('forum.recent-posts');
                 });
 
                 /*
