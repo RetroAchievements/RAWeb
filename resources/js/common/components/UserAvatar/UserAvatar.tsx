@@ -1,17 +1,22 @@
 import type { FC } from 'react';
 
 import { useCardTooltip } from '@/common/hooks/useCardTooltip';
+import type { AvatarSize } from '@/common/models';
 
 interface UserAvatarProps {
   displayName: string | null;
 
   hasTooltip?: boolean;
-  // This is strongly typed so we don't wind up with 100 different possible sizes.
-  // If possible, use one of these sane defaults. Only add another one if necessary.
-  size?: 8 | 16 | 24 | 32 | 64 | 128;
+  showDisplayName?: boolean;
+  size?: AvatarSize;
 }
 
-export const UserAvatar: FC<UserAvatarProps> = ({ displayName, size = 32, hasTooltip = true }) => {
+export const UserAvatar: FC<UserAvatarProps> = ({
+  displayName,
+  hasTooltip = true,
+  showDisplayName = true,
+  size = 32,
+}) => {
   const { cardTooltipProps } = useCardTooltip({ dynamicType: 'user', dynamicId: displayName });
 
   return (
@@ -30,7 +35,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({ displayName, size = 32, hasToo
         className="rounded-sm"
       />
 
-      {displayName ? <span>{displayName}</span> : null}
+      {displayName && showDisplayName ? <span>{displayName}</span> : null}
     </a>
   );
 };

@@ -3,12 +3,12 @@ import { faker } from '@faker-js/faker';
 import { render, screen } from '@/test';
 import { createPaginatedData } from '@/test/factories';
 
-import { RecentPostsPagination } from './RecentPostsPagination';
+import { SimplePaginator } from './SimplePaginator';
 
-describe('Component: RecentPostsPagination', () => {
+describe('Component: SimplePaginator', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<RecentPostsPagination />, {
+    const { container } = render(<SimplePaginator paginatedData={createPaginatedData([])} />, {
       pageProps: {
         paginatedTopics: createPaginatedData([]),
       },
@@ -20,7 +20,7 @@ describe('Component: RecentPostsPagination', () => {
 
   it('given there are no pages, renders nothing', () => {
     // ARRANGE
-    render(<RecentPostsPagination />, {
+    render(<SimplePaginator paginatedData={createPaginatedData([])} />, {
       pageProps: {
         paginatedTopics: createPaginatedData([]),
       },
@@ -36,14 +36,14 @@ describe('Component: RecentPostsPagination', () => {
     const nextPageUrl = faker.internet.url();
     const previousPageUrl = faker.internet.url();
 
-    render(<RecentPostsPagination />, {
-      pageProps: {
-        paginatedTopics: createPaginatedData([], {
+    render(
+      <SimplePaginator
+        paginatedData={createPaginatedData([], {
           perPage: 25,
           links: { nextPageUrl, previousPageUrl, firstPageUrl: null, lastPageUrl: null },
-        }),
-      },
-    });
+        })}
+      />,
+    );
 
     // ASSERT
     const previousLinkEl = screen.getByRole('link', { name: /previous/i });

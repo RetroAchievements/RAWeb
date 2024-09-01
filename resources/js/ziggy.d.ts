@@ -300,6 +300,12 @@ declare module 'ziggy-js' {
         }
     ],
     "forum.recent-posts": [],
+    "user.posts.index": [
+        {
+            "name": "user",
+            "required": true
+        }
+    ],
     "user.comment.destroyAll": [
         {
             "name": "user",
