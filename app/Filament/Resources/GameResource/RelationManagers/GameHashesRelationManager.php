@@ -37,6 +37,11 @@ class GameHashesRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
+        $nonAutomatedCommentsCount = Comment::where('ArticleType', ArticleType::GameHash)
+            ->where('ArticleID', $this->ownerRecord->id)
+            ->notAutomated()
+            ->count();
+
         return $table
             ->recordTitleAttribute('name')
             ->columns([
@@ -63,11 +68,8 @@ class GameHashesRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\Action::make('view-comments')
-                    ->label('View comments (' . Comment::where('ArticleType', ArticleType::GameHash)
-                        ->where('ArticleID', $this->ownerRecord->id)
-                        ->notAutomated()
-                        ->count() . ')'
-                    )
+                    ->color($nonAutomatedCommentsCount > 0 ? 'info' : 'gray')
+                    ->label("View Comments ({$nonAutomatedCommentsCount})")
                     ->url(route('game.hashes.comments', ['game' => $this->ownerRecord->id])),
             ])
             ->actions([
