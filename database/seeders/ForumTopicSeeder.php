@@ -74,6 +74,8 @@ class ForumTopicSeeder extends Seeder
 
                 $forumTopic->LatestCommentID = $forumTopicComment->ID;
                 $forumTopic->save();
+
+                $numComments++;
             }
 
             // update the time to the oldest of four random timestamps between the last
