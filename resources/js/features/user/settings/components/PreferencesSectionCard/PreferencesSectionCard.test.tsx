@@ -8,11 +8,9 @@ import { PreferencesSectionCard } from './PreferencesSectionCard';
 describe('Component: PreferencesSectionCard', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<PreferencesSectionCard />, {
-      pageProps: {
-        auth: { user: { websitePrefs: 131200 } },
-      },
-    });
+    const { container } = render(
+      <PreferencesSectionCard currentWebsitePrefs={131200} onUpdateWebsitePrefs={vi.fn()} />,
+    );
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -20,11 +18,7 @@ describe('Component: PreferencesSectionCard', () => {
 
   it('correctly sets the initial form values', () => {
     // ARRANGE
-    render(<PreferencesSectionCard />, {
-      pageProps: {
-        auth: { user: { websitePrefs: 131200 } },
-      },
-    });
+    render(<PreferencesSectionCard currentWebsitePrefs={131200} onUpdateWebsitePrefs={vi.fn()} />);
 
     // ASSERT
     expect(screen.getByRole('switch', { name: /suppress mature content warnings/i })).toBeChecked();
@@ -37,11 +31,7 @@ describe('Component: PreferencesSectionCard', () => {
     // ARRANGE
     const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });
 
-    render(<PreferencesSectionCard />, {
-      pageProps: {
-        auth: { user: { websitePrefs: 139471 } },
-      },
-    });
+    render(<PreferencesSectionCard currentWebsitePrefs={139471} onUpdateWebsitePrefs={vi.fn()} />);
 
     // ACT
     await userEvent.click(screen.getByRole('switch', { name: /only people i follow/i }));

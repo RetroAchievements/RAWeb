@@ -2,15 +2,23 @@ import type { FC } from 'react';
 
 import { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
 
-import { usePageProps } from '../../hooks/usePageProps';
 import { SectionFormCard } from '../SectionFormCard';
 import { PreferencesSwitchField } from './PreferencesSwitchField';
 import { usePreferencesSectionForm } from './usePreferencesSectionForm';
 
-export const PreferencesSectionCard: FC = () => {
-  const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
+interface PreferencesSectionCardProps {
+  currentWebsitePrefs: number;
+  onUpdateWebsitePrefs: (newWebsitePrefs: number) => unknown;
+}
 
-  const { form, mutation, onSubmit } = usePreferencesSectionForm(auth?.user.websitePrefs ?? 0);
+export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
+  currentWebsitePrefs,
+  onUpdateWebsitePrefs,
+}) => {
+  const { form, mutation, onSubmit } = usePreferencesSectionForm(
+    currentWebsitePrefs,
+    onUpdateWebsitePrefs,
+  );
 
   return (
     <SectionFormCard

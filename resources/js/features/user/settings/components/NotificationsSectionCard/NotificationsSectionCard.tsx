@@ -2,7 +2,6 @@ import type { FC } from 'react';
 
 import { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
 
-import { usePageProps } from '../../hooks/usePageProps';
 import { SectionFormCard } from '../SectionFormCard';
 import { NotificationsSmallRow } from './NotificationsSmallRow';
 import { NotificationsTableRow } from './NotificationsTableRow';
@@ -40,10 +39,19 @@ const notificationSettings = [
   },
 ];
 
-export const NotificationsSectionCard: FC = () => {
-  const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
+interface NotificationsSectionCardProps {
+  currentWebsitePrefs: number;
+  onUpdateWebsitePrefs: (newWebsitePrefs: number) => unknown;
+}
 
-  const { form, mutation, onSubmit } = useNotificationsSectionForm(auth?.user.websitePrefs ?? 0);
+export const NotificationsSectionCard: FC<NotificationsSectionCardProps> = ({
+  currentWebsitePrefs,
+  onUpdateWebsitePrefs,
+}) => {
+  const { form, mutation, onSubmit } = useNotificationsSectionForm(
+    currentWebsitePrefs,
+    onUpdateWebsitePrefs,
+  );
 
   return (
     <SectionFormCard

@@ -12,14 +12,13 @@ import { NotificationsSectionCard } from './NotificationsSectionCard';
 describe('Component: NotificationsSectionCard', () => {
   it('renders without crashing', () => {
     // ARRANGE
+    const userSettings = createUser();
+
     const { container } = render<App.Community.Data.UserSettingsPageProps>(
-      <NotificationsSectionCard />,
-      {
-        pageProps: {
-          can: {},
-          userSettings: createUser(),
-        },
-      },
+      <NotificationsSectionCard
+        currentWebsitePrefs={userSettings.websitePrefs ?? 0}
+        onUpdateWebsitePrefs={vi.fn()}
+      />,
     );
 
     // ASSERT
@@ -36,13 +35,19 @@ describe('Component: NotificationsSectionCard', () => {
 
     const mockWebsitePrefs = convertObjectToWebsitePrefs(mappedPreferences);
 
-    render<App.Community.Data.UserSettingsPageProps>(<NotificationsSectionCard />, {
-      pageProps: {
-        can: {},
-        userSettings: createUser(),
-        auth: { user: createAuthenticatedUser({ websitePrefs: mockWebsitePrefs }) },
+    render<App.Community.Data.UserSettingsPageProps>(
+      <NotificationsSectionCard
+        currentWebsitePrefs={mockWebsitePrefs}
+        onUpdateWebsitePrefs={vi.fn()}
+      />,
+      {
+        pageProps: {
+          can: {},
+          userSettings: createUser(),
+          auth: { user: createAuthenticatedUser({ websitePrefs: mockWebsitePrefs }) },
+        },
       },
-    });
+    );
 
     // ASSERT
     expect(screen.getByTestId(`email-checkbox-comments-on-my-activity`)).toBeChecked();
@@ -61,11 +66,17 @@ describe('Component: NotificationsSectionCard', () => {
 
     const mockWebsitePrefs = convertObjectToWebsitePrefs(mappedPreferences);
 
-    render<App.Community.Data.UserSettingsPageProps>(<NotificationsSectionCard />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser({ websitePrefs: mockWebsitePrefs }) },
+    render<App.Community.Data.UserSettingsPageProps>(
+      <NotificationsSectionCard
+        currentWebsitePrefs={mockWebsitePrefs}
+        onUpdateWebsitePrefs={vi.fn()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser({ websitePrefs: mockWebsitePrefs }) },
+        },
       },
-    });
+    );
 
     // ACT
     await userEvent.click(screen.getByTestId(`email-checkbox-someone-follows-me`));
