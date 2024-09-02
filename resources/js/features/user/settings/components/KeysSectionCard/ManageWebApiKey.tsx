@@ -60,7 +60,10 @@ export const ManageWebApiKey: FC = () => {
             isWrappingTapTarget={true}
             tooltipContent="Copy to clipboard"
           >
-            <BaseButton className="flex gap-2" onClick={handleCopyApiKeyClick}>
+            <BaseButton
+              className="flex gap-2 md:max-w-fit md:px-12"
+              onClick={handleCopyApiKeyClick}
+            >
               <LuCopy />
               <span className="font-mono">{safeFormatApiKey(currentWebApiKey)}</span>
             </BaseButton>
