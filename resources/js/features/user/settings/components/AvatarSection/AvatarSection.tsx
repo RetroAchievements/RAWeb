@@ -48,6 +48,8 @@ export const AvatarSection: FC = () => {
     });
   };
 
+  const [imageData] = form.watch(['imageData']);
+
   return (
     <div className="flex flex-col gap-4">
       <h3 className={baseCardTitleClassNames}>Avatar</h3>
@@ -87,7 +89,7 @@ export const AvatarSection: FC = () => {
               </div>
 
               <div className="flex w-full justify-end">
-                <BaseButton type="submit" disabled={formMutation.isPending}>
+                <BaseButton type="submit" disabled={!imageData || formMutation.isPending}>
                   Upload
                 </BaseButton>
               </div>
