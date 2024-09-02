@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\GameResource\RelationManagers;
 
 use App\Community\Enums\ArticleType;
+use App\Models\Comment;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\User;
@@ -61,7 +62,13 @@ class GameHashesRelationManager extends RelationManager
 
             ])
             ->headerActions([
-
+                Tables\Actions\Action::make('view-comments')
+                    ->label('View comments (' . Comment::where('ArticleType', ArticleType::GameHash)
+                        ->where('ArticleID', $this->ownerRecord->id)
+                        ->notAutomated()
+                        ->count() . ')'
+                    )
+                    ->url(route('game.hashes.comments', ['game' => $this->ownerRecord->id])),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
