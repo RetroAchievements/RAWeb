@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <x-head
+    :page="$page ?? null"
     :page-title="$pageTitle ?? null"
     :page-description="$pageDescription ?? null"
     :page-image="$pageImage ?? null"
@@ -45,22 +46,31 @@
         </x-slot>
     </x-navbar>
 
+
     <x-content>
-        <x-slot name="header">
-            {{ $header ?? '' }}
-        </x-slot>
-
-        <x-slot name="breadcrumb">
-            {{ $breadcrumb ?? '' }}
-        </x-slot>
-
-        <x-main :sidebarPosition="$sidebarPosition ?? 'right'">
-            <x-slot name="sidebar">
-                {{ $sidebar ?? '' }}
+        @if (!empty($page))
+            @inertia
+        @else
+            <x-slot name="header">
+                {{ $header ?? '' }}
             </x-slot>
-            
-            {{ $slot ?? '' }}
-        </x-main>
+
+            <x-slot name="breadcrumb">
+                {{ $breadcrumb ?? '' }}
+            </x-slot>
+
+            <x-main :sidebarPosition="$sidebarPosition ?? 'right'">
+                @if (!empty($page))
+                    @inertia
+                @endif
+    
+                <x-slot name="sidebar">
+                    {{ $sidebar ?? '' }}
+                </x-slot>
+                
+                {{ $slot ?? '' }}
+            </x-main>
+        @endif
     </x-content>
 
     <footer>

@@ -5,6 +5,7 @@ services:
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
+                NODE_VERSION: '20'
         image: raweb-8.2/app
         extra_hosts:
             - 'host.docker.internal:host-gateway'

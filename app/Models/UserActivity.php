@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserActivity extends BaseModel
 {
+    /** @use HasFactory<UserActivityFactory> */
     use HasFactory;
 
     protected $fillable = [

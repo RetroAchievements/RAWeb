@@ -20,7 +20,7 @@ use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Image\Manipulations;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -38,6 +38,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     use LogsActivity {
         LogsActivity::activities as auditLog;
     }
+    /** @use HasFactory<GameFactory> */
     use HasFactory;
     use InteractsWithMedia;
 
@@ -128,6 +129,7 @@ class Game extends BaseModel implements HasComments, HasMedia
                 'Publisher',
                 'Developer',
                 'Genre',
+                'ImageIcon',
                 'released_at',
                 'released_at_granularity',
             ])
@@ -164,8 +166,8 @@ class Game extends BaseModel implements HasComments, HasMedia
                     $this->addMediaConversion($iconSize)
                         ->nonQueued()
                         ->format('png')
-                        ->fit(Manipulations::FIT_CONTAIN, $width, $height)->apply()
-                        ->fit(Manipulations::FIT_FILL, $width, $height)
+                        ->fit(Fit::Contain, $width, $height)
+                        ->fit(Fit::Fill, $width, $height)
                         ->optimize();
                 }
             });
@@ -377,6 +379,16 @@ class Game extends BaseModel implements HasComments, HasMedia
     public function gameAchievementSets(): HasMany
     {
         return $this->hasMany(GameAchievementSet::class, 'game_id');
+    }
+
+    /**
+     * @return BelongsToMany<GameSet>
+     */
+    public function gameSets(): BelongsToMany
+    {
+        return $this->belongsToMany(GameSet::class, 'game_set_games', 'game_id', 'game_set_id')
+            ->withTimestamps()
+            ->withPivot('created_at', 'updated_at', 'deleted_at');
     }
 
     /**

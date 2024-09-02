@@ -9,6 +9,7 @@ use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 use Laravel\Octane\Facades\Octane;
 
 class RouteServiceProvider extends ServiceProvider
@@ -75,6 +76,10 @@ class RouteServiceProvider extends ServiceProvider
             /*
              * content
              */
+            Route::middleware(['inertia'])->group(function () {
+                Route::get('contact', fn () => Inertia::render('contact'))->name('contact');
+                Route::get('terms', fn () => Inertia::render('terms'))->name('terms');
+            });
             // Route::get('downloads', [DownloadController::class, 'index'])->name('download.index');
             // Route::get('feed', [FeedController::class, 'index'])->name('feed.index');
             // Route::get('rss/{resource}', [RssController::class, 'show'])->name('rss.show');
@@ -106,18 +111,11 @@ class RouteServiceProvider extends ServiceProvider
             ], function () {
                 // Route::get('notifications', [NotificationsController::class, 'index'])->name('notification.index');
 
-                /*
-                 * settings and user attributes
-                 */
-                // Route::group(['prefix' => 'settings'], function () {
-                //     Route::get('keys', [SettingsController::class, 'edit'])->middleware('password.confirm');
-                //     Route::get('{section?}', [SettingsController::class, 'edit'])->name('settings');
-                //
-                //     Route::put('profile', [SettingsController::class, 'updateProfile'])->name('settings.profile.update');
-                //     Route::put('password', [SettingsController::class, 'updatePassword'])->name('settings.password.update');
-                //     Route::put('email', [SettingsController::class, 'updateEmail'])->name('settings.email.update');
-                //     Route::put('notifications', [SettingsController::class, 'updateNotificationPreferences'])->name('settings.notifications.update');
-                // });
+                Route::post('delete-request', [UserController::class, 'requestAccountDeletion'])->name('user.delete-request.store');
+                Route::delete('delete-request', [UserController::class, 'cancelAccountDeletion'])->name('user.delete-request.destroy');
+
+                Route::post('avatar', [UserController::class, 'uploadAvatar'])->name('user.avatar.store');
+                Route::delete('avatar', [UserController::class, 'deleteAvatar'])->name('user.avatar.destroy');
             });
         });
     }

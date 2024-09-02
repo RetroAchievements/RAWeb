@@ -413,20 +413,6 @@ function updateAchievementDisplayOrder(int $achievementId, int $newDisplayOrder)
     return true;
 }
 
-function updateAchievementEmbedVideoUrl(int $achievementId, ?string $embedUrl): bool
-{
-    $achievement = Achievement::find($achievementId);
-
-    if (!$achievement) {
-        return false;
-    }
-
-    $achievement->AssocVideo = strip_tags($embedUrl);
-    $achievement->save();
-
-    return true;
-}
-
 function updateAchievementFlag(int|string|array $inputAchievementIds, int $newFlag): void
 {
     $achievementIds = is_array($inputAchievementIds) ? $inputAchievementIds : [$inputAchievementIds];

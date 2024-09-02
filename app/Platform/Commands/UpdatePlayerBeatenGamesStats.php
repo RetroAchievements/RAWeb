@@ -52,7 +52,7 @@ class UpdatePlayerBeatenGamesStats extends Command
 
             // Retrieve user IDs in chunks and create jobs.
             $baseUserQuery->chunkById(100, function ($users) use ($progressBar) {
-                $jobs = $users->map(function ($user) {
+                $jobs = $users->map(function (User $user) {
                     return (new UpdatePlayerBeatenGamesStatsJob($user->id))->onQueue('player-beaten-games-stats');
                 })->all();
 

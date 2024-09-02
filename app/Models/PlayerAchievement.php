@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlayerAchievement extends BasePivot
 {
+    /** @use HasFactory<PlayerAchievementFactory> */
     use HasFactory;
 
     protected $table = 'player_achievements';
@@ -58,7 +59,7 @@ class PlayerAchievement extends BasePivot
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'ID');
     }
 
     /**

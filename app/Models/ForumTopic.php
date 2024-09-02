@@ -5,17 +5,19 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\ForumTopicFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 
 class ForumTopic extends BaseModel
 {
+    /** @use HasFactory<ForumTopicFactory> */
     use HasFactory;
     use Searchable;
     use SoftDeletes;
@@ -130,11 +132,13 @@ class ForumTopic extends BaseModel
     }
 
     /**
-     * @return MorphOne<Comment>
+     * @return HasOne<ForumTopicComment>
      */
-    public function latestComment(): MorphOne
+    public function latestComment(): HasOne
     {
-        return $this->morphOne(Comment::class, 'commentable')->latestOfMany();
+        return $this->hasOne(ForumTopicComment::class, 'ForumTopicID')
+            ->where('Authorised', 1)
+            ->orderByDesc('DateCreated');
     }
 
     // == scopes
@@ -170,5 +174,14 @@ class ForumTopic extends BaseModel
         );
 
         $query->orderByRaw('last_activity_at ' . $direction);
+    }
+
+    /**
+     * @param Builder<ForumTopic> $query
+     * @return Builder<ForumTopic>
+     */
+    public function scopeWithLatestComment(Builder $query): Builder
+    {
+        return $query->with(['latestComment.user']);
     }
 }

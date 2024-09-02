@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -62,6 +63,7 @@ if (!$dbResult) {
 // Registered::dispatch($user);
 
 // Create an email validation token and send an email
-sendValidationEmail($username, $email);
+$userModel = User::firstWhere('User', $username);
+sendValidationEmail($userModel, $email);
 
 return back()->with('message', __('legacy.email_validate'));

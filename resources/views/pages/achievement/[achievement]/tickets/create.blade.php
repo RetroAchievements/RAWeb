@@ -29,14 +29,17 @@ render(function (View $view, Achievement $achievement) {
     $selectedEmulator = old('emulator');
     $emulatorVersion = old('emulator_version');
     $emulatorCore = old('emulator_core');
+    $extra = old('extra', request()->input('extra'));
 
     if ($selectedEmulator === null) {
         $userAgent = null;
+        $selectedHash = null;
 
         $unlock = $user->playerAchievements()->where('achievement_id', $achievement->id)->first();
         if ($unlock !== null) {
             $playerSession = $user->playerSessions()->firstWhere('player_sessions.id', $unlock->player_session_id);
             $userAgent = $playerSession?->user_agent;
+            $selectedHash = $playerSession?->gameHash?->md5;
         }
 
         if ($userAgent === null) {
@@ -47,6 +50,7 @@ render(function (View $view, Achievement $achievement) {
                 ->orderBy('updated_at', 'DESC')
                 ->first();
             $userAgent = $playerSession?->user_agent;
+            $selectedHash = $playerSession?->gameHash?->md5;
         }
 
         if ($userAgent !== null) {
@@ -74,6 +78,7 @@ render(function (View $view, Achievement $achievement) {
         'selectedHash' => $selectedHash,
         'selectedMode' => $selectedMode,
         'selectedType' => $selectedType,
+        'extra' => $extra,
     ]);
 });
 
@@ -86,6 +91,7 @@ render(function (View $view, Achievement $achievement) {
     'selectedHash' => '',
     'selectedMode' => 0, // UnlockMode
     'selectedType' => '',
+    'extra' => '',
 ])
 
 <script>
@@ -134,6 +140,9 @@ function reportIssueComponent() {
         <form action="/request/ticket/create.php" method="post">
             {{ csrf_field() }}
             <input type="hidden" value="{{ $achievement->id }}" name="achievement">
+            @if (!empty($extra))
+                <input type="hidden" value="{{ $extra }}" name="extra" />
+            @endif
             <table class='table-highlight'>
                 <tbody>
                 <tr class="alt">

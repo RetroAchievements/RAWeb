@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
 
 class AchievementSetClaim extends BaseModel
 {
+    /** @use HasFactory<AchievementSetClaimFactory> */
     use HasFactory;
 
     // TODO rename SetClaim to achievement_set_claims

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Platform\Enums\AchievementFlag;
+use Closure;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Contracts\HasForms;
@@ -45,9 +47,26 @@ abstract class ResourceAuditLog extends Page implements HasForms
             return new LengthAwarePaginator([], 0, 1);
         }
 
-        return $this->paginateTableQuery(
-            $this->record->auditLog()->with('causer')->latest()->getQuery()
-        );
+        $query = $this->record->auditLog()->with('causer')->latest()->getQuery();
+        $paginator = $this->paginateTableQuery($query);
+
+        // Map raw values to human-readable values.
+        // eg: 3 -> "Published"
+        foreach ($paginator->items() as $log) {
+            $properties = json_decode($log->properties, true);
+
+            if (isset($properties['attributes'])) {
+                $properties['attributes'] = $this->transformFieldValues($properties['attributes']);
+            }
+
+            if (isset($properties['old'])) {
+                $properties['old'] = $this->transformFieldValues($properties['old']);
+            }
+
+            $log->properties = $properties;
+        }
+
+        return $paginator;
     }
 
     public function getFieldLabel(string $name): string
@@ -56,7 +75,7 @@ abstract class ResourceAuditLog extends Page implements HasForms
     }
 
     /**
-     * @return Collection<string, \Illuminate\Contracts\Support\Htmlable|string|null>
+     * @return Collection<int|string, mixed>
      */
     protected function createFieldLabelMap(): Collection
     {
@@ -90,6 +109,55 @@ abstract class ResourceAuditLog extends Page implements HasForms
             ]);
     }
 
+    /**
+     * @return Collection<string, Closure(int): string>
+     */
+    protected function createFieldValueMap(): Collection
+    {
+        return collect([
+            'Flags' => fn (int $flag): string => AchievementFlag::toString($flag),
+        ]);
+    }
+
+    protected function transformFieldValues(array $values): array
+    {
+        $fieldValueMap = $this->createFieldValueMap();
+
+        foreach ($values as $key => $value) {
+            if ($fieldValueMap->has($key) && is_callable($fieldValueMap->get($key))) {
+                $values[$key] = $fieldValueMap->get($key)($value);
+            }
+
+            if ($this->getIsImageField($key) && is_string($value)) {
+                $values[$key] = $this->getImageUrl($key, $value);
+            }
+        }
+
+        return $values;
+    }
+
+    protected function getIsImageField(string $fieldName): bool
+    {
+        return in_array($fieldName, [
+            'BadgeName',
+            'ImageIcon',
+        ]);
+    }
+
+    protected function getImageUrl(string $fieldName, string $path): string
+    {
+        switch ($fieldName) {
+            case 'BadgeName':
+                return media_asset("/Badge/{$path}.png");
+
+            case 'ImageIcon':
+                return media_asset($path);
+
+            default:
+                return media_asset($path);
+        }
+    }
+
     protected function getEventColor(string $event): string
     {
         return match ($event) {
@@ -97,6 +165,8 @@ abstract class ResourceAuditLog extends Page implements HasForms
             'deleted' => 'danger',
             'pivotAttached' => 'info',
             'pivotDetached' => 'warning',
+            'resetAllLeaderboardEntries' => 'danger',
+            'unlinkedHash' => 'danger',
             default => 'info',
         };
     }

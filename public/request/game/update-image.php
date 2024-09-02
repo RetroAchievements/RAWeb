@@ -3,6 +3,9 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
 use App\Enums\Permissions;
+use App\Models\Game;
+use App\Models\GameSet;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\ImageType;
 use Illuminate\Support\Arr;
@@ -57,10 +60,23 @@ if (!$field) {
     return back()->withErrors(__('legacy.error.image_upload'));
 }
 
-$db = getMysqliConnection();
-$dbResult = mysqli_query($db, "UPDATE GameData AS gd SET $field='$imagePath' WHERE gd.ID = $gameID");
-if (!$dbResult) {
+$game = Game::find($gameID);
+if (!$game) {
     return back()->withErrors(__('legacy.error.image_upload'));
+}
+
+$game->$field = $imagePath;
+if (!$game->save()) {
+    return back()->withErrors(__('legacy.error.image_upload'));
+}
+
+// Double write to game_sets.
+if ($field === 'ImageIcon' && $game->ConsoleID === System::Hubs) {
+    $hubGameSet = GameSet::firstWhere('game_id', $game->id);
+    if ($hubGameSet) {
+        $hubGameSet->image_asset_path = $imagePath;
+        $hubGameSet->save();
+    }
 }
 
 $label = match ($imageType) {
