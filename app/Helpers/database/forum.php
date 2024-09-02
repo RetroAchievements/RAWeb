@@ -329,7 +329,7 @@ function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
 }
 
 /**
- * @return Collection<int, array>
+ * @return Collection<int, non-empty-array>
  */
 function getRecentForumPosts(
     int $offset,
@@ -382,6 +382,7 @@ function getRecentForumPosts(
         ORDER BY LatestComments.DateCreated DESC
         LIMIT 0, :limit";
 
+    /** @var Collection<int, non-empty-array> */
     return legacyDbFetchAll($query, $bindings)
         ->map(function ($post) use ($numMessageChars) {
             $post['ShortMsg'] = mb_substr($post['Payload'], 0, $numMessageChars);

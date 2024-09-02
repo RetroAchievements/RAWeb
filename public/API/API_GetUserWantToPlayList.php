@@ -19,12 +19,12 @@
  */
 
 use App\Community\Enums\UserGameListType;
-use App\Models\Game;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Policies\UserGameListEntryPolicy;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -37,22 +37,26 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
 $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 100;
 
-$user = User::firstWhere('User', request()->query('u'));
-if (!$user) {
+$targetUser = User::firstWhere('User', request()->query('u'));
+if (!$targetUser) {
     return response()->json([], 404);
 }
 
 $policy = new UserGameListEntryPolicy();
 
-if (!$policy->view(Auth::user(), $user)) {
+/** @var User $me */
+$me = Auth::user();
+
+if (!$policy->view($me, $targetUser)) {
     return response()->json([], 401);
 }
 
-$totalWantToPlayItems = UserGameListEntry::where('user_id', $user->id)
+$totalWantToPlayItems = UserGameListEntry::where('user_id', $targetUser->id)
     ->where('type', UserGameListType::Play)
     ->count();
 
-$results = UserGameListEntry::where('user_id', $user->id)
+/** @var Collection<int, array<string, mixed>> $results */
+$results = UserGameListEntry::where('user_id', $targetUser->id)
     ->where('type', UserGameListType::Play)
     ->with(['game.system'])
     ->skip($offset)

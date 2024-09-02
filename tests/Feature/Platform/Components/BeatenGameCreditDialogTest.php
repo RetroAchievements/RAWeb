@@ -23,8 +23,8 @@ class BeatenGameCreditDialogTest extends TestCase
                 :winConditionAchievements="$winConditionAchievements"
             />
         ', [
-             'progressionAchievements' => [$achievements[0], $achievements[1]],
-             'winConditionAchievements' => [$achievements[2], $achievements[3]],
+            'progressionAchievements' => [$achievements[0], $achievements[1]],
+            'winConditionAchievements' => [$achievements[2], $achievements[3]],
         ]);
 
         $view->assertSeeTextInOrder(['Sonic the Hedgehog', '2 progression', '2 win condition']);

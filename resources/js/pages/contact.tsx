@@ -16,7 +16,7 @@ const Contact: AppPage = () => {
       <AppLayout.Main>
         <h1 className="mb-4">Contact Us</h1>
 
-        <div className="grid gap-2 lg:gap-4 lg:grid-cols-2">
+        <div className="grid gap-2 lg:grid-cols-2 lg:gap-4">
           <div className="flex flex-col gap-2 lg:gap-4">
             <div className="rounded bg-embed p-4">
               <div>
@@ -25,7 +25,7 @@ const Contact: AppPage = () => {
                   <a href={route('message.create', { to: 'RAdmin' })}>Send a message to RAdmin</a>{' '}
                   for:
                 </p>
-                <ul className="list-disc list-inside">
+                <ul className="list-inside list-disc">
                   <li>Reporting offensive behavior.</li>
                   <li>Reporting copyrighted material.</li>
                   <li>Requesting to be untracked.</li>
@@ -42,7 +42,7 @@ const Contact: AppPage = () => {
                   </a>{' '}
                   for:
                 </p>
-                <ul className="list-disc list-inside">
+                <ul className="list-inside list-disc">
                   <li>Requesting set approval or early set release.</li>
                   <li>Reporting achievements or sets with unwelcome concepts.</li>
                   <li>Reporting sets failing to cover basic progression.</li>
@@ -57,7 +57,7 @@ const Contact: AppPage = () => {
                   <a href={route('message.create', { to: 'QATeam' })}>Send a message to QATeam</a>{' '}
                   for:
                 </p>
-                <ul className="list-disc list-inside">
+                <ul className="list-inside list-disc">
                   <li>Reporting a broken set, leaderboard, or rich presence.</li>
                   <li>Requesting a set be playtested.</li>
                   <li>Hash compatibility questions.</li>
@@ -76,7 +76,7 @@ const Contact: AppPage = () => {
                   </a>{' '}
                   for:
                 </p>
-                <ul className="list-disc list-inside">
+                <ul className="list-inside list-disc">
                   <li>Icon Gauntlets and how to start one.</li>
                   <li>Proposing art updates.</li>
                   <li>Questions about art-related rule changes.</li>
@@ -133,7 +133,7 @@ const Contact: AppPage = () => {
                   </a>{' '}
                   for:
                 </p>
-                <ul className="list-disc list-inside">
+                <ul className="list-inside list-disc">
                   <li>Reporting achievements with grammatical mistakes.</li>
                   <li>Reporting achievements with unclear or confusing descriptions.</li>
                   <li>Requesting help from the team with proofreading achievement sets.</li>
@@ -149,7 +149,7 @@ const Contact: AppPage = () => {
                   <a href={route('message.create', { to: 'RANews' })}>Send a message to RANews</a>{' '}
                   for:
                 </p>
-                <ul className="list-disc list-inside">
+                <ul className="list-inside list-disc">
                   <li>Submitting a Play This Set, Wish This Set, or RAdvantage entry.</li>
                   <li>Submitting a retrogaming article.</li>
                   <li>Proposing a new article idea.</li>

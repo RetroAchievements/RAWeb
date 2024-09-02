@@ -57,12 +57,12 @@ function getGameIDFromMD5(string $md5): int
  */
 function getHashList(int $offset, int $count, ?string $searchedHash): array
 {
-    $query = GameHash::with(['user', 'game' => function ($query) {
-                $query->select('ID', 'Title', 'ImageIcon', 'ConsoleID');
-            },
-            'game.system' => function ($query) {
-                $query->select('ID', 'Name');
-            }])
+    $query =
+        GameHash::with(['user', 'game' => function ($query) {
+            $query->select('ID', 'Title', 'ImageIcon', 'ConsoleID');
+        }, 'game.system' => function ($query) {
+            $query->select('ID', 'Name');
+        }])
         ->select('md5', 'game_id', 'user_id', 'created_at');
 
     if (!empty($searchedHash)) {
