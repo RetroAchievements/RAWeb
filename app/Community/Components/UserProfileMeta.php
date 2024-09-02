@@ -329,7 +329,7 @@ class UserProfileMeta extends Component
         $forumPostsStat = [
             'label' => 'Forum posts',
             'value' => localized_number($numForumPosts),
-            'href' => $numForumPosts ? route('user.posts', ['user' => $user]) : null,
+            'href' => $numForumPosts ? route('user.posts.index', ['user' => $user]) : null,
             'isMuted' => $numForumPosts === 0,
         ];
 
