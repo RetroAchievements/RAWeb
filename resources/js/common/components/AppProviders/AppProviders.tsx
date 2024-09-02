@@ -16,7 +16,7 @@ export const AppProviders: FC<AppProvidersProps> = ({ children }) => {
       <BaseTooltipProvider delayDuration={300}>
         {children}
 
-        <BaseToaster richColors={true} />
+        <BaseToaster richColors={true} duration={4000} />
       </BaseTooltipProvider>
     </QueryClientProvider>
   );

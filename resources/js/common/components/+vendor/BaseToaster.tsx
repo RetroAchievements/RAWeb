@@ -22,6 +22,11 @@ const BaseToaster = ({ ...props }: BaseToasterProps) => {
             'light:group-[.toaster]:bg-white light:group-[.toaster]:text-neutral-950 light:group-[.toaster]:border-neutral-200',
           ),
 
+          error: '!bg-red-800 !text-red-100 light:!bg-red-600',
+          success: '!bg-green-800 !text-green-100 light:!bg-green-600',
+          info: '!bg-blue-800 !text-blue-100 light:!bg-blue-600',
+          warning: '!bg-yellow-800 !text-yellow-100 light:!bg-yellow-600',
+
           description: 'light:group-[.toast]:text-neutral-500 group-[.toast]:text-neutral-400',
 
           actionButton:
