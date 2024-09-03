@@ -1,4 +1,3 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
@@ -10,15 +9,13 @@ import { PostTimestamp } from '../PostTimestamp';
 export const RecentPostsTable: FC = () => {
   const { auth, paginatedTopics } = usePageProps<App.Community.Data.RecentPostsPageProps>();
 
-  const { t } = useLaravelReactI18n();
-
   return (
     <table className="table-highlight">
       <thead>
         <tr className="do-not-highlight">
-          <th>{t('Last Post By')}</th>
-          <th>{t('Message')}</th>
-          <th className="whitespace-nowrap text-right">{t('Additional Posts')}</th>
+          <th>Last Post By</th>
+          <th>Message</th>
+          <th className="whitespace-nowrap text-right">Additional Posts</th>
         </tr>
       </thead>
 

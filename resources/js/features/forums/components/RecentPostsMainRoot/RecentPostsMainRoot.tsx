@@ -1,4 +1,3 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import { ForumBreadcrumbs } from '../ForumBreadcrumbs';
@@ -7,13 +6,11 @@ import { RecentPostsPagination } from './RecentPostsPagination';
 import { RecentPostsTable } from './RecentPostsTable';
 
 export const RecentPostsMainRoot: FC = () => {
-  const { t } = useLaravelReactI18n();
-
   return (
     <div>
-      <ForumBreadcrumbs currentPageLabel={t('Recent Posts')} />
+      <ForumBreadcrumbs currentPageLabel="Recent Posts" />
 
-      <h1 className="w-full">{t('Recent Posts')}</h1>
+      <h1 className="w-full">Recent Posts</h1>
 
       <div className="lg:hidden">
         <RecentPostsCards />
