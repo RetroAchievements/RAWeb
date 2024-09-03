@@ -1,5 +1,4 @@
 import { usePage } from '@inertiajs/react';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
@@ -9,8 +8,6 @@ import { AggregateRecentPostLinks } from '../AggregateRecentPostLinks';
 import { PostTimestamp } from '../PostTimestamp';
 
 export const RecentPostsCards: FC = () => {
-  const { t } = useLaravelReactI18n();
-
   const { props } = usePage<RecentPostsPageProps>();
 
   const { auth, paginatedTopics } = props;
@@ -36,7 +33,7 @@ export const RecentPostsCards: FC = () => {
 
           <div className="flex flex-col gap-y-2">
             <p className="truncate">
-              {t('in')}{' '}
+              in{' '}
               <a
                 href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment.id}#${topic.latestComment.id}`}
               >
