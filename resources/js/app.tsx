@@ -2,8 +2,6 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 
-import { AppProviders } from './common/components/AppProviders';
-
 const appName = import.meta.env.APP_NAME || 'RetroAchievements';
 
 createInertiaApp({
@@ -14,21 +12,12 @@ createInertiaApp({
 
   setup({ el, App, props }) {
     if (import.meta.env.DEV) {
-      createRoot(el).render(
-        <AppProviders>
-          <App {...props} />
-        </AppProviders>,
-      );
+      createRoot(el).render(<App {...props} />);
 
       return;
     }
 
-    hydrateRoot(
-      el,
-      <AppProviders>
-        <App {...props} />
-      </AppProviders>,
-    );
+    hydrateRoot(el, <App {...props} />);
   },
 
   progress: {
