@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
@@ -20,16 +21,18 @@ export const RecentPostsTable: FC<RecentPostsTableProps> = ({
 }) => {
   const { auth } = usePageProps();
 
+  const { t } = useLaravelReactI18n();
+
   return (
     <table className="table-highlight">
       <thead>
         <tr className="do-not-highlight">
-          {showLastPostBy ? <th>Last Post By</th> : null}
+          {showLastPostBy ? <th>{t('Last Post By')}</th> : null}
 
-          <th>Message</th>
+          <th>{t('Message')}</th>
 
           {showAdditionalPosts ? (
-            <th className="whitespace-nowrap text-right">Additional Posts</th>
+            <th className="whitespace-nowrap text-right">{t('Additional Posts')}</th>
           ) : null}
         </tr>
       </thead>
