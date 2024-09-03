@@ -20,7 +20,7 @@ interface AppLayoutMainProps {
 }
 
 const AppLayoutMain: FC<AppLayoutMainProps> = ({ children }) => {
-  return <article>{children}</article>;
+  return <article className="!px-2.5 sm:!px-4 md:!px-5">{children}</article>;
 };
 
 interface AppLayoutSidebarProps {
