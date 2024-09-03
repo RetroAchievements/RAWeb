@@ -6,6 +6,7 @@ namespace App\Platform\Controllers;
 
 use App\Http\Controller;
 use App\Models\Game;
+use App\Models\System;
 use App\Platform\Requests\GameRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -105,5 +106,17 @@ class GameController extends Controller
     public function destroy(Game $game): void
     {
         $this->authorize('delete', $game);
+    }
+
+    public function random(): RedirectResponse
+    {
+        $this->authorize('viewAny', Game::class);
+
+        $randomGameWithAchievements = Game::whereNotIn('ConsoleID', System::getNonGameSystems())
+            ->where('achievements_published', '>=', 6)
+            ->inRandomOrder()
+            ->firstOrFail();
+
+        return redirect(route('game.show', ['game' => $randomGameWithAchievements]));
     }
 }

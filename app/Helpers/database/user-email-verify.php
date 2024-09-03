@@ -57,10 +57,11 @@ function validateEmailVerificationToken(string $emailCookie, ?string &$user): bo
     $response = SetAccountPermissionsJSON('Server', Permissions::Moderator, $user->username, Permissions::Registered);
     if ($response['Success']) {
         static_addnewregistereduser($user->username);
-        generateAPIKey($user->username);
 
         $user->email_verified_at = Carbon::now();
         $user->save();
+
+        generateAPIKey($user->username);
 
         // SUCCESS: validated email address for $user
         return true;
