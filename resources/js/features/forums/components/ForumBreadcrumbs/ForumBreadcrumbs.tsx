@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import {
@@ -15,12 +16,14 @@ interface ForumBreadcrumbsProps {
 }
 
 export const ForumBreadcrumbs: FC<ForumBreadcrumbsProps> = ({ currentPageLabel }) => {
+  const { t } = useLaravelReactI18n();
+
   return (
     <div className="navpath mb-3 hidden sm:block">
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
           <BaseBreadcrumbItem>
-            <BaseBreadcrumbLink href="/forum.php">Forum Index</BaseBreadcrumbLink>
+            <BaseBreadcrumbLink href="/forum.php">{t('Forum Index')}</BaseBreadcrumbLink>
           </BaseBreadcrumbItem>
 
           <BaseBreadcrumbSeparator />
