@@ -11,7 +11,7 @@ export const RecentPostsMainRoot: FC = () => {
 
   return (
     <div>
-      <ForumBreadcrumbs currentPageLabel="Recent Posts" />
+      <ForumBreadcrumbs currentPageLabel={t('Recent Posts')} />
 
       <h1 className="w-full">{t('Recent Posts')}</h1>
 
