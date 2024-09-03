@@ -67,7 +67,7 @@ if ($canSeeOpenTickets) {
         @can('viewAny', App\Models\GameHash::class)
             <x-game.link-buttons.game-link-button
                 icon="💾"
-                :href="route('game.hash', ['game' => $game])"
+                :href="route('game.hashes.index', ['game' => $game])"
             >
                 Supported Game Files
             </x-game.link-buttons.game-link-button>

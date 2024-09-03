@@ -51,7 +51,7 @@ const BaseBreadcrumbLink = forwardRef<
   return (
     <Comp
       ref={ref}
-      className={cn('hover:text-neutral-50 light:hover:text-neutral-950', className)}
+      className={cn('hover:text-neutral-200 light:hover:text-neutral-950', className)}
       {...props}
     />
   );
@@ -65,7 +65,7 @@ const BaseBreadcrumbPage = forwardRef<HTMLSpanElement, ComponentPropsWithoutRef<
       role="link"
       aria-disabled="true"
       aria-current="page"
-      className={cn('font-normal text-neutral-50 light:text-neutral-950', className)}
+      className={cn('font-normal text-neutral-200 light:text-neutral-950', className)}
       {...props}
     />
   ),
