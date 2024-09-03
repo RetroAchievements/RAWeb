@@ -106,13 +106,6 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "user.posts": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        }
-    ],
     "user.game.activity": [
         {
             "name": "user",
@@ -154,14 +147,6 @@ declare module 'ziggy-js' {
     "leaderboard.comments": [
         {
             "name": "leaderboard",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
-    "game.random": [],
-    "game.hash": [
-        {
-            "name": "game",
             "required": true,
             "binding": "ID"
         }
@@ -263,6 +248,14 @@ declare module 'ziggy-js' {
     "claims.expiring": [],
     "claims.completed": [],
     "claims.active": [],
+    "game.hashes.index": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "game.random": [],
     "game-hash.update": [
         {
             "name": "gameHash",
@@ -303,7 +296,8 @@ declare module 'ziggy-js' {
     "user.posts.index": [
         {
             "name": "user",
-            "required": true
+            "required": true,
+            "binding": "User"
         }
     ],
     "user.comment.destroyAll": [
