@@ -40,7 +40,7 @@ class RouteServiceProvider extends ServiceProvider
             ->group(function () {
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('forums/recent-posts', [ForumTopicController::class, 'recentPosts'])->name('forum.recent-posts');
-                    
+
                     Route::get('settings', [UserSettingsController::class, 'show'])->name('settings.show');
                 });
 
