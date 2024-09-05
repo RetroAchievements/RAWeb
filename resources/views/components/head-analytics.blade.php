@@ -35,6 +35,8 @@
 
     $props = [
         'isAuthenticated' => auth()->check(),
+        'scheme' => request()->cookie('scheme') ?: 'dark',
+        'theme' => request()->cookie('theme') ?: 'default',
     ];
 
     // Define regex patterns to extract props from the URL.

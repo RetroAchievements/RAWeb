@@ -300,6 +300,7 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
+    "settings.show": [],
     "user.comment.destroyAll": [
         {
             "name": "user",
