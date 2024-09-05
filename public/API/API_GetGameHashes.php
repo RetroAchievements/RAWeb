@@ -25,7 +25,7 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
 $game = Game::find($input['i']);
 
 if (!$game) {
-    return response()->json([], 404);
+    return response()->json(['Results' => []], 404);
 }
 
 $hashes = GameHashData::fromCollection($game->hashes);
