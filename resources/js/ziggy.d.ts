@@ -158,14 +158,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.random": [],
-    "game.hash": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.hash.manage": [
         {
             "name": "game",
@@ -263,6 +255,14 @@ declare module 'ziggy-js' {
     "claims.expiring": [],
     "claims.completed": [],
     "claims.active": [],
+    "game.hashes.index": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "game.random": [],
     "game-hash.update": [
         {
             "name": "gameHash",
@@ -299,6 +299,7 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "settings.show": [],
     "forum.recent-posts": [],
     "user.comment.destroyAll": [
         {
