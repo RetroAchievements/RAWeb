@@ -4,13 +4,13 @@ use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\User;
 use App\Policies\CommentPolicy;
-use App\Support\Rules\CtypeAlnum;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 /*
 *  API_GetComments - returns the comments associated to a game or achievement
-*    i : game or achievement id
-*    u : username
+*    i : game or achievement id or username
 *    t : 1 = game, 2 = achievement, 3 = user
 *    o : offset - number of entries to skip (default: 0)
 *    c : count - number of entries to return (default: 100, max: 500)
@@ -24,26 +24,49 @@ use Illuminate\Support\Facades\Validator;
 *    string      CommentText               text of the comment
 */
 
-$input = Validator::validate(Arr::wrap(request()->query()), [
-    'i' => ['sometimes', 'integer'],
-    't' => ['required', 'integer'],
-    'u' => ['sometimes', 'min:2', 'max:20', new CtypeAlnum()],
+$query = request()->query();
+
+$inputIsGameOrAchievement = function () use ($query) {
+    return isset($query['i']) && is_numeric($query['i']) && intval($query['i']) == $query['i'];
+};
+
+$rules = [
+    'i' => [
+        'required',
+        Rule::when(isset($query['t']) && $query['t'] === '3', 'string'),
+        Rule::when(isset($query['t']) && in_array($query['t'], [1, 2]), 'integer'),
+    ],
+    't' => [
+        Rule::requiredIf($inputIsGameOrAchievement()),
+        'integer',
+    ],
     'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
     'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
-]);
+];
+
+$input = Validator::validate(Arr::wrap($query), $rules);
 
 $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 100;
 
-$gameOrAchievementId = (int) request()->query('i');
-$username = (string) request()->query('u');
-$commentType = (int) request()->query('t');
+$username = null;
+$gameOrAchievementId = 0;
+$commentType = 0;
+
+if ($inputIsGameOrAchievement()) {
+    $gameOrAchievementId = $query['i'];
+    $commentType = $query['t'];
+} else {
+    $username = $query['i'];
+    $commentType = 3;
+}
 
 $user = null;
 
 if ($username) {
     $user = User::firstWhere('User', $username);
-    if (!$user || !$user->UserWallActive) {
+
+    if (!$user || !$user->UserWallActive || $user->banned_at || Auth::user()->banned_at) {
         return response()->json([], 404);
     }
 }
@@ -51,12 +74,15 @@ if ($username) {
 $articleId = $user ? $user->ID : $gameOrAchievementId;
 
 $comments = Comment::withTrashed()
+    ->with('user')
     ->where('ArticleType', $commentType)
     ->where('ArticleID', $articleId)
     ->whereNull('deleted_at')
+    ->whereHas('user', function ($query) {
+        $query->whereNull('banned_at');
+    })
     ->offset($offset)
     ->limit($count)
-    ->with('user')
     ->get();
 
 $totalComments = Comment::withTrashed()
@@ -71,7 +97,9 @@ $totalComments = Comment::withTrashed()
 $policy = new CommentPolicy();
 
 $results = $comments->filter(function ($nextComment) use ($policy) {
-    return $policy->view($nextComment->user, $nextComment);
+    $user = Auth::user() instanceof User ? Auth::user() : null;
+
+    return $policy->view($user, $nextComment);
 })->map(function ($nextComment) {
     return [
         'User' => $nextComment->user->username,

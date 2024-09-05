@@ -13,20 +13,36 @@ use Tests\TestCase;
 
 class CommentsTest extends TestCase
 {
-    use RefreshDatabase; use WithFaker;
+    use RefreshDatabase;
+    use WithFaker;
     use BootstrapsApiV1;
 
     public function testItValidates(): void
     {
-        $this->get($this->apiUrl('GetComments', ['u' => '1', 't' => 1]))
-            ->assertJsonValidationErrors([
-                'u',
+        $this->get($this->apiUrl('GetComments', ['i' => '1', 't' => 3]))
+            ->assertJsonMissingValidationErrors([
+                'i',
             ]);
+
+        $this->get($this->apiUrl('GetComments', ['i' => 1, 't' => 1]))
+            ->assertJsonMissingValidationErrors([
+                'i',
+                't',
+            ]);
+
+        $this->get($this->apiUrl('GetComments', ['i' => 'invalid', 't' => 2]))
+            ->assertJsonValidationErrors(['i']);
+
+        $this->get($this->apiUrl('GetComments', ['i' => 'not-an-integer', 't' => 1]))
+            ->assertJsonValidationErrors(['i']);
+
+        $this->get($this->apiUrl('GetComments', ['i' => null, 't' => 2]))
+            ->assertJsonValidationErrors(['i']);
     }
 
     public function testGetCommentsUnknownUser(): void
     {
-        $this->get($this->apiUrl('GetComments', ['u' => 'nonExistant', 't' => 3]))
+        $this->get($this->apiUrl('GetComments', ['i' => 'nonExistant']))
             ->assertNotFound()
             ->assertJson([]);
     }
@@ -170,7 +186,7 @@ class CommentsTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get($this->apiUrl('GetComments', ['u' => $user->User, 't' => 3]))
+        $response = $this->get($this->apiUrl('GetComments', ['i' => $user->User, 't' => 3]))
             ->assertSuccessful();
 
         // Assert
@@ -212,7 +228,7 @@ class CommentsTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get($this->apiUrl('GetComments', ['u' => $user->User, 't' => 3]))
+        $response = $this->get($this->apiUrl('GetComments', ['i' => $user->User]))
             ->assertNotFound()
             ->assertJson([]);
     }
