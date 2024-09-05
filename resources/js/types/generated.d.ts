@@ -1,3 +1,9 @@
+declare namespace App.Community.Data {
+  export type UserSettingsPageProps = {
+    userSettings: App.Data.User;
+    can: App.Data.UserPermissions;
+  };
+}
 declare namespace App.Data {
   export type ForumTopicComment = {
     id: number;
@@ -35,16 +41,48 @@ declare namespace App.Data {
   export type User = {
     displayName: string;
     avatarUrl: string;
+    isMuted: boolean;
     id?: number;
     username?: string | null;
+    motto?: string;
     legacyPermissions?: number | null;
     preferences?: { prefersAbsoluteDates: boolean };
     roles?: App.Models.UserRole[];
+    apiKey?: string | null;
+    deleteRequested?: string | null;
+    emailAddress?: string | null;
     unreadMessageCount?: number | null;
+    userWallActive?: boolean | null;
+    visibleRole?: string | null;
+    websitePrefs?: number | null;
   };
   export type UserPermissions = {
     manageGameHashes?: boolean;
+    manipulateApiKeys?: boolean;
+    updateAvatar?: boolean;
+    updateMotto?: boolean;
   };
+}
+declare namespace App.Enums {
+  export type UserPreference =
+    | 0
+    | 1
+    | 2
+    | 3
+    | 4
+    | 5
+    | 6
+    | 7
+    | 8
+    | 9
+    | 10
+    | 11
+    | 12
+    | 13
+    | 14
+    | 15
+    | 16
+    | 17;
 }
 declare namespace App.Models {
   export type UserRole =
@@ -118,5 +156,4 @@ declare namespace App.Platform.Data {
 }
 declare namespace App.Platform.Enums {
   export type GameSetType = 'hub' | 'similar-games';
-  export type AchievementFlag = 3 | 5;
 }

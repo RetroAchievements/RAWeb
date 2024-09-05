@@ -14,6 +14,9 @@ class UserPermissionsData extends Data
 {
     public function __construct(
         public Lazy|bool $manageGameHashes,
+        public Lazy|bool $manipulateApiKeys,
+        public Lazy|bool $updateAvatar,
+        public Lazy|bool $updateMotto,
     ) {
     }
 
@@ -21,6 +24,9 @@ class UserPermissionsData extends Data
     {
         return new self(
             manageGameHashes: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameHash::class) : false),
+            manipulateApiKeys: Lazy::create(fn () => $user ? $user->can('manipulateApiKeys', $user) : false),
+            updateAvatar: Lazy::create(fn () => $user ? $user->can('updateAvatar', $user) : false),
+            updateMotto: Lazy::create(fn () => $user ? $user->can('updateMotto', $user) : false),
         );
     }
 }
