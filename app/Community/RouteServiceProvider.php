@@ -43,7 +43,7 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('forums/recent-posts', [ForumTopicController::class, 'recentPosts'])->name('forum.recent-posts');
 
                     Route::get('user/{user}/posts', [UserForumTopicCommentController::class, 'index'])->name('user.posts.index');
-                    
+
                     Route::get('settings', [UserSettingsController::class, 'show'])->name('settings.show');
                 });
 
