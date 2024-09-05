@@ -385,7 +385,7 @@ final class Shortcode
                 )                          # End negative lookahead assertion.
             ~ix',
             function ($matches) {
-                $subdomain = isset($matches[1]) ? $matches[1] : '';
+                $subdomain = $matches[1];
                 $path = isset($matches[2]) ? '/' . $matches[2] : '';
 
                 return '<a href="https://' . $subdomain . 'retroachievements.org' . $path . '">https://' . $subdomain . 'retroachievements.org' . $path . '</a>';
@@ -457,19 +457,16 @@ final class Shortcode
                 $videoId = $matches[1];
                 $query = [];
 
-                // Are there additional query parameters in the URL?
-                if (isset($matches[2])) {
-                    // Parse the query parameters and populate them into $query.
-                    parse_str(ltrim($matches[2], '?'), $query);
+                // Parse the query parameters and populate them into $query.
+                parse_str(ltrim($matches[2], '?'), $query);
 
-                    // Check if the "t" parameter (timestamp) is present.
-                    if (isset($query['t'])) {
-                        // "t" has to be converted to a time compatible with youtube-nocookie.com embeds.
-                        $query['start'] = $this->convertYouTubeTime($query['t']);
+                // Check if the "t" parameter (timestamp) is present.
+                if (isset($query['t'])) {
+                    // "t" has to be converted to a time compatible with youtube-nocookie.com embeds.
+                    $query['start'] = $this->convertYouTubeTime($query['t']);
 
-                        // Once converted, remove the "t" parameter so we don't accidentally duplicate it.
-                        unset($query['t']);
-                    }
+                    // Once converted, remove the "t" parameter so we don't accidentally duplicate it.
+                    unset($query['t']);
                 }
 
                 $query = http_build_query($query);
