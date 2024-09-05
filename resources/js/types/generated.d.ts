@@ -12,12 +12,12 @@ declare namespace App.Data {
     id: number;
     title: string;
     createdAt: string;
-    user: App.Data.User | null;
     latestComment?: App.Data.ForumTopicComment;
     commentCount24h?: number;
     oldestComment24hId?: number;
     commentCount7d?: number;
     oldestComment7dId?: number;
+    user: App.Data.User | null;
   };
   export type __UNSAFE_PaginatedData = {
     currentPage: number;
@@ -41,6 +41,9 @@ declare namespace App.Data {
     preferences?: { prefersAbsoluteDates: boolean };
     roles?: App.Models.UserRole[];
     unreadMessageCount?: number | null;
+  };
+  export type UserPermissions = {
+    manageGameHashes?: boolean;
   };
 }
 declare namespace App.Models {
@@ -70,6 +73,29 @@ declare namespace App.Models {
     | 'developer-veteran';
 }
 declare namespace App.Platform.Data {
+  export type Game = {
+    id: number;
+    title: string;
+    badgeUrl?: string;
+    forumTopicId?: number;
+    system?: App.Platform.Data.System;
+  };
+  export type GameHash = {
+    id: number;
+    md5: string;
+    name: string | null;
+    labels: Array<App.Platform.Data.GameHashLabel>;
+    patchUrl: string | null;
+  };
+  export type GameHashLabel = {
+    label: string;
+    imgSrc: string | null;
+  };
+  export type GameHashesPageProps = {
+    game: App.Platform.Data.Game;
+    hashes: Array<App.Platform.Data.GameHash>;
+    can: App.Data.UserPermissions;
+  };
   export type PlayerResettableGameAchievement = {
     id: number;
     title: string;
@@ -83,7 +109,14 @@ declare namespace App.Platform.Data {
     numAwarded: number;
     numPossible: number;
   };
+  export type System = {
+    id: number;
+    name: string;
+    nameFull?: string;
+    nameShort?: string;
+  };
 }
 declare namespace App.Platform.Enums {
+  export type GameSetType = 'hub' | 'similar-games';
   export type AchievementFlag = 3 | 5;
 }
