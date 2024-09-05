@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LeaderboardEntry extends BaseModel
 {
+    /** @use HasFactory<LeaderboardEntryFactory> */
     use HasFactory;
     use SoftDeletes;
 

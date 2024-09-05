@@ -33,11 +33,13 @@ render(function (View $view, Achievement $achievement) {
 
     if ($selectedEmulator === null) {
         $userAgent = null;
+        $selectedHash = null;
 
         $unlock = $user->playerAchievements()->where('achievement_id', $achievement->id)->first();
         if ($unlock !== null) {
             $playerSession = $user->playerSessions()->firstWhere('player_sessions.id', $unlock->player_session_id);
             $userAgent = $playerSession?->user_agent;
+            $selectedHash = $playerSession?->gameHash?->md5;
         }
 
         if ($userAgent === null) {
@@ -48,6 +50,7 @@ render(function (View $view, Achievement $achievement) {
                 ->orderBy('updated_at', 'DESC')
                 ->first();
             $userAgent = $playerSession?->user_agent;
+            $selectedHash = $playerSession?->gameHash?->md5;
         }
 
         if ($userAgent !== null) {

@@ -39,6 +39,14 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       react(),
     ],
 
+    ssr: {
+      noExternal: ['react-use'],
+    },
+
+    optimizeDeps: {
+      include: ['react-use'],
+    },
+
     resolve: {
       alias: {
         '@': resolve(__dirname, './resources/js'),

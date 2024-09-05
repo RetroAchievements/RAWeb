@@ -7,6 +7,7 @@ use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
 use App\Models\User;
+use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Collection;
 
 function getForumList(int $categoryID = 0): array
@@ -156,6 +157,9 @@ function editTopicComment(int $commentId, string $newPayload): void
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $newPayload = normalize_shortcodes($newPayload);
 
+    // Convert [user=$user->username] to [user=$user->id].
+    $newPayload = Shortcode::convertUserShortcodesToUseIds($newPayload);
+
     $comment = ForumTopicComment::findOrFail($commentId);
     $comment->Payload = $newPayload;
     $comment->save();
@@ -170,6 +174,9 @@ function submitTopicComment(
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $commentPayload = normalize_shortcodes($commentPayload);
+
+    // Convert [user=$user->username] to [user=$user->id].
+    $commentPayload = Shortcode::convertUserShortcodesToUseIds($commentPayload);
 
     // if this exact message was just posted by this user, assume it's an
     // accidental double submission and ignore.
@@ -322,7 +329,7 @@ function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
 }
 
 /**
- * @return Collection<int, array>
+ * @return Collection<int, non-empty-array>
  */
 function getRecentForumPosts(
     int $offset,
@@ -375,6 +382,7 @@ function getRecentForumPosts(
         ORDER BY LatestComments.DateCreated DESC
         LIMIT 0, :limit";
 
+    /** @var Collection<int, non-empty-array> */
     return legacyDbFetchAll($query, $bindings)
         ->map(function ($post) use ($numMessageChars) {
             $post['ShortMsg'] = mb_substr($post['Payload'], 0, $numMessageChars);

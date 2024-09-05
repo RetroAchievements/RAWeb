@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\GameHashFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -17,6 +18,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class GameHash extends BaseModel
 {
+    /** @use HasFactory<GameHashFactory> */
     use HasFactory;
     use Searchable;
     use SoftDeletes;

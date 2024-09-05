@@ -1,5 +1,6 @@
 @props([
     'highestPointEarners' => [], // Collection<PlayerGame>
+    'maxScore' => -1,
     'isEvent' => false,
 ])
 
@@ -38,9 +39,20 @@ use App\Models\User;
                         $user = User::find($playerGame['user_id'])
                     @endphp
                     @if ($isEvent)
-                        <x-game.top-achievers.score-row :rank="$rank" :user="$user" :score="$playerGame['achievements_unlocked_hardcore']" />
+                        <x-game.top-achievers.score-row
+                            :rank="$rank"
+                            :user="$user"
+                            :score="$playerGame['achievements_unlocked_hardcore']"
+                            :maxScore="$maxScore"
+                        />
                     @else
-                        <x-game.top-achievers.score-row :rank="$rank" :user="$user" :score="$playerGame['points_hardcore']" />
+                        <x-game.top-achievers.score-row
+                            :rank="$rank"
+                            :user="$user"
+                            :score="$playerGame['points_hardcore']"
+                            :maxScore="$maxScore"
+                            :beatenAt="$playerGame['beaten_at']"
+                        />
                     @endif
                     @php
                         $rank++;

@@ -7,6 +7,7 @@ use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadata;
+use App\Platform\Actions\UpdateGameSetFromGameAlternativesModification;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Facades\Log;
 use Spatie\Activitylog\Facades\CauserResolver;
@@ -703,6 +704,11 @@ function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAd
             s_mysql_query($query);
 
             $createAuditLogEntries('added', $ids);
+
+            // Double writes to game_sets.
+            foreach ($ids as $childId) {
+                (new UpdateGameSetFromGameAlternativesModification())->execute($gameID, $childId);
+            }
         }
     }
 
@@ -715,6 +721,11 @@ function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAd
             s_mysql_query($query);
 
             $createAuditLogEntries('removed', $ids);
+
+            // Double writes to game_sets.
+            foreach ($ids as $childId) {
+                (new UpdateGameSetFromGameAlternativesModification())->execute($gameID, $childId, isAttaching: false);
+            }
         }
     }
 }
