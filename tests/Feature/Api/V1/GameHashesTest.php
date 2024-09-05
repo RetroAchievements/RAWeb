@@ -17,7 +17,7 @@ class GameHashesTest extends TestCase
 
     public function testItValidates(): void
     {
-        $this->get($this->apiUrl('GetGameLeaderboards'))
+        $this->get($this->apiUrl('GetGameHashes'))
             ->assertJsonValidationErrors([
                 'i',
             ]);
@@ -25,9 +25,9 @@ class GameHashesTest extends TestCase
 
     public function testIt404sUnknownGames(): void
     {
-        $this->get($this->apiUrl('GetGameLeaderboards', ['i' => 99999]))
+        $this->get($this->apiUrl('GetGameHashes', ['i' => 99999]))
             ->assertNotFound()
-            ->assertJson([]);
+            ->assertJson(['Results' => []]);
     }
 
     public function testItReturnsGameHashes(): void
