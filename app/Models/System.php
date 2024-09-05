@@ -210,7 +210,7 @@ class System extends BaseModel implements HasMedia
     // TODO remove after rename
     public function getNameAttribute(): string
     {
-        return $this->attributes['Name'];
+        return $this->attributes['Name'] ?? '';
     }
 
     // == mutators

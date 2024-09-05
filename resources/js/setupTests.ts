@@ -12,6 +12,23 @@ beforeAll(async () => {
   await loadFaker();
 });
 
+beforeAll(() => {
+  /**
+   * ResizeObserver is unavailable in NodeJS.
+   */
+  global.ResizeObserver = class ResizeObserver {
+    observe() {
+      // do nothing
+    }
+    unobserve() {
+      // do nothing
+    }
+    disconnect() {
+      // do nothing
+    }
+  };
+});
+
 beforeEach(() => {
   // We'll directly dump all arguments given to Ziggy's route() function.
 
