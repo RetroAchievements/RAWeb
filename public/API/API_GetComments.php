@@ -66,7 +66,7 @@ $user = null;
 if ($username) {
     $user = User::firstWhere('User', $username);
 
-    if (!$user || !$user->UserWallActive || $user->banned_at || Auth::user()->banned_at) {
+    if (!$user || !$user->UserWallActive || $user->banned_at) {
         return response()->json([], 404);
     }
 }
