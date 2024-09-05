@@ -1,12 +1,3 @@
-nav {
-  /*padding-left: 1em;
-  padding-right: 1em;*/
-  position: relative;
-  /*overflow:hidden; this breaks the dropdown! :S*/
-  /*border-radius: 4px;*/
-  background-color: var(--embed-color);
-}
-
 .nav-item {
   position: relative;
   line-height: 20px;

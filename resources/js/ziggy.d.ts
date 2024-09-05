@@ -158,7 +158,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.random": [],
     "game.hash.manage": [
         {
             "name": "game",
@@ -263,6 +262,7 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.random": [],
     "game-hash.update": [
         {
             "name": "gameHash",
@@ -300,6 +300,7 @@ declare module 'ziggy-js' {
         }
     ],
     "forum.recent-posts": [],
+    "settings.show": [],
     "user.comment.destroyAll": [
         {
             "name": "user",
