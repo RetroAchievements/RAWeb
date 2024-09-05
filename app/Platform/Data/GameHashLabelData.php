@@ -20,8 +20,11 @@ class GameHashLabelData extends Data
     /**
      * @return GameHashLabelData[]
      */
-    public static function fromLabelsString(string $labels): array
+    public static function fromLabelsString(?string $labels): array
     {
+        // If $labels is null, treat it as an empty string.
+        $labels = $labels ?? '';
+
         $asArray = array_filter(explode(',', $labels));
 
         return array_map(function (string $label) {
