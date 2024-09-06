@@ -1,10 +1,10 @@
 import type { SetRequired } from 'type-fest';
 
-import { createFactory } from '@/test/createFactory';
-import { createUser } from '@/test/factories';
-import { createForumTopicComment } from '@/test/factories/createForumTopicComment';
+import { createFactory } from '../createFactory';
+import { createForumTopicComment } from './createForumTopicComment';
+import { createUser } from './createUser';
 
-export type RecentActiveForumTopic = SetRequired<App.Data.ForumTopic, 'latestComment'>;
+type RecentActiveForumTopic = SetRequired<App.Data.ForumTopic, 'latestComment'>;
 
 export const createRecentActiveForumTopic = createFactory<RecentActiveForumTopic>((faker) => ({
   commentCount24h: faker.number.int({ min: 0, max: 3 }),

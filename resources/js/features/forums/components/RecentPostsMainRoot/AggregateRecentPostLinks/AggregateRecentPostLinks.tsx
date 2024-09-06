@@ -1,9 +1,7 @@
 import type { FC } from 'react';
 
-import type { RecentActiveForumTopic } from '@/features/forums/models';
-
 interface AggregateRecentPostLinksProps {
-  topic: RecentActiveForumTopic;
+  topic: App.Data.ForumTopic;
 }
 
 export const AggregateRecentPostLinks: FC<AggregateRecentPostLinksProps> = ({ topic }) => {

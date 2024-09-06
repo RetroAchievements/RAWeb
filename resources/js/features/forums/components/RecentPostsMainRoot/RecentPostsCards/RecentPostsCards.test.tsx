@@ -1,6 +1,5 @@
-import { createPaginatedData } from '@/common/models';
-import { createRecentActiveForumTopic } from '@/features/forums/models';
 import { render, screen } from '@/test';
+import { createPaginatedData, createRecentActiveForumTopic } from '@/test/factories';
 
 import { RecentPostsCards } from './RecentPostsCards';
 
