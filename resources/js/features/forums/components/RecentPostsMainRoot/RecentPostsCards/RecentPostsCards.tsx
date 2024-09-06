@@ -18,7 +18,7 @@ export const RecentPostsCards: FC = () => {
         <div key={`card-${topic.latestComment.id}`} className="embedded">
           <div className="relative flex justify-between">
             <div className="flex flex-col gap-y-1">
-              <UserAvatar displayName={topic.latestComment.user.displayName} size={16} />
+              <UserAvatar {...topic.latestComment.user} size={16} />
 
               <span className="smalldate">
                 <PostTimestamp

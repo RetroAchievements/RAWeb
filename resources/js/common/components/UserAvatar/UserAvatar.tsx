@@ -1,14 +1,9 @@
 import type { FC } from 'react';
 
 import { useCardTooltip } from '@/common/hooks/useCardTooltip';
-import type { AvatarSize } from '@/common/models';
+import type { BaseAvatarProps } from '@/common/models';
 
-interface UserAvatarProps {
-  displayName: string | null;
-
-  hasTooltip?: boolean;
-  size?: AvatarSize;
-}
+type UserAvatarProps = BaseAvatarProps & App.Data.User;
 
 export const UserAvatar: FC<UserAvatarProps> = ({ displayName, size = 32, hasTooltip = true }) => {
   const { cardTooltipProps } = useCardTooltip({ dynamicType: 'user', dynamicId: displayName });

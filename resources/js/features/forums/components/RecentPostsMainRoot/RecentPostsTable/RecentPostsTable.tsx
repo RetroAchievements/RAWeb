@@ -26,7 +26,7 @@ export const RecentPostsTable: FC = () => {
         {paginatedTopics.items.map((topic) => (
           <tr key={topic.latestComment.id}>
             <td className="py-3">
-              <UserAvatar displayName={topic.latestComment.user.displayName} size={24} />
+              <UserAvatar {...topic.latestComment.user} size={24} />
             </td>
 
             <td>
