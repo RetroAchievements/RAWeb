@@ -528,7 +528,7 @@ if ($isFullyFeaturedGame) {
                 // Display leaderboard management options depending on if the game has any leaderboards (including hidden)
                 if ($gameModel->leaderboards()->exists()) {
                     $manageLeaderboardsRoute = route('filament.admin.resources.leaderboards.index', [
-                        'tableFilters[game][id]' => 1,
+                        'tableFilters[game][id]' => $gameID,
                         'tableSortColumn' => 'DisplayOrder',
                         'tableSortDirection' => 'asc',
                     ]);

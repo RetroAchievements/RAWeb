@@ -36,8 +36,8 @@ class ResetAllLeaderboardEntriesAction extends Action
                     ->event('resetAllLeaderboardEntries')
                     ->log('Reset All Leaderboard Entries');
             })
-            ->visible(function ($record) use ($user) {
-                return $user->can('resetAllEntries', $record);
+            ->visible(function () use ($user) {
+                return $user->can('resetAllEntries', [\App\Models\Leaderboard::class]);
             });
     }
 }

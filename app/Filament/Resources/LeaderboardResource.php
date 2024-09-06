@@ -92,10 +92,6 @@ class LeaderboardResource extends Resource
                         Infolists\Components\TextEntry::make('Title'),
 
                         Infolists\Components\TextEntry::make('Description'),
-
-                        Infolists\Components\TextEntry::make('LowerIsBetter')
-                            ->label('Lower Is Better')
-                            ->formatStateUsing(fn (string $state): string => $state === '1' ? 'Yes' : 'No'),
                     ]),
 
                 Infolists\Components\Section::make('Rules')
@@ -128,7 +124,12 @@ class LeaderboardResource extends Resource
 
                         Forms\Components\TextInput::make('Description')
                             ->maxLength(255),
+                    ]),
 
+                Forms\Components\Section::make('Rules')
+                    ->icon('heroicon-c-wrench-screwdriver')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
                         Forms\Components\Select::make('Format')
                             ->options(
                                 collect(ValueFormat::cases())

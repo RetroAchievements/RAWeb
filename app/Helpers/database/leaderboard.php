@@ -379,25 +379,3 @@ function UploadNewLeaderboard(
 
     return true;
 }
-
-function requestResetLB(int $lbID): bool
-{
-    $entries = LeaderboardEntry::where('leaderboard_id', $lbID);
-    $entriesDeleted = $entries->delete();
-
-    // When `delete()` returns false, it indicates an error has occurred.
-    return $entriesDeleted !== false;
-}
-
-function requestDeleteLB(int $lbID): bool
-{
-    $leaderboard = Leaderboard::find($lbID);
-
-    if (!$leaderboard) {
-        return false;
-    }
-
-    $leaderboard->forceDelete();
-
-    return true;
-}
