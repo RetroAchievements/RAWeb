@@ -6,18 +6,11 @@ namespace App\Data;
 
 use Illuminate\Pagination\LengthAwarePaginator;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\LiteralTypeScriptType;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 use Spatie\TypeScriptTransformer\Attributes\TypeScriptType;
 
-// The TypeScript transformer is not capable of recognizing that this resource
-// should accept a generic. We'll fix the type with an override in the front-end.
-// We'll give the output type an "__UNSAFE" prefix as a warning that it shouldn't
-// be directly used by developers.
-
-/**
- * @template T
- */
-#[TypeScript('__UNSAFE_PaginatedData')]
+#[TypeScript('PaginatedData<TItems>')]
 class PaginatedData extends Data
 {
     public function __construct(
@@ -25,6 +18,7 @@ class PaginatedData extends Data
         public int $lastPage,
         public int $perPage,
         public int $total,
+        #[LiteralTypeScriptType('TItems[]')]
         public array $items,
 
         #[TypeScriptType([
@@ -38,8 +32,8 @@ class PaginatedData extends Data
     }
 
     /**
-     * @param LengthAwarePaginator<T> $paginator
-     * @return self<T>
+     * @template TItems
+     * @param LengthAwarePaginator<TItems> $paginator
      */
     public static function fromLengthAwarePaginator(LengthAwarePaginator $paginator): self
     {
