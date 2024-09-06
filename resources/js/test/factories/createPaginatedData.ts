@@ -1,16 +1,9 @@
-// `__UNSAFE_PaginatedData` leaves the `items` array untyped.
-// We'll use this wrapper to enforce strong types.
-
-export interface PaginatedData<T> extends Omit<App.Data.__UNSAFE_PaginatedData, 'items'> {
-  items: T[];
-}
-
 /**
  * Creates a PaginatedData object with the given items.
  *
- * @template T - The type of the items in the paginated data.
- * @param {T[]} items - An array of items to include in the paginated data.
- * @returns {PaginatedData<T>} The paginated data object containing the provided items.
+ * @template TItems - The type of the items in the paginated data.
+ * @param {TItems[]} items - An array of items to include in the paginated data.
+ * @returns {App.Data.PaginatedData<TItems>} The paginated data object containing the provided items.
  *
  * @example
  * // Create an array of User items
@@ -32,10 +25,10 @@ export interface PaginatedData<T> extends Omit<App.Data.__UNSAFE_PaginatedData, 
  * //   total: 25000
  * // }
  */
-export const createPaginatedData = <T>(
-  items: T[],
-  overrides?: Partial<PaginatedData<T>>,
-): PaginatedData<T> => {
+export const createPaginatedData = <TItems>(
+  items: TItems[],
+  overrides?: Partial<App.Data.PaginatedData<TItems>>,
+): App.Data.PaginatedData<TItems> => {
   return {
     currentPage: 1,
     items,
