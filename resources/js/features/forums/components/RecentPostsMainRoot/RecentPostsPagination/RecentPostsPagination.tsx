@@ -1,4 +1,3 @@
-import { usePage } from '@inertiajs/react';
 import type { FC } from 'react';
 
 import {
@@ -8,10 +7,10 @@ import {
   BasePaginationNext,
   BasePaginationPrevious,
 } from '@/common/components/+vendor/BasePagination';
-import type { RecentPostsPageProps } from '@/features/forums/models';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
 export const RecentPostsPagination: FC = () => {
-  const { paginatedTopics } = usePage<RecentPostsPageProps>().props;
+  const { paginatedTopics } = usePageProps<App.Community.Data.RecentPostsPageProps>();
 
   const {
     perPage,

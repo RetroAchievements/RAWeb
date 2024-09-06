@@ -4,6 +4,7 @@ import * as InertiajsReactModule from '@inertiajs/react';
 import { render as defaultRender } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
+import { AppProviders } from '@/common/components/AppProviders';
 import type { AppGlobalProps } from '@/common/models';
 
 export * from '@testing-library/react';
@@ -52,7 +53,7 @@ export function render<TPageProps = Record<string, unknown>>(
   }));
 
   if (!wrapper) {
-    wrapper = ({ children }: WrapperProps) => <>{children}</>;
+    wrapper = ({ children }: WrapperProps) => <AppProviders>{children}</AppProviders>;
   }
 
   return {

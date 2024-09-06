@@ -1,5 +1,5 @@
-import { createRecentActiveForumTopic } from '@/features/forums/models';
 import { render, screen } from '@/test';
+import { createRecentActiveForumTopic } from '@/test/factories';
 
 import { AggregateRecentPostLinks } from './AggregateRecentPostLinks';
 

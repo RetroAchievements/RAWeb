@@ -7,6 +7,7 @@ import ReactDOMServer from 'react-dom/server';
 import type { RouteName, RouteParams } from 'ziggy-js';
 
 import { route } from '../../vendor/tightenco/ziggy';
+import { AppProviders } from './common/components/AppProviders';
 
 const appName = import.meta.env.APP_NAME || 'RetroAchievements';
 
@@ -30,7 +31,11 @@ createServer((page) =>
           location: new URL(page.props.ziggy.location),
         });
 
-      return <App {...props} />;
+      return (
+        <AppProviders>
+          <App {...props} />
+        </AppProviders>
+      );
     },
   }),
 );
