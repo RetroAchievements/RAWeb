@@ -13,7 +13,7 @@ class ContainsRegularCharacter implements ValidationRule
         $requireOneRegularCharacter = '/[\p{L}\p{N}\p{P}\p{S}]/u';
 
         if (!preg_match($requireOneRegularCharacter, $value)) {
-            $fail('validation.contains_regular_characters')->translate();
+            $fail('validation.contains_regular_character')->translate();
         }
     }
 }
