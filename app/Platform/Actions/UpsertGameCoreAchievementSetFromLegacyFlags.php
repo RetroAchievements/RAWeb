@@ -59,6 +59,8 @@ class UpsertGameCoreAchievementSetFromLegacyFlags
         // Next, attach all the achievements to the set.
         $allAchievements->each(function ($achievement) use ($achievementSet) {
             $achievementSet->achievements()->attach($achievement->ID, [
+                'order_column' => $achievement->DisplayOrder,
+
                 // Preserve the existing timestamps as best as we can.
                 'created_at' => $achievement->DateCreated ?? now(),
                 'updated_at' => $achievement->DateModified ?? now(),
