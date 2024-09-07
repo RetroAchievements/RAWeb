@@ -929,7 +929,7 @@ class UploadAchievementTest extends TestCase
             'appToken' => Str::random(16),
         ]);
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 500]);
+        $system = System::factory()->create(['ID' => 500, 'active' => false]);
         $game = $this->seedGame(system: $system, withHash: false);
 
         AchievementSetClaim::factory()->create([

@@ -88,7 +88,7 @@ class BeatenGamesLeaderboardService
         ]);
 
         // Grab all the systems so we can build the system filter options.
-        $allSystems = System::orderBy('Name')->get(['ID', 'Name']);
+        $allSystems = System::gameSystems()->active()->orderBy('Name')->get(['ID', 'Name']);
 
         return [
             'allSystems' => $allSystems,
