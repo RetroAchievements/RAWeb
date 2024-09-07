@@ -9,9 +9,14 @@ import {
   BaseBreadcrumbSeparator,
 } from '@/common/components/+vendor/BaseBreadcrumb';
 
-export const RecentPostsBreadcrumbs: FC = () => {
+// TODO support ForumCategory and Forum
+interface ForumBreadcrumbsProps {
+  currentPageLabel: string;
+}
+
+export const ForumBreadcrumbs: FC<ForumBreadcrumbsProps> = ({ currentPageLabel }) => {
   return (
-    <div className="navpath">
+    <div className="navpath mb-3 hidden sm:block">
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
           <BaseBreadcrumbItem>
@@ -21,7 +26,7 @@ export const RecentPostsBreadcrumbs: FC = () => {
           <BaseBreadcrumbSeparator />
 
           <BaseBreadcrumbItem>
-            <BaseBreadcrumbPage>Recent Posts</BaseBreadcrumbPage>
+            <BaseBreadcrumbPage>{currentPageLabel}</BaseBreadcrumbPage>
           </BaseBreadcrumbItem>
         </BaseBreadcrumbList>
       </BaseBreadcrumb>

@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 
-import { createPaginatedData } from '@/common/models';
 import { render, screen } from '@/test';
+import { createPaginatedData } from '@/test/factories';
 
 import { RecentPostsPagination } from './RecentPostsPagination';
 

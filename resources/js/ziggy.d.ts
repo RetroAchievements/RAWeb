@@ -299,8 +299,8 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "settings.show": [],
     "forum.recent-posts": [],
+    "settings.show": [],
     "user.comment.destroyAll": [
         {
             "name": "user",

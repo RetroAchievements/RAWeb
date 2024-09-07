@@ -1,11 +1,11 @@
 import { render, screen } from '@/test';
 
-import { RecentPostsBreadcrumbs } from './RecentPostsBreadcrumbs';
+import { ForumBreadcrumbs } from './ForumBreadcrumbs';
 
-describe('Component: RecentPostsBreadcrumbs', () => {
+describe('Component: ForumBreadcrumbs', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<RecentPostsBreadcrumbs />);
+    const { container } = render(<ForumBreadcrumbs currentPageLabel="Recent Posts" />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -13,7 +13,7 @@ describe('Component: RecentPostsBreadcrumbs', () => {
 
   it('has a link back to the forum index', () => {
     // ARRANGE
-    render(<RecentPostsBreadcrumbs />);
+    render(<ForumBreadcrumbs currentPageLabel="Recent Posts" />);
 
     // ASSERT
     const forumIndexLinkEl = screen.getByRole('link', { name: /forum index/i });
@@ -23,7 +23,7 @@ describe('Component: RecentPostsBreadcrumbs', () => {
 
   it('communicates the active link in an accessible manner', () => {
     // ARRANGE
-    render(<RecentPostsBreadcrumbs />);
+    render(<ForumBreadcrumbs currentPageLabel="Recent Posts" />);
 
     // ASSERT
     const activeLinkEl = screen.getByRole('link', { name: /recent posts/i });
