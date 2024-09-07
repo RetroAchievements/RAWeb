@@ -1,16 +1,13 @@
-import { usePage } from '@inertiajs/react';
 import type { FC } from 'react';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
-import type { RecentPostsPageProps } from '@/features/forums/models';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { AggregateRecentPostLinks } from '../AggregateRecentPostLinks';
 import { PostTimestamp } from '../PostTimestamp';
 
 export const RecentPostsTable: FC = () => {
-  const { props } = usePage<RecentPostsPageProps>();
-
-  const { auth, paginatedTopics } = props;
+  const { auth, paginatedTopics } = usePageProps<App.Community.Data.RecentPostsPageProps>();
 
   return (
     <table className="table-highlight">
@@ -24,28 +21,30 @@ export const RecentPostsTable: FC = () => {
 
       <tbody>
         {paginatedTopics.items.map((topic) => (
-          <tr key={topic.latestComment.id}>
+          <tr key={topic.latestComment?.id}>
             <td className="py-3">
-              <UserAvatar displayName={topic.latestComment.user.displayName} size={24} />
+              <UserAvatar displayName={topic.latestComment?.user.displayName ?? ''} size={24} />
             </td>
 
             <td>
               <p className="flex items-center gap-x-2">
                 <a
-                  href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment.id}#${topic.latestComment.id}`}
+                  href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment?.id}#${topic.latestComment?.id}`}
                 >
                   {topic.title}
                 </a>
                 <span className="smalldate">
-                  <PostTimestamp
-                    asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates ?? false}
-                    postedAt={topic.latestComment.createdAt}
-                  />
+                  {topic.latestComment?.createdAt ? (
+                    <PostTimestamp
+                      asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates ?? false}
+                      postedAt={topic.latestComment.createdAt}
+                    />
+                  ) : null}
                 </span>
               </p>
 
               <div className="comment text-overflow-wrap">
-                <p className="lg:line-clamp-2 xl:line-clamp-1">{topic.latestComment.body}</p>
+                <p className="lg:line-clamp-2 xl:line-clamp-1">{topic.latestComment?.body}</p>
               </div>
             </td>
 

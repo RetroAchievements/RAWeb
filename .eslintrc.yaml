@@ -102,6 +102,7 @@ rules:
   react/no-unescaped-entities: off
   react/prop-types: off
   react/react-in-jsx-scope: off
+  react/jsx-no-target-blank: off # we don't support the old browsers this rule tries to protect
 
   # disable some of the more aggressive unicorn rules
   unicorn/filename-case: off

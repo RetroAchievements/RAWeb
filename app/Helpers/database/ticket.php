@@ -4,9 +4,9 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketState;
 use App\Community\ViewModels\Ticket as TicketViewModel;
+use App\Enums\UserPreference;
 use App\Models\Achievement;
 use App\Models\Game;
-use App\Models\NotificationPreferences;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
@@ -120,7 +120,7 @@ function sendInitialTicketEmailToAssignee(Ticket $ticket, Game $game, Achievemen
         $achievement,
     );
 
-    if ($achievement->developer && BitSet($achievement->developer->websitePrefs, NotificationPreferences::EmailOn_PrivateMessage)) {
+    if ($achievement->developer && BitSet($achievement->developer->websitePrefs, UserPreference::EmailOn_PrivateMessage)) {
         $emailBody = "Hi, {$achievement->developer->display_name}!
 
 {$ticket->reporter->display_name} would like to report a bug with an achievement you've created:
@@ -138,7 +138,7 @@ function sendInitialTicketEmailsToSubscribers(Ticket $ticket, Game $game, Achiev
         $achievement,
     );
 
-    $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $game->id, 1 << NotificationPreferences::EmailOn_PrivateMessage);
+    $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $game->id, 1 << UserPreference::EmailOn_PrivateMessage);
     foreach ($subscribers as $sub) {
         if ($sub['User'] !== $achievement->developer->User && $sub['User'] != $ticket->reporter->username) {
             $emailBody = "Hi, " . $sub['User'] . "!
