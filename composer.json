@@ -32,6 +32,7 @@
         "laravel/horizon": "^5.10",
         "laravel/octane": "^2.3",
         "laravel/passport": "^12.0",
+        "laravel/pulse": "^1.2",
         "laravel/scout": "^10.2",
         "laravel/socialite": "^5.5",
         "laravel/tinker": "^2.9",
