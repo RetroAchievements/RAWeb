@@ -11,6 +11,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\CausesActivity;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\EloquentSortable\SortableTrait;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
@@ -22,13 +25,33 @@ class Emulator extends BaseModel implements HasMedia
     use SoftDeletes;
     use SortableTrait;
     use InteractsWithMedia;
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
 
     protected $fillable = [
         'active',
+        'handle',
         'name',
         'description',
         'link',
     ];
+
+    // audit activity log
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'name',
+                'handle',
+                'description',
+                'link',
+                'active',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     // == media
 
