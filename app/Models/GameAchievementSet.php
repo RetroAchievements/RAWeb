@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class GameAchievementSet extends BaseModel
 {
+    /** @use HasFactory<GameAchievementSetFactory> */
     use HasFactory;
 
     protected $table = 'game_achievement_sets';

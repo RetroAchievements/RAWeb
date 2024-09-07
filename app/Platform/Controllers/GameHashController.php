@@ -5,13 +5,19 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Community\Enums\ArticleType;
+use App\Data\UserPermissionsData;
 use App\Http\Controller;
+use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\User;
-use Illuminate\Contracts\View\View;
+use App\Platform\Data\GameData;
+use App\Platform\Data\GameHashData;
+use App\Platform\Data\GameHashesPagePropsData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class GameHashController extends Controller
 {
@@ -20,12 +26,17 @@ class GameHashController extends Controller
         return 'game-hash';
     }
 
-    public function index(Request $request): View
+    public function index(Request $request, Game $game): InertiaResponse
     {
         $this->authorize('viewAny', $this->resourceClass());
 
-        return view('resource.index')
-            ->with('resource', $this->resourceName());
+        $gameData = GameData::fromGame($game)->include('badgeUrl', 'forumTopicId', 'system');
+        $hashes = GameHashData::fromCollection($game->hashes);
+        $can = UserPermissionsData::fromUser($request->user())->include('manageGameHashes');
+
+        $props = new GameHashesPagePropsData($gameData, $hashes, $can);
+
+        return Inertia::render('game/[game]/hashes', $props);
     }
 
     public function show(GameHash $gameHash): void
@@ -70,7 +81,10 @@ class GameHashController extends Controller
         }
 
         $gameHash->update($updatedAttributes);
-        $this->logGameHashUpdate($gameHash, $changedAttributes, Auth::user());
+
+        /** @var User $user */
+        $user = Auth::user();
+        $this->logGameHashUpdate($gameHash, $changedAttributes, $user);
 
         return response()->json(['message' => __('legacy.success.update')]);
     }

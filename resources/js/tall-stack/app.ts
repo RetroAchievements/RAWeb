@@ -70,11 +70,13 @@ Livewire.start();
 
 // TODO if you add another one of these, move them to a module
 // Livewire
-(window as any).addEventListener('flash-success', (event: { detail: { message: string } }) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- custom events
+(window as any).addEventListener('flash-success', (event: CustomEvent<{ message: string }>) => {
   showStatusSuccess(event.detail.message);
 });
 // Livewire
-(window as any).addEventListener('flash-error', (event: { detail: { message: string } }) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- custom events
+(window as any).addEventListener('flash-error', (event: CustomEvent<{ message: string }>) => {
   showStatusFailure(event.detail.message);
 });
 

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Support\Shortcode;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Thunder\Shortcode\Event\FilterShortcodesEvent;
 use Thunder\Shortcode\EventContainer\EventContainer;
 use Thunder\Shortcode\Events;
@@ -16,6 +18,7 @@ use Thunder\Shortcode\Shortcode\ShortcodeInterface;
 final class Shortcode
 {
     private HandlerContainer $handlers;
+    private array $usersCache = [];
 
     public function __construct()
     {
@@ -38,6 +41,35 @@ final class Shortcode
     public static function render(string $input, array $options = []): string
     {
         return (new Shortcode())->parse($input, $options);
+    }
+
+    public static function convertUserShortcodesToUseIds(string $input): string
+    {
+        // Extract all usernames from the payload. We want to make a single
+        // query so someone doesn't inadvertently slam the database.
+        preg_match_all('/\[user=(.*?)\]/', $input, $matches);
+        $usernames = $matches[1];
+
+        if (empty($usernames)) {
+            return $input;
+        }
+
+        // Normalize usernames to lowercase to ensure matching is not case-sensitive.
+        $normalizedUsernames = array_map('strtolower', $usernames);
+
+        // Fetch all users by username in a single query.
+        $users = User::withTrashed()
+            ->whereIn(DB::raw('LOWER(User)'), $normalizedUsernames)
+            ->get(['ID', 'User'])
+            ->keyBy(fn ($user) => strtolower($user->User));
+
+        // Replace each username with the corresponding user ID.
+        return preg_replace_callback('/\[user=(.*?)\]/', function ($matches) use ($users) {
+            $username = strtolower($matches[1]);
+            $user = $users->get($username);
+
+            return $user ? "[user={$user->id}]" : $matches[0];
+        }, $input);
     }
 
     public static function stripAndClamp(string $input, int $previewLength = 100): string
@@ -64,6 +96,17 @@ final class Shortcode
 
                 return "";
             },
+
+            // "[user=1]" --> "@Scott"
+            '~\[user=(\d+)]~i' => function ($matches) {
+                $userId = (int) $matches[1];
+                $user = User::withTrashed()->find($userId);
+                if ($user) {
+                    return "@{$user->display_name}";
+                }
+
+                return "@Deleted User";
+            },
         ];
 
         foreach ($injectionShortcodes as $pattern => $callback) {
@@ -86,9 +129,6 @@ final class Shortcode
 
             // "[ticket=123]" --> "Ticket 123"
             '~\[ticket(=)?(\d+)]~i' => 'Ticket $2',
-
-            // "[user=Scott]" --> "@Scott"
-            '~\[user(=)?([^]]+)]~i' => '@$2',
 
             // Fragments: opening tags without closing tags.
             '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)\b[^\]]*?\]~i' => '',
@@ -113,8 +153,8 @@ final class Shortcode
 
         // If the string is over the preview length, clamp it and add "..."
         // This can happen as a result of the replacement from above.
-        if (strlen($input) > $previewLength) {
-            $input = substr($input, 0, $previewLength) . '...';
+        if (mb_strlen($input) > $previewLength) {
+            $input = mb_substr($input, 0, $previewLength) . '...';
         }
 
         // Handle edge case: if the input is just ellipses, show nothing.
@@ -125,8 +165,23 @@ final class Shortcode
         return $input;
     }
 
+    private function prefetchUsers(string $input): void
+    {
+        // Extract all user IDs from the input. We want to fetch them all
+        // in a single burst to avoid an N+1 query problem.
+        preg_match_all('/\[user=(\d+)\]/', $input, $matches);
+        $userIds = array_map('intval', $matches[1]);
+
+        if (!empty($userIds)) {
+            $users = User::withTrashed()->whereIn('ID', $userIds)->get()->keyBy('ID');
+            $this->usersCache = $users->all();
+        }
+    }
+
     private function parse(string $input, array $options = []): string
     {
+        $this->prefetchUsers($input);
+
         // make sure to use attribute delimiter for string values
         // integers work with and without delimiter (ach, game, ticket, ...)
         $input = preg_replace('~\[img="?([^]"]*)"?]~i', '[img="$1"]', $input);
@@ -291,13 +346,22 @@ final class Shortcode
         return ticketAvatar($ticketModel, iconSize: 24);
     }
 
-    private function embedUser(?string $username): string
+    private function embedUser(?string $userId): string
     {
-        if (empty($username)) {
+        if (!$userId) {
             return '';
         }
 
-        return userAvatar($username, icon: false);
+        if (!isset($this->usersCache[$userId])) {
+            return userAvatar($userId, icon: false);
+        }
+
+        $user = $this->usersCache[$userId];
+        if (!$user) {
+            return userAvatar($userId, icon: false);
+        }
+
+        return userAvatar($user, icon: false);
     }
 
     private function autolinkRetroachievementsUrls(string $text): string
@@ -321,7 +385,7 @@ final class Shortcode
                 )                          # End negative lookahead assertion.
             ~ix',
             function ($matches) {
-                $subdomain = isset($matches[1]) ? $matches[1] : '';
+                $subdomain = $matches[1];
                 $path = isset($matches[2]) ? '/' . $matches[2] : '';
 
                 return '<a href="https://' . $subdomain . 'retroachievements.org' . $path . '">https://' . $subdomain . 'retroachievements.org' . $path . '</a>';
@@ -393,19 +457,16 @@ final class Shortcode
                 $videoId = $matches[1];
                 $query = [];
 
-                // Are there additional query parameters in the URL?
-                if (isset($matches[2])) {
-                    // Parse the query parameters and populate them into $query.
-                    parse_str(ltrim($matches[2], '?'), $query);
+                // Parse the query parameters and populate them into $query.
+                parse_str(ltrim($matches[2], '?'), $query);
 
-                    // Check if the "t" parameter (timestamp) is present.
-                    if (isset($query['t'])) {
-                        // "t" has to be converted to a time compatible with youtube-nocookie.com embeds.
-                        $query['start'] = $this->convertYouTubeTime($query['t']);
+                // Check if the "t" parameter (timestamp) is present.
+                if (isset($query['t'])) {
+                    // "t" has to be converted to a time compatible with youtube-nocookie.com embeds.
+                    $query['start'] = $this->convertYouTubeTime($query['t']);
 
-                        // Once converted, remove the "t" parameter so we don't accidentally duplicate it.
-                        unset($query['t']);
-                    }
+                    // Once converted, remove the "t" parameter so we don't accidentally duplicate it.
+                    unset($query['t']);
                 }
 
                 $query = http_build_query($query);

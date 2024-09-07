@@ -47,6 +47,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     /*
      * Framework Traits
      */
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
     use Notifiable;
 
@@ -158,6 +159,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'Untracked',
         'User', // fillable for registration
         'UserWallActive',
+        'websitePrefs',
     ];
 
     protected $visible = [

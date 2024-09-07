@@ -43,33 +43,59 @@ authenticateFromCookie($user, $permissions, $userDetails);
             <div>
                 @if ($emulator['download_url'] ?? false)
                     <p class="embedded mb-2 text-right whitespace-nowrap">
-                        <x-link href="{{ $emulator['download_url'] }}">Download</x-link>
+                        <x-link
+                            href="{{ $emulator['download_url'] }}"
+                            target="_blank"
+                            class="plausible-event-name=Download+Link+Click plausible-event-emulator={{ $emulator['handle'] }}"
+                        >
+                            Download
+                        </x-link>
                     </p>
                 @endif
                 @if ($emulator['latest_version_url_x64'] ?? false)
                     <p class="embedded mb-2 text-right whitespace-nowrap">
-                        <a href="<?= config('app.url') . '/' . $emulator['latest_version_url_x64'] ?>">
-                            Download v{{ $emulator['latest_version'] }} x64<br>
+                        <a
+                            href="<?= config('app.url') . '/' . $emulator['latest_version_url_x64'] ?>"
+                            target="_blank"
+                            class="plausible-event-name=Download+Link+Click plausible-event-emulator-{{ $emulator['handle'] }}"
+                        >
+                            Download v<?= $emulator['latest_version'] ?> x64<br>
                             <small>Windows</small>
                         </a>
                     </p>
                 @endif
                 @if ($emulator['latest_version_url'] ?? false)
                     <p class="embedded mb-2 text-right whitespace-nowrap">
-                        <a href="<?= config('app.url') . '/' . $emulator['latest_version_url'] ?>">
-                            Download v{{ $emulator['latest_version'] }} x86<br>
+                        <a
+                            href="<?= config('app.url') . '/' . $emulator['latest_version_url'] ?>"
+                            target="_blank"
+                            class="plausible-event-name=Download+Link+Click plausible-event-emulator-{{ $emulator['handle'] }}"
+                        >
+                            Download v<?= $emulator['latest_version'] ?> x86<br>
                             <small>Windows</small>
                         </a>
                     </p>
                 @endif
                 @if ($emulator['link'] ?? false)
                     <p class="embedded mb-2 text-right whitespace-nowrap">
-                        <x-link href="{{ $emulator['link'] }}">Documentation</x-link>
+                        <x-link
+                            href="{{ $emulator['link'] }}"
+                            target="_blank"
+                            class="plausible-event-name=Documentation+Link+Click plausible-event-emulator-{{ $emulator['handle'] }}"
+                        >
+                            Documentation
+                        </x-link>
                     </p>
                 @endif
                 @if ($emulator['source'] ?? false)
                     <p class="embedded mb-2 text-right whitespace-nowrap">
-                        <x-link href="{{ $emulator['source'] }}">Source Code</x-link>
+                        <x-link
+                            href="{{ $emulator['source'] }}"
+                            target="_blank"
+                            class="plausible-event-name=Source+Link+Click plausible-event-emulator-{{ $emulator['handle'] }}"
+                        >
+                            Source Code
+                        </x-link>
                     </p>
                 @endif
             </div>

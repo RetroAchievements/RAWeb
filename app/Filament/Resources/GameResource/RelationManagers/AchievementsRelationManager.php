@@ -14,6 +14,7 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -53,24 +54,14 @@ class AchievementsRelationManager extends RelationManager
 
         return $table
             ->recordTitleAttribute('title')
-            ->defaultGroup('Flags')
-            ->groups([
-                Tables\Grouping\Group::make('Flags')
-                    ->getTitleFromRecordUsing(function (Achievement $record): string {
-                        if ($record->Flags === AchievementFlag::OfficialCore) {
-                            return 'Published';
-                        }
-
-                        return 'Unpublished';
-                    }),
-            ])
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
                     ->size(config('media.icon.md.width')),
 
                 Tables\Columns\TextColumn::make('title')
-                    ->description(fn (Achievement $record): string => $record->description),
+                    ->description(fn (Achievement $record): string => $record->description)
+                    ->wrap(),
 
                 Tables\Columns\ViewColumn::make('MemAddr')
                     ->label('Code')
@@ -107,7 +98,20 @@ class AchievementsRelationManager extends RelationManager
                     ->toggleable(),
             ])
             ->filters([
-
+                Filters\SelectFilter::make('Flags')
+                    ->options([
+                        0 => 'All',
+                        AchievementFlag::OfficialCore => 'Published',
+                        AchievementFlag::Unofficial => 'Unpublished',
+                    ])
+                    ->default(AchievementFlag::OfficialCore)
+                    ->selectablePlaceholder(false)
+                    ->placeholder('All')
+                    ->query(function (array $data, Builder $query) {
+                        if ((bool) $data['value']) {
+                            $query->where('Flags', $data['value']);
+                        }
+                    }),
             ])
             ->headerActions([
 
@@ -216,10 +220,17 @@ class AchievementsRelationManager extends RelationManager
                     ->label('Bulk set type')
                     ->visible(fn (): bool => $user->can('updateField', [Achievement::class, null, 'type'])),
             ])
-            ->recordUrl(
-                fn (Achievement $record): string => route('filament.admin.resources.achievements.view', ['record' => $record])
-            )
-            ->paginated([50, 100, 'all'])
+            ->recordUrl(function (Achievement $record): string {
+                /** @var User $user */
+                $user = auth()->user();
+
+                if ($user->can('update', $record)) {
+                    return route('filament.admin.resources.achievements.edit', ['record' => $record]);
+                }
+
+                return route('filament.admin.resources.achievements.view', ['record' => $record]);
+            })
+            ->paginated([50, 100, 150])
             ->defaultPaginationPageOption(50)
             ->defaultSort(function (Builder $query): Builder {
                 return $query

@@ -4,6 +4,7 @@ use App\Community\Enums\ActivityType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\PlayerAchievement;
 use App\Models\User;
@@ -298,6 +299,7 @@ switch ($requestType) {
 
     case "ping":
         $game = Game::find($gameID);
+        $gameHash = null;
         if ($user === null || $game === null) {
             $response['Success'] = false;
         } else {
@@ -306,7 +308,15 @@ switch ($requestType) {
                 $activityMessage = utf8_sanitize($activityMessage);
             }
 
-            PlayerSessionHeartbeat::dispatch($user, $game, $activityMessage);
+            $gameHashMd5 = request()->input('x');
+            if ($gameHashMd5) {
+                $gameHash = GameHash::whereMd5($gameHashMd5)->first();
+                if ($gameHash?->isMultiDiscGameHash()) {
+                    $gameHash = null;
+                }
+            }
+
+            PlayerSessionHeartbeat::dispatch($user, $game, $activityMessage, $gameHash);
 
             $response['Success'] = true;
         }
@@ -325,27 +335,45 @@ switch ($requestType) {
         $achIDToAward = (int) request()->input('a', 0);
         $hardcore = (bool) request()->input('h', 0);
         $validationHash = request()->input('v');
+        $gameHashMd5 = request()->input('m');
+
+        // ignore negative values and offsets greater than max. clamping offset will invalidate validationHash.
+        $maxOffset = 14 * 24 * 60 * 60; // 14 days
+        $offset = min(max((int) request()->input('o', 0), 0), $maxOffset);
 
         $foundAchievement = Achievement::where('ID', $achIDToAward)->first();
         if ($foundAchievement !== null) {
+            // delegated unlocks will be rejected if the appropriate validation hash is not provided
+            // backdated unlocks will not be backdated if the appropriate validation hash is not provided
             if (
-                $delegateTo
+                ($delegateTo || $offset > 0)
                 && strcasecmp(
                     $validationHash,
-                    $foundAchievement->unlockValidationHash($foundDelegateToUser, (int) $hardcore)
+                    $foundAchievement->unlockValidationHash($delegateTo ? $foundDelegateToUser : $user, (int) $hardcore, $offset)
                 ) !== 0
             ) {
-                return DoRequestError('Access denied.', 403, 'access_denied');
+                if ($delegateTo) {
+                    return DoRequestError('Access denied.', 403, 'access_denied');
+                }
+
+                $offset = 0;
+            }
+
+            $gameHash = null;
+            if ($gameHashMd5) {
+                $gameHash = GameHash::whereMd5($gameHashMd5)->first();
             }
 
             /**
              * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
              * TODO refactor to optimistic update without unlock in place. what are the returned values used for?
              */
-            $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore));
+            $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore, $gameHash));
 
             if ($response['Success']) {
-                dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore))
+                dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore,
+                                                        gameHashId: $gameHash?->id,
+                                                        timestamp: Carbon::now()->subSeconds($offset)))
                     ->onQueue('player-achievements');
             }
         } else {
@@ -499,11 +527,18 @@ switch ($requestType) {
 
     case "startsession":
         $game = Game::find($gameID);
+        $gameHash = null;
+
         if (!$game) {
             return DoRequestError("Unknown game");
         }
 
-        PlayerSessionHeartbeat::dispatch($user, $game);
+        $gameHashMd5 = request()->input('m');
+        if ($gameHashMd5) {
+            $gameHash = GameHash::whereMd5($gameHashMd5)->first();
+        }
+
+        PlayerSessionHeartbeat::dispatch($user, $game, null, $gameHash);
 
         $response['Success'] = true;
         $userUnlocks = getUserAchievementUnlocksForGame($username, $gameID);
@@ -548,11 +583,39 @@ switch ($requestType) {
     case "submitlbentry":
         $lbID = (int) request()->input('i', 0);
         $score = (int) request()->input('s', 0);
-        $validation = request()->input('v'); // Ignore for now?
+        $validationHash = request()->input('v');
+        $gameHashMd5 = request()->input('m');
+
+        // ignore negative values and offsets greater than max. clamping offset will invalidate validationHash.
+        $maxOffset = 14 * 24 * 60 * 60; // 14 days
+        $offset = min(max((int) request()->input('o', 0), 0), $maxOffset);
 
         // TODO dispatch job or event/listener using an action
 
-        $response['Response'] = SubmitLeaderboardEntry($user, $lbID, $score, $validation);
+        $foundLeaderboard = Leaderboard::where('ID', $lbID)->first();
+        if (!$foundLeaderboard) {
+            $retVal['Success'] = false;
+            $retVal['Error'] = "Cannot find the leaderboard with ID: $lbID";
+
+            return $retVal;
+        }
+
+        if (
+            $offset > 0
+            && strcasecmp(
+                $validationHash,
+                $foundLeaderboard->submitValidationHash($user, $score, $offset)
+            ) !== 0
+        ) {
+            $offset = 0;
+        }
+
+        $gameHash = null;
+        if ($gameHashMd5) {
+            $gameHash = GameHash::whereMd5($gameHashMd5)->first();
+        }
+
+        $response['Response'] = SubmitLeaderboardEntry($user, $foundLeaderboard, $score, $validationHash, $gameHash, Carbon::now()->subSeconds($offset));
         $response['Success'] = $response['Response']['Success']; // Passthru
         if (!$response['Success']) {
             $response['Error'] = $response['Response']['Error'];

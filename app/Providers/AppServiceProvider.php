@@ -9,7 +9,9 @@ use App\Components\TicketNotificationsIcon;
 use App\Console\Commands\CleanupAvatars;
 use App\Console\Commands\DeleteExpiredEmailVerificationTokens;
 use App\Console\Commands\DeleteOverdueUserAccounts;
+use App\Console\Commands\GenerateTypeScript;
 use App\Console\Commands\LogUsersOnlineCount;
+use App\Console\Commands\MakeJsComponent;
 use App\Console\Commands\SyncUsers;
 use App\Console\Commands\SystemAlert;
 use App\Models\Role;
@@ -22,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Laravel\Pulse\Facades\Pulse;
 use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
@@ -43,21 +46,26 @@ class AppServiceProvider extends ServiceProvider
                 LogUsersOnlineCount::class,
                 DeleteExpiredEmailVerificationTokens::class,
                 DeleteOverdueUserAccounts::class,
+                GenerateTypeScript::class,
 
-                /*
-                 * User Accounts
-                 */
+                // User Accounts
                 CleanupAvatars::class,
                 SyncUsers::class,
 
-                /*
-                 * Settings
-                 */
+                // Settings
                 SystemAlert::class,
+
+                // Generators
+                MakeJsComponent::class,
             ]);
         }
 
         Model::shouldBeStrict(!$this->app->isProduction());
+
+        Pulse::user(fn (User $user) => [
+            'name' => $user->User,
+            'avatar' => $user->avatarUrl,
+        ]);
 
         $this->app->booted(function () {
             $schedule = $this->app->make(Schedule::class);

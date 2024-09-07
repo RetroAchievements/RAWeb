@@ -88,5 +88,7 @@ class AuthServiceProvider extends ServiceProvider
 
         Gate::define('viewLogViewer', fn (User $user) => $user->can('tool'));
 
+        Gate::define('viewPulse', fn (User $user) => $user->can('tool'));
+
     }
 }
