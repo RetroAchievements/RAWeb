@@ -51,4 +51,15 @@ class ContainsRegularCharacterTest extends TestCase
 
         $this->assertFalse($validator->fails());
     }
+
+    public function testItFailsWhenInputContainsOnlyHtmlEscapeCodes(): void
+    {
+        $data = ['body' => '&#x200B;&#x200E;&#x200F;'];
+
+        $validator = Validator::make($data, [
+            'body' => ['required', 'string', new ContainsRegularCharacter()],
+        ]);
+
+        $this->assertTrue($validator->fails());
+    }
 }
