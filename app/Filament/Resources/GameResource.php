@@ -322,6 +322,25 @@ class GameResource extends Resource
                             ->default('day')
                             ->reactive(),
                     ]),
+
+                Forms\Components\Section::make('Media')
+                    ->icon('heroicon-o-photo')
+                    ->description("Provide the game icon, screenshots, and box art.")
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Forms\Components\FileUpload::make('ImageIcon')
+                            ->label('Game Icon')
+                            ->disk('local')
+                            ->directory('temp')
+                            ->visibility('private')
+                            ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif'])
+                            ->maxSize(1024)
+                            ->rules('dimensions:width=96,height=96')
+                            ->preserveFilenames(),
+                    ])
+                    ->collapsible()
+                    ->persistCollapsed(),
             ]);
     }
 

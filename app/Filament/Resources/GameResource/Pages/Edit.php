@@ -6,6 +6,7 @@ namespace App\Filament\Resources\GameResource\Pages;
 
 use App\Filament\Concerns\HasFieldLevelAuthorization;
 use App\Filament\Resources\GameResource;
+use App\Filament\Resources\GameResource\Actions\ProcessUploadedImageAction;
 use Filament\Resources\Pages\EditRecord;
 
 class Edit extends EditRecord
@@ -17,6 +18,10 @@ class Edit extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $this->authorizeFields($this->record, $data);
+
+        if (isset($data['ImageIcon'])) {
+            $data['ImageIcon'] = (new ProcessUploadedImageAction())->execute($data['ImageIcon']);
+        }
 
         return $data;
     }

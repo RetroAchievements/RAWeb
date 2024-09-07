@@ -78,6 +78,7 @@ class Game extends BaseModel implements HasComments, HasMedia
         'released_at',
         'released_at_granularity',
         'GuideURL',
+        'ImageIcon',
     ];
 
     protected $casts = [
