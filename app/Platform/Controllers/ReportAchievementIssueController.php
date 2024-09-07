@@ -44,7 +44,7 @@ class ReportAchievementIssueController extends Controller
         $props = new ReportAchievementIssuePagePropsData(
             achievement: $achievementData,
             hasSession: $foundPlayerAchievement ? true : $user->hasPlayed($achievement->game),
-            ticketType: $this->determineTicketType($achievementData, $allPlayerAchievements),
+            ticketType: $this->determineTicketType($foundPlayerAchievement, $allPlayerAchievements),
             extra: $request->input('extra'),
         );
 
@@ -78,7 +78,7 @@ class ReportAchievementIssueController extends Controller
     /**
      * @param Collection<int, PlayerAchievement> $allPlayerAchievements
      */
-    private function determineTicketType(AchievementData $achievementData, Collection $allPlayerAchievements): int
+    private function determineTicketType(?PlayerAchievement $playerAchievement, Collection $allPlayerAchievements): int
     {
         $ticketType = TicketType::DidNotTrigger;
 
@@ -86,7 +86,10 @@ class ReportAchievementIssueController extends Controller
             return $playerAchievement->unlocked_hardcore_at !== null;
         });
 
-        if ($achievementData->unlockedHardcoreAt || ($achievementData->unlockedAt && !$hasAnyHardcoreUnlocks)) {
+        $unlockedAt = $playerAchievement?->unlocked_at;
+        $unlockedHardcoreAt = $playerAchievement?->unlocked_hardcore_at;
+
+        if ($unlockedHardcoreAt || ($unlockedAt && !$hasAnyHardcoreUnlocks)) {
             $ticketType = TicketType::TriggeredAtWrongTime;
         }
 
