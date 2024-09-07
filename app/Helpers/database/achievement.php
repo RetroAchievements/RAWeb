@@ -273,6 +273,8 @@ function UploadNewAchievement(
         $achievement->save();
         $idInOut = $achievement->ID;
 
+        $achievement->upsertAuthorshipCredit($author, AchievementAuthorTask::LOGIC);
+
         static_addnewachievement($idInOut);
         addArticleComment(
             "Server",
