@@ -340,7 +340,8 @@ class GameResource extends Resource
                             ->preserveFilenames(),
                     ])
                     ->collapsible()
-                    ->persistCollapsed(),
+                    ->persistCollapsed()
+                    ->visible(fn () => $user->can('update', $form->model)),
             ]);
     }
 
