@@ -22,7 +22,7 @@ class GameAchievementSetFactory extends Factory
         return [
             'game_id' => Game::factory(),
             'achievement_set_id' => AchievementSet::factory(),
-            'type' => AchievementSetType::CORE,
+            'type' => AchievementSetType::Core,
             'title' => null,
             'order_column' => 0,
         ];
@@ -33,8 +33,8 @@ class GameAchievementSetFactory extends Factory
         return $this->state(function (array $attributes) use ($type) {
             return [
                 'type' => $type,
-                'title' => $type === AchievementSetType::CORE->value ? null : $this->faker->words(3, true),
-                'order_column' => $type === AchievementSetType::CORE->value ? 0 : $this->faker->numberBetween(1, 10),
+                'title' => $type === AchievementSetType::Core->value ? null : $this->faker->words(3, true),
+                'order_column' => $type === AchievementSetType::Core->value ? 0 : $this->faker->numberBetween(1, 10),
             ];
         });
     }

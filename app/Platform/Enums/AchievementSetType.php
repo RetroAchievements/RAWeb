@@ -6,14 +6,14 @@ namespace App\Platform\Enums;
 
 enum AchievementSetType: string
 {
-    case CORE = "core";
+    case Core = "core";
 
     /**
      * Bonus sets are designed to directly complement and supplement core sets.
      * When a user loads a ROM hash for a Core set, they will be able to unlock
      * achievements from Bonus sets too.
      */
-    case BONUS = "bonus";
+    case Bonus = "bonus";
 
     /**
      * Unlike Bonus sets, Specialty sets will continue to require loading a unique
@@ -21,7 +21,7 @@ enum AchievementSetType: string
      * set and any applicable Bonus sets simultaneously when a Specialty set hash
      * is loaded.
      */
-    case SPECIALTY = "specialty";
+    case Specialty = "specialty";
 
     /**
      * Exclusive sets must be played in isolation. Like Specialty sets, Exclusive
@@ -29,7 +29,7 @@ enum AchievementSetType: string
      * achievements from the Core set or Bonus sets when an Exclusive set hash
      * is loaded.
      */
-    case EXCLUSIVE = "exclusive";
+    case Exclusive = "exclusive";
 
     /**
      * TODO
@@ -44,7 +44,7 @@ enum AchievementSetType: string
      * 3- When it's time to make multiset generally-available to all players, all will_be_*
      *    values can transition to the real thing and these enum values can be removed.
      */
-    case WILL_BE_BONUS = "will_be_bonus";
-    case WILL_BE_SPECIALTY = "will_be_specialty";
-    case WILL_BE_EXCLUSIVE = "will_be_exclusive";
+    case WillBeBonus = "will_be_bonus";
+    case WillBeSpecialty = "will_be_specialty";
+    case WillBeExclusive = "will_be_exclusive";
 }

@@ -74,6 +74,6 @@ class GameAchievementSet extends BaseModel
      */
     public function scopeCore(Builder $query): Builder
     {
-        return $this->scopeType($query, AchievementSetType::CORE);
+        return $this->scopeType($query, AchievementSetType::Core);
     }
 }

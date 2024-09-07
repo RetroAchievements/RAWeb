@@ -22,7 +22,7 @@ class UpsertGameCoreAchievementSetFromLegacyFlags
             } else {
                 $newAchievementSet = $this->createNewAchievementSetFromGame($game);
                 $game->achievementSets()->attach($newAchievementSet->id, [
-                    'type' => AchievementSetType::CORE->value,
+                    'type' => AchievementSetType::Core->value,
                     'order_column' => 0,
 
                     // Preserve the existing timestamps. Note that updated_at reuses the created_at
