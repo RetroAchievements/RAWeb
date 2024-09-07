@@ -4,6 +4,7 @@ use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\User;
+use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
@@ -358,6 +359,10 @@ function UploadNewAchievement(
 
             static_setlastupdatedgame($gameID);
             static_setlastupdatedachievement($idInOut);
+
+            if ($changingLogic) {
+                $achievement->upsertAuthorshipCredit($author, AchievementAuthorTask::LOGIC);
+            }
 
             if ($changingAchSet) {
                 if ($flag === AchievementFlag::OfficialCore) {

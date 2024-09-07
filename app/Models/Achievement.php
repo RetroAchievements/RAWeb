@@ -6,6 +6,8 @@ namespace App\Models;
 
 use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
+use App\Community\Enums\ArticleType;
+use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\AchievementCreated;
@@ -192,6 +194,22 @@ class Achievement extends BaseModel implements HasComments
 
     // == helpers
 
+    public function upsertAuthorshipCredit(User $user, AchievementAuthorTask $task, ?Carbon $backdate = null): AchievementAuthor
+    {
+        return $this->authorshipCredits()->updateOrCreate(
+            ['user_id' => $user->id, 'task' => $task->value],
+            ['created_at' => $backdate ?? now(), 'updated_at' => now()]
+        );
+    }
+
+    public function removeAuthorshipCredit(User $user, AchievementAuthorTask $task): int
+    {
+        return $this->authorshipCredits()
+            ->where('user_id', $user->id)
+            ->where('task', $task->value)
+            ->delete();
+    }
+
     public function unlockValidationHash(User $user, int $hardcore, int $offset = 0): string
     {
         $data = $this->id . $user->username . $hardcore . $this->id;
@@ -308,6 +326,14 @@ class Achievement extends BaseModel implements HasComments
     // == relations
 
     /**
+     * @return HasMany<AchievementAuthor>
+     */
+    public function authorshipCredits(): HasMany
+    {
+        return $this->hasMany(AchievementAuthor::class, 'achievement_id', 'ID');
+    }
+
+    /**
      * @return BelongsTo<User, Achievement>
      *
      * @deprecated make this multiple developers
@@ -323,6 +349,17 @@ class Achievement extends BaseModel implements HasComments
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class, 'GameID');
+    }
+
+    /**
+     * @return HasMany<Comment>
+     *
+     * TODO use ->comments() after commentable_type and commentable_id are synced in Comments table
+     */
+    public function legacyComments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'ArticleID', 'ID')
+            ->where('ArticleType', ArticleType::Achievement);
     }
 
     /**
