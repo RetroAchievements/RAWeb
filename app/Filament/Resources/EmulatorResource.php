@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EmulatorResource\Pages;
 use App\Filament\Resources\EmulatorResource\RelationManagers\SystemsRelationManager;
+use App\Filament\Rules\DisallowHtml;
 use App\Models\Emulator;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -119,6 +120,7 @@ class EmulatorResource extends Resource
                                 ->helperText('Original name of emulator.'),
                             Forms\Components\Textarea::make('description')
                                 ->label('Description')
+                                ->rules([new DisallowHtml()])
                                 ->rows(5)
                                 ->helperText('Additional text to display on the download page.'),
                             Forms\Components\TextInput::make('link')
