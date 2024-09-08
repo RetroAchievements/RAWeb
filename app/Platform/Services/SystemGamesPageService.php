@@ -104,7 +104,7 @@ class SystemGamesPageService
             'gameListConsoles' => $this->gameListService->consoles,
             'games' => $games,
             'pageMetaDescription' => $this->buildPageMetaDescription($request, $system, $games),
-            'shouldAlwaysShowMetaSurface' => !isValidConsoleId($system->id) || $system->id === System::Events,
+            'shouldAlwaysShowMetaSurface' => !$system->active || $system->id === System::Events,
             'sortOrder' => $sortOrder,
             'system' => $system,
             'totalUnfilteredCount' => $totalUnfilteredCount,
