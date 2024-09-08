@@ -97,6 +97,7 @@ class UpsertGameCoreAchievementSetFromLegacyFlags
                 $achievement->ID => [
                     'created_at' => $achievement->DateCreated ?? now(),
                     'updated_at' => $achievement->DateModified ?? now(),
+                    'order_column' => $achievement->DisplayOrder,
                 ],
             ];
         });

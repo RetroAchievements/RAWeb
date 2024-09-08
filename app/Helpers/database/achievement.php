@@ -4,6 +4,7 @@ use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\User;
+use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrders;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
@@ -409,6 +410,9 @@ function updateAchievementDisplayOrder(int $achievementId, int $newDisplayOrder)
 
     $achievement->DisplayOrder = $newDisplayOrder;
     $achievement->save();
+
+    // Double write to achievement_set_achievements to ensure it remains in sync.
+    (new SyncAchievementSetOrderColumnsFromDisplayOrders())->execute($achievement);
 
     return true;
 }

@@ -313,7 +313,7 @@ class Achievement extends BaseModel implements HasComments
     public function achievementSets(): BelongsToMany
     {
         return $this->belongsToMany(AchievementSet::class, 'achievement_set_achievements', 'achievement_id', 'achievement_set_id', 'ID', 'id')
-            ->withTimestamps();
+            ->withPivot('order_column', 'created_at', 'updated_at');
     }
 
     /**
