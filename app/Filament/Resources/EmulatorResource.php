@@ -35,7 +35,7 @@ class EmulatorResource extends Resource
     protected static int $globalSearchResultsLimit = 5;
 
     /**
-     * @param System $record
+     * @param Emulator $record
      */
     public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
     {

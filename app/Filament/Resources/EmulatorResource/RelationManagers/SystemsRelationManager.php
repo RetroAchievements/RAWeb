@@ -4,22 +4,15 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\EmulatorResource\RelationManagers;
 
-use App\Models\Emulator;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\AchievementType;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Filters;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 class SystemsRelationManager extends RelationManager
 {

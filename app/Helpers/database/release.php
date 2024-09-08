@@ -64,11 +64,9 @@ function getActiveEmulatorReleases(): array
     $releases = getReleasesFromFile();
 
     $emulators = Emulator::active()->orderBy('handle')->get();
-    foreach ($emulators as &$emulator)
-    {
+    foreach ($emulators as &$emulator) {
         $systems = $emulator->systems()->active()->orderBy('Name')->pluck('Name')->toArray();
-        if (!empty($systems))
-        {
+        if (!empty($systems)) {
             $entry = [
                 'name' => $emulator->name,
                 'handle' => $emulator->handle,

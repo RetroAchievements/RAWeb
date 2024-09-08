@@ -20,7 +20,7 @@ class EmulatorsTableSeeder extends Seeder
          * Integration IDs: https://github.com/RetroAchievements/RAIntegration/blob/master/src/RA_Interface.h
          */
         $emulatorReleases = getReleasesFromFile()['emulators'] ?? [];
-       
+
         // attempt to insert the emulators such that any with numeric keys get assigned those IDs and everything
         // else is roughly in the order they were supported.
         $emulatorMap = [
