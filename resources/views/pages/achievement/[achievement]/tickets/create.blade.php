@@ -2,6 +2,7 @@
 
 use App\Community\Enums\TicketType;
 use App\Models\Achievement;
+use App\Models\Emulator;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\UserAgentService;
 use Illuminate\Support\Facades\Auth;
@@ -171,13 +172,10 @@ function reportIssueComponent() {
                             x-on:change="displayCore()"
                         >
                             <option @if ($selectedEmulator === null) selected @endif disabled hidden>Select your emulator...</option>
-                            @foreach (getActiveEmulatorReleases() as $emulator)
-                                @if (array_key_exists($achievement->game->system->id, $emulator['systems']))
-                                    @php print_r($emulator) @endphp
-                                    <option value="{{ $emulator['handle'] }}" @if ($selectedEmulator === $emulator['handle']) selected @endif>
-                                        {{ $emulator['handle'] }}
-                                    </option>
-                                @endif
+                            @foreach (Emulator::forConsole($achievement->game->system->id)->active()->get() as $emulator)
+                                <option value="{{ $emulator->handle }}" @if ($selectedEmulator === $emulator->handle) selected @endif>
+                                    {{ $emulator->handle }}
+                                </option>
                             @endforeach
                         </select>
                     </td>
