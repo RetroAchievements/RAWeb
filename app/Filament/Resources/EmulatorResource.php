@@ -62,9 +62,9 @@ class EmulatorResource extends Resource
             ->schema([
                 Infolists\Components\Split::make([
                     Infolists\Components\Section::make('Details')
-                        ->columns(['xl' => 2, '2xl' => 2])
                         ->schema([
                             Infolists\Components\Group::make()
+                                ->columns(['xl' => 2, '2xl' => 2])
                                 ->schema([
                                     Infolists\Components\TextEntry::make('handle')
                                         ->label('Name')
@@ -123,6 +123,7 @@ class EmulatorResource extends Resource
                                 ->helperText('Additional text to display on the download page.'),
                             Forms\Components\TextInput::make('link')
                                 ->label('Documentation link')
+                                ->url()
                                 ->helperText('Link to emulator documentation.'),
                         ]),
                     Forms\Components\Section::make()
