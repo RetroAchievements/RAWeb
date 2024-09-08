@@ -144,7 +144,6 @@ class EmulatorResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('handle')
                     ->label('Name')
-                    ->description(fn (Emulator $record): ?string => $record->handle)
                     ->searchable()
                     ->sortable()
                     ->grow(true),
