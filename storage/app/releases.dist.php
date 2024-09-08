@@ -164,6 +164,7 @@ See <a href="https://docs.retroachievements.org/Emulator-Support-and-Issues/" ta
                 51, // Atari 7800
                 53, // WonderSwan
                 76, // PC Engine CD
+                77, // Atari Jaguar CD
                 78, // Nintendo DSi
                 80, // Uzebox
             ],

@@ -1,13 +1,6 @@
 <?php
 
 $emulators = getActiveEmulatorReleases();
-usort($emulators, function ($a, $b) {
-    return strcasecmp($a['handle'], $b['handle']);
-});
-
-foreach ($emulators as &$emulator) {
-    sort($emulator['systems']);
-}
 
 authenticateFromCookie($user, $permissions, $userDetails);
 ?>

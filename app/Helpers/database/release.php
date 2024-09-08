@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Emulator;
 use App\Models\System;
 use Illuminate\Support\Facades\Log;
 
@@ -57,22 +58,58 @@ function getReleasesFromFile(): ?array
 
 function getActiveEmulatorReleases(): array
 {
-    $consoles = System::active()->get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name'])->toArray();
+    $result = [];
+
+    // TODO: migrate remaining data out of file
     $releases = getReleasesFromFile();
-    $emulators = array_filter($releases['emulators'] ?? [], fn ($emulator) => $emulator['active'] ?? false);
-    if (!empty($consoles)) {
-        return array_map(function ($emulator) use ($consoles) {
-            $systems = [];
-            foreach ($emulator['systems'] as $system) {
-                if (array_key_exists($system, $consoles)) {
-                    $systems[$system] = $consoles[$system];
+
+    $emulators = Emulator::active()->orderBy('handle')->get();
+    foreach ($emulators as &$emulator)
+    {
+        $systems = $emulator->systems()->active()->orderBy('Name')->pluck('Name')->toArray();
+        if (!empty($systems))
+        {
+            $entry = [
+                'name' => $emulator->name,
+                'handle' => $emulator->handle,
+                'description' => $emulator->description,
+                'link' => $emulator->link,
+                'systems' => $systems,
+            ];
+
+            $release = null;
+            foreach ($releases['emulators'] as $scan) {
+                if ($scan['handle'] === $emulator->handle) {
+                    $release = $scan;
+                    break;
                 }
             }
-            $emulator['systems'] = $systems;
 
-            return $emulator;
-        }, $emulators);
+            if ($release !== null) {
+                // TODO: migrate these out of file
+                if (array_key_exists('source', $release)) {
+                    $entry['source'] = $release['source'];
+                }
+                if (array_key_exists('download_url', $release)) {
+                    $entry['download_url'] = $release['download_url'];
+                }
+                if (array_key_exists('minimum_version', $release)) {
+                    $entry['minimum_version'] = $release['minimum_version'];
+                }
+                if (array_key_exists('latest_version', $release)) {
+                    $entry['latest_version'] = $release['latest_version'];
+                }
+                if (array_key_exists('latest_version_url', $release)) {
+                    $entry['latest_version_url'] = $release['latest_version_url'];
+                }
+                if (array_key_exists('latest_version_url_x64', $release)) {
+                    $entry['latest_version_url_x64'] = $release['latest_version_url_x64'];
+                }
+            }
+
+            $result[] = $entry;
+        }
     }
 
-    return $emulators;
+    return $result;
 }
