@@ -338,7 +338,7 @@ class GameResource extends Resource
                             ->maxSize(1024)
                             ->rules('dimensions:width=96,height=96')
                             ->validationMessages([
-                                'dimensions' => 'The game icon must be 96x96 pixels.'
+                                'dimensions' => 'The game icon must be 96x96 pixels.',
                             ])
                             ->preserveFilenames(),
                     ])
