@@ -106,13 +106,6 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "user.posts": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        }
-    ],
     "user.game.activity": [
         {
             "name": "user",
@@ -300,6 +293,13 @@ declare module 'ziggy-js' {
         }
     ],
     "forum.recent-posts": [],
+    "user.posts.index": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
     "settings.show": [],
     "user.comment.destroyAll": [
         {
