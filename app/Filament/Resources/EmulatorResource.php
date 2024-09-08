@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EmulatorResource\Pages;
+use App\Filament\Resources\EmulatorResource\RelationManagers\SystemsRelationManager;
 use App\Models\Emulator;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -198,6 +199,7 @@ class EmulatorResource extends Resource
     public static function getRelations(): array
     {
         return [
+            SystemsRelationManager::class,
         ];
     }
 
