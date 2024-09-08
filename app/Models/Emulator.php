@@ -133,10 +133,10 @@ class Emulator extends BaseModel implements HasMedia
      * @param Builder<Emulator> $query
      * @return Builder<Emulator>
      */
-    public function scopeForConsole(Builder $query, int $consoleId): Builder
+    public function scopeForSystem(Builder $query, int $systemId): Builder
     {
-        return $query->whereHas('systems', function ($query) use ($consoleId) {
-            $query->where('system_id', $consoleId);
+        return $query->whereHas('systems', function ($query) use ($systemId) {
+            $query->where('system_id', $systemId);
         });
     }
 }
