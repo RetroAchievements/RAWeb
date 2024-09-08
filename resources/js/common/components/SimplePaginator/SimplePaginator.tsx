@@ -7,15 +7,16 @@ import {
   BasePaginationNext,
   BasePaginationPrevious,
 } from '@/common/components/+vendor/BasePagination';
-import { usePageProps } from '@/common/hooks/usePageProps';
 
-export const RecentPostsPagination: FC = () => {
-  const { paginatedTopics } = usePageProps<App.Community.Data.RecentPostsPageProps>();
+interface SimplePaginatorProps<TData = unknown> {
+  paginatedData: App.Data.PaginatedData<TData>;
+}
 
+export const SimplePaginator: FC<SimplePaginatorProps> = ({ paginatedData }) => {
   const {
     perPage,
     links: { nextPageUrl, previousPageUrl },
-  } = paginatedTopics;
+  } = paginatedData;
 
   if (!previousPageUrl && !nextPageUrl) {
     return null;

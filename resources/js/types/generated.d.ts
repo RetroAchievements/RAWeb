@@ -2,6 +2,10 @@ declare namespace App.Community.Data {
   export type RecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     paginatedTopics: App.Data.PaginatedData<TItems>;
   };
+  export type UserRecentPostsPageProps<TItems = App.Data.ForumTopic> = {
+    targetUser: App.Data.User;
+    paginatedTopics: App.Data.PaginatedData<TItems>;
+  };
   export type UserSettingsPageProps = {
     userSettings: App.Data.User;
     can: App.Data.UserPermissions;
@@ -16,7 +20,7 @@ declare namespace App.Data {
     body: string;
     createdAt: string;
     updatedAt: string | null;
-    user: App.Data.User;
+    user: App.Data.User | null;
     authorized: boolean;
     forumTopicId: number | null;
   };
@@ -25,10 +29,10 @@ declare namespace App.Data {
     title: string;
     createdAt: string;
     latestComment?: App.Data.ForumTopicComment;
-    commentCount24h?: number;
-    oldestComment24hId?: number;
-    commentCount7d?: number;
-    oldestComment7dId?: number;
+    commentCount24h?: number | null;
+    oldestComment24hId?: number | null;
+    commentCount7d?: number | null;
+    oldestComment7dId?: number | null;
     user: App.Data.User | null;
   };
   export type PaginatedData<TItems> = {

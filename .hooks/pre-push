@@ -11,6 +11,9 @@ vendor/bin/phpstan analyse --memory-limit 512M
 printf "\n⏳ npm run lint:eslint\n"
 npx eslint --quiet
 
+printf "\n⏳ npm run tsc\n"
+npm run tsc
+
 printf "\n⏳ npm run test\n"
 npm run test
 

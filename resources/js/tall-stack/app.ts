@@ -1,10 +1,11 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment -- this file has known type issues that are safe and part of the official Livewire docs
+// @ts-nocheck
+
 /* eslint-disable import/no-unresolved */
 
 // eslint-disable-next-line camelcase
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment -- This actually works in a TALL stack app with Livewire 3.
-// @ts-ignore
 import {
   autoExpandTextInput,
   copyToClipboard,

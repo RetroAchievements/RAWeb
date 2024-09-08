@@ -33,4 +33,11 @@ class UpdateProfileRequest extends FormRequest
             'userWallActive' => 'nullable|boolean',
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'motto' => $this->input('motto') ?? '', // Don't cast empty strings to null.
+        ]);
+    }
 }

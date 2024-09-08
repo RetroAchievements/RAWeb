@@ -5,7 +5,12 @@ import type { BaseAvatarProps } from '@/common/models';
 
 type UserAvatarProps = BaseAvatarProps & App.Data.User;
 
-export const UserAvatar: FC<UserAvatarProps> = ({ displayName, size = 32, hasTooltip = true }) => {
+export const UserAvatar: FC<UserAvatarProps> = ({
+  displayName,
+  hasTooltip = true,
+  showLabel = true,
+  size = 32,
+}) => {
   const { cardTooltipProps } = useCardTooltip({ dynamicType: 'user', dynamicId: displayName });
 
   return (
@@ -24,7 +29,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({ displayName, size = 32, hasToo
         className="rounded-sm"
       />
 
-      {displayName ? <span>{displayName}</span> : null}
+      {displayName && showLabel ? <span>{displayName}</span> : null}
     </a>
   );
 };

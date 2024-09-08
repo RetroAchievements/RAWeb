@@ -3,19 +3,34 @@ import type { FC } from 'react';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { AggregateRecentPostLinks } from '../AggregateRecentPostLinks';
 import { PostTimestamp } from '../PostTimestamp';
+import { RecentPostAggregateLinks } from '../RecentPostAggregateLinks';
 
-export const RecentPostsTable: FC = () => {
-  const { auth, paginatedTopics } = usePageProps<App.Community.Data.RecentPostsPageProps>();
+interface RecentPostsTableProps {
+  paginatedTopics: App.Data.PaginatedData<App.Data.ForumTopic>;
+
+  showAdditionalPosts?: boolean;
+  showLastPostBy?: boolean;
+}
+
+export const RecentPostsTable: FC<RecentPostsTableProps> = ({
+  paginatedTopics,
+  showAdditionalPosts = true,
+  showLastPostBy = true,
+}) => {
+  const { auth } = usePageProps();
 
   return (
     <table className="table-highlight">
       <thead>
         <tr className="do-not-highlight">
-          <th>Last Post By</th>
+          {showLastPostBy ? <th>Last Post By</th> : null}
+
           <th>Message</th>
-          <th className="whitespace-nowrap text-right">Additional Posts</th>
+
+          {showAdditionalPosts ? (
+            <th className="whitespace-nowrap text-right">Additional Posts</th>
+          ) : null}
         </tr>
       </thead>
 
@@ -23,12 +38,12 @@ export const RecentPostsTable: FC = () => {
         {paginatedTopics.items.map((topic) => (
           <tr key={topic.latestComment?.id}>
             <td className="py-3">
-              {topic.latestComment?.user ? (
+              {showLastPostBy && topic.latestComment?.user ? (
                 <UserAvatar {...topic.latestComment.user} size={24} />
               ) : null}
             </td>
 
-            <td>
+            <td className="py-2">
               <p className="flex items-center gap-x-2">
                 <a
                   href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment?.id}#${topic.latestComment?.id}`}
@@ -50,9 +65,11 @@ export const RecentPostsTable: FC = () => {
               </div>
             </td>
 
-            <td className="text-right">
-              <AggregateRecentPostLinks topic={topic} />
-            </td>
+            {showAdditionalPosts ? (
+              <td className="text-right">
+                <RecentPostAggregateLinks topic={topic} />
+              </td>
+            ) : null}
           </tr>
         ))}
       </tbody>
