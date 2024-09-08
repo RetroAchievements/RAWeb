@@ -49,12 +49,13 @@ class EmulatorsTableSeeder extends Seeder
             }
             $emulatorRelease = $emulatorReleases[$integrationId];
             $emulator = Emulator::create([
-                'integration_id' => $integrationId,
-                'name' => $emulatorRelease['name'],
-                'handle' => $emulatorRelease['handle'],
+                'original_name' => $emulatorRelease['name'],
+                'name' => $emulatorRelease['handle'],
                 'active' => $emulatorRelease['active'],
-                'link' => $emulatorRelease['link'] ?? null,
                 'description' => $emulatorRelease['description'] ?? null,
+                'documentation_url' => $emulatorRelease['link'] ?? null,
+                'download_url' => $emulatorRelease['download_url'] ?? null,
+                'source_url' => $emulatorRelease['source'] ?? null,
             ]);
             $emulator->systems()->sync($emulatorRelease['systems'] ?? []);
         }

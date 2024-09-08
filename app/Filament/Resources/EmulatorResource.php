@@ -31,7 +31,7 @@ class EmulatorResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $recordTitleAttribute = 'handle';
+    protected static ?string $recordTitleAttribute = 'name';
 
     protected static int $globalSearchResultsLimit = 5;
 
@@ -40,20 +40,20 @@ class EmulatorResource extends Resource
      */
     public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
     {
-        return $record->name_full;
+        return $record->name;
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
-            'ID' => $record->ID,
-            'Handle' => $record->handle,
+            'id' => $record->ID,
+            'name' => $record->name,
         ];
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['ID', 'handle'];
+        return ['id', 'name'];
     }
 
     public static function infolist(Infolist $infolist): Infolist
@@ -67,18 +67,24 @@ class EmulatorResource extends Resource
                             Infolists\Components\Group::make()
                                 ->columns(['xl' => 2, '2xl' => 2])
                                 ->schema([
-                                    Infolists\Components\TextEntry::make('handle')
+                                    Infolists\Components\TextEntry::make('name')
                                         ->label('Name')
                                         ->helperText('Name of emulator'),
-                                    Infolists\Components\TextEntry::make('name')
+                                    Infolists\Components\TextEntry::make('original_name')
                                         ->label('Original name')
                                         ->helperText('Original name of emulator.'),
                                     Infolists\Components\TextEntry::make('description')
                                         ->label('Description')
                                         ->helperText('Additional text to display on the download page.'),
-                                    Infolists\Components\TextEntry::make('link')
+                                    Infolists\Components\TextEntry::make('documentation_url')
                                         ->label('Documentation link')
                                         ->helperText('Link to emulator documentation.'),
+                                    Infolists\Components\TextEntry::make('download_url')
+                                        ->label('Download link')
+                                        ->helperText('Link to download the emulator.'),
+                                    Infolists\Components\TextEntry::make('source_url')
+                                        ->label('Source code link')
+                                        ->helperText('Link to emulator source code.'),
                                 ]),
                         ]),
                     Infolists\Components\Section::make([
@@ -108,12 +114,12 @@ class EmulatorResource extends Resource
                     Forms\Components\Section::make()
                         ->columns(2)
                         ->schema([
-                            Forms\Components\TextInput::make('handle')
+                            Forms\Components\TextInput::make('name')
                                 ->label('Name')
                                 ->required()
                                 ->maxLength(255)
                                 ->helperText('Name of emulator'),
-                            Forms\Components\TextInput::make('name')
+                            Forms\Components\TextInput::make('original_name')
                                 ->label('Original name')
                                 ->required()
                                 ->maxLength(255)
@@ -123,10 +129,18 @@ class EmulatorResource extends Resource
                                 ->rules([new DisallowHtml()])
                                 ->rows(5)
                                 ->helperText('Additional text to display on the download page.'),
-                            Forms\Components\TextInput::make('link')
+                            Forms\Components\TextInput::make('documentation_url')
                                 ->label('Documentation link')
                                 ->url()
                                 ->helperText('Link to emulator documentation.'),
+                            Forms\Components\TextInput::make('download_url')
+                                ->label('Download link')
+                                ->url()
+                                ->helperText('Link to download the emulator.'),
+                            Forms\Components\TextInput::make('source_url')
+                                ->label('Source code link')
+                                ->url()
+                                ->helperText('Link to emulator source code.'),
                         ]),
                     Forms\Components\Section::make()
                         ->grow(false)
@@ -145,12 +159,12 @@ class EmulatorResource extends Resource
                     ->label('ID')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('handle')
+                Tables\Columns\TextColumn::make('name')
                     ->label('Name')
                     ->searchable()
                     ->sortable()
                     ->grow(true),
-                Tables\Columns\TextColumn::make('name')
+                Tables\Columns\TextColumn::make('original_name')
                     ->label('Original Name')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -158,13 +172,11 @@ class EmulatorResource extends Resource
                     ->boolean()
                     ->default(false)
                     ->alignCenter(),
-                Tables\Columns\TextColumn::make('Created')
-                    ->label('Created at')
+                Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('Updated')
-                    ->label('Updated at')
+                Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -173,7 +185,7 @@ class EmulatorResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('handle')
+            ->defaultSort('name')
             ->paginated(false)
             ->filters([
                 Tables\Filters\TrashedFilter::make(),

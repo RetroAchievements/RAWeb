@@ -29,11 +29,13 @@ class Emulator extends BaseModel implements HasMedia
     }
 
     protected $fillable = [
-        'active',
-        'handle',
         'name',
+        'original_name',
         'description',
-        'link',
+        'active',
+        'documentation_url',
+        'download_url',
+        'source_url',
     ];
 
     // audit activity log
@@ -43,10 +45,12 @@ class Emulator extends BaseModel implements HasMedia
         return LogOptions::defaults()
             ->logOnly([
                 'name',
-                'handle',
+                'original_name',
                 'description',
-                'link',
                 'active',
+                'documentation_url',
+                'download_url',
+                'source_url',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();

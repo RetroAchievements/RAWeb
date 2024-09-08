@@ -63,21 +63,23 @@ function getActiveEmulatorReleases(): array
     // TODO: migrate remaining data out of file
     $releases = getReleasesFromFile();
 
-    $emulators = Emulator::active()->orderBy('handle')->get();
+    $emulators = Emulator::active()->orderBy('name')->get();
     foreach ($emulators as &$emulator) {
         $systems = $emulator->systems()->active()->orderBy('Name')->pluck('Name')->toArray();
         if (!empty($systems)) {
             $entry = [
                 'name' => $emulator->name,
-                'handle' => $emulator->handle,
+                'original_name' => $emulator->original_name,
                 'description' => $emulator->description,
-                'link' => $emulator->link,
+                'documentation_url' => $emulator->documentation_url,
+                'download_url' => $emulator->download_url,
+                'source_url' => $emulator->source_url,
                 'systems' => $systems,
             ];
 
             $release = null;
             foreach ($releases['emulators'] as $scan) {
-                if ($scan['handle'] === $emulator->handle) {
+                if ($scan['handle'] === $emulator->name) {
                     $release = $scan;
                     break;
                 }
@@ -85,12 +87,6 @@ function getActiveEmulatorReleases(): array
 
             if ($release !== null) {
                 // TODO: migrate these out of file
-                if (array_key_exists('source', $release)) {
-                    $entry['source'] = $release['source'];
-                }
-                if (array_key_exists('download_url', $release)) {
-                    $entry['download_url'] = $release['download_url'];
-                }
                 if (array_key_exists('minimum_version', $release)) {
                     $entry['minimum_version'] = $release['minimum_version'];
                 }
