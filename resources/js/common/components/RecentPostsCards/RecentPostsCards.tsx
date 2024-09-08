@@ -3,11 +3,20 @@ import type { FC } from 'react';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { AggregateRecentPostLinks } from '../AggregateRecentPostLinks';
 import { PostTimestamp } from '../PostTimestamp';
+import { RecentPostAggregateLinks } from '../RecentPostAggregateLinks';
 
-export const RecentPostsCards: FC = () => {
-  const { auth, paginatedTopics } = usePageProps<App.Community.Data.RecentPostsPageProps>();
+interface RecentPostsCardsProps {
+  paginatedTopics: App.Data.PaginatedData<App.Data.ForumTopic>;
+
+  showUser?: boolean;
+}
+
+export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
+  paginatedTopics,
+  showUser = true,
+}) => {
+  const { auth } = usePageProps<App.Community.Data.RecentPostsPageProps>();
 
   return (
     <div className="flex flex-col gap-y-2">
@@ -15,7 +24,9 @@ export const RecentPostsCards: FC = () => {
         <div key={`card-${topic?.latestComment?.id}`} className="embedded">
           <div className="relative flex justify-between">
             <div className="flex flex-col gap-y-1">
-              <UserAvatar displayName={topic?.latestComment?.user.displayName ?? ''} size={16} />
+              {showUser ? (
+                <UserAvatar displayName={topic?.latestComment?.user?.displayName ?? ''} size={16} />
+              ) : null}
 
               {topic.latestComment?.createdAt ? (
                 <span className="smalldate">
@@ -27,7 +38,7 @@ export const RecentPostsCards: FC = () => {
               ) : null}
             </div>
 
-            <AggregateRecentPostLinks topic={topic} />
+            <RecentPostAggregateLinks topic={topic} />
           </div>
 
           <div className="flex flex-col gap-y-2">

@@ -13,6 +13,11 @@
             "abilities": "viewLogViewer"
         },
         {
+            "label": "Pulse",
+            "route": "pulse",
+            "abilities": "tool"
+        },
+        {
             "label": "Horizon Queues",
             "route": "horizon.index",
             "abilities": "viewHorizon"

@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Laravel\Pulse\Facades\Pulse;
 use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
@@ -60,6 +61,11 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Model::shouldBeStrict(!$this->app->isProduction());
+
+        Pulse::user(fn (User $user) => [
+            'name' => $user->User,
+            'avatar' => $user->avatarUrl,
+        ]);
 
         $this->app->booted(function () {
             $schedule = $this->app->make(Schedule::class);

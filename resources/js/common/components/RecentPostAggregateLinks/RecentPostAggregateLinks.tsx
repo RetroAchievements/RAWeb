@@ -1,10 +1,10 @@
 import type { FC } from 'react';
 
-interface AggregateRecentPostLinksProps {
+interface RecentPostAggregateLinksProps {
   topic: App.Data.ForumTopic;
 }
 
-export const AggregateRecentPostLinks: FC<AggregateRecentPostLinksProps> = ({ topic }) => {
+export const RecentPostAggregateLinks: FC<RecentPostAggregateLinksProps> = ({ topic }) => {
   const { commentCount24h, commentCount7d, oldestComment24hId, oldestComment7dId, id } = topic;
 
   if (!commentCount7d || commentCount7d <= 1) {

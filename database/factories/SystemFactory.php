@@ -19,8 +19,15 @@ class SystemFactory extends Factory
      */
     public function definition(): array
     {
+        $name = ucwords(fake()->word());
+        $manufacturer = ucwords(fake()->word());
+
         return [
-            'Name' => ucwords(fake()->words(1, true)),
+            'Name' => $name,
+            'name_short' => strtoupper(substr($name, 0, 3)),
+            'name_full' => "$manufacturer $name",
+            'manufacturer' => $manufacturer,
+            'active' => true,
         ];
     }
 }
