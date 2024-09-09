@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\EmulatorResource\RelationManagers;
 
 use App\Models\System;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -13,9 +14,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
-class SystemsRelationManager extends RelationManager
+class EmulatorReleasesRelationManager extends RelationManager
 {
-    protected static string $relationship = 'systems';
+    protected static string $relationship = 'releases';
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
@@ -37,19 +38,22 @@ class SystemsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('title')
             ->columns([
-                Tables\Columns\ImageColumn::make('icon_url')
-                    ->label('')
-                    ->size(config('media.icon.sm.width')),
-                Tables\Columns\TextColumn::make('ID')
-                    ->label('ID')
+                Tables\Columns\TextColumn::make('version')
+                    ->label('Version')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('name_full')
-                    ->label('Full name')
-                    ->description(fn (System $record): ?string => $record->name_short)
-                    ->searchable()
-                    ->sortable()
-                    ->grow(true),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Release Date')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\IconColumn::make('stable')
+                    ->boolean()
+                    ->default(false)
+                    ->alignCenter(),
+                Tables\Columns\IconColumn::make('minimum')
+                    ->boolean()
+                    ->default(false)
+                    ->alignCenter(),
             ])
             ->filters([
 
@@ -61,7 +65,7 @@ class SystemsRelationManager extends RelationManager
 
             ])
             ->defaultSort(function (Builder $query): Builder {
-                return $query->orderBy('name_full');
+                return $query->orderByDesc('created_at');
             });
     }
 }

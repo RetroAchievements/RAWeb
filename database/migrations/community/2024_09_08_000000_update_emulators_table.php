@@ -16,7 +16,8 @@ return new class() extends Migration {
             $table->renameColumn('handle', 'original_name');
             $table->string('documentation_url', 255)->nullable()->after('description');
             $table->string('download_url', 255)->nullable()->after('documentation_url');
-            $table->string('source_url', 255)->nullable()->after('download_url');
+            $table->string('download_x64_url', 255)->nullable()->after('download_url');
+            $table->string('source_url', 255)->nullable()->after('download_x64_url');
         });
     }
 
@@ -29,6 +30,7 @@ return new class() extends Migration {
             $table->renameColumn('original_name', 'handle');
             $table->dropColumn('documentation_url');
             $table->dropColumn('download_url');
+            $table->dropColumn('download_x64_url');
             $table->dropColumn('source_url');
         });
     }

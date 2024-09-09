@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EmulatorResource\Pages;
 use App\Filament\Resources\EmulatorResource\RelationManagers\SystemsRelationManager;
+use App\Filament\Resources\EmulatorResource\RelationManagers\EmulatorReleasesRelationManager;
 use App\Filament\Rules\DisallowHtml;
 use App\Models\Emulator;
 use Filament\Forms;
@@ -82,6 +83,9 @@ class EmulatorResource extends Resource
                                     Infolists\Components\TextEntry::make('download_url')
                                         ->label('Download link')
                                         ->helperText('Link to download the emulator.'),
+                                    Infolists\Components\TextEntry::make('download_x64_url')
+                                        ->label('x64 Download link')
+                                        ->helperText('Link to download the x64 version of the emulator.'),
                                     Infolists\Components\TextEntry::make('source_url')
                                         ->label('Source code link')
                                         ->helperText('Link to emulator source code.'),
@@ -137,6 +141,10 @@ class EmulatorResource extends Resource
                                 ->label('Download link')
                                 ->url()
                                 ->helperText('Link to download the emulator.'),
+                            Forms\Components\TextInput::make('download_x64_url')
+                                ->label('x64 Download link')
+                                ->url()
+                                ->helperText('Link to download the x64 version of the emulator.'),
                             Forms\Components\TextInput::make('source_url')
                                 ->label('Source code link')
                                 ->url()
@@ -164,6 +172,10 @@ class EmulatorResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->grow(true),
+                Tables\Columns\TextColumn::make('latestRelease.version')
+                    ->label('Latest Version'),
+                Tables\Columns\TextColumn::make('minimumSupportedRelease.version')
+                    ->label('Minimum Version'),
                 Tables\Columns\TextColumn::make('original_name')
                     ->label('Original Name')
                     ->searchable()
@@ -214,6 +226,7 @@ class EmulatorResource extends Resource
     {
         return [
             SystemsRelationManager::class,
+            EmulatorReleasesRelationManager::class,
         ];
     }
 

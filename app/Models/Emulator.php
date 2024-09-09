@@ -101,7 +101,17 @@ class Emulator extends BaseModel implements HasMedia
     {
         return $this->hasOne(EmulatorRelease::class)
             ->where('stable', true)
-            ->orderBy('version', 'DESC');
+            ->orderBy('created_at', 'DESC');
+    }
+
+    /**
+     * @return HasOne<EmulatorRelease>
+     */
+    public function minimumSupportedRelease(): HasOne
+    {
+        return $this->hasOne(EmulatorRelease::class)
+            ->where('minimum', true)
+            ->orderBy('created_at', 'DESC');
     }
 
     /**
@@ -111,7 +121,7 @@ class Emulator extends BaseModel implements HasMedia
     {
         return $this->hasOne(EmulatorRelease::class)
             ->where('stable', false)
-            ->orderBy('version', 'DESC');
+            ->orderBy('created_at', 'DESC');
     }
 
     /**

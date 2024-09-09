@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\Emulator;
+use App\Models\EmulatorRelease;
 use App\Platform\Enums\Emulators;
 use Illuminate\Database\Seeder;
 
@@ -43,6 +44,7 @@ class EmulatorsTableSeeder extends Seeder
             Emulators::PPSSPP,
             Emulators::Dolphin,
         ];
+
         foreach ($emulatorMap as $integrationId) {
             if (!array_key_exists($integrationId, $emulatorReleases)) {
                 continue;
@@ -54,7 +56,8 @@ class EmulatorsTableSeeder extends Seeder
                 'active' => $emulatorRelease['active'],
                 'description' => $emulatorRelease['description'] ?? null,
                 'documentation_url' => $emulatorRelease['link'] ?? null,
-                'download_url' => $emulatorRelease['download_url'] ?? null,
+                'download_url' => $emulatorRelease['download_url'] ?? $emulatorRelease['latest_version_url'] ?? null,
+                'download_x64_url' => $emulatorRelease['latest_version_url_x64'] ?? null,
                 'source_url' => $emulatorRelease['source'] ?? null,
             ]);
             $emulator->systems()->sync($emulatorRelease['systems'] ?? []);

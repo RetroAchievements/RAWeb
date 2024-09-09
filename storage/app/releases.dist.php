@@ -194,6 +194,7 @@ return [
             'name' => 'Dolphin',
             'handle' => 'Dolphin',
             'active' => true,
+            'minimum_version' => '2407-68',
             'link' => 'https://wiki.dolphin-emu.org/index.php?title=Main_Page',
             'download_url' => 'https://dolphin-emu.org/download/',
             'systems' => [
