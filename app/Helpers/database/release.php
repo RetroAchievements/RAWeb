@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Emulator;
 use App\Models\System;
 use Illuminate\Support\Facades\Log;
 

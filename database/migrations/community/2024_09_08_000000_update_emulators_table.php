@@ -10,6 +10,7 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('emulators', function (Blueprint $table) {
+            $table->dropIndex('emulators_integration_id_unique');
             $table->dropColumn('integration_id');
             $table->dropColumn('game_hash_column');
             $table->dropColumn('link');
@@ -25,8 +26,9 @@ return new class() extends Migration {
     {
         Schema::table('emulators', function (Blueprint $table) {
             $table->string('integration_id')->nullable()->after('id');
-            $table->text('game_hash_column')->nullable()->before('active');
+            $table->unique('integration_id');
             $table->text('link')->nullable()->after('description');
+            $table->text('game_hash_column')->nullable()->after('link');
             $table->renameColumn('original_name', 'handle');
             $table->dropColumn('documentation_url');
             $table->dropColumn('download_url');

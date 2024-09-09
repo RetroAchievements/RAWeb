@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\Emulator;
-use App\Models\EmulatorRelease;
 use App\Platform\Enums\Emulators;
 use Illuminate\Database\Seeder;
 
@@ -44,7 +43,6 @@ class EmulatorsTableSeeder extends Seeder
             Emulators::PPSSPP,
             Emulators::Dolphin,
         ];
-
         foreach ($emulatorMap as $integrationId) {
             if (!array_key_exists($integrationId, $emulatorReleases)) {
                 continue;

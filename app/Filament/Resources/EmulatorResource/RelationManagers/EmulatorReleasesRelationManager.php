@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\EmulatorResource\RelationManagers;
 
-use App\Models\System;
-use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
