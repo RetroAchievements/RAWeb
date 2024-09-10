@@ -1,13 +1,13 @@
 import { render, screen } from '@/test';
 import { createRecentActiveForumTopic } from '@/test/factories';
 
-import { AggregateRecentPostLinks } from './AggregateRecentPostLinks';
+import { RecentPostAggregateLinks } from './RecentPostAggregateLinks';
 
-describe('Component: AggregateRecentPostLinks', () => {
+describe('Component: RecentPostAggregateLinks', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <AggregateRecentPostLinks topic={createRecentActiveForumTopic()} />,
+      <RecentPostAggregateLinks topic={createRecentActiveForumTopic()} />,
     );
 
     // ASSERT
@@ -17,7 +17,7 @@ describe('Component: AggregateRecentPostLinks', () => {
   it('given there are not multiple posts in the topic for the day, shows nothing', () => {
     // ARRANGE
     render(
-      <AggregateRecentPostLinks
+      <RecentPostAggregateLinks
         topic={createRecentActiveForumTopic({
           commentCount24h: 0,
           commentCount7d: 0,
@@ -39,7 +39,7 @@ describe('Component: AggregateRecentPostLinks', () => {
       oldestComment7dId: 99999,
     });
 
-    render(<AggregateRecentPostLinks topic={recentActiveForumTopic} />);
+    render(<RecentPostAggregateLinks topic={recentActiveForumTopic} />);
 
     // ASSERT
     const linkEls = screen.getAllByRole('link');
@@ -60,7 +60,7 @@ describe('Component: AggregateRecentPostLinks', () => {
       oldestComment7dId: 99999,
     });
 
-    render(<AggregateRecentPostLinks topic={recentActiveForumTopic} />);
+    render(<RecentPostAggregateLinks topic={recentActiveForumTopic} />);
 
     // ASSERT
     const linkEls = screen.getAllByRole('link');
@@ -81,7 +81,7 @@ describe('Component: AggregateRecentPostLinks', () => {
       oldestComment7dId: 99999,
     });
 
-    render(<AggregateRecentPostLinks topic={recentActiveForumTopic} />);
+    render(<RecentPostAggregateLinks topic={recentActiveForumTopic} />);
 
     // ASSERT
     const linkEls = screen.getAllByRole('link');

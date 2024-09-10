@@ -98,9 +98,9 @@ class PlayerCompletionProgressTest extends TestCase
         $me = User::factory()->create(['User' => 'myUser']);
 
         /** @var System $systemOne */
-        $systemOne = System::factory()->create(['ID' => 1]);
+        $systemOne = System::factory()->create(['ID' => 1, 'name_short' => 'find_me_1']);
         /** @var System $systemTwo */
-        $systemTwo = System::factory()->create(['ID' => 2]);
+        $systemTwo = System::factory()->create(['ID' => 2, 'name_short' => 'find_me_2']);
 
         /** @var Game $gameOne */
         $gameOne = Game::factory()->create(['ConsoleID' => $systemOne->ID]);
@@ -122,7 +122,7 @@ class PlayerCompletionProgressTest extends TestCase
         // Assert
         $view->assertSeeTextInOrder([$gameTwo->Title, $gameOne->Title]);
         $view->assertSeeTextInOrder(['3', 'of', '12', 'achievements', '2', 'of', '10', 'achievements']);
-        $view->assertSeeTextInOrder([config('systems')[2]['name_short'], config('systems')[1]['name_short']]);
+        $view->assertSeeTextInOrder([$systemTwo->name_short, $systemOne->name_short]);
         $view->assertSeeTextInOrder(["2", "Played"]);
         $view->assertSeeTextInOrder(["2", "Unfinished"]);
 

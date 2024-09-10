@@ -4,10 +4,13 @@
 ])
 
 <?php
-// Sort the console IDs based on their names.
-usort($availableConsoleIds, function ($a, $b) {
-    return strcmp(config('systems')[$a]['name'], config('systems')[$b]['name']);
-});
+
+use App\Models\System;
+
+$systems = System::active()
+    ->whereIn('ID', $availableConsoleIds)
+    ->orderBy('name')
+    ->get();
 ?>
 
 <label class="text-xs font-bold" for="filter-by-console-select">System</label>
@@ -19,13 +22,11 @@ usort($availableConsoleIds, function ($a, $b) {
 >
     <option @if (!$selectedConsoleId) selected @endif value="0">All systems</option>
 
-    @foreach ($availableConsoleIds as $consoleId)
-        @if (isValidConsoleId($consoleId))
-            @if ($selectedConsoleId == $consoleId)
-                <option selected>{{ config('systems')[$consoleId]['name'] }}</option>
-            @else
-                <option value="{{ $consoleId }}">{{ config('systems')[$consoleId]['name'] }}</option>`
-            @endif
+    @foreach ($systems as $system)
+        @if ($selectedConsoleId == $system->id)
+            <option selected>{{ $system->name }}</option>
+        @else
+            <option value="{{ $system->id }}">{{ $system->name }}</option>`
         @endif
     @endforeach
 </select>
