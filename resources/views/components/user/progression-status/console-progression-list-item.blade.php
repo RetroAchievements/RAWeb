@@ -9,7 +9,8 @@
 ])
 
 <?php
-$gameSystemIconSrc = getSystemIconUrl($consoleId);
+
+use App\Models\System;
 
 $totalBeatenGamesCount = $beatenSoftcoreCount + $beatenHardcoreCount;
 $totalMasteredGamesCount = $completedCount + $masteredCount;
@@ -26,8 +27,17 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
     $widthMode = 'equal';
 }
 
-$displayLabel = $label ?? config('systems')[$consoleId]['name_short'];
-$consoleTooltipLabel = $label ?? config('systems')[$consoleId]['name'];
+$system = System::find($consoleId);
+if ($system) {
+    $gameSystemIconSrc = getSystemIconUrl($system);
+    $displayLabel = $label ?? $system->name_short;
+    $consoleTooltipLabel = $label ?? $system->name;
+}
+else {
+    $gameSystemIconSrc = getSystemIconUrl(0);
+    $displayLabel = $label;
+    $consoleTooltipLabel = $label;
+}
 
 $targetUser = request('user');
 $cellUrls = [

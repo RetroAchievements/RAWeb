@@ -65,7 +65,7 @@ class ConsoleIDsTest extends TestCase
         /** @var System $system1 */
         $system1 = System::factory()->create();
         /** @var System $system2 */
-        $system2 = System::factory()->create(['ID' => System::Hubs]);
+        $system2 = System::factory()->create(['active' => false]);
 
         // only active systems
         $this->get($this->apiUrl('GetConsoleIDs', ['a' => 1]))

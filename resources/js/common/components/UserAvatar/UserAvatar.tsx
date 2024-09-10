@@ -7,10 +7,16 @@ interface UserAvatarProps {
   displayName: string | null;
 
   hasTooltip?: boolean;
+  showDisplayName?: boolean;
   size?: AvatarSize;
 }
 
-export const UserAvatar: FC<UserAvatarProps> = ({ displayName, size = 32, hasTooltip = true }) => {
+export const UserAvatar: FC<UserAvatarProps> = ({
+  displayName,
+  hasTooltip = true,
+  showDisplayName = true,
+  size = 32,
+}) => {
   const { cardTooltipProps } = useCardTooltip({ dynamicType: 'user', dynamicId: displayName });
 
   return (
@@ -29,7 +35,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({ displayName, size = 32, hasToo
         className="rounded-sm"
       />
 
-      {displayName ? <span>{displayName}</span> : null}
+      {displayName && showDisplayName ? <span>{displayName}</span> : null}
     </a>
   );
 };

@@ -1,45 +1,37 @@
 import { render, screen } from '@/test';
 import { createPaginatedData, createRecentActiveForumTopic } from '@/test/factories';
 
-import { RecentPostsTable } from './RecentPostsTable';
+import { RecentPostsCards } from './RecentPostsCards';
 
-describe('Component: RecentPostsTable', () => {
+describe('Component: RecentPostsCards', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<RecentPostsTable />, {
-      pageProps: {
-        paginatedTopics: createPaginatedData([]),
-      },
-    });
+    const { container } = render(<RecentPostsCards paginatedTopics={createPaginatedData([])} />);
 
     // ASSERT
     expect(container).toBeTruthy();
   });
 
-  it('renders a table row for every given recent forum post', () => {
+  it('renders a card for every given recent forum post', () => {
     // ARRANGE
-    render(<RecentPostsTable />, {
-      pageProps: {
-        paginatedTopics: createPaginatedData([
+    render(
+      <RecentPostsCards
+        paginatedTopics={createPaginatedData([
           createRecentActiveForumTopic(),
           createRecentActiveForumTopic(),
-        ]),
-      },
-    });
+        ])}
+      />,
+    );
 
     // ASSERT
-    expect(screen.getAllByRole('row').length).toEqual(3); // a header row and the two post rows
+    expect(screen.getAllByRole('img').length).toEqual(2); // test the presence of user avatars
   });
 
   it('displays the topic title and the short message', () => {
     // ARRANGE
     const recentActiveForumTopic = createRecentActiveForumTopic();
 
-    render(<RecentPostsTable />, {
-      pageProps: {
-        paginatedTopics: createPaginatedData([recentActiveForumTopic]),
-      },
-    });
+    render(<RecentPostsCards paginatedTopics={createPaginatedData([recentActiveForumTopic])} />);
 
     // ASSERT
     expect(screen.getByText(recentActiveForumTopic.title)).toBeVisible();

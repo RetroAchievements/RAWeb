@@ -11,6 +11,7 @@
         "fix:eslint": "eslint public/js resources/js postcss.config.js tailwind.config.js vite.config.ts --fix",
         "test": "vitest run --reporter=dot",
         "test:watch": "vitest",
+        "tsc": "tsc --noEmit --skipLibCheck",
         "analyze": "cross-env ANALYZE=true npm run prod"
     },
     "dependencies": {
