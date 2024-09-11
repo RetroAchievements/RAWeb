@@ -16,6 +16,7 @@ declare module 'ziggy-js' {
         }
     ],
     "demo": [],
+    "playground.index": [],
     "home": [],
     "tickets.index": [],
     "ranking.beaten-games": [],
@@ -248,6 +249,7 @@ declare module 'ziggy-js' {
     "claims.expiring": [],
     "claims.completed": [],
     "claims.active": [],
+    "pulse": [],
     "game.hashes.index": [
         {
             "name": "game",
