@@ -16,7 +16,7 @@ render(function (View $view) {
     $result = $action->execute(
         GameListType::UserPlay,
         $user,
-        perPage: 10,
+        perPage: 50,
         sort: ["field" => "title", "direction" => "asc"], // see $validSortFields in BuildGameListAction for possible sorts
         filters: [], // eg: ['system' => [1]] or ['system' => [1, 5]] or ['award' => ['completed', 'mastered']]
     );
