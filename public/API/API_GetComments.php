@@ -4,6 +4,7 @@ use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\User;
 use App\Policies\CommentPolicy;
+use App\Policies\UserCommentPolicy;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -62,11 +63,12 @@ if ($inputIsGameOrAchievement()) {
 }
 
 $user = null;
+$userPolicy = new UserCommentPolicy();
 
 if ($username) {
     $user = User::firstWhere('User', $username);
 
-    if (!$user || !$user->UserWallActive || $user->banned_at) {
+    if (!$user || !$userPolicy->viewAny(null, $user)) {
         return response()->json([], 404);
     }
 }
@@ -94,12 +96,12 @@ $totalComments = Comment::withTrashed()
     })
     ->count();
 
-$policy = new CommentPolicy();
+$commentPolicy = new CommentPolicy();
 
-$results = $comments->filter(function ($nextComment) use ($policy) {
+$results = $comments->filter(function ($nextComment) use ($commentPolicy) {
     $user = Auth::user() instanceof User ? Auth::user() : null;
 
-    return $policy->view($user, $nextComment);
+    return $commentPolicy->view($user, $nextComment);
 })->map(function ($nextComment) {
     return [
         'User' => $nextComment->user->username,
