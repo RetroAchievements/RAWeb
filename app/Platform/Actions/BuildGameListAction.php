@@ -359,9 +359,9 @@ class BuildGameListAction
                 "GameData.*,
                 CASE
                     WHEN GameData.released_at_granularity = 'year' THEN
-                        DATE(CONCAT(SUBSTR(GameData.released_at, 1, 4), '-01-01'))
+                        DATE(SUBSTR(GameData.released_at, 1, 4) || '-01-01')
                     WHEN GameData.released_at_granularity = 'month' THEN
-                        DATE(CONCAT(SUBSTR(GameData.released_at, 1, 7), '-01'))
+                        DATE(SUBSTR(GameData.released_at, 1, 7) || '-01')
                     ELSE
                         COALESCE(GameData.released_at, '9999-12-31')
                 END AS normalized_released_at"
