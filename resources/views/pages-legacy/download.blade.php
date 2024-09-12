@@ -4,7 +4,9 @@ use App\Models\Emulator;
 
 $emulators = Emulator::active()
     ->orderBy('name')
-    ->with(['latestRelease'])
+    ->with(['latestRelease', 'systems' => function ($query) {
+        $query->active()->orderBy('Name');
+    }])
     ->get();
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -17,7 +19,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
     @foreach ($emulators as $emulator)
         @php
-            $systems = $emulator->systems()->active()->orderBy('Name')->pluck('Name')->toArray();
+            $systems = $emulator->systems->pluck('Name')->toArray();
             if (empty($systems)) {
                 continue;
             }
