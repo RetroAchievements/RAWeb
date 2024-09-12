@@ -6,6 +6,7 @@ use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
+use App\Models\Subscription;
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Collection;
@@ -438,10 +439,18 @@ function authorizeAllForumPostsForUser(User $user): bool
 
 function isUserSubscribedToForumTopic(int $topicID, int $userID): bool
 {
-    return isUserSubscribedTo(
-        SubscriptionSubjectType::ForumTopic,
-        $topicID,
-        $userID,
-        "SELECT 1 FROM ForumTopicComment WHERE ForumTopicID = $topicID AND author_id = $userID"
-    );
+    $explicitSubcription = Subscription::where('subject_type', SubscriptionSubjectType::ForumTopic)
+        ->where('subject_id', $topicID)
+        ->where('user_id', $userID)
+        ->first();
+
+    if ($explicitSubcription) {
+        return $explicitSubcription->state == 1;
+    }
+
+    $implicitSubscription = ForumTopicComment::where('ForumTopicID', $topicID)
+        ->where('author_id', $userID)
+        ->exists();
+
+    return $implicitSubscription;
 }
