@@ -74,7 +74,6 @@ class NotifyMessageThreadParticipants
         MessageThread $messageThread,
         Message $message
     ): void {
-        // Replace [user=ID] shortcodes with actual usernames.
         $message->body = (new ReplaceUserShortcodesWithUsernamesAction())->execute($message->body);
 
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
