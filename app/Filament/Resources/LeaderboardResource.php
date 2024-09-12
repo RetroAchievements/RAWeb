@@ -92,6 +92,8 @@ class LeaderboardResource extends Resource
                         Infolists\Components\TextEntry::make('Title'),
 
                         Infolists\Components\TextEntry::make('Description'),
+
+                        Infolists\Components\TextEntry::make('DisplayOrder'),
                     ]),
 
                 Infolists\Components\Section::make('Rules')
