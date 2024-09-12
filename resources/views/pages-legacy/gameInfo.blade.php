@@ -1034,7 +1034,7 @@ if ($isFullyFeaturedGame) {
             <x-game.top-achievers :game="$gameModel" />
         @endif
 
-        @if (isValidConsoleId($consoleID))
+        @if ($gameModel->system->active)
             <x-game.leaderboards-listing :game="$gameModel" />
         @endif
     </x-slot>

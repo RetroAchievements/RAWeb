@@ -16,7 +16,7 @@ class ForumTopicCommentData extends Data
         public string $body,
         public Carbon $createdAt,
         public ?Carbon $updatedAt,
-        public UserData $user,
+        public ?UserData $user,
         public bool $authorized, // TODO migrate to $authorizedAt
         public ?int $forumTopicId = null,
     ) {
