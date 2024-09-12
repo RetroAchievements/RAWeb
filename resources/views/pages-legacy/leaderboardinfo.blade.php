@@ -105,7 +105,12 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
             echo "<div id='devboxcontent' class='hidden devboxcontainer'>";
 
             echo "<ul>";
-            echo "<a href='/leaderboardList.php?g=$gameID'>Leaderboard Management for $gameTitle</a>";
+            $manageLeaderboardsRoute = route('filament.admin.resources.leaderboards.index', [
+                'tableFilters[game][id]' => $gameID,
+                'tableSortColumn' => 'DisplayOrder',
+                'tableSortDirection' => 'asc',
+            ]);
+            echo "<a href='$manageLeaderboardsRoute'>Leaderboard Management for $gameTitle</a>";
 
             echo "<li>Manage Entries</li>";
             echo "<div>";
