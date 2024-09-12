@@ -69,7 +69,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         // Act
         $result = (new BuildGameListAction())->execute(GameListType::UserPlay, $user);
@@ -89,7 +89,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         // Act
         $result = (new BuildGameListAction())->execute(GameListType::UserPlay, $user);
@@ -111,7 +111,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         // Act
         $result = (new BuildGameListAction())->execute(
@@ -137,7 +137,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         // Act
         $result = (new BuildGameListAction())->execute(
@@ -186,7 +186,7 @@ class BuildGameListActionTest extends TestCase
             'Title' => 'BBB',
         ]);
 
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003]);
 
         // Act
         $result = (new BuildGameListAction())->execute(
@@ -208,7 +208,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         // Act
         $result = (new BuildGameListAction())->execute(
@@ -234,7 +234,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         // Act
         $result = (new BuildGameListAction())->execute(
@@ -260,7 +260,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         // Act
         $result = (new BuildGameListAction())->execute(
@@ -283,7 +283,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         Achievement::factory()->create(['GameID' => 1001, 'DateModified' => Carbon::parse('2015-06-01')]);
         Achievement::factory()->create(['GameID' => 1003, 'DateModified' => Carbon::parse('2024-03-02')]);
@@ -312,7 +312,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         // Act
         $result = (new BuildGameListAction())->execute(
@@ -336,7 +336,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         Leaderboard::factory()->count(3)->create(['GameID' => 1004, 'DisplayOrder' => 1]);
         Leaderboard::factory()->count(5)->create(['GameID' => 1005, 'DisplayOrder' => -1]);
@@ -361,7 +361,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         $achievement1001 = Achievement::factory()->create(['GameID' => 1001, 'Flags' => AchievementFlag::OfficialCore]);
         $achievement1003 = Achievement::factory()->create(['GameID' => 1003, 'Flags' => AchievementFlag::OfficialCore]);
@@ -389,7 +389,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => 1002, 'completion_percentage' => 0.55]);
         PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => 1001, 'completion_percentage' => 0.45]);
@@ -415,7 +415,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         // Act
         $result = (new BuildGameListAction())->execute(
@@ -426,6 +426,7 @@ class BuildGameListActionTest extends TestCase
 
         // Assert
         $this->assertEquals(2, $result->total);
+        $this->assertEquals(2, count($result->items));
     }
 
     public function testItCanFilterByMultipleSystems(): void
@@ -434,7 +435,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         // Act
         $result = (new BuildGameListAction())->execute(
@@ -445,6 +446,47 @@ class BuildGameListActionTest extends TestCase
 
         // Assert
         $this->assertEquals(6, $result->total);
+        $this->assertEquals(6, count($result->items));
+    }
+
+    public function testItCanFilterByHavingSomeAchievementsPublished(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            filters: ['hasAchievementsPublished' => ['has']]
+        );
+
+        // Assert
+        $this->assertEquals(5, $result->total);
+        $this->assertEquals(5, count($result->items));
+    }
+
+    public function testItCanFilterByHavingNoAchievementsPublished(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            filters: ['hasAchievementsPublished' => ['none']]
+        );
+
+        // Assert
+        $this->assertEquals(1, $result->total);
+        $this->assertEquals(1, count($result->items));
     }
 
     public function testItCanFilterByUnfinishedAwardCategory(): void
@@ -453,7 +495,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Hardcore);
 
@@ -469,6 +511,7 @@ class BuildGameListActionTest extends TestCase
 
         // Assert
         $this->assertEquals(4, $result->total);
+        $this->assertEquals(4, count($result->items));
     }
 
     public function testItCanFilterByFinishedAwardCategory(): void
@@ -477,7 +520,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
         $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore);
@@ -503,7 +546,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
         $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore);
@@ -529,7 +572,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
         $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore);
@@ -556,7 +599,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
         $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore);
@@ -583,7 +626,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
         $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Softcore); // they completed it first...
@@ -611,7 +654,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $this->seedGamesForLists();
-        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+        $this->addGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
         $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Softcore); // they completed it first...
@@ -730,7 +773,7 @@ class BuildGameListActionTest extends TestCase
         ]);
     }
 
-    private function addAllGamesToUserPlayList(User $user, array $gameIds = []): void
+    private function addGamesToUserPlayList(User $user, array $gameIds): void
     {
         $addGameToListAction = new AddGameToListAction();
         foreach ($gameIds as $gameId) {

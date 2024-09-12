@@ -156,6 +156,13 @@ class BuildGameListAction
                     $this->applyAwardFilter($query, $filterValues, $user);
                     break;
 
+                /*
+                 * only show games based on whether they have achievements published
+                 */
+                case 'hasAchievementsPublished':
+                    $this->applyHasAchievementsPublishedFilter($query, $filterValues);
+                    break;
+
                 default:
                     break;
             }
@@ -402,6 +409,39 @@ class BuildGameListAction
             ")
             ->orderBy('progress_percentage', $sortDirection)
             ->orderBy('GameData.achievements_published', $sortDirection);
+    }
+
+    /**
+     * Filters games based on whether they have any achievements published.
+     * Possible values are "has", "none", or "either".
+     *
+     * If multiple values are given, only the first one is considered.
+     *
+     * @param Builder<Game> $query
+     */
+    private function applyHasAchievementsPublishedFilter(Builder $query, array $filterValues): void
+    {
+        // Bail early if necessary.
+        if (empty($filterValues)) {
+            return;
+        }
+
+        // $filterValues is an array, but we only consider a single value.
+        $value = $filterValues[0];
+
+        switch ($value) {
+            case 'has':
+                $query->where('GameData.achievements_published', '>', 0);
+                break;
+
+            case 'none':
+                $query->where('GameData.achievements_published', 0);
+                break;
+
+            case 'either':
+            default:
+                break;
+        }
     }
 
     /**
