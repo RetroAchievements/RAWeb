@@ -25,6 +25,6 @@ class ReplaceUserShortcodesWithUsernamesActionTest extends TestCase
         $result = (new ReplaceUserShortcodesWithUsernamesAction())->execute($messageBody);
 
         // Assert
-        $this->assertEquals("@Scott might actually be @Batman.", $result);
+        $this->assertEquals("[user=Scott] might actually be [user=Batman].", $result);
     }
 }
