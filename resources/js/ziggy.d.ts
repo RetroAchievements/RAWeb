@@ -35,13 +35,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "achievement.report-issue": [
-        {
-            "name": "achievement",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "achievement.comments": [
         {
             "name": "achievement",
@@ -286,6 +279,13 @@ declare module 'ziggy-js' {
         }
     ],
     "user.achievement.destroy": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "achievement.report-issue.index": [
         {
             "name": "achievement",
             "required": true,

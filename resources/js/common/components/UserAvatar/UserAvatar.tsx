@@ -1,20 +1,14 @@
 import type { FC } from 'react';
 
 import { useCardTooltip } from '@/common/hooks/useCardTooltip';
-import type { AvatarSize } from '@/common/models';
+import type { BaseAvatarProps } from '@/common/models';
 
-interface UserAvatarProps {
-  displayName: string | null;
-
-  hasTooltip?: boolean;
-  showDisplayName?: boolean;
-  size?: AvatarSize;
-}
+type UserAvatarProps = BaseAvatarProps & App.Data.User;
 
 export const UserAvatar: FC<UserAvatarProps> = ({
   displayName,
   hasTooltip = true,
-  showDisplayName = true,
+  showLabel = true,
   size = 32,
 }) => {
   const { cardTooltipProps } = useCardTooltip({ dynamicType: 'user', dynamicId: displayName });
@@ -35,7 +29,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
         className="rounded-sm"
       />
 
-      {displayName && showDisplayName ? <span>{displayName}</span> : null}
+      {displayName && showLabel ? <span>{displayName}</span> : null}
     </a>
   );
 };
