@@ -1,5 +1,6 @@
 <?php
 
+use App\Community\Actions\ReplaceUserShortcodesWithUsernamesAction;
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\User;
@@ -364,6 +365,7 @@ function SendPrivateMessageEmail(
     }
 
     $content = stripslashes(nl2br($contentIn));
+    $content = (new ReplaceUserShortcodesWithUsernamesAction())->execute($content);
 
     // Also used for Generic text:
     $emailTitle = "New Private Message from $fromUser";

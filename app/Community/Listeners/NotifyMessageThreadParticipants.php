@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Listeners;
 
+use App\Community\Actions\ReplaceUserShortcodesWithUsernamesAction;
 use App\Community\Actions\UpdateUnreadMessageCountAction;
 use App\Community\Events\MessageCreated;
 use App\Enums\UserPreference;
@@ -73,6 +74,9 @@ class NotifyMessageThreadParticipants
         MessageThread $messageThread,
         Message $message
     ): void {
+        // Replace [user=ID] shortcodes with actual usernames.
+        $message->body = (new ReplaceUserShortcodesWithUsernamesAction())->execute($message->body);
+
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
         $webhookUrl = $inboxConfig['url'] ?? null;
 
