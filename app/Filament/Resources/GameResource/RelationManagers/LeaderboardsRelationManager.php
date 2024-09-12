@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\RelationManagers;
 
+use App\Filament\Actions\DeleteLeaderboardAction;
+use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
@@ -104,59 +106,8 @@ class LeaderboardsRelationManager extends RelationManager
                             return $user->can('update', $leaderboard);
                         }),
 
-                    Action::make('reset_all_entries')
-                        ->label('Delete All Entries')
-                        ->icon('heroicon-s-trash')
-                        ->color('danger')
-                        ->requiresConfirmation()
-                        ->modalDescription("Are you sure you want to permanently delete all entries of this leaderboard?")
-                        ->action(function (Leaderboard $leaderboard) {
-                            /** @var User $user */
-                            $user = auth()->user();
-
-                            if (!$user->can('resetAllEntries', $leaderboard)) {
-                                return;
-                            }
-
-                            $leaderboard->entries()->delete();
-
-                            activity()
-                                ->useLog('default')
-                                ->causedBy($user)
-                                ->performedOn($leaderboard)
-                                ->event('resetAllLeaderboardEntries')
-                                ->log('Reset All Leaderboard Entries');
-                        })
-                        ->visible(function (Leaderboard $leaderboard) {
-                            /** @var User $user */
-                            $user = auth()->user();
-
-                            return $user->can('resetAllEntries', $leaderboard);
-                        }),
-
-                    Action::make('delete_leaderboard')
-                        ->label('Delete Leaderboard')
-                        ->icon('heroicon-s-trash')
-                        ->color('danger')
-                        ->requiresConfirmation()
-                        ->modalDescription("Are you sure you want to permanently delete this leaderboard?")
-                        ->action(function (Leaderboard $leaderboard) {
-                            /** @var User $user */
-                            $user = auth()->user();
-
-                            // TODO use soft deletes
-                            if (!$user->can('forceDelete', $leaderboard)) {
-                                return;
-                            }
-
-                            $leaderboard->forceDelete();
-                        })
-                        ->visible(function (Leaderboard $leaderboard) {
-                            /** @var User $user */
-                            $user = auth()->user();
-
-                            return $user->can('forceDelete', $leaderboard);
-                        }),
+                    ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
+                    DeleteLeaderboardAction::make('delete_leaderboard'),
                 ]),
             ])
             ->bulkActions([

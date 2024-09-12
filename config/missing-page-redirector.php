@@ -88,7 +88,6 @@ return [
          * leaderboards
          */
         '/leaderboardinfo.php' => '/leaderboard/{i}',
-        '/leaderboardList.php' => '/game/{g}/leaderboards',
 
         /*
          * user
