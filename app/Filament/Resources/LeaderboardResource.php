@@ -124,6 +124,11 @@ class LeaderboardResource extends Resource
 
                         Forms\Components\TextInput::make('Description')
                             ->maxLength(255),
+
+                        Forms\Components\TextInput::make('DisplayOrder')
+                            ->numeric()
+                            ->helperText("If set to -1, the leaderboard will be invisible to regular players.")
+                            ->required(),
                     ]),
 
                 Forms\Components\Section::make('Rules')
