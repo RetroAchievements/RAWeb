@@ -106,7 +106,7 @@ class BuildGameListActionTest extends TestCase
         $this->assertEquals(1000, $firstItem->game->id);
         $this->assertEquals('GB', $firstItem->game->system->nameShort->resolve());
 
-        $this->assertEquals(1005, $lastItem->game->id);
+        $this->assertEquals(1002, $lastItem->game->id);
         $this->assertEquals('NES', $lastItem->game->system->nameShort->resolve());
     }
 
@@ -129,11 +129,56 @@ class BuildGameListActionTest extends TestCase
         $lastItem = $result->items[count($result->items) - 1];
 
         // Assert
-        $this->assertEquals(1002, $firstItem->game->id);
+        $this->assertEquals(1004, $firstItem->game->id);
         $this->assertEquals('NES', $firstItem->game->system->nameShort->resolve());
 
         $this->assertEquals(1001, $lastItem->game->id);
         $this->assertEquals('GB', $lastItem->game->system->nameShort->resolve());
+    }
+
+    public function testItSecondarySortsByGameTitle(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $systemGb = System::factory()->create(['ID' => 1, 'name' => 'Game Boy', 'name_short' => 'GB']);
+        $systemNes = System::factory()->create(['ID' => 2, 'name' => 'NES/Famicom', 'name_short' => 'NES']);
+
+        Game::factory()->create([
+            'ID' => 1000,
+            'ConsoleID' => $systemGb->id,
+            'Title' => 'AAA',
+        ]);
+        Game::factory()->create([
+            'ID' => 1001,
+            'ConsoleID' => $systemGb->id,
+            'Title' => '~Hack~ AAA',
+        ]);
+        Game::factory()->create([
+            'ID' => 1002,
+            'ConsoleID' => $systemGb->id,
+            'Title' => 'ZZZ',
+        ]);
+        Game::factory()->create([
+            'ID' => 1003,
+            'ConsoleID' => $systemNes->id,
+            'Title' => 'BBB',
+        ]);
+
+        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003]);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            sort: ['field' => 'system', 'direction' => 'asc'],
+        );
+
+        // Assert
+        $this->assertEquals(1000, $result->items[0]->game->id); // "AAA" (GB)
+        $this->assertEquals(1002, $result->items[1]->game->id); // "ZZZ" (GB)
+        $this->assertEquals(1001, $result->items[2]->game->id); // "~Hack~ AAA" (GB)
+        $this->assertEquals(1003, $result->items[3]->game->id); // "BBB" (NES)
     }
 
     public function testItCanSortByAchievementsPublished(): void

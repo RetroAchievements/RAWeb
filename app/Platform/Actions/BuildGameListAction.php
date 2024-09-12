@@ -276,10 +276,11 @@ class BuildGameListAction
                 default:
                     $this->applyGameTitleSorting($query, $sortDirection);
             }
-        } else {
-            // Default to sorting by title if no valid sort field is provided.
-            $this->applyGameTitleSorting($query);
         }
+
+        // Default to sorting by title if no valid sort field is provided.
+        // Otherwise, always secondary sort by title.
+        $this->applyGameTitleSorting($query);
     }
 
     /**
