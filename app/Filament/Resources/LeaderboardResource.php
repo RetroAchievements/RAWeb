@@ -129,7 +129,7 @@ class LeaderboardResource extends Resource
 
                         Forms\Components\TextInput::make('DisplayOrder')
                             ->numeric()
-                            ->helperText("If set to -1, the leaderboard will be invisible to regular players.")
+                            ->helperText("If set to less than 0, the leaderboard will be invisible to regular players.")
                             ->required(),
                     ]),
 
