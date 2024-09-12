@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Community\Listeners;
 
-use App\Community\Actions\ReplaceUserShortcodesWithUsernamesAction;
 use App\Community\Actions\UpdateUnreadMessageCountAction;
 use App\Community\Events\MessageCreated;
 use App\Enums\UserPreference;
@@ -12,6 +11,7 @@ use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
+use App\Support\Shortcode\Shortcode;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -74,7 +74,7 @@ class NotifyMessageThreadParticipants
         MessageThread $messageThread,
         Message $message
     ): void {
-        $message->body = (new ReplaceUserShortcodesWithUsernamesAction())->execute($message->body);
+        $message->body = Shortcode::stripAndClamp($message->body);
 
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
         $webhookUrl = $inboxConfig['url'] ?? null;

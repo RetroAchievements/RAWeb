@@ -26,7 +26,7 @@ class ReplaceUserShortcodesWithUsernamesAction
             $userId = $matches[1];
             $user = $users->get($userId);
 
-            return $user ? '@' . $user->username : '[user=' . $userId . ']';
+            return '[user=' . ($user ? $user->username : $userId) . ']';
         }, $messageBody);
     }
 }

@@ -1,9 +1,9 @@
 <?php
 
-use App\Community\Actions\ReplaceUserShortcodesWithUsernamesAction;
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\User;
+use App\Support\Shortcode\Shortcode;
 use Aws\CommandPool;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Mail\Mailer;
@@ -365,7 +365,7 @@ function SendPrivateMessageEmail(
     }
 
     $content = stripslashes(nl2br($contentIn));
-    $content = (new ReplaceUserShortcodesWithUsernamesAction())->execute($content);
+    $content = Shortcode::stripAndClamp($content);
 
     // Also used for Generic text:
     $emailTitle = "New Private Message from $fromUser";
