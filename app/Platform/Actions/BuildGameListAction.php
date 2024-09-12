@@ -553,7 +553,7 @@ class BuildGameListAction
 
     /**
      * @param Collection<int|string, mixed> $gameIds
-     * @return Collection<int, PlayerGame>
+     * @return Collection<int|string, int|string>
      */
     private function getBacklogGames(User $user, Collection $gameIds): Collection
     {
