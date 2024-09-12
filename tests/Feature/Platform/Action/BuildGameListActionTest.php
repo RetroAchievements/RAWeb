@@ -62,6 +62,27 @@ class BuildGameListActionTest extends TestCase
         $this->assertEquals(3, $result->lastPage);
     }
 
+    // TODO once other list contexts are supported, use a different one for this test case
+    public function testItReportsGamesAreInUserBacklog(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addAllGamesToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(GameListType::UserPlay, $user);
+
+        // Assert
+        $this->assertEquals(true, $result->items[0]->isInBacklog);
+        $this->assertEquals(true, $result->items[1]->isInBacklog);
+        $this->assertEquals(true, $result->items[2]->isInBacklog);
+        $this->assertEquals(true, $result->items[3]->isInBacklog);
+        $this->assertEquals(true, $result->items[4]->isInBacklog);
+        $this->assertEquals(true, $result->items[5]->isInBacklog);
+    }
+
     public function testItSortsGameTitleByDefault(): void
     {
         // Arrange

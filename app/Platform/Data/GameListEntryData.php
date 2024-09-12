@@ -13,6 +13,7 @@ class GameListEntryData extends Data
     public function __construct(
         public GameData $game,
         public ?PlayerGameData $playerGame,
+        public ?bool $isInBacklog,
     ) {
     }
 }

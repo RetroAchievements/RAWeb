@@ -152,6 +152,7 @@ declare namespace App.Platform.Data {
   export type GameListEntry = {
     game: App.Platform.Data.Game;
     playerGame: App.Platform.Data.PlayerGame | null;
+    isInBacklog: boolean | null;
   };
   export type PlayerBadge = {
     awardType: number;

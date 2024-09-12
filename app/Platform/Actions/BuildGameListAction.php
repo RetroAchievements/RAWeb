@@ -57,7 +57,11 @@ class BuildGameListAction
             ? $this->getPlayerGames($user, $entries->pluck('id'))
             : collect();
 
-        $transformedEntries = $entries->getCollection()->map(function (Game $game) use ($playerGames): GameListEntryData {
+        $backlogGames = $user
+            ? $this->getBacklogGames($user, $entries->pluck('id'))
+            : collect();
+
+        $transformedEntries = $entries->getCollection()->map(function (Game $game) use ($playerGames, $backlogGames): GameListEntryData {
             $playerGame = $playerGames->get($game->id);
 
             return new GameListEntryData(
@@ -76,6 +80,7 @@ class BuildGameListAction
                 playerGame: $playerGame
                     ? PlayerGameData::fromPlayerGame($playerGame)->include('highestAward')
                     : null,
+                isInBacklog: $backlogGames->has($game->id),
             );
         });
         $entries->setCollection($transformedEntries);
@@ -544,6 +549,19 @@ class BuildGameListAction
                 }
             }
         });
+    }
+
+    /**
+     * @param Collection<int|string, mixed> $gameIds
+     * @return Collection<int, PlayerGame>
+     */
+    private function getBacklogGames(User $user, Collection $gameIds): Collection
+    {
+        return $user->gameListEntries()
+            ->whereIn('GameID', $gameIds)
+            ->where('type', UserGameListType::Play)
+            ->pluck('GameID')
+            ->flip(); // We flip the pluck results to use game IDs as keys for faster lookup.
     }
 
     /**
