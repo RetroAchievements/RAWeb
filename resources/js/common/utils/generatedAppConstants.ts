@@ -70,3 +70,15 @@ export const UserRole = {
     DEVELOPER_VETERAN: 'developer-veteran',
 } as const;
 
+
+export const TicketType = {
+    TriggeredAtWrongTime: 1,
+    DidNotTrigger: 2,
+} as const;
+
+
+export const StringifiedTicketType = {
+    TriggeredAtWrongTime: '1',
+    DidNotTrigger: '2',
+} as const;
+

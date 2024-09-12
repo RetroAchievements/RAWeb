@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Filament\Actions\DeleteLeaderboardAction;
+use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\LeaderboardResource\Pages;
 use App\Filament\Resources\LeaderboardResource\RelationManagers;
@@ -90,10 +92,6 @@ class LeaderboardResource extends Resource
                         Infolists\Components\TextEntry::make('Title'),
 
                         Infolists\Components\TextEntry::make('Description'),
-
-                        Infolists\Components\TextEntry::make('LowerIsBetter')
-                            ->label('Lower Is Better')
-                            ->formatStateUsing(fn (string $state): string => $state === '1' ? 'Yes' : 'No'),
                     ]),
 
                 Infolists\Components\Section::make('Rules')
@@ -126,7 +124,12 @@ class LeaderboardResource extends Resource
 
                         Forms\Components\TextInput::make('Description')
                             ->maxLength(255),
+                    ]),
 
+                Forms\Components\Section::make('Rules')
+                    ->icon('heroicon-c-wrench-screwdriver')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
                         Forms\Components\Select::make('Format')
                             ->options(
                                 collect(ValueFormat::cases())
@@ -190,6 +193,11 @@ class LeaderboardResource extends Resource
                                 ->orWhere('display_name', 'like', "%{$search}%");
                         });
                     }),
+
+                Tables\Columns\TextColumn::make('DisplayOrder')
+                    ->label('Display Order')
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->searchPlaceholder('(ID, Title, Game, Dev)')
             ->filters([
@@ -230,7 +238,17 @@ class LeaderboardResource extends Resource
                     }),
             ])
             ->actions([
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ActionGroup::make([
+                        ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
+                        DeleteLeaderboardAction::make('delete_leaderboard'),
+                    ])
+                        ->dropdown(false),
 
+                    Tables\Actions\Action::make('audit-log')
+                        ->url(fn ($record) => LeaderboardResource::getUrl('audit-log', ['record' => $record]))
+                        ->icon('fas-clock-rotate-left'),
+                ]),
             ])
             ->bulkActions([
 
@@ -269,5 +287,11 @@ class LeaderboardResource extends Resource
     {
         return parent::getEloquentQuery()
             ->with(['game', 'developer']);
+    }
+
+    // Do not allow on-site leaderboard creation.
+    public static function canCreate(): bool
+    {
+        return false;
     }
 }

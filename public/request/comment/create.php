@@ -6,6 +6,7 @@ use App\Enums\Permissions;
 use App\Models\Comment;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Support\Rules\ContainsRegularCharacter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -14,7 +15,12 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'body' => 'required|string|max:2000',
+    'body' => [
+        'required',
+        'string',
+        'max:2000',
+        new ContainsRegularCharacter(),
+    ],
     'commentable_id' => 'required|integer',
     'commentable_type' => 'required|integer',
 ]);

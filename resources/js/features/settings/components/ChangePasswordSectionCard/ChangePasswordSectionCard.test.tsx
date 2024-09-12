@@ -36,6 +36,9 @@ describe('Component: ChangePasswordSectionCard', () => {
 
   it('given the user attempts to make a valid form submission, submits the request to the server', async () => {
     // ARRANGE
+    // Suppress "Error: Not implemented: navigation (except hash changes)" from vitest.
+    console.error = vi.fn();
+
     vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
     const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });
 

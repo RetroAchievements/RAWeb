@@ -309,7 +309,13 @@ class GameResource extends Resource
                             ->minDate('1970-01-01')
                             ->maxDate(now())
                             ->displayFormat('F j, Y')
-                            ->reactive(),
+                            ->reactive()
+                            ->afterStateUpdated(function (callable $set, $state) {
+                                // Set the granularity to 'day' if this is the first time released_at is set.
+                                if (!empty($state)) {
+                                    $set('released_at_granularity', 'day');
+                                }
+                            }),
 
                         Forms\Components\ToggleButtons::make('released_at_granularity')
                             ->label('Release Date Precision')
@@ -319,8 +325,8 @@ class GameResource extends Resource
                                 'year' => 'Year',
                             ])
                             ->inline()
-                            ->default('day')
-                            ->reactive(),
+                            ->reactive()
+                            ->required(fn (callable $get) => !empty($get('released_at'))),
                     ]),
             ]);
     }
