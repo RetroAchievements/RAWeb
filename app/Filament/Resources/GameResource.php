@@ -89,6 +89,9 @@ class GameResource extends Resource
 
                         Infolists\Components\TextEntry::make('title'),
 
+                        Infolists\Components\TextEntry::make('sort_title')
+                            ->label('Sort Title'),
+
                         Infolists\Components\TextEntry::make('forumTopic.id')
                             ->label('Forum Topic ID')
                             ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
@@ -239,6 +242,13 @@ class GameResource extends Resource
                             ->minLength(2)
                             ->maxLength(80)
                             ->disabled(!$user->can('updateField', [$form->model, 'Title'])),
+
+                        Forms\Components\TextInput::make('sort_title')
+                            ->required()
+                            ->label('Sort Title')
+                            ->minLength(2)
+                            ->disabled(!$user->can('updateField', [$form->model, 'sort_title']))
+                            ->helperText('Manually override the automatic sorting behavior of the game\'s title. For example, "Final Fantasy IV" might be "final fantasy 04". DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.'),
 
                         Forms\Components\TextInput::make('ForumTopicID')
                             ->label('Forum Topic ID')

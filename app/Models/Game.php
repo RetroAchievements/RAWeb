@@ -71,6 +71,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     protected $fillable = [
         'release',
         'Title',
+        'sort_title',
         'ForumTopicID',
         'Publisher',
         'Developer',
@@ -87,6 +88,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     protected $visible = [
         'ID',
         'Title',
+        'sort_title',
         'ConsoleID',
         'ForumTopicID',
         'Flags',
