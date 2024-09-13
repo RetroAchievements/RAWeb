@@ -39,7 +39,7 @@ class ReleaseTablesSeeder extends Seeder
             $releases = $this->extractReleases($data);
 
             if (!empty($releases)) {
-                Emulator::firstWhere('integration_id', $integrationId)
+                Emulator::firstWhere('name', $data['handle'])
                     ->releases()
                     ->createMany($releases);
             }

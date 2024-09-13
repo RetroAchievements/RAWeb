@@ -1,10 +1,26 @@
+declare namespace App.Community.Data {
+  export type RecentPostsPageProps<TItems = App.Data.ForumTopic> = {
+    paginatedTopics: App.Data.PaginatedData<TItems>;
+  };
+  export type UserRecentPostsPageProps<TItems = App.Data.ForumTopic> = {
+    targetUser: App.Data.User;
+    paginatedTopics: App.Data.PaginatedData<TItems>;
+  };
+  export type UserSettingsPageProps = {
+    userSettings: App.Data.User;
+    can: App.Data.UserPermissions;
+  };
+}
+declare namespace App.Community.Enums {
+  export type TicketType = 1 | 2;
+}
 declare namespace App.Data {
   export type ForumTopicComment = {
     id: number;
     body: string;
     createdAt: string;
     updatedAt: string | null;
-    user: App.Data.User;
+    user: App.Data.User | null;
     authorized: boolean;
     forumTopicId: number | null;
   };
@@ -13,18 +29,18 @@ declare namespace App.Data {
     title: string;
     createdAt: string;
     latestComment?: App.Data.ForumTopicComment;
-    commentCount24h?: number;
-    oldestComment24hId?: number;
-    commentCount7d?: number;
-    oldestComment7dId?: number;
+    commentCount24h?: number | null;
+    oldestComment24hId?: number | null;
+    commentCount7d?: number | null;
+    oldestComment7dId?: number | null;
     user: App.Data.User | null;
   };
-  export type __UNSAFE_PaginatedData = {
+  export type PaginatedData<TItems> = {
     currentPage: number;
     lastPage: number;
     perPage: number;
     total: number;
-    items: Array<any>;
+    items: TItems[];
     links: {
       firstPageUrl: string | null;
       lastPageUrl: string | null;
@@ -35,16 +51,48 @@ declare namespace App.Data {
   export type User = {
     displayName: string;
     avatarUrl: string;
+    isMuted: boolean;
     id?: number;
     username?: string | null;
+    motto?: string;
     legacyPermissions?: number | null;
     preferences?: { prefersAbsoluteDates: boolean };
     roles?: App.Models.UserRole[];
+    apiKey?: string | null;
+    deleteRequested?: string | null;
+    emailAddress?: string | null;
     unreadMessageCount?: number | null;
+    userWallActive?: boolean | null;
+    visibleRole?: string | null;
+    websitePrefs?: number | null;
   };
   export type UserPermissions = {
     manageGameHashes?: boolean;
+    manipulateApiKeys?: boolean;
+    updateAvatar?: boolean;
+    updateMotto?: boolean;
   };
+}
+declare namespace App.Enums {
+  export type UserPreference =
+    | 0
+    | 1
+    | 2
+    | 3
+    | 4
+    | 5
+    | 6
+    | 7
+    | 8
+    | 9
+    | 10
+    | 11
+    | 12
+    | 13
+    | 14
+    | 15
+    | 16
+    | 17;
 }
 declare namespace App.Models {
   export type UserRole =
@@ -73,6 +121,15 @@ declare namespace App.Models {
     | 'developer-veteran';
 }
 declare namespace App.Platform.Data {
+  export type Achievement = {
+    id: number;
+    title: string;
+    badgeUnlockedUrl?: string;
+    badgeLockedUrl?: string;
+    game?: App.Platform.Data.Game;
+    unlockedAt?: string;
+    unlockedHardcoreAt?: string;
+  };
   export type Game = {
     id: number;
     title: string;
@@ -109,6 +166,12 @@ declare namespace App.Platform.Data {
     numAwarded: number;
     numPossible: number;
   };
+  export type ReportAchievementIssuePageProps = {
+    achievement: App.Platform.Data.Achievement;
+    hasSession: boolean;
+    ticketType: number;
+    extra: string | null;
+  };
   export type System = {
     id: number;
     name: string;
@@ -118,5 +181,4 @@ declare namespace App.Platform.Data {
 }
 declare namespace App.Platform.Enums {
   export type GameSetType = 'hub' | 'similar-games';
-  export type AchievementFlag = 3 | 5;
 }

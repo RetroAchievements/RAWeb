@@ -78,7 +78,7 @@ class LeaderboardPolicy
         ]);
     }
 
-    public function resetAllEntries(User $user, Leaderboard $leaderboard): bool
+    public function resetAllEntries(User $user): bool
     {
         return $user->hasAnyRole([
             Role::DEVELOPER_STAFF,

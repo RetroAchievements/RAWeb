@@ -35,13 +35,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "achievement.report-issue": [
-        {
-            "name": "achievement",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "achievement.comments": [
         {
             "name": "achievement",
@@ -106,13 +99,6 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "user.posts": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        }
-    ],
     "user.game.activity": [
         {
             "name": "user",
@@ -158,7 +144,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.random": [],
     "game.hash.manage": [
         {
             "name": "game",
@@ -263,6 +248,7 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.random": [],
     "game-hash.update": [
         {
             "name": "gameHash",
@@ -299,7 +285,22 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "achievement.report-issue.index": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "forum.recent-posts": [],
+    "user.posts.index": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
+    "settings.show": [],
     "user.comment.destroyAll": [
         {
             "name": "user",
