@@ -15,6 +15,7 @@ use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -241,14 +242,41 @@ class GameResource extends Resource
                             ->required()
                             ->minLength(2)
                             ->maxLength(80)
-                            ->disabled(!$user->can('updateField', [$form->model, 'Title'])),
+                            ->disabled(!$user->can('updateField', [$form->model, 'Title']))
+                            ->afterStateUpdated(function (Game $record, callable $set, callable $get, string $state) {
+                                // If the user is updating the sort title, don't try to override their update of that field.
+                                if ($get('sort_title') !== $get('original_sort_title')) {
+                                    return;
+                                }
+
+                                $newTitle = $state;
+                                $originalTitle = $record->title;
+
+                                $record->title = $newTitle;
+                                $record->save();
+                                $record->refresh();
+
+                                $newSortTitle = (new WriteGameSortTitleFromGameTitleAction())->execute(
+                                    $record,
+                                    $originalTitle,
+                                );
+
+                                if ($newSortTitle) {
+                                    $set('sort_title', $newSortTitle);
+                                    $set('original_sort_title', $newSortTitle);
+                                }
+                            }),
 
                         Forms\Components\TextInput::make('sort_title')
                             ->required()
                             ->label('Sort Title')
                             ->minLength(2)
                             ->disabled(!$user->can('updateField', [$form->model, 'sort_title']))
-                            ->helperText('Manually override the automatic sorting behavior of the game\'s title. For example, "Final Fantasy IV" might be "final fantasy 04". DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.'),
+                            ->helperText('Manually override the automatic sorting behavior of the game\'s title. For example, "Final Fantasy IV" might be "final fantasy 04". DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.')
+                            ->reactive()
+                            ->afterStateHydrated(function (callable $set, callable $get, string $state) {
+                                $set('original_sort_title', $state);
+                            }),
 
                         Forms\Components\TextInput::make('ForumTopicID')
                             ->label('Forum Topic ID')

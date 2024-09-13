@@ -8,7 +8,7 @@ use App\Models\Game;
 
 class WriteGameSortTitleFromGameTitleAction
 {
-    public function execute(Game $game, string $originalTitle, bool $shouldRespectCustomSortTitle = true): void
+    public function execute(Game $game, string $originalTitle, bool $shouldRespectCustomSortTitle = true): ?string
     {
         // Compute the original sort title based on the original game title.
         // We do this to determine if a developer has given the game a custom sort title, because
@@ -17,13 +17,15 @@ class WriteGameSortTitleFromGameTitleAction
             $originalSortTitle = $this->computeSortTitle($originalTitle);
 
             if ($game->sort_title !== $originalSortTitle) {
-                return;
+                return null;
             }
         }
 
         // Otherwise, compute and save the new sort title.
         $game->sort_title = $this->computeSortTitle($game->title);
         $game->save();
+
+        return $game->sort_title;
     }
 
     /**

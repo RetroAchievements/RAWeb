@@ -8,6 +8,7 @@ use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadata;
 use App\Platform\Actions\UpdateGameSetFromGameAlternativesModification;
+use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Facades\Log;
 use Spatie\Activitylog\Facades\CauserResolver;
@@ -648,8 +649,13 @@ function modifyGameTitle(string $username, int $gameId, string $value): bool
         return false;
     }
 
-    $game->Title = $value;
+    $originalTitle = $game->title;
+
+    $game->title = $value;
     $game->save();
+
+    // Also, if necessary, update the game's sort title.
+    (new WriteGameSortTitleFromGameTitleAction())->execute($game, $originalTitle);
 
     addArticleComment('Server', ArticleType::GameModification, $gameId, "{$username} changed the game name");
 
