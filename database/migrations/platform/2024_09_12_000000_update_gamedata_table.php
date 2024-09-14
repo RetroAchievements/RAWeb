@@ -21,7 +21,7 @@ return new class() extends Migration {
     public function down(): void
     {
         Schema::table('GameData', function (Blueprint $table) {
-            $table->dropIndex('sort_title');
+            $table->dropIndex(['sort_title']);
         });
 
         Schema::table('GameData', function (Blueprint $table) {

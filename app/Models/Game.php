@@ -126,6 +126,7 @@ class Game extends BaseModel implements HasComments, HasMedia
         return LogOptions::defaults()
             ->logOnly([
                 'Title',
+                'sort_title',
                 'ForumTopicID',
                 'GuideURL',
                 'Publisher',

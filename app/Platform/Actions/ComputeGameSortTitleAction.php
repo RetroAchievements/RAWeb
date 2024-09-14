@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Platform\Actions;
+
+class ComputeGameSortTitleAction
+{
+    /**
+     * Sort titles ensure games in lists are sorted properly.
+     * For titles starting with "~", the sort order is determined by the content
+     * within the "~" markers followed by the content after the "~". This ensures
+     * that titles with "~" are grouped together and sorted alphabetically based
+     * on their designated categories and then by their actual game title.
+     *
+     * The "~" prefix is retained in the SortTitle of games with "~" to ensure these
+     * games are sorted at the end of the list, maintaining a clear separation from
+     * non-prefixed titles. This approach allows game titles to be grouped and sorted
+     * in a specific order:
+     *
+     * 1. Non-prefixed titles are sorted alphabetically at the beginning of the list.
+     * 2. Titles prefixed with "~" are grouped at the end, sorted first by the category
+     *    specified within the "~" markers, and then alphabetically by the title following
+     *    the "~".
+     */
+    public function execute(string $gameTitle): string
+    {
+        $sortTitle = mb_strtolower($gameTitle);
+
+        if ($sortTitle[0] === '~') {
+            $endOfFirstTilde = strpos($sortTitle, '~', 1);
+            if ($endOfFirstTilde !== false) {
+                $withinTildes = substr($sortTitle, 1, $endOfFirstTilde - 1);
+                $afterTildes = trim(substr($sortTitle, $endOfFirstTilde + 1));
+
+                $sortTitle = '~' . $withinTildes . ' ' . $afterTildes;
+            }
+        }
+
+        return $sortTitle;
+    }
+}
