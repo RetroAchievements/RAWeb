@@ -16,7 +16,7 @@ class WriteGameSortTitleFromGameTitleActionTest extends TestCase
     public function testItGeneratesSortTitleBasedOnGameTitle(): void
     {
         // Arrange
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog']);
+        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'sort_title' => null]);
 
         // Act
         (new WriteGameSortTitleFromGameTitleAction())->execute($game, $game->title);
@@ -59,7 +59,7 @@ class WriteGameSortTitleFromGameTitleActionTest extends TestCase
     public function testItCorrectlyHandlesGameTitlesWithTildes(): void
     {
         // Arrange
-        $game = Game::factory()->create(['Title' => '~Homebrew~ Classic Kong']);
+        $game = Game::factory()->create(['Title' => '~Homebrew~ Classic Kong', 'sort_title' => null]);
 
         // Act
         (new WriteGameSortTitleFromGameTitleAction())->execute($game, $game->title);
