@@ -92,6 +92,8 @@ class LeaderboardResource extends Resource
                         Infolists\Components\TextEntry::make('Title'),
 
                         Infolists\Components\TextEntry::make('Description'),
+
+                        Infolists\Components\TextEntry::make('DisplayOrder'),
                     ]),
 
                 Infolists\Components\Section::make('Rules')
@@ -124,6 +126,11 @@ class LeaderboardResource extends Resource
 
                         Forms\Components\TextInput::make('Description')
                             ->maxLength(255),
+
+                        Forms\Components\TextInput::make('DisplayOrder')
+                            ->numeric()
+                            ->helperText("If set to less than 0, the leaderboard will be invisible to regular players.")
+                            ->required(),
                     ]),
 
                 Forms\Components\Section::make('Rules')

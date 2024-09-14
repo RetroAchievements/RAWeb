@@ -57,6 +57,7 @@ class Leaderboard extends BaseModel
         'Description',
         'Format',
         'LowerIsBetter',
+        'DisplayOrder',
     ];
 
     protected static function newFactory(): LeaderboardFactory
