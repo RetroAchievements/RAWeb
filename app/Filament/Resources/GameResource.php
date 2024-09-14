@@ -272,7 +272,7 @@ class GameResource extends Resource
                             ->label('Sort Title')
                             ->minLength(2)
                             ->disabled(!$user->can('updateField', [$form->model, 'sort_title']))
-                            ->helperText('Manually override the automatic sorting behavior of the game\'s title. For example, "Final Fantasy IV" might be "final fantasy 04". DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.')
+                            ->helperText('Normalized title for sorting purposes. For example, "The Goonies II" would sort as "goonies 02". DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.')
                             ->reactive()
                             ->afterStateHydrated(function (callable $set, callable $get, string $state) {
                                 $set('original_sort_title', $state);
