@@ -274,8 +274,8 @@ class GameResource extends Resource
                             ->disabled(!$user->can('updateField', [$form->model, 'sort_title']))
                             ->helperText('Normalized title for sorting purposes. For example, "The Goonies II" would sort as "goonies 02". DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.')
                             ->reactive()
-                            ->afterStateHydrated(function (callable $set, callable $get, string $state) {
-                                $set('original_sort_title', $state);
+                            ->afterStateHydrated(function (callable $set, callable $get, ?string $state) {
+                                $set('original_sort_title', $state ?? '');
                             }),
 
                         Forms\Components\TextInput::make('ForumTopicID')
