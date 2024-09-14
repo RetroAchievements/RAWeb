@@ -10,6 +10,7 @@ use App\Platform\Controllers\GameController;
 use App\Platform\Controllers\GameHashController;
 use App\Platform\Controllers\PlayerAchievementController;
 use App\Platform\Controllers\PlayerGameController;
+use App\Platform\Controllers\ReportAchievementIssueController;
 use App\Platform\Controllers\SystemController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -100,6 +101,10 @@ class RouteServiceProvider extends ServiceProvider
 
                 Route::delete('user/game/{game}', [PlayerGameController::class, 'destroy'])->name('user.game.destroy');
                 Route::delete('user/achievement/{achievement}', [PlayerAchievementController::class, 'destroy'])->name('user.achievement.destroy');
+
+                Route::middleware(['inertia'])->group(function () {
+                    Route::get('achievement/{achievement}/report-issue', [ReportAchievementIssueController::class, 'index'])->name('achievement.report-issue.index');
+                });
             });
         });
     }

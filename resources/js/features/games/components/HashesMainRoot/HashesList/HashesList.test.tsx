@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 
 import { render, screen } from '@/test';
-import { createGameHash } from '@/test/factories';
+import { createGameHash, createGameHashLabel } from '@/test/factories';
 
 import { HashesList, hashesListContainerTestId } from './HashesList';
 
@@ -34,8 +34,14 @@ describe('Component: HashesList', () => {
     // ARRANGE
     const hashes = [
       // Named
-      createGameHash({ name: faker.word.words(3) }),
-      createGameHash({ name: faker.word.words(3) }),
+      createGameHash({
+        name: faker.word.words(3),
+        labels: [createGameHashLabel({ label: 'foo' })],
+      }),
+      createGameHash({
+        name: faker.word.words(3),
+        labels: [createGameHashLabel({ label: 'bar' })],
+      }),
 
       // Unnamed
       createGameHash({ name: null }),

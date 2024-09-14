@@ -24,8 +24,8 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
         <div key={`card-${topic?.latestComment?.id}`} className="embedded">
           <div className="relative flex justify-between">
             <div className="flex flex-col gap-y-1">
-              {showUser ? (
-                <UserAvatar displayName={topic?.latestComment?.user?.displayName ?? ''} size={16} />
+              {showUser && topic.latestComment?.user ? (
+                <UserAvatar {...topic.latestComment.user} size={16} />
               ) : null}
 
               {topic.latestComment?.createdAt ? (

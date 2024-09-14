@@ -527,7 +527,12 @@ if ($isFullyFeaturedGame) {
 
                 // Display leaderboard management options depending on if the game has any leaderboards (including hidden)
                 if ($gameModel->leaderboards()->exists()) {
-                    echo "<div><a class='btn btn-link' href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
+                    $manageLeaderboardsRoute = route('filament.admin.resources.leaderboards.index', [
+                        'tableFilters[game][id]' => $gameID,
+                        'tableSortColumn' => 'DisplayOrder',
+                        'tableSortDirection' => 'asc',
+                    ]);
+                    echo "<div><a class='btn btn-link' href='$manageLeaderboardsRoute'>Manage Leaderboards</a></div>";
                 }
 
                 if ($permissions >= Permissions::Developer) {
