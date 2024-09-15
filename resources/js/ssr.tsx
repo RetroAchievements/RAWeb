@@ -12,29 +12,32 @@ import { AppProviders } from './common/components/AppProviders';
 
 const appName = import.meta.env.APP_NAME || 'RetroAchievements';
 
-createServer((page) =>
-  createInertiaApp({
-    page,
+createServer(
+  (page) =>
+    createInertiaApp({
+      page,
 
-    render: ReactDOMServer.renderToString,
+      render: ReactDOMServer.renderToString,
 
-    title: (title) => `${title} · ${appName}`,
+      title: (title) => `${title} · ${appName}`,
 
-    resolve: (name) =>
-      resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
+      resolve: (name) =>
+        resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
 
-    setup: ({ App, props }) => {
-      global.route<RouteName> = (name, params, absolute) =>
-        route(name, params as RouteParams<string & object>, absolute, {
-          ...page.props.ziggy,
-          location: new URL(page.props.ziggy.location),
-        });
+      setup: ({ App, props }) => {
+        global.route<RouteName> = (name, params, absolute) =>
+          route(name, params as RouteParams<string & object>, absolute, {
+            ...page.props.ziggy,
+            location: new URL(page.props.ziggy.location),
+          });
 
-      return (
-        <AppProviders>
-          <App {...props} />
-        </AppProviders>
-      );
-    },
-  }),
+        return (
+          <AppProviders>
+            <App {...props} />
+          </AppProviders>
+        );
+      },
+    }),
+
+  process.env.VITE_INERTIA_SSR_PORT ?? 13714,
 );
