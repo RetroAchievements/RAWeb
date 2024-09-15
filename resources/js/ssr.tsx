@@ -5,15 +5,13 @@ import { createInertiaApp } from '@inertiajs/react';
 import createServer from '@inertiajs/react/server';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import ReactDOMServer from 'react-dom/server';
-import { loadEnv } from 'vite';
 import type { RouteName, RouteParams } from 'ziggy-js';
 
 import { route } from '../../vendor/tightenco/ziggy';
 import { AppProviders } from './common/components/AppProviders';
 
-const env = loadEnv(mode, process.cwd(), '');
-
-const appName = import.meta.env.APP_NAME || 'RetroAchievements';
+const appName = import.meta.env.APP_NAME ?? 'RetroAchievements';
+const inertiaDaemonPort = import.meta.env.VITE_INERTIA_SSR_PORT ?? 13714;
 
 createServer(
   (page) =>
@@ -42,5 +40,5 @@ createServer(
       },
     }),
 
-  env.VITE_INERTIA_SSR_PORT ?? 13714,
+  inertiaDaemonPort,
 );
