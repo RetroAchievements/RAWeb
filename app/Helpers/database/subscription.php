@@ -30,12 +30,11 @@ function updateSubscription(string $subjectType, int $subjectId, int $userId, bo
  */
 function isUserSubscribedTo(string $subjectType, int $topicID, int $userID): bool
 {
-    $explicitSubcription = Subscription::where('subject_type', $subjectType)
+    return Subscription::where('subject_type', $subjectType)
         ->where('subject_id', $topicID)
         ->where('user_id', $userID)
-        ->first();
-
-    return $explicitSubcription && ($explicitSubcription->state == 1);
+        ->where('state', 1)
+        ->exists();
 }
 
 /**
@@ -230,13 +229,12 @@ function isUserSubscribedToArticleComments(int $articleType, int $articleID, int
         ->first();
 
     if ($explicitSubcription) {
-        return $explicitSubcription->state == 1;
+        return $explicitSubcription->state;
     }
 
-    $implicitSubscription = Comment::where('ArticleType', $articleType)
+    // a user is implicitly subscribed if they've authored at least one comment for the article
+    return Comment::where('ArticleType', $articleType)
         ->where('ArticleID', $articleID)
         ->where('user_id', $userID)
         ->exists();
-
-    return $implicitSubscription;
 }

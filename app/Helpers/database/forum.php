@@ -439,18 +439,17 @@ function authorizeAllForumPostsForUser(User $user): bool
 
 function isUserSubscribedToForumTopic(int $topicID, int $userID): bool
 {
-    $explicitSubcription = Subscription::where('subject_type', SubscriptionSubjectType::ForumTopic)
+    $explicitSubscription = Subscription::where('subject_type', SubscriptionSubjectType::ForumTopic)
         ->where('subject_id', $topicID)
         ->where('user_id', $userID)
         ->first();
 
-    if ($explicitSubcription) {
-        return $explicitSubcription->state == 1;
+    if ($explicitSubscription) {
+        return $explicitSubscription->state;
     }
 
-    $implicitSubscription = ForumTopicComment::where('ForumTopicID', $topicID)
+    // a user is implicitly subscribed if they've authored at least one post in the topic
+    return ForumTopicComment::where('ForumTopicID', $topicID)
         ->where('author_id', $userID)
         ->exists();
-
-    return $implicitSubscription;
 }
