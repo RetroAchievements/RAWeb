@@ -73,7 +73,7 @@ class AuthorshipCreditsRelationManager extends RelationManager
                             if (!$doesDeveloperCreditExist) {
                                 $backdate = null;
 
-                                if ($task === AchievementAuthorTask::ARTWORK->value) {
+                                if ($task === AchievementAuthorTask::Artwork->value) {
                                     $firstBadgeComment = $achievement->legacyComments()
                                         ->automated()
                                         ->where('Payload', 'LIKE', "{$developer->display_name}%")
@@ -83,7 +83,7 @@ class AuthorshipCreditsRelationManager extends RelationManager
                                     if ($firstBadgeComment) {
                                         $backdate = $firstBadgeComment->Submitted;
                                     }
-                                } elseif ($task === AchievementAuthorTask::WRITING->value) {
+                                } elseif ($task === AchievementAuthorTask::Writing->value) {
                                     $firstWritingComment = $achievement->legacyComments()
                                         ->automated()
                                         ->where('Payload', 'LIKE', "{$developer->display_name}%")

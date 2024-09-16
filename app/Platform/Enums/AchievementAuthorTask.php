@@ -6,18 +6,18 @@ namespace App\Platform\Enums;
 
 enum AchievementAuthorTask: string
 {
-    case ARTWORK = "artwork";
-    case LOGIC = "logic";
-    case TESTING = "testing";
-    case WRITING = "writing";
+    case Artwork = "artwork";
+    case Logic = "logic";
+    case Testing = "testing";
+    case Writing = "writing";
 
     public function label(): string
     {
         return match ($this) {
-            self::ARTWORK => 'Artwork',
-            self::LOGIC => 'Logic',
-            self::TESTING => 'Testing',
-            self::WRITING => 'Writing',
+            self::Artwork => 'Artwork',
+            self::Logic => 'Logic',
+            self::Testing => 'Testing',
+            self::Writing => 'Writing',
         };
     }
 }

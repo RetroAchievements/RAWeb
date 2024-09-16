@@ -13,7 +13,7 @@ class SyncAchievementAuthors extends Command
 {
     protected $signature = 'ra:sync:achievement-authors
                             {achievementId? : Target achievement ID. Leave empty to sync from all achievements.}';
-    protected $description = "Write all LOGIC authorship data to achievement_authors";
+    protected $description = "Write all logic authorship data to achievement_authors";
 
     public function __construct(
     ) {
@@ -60,7 +60,7 @@ class SyncAchievementAuthors extends Command
         if ($achievementAuthor) {
             $achievement->ensureAuthorshipCredit(
                 $achievementAuthor,
-                AchievementAuthorTask::LOGIC,
+                AchievementAuthorTask::Logic,
                 backdate: $achievement->DateCreated,
             );
 
@@ -85,7 +85,7 @@ class SyncAchievementAuthors extends Command
                 if ($user && !in_array($user->id, $creditedAuthorIds, true)) {
                     $achievement->ensureAuthorshipCredit(
                         $user,
-                        AchievementAuthorTask::LOGIC,
+                        AchievementAuthorTask::Logic,
                         backdate: $systemComment->Submitted,
                     );
 
