@@ -651,14 +651,22 @@ function modifyGameTitle(string $username, int $gameId, string $value): bool
     }
 
     $originalTitle = $game->title;
-
     $game->title = $value;
-    $game->save();
 
-    // Also, if necessary, update the game's sort title.
-    (new WriteGameSortTitleFromGameTitleAction())->execute($game, $originalTitle);
+    $newSortTitle = (new WriteGameSortTitleFromGameTitleAction())->execute(
+        $game,
+        $originalTitle,
+        shouldSaveGame: false,
+    );
 
-    addArticleComment('Server', ArticleType::GameModification, $gameId, "{$username} changed the game name");
+    if ($newSortTitle !== null) {
+        $game->sort_title = $newSortTitle;
+    }
+
+    if ($game->isDirty()) {
+        $game->save();
+        addArticleComment('Server', ArticleType::GameModification, $gameId, "{$username} changed the game name");
+    }
 
     return true;
 }
