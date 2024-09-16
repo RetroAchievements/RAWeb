@@ -18,6 +18,7 @@ class AchievementAuthorPolicy
         return $user->hasAnyRole([
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
+            Role::MODERATOR,
             Role::TEAM_ACCOUNT,
         ]);
     }
@@ -44,12 +45,20 @@ class AchievementAuthorPolicy
 
     public function delete(User $user, AchievementAuthor $achievementAuthor): bool
     {
-        return $this->manage($user);
+        return $user->hasAnyRole([
+            Role::DEVELOPER_STAFF,
+            Role::MODERATOR,
+            Role::TEAM_ACCOUNT,
+        ]);
     }
 
     public function restore(User $user, AchievementAuthor $achievementAuthor): bool
     {
-        return $this->manage($user);
+        return $user->hasAnyRole([
+            Role::DEVELOPER_STAFF,
+            Role::MODERATOR,
+            Role::TEAM_ACCOUNT,
+        ]);
     }
 
     public function forceDelete(User $user, AchievementAuthor $achievementAuthor): bool

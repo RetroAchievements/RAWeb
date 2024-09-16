@@ -202,14 +202,6 @@ class Achievement extends BaseModel implements HasComments
         );
     }
 
-    public function removeAuthorshipCredit(User $user, AchievementAuthorTask $task): int
-    {
-        return $this->authorshipCredits()
-            ->where('user_id', $user->id)
-            ->where('task', $task->value)
-            ->delete();
-    }
-
     public function unlockValidationHash(User $user, int $hardcore, int $offset = 0): string
     {
         $data = $this->id . $user->username . $hardcore . $this->id;
