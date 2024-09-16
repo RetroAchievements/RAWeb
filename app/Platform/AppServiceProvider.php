@@ -31,6 +31,7 @@ use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\SyncAchievements;
+use App\Platform\Commands\SyncGameAchievementSets;
 use App\Platform\Commands\SyncGameHashes;
 use App\Platform\Commands\SyncGames;
 use App\Platform\Commands\SyncGameSets;
@@ -103,6 +104,7 @@ class AppServiceProvider extends ServiceProvider
 
                 // Sync
                 SyncAchievements::class,
+                SyncGameAchievementSets::class,
                 SyncGameSets::class,
                 SyncGames::class,
                 SyncLeaderboards::class,

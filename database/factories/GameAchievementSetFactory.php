@@ -33,8 +33,8 @@ class GameAchievementSetFactory extends Factory
         return $this->state(function (array $attributes) use ($type) {
             return [
                 'type' => $type,
-                'title' => $type === AchievementSetType::Core ? null : $this->faker->words(3, true),
-                'order_column' => $type === AchievementSetType::Core ? 0 : $this->faker->numberBetween(1, 10),
+                'title' => $type === AchievementSetType::Core->value ? null : $this->faker->words(3, true),
+                'order_column' => $type === AchievementSetType::Core->value ? 0 : $this->faker->numberBetween(1, 10),
             ];
         });
     }
