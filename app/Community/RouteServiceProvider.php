@@ -9,6 +9,7 @@ use App\Community\Controllers\ForumTopicController;
 use App\Community\Controllers\MessageController;
 use App\Community\Controllers\MessageThreadController;
 use App\Community\Controllers\UserCommentController;
+use App\Community\Controllers\UserForumTopicCommentController;
 use App\Community\Controllers\UserSettingsController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -39,9 +40,11 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware(['web', 'csp'])
             ->group(function () {
                 Route::middleware(['inertia'])->group(function () {
-                    Route::get('settings', [UserSettingsController::class, 'show'])->name('settings.show');
+                    Route::get('forums/recent-posts', [ForumTopicController::class, 'recentPosts'])->name('forum.recent-posts');
 
-                    Route::get('forums/recent-posts', [ForumTopicController::class, 'recentlyActive'])->name('forum.recent-posts');
+                    Route::get('user/{user}/posts', [UserForumTopicCommentController::class, 'index'])->name('user.posts.index');
+
+                    Route::get('settings', [UserSettingsController::class, 'show'])->name('settings.show');
                 });
 
                 /*

@@ -18,10 +18,10 @@ class ForumTopicData extends Data
         public string $title,
         public Carbon $createdAt,
         public Lazy|ForumTopicCommentData $latestComment,
-        public Lazy|int $commentCount24h,
-        public Lazy|int $oldestComment24hId,
-        public Lazy|int $commentCount7d,
-        public Lazy|int $oldestComment7dId,
+        public Lazy|int|null $commentCount24h,
+        public Lazy|int|null $oldestComment24hId,
+        public Lazy|int|null $commentCount7d,
+        public Lazy|int|null $oldestComment7dId,
         public ?UserData $user = null,
         ) {
     }
@@ -52,6 +52,31 @@ class ForumTopicData extends Data
                 )
             ),
 
+        );
+    }
+
+    public static function fromUserPost(array $userPost): self
+    {
+        return new self(
+            id: $userPost['ForumTopicID'],
+            title: $userPost['ForumTopicTitle'],
+            createdAt: Carbon::parse($userPost['PostedAt']),
+
+            user: null,
+
+            commentCount24h: null,
+            oldestComment24hId: null,
+            commentCount7d: null,
+            oldestComment7dId: null,
+
+            latestComment: Lazy::create(fn () => new ForumTopicCommentData(
+                id: $userPost['CommentID'],
+                body: Shortcode::stripAndClamp($userPost['ShortMsg'], 200),
+                createdAt: Carbon::parse($userPost['PostedAt']),
+                updatedAt: null,
+                user: null,
+                authorized: true
+            )),
         );
     }
 }

@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\Component;
 
@@ -322,13 +323,13 @@ class UserProfileMeta extends Component
     private function buildSocialStats(User $user): array
     {
         $userSetRequestInformation = getUserRequestsInformation($user);
-        $numForumPosts = $user->forumPosts()->count();
+        $numForumPosts = $user->forumPosts()->authorized()->viewable(Auth::user())->count();
 
         // Forum posts
         $forumPostsStat = [
             'label' => 'Forum posts',
             'value' => localized_number($numForumPosts),
-            'href' => $numForumPosts ? route('user.posts', ['user' => $user]) : null,
+            'href' => $numForumPosts ? route('user.posts.index', ['user' => $user]) : null,
             'isMuted' => $numForumPosts === 0,
         ];
 
