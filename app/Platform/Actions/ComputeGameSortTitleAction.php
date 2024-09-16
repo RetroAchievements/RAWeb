@@ -15,6 +15,7 @@ class ComputeGameSortTitleAction
         $sortTitle = $this->removeArticles($sortTitle);
         $sortTitle = mb_strtolower($sortTitle);
         $sortTitle = $this->normalizeAccents($sortTitle);
+        $sortTitle = $this->stripPunctuation($sortTitle);
         $sortTitle = $this->fixTagTildes($sortTitle);
 
         return $sortTitle;
@@ -95,6 +96,16 @@ class ComputeGameSortTitleAction
     private function normalizeAccents(string $title): string
     {
         return Transliterator::create('NFD; [:Nonspacing Mark:] Remove; NFC')->transliterate($title);
+    }
+
+    /**
+     * "Luigi's Mansion" -> "Luigis Mansion"
+     * "The Legend of Zelda: Link's Awakening" -> "The Legend of Zelda Links Awakening"
+     */
+    private function stripPunctuation(string $title): string
+    {
+        // Keep tildes (~) and hyphens (-).
+        return preg_replace("/[^\w\s~\-]+/u", '', $title);
     }
 
     /**
