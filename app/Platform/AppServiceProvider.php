@@ -32,6 +32,7 @@ use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\SyncAchievementAuthors;
 use App\Platform\Commands\SyncAchievements;
+use App\Platform\Commands\SyncGameAchievementSets;
 use App\Platform\Commands\SyncGameHashes;
 use App\Platform\Commands\SyncGames;
 use App\Platform\Commands\SyncGameSets;
@@ -105,8 +106,10 @@ class AppServiceProvider extends ServiceProvider
                 // Sync
                 SyncAchievementAuthors::class,
                 SyncAchievements::class,
+                SyncGameAchievementSets::class,
                 SyncGameHashes::class,
                 SyncGames::class,
+                SyncGameSets::class,
                 SyncGameSets::class,
                 SyncLeaderboardEntries::class,
                 SyncLeaderboards::class,
