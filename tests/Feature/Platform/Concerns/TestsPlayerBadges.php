@@ -27,6 +27,7 @@ trait TestsPlayerBadges
         $badge = $user->playerBadges()
             ->where('AwardType', '=', $type)
             ->where('AwardData', '=', $id)
+            ->where('AwardDataExtra', '=', $extra)
             ->first();
         if ($badge === null) {
             $badge = new PlayerBadge([
