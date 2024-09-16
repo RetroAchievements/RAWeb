@@ -194,9 +194,9 @@ class Achievement extends BaseModel implements HasComments
 
     // == helpers
 
-    public function upsertAuthorshipCredit(User $user, AchievementAuthorTask $task, ?Carbon $backdate = null): AchievementAuthor
+    public function ensureAuthorshipCredit(User $user, AchievementAuthorTask $task, ?Carbon $backdate = null): AchievementAuthor
     {
-        return $this->authorshipCredits()->updateOrCreate(
+        return $this->authorshipCredits()->firstOrCreate(
             ['user_id' => $user->id, 'task' => $task->value],
             ['created_at' => $backdate ?? now(), 'updated_at' => now()]
         );

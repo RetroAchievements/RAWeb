@@ -274,7 +274,7 @@ class AchievementsRelationManager extends RelationManager
                         $records->each(function (Achievement $record) use ($data) {
                             $targetUser = User::find($data['user_id']);
 
-                            $record->upsertAuthorshipCredit(
+                            $record->ensureAuthorshipCredit(
                                 $targetUser,
                                 AchievementAuthorTask::from($data['task']),
                                 backdate: Carbon::parse($data['created_at']) ?? now(),

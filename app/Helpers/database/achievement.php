@@ -273,7 +273,7 @@ function UploadNewAchievement(
         $achievement->save();
         $idInOut = $achievement->ID;
 
-        $achievement->upsertAuthorshipCredit($author, AchievementAuthorTask::LOGIC);
+        $achievement->ensureAuthorshipCredit($author, AchievementAuthorTask::LOGIC);
 
         static_addnewachievement($idInOut);
         addArticleComment(
@@ -363,7 +363,7 @@ function UploadNewAchievement(
             static_setlastupdatedachievement($idInOut);
 
             if ($changingLogic) {
-                $achievement->upsertAuthorshipCredit($author, AchievementAuthorTask::LOGIC);
+                $achievement->ensureAuthorshipCredit($author, AchievementAuthorTask::LOGIC);
             }
 
             if ($changingAchSet) {

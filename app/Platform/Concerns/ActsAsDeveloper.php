@@ -77,7 +77,7 @@ trait ActsAsDeveloper
     /**
      * @return HasMany<AchievementAuthor>
      */
-    public function achievementAuthorshipTasks(): HasMany
+    public function achievementCredits(): HasMany
     {
         return $this->hasMany(AchievementAuthor::class, 'user_id', 'ID');
     }

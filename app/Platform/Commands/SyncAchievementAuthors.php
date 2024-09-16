@@ -53,20 +53,21 @@ class SyncAchievementAuthors extends Command
             $this->info("\nUpserting logic authorship credit for achievement [{$achievement->id}:{$achievement->title}] ({$achievement->game->title}).");
         }
 
-        $addedAuthors = 0;
+        $creditedAuthorIds = [];
 
+        // Add the currently-assigned author.
         $achievementAuthor = $achievement->developer()->withTrashed()->first();
-
         if ($achievementAuthor) {
-            $achievement->upsertAuthorshipCredit(
+            $achievement->ensureAuthorshipCredit(
                 $achievementAuthor,
                 AchievementAuthorTask::LOGIC,
                 backdate: $achievement->DateCreated,
             );
 
-            $addedAuthors++;
+            $creditedAuthorIds[] = $achievementAuthor->id;
         }
 
+        // Add authors recorded in the comment log.
         $systemComments = $achievement->legacyComments()->automated()->get();
         foreach ($systemComments as $systemComment) {
             $payload = $systemComment->Payload;
@@ -74,25 +75,27 @@ class SyncAchievementAuthors extends Command
             // Extract the username from the payload.
             $username = strtok($payload, ' ');
 
-            if (str_contains($payload, 'logic')) {
+            $expectedPhrase = "edited this achievement's logic.";
+            if (str_ends_with($payload, $expectedPhrase)) {
                 $user = User::withTrashed()
                     ->where('User', $username)
                     ->orWhere('display_name', $username)
                     ->first();
 
-                if ($user) {
-                    $achievement->upsertAuthorshipCredit(
+                if ($user && !in_array($user->id, $creditedAuthorIds, true)) {
+                    $achievement->ensureAuthorshipCredit(
                         $user,
                         AchievementAuthorTask::LOGIC,
                         backdate: $systemComment->Submitted,
                     );
 
-                    $addedAuthors++;
+                    $creditAuthorIds[] = $achievementAuthor->id;
                 }
             }
         }
 
         if (!$quiet) {
+            $addedAuthors = count($creditedAuthorIds);
             $this->info("Successfully upserted {$addedAuthors} logic " . ($addedAuthors === 1 ? 'author' : 'authors') . " to [{$achievement->id}:{$achievement->title}] ({$achievement->game->title}).");
         }
     }
