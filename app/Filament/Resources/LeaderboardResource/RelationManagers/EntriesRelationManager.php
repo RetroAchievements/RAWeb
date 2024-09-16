@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\LeaderboardResource\RelationManagers;
 
+use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Platform\Actions\RemoveLeaderboardEntry;
@@ -70,7 +71,7 @@ class EntriesRelationManager extends RelationManager
 
             ])
             ->headerActions([
-
+                ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

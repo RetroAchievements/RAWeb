@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\RelationManagers;
 
+use App\Filament\Actions\DeleteLeaderboardAction;
+use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
@@ -72,7 +74,8 @@ class LeaderboardsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('DisplayOrder')
                     ->label('Display Order')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->color(fn ($record) => $record->DisplayOrder < 0 ? 'danger' : null)
+                    ->toggleable(),
             ])
             ->searchPlaceholder('Search (ID, Title)')
             ->filters([
@@ -104,59 +107,8 @@ class LeaderboardsRelationManager extends RelationManager
                             return $user->can('update', $leaderboard);
                         }),
 
-                    Action::make('reset_all_entries')
-                        ->label('Delete All Entries')
-                        ->icon('heroicon-s-trash')
-                        ->color('danger')
-                        ->requiresConfirmation()
-                        ->modalDescription("Are you sure you want to permanently delete all entries of this leaderboard?")
-                        ->action(function (Leaderboard $leaderboard) {
-                            /** @var User $user */
-                            $user = auth()->user();
-
-                            if (!$user->can('resetAllEntries', $leaderboard)) {
-                                return;
-                            }
-
-                            $leaderboard->entries()->delete();
-
-                            activity()
-                                ->useLog('default')
-                                ->causedBy($user)
-                                ->performedOn($leaderboard)
-                                ->event('resetAllLeaderboardEntries')
-                                ->log('Reset All Leaderboard Entries');
-                        })
-                        ->visible(function (Leaderboard $leaderboard) {
-                            /** @var User $user */
-                            $user = auth()->user();
-
-                            return $user->can('resetAllEntries', $leaderboard);
-                        }),
-
-                    Action::make('delete_leaderboard')
-                        ->label('Delete Leaderboard')
-                        ->icon('heroicon-s-trash')
-                        ->color('danger')
-                        ->requiresConfirmation()
-                        ->modalDescription("Are you sure you want to permanently delete this leaderboard?")
-                        ->action(function (Leaderboard $leaderboard) {
-                            /** @var User $user */
-                            $user = auth()->user();
-
-                            // TODO use soft deletes
-                            if (!$user->can('forceDelete', $leaderboard)) {
-                                return;
-                            }
-
-                            $leaderboard->forceDelete();
-                        })
-                        ->visible(function (Leaderboard $leaderboard) {
-                            /** @var User $user */
-                            $user = auth()->user();
-
-                            return $user->can('forceDelete', $leaderboard);
-                        }),
+                    ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
+                    DeleteLeaderboardAction::make('delete_leaderboard'),
                 ]),
             ])
             ->bulkActions([
@@ -181,6 +133,13 @@ class LeaderboardsRelationManager extends RelationManager
 
     public function reorderTable(array $order): void
     {
+        // Do not automatically adjust the DisplayOrder of hidden leaderboards (DisplayOrder < 0).
+        $order = array_filter($order, function (string $leaderboardId) {
+            $leaderboard = Leaderboard::find((int) $leaderboardId);
+
+            return $leaderboard && $leaderboard->DisplayOrder >= 0;
+        });
+
         parent::reorderTable($order);
 
         /** @var User $user */

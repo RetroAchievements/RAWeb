@@ -93,7 +93,7 @@ class UpdateGameSetFromGameAlternativesModification
             ['game_id' => $game->id],
             [
                 'title' => $isGameHub ? $game->title : 'Similar Games',
-                'type' => $isGameHub ? GameSetType::HUB : GameSetType::SIMILAR_GAMES,
+                'type' => $isGameHub ? GameSetType::Hub : GameSetType::SimilarGames,
                 'image_asset_path' => $isGameHub ? $game->ImageIcon : null,
             ]
         );

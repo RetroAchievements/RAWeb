@@ -11,6 +11,9 @@ declare namespace App.Community.Data {
     can: App.Data.UserPermissions;
   };
 }
+declare namespace App.Community.Enums {
+  export type TicketType = 1 | 2;
+}
 declare namespace App.Data {
   export type ForumTopicComment = {
     id: number;
@@ -118,6 +121,15 @@ declare namespace App.Models {
     | 'developer-veteran';
 }
 declare namespace App.Platform.Data {
+  export type Achievement = {
+    id: number;
+    title: string;
+    badgeUnlockedUrl?: string;
+    badgeLockedUrl?: string;
+    game?: App.Platform.Data.Game;
+    unlockedAt?: string;
+    unlockedHardcoreAt?: string;
+  };
   export type Game = {
     id: number;
     title: string;
@@ -184,6 +196,12 @@ declare namespace App.Platform.Data {
     consoleName: string;
     numAwarded: number;
     numPossible: number;
+  };
+  export type ReportAchievementIssuePageProps = {
+    achievement: App.Platform.Data.Achievement;
+    hasSession: boolean;
+    ticketType: number;
+    extra: string | null;
   };
   export type System = {
     id: number;

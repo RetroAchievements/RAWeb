@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Enums\Permissions;
 use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
@@ -22,8 +21,7 @@ class TicketPolicy
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
-        ])
-            || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
+        ]);
     }
 
     public function viewAny(User $user): bool
@@ -51,7 +49,6 @@ class TicketPolicy
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::TICKET_MANAGER,
-        ])
-            || $user->getAttribute('Permissions') >= Permissions::Developer;
+        ]);
     }
 }
