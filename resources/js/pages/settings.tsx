@@ -2,8 +2,8 @@ import { Head } from '@inertiajs/react';
 
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
-import { SettingsRoot } from '@/features/user/settings/components/+root/SettingsRoot';
-import { SettingsSidebar } from '@/features/user/settings/components/+sidebar';
+import { SettingsRoot } from '@/features/settings/components/+root';
+import { SettingsSidebar } from '@/features/settings/components/+sidebar';
 
 const Settings: AppPage = () => {
   return (

@@ -74,7 +74,8 @@ class LeaderboardsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('DisplayOrder')
                     ->label('Display Order')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->color(fn ($record) => $record->DisplayOrder < 0 ? 'danger' : null)
+                    ->toggleable(),
             ])
             ->searchPlaceholder('Search (ID, Title)')
             ->filters([
@@ -132,6 +133,13 @@ class LeaderboardsRelationManager extends RelationManager
 
     public function reorderTable(array $order): void
     {
+        // Do not automatically adjust the DisplayOrder of hidden leaderboards (DisplayOrder < 0).
+        $order = array_filter($order, function (string $leaderboardId) {
+            $leaderboard = Leaderboard::find((int) $leaderboardId);
+
+            return $leaderboard && $leaderboard->DisplayOrder >= 0;
+        });
+
         parent::reorderTable($order);
 
         /** @var User $user */
