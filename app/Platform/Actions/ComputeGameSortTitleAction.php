@@ -29,8 +29,12 @@ class ComputeGameSortTitleAction
             'XVI' => 16, 'XVII' => 17, 'XVIII' => 18, 'XIX' => 19, 'XX' => 20,
         ];
 
+        /**
+         * Valid conversions are at the end of a string, or followed by
+         * non-apostrophe punctuation (or whitespace then punctuation) like :, -, &, or (.
+         */
         $title = preg_replace_callback(
-            '/\b([IVX]+)\b/',
+            '/\b([IVX]+)(?=(?:$|\s*[:\-&\(\)]|\s*$))/i',
             function ($matches) use ($romanNumerals) {
                 $roman = $matches[1];
                 if (isset($romanNumerals[$roman])) {

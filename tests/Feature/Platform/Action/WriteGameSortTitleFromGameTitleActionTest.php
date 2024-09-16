@@ -13,17 +13,46 @@ class WriteGameSortTitleFromGameTitleActionTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testItGeneratesSortTitleBasedOnGameTitle(): void
+    /**
+     * @dataProvider titleProvider
+     */
+    public function testItGeneratesCorrectSortTitles(string $gameTitle, string $expectedSortTitle): void
     {
         // Arrange
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'sort_title' => null]);
+        $game = Game::factory()->create(['Title' => $gameTitle, 'sort_title' => null]);
 
         // Act
         (new WriteGameSortTitleFromGameTitleAction())->execute($game, $game->title);
-        $game = $game->fresh();
+        $game->refresh();
 
         // Assert
-        $this->assertEquals('sonic the hedgehog', $game->sort_title);
+        $this->assertEquals($expectedSortTitle, $game->sort_title);
+    }
+
+    /**
+     * @return string[][]
+     */
+    public static function titleProvider(): array
+    {
+        return [
+            'Sonic the Hedgehog' => ['Sonic the Hedgehog', 'sonic the hedgehog'],
+            'Final Fantasy IV' => ['Final Fantasy IV', 'final fantasy 04'],
+            'Final Fantasy X' => ['Final Fantasy X', 'final fantasy 10'],
+            'GIVX' => ['GIVX', 'givx'],
+            'Legend of Zelda, The: A Link to the Past' => ['Legend of Zelda, The: A Link to the Past', 'legend of zelda: a link to the past'],
+            'American Tale, An' => ['American Tale, An', 'american tale'],
+            'Grand Day Out, A' => ['Grand Day Out, A', 'grand day out'],
+            'The Great Escape' => ['The Great Escape', 'the great escape'],
+            'An Unexpected Journey' => ['An Unexpected Journey', 'an unexpected journey'],
+            'A Series of Unfortunate Events' => ['A Series of Unfortunate Events', 'a series of unfortunate events'],
+            '~Homebrew~ Classic Kong' => ['~Homebrew~ Classic Kong', '~homebrew classic kong'],
+            'Puyo Puyo~n' => ['Puyo Puyo~n', 'puyo puyo~n'],
+            '~Hack~ V I T A L I T Y' => ['~Hack~ V I T A L I T Y', '~hack v i t a l i t y'],
+            '~Hack~ Dragoon X Omega' => ['~Hack~ Dragoon X Omega', '~hack dragoon x omega'],
+            '~Hack~ Pokemon - X and Y' => ['~Hack~ Pokemon - X and Y', '~hack pokemon - x and y'],
+            'I Have No Mouth, And I Must Scream' => ['I Have No Mouth, And I Must Scream', 'i have no mouth, and i must scream'],
+            "I'm Sorry" => ["I'm Sorry", "i'm sorry"],
+        ];
     }
 
     public function testItPreservesCustomSortTitlesByDefault(): void
@@ -54,94 +83,5 @@ class WriteGameSortTitleFromGameTitleActionTest extends TestCase
 
         // Assert
         $this->assertEquals('final fantasy 04', $game->sort_title);
-    }
-
-    public function testItCorrectlyHandlesGameTitlesWithTildes(): void
-    {
-        // Arrange
-        $gameOne = Game::factory()->create(['Title' => '~Homebrew~ Classic Kong', 'sort_title' => null]);
-        $gameTwo = Game::factory()->create(['Title' => 'Puyo Puyo~n', 'sort_title' => null]);
-
-        // Act
-        (new WriteGameSortTitleFromGameTitleAction())->execute($gameOne, $gameOne->title);
-        (new WriteGameSortTitleFromGameTitleAction())->execute($gameTwo, $gameTwo->title);
-        $gameOne = $gameOne->fresh();
-        $gameTwo = $gameTwo->fresh();
-
-        // Assert
-        $this->assertEquals('~homebrew classic kong', $gameOne->sort_title);
-        $this->assertEquals('puyo puyo~n', $gameTwo->sort_title);
-    }
-
-    public function testItCorrectlyConvertsRomanNumerals(): void
-    {
-        // Arrange
-        $gameOne = Game::factory()->create(['Title' => 'Final Fantasy IV', 'sort_title' => null]);
-        $gameTwo = Game::factory()->create(['Title' => 'Final Fantasy X', 'sort_title' => null]);
-
-        // Act
-        (new WriteGameSortTitleFromGameTitleAction())->execute($gameOne, $gameOne->title);
-        (new WriteGameSortTitleFromGameTitleAction())->execute($gameTwo, $gameTwo->title);
-        $gameOne = $gameOne->fresh();
-        $gameTwo = $gameTwo->fresh();
-
-        // Assert
-        $this->assertEquals('final fantasy 04', $gameOne->sort_title);
-        $this->assertEquals('final fantasy 10', $gameTwo->sort_title);
-    }
-
-    public function testItAvoidsNonRomanStrings(): void
-    {
-        // Arrange
-        $game = Game::factory()->create(['Title' => 'GIVX', 'sort_title' => null]);
-
-        // Act
-        (new WriteGameSortTitleFromGameTitleAction())->execute($game, $game->title);
-        $game = $game->fresh();
-
-        // Assert
-        $this->assertEquals('givx', $game->sort_title);
-    }
-
-    public function testItNormalizesArticleFragments(): void
-    {
-        // Arrange
-        $gameOne = Game::factory()->create(['Title' => 'Legend of Zelda, The: A Link to the Past', 'sort_title' => null]);
-        $gameTwo = Game::factory()->create(['Title' => 'American Tale, An', 'sort_title' => null]);
-        $gameThree = Game::factory()->create(['Title' => 'Grand Day Out, A', 'sort_title' => null]);
-
-        // Act
-        (new WriteGameSortTitleFromGameTitleAction())->execute($gameOne, $gameOne->title);
-        (new WriteGameSortTitleFromGameTitleAction())->execute($gameTwo, $gameTwo->title);
-        (new WriteGameSortTitleFromGameTitleAction())->execute($gameThree, $gameThree->title);
-        $gameOne = $gameOne->fresh();
-        $gameTwo = $gameTwo->fresh();
-        $gameThree = $gameThree->fresh();
-
-        // Assert
-        $this->assertEquals('legend of zelda: a link to the past', $gameOne->sort_title);
-        $this->assertEquals('american tale', $gameTwo->sort_title);
-        $this->assertEquals('grand day out', $gameThree->sort_title);
-    }
-
-    public function testItAvoidsNonArticleFragments(): void
-    {
-        // Arrange
-        $gameOne = Game::factory()->create(['Title' => 'The Great Escape', 'sort_title' => null]);
-        $gameTwo = Game::factory()->create(['Title' => 'An Unexpected Journey', 'sort_title' => null]);
-        $gameThree = Game::factory()->create(['Title' => 'A Series of Unfortunate Events', 'sort_title' => null]);
-
-        // Act
-        (new WriteGameSortTitleFromGameTitleAction())->execute($gameOne, $gameOne->title);
-        (new WriteGameSortTitleFromGameTitleAction())->execute($gameTwo, $gameTwo->title);
-        (new WriteGameSortTitleFromGameTitleAction())->execute($gameThree, $gameThree->title);
-        $gameOne = $gameOne->fresh();
-        $gameTwo = $gameTwo->fresh();
-        $gameThree = $gameThree->fresh();
-
-        // Assert
-        $this->assertEquals('the great escape', $gameOne->sort_title);
-        $this->assertEquals('an unexpected journey', $gameTwo->sort_title);
-        $this->assertEquals('a series of unfortunate events', $gameThree->sort_title);
     }
 }
