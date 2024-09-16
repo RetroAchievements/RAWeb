@@ -4,16 +4,39 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use Transliterator;
+
 class ComputeGameSortTitleAction
 {
     public function execute(string $gameTitle): string
     {
-        $sortTitle = $this->replaceRomanNumerals($gameTitle);
+        $sortTitle = $this->padNumbers($gameTitle);
+        $sortTitle = $this->replaceRomanNumerals($sortTitle);
         $sortTitle = $this->removeArticles($sortTitle);
         $sortTitle = mb_strtolower($sortTitle);
+        $sortTitle = $this->normalizeAccents($sortTitle);
         $sortTitle = $this->fixTagTildes($sortTitle);
 
         return $sortTitle;
+    }
+
+    /**
+     * Pad Arabic numbers with leading zeroes to ensure proper sorting.
+     *
+     * eg: "Mega Man 10" should not be sorted before "Mega Man 2". With the sort titles
+     * set to "mega man 00010" and "mega man 00002" respectively, we can mitigate this.
+     */
+    private function padNumbers(string $title): string
+    {
+        return preg_replace_callback(
+            // Match numbers not directly attached to letters.
+            // In other words, don't convert "Mega Man X4" to "Mega Man X00004".
+            '/(?<=\b|\s)(\d+)(?=\b|\s)/',
+            function ($matches) {
+                return str_pad($matches[0], 5, '0', STR_PAD_LEFT);
+            },
+            $title
+        );
     }
 
     /**
@@ -64,6 +87,14 @@ class ComputeGameSortTitleAction
         }
 
         return $title;
+    }
+
+    /**
+     * "Pokémon Stadium" -> "Pokemon Stadium"
+     */
+    private function normalizeAccents(string $title): string
+    {
+        return Transliterator::create('NFD; [:Nonspacing Mark:] Remove; NFC')->transliterate($title);
     }
 
     /**
