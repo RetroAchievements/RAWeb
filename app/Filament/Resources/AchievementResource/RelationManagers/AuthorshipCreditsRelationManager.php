@@ -52,6 +52,8 @@ class AuthorshipCreditsRelationManager extends RelationManager
                         /** @var Achievement $achievement */
                         $achievement = $this->ownerRecord;
 
+                        $task = $data['task'];
+
                         /**
                          * An achievement developer doing most tasks is implied. If someone
                          * new contributes, we'll backfill a credit record for the achievement
@@ -65,23 +67,42 @@ class AuthorshipCreditsRelationManager extends RelationManager
                         if ($developer) {
                             $doesDeveloperCreditExist = AchievementAuthor::where('achievement_id', $achievement->id)
                                 ->where('user_id', $developer->id)
-                                ->where('task', $data['task'])
+                                ->where('task', $task)
                                 ->exists();
 
                             if (!$doesDeveloperCreditExist) {
-                                $firstBadgeComment = $achievement->legacyComments()
-                                    ->automated()
-                                    ->where('Payload', 'LIKE', "{$developer->display_name}%")
-                                    ->where('Payload', 'LIKE', "%badge%")
-                                    ->first();
+                                $backdate = null;
 
-                                $backdate = $firstBadgeComment?->Submitted ?? $achievement->DateCreated;
+                                if ($task === AchievementAuthorTask::ARTWORK->value) {
+                                    $firstBadgeComment = $achievement->legacyComments()
+                                        ->automated()
+                                        ->where('Payload', 'LIKE', "{$developer->display_name}%")
+                                        ->where('Payload', 'LIKE', "%badge%")
+                                        ->first();
+
+                                    if ($firstBadgeComment) {
+                                        $backdate = $firstBadgeComment->Submitted;
+                                    }
+                                } elseif ($task === AchievementAuthorTask::WRITING->value) {
+                                    $firstWritingComment = $achievement->legacyComments()
+                                        ->automated()
+                                        ->where('Payload', 'LIKE', "{$developer->display_name}%")
+                                        ->where(function ($query) {
+                                            $query->where('Payload', 'LIKE', "%title%")
+                                                ->orWhere('Payload', 'LIKE', "%description%");
+                                        })
+                                        ->first();
+
+                                    if ($firstWritingComment) {
+                                        $backdate = $firstWritingComment->Submitted;
+                                    }
+                                }
 
                                 AchievementAuthor::create([
                                     'user_id' => $developer->id,
                                     'achievement_id' => $achievement->id,
-                                    'task' => $data['task'],
-                                    'created_at' => $backdate,
+                                    'task' => $task,
+                                    'created_at' => $backdate ?? $achievement->DateCreated,
                                 ]);
                             }
                         }
@@ -89,7 +110,7 @@ class AuthorshipCreditsRelationManager extends RelationManager
                         return AchievementAuthor::create([
                             'user_id' => (int) $data['user_id'],
                             'achievement_id' => $achievement->id,
-                            'task' => $data['task'],
+                            'task' => $task,
                         ]);
                     }),
             ])
