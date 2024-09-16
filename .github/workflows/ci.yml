@@ -8,7 +8,7 @@ jobs:
     name: pint
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -28,7 +28,7 @@ jobs:
     name: phpstan
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -48,7 +48,7 @@ jobs:
     name: phpunit
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -61,6 +61,23 @@ jobs:
       - name: Test
         run: composer paratest
 
+  tsc:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: true
+    name: tsc
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install
+        run: npm install
+      - name: Type check
+        run: npm run tsc
+
   eslint:
     runs-on: ubuntu-22.04
     strategy:
@@ -68,9 +85,9 @@ jobs:
     name: eslint
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Use Node 20
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
       - name: Install
@@ -85,9 +102,9 @@ jobs:
     name: vitest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Use Node 20
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
       - name: Install

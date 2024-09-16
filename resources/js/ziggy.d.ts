@@ -35,13 +35,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "achievement.report-issue": [
-        {
-            "name": "achievement",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "achievement.comments": [
         {
             "name": "achievement",
@@ -100,13 +93,6 @@ declare module 'ziggy-js' {
         }
     ],
     "user.comments": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        }
-    ],
-    "user.posts": [
         {
             "name": "user",
             "required": true,
@@ -299,7 +285,21 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "achievement.report-issue.index": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "forum.recent-posts": [],
+    "user.posts.index": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
     "settings.show": [],
     "user.comment.destroyAll": [
         {

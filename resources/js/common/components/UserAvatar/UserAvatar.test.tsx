@@ -1,13 +1,12 @@
-import { faker } from '@faker-js/faker';
-
 import { render, screen } from '@/test';
+import { createUser } from '@/test/factories';
 
 import { UserAvatar } from './UserAvatar';
 
 describe('Component: UserAvatar', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<UserAvatar displayName={faker.internet.displayName()} />);
+    const { container } = render(<UserAvatar {...createUser()} />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -15,17 +14,19 @@ describe('Component: UserAvatar', () => {
 
   it('given a displayName, shows the displayName on the screen', () => {
     // ARRANGE
-    const displayName = faker.internet.displayName();
+    const user = createUser({ displayName: 'Scott' });
 
-    render(<UserAvatar displayName={displayName} />);
+    render(<UserAvatar {...user} />);
 
     // ASSERT
-    expect(screen.getByText(displayName)).toBeVisible();
+    expect(screen.getByText(/scott/i)).toBeVisible();
   });
 
   it('given there is no displayName, still renders successfully', () => {
     // ARRANGE
-    render(<UserAvatar displayName={null} />);
+    const user = createUser({ displayName: undefined });
+
+    render(<UserAvatar {...user} />);
 
     // ASSERT
     expect(screen.getByRole('img', { name: /deleted user/i })).toBeVisible();
@@ -33,7 +34,9 @@ describe('Component: UserAvatar', () => {
 
   it('applies the correct size to the image', () => {
     // ARRANGE
-    render(<UserAvatar displayName={faker.internet.displayName()} size={8} />);
+    const user = createUser();
+
+    render(<UserAvatar {...user} size={8} />);
 
     // ASSERT
     const imgEl = screen.getByRole('img');
@@ -44,7 +47,9 @@ describe('Component: UserAvatar', () => {
 
   it('adds card tooltip props by default', () => {
     // ARRANGE
-    render(<UserAvatar displayName="Scott" />);
+    const user = createUser({ displayName: 'Scott' });
+
+    render(<UserAvatar {...user} />);
 
     // ASSERT
     const anchorEl = screen.getByRole('link');
@@ -60,7 +65,9 @@ describe('Component: UserAvatar', () => {
 
   it('does not add card tooltip props when `hasTooltip` is false', () => {
     // ARRANGE
-    render(<UserAvatar displayName="Scott" hasTooltip={false} />);
+    const user = createUser({ displayName: 'Scott' });
+
+    render(<UserAvatar {...user} hasTooltip={false} />);
 
     // ASSERT
     const anchorEl = screen.getByRole('link');
