@@ -10,8 +10,8 @@ class ComputeGameSortTitleAction
 {
     public function execute(string $gameTitle): string
     {
-        $sortTitle = $this->padNumbers($gameTitle);
-        $sortTitle = $this->replaceRomanNumerals($sortTitle);
+        $sortTitle = $this->replaceRomanNumerals($gameTitle);
+        $sortTitle = $this->padNumbers($sortTitle);
         $sortTitle = $this->removeArticles($sortTitle);
         $sortTitle = mb_strtolower($sortTitle);
         $sortTitle = $this->normalizeAccents($sortTitle);
@@ -74,17 +74,23 @@ class ComputeGameSortTitleAction
     }
 
     /**
-     * "Legend of Zelda, The: A Link to the Past" -> "Legend of Zelda: A Link to the Past"
+     * Removing leading and trailing articles.
      *
-     * ", The" has been removed.
+     * "The Matrix" -> "Matrix"
+     * "A Bug's Life" -> "Bug's Life"
+     * "Legend of Zelda, The" -> "Legend of Zelda"
      */
     private function removeArticles(string $title): string
     {
+    // Remove articles at the start of the title
+        if (preg_match('/^\s*(a|an|the)\b\s*(.*)$/i', $title, $matches)) {
+            $title = $matches[2];
+        }
+
+        // Remove articles at the end after a comma
         if (preg_match('/^(.+),\s*(a|an|the)\b(.*)$/i', $title, $matches)) {
             // Combine the main title and any trailing text.
-            $mainTitle = trim($matches[1] . $matches[3]);
-
-            return $mainTitle;
+            $title = trim($matches[1] . $matches[3]);
         }
 
         return $title;
