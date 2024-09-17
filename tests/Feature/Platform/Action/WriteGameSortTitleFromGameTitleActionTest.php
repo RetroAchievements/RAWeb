@@ -53,6 +53,6 @@ class WriteGameSortTitleFromGameTitleActionTest extends TestCase
         $game = $game->fresh();
 
         // Assert
-        $this->assertEquals('final fantasy 04', $game->sort_title);
+        $this->assertEquals('final fantasy 00004', $game->sort_title);
     }
 }
