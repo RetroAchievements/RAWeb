@@ -81,6 +81,9 @@ class UpdateGameMetrics
         app()->make(UpdateGameAchievementsMetrics::class)
             ->execute($game);
 
+        app()->make(UpsertGameCoreAchievementSetFromLegacyFlags::class)
+            ->execute($game);
+
         $game->refresh();
 
         $pointsWeightedChange = $game->TotalTruePoints - $pointsWeightedBeforeUpdate;

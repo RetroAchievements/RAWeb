@@ -7,8 +7,10 @@ use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
 use App\Models\AchievementSetClaim;
+use App\Models\Game;
 use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
@@ -44,6 +46,17 @@ function insertClaim(User $user, int $gameId, int $claimType, int $setType, int 
 
         if (!$isUserAllowedToClaim) {
             return false;
+        }
+
+        // automatically subscribe the user to game wall comments when they make a claim on the game
+        updateSubscription(SubscriptionSubjectType::GameWall, $gameId, $user->id, true);
+
+        // also automatically subscribe the user to the game's official forum topic (if one exists -
+        // the "Make Primary Forum Topic and Claim" functionality makes the claim first, but as the
+        // author of the primary forum topic they'll be implicitly subscribed).
+        $game = Game::find($gameId);
+        if ($game && $game->ForumTopicID && !isUserSubscribedToForumTopic($game->ForumTopicID, $user->id)) {
+            updateSubscription(SubscriptionSubjectType::ForumTopic, $game->ForumTopicID, $user->id, true);
         }
     }
 

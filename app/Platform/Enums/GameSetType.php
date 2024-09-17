@@ -6,6 +6,6 @@ namespace App\Platform\Enums;
 
 enum GameSetType: string
 {
-    case HUB = "hub";
-    case SIMILAR_GAMES = "similar-games";
+    case Hub = "hub";
+    case SimilarGames = "similar-games";
 }
