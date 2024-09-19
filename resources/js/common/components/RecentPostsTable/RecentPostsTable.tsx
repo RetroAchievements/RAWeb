@@ -37,11 +37,13 @@ export const RecentPostsTable: FC<RecentPostsTableProps> = ({
       <tbody>
         {paginatedTopics.items.map((topic) => (
           <tr key={topic.latestComment?.id}>
-            <td className="py-3">
-              {showLastPostBy && topic.latestComment?.user ? (
-                <UserAvatar {...topic.latestComment.user} size={24} />
-              ) : null}
-            </td>
+            {showLastPostBy ? (
+              <td className="py-3">
+                {topic.latestComment?.user ? (
+                  <UserAvatar {...topic.latestComment.user} size={24} />
+                ) : null}
+              </td>
+            ) : null}
 
             <td className="py-2">
               <p className="flex items-center gap-x-2">
