@@ -365,7 +365,7 @@ function SendPrivateMessageEmail(
     }
 
     $content = stripslashes(nl2br($contentIn));
-    $content = Shortcode::stripAndClamp($content);
+    $content = Shortcode::stripAndClamp($content, 1850);
 
     // Also used for Generic text:
     $emailTitle = "New Private Message from $fromUser";
