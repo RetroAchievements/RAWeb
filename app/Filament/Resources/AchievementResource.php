@@ -214,6 +214,9 @@ class AchievementResource extends Resource
 
     public static function table(Table $table): Table
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
@@ -362,6 +365,11 @@ class AchievementResource extends Resource
                         ->icon('fas-clock-rotate-left'),
                 ]),
             ])
+            ->recordUrl(
+                fn (Achievement $record) => $user->can('update', $record)
+                    ? AchievementResource::getUrl('edit', ['record' => $record])
+                    : AchievementResource::getUrl('view', ['record' => $record])
+            )
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),

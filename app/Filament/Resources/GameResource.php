@@ -333,6 +333,9 @@ class GameResource extends Resource
 
     public static function table(Table $table): Table
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
@@ -445,6 +448,11 @@ class GameResource extends Resource
                         ->icon('fas-clock-rotate-left'),
                 ]),
             ])
+            ->recordUrl(
+                fn (Game $record) => $user->can('update', $record)
+                    ? GameResource::getUrl('edit', ['record' => $record])
+                    : GameResource::getUrl('view', ['record' => $record])
+            )
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),

@@ -23,6 +23,7 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class LeaderboardResource extends Resource
 {
@@ -155,6 +156,9 @@ class LeaderboardResource extends Resource
 
     public static function table(Table $table): Table
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('ID')
@@ -247,6 +251,12 @@ class LeaderboardResource extends Resource
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ActionGroup::make([
+                        Tables\Actions\ViewAction::make(),
+                        Tables\Actions\EditAction::make(),
+                    ])
+                        ->dropdown(false),
+
+                    Tables\Actions\ActionGroup::make([
                         ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                         DeleteLeaderboardAction::make('delete_leaderboard'),
                     ])
@@ -257,6 +267,11 @@ class LeaderboardResource extends Resource
                         ->icon('fas-clock-rotate-left'),
                 ]),
             ])
+            ->recordUrl(
+                fn (Leaderboard $record) => $user->can('update', $record)
+                    ? LeaderboardResource::getUrl('edit', ['record' => $record])
+                    : LeaderboardResource::getUrl('view', ['record' => $record])
+            )
             ->bulkActions([
 
             ]);
