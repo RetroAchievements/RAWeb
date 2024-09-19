@@ -293,7 +293,7 @@ class BuildGameListAction
 
         // Default to sorting by title if no valid sort field is provided.
         // Otherwise, always secondary sort by title.
-        $query->orderBy('GameData.sort_title', $sort['direction'] ?? 'asc');
+        $query->orderBy('GameData.sort_title', 'asc');
     }
 
     /**

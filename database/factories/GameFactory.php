@@ -30,4 +30,21 @@ class GameFactory extends Factory
             'ImageIcon' => '/Images/000001.png',
         ];
     }
+
+    public function configure(): static
+    {
+        /**
+         * If a title is manually provided, recalculate sort_title.
+         */
+
+        return $this->afterMaking(function (Game $game) {
+            if ($game->title) {
+                $game->sort_title = (new ComputeGameSortTitleAction())->execute($game->title);
+            }
+        })->afterCreating(function (Game $game) {
+            if ($game->title) {
+                $game->sort_title = (new ComputeGameSortTitleAction())->execute($game->title);
+            }
+        });
+    }
 }
