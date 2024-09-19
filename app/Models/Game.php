@@ -10,17 +10,19 @@ use App\Community\Contracts\HasComments;
 use App\Platform\Enums\AchievementFlag;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Image\Manipulations;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -38,6 +40,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     use LogsActivity {
         LogsActivity::activities as auditLog;
     }
+    /** @use HasFactory<GameFactory> */
     use HasFactory;
     use InteractsWithMedia;
 
@@ -70,6 +73,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     protected $fillable = [
         'release',
         'Title',
+        'sort_title',
         'ForumTopicID',
         'Publisher',
         'Developer',
@@ -81,11 +85,13 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     protected $casts = [
         'released_at' => 'datetime',
+        'last_achievement_update' => 'datetime',
     ];
 
     protected $visible = [
         'ID',
         'Title',
+        'sort_title',
         'ConsoleID',
         'ForumTopicID',
         'Flags',
@@ -123,11 +129,13 @@ class Game extends BaseModel implements HasComments, HasMedia
         return LogOptions::defaults()
             ->logOnly([
                 'Title',
+                'sort_title',
                 'ForumTopicID',
                 'GuideURL',
                 'Publisher',
                 'Developer',
                 'Genre',
+                'ImageIcon',
                 'released_at',
                 'released_at_granularity',
             ])
@@ -164,8 +172,8 @@ class Game extends BaseModel implements HasComments, HasMedia
                     $this->addMediaConversion($iconSize)
                         ->nonQueued()
                         ->format('png')
-                        ->fit(Manipulations::FIT_CONTAIN, $width, $height)->apply()
-                        ->fit(Manipulations::FIT_FILL, $width, $height)
+                        ->fit(Fit::Contain, $width, $height)
+                        ->fit(Fit::Fill, $width, $height)
                         ->optimize();
                 }
             });
@@ -240,6 +248,11 @@ class Game extends BaseModel implements HasComments, HasMedia
         return route('game.show', [$this, $this->getSlugAttribute()]);
     }
 
+    public function getLastUpdatedAttribute(): Carbon
+    {
+        return $this->last_achievement_update ?? $this->Updated;
+    }
+
     public function getPermalinkAttribute(): string
     {
         return route('game.show', $this);
@@ -300,6 +313,14 @@ class Game extends BaseModel implements HasComments, HasMedia
     public function achievements(): HasMany
     {
         return $this->hasMany(Achievement::class, 'GameID');
+    }
+
+    /**
+     * @return BelongsToMany<AchievementSet>
+     */
+    public function achievementSets(): BelongsToMany
+    {
+        return $this->belongsToMany(AchievementSet::class, 'game_achievement_sets', 'game_id', 'achievement_set_id', 'ID', 'id');
     }
 
     /**
@@ -376,7 +397,17 @@ class Game extends BaseModel implements HasComments, HasMedia
      */
     public function gameAchievementSets(): HasMany
     {
-        return $this->hasMany(GameAchievementSet::class, 'game_id');
+        return $this->hasMany(GameAchievementSet::class, 'game_id', 'ID');
+    }
+
+    /**
+     * @return BelongsToMany<GameSet>
+     */
+    public function gameSets(): BelongsToMany
+    {
+        return $this->belongsToMany(GameSet::class, 'game_set_games', 'game_id', 'game_set_id')
+            ->withTimestamps()
+            ->withPivot('created_at', 'updated_at', 'deleted_at');
     }
 
     /**
@@ -385,6 +416,14 @@ class Game extends BaseModel implements HasComments, HasMedia
     public function gameHashSets(): HasMany
     {
         return $this->hasMany(GameHashSet::class, 'game_id');
+    }
+
+    /**
+     * @return HasMany<UserGameListEntry>
+     */
+    public function gameListEntries(): HasMany
+    {
+        return $this->hasMany(UserGameListEntry::class, 'GameID', 'ID');
     }
 
     /**
@@ -412,4 +451,18 @@ class Game extends BaseModel implements HasComments, HasMedia
     }
 
     // == scopes
+
+    /**
+     * @param Builder<Game> $query
+     * @return Builder<Game>
+     */
+    public function scopeWithLastAchievementUpdate(Builder $query): Builder
+    {
+        return $query->addSelect([
+            'last_achievement_update' => Achievement::select('DateModified')
+                ->whereColumn('Achievements.GameID', 'GameData.ID')
+                ->orderBy('DateModified', 'desc')
+                ->limit(1),
+        ]);
+    }
 }

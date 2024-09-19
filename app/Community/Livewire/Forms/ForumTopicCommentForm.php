@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Community\Livewire\Forms;
 
+use App\Community\Actions\ReplaceUserShortcodesWithUsernamesAction;
 use App\Models\ForumTopicComment;
+use App\Support\Rules\ContainsRegularCharacter;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Livewire\Attributes\Locked;
-use Livewire\Attributes\Validate;
 use Livewire\Features\SupportRedirects\Redirector;
 use Livewire\Form;
 
@@ -16,7 +17,6 @@ class ForumTopicCommentForm extends Form
 {
     use AuthorizesRequests;
 
-    #[Validate('required|max:60000')]
     public string $body = '';
 
     #[Locked]
@@ -25,13 +25,24 @@ class ForumTopicCommentForm extends Form
     public function setForumTopicComment(ForumTopicComment $forumTopicComment): void
     {
         $this->forumTopicComment = $forumTopicComment;
-        $this->body = $forumTopicComment->body;
+
+        // "[user=1]" -> "[user=Scott]"
+        $this->body = (
+            new ReplaceUserShortcodesWithUsernamesAction()
+        )->execute($this->forumTopicComment->body);
     }
 
     public function update(): RedirectResponse|Redirector
     {
         $this->authorize('update', [ForumTopicComment::class, $this->forumTopicComment]);
-        $this->validate();
+        $this->validate([
+            'body' => [
+                'required',
+                'string',
+                'max:60000',
+                new ContainsRegularCharacter(),
+            ],
+        ]);
 
         editTopicComment($this->forumTopicComment->id, $this->body);
 

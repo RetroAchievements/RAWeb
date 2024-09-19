@@ -19,7 +19,7 @@ use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Image\Manipulations;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -27,6 +27,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class System extends BaseModel implements HasMedia
 {
     use CausesActivity;
+    /** @use HasFactory<SystemFactory> */
     use HasFactory;
     use InteractsWithMedia;
     use LogsActivity {
@@ -133,15 +134,15 @@ class System extends BaseModel implements HasMedia
                 $this->addMediaConversion('2xl')
                     ->nonQueued()
                     ->format('png')
-                    ->fit(Manipulations::FIT_MAX, 500, 500);
+                    ->fit(Fit::Max, 500, 500);
                 $this->addMediaConversion('32')
                     ->nonQueued()
                     ->format('png')
-                    ->fit(Manipulations::FIT_MAX, 64, 64);
+                    ->fit(Fit::Max, 64, 64);
                 $this->addMediaConversion('64')
                     ->nonQueued()
                     ->format('png')
-                    ->fit(Manipulations::FIT_MAX, 64, 64);
+                    ->fit(Fit::Max, 64, 64);
             });
     }
 
@@ -209,7 +210,7 @@ class System extends BaseModel implements HasMedia
     // TODO remove after rename
     public function getNameAttribute(): string
     {
-        return $this->attributes['Name'];
+        return $this->attributes['Name'] ?? '';
     }
 
     // == mutators
@@ -283,5 +284,14 @@ class System extends BaseModel implements HasMedia
         $query->withCount('games');
 
         return $query->having('games_count', '>', '0');
+    }
+
+    /**
+     * @param Builder<System> $query
+     * @return Builder<System>
+     */
+    public function scopeGameSystems(Builder $query): Builder
+    {
+        return $query->whereNotIn('id', $this->getNonGameSystems());
     }
 }

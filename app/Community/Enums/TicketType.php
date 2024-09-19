@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Enums;
 
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+#[TypeScript('TicketType')]
 abstract class TicketType
 {
     public const TriggeredAtWrongTime = 1;

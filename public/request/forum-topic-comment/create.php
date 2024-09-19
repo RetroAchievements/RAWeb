@@ -2,6 +2,7 @@
 
 use App\Models\ForumTopic;
 use App\Models\User;
+use App\Support\Rules\ContainsRegularCharacter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -11,7 +12,12 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'topic' => 'required|integer|exists:ForumTopic,ID',
-    'body' => 'required|string|max:60000',
+    'body' => [
+        'required',
+        'string',
+        'max:60000',
+        new ContainsRegularCharacter(),
+    ],
 ]);
 
 $userModel = User::firstWhere('User', $user);

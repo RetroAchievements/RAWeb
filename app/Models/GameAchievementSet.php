@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Platform\Enums\AchievementSetType;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameAchievementSetFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class GameAchievementSet extends BaseModel
 {
+    /** @use HasFactory<GameAchievementSetFactory> */
     use HasFactory;
 
     protected $table = 'game_achievement_sets';
@@ -21,6 +24,10 @@ class GameAchievementSet extends BaseModel
         'type',
         'title',
         'order_column',
+    ];
+
+    protected $casts = [
+        'type' => AchievementSetType::class,
     ];
 
     protected static function newFactory(): GameAchievementSetFactory
@@ -51,4 +58,22 @@ class GameAchievementSet extends BaseModel
     }
 
     // == scopes
+
+    /**
+     * @param Builder<GameAchievementSet> $query
+     * @return Builder<GameAchievementSet>
+     */
+    public function scopeType(Builder $query, AchievementSetType $type): Builder
+    {
+        return $query->where('type', $type->value);
+    }
+
+    /**
+     * @param Builder<GameAchievementSet> $query
+     * @return Builder<GameAchievementSet>
+     */
+    public function scopeCore(Builder $query): Builder
+    {
+        return $this->scopeType($query, AchievementSetType::Core);
+    }
 }

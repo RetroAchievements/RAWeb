@@ -15,6 +15,7 @@ use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -88,6 +89,9 @@ class GameResource extends Resource
                             ->label('ID'),
 
                         Infolists\Components\TextEntry::make('title'),
+
+                        Infolists\Components\TextEntry::make('sort_title')
+                            ->label('Sort Title'),
 
                         Infolists\Components\TextEntry::make('forumTopic.id')
                             ->label('Forum Topic ID')
@@ -238,7 +242,41 @@ class GameResource extends Resource
                             ->required()
                             ->minLength(2)
                             ->maxLength(80)
-                            ->disabled(!$user->can('updateField', [$form->model, 'Title'])),
+                            ->disabled(!$user->can('updateField', [$form->model, 'Title']))
+                            ->afterStateUpdated(function (Game $record, callable $set, callable $get, string $state) {
+                                // If the user is updating the sort title, don't try to override their update of that field.
+                                if ($get('sort_title') !== $get('original_sort_title')) {
+                                    return;
+                                }
+
+                                $newTitle = $state;
+                                $originalTitle = $record->title;
+
+                                $record->title = $newTitle;
+                                $record->save();
+                                $record->refresh();
+
+                                $newSortTitle = (new WriteGameSortTitleFromGameTitleAction())->execute(
+                                    $record,
+                                    $originalTitle,
+                                );
+
+                                if ($newSortTitle) {
+                                    $set('sort_title', $newSortTitle);
+                                    $set('original_sort_title', $newSortTitle);
+                                }
+                            }),
+
+                        Forms\Components\TextInput::make('sort_title')
+                            ->required()
+                            ->label('Sort Title')
+                            ->minLength(2)
+                            ->disabled(!$user->can('updateField', [$form->model, 'sort_title']))
+                            ->helperText('Normalized title for sorting purposes. For example, "The Goonies II" would sort as "goonies 02". DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.')
+                            ->reactive()
+                            ->afterStateHydrated(function (callable $set, callable $get, ?string $state) {
+                                $set('original_sort_title', $state ?? '');
+                            }),
 
                         Forms\Components\TextInput::make('ForumTopicID')
                             ->label('Forum Topic ID')
@@ -303,25 +341,31 @@ class GameResource extends Resource
                                 }
                             }),
 
-                Forms\Components\DatePicker::make('released_at')
-                    ->label('Earliest Release Date')
-                    ->native(false)
-                    ->minDate('1970-01-01')
-                    ->maxDate(now())
-                    ->displayFormat('F j, Y')
-                    ->reactive(),
+                        Forms\Components\DatePicker::make('released_at')
+                            ->label('Earliest Release Date')
+                            ->native(false)
+                            ->minDate('1970-01-01')
+                            ->maxDate(now())
+                            ->displayFormat('F j, Y')
+                            ->reactive()
+                            ->afterStateUpdated(function (callable $set, $state) {
+                                // Set the granularity to 'day' if this is the first time released_at is set.
+                                if (!empty($state)) {
+                                    $set('released_at_granularity', 'day');
+                                }
+                            }),
 
-                Forms\Components\ToggleButtons::make('released_at_granularity')
-                    ->label('Release Date Precision')
-                    ->options([
-                        'day' => 'Day',
-                        'month' => 'Month',
-                        'year' => 'Year',
-                    ])
-                    ->inline()
-                    ->default('day')
-                    ->reactive(),
-                ]),
+                        Forms\Components\ToggleButtons::make('released_at_granularity')
+                            ->label('Release Date Precision')
+                            ->options([
+                                'day' => 'Day',
+                                'month' => 'Month',
+                                'year' => 'Year',
+                            ])
+                            ->inline()
+                            ->reactive()
+                            ->required(fn (callable $get) => !empty($get('released_at'))),
+                    ]),
             ]);
     }
 
@@ -437,7 +481,7 @@ class GameResource extends Resource
                     Tables\Actions\Action::make('audit-log')
                         ->url(fn ($record) => GameResource::getUrl('audit-log', ['record' => $record]))
                         ->icon('fas-clock-rotate-left'),
-                    ]),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

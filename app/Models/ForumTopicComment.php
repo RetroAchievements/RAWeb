@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\Permissions;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\ForumTopicCommentFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,6 +15,7 @@ use Laravel\Scout\Searchable;
 
 class ForumTopicComment extends BaseModel
 {
+    /** @use HasFactory<ForumTopicCommentFactory> */
     use HasFactory;
     use Searchable;
     use SoftDeletes;
@@ -142,6 +144,19 @@ class ForumTopicComment extends BaseModel
         return $query->where(function ($query) {
             $query->where('Authorised', 0)
                 ->orWhereNull('authorized_at');
+        });
+    }
+
+    /**
+     * @param Builder<ForumTopicComment> $query
+     * @return Builder<ForumTopicComment>
+     */
+    public function scopeViewable(Builder $query, ?User $user = null): Builder
+    {
+        $userPermissions = $user ? (int) $user->getAttribute('Permissions') : Permissions::Unregistered;
+
+        return $query->whereHas('forumTopic', function ($query) use ($userPermissions) {
+            $query->where('RequiredPermissions', '<=', $userPermissions);
         });
     }
 }

@@ -18,10 +18,10 @@ return [
             'name' => 'RetroArch',
             'handle' => 'RetroArch',
             'active' => true,
-            'link' => 'https://docs.retroachievements.org/FAQ/#retroarch-emulators',
-            'description' => 'Maintained by <a href="https://github.com/libretro/" target="_blank">libretro</a>. Supports a multitude of platforms - including Linux, Mac, Windows, Android.
-See <a href="https://docs.retroachievements.org/Emulator-Support-and-Issues/" target="_blank">Cores Compatibility List</a>.',
+            'link' => 'https://docs.libretro.com/guides/retroachievements/',
+            'description' => 'Multi-system emulator that runs on many platforms including Linux, Mac, Windows, and Android.',
             'download_url' => 'https://www.retroarch.com/index.php?page=platforms',
+            'source' => 'https://github.com/libretro/RetroArch',
             'systems' => [
                 1, // Genesis/Mega Drive
                 2, // Nintendo 64 (Cores: Mupen64Plus, ParaLLEl N64)
@@ -79,7 +79,7 @@ See <a href="https://docs.retroachievements.org/Emulator-Support-and-Issues/" ta
             'integration_id' => Emulators::RALibretro,
             'link' => 'https://docs.retroachievements.org/RALibretro/',
             'source' => 'https://github.com/RetroAchievements/RALibretro',
-            'description' => '<strong>Preferred for achievement creation!</strong><br>RALibRetro is a multi-emulator that can be used for achievements development.',
+            'description' => 'Multi-system emulator that can be used for achievements development.',
             'systems' => [
                 1, // Genesis/Mega Drive
                 2, // Nintendo 64
@@ -164,6 +164,7 @@ See <a href="https://docs.retroachievements.org/Emulator-Support-and-Issues/" ta
                 51, // Atari 7800
                 53, // WonderSwan
                 76, // PC Engine CD
+                77, // Atari Jaguar CD
                 78, // Nintendo DSi
                 80, // Uzebox
             ],
@@ -173,7 +174,7 @@ See <a href="https://docs.retroachievements.org/Emulator-Support-and-Issues/" ta
             'handle' => 'PCSX2',
             'active' => true,
             'link' => 'https://pcsx2.net/docs/category/setup/',
-            'description' => '<strong>NOTE:</strong> only emulator available supporting achievements for PlayStation 2. Download the QT version.',
+            'description' => 'Only emulator available supporting achievements for PlayStation 2.',
             'download_url' => 'https://pcsx2.net/downloads',
             'systems' => [
                 21, // PlayStation 2
@@ -193,8 +194,8 @@ See <a href="https://docs.retroachievements.org/Emulator-Support-and-Issues/" ta
             'name' => 'Dolphin',
             'handle' => 'Dolphin',
             'active' => true,
+            'minimum_version' => '2407-68',
             'link' => 'https://wiki.dolphin-emu.org/index.php?title=Main_Page',
-            'description' => '<strong>NOTE:</strong> Requires a development version of 2407-68 or higher.',
             'download_url' => 'https://dolphin-emu.org/download/',
             'systems' => [
                 16, // GameCube
@@ -235,7 +236,7 @@ See <a href="https://docs.retroachievements.org/Emulator-Support-and-Issues/" ta
             'integration_id' => Emulators::RAppleWin,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
             'source' => 'https://github.com/RetroAchievements/AppleWin',
-            'description' => '<strong>NOTE:</strong> only emulator available supporting achievements for Apple II.',
+            'description' => 'Only emulator available supporting achievements for Apple II.',
             'systems' => [
                 38, // Apple II
             ],
@@ -251,7 +252,6 @@ See <a href="https://docs.retroachievements.org/Emulator-Support-and-Issues/" ta
             'integration_id' => Emulators::RAQUASI88,
             'link' => 'https://docs.retroachievements.org/RAQUASI88/',
             'source' => 'https://github.com/RetroAchievements/quasi88',
-            'description' => '<strong>NOTE:</strong> only emulator available supporting achievements for PC-8000/8800.',
             'systems' => [
                 47, // PC-8000/8800
             ],

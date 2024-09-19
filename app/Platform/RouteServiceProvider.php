@@ -6,9 +6,11 @@ namespace App\Platform;
 
 use App\Models\GameHash;
 use App\Platform\Controllers\AchievementController;
+use App\Platform\Controllers\GameController;
 use App\Platform\Controllers\GameHashController;
 use App\Platform\Controllers\PlayerAchievementController;
 use App\Platform\Controllers\PlayerGameController;
+use App\Platform\Controllers\ReportAchievementIssueController;
 use App\Platform\Controllers\SystemController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +43,10 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapWebRoutes(): void
     {
         Route::middleware(['web', 'csp'])->group(function () {
+            Route::middleware(['inertia'])->group(function () {
+                Route::get('game/{game}/hashes', [GameHashController::class, 'index'])->name('game.hashes.index');
+            });
+
             // Route::get('achievement/{achievement}{slug?}', [AchievementController::class, 'show'])->name('achievement.show');
             // Route::resource('achievements', AchievementController::class)->only('index')->names(['index' => 'achievement.index']);
             // Route::get(
@@ -63,6 +69,7 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}/badges', [GameBadgeController::class, 'index'])->name('game.badge.index');
             // Route::get('game/{game}/assets', [GameAssetsController::class, 'index'])->name('game.asset.index');
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
+            Route::get('game/random', [GameController::class, 'random'])->name('game.random');
 
             // Route::get('create', CreateController::class)->name('create');
             // Route::resource('developers', DeveloperController::class)->only('index');
@@ -94,6 +101,10 @@ class RouteServiceProvider extends ServiceProvider
 
                 Route::delete('user/game/{game}', [PlayerGameController::class, 'destroy'])->name('user.game.destroy');
                 Route::delete('user/achievement/{achievement}', [PlayerAchievementController::class, 'destroy'])->name('user.achievement.destroy');
+
+                Route::middleware(['inertia'])->group(function () {
+                    Route::get('achievement/{achievement}/report-issue', [ReportAchievementIssueController::class, 'index'])->name('achievement.report-issue.index');
+                });
             });
         });
     }

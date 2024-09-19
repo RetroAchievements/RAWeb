@@ -23,6 +23,7 @@ class Leaderboard extends BaseModel
     /*
      * Shared Traits
      */
+    /** @use HasFactory<LeaderboardFactory> */
     use HasFactory;
 
     use Searchable;
@@ -56,6 +57,7 @@ class Leaderboard extends BaseModel
         'Description',
         'Format',
         'LowerIsBetter',
+        'DisplayOrder',
     ];
 
     protected static function newFactory(): LeaderboardFactory

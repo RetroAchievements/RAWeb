@@ -126,6 +126,7 @@ class GameListService
              *    specified within the "~" markers, and then alphabetically by the title following
              *    the "~".
              */
+            // TODO use the sort_title attribute on the games table
             $game['SortTitle'] = mb_strtolower($game['Title']);
             if ($game['SortTitle'][0] === '~') {
                 $endOfFirstTilde = strpos($game['SortTitle'], '~', 1);
@@ -567,12 +568,12 @@ class GameListService
                             :maxProgress="$maxProgress"
                             :tooltip="$tooltip"
                         />', [
-                            'awardIndicator' => $highestAwardKind,
-                            'softcoreProgress' => $softcoreProgress,
-                            'hardcoreProgress' => $hardcoreProgress,
-                            'maxProgress' => $game['achievements_published'],
-                            'tooltip' => $tooltip,
-                        ]);
+                        'awardIndicator' => $highestAwardKind,
+                        'softcoreProgress' => $softcoreProgress,
+                        'hardcoreProgress' => $hardcoreProgress,
+                        'maxProgress' => $game['achievements_published'],
+                        'tooltip' => $tooltip,
+                    ]);
                     echo '</td>';
                 }
             },
@@ -594,9 +595,9 @@ class GameListService
                         :gameId="$gameId"
                         :isOnBacklog="$isOnBacklog"
                     />', [
-                        'gameId' => $game['ID'],
-                        'isOnBacklog' => $game['WantToPlay'] ?? false,
-                    ]);
+                    'gameId' => $game['ID'],
+                    'isOnBacklog' => $game['WantToPlay'] ?? false,
+                ]);
                 echo '</td>';
             },
         ];

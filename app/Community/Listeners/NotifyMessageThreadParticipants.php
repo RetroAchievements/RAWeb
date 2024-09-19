@@ -11,6 +11,7 @@ use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
+use App\Support\Shortcode\Shortcode;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -73,10 +74,12 @@ class NotifyMessageThreadParticipants
         MessageThread $messageThread,
         Message $message
     ): void {
+        $message->body = Shortcode::stripAndClamp($message->body, 1850);
+
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
         $webhookUrl = $inboxConfig['url'] ?? null;
 
-        if ($inboxConfig === null || $webhookUrl === null) {
+        if ($inboxConfig === null || empty($webhookUrl)) {
             return;
         }
 

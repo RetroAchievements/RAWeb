@@ -64,7 +64,7 @@ export function renderTooltip(
   updateTooltipPosition(
     anchorEl,
     store.tooltipEl,
-    store.trackedMouseX + offsetX,
-    store.trackedMouseY + offsetY,
+    (store.trackedMouseX ?? 0) + (offsetX ?? 0),
+    (store.trackedMouseY ?? 0) + (offsetY ?? 0),
   );
 }

@@ -41,6 +41,7 @@ class Achievement extends BaseModel implements HasComments
     /*
      * Shared Traits
      */
+    /** @use HasFactory<AchievementFactory> */
     use HasFactory;
 
     use Searchable;
@@ -305,6 +306,15 @@ class Achievement extends BaseModel implements HasComments
     // == mutators
 
     // == relations
+
+    /**
+     * @return BelongsToMany<AchievementSet>
+     */
+    public function achievementSets(): BelongsToMany
+    {
+        return $this->belongsToMany(AchievementSet::class, 'achievement_set_achievements', 'achievement_id', 'achievement_set_id', 'ID', 'id')
+            ->withPivot('order_column', 'created_at', 'updated_at');
+    }
 
     /**
      * @return BelongsTo<User, Achievement>

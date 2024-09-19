@@ -75,7 +75,7 @@ abstract class ResourceAuditLog extends Page implements HasForms
     }
 
     /**
-     * @return Collection<string, \Illuminate\Contracts\Support\Htmlable|string|null>
+     * @return Collection<int|string, mixed>
      */
     protected function createFieldLabelMap(): Collection
     {
@@ -127,9 +127,35 @@ abstract class ResourceAuditLog extends Page implements HasForms
             if ($fieldValueMap->has($key) && is_callable($fieldValueMap->get($key))) {
                 $values[$key] = $fieldValueMap->get($key)($value);
             }
+
+            if ($this->getIsImageField($key) && is_string($value)) {
+                $values[$key] = $this->getImageUrl($key, $value);
+            }
         }
 
         return $values;
+    }
+
+    protected function getIsImageField(string $fieldName): bool
+    {
+        return in_array($fieldName, [
+            'BadgeName',
+            'ImageIcon',
+        ]);
+    }
+
+    protected function getImageUrl(string $fieldName, string $path): string
+    {
+        switch ($fieldName) {
+            case 'BadgeName':
+                return media_asset("/Badge/{$path}.png");
+
+            case 'ImageIcon':
+                return media_asset($path);
+
+            default:
+                return media_asset($path);
+        }
     }
 
     protected function getEventColor(string $event): string

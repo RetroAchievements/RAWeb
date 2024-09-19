@@ -16,6 +16,7 @@ use Laravel\Scout\Searchable;
 
 class Ticket extends BaseModel
 {
+    /** @use HasFactory<TicketFactory> */
     use HasFactory;
     use Searchable;
     use SoftDeletes;

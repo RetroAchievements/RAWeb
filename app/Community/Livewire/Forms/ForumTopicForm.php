@@ -6,6 +6,7 @@ namespace App\Community\Livewire\Forms;
 
 use App\Models\Forum;
 use App\Models\ForumTopic;
+use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +38,7 @@ class ForumTopicForm extends Form
         $this->authorize('create', [ForumTopic::class, $this->forum]);
         $this->validate();
 
+        /** @var User $user */
         $user = Auth::user();
 
         $newForumTopicComment = submitNewTopic(

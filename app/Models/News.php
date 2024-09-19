@@ -8,13 +8,14 @@ use App\Community\Concerns\HasAuthor;
 use App\Community\Contracts\HasComments;
 use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
+use Database\Factories\NewsFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
-use Spatie\Image\Manipulations;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -22,6 +23,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class News extends BaseModel implements HasComments, HasMedia
 {
     use HasAuthor;
+    /** @use HasFactory<NewsFactory> */
     use HasFactory;
     use InteractsWithMedia;
 
@@ -93,7 +95,7 @@ class News extends BaseModel implements HasComments, HasMedia
                 $this->addMediaConversion('2xl')
                     ->nonQueued()
                     ->format('png')
-                    ->fit(Manipulations::FIT_MAX, 1000, 600);
+                    ->fit(Fit::Max, 1000, 600);
             });
     }
 
