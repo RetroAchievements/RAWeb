@@ -287,12 +287,13 @@ class BuildGameListAction
                  */
                 default:
                     $query->orderBy('GameData.sort_title', $sortDirection);
+                    break;
             }
         }
 
         // Default to sorting by title if no valid sort field is provided.
         // Otherwise, always secondary sort by title.
-        $query->orderBy('GameData.sort_title', $sortDirection);
+        $query->orderBy('GameData.sort_title', $sort['direction'] ?? 'asc');
     }
 
     /**
