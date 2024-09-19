@@ -74,7 +74,7 @@ class NotifyMessageThreadParticipants
         MessageThread $messageThread,
         Message $message
     ): void {
-        $message->body = Shortcode::stripAndClamp($message->body, 38000);
+        $message->body = Shortcode::stripAndClamp($message->body, 1850);
 
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
         $webhookUrl = $inboxConfig['url'] ?? null;
