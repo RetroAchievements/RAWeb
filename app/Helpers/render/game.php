@@ -106,8 +106,7 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
             />', [
             'rawTitle' => $mainTitle,
             'showTags' => false,
-        ]
-        );
+        ]);
 
         if ($renderedMain !== $mainTitle) {
             // In the rare case of a same-console derived game sharing identical
