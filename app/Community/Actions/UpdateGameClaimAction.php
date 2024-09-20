@@ -31,14 +31,32 @@ class UpdateGameClaimAction
 
         $newValues = $request->validated();
 
-        $auditMessage = "{$currentUser->display_name} updated {$claim->user->display_name}'s claim. ";
+        $auditMessage = "{$currentUser->display_name} updated {$claim->user->display_name}'s claim.";
         
+        if (array_key_exists('type', $newValues)) {
+            $newType = (int) $newValues['type'];
+            if ($claim->ClaimType != $newType) {
+                $claim->ClaimType = $newType;
+
+                $auditMessage .= " Claim Type: " . ClaimType::toString($newType) . '.';
+            }
+        }
+
+        if (array_key_exists('set_type', $newValues)) {
+            $newType = (int) $newValues['set_type'];
+            if ($claim->SetType != $newType) {
+                $claim->SetType = $newType;
+
+                $auditMessage .= " Set Type: " . ClaimSetType::toString($newType) . '.';
+            }
+        }
+
         if (array_key_exists('status', $newValues)) {
             $newStatus = (int) $newValues['status'];
             if ($claim->Status != $newStatus) {
                 $claim->Status = $newStatus;
 
-                $auditMessage .= "Claim Status: " . ClaimStatus::toString($newStatus);
+                $auditMessage .= " Claim Status: " . ClaimStatus::toString($newStatus) . '.';
 
                 if (!ClaimStatus::isActive($newStatus)) {
                     $claim->Finished = Carbon::now();
@@ -47,6 +65,33 @@ class UpdateGameClaimAction
                         $this->processCompletedClaim($claim, $currentUser);
                     }
                 }
+            }
+        }
+
+        if (array_key_exists('special', $newValues)) {
+            $newSpecial = (int) $newValues['special'];
+            if ($claim->Special != $newSpecial) {
+                $claim->Special = $newSpecial;
+
+                $auditMessage .= " Special: " . ClaimSetType::toString($newSpecial) . '.';
+            }
+        }
+
+        if (array_key_exists('claimed', $newValues)) {
+            $newDate = $newValues['claimed'];
+            if ($claim->Created != $newDate) {
+                $claim->Created = $newDate;
+
+                $auditMessage .= " Claim Date: $newDate.";
+            }
+        }
+
+        if (array_key_exists('finished', $newValues)) {
+            $newDate = $newValues['finished'];
+            if ($claim->Finished != $newDate) {
+                $claim->Finished = $newDate;
+
+                $auditMessage .= " End Date: $newDate.";
             }
         }
 
