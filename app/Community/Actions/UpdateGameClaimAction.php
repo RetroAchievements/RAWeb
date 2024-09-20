@@ -31,10 +31,15 @@ class UpdateGameClaimAction
 
         $newValues = $request->validated();
 
+        $auditMessage = "{$currentUser->display_name} updated {$claim->user->display_name}'s claim. ";
+        
         if (array_key_exists('status', $newValues)) {
             $newStatus = (int) $newValues['status'];
             if ($claim->Status != $newStatus) {
                 $claim->Status = $newStatus;
+
+                $auditMessage .= "Claim Status: " . ClaimStatus::toString($newStatus);
+
                 if (!ClaimStatus::isActive($newStatus)) {
                     $claim->Finished = Carbon::now();
 
@@ -45,7 +50,11 @@ class UpdateGameClaimAction
             }
         }
 
-        $claim->save();
+        if ($claim->isDirty()) {
+            $claim->save();
+
+            addArticleComment("Server", ArticleType::SetClaim, $claim->game_id, $auditMessage);
+        }
     }
 
     private function processCompletedClaim(AchievementSetClaim $claim, User $currentUser): void

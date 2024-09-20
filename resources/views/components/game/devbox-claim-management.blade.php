@@ -233,26 +233,23 @@ function completeClaim() {
         @if ($primaryClaimStatus !== ClaimStatus::InReview)
             <form
                 class="mb-1"
-                action="/request/set-claim/update-claim-status.php"
+                action="{{ route('achievement-set-claim.update', $primaryClaimId) }}"
                 method="post"
                 onsubmit="return reviewClaim()"
             >
                 {!! csrf_field() !!}
-                <input type="hidden" name="game" value="{{ $gameId }}">
-                <input type="hidden" name="claim" value="{{ $primaryClaimId }}">
-                <input type="hidden" name="claim_status" value="{{ ClaimStatus::InReview }}">
+                <input type="hidden" name="status" value="{{ ClaimStatus::InReview }}">
                 <button class="btn">Mark Claim for Review</button>
             </form>
         @else
             <form
                 class="mb-1"
-                action="/request/set-claim/update-claim-status.php"
+                action="{{ route('achievement-set-claim.update', $primaryClaimId) }}"
                 method="post"
                 onsubmit="return activateClaim()"
             >
                 {!! csrf_field() !!}
-                <input type="hidden" name="claim" value="{{ $primaryClaimId }}">
-                <input type="hidden" name="claim_status" value="{{ ClaimStatus::Active }}">
+                <input type="hidden" name="status" value="{{ ClaimStatus::Active }}">
                 <button class="btn">Complete Claim Review</button>
             </form>
         @endif
