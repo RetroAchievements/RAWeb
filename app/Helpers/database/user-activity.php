@@ -86,7 +86,7 @@ function addArticleComment(
         $comment = Comment::create([
             'ArticleType' => $articleType,
             'ArticleID' => $id,
-            'user_id' => $user_id,
+            'user_id' => $userID,
             'Payload' => $commentPayload,
         ]);
 

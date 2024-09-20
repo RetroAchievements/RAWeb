@@ -32,6 +32,7 @@ $primaryClaimMinutesLeft = 0;
 $hasGameClaimed = false;
 $isSoleAuthor = false;
 
+$userClaimId = 0;
 $userClaimCount = 0;
 $userHasClaimSlot = false;
 $openTickets = null;
@@ -57,6 +58,7 @@ if ($claimListLength > 0 && $claimData[0]['ClaimType'] == ClaimType::Primary) {
 
     foreach ($claimData as $claim) {
         if (isset($claim['User']) && $claim['User'] === $user?->User) {
+            $userClaimId = $claim['ID'];
             $hasGameClaimed = true;
         }
     }
@@ -143,17 +145,12 @@ function completeClaim() {
 
 @if ($canClaim)
     <form
-        action="/request/set-claim/make-claim.php"
+        action="{{ route('achievement-set-claim.create', $gameId) }}"
         method="post"
         onsubmit="return makeClaim()"
     >
         {!! csrf_field() !!}
         <input type="hidden" name="game" value="{{ $gameId }}">
-        <input type="hidden" name="claim_type" value="{{ $claimType }}">
-        <input type="hidden" name="set_type" value="{{ $claimSetType }}">
-        @if ($createTopic)
-            <input type="hidden" name="create_topic" value="1">
-        @endif
         <button class="btn">
             Make
             {{ ClaimSetType::toString($claimSetType) }}
@@ -168,12 +165,11 @@ function completeClaim() {
 @elseif ($hasGameClaimed)
     @if ($primaryClaimUser === $user?->User && $primaryClaimMinutesLeft <= 10080)
         <form
-            action="/request/set-claim/extend-claim.php"
+            action="{{ route('achievement-set-claim.create', $gameId) }}"
             method="post"
             onsubmit="return extendClaim()"
         >
             {!! csrf_field() !!}
-            <input type="hidden" name="game" value="{{ $gameId }}">
             <button class="btn">Extend Claim</button>
         </form>
     @endif
@@ -183,14 +179,11 @@ function completeClaim() {
     @else
         <form
             class="mb-1"
-            action="/request/set-claim/drop-claim.php"
+            action="{{ route('achievement-set-claim.delete', $gameId) }}"
             method="post"
             onsubmit="return dropClaim()"
         >
             {!! csrf_field() !!}
-            <input type="hidden" name="game" value="{{ $gameId }}">
-            <input type="hidden" name="claim_type" value="{{ $claimType }}">
-            <input type="hidden" name="set_type" value="{{ $claimSetType }}">
             <button class="btn">Drop {{ ClaimType::toString($claimType) }} Claim</button>
         </form>
     @endif
@@ -211,12 +204,12 @@ function completeClaim() {
         <p class='ml-2'>Cannot Complete Claim from Unofficial</p>
     @else
         <form
-            action="/request/set-claim/complete-claim.php"
+            action="{{ route('achievement-set-claim.update', $userClaimId) }}"
             method="post"
             onsubmit="return completeClaim()"
         >
             {!! csrf_field() !!}
-            <input type="hidden" name="game" value="{{ $gameId }}">
+            <input type="hidden" name="status" value="{{ ClaimStatus::Complete }}">
             <button class="btn">Complete Claim</button>
             @if ($isRecentPrimaryClaim)
                 <a

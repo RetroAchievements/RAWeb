@@ -40,7 +40,7 @@ class CreateGameClaimAction
                 $primaryClaim->save();
 
                 Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($currentUser->User));
-                addArticleComment("Server", ArticleType::SetClaim, $game->ID, "Claim extended by " . $currentUser);
+                addArticleComment("Server", ArticleType::SetClaim, $game->ID, "Claim extended by " . $currentUser->User);
 
                 return $primaryClaim;
             }

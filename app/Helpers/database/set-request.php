@@ -66,10 +66,6 @@ function getSetRequestorsList(int $gameId, bool $getEmailInfo = false): array
         ->where('type', UserGameListType::AchievementSetRequest)
         ->with('user');
 
-    if ($getEmailInfo) {
-        $query->with(['game:ID,Title']);
-    }
-
     $setRequests = $query->get();
 
     $processedValues = $setRequests->map(function ($setRequest) use ($getEmailInfo) {
@@ -79,7 +75,6 @@ function getSetRequestorsList(int $gameId, bool $getEmailInfo = false): array
 
         if ($getEmailInfo) {
             $record['Email'] = $setRequest->user->EmailAddress;
-            $record['Title'] = $setRequest->game->Title;
         }
 
         return $record;
