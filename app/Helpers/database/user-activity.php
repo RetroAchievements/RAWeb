@@ -81,35 +81,16 @@ function addArticleComment(
         return true;
     }
 
-    if (is_array($articleID)) {
-        $bindings = [];
-
-        $articleIDs = $articleID;
-        $arrayCount = count($articleID);
-        $count = 0;
-        $query = "INSERT INTO Comment (ArticleType, ArticleID, user_id, Payload) VALUES";
-        foreach ($articleID as $id) {
-            $bindings['commentPayload' . $count] = $commentPayload;
-            $query .= "( $articleType, $id, $userID, :commentPayload$count )";
-            if (++$count !== $arrayCount) {
-                $query .= ",";
-            }
-        }
-    } else {
-        $query = "INSERT INTO Comment (ArticleType, ArticleID, user_id, Payload) VALUES( $articleType, $articleID, $userID, :commentPayload)";
-        $bindings = ['commentPayload' => $commentPayload];
-        $articleIDs = [$articleID];
-    }
-
-    legacyDbStatement($query, $bindings);
-
-    // Inform Subscribers of this comment:
+    $articleIDs = is_array($articleID) ? $articleID : [$articleID];
     foreach ($articleIDs as $id) {
-        $query = "SELECT MAX(ID) AS CommentID FROM Comment
-                  WHERE ArticleType=$articleType AND ArticleID=$id AND user_id=$userID";
-        $commentID = legacyDbFetch($query)['CommentID'];
+        $comment = Comment::create([
+            'ArticleType' => $articleType,
+            'ArticleID' => $id,
+            'user_id' => $user_id,
+            'Payload' => $commentPayload,
+        ]);
 
-        informAllSubscribersAboutActivity($articleType, $id, $user, $commentID, $onBehalfOfUser);
+        informAllSubscribersAboutActivity($articleType, $id, $user, $comment->ID, $onBehalfOfUser);
     }
 
     return true;
