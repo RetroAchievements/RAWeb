@@ -10,7 +10,6 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Achievement;
-use App\Models\AchievementSetClaim;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
 use App\Models\Role;
@@ -268,7 +267,7 @@ class AchievementSetClaimControllerTest extends TestCase
         /** @var User $user2 */
         $user2 = User::factory()->create();
         $user2->assignRole(Role::DEVELOPER);
-        
+
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
 
@@ -357,7 +356,7 @@ class AchievementSetClaimControllerTest extends TestCase
         /** @var User $user2 */
         $user2 = User::factory()->create();
         $user2->assignRole(Role::DEVELOPER);
-        
+
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
 
@@ -446,7 +445,7 @@ class AchievementSetClaimControllerTest extends TestCase
         /** @var User $user2 */
         $user2 = User::factory()->create();
         $user2->assignRole(Role::DEVELOPER);
-        
+
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
 

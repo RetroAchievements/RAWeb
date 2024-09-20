@@ -7,20 +7,15 @@ namespace App\Community\Actions;
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimSetType;
-use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
-use App\Community\Enums\UserGameListType;
 use App\Community\Requests\UpdateGameClaimRequest;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\PlayerBadge;
 use App\Models\User;
-use App\Models\UserGameListEntry;
-use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 
 class UpdateGameClaimAction
 {
@@ -32,7 +27,7 @@ class UpdateGameClaimAction
         $newValues = $request->validated();
 
         $auditMessage = "{$currentUser->display_name} updated {$claim->user->display_name}'s claim.";
-        
+
         if (array_key_exists('type', $newValues)) {
             $newType = (int) $newValues['type'];
             if ($claim->ClaimType != $newType) {

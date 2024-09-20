@@ -11,7 +11,6 @@ use App\Community\Requests\UpdateGameClaimRequest;
 use App\Http\Controller;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,20 +19,19 @@ class AchievementSetClaimController extends Controller
     public function create(
         Game $game,
         CreateGameClaimAction $action,
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         $this->authorize('create', [AchievementSetClaim::class]);
 
         $claim = $action->execute($game);
 
         if (!$game->ForumTopicID && $this->authorize('update', $game)) {
             generateGameForumTopic(Auth::user(), $game->ID);
-    
+
             // return redirect(route('game.show', $game->ID))
             //     ->with('success', $this->resourceActionSuccessMessage('claim', 'create'));
         }
 
-        return back()->with('success', $this->resourceActionSuccessMessage('claim', 
+        return back()->with('success', $this->resourceActionSuccessMessage('claim',
             $claim->Created == $claim->Updated ? 'create' : 'update'));
     }
 
@@ -41,8 +39,7 @@ class AchievementSetClaimController extends Controller
         UpdateGameClaimRequest $request,
         AchievementSetClaim $claim,
         UpdateGameClaimAction $action,
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         $this->authorize('manage', [AchievementSetClaim::class]);
 
         $action->execute($claim, $request);
@@ -53,8 +50,7 @@ class AchievementSetClaimController extends Controller
     public function delete(
         Game $game,
         DropGameClaimAction $action,
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         $this->authorize('manage', [AchievementSetClaim::class]);
 
         $claim = $action->execute($game);

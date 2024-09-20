@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Community\Actions;
 
 use App\Community\Enums\ArticleType;
-use App\Community\Enums\ClaimSetType;
-use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
+use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +31,7 @@ class DropGameClaimAction
             Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($currentUser->User));
 
             // if the primary claim was dropped and there's a collaboration claim, promote it to primary
-            $firstCollabClaim = ($claim->ClaimType === ClaimType::Primary) ? 
+            $firstCollabClaim = ($claim->ClaimType === ClaimType::Primary) ?
                 $game->achievementSetClaims()->active()->orderBy('Created')->first() : null;
 
             if ($firstCollabClaim !== null) {
@@ -44,8 +43,7 @@ class DropGameClaimAction
                 Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($firstCollabClaim->user->User));
 
                 addArticleComment("Server", ArticleType::SetClaim, $game->ID, "Primary claim dropped by {$currentUser->User}, transferred to {$firstCollabClaim->user->User}");
-            }
-            else {
+            } else {
                 addArticleComment("Server", ArticleType::SetClaim, $game->ID, ClaimType::toString($claim->ClaimType) . " claim dropped by {$currentUser->User}");
             }
 

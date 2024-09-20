@@ -12,6 +12,7 @@ use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
+use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -49,7 +50,7 @@ class CreateGameClaimAction
             $setType = $primaryClaim->SetType;
             $special = $primaryClaim->Special;
         }
-        
+
         if ($game->achievements_published > 0) {
             $setType = ClaimSetType::Revision;
             if (checkIfSoleDeveloper($currentUser, $game->id)) {
@@ -67,7 +68,7 @@ class CreateGameClaimAction
             'Special' => $special,
             'Finished' => $expiresAt,
         ]);
-    
+
         Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($currentUser->User));
 
         addArticleComment("Server", ArticleType::SetClaim, $game->ID,
