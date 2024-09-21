@@ -26,9 +26,6 @@ class AchievementSetClaimController extends Controller
 
         if (!$game->ForumTopicID && $this->authorize('update', $game)) {
             generateGameForumTopic(Auth::user(), $game->ID);
-
-            // return redirect(route('game.show', $game->ID))
-            //     ->with('success', $this->resourceActionSuccessMessage('claim', 'create'));
         }
 
         return back()->with('success', $this->resourceActionSuccessMessage('claim',
