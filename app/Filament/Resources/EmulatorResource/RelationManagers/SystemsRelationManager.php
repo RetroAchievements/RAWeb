@@ -35,7 +35,7 @@ class SystemsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('title')
+            ->recordTitleAttribute('name_full')
             ->columns([
                 Tables\Columns\ImageColumn::make('icon_url')
                     ->label('')
@@ -55,10 +55,11 @@ class SystemsRelationManager extends RelationManager
 
             ])
             ->headerActions([
-
+                Tables\Actions\AttachAction::make()
+                    ->preloadRecordSelect(),
             ])
             ->actions([
-
+                Tables\Actions\DetachAction::make(),
             ])
             ->defaultSort(function (Builder $query): Builder {
                 return $query->orderBy('name_full');

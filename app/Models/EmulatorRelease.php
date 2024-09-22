@@ -25,6 +25,7 @@ class EmulatorRelease extends BaseModel implements HasMedia
         'notes',
         'stable',
         'version',
+        'created_at',
     ];
 
     protected $with = [
