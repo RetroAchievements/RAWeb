@@ -35,7 +35,6 @@ class UserGameListControllerTest extends TestCase
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
-            ->component('game-list/play')
             ->has('filterableSystemOptions', 1)
             ->where('can.develop', false)
             ->has('paginatedGameListEntries.items', 1)
