@@ -17,6 +17,7 @@ class SystemPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
+            Role::RELEASE_MANAGER,
         ]);
     }
 
@@ -34,6 +35,7 @@ class SystemPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
+            Role::RELEASE_MANAGER,
         ]);
     }
 
@@ -41,6 +43,7 @@ class SystemPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
+            Role::RELEASE_MANAGER,
         ]);
     }
 
@@ -52,6 +55,7 @@ class SystemPolicy
 
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
+            Role::RELEASE_MANAGER,
         ]);
     }
 
@@ -59,6 +63,7 @@ class SystemPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
+            Role::RELEASE_MANAGER,
         ]);
     }
 
