@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Livewire\Forms;
 
+use App\Community\Actions\ReplaceUserShortcodesWithUsernamesAction;
 use App\Models\ForumTopicComment;
 use App\Support\Rules\ContainsRegularCharacter;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -24,7 +25,11 @@ class ForumTopicCommentForm extends Form
     public function setForumTopicComment(ForumTopicComment $forumTopicComment): void
     {
         $this->forumTopicComment = $forumTopicComment;
-        $this->body = $forumTopicComment->body;
+
+        // "[user=1]" -> "[user=Scott]"
+        $this->body = (
+            new ReplaceUserShortcodesWithUsernamesAction()
+        )->execute($this->forumTopicComment->body);
     }
 
     public function update(): RedirectResponse|Redirector

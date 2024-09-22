@@ -17,6 +17,7 @@ class SystemData extends Data
         public string $name,
         public Lazy|string $nameFull,
         public Lazy|string $nameShort,
+        public Lazy|string $iconUrl,
     ) {
     }
 
@@ -27,6 +28,7 @@ class SystemData extends Data
             name: $system->name,
             nameFull: Lazy::create(fn () => $system->name_full),
             nameShort: Lazy::create(fn () => $system->name_short),
+            iconUrl: Lazy::create(fn () => $system->icon_url),
         );
     }
 }
