@@ -10,7 +10,7 @@ import { cn } from '@/utils/cn';
 
 import { BaseProgress } from '../+vendor/BaseProgress';
 import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
-import { PlayerBadgeIndicator } from '../PlayerBadgeIndicator/PlayerBadgeIndicator';
+import { PlayerBadgeIndicator } from '../PlayerBadgeIndicator';
 import { PlayerBadgeLabel } from '../PlayerBadgeLabel';
 
 dayjs.extend(utc);

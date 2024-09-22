@@ -5,7 +5,7 @@ import utc from 'dayjs/plugin/utc';
 
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { PlayerGameProgressBar } from '@/common/components/PlayerGameProgressBar';
-import { SystemChip } from '@/common/components/SystemChip/SystemChip';
+import { SystemChip } from '@/common/components/SystemChip';
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 import { formatNumber } from '@/common/utils/l10n/formatNumber';
