@@ -11,6 +11,7 @@ use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
@@ -60,6 +61,28 @@ class BuildGameListActionTest extends TestCase
         $this->assertEquals(20, $result->total);
         $this->assertEquals(1, $result->currentPage);
         $this->assertEquals(3, $result->lastPage);
+    }
+
+    public function testItKeepsTheUserPageWithinBounds(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            perPage: 1,
+            page: 25, // There should only be 6 pages. Try to exceed the bounds.
+        );
+
+        // Assert
+        $this->assertEquals(6, $result->total);
+        $this->assertEquals(6, $result->currentPage);
+        $this->assertEquals(6, $result->lastPage);
     }
 
     // TODO once other list contexts are supported, use a different one for this test case
@@ -355,10 +378,64 @@ class BuildGameListActionTest extends TestCase
         $this->assertEquals(3, $firstItem->game->numVisibleLeaderboards->resolve());
     }
 
-    public function testItCanSortByNumUnresolvedTickets(): void
+    public function testItDoesntQueryForOpenTicketCountsForNonDevelopers(): void
     {
         // Arrange
         $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        $achievement1001 = Achievement::factory()->create(['GameID' => 1001, 'Flags' => AchievementFlag::OfficialCore]);
+        $achievement1003 = Achievement::factory()->create(['GameID' => 1003, 'Flags' => AchievementFlag::OfficialCore]);
+
+        Ticket::factory()->count(3)->create(['AchievementID' => $achievement1001->id, 'ReportState' => TicketState::Open]);
+        Ticket::factory()->count(27)->create(['AchievementID' => $achievement1003->id, 'ReportState' => TicketState::Closed]);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+        );
+
+        $firstItem = $result->items[0];
+
+        // Assert
+        $this->assertArrayNotHasKey('numUnresolvedTickets', $firstItem->game->toArray());
+    }
+
+    public function testItCanSortByPlayersTotal(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            sort: ['field' => 'playersTotal', 'direction' => 'asc'],
+        );
+
+        $firstItem = $result->items[0];
+        $lastItem = $result->items[count($result->items) - 1];
+
+        // Assert
+        $this->assertEquals(1004, $firstItem->game->id);
+        $this->assertEquals(0, $firstItem->game->playersTotal->resolve());
+        $this->assertEquals(1002, $lastItem->game->id);
+        $this->assertEquals(2856, $lastItem->game->playersTotal->resolve());
+    }
+
+    public function testItCanSortByNumUnresolvedTickets(): void
+    {
+        // Arrange
+        Role::create(['name' => Role::DEVELOPER, 'display' => 0]);
+
+        $user = User::factory()->create();
+        $user->assignRole(Role::DEVELOPER);
 
         $this->seedGamesForLists();
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
@@ -409,6 +486,25 @@ class BuildGameListActionTest extends TestCase
         $this->assertEquals(1005, $result->items[2]->game->id);
     }
 
+    public function testItReturnsNoUnfilteredTotalIfFiltersArentApplied(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            filters: [],
+        );
+
+        // Assert
+        $this->assertNull($result->unfilteredTotal);
+    }
+
     public function testItCanFilterByOneSystem(): void
     {
         // Arrange
@@ -425,6 +521,7 @@ class BuildGameListActionTest extends TestCase
         );
 
         // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(2, $result->total);
         $this->assertEquals(2, count($result->items));
     }
@@ -445,6 +542,7 @@ class BuildGameListActionTest extends TestCase
         );
 
         // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(6, $result->total);
         $this->assertEquals(6, count($result->items));
     }
@@ -461,10 +559,11 @@ class BuildGameListActionTest extends TestCase
         $result = (new BuildGameListAction())->execute(
             GameListType::UserPlay,
             $user,
-            filters: ['hasAchievementsPublished' => ['has']]
+            filters: ['achievementsPublished' => ['has']]
         );
 
         // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(5, $result->total);
         $this->assertEquals(5, count($result->items));
     }
@@ -481,10 +580,11 @@ class BuildGameListActionTest extends TestCase
         $result = (new BuildGameListAction())->execute(
             GameListType::UserPlay,
             $user,
-            filters: ['hasAchievementsPublished' => ['none']]
+            filters: ['achievementsPublished' => ['none']]
         );
 
         // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(1, $result->total);
         $this->assertEquals(1, count($result->items));
     }
@@ -510,6 +610,7 @@ class BuildGameListActionTest extends TestCase
         );
 
         // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(4, $result->total);
         $this->assertEquals(4, count($result->items));
     }
@@ -536,6 +637,7 @@ class BuildGameListActionTest extends TestCase
         );
 
         // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(4, $result->total);
         $this->assertEquals(4, count($result->items)); // These values can differ unless we override ->total.
     }
@@ -562,6 +664,7 @@ class BuildGameListActionTest extends TestCase
         );
 
         // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(2, $result->total);
         $this->assertEquals(2, count($result->items)); // These values can differ unless we override ->total.
     }
@@ -589,6 +692,7 @@ class BuildGameListActionTest extends TestCase
         );
 
         // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(1, $result->total);
         $this->assertEquals(1, count($result->items)); // These values can differ unless we override ->total.
     }
@@ -616,6 +720,7 @@ class BuildGameListActionTest extends TestCase
         );
 
         // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(1, $result->total);
         $this->assertEquals(1, count($result->items)); // These values can differ unless we override ->total.
     }
@@ -644,6 +749,7 @@ class BuildGameListActionTest extends TestCase
         );
 
         // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(2, $result->total);
         $this->assertEquals(2, count($result->items)); // These values can differ unless we override ->total.
     }
@@ -673,6 +779,7 @@ class BuildGameListActionTest extends TestCase
         );
 
         // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(3, $result->total);
         $this->assertEquals(3, count($result->items)); // These values can differ unless we override ->total.
     }

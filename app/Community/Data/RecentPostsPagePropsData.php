@@ -12,7 +12,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class RecentPostsPagePropsData extends Data
 {
     public function __construct(
-        public PaginatedData $paginatedTopics
+        public PaginatedData $paginatedTopics,
     ) {
     }
 }

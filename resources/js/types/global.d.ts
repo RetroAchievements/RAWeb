@@ -53,3 +53,11 @@ declare global {
   // Inertia
   var route: typeof routeFn;
 }
+
+declare module '@tanstack/react-table' {
+  interface ColumnMeta<TData, TValue> {
+    label: string;
+
+    align?: 'right' | 'left' | 'center';
+  }
+}

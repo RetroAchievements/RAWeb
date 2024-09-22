@@ -8,6 +8,7 @@ use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Contracts\HasComments;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\ReleasedAtGranularity;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -55,7 +57,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     // TODO rename Developer column to developer
     // TODO rename Genre column to genre
     // TODO rename Released to release
-    // TODO rename TotalTruePoints to points_weighted
+    // TODO rename TotalTruePoints to points_weighted, remove getPointsWeightedAttribute()
     // TODO drop achievement_set_version_hash, migrate to achievement_sets
     // TODO drop ForumTopicID, migrate to forumable morph
     // TODO drop Flags
@@ -85,6 +87,7 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     protected $casts = [
         'released_at' => 'datetime',
+        'released_at_granularity' => ReleasedAtGranularity::class,
         'last_achievement_update' => 'datetime',
     ];
 
@@ -258,6 +261,11 @@ class Game extends BaseModel implements HasComments, HasMedia
         return route('game.show', $this);
     }
 
+    public function getPointsWeightedAttribute(): int
+    {
+        return $this->TotalTruePoints ?? 0;
+    }
+
     public function getSlugAttribute(): string
     {
         return $this->Title ? '-' . Str::slug($this->Title) : '';
@@ -285,7 +293,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     // TODO remove after rename
     public function getIdAttribute(): int
     {
-        return $this->attributes['ID'];
+        return $this->attributes['ID'] ?? 1;
     }
 
     public function getIsStandalone(): bool
@@ -350,11 +358,19 @@ class Game extends BaseModel implements HasComments, HasMedia
     }
 
     /**
+     * @return HasOne<Achievement>
+     */
+    public function lastAchievementUpdate(): HasOne
+    {
+        return $this->hasOne(Achievement::class, 'GameID')->latest('DateModified');
+    }
+
+    /**
      * @return HasMany<Leaderboard>
      */
     public function leaderboards(): HasMany
     {
-        return $this->hasMany(Leaderboard::class, 'GameID');
+        return $this->hasMany(Leaderboard::class, 'GameID', 'ID');
     }
 
     /**
@@ -447,7 +463,15 @@ class Game extends BaseModel implements HasComments, HasMedia
      */
     public function tickets(): HasManyThrough
     {
-        return $this->hasManyThrough(Ticket::class, Achievement::class, 'GameID', 'AchievementID');
+        return $this->hasManyThrough(Ticket::class, Achievement::class, 'GameID', 'AchievementID', 'ID', 'ID');
+    }
+
+    /**
+     * @return HasManyThrough<Ticket>
+     */
+    public function unresolvedTickets(): HasManyThrough
+    {
+        return $this->tickets()->unresolved();
     }
 
     // == scopes

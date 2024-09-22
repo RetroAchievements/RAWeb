@@ -8,8 +8,7 @@ import { useCopyToClipboard, useMedia } from 'react-use';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { SimpleTooltip } from '@/common/components/SimpleTooltip';
-
-import { usePageProps } from '../../hooks/usePageProps';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
 export const ManageWebApiKey: FC = () => {
   const { userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
