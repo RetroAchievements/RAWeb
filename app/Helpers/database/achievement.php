@@ -41,7 +41,7 @@ function getAchievementsList(
         $sortBy = 0;
     }
 
-    if ($params === 1) {
+    if ($params === 1 && isset($user)) {
         // Achievements the user has unlocked.
         $bindings['userId'] = $user->id;
 
