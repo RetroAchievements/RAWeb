@@ -5,8 +5,10 @@ export function diffForHumans(date: string, from?: string): string {
   const end = dayjs(date);
   const diff = Math.abs(start.diff(end, 'second'));
 
-  if (diff < 60) {
-    return 'A few seconds ago';
+  if (diff < 10) {
+    return 'Just now';
+  } else if (diff < 60) {
+    return 'Less than a minute ago';
   } else if (diff < 3600) {
     const minutes = Math.floor(diff / 60);
 
