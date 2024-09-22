@@ -21,7 +21,7 @@ abstract class UserPreference
 
     public const EmailOn_PrivateMessage = 5;
 
-    public const EmailOn_Newsletter = 6;
+    public const EmailOn_TicketActivity = 6;
 
     public const Site_SuppressMatureContentWarning = 7;
 
