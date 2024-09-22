@@ -1,13 +1,13 @@
 <?php
 
-$emulators = getActiveEmulatorReleases();
-usort($emulators, function ($a, $b) {
-    return strcasecmp($a['handle'], $b['handle']);
-});
+use App\Models\Emulator;
 
-foreach ($emulators as &$emulator) {
-    sort($emulator['systems']);
-}
+$emulators = Emulator::active()
+    ->orderBy('name')
+    ->with(['latestRelease', 'systems' => function ($query) {
+        $query->active()->orderBy('Name');
+    }])
+    ->get();
 
 authenticateFromCookie($user, $permissions, $userDetails);
 ?>
@@ -18,81 +18,88 @@ authenticateFromCookie($user, $permissions, $userDetails);
     <h2 class="mb-6">Download a supported emulator</h2>
 
     @foreach ($emulators as $emulator)
-        <h2 class="longheader" id="<?= mb_strtolower($emulator['handle'] ?? null) ?>">
-            <a href="#<?= mb_strtolower($emulator['handle'] ?? null) ?>"><?= $emulator['handle'] ?? null ?></a>
-            @if ($emulator['handle'] != $emulator['name'])
-                <small>(<?= $emulator['name'] ?? null ?>)</small>
+        @php
+            $systems = $emulator->systems->pluck('Name')->toArray();
+            if (empty($systems)) {
+                continue;
+            }
+        @endphp
+        <h2 class="longheader" id="<?= mb_strtolower($emulator['name'] ?? null) ?>">
+            <a href="#<?= mb_strtolower($emulator->name) ?>">{{ $emulator->name }}</a>
+            @if ($emulator->original_name !== null && $emulator->original_name !== $emulator->name)
+                <small>({{ $emulator->original_name }})</small>
             @endif
         </h2>
         <div class="flex flex-col lg:flex-row justify-between items-start mb-6">
             <div class="mb-3 w-full">
-                @if ($emulator['description'] ?? false)
-                    <div class="mb-2"><?= nl2br($emulator['description']) ?></div>
+                @if (!empty($emulator->description))
+                    <div class="mb-2">{{ $emulator->description }}</div>
                 @endif
                 <div class="flex-1 mb-3">
-                    @if (!empty($emulator['systems']))
-                        <b>Supported Systems:</b><br>
-                        <ul style="column-count: 3">
-                        @foreach ($emulator['systems'] as $system)
-                            <li>- {{ $system }}</li>
-                        @endforeach
-                        </ul>
-                    @endif
+                    <b>Supported Systems:</b><br>
+                    <ul style="column-count: 3">
+                    @foreach ($systems as $system)
+                        <li>- {{ $system }}</li>
+                    @endforeach
+                    </ul>
                 </div>
             </div>
             <div>
-                @if ($emulator['download_url'] ?? false)
+                @if (!empty($emulator->download_url) || !empty($emulator->download_x64_url))
+                    @if (str_starts_with($emulator->download_url, 'bin/') || str_starts_with($emulator->download_x64_url, 'bin/'))
+                        @if (!empty($emulator->download_x64_url))
+                            <p class="embedded mb-2 text-right whitespace-nowrap">
+                                <a
+                                    href="<?= config('app.url') . '/' . $emulator->download_x64_url ?>"
+                                    target="_blank"
+                                    class="plausible-event-name=Download+Link+Click plausible-event-emulator-{{ $emulator->name }}"
+                                >
+                                    Download v{{ $emulator->latestRelease->version }} x64<br>
+                                    <small>Windows</small>
+                                </a>
+                            </p>
+                        @endif
+                        @if (!empty($emulator->download_url))
+                            <p class="embedded mb-2 text-right whitespace-nowrap">
+                                <a
+                                    href="<?= config('app.url') . '/' . $emulator->download_url ?>"
+                                    target="_blank"
+                                    class="plausible-event-name=Download+Link+Click plausible-event-emulator-{{ $emulator->name }}"
+                                >
+                                    Download v{{ $emulator->latestRelease->version }} x86<br>
+                                    <small>Windows</small>
+                                </a>
+                            </p>
+                        @endif
+                    @else
+                        <p class="embedded mb-2 text-right whitespace-nowrap">
+                            <x-link
+                                href="{{ $emulator->download_url }}"
+                                target="_blank"
+                                class="plausible-event-name=Download+Link+Click plausible-event-emulator={{ $emulator->name }}"
+                            >
+                                Download
+                            </x-link>
+                        </p>
+                    @endif
+                @endif
+                @if (!empty($emulator->documentation_url))
                     <p class="embedded mb-2 text-right whitespace-nowrap">
                         <x-link
-                            href="{{ $emulator['download_url'] }}"
+                            href="{{ $emulator->documentation_url }}"
                             target="_blank"
-                            class="plausible-event-name=Download+Link+Click plausible-event-emulator={{ $emulator['handle'] }}"
-                        >
-                            Download
-                        </x-link>
-                    </p>
-                @endif
-                @if ($emulator['latest_version_url_x64'] ?? false)
-                    <p class="embedded mb-2 text-right whitespace-nowrap">
-                        <a
-                            href="<?= config('app.url') . '/' . $emulator['latest_version_url_x64'] ?>"
-                            target="_blank"
-                            class="plausible-event-name=Download+Link+Click plausible-event-emulator-{{ $emulator['handle'] }}"
-                        >
-                            Download v<?= $emulator['latest_version'] ?> x64<br>
-                            <small>Windows</small>
-                        </a>
-                    </p>
-                @endif
-                @if ($emulator['latest_version_url'] ?? false)
-                    <p class="embedded mb-2 text-right whitespace-nowrap">
-                        <a
-                            href="<?= config('app.url') . '/' . $emulator['latest_version_url'] ?>"
-                            target="_blank"
-                            class="plausible-event-name=Download+Link+Click plausible-event-emulator-{{ $emulator['handle'] }}"
-                        >
-                            Download v<?= $emulator['latest_version'] ?> x86<br>
-                            <small>Windows</small>
-                        </a>
-                    </p>
-                @endif
-                @if ($emulator['link'] ?? false)
-                    <p class="embedded mb-2 text-right whitespace-nowrap">
-                        <x-link
-                            href="{{ $emulator['link'] }}"
-                            target="_blank"
-                            class="plausible-event-name=Documentation+Link+Click plausible-event-emulator-{{ $emulator['handle'] }}"
+                            class="plausible-event-name=Documentation+Link+Click plausible-event-emulator-{{ $emulator->name }}"
                         >
                             Documentation
                         </x-link>
                     </p>
                 @endif
-                @if ($emulator['source'] ?? false)
+                @if (!empty($emulator->source_url))
                     <p class="embedded mb-2 text-right whitespace-nowrap">
                         <x-link
-                            href="{{ $emulator['source'] }}"
+                            href="{{ $emulator->source_url }}"
                             target="_blank"
-                            class="plausible-event-name=Source+Link+Click plausible-event-emulator-{{ $emulator['handle'] }}"
+                            class="plausible-event-name=Source+Link+Click plausible-event-emulator-{{ $emulator->name }}"
                         >
                             Source Code
                         </x-link>

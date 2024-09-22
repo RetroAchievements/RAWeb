@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\EloquentSortable\SortableTrait;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
@@ -22,13 +24,37 @@ class Emulator extends BaseModel implements HasMedia
     use SoftDeletes;
     use SortableTrait;
     use InteractsWithMedia;
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
 
     protected $fillable = [
-        'active',
         'name',
+        'original_name',
         'description',
-        'link',
+        'active',
+        'documentation_url',
+        'download_url',
+        'source_url',
     ];
+
+    // audit activity log
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'name',
+                'original_name',
+                'description',
+                'active',
+                'documentation_url',
+                'download_url',
+                'source_url',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     // == media
 
@@ -75,7 +101,17 @@ class Emulator extends BaseModel implements HasMedia
     {
         return $this->hasOne(EmulatorRelease::class)
             ->where('stable', true)
-            ->orderBy('version', 'DESC');
+            ->orderBy('created_at', 'DESC');
+    }
+
+    /**
+     * @return HasOne<EmulatorRelease>
+     */
+    public function minimumSupportedRelease(): HasOne
+    {
+        return $this->hasOne(EmulatorRelease::class)
+            ->where('minimum', true)
+            ->orderBy('created_at', 'DESC');
     }
 
     /**
@@ -85,7 +121,7 @@ class Emulator extends BaseModel implements HasMedia
     {
         return $this->hasOne(EmulatorRelease::class)
             ->where('stable', false)
-            ->orderBy('version', 'DESC');
+            ->orderBy('created_at', 'DESC');
     }
 
     /**
@@ -105,5 +141,16 @@ class Emulator extends BaseModel implements HasMedia
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);
+    }
+
+    /**
+     * @param Builder<Emulator> $query
+     * @return Builder<Emulator>
+     */
+    public function scopeForSystem(Builder $query, int $systemId): Builder
+    {
+        return $query->whereHas('systems', function ($query) use ($systemId) {
+            $query->where('system_id', $systemId);
+        });
     }
 }
