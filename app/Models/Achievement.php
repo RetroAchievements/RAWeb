@@ -185,6 +185,7 @@ class Achievement extends BaseModel implements HasComments
                 'Points',
                 'Title',
                 'type',
+                'DisplayOrder',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();

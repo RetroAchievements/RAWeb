@@ -72,10 +72,9 @@ class LeaderboardsRelationManager extends RelationManager
                     ->label('Lower Is Better')
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('DisplayOrder')
+                Tables\Columns\TextInputColumn::make('DisplayOrder')
                     ->label('Display Order')
-                    ->color(fn ($record) => $record->DisplayOrder < 0 ? 'danger' : null)
-                    ->toggleable(),
+                    ->rules(['required', 'integer']),
             ])
             ->searchPlaceholder('Search (ID, Title)')
             ->filters([
@@ -114,7 +113,7 @@ class LeaderboardsRelationManager extends RelationManager
             ->bulkActions([
 
             ])
-            ->paginated([25, 50, 100])
+            ->paginated([50, 100, 150])
             ->defaultSort(function (Builder $query): Builder {
                 return $query
                     ->orderBy('DisplayOrder')

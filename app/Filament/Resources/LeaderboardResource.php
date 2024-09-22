@@ -201,8 +201,9 @@ class LeaderboardResource extends Resource
                         });
                     }),
 
-                Tables\Columns\TextColumn::make('DisplayOrder')
+                Tables\Columns\TextInputColumn::make('DisplayOrder')
                     ->label('Display Order')
+                    ->rules(['required', 'integer'])
                     ->sortable()
                     ->toggleable(),
             ])
