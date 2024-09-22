@@ -28,7 +28,7 @@ $canUseDesktopHref = !$agent->isMobile();
     </x-dropdown-trigger>
 
     <div
-        class="dropdown-menu {{ $dropdownClass ?? '' }} z-10 sm:z-auto"
+        class="dropdown-menu {{ $dropdownClass ?? '' }}"
         aria-labelledby="dropdownTrigger{{ $id }}"
     >
         {{ $slot }}
