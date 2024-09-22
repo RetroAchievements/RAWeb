@@ -75,8 +75,9 @@ class SyncAchievementAuthors extends Command
             // Extract the username from the payload.
             $username = strtok($payload, ' ');
 
-            $expectedPhrase = "edited this achievement's logic.";
-            if (str_ends_with($payload, $expectedPhrase)) {
+            $expectedPhraseOne = "edited this achievement's";
+            $expectedPhraseTwo = "logic";
+            if (str_contains($payload, $expectedPhraseOne) && str_contains($payload, $expectedPhraseTwo)) {
                 $user = User::withTrashed()
                     ->where('User', $username)
                     ->orWhere('display_name', $username)
