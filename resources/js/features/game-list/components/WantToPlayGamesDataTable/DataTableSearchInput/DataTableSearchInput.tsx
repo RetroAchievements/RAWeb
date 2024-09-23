@@ -3,6 +3,11 @@ import { useEffect, useState } from 'react';
 import { useDebounce } from 'react-use';
 
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
+import {
+  BaseTooltip,
+  BaseTooltipContent,
+  BaseTooltipTrigger,
+} from '@/common/components/+vendor/BaseTooltip';
 import { cn } from '@/utils/cn';
 
 import { useSearchInputHotkey } from './useSearchInputHotkey';
@@ -59,20 +64,24 @@ export function DataTableSearchInput<TData>({ table }: DataTableSearchInputProps
           aria-describedby="search-shortcut"
         />
 
-        <kbd
-          id="search-shortcut"
-          className={cn(
-            'absolute right-2 hidden rounded-md border border-transparent bg-neutral-800/60 px-1.5 font-mono text-xs',
-            'text-neutral-400 peer-focus:opacity-0 light:bg-gray-200 light:text-gray-800',
-            'lg:block',
-          )}
-        >
-          /
-        </kbd>
+        <BaseTooltip>
+          <BaseTooltipTrigger asChild>
+            <kbd
+              id="search-shortcut"
+              className={cn(
+                'absolute right-2 hidden rounded-md border border-transparent bg-neutral-800/60 px-1.5 font-mono text-xs',
+                'text-neutral-400 peer-focus:opacity-0 light:bg-gray-200 light:text-gray-800',
+                'cursor-default lg:block',
+              )}
+            >
+              /
+            </kbd>
+          </BaseTooltipTrigger>
 
-        <div aria-live="polite" className="sr-only">
-          Press / to focus the search field.
-        </div>
+          <BaseTooltipContent>
+            <p>Press / to focus the search field.</p>
+          </BaseTooltipContent>
+        </BaseTooltip>
       </div>
     </div>
   );

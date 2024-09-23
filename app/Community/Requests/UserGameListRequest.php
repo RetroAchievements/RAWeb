@@ -50,6 +50,10 @@ class UserGameListRequest extends FormRequest
             $filters[$key] = explode(',', $value);
         }
 
+        if (!isset($filters['achievementsPublished'])) {
+            $filters['achievementsPublished'] = ['has'];
+        }
+
         return $filters;
     }
 }

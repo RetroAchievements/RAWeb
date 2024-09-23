@@ -145,4 +145,54 @@ describe('Hook: useGameListState', () => {
       { id: 'achievementsPublished', value: ['has'] },
     ]);
   });
+
+  it('given default column filters, correctly sets those implicit filters', () => {
+    // ARRANGE
+    const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
+
+    const { result } = renderHook(
+      () =>
+        useGameListState(createPaginatedData([]), {
+          defaultColumnFilters: [{ id: 'system', value: ['10'] }],
+        }),
+      {
+        initialProps: paginatedGames,
+        pageProps: {
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    const currentValue = result.current as ReturnType<typeof useGameListState>;
+
+    expect(currentValue.columnFilters).toEqual([{ id: 'system', value: ['10'] }]);
+  });
+
+  it('given default column filters, does not override existing set filter id values', () => {
+    // ARRANGE
+    const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
+
+    const { result } = renderHook(
+      () =>
+        useGameListState(createPaginatedData([]), {
+          defaultColumnFilters: [{ id: 'system', value: ['10'] }],
+        }),
+      {
+        initialProps: paginatedGames,
+        pageProps: {
+          ziggy: createZiggyProps({
+            query: {
+              filter: { system: '1' },
+            },
+          }),
+        },
+      },
+    );
+
+    // ASSERT
+    const currentValue = result.current as ReturnType<typeof useGameListState>;
+
+    expect(currentValue.columnFilters).toEqual([{ id: 'system', value: ['1'] }]);
+  });
 });

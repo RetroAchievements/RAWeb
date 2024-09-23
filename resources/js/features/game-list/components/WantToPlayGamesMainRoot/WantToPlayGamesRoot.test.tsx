@@ -301,12 +301,29 @@ describe('Component: WantToPlayGamesRoot', () => {
       expect(getSpy).toHaveBeenCalledWith([
         'api.user-game-list.index',
         {
+          'filter[achievementsPublished]': 'has',
           'filter[title]': 'dragon quest',
           'page[number]': 1,
           sort: null,
         },
       ]);
     });
+  });
+
+  it('by default, has the achievements published filter set to "Yes"', () => {
+    // ARRANGE
+    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        filterableSystemOptions: [],
+        paginatedGameListEntries: createPaginatedData([]),
+        can: { develop: false },
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /yes/i })).toBeVisible();
   });
 
   it('allows the user to filter by system/console', async () => {
@@ -317,7 +334,9 @@ describe('Component: WantToPlayGamesRoot', () => {
     render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        filterableSystemOptions: [
+          createSystem({ id: 1, name: 'Genesis/Mega Drive', nameShort: 'MD' }),
+        ],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
         ziggy: createZiggyProps(),
@@ -329,16 +348,53 @@ describe('Component: WantToPlayGamesRoot', () => {
     await userEvent.click(screen.getByRole('option', { name: /genesis/i }));
 
     // ASSERT
+    const systemFilterButtonEl = screen.getByTestId('filter-System');
+    expect(systemFilterButtonEl).toHaveTextContent(/md/i);
+
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
         'api.user-game-list.index',
         {
+          'filter[achievementsPublished]': 'has',
           'filter[system]': '1',
           'page[number]': 1,
           sort: null,
         },
       ]);
     });
+  });
+
+  it('given a non-default filter is set, allows the user to click a button to reset their filters', async () => {
+    // ARRANGE
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    vi.spyOn(axios, 'get')
+      .mockResolvedValueOnce({ data: createPaginatedData([]) })
+      .mockResolvedValueOnce({ data: createPaginatedData([]) }); // the GET will be called twice
+
+    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        filterableSystemOptions: [
+          createSystem({ id: 1, name: 'Genesis/Mega Drive', nameShort: 'MD' }),
+        ],
+        paginatedGameListEntries: createPaginatedData([]),
+        can: { develop: false },
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByTestId('filter-System'));
+    await userEvent.click(screen.getByRole('option', { name: /genesis/i }));
+
+    await userEvent.click(screen.getByRole('button', { name: /reset/i }));
+
+    // ASSERT
+    const defaultFilterButtonEl = screen.getByTestId('filter-Has achievements');
+    expect(defaultFilterButtonEl).toHaveTextContent(/yes/i);
+
+    const systemFilterButtonEl = screen.getByTestId('filter-System');
+    expect(systemFilterButtonEl).not.toHaveTextContent(/md/i);
   });
 
   it('given a filter is currently applied, shows both the filtered and unfiltered game totals', async () => {
@@ -368,7 +424,7 @@ describe('Component: WantToPlayGamesRoot', () => {
     });
   });
 
-  it('allows the user to filter by whether the game has achievements', async () => {
+  it('allows the user to change the "has achievements" filter, with only a single option being set', async () => {
     // ARRANGE
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
 
@@ -386,14 +442,14 @@ describe('Component: WantToPlayGamesRoot', () => {
 
     // ACT
     await userEvent.click(screen.getByTestId('filter-Has achievements'));
-    await userEvent.click(screen.getByRole('option', { name: /yes/i }));
+    await userEvent.click(screen.getByRole('option', { name: /no/i }));
 
     // ASSERT
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
         'api.user-game-list.index',
         {
-          'filter[achievementsPublished]': 'has',
+          'filter[achievementsPublished]': 'none',
           'page[number]': 1,
           sort: null,
         },
@@ -425,6 +481,7 @@ describe('Component: WantToPlayGamesRoot', () => {
       expect(getSpy).toHaveBeenCalledWith([
         'api.user-game-list.index',
         {
+          'filter[achievementsPublished]': 'has',
           'page[number]': 1,
           sort: '-system',
         },
@@ -456,6 +513,7 @@ describe('Component: WantToPlayGamesRoot', () => {
       expect(getSpy).toHaveBeenCalledWith([
         'api.user-game-list.index',
         {
+          'filter[achievementsPublished]': 'has',
           'page[number]': 1,
           sort: 'achievementsPublished',
         },
@@ -487,6 +545,7 @@ describe('Component: WantToPlayGamesRoot', () => {
       expect(getSpy).toHaveBeenCalledWith([
         'api.user-game-list.index',
         {
+          'filter[achievementsPublished]': 'has',
           'page[number]': 1,
           sort: 'releasedAt',
         },
@@ -557,6 +616,7 @@ describe('Component: WantToPlayGamesRoot', () => {
       expect(getSpy).toHaveBeenCalledWith([
         'api.user-game-list.index',
         {
+          'filter[achievementsPublished]': 'has',
           'page[number]': 2,
           sort: null,
         },

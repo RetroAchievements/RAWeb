@@ -20,6 +20,7 @@ import { useGameListQuery } from '@/common/hooks/useGameListQuery';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/utils/cn';
 
+import { wantToPlayGamesDefaultFilters } from '../../utils/wantToPlayGamesDefaultFilters';
 import { buildColumnDefinitions } from './buildColumnDefinitions';
 import { DataTablePagination } from './DataTablePagination';
 import { WantToPlayGamesDataTableToolbar } from './WantToPlayGamesDataTableToolbar';
@@ -89,6 +90,7 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
       <WantToPlayGamesDataTableToolbar
         table={table}
         unfilteredTotal={gameListQuery.data?.unfilteredTotal ?? null}
+        defaultColumnFilters={wantToPlayGamesDefaultFilters}
       />
 
       <BaseTable

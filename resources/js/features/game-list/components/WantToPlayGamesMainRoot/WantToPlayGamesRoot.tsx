@@ -7,6 +7,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useAutoUpdatingQueryParams } from '../../hooks/useAutoUpdatingQueryParams';
 import { useGameListState } from '../../hooks/useGameListState';
 import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
+import { wantToPlayGamesDefaultFilters } from '../../utils/wantToPlayGamesDefaultFilters';
 import { WantToPlayGamesDataTable } from '../WantToPlayGamesDataTable';
 
 export const WantToPlayGamesRoot: FC = () => {
@@ -22,7 +23,9 @@ export const WantToPlayGamesRoot: FC = () => {
     setPagination,
     setSorting,
     sorting,
-  } = useGameListState(paginatedGameListEntries);
+  } = useGameListState(paginatedGameListEntries, {
+    defaultColumnFilters: wantToPlayGamesDefaultFilters,
+  });
 
   const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
     columnFilters,

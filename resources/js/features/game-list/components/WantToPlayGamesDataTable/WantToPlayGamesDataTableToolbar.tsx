@@ -1,4 +1,4 @@
-import type { Table } from '@tanstack/react-table';
+import type { ColumnFiltersState, Table } from '@tanstack/react-table';
 import { RxCross2 } from 'react-icons/rx';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -12,15 +12,27 @@ import { DataTableViewOptions } from './DataTableViewOptions';
 interface WantToPlayGamesDataTableToolbarProps<TData> {
   table: Table<TData>;
   unfilteredTotal: number | null;
+
+  defaultColumnFilters?: ColumnFiltersState;
 }
 
 export function WantToPlayGamesDataTableToolbar<TData>({
   table,
   unfilteredTotal,
+  defaultColumnFilters = [],
 }: WantToPlayGamesDataTableToolbarProps<TData>) {
   const { filterableSystemOptions } = usePageProps<App.Community.Data.UserGameListPageProps>();
 
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const currentFilters = table.getState().columnFilters;
+  const isFiltered = getHasNonDefaultFilters(currentFilters, defaultColumnFilters);
+
+  const resetFiltersToDefault = () => {
+    if (defaultColumnFilters) {
+      table.setColumnFilters(defaultColumnFilters);
+    } else {
+      table.resetColumnFilters();
+    }
+  };
 
   return (
     <div className="flex w-full flex-col justify-between gap-2 md:flex-row">
@@ -50,8 +62,10 @@ export function WantToPlayGamesDataTableToolbar<TData>({
             options={[
               { label: 'Yes', value: 'has' },
               { label: 'No', value: 'none' },
+              { label: 'Either', value: 'either' },
             ]}
             isSearchable={false}
+            isSingleSelect={true}
           />
         ) : null}
 
@@ -59,7 +73,7 @@ export function WantToPlayGamesDataTableToolbar<TData>({
           <BaseButton
             variant="ghost"
             size="sm"
-            onClick={() => table.resetColumnFilters()}
+            onClick={resetFiltersToDefault}
             className="border-dashed px-2 text-link lg:px-3"
           >
             Reset <RxCross2 className="ml-2 h-4 w-4" />
@@ -69,7 +83,7 @@ export function WantToPlayGamesDataTableToolbar<TData>({
 
       <div className="flex items-center justify-between gap-3 md:justify-normal">
         <p className="text-neutral-200 light:text-neutral-900">
-          {unfilteredTotal ? (
+          {unfilteredTotal && unfilteredTotal !== table.options.rowCount ? (
             <>
               {formatNumber(table.options.rowCount ?? 0)} of {formatNumber(unfilteredTotal)}{' '}
               {unfilteredTotal === 1 ? 'game' : 'games'}
@@ -86,4 +100,20 @@ export function WantToPlayGamesDataTableToolbar<TData>({
       </div>
     </div>
   );
+}
+
+// Are there any non-default filters set? If so, we need to show the Reset button.
+function getHasNonDefaultFilters(
+  currentFilters: ColumnFiltersState,
+  defaultColumnFilters?: ColumnFiltersState,
+): boolean {
+  if (currentFilters.length !== defaultColumnFilters?.length) {
+    return true;
+  }
+
+  return currentFilters.some((filter, index) => {
+    const defaultFilter = defaultColumnFilters[index];
+
+    return filter.id !== defaultFilter.id || filter.value !== defaultFilter.value;
+  });
 }

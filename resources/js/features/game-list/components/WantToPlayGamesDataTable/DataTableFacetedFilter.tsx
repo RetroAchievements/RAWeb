@@ -33,6 +33,7 @@ interface DataTableFacetedFilterProps<TData, TValue> {
   className?: string;
   column?: Column<TData, TValue>;
   isSearchable?: boolean;
+  isSingleSelect?: boolean;
   title?: string;
 }
 
@@ -42,19 +43,26 @@ export function DataTableFacetedFilter<TData, TValue>({
   title,
   className,
   isSearchable = true,
+  isSingleSelect = false,
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
 
   const handleOptionToggle = (optionValue: string) => {
-    if (selectedValues.has(optionValue)) {
-      selectedValues.delete(optionValue);
+    if (isSingleSelect) {
+      // For radio button behavior, set the filter to the selected option directly.
+      column?.setFilterValue([optionValue]);
     } else {
-      selectedValues.add(optionValue);
-    }
+      // For checkbox behavior, toggle the selection in the set.
+      if (selectedValues.has(optionValue)) {
+        selectedValues.delete(optionValue);
+      } else {
+        selectedValues.add(optionValue);
+      }
 
-    const filterValues = Array.from(selectedValues);
-    column?.setFilterValue(filterValues.length ? filterValues : undefined);
+      const filterValues = Array.from(selectedValues);
+      column?.setFilterValue(filterValues.length ? filterValues : undefined);
+    }
   };
 
   return (
@@ -131,6 +139,10 @@ export function DataTableFacetedFilter<TData, TValue>({
                     <div
                       className={cn(
                         'border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border',
+
+                        // If it's a single select, give the appearance of a radio button.
+                        isSingleSelect ? 'rounded-full' : 'rounded-sm',
+
                         isSelected
                           ? 'bg-primary text-neutral-50 light:text-neutral-950'
                           : 'opacity-50 [&_svg]:invisible',
@@ -155,7 +167,7 @@ export function DataTableFacetedFilter<TData, TValue>({
               })}
             </BaseCommandGroup>
 
-            {selectedValues.size > 0 ? (
+            {!isSingleSelect && selectedValues.size > 0 ? (
               <ClearFiltersButton onClear={() => column?.setFilterValue(undefined)} />
             ) : null}
           </BaseCommandList>

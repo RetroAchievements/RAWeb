@@ -15,7 +15,10 @@ import type { AppGlobalProps } from '@/common/models';
  *    Every invocation will create entirely new state values.
  */
 
-export function useGameListState<TData = unknown>(paginatedGames: App.Data.PaginatedData<TData>) {
+export function useGameListState<TData = unknown>(
+  paginatedGames: App.Data.PaginatedData<TData>,
+  options?: Partial<{ defaultColumnFilters: ColumnFiltersState }>,
+) {
   const {
     ziggy: { query },
   } = usePageProps<App.Community.Data.UserGameListPageProps>();
@@ -34,7 +37,7 @@ export function useGameListState<TData = unknown>(paginatedGames: App.Data.Pagin
   });
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    mapQueryParamsToColumnFilters(query),
+    mapQueryParamsToColumnFilters(query, options?.defaultColumnFilters),
   );
 
   return {
@@ -88,18 +91,25 @@ function mapQueryParamsToSorting(query: AppGlobalProps['ziggy']['query']): Sorti
 
 function mapQueryParamsToColumnFilters(
   query: AppGlobalProps['ziggy']['query'],
+  defaultColumnFilters?: ColumnFiltersState,
 ): ColumnFiltersState {
   const columnFilters: ColumnFiltersState = [];
 
-  if (!query.filter) {
-    return columnFilters;
-  }
-
-  for (const [filterKey, filterValue] of Object.entries(query.filter)) {
+  for (const [filterKey, filterValue] of Object.entries(query.filter ?? {})) {
     columnFilters.push({
       id: filterKey,
       value: filterValue.split(','),
     });
+  }
+
+  // Set any default (implicitly-enabled) filter values as necessary.
+  if (defaultColumnFilters) {
+    for (const defaultColumnFilter of defaultColumnFilters) {
+      const existingFilter = columnFilters.some((f) => f.id === defaultColumnFilter.id);
+      if (!existingFilter) {
+        columnFilters.push(defaultColumnFilter);
+      }
+    }
   }
 
   return columnFilters;

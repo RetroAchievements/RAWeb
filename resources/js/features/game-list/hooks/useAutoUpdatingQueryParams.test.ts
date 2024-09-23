@@ -30,7 +30,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const columnFilters: ColumnFiltersState = [];
+    const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: true }];
 
@@ -44,7 +44,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
 
   it('given it is the first render cycle, does not update URL params', () => {
     // ARRANGE
-    const columnFilters: ColumnFiltersState = [];
+    const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: true }];
 
@@ -56,7 +56,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
 
   it('given the user advances from page 1 to page 2, updates URL params correctly', () => {
     // ARRANGE
-    const columnFilters: ColumnFiltersState = [];
+    const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
@@ -78,7 +78,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
 
   it('given the user goes from page 2 to page 1, updates URL params correctly', () => {
     // ARRANGE
-    const columnFilters: ColumnFiltersState = [];
+    const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
     const pagination: PaginationState = { pageIndex: 1, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
@@ -100,7 +100,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
 
   it('given the user changes the sort order, updates URL params correctly', () => {
     // ARRANGE
-    const columnFilters: ColumnFiltersState = [];
+    const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
@@ -122,7 +122,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
 
   it('given the user sorts by title ascending, updates URL params correctly by removing the sort order', () => {
     // ARRANGE
-    const columnFilters: ColumnFiltersState = [];
+    const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting = [{ id: 'system', desc: true }];
 
@@ -144,7 +144,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
 
   it('given the user filters by a system, updates URL params correctly', () => {
     // ARRANGE
-    const columnFilters: ColumnFiltersState = [];
+    const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
@@ -153,7 +153,10 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     });
 
     // ACT
-    const updatedFilters: ColumnFiltersState = [{ id: 'system', value: '1' }];
+    const updatedFilters: ColumnFiltersState = [
+      { id: 'achievementsPublished', value: ['has'] },
+      { id: 'system', value: '1' },
+    ];
     rerender({
       pagination,
       sorting,
@@ -166,7 +169,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
 
   it('given the user filters by multiple systems, updates URL params correctly', () => {
     // ARRANGE
-    const columnFilters: ColumnFiltersState = [];
+    const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
@@ -175,7 +178,10 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     });
 
     // ACT
-    const updatedFilters: ColumnFiltersState = [{ id: 'system', value: ['1', '5'] }];
+    const updatedFilters: ColumnFiltersState = [
+      { id: 'achievementsPublished', value: ['has'] },
+      { id: 'system', value: ['1', '5'] },
+    ];
     rerender({
       pagination,
       sorting,
@@ -193,7 +199,10 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
 
   it('given the user clears their filters, removes them from query params', () => {
     // ARRANGE
-    const columnFilters: ColumnFiltersState = [{ id: 'system', value: ['1', '5'] }];
+    const columnFilters: ColumnFiltersState = [
+      { id: 'achievementsPublished', value: ['has'] },
+      { id: 'system', value: ['1', '5'] },
+    ];
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
@@ -202,7 +211,55 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     });
 
     // ACT
-    const updatedFilters: ColumnFiltersState = [];
+    const updatedFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
+    rerender({
+      pagination,
+      sorting,
+      columnFilters: updatedFilters,
+    });
+
+    // ASSERT
+    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games'));
+  });
+
+  it('given the user sets the achievements published filter to "none", updates URL params correctly', () => {
+    // ARRANGE
+    const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: false }];
+
+    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+      initialProps: { columnFilters, pagination, sorting },
+    });
+
+    // ACT
+    const updatedFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['none'] }];
+    rerender({
+      pagination,
+      sorting,
+      columnFilters: updatedFilters,
+    });
+
+    // ASSERT
+    expect(replaceStateSpy).toHaveBeenCalledWith(
+      null,
+      '',
+      encodeURI('/games?filter[achievementsPublished]=none'),
+    );
+  });
+
+  it('given the user sets the achievements published filter to "has", removes it from the query params', () => {
+    // ARRANGE
+    const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['none'] }];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: false }];
+
+    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+      initialProps: { columnFilters, pagination, sorting },
+    });
+
+    // ACT
+    const updatedFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
     rerender({
       pagination,
       sorting,

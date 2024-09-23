@@ -25,7 +25,7 @@ class UserGameListControllerTest extends TestCase
         $this->actingAs($user);
 
         $system = System::factory()->create(['ID' => 1]);
-        $games = Game::factory()->count(3)->create(['ConsoleID' => $system->id]);
+        $games = Game::factory()->count(3)->create(['ConsoleID' => $system->id, 'achievements_published' => 20]);
 
         $addGameToListAction = new AddGameToListAction();
         $addGameToListAction->execute($user, $games->get(0), UserGameListType::Play);

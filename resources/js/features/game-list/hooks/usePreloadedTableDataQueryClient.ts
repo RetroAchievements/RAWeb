@@ -32,6 +32,7 @@ export function usePreloadedTableDataQueryClient<TData = unknown>({
    * From the user's perspective, it'll appear that they can never page, filter, sort, etc.
    */
   useMemo(() => {
+    // These values come from `useGameListState()`.
     queryClient.setQueryData(['data', pagination, sorting, columnFilters], paginatedData);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- needed for ssr
   }, [queryClient]);
