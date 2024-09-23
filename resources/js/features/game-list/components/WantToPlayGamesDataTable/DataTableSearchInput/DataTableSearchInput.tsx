@@ -39,11 +39,9 @@ export function DataTableSearchInput<TData>({ table }: DataTableSearchInputProps
    */
   useDebounce(
     () => {
-      if (rawInputValue.length >= 3 || rawInputValue.length === 0) {
-        table.getColumn('title')?.setFilterValue(rawInputValue);
-      }
+      table.getColumn('title')?.setFilterValue(rawInputValue);
     },
-    200,
+    getDebounceDuration(rawInputValue),
     [rawInputValue],
   );
 
@@ -85,4 +83,19 @@ export function DataTableSearchInput<TData>({ table }: DataTableSearchInputProps
       </div>
     </div>
   );
+}
+
+function getDebounceDuration(input: string): number {
+  // Don't debounce at all when the input is cleared.
+  if (input.length === 0) {
+    return 0;
+  }
+
+  // Use a longer debounce for shorter inputs.
+  if (input.length < 3) {
+    return 500;
+  }
+
+  // Use a shorter debounce for longer inputs.
+  return 200;
 }
