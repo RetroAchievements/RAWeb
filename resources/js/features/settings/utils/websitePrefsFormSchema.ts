@@ -9,7 +9,7 @@ export const websitePrefsFormSchema = z.object({
   [StringifiedUserPreference.EmailOn_ForumReply]: z.boolean(),
   [StringifiedUserPreference.EmailOn_Followed]: z.boolean(),
   [StringifiedUserPreference.EmailOn_PrivateMessage]: z.boolean(),
-  [StringifiedUserPreference.EmailOn_Newsletter]: z.boolean(),
+  [StringifiedUserPreference.EmailOn_TicketActivity]: z.boolean(),
   [StringifiedUserPreference.Site_SuppressMatureContentWarning]: z.boolean(),
   [StringifiedUserPreference.SiteMsgOn_ActivityComment]: z.boolean(),
   [StringifiedUserPreference.SiteMsgOn_AchievementComment]: z.boolean(),

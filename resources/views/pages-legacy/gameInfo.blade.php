@@ -17,7 +17,6 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\GameListService;
-use Illuminate\Support\Carbon;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {
@@ -33,6 +32,7 @@ $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
 $officialFlag = AchievementFlag::OfficialCore;
 $unofficialFlag = AchievementFlag::Unofficial;
 $flagParam = requestInputSanitized('f', $officialFlag, 'integer');
+
 $isOfficial = false;
 if ($flagParam !== $unofficialFlag) {
     $isOfficial = true;
@@ -117,8 +117,8 @@ if ($v != 1) {
 ?>
 
 <?php
-$achDist = null;
-$achDistHardcore = null;
+$softcoreUnlocks = null;
+$hardcoreUnlocks = null;
 $authorInfo = [];
 $lbData = null;
 $numDistinctPlayers = null;
@@ -148,8 +148,8 @@ $userGameProgressionAwards = [
 if ($isFullyFeaturedGame) {
     $numDistinctPlayers = $gameData['NumDistinctPlayers'];
 
-    $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
-    $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
+    $softcoreUnlocks = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
+    $hardcoreUnlocks = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
 
     if (isset($user)) {
         // Determine if the logged in user is the sole author of the set
@@ -329,8 +329,8 @@ if ($isFullyFeaturedGame) {
             dataTotalScore.addRows([
                 <?php
                 [$buckets, $isDynamicBucketingEnabled] = generateEmptyBucketsWithBounds($numAchievements);
-                [$largestWonByCount] = calculateBuckets($buckets, $isDynamicBucketingEnabled, $numAchievements, $achDist, $achDistHardcore);
-                $allAchievementsCount = handleAllAchievementsCase($numAchievements, $achDist, $achDistHardcore, $buckets);
+                [$largestWonByCount] = calculateBuckets($buckets, $isDynamicBucketingEnabled, $numAchievements, $softcoreUnlocks, $hardcoreUnlocks);
+                $allAchievementsCount = handleAllAchievementsCase($numAchievements, $softcoreUnlocks, $hardcoreUnlocks, $buckets);
                 $largestWonByCount = max($allAchievementsCount, $largestWonByCount);
 
                 $numGridlines = ($numAchievements < 20) ? $numAchievements : 10;
@@ -508,7 +508,7 @@ if ($isFullyFeaturedGame) {
                     && $permissions >= Permissions::JuniorDeveloper
                 )
             );
-            
+
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
             echo "<div id='devboxcontent' style='display: none'>";
