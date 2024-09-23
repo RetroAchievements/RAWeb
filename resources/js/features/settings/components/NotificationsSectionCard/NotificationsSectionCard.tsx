@@ -37,6 +37,10 @@ const notificationSettings = [
     label: 'I receive a private message',
     emailFieldName: StringifiedUserPreference.EmailOn_PrivateMessage,
   },
+  {
+    label: 'Ticket activity',
+    emailFieldName: StringifiedUserPreference.EmailOn_TicketActivity,
+  },
 ];
 
 interface NotificationsSectionCardProps {
