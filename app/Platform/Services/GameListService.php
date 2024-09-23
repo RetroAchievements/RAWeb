@@ -126,6 +126,7 @@ class GameListService
              *    specified within the "~" markers, and then alphabetically by the title following
              *    the "~".
              */
+            // TODO use the sort_title attribute on the games table
             $game['SortTitle'] = mb_strtolower($game['Title']);
             if ($game['SortTitle'][0] === '~') {
                 $endOfFirstTilde = strpos($game['SortTitle'], '~', 1);
