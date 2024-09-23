@@ -45,9 +45,11 @@ class RouteServiceProvider extends ServiceProvider
                  * client-side api calls
                  */
                 Route::middleware(['auth'])->group(function () {
-                    Route::get('user-game-list', [UserGameListApiController::class, 'index'])->name('api.user-game-list.index');
-                    Route::post('user-game-list/{game}', [UserGameListApiController::class, 'store'])->name('api.user-game-list.store');
-                    Route::delete('user-game-list/{game}', [UserGameListApiController::class, 'destroy'])->name('api.user-game-list.destroy');
+                    Route::group(['prefix' => 'internal-api'], function () {
+                        Route::get('user-game-list', [UserGameListApiController::class, 'index'])->name('api.user-game-list.index');
+                        Route::post('user-game-list/{game}', [UserGameListApiController::class, 'store'])->name('api.user-game-list.store');
+                        Route::delete('user-game-list/{game}', [UserGameListApiController::class, 'destroy'])->name('api.user-game-list.destroy');    
+                    });
                 });
 
                 Route::middleware(['inertia'])->group(function () {
