@@ -77,7 +77,7 @@ export function DataTableSearchInput<TData>({ table }: DataTableSearchInputProps
           </BaseTooltipTrigger>
 
           <BaseTooltipContent>
-            <p>Press / to focus the search field.</p>
+            <p>Type / to focus the search field.</p>
           </BaseTooltipContent>
         </BaseTooltip>
       </div>
