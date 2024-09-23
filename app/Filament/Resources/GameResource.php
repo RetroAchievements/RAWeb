@@ -459,7 +459,7 @@ class GameResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('system')
-                    ->relationship('system', 'name'),
+                    ->relationship('system', 'Name'),
 
                 Tables\Filters\TernaryFilter::make('achievements_published')
                     ->label('Has core set')
