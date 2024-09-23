@@ -72,8 +72,11 @@ final class Shortcode
         }, $input);
     }
 
-    public static function stripAndClamp(string $input, int $previewLength = 100): string
-    {
+    public static function stripAndClamp(
+        string $input,
+        int $previewLength = 100,
+        bool $preserveWhitespace = false
+    ): string {
         // Inject game and achievement data for shortcodes.
         // This is more desirable than showing "Game 123" or "Achievement 123".
         $injectionShortcodes = [
@@ -143,7 +146,9 @@ final class Shortcode
         }
 
         // For cleaner previews, strip all unnecessary whitespace.
-        $input = trim(preg_replace('/\s+/', ' ', $input));
+        if (!$preserveWhitespace) {
+            $input = trim(preg_replace('/\s+/', ' ', $input));
+        }
 
         // As a failsafe, check the last 6 characters for any fragmented shortcodes and purge them.
         $lastSixChars = substr($input, -6);
