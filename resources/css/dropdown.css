@@ -1,6 +1,7 @@
 .dropdown {
   position: relative;
-  z-index: 11;
+  
+  @apply focus:z-[11] sm:focus:z-auto sm:hover:z-[11] lg:hover:z-auto lg:z-[11];
 }
 
 .dropdown-menu {
@@ -10,6 +11,7 @@
   margin: 0;
   background-color: var(--embed-highlight-color);
   box-shadow: var(--box-shadow-color) 0 30px 60px -12px, var(--box-shadow-color) 0px 18px 36px -18px;
+  z-index: 20;
 }
 
 .dropdown-menu-right {

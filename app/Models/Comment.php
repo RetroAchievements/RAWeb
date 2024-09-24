@@ -39,7 +39,10 @@ class Comment extends BaseModel
     public const SYSTEM_USER_ID = 14188;
 
     protected $fillable = [
+        'ArticleType',
+        'ArticleID',
         'Payload',
+        'user_id',
     ];
 
     protected static function newFactory(): CommentFactory
