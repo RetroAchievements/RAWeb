@@ -28,6 +28,11 @@ class AuthorshipCreditsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
+        $earliestLogicCredit = AchievementAuthor::where('achievement_id', $this->ownerRecord->id)
+            ->where('task', AchievementAuthorTask::Logic->value)
+            ->orderBy('created_at', 'asc')
+            ->first();
+
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.display_name')
@@ -119,7 +124,8 @@ class AuthorshipCreditsRelationManager extends RelationManager
                     ->modalHeading('Edit achievement credit'),
 
                 Tables\Actions\DeleteAction::make()
-                    ->modalHeading('Delete achievement credit'),
+                    ->modalHeading('Delete achievement credit')
+                    ->hidden(fn (AchievementAuthor $record) => $earliestLogicCredit && $earliestLogicCredit->id === $record->id),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -61,7 +61,7 @@ class SyncAchievementAuthors extends Command
             $achievement->ensureAuthorshipCredit(
                 $achievementAuthor,
                 AchievementAuthorTask::Logic,
-                backdate: $achievement->DateCreated,
+                backdate: $achievement->DateCreated ?? now(),
             );
 
             $creditedAuthorIds[] = $achievementAuthor->id;
@@ -73,11 +73,14 @@ class SyncAchievementAuthors extends Command
             $payload = $systemComment->Payload;
 
             // Extract the username from the payload.
-            $username = strtok($payload, ' ');
+            $words = explode(' ', $payload);
+            $username = array_shift($words); // Username is always the first word.
 
-            $expectedPhraseOne = "edited this achievement's";
+            $remainingPayload = implode(' ', $words);
+
+            $expectedPhraseOne = "edited";
             $expectedPhraseTwo = "logic";
-            if (str_contains($payload, $expectedPhraseOne) && str_contains($payload, $expectedPhraseTwo)) {
+            if (str_contains($remainingPayload, $expectedPhraseOne) && str_contains($remainingPayload, $expectedPhraseTwo)) {
                 $user = User::withTrashed()
                     ->where('User', $username)
                     ->orWhere('display_name', $username)
@@ -90,7 +93,7 @@ class SyncAchievementAuthors extends Command
                         backdate: $systemComment->Submitted,
                     );
 
-                    $creditAuthorIds[] = $achievementAuthor->id;
+                    $creditedAuthorIds[] = $user->id;
                 }
             }
         }
