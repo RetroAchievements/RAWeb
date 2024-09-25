@@ -7,20 +7,22 @@ import { cn } from '@/utils/cn';
 type PlayerBadgeLabelProps = App.Platform.Data.PlayerBadge & {
   className?: string;
   isColorized?: boolean;
+  variant?: 'base' | 'muted-group';
 };
 
 export const PlayerBadgeLabel: FC<PlayerBadgeLabelProps> = ({
   awardType,
   awardDataExtra,
-  isColorized = true,
   className,
+  isColorized = true,
+  variant = 'base',
 }) => {
   const label = getLabelFromPlayerBadge(awardType, awardDataExtra);
 
   return (
     <span
       className={cn(
-        isColorized ? getLabelColorClassNames(awardType, awardDataExtra) : undefined,
+        isColorized ? getLabelColorClassNames(awardType, awardDataExtra, variant) : undefined,
         className,
       )}
     >
@@ -29,25 +31,30 @@ export const PlayerBadgeLabel: FC<PlayerBadgeLabelProps> = ({
   );
 };
 
-function getLabelColorClassNames(awardType: number, awardDataExtra: number): string {
-  // Mastered
-  if (awardType === AwardType.Mastery && awardDataExtra) {
-    return 'text-[gold] light:text-yellow-600';
-  }
+function getLabelColorClassNames(
+  awardType: number,
+  awardDataExtra: number,
+  variant: PlayerBadgeLabelProps['variant'],
+): string {
+  const baseColors: Record<number, string> = {
+    [AwardType.Mastery]: awardDataExtra ? 'text-[gold] light:text-yellow-600' : 'text-yellow-600',
+    [AwardType.GameBeaten]: awardDataExtra ? 'text-zinc-300' : 'text-zinc-400',
+  };
 
-  // Completed
-  if (awardType === AwardType.Mastery && !awardDataExtra) {
-    return 'text-yellow-600';
-  }
+  const mutedGroupColors: Record<number, string> = {
+    [AwardType.Mastery]: awardDataExtra
+      ? 'transition text-muted group-hover:text-[gold] group-hover:light:text-yellow-600' // Mastery
+      : 'transition text-muted group-hover:text-yellow-600', // Completion
 
-  // Beaten
-  if (awardType === AwardType.GameBeaten && awardDataExtra) {
-    return 'text-zinc-300';
-  }
+    [AwardType.GameBeaten]: awardDataExtra
+      ? 'transition text-muted group-hover:text-zinc-300' // Beaten
+      : 'transition text-muted group-hover:text-zinc-400', // Beaten (softcore)
+  };
 
-  // Beaten (softcore)
-  if (awardType === AwardType.GameBeaten && !awardDataExtra) {
-    return 'text-zinc-400';
+  if (variant === 'base') {
+    return baseColors[awardType] ?? '';
+  } else if (variant === 'muted-group') {
+    return mutedGroupColors[awardType] ?? '';
   }
 
   return '';

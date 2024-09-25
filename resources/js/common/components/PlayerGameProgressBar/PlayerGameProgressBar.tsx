@@ -69,8 +69,12 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({ game, pl
 
           {highestAward && !isEventGame ? (
             <div className="flex items-center justify-end gap-1">
-              <p className="translate-x-4 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100">
-                <PlayerBadgeLabel {...highestAward} className="text-2xs tracking-tighter" />
+              <p className="">
+                <PlayerBadgeLabel
+                  {...highestAward}
+                  className="text-2xs tracking-tighter"
+                  variant="muted-group"
+                />
               </p>
               <PlayerBadgeIndicator {...highestAward} className="mt-px" />
             </div>
