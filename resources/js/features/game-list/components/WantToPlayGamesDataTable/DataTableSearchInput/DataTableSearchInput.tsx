@@ -93,9 +93,9 @@ function getDebounceDuration(input: string): number {
 
   // Use a longer debounce for shorter inputs.
   if (input.length < 3) {
-    return 500;
+    return 1000;
   }
 
   // Use a shorter debounce for longer inputs.
-  return 200;
+  return 500;
 }
