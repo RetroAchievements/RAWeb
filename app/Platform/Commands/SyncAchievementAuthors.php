@@ -76,11 +76,9 @@ class SyncAchievementAuthors extends Command
             $words = explode(' ', $payload);
             $username = array_shift($words); // Username is always the first word.
 
-            $remainingPayload = implode(' ', $words);
-
             $expectedPhraseOne = "edited";
             $expectedPhraseTwo = "logic";
-            if (str_contains($remainingPayload, $expectedPhraseOne) && str_contains($remainingPayload, $expectedPhraseTwo)) {
+            if (in_array($expectedPhraseOne, $words) && in_array($expectedPhraseTwo, $words)) {
                 $user = User::withTrashed()
                     ->where('User', $username)
                     ->orWhere('display_name', $username)
