@@ -34,14 +34,14 @@ class CreateGameClaimAction
 
         $primaryClaim = $game->achievementSetClaims()->active()->primaryClaim()->first();
         if ($primaryClaim !== null) {
-            if ($primaryClaim->user_id == $currentUser->id) {
+            if ($primaryClaim->user->is($currentUser)) {
                 // renewing claim
                 $primaryClaim->Finished = $expiresAt;
                 $primaryClaim->Extension++;
                 $primaryClaim->save();
 
                 Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($currentUser->User));
-                addArticleComment("Server", ArticleType::SetClaim, $game->ID, "Claim extended by " . $currentUser->User);
+                addArticleComment("Server", ArticleType::SetClaim, $game->ID, "Claim extended by " . $currentUser->display_name);
 
                 return $primaryClaim;
             }
@@ -72,7 +72,7 @@ class CreateGameClaimAction
         Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($currentUser->User));
 
         addArticleComment("Server", ArticleType::SetClaim, $game->ID,
-            ClaimType::toString($claimType) . " " . ($setType == ClaimSetType::Revision ? "revision" : "") . " claim made by " . $currentUser->User);
+            ClaimType::toString($claimType) . " " . ($setType == ClaimSetType::Revision ? "revision" : "") . " claim made by " . $currentUser->display_name);
 
         if ($claimType == ClaimType::Primary) {
             // automatically subscribe the user to game wall comments when they make a claim on the game

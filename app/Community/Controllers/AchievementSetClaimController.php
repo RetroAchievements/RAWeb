@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AchievementSetClaimController extends Controller
 {
-    public function create(
+    public function store(
         Game $game,
         CreateGameClaimAction $action,
     ): RedirectResponse {
@@ -29,17 +29,17 @@ class AchievementSetClaimController extends Controller
         }
 
         return back()->with('success', $this->resourceActionSuccessMessage('claim',
-            $claim->Created == $claim->Updated ? 'create' : 'update'));
+            $claim->Created->equalTo($claim->Updated) ? 'create' : 'update'));
     }
 
-    public function store(
+    public function update(
         UpdateGameClaimRequest $request,
         AchievementSetClaim $claim,
         UpdateGameClaimAction $action,
     ): RedirectResponse {
         $this->authorize('manage', [AchievementSetClaim::class]);
 
-        $action->execute($claim, $request);
+        $action->execute($claim, $request->validated());
 
         return back()->with('success', $this->resourceActionSuccessMessage('claim', 'update'));
     }

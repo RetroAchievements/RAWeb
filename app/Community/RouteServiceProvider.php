@@ -249,9 +249,9 @@ class RouteServiceProvider extends ServiceProvider
                 Route::group([
                     'middleware' => ['auth', 'verified'],
                 ], function () {
-                    Route::post('game/{game}/claim/create', [AchievementSetClaimController::class, 'create'])->name('achievement-set-claim.create');
+                    Route::post('game/{game}/claim/create', [AchievementSetClaimController::class, 'store'])->name('achievement-set-claim.create');
                     Route::post('game/{game}/claim/drop', [AchievementSetClaimController::class, 'delete'])->name('achievement-set-claim.delete');
-                    Route::post('claim/{claim}/update', [AchievementSetClaimController::class, 'store'])->name('achievement-set-claim.update');
+                    Route::post('claim/{claim}/update', [AchievementSetClaimController::class, 'update'])->name('achievement-set-claim.update');
                 });
 
                 /*

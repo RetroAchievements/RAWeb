@@ -7,9 +7,9 @@ namespace App\Community\Actions;
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
-use App\Community\Requests\UpdateGameClaimRequest;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\PlayerBadge;
@@ -19,12 +19,10 @@ use Illuminate\Support\Facades\Auth;
 
 class UpdateGameClaimAction
 {
-    public function execute(AchievementSetClaim $claim, UpdateGameClaimRequest $request): void
+    public function execute(AchievementSetClaim $claim, array $newValues): void
     {
         /** @var User $currentUser */
         $currentUser = Auth::user();
-
-        $newValues = $request->validated();
 
         $auditMessage = "{$currentUser->display_name} updated {$claim->user->display_name}'s claim.";
 
@@ -68,7 +66,7 @@ class UpdateGameClaimAction
             if ($claim->Special != $newSpecial) {
                 $claim->Special = $newSpecial;
 
-                $auditMessage .= " Special: " . ClaimSetType::toString($newSpecial) . '.';
+                $auditMessage .= " Special: " . ClaimSpecial::toString($newSpecial) . '.';
             }
         }
 
@@ -99,7 +97,7 @@ class UpdateGameClaimAction
 
     private function processCompletedClaim(AchievementSetClaim $claim, User $currentUser): void
     {
-        addArticleComment("Server", ArticleType::SetClaim, $claim->game_id, "Claim completed by {$currentUser->User}");
+        addArticleComment("Server", ArticleType::SetClaim, $claim->game_id, "Claim completed by {$currentUser->display_name}");
 
         // also complete any collaboration claims
         $game = Game::find($claim->game_id);
