@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
-use App\Community\Enums\ClaimSetType;
-use App\Community\Enums\ClaimSpecial;
-use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
@@ -199,14 +196,12 @@ class GameExtendedTest extends TestCase
 
         /** @var User $user2 */
         $user2 = User::factory()->create(['Permissions' => Permissions::Developer]);
-        insertClaim(
-            $user2,
-            $game->id,
-            ClaimType::Primary,
-            ClaimSetType::NewSet,
-            ClaimSpecial::None
-        );
-        $claim = AchievementSetClaim::first();
+
+        /** @var AchievementSetClaim $claim */
+        $claim = AchievementSetClaim::factory()->create([
+            'user_id' => $user2->id,
+            'game_id' => $game->id,
+        ]);
 
         $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID]))
             ->assertSuccessful()

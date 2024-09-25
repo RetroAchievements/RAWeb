@@ -57,6 +57,10 @@ return [
         'success' => __(':Resource unranked successfully'),
         'error' => __(':Resource could not be unranked'),
     ],
+    'drop' => [
+        'success' => __(':Resource dropped successfully'),
+        'error' => __(':Resource could not be dropped'),
+    ],
 
     /*
      * resources below

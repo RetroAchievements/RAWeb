@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community;
 
+use App\Community\Controllers\AchievementSetClaimController;
 use App\Community\Controllers\Api\UserGameListApiController;
 use App\Community\Controllers\ForumTopicCommentController;
 use App\Community\Controllers\ForumTopicController;
@@ -262,6 +263,17 @@ class RouteServiceProvider extends ServiceProvider
                     'middleware' => ['auth', 'inertia'],
                 ], function () {
                     Route::get('game-list/play', [UserGameListController::class, 'index'])->name('game-list.play.index');
+                });
+
+                /*
+                 * claims
+                 */
+                Route::group([
+                    'middleware' => ['auth', 'verified'],
+                ], function () {
+                    Route::post('game/{game}/claim/create', [AchievementSetClaimController::class, 'store'])->name('achievement-set-claim.create');
+                    Route::post('game/{game}/claim/drop', [AchievementSetClaimController::class, 'delete'])->name('achievement-set-claim.delete');
+                    Route::post('claim/{claim}/update', [AchievementSetClaimController::class, 'update'])->name('achievement-set-claim.update');
                 });
 
                 /*
