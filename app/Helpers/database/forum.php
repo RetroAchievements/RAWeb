@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
+use App\Models\Forum;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
@@ -130,23 +131,20 @@ function submitNewTopic(
 function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
 {
     // Update ForumTopic table
-    $query = "UPDATE ForumTopic SET LatestCommentID=$commentID WHERE ID=$topicID";
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        log_sql_fail();
+    $forumTopic = ForumTopic::find($topicID);
+    if (!$forumTopic) {
+        return false;
     }
 
-    // Propagate to Forum table
-    $query = "  UPDATE Forum AS f
-                INNER JOIN ForumTopic AS ft ON ft.ForumID = f.ID
-                SET f.LatestCommentID = ft.LatestCommentID
-                WHERE ft.ID = $topicID ";
+    $forumTopic->LatestCommentID = $commentID;
+    $forumTopic->timestamps = false;
+    $forumTopic->save();
 
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        log_sql_fail();
+    $forum = Forum::find($forumTopic->ForumID);
+    if ($forum) {
+        $forum->LatestCommentID = $commentID;
+        $forum->timestamps = false;
+        $forum->save();
     }
 
     return true;
@@ -202,7 +200,7 @@ function submitTopicComment(
         $topicTitle = $topic?->title ?? '';
     }
 
-    if ($user->ManuallyVerified) {
+    if ($user->ManuallyVerified ?? false) {
         notifyUsersAboutForumActivity($topicId, $topicTitle, $user->User, $newComment->id);
     }
 

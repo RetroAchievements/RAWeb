@@ -34,87 +34,45 @@ $gameIcon = $gameData['ImageIcon'];
    */
   function UpdateClaimDetails(claimID, claimUser, claimType, setType, claimStatus, claimSpecial, claimDate, doneDate) {
     var somethingChanged = 0;
-    var comment = "<?= $user ?> updated " + claimUser + "'s claim. ";
 
     var newClaimType = parseInt($('#claimType_' + claimID).val());
     if (newClaimType != claimType) {
-        comment += "Claim Type: " + (newClaimType == <?= ClaimType::Primary ?> ? "<?= ClaimType::toString(ClaimType::Primary) ?>. " : "<?= ClaimType::toString(ClaimType::Collaboration) ?>. ")
         somethingChanged = 1;
     }
 
     var newSetType = parseInt($('#setType_' + claimID).val());
     if (newSetType != setType) {
-        comment += "Set Type: " + (newSetType == <?= ClaimSetType::NewSet ?> ? "<?= ClaimSetType::toString(ClaimSetType::NewSet) ?>. " : "<?= ClaimSetType::toString(ClaimSetType::Revision) ?>. ")
         somethingChanged = 1;
     }
 
     var newClaimStatus = parseInt($('#status_' + claimID).val());
     if (newClaimStatus != claimStatus) {
-        switch (newClaimStatus) {
-            case <?= ClaimStatus::Active ?>:
-                comment += "Claim Status: <?= ClaimStatus::toString(ClaimStatus::Active) ?>. ";
-                break;
-            case <?= ClaimStatus::Complete ?>:
-                comment += "Claim Status: <?= ClaimStatus::toString(ClaimStatus::Complete) ?>. ";
-                break;
-            case <?= ClaimStatus::Dropped ?>:
-                comment += "Claim Status: <?= ClaimStatus::toString(ClaimStatus::Dropped) ?>. ";
-                break;
-            case <?= ClaimStatus::InReview ?>:
-                comment += "Claim Status: <?= ClaimStatus::toString(ClaimStatus::InReview) ?>. ";
-                break;
-            default:
-                comment += "Claim Status: <?= ClaimStatus::toString(ClaimStatus::Active) ?>. ";
-                break;
-        }
         somethingChanged = 1;
     }
 
     var newClaimSpecial = parseInt($('#special_' + claimID).val());
     if (newClaimSpecial != claimSpecial) {
-        switch (newClaimSpecial) {
-            case <?= ClaimSpecial::None ?>:
-                comment += "Special: <?= ClaimSpecial::toString(ClaimSpecial::None) ?>. ";
-                break;
-            case <?= ClaimSpecial::OwnRevision ?>:
-                comment += "Special: <?= ClaimSpecial::toString(ClaimSpecial::OwnRevision) ?>. ";
-                break;
-            case <?= ClaimSpecial::FreeRollout ?>:
-                comment += "Special: <?= ClaimSpecial::toString(ClaimSpecial::FreeRollout) ?>. ";
-                break;
-            case <?= ClaimSpecial::ScheduledRelease ?>:
-                comment += "Special: <?= ClaimSpecial::toString(ClaimSpecial::ScheduledRelease) ?>. ";
-                break;
-            default:
-                comment += "Special: <?= ClaimSpecial::toString(ClaimSpecial::None) ?>. ";
-                break;
-        }
         somethingChanged = 1;
     }
 
     var newClaimDate = $('#claimDate_' + claimID).val();
     if (newClaimDate != claimDate) {
-        comment += "Claim Date: " + newClaimDate + ". ";
         somethingChanged = 1;
     }
 
     var newDoneDate = $('#doneDate_' + claimID).val();
     if (newDoneDate != doneDate) {
-        comment += "End Date: " + newDoneDate + ".";
         somethingChanged = 1;
     }
 
     if (somethingChanged) {
-        $.post('/request/set-claim/update-claim.php', {
-            game: <?= $gameID ?>,
-            claim: claimID,
-            claim_special: newClaimSpecial,
-            claim_status: newClaimStatus,
-            claim_type: newClaimType,
+        $.post("{{ route('achievement-set-claim.update', 99999999) }}".replace("99999999", claimID), {
+            special: newClaimSpecial,
+            status: newClaimStatus,
+            type: newClaimType,
             set_type: newSetType,
             claimed: newClaimDate,
-            claim_finish: newDoneDate,
-            comment: comment
+            finished: newDoneDate
         })
             .done(function () {
                 location.reload();
