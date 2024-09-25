@@ -28,7 +28,7 @@ class UpdateGameClaimAction
 
         if (array_key_exists('type', $newValues)) {
             $newType = (int) $newValues['type'];
-            if ($claim->ClaimType != $newType) {
+            if ($claim->ClaimType !== $newType) {
                 $claim->ClaimType = $newType;
 
                 $auditMessage .= " Claim Type: " . ClaimType::toString($newType) . '.';
@@ -37,7 +37,7 @@ class UpdateGameClaimAction
 
         if (array_key_exists('set_type', $newValues)) {
             $newType = (int) $newValues['set_type'];
-            if ($claim->SetType != $newType) {
+            if ($claim->SetType !== $newType) {
                 $claim->SetType = $newType;
 
                 $auditMessage .= " Set Type: " . ClaimSetType::toString($newType) . '.';
@@ -46,7 +46,7 @@ class UpdateGameClaimAction
 
         if (array_key_exists('status', $newValues)) {
             $newStatus = (int) $newValues['status'];
-            if ($claim->Status != $newStatus) {
+            if ($claim->Status !== $newStatus) {
                 $claim->Status = $newStatus;
 
                 $auditMessage .= " Claim Status: " . ClaimStatus::toString($newStatus) . '.';
@@ -63,7 +63,7 @@ class UpdateGameClaimAction
 
         if (array_key_exists('special', $newValues)) {
             $newSpecial = (int) $newValues['special'];
-            if ($claim->Special != $newSpecial) {
+            if ($claim->Special !== $newSpecial) {
                 $claim->Special = $newSpecial;
 
                 $auditMessage .= " Special: " . ClaimSpecial::toString($newSpecial) . '.';
@@ -72,7 +72,7 @@ class UpdateGameClaimAction
 
         if (array_key_exists('claimed', $newValues)) {
             $newDate = $newValues['claimed'];
-            if ($claim->Created != $newDate) {
+            if ($claim->Created->notEqualTo($newDate)) {
                 $claim->Created = $newDate;
 
                 $auditMessage .= " Claim Date: $newDate.";
@@ -81,7 +81,7 @@ class UpdateGameClaimAction
 
         if (array_key_exists('finished', $newValues)) {
             $newDate = $newValues['finished'];
-            if ($claim->Finished != $newDate) {
+            if ($claim->Finished->notEqualTo($newDate)) {
                 $claim->Finished = $newDate;
 
                 $auditMessage .= " End Date: $newDate.";
@@ -104,7 +104,7 @@ class UpdateGameClaimAction
         $game->achievementSetClaims()->active()->update(['Status' => $claim->Status, 'Finished' => $claim->Finished]);
 
         // TODO: these emails should be queued and sent asynchronously
-        if ($claim->SetType == ClaimSetType::Revision) {
+        if ($claim->SetType === ClaimSetType::Revision) {
             // Send email to users who had previously mastered the set
             $userAwards = PlayerBadge::with('user')
                 ->where('AwardData', $game->ID)
