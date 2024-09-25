@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\GameResource\Pages;
+use App\Filament\Resources\GameResource\RelationManagers\AchievementSetsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\AchievementsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\GameHashesRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\LeaderboardsRelationManager;
@@ -494,6 +495,7 @@ class GameResource extends Resource
     {
         return [
             AchievementsRelationManager::class,
+            AchievementSetsRelationManager::class,
             LeaderboardsRelationManager::class,
             GameHashesRelationManager::class,
             MemoryNotesRelationManager::class,
