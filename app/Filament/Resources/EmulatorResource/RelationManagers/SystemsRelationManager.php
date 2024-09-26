@@ -40,14 +40,20 @@ class SystemsRelationManager extends RelationManager
                 Tables\Columns\ImageColumn::make('icon_url')
                     ->label('')
                     ->size(config('media.icon.sm.width')),
+
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where('Console.ID', 'like', "%{$search}%");
+                    }),
+
                 Tables\Columns\TextColumn::make('name_full')
                     ->label('Full name')
                     ->description(fn (System $record): ?string => $record->name_short)
-                    ->searchable()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where('Console.name_full', 'like', "%{$search}%");
+                    })
                     ->sortable()
                     ->grow(true),
             ])

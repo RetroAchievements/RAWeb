@@ -141,7 +141,7 @@ class Emulator extends BaseModel implements HasMedia
      */
     public function systems(): BelongsToMany
     {
-        return $this->belongsToMany(System::class, 'system_emulators')
+        return $this->belongsToMany(System::class, 'system_emulators', 'emulator_id', 'system_id')
             ->using(BasePivot::class)
             ->withTimestamps();
     }
