@@ -43,14 +43,11 @@ class UserClaimsTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
 
-        insertClaim(
-            $user,
-            $game->id,
-            ClaimType::Primary,
-            ClaimSetType::NewSet,
-            ClaimSpecial::None,
-        );
-        $claim = AchievementSetClaim::first();
+        /** @var AchievementSetClaim $claim */
+        $claim = AchievementSetClaim::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+        ]);
 
         $this->get($this->apiUrl('GetUserClaims', ['u' => $user->User]))
             ->assertSuccessful()

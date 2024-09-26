@@ -19,7 +19,7 @@
         <x-brand-top />
     @endif
 
-    <x-navbar class="flex flex-col w-full justify-center lg:sticky lg:top-0">
+    <x-navbar class="flex flex-col w-full justify-center bg-embedded lg:sticky lg:top-0">
         <x-slot name="brand">
             <x-menu.brand />
         </x-slot>
