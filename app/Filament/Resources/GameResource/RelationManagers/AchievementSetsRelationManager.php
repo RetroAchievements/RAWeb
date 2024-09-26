@@ -111,20 +111,37 @@ class AchievementSetsRelationManager extends RelationManager
                             ->afterValidation(function (Component $livewire) {
                                 // Try to set the default subset title based on the selected game.
                                 $gameId = (int) $livewire->mountedTableActionsData[0]['game'];
-
-                                $defaultSubsetTitle = '';
                                 $game = Game::find($gameId);
-                                // Extract the part after "[Subset - " and before "]"
+
+                                // Extract the default subset title, ie: the part after "[Subset - " and before "]".
+                                $defaultSubsetTitle = '';
                                 if (preg_match('/\[Subset - (.+?)\]/', $game->title, $matches)) {
                                     $defaultSubsetTitle = $matches[1];
                                 }
 
                                 $livewire->mountedTableActionsData[0]['title'] = $defaultSubsetTitle;
+
+                                // Check if the achievement set is already attached to another game as a non-core type.
+                                $legacySubsetAchievementSet = $game->gameAchievementSets()->core()->first()->achievementSet;
+                                $attachedGame = $legacySubsetAchievementSet->games()
+                                    ->wherePivot('type', '!=', AchievementSetType::Core->value)
+                                    ->where('GameData.id', '!=', $game->id)
+                                    ->first();
+
+                                // Set the flag in the form data.
+                                $livewire->mountedTableActionsData[0]['attachedToGameId'] = $attachedGame?->id;
                             }),
 
                         Wizard\Step::make('Details')
                             ->description('Give some required info and submit')
                             ->schema([
+                                Forms\Components\Hidden::make('attachedToGameId'),
+
+                                Forms\Components\Placeholder::make('warning')
+                                    ->label('')
+                                    ->content(fn ($get) => new HtmlString('<p style="font-weight: bold;">🔴 This subset is already attached to another game (ID: ' . $get('attachedToGameId') . ') as a non-core set. Proceed with caution.</p>'))
+                                    ->visible(fn ($get) => $get('attachedToGameId')),
+
                                 Forms\Components\TextInput::make('title')
                                     ->minLength(2)
                                     ->maxLength(80)
