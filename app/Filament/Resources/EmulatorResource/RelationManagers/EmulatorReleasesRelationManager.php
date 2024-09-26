@@ -11,7 +11,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EmulatorReleasesRelationManager extends RelationManager
 {
@@ -77,13 +76,5 @@ class EmulatorReleasesRelationManager extends RelationManager
             ->defaultSort(function (Builder $query): Builder {
                 return $query->orderByDesc('created_at');
             });
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
     }
 }
