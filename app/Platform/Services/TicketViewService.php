@@ -7,6 +7,7 @@ namespace App\Platform\Services;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Enums\PlayerGameActivityEventType;
+use App\Enums\PlayerGameActivitySessionType;
 use App\Models\PlayerAchievement;
 use App\Models\Ticket;
 use App\Models\User;
@@ -82,7 +83,7 @@ class TicketViewService
 
         $this->activity->initialize($ticket->reporter, $ticket->achievement->game);
 
-        $this->activity->addCustomEvent($ticket->ReportedAt,
+        $this->activity->addCustomEvent($ticket->ReportedAt, PlayerGameActivitySessionType::TicketCreated,
             "Ticket created - " . TicketType::toString($ticket->ReportType) . ": {$ticket->achievement->title}");
 
         foreach ($this->activity->sessions as &$session) {
