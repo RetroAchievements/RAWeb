@@ -52,7 +52,20 @@ class AchievementSetsRelationManager extends RelationManager
                     ->placeholder('Core Set'),
 
                 Tables\Columns\TextColumn::make('type')
-                    ->formatStateUsing(fn ($state): string => AchievementSetType::tryFrom($state)?->label()),
+                    ->formatStateUsing(fn ($state): string => AchievementSetType::tryFrom($state)?->label())
+                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
+                        $state = $column->getState();
+
+                        if ($state === AchievementSetType::WillBeBonus->value) {
+                            return 'Will be Bonus when multiset goes live';
+                        } elseif ($state === AchievementSetType::WillBeSpecialty->value) {
+                            return 'Will be Specialty when multiset goes live';
+                        } elseif ($state === AchievementSetType::WillBeExclusive->value) {
+                            return 'Will be Exclusive when multiset goes live';
+                        }
+
+                        return null;
+                    }),
 
                 Tables\Columns\TextColumn::make('achievements_published')
                     ->label('Published Achievements'),
@@ -190,6 +203,8 @@ class AchievementSetsRelationManager extends RelationManager
                             'type' => $data['type'],
                             'order_column' => 1,
                             'title' => $data['title'],
+                            'created_at' => now(),
+                            'updated_at' => now(),
                         ]);
 
                         Notification::make()
