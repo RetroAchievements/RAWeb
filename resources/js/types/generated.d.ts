@@ -54,8 +54,9 @@ declare namespace App.Data {
     isMuted: boolean;
     id?: number;
     username?: string | null;
-    motto?: string;
     legacyPermissions?: number | null;
+    locale?: string | null;
+    motto?: string;
     preferences?: { prefersAbsoluteDates: boolean };
     roles?: App.Models.UserRole[];
     apiKey?: string | null;
@@ -212,5 +213,13 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
+  export type AchievementSetType =
+    | 'core'
+    | 'bonus'
+    | 'specialty'
+    | 'exclusive'
+    | 'will_be_bonus'
+    | 'will_be_specialty'
+    | 'will_be_exclusive';
   export type GameSetType = 'hub' | 'similar-games';
 }

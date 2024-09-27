@@ -2,6 +2,7 @@ import type { FC } from 'react';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useLaravelReactI18n } from '@/lib/laravel-react-i18n';
 
 import { PostTimestamp } from '../PostTimestamp';
 import { RecentPostAggregateLinks } from '../RecentPostAggregateLinks';
@@ -17,6 +18,8 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
   showUser = true,
 }) => {
   const { auth } = usePageProps<App.Community.Data.RecentPostsPageProps>();
+
+  const { t } = useLaravelReactI18n();
 
   return (
     <div className="flex flex-col gap-y-2">
@@ -43,7 +46,7 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
 
           <div className="flex flex-col gap-y-2">
             <p className="truncate">
-              in{' '}
+              {t('in')}{' '}
               <a
                 href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment?.id}#${topic.latestComment?.id}`}
               >

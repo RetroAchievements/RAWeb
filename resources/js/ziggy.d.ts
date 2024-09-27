@@ -309,6 +309,27 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "achievement-set-claim.create": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "achievement-set-claim.delete": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "achievement-set-claim.update": [
+        {
+            "name": "claim",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "message.store": [],
     "message-thread.destroy": [
         {

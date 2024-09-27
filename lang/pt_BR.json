@@ -1,11 +1,12 @@
 {
-    "Edit": "Editar",
-    "Save": "Salvar",
-    "achievement": "Conquista",
-    "achievements": "Conquistas",
-    "Language": "Língua",
-    "Timezone": "Fuso horário",
-    "Number Format": "Formato numérico",
-    "Date/Time Format": "Formato de data/hora",
-    "Site Preferences": "Preferências do site"
+    ":count posts in the last 24 hours": ":count posts nas últimas 24 horas",
+    ":count posts in the last 7 days": ":count posts nos últimos 7 dias",
+    "Additional Posts": "Posts adicionais",
+    "Forum Index": "Índice do Fórum",
+    "in": "em",
+    "Last Post By": "Última postagem por",
+    "Message": "Mensagem",
+    "Next :count": "Próximo :count",
+    "Previous :count": "Anterior :count",
+    "Recent Posts": "Posts Recentes"
 }

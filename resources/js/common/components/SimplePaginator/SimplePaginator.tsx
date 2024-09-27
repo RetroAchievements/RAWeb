@@ -7,12 +7,15 @@ import {
   BasePaginationNext,
   BasePaginationPrevious,
 } from '@/common/components/+vendor/BasePagination';
+import { useLaravelReactI18n } from '@/lib/laravel-react-i18n';
 
 interface SimplePaginatorProps<TData = unknown> {
   paginatedData: App.Data.PaginatedData<TData>;
 }
 
 export const SimplePaginator: FC<SimplePaginatorProps> = ({ paginatedData }) => {
+  const { t } = useLaravelReactI18n();
+
   const {
     perPage,
     links: { nextPageUrl, previousPageUrl },
@@ -28,14 +31,16 @@ export const SimplePaginator: FC<SimplePaginatorProps> = ({ paginatedData }) => 
         {previousPageUrl ? (
           <BasePaginationItem>
             <BasePaginationPrevious href={previousPageUrl}>
-              Previous {perPage}
+              {t('Previous :count', { count: perPage })}
             </BasePaginationPrevious>
           </BasePaginationItem>
         ) : null}
 
         {nextPageUrl ? (
           <BasePaginationItem>
-            <BasePaginationNext href={nextPageUrl}>Next {perPage}</BasePaginationNext>
+            <BasePaginationNext href={nextPageUrl}>
+              {t('Next :count', { count: perPage })}
+            </BasePaginationNext>
           </BasePaginationItem>
         ) : null}
       </BasePaginationContent>
