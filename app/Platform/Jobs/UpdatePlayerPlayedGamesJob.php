@@ -2,8 +2,8 @@
 
 namespace App\Platform\Jobs;
 
-use App\Models\Game;
-use App\Platform\Actions\UpdateGameMetrics;
+use App\Models\User;
+use App\Platform\Actions\UpdatePlayerPlayedGames;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -12,7 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class UpdateGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
+class UpdatePlayerPlayedGamesJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
     use Batchable;
     use Dispatchable;
@@ -21,7 +21,7 @@ class UpdateGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
     use SerializesModels;
 
     public function __construct(
-        private readonly int $gameId,
+        private readonly int $userId,
     ) {
     }
 
@@ -29,7 +29,7 @@ class UpdateGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 
     public function uniqueId(): string
     {
-        return config('queue.default') === 'sync' ? '' : $this->gameId;
+        return config('queue.default') === 'sync' ? '' : $this->userId;
     }
 
     /**
@@ -38,13 +38,24 @@ class UpdateGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
     public function tags(): array
     {
         return [
-            Game::class . ':' . $this->gameId,
+            User::class . ':' . $this->userId,
         ];
     }
 
     public function handle(): void
     {
-        app()->make(UpdateGameMetrics::class)
-            ->execute(Game::findOrFail($this->gameId));
+        if ($this->batch()?->cancelled()) {
+            return;
+        }
+
+        $user = User::find($this->userId);
+
+        if (!$user) {
+            // might've been deleted
+            return;
+        }
+
+        app()->make(UpdatePlayerPlayedGames::class)
+            ->execute(User::findOrFail($this->userId));
     }
 }
