@@ -34,6 +34,9 @@ foreach ($newsData as $news) {
     $newsDate = date("D, d M Y H:i:s O", strtotime($news['Timestamp']));
     $newsImage = $news['Image'];
     $newsLink = config('app.url');
+    if(str_starts_with($news['Link'], config('app.url'))){
+        $newsLink = $news['Link'];
+    }
     $newsTitle = "<![CDATA[" . htmlspecialchars(strip_tags($news['Title'])) . "]]>";
 
     // Image first?
