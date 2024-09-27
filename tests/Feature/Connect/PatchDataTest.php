@@ -9,6 +9,7 @@ use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
 use App\Models\System;
+use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlags;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -68,6 +69,7 @@ class PatchDataTest extends TestCase
             'Released' => 'Jan 1989',
             'RichPresencePatch' => 'Display:\nTest',
         ]);
+
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
         /** @var Achievement $achievement2 */
@@ -86,6 +88,9 @@ class PatchDataTest extends TestCase
         $achievement8 = Achievement::factory()->create(['GameID' => $game->ID, 'BadgeName' => '76543', 'DisplayOrder' => 8]);
         /** @var Achievement $achievement9 */
         $achievement9 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '65432', 'DisplayOrder' => 9]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlags())->execute($game);
+
         /** @var Leaderboard $leaderboard1 */
         $leaderboard1 = Leaderboard::factory()->create(['GameID' => $game->ID, 'DisplayOrder' => 2]);
         /** @var Leaderboard $leaderboard2 */
@@ -129,6 +134,7 @@ class PatchDataTest extends TestCase
                         $this->getAchievementPatchData($achievement8), // DisplayOrder: 8 (unofficial)
                         $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
                     ],
+                    'AchievementSets' => [],
                     'Leaderboards' => [
                         $this->getLeaderboardPatchData($leaderboard3), // DisplayOrder: -1
                         $this->getLeaderboardPatchData($leaderboard2), // DisplayOrder: 1
@@ -159,6 +165,7 @@ class PatchDataTest extends TestCase
                         // $achievement8 (DisplayOrder: 8) is unofficial
                         $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
                     ],
+                    'AchievementSets' => [],
                     'Leaderboards' => [
                         $this->getLeaderboardPatchData($leaderboard3), // DisplayOrder: -1
                         $this->getLeaderboardPatchData($leaderboard2), // DisplayOrder: 1
@@ -193,6 +200,7 @@ class PatchDataTest extends TestCase
                         // $achievement8 (DisplayOrder: 8) is unofficial
                         $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
                     ],
+                    'AchievementSets' => [],
                     'Leaderboards' => [
                         $this->getLeaderboardPatchData($leaderboard3), // DisplayOrder: -1
                         $this->getLeaderboardPatchData($leaderboard2), // DisplayOrder: 1
@@ -223,6 +231,7 @@ class PatchDataTest extends TestCase
                     'ImageIconURL' => media_asset($game2->ImageIcon),
                     'RichPresencePatch' => '',
                     'Achievements' => [],
+                    'AchievementSets' => [],
                     'Leaderboards' => [],
                 ],
             ]);
@@ -280,6 +289,7 @@ class PatchDataTest extends TestCase
                         $this->getAchievementPatchData($achievement2, 66.67, 50.00), //  8/12=66.67,  6/12=50.00
                         $this->getAchievementPatchData($achievement3, 25.00, 8.33),  //  3/12=25.00,  1/12= 8.33
                     ],
+                    'AchievementSets' => [],
                     'Leaderboards' => [],
                 ],
             ]);
@@ -306,6 +316,7 @@ class PatchDataTest extends TestCase
                         $this->getAchievementPatchData($achievement2, 72.73, 54.55),  //  8/11= 72.73,  6/11=54.55
                         $this->getAchievementPatchData($achievement3, 27.27, 9.09),   //  3/11= 27.27,  1/11= 9.09
                     ],
+                    'AchievementSets' => [],
                     'Leaderboards' => [],
                 ],
             ]);
