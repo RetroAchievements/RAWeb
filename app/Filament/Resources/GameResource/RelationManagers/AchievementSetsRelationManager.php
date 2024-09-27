@@ -42,6 +42,10 @@ class AchievementSetsRelationManager extends RelationManager
         /** @var Game $game */
         $game = $this->getOwnerRecord();
 
+        $attachedAchievementSetIds = $game->achievementSets()
+            ->wherePivot('type', '!=', AchievementSetType::Core->value)
+            ->pluck('achievement_sets.id');
+
         /** @var User $user */
         $user = Auth::user();
 
@@ -112,6 +116,9 @@ class AchievementSetsRelationManager extends RelationManager
                                         Game::where('Title', 'like', "%[Subset -%")
                                             ->where('ConsoleID', $game->ConsoleID)
                                             ->where('achievements_published', '>', 0)
+                                            ->whereDoesntHave('gameAchievementSets', function ($query) use ($attachedAchievementSetIds) {
+                                                $query->core()->whereIn('achievement_set_id', $attachedAchievementSetIds);
+                                            })
                                             ->orderBy('Title')
                                             ->get()
                                             ->mapWithKeys(function ($game) {
