@@ -994,7 +994,6 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
         'ConsoleID' => $game->ConsoleID,
         'ImageIconURL' => media_asset($game->ImageIcon),
         'Achievements' => [],
-        'AchievementSets' => [],
         'Leaderboards' => [],
     ];
 

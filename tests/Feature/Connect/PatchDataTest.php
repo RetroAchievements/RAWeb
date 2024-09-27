@@ -134,7 +134,6 @@ class PatchDataTest extends TestCase
                         $this->getAchievementPatchData($achievement8), // DisplayOrder: 8 (unofficial)
                         $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
                     ],
-                    'AchievementSets' => [],
                     'Leaderboards' => [
                         $this->getLeaderboardPatchData($leaderboard3), // DisplayOrder: -1
                         $this->getLeaderboardPatchData($leaderboard2), // DisplayOrder: 1
@@ -165,7 +164,6 @@ class PatchDataTest extends TestCase
                         // $achievement8 (DisplayOrder: 8) is unofficial
                         $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
                     ],
-                    'AchievementSets' => [],
                     'Leaderboards' => [
                         $this->getLeaderboardPatchData($leaderboard3), // DisplayOrder: -1
                         $this->getLeaderboardPatchData($leaderboard2), // DisplayOrder: 1
@@ -200,7 +198,6 @@ class PatchDataTest extends TestCase
                         // $achievement8 (DisplayOrder: 8) is unofficial
                         $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
                     ],
-                    'AchievementSets' => [],
                     'Leaderboards' => [
                         $this->getLeaderboardPatchData($leaderboard3), // DisplayOrder: -1
                         $this->getLeaderboardPatchData($leaderboard2), // DisplayOrder: 1
@@ -231,7 +228,6 @@ class PatchDataTest extends TestCase
                     'ImageIconURL' => media_asset($game2->ImageIcon),
                     'RichPresencePatch' => '',
                     'Achievements' => [],
-                    'AchievementSets' => [],
                     'Leaderboards' => [],
                 ],
             ]);
@@ -289,7 +285,6 @@ class PatchDataTest extends TestCase
                         $this->getAchievementPatchData($achievement2, 66.67, 50.00), //  8/12=66.67,  6/12=50.00
                         $this->getAchievementPatchData($achievement3, 25.00, 8.33),  //  3/12=25.00,  1/12= 8.33
                     ],
-                    'AchievementSets' => [],
                     'Leaderboards' => [],
                 ],
             ]);
@@ -316,7 +311,6 @@ class PatchDataTest extends TestCase
                         $this->getAchievementPatchData($achievement2, 72.73, 54.55),  //  8/11= 72.73,  6/11=54.55
                         $this->getAchievementPatchData($achievement3, 27.27, 9.09),   //  3/11= 27.27,  1/11= 9.09
                     ],
-                    'AchievementSets' => [],
                     'Leaderboards' => [],
                 ],
             ]);
