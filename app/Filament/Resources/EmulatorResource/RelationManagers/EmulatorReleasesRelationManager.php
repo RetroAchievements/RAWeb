@@ -25,9 +25,16 @@ class EmulatorReleasesRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\TextInput::make('version'),
+
+                Forms\Components\DatePicker::make('created_at')
+                    ->label('Release Date')
+                    ->native(false)
+                    ->date(),
+
+                Forms\Components\Toggle::make('stable'),
+
+                Forms\Components\Toggle::make('minimum'),
             ]);
     }
 
@@ -54,13 +61,17 @@ class EmulatorReleasesRelationManager extends RelationManager
                     ->alignCenter(),
             ])
             ->filters([
-
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->headerActions([
-
+                Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\RestoreAction::make(),
+                ]),
             ])
             ->defaultSort(function (Builder $query): Builder {
                 return $query->orderByDesc('created_at');
