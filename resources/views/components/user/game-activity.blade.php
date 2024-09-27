@@ -60,12 +60,8 @@ use App\Platform\Enums\AchievementFlag;
                                     </span>
                                 @endif
                             </td>
-                        @elseif ($session['type'] === PlayerGameActivitySessionType::Generated)
-                            <td class='text-muted' title='These events occurred outside of any captured play sessions'>Generated Session</td>
-                        @elseif ($session['type'] === PlayerGameActivitySessionType::ManualUnlock)
-                            <td class='text-muted'>Manual Unlock</td>
                         @else
-                            <td class='text-muted'>{{ $session['type'] }}</td>
+                            <td class='text-muted'>{{ PlayerGameActivitySessionType::toString($session['type']) }}</td>
                         @endif
                     </tr>
 
