@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Comment;
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Aws\CommandPool;
@@ -264,14 +265,20 @@ function informAllSubscribersAboutActivity(
         $activityAuthor = $onBehalfOfUser;
     }
 
+    $payload = null;
     if ($commentID > 0) {
         $urlTarget .= "#comment_$commentID";
+
+        $comment = Comment::find($commentID);
+        if ($comment) {
+            $payload = nl2br($comment->Payload);
+        }
     }
 
     foreach ($subscribers as $subscriber) {
         $isThirdParty = ($subscriber['User'] != $activityAuthor && ($subjectAuthor === null || $subscriber['User'] != $subjectAuthor));
 
-        sendActivityEmail($subscriber['User'], $subscriber['EmailAddress'], $articleID, $activityAuthor, $articleType, $articleTitle, $urlTarget, $isThirdParty);
+        sendActivityEmail($subscriber['User'], $subscriber['EmailAddress'], $articleID, $activityAuthor, $articleType, $articleTitle, $urlTarget, $isThirdParty, $payload);
     }
 }
 
@@ -284,6 +291,7 @@ function sendActivityEmail(
     string $articleTitle,
     string $urlTarget,
     bool $threadInvolved = false,
+    ?string $payload = null,
 ): bool {
     if ($user === $activityCommenter || getUserPermissions($user) < Permissions::Unregistered) {
         return false;
@@ -292,7 +300,6 @@ function sendActivityEmail(
     if (!str_starts_with($urlTarget, "http")) {
         $urlTarget = config('app.url') . "/$urlTarget";
     }
-    $link = "<a href='$urlTarget'>here</a>";
 
     switch ($articleType) {
         case ArticleType::Game:
@@ -335,18 +342,24 @@ function sendActivityEmail(
             // generic messages
             $emailTitle = "New Activity Comment from $activityCommenter";
             $link = "<a href='" . config('app.url') . "/feed.php?a=$actID'>here</a>";
-            $activityDescription = "Your latest activity";
+            $activityDescription = "your latest activity";
             if ($threadInvolved) {
-                $activityDescription = "A thread you've commented in";
+                $activityDescription = "a thread you've commented in";
             }
             break;
     }
 
     $msg = "Hello $user!<br>" .
-        "$activityCommenter has commented on $activityDescription. " .
-        "Click $link to see what they have written!<br>" .
-        "<br>" .
-        "Thanks! And hope to see you on the forums!<br>" .
+        "$activityCommenter has commented on $activityDescription.";
+
+    if (!empty($payload)) {
+        $msg .= "<hr>$payload<hr>";
+    } else {
+        $msg .= "<br><br>";
+    }
+
+    $msg .=
+        "<a href=\"$urlTarget\">View post</a><br>" .
         "<br>" .
         "-- Your friends at RetroAchievements.org<br>";
 

@@ -230,9 +230,15 @@ function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string 
         "
     );
 
+    $payload = null;
+    $comment = ForumTopicComment::find($commentID);
+    if ($comment) {
+        $payload = nl2br(Shortcode::stripAndClamp($comment->Payload, previewLength: 1000, preserveWhitespace: true));
+    }
+
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID#$commentID";
     foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, ArticleType::Forum, $topicTitle, $urlTarget);
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, ArticleType::Forum, $topicTitle, $urlTarget, payload: $payload);
     }
 }
 
