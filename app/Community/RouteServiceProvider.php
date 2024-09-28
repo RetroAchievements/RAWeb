@@ -269,15 +269,15 @@ class RouteServiceProvider extends ServiceProvider
                  */
                 Route::group([
                     'middleware' => ['auth'],
-                    'prefix' => 'settings',
+                    'prefix' => 'internal-api/settings',
                 ], function () {
-                    Route::put('profile', [UserSettingsController::class, 'updateProfile'])->name('settings.profile.update');
-                    Route::put('preferences', [UserSettingsController::class, 'updatePreferences'])->name('settings.preferences.update');
-                    Route::put('password', [UserSettingsController::class, 'updatePassword'])->name('settings.password.update');
-                    Route::put('email', [UserSettingsController::class, 'updateEmail'])->name('settings.email.update');
+                    Route::put('profile', [UserSettingsController::class, 'updateProfile'])->name('api.settings.profile.update');
+                    Route::put('preferences', [UserSettingsController::class, 'updatePreferences'])->name('api.settings.preferences.update');
+                    Route::put('password', [UserSettingsController::class, 'updatePassword'])->name('api.settings.password.update');
+                    Route::put('email', [UserSettingsController::class, 'updateEmail'])->name('api.settings.email.update');
 
-                    Route::delete('keys/web', [UserSettingsController::class, 'resetWebApiKey'])->name('settings.keys.web.destroy');
-                    Route::delete('keys/connect', [UserSettingsController::class, 'resetConnectApiKey'])->name('settings.keys.connect.destroy');
+                    Route::delete('keys/web', [UserSettingsController::class, 'resetWebApiKey'])->name('api.settings.keys.web.destroy');
+                    Route::delete('keys/connect', [UserSettingsController::class, 'resetConnectApiKey'])->name('api.settings.keys.connect.destroy');
                 });
             });
     }

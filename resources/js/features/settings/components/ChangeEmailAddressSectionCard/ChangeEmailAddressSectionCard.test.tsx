@@ -90,7 +90,7 @@ describe('Component: ChangeEmailAddressSectionCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
-    expect(putSpy).toHaveBeenCalledWith(route('settings.email.update'), {
+    expect(putSpy).toHaveBeenCalledWith(route('api.settings.email.update'), {
       newEmail: 'valid@email.com',
       // this is sent to the server out of convenience, but the API layer doesn't actually use it
       confirmEmail: 'valid@email.com',

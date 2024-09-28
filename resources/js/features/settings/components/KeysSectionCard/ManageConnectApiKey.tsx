@@ -9,7 +9,7 @@ import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 export const ManageConnectApiKey: FC = () => {
   const mutation = useMutation({
     mutationFn: () => {
-      return axios.delete(route('settings.keys.connect.destroy'));
+      return axios.delete(route('api.settings.keys.connect.destroy'));
     },
   });
 

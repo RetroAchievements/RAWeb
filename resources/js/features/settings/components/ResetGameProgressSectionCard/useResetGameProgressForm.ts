@@ -68,9 +68,9 @@ export function useResetGameProgressForm() {
     mutationFn: (payload: Partial<FormValues>) => {
       let url = '';
       if (payload.gameId) {
-        url = route('user.game.destroy', payload.gameId);
+        url = route('api.user.game.destroy', payload.gameId);
       } else if (payload.achievementId) {
-        url = route('user.achievement.destroy', payload.achievementId);
+        url = route('api.user.achievement.destroy', payload.achievementId);
       }
 
       if (!url.length) {

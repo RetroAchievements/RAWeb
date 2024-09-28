@@ -48,7 +48,7 @@ describe('Component: AvatarSection', () => {
     // ASSERT
     await waitFor(() => {
       expect(postSpy).toHaveBeenCalledWith(
-        route('user.avatar.store'),
+        route('api.user.avatar.store'),
         expect.anything(),
         expect.anything(),
       );
@@ -66,6 +66,6 @@ describe('Component: AvatarSection', () => {
     await userEvent.click(screen.getByRole('button', { name: /reset avatar to default/i }));
 
     // ASSERT
-    expect(deleteSpy).toHaveBeenCalledWith(route('user.avatar.destroy'));
+    expect(deleteSpy).toHaveBeenCalledWith(route('api.user.avatar.destroy'));
   });
 });

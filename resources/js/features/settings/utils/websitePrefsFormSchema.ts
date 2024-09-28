@@ -21,4 +21,5 @@ export const websitePrefsFormSchema = z.object({
   [StringifiedUserPreference.Forum_ShowAbsoluteDates]: z.boolean(),
   [StringifiedUserPreference.Game_HideMissableIndicators]: z.boolean(),
   [StringifiedUserPreference.User_OnlyContactFromFollowing]: z.boolean(),
+  [StringifiedUserPreference.Game_OptOutOfAllSets]: z.boolean(),
 });

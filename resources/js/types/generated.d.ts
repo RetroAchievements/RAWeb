@@ -92,7 +92,8 @@ declare namespace App.Enums {
     | 14
     | 15
     | 16
-    | 17;
+    | 17
+    | 18;
 }
 declare namespace App.Models {
   export type UserRole =
@@ -212,5 +213,13 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
+  export type AchievementSetType =
+    | 'core'
+    | 'bonus'
+    | 'specialty'
+    | 'exclusive'
+    | 'will_be_bonus'
+    | 'will_be_specialty'
+    | 'will_be_exclusive';
   export type GameSetType = 'hub' | 'similar-games';
 }
