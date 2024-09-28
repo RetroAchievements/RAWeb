@@ -35,7 +35,7 @@ foreach ($newsData as $news) {
     $newsImage = $news['Image'];
     $newsLink = config('app.url');
     if (str_starts_with($news['Link'], config('app.url'))) {
-        $newsLink = $news['Link'];
+        $newsLink = "<![CDATA[" . $news['Link'] . "]]>";
     }
     $newsTitle = "<![CDATA[" . htmlspecialchars(strip_tags($news['Title'])) . "]]>";
 
@@ -56,7 +56,7 @@ foreach ($newsData as $news) {
     // ?!
 
     $article->appendChild($dom->createElement('title', htmlentities($newsTitle)));
-    $article->appendChild($dom->createElement('link', $newsLink));
+    $article->appendChild($dom->createElement('link', htmlentities($newsLink)));
     $article->appendChild($dom->createElement('description', htmlentities($newsPayload)));
     $article->appendChild($dom->createElement('pubDate', $newsDate));
 
