@@ -139,6 +139,9 @@ class AchievementSetClaimResource extends Resource
                             ->mapWithKeys(fn ($value) => [$value => ClaimSpecial::toString($value)])
                     ),
 
+                Tables\Filters\SelectFilter::make('system')
+                    ->relationship('game.system', 'Name'),
+
                 Tables\Filters\SelectFilter::make('user')
                     ->label('Developer Type')
                     ->options([
