@@ -58,7 +58,7 @@ describe('Component: DeleteAccountSectionCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /request account deletion/i }));
 
     // ASSERT
-    expect(postSpy).toHaveBeenCalledWith(route('user.delete-request.store'));
+    expect(postSpy).toHaveBeenCalledWith(route('api.user.delete-request.store'));
     expect(screen.getByText(/you've requested account deletion/i)).toBeVisible();
   });
 
@@ -76,7 +76,7 @@ describe('Component: DeleteAccountSectionCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /cancel account deletion request/i }));
 
     // ASSERT
-    expect(deleteSpy).toHaveBeenCalledWith(route('user.delete-request.destroy'));
+    expect(deleteSpy).toHaveBeenCalledWith(route('api.user.delete-request.destroy'));
     expect(screen.queryByText(/you've requested account deletion/i)).not.toBeInTheDocument();
   });
 });

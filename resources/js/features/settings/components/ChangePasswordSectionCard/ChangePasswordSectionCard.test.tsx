@@ -54,7 +54,7 @@ describe('Component: ChangePasswordSectionCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
-    expect(putSpy).toHaveBeenCalledWith(route('settings.password.update'), {
+    expect(putSpy).toHaveBeenCalledWith(route('api.settings.password.update'), {
       currentPassword: '12345678',
       newPassword: '87654321',
       confirmPassword: '87654321',

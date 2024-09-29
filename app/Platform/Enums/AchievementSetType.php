@@ -47,4 +47,17 @@ enum AchievementSetType: string
     case WillBeBonus = "will_be_bonus";
     case WillBeSpecialty = "will_be_specialty";
     case WillBeExclusive = "will_be_exclusive";
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Core => 'Core',
+            self::Bonus => 'Bonus',
+            self::Specialty => 'Specialty',
+            self::Exclusive => 'Exclusive',
+            self::WillBeBonus => 'Bonus*',
+            self::WillBeSpecialty => 'Specialty*',
+            self::WillBeExclusive => 'Exclusive*',
+        };
+    }
 }

@@ -22,7 +22,8 @@
  * //   lastPage: 9999,
  * //   links: { first: null, last: null, next: null, previous: null },
  * //   perPage: 25,
- * //   total: 25000
+ * //   total: 25000,
+ * //   unfilteredTotal: null
  * // }
  */
 export const createPaginatedData = <TItems>(
@@ -41,6 +42,7 @@ export const createPaginatedData = <TItems>(
     },
     perPage: 25,
     total: 25000,
+    unfilteredTotal: null,
 
     ...overrides,
   };

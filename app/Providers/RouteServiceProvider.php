@@ -108,14 +108,15 @@ class RouteServiceProvider extends ServiceProvider
              */
             Route::group([
                 'middleware' => ['auth'],
+                'prefix' => 'internal-api',
             ], function () {
                 // Route::get('notifications', [NotificationsController::class, 'index'])->name('notification.index');
 
-                Route::post('delete-request', [UserController::class, 'requestAccountDeletion'])->name('user.delete-request.store');
-                Route::delete('delete-request', [UserController::class, 'cancelAccountDeletion'])->name('user.delete-request.destroy');
+                Route::post('delete-request', [UserController::class, 'requestAccountDeletion'])->name('api.user.delete-request.store');
+                Route::delete('delete-request', [UserController::class, 'cancelAccountDeletion'])->name('api.user.delete-request.destroy');
 
-                Route::post('avatar', [UserController::class, 'uploadAvatar'])->name('user.avatar.store');
-                Route::delete('avatar', [UserController::class, 'deleteAvatar'])->name('user.avatar.destroy');
+                Route::post('avatar', [UserController::class, 'uploadAvatar'])->name('api.user.avatar.store');
+                Route::delete('avatar', [UserController::class, 'deleteAvatar'])->name('api.user.avatar.destroy');
             });
         });
     }

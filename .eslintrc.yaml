@@ -94,6 +94,7 @@ rules:
       "tabWidth": 2,
       "printWidth": 100,
       "singleQuote": true,
+      "tailwindAttributes": ["containerClassName"],
       "plugins": ["prettier-plugin-tailwindcss"]
     }
 

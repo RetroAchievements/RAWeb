@@ -21,7 +21,7 @@ export function useProfileSectionForm(initialValues: FormValues) {
 
   const mutation = useMutation({
     mutationFn: (formValues: FormValues) => {
-      return axios.put(route('settings.profile.update'), formValues);
+      return axios.put(route('api.settings.profile.update'), formValues);
     },
   });
 

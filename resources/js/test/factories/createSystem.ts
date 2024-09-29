@@ -6,5 +6,6 @@ export const createSystem = createFactory<App.Platform.Data.System>((faker) => {
     name: faker.word.words(2),
     nameFull: faker.word.words(4),
     nameShort: faker.string.alphanumeric(3),
+    iconUrl: faker.internet.url(),
   };
 });
