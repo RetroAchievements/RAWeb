@@ -476,7 +476,7 @@ if ($isFullyFeaturedGame) {
                     $releasedAtDisplay = null;
 
                     if ($gameModel->released_at && $gameModel->released_at_granularity) {
-                        $releasedAtDisplay = match ($gameModel->released_at_granularity) {
+                        $releasedAtDisplay = match ($gameModel->released_at_granularity->value) {
                             'year' => $gameModel->released_at->format('Y'),
                             'month' => $gameModel->released_at->format('F Y'),
                             default => $gameModel->released_at->format('F j, Y'),

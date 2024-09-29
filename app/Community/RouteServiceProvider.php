@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Controllers\AchievementSetClaimController;
+use App\Community\Controllers\Api\UserGameListApiController;
 use App\Community\Controllers\ForumTopicCommentController;
 use App\Community\Controllers\ForumTopicController;
 use App\Community\Controllers\MessageController;
 use App\Community\Controllers\MessageThreadController;
 use App\Community\Controllers\UserCommentController;
 use App\Community\Controllers\UserForumTopicCommentController;
+use App\Community\Controllers\UserGameListController;
 use App\Community\Controllers\UserSettingsController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +42,17 @@ class RouteServiceProvider extends ServiceProvider
     {
         Route::middleware(['web', 'csp'])
             ->group(function () {
+                /*
+                 * client-side api calls
+                 */
+                Route::middleware(['auth'])->group(function () {
+                    Route::group(['prefix' => 'internal-api'], function () {
+                        Route::get('user-game-list', [UserGameListApiController::class, 'index'])->name('api.user-game-list.index');
+                        Route::post('user-game-list/{game}', [UserGameListApiController::class, 'store'])->name('api.user-game-list.store');
+                        Route::delete('user-game-list/{game}', [UserGameListApiController::class, 'destroy'])->name('api.user-game-list.destroy');
+                    });
+                });
+
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('forums/recent-posts', [ForumTopicController::class, 'recentPosts'])->name('forum.recent-posts');
 
@@ -241,6 +254,15 @@ class RouteServiceProvider extends ServiceProvider
 
                 //     // Route::get('history', [PlayerHistoryController::class, 'index'])->name('history.index');
 
+                });
+
+                /*
+                 * game lists
+                 */
+                Route::group([
+                    'middleware' => ['auth', 'inertia'],
+                ], function () {
+                    Route::get('game-list/play', [UserGameListController::class, 'index'])->name('game-list.play.index');
                 });
 
                 /*

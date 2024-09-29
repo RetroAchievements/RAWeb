@@ -3,6 +3,8 @@ import type { SetRequired } from 'type-fest';
 
 import { createFactory } from '@/test/createFactory';
 
+import type { ZiggyProps } from './ziggy-props.model';
+
 type AuthenticatedUser = SetRequired<
   App.Data.User,
   'id' | 'legacyPermissions' | 'preferences' | 'roles' | 'unreadMessageCount' | 'websitePrefs'
@@ -10,6 +12,7 @@ type AuthenticatedUser = SetRequired<
 
 export interface AppGlobalProps extends PageProps {
   auth: { user: AuthenticatedUser } | null;
+  ziggy: ZiggyProps;
 }
 
 export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) => ({
@@ -28,4 +31,5 @@ export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) 
 
 export const createAppGlobalProps = createFactory<AppGlobalProps>(() => ({
   auth: { user: createAuthenticatedUser() },
+  ziggy: { defaults: [], location: '', port: 8080, query: {}, url: '' },
 }));

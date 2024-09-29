@@ -1,6 +1,7 @@
 import { type FC, useState } from 'react';
 
-import { usePageProps } from '../../hooks/usePageProps';
+import { usePageProps } from '@/common/hooks/usePageProps';
+
 import { ChangeEmailAddressSectionCard } from '../ChangeEmailAddressSectionCard';
 import { ChangePasswordSectionCard } from '../ChangePasswordSectionCard';
 import { DeleteAccountSectionCard } from '../DeleteAccountSectionCard';
