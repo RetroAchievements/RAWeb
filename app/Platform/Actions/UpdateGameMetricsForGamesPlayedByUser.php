@@ -13,7 +13,7 @@ use Illuminate\Bus\BatchRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 
-class UpdatePlayerPlayedGames
+class UpdateGameMetricsForGamesPlayedByUser
 {
     public function execute(User $user): void
     {

@@ -4,10 +4,10 @@ namespace App\Platform\Listeners;
 
 use App\Models\User;
 use App\Platform\Events\PlayerRankedStatusChanged;
-use App\Platform\Jobs\UpdatePlayerPlayedGamesJob;
+use App\Platform\Jobs\UpdateGameMetricsForGamesPlayedByUserJob;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class DispatchUpdatePlayerPlayedGamesJob implements ShouldQueue
+class DispatchUpdateGameMetricsForGamesPlayedByUserJob implements ShouldQueue
 {
     public function handle(object $event): void
     {
@@ -23,7 +23,7 @@ class DispatchUpdatePlayerPlayedGamesJob implements ShouldQueue
             return;
         }
 
-        dispatch(new UpdatePlayerPlayedGamesJob($user->id))
+        dispatch(new UpdateGameMetricsForGamesPlayedByUserJob($user->id))
             ->onQueue('player-game-metrics-batch');
     }
 }
