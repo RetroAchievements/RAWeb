@@ -37,14 +37,14 @@ foreach ($newsData as $news) {
     if (str_starts_with($news['Link'], config('app.url'))) {
         $newsLink = "<![CDATA[" . $news['Link'] . "]]>";
     }
-    $newsTitle = "<![CDATA[" . htmlspecialchars(strip_tags($news['Title'])) . "]]>";
+    $newsTitle = "<![CDATA[" . strip_tags($news['Title']) . "]]>";
 
     // Image first?
     $payload = "<a href='$newsLink'><img style='padding: 5px;' src='$newsImage' /></a>";
     $payload .= "<br>\r\n";
     $payload .= $news['Payload'];
 
-    $newsPayload = "<![CDATA[" . htmlspecialchars(strip_tags($payload)) . "]]>";
+    $newsPayload = "<![CDATA[" . strip_tags($payload) . "]]>";
 
     // $newsPayload contains relative URLs, which need converting to absolute URLs
     $newsPayload = str_replace("href='/", "href='" . config('app.url') . "/", $newsPayload);
