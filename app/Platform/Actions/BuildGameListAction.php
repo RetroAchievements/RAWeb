@@ -35,9 +35,20 @@ class BuildGameListAction
         array $sort = [],
         array $filters = [],
     ): PaginatedData {
+        /**
+         * 👉 Game lists, by design, have a lot of complexity and are tricky to maintain.
+         *    Try to keep the implementation details in execute() thin.
+         *    Try to extract new logic to a method. This makes the action easier to test.
+         *    Add tests for ALL new logic added in here. @see BuildGameListActionTest.php
+         */
+
         // Regardless of the list context, we'll build a common base query which can use
         // the reusable sorts and filters and then be passed to a datatable component.
         $query = $this->buildBaseQuery($listType, $user);
+
+        // Clone the common base query to calculate the unfiltered total.
+        // This lets us show something like "3 of 587 games" in the UI.
+        $unfilteredTotal = $this->getUnfilteredResultsCount($query, $filters);
 
         // After building the base query, tack on whatever filters and sort we need.
         // We support multiple filters, but only a single selected sort.
@@ -48,6 +59,13 @@ class BuildGameListAction
         // We'll override its `total` value with the correct one.
         $total = $query->count('GameData.ID');
 
+        // Automatically adjust the current page if it exceeds the last page.
+        $page = $this->ensurePageWithinBounds(
+            total: $total,
+            page: $page,
+            perPage: $perPage,
+        );
+
         /** @var LengthAwarePaginator<Game> $entries */
         $entries = $query->paginate($perPage, ['*'], 'page', $page);
 
@@ -57,35 +75,55 @@ class BuildGameListAction
             ? $this->getPlayerGames($user, $entries->pluck('id'))
             : collect();
 
-        $backlogGames = $user
-            ? $this->getBacklogGames($user, $entries->pluck('id'))
-            : collect();
+        // If the user is authenticated, pull all their backlog records for the games in the list.
+        // Otherwise, call collect(), which is basically a noop.
+        // We also skip this query if the user is viewing their Want to Play Games List.
+        // In that case, we optimistically assume every game viewed is a "backlog game".
+        $backlogGames = collect();
+        if ($listType !== GameListType::UserPlay && $user) {
+            $backlogGames = $this->getBacklogGames($user, $entries->pluck('id'));
+        }
 
-        $transformedEntries = $entries->getCollection()->map(function (Game $game) use ($playerGames, $backlogGames): GameListEntryData {
-            $playerGame = $playerGames->get($game->id);
+        $transformedEntries = $entries
+            ->getCollection()
+            ->map(function (Game $game) use (
+                $listType,
+                $user,
+                $playerGames,
+                $backlogGames
+            ): GameListEntryData {
+                $playerGame = $playerGames->get($game->id);
 
-            return new GameListEntryData(
-                game: GameData::from($game)->include(
-                    'system.nameShort',
-                    'system.iconUrl',
-                    'achievementsPublished',
-                    'pointsTotal',
-                    'pointsWeighted',
-                    'releasedAt',
-                    'releasedAtGranularity',
-                    'lastUpdated',
-                    'numVisibleLeaderboards',
-                    'numUnresolvedTickets',
-                ),
-                playerGame: $playerGame
-                    ? PlayerGameData::fromPlayerGame($playerGame)->include('highestAward')
-                    : null,
-                isInBacklog: $backlogGames->has($game->id),
-            );
-        });
+                return new GameListEntryData(
+                    game: GameData::from($game)->include(
+                        'system.nameShort',
+                        'system.iconUrl',
+                        'achievementsPublished',
+                        'badgeUrl',
+                        'pointsTotal',
+                        'pointsWeighted',
+                        'releasedAt',
+                        'releasedAtGranularity',
+                        'playersTotal',
+                        'lastUpdated',
+                        'numVisibleLeaderboards',
+                        $user?->can('develop') ? 'numUnresolvedTickets' : '',
+                    ),
+                    playerGame: $playerGame
+                        ? PlayerGameData::fromPlayerGame($playerGame)->include('highestAward')
+                        : null,
+                    isInBacklog: $listType === GameListType::UserPlay
+                        ? true
+                        : $backlogGames->has($game->id),
+                );
+            });
         $entries->setCollection($transformedEntries);
 
-        return PaginatedData::fromLengthAwarePaginator($entries, total: $total);
+        return PaginatedData::fromLengthAwarePaginator(
+            $entries,
+            total: $total,
+            unfilteredTotal: $unfilteredTotal,
+        );
     }
 
     /**
@@ -103,13 +141,19 @@ class BuildGameListAction
                 'num_visible_leaderboards' => Leaderboard::selectRaw('COUNT(*)')
                     ->whereColumn('LeaderboardDef.GameID', 'GameData.ID')
                     ->where('LeaderboardDef.DisplayOrder', '>=', 0),
+            ]);
 
+        // Only attempt to fetch the "Open Tickets" column counts if the user
+        // is a dev. Otherwise, skip it.
+        if ($user?->can('develop')) {
+            $query->addSelect([
                 'num_unresolved_tickets' => Ticket::selectRaw('COUNT(*)')
                     ->join('Achievements', 'Ticket.AchievementID', '=', 'Achievements.ID')
                     ->whereColumn('Achievements.GameID', 'GameData.ID')
                     ->where('Achievements.Flags', AchievementFlag::OfficialCore)
                     ->whereIn('Ticket.ReportState', [TicketState::Open, TicketState::Request]),
             ]);
+        }
 
         switch ($listType) {
             case GameListType::UserPlay:
@@ -141,6 +185,15 @@ class BuildGameListAction
         foreach ($filters as $filterKey => $filterValues) {
             switch ($filterKey) {
                 /*
+                 * only show games matching a specific game title pattern
+                 */
+                case 'title':
+                    if (!empty($filterValues[0])) {
+                        $query->where('GameData.Title', 'LIKE', '%' . $filterValues[0] . '%');
+                    }
+                    break;
+
+                /*
                  * only show games matching a specific list of system IDs
                  */
                 case 'system':
@@ -159,8 +212,8 @@ class BuildGameListAction
                 /*
                  * only show games based on whether they have achievements published
                  */
-                case 'hasAchievementsPublished':
-                    $this->applyHasAchievementsPublishedFilter($query, $filterValues);
+                case 'achievementsPublished':
+                    $this->applyAchievementsPublishedFilter($query, $filterValues);
                     break;
 
                 default:
@@ -184,6 +237,7 @@ class BuildGameListAction
             'retroRatio',
             'lastUpdated',
             'releasedAt',
+            'playersTotal',
             'numVisibleLeaderboards',
             'numUnresolvedTickets',
             'progress',
@@ -259,6 +313,13 @@ class BuildGameListAction
                  */
                 case 'releasedAt':
                     $this->applyReleasedAtSorting($query, $sortDirection);
+                    break;
+
+                /*
+                 * count of all players (softcore and hardcore) for the game
+                 */
+                case 'playersTotal':
+                    $query->orderBy('GameData.players_total', $sortDirection);
                     break;
 
                 /*
@@ -366,9 +427,9 @@ class BuildGameListAction
                 "GameData.*,
                 CASE
                     WHEN GameData.released_at_granularity = 'year' THEN
-                        DATE(SUBSTR(GameData.released_at, 1, 4) || '-01-01')
+                        DATE(CONCAT(SUBSTR(GameData.released_at, 1, 4), '-01-01'))
                     WHEN GameData.released_at_granularity = 'month' THEN
-                        DATE(SUBSTR(GameData.released_at, 1, 7) || '-01')
+                        DATE(CONCAT(SUBSTR(GameData.released_at, 1, 7), '-01'))
                     ELSE
                         COALESCE(GameData.released_at, '9999-12-31')
                 END AS normalized_released_at"
@@ -419,10 +480,10 @@ class BuildGameListAction
      *
      * @param Builder<Game> $query
      */
-    private function applyHasAchievementsPublishedFilter(Builder $query, array $filterValues): void
+    private function applyAchievementsPublishedFilter(Builder $query, array $filterValues): void
     {
-        // Bail early if necessary.
-        if (empty($filterValues)) {
+        // Bail early if necessary. If the user gives both options, it's the "either" case.
+        if (empty($filterValues) || count($filterValues) === 2) {
             return;
         }
 
@@ -585,10 +646,26 @@ class BuildGameListAction
                         });
                         break;
 
-                    default: break;
+                    default:
+                        break;
                 }
             }
         });
+    }
+
+    /**
+     * If the user provides a query param like ?page[number]=8 when there are
+     * only 5 pages, set the current page to 5.
+     */
+    private function ensurePageWithinBounds(int $total, int $page, int $perPage): int
+    {
+        // Automatically adjust the current page if it exceeds the last page.
+        $lastPage = (int) ceil($total / $perPage);
+        if ($page > $lastPage) {
+            $page = $lastPage;
+        }
+
+        return $page;
     }
 
     /**
@@ -618,5 +695,21 @@ class BuildGameListAction
             }])
             ->get()
             ->keyBy('game_id');
+    }
+
+    /**
+     * Clone the common base query to calculate the unfiltered total.
+     * This lets us show something like "3 of 587 games" in the UI.
+     *
+     * @param Builder<Game> $query
+     */
+    private function getUnfilteredResultsCount(Builder $query, array $filters): ?int
+    {
+        $unfilteredTotal = null;
+        if (!empty($filters)) {
+            $unfilteredTotal = (clone $query)->count('GameData.ID');
+        }
+
+        return $unfilteredTotal;
     }
 }

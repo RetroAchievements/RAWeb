@@ -5,8 +5,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-
-import { usePageProps } from '../../hooks/usePageProps';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
 const changeEmailAddressFormSchema = z
   .object({

@@ -301,6 +301,19 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.user-game-list.index": [],
+    "api.user-game-list.store": [
+        {
+            "name": "game",
+            "required": true
+        }
+    ],
+    "api.user-game-list.destroy": [
+        {
+            "name": "game",
+            "required": true
+        }
+    ],
     "forum.recent-posts": [],
     "user.posts.index": [
         {
@@ -316,6 +329,7 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "game-list.play.index": [],
     "achievement-set-claim.create": [
         {
             "name": "game",

@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 
-import { usePageProps } from '@/features/settings/hooks/usePageProps';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
 // Other elements on the page contain some of the same labels, so we
 // need to target specifically by this <p> tag.
