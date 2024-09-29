@@ -56,6 +56,6 @@ class UpdateGameMetricsForGamesPlayedByUserJob implements ShouldQueue, ShouldBeU
         }
 
         app()->make(UpdateGameMetricsForGamesPlayedByUser::class)
-            ->execute(User::findOrFail($this->userId));
+            ->execute($user);
     }
 }

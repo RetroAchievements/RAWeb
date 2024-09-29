@@ -44,6 +44,10 @@ class UpdateGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 
     public function handle(): void
     {
+        if ($this->batch()?->cancelled()) {
+            return;
+        }
+
         app()->make(UpdateGameMetrics::class)
             ->execute(Game::findOrFail($this->gameId));
     }
