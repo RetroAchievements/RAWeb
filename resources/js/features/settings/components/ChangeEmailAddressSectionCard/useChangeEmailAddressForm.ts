@@ -34,7 +34,7 @@ export function useChangeEmailAddressForm(props: {
 
   const mutation = useMutation({
     mutationFn: (formValues: FormValues) => {
-      return axios.put(route('settings.email.update'), formValues);
+      return axios.put(route('api.settings.email.update'), formValues);
     },
     onSuccess: () => {
       props.setCurrentEmailAddress(form.getValues().newEmail);
