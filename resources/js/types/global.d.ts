@@ -53,3 +53,12 @@ declare global {
   // Inertia
   var route: typeof routeFn;
 }
+
+declare module '@tanstack/react-table' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- this is valid
+  interface ColumnMeta<TData, TValue> {
+    label: string;
+
+    align?: 'right' | 'left' | 'center';
+  }
+}

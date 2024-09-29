@@ -13,8 +13,8 @@ import {
 } from '@/common/components/+vendor/BaseForm';
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { usePageProps } from '../../hooks/usePageProps';
 import { useResetNavbarUserPic } from '../../hooks/useResetNavbarUserPic';
 import { useAvatarSectionForm } from './useAvatarSectionForm';
 import { useResetAvatarMutation } from './useResetAvatarMutation';

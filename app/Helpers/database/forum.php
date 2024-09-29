@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
+use App\Models\Forum;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
@@ -130,23 +131,20 @@ function submitNewTopic(
 function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
 {
     // Update ForumTopic table
-    $query = "UPDATE ForumTopic SET LatestCommentID=$commentID WHERE ID=$topicID";
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        log_sql_fail();
+    $forumTopic = ForumTopic::find($topicID);
+    if (!$forumTopic) {
+        return false;
     }
 
-    // Propagate to Forum table
-    $query = "  UPDATE Forum AS f
-                INNER JOIN ForumTopic AS ft ON ft.ForumID = f.ID
-                SET f.LatestCommentID = ft.LatestCommentID
-                WHERE ft.ID = $topicID ";
+    $forumTopic->LatestCommentID = $commentID;
+    $forumTopic->timestamps = false;
+    $forumTopic->save();
 
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        log_sql_fail();
+    $forum = Forum::find($forumTopic->ForumID);
+    if ($forum) {
+        $forum->LatestCommentID = $commentID;
+        $forum->timestamps = false;
+        $forum->save();
     }
 
     return true;
@@ -202,17 +200,15 @@ function submitTopicComment(
         $topicTitle = $topic?->title ?? '';
     }
 
-    if ($user->ManuallyVerified) {
-        notifyUsersAboutForumActivity($topicId, $topicTitle, $user->User, $newComment->id);
+    if ($user->ManuallyVerified ?? false) {
+        notifyUsersAboutForumActivity($topicId, $topicTitle, $user, $newComment->id);
     }
 
     return $newComment;
 }
 
-function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string $author, int $commentID): void
+function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, User $author, int $commentID): void
 {
-    sanitize_sql_inputs($author);
-
     // $author has made a post in the topic $topicID
     // Find all people involved in this forum topic, and if they are not the author and prefer to
     // hear about comments, let them know! Also notify users that have explicitly subscribed to
@@ -232,9 +228,15 @@ function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string 
         "
     );
 
+    $payload = null;
+    $comment = ForumTopicComment::find($commentID);
+    if ($comment) {
+        $payload = nl2br(Shortcode::stripAndClamp($comment->Payload, previewLength: 1000, preserveWhitespace: true));
+    }
+
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID#$commentID";
     foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, ArticleType::Forum, $topicTitle, $urlTarget);
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author->User, ArticleType::Forum, $topicTitle, $urlTarget, payload: $payload);
     }
 }
 
@@ -422,7 +424,7 @@ function authorizeAllForumPostsForUser(User $user): bool
             notifyUsersAboutForumActivity(
                 $unauthorizedPost->forumTopic->id,
                 $unauthorizedPost->forumTopic->title,
-                $user->User,
+                $user,
                 $unauthorizedPost->id,
             );
         }

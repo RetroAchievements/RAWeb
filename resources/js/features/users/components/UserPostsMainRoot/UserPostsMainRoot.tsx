@@ -3,10 +3,10 @@ import type { FC } from 'react';
 import { RecentPostsCards } from '@/common/components/RecentPostsCards';
 import { RecentPostsTable } from '@/common/components/RecentPostsTable';
 import { SimplePaginator } from '@/common/components/SimplePaginator';
+import { UserHeading } from '@/common/components/UserHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { UserBreadcrumbs } from '../UserBreadcrumbs';
-import { UserHeading } from '../UserHeading';
 
 export const UserPostsMainRoot: FC = () => {
   const { targetUser, paginatedTopics } =

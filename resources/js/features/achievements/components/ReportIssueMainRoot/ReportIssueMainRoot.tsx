@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
-import { usePageProps } from '@/features/settings/hooks/usePageProps';
 
 import { AchievementBreadcrumbs } from '../AchievementBreadcrumbs';
 import { AchievementHeading } from '../AchievementHeading';

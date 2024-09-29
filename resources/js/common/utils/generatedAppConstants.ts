@@ -71,6 +71,26 @@ export const UserRole = {
 } as const;
 
 
+export const AwardType = {
+    Mastery: 1,
+    AchievementUnlocksYield: 2,
+    AchievementPointsYield: 3,
+    PatreonSupporter: 6,
+    CertifiedLegend: 7,
+    GameBeaten: 8,
+} as const;
+
+
+export const StringifiedAwardType = {
+    Mastery: '1',
+    AchievementUnlocksYield: '2',
+    AchievementPointsYield: '3',
+    PatreonSupporter: '6',
+    CertifiedLegend: '7',
+    GameBeaten: '8',
+} as const;
+
+
 export const TicketType = {
     TriggeredAtWrongTime: 1,
     DidNotTrigger: 2,
@@ -80,5 +100,12 @@ export const TicketType = {
 export const StringifiedTicketType = {
     TriggeredAtWrongTime: '1',
     DidNotTrigger: '2',
+} as const;
+
+
+export const UserGameListType = {
+    AchievementSetRequest: 'achievement_set_request',
+    Play: 'play',
+    Develop: 'develop',
 } as const;
 
