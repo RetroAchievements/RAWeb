@@ -78,7 +78,7 @@ class AchievementSet extends BaseModel
      */
     public function games(): BelongsToMany
     {
-        return $this->belongsToMany(Game::class, 'game_achievement_sets', 'achievement_set_id', 'game_id', 'ID');
+        return $this->belongsToMany(Game::class, 'game_achievement_sets', 'achievement_set_id', 'game_id', 'id', 'ID');
     }
 
     /**
