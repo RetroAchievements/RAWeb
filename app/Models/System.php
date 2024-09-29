@@ -78,6 +78,10 @@ class System extends BaseModel implements HasMedia
         'active',
     ];
 
+    protected $casts = [
+        'active' => 'boolean',
+    ];
+
     // == constants
 
     public const Arduboy = 71;

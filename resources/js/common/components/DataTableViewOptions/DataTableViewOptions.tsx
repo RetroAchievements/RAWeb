@@ -1,7 +1,7 @@
 import type { Table } from '@tanstack/react-table';
 import { RxMixerHorizontal } from 'react-icons/rx';
 
-import { BaseButton } from '@/common/components/+vendor/BaseButton';
+import { BaseButton } from '../+vendor/BaseButton';
 import {
   BaseDropdownMenu,
   BaseDropdownMenuCheckboxItem,
@@ -9,7 +9,7 @@ import {
   BaseDropdownMenuLabel,
   BaseDropdownMenuSeparator,
   BaseDropdownMenuTrigger,
-} from '@/common/components/+vendor/BaseDropdownMenu';
+} from '../+vendor/BaseDropdownMenu';
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;

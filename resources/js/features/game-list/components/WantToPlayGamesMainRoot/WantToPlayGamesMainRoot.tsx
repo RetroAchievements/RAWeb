@@ -10,7 +10,7 @@ import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableD
 import { wantToPlayGamesDefaultFilters } from '../../utils/wantToPlayGamesDefaultFilters';
 import { WantToPlayGamesDataTable } from '../WantToPlayGamesDataTable';
 
-export const WantToPlayGamesRoot: FC = () => {
+export const WantToPlayGamesMainRoot: FC = () => {
   const { auth, paginatedGameListEntries } =
     usePageProps<App.Community.Data.UserGameListPageProps>();
 

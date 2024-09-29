@@ -20,12 +20,12 @@ import { useGameListQuery } from '@/common/hooks/useGameListQuery';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/utils/cn';
 
-import { wantToPlayGamesDefaultFilters } from '../../utils/wantToPlayGamesDefaultFilters';
+import { allGamesDefaultFilters } from '../../utils/allGamesDefaultFilters';
+import { AllGamesDataTableToolbar } from './AllGamesDataTableToolbar';
 import { buildColumnDefinitions } from './buildColumnDefinitions';
-import { WantToPlayGamesDataTableToolbar } from './WantToPlayGamesDataTableToolbar';
 
 // These values are all generated from `useGameListState`.
-interface WantToPlayGamesDataTableProps {
+interface AllGamesDataTableProps {
   columnFilters: ColumnFiltersState;
   columnVisibility: VisibilityState;
   pagination: PaginationState;
@@ -36,7 +36,7 @@ interface WantToPlayGamesDataTableProps {
   sorting: SortingState;
 }
 
-export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
+export const AllGamesDataTable: FC<AllGamesDataTableProps> = ({
   columnFilters,
   columnVisibility,
   pagination,
@@ -48,12 +48,7 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
 }) => {
   const { can } = usePageProps<App.Community.Data.UserGameListPageProps>();
 
-  const gameListQuery = useGameListQuery({
-    columnFilters,
-    pagination,
-    sorting,
-    apiRouteName: 'api.user-game-list.index',
-  });
+  const gameListQuery = useGameListQuery({ columnFilters, pagination, sorting });
 
   const table = useReactTable({
     columns: useMemo(
@@ -91,12 +86,13 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <WantToPlayGamesDataTableToolbar
+      <AllGamesDataTableToolbar
         table={table}
         unfilteredTotal={gameListQuery.data?.unfilteredTotal ?? null}
-        defaultColumnFilters={wantToPlayGamesDefaultFilters}
+        defaultColumnFilters={allGamesDefaultFilters}
       />
 
+      {/* TODO reusable component */}
       <BaseTable
         containerClassName={cn(
           'overflow-auto rounded-md border border-neutral-700/80 bg-embed',
@@ -162,7 +158,7 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
         </BaseTableBody>
       </BaseTable>
 
-      <DataTablePagination table={table} tableApiRouteName="api.user-game-list.index" />
+      <DataTablePagination table={table} />
     </div>
   );
 };

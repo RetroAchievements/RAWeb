@@ -2,7 +2,6 @@ import type { ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utc from 'dayjs/plugin/utc';
-import type { RouteName } from 'ziggy-js';
 
 import { DataTableColumnHeader } from '@/common/components/DataTableColumnHeader';
 import { DataTableRowActions } from '@/common/components/DataTableRowActions';
@@ -16,8 +15,6 @@ import { formatNumber } from '@/common/utils/l10n/formatNumber';
 dayjs.extend(utc);
 dayjs.extend(localizedFormat);
 
-const tableApiRouteName: RouteName = 'api.user-game-list.index';
-
 export function buildColumnDefinitions(options: {
   canSeeOpenTicketsColumn: boolean;
   forUsername?: string;
@@ -28,14 +25,10 @@ export function buildColumnDefinitions(options: {
       accessorKey: 'game',
       meta: { label: 'Title' },
       enableHiding: false,
-      header: ({ column, table }) => (
-        <DataTableColumnHeader
-          column={column}
-          table={table}
-          tableApiRouteName={tableApiRouteName}
-        />
-      ),
+      header: ({ column, table }) => <DataTableColumnHeader column={column} table={table} />,
       cell: ({ row }) => {
+        // TODO this should be a reusable component
+
         if (!row.original.game) {
           return null;
         }
@@ -58,13 +51,7 @@ export function buildColumnDefinitions(options: {
       id: 'system',
       accessorKey: 'game',
       meta: { label: 'System' },
-      header: ({ column, table }) => (
-        <DataTableColumnHeader
-          column={column}
-          table={table}
-          tableApiRouteName={tableApiRouteName}
-        />
-      ),
+      header: ({ column, table }) => <DataTableColumnHeader column={column} table={table} />,
       cell: ({ row }) => {
         if (!row.original.game?.system) {
           return null;
@@ -79,12 +66,7 @@ export function buildColumnDefinitions(options: {
       accessorKey: 'game',
       meta: { label: 'Achievements', align: 'right' },
       header: ({ column, table }) => (
-        <DataTableColumnHeader
-          column={column}
-          table={table}
-          sortType="quantity"
-          tableApiRouteName={tableApiRouteName}
-        />
+        <DataTableColumnHeader column={column} table={table} sortType="quantity" />
       ),
       cell: ({ row }) => {
         const achievementsPublished = row.original.game?.achievementsPublished ?? 0;
@@ -100,12 +82,7 @@ export function buildColumnDefinitions(options: {
       accessorKey: 'game',
       meta: { label: 'Points', align: 'right' },
       header: ({ column, table }) => (
-        <DataTableColumnHeader
-          column={column}
-          table={table}
-          sortType="quantity"
-          tableApiRouteName={tableApiRouteName}
-        />
+        <DataTableColumnHeader column={column} table={table} sortType="quantity" />
       ),
       cell: ({ row }) => {
         const pointsTotal = row.original.game?.pointsTotal ?? 0;
@@ -129,12 +106,7 @@ export function buildColumnDefinitions(options: {
       accessorKey: 'game',
       meta: { label: 'Rarity', align: 'right' },
       header: ({ column, table }) => (
-        <DataTableColumnHeader
-          column={column}
-          table={table}
-          sortType="quantity"
-          tableApiRouteName={tableApiRouteName}
-        />
+        <DataTableColumnHeader column={column} table={table} sortType="quantity" />
       ),
       cell: ({ row }) => {
         const pointsTotal = row.original.game?.pointsTotal ?? 0;
@@ -156,12 +128,7 @@ export function buildColumnDefinitions(options: {
       accessorKey: 'game',
       meta: { label: 'Last Updated' },
       header: ({ column, table }) => (
-        <DataTableColumnHeader
-          column={column}
-          table={table}
-          sortType="date"
-          tableApiRouteName={tableApiRouteName}
-        />
+        <DataTableColumnHeader column={column} table={table} sortType="date" />
       ),
       cell: ({ row }) => {
         const date = row.original.game?.lastUpdated ?? new Date();
@@ -175,12 +142,7 @@ export function buildColumnDefinitions(options: {
       accessorKey: 'game',
       meta: { label: 'Release Date' },
       header: ({ column, table }) => (
-        <DataTableColumnHeader
-          column={column}
-          table={table}
-          sortType="date"
-          tableApiRouteName={tableApiRouteName}
-        />
+        <DataTableColumnHeader column={column} table={table} sortType="date" />
       ),
       cell: ({ row }) => {
         const date = row.original.game?.releasedAt ?? null;
@@ -209,12 +171,7 @@ export function buildColumnDefinitions(options: {
       accessorKey: 'game',
       meta: { label: 'Players', align: 'right' },
       header: ({ column, table }) => (
-        <DataTableColumnHeader
-          column={column}
-          table={table}
-          sortType="quantity"
-          tableApiRouteName={tableApiRouteName}
-        />
+        <DataTableColumnHeader column={column} table={table} sortType="quantity" />
       ),
       cell: ({ row }) => {
         const playersTotal = row.original.game?.playersTotal ?? 0;
@@ -230,12 +187,7 @@ export function buildColumnDefinitions(options: {
       accessorKey: 'game',
       meta: { label: 'Leaderboards', align: 'right' },
       header: ({ column, table }) => (
-        <DataTableColumnHeader
-          column={column}
-          table={table}
-          sortType="quantity"
-          tableApiRouteName={tableApiRouteName}
-        />
+        <DataTableColumnHeader column={column} table={table} sortType="quantity" />
       ),
       cell: ({ row }) => {
         const numVisibleLeaderboards = row.original.game?.numVisibleLeaderboards ?? 0;
@@ -255,12 +207,7 @@ export function buildColumnDefinitions(options: {
       accessorKey: 'game',
       meta: { label: 'Tickets', align: 'right' },
       header: ({ column, table }) => (
-        <DataTableColumnHeader
-          column={column}
-          table={table}
-          sortType="quantity"
-          tableApiRouteName={tableApiRouteName}
-        />
+        <DataTableColumnHeader column={column} table={table} sortType="quantity" />
       ),
       cell: ({ row }) => {
         const numUnresolvedTickets = row.original.game?.numUnresolvedTickets ?? 0;
@@ -285,12 +232,7 @@ export function buildColumnDefinitions(options: {
         accessorKey: 'game',
         meta: { label: 'Progress', align: 'left' },
         header: ({ column, table }) => (
-          <DataTableColumnHeader
-            column={column}
-            table={table}
-            sortType="quantity"
-            tableApiRouteName={tableApiRouteName}
-          />
+          <DataTableColumnHeader column={column} table={table} sortType="quantity" />
         ),
         cell: ({ row }) => {
           const { game, playerGame } = row.original;

@@ -2,8 +2,11 @@ import type { Column } from '@tanstack/react-table';
 import type { FC } from 'react';
 import { RxCheck, RxPlusCircled } from 'react-icons/rx';
 
-import { BaseBadge } from '@/common/components/+vendor/BaseBadge';
-import { BaseButton } from '@/common/components/+vendor/BaseButton';
+import { cn } from '@/utils/cn';
+
+import { buildTrackingClassNames } from '../../utils/buildTrackingClassNames';
+import { BaseBadge } from '../+vendor/BaseBadge';
+import { BaseButton } from '../+vendor/BaseButton';
 import {
   BaseCommand,
   BaseCommandEmpty,
@@ -12,15 +15,9 @@ import {
   BaseCommandItem,
   BaseCommandList,
   BaseCommandSeparator,
-} from '@/common/components/+vendor/BaseCommand';
-import {
-  BasePopover,
-  BasePopoverContent,
-  BasePopoverTrigger,
-} from '@/common/components/+vendor/BasePopover';
-import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
-import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
-import { cn } from '@/utils/cn';
+} from '../+vendor/BaseCommand';
+import { BasePopover, BasePopoverContent, BasePopoverTrigger } from '../+vendor/BasePopover';
+import { BaseSeparator } from '../+vendor/BaseSeparator';
 
 interface DataTableFacetedFilterProps<TData, TValue> {
   options: Array<{

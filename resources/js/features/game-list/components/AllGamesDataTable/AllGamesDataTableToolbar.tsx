@@ -10,19 +10,19 @@ import { formatNumber } from '@/common/utils/l10n/formatNumber';
 
 import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
 
-interface WantToPlayGamesDataTableToolbarProps<TData> {
+interface AllGamesDataTableToolbarProps<TData> {
   table: Table<TData>;
   unfilteredTotal: number | null;
 
   defaultColumnFilters?: ColumnFiltersState;
 }
 
-export function WantToPlayGamesDataTableToolbar<TData>({
+export function AllGamesDataTableToolbar<TData>({
   table,
   unfilteredTotal,
   defaultColumnFilters = [],
-}: WantToPlayGamesDataTableToolbarProps<TData>) {
-  const { filterableSystemOptions } = usePageProps<App.Community.Data.UserGameListPageProps>();
+}: AllGamesDataTableToolbarProps<TData>) {
+  const { filterableSystemOptions } = usePageProps<App.Platform.Data.GameListPageProps>();
 
   const currentFilters = table.getState().columnFilters;
   const isFiltered = getAreNonDefaultFiltersSet(currentFilters, defaultColumnFilters);

@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { ColumnFiltersState, PaginationState, SortingState } from '@tanstack/react-table';
 import axios from 'axios';
+import type { RouteName } from 'ziggy-js';
 
 import { buildGameListQueryFilterParams } from '../../utils/buildGameListQueryFilterParams';
 import { buildGameListQuerySortParam } from '../../utils/buildGameListQuerySortParam';
@@ -11,15 +12,23 @@ interface UseGameListQueryProps {
   pagination: PaginationState;
   sorting: SortingState;
   columnFilters: ColumnFiltersState;
+
+  apiRouteName?: RouteName;
 }
 
-export function useGameListQuery({ columnFilters, pagination, sorting }: UseGameListQueryProps) {
+export function useGameListQuery({
+  columnFilters,
+  pagination,
+  sorting,
+  apiRouteName = 'api.game-list.index',
+}: UseGameListQueryProps) {
   const dataQuery = useQuery<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>({
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps -- tableApiRouteName is not part of the key
     queryKey: ['data', pagination, sorting, columnFilters],
 
     queryFn: async () => {
       const response = await axios.get<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>(
-        route('api.user-game-list.index', {
+        route(apiRouteName, {
           'page[number]': pagination.pageIndex + 1,
           sort: buildGameListQuerySortParam(sorting),
           ...buildGameListQueryFilterParams(columnFilters),

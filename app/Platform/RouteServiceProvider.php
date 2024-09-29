@@ -6,8 +6,10 @@ namespace App\Platform;
 
 use App\Models\GameHash;
 use App\Platform\Controllers\AchievementController;
+use App\Platform\Controllers\Api\GameListApiController;
 use App\Platform\Controllers\GameController;
 use App\Platform\Controllers\GameHashController;
+use App\Platform\Controllers\GameListController;
 use App\Platform\Controllers\PlayerAchievementController;
 use App\Platform\Controllers\PlayerGameController;
 use App\Platform\Controllers\ReportAchievementIssueController;
@@ -44,8 +46,14 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapWebRoutes(): void
     {
         Route::middleware(['web', 'csp'])->group(function () {
+            Route::group(['prefix' => 'internal-api'], function () {
+                Route::get('game-list', [GameListApiController::class, 'index'])->name('api.game-list.index');
+            });
+
             Route::middleware(['inertia'])->group(function () {
                 Route::get('game/{game}/hashes', [GameHashController::class, 'index'])->name('game.hashes.index');
+
+                Route::get('game-list', [GameListController::class, 'index'])->name('game-list.index');
             });
 
             // Route::get('achievement/{achievement}{slug?}', [AchievementController::class, 'show'])->name('achievement.show');
