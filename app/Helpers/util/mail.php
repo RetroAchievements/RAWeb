@@ -273,7 +273,8 @@ function informAllSubscribersAboutActivity(
         if ($comment) {
             // this is similar to the logic for being able to create a ticket. the user account
             // must be at least 24 hours old and have at least five minutes on playtime. if not,
-            // w
+            // we don't trust the user and shouldn't broadcast their message to all subscribers
+            // as mass emails with junk content could get us flagged for spamming.
             if ($comment->user->created_at->diffInDays() >= 1
                 && $comment->user->playerGames()->where('time_taken', '>', 5)->exists()) {
                 $payload = nl2br($comment->Payload);
