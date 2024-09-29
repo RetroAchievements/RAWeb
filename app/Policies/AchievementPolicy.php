@@ -28,7 +28,7 @@ class AchievementPolicy
             /*
              * moderators may remove unfit content from achievements
              */
-            // Role::MODERATOR,
+            Role::MODERATOR,
 
             /*
              * artists may update achievement badges if the respective achievements are open for editing

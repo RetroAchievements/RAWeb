@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\AchievementResource\Pages;
+use App\Filament\Resources\AchievementResource\RelationManagers\AuthorshipCreditsRelationManager;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\User;
@@ -79,17 +80,22 @@ class AchievementResource extends Resource
                                         ->label('Badge (locked)')
                                         ->size(config('media.icon.lg.width')),
                                 ]),
+
                             Infolists\Components\Group::make()
                                 ->schema([
                                     Infolists\Components\TextEntry::make('Title'),
+
                                     Infolists\Components\TextEntry::make('Description'),
+
                                     Infolists\Components\TextEntry::make('game')
                                         ->label('Game')
                                         ->formatStateUsing(fn (Game $state) => '[' . $state->id . '] ' . $state->title),
-                                    Infolists\Components\TextEntry::make('user')
+
+                                    Infolists\Components\TextEntry::make('developer')
                                         ->label('Author')
-                                        ->formatStateUsing(fn (User $state) => $state->User),
+                                        ->formatStateUsing(fn (User $state) => $state->display_name),
                                 ]),
+
                             Infolists\Components\Group::make()
                                 ->schema([
                                     Infolists\Components\TextEntry::make('canonical_url')
@@ -99,21 +105,26 @@ class AchievementResource extends Resource
                                         ->url(fn (Achievement $record): string => $record->getPermalinkAttribute()),
                                 ]),
                         ]),
+
                     Infolists\Components\Section::make([
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
+
                         Infolists\Components\TextEntry::make('Created')
                             ->label('Created at')
                             ->dateTime()
                             ->hidden(fn ($state) => !$state),
+
                         Infolists\Components\TextEntry::make('DateModified')
                             ->label('Modified at')
                             ->dateTime()
                             ->hidden(fn ($state) => !$state),
+
                         Infolists\Components\TextEntry::make('Updated')
                             ->label('Updated at')
                             ->dateTime()
                             ->hidden(fn ($state) => !$state),
+
                         Infolists\Components\TextEntry::make('Flags')
                             ->badge()
                             ->formatStateUsing(fn (int $state): string => match ($state) {
@@ -126,9 +137,12 @@ class AchievementResource extends Resource
                                 AchievementFlag::Unofficial => 'info',
                                 default => '',
                             }),
+
                         Infolists\Components\TextEntry::make('type')
                             ->badge(),
+
                         Infolists\Components\TextEntry::make('Points'),
+
                         Infolists\Components\TextEntry::make('DisplayOrder'),
                     ])->grow(false),
                 ])->from('md'),
@@ -372,7 +386,9 @@ class AchievementResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            AuthorshipCreditsRelationManager::class,
+        ];
     }
 
     public static function getRecordSubNavigation(Page $page): array
