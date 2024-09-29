@@ -167,7 +167,7 @@ class AchievementSetClaimResource extends Resource
 
             ])
             ->paginated([50, 100, 150])
-            ->defaultSort('Finished', 'asc');
+            ->defaultSort('Created', 'desc');
     }
 
     public static function getRelations(): array
