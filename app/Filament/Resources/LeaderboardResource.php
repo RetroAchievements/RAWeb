@@ -89,7 +89,8 @@ class LeaderboardResource extends Resource
                                 return [];
                             }),
 
-                        Infolists\Components\TextEntry::make('Title'),
+                        Infolists\Components\TextEntry::make('Title')
+                            ->placeholder('None. Consider setting a title.'),
 
                         Infolists\Components\TextEntry::make('Description'),
 
@@ -165,6 +166,7 @@ class LeaderboardResource extends Resource
                 Tables\Columns\TextColumn::make('Title')
                     ->label('Leaderboard')
                     ->description(fn (Leaderboard $record): string => $record->description)
+                    ->placeholder(fn (Leaderboard $record): string => $record->description)
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('game')

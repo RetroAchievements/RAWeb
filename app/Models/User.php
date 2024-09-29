@@ -32,6 +32,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Jenssegers\Optimus\Optimus;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
@@ -219,7 +220,9 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
 
         static::pivotAttached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes) {
             if ($relationName === 'roles') {
-                activity()->causedBy(auth()->user())->performedOn($model)
+                $user = Auth::user();
+
+                activity()->causedBy($user)->performedOn($model)
                     ->withProperty('old', [$relationName => null])
                     ->withProperty('attributes', [$relationName => (new Collection($pivotIds))
                         ->map(fn ($pivotId) => [
@@ -234,7 +237,9 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
 
         static::pivotDetached(function ($model, $relationName, $pivotIds) {
             if ($relationName === 'roles') {
-                activity()->causedBy(auth()->user())->performedOn($model)
+                $user = Auth::user();
+
+                activity()->causedBy($user)->performedOn($model)
                     ->withProperty('old', [$relationName => (new Collection($pivotIds))
                         ->map(fn ($pivotId) => [
                             'id' => $pivotId,

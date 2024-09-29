@@ -28,6 +28,7 @@ use App\Platform\Events\PlayerPointsStatsUpdated;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
+use App\Platform\Listeners\DispatchUpdateGameMetricsForGamesPlayedByUserJob;
 use App\Platform\Listeners\DispatchUpdateGameMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerGameMetricsJob;
@@ -112,7 +113,7 @@ class EventServiceProvider extends ServiceProvider
             ResumePlayerSession::class, // dispatches PlayerGameAttached for new entries
         ],
         PlayerRankedStatusChanged::class => [
-            // TODO Update all affected games
+            DispatchUpdateGameMetricsForGamesPlayedByUserJob::class,
             // TODO Notify player
             DispatchUpdatePlayerBeatenGamesStatsJob::class, // dispatches PlayerBeatenGamesStatsUpdated
             DispatchUpdatePlayerPointsStatsJob::class, // dispatches PlayerPointsStatsUpdated
