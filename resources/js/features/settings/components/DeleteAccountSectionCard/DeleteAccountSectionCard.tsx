@@ -9,8 +9,8 @@ import {
 } from '@/common/components/+vendor/BaseAlert';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { usePageProps } from '../../hooks/usePageProps';
 import { SectionStandardCard } from '../SectionStandardCard';
 import { useManageAccountDeletion } from './useManageAccountDeletion';
 

@@ -62,7 +62,7 @@ class V1Test extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
 
-        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
+        $publishedAchievements = Achievement::factory()->published()->count(5)->create(['GameID' => $game->ID]);
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0));
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(1));
 
@@ -82,20 +82,37 @@ class V1Test extends TestCase
                 '1' => 0,
                 '2' => 1,
                 '3' => 0,
+                '4' => 0,
+                '5' => 0,
             ]);
 
         $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Softcore]))
             ->assertSuccessful()
             ->assertExactJson([
                 '1' => 0,
-                '2' => 1, // hardcore unlock also grants softcore unlock
+                '2' => 0, // hardcore no longer counts toward softcore
                 '3' => 0,
+                '4' => 0,
+                '5' => 0,
+            ]);
+
+        $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(2));
+        $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(3));
+
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Softcore]))
+            ->assertSuccessful()
+            ->assertExactJson([
+                '1' => 0,
+                '2' => 1, // Now that softcore cheevos are added, this should see them
+                '3' => 0,
+                '4' => 0,
+                '5' => 0,
             ]);
 
         // Unlocks can't be granted while an achievement is in unofficial status.
-        $this->addHardcoreUnlock($this->user, $publishedAchievements->get(2));
-        $publishedAchievements->get(2)->Flags = AchievementFlag::Unofficial;
-        $publishedAchievements->get(2)->save();
+        $this->addHardcoreUnlock($this->user, $publishedAchievements->get(4));
+        $publishedAchievements->get(4)->Flags = AchievementFlag::Unofficial;
+        $publishedAchievements->get(4)->save();
 
         $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Hardcore, 'f' => AchievementFlag::Unofficial]))
             ->assertSuccessful()
@@ -114,8 +131,8 @@ class V1Test extends TestCase
                 '1' => 0,
                 '2' => 0,
                 '3' => 0,
-                '4' => 0,
-                '5' => 1, // hardcore unlock also counts as a softcore unlock (4+1=5)
+                '4' => 1, // this now counts softcore unlocks instead of total (softcore + hardcore)
+                '5' => 0,
                 '6' => 0,
             ]);
     }

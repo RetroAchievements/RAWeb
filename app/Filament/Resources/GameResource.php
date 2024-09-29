@@ -16,6 +16,7 @@ use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
+use App\Platform\Enums\ReleasedAtGranularity;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -175,7 +176,7 @@ class GameResource extends Resource
                         Infolists\Components\TextEntry::make('released_at_granularity')
                             ->label('Release Date Precision')
                             ->placeholder('none')
-                            ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                            ->formatStateUsing(fn (ReleasedAtGranularity $state): string => ucfirst($state->value)),
                     ]),
 
                 Infolists\Components\Section::make('Metrics')
@@ -459,7 +460,7 @@ class GameResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('system')
-                    ->relationship('system', 'name'),
+                    ->relationship('system', 'Name'),
 
                 Tables\Filters\TernaryFilter::make('achievements_published')
                     ->label('Has core set')

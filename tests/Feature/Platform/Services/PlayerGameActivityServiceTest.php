@@ -154,7 +154,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $activity->initialize($user, $game);
         $this->assertEquals(2, count($activity->sessions));
         $session = $activity->sessions[0];
-        $this->assertEquals(PlayerGameActivitySessionType::Generated, $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Reconstructed, $session['type']);
         $this->assertEquals($time2, $session['startTime']);
         $this->assertEquals($time3->diffInSeconds($time2), $session['duration']);
         $this->assertEquals($time3, $session['endTime']);
@@ -181,7 +181,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $activity->initialize($user, $game);
         $this->assertEquals(3, count($activity->sessions));
         $session = $activity->sessions[0];
-        $this->assertEquals(PlayerGameActivitySessionType::Generated, $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Reconstructed, $session['type']);
         $this->assertEquals($time2, $session['startTime']);
         $this->assertEquals($time3->diffInSeconds($time2), $session['duration']);
         $this->assertEquals($time3, $session['endTime']);
@@ -227,7 +227,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $activity->initialize($user, $game);
         $this->assertEquals(3, count($activity->sessions));
         $session = $activity->sessions[0];
-        $this->assertEquals(PlayerGameActivitySessionType::Generated, $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Reconstructed, $session['type']);
         $this->assertEquals($time2, $session['startTime']);
         $this->assertEquals($time3->diffInSeconds($time2), $session['duration']);
         $this->assertEquals($time3, $session['endTime']);

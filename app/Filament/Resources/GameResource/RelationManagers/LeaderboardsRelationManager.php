@@ -17,6 +17,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class LeaderboardsRelationManager extends RelationManager
@@ -26,7 +27,7 @@ class LeaderboardsRelationManager extends RelationManager
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
 
         return $user->can('manage', Leaderboard::class);
     }
@@ -42,7 +43,7 @@ class LeaderboardsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
 
         return $table
             ->recordTitleAttribute('title')
@@ -55,6 +56,7 @@ class LeaderboardsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('Title')
                     ->label('Title')
                     ->description(fn (Leaderboard $record): string => $record->description)
+                    ->placeholder(fn (Leaderboard $record): string => $record->description)
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('Format')
@@ -89,10 +91,7 @@ class LeaderboardsRelationManager extends RelationManager
                     Action::make('view_entries')
                         ->label('View entries')
                         ->url(fn (Leaderboard $leaderboard) => route('filament.admin.resources.leaderboards.view', ['record' => $leaderboard]))
-                        ->visible(function (Leaderboard $leaderboard) {
-                            /** @var User $user */
-                            $user = auth()->user();
-
+                        ->visible(function (Leaderboard $leaderboard) use ($user) {
                             return $user->can('manage', $leaderboard) && !$user->can('update', $leaderboard);
                         }),
 
@@ -100,10 +99,7 @@ class LeaderboardsRelationManager extends RelationManager
                         ->label('Edit')
                         ->icon('heroicon-s-pencil')
                         ->url(fn (Leaderboard $leaderboard) => route('filament.admin.resources.leaderboards.edit', ['record' => $leaderboard]))
-                        ->visible(function (Leaderboard $leaderboard) {
-                            /** @var User $user */
-                            $user = auth()->user();
-
+                        ->visible(function (Leaderboard $leaderboard) use ($user) {
                             return $user->can('update', $leaderboard);
                         }),
 
@@ -143,7 +139,7 @@ class LeaderboardsRelationManager extends RelationManager
         parent::reorderTable($order);
 
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
         /** @var Game $game */
         $game = $this->getOwnerRecord();
 
@@ -161,7 +157,7 @@ class LeaderboardsRelationManager extends RelationManager
         if (!$recentReorderingActivity) {
             activity()
                 ->useLog('default')
-                ->causedBy(auth()->user())
+                ->causedBy($user)
                 ->performedOn($game)
                 ->event('reorderedLeaderboards')
                 ->log('Reordered Leaderboards');
@@ -171,7 +167,7 @@ class LeaderboardsRelationManager extends RelationManager
     private function canReorderLeaderboards(): bool
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
 
         /** @var Leaderboard $game */
         $game = $this->getOwnerRecord();

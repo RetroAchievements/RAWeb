@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 import { TicketType } from '@/common/utils/generatedAppConstants';
-import { usePageProps } from '@/features/settings/hooks/usePageProps';
 
 import { buildStructuredMessage } from './buildStructuredMessage';
 import { ReportIssueOptionItem } from './ReportIssueOptionItem';

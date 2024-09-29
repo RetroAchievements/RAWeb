@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
-use App\Community\Enums\ClaimSetType;
-use App\Community\Enums\ClaimSpecial;
-use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
@@ -51,7 +48,7 @@ class GameExtendedTest extends TestCase
             'Genre' => 'Action',
             'Released' => 'Jan 1989',
             'released_at' => $releasedAt,
-            'released_at_granularity' => 'week',
+            'released_at_granularity' => 'day',
         ]);
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
@@ -105,7 +102,7 @@ class GameExtendedTest extends TestCase
                 'Developer' => $game->Developer,
                 'Genre' => $game->Genre,
                 'Released' => $releasedAt->format('Y-m-d'),
-                'ReleasedAtGranularity' => 'week',
+                'ReleasedAtGranularity' => 'day',
                 'IsFinal' => 0,
                 'NumAchievements' => 3,
                 'NumDistinctPlayers' => 4,
@@ -194,19 +191,17 @@ class GameExtendedTest extends TestCase
             'Genre' => 'Action',
             'Released' => 'Jan 1989',
             'released_at' => $releasedAt,
-            'released_at_granularity' => 'week',
+            'released_at_granularity' => 'day',
         ]);
 
         /** @var User $user2 */
         $user2 = User::factory()->create(['Permissions' => Permissions::Developer]);
-        insertClaim(
-            $user2,
-            $game->id,
-            ClaimType::Primary,
-            ClaimSetType::NewSet,
-            ClaimSpecial::None
-        );
-        $claim = AchievementSetClaim::first();
+
+        /** @var AchievementSetClaim $claim */
+        $claim = AchievementSetClaim::factory()->create([
+            'user_id' => $user2->id,
+            'game_id' => $game->id,
+        ]);
 
         $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID]))
             ->assertSuccessful()
@@ -225,7 +220,7 @@ class GameExtendedTest extends TestCase
                 'Developer' => $game->Developer,
                 'Genre' => $game->Genre,
                 'Released' => $releasedAt->format('Y-m-d'),
-                'ReleasedAtGranularity' => 'week',
+                'ReleasedAtGranularity' => 'day',
                 'IsFinal' => 0,
                 'Achievements' => [],
                 'Claims' => [
