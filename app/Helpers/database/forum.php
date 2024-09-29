@@ -201,16 +201,14 @@ function submitTopicComment(
     }
 
     if ($user->ManuallyVerified ?? false) {
-        notifyUsersAboutForumActivity($topicId, $topicTitle, $user->User, $newComment->id);
+        notifyUsersAboutForumActivity($topicId, $topicTitle, $user, $newComment->id);
     }
 
     return $newComment;
 }
 
-function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string $author, int $commentID): void
+function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, User $author, int $commentID): void
 {
-    sanitize_sql_inputs($author);
-
     // $author has made a post in the topic $topicID
     // Find all people involved in this forum topic, and if they are not the author and prefer to
     // hear about comments, let them know! Also notify users that have explicitly subscribed to
@@ -238,7 +236,7 @@ function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string 
 
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID#$commentID";
     foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, ArticleType::Forum, $topicTitle, $urlTarget, payload: $payload);
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author->User, ArticleType::Forum, $topicTitle, $urlTarget, payload: $payload);
     }
 }
 
@@ -426,7 +424,7 @@ function authorizeAllForumPostsForUser(User $user): bool
             notifyUsersAboutForumActivity(
                 $unauthorizedPost->forumTopic->id,
                 $unauthorizedPost->forumTopic->title,
-                $user->User,
+                $user,
                 $unauthorizedPost->id,
             );
         }
