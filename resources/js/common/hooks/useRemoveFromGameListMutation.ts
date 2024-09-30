@@ -4,7 +4,7 @@ import type { ValueOf } from 'type-fest';
 
 import { UserGameListType } from '../utils/generatedAppConstants';
 
-export function useRemoveFromBacklogMutation() {
+export function useRemoveFromGameListMutation() {
   return useMutation({
     mutationFn: (
       gameId: number,

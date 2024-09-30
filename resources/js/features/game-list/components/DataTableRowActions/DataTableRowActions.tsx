@@ -1,17 +1,14 @@
-import { useQueryClient } from '@tanstack/react-query';
 import type { Row } from '@tanstack/react-table';
 import { MdClose } from 'react-icons/md';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
-import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import {
   BaseTooltip,
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
-import { useAddToBacklogMutation } from '@/common/hooks/useAddToBacklogMutation';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { useRemoveFromBacklogMutation } from '@/common/hooks/useRemoveFromBacklogMutation';
+import { useWantToPlayGamesList } from '@/common/hooks/useWantToPlayGamesList';
 import { cn } from '@/utils/cn';
 
 /**
@@ -26,48 +23,12 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
   const { auth } = usePageProps();
 
-  const queryClient = useQueryClient();
-
-  const removeFromBacklogMutation = useRemoveFromBacklogMutation();
-
-  const addToBacklogMutation = useAddToBacklogMutation();
+  const { addToWantToPlayGamesList, removeFromWantToPlayGamesList } = useWantToPlayGamesList();
 
   const rowData = row.original as Partial<App.Platform.Data.GameListEntry>;
   const gameId = rowData?.game?.id ?? 0;
   const gameTitle = rowData?.game?.title ?? '';
   const isInBacklog = rowData?.isInBacklog ?? false;
-
-  // TODO put this in a hook? useBacklog()?
-  const addToBacklog = (gameId: number, options?: Partial<{ isUndo: boolean }>) => {
-    toastMessage.promise(addToBacklogMutation.mutateAsync(gameId), {
-      loading: options?.isUndo ? 'Restoring...' : 'Adding...',
-      success: () => {
-        // Trigger a refetch of the current table page data and bust the entire cache.
-        queryClient.invalidateQueries({ queryKey: ['data'] });
-
-        return `${options?.isUndo ? 'Restored' : 'Added'} ${gameTitle}!`;
-      },
-      error: 'Something went wrong.',
-    });
-  };
-
-  // TODO put this in a hook? useBacklog()?
-  const removeFromBacklog = (gameId: number) => {
-    toastMessage.promise(removeFromBacklogMutation.mutateAsync(gameId), {
-      action: {
-        label: 'Undo',
-        onClick: () => addToBacklog(gameId, { isUndo: true }),
-      },
-      loading: 'Removing...',
-      success: () => {
-        // Trigger a refetch of the current table page data and bust the entire cache.
-        queryClient.invalidateQueries({ queryKey: ['data'] });
-
-        return `Removed ${gameTitle}!`;
-      },
-      error: 'Something went wrong.',
-    });
-  };
 
   const handleToggleFromBacklogClick = () => {
     // This should never happen.
@@ -75,15 +36,16 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
       throw new Error('No game ID.');
     }
 
-    if (!auth?.user) {
-      // TODO handle user unauthenticated
+    if (!auth?.user && typeof window !== 'undefined') {
+      window.location.href = route('login');
+
       return;
     }
 
     if (isInBacklog) {
-      removeFromBacklog(gameId);
+      removeFromWantToPlayGamesList(gameId, gameTitle);
     } else {
-      addToBacklog(gameId);
+      addToWantToPlayGamesList(gameId, gameTitle);
     }
   };
 
