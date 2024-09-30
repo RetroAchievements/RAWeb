@@ -5,8 +5,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-
-import { usePageProps } from '../../hooks/usePageProps';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
 const changeEmailAddressFormSchema = z
   .object({
@@ -35,7 +34,7 @@ export function useChangeEmailAddressForm(props: {
 
   const mutation = useMutation({
     mutationFn: (formValues: FormValues) => {
-      return axios.put(route('settings.email.update'), formValues);
+      return axios.put(route('api.settings.email.update'), formValues);
     },
     onSuccess: () => {
       props.setCurrentEmailAddress(form.getValues().newEmail);

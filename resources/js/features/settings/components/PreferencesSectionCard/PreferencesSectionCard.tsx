@@ -51,6 +51,15 @@ export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
           fieldName={StringifiedUserPreference.User_OnlyContactFromFollowing}
           control={form.control}
         />
+
+        {import.meta.env.VITE_FEATURE_MULTISET === 'true' ? (
+          <PreferencesSwitchField
+            label="Automatically opt in to all game sets"
+            fieldName={StringifiedUserPreference.Game_OptOutOfAllSets}
+            control={form.control}
+            isSwitchInverted={true}
+          />
+        ) : null}
       </div>
     </SectionFormCard>
   );

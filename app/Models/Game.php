@@ -8,16 +8,21 @@ use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Contracts\HasComments;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\ReleasedAtGranularity;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameFactory;
+use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
@@ -44,6 +49,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     use HasFactory;
     use InteractsWithMedia;
 
+    use PivotEventTrait;
     use Searchable;
     use SoftDeletes;
 
@@ -55,7 +61,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     // TODO rename Developer column to developer
     // TODO rename Genre column to genre
     // TODO rename Released to release
-    // TODO rename TotalTruePoints to points_weighted
+    // TODO rename TotalTruePoints to points_weighted, remove getPointsWeightedAttribute()
     // TODO drop achievement_set_version_hash, migrate to achievement_sets
     // TODO drop ForumTopicID, migrate to forumable morph
     // TODO drop Flags
@@ -85,6 +91,7 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     protected $casts = [
         'released_at' => 'datetime',
+        'released_at_granularity' => ReleasedAtGranularity::class,
         'last_achievement_update' => 'datetime',
     ];
 
@@ -118,6 +125,46 @@ class Game extends BaseModel implements HasComments, HasMedia
     protected static function newFactory(): GameFactory
     {
         return GameFactory::new();
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::pivotAttached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes) {
+            if ($relationName === 'achievementSets') {
+                /** @var User $user */
+                $user = Auth::user();
+
+                activity()->causedBy($user)->performedOn($model)
+                    ->withProperty('old', [$relationName => null])
+                    ->withProperty('attributes', [$relationName => (new Collection($pivotIds))
+                        ->map(fn ($pivotId) => [
+                            'id' => $pivotId,
+                            'attributes' => $pivotIdsAttributes[$pivotId],
+                        ]),
+                    ])
+                    ->event('pivotAttached')
+                    ->log('pivotAttached');
+            }
+        });
+
+        static::pivotDetached(function ($model, $relationName, $pivotIds) {
+            if ($relationName === 'achievementSets') {
+                /** @var User $user */
+                $user = Auth::user();
+
+                activity()->causedBy($user)->performedOn($model)
+                    ->withProperty('old', [$relationName => (new Collection($pivotIds))
+                        ->map(fn ($pivotId) => [
+                            'id' => $pivotId,
+                        ]),
+                    ])
+                    ->withProperty('attributes', [$relationName => null])
+                    ->event('pivotDetached')
+                    ->log('pivotDetached');
+            }
+        });
     }
 
     // == logging
@@ -258,6 +305,11 @@ class Game extends BaseModel implements HasComments, HasMedia
         return route('game.show', $this);
     }
 
+    public function getPointsWeightedAttribute(): int
+    {
+        return $this->TotalTruePoints ?? 0;
+    }
+
     public function getSlugAttribute(): string
     {
         return $this->Title ? '-' . Str::slug($this->Title) : '';
@@ -285,7 +337,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     // TODO remove after rename
     public function getIdAttribute(): int
     {
-        return $this->attributes['ID'];
+        return $this->attributes['ID'] ?? 1;
     }
 
     public function getIsStandalone(): bool
@@ -320,7 +372,8 @@ class Game extends BaseModel implements HasComments, HasMedia
      */
     public function achievementSets(): BelongsToMany
     {
-        return $this->belongsToMany(AchievementSet::class, 'game_achievement_sets', 'game_id', 'achievement_set_id', 'ID', 'id');
+        return $this->belongsToMany(AchievementSet::class, 'game_achievement_sets', 'game_id', 'achievement_set_id', 'ID', 'id')
+            ->withPivot('order_column');
     }
 
     /**
@@ -350,11 +403,19 @@ class Game extends BaseModel implements HasComments, HasMedia
     }
 
     /**
+     * @return HasOne<Achievement>
+     */
+    public function lastAchievementUpdate(): HasOne
+    {
+        return $this->hasOne(Achievement::class, 'GameID')->latest('DateModified');
+    }
+
+    /**
      * @return HasMany<Leaderboard>
      */
     public function leaderboards(): HasMany
     {
-        return $this->hasMany(Leaderboard::class, 'GameID');
+        return $this->hasMany(Leaderboard::class, 'GameID', 'ID');
     }
 
     /**
@@ -447,7 +508,15 @@ class Game extends BaseModel implements HasComments, HasMedia
      */
     public function tickets(): HasManyThrough
     {
-        return $this->hasManyThrough(Ticket::class, Achievement::class, 'GameID', 'AchievementID');
+        return $this->hasManyThrough(Ticket::class, Achievement::class, 'GameID', 'AchievementID', 'ID', 'ID');
+    }
+
+    /**
+     * @return HasManyThrough<Ticket>
+     */
+    public function unresolvedTickets(): HasManyThrough
+    {
+        return $this->tickets()->unresolved();
     }
 
     // == scopes

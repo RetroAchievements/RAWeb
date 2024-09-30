@@ -31,7 +31,7 @@ export function useNotificationsSectionForm(
 
   const mutation = useMutation({
     mutationFn: (websitePrefs: number) => {
-      return axios.put(route('settings.preferences.update'), { websitePrefs });
+      return axios.put(route('api.settings.preferences.update'), { websitePrefs });
     },
   });
 

@@ -1,9 +1,9 @@
 import { Head } from '@inertiajs/react';
 
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { ReportIssueMainRoot } from '@/features/achievements/components/ReportIssueMainRoot';
-import { usePageProps } from '@/features/settings/hooks/usePageProps';
 
 const ReportIssue: AppPage = () => {
   const { achievement } = usePageProps<App.Platform.Data.ReportAchievementIssuePageProps>();

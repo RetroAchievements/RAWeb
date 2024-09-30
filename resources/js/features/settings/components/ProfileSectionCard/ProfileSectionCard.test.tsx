@@ -144,7 +144,7 @@ describe('Component: ProfileSectionCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
-    expect(putSpy).toHaveBeenCalledWith(route('settings.profile.update'), {
+    expect(putSpy).toHaveBeenCalledWith(route('api.settings.profile.update'), {
       motto: 'https://www.youtube.com/watch?v=YYOKMUTTDdA',
       userWallActive: false,
     });

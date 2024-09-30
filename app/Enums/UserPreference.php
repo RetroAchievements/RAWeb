@@ -44,4 +44,6 @@ abstract class UserPreference
     public const Game_HideMissableIndicators = 16;
 
     public const User_OnlyContactFromFollowing = 17;
+
+    public const Game_OptOutOfAllSets = 18;
 }

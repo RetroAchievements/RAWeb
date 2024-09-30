@@ -66,6 +66,13 @@ class EmulatorReleasePolicy
         ]);
     }
 
+    public function restoreAny(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::RELEASE_MANAGER,
+        ]);
+    }
+
     public function forceDelete(User $user, EmulatorRelease $emulatorRelease): bool
     {
         return $user->hasAnyRole([

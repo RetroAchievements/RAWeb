@@ -56,6 +56,6 @@ class UpdatePlayerMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessi
         }
 
         app()->make(UpdatePlayerMetrics::class)
-            ->execute(User::findOrFail($this->userId));
+            ->execute($user);
     }
 }

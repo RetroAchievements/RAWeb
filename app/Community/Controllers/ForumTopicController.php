@@ -17,6 +17,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -127,7 +128,7 @@ class ForumTopicController extends \App\Http\Controller
         $count = 25;
 
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
         $permissions = Permissions::Unregistered;
         if ($user) {
             $permissions = (int) $user->getAttribute('Permissions');
@@ -194,7 +195,6 @@ class ForumTopicController extends \App\Http\Controller
                 FORCE INDEX (idx_permissions_deleted_latest)
                 WHERE ft.RequiredPermissions <= :permissions AND ft.deleted_at IS NULL
                 ORDER BY ft.LatestCommentID DESC
-                LIMIT 100
             ) AS ft
             INNER JOIN Forum AS f ON f.ID = ft.ForumID
             INNER JOIN ForumTopicComment AS lftc ON lftc.ID = ft.LatestCommentID AND lftc.Authorised = 1
