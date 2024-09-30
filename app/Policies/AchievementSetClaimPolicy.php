@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Enums\Permissions;
 use App\Models\AchievementSetClaim;
 use App\Models\Role;
 use App\Models\User;
@@ -20,7 +19,7 @@ class AchievementSetClaimPolicy
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
-        ]) || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
+        ]);
     }
 
     public function viewAny(?User $user): bool
@@ -39,7 +38,7 @@ class AchievementSetClaimPolicy
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
-        ]) || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
+        ]);
     }
 
     public function update(User $user, AchievementSetClaim $achievementSetClaim): bool
