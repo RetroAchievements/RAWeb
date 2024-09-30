@@ -1,6 +1,5 @@
 /* eslint-disable no-restricted-imports -- base components can import from @radix-ui */
 
-import { Link } from '@inertiajs/react';
 import { Slot } from '@radix-ui/react-slot';
 import {
   type ComponentProps,

@@ -12,7 +12,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { DataTablePagination } from '@/features/game-list/components/DataTablePagination';
 
 import { allGamesDefaultFilters } from '../../utils/allGamesDefaultFilters';
-import { GameListDataTable } from '../GameListDataTable/GameListDataTable';
+import { GameListDataTable } from '../GameListDataTable';
 import { AllGamesDataTableToolbar } from './AllGamesDataTableToolbar';
 import { buildColumnDefinitions } from './buildColumnDefinitions';
 
