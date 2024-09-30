@@ -32,7 +32,7 @@ class ComputeGameSortTitleAction
         return preg_replace_callback(
             // Match numbers not directly attached to letters.
             // In other words, don't convert "Mega Man X4" to "Mega Man X00004".
-            '/(?<=\b|\s)(\d+)(?=\b|\s)/',
+            '/(?<![a-zA-Z])(\d+)(?![a-zA-Z])/',
             function ($matches) {
                 return str_pad($matches[0], 5, '0', STR_PAD_LEFT);
             },
@@ -58,11 +58,18 @@ class ComputeGameSortTitleAction
          * non-apostrophe punctuation (or whitespace then punctuation) like :, -, &, or (.
          */
         $title = preg_replace_callback(
-            '/\b([IVX]+)(?=(?:$|\s*[:\-&\(\)]|\s*$))/i',
+            '/\b([IVX]+)(?:$|\s*[:&(]|\s*$|-\d+)/i',
             function ($matches) use ($romanNumerals) {
-                $roman = $matches[1];
+                $roman = strtoupper($matches[1]);
                 if (isset($romanNumerals[$roman])) {
-                    return sprintf('%02d', $romanNumerals[$roman]);
+                    $numericValue = sprintf('%05d', $romanNumerals[$roman]);
+
+                    // If there's a hyphen and number after the Roman numeral, pad that number too.
+                    if ($matches[0] && preg_match('/-(\d+)$/', $matches[0], $suffixMatch)) {
+                        $numericValue .= '-' . sprintf('%05d', $suffixMatch[1]);
+                    }
+
+                    return $numericValue;
                 }
 
                 return $roman;
@@ -82,12 +89,12 @@ class ComputeGameSortTitleAction
      */
     private function removeArticles(string $title): string
     {
-    // Remove articles at the start of the title
-        if (preg_match('/^\s*(a|an|the)\b\s*(.*)$/i', $title, $matches)) {
+        // Remove articles at the start of the title, but not if they're part of a hyphenated word.
+        if (preg_match('/^\s*(a|an|the)\b(?!-)\s*(.*)$/i', $title, $matches)) {
             $title = $matches[2];
         }
 
-        // Remove articles at the end after a comma
+        // Remove articles at the end after a comma.
         if (preg_match('/^(.+),\s*(a|an|the)\b(.*)$/i', $title, $matches)) {
             // Combine the main title and any trailing text.
             $title = trim($matches[1] . $matches[3]);
