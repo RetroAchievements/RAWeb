@@ -3,6 +3,6 @@ import axios from 'axios';
 
 export function useResetAvatarMutation() {
   return useMutation({
-    mutationFn: () => axios.delete(route('user.avatar.destroy')),
+    mutationFn: () => axios.delete(route('api.user.avatar.destroy')),
   });
 }

@@ -1,3 +1,4 @@
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createGame } from '@/test/factories';
 
@@ -76,5 +77,35 @@ describe('Component: GameAvatar', () => {
     expect(anchorEl).not.toHaveAttribute('x-on:mouseover');
     expect(anchorEl).not.toHaveAttribute('x-on:mouseleave');
     expect(anchorEl).not.toHaveAccessibleDescription('x-on:mousemove');
+  });
+
+  it('given the user is authenticated, sends their username as dynamicContext (to show progress in the hover card)', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+
+    render(<GameAvatar {...game} />, {
+      pageProps: { auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) } },
+    });
+
+    // ASSERT
+    const anchorEl = screen.getByRole('link');
+    const xDataAttribute = anchorEl.getAttribute('x-data');
+
+    expect(xDataAttribute).toContain(`dynamicContext: 'Scott'`);
+  });
+
+  it('can be overriden with a custom username for dynamicContext (to show progress in the hover card)', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+
+    render(<GameAvatar {...game} showHoverCardProgressForUsername="televandalist" />, {
+      pageProps: { auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) } },
+    });
+
+    // ASSERT
+    const anchorEl = screen.getByRole('link');
+    const xDataAttribute = anchorEl.getAttribute('x-data');
+
+    expect(xDataAttribute).toContain(`dynamicContext: 'televandalist'`);
   });
 });

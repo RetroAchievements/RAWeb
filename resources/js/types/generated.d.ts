@@ -2,6 +2,11 @@ declare namespace App.Community.Data {
   export type RecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     paginatedTopics: App.Data.PaginatedData<TItems>;
   };
+  export type UserGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
+    paginatedGameListEntries: App.Data.PaginatedData<TItems>;
+    filterableSystemOptions: Array<App.Platform.Data.System>;
+    can: App.Data.UserPermissions;
+  };
   export type UserRecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     targetUser: App.Data.User;
     paginatedTopics: App.Data.PaginatedData<TItems>;
@@ -12,7 +17,9 @@ declare namespace App.Community.Data {
   };
 }
 declare namespace App.Community.Enums {
+  export type AwardType = 1 | 2 | 3 | 6 | 7 | 8;
   export type TicketType = 1 | 2;
+  export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
 }
 declare namespace App.Data {
   export type ForumTopicComment = {
@@ -40,6 +47,7 @@ declare namespace App.Data {
     lastPage: number;
     perPage: number;
     total: number;
+    unfilteredTotal: number | null;
     items: TItems[];
     links: {
       firstPageUrl: string | null;
@@ -67,6 +75,7 @@ declare namespace App.Data {
     websitePrefs?: number | null;
   };
   export type UserPermissions = {
+    develop?: boolean;
     manageGameHashes?: boolean;
     manipulateApiKeys?: boolean;
     updateAvatar?: boolean;
@@ -92,7 +101,8 @@ declare namespace App.Enums {
     | 14
     | 15
     | 16
-    | 17;
+    | 17
+    | 18;
 }
 declare namespace App.Models {
   export type UserRole =
@@ -141,6 +151,7 @@ declare namespace App.Platform.Data {
     pointsWeighted?: number;
     releasedAt?: string | null;
     releasedAtGranularity?: string | null;
+    playersTotal?: number;
     lastUpdated?: string;
     numVisibleLeaderboards?: number;
     numUnresolvedTickets?: number;
@@ -212,5 +223,14 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
+  export type AchievementSetType =
+    | 'core'
+    | 'bonus'
+    | 'specialty'
+    | 'exclusive'
+    | 'will_be_bonus'
+    | 'will_be_specialty'
+    | 'will_be_exclusive';
   export type GameSetType = 'hub' | 'similar-games';
+  export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 }

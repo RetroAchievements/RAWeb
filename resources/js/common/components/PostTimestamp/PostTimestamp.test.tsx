@@ -42,7 +42,7 @@ describe('Component: PostTimestamp', () => {
     render(<PostTimestamp asAbsoluteDate={true} postedAt={mockPostDate.toISOString()} />);
 
     // ASSERT
-    expect(screen.getByText(/04 May 2024, 05:08/i)).toBeVisible();
+    expect(screen.getByText(/May 04, 2024, 05:08/i)).toBeVisible();
   });
 
   it('renders the month divide correctly', () => {

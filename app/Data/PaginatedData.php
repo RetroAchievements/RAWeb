@@ -18,6 +18,7 @@ class PaginatedData extends Data
         public int $lastPage,
         public int $perPage,
         public int $total,
+        public ?int $unfilteredTotal,
         #[LiteralTypeScriptType('TItems[]')]
         public array $items,
 
@@ -35,13 +36,17 @@ class PaginatedData extends Data
      * @template TItems
      * @param LengthAwarePaginator<TItems> $paginator
      */
-    public static function fromLengthAwarePaginator(LengthAwarePaginator $paginator, ?int $total = null): self
-    {
+    public static function fromLengthAwarePaginator(
+        LengthAwarePaginator $paginator,
+        ?int $total = null,
+        ?int $unfilteredTotal = null,
+    ): self {
         return new self(
             currentPage: $paginator->currentPage(),
             lastPage: $paginator->lastPage(),
             perPage: $paginator->perPage(),
             total: $total ?? $paginator->total(),
+            unfilteredTotal: $unfilteredTotal,
             items: $paginator->items(),
             links: [
                 'firstPageUrl' => $paginator->url(1),

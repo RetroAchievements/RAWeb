@@ -80,6 +80,15 @@ export async function loadDynamicTooltip(
 }
 
 /**
+ * These tooltips are also used within a React context, and React does not play nicely
+ * with Alpine.js stuff. As a result, on hover, React components actually make two
+ * identical fetches to /request/card.php. The easiest way to fix this is to store pending
+ * and completed fetches in a cache, so even though `fetchDynamicTooltipContent()` is
+ * invoked by React twice, the GET call only happens once.
+ */
+const fetchCache: Record<string, Promise<string> | undefined> = {};
+
+/**
  * Fetch dynamic tooltip content from the server.
  *
  * This function sends a POST request to the server with the provided
@@ -91,17 +100,23 @@ export async function loadDynamicTooltip(
  * @returns A promise resolving to an HTML string containing the tooltip content.
  */
 async function fetchDynamicTooltipContent(type: string, id: string, context?: unknown) {
+  const cacheKey = `${type}_${id}_${JSON.stringify(context)}`;
+
+  if (fetchCache[cacheKey]) {
+    return fetchCache[cacheKey];
+  }
+
   let bodyString = `type=${type}&id=${id}`;
   if (context) {
     bodyString += `&context=${context}`;
   }
 
-  const contentResponse = await fetcher<{ html: string }>('/request/card.php', {
+  fetchCache[cacheKey] = fetcher<{ html: string }>('/request/card.php', {
     method: 'POST',
     body: bodyString,
-  });
+  }).then((response) => response.html);
 
-  return contentResponse.html;
+  return fetchCache[cacheKey];
 }
 
 /**

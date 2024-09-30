@@ -50,5 +50,5 @@ return response()->json([
     'Developer' => $game->Developer,
     'Genre' => $game->Genre,
     'Released' => $game->released_at?->format('Y-m-d'),
-    'ReleasedAtGranularity' => $game->released_at_granularity,
+    'ReleasedAtGranularity' => $game->released_at_granularity?->value,
 ]);
