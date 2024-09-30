@@ -308,7 +308,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
           'filter[achievementsPublished]': 'has',
           'filter[title]': 'dragon quest',
           'page[number]': 1,
-          sort: null,
+          sort: 'title',
         },
       ]);
     });
@@ -362,7 +362,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
           'filter[achievementsPublished]': 'has',
           'filter[system]': '1',
           'page[number]': 1,
-          sort: null,
+          sort: 'title',
         },
       ]);
     });
@@ -455,7 +455,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         {
           'filter[achievementsPublished]': 'none',
           'page[number]': 1,
-          sort: null,
+          sort: 'title',
         },
       ]);
     });
@@ -622,7 +622,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         {
           'filter[achievementsPublished]': 'has',
           'page[number]': 2,
-          sort: null,
+          sort: 'title',
         },
       ]);
     });

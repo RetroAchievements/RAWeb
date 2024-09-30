@@ -11,6 +11,8 @@ export function useWantToPlayGamesList() {
 
   const removeFromBacklogMutation = useRemoveFromGameListMutation();
 
+  const isPending = addToBacklogMutation.isPending || removeFromBacklogMutation.isPending;
+
   const addToWantToPlayGamesList = (
     gameId: number,
     gameTitle: string,
@@ -45,5 +47,5 @@ export function useWantToPlayGamesList() {
     });
   };
 
-  return { addToWantToPlayGamesList, removeFromWantToPlayGamesList };
+  return { addToWantToPlayGamesList, isPending, removeFromWantToPlayGamesList };
 }

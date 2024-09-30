@@ -23,7 +23,8 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
   const { auth } = usePageProps();
 
-  const { addToWantToPlayGamesList, removeFromWantToPlayGamesList } = useWantToPlayGamesList();
+  const { addToWantToPlayGamesList, isPending, removeFromWantToPlayGamesList } =
+    useWantToPlayGamesList();
 
   const rowData = row.original as Partial<App.Platform.Data.GameListEntry>;
   const gameId = rowData?.game?.id ?? 0;
@@ -57,10 +58,12 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
             variant="ghost"
             className="group flex h-8 w-8 p-0 text-link"
             onClick={handleToggleFromBacklogClick}
+            disabled={isPending}
           >
             <MdClose
               className={cn(
                 'h-4 w-4 transition',
+                'hover:text-neutral-50 disabled:text-neutral-50 light:hover:text-neutral-900 light:disabled:text-neutral-900',
                 isInBacklog ? 'text-red-600 light:text-red-500' : 'rotate-45',
               )}
             />
