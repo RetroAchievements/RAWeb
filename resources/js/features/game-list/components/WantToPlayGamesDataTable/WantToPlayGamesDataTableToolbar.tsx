@@ -1,12 +1,12 @@
 import type { ColumnFiltersState, Table } from '@tanstack/react-table';
 import { RxCross2 } from 'react-icons/rx';
 
-import { DataTableFacetedFilter } from '@/features/game-list/components/DataTableFacetedFilter';
-import { DataTableSearchInput } from '@/features/game-list/components/DataTableSearchInput';
-import { DataTableViewOptions } from '@/features/game-list/components/DataTableViewOptions';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { formatNumber } from '@/common/utils/l10n/formatNumber';
+import { DataTableFacetedFilter } from '@/features/game-list/components/DataTableFacetedFilter';
+import { DataTableSearchInput } from '@/features/game-list/components/DataTableSearchInput';
+import { DataTableViewOptions } from '@/features/game-list/components/DataTableViewOptions';
 
 import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
 
