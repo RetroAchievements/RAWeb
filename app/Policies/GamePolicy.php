@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\Role;
 use App\Models\User;
@@ -62,7 +61,7 @@ class GamePolicy
         // If the user has a DEVELOPER_JUNIOR role, they need to have a claim
         // on the game or be the sole author of its achievements to be able to
         // update any of its metadata.
-        if ($user->hasRole(Role::DEVELOPER_JUNIOR) || $user->getAttribute('Permissions') === Permissions::JuniorDeveloper) {
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR)) {
             return $this->canDeveloperJuniorUpdateGame($user, $game);
         }
 

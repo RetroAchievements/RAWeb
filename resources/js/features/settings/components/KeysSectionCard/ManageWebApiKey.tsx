@@ -23,7 +23,7 @@ export const ManageWebApiKey: FC = () => {
   const mutation = useMutation({
     mutationFn: () => {
       return axios.delete<unknown, AxiosResponse<{ newKey: string }>>(
-        route('settings.keys.web.destroy'),
+        route('api.settings.keys.web.destroy'),
       );
     },
     onSuccess: ({ data }) => {

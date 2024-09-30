@@ -91,7 +91,7 @@ describe('Component: KeysSectionCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /reset web api key/i }));
 
     // ASSERT
-    expect(deleteSpy).toHaveBeenCalledWith(route('settings.keys.web.destroy'));
+    expect(deleteSpy).toHaveBeenCalledWith(route('api.settings.keys.web.destroy'));
   });
 
   it('given the user resets their web API key, shows their new obfuscated key in the UI', async () => {
@@ -130,6 +130,6 @@ describe('Component: KeysSectionCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /reset connect api key/i }));
 
     // ASSERT
-    expect(deleteSpy).toHaveBeenCalledWith(route('settings.keys.connect.destroy'));
+    expect(deleteSpy).toHaveBeenCalledWith(route('api.settings.keys.connect.destroy'));
   });
 });

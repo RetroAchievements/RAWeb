@@ -25,7 +25,7 @@ export function useAvatarSectionForm() {
       const formData = new FormData();
       formData.append('imageData', base64ImageData);
 
-      return axios.post(route('user.avatar.store'), formData, {
+      return axios.post(route('api.user.avatar.store'), formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

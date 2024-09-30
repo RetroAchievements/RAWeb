@@ -134,6 +134,7 @@ return [
             '' => '/claims/active',
         ],
         '/expiringclaims.php' => '/claims/expiring',
+        '/claims' => '/manage/achievement-set-claims',
 
         /*
          * redirects (external)

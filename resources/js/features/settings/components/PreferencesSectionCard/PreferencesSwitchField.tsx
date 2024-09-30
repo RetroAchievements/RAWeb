@@ -19,12 +19,18 @@ interface PreferencesTableRowProps {
   label: string;
   fieldName: UserPreferenceValue;
   control: Control<PreferencesSectionFormValues>;
+
+  /**
+   * If true, the switch will show as enabled when the setting is turned off.
+   */
+  isSwitchInverted?: boolean;
 }
 
 export const PreferencesSwitchField: FC<PreferencesTableRowProps> = ({
   label,
   fieldName,
   control,
+  isSwitchInverted = false,
 }) => {
   return (
     <BaseFormField
@@ -35,7 +41,12 @@ export const PreferencesSwitchField: FC<PreferencesTableRowProps> = ({
           <BaseFormLabel>{label}</BaseFormLabel>
 
           <BaseFormControl>
-            <BaseSwitch checked={field.value} onCheckedChange={field.onChange} />
+            <BaseSwitch
+              checked={isSwitchInverted ? !field.value : field.value}
+              onCheckedChange={(newValue) => {
+                field.onChange(isSwitchInverted ? !newValue : newValue);
+              }}
+            />
           </BaseFormControl>
         </BaseFormItem>
       )}

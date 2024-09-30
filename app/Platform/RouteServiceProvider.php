@@ -12,6 +12,7 @@ use App\Platform\Controllers\PlayerAchievementController;
 use App\Platform\Controllers\PlayerGameController;
 use App\Platform\Controllers\ReportAchievementIssueController;
 use App\Platform\Controllers\SystemController;
+use App\Platform\Controllers\UserGameAchievementSetPreferenceController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -94,13 +95,20 @@ class RouteServiceProvider extends ServiceProvider
             Route::group([
                 'middleware' => ['auth'], // TODO: 'verified'
             ], function () {
+                Route::group([
+                    'prefix' => 'internal-api',
+                ], function () {
+                    Route::delete('user/game/{game}', [PlayerGameController::class, 'destroy'])->name('api.user.game.destroy');
+                    Route::delete('user/achievement/{achievement}', [PlayerAchievementController::class, 'destroy'])->name('api.user.achievement.destroy');
+
+                    Route::put('user/game-achievement-set/{gameAchievementSet}/preference', [UserGameAchievementSetPreferenceController::class, 'update'])
+                        ->name('api.user.game-achievement-set.preference.update');
+                });
+
                 Route::resource('game-hash', GameHashController::class)->parameters(['game-hash' => 'gameHash'])->only(['update', 'destroy']);
 
                 Route::get('games/resettable', [PlayerGameController::class, 'resettableGames'])->name('player.games.resettable');
                 Route::get('game/{game}/achievements/resettable', [PlayerGameController::class, 'resettableGameAchievements'])->name('player.game.achievements.resettable');
-
-                Route::delete('user/game/{game}', [PlayerGameController::class, 'destroy'])->name('user.game.destroy');
-                Route::delete('user/achievement/{achievement}', [PlayerAchievementController::class, 'destroy'])->name('user.achievement.destroy');
 
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('achievement/{achievement}/report-issue', [ReportAchievementIssueController::class, 'index'])->name('achievement.report-issue.index');

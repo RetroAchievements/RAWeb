@@ -101,7 +101,8 @@ declare namespace App.Enums {
     | 14
     | 15
     | 16
-    | 17;
+    | 17
+    | 18;
 }
 declare namespace App.Models {
   export type UserRole =

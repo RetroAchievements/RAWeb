@@ -251,6 +251,27 @@ declare module 'ziggy-js' {
         }
     ],
     "game.random": [],
+    "api.user.game.destroy": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.user.achievement.destroy": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.user.game-achievement-set.preference.update": [
+        {
+            "name": "gameAchievementSet",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "game-hash.update": [
         {
             "name": "gameHash",
@@ -269,20 +290,6 @@ declare module 'ziggy-js' {
     "player.game.achievements.resettable": [
         {
             "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
-    "user.game.destroy": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
-    "user.achievement.destroy": [
-        {
-            "name": "achievement",
             "required": true,
             "binding": "ID"
         }
@@ -323,6 +330,27 @@ declare module 'ziggy-js' {
         }
     ],
     "game-list.play.index": [],
+    "achievement-set-claim.create": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "achievement-set-claim.delete": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "achievement-set-claim.update": [
+        {
+            "name": "claim",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "message.store": [],
     "message-thread.destroy": [
         {
@@ -331,12 +359,12 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "settings.profile.update": [],
-    "settings.preferences.update": [],
-    "settings.password.update": [],
-    "settings.email.update": [],
-    "settings.keys.web.destroy": [],
-    "settings.keys.connect.destroy": [],
+    "api.settings.profile.update": [],
+    "api.settings.preferences.update": [],
+    "api.settings.password.update": [],
+    "api.settings.email.update": [],
+    "api.settings.keys.web.destroy": [],
+    "api.settings.keys.connect.destroy": [],
     "login": [],
     "logout": [],
     "password.confirmation": [],
@@ -387,10 +415,10 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
-    "user.delete-request.store": [],
-    "user.delete-request.destroy": [],
-    "user.avatar.store": [],
-    "user.avatar.destroy": []
+    "api.user.delete-request.store": [],
+    "api.user.delete-request.destroy": [],
+    "api.user.avatar.store": [],
+    "api.user.avatar.destroy": []
 }
 }
 export {};

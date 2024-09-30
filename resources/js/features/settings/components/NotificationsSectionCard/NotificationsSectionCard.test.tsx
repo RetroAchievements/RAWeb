@@ -83,7 +83,7 @@ describe('Component: NotificationsSectionCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
-    expect(putSpy).toHaveBeenCalledWith(route('settings.preferences.update'), {
+    expect(putSpy).toHaveBeenCalledWith(route('api.settings.preferences.update'), {
       websitePrefs: 401,
     });
   });
