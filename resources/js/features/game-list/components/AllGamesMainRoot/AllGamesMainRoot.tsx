@@ -8,6 +8,7 @@ import { useGameListState } from '../../hooks/useGameListState';
 import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
 import { allGamesDefaultFilters } from '../../utils/allGamesDefaultFilters';
 import { AllGamesDataTable } from '../AllGamesDataTable';
+import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
 
 export const AllGamesMainRoot: FC = () => {
   const { paginatedGameListEntries } = usePageProps<App.Platform.Data.GameListPageProps>();
@@ -34,12 +35,11 @@ export const AllGamesMainRoot: FC = () => {
 
   return (
     <div>
-      {/* TODO reusable component */}
-      <div id="pagination-scroll-target" className="scroll-mt-16">
+      <DataTablePaginationScrollTarget>
         <div className="mb-3 flex w-full">
           <h1 className="text-h3 w-full sm:!text-[2.0em]">All Games</h1>
         </div>
-      </div>
+      </DataTablePaginationScrollTarget>
 
       <HydrationBoundary state={dehydrate(queryClientWithInitialData)}>
         <AllGamesDataTable
