@@ -2,14 +2,17 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { Row } from '@tanstack/react-table';
 import { MdClose } from 'react-icons/md';
 
+import { BaseButton } from '@/common/components/+vendor/BaseButton';
+import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import {
+  BaseTooltip,
+  BaseTooltipContent,
+  BaseTooltipTrigger,
+} from '@/common/components/+vendor/BaseTooltip';
+import { useAddToBacklogMutation } from '@/common/hooks/useAddToBacklogMutation';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useRemoveFromBacklogMutation } from '@/common/hooks/useRemoveFromBacklogMutation';
 import { cn } from '@/utils/cn';
-
-import { useAddToBacklogMutation } from '../../hooks/useAddToBacklogMutation';
-import { useRemoveFromBacklogMutation } from '../../hooks/useRemoveFromBacklogMutation';
-import { BaseButton } from '../+vendor/BaseButton';
-import { toastMessage } from '../+vendor/BaseToaster';
-import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
 
 /**
  * If the table row needs to have more than one action, it should go into a menu.

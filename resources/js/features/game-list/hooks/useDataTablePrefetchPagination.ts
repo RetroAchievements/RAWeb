@@ -3,8 +3,8 @@ import type { Table } from '@tanstack/react-table';
 import axios from 'axios';
 import type { RouteName } from 'ziggy-js';
 
-import { buildGameListQueryFilterParams } from '../utils/buildGameListQueryFilterParams';
-import { buildGameListQuerySortParam } from '../utils/buildGameListQuerySortParam';
+import { buildGameListQueryFilterParams } from '@/common/utils/buildGameListQueryFilterParams';
+import { buildGameListQuerySortParam } from '@/common/utils/buildGameListQuerySortParam';
 
 /**
  * Given the user hovers over a pagination button, it is very likely they will

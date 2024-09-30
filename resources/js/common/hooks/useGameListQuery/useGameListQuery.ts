@@ -20,7 +20,7 @@ export function useGameListQuery({
   columnFilters,
   pagination,
   sorting,
-  apiRouteName = 'api.game-list.index',
+  apiRouteName = 'api.game.index',
 }: UseGameListQueryProps) {
   const dataQuery = useQuery<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>({
     // eslint-disable-next-line @tanstack/query/exhaustive-deps -- tableApiRouteName is not part of the key

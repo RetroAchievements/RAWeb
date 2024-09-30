@@ -4,17 +4,17 @@ import type { IconType } from 'react-icons/lib';
 import { RxArrowDown, RxArrowUp, RxCaretSort, RxEyeNone } from 'react-icons/rx';
 import type { RouteName } from 'ziggy-js';
 
-import { cn } from '@/utils/cn';
-
-import { useDataTablePrefetchSort } from '../../hooks/useDataTablePrefetchSort';
-import { BaseButton } from '../+vendor/BaseButton';
+import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
   BaseDropdownMenu,
   BaseDropdownMenuContent,
   BaseDropdownMenuItem,
   BaseDropdownMenuSeparator,
   BaseDropdownMenuTrigger,
-} from '../+vendor/BaseDropdownMenu';
+} from '@/common/components/+vendor/BaseDropdownMenu';
+import { cn } from '@/utils/cn';
+
+import { useDataTablePrefetchSort } from '../../hooks/useDataTablePrefetchSort';
 
 type SortDirection = 'asc' | 'desc';
 type SortConfig = {
@@ -58,7 +58,7 @@ export function DataTableColumnHeader<TData, TValue>({
   column,
   table,
   sortType = 'default',
-  tableApiRouteName = 'api.game-list.index',
+  tableApiRouteName = 'api.game.index',
 }: DataTableColumnHeaderProps<TData, TValue>): ReactNode {
   const { prefetchSort } = useDataTablePrefetchSort(table, tableApiRouteName);
 

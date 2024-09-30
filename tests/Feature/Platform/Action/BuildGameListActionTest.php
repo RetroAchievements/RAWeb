@@ -788,6 +788,32 @@ class BuildGameListActionTest extends TestCase
         $this->assertEquals(3, count($result->items)); // These values can differ unless we override ->total.
     }
 
+    public function testItReturnsCorrectGamesForAllGamesList(): void
+    {
+        // Arrange
+        $activeGameSystem = System::factory()->create(['ID' => 1, 'name' => 'NES/Famicom', 'name_short' => 'NES', 'active' => true]);
+        $inactiveGameSystem = System::factory()->create(['ID' => 2, 'name' => 'PlayStation 5', 'name_short' => 'PS5', 'active' => false]);
+
+        Game::factory()->create(['Title' => 'AAAAAAA', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
+        Game::factory()->create(['Title' => 'BBBBBBB', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
+
+        // Event, hub, inactive system, and subset games should all be excluded from the "All Games" list.
+        Game::factory()->create(['Title' => 'CCCCCCC', 'achievements_published' => 50, 'ConsoleID' => System::Events]);
+        Game::factory()->create(['Title' => 'DDDDDDD', 'achievements_published' => 50, 'ConsoleID' => System::Hubs]);
+        Game::factory()->create(['Title' => 'EEEEEEE', 'achievements_published' => 50, 'ConsoleID' => $inactiveGameSystem->id]);
+        Game::factory()->create(['Title' => 'AAAAAAA [Subset - Bonus]', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::AllGames,
+            user: null
+        );
+
+        // Assert
+        $this->assertEquals(2, $result->total);
+        $this->assertEquals(2, count($result->items)); // These values can differ unless we override ->total.
+    }
+
     private function seedGamesForLists(): void
     {
         $systemGb = System::factory()->create(['ID' => 1, 'name' => 'Game Boy', 'name_short' => 'GB']);

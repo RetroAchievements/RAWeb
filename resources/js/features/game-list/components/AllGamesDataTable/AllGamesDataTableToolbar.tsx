@@ -1,10 +1,10 @@
 import type { ColumnFiltersState, Table } from '@tanstack/react-table';
 import { RxCross2 } from 'react-icons/rx';
 
+import { DataTableFacetedFilter } from '@/features/game-list/components/DataTableFacetedFilter';
+import { DataTableSearchInput } from '@/features/game-list/components/DataTableSearchInput';
+import { DataTableViewOptions } from '@/features/game-list/components/DataTableViewOptions';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
-import { DataTableFacetedFilter } from '@/common/components/DataTableFacetedFilter';
-import { DataTableSearchInput } from '@/common/components/DataTableSearchInput';
-import { DataTableViewOptions } from '@/common/components/DataTableViewOptions';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { formatNumber } from '@/common/utils/l10n/formatNumber';
 

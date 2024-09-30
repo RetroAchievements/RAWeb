@@ -9,10 +9,15 @@ import type { AppGlobalProps } from '@/common/models';
 
 export * from '@testing-library/react';
 
-vi.mock('@inertiajs/react', () => ({
-  __esModule: true,
-  usePage: vi.fn(),
-}));
+vi.mock('@inertiajs/react', async (importOriginal) => {
+  const original = (await importOriginal()) as any;
+
+  return {
+    ...original,
+    __esModule: true,
+    usePage: vi.fn(),
+  };
+});
 
 /*
 |--------------------------------------------------------------------------

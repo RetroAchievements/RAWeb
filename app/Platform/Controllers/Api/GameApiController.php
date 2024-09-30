@@ -2,16 +2,19 @@
 
 namespace App\Platform\Controllers\Api;
 
-use App\Platform\Requests\GameListRequest;
 use App\Http\Controller;
+use App\Models\Game;
 use App\Platform\Actions\BuildGameListAction;
 use App\Platform\Enums\GameListType;
+use App\Platform\Requests\GameListRequest;
 use Illuminate\Http\JsonResponse;
 
-class GameListApiController extends Controller
+class GameApiController extends Controller
 {
     public function index(GameListRequest $request): JsonResponse
     {
+        $this->authorize('viewAny', Game::class);
+
         $paginatedData = (new BuildGameListAction())->execute(
             GameListType::AllGames,
             user: $request->user(),

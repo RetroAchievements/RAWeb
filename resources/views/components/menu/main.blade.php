@@ -75,7 +75,7 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
         @endforeach
         <div class="dropdown-column">
             <x-dropdown-header>Miscellaneous</x-dropdown-header>
-            <x-dropdown-item :href="url('gameList.php')">All Games</x-dropdown-item>
+            <x-dropdown-item :href="route('game.index')">All Games</x-dropdown-item>
             {{--<x-dropdown-item href="popularGames.php">Most Played</x-dropdown-item>--}}
             <x-dropdown-item :href="url('gameSearch.php?p=0')">Hardest Games</x-dropdown-item>
             <x-dropdown-item :href="url('setRequestList.php')">Most Requested</x-dropdown-item>

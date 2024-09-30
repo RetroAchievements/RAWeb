@@ -57,14 +57,6 @@
         }
     }
 
-    // Extract the `t` parameter from gameList.php to track what kind of list users are opening.
-    if (str_ends_with($url, 'gameList.php') && isset($queryParams['t'])) {
-        $tParam = $queryParams['t'];
-        if ($tParam === 'play' || $tParam === 'develop') {
-            $props['type'] = $queryParams['t'];
-        }
-    }
-
     // Track what topic ID users are viewing at viewtopic.php.
     if (strpos($url, 'viewtopic') !== false && isset($queryParams['t'])) {
         $props['topicId'] = $queryParams['t'];

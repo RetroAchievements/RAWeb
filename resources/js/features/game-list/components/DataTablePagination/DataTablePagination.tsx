@@ -3,9 +3,10 @@ import type { ReactNode } from 'react';
 import { LuArrowLeft, LuArrowLeftToLine, LuArrowRight, LuArrowRightToLine } from 'react-icons/lu';
 import type { RouteName } from 'ziggy-js';
 
+import { BaseButton } from '@/common/components/+vendor/BaseButton';
+import { BasePagination, BasePaginationContent } from '@/common/components/+vendor/BasePagination';
+
 import { useDataTablePrefetchPagination } from '../../hooks/useDataTablePrefetchPagination';
-import { BaseButton } from '../+vendor/BaseButton';
-import { BasePagination, BasePaginationContent } from '../+vendor/BasePagination';
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
@@ -14,7 +15,7 @@ interface DataTablePaginationProps<TData> {
 
 export function DataTablePagination<TData>({
   table,
-  tableApiRouteName = 'api.game-list.index',
+  tableApiRouteName = 'api.game.index',
 }: DataTablePaginationProps<TData>): ReactNode {
   const { pagination } = table.getState();
 

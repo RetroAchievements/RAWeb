@@ -6,10 +6,9 @@ namespace App\Platform;
 
 use App\Models\GameHash;
 use App\Platform\Controllers\AchievementController;
-use App\Platform\Controllers\Api\GameListApiController;
+use App\Platform\Controllers\Api\GameApiController;
 use App\Platform\Controllers\GameController;
 use App\Platform\Controllers\GameHashController;
-use App\Platform\Controllers\GameListController;
 use App\Platform\Controllers\PlayerAchievementController;
 use App\Platform\Controllers\PlayerGameController;
 use App\Platform\Controllers\ReportAchievementIssueController;
@@ -47,13 +46,13 @@ class RouteServiceProvider extends ServiceProvider
     {
         Route::middleware(['web', 'csp'])->group(function () {
             Route::group(['prefix' => 'internal-api'], function () {
-                Route::get('game-list', [GameListApiController::class, 'index'])->name('api.game-list.index');
+                Route::get('games', [GameApiController::class, 'index'])->name('api.game.index');
             });
 
             Route::middleware(['inertia'])->group(function () {
                 Route::get('game/{game}/hashes', [GameHashController::class, 'index'])->name('game.hashes.index');
 
-                Route::get('game-list', [GameListController::class, 'index'])->name('game-list.index');
+                Route::get('games', [GameController::class, 'index'])->name('game.index');
             });
 
             // Route::get('achievement/{achievement}{slug?}', [AchievementController::class, 'show'])->name('achievement.show');
@@ -73,7 +72,6 @@ class RouteServiceProvider extends ServiceProvider
             //     ->name('system.achievement.index');
 
             // Route::get('game/{game}{slug?}', [GameController::class, 'show'])->name('game.show');
-            // Route::resource('games', GameController::class)->only('index')->names(['index' => 'game.index']);
             // Route::get('games/popular', [GameController::class, 'popular'])->name('games.popular');
             // Route::get('game/{game}/badges', [GameBadgeController::class, 'index'])->name('game.badge.index');
             // Route::get('game/{game}/assets', [GameAssetsController::class, 'index'])->name('game.asset.index');
