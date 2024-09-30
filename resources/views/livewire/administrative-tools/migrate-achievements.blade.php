@@ -7,6 +7,7 @@ use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
 
@@ -14,7 +15,7 @@ new class extends Component implements HasForms {
     use InteractsWithForms;
 
     public array $achievementIds = [];
-    public int $gameId;
+    public ?int $gameId = null;
 
     public function submit(): void
     {
@@ -29,6 +30,17 @@ new class extends Component implements HasForms {
             $this->gameId,
             $user,
         );
+
+        Notification::make()
+            ->success()
+            ->title('Success')
+            ->body('Migrated!')
+            ->send();
+
+        // Reset the form.
+        $this->form->fill();
+        $this->achievementIds = [];
+        $this->gameId = null;
     }
 
     public function form(Form $form): Form
