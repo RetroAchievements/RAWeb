@@ -47,7 +47,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $system = System::factory()->create();
-        $games = Game::factory()->count(20)->create(['ConsoleID' => $system->id]);
+        $games = Game::factory()->count(10)->create(['ConsoleID' => $system->id]);
 
         $addGameToListAction = new AddGameToListAction();
         foreach ($games as $game) {
@@ -55,10 +55,10 @@ class BuildGameListActionTest extends TestCase
         }
 
         // Act
-        $result = (new BuildGameListAction())->execute(GameListType::UserPlay, $user, perPage: 8);
+        $result = (new BuildGameListAction())->execute(GameListType::UserPlay, $user, perPage: 4);
 
         // Assert
-        $this->assertEquals(20, $result->total);
+        $this->assertEquals(10, $result->total);
         $this->assertEquals(1, $result->currentPage);
         $this->assertEquals(3, $result->lastPage);
     }
