@@ -13,11 +13,11 @@ export const WeightedPointsContainer: FC<WeightedPointsContainerProps> = ({ chil
         <span className="TrueRatio light:text-neutral-400">{children}</span>
       </BaseTooltipTrigger>
 
-      <BaseTooltipContent>
-        <div className="flex flex-col items-center text-center text-xs">
-          <p>RetroPoints: A measurement of rarity and estimated difficulty.</p>
-          <p>Derived from points, number of achievers, and number of players.</p>
-        </div>
+      <BaseTooltipContent asChild>
+        <span className="flex flex-col items-center text-center text-xs">
+          <span>RetroPoints: A measurement of rarity and estimated difficulty.</span>
+          <span>Derived from points, number of achievers, and number of players.</span>
+        </span>
       </BaseTooltipContent>
     </BaseTooltip>
   );

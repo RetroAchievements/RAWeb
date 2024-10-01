@@ -6,6 +6,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { formatNumber } from '@/common/utils/l10n/formatNumber';
 
 import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
+import { DataTableAchievementsPublishedFilter } from '../DataTableAchievementsPublishedFilter';
 import { DataTableFacetedFilter } from '../DataTableFacetedFilter';
 import { DataTableSearchInput } from '../DataTableSearchInput';
 import { DataTableViewOptions } from '../DataTableViewOptions';
@@ -56,18 +57,7 @@ export function WantToPlayGamesDataTableToolbar<TData>({
         ) : null}
 
         {table.getColumn('achievementsPublished') ? (
-          <DataTableFacetedFilter
-            className="w-full sm:w-auto"
-            column={table.getColumn('achievementsPublished')}
-            title="Has achievements"
-            options={[
-              { label: 'Yes', value: 'has' },
-              { label: 'No', value: 'none' },
-              { label: 'Either', value: 'either' },
-            ]}
-            isSearchable={false}
-            isSingleSelect={true}
-          />
+          <DataTableAchievementsPublishedFilter table={table} />
         ) : null}
 
         {isFiltered ? (
@@ -75,7 +65,7 @@ export function WantToPlayGamesDataTableToolbar<TData>({
             variant="ghost"
             size="sm"
             onClick={resetFiltersToDefault}
-            className="border-dashed px-2 text-link lg:px-3"
+            className="px-2 text-link lg:px-3"
           >
             Reset <RxCross2 className="ml-2 h-4 w-4" />
           </BaseButton>
