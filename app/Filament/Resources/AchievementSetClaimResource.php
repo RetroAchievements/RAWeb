@@ -65,7 +65,7 @@ class AchievementSetClaimResource extends Resource
                             return UserResource::getUrl('view', ['record' => $record->user]);
                         }
 
-                        if ($record->user && is_null($record->user->deleted_at)) {
+                        if ($record->user && is_null($record->user->Deleted)) {
                             return route('user.show', $record->user);
                         }
 
