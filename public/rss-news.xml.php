@@ -34,14 +34,17 @@ foreach ($newsData as $news) {
     $newsDate = date("D, d M Y H:i:s O", strtotime($news['Timestamp']));
     $newsImage = $news['Image'];
     $newsLink = config('app.url');
-    $newsTitle = "<![CDATA[" . htmlspecialchars(strip_tags($news['Title'])) . "]]>";
+    if (str_starts_with($news['Link'], config('app.url'))) {
+        $newsLink = "<![CDATA[" . $news['Link'] . "]]>";
+    }
+    $newsTitle = "<![CDATA[" . strip_tags($news['Title']) . "]]>";
 
     // Image first?
     $payload = "<a href='$newsLink'><img style='padding: 5px;' src='$newsImage' /></a>";
     $payload .= "<br>\r\n";
     $payload .= $news['Payload'];
 
-    $newsPayload = "<![CDATA[" . htmlspecialchars(strip_tags($payload)) . "]]>";
+    $newsPayload = "<![CDATA[" . strip_tags($payload) . "]]>";
 
     // $newsPayload contains relative URLs, which need converting to absolute URLs
     $newsPayload = str_replace("href='/", "href='" . config('app.url') . "/", $newsPayload);
@@ -53,7 +56,7 @@ foreach ($newsData as $news) {
     // ?!
 
     $article->appendChild($dom->createElement('title', htmlentities($newsTitle)));
-    $article->appendChild($dom->createElement('link', $newsLink));
+    $article->appendChild($dom->createElement('link', htmlentities($newsLink)));
     $article->appendChild($dom->createElement('description', htmlentities($newsPayload)));
     $article->appendChild($dom->createElement('pubDate', $newsDate));
 

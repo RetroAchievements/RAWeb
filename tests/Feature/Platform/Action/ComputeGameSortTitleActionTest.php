@@ -34,12 +34,14 @@ class ComputeGameSortTitleActionTest extends TestCase
             '007: Agent Under Fire' => ['007: Agent Under Fire', '00007 agent under fire'],
             '101 Dalmatians' => ['101 Dalmatians', '00101 dalmatians'],
             '50 Cent: Blood on the Sand' => ['50 Cent: Blood on the Sand', '00050 cent blood on the sand'],
+            'A-Mazing Tater' => ['A-Mazing Tater', 'a-mazing tater'],
             'A Series of Unfortunate Events' => ['A Series of Unfortunate Events', 'series of unfortunate events'],
             'American Tale, An' => ['American Tale, An', 'american tale'],
             'An Unexpected Journey' => ['An Unexpected Journey', 'unexpected journey'],
             'Bravely Défault II' => ['Bravely Défault II', 'bravely default 00002'],
             'Final Fantasy IV' => ['Final Fantasy IV', 'final fantasy 00004'],
             'Final Fantasy X' => ['Final Fantasy X', 'final fantasy 00010'],
+            'Final Fantasy X-2' => ['Final Fantasy X-2', 'final fantasy 00010-00002'],
             'Formula 1-97' => ['Formula 1-97', 'formula 00001-00097'],
             'GIVX' => ['GIVX', 'givx'],
             'Grand Day Out, A' => ['Grand Day Out, A', 'grand day out'],
@@ -65,6 +67,7 @@ class ComputeGameSortTitleActionTest extends TestCase
             'Super Mario Bros. 3' => ['Super Mario Bros. 3', 'super mario bros 00003'],
             'The Great Escape' => ['The Great Escape', 'great escape'],
             'The Matrix Reloaded' => ['The Matrix Reloaded', 'matrix reloaded'],
+            'V-Tetris' => ['V-Tetris', 'v-tetris'],
         ];
     }
 }
