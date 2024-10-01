@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 
-import { usePageProps } from '../../hooks/usePageProps';
+import { usePageProps } from '@/common/hooks/usePageProps';
+
 import { AvatarSection } from '../AvatarSection';
 import { SiteAwardsSection } from '../SiteAwardsSection';
 

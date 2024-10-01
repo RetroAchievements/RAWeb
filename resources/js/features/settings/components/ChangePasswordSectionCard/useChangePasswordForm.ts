@@ -32,7 +32,7 @@ export function useChangePasswordForm() {
 
   const mutation = useMutation({
     mutationFn: (formValues: FormValues) => {
-      return axios.put(route('settings.password.update'), formValues);
+      return axios.put(route('api.settings.password.update'), formValues);
     },
   });
 

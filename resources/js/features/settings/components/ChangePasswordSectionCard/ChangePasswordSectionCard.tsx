@@ -9,8 +9,8 @@ import {
   BaseFormMessage,
 } from '@/common/components/+vendor/BaseForm';
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { usePageProps } from '../../hooks/usePageProps';
 import { SectionFormCard } from '../SectionFormCard';
 import { useChangePasswordForm } from './useChangePasswordForm';
 

@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Controllers\AchievementSetClaimController;
+use App\Community\Controllers\Api\UserGameListApiController;
 use App\Community\Controllers\ForumTopicCommentController;
 use App\Community\Controllers\ForumTopicController;
 use App\Community\Controllers\MessageController;
 use App\Community\Controllers\MessageThreadController;
 use App\Community\Controllers\UserCommentController;
 use App\Community\Controllers\UserForumTopicCommentController;
+use App\Community\Controllers\UserGameListController;
 use App\Community\Controllers\UserSettingsController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +42,17 @@ class RouteServiceProvider extends ServiceProvider
     {
         Route::middleware(['web', 'csp'])
             ->group(function () {
+                /*
+                 * client-side api calls
+                 */
+                Route::middleware(['auth'])->group(function () {
+                    Route::group(['prefix' => 'internal-api'], function () {
+                        Route::get('user-game-list', [UserGameListApiController::class, 'index'])->name('api.user-game-list.index');
+                        Route::post('user-game-list/{game}', [UserGameListApiController::class, 'store'])->name('api.user-game-list.store');
+                        Route::delete('user-game-list/{game}', [UserGameListApiController::class, 'destroy'])->name('api.user-game-list.destroy');
+                    });
+                });
+
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('forums/recent-posts', [ForumTopicController::class, 'recentPosts'])->name('forum.recent-posts');
 
@@ -244,6 +257,15 @@ class RouteServiceProvider extends ServiceProvider
                 });
 
                 /*
+                 * game lists
+                 */
+                Route::group([
+                    'middleware' => ['auth', 'inertia'],
+                ], function () {
+                    Route::get('game-list/play', [UserGameListController::class, 'index'])->name('game-list.play.index');
+                });
+
+                /*
                  * claims
                  */
                 Route::group([
@@ -269,15 +291,15 @@ class RouteServiceProvider extends ServiceProvider
                  */
                 Route::group([
                     'middleware' => ['auth'],
-                    'prefix' => 'settings',
+                    'prefix' => 'internal-api/settings',
                 ], function () {
-                    Route::put('profile', [UserSettingsController::class, 'updateProfile'])->name('settings.profile.update');
-                    Route::put('preferences', [UserSettingsController::class, 'updatePreferences'])->name('settings.preferences.update');
-                    Route::put('password', [UserSettingsController::class, 'updatePassword'])->name('settings.password.update');
-                    Route::put('email', [UserSettingsController::class, 'updateEmail'])->name('settings.email.update');
+                    Route::put('profile', [UserSettingsController::class, 'updateProfile'])->name('api.settings.profile.update');
+                    Route::put('preferences', [UserSettingsController::class, 'updatePreferences'])->name('api.settings.preferences.update');
+                    Route::put('password', [UserSettingsController::class, 'updatePassword'])->name('api.settings.password.update');
+                    Route::put('email', [UserSettingsController::class, 'updateEmail'])->name('api.settings.email.update');
 
-                    Route::delete('keys/web', [UserSettingsController::class, 'resetWebApiKey'])->name('settings.keys.web.destroy');
-                    Route::delete('keys/connect', [UserSettingsController::class, 'resetConnectApiKey'])->name('settings.keys.connect.destroy');
+                    Route::delete('keys/web', [UserSettingsController::class, 'resetWebApiKey'])->name('api.settings.keys.web.destroy');
+                    Route::delete('keys/connect', [UserSettingsController::class, 'resetConnectApiKey'])->name('api.settings.keys.connect.destroy');
                 });
             });
     }

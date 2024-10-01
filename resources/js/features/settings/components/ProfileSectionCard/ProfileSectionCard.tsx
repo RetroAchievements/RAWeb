@@ -15,8 +15,8 @@ import {
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { BaseSwitch } from '@/common/components/+vendor/BaseSwitch';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { usePageProps } from '../../hooks/usePageProps';
 import { SectionFormCard } from '../SectionFormCard';
 import { useProfileSectionForm } from './useProfileSectionForm';
 
