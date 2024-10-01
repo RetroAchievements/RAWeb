@@ -65,7 +65,11 @@ class AchievementSetClaimResource extends Resource
                             return UserResource::getUrl('view', ['record' => $record->user]);
                         }
 
-                        return route('user.show', $record->game->user);
+                        if ($record->user && is_null($record->user->deleted_at)) {
+                            return route('user.show', $record->game->user);
+                        }
+
+                        return null;
                     })
                     ->searchable()
                     ->sortable(query: function (Builder $query, string $direction): Builder {
