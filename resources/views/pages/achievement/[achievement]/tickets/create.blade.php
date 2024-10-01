@@ -173,8 +173,8 @@ function reportIssueComponent() {
                         >
                             <option @if ($selectedEmulator === null) selected @endif disabled hidden>Select your emulator...</option>
                             @foreach (Emulator::forSystem($achievement->game->system->id)->active()->get() as $emulator)
-                                <option value="{{ $emulator->handle }}" @if ($selectedEmulator === $emulator->handle) selected @endif>
-                                    {{ $emulator->handle }}
+                                <option value="{{ $emulator->name }}" @if ($selectedEmulator === $emulator->name) selected @endif>
+                                    {{ $emulator->name }}
                                 </option>
                             @endforeach
                         </select>
