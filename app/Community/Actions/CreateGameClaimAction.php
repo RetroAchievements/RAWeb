@@ -32,7 +32,7 @@ class CreateGameClaimAction
         $setType = ClaimSetType::NewSet;
         $special = ClaimSpecial::None;
 
-        $primaryClaim = $game->achievementSetClaims()->active()->primaryClaim()->first();
+        $primaryClaim = $game->achievementSetClaims()->activeOrInReview()->primaryClaim()->first();
         if ($primaryClaim !== null) {
             if ($primaryClaim->user->is($currentUser)) {
                 // renewing claim
