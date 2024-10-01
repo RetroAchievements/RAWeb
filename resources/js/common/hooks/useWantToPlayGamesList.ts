@@ -18,7 +18,9 @@ export function useWantToPlayGamesList() {
     gameTitle: string,
     options?: Partial<{ isUndo: boolean }>,
   ) => {
-    toastMessage.promise(addToBacklogMutation.mutateAsync(gameId), {
+    const mutationPromise = addToBacklogMutation.mutateAsync(gameId);
+
+    toastMessage.promise(mutationPromise, {
       loading: options?.isUndo ? 'Restoring...' : 'Adding...',
       success: () => {
         // Trigger a refetch of the current table page data and bust the entire cache.
@@ -28,10 +30,14 @@ export function useWantToPlayGamesList() {
       },
       error: 'Something went wrong.',
     });
+
+    return mutationPromise;
   };
 
   const removeFromWantToPlayGamesList = (gameId: number, gameTitle: string) => {
-    toastMessage.promise(removeFromBacklogMutation.mutateAsync(gameId), {
+    const mutationPromise = removeFromBacklogMutation.mutateAsync(gameId);
+
+    toastMessage.promise(mutationPromise, {
       action: {
         label: 'Undo',
         onClick: () => addToWantToPlayGamesList(gameId, gameTitle, { isUndo: true }),
@@ -45,6 +51,8 @@ export function useWantToPlayGamesList() {
       },
       error: 'Something went wrong.',
     });
+
+    return mutationPromise;
   };
 
   return { addToWantToPlayGamesList, isPending, removeFromWantToPlayGamesList };

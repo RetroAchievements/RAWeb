@@ -1,5 +1,6 @@
 import type { Row } from '@tanstack/react-table';
-import { LuMinus, LuPlus } from 'react-icons/lu';
+import { useEffect, useState } from 'react';
+import { MdClose } from 'react-icons/md';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
@@ -29,7 +30,16 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
   const rowData = row.original as Partial<App.Platform.Data.GameListEntry>;
   const gameId = rowData?.game?.id ?? 0;
   const gameTitle = rowData?.game?.title ?? '';
+
   const isInBacklog = rowData?.isInBacklog ?? false;
+
+  // We want to change the icon instantly for the user, even if the mutation is still running.
+  const [isInBacklogOptimistic, setIsInBacklogOptimistic] = useState(isInBacklog);
+
+  // When the actual `isInBacklog` changes, update the optimistic state accordingly.
+  useEffect(() => {
+    setIsInBacklogOptimistic(isInBacklog);
+  }, [isInBacklog]);
 
   const handleToggleFromBacklogClick = () => {
     // This should never happen.
@@ -43,42 +53,47 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
       return;
     }
 
-    if (isInBacklog) {
-      removeFromWantToPlayGamesList(gameId, gameTitle);
-    } else {
-      addToWantToPlayGamesList(gameId, gameTitle);
-    }
+    setIsInBacklogOptimistic((prev) => !prev);
+
+    const mutationPromise = isInBacklog
+      ? removeFromWantToPlayGamesList(gameId, gameTitle)
+      : addToWantToPlayGamesList(gameId, gameTitle);
+
+    mutationPromise.catch(() => {
+      setIsInBacklogOptimistic(isInBacklog);
+    });
   };
 
-  const BacklogIcon = isInBacklog ? LuMinus : LuPlus;
-
   return (
-    <BaseTooltip delayDuration={600}>
+    <BaseTooltip>
       <BaseTooltipTrigger asChild>
         <div className="flex justify-end">
           <BaseButton
             variant="ghost"
-            className="group flex h-8 w-8 p-0 text-link"
+            className="group flex h-8 w-8 p-0 text-link disabled:!pointer-events-auto disabled:!opacity-100"
             onClick={handleToggleFromBacklogClick}
             disabled={isPending}
           >
-            <BacklogIcon
+            <MdClose
               className={cn(
-                'h-4 w-4 transition',
-                'hover:text-neutral-50 disabled:text-neutral-50 light:hover:text-neutral-900 light:disabled:text-neutral-900',
+                'h-4 w-4 transition-transform',
+                'hover:text-neutral-50 disabled:!text-neutral-50 light:hover:text-neutral-900 light:disabled:text-neutral-900',
+                isInBacklogOptimistic ? '' : 'rotate-45',
               )}
             />
 
             <span className="sr-only">
-              {isInBacklog ? 'Remove from Want To Play Games' : 'Add to Want to Play Games'}
+              {isInBacklogOptimistic
+                ? 'Remove from Want To Play Games'
+                : 'Add to Want to Play Games'}
             </span>
           </BaseButton>
         </div>
       </BaseTooltipTrigger>
 
       <BaseTooltipContent>
-        <p className="text-xs">
-          {isInBacklog ? 'Remove from Want to Play Games' : 'Add to Want to Play Games'}
+        <p>
+          {isInBacklogOptimistic ? 'Remove from Want to Play Games' : 'Add to Want to Play Games'}
         </p>
       </BaseTooltipContent>
     </BaseTooltip>
