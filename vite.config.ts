@@ -6,7 +6,6 @@ import i18n from 'laravel-react-i18n/vite';
 import laravel from 'laravel-vite-plugin';
 import { homedir } from 'os';
 import { resolve } from 'path';
-import type { PluginOption } from 'vite';
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ mode, isSsrBuild }) => {
@@ -39,7 +38,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         refresh: ['resources/views/**'],
       }),
       react(),
-      i18n() as unknown as PluginOption[],
+      i18n(),
     ],
 
     ssr: {
