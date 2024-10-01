@@ -66,7 +66,7 @@ class AchievementSetClaimResource extends Resource
                         }
 
                         if ($record->user && is_null($record->user->deleted_at)) {
-                            return route('user.show', $record->game->user);
+                            return route('user.show', $record->user);
                         }
 
                         return null;
