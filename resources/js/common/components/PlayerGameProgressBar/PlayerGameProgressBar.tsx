@@ -46,6 +46,8 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({ game, pl
     return null;
   }
 
+  const Wrapper = achievementsUnlocked ? 'a' : 'div';
+
   return (
     <BaseTooltip open={achievementsUnlocked === 0 ? false : undefined}>
       <BaseTooltipTrigger
@@ -55,7 +57,11 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({ game, pl
           !highestAward ? 'py-2' : '', // increase the hover surface area
         )}
       >
-        <div className="flex max-w-[120px] flex-col gap-0.5">
+        <Wrapper
+          className="flex max-w-[120px] flex-col gap-0.5"
+          href={achievementsUnlocked ? route('game.show', { game: game.id }) : undefined}
+          aria-label={achievementsUnlocked ? `Navigate to ${game.title}` : undefined}
+        >
           <BaseProgress
             max={achievementsPublished}
             segments={[
@@ -79,7 +85,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({ game, pl
               </p>
             </div>
           ) : null}
-        </div>
+        </Wrapper>
       </BaseTooltipTrigger>
 
       <BaseTooltipContent asChild>

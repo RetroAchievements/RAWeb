@@ -1,5 +1,5 @@
 import type { Row } from '@tanstack/react-table';
-import { MdClose } from 'react-icons/md';
+import { LuMinus, LuPlus } from 'react-icons/lu';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
@@ -50,8 +50,10 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
     }
   };
 
+  const BacklogIcon = isInBacklog ? LuMinus : LuPlus;
+
   return (
-    <BaseTooltip>
+    <BaseTooltip delayDuration={600}>
       <BaseTooltipTrigger asChild>
         <div className="flex justify-end">
           <BaseButton
@@ -60,11 +62,10 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
             onClick={handleToggleFromBacklogClick}
             disabled={isPending}
           >
-            <MdClose
+            <BacklogIcon
               className={cn(
                 'h-4 w-4 transition',
                 'hover:text-neutral-50 disabled:text-neutral-50 light:hover:text-neutral-900 light:disabled:text-neutral-900',
-                isInBacklog ? 'text-red-600 light:text-red-500' : 'rotate-45',
               )}
             />
 
@@ -76,7 +77,9 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
       </BaseTooltipTrigger>
 
       <BaseTooltipContent>
-        <p>{isInBacklog ? 'Remove from Want to Play Games' : 'Add to Want to Play Games'}</p>
+        <p className="text-xs">
+          {isInBacklog ? 'Remove from Want to Play Games' : 'Add to Want to Play Games'}
+        </p>
       </BaseTooltipContent>
     </BaseTooltip>
   );

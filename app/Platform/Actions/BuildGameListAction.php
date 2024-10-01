@@ -158,13 +158,12 @@ class BuildGameListAction
 
         switch ($listType) {
             case GameListType::AllGames:
-                // Exclude events, hubs, subsets, and inactive systems.
-                $query->where('GameData.ConsoleID', '!=', System::Events)
-                    ->where('GameData.ConsoleID', '!=', System::Hubs)
-                    ->where('GameData.Title', 'not like', "%[Subset -%")
+                // Exclude non game systems, inactive systems, and subsets.
+                $query
                     ->whereHas('system', function ($q) {
-                        return $q->active();
-                    });
+                        return $q->gameSystems()->active();
+                    })
+                    ->where('GameData.Title', 'not like', "%[Subset -%");
                 break;
 
             case GameListType::UserPlay:
