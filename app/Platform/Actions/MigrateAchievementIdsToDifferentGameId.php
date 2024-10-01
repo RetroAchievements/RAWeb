@@ -10,7 +10,6 @@ use App\Models\Game;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\User;
-use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Illuminate\Support\Str;
 
@@ -22,31 +21,36 @@ class MigrateAchievementIdsToDifferentGameId
         $oldGameIds = Achievement::whereIn('ID', $achievementIds)->select(['GameID'])->distinct()->pluck('GameID');
 
         // Associate the achievements to the new game.
-        Achievement::whereIn('ID', $achievementIds)->update(['GameID' => $gameId]);
+        Achievement::whereIn('ID', $achievementIds)->get()->each(function ($achievement) use ($gameId) {
+            $achievement->update(['GameID' => $gameId]);
+        });
 
         // Add an audit comment to the new game.
         addArticleComment(
             'Server',
             ArticleType::GameModification,
             $gameId,
-            "$user migrated " . Str::plural('achievement', count($achievementIds)) . ' ' .
+            "{$user->display_name} migrated " . Str::plural('achievement', count($achievementIds)) . ' ' .
                 implode(',', $achievementIds) . ' from ' .
                 Str::plural('game', count($oldGameIds)) . ' ' . $oldGameIds->implode(',') . '.'
         );
 
-        // Ensure player_game entries exist for the new game for all affected users.
-        foreach (PlayerAchievement::whereIn('achievement_id', $achievementIds)->select(['user_id'])->distinct()->pluck('user_id') as $userId) {
+        // Update all affected player game metrics.
+        $affectedUserIds = PlayerAchievement::whereIn('achievement_id', $achievementIds)
+            ->select(['user_id'])
+            ->distinct()
+            ->pluck('user_id');
+        foreach ($affectedUserIds as $userId) {
+            // Ensure player_game entries exist for the new game for all affected users.
             if (!PlayerGame::where('game_id', $gameId)->where('user_id', $userId)->exists()) {
                 $playerGame = new PlayerGame(['user_id' => $userId, 'game_id' => $gameId]);
                 $playerGame->save();
-                dispatch(new UpdatePlayerGameMetricsJob($userId, $gameId));
             }
-        }
 
-        // Update the metrics on the new game and the old game(s).
-        dispatch(new UpdateGameMetricsJob($gameId))->onQueue('game-metrics');
-        foreach ($oldGameIds as $oldGameId) {
-            dispatch(new UpdateGameMetricsJob($oldGameId))->onQueue('game-metrics');
+            dispatch(new UpdatePlayerGameMetricsJob($userId, $gameId));
+            foreach ($oldGameIds as $oldGameId) {
+                dispatch(new UpdatePlayerGameMetricsJob($userId, $oldGameId));
+            }
         }
 
         // Update achievement_sets associated with the given achievement IDs.

@@ -2,6 +2,7 @@
 
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\User;
 use App\Platform\Actions\MigrateAchievementIdsToDifferentGameId;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -14,7 +15,7 @@ use Livewire\Volt\Component;
 new class extends Component implements HasForms {
     use InteractsWithForms;
 
-    public array $achievementIds = [];
+    public ?string $achievementIdsCsv = null;
     public ?int $gameId = null;
 
     public function submit(): void
@@ -22,11 +23,27 @@ new class extends Component implements HasForms {
         // Validate.
         $this->form->getState();
 
+        $allAchievementIds = [];
+
+        // Split the CSV string by commas, trim excess whitespace, and filter out any empty values.
+        $csvIds = array_filter(array_map('trim', explode(',', $this->achievementIdsCsv)));
+
+        // Convert string IDs to integers.
+        $csvIds = array_filter($csvIds, function ($id) {
+            return is_numeric($id) && (int) $id > 0;
+        });
+
+        $allAchievementIds = array_unique(array_map('intval', $csvIds));
+
+        if (empty($allAchievementIds)) {
+            return;
+        }
+
         /** @var User $user */
         $user = Auth::user();
 
         (new MigrateAchievementIdsToDifferentGameId())->execute(
-            $this->achievementIds,
+            $allAchievementIds,
             $this->gameId,
             $user,
         );
@@ -47,33 +64,13 @@ new class extends Component implements HasForms {
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('achievements')
-                    ->label('Achievements')
-                    ->placeholder('Select achievements')
-                    ->multiple()
-                    ->searchable()
-                    ->getSearchResultsUsing(function (string $search): array {
-                        return Achievement::with('game')
-                            ->where('Title', 'like', "%{$search}%")
-                            ->orWhere('ID', 'like', "%{$search}%")
-                            ->limit(50)
-                            ->get()
-                            ->mapWithKeys(function ($achievement) {
-                                return [$achievement->id => "ID: {$achievement->id} - Title: {$achievement->title} - Game: {$achievement->game->title}"];
-                            })
-                            ->toArray();
-                    })
-                    ->getOptionLabelsUsing(function (array $values): array {
-                        return Achievement::with('game')
-                            ->whereIn('ID', $values)
-                            ->get()
-                            ->mapWithKeys(function ($achievement) {
-                                return [$achievement->id => "ID: {$achievement->id} - Title: {$achievement->title} - Game: {$achievement->game->title}"];
-                            })
-                            ->toArray();
-                    })
-                    ->statePath('achievementIds')
-                    ->required(),
+                Forms\Components\Textarea::make('achievementIdsCsv')
+                    ->label('Achievement IDs (CSV)')
+                    ->placeholder("9,17,25")
+                    ->helperText('Paste a comma-separated list of Achievement IDs.')
+                    ->rows(2)
+                    ->required()
+                    ->rules(['regex:/^\d+(,\d+)*$/']),
 
                 Forms\Components\Select::make('game')
                     ->label('Game to transfer achievements to')
