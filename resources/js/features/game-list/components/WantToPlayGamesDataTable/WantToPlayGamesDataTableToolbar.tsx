@@ -4,11 +4,11 @@ import { RxCross2 } from 'react-icons/rx';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { formatNumber } from '@/common/utils/l10n/formatNumber';
-import { DataTableFacetedFilter } from '@/features/game-list/components/DataTableFacetedFilter';
-import { DataTableSearchInput } from '@/features/game-list/components/DataTableSearchInput';
-import { DataTableViewOptions } from '@/features/game-list/components/DataTableViewOptions';
 
 import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
+import { DataTableFacetedFilter } from '../DataTableFacetedFilter';
+import { DataTableSearchInput } from '../DataTableSearchInput';
+import { DataTableViewOptions } from '../DataTableViewOptions';
 
 interface WantToPlayGamesDataTableToolbarProps<TData> {
   table: Table<TData>;

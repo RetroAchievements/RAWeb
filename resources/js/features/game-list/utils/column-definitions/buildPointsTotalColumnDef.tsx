@@ -34,10 +34,10 @@ export function buildPointsTotalColumnDef({
       }
 
       return (
-        <p className="whitespace-nowrap">
+        <div className="whitespace-nowrap">
           {formatNumber(pointsTotal)}{' '}
           <WeightedPointsContainer>({formatNumber(pointsWeighted)})</WeightedPointsContainer>
-        </p>
+        </div>
       );
     },
   };

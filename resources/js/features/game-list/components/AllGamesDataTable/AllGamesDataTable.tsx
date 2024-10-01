@@ -9,9 +9,9 @@ import { type Dispatch, type FC, type SetStateAction, useMemo } from 'react';
 
 import { useGameListQuery } from '@/common/hooks/useGameListQuery';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { DataTablePagination } from '@/features/game-list/components/DataTablePagination';
 
 import { allGamesDefaultFilters } from '../../utils/allGamesDefaultFilters';
+import { DataTablePagination } from '../DataTablePagination';
 import { GameListDataTable } from '../GameListDataTable';
 import { AllGamesDataTableToolbar } from './AllGamesDataTableToolbar';
 import { buildColumnDefinitions } from './buildColumnDefinitions';
