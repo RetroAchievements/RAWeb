@@ -1,5 +1,5 @@
 import type { Table } from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'react-use';
 
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
@@ -23,6 +23,8 @@ export function DataTableSearchInput<TData>({ table }: DataTableSearchInputProps
 
   const { hotkeyInputRef } = useSearchInputHotkey({ key: '/' });
 
+  const isFirstRender = useRef(true);
+
   /**
    * Listen for changes with column filter state and stay in sync. Otherwise,
    * when the user presses the "Reset" button to reset all filters, our search
@@ -39,7 +41,20 @@ export function DataTableSearchInput<TData>({ table }: DataTableSearchInputProps
    */
   useDebounce(
     () => {
-      table.getColumn('title')?.setFilterValue(rawInputValue);
+      // Skip the effect on the first render. Otherwise, column filters
+      // be changed simply because the component mounted.
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
+
+        return;
+      }
+
+      const currentFilterValue = (table.getColumn('title')?.getFilterValue() as string) ?? '';
+
+      // Only update the filter if the value has changed.
+      if (rawInputValue !== currentFilterValue) {
+        table.getColumn('title')?.setFilterValue(rawInputValue);
+      }
     },
     getDebounceDuration(rawInputValue),
     [rawInputValue],
