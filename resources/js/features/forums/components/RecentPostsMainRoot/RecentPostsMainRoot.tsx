@@ -1,10 +1,10 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import { RecentPostsCards } from '@/common/components/RecentPostsCards';
 import { RecentPostsTable } from '@/common/components/RecentPostsTable';
 import { SimplePaginator } from '@/common/components/SimplePaginator';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { useLaravelReactI18n } from '@/lib/laravel-react-i18n';
 
 import { ForumBreadcrumbs } from '../ForumBreadcrumbs';
 

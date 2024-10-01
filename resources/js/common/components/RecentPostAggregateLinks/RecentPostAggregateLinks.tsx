@@ -1,6 +1,5 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
-
-import { useLaravelReactI18n } from '@/lib/laravel-react-i18n';
 
 interface RecentPostAggregateLinksProps {
   topic: App.Data.ForumTopic;

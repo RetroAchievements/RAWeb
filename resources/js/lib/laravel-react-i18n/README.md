@@ -1,1 +1,0 @@
-i18n - https://github.com/EugeneMeles/laravel-react-i18n, forked and modified to support React 18 with server-side rendering

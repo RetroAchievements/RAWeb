@@ -2,13 +2,12 @@
 
 import react from '@vitejs/plugin-react';
 import { existsSync, readFileSync } from 'fs';
+import i18n from 'laravel-react-i18n/vite';
 import laravel from 'laravel-vite-plugin';
 import { homedir } from 'os';
 import { resolve } from 'path';
 import type { PluginOption } from 'vite';
 import { defineConfig, loadEnv } from 'vite';
-
-import i18n from './resources/js/lib/laravel-react-i18n/vite';
 
 export default defineConfig(({ mode, isSsrBuild }) => {
   const env = loadEnv(mode, process.cwd(), '');

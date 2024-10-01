@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import {
@@ -8,7 +9,6 @@ import {
   BaseBreadcrumbPage,
   BaseBreadcrumbSeparator,
 } from '@/common/components/+vendor/BaseBreadcrumb';
-import { useLaravelReactI18n } from '@/lib/laravel-react-i18n';
 
 // TODO support ForumCategory and Forum
 interface ForumBreadcrumbsProps {

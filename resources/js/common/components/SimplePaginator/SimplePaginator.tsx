@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import {
@@ -7,7 +8,6 @@ import {
   BasePaginationNext,
   BasePaginationPrevious,
 } from '@/common/components/+vendor/BasePagination';
-import { useLaravelReactI18n } from '@/lib/laravel-react-i18n';
 
 interface SimplePaginatorProps<TData = unknown> {
   paginatedData: App.Data.PaginatedData<TData>;

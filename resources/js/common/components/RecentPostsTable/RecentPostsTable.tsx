@@ -1,8 +1,8 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { useLaravelReactI18n } from '@/lib/laravel-react-i18n';
 
 import { PostTimestamp } from '../PostTimestamp';
 import { RecentPostAggregateLinks } from '../RecentPostAggregateLinks';

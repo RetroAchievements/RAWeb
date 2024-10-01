@@ -20,7 +20,7 @@ vi.mock('@inertiajs/react', () => ({
  * output no DOM. Rather than trying to hack laravel-react-i18n to fix this,
  * it's better to just mock the functions we need to test basic UI functionality.
  */
-vi.mock('@/lib/laravel-react-i18n', () => ({
+vi.mock('laravel-react-i18n', () => ({
   __esModule: true,
 
   LaravelReactI18nProvider: ({ children }: any) => <>{children}</>,

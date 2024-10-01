@@ -3,6 +3,7 @@
 
 import { createInertiaApp } from '@inertiajs/react';
 import createServer from '@inertiajs/react/server';
+import { LaravelReactI18nProvider } from 'laravel-react-i18n';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import ReactDOMServer from 'react-dom/server';
 import type { RouteName, RouteParams } from 'ziggy-js';
@@ -10,7 +11,6 @@ import type { RouteName, RouteParams } from 'ziggy-js';
 import { route } from '../../vendor/tightenco/ziggy';
 import { AppProviders } from './common/components/AppProviders';
 import type { AppGlobalProps } from './common/models';
-import { LaravelReactI18nProvider } from './lib/laravel-react-i18n';
 
 const appName = import.meta.env.APP_NAME ?? 'RetroAchievements';
 const inertiaDaemonPort = import.meta.env.VITE_INERTIA_SSR_PORT ?? 13714;
