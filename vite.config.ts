@@ -63,7 +63,17 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       coverage: {
         provider: 'v8',
         reporter: ['text', 'html'],
-        include: ['resources/js/common', 'resources/js/features'],
+        include: [
+          /*
+           * Disregard coverage for Alpine.js stuff, mounting code, and /pages.
+           *  - Alpine.js stuff will be removed.
+           *  - Covering mounting code would just test the framework.
+           *  - /pages should be covered by controller tests.
+           */
+          'resources/js/common',
+          'resources/js/features',
+          'resources/js/utils',
+        ],
         exclude: ['**/index.ts', '*.model.ts'],
       },
     },
