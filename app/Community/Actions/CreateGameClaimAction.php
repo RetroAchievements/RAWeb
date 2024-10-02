@@ -104,7 +104,9 @@ class CreateGameClaimAction
                 'username' => 'Claim Bot',
                 'avatar_url' => media_asset('UserPic/QATeam.png'),
                 'content' => route('game.show', $game) . "\n:new: " .
-                             ClaimType::toString($claimType) . " claim made by " . $currentUser->displayName,
+                             ClaimType::toString($claimType) .
+                             ($setType === ClaimSetType::Revision ? ' revision' : '') .
+                             " claim made by " . $currentUser->displayName,
             ];
             (new Client())->post($webhookUrl, ['json' => $payload]);
         }
