@@ -12,6 +12,7 @@ use App\Models\Game;
 use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -47,6 +48,16 @@ class DropGameClaimAction
                 addArticleComment("Server", ArticleType::SetClaim, $game->ID, ClaimType::toString($claim->ClaimType) . " claim dropped by {$currentUser->User}");
             }
 
+            $webhookUrl = config('services.discord.webhook.claims');
+            if (!empty($webhookUrl)) {
+                $payload = [
+                    'username' => 'Claim Bot',
+                    'avatar_url' => media_asset('UserPic/QATeam.png'),
+                    'content' => route('game.show', $game) . "\n:no_entry_sign: " .
+                                 ClaimType::toString($claim->ClaimType) . " claim dropped by " . $currentUser->display_name,
+                ];
+                (new Client())->post($webhookUrl, ['json' => $payload]);
+            }
         }
 
         return $claim;

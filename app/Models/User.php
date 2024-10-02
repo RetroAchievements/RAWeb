@@ -131,6 +131,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'APIUses',
         'APIKey',
         'banned_at',
+        'cookie', // fillable for when users are banned
         'ContribCount',
         'ContribYield',
         'country',
@@ -148,12 +149,14 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'Motto',
         'muted_until',
         'password', // fillable for registration
+        'PasswordResetToken', // fillable for when users are banned
         'Permissions',
         'preferences',
         'RAPoints',
         'RASoftcorePoints',
         'RichPresenceMsg',
         'RichPresenceMsgDate',
+        'SaltedPass', // fillable for when users are banned
         'TrueRAPoints',
         'timezone',
         'unranked_at',

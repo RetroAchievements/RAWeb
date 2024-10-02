@@ -144,44 +144,36 @@ function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User 
  */
 function banAccountByUsername(string $username, int $permissions): void
 {
-    $db = getMysqliConnection();
+    $user = User::firstWhere('User', $username);
 
-    echo "BANNING $username ... ";
-
-    if (empty($username)) {
-        echo "FAIL" . PHP_EOL;
-
+    if (!$user) {
         return;
     }
 
-    $dbResult = s_mysql_query("UPDATE UserAccounts u SET
-        u.email_verified_at = null,
-        u.Password = null,
-        u.SaltedPass = '',
-        u.Permissions = $permissions,
-        u.fbUser = 0,
-        u.fbPrefs = null,
-        u.cookie = null,
-        u.appToken = null,
-        u.appTokenExpiry = null,
-        u.ManuallyVerified = 0,
-        u.forum_verified_at = null,
-        u.Motto = '',
-        u.Untracked = 1,
-        u.APIKey = null,
-        u.UserWallActive = 0,
-        u.RichPresenceMsg = null,
-        u.RichPresenceMsgDate = null,
-        u.PasswordResetToken = '',
-        u.banned_at = NOW(),
-        u.Updated = NOW()
-        WHERE u.User='$username'"
-    );
-    if (!$dbResult) {
-        echo mysqli_error($db) . PHP_EOL;
-    }
+    $user->email_verified_at = null;
+    $user->password = null;
+    $user->SaltedPass = '';
+    $user->setAttribute('Permissions', $permissions);
+    $user->fbUser = 0;
+    $user->fbPrefs = null;
+    $user->cookie = null;
+    $user->appToken = null;
+    $user->appTokenExpiry = null;
+    $user->ManuallyVerified = 0;
+    $user->forum_verified_at = null;
+    $user->Motto = '';
+    $user->Untracked = 1;
+    $user->unranked_at = now();
+    $user->APIKey = null;
+    $user->UserWallActive = 0;
+    $user->RichPresenceMsg = null;
+    $user->RichPresenceMsgDate = null;
+    $user->PasswordResetToken = '';
+    $user->banned_at = now();
+    $user->Updated = now();
+
+    $user->save();
 
     removeAvatar($username);
-
-    echo "SUCCESS" . PHP_EOL;
+    $user->subscriptions()->delete();
 }
