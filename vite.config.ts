@@ -59,6 +59,13 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       setupFiles: 'resources/js/setupTests.ts',
       include: ['resources/js/**/*.{test,spec}.{ts,tsx}'],
       globals: true,
+
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'html'],
+        include: ['resources/js/common', 'resources/js/features'],
+        exclude: ['**/index.ts', '*.model.ts'],
+      },
     },
 
     // @ see https://vitejs.dev/config/#server-options
