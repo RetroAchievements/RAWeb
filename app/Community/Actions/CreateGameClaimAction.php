@@ -15,6 +15,7 @@ use App\Models\Game;
 use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -32,7 +33,7 @@ class CreateGameClaimAction
         $setType = ClaimSetType::NewSet;
         $special = ClaimSpecial::None;
 
-        $primaryClaim = $game->achievementSetClaims()->active()->primaryClaim()->first();
+        $primaryClaim = $game->achievementSetClaims()->activeOrInReview()->primaryClaim()->first();
         if ($primaryClaim !== null) {
             if ($primaryClaim->user->is($currentUser)) {
                 // renewing claim
@@ -42,6 +43,17 @@ class CreateGameClaimAction
 
                 Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($currentUser->User));
                 addArticleComment("Server", ArticleType::SetClaim, $game->ID, "Claim extended by " . $currentUser->display_name);
+
+                $webhookUrl = config('services.discord.webhook.claims');
+                if (!empty($webhookUrl)) {
+                    $payload = [
+                        'username' => 'Claim Bot',
+                        'avatar_url' => media_asset('UserPic/QATeam.png'),
+                        'content' => route('game.show', $game) . "\n:timer: " .
+                                 "Claim extended by " . $currentUser->display_name,
+                    ];
+                    (new Client())->post($webhookUrl, ['json' => $payload]);
+                }
 
                 return $primaryClaim;
             }
@@ -84,6 +96,19 @@ class CreateGameClaimAction
             if ($game->ForumTopicID && !isUserSubscribedToForumTopic($game->ForumTopicID, $currentUser->id)) {
                 updateSubscription(SubscriptionSubjectType::ForumTopic, $game->ForumTopicID, $currentUser->id, true);
             }
+        }
+
+        $webhookUrl = config('services.discord.webhook.claims');
+        if (!empty($webhookUrl)) {
+            $payload = [
+                'username' => 'Claim Bot',
+                'avatar_url' => media_asset('UserPic/QATeam.png'),
+                'content' => route('game.show', $game) . "\n:new: " .
+                             ClaimType::toString($claimType) .
+                             ($setType === ClaimSetType::Revision ? ' revision' : '') .
+                             " claim made by " . $currentUser->displayName,
+            ];
+            (new Client())->post($webhookUrl, ['json' => $payload]);
         }
 
         return $newClaim;
