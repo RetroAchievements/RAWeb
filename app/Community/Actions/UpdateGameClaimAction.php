@@ -15,6 +15,7 @@ use App\Models\Game;
 use App\Models\PlayerBadge;
 use App\Models\User;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 
 class UpdateGameClaimAction
@@ -126,6 +127,17 @@ class UpdateGameClaimAction
             foreach ($requestors as $requestor) {
                 sendSetRequestEmail($requestor['Requestor'], $requestor['Email'], $game->ID, $game->Title);
             }
+        }
+
+        $webhookUrl = config('services.discord.webhook.claims');
+        if (!empty($webhookUrl)) {
+            $payload = [
+                'username' => 'Claim Bot',
+                'avatar_url' => media_asset('UserPic/QATeam.png'),
+                'content' => route('game.show', $game) . "\n:white_check_mark: " .
+                             "Claim completed by " . $currentUser->display_name,
+            ];
+            (new Client())->post($webhookUrl, ['json' => $payload]);
         }
     }
 }
