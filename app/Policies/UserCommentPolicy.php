@@ -59,7 +59,11 @@ class UserCommentPolicy
             || !$user->hasVerifiedEmail()
             || $commentable->isBlocking($user)
             || !$commentable->UserWallActive
-            || ($commentable->only_allows_contact_from_followers && !$commentable->isFollowing($user))
+            || (
+                $commentable->only_allows_contact_from_followers
+                && !$commentable->isFollowing($user)
+                && !$user->is($commentable)
+            )
         ) {
             return false;
         }
