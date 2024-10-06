@@ -74,7 +74,14 @@ export default defineConfig(({ mode, isSsrBuild }) => {
           'resources/js/features',
           'resources/js/utils',
         ],
-        exclude: ['**/index.ts', '*.model.ts'],
+        exclude: [
+          '**/index.ts',
+          '**/*.model.ts',
+          '**/*.test.ts',
+          '**/*.test.tsx',
+          '**/*.spec.ts',
+          '**/*.spec.tsx',
+        ],
       },
     },
 
