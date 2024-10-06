@@ -21,7 +21,7 @@ type SortConfig = {
   [key in SortDirection]: { label: string; icon?: IconType };
 };
 
-type SortConfigKind = 'default' | 'date' | 'quantity';
+type SortConfigKind = 'default' | 'date' | 'quantity' | 'boolean';
 
 /**
  * The order of `asc` and `desc` determines the order they'll
@@ -39,6 +39,10 @@ const sortConfigs: Record<SortConfigKind, SortConfig> = {
   quantity: {
     desc: { label: 'More', icon: RxArrowUp },
     asc: { label: 'Less', icon: RxArrowDown },
+  },
+  boolean: {
+    desc: { label: 'Yes first', icon: RxArrowUp },
+    asc: { label: 'No first', icon: RxArrowDown },
   },
 };
 
