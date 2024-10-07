@@ -18,4 +18,18 @@ describe('Component: AppLayout', () => {
     // ASSERT
     expect(screen.getByText(/hello, world/i)).toBeVisible();
   });
+
+  it('renders provided content into the main and sidebar components', () => {
+    // ARRANGE
+    render(
+      <AppLayout withSidebar={true}>
+        <AppLayout.Main>main content!</AppLayout.Main>
+        <AppLayout.Sidebar>sidebar content!</AppLayout.Sidebar>
+      </AppLayout>,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/main content/i)).toBeVisible();
+    expect(screen.getByText(/sidebar content/i)).toBeVisible();
+  });
 });

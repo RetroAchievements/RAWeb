@@ -14,8 +14,8 @@ export const HashesListItem: FC<HashListingProps> = ({ hash }) => {
 
         {hash.labels.length ? (
           <>
-            {hash.labels.map((hashLabel) => (
-              <HashLabel key={`${hash.md5}-${hashLabel.label}`} hashLabel={hashLabel} />
+            {hash.labels.map((hashLabel, index) => (
+              <HashLabel key={`${hash.md5}-${hashLabel.label}-${index}`} hashLabel={hashLabel} />
             ))}
           </>
         ) : null}
@@ -48,5 +48,5 @@ export const HashLabel: FC<HashLabelProps> = ({ hashLabel }) => {
     return <span>[{label}]</span>;
   }
 
-  return <img className="inline-image" src={imgSrc} />;
+  return <img className="inline-image" src={imgSrc} alt={label} />;
 };

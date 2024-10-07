@@ -87,6 +87,7 @@
         "jsdom": "^22.1.0",
         "laravel-echo": "^1.15.1",
         "laravel-vite-plugin": "^1.0.4",
+        "nock": "^14.0.0-beta.14",
         "postcss": "^8.4.31",
         "postcss-nesting": "^12.1.5",
         "prettier": "3.2.5",

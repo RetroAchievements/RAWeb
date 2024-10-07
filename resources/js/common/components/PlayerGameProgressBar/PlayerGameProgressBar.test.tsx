@@ -60,7 +60,7 @@ describe('Component: PlayerGameProgressBar', () => {
     expect(progressBarEl).toHaveAttribute('aria-valuenow', '8');
   });
 
-  it('given the user has a badge on the game, renders those badge details', () => {
+  it("given the user's highest award for the game is Mastered, renders those award details", () => {
     // ARRANGE
     const system = createSystem({ id: 1 });
     const game = createGame({ system, achievementsPublished: 33 });
@@ -75,6 +75,58 @@ describe('Component: PlayerGameProgressBar', () => {
 
     // ASSERT
     expect(screen.getByText(/mastered/i)).toBeVisible();
+  });
+
+  it("given the user's highest award for the game is Completed, renders those award details", () => {
+    // ARRANGE
+    const system = createSystem({ id: 1 });
+    const game = createGame({ system, achievementsPublished: 33 });
+    const playerGame = createPlayerGame({
+      achievementsUnlocked: 8,
+      achievementsUnlockedHardcore: 8,
+      achievementsUnlockedSoftcore: 0,
+      highestAward: createPlayerBadge({ awardType: AwardType.Mastery, awardDataExtra: 0 }),
+    });
+
+    render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);
+
+    // ASSERT
+    expect(screen.getByText(/completed/i)).toBeVisible();
+  });
+
+  it("given the user's highest award for the game is Beaten (hardcore), renders those award details", () => {
+    // ARRANGE
+    const system = createSystem({ id: 1 });
+    const game = createGame({ system, achievementsPublished: 33 });
+    const playerGame = createPlayerGame({
+      achievementsUnlocked: 8,
+      achievementsUnlockedHardcore: 8,
+      achievementsUnlockedSoftcore: 0,
+      highestAward: createPlayerBadge({ awardType: AwardType.GameBeaten, awardDataExtra: 1 }),
+    });
+
+    render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);
+
+    // ASSERT
+    expect(screen.getByText(/beaten/i)).toBeVisible();
+    expect(screen.queryByText(/softcore/i)).not.toBeInTheDocument();
+  });
+
+  it("given the user's highest award for the game is Beaten (softcore), renders those award details", () => {
+    // ARRANGE
+    const system = createSystem({ id: 1 });
+    const game = createGame({ system, achievementsPublished: 33 });
+    const playerGame = createPlayerGame({
+      achievementsUnlocked: 8,
+      achievementsUnlockedHardcore: 0,
+      achievementsUnlockedSoftcore: 8,
+      highestAward: createPlayerBadge({ awardType: AwardType.GameBeaten, awardDataExtra: 0 }),
+    });
+
+    render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);
+
+    // ASSERT
+    expect(screen.getByText(/beaten \(softcore\)/i)).toBeVisible();
   });
 
   it('given the user has progress on the game and hovers over the progress bar, shows a tooltip with more details', async () => {
