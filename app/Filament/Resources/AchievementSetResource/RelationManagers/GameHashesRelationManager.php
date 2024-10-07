@@ -56,8 +56,7 @@ class GameHashesRelationManager extends RelationManager
 
             ])
             ->actions([
-                Tables\Actions\DetachAction::make()
-                    ->label('Delete'),
+                Tables\Actions\DetachAction::make(),
             ])
             ->headerActions([
                 Tables\Actions\Action::make('attachHashCompatibility')
