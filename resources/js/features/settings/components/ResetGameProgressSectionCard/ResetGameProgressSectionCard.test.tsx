@@ -7,8 +7,10 @@ import {
 } from 'react-intersection-observer/test-utils';
 
 import { render, screen, waitFor } from '@/test';
-import { createPlayerResettableGame } from '@/test/factories';
-import { createPlayerResettableGameAchievement } from '@/test/factories/createPlayerResettableGameAchievement';
+import {
+  createPlayerResettableGame,
+  createPlayerResettableGameAchievement,
+} from '@/test/factories';
 
 import { ResetGameProgressSectionCard } from './ResetGameProgressSectionCard';
 
