@@ -8,9 +8,10 @@ import { useAutoUpdatingQueryParams } from '../../hooks/useAutoUpdatingQueryPara
 import { useGameListState } from '../../hooks/useGameListState';
 import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
 import { wantToPlayGamesDefaultFilters } from '../../utils/wantToPlayGamesDefaultFilters';
+import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
 import { WantToPlayGamesDataTable } from '../WantToPlayGamesDataTable';
 
-export const WantToPlayGamesRoot: FC = () => {
+export const WantToPlayGamesMainRoot: FC = () => {
   const { auth, paginatedGameListEntries } =
     usePageProps<App.Community.Data.UserGameListPageProps>();
 
@@ -42,9 +43,9 @@ export const WantToPlayGamesRoot: FC = () => {
 
   return (
     <div>
-      <div id="pagination-scroll-target" className="scroll-mt-16">
+      <DataTablePaginationScrollTarget>
         <UserHeading user={auth.user}>Want to Play Games</UserHeading>
-      </div>
+      </DataTablePaginationScrollTarget>
 
       <HydrationBoundary state={dehydrate(queryClientWithInitialData)}>
         <WantToPlayGamesDataTable

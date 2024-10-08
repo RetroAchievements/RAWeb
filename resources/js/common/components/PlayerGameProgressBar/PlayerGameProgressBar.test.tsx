@@ -39,6 +39,16 @@ describe('Component: PlayerGameProgressBar', () => {
     expect(progressBarEl).toHaveAttribute('aria-valuenow', '0');
   });
 
+  it('given the user has no progress on the game, does not set the progress bar to a hyperlink', () => {
+    // ARRANGE
+    const game = createGame({ achievementsPublished: 33 });
+
+    render(<PlayerGameProgressBar game={game} playerGame={null} />);
+
+    // ASSERT
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
   it('given the user has progress on the game, renders a progress bar containing progress', () => {
     // ARRANGE
     const system = createSystem({ id: 1 });

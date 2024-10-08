@@ -1,12 +1,8 @@
-import { usePage } from '@inertiajs/react';
-
-import type { AppGlobalProps } from '@/common/models';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { asset } from '@/utils/helpers';
 
 export function useResetNavbarUserPic() {
-  const {
-    props: { auth },
-  } = usePage<AppGlobalProps>();
+  const { auth } = usePageProps();
 
   const resetNavbarUserPic = () => {
     // Using document functions to mutate the DOM is very bad.

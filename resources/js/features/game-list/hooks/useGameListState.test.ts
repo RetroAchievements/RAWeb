@@ -47,7 +47,7 @@ describe('Hook: useGameListState', () => {
     // ASSERT
     const currentValue = result.current as ReturnType<typeof useGameListState>;
 
-    expect(currentValue.sorting).toEqual([]);
+    expect(currentValue.sorting).toEqual([{ id: 'title', desc: false }]);
   });
 
   it('given a sort param, correctly sets the initial sorting state', () => {

@@ -2,6 +2,7 @@ import type { Column, Table } from '@tanstack/react-table';
 import type { FC, HTMLAttributes, ReactNode } from 'react';
 import type { IconType } from 'react-icons/lib';
 import { RxArrowDown, RxArrowUp, RxCaretSort, RxEyeNone } from 'react-icons/rx';
+import type { RouteName } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
@@ -13,7 +14,7 @@ import {
 } from '@/common/components/+vendor/BaseDropdownMenu';
 import { cn } from '@/utils/cn';
 
-import { usePrefetchSort } from '../../hooks/usePrefetchSort';
+import { useDataTablePrefetchSort } from '../../hooks/useDataTablePrefetchSort';
 
 type SortDirection = 'asc' | 'desc';
 type SortConfig = {
@@ -48,6 +49,8 @@ interface DataTableColumnHeaderProps<TData, TValue> extends HTMLAttributes<HTMLD
   table: Table<TData>;
 
   sortType?: SortConfigKind;
+  /** The controller route name where client-side calls for this datatable are made. */
+  tableApiRouteName?: RouteName;
 }
 
 export function DataTableColumnHeader<TData, TValue>({
@@ -55,8 +58,9 @@ export function DataTableColumnHeader<TData, TValue>({
   column,
   table,
   sortType = 'default',
+  tableApiRouteName = 'api.game.index',
 }: DataTableColumnHeaderProps<TData, TValue>): ReactNode {
-  const { prefetchSort } = usePrefetchSort(table);
+  const { prefetchSort } = useDataTablePrefetchSort(table, tableApiRouteName);
 
   if (!column.getCanSort()) {
     return <div className={cn(className)}>{column.columnDef.meta?.label}</div>;

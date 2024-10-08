@@ -2,7 +2,7 @@ import { Head } from '@inertiajs/react';
 
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
-import { WantToPlayGamesRoot } from '@/features/game-list/components/WantToPlayGamesMainRoot';
+import { WantToPlayGamesMainRoot } from '@/features/game-list/components/WantToPlayGamesMainRoot';
 
 const WantToPlayGames: AppPage = () => {
   return (
@@ -13,7 +13,7 @@ const WantToPlayGames: AppPage = () => {
 
       <div className="container">
         <AppLayout.Main>
-          <WantToPlayGamesRoot />
+          <WantToPlayGamesMainRoot />
         </AppLayout.Main>
       </div>
     </>
