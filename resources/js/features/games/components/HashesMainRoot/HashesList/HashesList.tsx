@@ -1,16 +1,14 @@
-import { usePage } from '@inertiajs/react';
 import type { FC } from 'react';
 
 import { Embed } from '@/common/components/Embed/Embed';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { HashesListItem } from './HashesListItem';
 
 export const hashesListContainerTestId = 'hashes-list';
 
 export const HashesList: FC = () => {
-  const {
-    props: { hashes },
-  } = usePage<App.Platform.Data.GameHashesPageProps>();
+  const { hashes } = usePageProps<App.Platform.Data.GameHashesPageProps>();
 
   if (!hashes.length) {
     return null;

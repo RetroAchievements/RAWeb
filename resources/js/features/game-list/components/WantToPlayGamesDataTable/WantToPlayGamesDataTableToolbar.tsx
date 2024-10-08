@@ -5,9 +5,10 @@ import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { formatNumber } from '@/common/utils/l10n/formatNumber';
 
-import { DataTableFacetedFilter } from './DataTableFacetedFilter';
-import { DataTableSearchInput } from './DataTableSearchInput';
-import { DataTableViewOptions } from './DataTableViewOptions';
+import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
+import { DataTableFacetedFilter } from '../DataTableFacetedFilter';
+import { DataTableSearchInput } from '../DataTableSearchInput';
+import { DataTableViewOptions } from '../DataTableViewOptions';
 
 interface WantToPlayGamesDataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -24,7 +25,7 @@ export function WantToPlayGamesDataTableToolbar<TData>({
   const { filterableSystemOptions } = usePageProps<App.Community.Data.UserGameListPageProps>();
 
   const currentFilters = table.getState().columnFilters;
-  const isFiltered = getHasNonDefaultFilters(currentFilters, defaultColumnFilters);
+  const isFiltered = getAreNonDefaultFiltersSet(currentFilters, defaultColumnFilters);
 
   const resetFiltersToDefault = () => {
     if (defaultColumnFilters) {
@@ -100,20 +101,4 @@ export function WantToPlayGamesDataTableToolbar<TData>({
       </div>
     </div>
   );
-}
-
-// Are there any non-default filters set? If so, we need to show the Reset button.
-function getHasNonDefaultFilters(
-  currentFilters: ColumnFiltersState,
-  defaultColumnFilters?: ColumnFiltersState,
-): boolean {
-  if (currentFilters.length !== defaultColumnFilters?.length) {
-    return true;
-  }
-
-  return currentFilters.some((filter, index) => {
-    const defaultFilter = defaultColumnFilters[index];
-
-    return filter.id !== defaultFilter.id || filter.value !== defaultFilter.value;
-  });
 }

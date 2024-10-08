@@ -50,6 +50,10 @@ class Emulator extends BaseModel implements HasMedia
         'source_url',
     ];
 
+    protected $casts = [
+        'active' => 'boolean',
+    ];
+
     public static function boot()
     {
         parent::boot();
