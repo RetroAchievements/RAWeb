@@ -1,22 +1,27 @@
 import type { Table } from '@tanstack/react-table';
 import type { ReactNode } from 'react';
 import { LuArrowLeft, LuArrowLeftToLine, LuArrowRight, LuArrowRightToLine } from 'react-icons/lu';
+import type { RouteName } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { BasePagination, BasePaginationContent } from '@/common/components/+vendor/BasePagination';
 
-import { usePrefetchPagination } from '../../hooks/usePrefetchPagination';
+import { useDataTablePrefetchPagination } from '../../hooks/useDataTablePrefetchPagination';
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
+  tableApiRouteName?: RouteName;
 }
 
-export function DataTablePagination<TData>({ table }: DataTablePaginationProps<TData>): ReactNode {
+export function DataTablePagination<TData>({
+  table,
+  tableApiRouteName = 'api.game.index',
+}: DataTablePaginationProps<TData>): ReactNode {
   const { pagination } = table.getState();
 
   // Given the user hovers over a pagination button, it is very likely they will
   // wind up clicking the button. Queries are cheap, so prefetch the destination page.
-  const { prefetchPagination } = usePrefetchPagination(table);
+  const { prefetchPagination } = useDataTablePrefetchPagination(table, tableApiRouteName);
 
   const handlePageChange = (newPageIndex: number, isNext: boolean) => {
     table.setPageIndex(newPageIndex);

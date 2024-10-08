@@ -4,10 +4,7 @@
  * @param paramName - The name of the query parameter to update.
  * @param newQueryParamValue - The new value for the query parameter.
  */
-export function updateUrlParameter(
-  paramName: string | string[],
-  newQueryParamValue: string | string[],
-) {
+export function updateUrlParameter(paramName: string | string[], newQueryParamValue: unknown) {
   const url = new URL(window.location.href);
   const params = new URLSearchParams(url.search);
 
