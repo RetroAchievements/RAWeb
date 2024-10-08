@@ -9,6 +9,7 @@ use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
 use App\Models\System;
+use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlags;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -68,6 +69,7 @@ class PatchDataTest extends TestCase
             'Released' => 'Jan 1989',
             'RichPresencePatch' => 'Display:\nTest',
         ]);
+
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
         /** @var Achievement $achievement2 */
@@ -86,6 +88,9 @@ class PatchDataTest extends TestCase
         $achievement8 = Achievement::factory()->create(['GameID' => $game->ID, 'BadgeName' => '76543', 'DisplayOrder' => 8]);
         /** @var Achievement $achievement9 */
         $achievement9 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '65432', 'DisplayOrder' => 9]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlags())->execute($game);
+
         /** @var Leaderboard $leaderboard1 */
         $leaderboard1 = Leaderboard::factory()->create(['GameID' => $game->ID, 'DisplayOrder' => 2]);
         /** @var Leaderboard $leaderboard2 */
