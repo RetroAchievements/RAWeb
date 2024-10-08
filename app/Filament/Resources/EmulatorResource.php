@@ -30,7 +30,7 @@ class EmulatorResource extends Resource
 
     protected static ?string $navigationGroup = 'Platform';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 30;
 
     protected static ?string $recordTitleAttribute = 'name';
 
