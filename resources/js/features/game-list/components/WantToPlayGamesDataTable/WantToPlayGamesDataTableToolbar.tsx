@@ -6,7 +6,7 @@ import { formatNumber } from '@/common/utils/l10n/formatNumber';
 import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
 import { DataTableAchievementsPublishedFilter } from '../DataTableAchievementsPublishedFilter';
 import { DataTableFacetedFilter } from '../DataTableFacetedFilter';
-import { DataTableResetFiltersButton } from '../DataTableResetFiltersButton/DataTableResetFiltersButton';
+import { DataTableResetFiltersButton } from '../DataTableResetFiltersButton';
 import { DataTableSearchInput } from '../DataTableSearchInput';
 import { DataTableViewOptions } from '../DataTableViewOptions';
 
