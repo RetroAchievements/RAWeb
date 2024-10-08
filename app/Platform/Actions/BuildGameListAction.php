@@ -260,7 +260,7 @@ class BuildGameListAction
                  * game title, with tagged games placed at the bottom of the list
                  */
                 case 'title':
-                    $this->applyGameTitleSorting($query, $sortDirection);
+                    $query->orderBy('GameData.sort_title', $sortDirection);
                     break;
 
                 /*
@@ -356,54 +356,14 @@ class BuildGameListAction
                  * if we have no idea what the user is trying to sort by, fall back to sorting by title
                  */
                 default:
-                    $this->applyGameTitleSorting($query, $sortDirection);
+                    $query->orderBy('GameData.sort_title', $sortDirection);
+                    break;
             }
         }
 
         // Default to sorting by title if no valid sort field is provided.
         // Otherwise, always secondary sort by title.
-        $this->applyGameTitleSorting($query);
-    }
-
-    /**
-     * Ensure games on the list are sorted properly.
-     * For titles starting with "~", the sort order is determined by the content
-     * within the "~" markers followed by the content after the "~". This ensures
-     * that titles with "~" are grouped together and sorted alphabetically based
-     * on their designated categories and then by their actual game title.
-     *
-     * The "~" prefix is retained in the SortTitle of games with "~" to ensure these
-     * games are sorted at the end of the list, maintaining a clear separation from
-     * non-prefixed titles. This approach allows game titles to be grouped and sorted
-     * in a specific order:
-     *
-     * 1. Non-prefixed titles are sorted alphabetically at the beginning of the list.
-     * 2. Titles prefixed with "~" are grouped at the end, sorted first by the category
-     *    specified within the "~" markers, and then alphabetically by the title following
-     *    the "~".
-     *
-     * @param Builder<Game> $query
-     */
-    private function applyGameTitleSorting(Builder $query, string $sortDirection = 'asc'): void
-    {
-        // We're extra careful here to use functions supported by both MariaDB
-        // and SQLite. This is preferable to altering the query specifically for
-        // SQLite, because if we do so then we can't actually trust any test results.
-        $query
-            ->selectRaw(
-                "GameData.*,
-                CASE
-                    WHEN GameData.Title LIKE '~%' THEN 1
-                    ELSE 0
-                END AS SortPrefix,
-                CASE 
-                    WHEN GameData.Title LIKE '~%' THEN
-                        '~' || SUBSTR(GameData.Title, 2, INSTR(SUBSTR(GameData.Title, 2), '~') - 1) || ' ' || TRIM(SUBSTR(GameData.Title, INSTR(GameData.Title, '~') + 1))
-                    ELSE GameData.Title
-                END AS SortTitle"
-            )
-            ->orderByRaw('SortPrefix ' . $sortDirection)
-            ->orderByRaw('SortTitle ' . $sortDirection);
+        $query->orderBy('GameData.sort_title', 'asc');
     }
 
     /**
@@ -461,7 +421,7 @@ class BuildGameListAction
     {
         // If there's no user, then we have no progress to sort by. Bail.
         if (!$user) {
-            $this->applyGameTitleSorting($query, $sortDirection);
+            $query->orderBy('GameData.sort_title', $sortDirection);
 
             return;
         }

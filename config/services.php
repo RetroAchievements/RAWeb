@@ -21,6 +21,7 @@ return [
         'webhook' => [
             // public
             'achievements' => env('DISCORD_WEBHOOK_ACHIEVEMENTS'),
+            'claims' => env('DISCORD_WEBHOOK_CLAIMS'),
             'news' => env('DISCORD_WEBHOOK_NEWS'),
             'users' => env('DISCORD_WEBHOOK_USERS'),
             // moderation
