@@ -39,6 +39,16 @@ describe('Component: PlayerGameProgressBar', () => {
     expect(progressBarEl).toHaveAttribute('aria-valuenow', '0');
   });
 
+  it('given the user has no progress on the game, does not set the progress bar to a hyperlink', () => {
+    // ARRANGE
+    const game = createGame({ achievementsPublished: 33 });
+
+    render(<PlayerGameProgressBar game={game} playerGame={null} />);
+
+    // ASSERT
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
   it('given the user has progress on the game, renders a progress bar containing progress', () => {
     // ARRANGE
     const system = createSystem({ id: 1 });
@@ -58,6 +68,25 @@ describe('Component: PlayerGameProgressBar', () => {
     expect(progressBarEl).toBeVisible();
     expect(progressBarEl).toHaveAttribute('aria-valuemax', String(game.achievementsPublished));
     expect(progressBarEl).toHaveAttribute('aria-valuenow', '8');
+  });
+
+  it('given the user has progress on the game, makes the progress bar a hyperlink', () => {
+    // ARRANGE
+    const system = createSystem({ id: 1 });
+    const game = createGame({ system, achievementsPublished: 33, title: 'Dragon Quest' });
+    const playerGame = createPlayerGame({
+      achievementsUnlocked: 8,
+      achievementsUnlockedHardcore: 8,
+      achievementsUnlockedSoftcore: 0,
+      highestAward: null,
+    });
+
+    render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);
+
+    // ASSERT
+    const linkEl = screen.getByRole('link', { name: /navigate to dragon quest/i });
+
+    expect(linkEl).toHaveAttribute('href', `game.show,${{ game: game.id }}`);
   });
 
   it('given the user has a badge on the game, renders those badge details', () => {

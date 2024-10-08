@@ -64,7 +64,6 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::middleware(['web', 'csp'])->group(function () {
             Route::get('download.php', fn () => $this->handlePageRequest('download'))->name('download.index');
-            Route::get('gameList.php', fn () => $this->handlePageRequest('gameList'))->name('game.index');
             Route::get('{path}.php', fn (string $path) => $this->handlePageRequest($path))->where('path', '(.*)');
             Route::get('user/{user}', fn (string $user) => $this->handlePageRequest('userInfo', $user))->name('user.show');
             Route::get('achievement/{achievement}{slug?}', fn ($achievement) => $this->handlePageRequest('achievementInfo', $achievement))->name('achievement.show');
