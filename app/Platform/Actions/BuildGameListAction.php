@@ -456,7 +456,10 @@ class BuildGameListAction
                 break;
 
             case 'none':
-                $query->where('GameData.achievements_published', 0);
+                $query->where(function ($q) {
+                    $q->where('GameData.achievements_published', 0)
+                        ->orWhereNull('GameData.achievements_published');
+                });
                 break;
 
             case 'either':
