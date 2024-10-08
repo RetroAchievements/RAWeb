@@ -238,7 +238,6 @@ declare module 'ziggy-js' {
         }
     ],
     "games.suggest": [],
-    "claims.index": [],
     "claims.expiring": [],
     "claims.completed": [],
     "claims.active": [],
