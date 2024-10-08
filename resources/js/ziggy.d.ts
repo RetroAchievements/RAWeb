@@ -242,6 +242,7 @@ declare module 'ziggy-js' {
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],
+    "api.game.index": [],
     "game.hashes.index": [
         {
             "name": "game",
@@ -249,6 +250,7 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.index": [],
     "game.random": [],
     "api.user.game.destroy": [
         {
@@ -369,7 +371,6 @@ declare module 'ziggy-js' {
     "password.confirmation": [],
     "password.confirm": [],
     "download.index": [],
-    "game.index": [],
     "user.show": [
         {
             "name": "user",

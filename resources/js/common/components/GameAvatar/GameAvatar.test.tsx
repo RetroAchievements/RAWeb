@@ -108,4 +108,14 @@ describe('Component: GameAvatar', () => {
 
     expect(xDataAttribute).toContain(`dynamicContext: 'televandalist'`);
   });
+
+  it('can be configured to not show an image', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+
+    render(<GameAvatar {...game} showImage={false} />);
+
+    // ASSERT
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
 });

@@ -12,25 +12,22 @@ import {
   createZiggyProps,
 } from '@/test/factories';
 
-import { WantToPlayGamesRoot } from './WantToPlayGamesRoot';
+import { AllGamesMainRoot } from './AllGamesMainRoot';
 
 // Suppress AggregateError invocations from unmocked fetch calls to the back-end.
 console.error = vi.fn();
 
-describe('Component: WantToPlayGamesRoot', () => {
+describe('Component: AllGamesMainRoot', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Community.Data.UserGameListPageProps>(
-      <WantToPlayGamesRoot />,
-      {
-        pageProps: {
-          filterableSystemOptions: [],
-          paginatedGameListEntries: createPaginatedData([]),
-          can: { develop: false },
-          ziggy: createZiggyProps(),
-        },
+    const { container } = render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+      pageProps: {
+        filterableSystemOptions: [],
+        paginatedGameListEntries: createPaginatedData([]),
+        can: { develop: false },
+        ziggy: createZiggyProps(),
       },
-    );
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -38,7 +35,7 @@ describe('Component: WantToPlayGamesRoot', () => {
 
   it('displays default columns', () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -74,7 +71,7 @@ describe('Component: WantToPlayGamesRoot', () => {
       releasedAtGranularity: 'day',
     });
 
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -93,6 +90,46 @@ describe('Component: WantToPlayGamesRoot', () => {
     expect(screen.getByRole('cell', { name: '500 (1,000)' })).toBeVisible();
     expect(screen.getByRole('cell', { name: '×2.00' })).toBeVisible();
     expect(screen.getByRole('cell', { name: 'Aug 24, 2006' })).toBeVisible();
+  });
+
+  it('allows users to add games to their backlog', async () => {
+    // ARRANGE
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
+
+    const mockSystem = createSystem({
+      nameShort: 'MD',
+      iconUrl: 'https://retroachievements.org/test.png',
+    });
+
+    const mockGame = createGame({
+      title: 'Sonic the Hedgehog',
+      system: mockSystem,
+      achievementsPublished: 42,
+      pointsTotal: 500,
+      pointsWeighted: 1000,
+      releasedAt: '2006-08-24T00:56:00+00:00',
+      releasedAtGranularity: 'day',
+    });
+
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        filterableSystemOptions: [],
+        paginatedGameListEntries: createPaginatedData([
+          createGameListEntry({ game: mockGame, isInBacklog: false }),
+        ]),
+        can: { develop: false },
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /add to want to play/i }));
+
+    // ASSERT
+    expect(postSpy).toHaveBeenCalledWith(['api.user-game-list.store', mockGame.id], {
+      userGameListType: UserGameListType.Play,
+    });
   });
 
   it('allows users to remove games from their backlog', async () => {
@@ -114,11 +151,13 @@ describe('Component: WantToPlayGamesRoot', () => {
       releasedAtGranularity: 'day',
     });
 
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
-        paginatedGameListEntries: createPaginatedData([createGameListEntry({ game: mockGame })]),
+        paginatedGameListEntries: createPaginatedData([
+          createGameListEntry({ game: mockGame, isInBacklog: true }),
+        ]),
         can: { develop: false },
         ziggy: createZiggyProps(),
       },
@@ -155,11 +194,13 @@ describe('Component: WantToPlayGamesRoot', () => {
       releasedAtGranularity: 'day',
     });
 
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
-        paginatedGameListEntries: createPaginatedData([createGameListEntry({ game: mockGame })]),
+        paginatedGameListEntries: createPaginatedData([
+          createGameListEntry({ game: mockGame, isInBacklog: true }),
+        ]),
         can: { develop: false },
         ziggy: createZiggyProps(),
       },
@@ -183,7 +224,7 @@ describe('Component: WantToPlayGamesRoot', () => {
 
   it('allows users to toggle column visibility', async () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -203,7 +244,7 @@ describe('Component: WantToPlayGamesRoot', () => {
 
   it('given the user cannot develop achievements, they cannot enable an Open Tickets column', async () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -224,7 +265,7 @@ describe('Component: WantToPlayGamesRoot', () => {
 
   it('given the user can develop achievements, they can enable an Open Tickets column', async () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -261,7 +302,7 @@ describe('Component: WantToPlayGamesRoot', () => {
       numUnresolvedTickets: 2,
     });
 
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -283,7 +324,7 @@ describe('Component: WantToPlayGamesRoot', () => {
     // ARRANGE
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -299,12 +340,12 @@ describe('Component: WantToPlayGamesRoot', () => {
     // ASSERT
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
-        'api.user-game-list.index',
+        'api.game.index',
         {
           'filter[achievementsPublished]': 'has',
           'filter[title]': 'dragon quest',
           'page[number]': 1,
-          sort: null,
+          sort: 'title',
         },
       ]);
     });
@@ -312,7 +353,7 @@ describe('Component: WantToPlayGamesRoot', () => {
 
   it('by default, has the achievements published filter set to "Yes"', () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -331,7 +372,7 @@ describe('Component: WantToPlayGamesRoot', () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [
@@ -353,12 +394,12 @@ describe('Component: WantToPlayGamesRoot', () => {
 
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
-        'api.user-game-list.index',
+        'api.game.index',
         {
           'filter[achievementsPublished]': 'has',
           'filter[system]': '1',
           'page[number]': 1,
-          sort: null,
+          sort: 'title',
         },
       ]);
     });
@@ -371,7 +412,7 @@ describe('Component: WantToPlayGamesRoot', () => {
       .mockResolvedValueOnce({ data: createPaginatedData([]) })
       .mockResolvedValueOnce({ data: createPaginatedData([]) }); // the GET will be called twice
 
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [
@@ -404,7 +445,7 @@ describe('Component: WantToPlayGamesRoot', () => {
       data: createPaginatedData([], { total: 3, unfilteredTotal: 587 }),
     });
 
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -430,7 +471,7 @@ describe('Component: WantToPlayGamesRoot', () => {
 
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -447,11 +488,11 @@ describe('Component: WantToPlayGamesRoot', () => {
     // ASSERT
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
-        'api.user-game-list.index',
+        'api.game.index',
         {
           'filter[achievementsPublished]': 'none',
           'page[number]': 1,
-          sort: null,
+          sort: 'title',
         },
       ]);
     });
@@ -462,7 +503,7 @@ describe('Component: WantToPlayGamesRoot', () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -479,7 +520,7 @@ describe('Component: WantToPlayGamesRoot', () => {
     // ASSERT
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
-        'api.user-game-list.index',
+        'api.game.index',
         {
           'filter[achievementsPublished]': 'has',
           'page[number]': 1,
@@ -494,7 +535,7 @@ describe('Component: WantToPlayGamesRoot', () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -511,7 +552,7 @@ describe('Component: WantToPlayGamesRoot', () => {
     // ASSERT
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
-        'api.user-game-list.index',
+        'api.game.index',
         {
           'filter[achievementsPublished]': 'has',
           'page[number]': 1,
@@ -526,7 +567,7 @@ describe('Component: WantToPlayGamesRoot', () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -543,7 +584,7 @@ describe('Component: WantToPlayGamesRoot', () => {
     // ASSERT
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
-        'api.user-game-list.index',
+        'api.game.index',
         {
           'filter[achievementsPublished]': 'has',
           'page[number]': 1,
@@ -555,7 +596,7 @@ describe('Component: WantToPlayGamesRoot', () => {
 
   it('allows the user to hide a column via the column header button', async () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -575,7 +616,7 @@ describe('Component: WantToPlayGamesRoot', () => {
 
   it('always displays the number of total games', () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -594,7 +635,7 @@ describe('Component: WantToPlayGamesRoot', () => {
     window.scrollTo = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -614,11 +655,11 @@ describe('Component: WantToPlayGamesRoot', () => {
     // ASSERT
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
-        'api.user-game-list.index',
+        'api.game.index',
         {
           'filter[achievementsPublished]': 'has',
           'page[number]': 2,
-          sort: null,
+          sort: 'title',
         },
       ]);
     });
@@ -626,7 +667,7 @@ describe('Component: WantToPlayGamesRoot', () => {
 
   it("given the user presses the '/' hotkey, focuses the search input", async () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesRoot />, {
+    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],

@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import type { FC } from 'react';
 
 import {
@@ -34,7 +35,9 @@ export const AchievementBreadcrumbs: FC<AchievementBreadcrumbsProps> = ({
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
           <BaseBreadcrumbItem>
-            <BaseBreadcrumbLink href="/gameList.php">All Games</BaseBreadcrumbLink>
+            <BaseBreadcrumbLink asChild>
+              <Link href={route('game.index')}>All Games</Link>
+            </BaseBreadcrumbLink>
           </BaseBreadcrumbItem>
 
           {system ? (

@@ -4,7 +4,7 @@ import type { ValueOf } from 'type-fest';
 
 import { UserGameListType } from '../utils/generatedAppConstants';
 
-export function useAddToBacklogMutation() {
+export function useAddToGameListMutation() {
   return useMutation({
     mutationFn: (
       gameId: number,

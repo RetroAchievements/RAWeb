@@ -178,6 +178,11 @@ declare namespace App.Platform.Data {
     playerGame: App.Platform.Data.PlayerGame | null;
     isInBacklog: boolean | null;
   };
+  export type GameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
+    paginatedGameListEntries: App.Data.PaginatedData<TItems>;
+    filterableSystemOptions: Array<App.Platform.Data.System>;
+    can: App.Data.UserPermissions;
+  };
   export type PlayerBadge = {
     awardType: number;
     awardData: number;

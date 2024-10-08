@@ -32,7 +32,7 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
               ) : null}
 
               {topic.latestComment?.createdAt ? (
-                <span className="smalldate">
+                <span className="smalldate" data-testid="timestamp">
                   <PostTimestamp
                     asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates ?? false}
                     postedAt={topic.latestComment.createdAt}

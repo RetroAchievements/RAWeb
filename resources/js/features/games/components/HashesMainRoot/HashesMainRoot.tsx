@@ -1,18 +1,16 @@
-import { usePage } from '@inertiajs/react';
 import type { FC } from 'react';
 import { LuSave } from 'react-icons/lu';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { Embed } from '@/common/components/Embed/Embed';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { GameBreadcrumbs } from '../GameBreadcrumbs';
 import { GameHeading } from '../GameHeading/GameHeading';
 import { HashesList } from './HashesList';
 
 export const HashesMainRoot: FC = () => {
-  const {
-    props: { can, game, hashes },
-  } = usePage<App.Platform.Data.GameHashesPageProps>();
+  const { can, game, hashes } = usePageProps<App.Platform.Data.GameHashesPageProps>();
 
   return (
     <div>

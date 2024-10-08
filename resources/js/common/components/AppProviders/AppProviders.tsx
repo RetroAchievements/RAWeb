@@ -22,7 +22,7 @@ export const AppProviders: FC<AppProvidersProps> = ({ children }) => {
 
         {/* Everything below this line is excluded from prod builds. */}
         {import.meta.env.VITE_REACT_QUERY_DEVTOOLS_ENABLED === 'true' ? (
-          <div className="text-lg">
+          <div className="text-lg" data-testid="query-devtools">
             <ReactQueryDevtools />
           </div>
         ) : null}
