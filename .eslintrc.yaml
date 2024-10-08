@@ -27,6 +27,9 @@ settings:
   import/resolver:
     typescript: {} # this loads tsconfig.json to eslint
 
+  react:
+    version: detect
+
 globals:
   Atomics: readonly
   SharedArrayBuffer: readonly
