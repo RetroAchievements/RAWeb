@@ -121,11 +121,13 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
         return [$mainID, $renderedMain, $subsetID ?? null, $renderedSubset ?? null];
     };
 
+    $allGamesHref = route('game.index');
+
     $gameListHref = System::isGameSystem($consoleID)
         ? route('system.game.index', ['system' => $consoleID])
         : '/gameList.php?c=' . $consoleID;
 
-    $html = "<a href='/gameList.php'>All Games</a>"
+    $html = "<a href='" . $allGamesHref . "'>All Games</a>"
         . $nextCrumb($consoleName, $gameListHref);
 
     [$mainID, $renderedMain, $subsetID, $renderedSubset] = $getSplitData($data);
