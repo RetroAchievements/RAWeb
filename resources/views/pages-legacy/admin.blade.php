@@ -154,39 +154,6 @@ $staticData = StaticData::first();
     </section>
 
     <section class="mb-4">
-        <h4>Migrate Achievements</h4>
-        <form method="post" action="request/admin.php">
-            @csrf()
-            <input type="hidden" name="action" value="migrate-achievement">
-            <table class="mb-1">
-                <colgroup>
-                    <col>
-                    <col class="w-full">
-                </colgroup>
-                <tbody>
-                <tr>
-                    <td class="whitespace-nowrap">
-                        <label for="achievement_id">Achievement IDs</label>
-                    </td>
-                    <td>
-                        <input id="achievement_id" name="a">
-                    </td>
-                </tr>
-                <tr>
-                    <td class="whitespace-nowrap">
-                        <label for="game_id">New game to transfer achievements to</label>
-                    </td>
-                    <td>
-                        <input id="game_id" name="g">
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <button class="btn">Submit</button>
-        </form>
-    </section>
-
-    <section class="mb-4">
         <?php
         $eventAotwAchievementID = $staticData['Event_AOTW_AchievementID'] ?? null;
         $eventAotwStartAt = $staticData['Event_AOTW_StartAt'] ?? null;
