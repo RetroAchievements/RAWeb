@@ -8,6 +8,7 @@ export * from './createPaginatedData';
 export * from './createPlayerBadge';
 export * from './createPlayerGame';
 export * from './createPlayerResettableGame';
+export * from './createPlayerResettableGameAchievement';
 export * from './createRecentActiveForumTopic';
 export * from './createSystem';
 export * from './createUser';

@@ -2,6 +2,7 @@
 
 import react from '@vitejs/plugin-react';
 import { existsSync, readFileSync } from 'fs';
+import i18n from 'laravel-react-i18n/vite';
 import laravel from 'laravel-vite-plugin';
 import { homedir } from 'os';
 import { resolve } from 'path';
@@ -37,6 +38,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         refresh: ['resources/views/**'],
       }),
       react(),
+      i18n(),
     ],
 
     ssr: {

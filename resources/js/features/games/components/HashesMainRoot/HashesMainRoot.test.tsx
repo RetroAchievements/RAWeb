@@ -31,4 +31,18 @@ describe('Component: HashesMainRoot', () => {
     // ASSERT
     expect(screen.getByRole('link', { name: /manage hashes/i })).toBeVisible();
   });
+
+  it('given the game has no forum topic, does not render a forum topic link', () => {
+    // ARRANGE
+    render<App.Platform.Data.GameHashesPageProps>(<HashesMainRoot />, {
+      pageProps: {
+        can: { manageGameHashes: true },
+        game: createGame({ forumTopicId: undefined }),
+        hashes: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/official forum topic/i)).not.toBeInTheDocument();
+  });
 });

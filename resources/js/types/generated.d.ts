@@ -62,8 +62,9 @@ declare namespace App.Data {
     isMuted: boolean;
     id?: number;
     username?: string | null;
-    motto?: string;
     legacyPermissions?: number | null;
+    locale?: string | null;
+    motto?: string;
     preferences?: { prefersAbsoluteDates: boolean };
     roles?: App.Models.UserRole[];
     apiKey?: string | null;
@@ -176,6 +177,11 @@ declare namespace App.Platform.Data {
     game: App.Platform.Data.Game;
     playerGame: App.Platform.Data.PlayerGame | null;
     isInBacklog: boolean | null;
+  };
+  export type GameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
+    paginatedGameListEntries: App.Data.PaginatedData<TItems>;
+    filterableSystemOptions: Array<App.Platform.Data.System>;
+    can: App.Data.UserPermissions;
   };
   export type PlayerBadge = {
     awardType: number;

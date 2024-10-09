@@ -19,7 +19,7 @@ describe('Component: AchievementBreadcrumbs', () => {
     // ASSERT
     const allGamesLinkEl = screen.getByRole('link', { name: /all games/i });
     expect(allGamesLinkEl).toBeVisible();
-    expect(allGamesLinkEl).toHaveAttribute('href', '/gameList.php');
+    expect(allGamesLinkEl).toHaveAttribute('href', 'game.index');
   });
 
   it('given a system, has a link to the system games list', () => {
