@@ -3,6 +3,7 @@
 
 import { createInertiaApp } from '@inertiajs/react';
 import createServer from '@inertiajs/react/server';
+import dayjs from 'dayjs';
 import { LaravelReactI18nProvider } from 'laravel-react-i18n';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import ReactDOMServer from 'react-dom/server';
@@ -27,7 +28,7 @@ createServer(
       resolve: (name) =>
         resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
 
-      setup: ({ App, props }) => {
+      async setup({ App, props }) {
         global.route<RouteName> = (name, params, absolute) =>
           route(name, params as RouteParams<string & object>, absolute, {
             ...page.props.ziggy,
@@ -36,6 +37,18 @@ createServer(
 
         const globalProps = props.initialPage.props as AppGlobalProps;
         const userLocale = globalProps.auth?.user.locale ?? 'en_US';
+
+        /**
+         * TODO if more locales are added, break this out into a util
+         */
+        if (userLocale === 'pt_BR') {
+          try {
+            await import('dayjs/locale/pt-br.js');
+            dayjs.locale('pt-br');
+          } catch (err) {
+            console.warn('Unable to load Day.js locale for pt_BR.', err);
+          }
+        }
 
         return (
           <LaravelReactI18nProvider

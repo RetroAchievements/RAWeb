@@ -1,9 +1,10 @@
 import type { ColumnFiltersState, Table } from '@tanstack/react-table';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { RxCross2 } from 'react-icons/rx';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
+import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { formatNumber } from '@/common/utils/l10n/formatNumber';
 
 import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
 import { DataTableFacetedFilter } from '../DataTableFacetedFilter';
@@ -23,6 +24,10 @@ export function AllGamesDataTableToolbar<TData>({
   defaultColumnFilters = [],
 }: AllGamesDataTableToolbarProps<TData>) {
   const { filterableSystemOptions } = usePageProps<App.Platform.Data.GameListPageProps>();
+
+  const { t, tChoice } = useLaravelReactI18n();
+
+  const { formatNumber } = useFormatNumber();
 
   const currentFilters = table.getState().columnFilters;
   const isFiltered = getAreNonDefaultFiltersSet(currentFilters, defaultColumnFilters);
@@ -44,7 +49,7 @@ export function AllGamesDataTableToolbar<TData>({
           <DataTableFacetedFilter
             className="w-full sm:w-auto"
             column={table.getColumn('system')}
-            title="System"
+            title={t('System')}
             options={filterableSystemOptions
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((system) => ({
@@ -59,11 +64,11 @@ export function AllGamesDataTableToolbar<TData>({
           <DataTableFacetedFilter
             className="w-full sm:w-auto"
             column={table.getColumn('achievementsPublished')}
-            title="Has achievements"
+            title={t('Has achievements')}
             options={[
-              { label: 'Yes', value: 'has' },
-              { label: 'No', value: 'none' },
-              { label: 'Either', value: 'either' },
+              { label: t('Yes'), value: 'has' },
+              { label: t('No'), value: 'none' },
+              { label: t('Either'), value: 'either' },
             ]}
             isSearchable={false}
             isSingleSelect={true}
@@ -77,7 +82,7 @@ export function AllGamesDataTableToolbar<TData>({
             onClick={resetFiltersToDefault}
             className="border-dashed px-2 text-link lg:px-3"
           >
-            Reset <RxCross2 className="ml-2 h-4 w-4" />
+            {t('Reset')} <RxCross2 className="ml-2 h-4 w-4" />
           </BaseButton>
         ) : null}
       </div>
@@ -86,13 +91,16 @@ export function AllGamesDataTableToolbar<TData>({
         <p className="text-neutral-200 light:text-neutral-900">
           {unfilteredTotal && unfilteredTotal !== table.options.rowCount ? (
             <>
-              {formatNumber(table.options.rowCount ?? 0)} of {formatNumber(unfilteredTotal)}{' '}
-              {unfilteredTotal === 1 ? 'game' : 'games'}
+              {tChoice(':count of :total game|:count of :total games', unfilteredTotal, {
+                count: formatNumber(table.options.rowCount ?? 0),
+                total: formatNumber(unfilteredTotal),
+              })}
             </>
           ) : (
             <>
-              {formatNumber(table.options.rowCount ?? 0)}{' '}
-              {table.options.rowCount === 1 ? 'game' : 'games'}
+              {tChoice(':count game|:count games', table.options.rowCount ?? 0, {
+                count: formatNumber(table.options.rowCount ?? 0),
+              })}
             </>
           )}
         </p>

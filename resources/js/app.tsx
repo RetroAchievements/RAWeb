@@ -1,4 +1,5 @@
 import { createInertiaApp } from '@inertiajs/react';
+import dayjs from 'dayjs';
 import { LaravelReactI18nProvider } from 'laravel-react-i18n';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot, hydrateRoot } from 'react-dom/client';
@@ -14,28 +15,24 @@ createInertiaApp({
   resolve: (name) =>
     resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
 
-  setup({ el, App, props }) {
+  // @ts-expect-error -- async setup() breaks type rules, but is actually supported.
+  async setup({ el, App, props }) {
     const globalProps = props.initialPage.props as unknown as AppGlobalProps;
     const userLocale = globalProps.auth?.user.locale ?? 'en_US';
 
-    if (import.meta.env.DEV) {
-      createRoot(el).render(
-        <LaravelReactI18nProvider
-          locale={userLocale}
-          fallbackLocale="en_US"
-          files={import.meta.glob('/lang/*.json', { eager: true })}
-        >
-          <AppProviders>
-            <App {...props} />
-          </AppProviders>
-        </LaravelReactI18nProvider>,
-      );
-
-      return;
+    /**
+     * TODO if more locales are added, break this out into a util
+     */
+    if (userLocale === 'pt_BR') {
+      try {
+        await import('dayjs/locale/pt-br.js');
+        dayjs.locale('pt-br');
+      } catch (err) {
+        console.warn('Unable to load Day.js locale for pt_BR.', err);
+      }
     }
 
-    hydrateRoot(
-      el,
+    const appElement = (
       <LaravelReactI18nProvider
         locale={userLocale}
         fallbackLocale="en_US"
@@ -44,8 +41,16 @@ createInertiaApp({
         <AppProviders>
           <App {...props} />
         </AppProviders>
-      </LaravelReactI18nProvider>,
+      </LaravelReactI18nProvider>
     );
+
+    if (import.meta.env.DEV) {
+      createRoot(el).render(appElement);
+
+      return;
+    }
+
+    hydrateRoot(el, appElement);
   },
 
   progress: {

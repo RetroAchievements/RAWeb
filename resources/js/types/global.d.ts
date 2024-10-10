@@ -57,7 +57,7 @@ declare global {
 declare module '@tanstack/react-table' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- this is valid
   interface ColumnMeta<TData, TValue> {
-    label: string;
+    t_label: string;
 
     align?: 'right' | 'left' | 'center';
   }

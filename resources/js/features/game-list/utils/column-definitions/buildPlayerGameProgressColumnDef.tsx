@@ -6,16 +6,19 @@ import { PlayerGameProgressBar } from '@/common/components/PlayerGameProgressBar
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 
 interface BuildPlayerGameProgressColumnDefProps {
+  t_label: string;
+
   tableApiRouteName?: RouteName;
 }
 
 export function buildPlayerGameProgressColumnDef({
+  t_label,
   tableApiRouteName = 'api.game.index',
 }: BuildPlayerGameProgressColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
     id: 'progress',
     accessorKey: 'game',
-    meta: { label: 'Progress', align: 'left' },
+    meta: { t_label, align: 'left' },
     header: ({ column, table }) => (
       <DataTableColumnHeader
         column={column}
