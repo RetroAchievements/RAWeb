@@ -2,7 +2,9 @@
  * Number.prototype.toLocaleString() can be quite slow if called frequently.
  * User Intl.NumberFormat with a given locale is generally much faster.
  *
- * 👉 This is a low-level utility. Consider `useFormatNumber()` instead.
+ * 👉 This is a low-level utility. It requires you to manually pass in the
+ *    user's locale in order to display correctly-formatted numbers.
+ *    Consider `useFormatNumber()` instead. It automates that away.
  *
  * @returns A localized number. eg: 12345 -> "12,345"
  */

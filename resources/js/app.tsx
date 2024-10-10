@@ -1,11 +1,11 @@
 import { createInertiaApp } from '@inertiajs/react';
-import dayjs from 'dayjs';
 import { LaravelReactI18nProvider } from 'laravel-react-i18n';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 
 import { AppProviders } from './common/components/AppProviders';
 import type { AppGlobalProps } from './common/models';
+import { loadDayjsLocale } from './common/utils/l10n/loadDayjsLocale';
 
 const appName = import.meta.env.APP_NAME || 'RetroAchievements';
 
@@ -20,17 +20,7 @@ createInertiaApp({
     const globalProps = props.initialPage.props as unknown as AppGlobalProps;
     const userLocale = globalProps.auth?.user.locale ?? 'en_US';
 
-    /**
-     * TODO if more locales are added, break this out into a util
-     */
-    if (userLocale === 'pt_BR') {
-      try {
-        await import('dayjs/locale/pt-br.js');
-        dayjs.locale('pt-br');
-      } catch (err) {
-        console.warn('Unable to load Day.js locale for pt_BR.', err);
-      }
-    }
+    await loadDayjsLocale(userLocale);
 
     const appElement = (
       <LaravelReactI18nProvider

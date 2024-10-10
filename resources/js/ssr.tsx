@@ -3,7 +3,6 @@
 
 import { createInertiaApp } from '@inertiajs/react';
 import createServer from '@inertiajs/react/server';
-import dayjs from 'dayjs';
 import { LaravelReactI18nProvider } from 'laravel-react-i18n';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import ReactDOMServer from 'react-dom/server';
@@ -12,6 +11,7 @@ import type { RouteName, RouteParams } from 'ziggy-js';
 import { route } from '../../vendor/tightenco/ziggy';
 import { AppProviders } from './common/components/AppProviders';
 import type { AppGlobalProps } from './common/models';
+import { loadDayjsLocale } from './common/utils/l10n/loadDayjsLocale';
 
 const appName = import.meta.env.APP_NAME ?? 'RetroAchievements';
 const inertiaDaemonPort = import.meta.env.VITE_INERTIA_SSR_PORT ?? 13714;
@@ -38,17 +38,7 @@ createServer(
         const globalProps = props.initialPage.props as AppGlobalProps;
         const userLocale = globalProps.auth?.user.locale ?? 'en_US';
 
-        /**
-         * TODO if more locales are added, break this out into a util
-         */
-        if (userLocale === 'pt_BR') {
-          try {
-            await import('dayjs/locale/pt-br.js');
-            dayjs.locale('pt-br');
-          } catch (err) {
-            console.warn('Unable to load Day.js locale for pt_BR.', err);
-          }
-        }
+        await loadDayjsLocale(userLocale);
 
         return (
           <LaravelReactI18nProvider
