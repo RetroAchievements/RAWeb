@@ -60,9 +60,9 @@ class UserCommentPolicy
             || $commentable->isBlocking($user)
             || !$commentable->UserWallActive
             || (
-                $commentable->only_allows_contact_from_followers
+                !$user->is($commentable)
+                && $commentable->only_allows_contact_from_followers
                 && !$commentable->isFollowing($user)
-                && !$user->is($commentable)
             )
         ) {
             return false;
