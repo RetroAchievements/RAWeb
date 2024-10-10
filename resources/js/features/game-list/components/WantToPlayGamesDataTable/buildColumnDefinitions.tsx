@@ -2,6 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 
 import { buildAchievementsPublishedColumnDef } from '../../utils/column-definitions/buildAchievementsPublishedColumnDef';
+import { buildHasActiveOrInReviewClaimsColumnDef } from '../../utils/column-definitions/buildHasActiveOrInReviewClaimsColumnDef';
 import { buildLastUpdatedColumnDef } from '../../utils/column-definitions/buildLastUpdatedColumnDef';
 import { buildNumUnresolvedTicketsColumnDef } from '../../utils/column-definitions/buildNumUnresolvedTicketsColumnDef';
 import { buildNumVisibleLeaderboardsColumnDef } from '../../utils/column-definitions/buildNumVisibleLeaderboardsColumnDef';
@@ -39,6 +40,7 @@ export function buildColumnDefinitions(options: {
   columnDefinitions.push(
     ...([
       buildPlayerGameProgressColumnDef({ tableApiRouteName }),
+      buildHasActiveOrInReviewClaimsColumnDef({ tableApiRouteName }),
       buildRowActionsColumnDef(),
     ] satisfies ColumnDef<App.Platform.Data.GameListEntry>[]),
   );

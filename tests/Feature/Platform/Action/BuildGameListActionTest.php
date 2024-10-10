@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Action;
 
 use App\Community\Actions\AddGameToListAction;
+use App\Community\Actions\CreateGameClaimAction;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\UserGameListType;
 use App\Models\Achievement;
@@ -355,6 +356,31 @@ class BuildGameListActionTest extends TestCase
         $this->assertEquals($result->items[3]->game->title, "Double Moon Densetsu");                            // 1992-10-14, day
         $this->assertEquals($result->items[4]->game->title, "~Hack~ Twitch Plays Pokemon: Anniversary Red");    // 2015-01-01, year
         $this->assertEquals($result->items[5]->game->title, "Cycle Race: Road Man");                            // null
+    }
+
+    public function testItCanSortByActiveClaims(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        $game = Game::find(1004);
+        (new CreateGameClaimAction())->execute($game, $user);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            sort: ['field' => 'hasActiveOrInReviewClaims', 'direction' => 'desc'],
+        );
+
+        $firstItem = $result->items[0];
+
+        // Assert
+        $this->assertEquals(1004, $firstItem->game->id);
+        $this->assertEquals(1, $firstItem->game->hasActiveOrInReviewClaims->resolve());
     }
 
     public function testItCanSortByNumVisibleLeaderboards(): void
