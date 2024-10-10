@@ -26,10 +26,10 @@ class ComputeGameSortTitleAction
      *
      * eg: "Mega Man 10" should not be sorted before "Mega Man 2". With the sort titles
      * set to "mega man 00010" and "mega man 00002" respectively, we can mitigate this.
-     * 
+     *
      * Standalone numbers with leading zeroes are padded to 7 digits to preserve significance.
      * eg: "007" -> "0000007"
-     * 
+     *
      * Numbers already padded by replaceRomanNumerals (5 digits) are not given more padding.
      * eg: "00002" remains "00002"
      *
@@ -44,25 +44,25 @@ class ComputeGameSortTitleAction
             '/\b\d+\b/u',
             function ($matches) {
                 $number = $matches[0];
-            
+
                 // Check if the number has leading zeroes.
                 if (strlen($number) > 1 && strpos($number, '0') === 0) {
                     // If the number is already 5 digits (from replaceRomanNumerals), don't pad.
                     if (strlen($number) === 5) {
                         return $number;
                     }
-                    
+
                     // Else, pad to 7 digits to preserve leading zeroes.
                     if (strlen($number) < 7) {
                         return str_pad($number, 7, '0', STR_PAD_LEFT);
                     }
                 }
-                
+
                 // Pad standalone numbers without leading zeroes to 5 digits.
                 if (strlen($number) < 5) {
                     return str_pad($number, 5, '0', STR_PAD_LEFT);
                 }
-                
+
                 // Return the number as-is if it doesn't meet any padding criteria.
                 return $number;
             },
