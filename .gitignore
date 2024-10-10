@@ -1,4 +1,5 @@
 /bootstrap/ssr
+/coverage
 /database/*.sql
 /docker/nginx/logs
 /docs/dist
