@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC } from 'react';
 import { LuAlertCircle } from 'react-icons/lu';
 
@@ -7,6 +8,8 @@ import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 
 export const ManageConnectApiKey: FC = () => {
+  const { t } = useLaravelReactI18n();
+
   const mutation = useMutation({
     mutationFn: () => {
       return axios.delete(route('api.settings.keys.connect.destroy'));
@@ -16,28 +19,31 @@ export const ManageConnectApiKey: FC = () => {
   const handleResetApiKeyClick = () => {
     if (
       !confirm(
-        'Are you sure you want to reset your Connect API key? This will log you out of all emulators.',
+        t(
+          'Are you sure you want to reset your Connect API key? This will log you out of all emulators.',
+        ),
       )
     ) {
       return;
     }
 
     toastMessage.promise(mutation.mutateAsync(), {
-      loading: 'Resetting...',
-      success: 'Your Connect API key has been reset.',
-      error: 'Something went wrong.',
+      loading: t('Resetting...'),
+      success: t('Your Connect API key has been reset.'),
+      error: t('Something went wrong.'),
     });
   };
 
   return (
     <div className="@container">
       <div className="flex flex-col @lg:grid @lg:grid-cols-4">
-        <p className="w-48 text-menu-link">Connect API Key</p>
+        <p className="w-48 text-menu-link">{t('Connect API Key')}</p>
 
         <div className="col-span-3 flex flex-col gap-2">
           <p>
-            Your Connect API key is used by emulators to keep you logged in. Resetting the key will
-            log you out of all emulators.
+            {t(
+              'Your Connect API key is used by emulators to keep you logged in. Resetting the key will log you out of all emulators.',
+            )}
           </p>
 
           <BaseButton
@@ -47,7 +53,7 @@ export const ManageConnectApiKey: FC = () => {
             onClick={handleResetApiKeyClick}
           >
             <LuAlertCircle className="h-4 w-4" />
-            Reset Connect API Key
+            {t('Reset Connect API Key')}
           </BaseButton>
         </div>
       </div>

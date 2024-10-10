@@ -5,6 +5,7 @@ import { createRoot, hydrateRoot } from 'react-dom/client';
 
 import { AppProviders } from './common/components/AppProviders';
 import type { AppGlobalProps } from './common/models';
+import { loadDayjsLocale } from './common/utils/l10n/loadDayjsLocale';
 
 const appName = import.meta.env.APP_NAME || 'RetroAchievements';
 
@@ -14,28 +15,14 @@ createInertiaApp({
   resolve: (name) =>
     resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
 
-  setup({ el, App, props }) {
+  // @ts-expect-error -- async setup() breaks type rules, but is actually supported.
+  async setup({ el, App, props }) {
     const globalProps = props.initialPage.props as unknown as AppGlobalProps;
     const userLocale = globalProps.auth?.user.locale ?? 'en_US';
 
-    if (import.meta.env.DEV) {
-      createRoot(el).render(
-        <LaravelReactI18nProvider
-          locale={userLocale}
-          fallbackLocale="en_US"
-          files={import.meta.glob('/lang/*.json', { eager: true })}
-        >
-          <AppProviders>
-            <App {...props} />
-          </AppProviders>
-        </LaravelReactI18nProvider>,
-      );
+    await loadDayjsLocale(userLocale);
 
-      return;
-    }
-
-    hydrateRoot(
-      el,
+    const appElement = (
       <LaravelReactI18nProvider
         locale={userLocale}
         fallbackLocale="en_US"
@@ -44,8 +31,16 @@ createInertiaApp({
         <AppProviders>
           <App {...props} />
         </AppProviders>
-      </LaravelReactI18nProvider>,
+      </LaravelReactI18nProvider>
     );
+
+    if (import.meta.env.DEV) {
+      createRoot(el).render(appElement);
+
+      return;
+    }
+
+    hydrateRoot(el, appElement);
   },
 
   progress: {

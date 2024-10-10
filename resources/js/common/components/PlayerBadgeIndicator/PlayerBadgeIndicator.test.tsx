@@ -7,7 +7,7 @@ import { PlayerBadgeIndicator } from './PlayerBadgeIndicator';
 describe('Component: PlayerBadgeIndicator', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<PlayerBadgeIndicator {...createPlayerBadge()} />);
+    const { container } = render(<PlayerBadgeIndicator playerBadge={createPlayerBadge()} />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -20,7 +20,7 @@ describe('Component: PlayerBadgeIndicator', () => {
       awardDataExtra: 1,
     });
 
-    render(<PlayerBadgeIndicator {...playerBadge} />);
+    render(<PlayerBadgeIndicator playerBadge={playerBadge} />);
 
     // ASSERT
     expect(screen.getByLabelText(/mastered/i)).toBeVisible();
@@ -33,7 +33,7 @@ describe('Component: PlayerBadgeIndicator', () => {
       awardDataExtra: 0,
     });
 
-    render(<PlayerBadgeIndicator {...playerBadge} />);
+    render(<PlayerBadgeIndicator playerBadge={playerBadge} />);
 
     // ASSERT
     expect(screen.getByLabelText(/completed/i)).toBeVisible();
@@ -46,7 +46,7 @@ describe('Component: PlayerBadgeIndicator', () => {
       awardDataExtra: 1,
     });
 
-    render(<PlayerBadgeIndicator {...playerBadge} />);
+    render(<PlayerBadgeIndicator playerBadge={playerBadge} />);
 
     // ASSERT
     expect(screen.getByLabelText(/beaten/i)).toBeVisible();
@@ -59,7 +59,7 @@ describe('Component: PlayerBadgeIndicator', () => {
       awardDataExtra: 0,
     });
 
-    render(<PlayerBadgeIndicator {...playerBadge} />);
+    render(<PlayerBadgeIndicator playerBadge={playerBadge} />);
 
     // ASSERT
     expect(screen.getByLabelText(/beaten \(softcore\)/i)).toBeVisible();

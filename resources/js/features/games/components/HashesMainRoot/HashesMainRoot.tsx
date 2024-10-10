@@ -1,8 +1,10 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 import { LuSave } from 'react-icons/lu';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { Embed } from '@/common/components/Embed/Embed';
+import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { GameBreadcrumbs } from '../GameBreadcrumbs';
@@ -12,10 +14,18 @@ import { HashesList } from './HashesList';
 export const HashesMainRoot: FC = () => {
   const { can, game, hashes } = usePageProps<App.Platform.Data.GameHashesPageProps>();
 
+  const { t, tChoice } = useLaravelReactI18n();
+
+  const { formatNumber } = useFormatNumber();
+
   return (
     <div>
-      <GameBreadcrumbs game={game} system={game.system} currentPageLabel="Supported Game Files" />
-      <GameHeading game={game}>Supported Game Files</GameHeading>
+      <GameBreadcrumbs
+        game={game}
+        system={game.system}
+        t_currentPageLabel={t('Supported Game Files')}
+      />
+      <GameHeading game={game}>{t('Supported Game Files')}</GameHeading>
 
       <div className="flex flex-col gap-5">
         {can.manageGameHashes ? (
@@ -27,41 +37,44 @@ export const HashesMainRoot: FC = () => {
             })}
           >
             <LuSave className="h-5 w-5" />
-            <span className="">Manage Hashes</span>
+            <span className="">{t('Manage Hashes')}</span>
           </a>
         ) : null}
 
         <Embed className="flex flex-col gap-4">
           <p className="font-bold">
-            This page shows you what ROM hashes are compatible with this game's achievements.
+            {t("This page shows you what ROM hashes are compatible with this game's achievements.")}
           </p>
 
           <p>
             {game.forumTopicId ? (
               <>
-                Additional information for these hashes may be listed on{' '}
+                {t('Additional information for these hashes may be listed on')}{' '}
                 <a href={`/viewtopic.php?t=${game.forumTopicId}`}>
-                  the game's official forum topic
+                  {t("the game's official forum topic")}
                 </a>
-                .
+                {t('.')}
               </>
             ) : null}{' '}
-            Details on how the hash is generated for each system can be found{' '}
+            {t('Details on how the hash is generated for each system can be found')}{' '}
             <a
               href="https://docs.retroachievements.org/developer-docs/game-identification.html"
               target="_blank"
             >
-              here
+              {t('here')}
             </a>
-            .{' '}
+            {t('.')}
           </p>
         </Embed>
 
         <div className="flex flex-col gap-1">
           <p>
-            There {hashes.length === 1 ? 'is' : 'are'} currently{' '}
-            <span className="font-bold">{hashes.length}</span> supported game file{' '}
-            {hashes.length === 1 ? 'hash' : 'hashes'} registered for this game.
+            {tChoice('There is currently|There are currently', hashes.length)}{' '}
+            <span className="font-bold">{formatNumber(hashes.length)}</span>{' '}
+            {tChoice(
+              'supported game file hash registered for this game.|supported game file hashes registered for this game.',
+              hashes.length,
+            )}
           </p>
 
           <HashesList />

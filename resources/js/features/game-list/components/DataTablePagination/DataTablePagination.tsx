@@ -1,10 +1,12 @@
 import type { Table } from '@tanstack/react-table';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { ReactNode } from 'react';
 import { LuArrowLeft, LuArrowLeftToLine, LuArrowRight, LuArrowRightToLine } from 'react-icons/lu';
 import type { RouteName } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { BasePagination, BasePaginationContent } from '@/common/components/+vendor/BasePagination';
+import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 
 import { useDataTablePrefetchPagination } from '../../hooks/useDataTablePrefetchPagination';
 
@@ -17,7 +19,11 @@ export function DataTablePagination<TData>({
   table,
   tableApiRouteName = 'api.game.index',
 }: DataTablePaginationProps<TData>): ReactNode {
+  const { t } = useLaravelReactI18n();
+
   const { pagination } = table.getState();
+
+  const { formatNumber } = useFormatNumber();
 
   // Given the user hovers over a pagination button, it is very likely they will
   // wind up clicking the button. Queries are cheap, so prefetch the destination page.
@@ -47,7 +53,10 @@ export function DataTablePagination<TData>({
 
       <div className="flex items-center gap-6 lg:gap-8">
         <p className="text-neutral-200 light:text-neutral-900">
-          Page {pagination.pageIndex + 1} of {table.getPageCount()}
+          {t('Page :count of :total', {
+            count: formatNumber(pagination.pageIndex + 1),
+            total: formatNumber(table.getPageCount()),
+          })}
         </p>
 
         <BasePagination>
@@ -58,7 +67,7 @@ export function DataTablePagination<TData>({
               onMouseEnter={() => prefetchPagination(0)}
               disabled={!table.getCanPreviousPage()}
             >
-              <span className="sr-only">Go to first page</span>
+              <span className="sr-only">{t('Go to first page')}</span>
               <LuArrowLeftToLine className="h-4 w-4" />
             </BaseButton>
 
@@ -68,7 +77,7 @@ export function DataTablePagination<TData>({
               onMouseEnter={() => prefetchPagination(pagination.pageIndex - 1)}
               disabled={!table.getCanPreviousPage()}
             >
-              <span className="sr-only">Go to previous page</span>
+              <span className="sr-only">{t('Go to previous page')}</span>
               <LuArrowLeft className="h-4 w-4" />
             </BaseButton>
 
@@ -78,7 +87,7 @@ export function DataTablePagination<TData>({
               onMouseEnter={() => prefetchPagination(pagination.pageIndex + 1)}
               disabled={!table.getCanNextPage()}
             >
-              <span className="sr-only">Go to next page</span>
+              <span className="sr-only">{t('Go to next page')}</span>
               <LuArrowRight className="h-4 w-4" />
             </BaseButton>
 
@@ -88,7 +97,7 @@ export function DataTablePagination<TData>({
               onMouseEnter={() => prefetchPagination(table.getPageCount() - 1)}
               disabled={!table.getCanNextPage()}
             >
-              <span className="sr-only">Go to last page</span>
+              <span className="sr-only">{t('Go to last page')}</span>
               <LuArrowRightToLine className="h-4 w-4" />
             </BaseButton>
           </BasePaginationContent>

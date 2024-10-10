@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, useState } from 'react';
 import { LuAlertCircle } from 'react-icons/lu';
 
@@ -17,6 +18,8 @@ import { useManageAccountDeletion } from './useManageAccountDeletion';
 export const DeleteAccountSectionCard: FC = () => {
   const { userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
+  const { t } = useLaravelReactI18n();
+
   const [isDeleteAlreadyRequested, setIsDeleteAlreadyRequested] = useState(
     !!userSettings.deleteRequested,
   );
@@ -25,8 +28,8 @@ export const DeleteAccountSectionCard: FC = () => {
 
   const handleClick = () => {
     const toggleMessage = isDeleteAlreadyRequested
-      ? 'Are you sure you want to cancel your request for account deletion?'
-      : 'Are you sure you want to request account deletion?';
+      ? t('Are you sure you want to cancel your request for account deletion?')
+      : t('Are you sure you want to request account deletion?');
 
     if (!confirm(toggleMessage)) {
       return;
@@ -34,23 +37,23 @@ export const DeleteAccountSectionCard: FC = () => {
 
     if (isDeleteAlreadyRequested) {
       toastMessage.promise(cancelDeleteMutation.mutateAsync(), {
-        loading: 'Loading...',
+        loading: t('Loading...'),
         success: () => {
           setIsDeleteAlreadyRequested((prev) => !prev);
 
-          return 'Cancelled account deletion.';
+          return t('Cancelled account deletion.');
         },
-        error: 'Something went wrong.',
+        error: t('Something went wrong.'),
       });
     } else {
       toastMessage.promise(requestDeleteMutation.mutateAsync(), {
-        loading: 'Loading...',
+        loading: t('Loading...'),
         success: () => {
           setIsDeleteAlreadyRequested((prev) => !prev);
 
-          return 'Requested account deletion.';
+          return t('Requested account deletion.');
         },
-        error: 'Something went wrong.',
+        error: t('Something went wrong.'),
       });
     }
   };
@@ -60,30 +63,34 @@ export const DeleteAccountSectionCard: FC = () => {
     : dayjs().add(2, 'weeks');
 
   return (
-    <SectionStandardCard headingLabel="Delete Account">
+    <SectionStandardCard t_headingLabel={t('Delete Account')}>
       <div className="flex flex-col gap-4">
         {isDeleteAlreadyRequested ? (
           <BaseAlert variant="destructive">
             <LuAlertCircle className="h-5 w-5" />
-            <BaseAlertTitle>You've requested account deletion.</BaseAlertTitle>
+            <BaseAlertTitle>{t("You've requested account deletion.")}</BaseAlertTitle>
             <BaseAlertDescription>
-              Your account will be permanently deleted on {deletionDate.format('MMMM D')}.
+              {t('Your account will be permanently deleted on :date', {
+                date: deletionDate.format('MMMM D'),
+              })}
             </BaseAlertDescription>
           </BaseAlert>
         ) : null}
 
         <div>
-          <p>After requesting account deletion you may cancel your request within 14 days.</p>
-          <p>Your account's username will NOT be available after the deletion.</p>
-          <p>Your account's personal data will be cleared from the database permanently.</p>
-          <p>Content you wrote in forums, comments, etc. will NOT be removed.</p>
+          <p>
+            {t('After requesting account deletion you may cancel your request within 14 days.')}
+          </p>
+          <p>{t("Your account's username will NOT be available after the deletion.")}</p>
+          <p>{t("Your account's personal data will be cleared from the database permanently.")}</p>
+          <p>{t('Content you wrote in forums, comments, etc. will NOT be removed.')}</p>
         </div>
 
         <div className="flex justify-end">
           <BaseButton variant="destructive" onClick={handleClick}>
             {isDeleteAlreadyRequested
-              ? 'Cancel Account Deletion Request'
-              : 'Request Account Deletion'}
+              ? t('Cancel Account Deletion Request')
+              : t('Request Account Deletion')}
           </BaseButton>
         </div>
       </div>

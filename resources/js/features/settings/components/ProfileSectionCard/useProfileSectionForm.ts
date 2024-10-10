@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -14,6 +15,8 @@ const profileFormSchema = z.object({
 type FormValues = z.infer<typeof profileFormSchema>;
 
 export function useProfileSectionForm(initialValues: FormValues) {
+  const { t } = useLaravelReactI18n();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: initialValues,
@@ -27,9 +30,9 @@ export function useProfileSectionForm(initialValues: FormValues) {
 
   const onSubmit = (formValues: FormValues) => {
     toastMessage.promise(mutation.mutateAsync(formValues), {
-      loading: 'Updating...',
-      success: 'Updated.',
-      error: 'Something went wrong.',
+      loading: t('Updating...'),
+      success: t('Updated.'),
+      error: t('Something went wrong.'),
     });
   };
 

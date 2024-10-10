@@ -6,7 +6,7 @@ describe('Component: SectionStandardCard', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <SectionStandardCard headingLabel="Heading">children</SectionStandardCard>,
+      <SectionStandardCard t_headingLabel="Heading">children</SectionStandardCard>,
     );
 
     // ASSERT
@@ -15,7 +15,7 @@ describe('Component: SectionStandardCard', () => {
 
   it('renders an accessible heading element', () => {
     // ARRANGE
-    render(<SectionStandardCard headingLabel="Hello">children</SectionStandardCard>);
+    render(<SectionStandardCard t_headingLabel="Hello">children</SectionStandardCard>);
 
     // ASSERT
     expect(screen.getByRole('heading', { name: /hello/i })).toBeVisible();
@@ -23,7 +23,7 @@ describe('Component: SectionStandardCard', () => {
 
   it('renders children', () => {
     // ARRANGE
-    render(<SectionStandardCard headingLabel="Hello">children</SectionStandardCard>);
+    render(<SectionStandardCard t_headingLabel="Hello">children</SectionStandardCard>);
 
     // ASSERT
     expect(screen.getByText(/children/i)).toBeVisible();

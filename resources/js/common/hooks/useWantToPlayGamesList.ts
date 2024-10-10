@@ -1,10 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { useAddToGameListMutation } from '@/common/hooks/useAddToGameListMutation';
 import { useRemoveFromGameListMutation } from '@/common/hooks/useRemoveFromGameListMutation';
 
 export function useWantToPlayGamesList() {
+  const { t } = useLaravelReactI18n();
+
   const queryClient = useQueryClient();
 
   const addToBacklogMutation = useAddToGameListMutation();
@@ -21,14 +24,18 @@ export function useWantToPlayGamesList() {
     const mutationPromise = addToBacklogMutation.mutateAsync(gameId);
 
     toastMessage.promise(mutationPromise, {
-      loading: options?.isUndo ? 'Restoring...' : 'Adding...',
+      loading: options?.isUndo ? t('Restoring...') : t('Adding...'),
       success: () => {
         // Trigger a refetch of the current table page data and bust the entire cache.
         queryClient.invalidateQueries({ queryKey: ['data'] });
 
-        return `${options?.isUndo ? 'Restored' : 'Added'} ${gameTitle}!`;
+        if (options?.isUndo) {
+          return t('Restored :gameTitle!', { gameTitle });
+        }
+
+        return t('Added :gameTitle!', { gameTitle });
       },
-      error: 'Something went wrong.',
+      error: t('Something went wrong.'),
     });
 
     return mutationPromise;
@@ -39,17 +46,17 @@ export function useWantToPlayGamesList() {
 
     toastMessage.promise(mutationPromise, {
       action: {
-        label: 'Undo',
+        label: t('Undo'),
         onClick: () => addToWantToPlayGamesList(gameId, gameTitle, { isUndo: true }),
       },
-      loading: 'Removing...',
+      loading: t('Removing...'),
       success: () => {
         // Trigger a refetch of the current table page data and bust the entire cache.
         queryClient.invalidateQueries({ queryKey: ['data'] });
 
-        return `Removed ${gameTitle}!`;
+        return t('Removed :gameTitle!', { gameTitle });
       },
-      error: 'Something went wrong.',
+      error: t('Something went wrong.'),
     });
 
     return mutationPromise;

@@ -1,4 +1,5 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC } from 'react';
 
 import { UserHeading } from '@/common/components/UserHeading';
@@ -14,6 +15,8 @@ import { WantToPlayGamesDataTable } from '../WantToPlayGamesDataTable';
 export const WantToPlayGamesMainRoot: FC = () => {
   const { auth, paginatedGameListEntries } =
     usePageProps<App.Community.Data.UserGameListPageProps>();
+
+  const { t } = useLaravelReactI18n();
 
   const {
     columnFilters,
@@ -44,7 +47,7 @@ export const WantToPlayGamesMainRoot: FC = () => {
   return (
     <div>
       <DataTablePaginationScrollTarget>
-        <UserHeading user={auth.user}>Want to Play Games</UserHeading>
+        <UserHeading user={auth.user}>{t('Want to Play Games')}</UserHeading>
       </DataTablePaginationScrollTarget>
 
       <HydrationBoundary state={dehydrate(queryClientWithInitialData)}>

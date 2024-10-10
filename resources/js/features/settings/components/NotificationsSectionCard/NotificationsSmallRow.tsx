@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, useId } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -12,17 +13,19 @@ type UserPreferenceValue =
   (typeof StringifiedUserPreference)[keyof typeof StringifiedUserPreference];
 
 interface NotificationsTableRowProps {
-  label: string;
+  t_label: string;
 
   emailFieldName?: UserPreferenceValue;
   siteFieldName?: UserPreferenceValue;
 }
 
 export const NotificationsSmallRow: FC<NotificationsTableRowProps> = ({
-  label,
+  t_label,
   emailFieldName,
   siteFieldName,
 }) => {
+  const { t } = useLaravelReactI18n();
+
   const { control } = useFormContext<NotificationsSectionFormValues>();
 
   const emailId = useId();
@@ -30,7 +33,7 @@ export const NotificationsSmallRow: FC<NotificationsTableRowProps> = ({
 
   return (
     <div className="flex flex-col gap-1">
-      <p className="text-menu-link">{label}</p>
+      <p className="text-menu-link">{t_label}</p>
 
       <div className="flex items-center gap-6">
         {emailFieldName ? (
@@ -47,7 +50,7 @@ export const NotificationsSmallRow: FC<NotificationsTableRowProps> = ({
                   />
                 </BaseFormControl>
 
-                <BaseLabel htmlFor={emailId}>Email me</BaseLabel>
+                <BaseLabel htmlFor={emailId}>{t('Email me')}</BaseLabel>
               </div>
             )}
           />
@@ -67,7 +70,7 @@ export const NotificationsSmallRow: FC<NotificationsTableRowProps> = ({
                   />
                 </BaseFormControl>
 
-                <BaseLabel htmlFor={siteId}>Notify me on the site</BaseLabel>
+                <BaseLabel htmlFor={siteId}>{t('Notify me on the site')}</BaseLabel>
               </div>
             )}
           />

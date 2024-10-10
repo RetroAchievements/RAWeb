@@ -4,7 +4,7 @@ import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { cn } from '@/utils/cn';
 
 interface ReportIssueOptionItemProps {
-  buttonText: string;
+  t_buttonText: string;
   children: ReactNode;
   href: string;
 
@@ -12,7 +12,7 @@ interface ReportIssueOptionItemProps {
 }
 
 export const ReportIssueOptionItem: FC<ReportIssueOptionItemProps> = ({
-  buttonText,
+  t_buttonText,
   children,
   href,
   anchorClassName,
@@ -23,7 +23,7 @@ export const ReportIssueOptionItem: FC<ReportIssueOptionItemProps> = ({
 
       <div className="self-end sm:self-auto">
         <a href={href} className={cn(baseButtonVariants({ size: 'sm' }), anchorClassName)}>
-          {buttonText}
+          {t_buttonText}
         </a>
       </div>
     </li>
