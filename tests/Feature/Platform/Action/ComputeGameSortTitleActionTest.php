@@ -27,10 +27,10 @@ class ComputeGameSortTitleActionTest extends TestCase
     public static function titleProvider(): array
     {
         return [
-            '~Hack~ Dragoon X Omega' => ['~Hack~ Dragoon X Omega', '~hack dragoon x omega'],
-            '~Hack~ Pokemon - X and Y' => ['~Hack~ Pokemon - X and Y', '~hack pokemon - x and y'],
-            '~Hack~ V I T A L I T Y' => ['~Hack~ V I T A L I T Y', '~hack v i t a l i t y'],
-            '~Homebrew~ Classic Kong' => ['~Homebrew~ Classic Kong', '~homebrew classic kong'],
+            '~Hack~ Dragoon X Omega' => ['~Hack~ Dragoon X Omega', 'zzzz{hack dragoon x omega'],
+            '~Hack~ Pokemon - X and Y' => ['~Hack~ Pokemon - X and Y', 'zzzz{hack pokemon - x and y'],
+            '~Hack~ V I T A L I T Y' => ['~Hack~ V I T A L I T Y', 'zzzz{hack v i t a l i t y'],
+            '~Homebrew~ Classic Kong' => ['~Homebrew~ Classic Kong', 'zzzz{homebrew classic kong'],
             '007: Agent Under Fire' => ['007: Agent Under Fire', '00007 agent under fire'],
             '101 Dalmatians' => ['101 Dalmatians', '00101 dalmatians'],
             '50 Cent: Blood on the Sand' => ['50 Cent: Blood on the Sand', '00050 cent blood on the sand'],
