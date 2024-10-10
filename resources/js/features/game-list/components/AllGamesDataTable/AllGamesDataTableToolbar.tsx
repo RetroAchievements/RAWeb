@@ -27,14 +27,6 @@ export function AllGamesDataTableToolbar<TData>({
   const currentFilters = table.getState().columnFilters;
   const isFiltered = getAreNonDefaultFiltersSet(currentFilters, defaultColumnFilters);
 
-  const resetFiltersToDefault = () => {
-    if (defaultColumnFilters) {
-      table.setColumnFilters(defaultColumnFilters);
-    } else {
-      table.resetColumnFilters();
-    }
-  };
-
   return (
     <div className="flex w-full flex-col justify-between gap-2 md:flex-row">
       <div className="flex w-full flex-col items-center gap-2 sm:flex-1 sm:flex-row">
