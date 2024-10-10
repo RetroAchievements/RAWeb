@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
@@ -18,6 +19,8 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
 }) => {
   const { auth } = usePageProps<App.Community.Data.RecentPostsPageProps>();
 
+  const { t } = useLaravelReactI18n();
+
   return (
     <div className="flex flex-col gap-y-2">
       {paginatedTopics.items.map((topic) => (
@@ -29,7 +32,7 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
               ) : null}
 
               {topic.latestComment?.createdAt ? (
-                <span className="smalldate">
+                <span className="smalldate" data-testid="timestamp">
                   <PostTimestamp
                     asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates ?? false}
                     postedAt={topic.latestComment.createdAt}
@@ -43,7 +46,7 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
 
           <div className="flex flex-col gap-y-2">
             <p className="truncate">
-              in{' '}
+              {t('in')}{' '}
               <a
                 href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment?.id}#${topic.latestComment?.id}`}
               >

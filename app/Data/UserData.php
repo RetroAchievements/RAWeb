@@ -22,8 +22,9 @@ class UserData extends Data
 
         public Lazy|int $id,
         public Lazy|string|null $username,
-        public Lazy|string $motto,
         public Lazy|int|null $legacyPermissions,
+        public Lazy|string|null $locale,
+        public Lazy|string $motto,
 
         #[TypeScriptType([
             'prefersAbsoluteDates' => 'boolean',
@@ -53,9 +54,10 @@ class UserData extends Data
             username: Lazy::create(fn () => $topic['Author']),
 
             legacyPermissions: null,
+            locale: null,
+            motto: '',
             preferences: null,
             roles: null,
-            motto: '',
 
             apiKey: null,
             deleteRequested: null,
@@ -78,8 +80,10 @@ class UserData extends Data
 
             id: Lazy::create(fn () => $user->id),
             username: Lazy::create(fn () => $user->username),
-            motto: Lazy::create(fn () => $user->Motto),
             legacyPermissions: Lazy::create(fn () => (int) $user->getAttribute('Permissions')),
+            // TODO remove conditional after renaming "en" to "en_US"
+            locale: Lazy::create(fn () => $user->locale === 'en' ? 'en_US' : $user->locale),
+            motto: Lazy::create(fn () => $user->Motto),
             preferences: Lazy::create(
                 fn () => [
                     'prefersAbsoluteDates' => $user->prefers_absolute_dates,
