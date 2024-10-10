@@ -1,4 +1,5 @@
 import type { ColumnFiltersState, Table } from '@tanstack/react-table';
+import type { RouteName } from 'ziggy-js';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { formatNumber } from '@/common/utils/l10n/formatNumber';
@@ -10,19 +11,23 @@ import { DataTableResetFiltersButton } from '../DataTableResetFiltersButton';
 import { DataTableSearchInput } from '../DataTableSearchInput';
 import { DataTableViewOptions } from '../DataTableViewOptions';
 
-interface WantToPlayGamesDataTableToolbarProps<TData> {
+interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   unfilteredTotal: number | null;
 
   defaultColumnFilters?: ColumnFiltersState;
+  tableApiRouteName?: RouteName;
 }
 
-export function WantToPlayGamesDataTableToolbar<TData>({
+export function DataTableToolbar<TData>({
   table,
   unfilteredTotal,
   defaultColumnFilters = [],
-}: WantToPlayGamesDataTableToolbarProps<TData>) {
-  const { filterableSystemOptions } = usePageProps<App.Community.Data.UserGameListPageProps>();
+  tableApiRouteName = 'api.game.index',
+}: DataTableToolbarProps<TData>) {
+  const { filterableSystemOptions } = usePageProps<{
+    filterableSystemOptions: App.Platform.Data.System[];
+  }>();
 
   const currentFilters = table.getState().columnFilters;
   const isFiltered = getAreNonDefaultFiltersSet(currentFilters, defaultColumnFilters);
@@ -55,7 +60,7 @@ export function WantToPlayGamesDataTableToolbar<TData>({
           <DataTableResetFiltersButton
             table={table}
             defaultColumnFilters={defaultColumnFilters}
-            tableApiRouteName="api.user-game-list.index"
+            tableApiRouteName={tableApiRouteName}
           />
         ) : null}
       </div>

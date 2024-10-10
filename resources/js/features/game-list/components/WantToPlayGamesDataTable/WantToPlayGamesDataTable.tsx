@@ -12,9 +12,9 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { wantToPlayGamesDefaultFilters } from '../../utils/wantToPlayGamesDefaultFilters';
 import { DataTablePagination } from '../DataTablePagination';
+import { DataTableToolbar } from '../DataTableToolbar';
 import { GameListDataTable } from '../GameListDataTable';
 import { buildColumnDefinitions } from './buildColumnDefinitions';
-import { WantToPlayGamesDataTableToolbar } from './WantToPlayGamesDataTableToolbar';
 
 // These values are all generated from `useGameListState`.
 interface WantToPlayGamesDataTableProps {
@@ -81,10 +81,11 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <WantToPlayGamesDataTableToolbar
+      <DataTableToolbar
         table={table}
         unfilteredTotal={gameListQuery.data?.unfilteredTotal ?? null}
         defaultColumnFilters={wantToPlayGamesDefaultFilters}
+        tableApiRouteName="api.user-game-list.index"
       />
 
       <GameListDataTable table={table} />
