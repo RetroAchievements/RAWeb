@@ -1,12 +1,12 @@
 import type { ColumnFiltersState, Table } from '@tanstack/react-table';
-import { RxCross2 } from 'react-icons/rx';
 
-import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { formatNumber } from '@/common/utils/l10n/formatNumber';
 
 import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
+import { DataTableAchievementsPublishedFilter } from '../DataTableAchievementsPublishedFilter';
 import { DataTableFacetedFilter } from '../DataTableFacetedFilter';
+import { DataTableResetFiltersButton } from '../DataTableResetFiltersButton';
 import { DataTableSearchInput } from '../DataTableSearchInput';
 import { DataTableViewOptions } from '../DataTableViewOptions';
 
@@ -26,14 +26,6 @@ export function WantToPlayGamesDataTableToolbar<TData>({
 
   const currentFilters = table.getState().columnFilters;
   const isFiltered = getAreNonDefaultFiltersSet(currentFilters, defaultColumnFilters);
-
-  const resetFiltersToDefault = () => {
-    if (defaultColumnFilters) {
-      table.setColumnFilters(defaultColumnFilters);
-    } else {
-      table.resetColumnFilters();
-    }
-  };
 
   return (
     <div className="flex w-full flex-col justify-between gap-2 md:flex-row">
@@ -56,29 +48,15 @@ export function WantToPlayGamesDataTableToolbar<TData>({
         ) : null}
 
         {table.getColumn('achievementsPublished') ? (
-          <DataTableFacetedFilter
-            className="w-full sm:w-auto"
-            column={table.getColumn('achievementsPublished')}
-            title="Has achievements"
-            options={[
-              { label: 'Yes', value: 'has' },
-              { label: 'No', value: 'none' },
-              { label: 'Either', value: 'either' },
-            ]}
-            isSearchable={false}
-            isSingleSelect={true}
-          />
+          <DataTableAchievementsPublishedFilter table={table} />
         ) : null}
 
         {isFiltered ? (
-          <BaseButton
-            variant="ghost"
-            size="sm"
-            onClick={resetFiltersToDefault}
-            className="border-dashed px-2 text-link lg:px-3"
-          >
-            Reset <RxCross2 className="ml-2 h-4 w-4" />
-          </BaseButton>
+          <DataTableResetFiltersButton
+            table={table}
+            defaultColumnFilters={defaultColumnFilters}
+            tableApiRouteName="api.user-game-list.index"
+          />
         ) : null}
       </div>
 

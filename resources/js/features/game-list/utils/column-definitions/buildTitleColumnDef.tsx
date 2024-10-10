@@ -28,7 +28,7 @@ export function buildTitleColumnDef({
       }
 
       return (
-        <div className="max-w-fit">
+        <div className="min-w-[180px] max-w-fit">
           <div className="max-w-[400px]">
             <GameAvatar
               {...row.original.game}

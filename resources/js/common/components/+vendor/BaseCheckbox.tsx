@@ -16,7 +16,7 @@ const BaseCheckbox = React.forwardRef<
       'peer h-4 w-4 shrink-0 rounded-sm border light:border-neutral-900',
       'focus-visible:outline-none focus-visible:ring-2 light:ring-offset-white light:focus-visible:ring-neutral-950',
       'focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-      'border-neutral-600 light:data-[state=checked]:bg-text light:data-[state=checked]:text-neutral-50',
+      'border-neutral-600 light:data-[state=checked]:bg-text',
       'ring-offset-neutral-950 focus-visible:ring-neutral-300 data-[state=checked]:bg-neutral-700',
       'data-[state=checked]:border-neutral-50 data-[state=checked]:text-neutral-50',
       className,

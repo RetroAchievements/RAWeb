@@ -83,7 +83,7 @@ export function DataTableSearchInput<TData>({ table }: DataTableSearchInputProps
               id="search-shortcut"
               className={cn(
                 'absolute right-2 hidden rounded-md border border-transparent bg-neutral-800/60 px-1.5 font-mono text-xs',
-                'text-neutral-400 peer-focus:opacity-0 light:bg-gray-200 light:text-gray-800',
+                'text-neutral-400 peer-focus:opacity-0 light:bg-neutral-200 light:text-neutral-800',
                 'cursor-default lg:block',
               )}
             >
