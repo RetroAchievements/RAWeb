@@ -9,6 +9,7 @@ import {
   BaseBreadcrumbPage,
   BaseBreadcrumbSeparator,
 } from '@/common/components/+vendor/BaseBreadcrumb';
+import { GameTitle } from '@/common/components/GameTitle';
 
 interface GameBreadcrumbsProps {
   currentPageLabel: string;
@@ -45,7 +46,7 @@ export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({ currentPageLabel, ga
               <BaseBreadcrumbSeparator />
               <BaseBreadcrumbItem>
                 <BaseBreadcrumbLink href={route('game.show', { game: game.id })}>
-                  {game.title}
+                  <GameTitle title={game.title} />
                 </BaseBreadcrumbLink>
               </BaseBreadcrumbItem>
             </>

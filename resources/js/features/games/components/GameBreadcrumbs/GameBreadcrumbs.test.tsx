@@ -47,4 +47,19 @@ describe('Component: GameBreadcrumbs', () => {
     expect(gameLinkEl).toBeVisible();
     expect(gameLinkEl).toHaveAttribute('href', `game.show,${{ game: game.id }}`);
   });
+
+  it('stylizes tags that are within game titles', () => {
+    // ARRANGE
+    const system = createSystem({ name: 'SNES' });
+    const game = createGame({ title: '~Hack~ Super Junkoid' });
+
+    render(<GameBreadcrumbs currentPageLabel="Some Page" game={game} system={system} />);
+
+    // ASSERT
+    expect(screen.queryByText('~')).not.toBeInTheDocument();
+
+    const hackEl = screen.getByText(/hack/i);
+    expect(hackEl).toBeVisible();
+    expect(hackEl.nodeName).toEqual('SPAN');
+  });
 });

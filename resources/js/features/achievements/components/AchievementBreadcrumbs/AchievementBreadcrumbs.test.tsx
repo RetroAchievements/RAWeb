@@ -71,4 +71,27 @@ describe('Component: AchievementBreadcrumbs', () => {
       `achievement.show,${{ achievement: achievement.id }}`,
     );
   });
+
+  it('stylizes tags that are within game titles', () => {
+    // ARRANGE
+    const system = createSystem({ name: 'SNES' });
+    const game = createGame({ title: '~Hack~ Super Junkoid' });
+    const achievement = createAchievement();
+
+    render(
+      <AchievementBreadcrumbs
+        currentPageLabel="Some Page"
+        achievement={achievement}
+        game={game}
+        system={system}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.queryByText('~')).not.toBeInTheDocument();
+
+    const hackEl = screen.getByText(/hack/i);
+    expect(hackEl).toBeVisible();
+    expect(hackEl.nodeName).toEqual('SPAN');
+  });
 });
