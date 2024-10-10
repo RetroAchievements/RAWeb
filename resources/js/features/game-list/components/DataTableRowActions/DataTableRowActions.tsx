@@ -19,9 +19,19 @@ import { cn } from '@/utils/cn';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
+
+  /**
+   * If set to `false`, the add/remove backlog icon will not animate on click.
+   * This is useful if the row is going to be removed from the DOM, ie:
+   * viewing a user's backlog and them removing a game from it.
+   */
+  shouldAnimateBacklogIconOnChange?: boolean;
 }
 
-export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
+export function DataTableRowActions<TData>({
+  row,
+  shouldAnimateBacklogIconOnChange = true,
+}: DataTableRowActionsProps<TData>) {
   const { auth } = usePageProps();
 
   const { addToWantToPlayGamesList, isPending, removeFromWantToPlayGamesList } =
@@ -53,7 +63,9 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
       return;
     }
 
-    setIsInBacklogOptimistic((prev) => !prev);
+    if (shouldAnimateBacklogIconOnChange) {
+      setIsInBacklogOptimistic((prev) => !prev);
+    }
 
     const mutationPromise = isInBacklog
       ? removeFromWantToPlayGamesList(gameId, gameTitle)
@@ -76,8 +88,9 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
           >
             <MdClose
               className={cn(
-                'h-4 w-4 transition-transform',
+                'h-4 w-4',
                 'hover:text-neutral-50 disabled:!text-neutral-50 light:hover:text-neutral-900 light:disabled:text-neutral-900',
+                shouldAnimateBacklogIconOnChange ? 'transition-transform' : '',
                 isInBacklogOptimistic ? '' : 'rotate-45',
               )}
             />
