@@ -47,6 +47,7 @@ class Emulator extends BaseModel implements HasMedia
         'active',
         'documentation_url',
         'download_url',
+        'download_x64_url',
         'source_url',
     ];
 
