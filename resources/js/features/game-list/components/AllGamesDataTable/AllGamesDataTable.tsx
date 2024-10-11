@@ -5,7 +5,7 @@ import type {
   VisibilityState,
 } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { type Dispatch, type FC, type SetStateAction, useMemo } from 'react';
+import { type Dispatch, type FC, type SetStateAction } from 'react';
 
 import { useGameListQuery } from '@/common/hooks/useGameListQuery';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -14,7 +14,7 @@ import { allGamesDefaultFilters } from '../../utils/allGamesDefaultFilters';
 import { DataTablePagination } from '../DataTablePagination';
 import { GameListDataTable } from '../GameListDataTable';
 import { AllGamesDataTableToolbar } from './AllGamesDataTableToolbar';
-import { buildColumnDefinitions } from './buildColumnDefinitions';
+import { useColumnDefinitions } from './useColumnDefinitions';
 
 // These values are all generated from `useGameListState`.
 interface AllGamesDataTableProps {
@@ -43,13 +43,7 @@ export const AllGamesDataTable: FC<AllGamesDataTableProps> = ({
   const gameListQuery = useGameListQuery({ columnFilters, pagination, sorting });
 
   const table = useReactTable({
-    columns: useMemo(
-      () =>
-        buildColumnDefinitions({
-          canSeeOpenTicketsColumn: can.develop ?? false,
-        }),
-      [can.develop],
-    ),
+    columns: useColumnDefinitions({ canSeeOpenTicketsColumn: can.develop ?? false }),
     data: gameListQuery.data?.items ?? [],
     manualPagination: true,
     manualSorting: true,

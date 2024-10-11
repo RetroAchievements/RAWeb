@@ -1,4 +1,5 @@
 import type { Column, Table } from '@tanstack/react-table';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC, HTMLAttributes, ReactNode } from 'react';
 import type { IconType } from 'react-icons/lib';
 import { RxArrowDown, RxArrowUp, RxCaretSort, RxEyeNone } from 'react-icons/rx';
@@ -18,33 +19,10 @@ import { useDataTablePrefetchSort } from '../../hooks/useDataTablePrefetchSort';
 
 type SortDirection = 'asc' | 'desc';
 type SortConfig = {
-  [key in SortDirection]: { label: string; icon?: IconType };
+  [key in SortDirection]: { t_label: string; icon?: IconType };
 };
 
 type SortConfigKind = 'default' | 'date' | 'quantity' | 'boolean';
-
-/**
- * The order of `asc` and `desc` determines the order they'll
- * appear in the menu as menuitems.
- */
-const sortConfigs: Record<SortConfigKind, SortConfig> = {
-  default: {
-    asc: { label: 'Ascending (A - Z)' },
-    desc: { label: 'Descending (Z - A)' },
-  },
-  date: {
-    asc: { label: 'Earliest' },
-    desc: { label: 'Latest' },
-  },
-  quantity: {
-    desc: { label: 'More', icon: RxArrowUp },
-    asc: { label: 'Less', icon: RxArrowDown },
-  },
-  boolean: {
-    desc: { label: 'Yes first', icon: RxArrowUp },
-    asc: { label: 'No first', icon: RxArrowDown },
-  },
-};
 
 const defaultIcons = { asc: RxArrowUp, desc: RxArrowDown };
 
@@ -64,11 +42,36 @@ export function DataTableColumnHeader<TData, TValue>({
   sortType = 'default',
   tableApiRouteName = 'api.game.index',
 }: DataTableColumnHeaderProps<TData, TValue>): ReactNode {
+  const { t } = useLaravelReactI18n();
+
   const { prefetchSort } = useDataTablePrefetchSort(table, tableApiRouteName);
 
   if (!column.getCanSort()) {
-    return <div className={cn(className)}>{column.columnDef.meta?.label}</div>;
+    return <div className={cn(className)}>{column.columnDef.meta?.t_label}</div>;
   }
+
+  /**
+   * The order of `asc` and `desc` determines the order they'll
+   * appear in the menu as menuitems.
+   */
+  const sortConfigs: Record<SortConfigKind, SortConfig> = {
+    default: {
+      asc: { t_label: t('Ascending (A - Z)') },
+      desc: { t_label: t('Descending (Z - A)') },
+    },
+    date: {
+      asc: { t_label: t('Earliest') },
+      desc: { t_label: t('Latest') },
+    },
+    quantity: {
+      desc: { t_label: t('More'), icon: RxArrowUp },
+      asc: { t_label: t('Less'), icon: RxArrowDown },
+    },
+    boolean: {
+      desc: { t_label: t('Yes first'), icon: RxArrowUp },
+      asc: { t_label: t('No first'), icon: RxArrowDown },
+    },
+  };
 
   const sortConfig = sortConfigs[sortType];
 
@@ -102,9 +105,9 @@ export function DataTableColumnHeader<TData, TValue>({
             variant="ghost"
             size="sm"
             className="data-[state=open]:bg-accent -ml-3 h-8 !transform-none focus-visible:!ring-0 focus-visible:!ring-offset-0"
-            data-testid={`column-header-${column.columnDef.meta?.label}`}
+            data-testid={`column-header-${column.columnDef.meta?.t_label}`}
           >
-            <span>{column.columnDef.meta?.label}</span>
+            <span>{column.columnDef.meta?.t_label}</span>
             <SortIcon className="ml-1 h-4 w-4" />
           </BaseButton>
         </BaseDropdownMenuTrigger>
@@ -115,7 +118,7 @@ export function DataTableColumnHeader<TData, TValue>({
               key={direction}
               direction={direction}
               icon={getIcon(direction)}
-              label={sortConfig[direction].label}
+              label={sortConfig[direction].t_label}
               onClick={() => column.toggleSorting(direction === 'desc')}
               onMouseEnter={() => prefetchSort(column.columnDef.id, direction)}
             />
@@ -127,7 +130,7 @@ export function DataTableColumnHeader<TData, TValue>({
 
               <BaseDropdownMenuItem onClick={() => column.toggleVisibility(false)}>
                 <RxEyeNone className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
-                Hide
+                {t('Hide')}
               </BaseDropdownMenuItem>
             </>
           ) : null}

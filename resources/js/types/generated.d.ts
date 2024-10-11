@@ -62,8 +62,9 @@ declare namespace App.Data {
     isMuted: boolean;
     id?: number;
     username?: string | null;
-    motto?: string;
     legacyPermissions?: number | null;
+    locale?: string | null;
+    motto?: string;
     preferences?: { prefersAbsoluteDates: boolean };
     roles?: App.Models.UserRole[];
     apiKey?: string | null;

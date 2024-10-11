@@ -67,6 +67,23 @@ describe('Hook: useGameListState', () => {
     expect(currentValue.sorting).toEqual([{ id: 'system', desc: false }]);
   });
 
+  it('given an array sort param from the browser, bails to a sane default sort value', () => {
+    // ARRANGE
+    const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
+
+    const { result } = renderHook(() => useGameListState(createPaginatedData([])), {
+      initialProps: paginatedGames,
+      pageProps: {
+        ziggy: createZiggyProps({ query: [] as any }),
+      },
+    });
+
+    // ASSERT
+    const currentValue = result.current as ReturnType<typeof useGameListState>;
+
+    expect(currentValue.sorting).toEqual([{ id: 'title', desc: false }]);
+  });
+
   it('given a negative sort param, correctly sets the initial sorting state', () => {
     // ARRANGE
     const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });

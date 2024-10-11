@@ -1,28 +1,33 @@
 import type { FC } from 'react';
 
+import { useGetAwardLabelFromPlayerBadge } from '@/common/hooks/useGetAwardLabelFromPlayerBadge';
 import { AwardType } from '@/common/utils/generatedAppConstants';
-import { getLabelFromPlayerBadge } from '@/common/utils/getLabelFromPlayerBadge';
 import { cn } from '@/utils/cn';
 
-type PlayerBadgeLabelProps = App.Platform.Data.PlayerBadge & {
+type PlayerBadgeLabelProps = {
+  playerBadge: App.Platform.Data.PlayerBadge;
+
   className?: string;
   isColorized?: boolean;
   variant?: 'base' | 'muted-group';
 };
 
 export const PlayerBadgeLabel: FC<PlayerBadgeLabelProps> = ({
-  awardType,
-  awardDataExtra,
+  playerBadge,
   className,
   isColorized = true,
   variant = 'base',
 }) => {
-  const label = getLabelFromPlayerBadge(awardType, awardDataExtra);
+  const { getAwardLabelFromPlayerBadge } = useGetAwardLabelFromPlayerBadge();
+
+  const label = getAwardLabelFromPlayerBadge(playerBadge);
 
   return (
     <span
       className={cn(
-        isColorized ? getLabelColorClassNames(awardType, awardDataExtra, variant) : undefined,
+        isColorized
+          ? getLabelColorClassNames(playerBadge.awardType, playerBadge.awardDataExtra, variant)
+          : undefined,
         className,
       )}
     >

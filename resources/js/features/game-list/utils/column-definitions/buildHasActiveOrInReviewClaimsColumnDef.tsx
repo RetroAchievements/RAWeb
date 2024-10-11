@@ -10,16 +10,24 @@ import {
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 
 interface BuildHasActiveOrInReviewClaimsColumnDefProps {
+  t_label: string;
+  strings: {
+    t_yes: string;
+    t_description: string;
+  };
+
   tableApiRouteName?: RouteName;
 }
 
 export function buildHasActiveOrInReviewClaimsColumnDef({
+  t_label,
+  strings,
   tableApiRouteName = 'api.game.index',
 }: BuildHasActiveOrInReviewClaimsColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
     id: 'hasActiveOrInReviewClaims',
     accessorKey: 'game',
-    meta: { label: 'Claimed', align: 'right' },
+    meta: { t_label },
     header: ({ column, table }) => (
       <DataTableColumnHeader
         column={column}
@@ -32,21 +40,19 @@ export function buildHasActiveOrInReviewClaimsColumnDef({
       const hasActiveOrInReviewClaims = row.original.game?.hasActiveOrInReviewClaims ?? false;
 
       return (
-        <div className="flex justify-end">
+        <div>
           {hasActiveOrInReviewClaims ? (
             <BaseTooltip>
               <BaseTooltipTrigger asChild>
-                <p>Yes</p>
+                <p>{strings.t_yes}</p>
               </BaseTooltipTrigger>
 
               <BaseTooltipContent>
-                <p className="text-xs">
-                  One or more developers are currently working on this game.
-                </p>
+                <p className="text-xs">{strings.t_description}</p>
               </BaseTooltipContent>
             </BaseTooltip>
           ) : (
-            <p className="text-muted">-</p>
+            <p className="text-muted">{'-'}</p>
           )}
         </div>
       );
