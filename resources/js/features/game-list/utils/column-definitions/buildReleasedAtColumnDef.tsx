@@ -12,16 +12,21 @@ dayjs.extend(utc);
 dayjs.extend(localizedFormat);
 
 interface BuildReleasedAtColumnDefProps {
+  t_label: string;
+  strings: { t_unknown: string };
+
   tableApiRouteName?: RouteName;
 }
 
 export function buildReleasedAtColumnDef({
+  t_label,
+  strings,
   tableApiRouteName = 'api.game.index',
 }: BuildReleasedAtColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
     id: 'releasedAt',
     accessorKey: 'game',
-    meta: { label: 'Release Date' },
+    meta: { t_label },
     header: ({ column, table }) => (
       <DataTableColumnHeader
         column={column}
@@ -35,7 +40,7 @@ export function buildReleasedAtColumnDef({
       const granularity = row.original.game?.releasedAtGranularity ?? 'day';
 
       if (!date) {
-        return <p className="text-muted italic">unknown</p>;
+        return <p className="text-muted italic">{strings.t_unknown}</p>;
       }
 
       const dayjsDate = dayjs.utc(date);

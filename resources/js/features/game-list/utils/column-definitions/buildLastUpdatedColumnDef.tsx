@@ -12,16 +12,19 @@ dayjs.extend(utc);
 dayjs.extend(localizedFormat);
 
 interface BuildLastUpdatedColumnDefProps {
+  t_label: string;
+
   tableApiRouteName?: RouteName;
 }
 
 export function buildLastUpdatedColumnDef({
+  t_label,
   tableApiRouteName = 'api.game.index',
 }: BuildLastUpdatedColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
     id: 'lastUpdated',
     accessorKey: 'game',
-    meta: { label: 'Last Updated' },
+    meta: { t_label },
     header: ({ column, table }) => (
       <DataTableColumnHeader
         column={column}

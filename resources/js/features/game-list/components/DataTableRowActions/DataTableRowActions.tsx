@@ -1,4 +1,5 @@
 import type { Row } from '@tanstack/react-table';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useEffect, useState } from 'react';
 import { MdClose } from 'react-icons/md';
 
@@ -33,6 +34,8 @@ export function DataTableRowActions<TData>({
   shouldAnimateBacklogIconOnChange = true,
 }: DataTableRowActionsProps<TData>) {
   const { auth } = usePageProps();
+
+  const { t } = useLaravelReactI18n();
 
   const { addToWantToPlayGamesList, isPending, removeFromWantToPlayGamesList } =
     useWantToPlayGamesList();
@@ -97,8 +100,8 @@ export function DataTableRowActions<TData>({
 
             <span className="sr-only">
               {isInBacklogOptimistic
-                ? 'Remove from Want To Play Games'
-                : 'Add to Want to Play Games'}
+                ? t('Remove from Want To Play Games')
+                : t('Add to Want to Play Games')}
             </span>
           </BaseButton>
         </div>
@@ -106,7 +109,9 @@ export function DataTableRowActions<TData>({
 
       <BaseTooltipContent>
         <p>
-          {isInBacklogOptimistic ? 'Remove from Want to Play Games' : 'Add to Want to Play Games'}
+          {isInBacklogOptimistic
+            ? t('Remove from Want to Play Games')
+            : t('Add to Want to Play Games')}
         </p>
       </BaseTooltipContent>
     </BaseTooltip>

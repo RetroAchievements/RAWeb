@@ -6,18 +6,21 @@ import { GameAvatar } from '@/common/components/GameAvatar';
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 
 interface BuildTitleColumnDefProps {
+  t_label: string;
+
   forUsername?: string;
   tableApiRouteName?: RouteName;
 }
 
 export function buildTitleColumnDef({
+  t_label,
   forUsername,
   tableApiRouteName = 'api.game.index',
 }: BuildTitleColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
     id: 'title',
     accessorKey: 'game',
-    meta: { label: 'Title' },
+    meta: { t_label },
     enableHiding: false,
     header: ({ column, table }) => (
       <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
@@ -28,7 +31,7 @@ export function buildTitleColumnDef({
       }
 
       return (
-        <div className="max-w-fit">
+        <div className="min-w-[180px] max-w-fit">
           <div className="max-w-[400px]">
             <GameAvatar
               {...row.original.game}

@@ -11,6 +11,7 @@ import type { RouteName, RouteParams } from 'ziggy-js';
 import { route } from '../../vendor/tightenco/ziggy';
 import { AppProviders } from './common/components/AppProviders';
 import type { AppGlobalProps } from './common/models';
+import { loadDayjsLocale } from './common/utils/l10n/loadDayjsLocale';
 
 const appName = import.meta.env.APP_NAME ?? 'RetroAchievements';
 const inertiaDaemonPort = import.meta.env.VITE_INERTIA_SSR_PORT ?? 13714;
@@ -27,7 +28,7 @@ createServer(
       resolve: (name) =>
         resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
 
-      setup: ({ App, props }) => {
+      async setup({ App, props }) {
         global.route<RouteName> = (name, params, absolute) =>
           route(name, params as RouteParams<string & object>, absolute, {
             ...page.props.ziggy,
@@ -36,6 +37,8 @@ createServer(
 
         const globalProps = props.initialPage.props as AppGlobalProps;
         const userLocale = globalProps.auth?.user.locale ?? 'en_US';
+
+        await loadDayjsLocale(userLocale);
 
         return (
           <LaravelReactI18nProvider
