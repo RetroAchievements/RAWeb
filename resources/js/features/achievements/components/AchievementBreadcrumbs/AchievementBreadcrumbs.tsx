@@ -10,6 +10,7 @@ import {
   BaseBreadcrumbPage,
   BaseBreadcrumbSeparator,
 } from '@/common/components/+vendor/BaseBreadcrumb';
+import { GameTitle } from '@/common/components/GameTitle';
 
 /**
  * TODO this is intentionally quite duplicative with GameBreadcrumbs.
@@ -60,7 +61,7 @@ export const AchievementBreadcrumbs: FC<AchievementBreadcrumbsProps> = ({
               <BaseBreadcrumbSeparator />
               <BaseBreadcrumbItem>
                 <BaseBreadcrumbLink href={route('game.show', { game: game.id })}>
-                  {game.title}
+                  <GameTitle title={game.title} />
                 </BaseBreadcrumbLink>
               </BaseBreadcrumbItem>
             </>
