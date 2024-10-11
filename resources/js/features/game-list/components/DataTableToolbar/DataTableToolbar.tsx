@@ -1,8 +1,9 @@
 import type { ColumnFiltersState, Table } from '@tanstack/react-table';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { RouteName } from 'ziggy-js';
 
+import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { formatNumber } from '@/common/utils/l10n/formatNumber';
 
 import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
 import { DataTableAchievementsPublishedFilter } from '../DataTableAchievementsPublishedFilter';
@@ -29,6 +30,10 @@ export function DataTableToolbar<TData>({
     filterableSystemOptions: App.Platform.Data.System[];
   }>();
 
+  const { t, tChoice } = useLaravelReactI18n();
+
+  const { formatNumber } = useFormatNumber();
+
   const currentFilters = table.getState().columnFilters;
   const isFiltered = getAreNonDefaultFiltersSet(currentFilters, defaultColumnFilters);
 
@@ -41,7 +46,7 @@ export function DataTableToolbar<TData>({
           <DataTableFacetedFilter
             className="w-full sm:w-auto"
             column={table.getColumn('system')}
-            title="System"
+            title={t('System')}
             options={filterableSystemOptions
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((system) => ({
@@ -69,13 +74,16 @@ export function DataTableToolbar<TData>({
         <p className="text-neutral-200 light:text-neutral-900">
           {unfilteredTotal && unfilteredTotal !== table.options.rowCount ? (
             <>
-              {formatNumber(table.options.rowCount ?? 0)} of {formatNumber(unfilteredTotal)}{' '}
-              {unfilteredTotal === 1 ? 'game' : 'games'}
+              {tChoice(':count of :total game|:count of :total games', unfilteredTotal, {
+                count: formatNumber(table.options.rowCount ?? 0),
+                total: formatNumber(unfilteredTotal),
+              })}
             </>
           ) : (
             <>
-              {formatNumber(table.options.rowCount ?? 0)}{' '}
-              {table.options.rowCount === 1 ? 'game' : 'games'}
+              {tChoice(':count game|:count games', table.options.rowCount ?? 0, {
+                count: formatNumber(table.options.rowCount ?? 0),
+              })}
             </>
           )}
         </p>

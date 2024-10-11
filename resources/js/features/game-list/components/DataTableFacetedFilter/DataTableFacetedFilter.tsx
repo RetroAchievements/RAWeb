@@ -1,4 +1,5 @@
 import type { Column } from '@tanstack/react-table';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 import { HiOutlineCheck } from 'react-icons/hi';
 import { RxPlusCircled } from 'react-icons/rx';
@@ -46,6 +47,8 @@ export function DataTableFacetedFilter<TData, TValue>({
   isSearchable = true,
   isSingleSelect = false,
 }: DataTableFacetedFilterProps<TData, TValue>) {
+  const { t } = useLaravelReactI18n();
+
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
 
@@ -96,7 +99,7 @@ export function DataTableFacetedFilter<TData, TValue>({
               <div className="hidden space-x-1 lg:flex">
                 {selectedValues.size > 2 ? (
                   <BaseBadge variant="secondary" className="rounded-sm px-1 font-normal leading-3">
-                    {selectedValues.size} selected
+                    {t(':count selected', { count: selectedValues.size })}
                   </BaseBadge>
                 ) : (
                   <>
@@ -125,7 +128,7 @@ export function DataTableFacetedFilter<TData, TValue>({
 
           <BaseCommandList>
             <BaseCommandEmpty>
-              <span className="text-muted">No options found.</span>
+              <span className="text-muted">{t('No options found.')}</span>
             </BaseCommandEmpty>
 
             <BaseCommandGroup>
@@ -184,6 +187,8 @@ interface ClearFiltersButtonProps {
 }
 
 const ClearFiltersButton: FC<ClearFiltersButtonProps> = ({ onClear }) => {
+  const { t } = useLaravelReactI18n();
+
   return (
     <div className="sticky bottom-0 bg-neutral-950 light:bg-neutral-100">
       <BaseCommandSeparator />
@@ -192,7 +197,7 @@ const ClearFiltersButton: FC<ClearFiltersButtonProps> = ({ onClear }) => {
           onSelect={onClear}
           className="cursor-pointer justify-center text-center text-xs text-link transition hover:bg-neutral-900 light:text-neutral-900 light:hover:bg-neutral-200"
         >
-          Clear filters
+          {t('Clear filters')}
         </BaseCommandItem>
       </BaseCommandGroup>
     </div>

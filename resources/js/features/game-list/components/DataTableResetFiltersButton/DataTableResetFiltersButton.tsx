@@ -1,4 +1,5 @@
 import type { ColumnFiltersState, Table } from '@tanstack/react-table';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { RxCross2 } from 'react-icons/rx';
 import type { RouteName } from 'ziggy-js';
 
@@ -19,6 +20,8 @@ export function DataTableResetFiltersButton<TData>({
   defaultColumnFilters = [],
   tableApiRouteName = 'api.game.index',
 }: DataTableResetFiltersButtonProps<TData>) {
+  const { t } = useLaravelReactI18n();
+
   const { prefetchResetFilters } = useDataTablePrefetchResetFilters(
     table,
     defaultColumnFilters,
@@ -41,7 +44,7 @@ export function DataTableResetFiltersButton<TData>({
       onMouseEnter={() => prefetchResetFilters()}
       className="px-2 text-link lg:px-3"
     >
-      Reset <RxCross2 className="ml-2 h-4 w-4" />
+      {t('Reset')} <RxCross2 className="ml-2 h-4 w-4" />
     </BaseButton>
   );
 }

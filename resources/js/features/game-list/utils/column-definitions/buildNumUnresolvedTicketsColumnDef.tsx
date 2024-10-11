@@ -1,21 +1,24 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 
-import { formatNumber } from '@/common/utils/l10n/formatNumber';
+import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 
 interface BuildNumUnresolvedTicketsColumnDefProps {
+  t_label: string;
+
   tableApiRouteName?: RouteName;
 }
 
 export function buildNumUnresolvedTicketsColumnDef({
+  t_label,
   tableApiRouteName = 'api.game.index',
 }: BuildNumUnresolvedTicketsColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
     id: 'numUnresolvedTickets',
     accessorKey: 'game',
-    meta: { label: 'Tickets', align: 'right' },
+    meta: { t_label, align: 'right' },
     header: ({ column, table }) => (
       <DataTableColumnHeader
         column={column}
@@ -25,6 +28,9 @@ export function buildNumUnresolvedTicketsColumnDef({
       />
     ),
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks -- the cell component is a FC. using this hook doesn't break the rules of hooks.
+      const { formatNumber } = useFormatNumber();
+
       const numUnresolvedTickets = row.original.game?.numUnresolvedTickets ?? 0;
       const gameId = row.original.game?.id ?? 0;
 

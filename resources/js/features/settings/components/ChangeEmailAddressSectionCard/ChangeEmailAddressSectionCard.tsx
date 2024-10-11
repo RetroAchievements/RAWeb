@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, useId, useState } from 'react';
 
 import {
@@ -16,6 +17,8 @@ import { useChangeEmailAddressForm } from './useChangeEmailAddressForm';
 export const ChangeEmailAddressSectionCard: FC = () => {
   const { userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
+  const { t } = useLaravelReactI18n();
+
   const [currentEmailAddress, setCurrentEmailAddress] = useState(userSettings.emailAddress ?? '');
 
   const { form, mutation, onSubmit } = useChangeEmailAddressForm({ setCurrentEmailAddress });
@@ -24,7 +27,7 @@ export const ChangeEmailAddressSectionCard: FC = () => {
 
   return (
     <SectionFormCard
-      headingLabel="Change Email"
+      t_headingLabel={t('Change Email')}
       formMethods={form}
       onSubmit={onSubmit}
       isSubmitting={mutation.isPending}
@@ -33,7 +36,7 @@ export const ChangeEmailAddressSectionCard: FC = () => {
         <div className="flex flex-col gap-5">
           <div className="flex w-full flex-col @xl:flex-row @xl:items-center">
             <label id={visibleEmailFieldId} className="text-menu-link @xl:w-2/5">
-              Current Email Address
+              {t('Current Email Address')}
             </label>
             <p aria-labelledby={visibleEmailFieldId}>{currentEmailAddress}</p>
           </div>
@@ -45,14 +48,14 @@ export const ChangeEmailAddressSectionCard: FC = () => {
               render={({ field }) => (
                 <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
                   <BaseFormLabel className="text-menu-link @xl:w-2/5">
-                    New Email Address
+                    {t('New Email Address')}
                   </BaseFormLabel>
 
                   <div className="flex flex-grow flex-col gap-1">
                     <BaseFormControl>
                       <BaseInput
                         type="email"
-                        placeholder="enter your new email address here..."
+                        placeholder={t('enter your new email address here...')}
                         required
                         {...field}
                       />
@@ -70,14 +73,14 @@ export const ChangeEmailAddressSectionCard: FC = () => {
               render={({ field }) => (
                 <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
                   <BaseFormLabel className="text-menu-link @xl:w-2/5">
-                    Confirm New Email Address
+                    {t('Confirm New Email Address')}
                   </BaseFormLabel>
 
                   <div className="flex flex-grow flex-col gap-1">
                     <BaseFormControl>
                       <BaseInput
                         type="email"
-                        placeholder="confirm your new email address here..."
+                        placeholder={t('confirm your new email address here...')}
                         required
                         {...field}
                       />

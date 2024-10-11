@@ -1,5 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import type { RouteName } from 'ziggy-js';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useMemo } from 'react';
 
 import { buildAchievementsPublishedColumnDef } from '../../utils/column-definitions/buildAchievementsPublishedColumnDef';
 import { buildLastUpdatedColumnDef } from '../../utils/column-definitions/buildLastUpdatedColumnDef';
@@ -14,34 +15,41 @@ import { buildRowActionsColumnDef } from '../../utils/column-definitions/buildRo
 import { buildSystemColumnDef } from '../../utils/column-definitions/buildSystemColumnDef';
 import { buildTitleColumnDef } from '../../utils/column-definitions/buildTitleColumnDef';
 
-const tableApiRouteName: RouteName = 'api.user-game-list.index';
-
-export function buildColumnDefinitions(options: {
+export function useColumnDefinitions(options: {
   canSeeOpenTicketsColumn: boolean;
   forUsername?: string;
 }): ColumnDef<App.Platform.Data.GameListEntry>[] {
-  const columnDefinitions: ColumnDef<App.Platform.Data.GameListEntry>[] = [
-    buildTitleColumnDef({ tableApiRouteName, forUsername: options.forUsername }),
-    buildSystemColumnDef({ tableApiRouteName }),
-    buildAchievementsPublishedColumnDef({ tableApiRouteName }),
-    buildPointsTotalColumnDef({ tableApiRouteName }),
-    buildRetroRatioColumnDef({ tableApiRouteName }),
-    buildLastUpdatedColumnDef({ tableApiRouteName }),
-    buildReleasedAtColumnDef({ tableApiRouteName }),
-    buildPlayersTotalColumnDef({ tableApiRouteName }),
-    buildNumVisibleLeaderboardsColumnDef({ tableApiRouteName }),
-  ];
+  const { t } = useLaravelReactI18n();
 
-  if (options.canSeeOpenTicketsColumn) {
-    columnDefinitions.push(buildNumUnresolvedTicketsColumnDef({ tableApiRouteName }));
-  }
+  const columnDefinitions = useMemo(() => {
+    const columns: ColumnDef<App.Platform.Data.GameListEntry>[] = [
+      buildTitleColumnDef({ t_label: t('Title'), forUsername: options.forUsername }),
+      buildSystemColumnDef({ t_label: t('System') }),
+      buildAchievementsPublishedColumnDef({ t_label: t('Achievements') }),
+      buildPointsTotalColumnDef({ t_label: t('Points') }),
+      buildRetroRatioColumnDef({ t_label: t('Rarity'), strings: { t_none: t('none') } }),
+      buildLastUpdatedColumnDef({ t_label: t('Last Updated') }),
+      buildReleasedAtColumnDef({
+        t_label: t('Release Date'),
+        strings: { t_unknown: t('unknown') },
+      }),
+      buildPlayersTotalColumnDef({ t_label: t('Players') }),
+      buildNumVisibleLeaderboardsColumnDef({ t_label: t('Leaderboards') }),
+    ];
 
-  columnDefinitions.push(
-    ...([
-      buildPlayerGameProgressColumnDef({ tableApiRouteName }),
-      buildRowActionsColumnDef(),
-    ] satisfies ColumnDef<App.Platform.Data.GameListEntry>[]),
-  );
+    if (options.canSeeOpenTicketsColumn) {
+      columns.push(buildNumUnresolvedTicketsColumnDef({ t_label: t('Tickets') }));
+    }
+
+    columns.push(
+      ...([
+        buildPlayerGameProgressColumnDef({ t_label: t('Progress') }),
+        buildRowActionsColumnDef(),
+      ] satisfies ColumnDef<App.Platform.Data.GameListEntry>[]),
+    );
+
+    return columns;
+  }, [options.canSeeOpenTicketsColumn, options.forUsername, t]);
 
   return columnDefinitions;
 }
