@@ -7,8 +7,8 @@ export function buildRowActionsColumnDef(): ColumnDef<App.Platform.Data.GameList
     id: 'actions',
     cell: ({ row }) => (
       // Prevent spurious tooltip re-openings after a toast pops and closes.
-      <div onFocusCapture={(event) => event.stopPropagation()}>
-        <DataTableRowActions row={row} />
+      <div key={row.original.game.id} onFocusCapture={(event) => event.stopPropagation()}>
+        <DataTableRowActions row={row} shouldAnimateBacklogIconOnChange={false} />
       </div>
     ),
   };

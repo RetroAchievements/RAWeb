@@ -12,8 +12,8 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { allGamesDefaultFilters } from '../../utils/allGamesDefaultFilters';
 import { DataTablePagination } from '../DataTablePagination';
+import { DataTableToolbar } from '../DataTableToolbar';
 import { GameListDataTable } from '../GameListDataTable';
-import { AllGamesDataTableToolbar } from './AllGamesDataTableToolbar';
 import { useColumnDefinitions } from './useColumnDefinitions';
 
 // These values are all generated from `useGameListState`.
@@ -70,7 +70,7 @@ export const AllGamesDataTable: FC<AllGamesDataTableProps> = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <AllGamesDataTableToolbar
+      <DataTableToolbar
         table={table}
         unfilteredTotal={gameListQuery.data?.unfilteredTotal ?? null}
         defaultColumnFilters={allGamesDefaultFilters}

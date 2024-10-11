@@ -10,6 +10,7 @@
         "fix": "npm run fix:eslint",
         "fix:eslint": "eslint public/js resources/js postcss.config.js tailwind.config.js vite.config.ts --fix",
         "test": "vitest run --reporter=dot",
+        "test:coverage": "vitest --ui --coverage --reporter=dot",
         "test:watch": "vitest",
         "tsc": "tsc --noEmit --skipLibCheck",
         "analyze": "cross-env ANALYZE=true npm run prod"
@@ -74,6 +75,8 @@
         "@typescript-eslint/eslint-plugin": "^8.8.1",
         "@typescript-eslint/parser": "^8.8.1",
         "@vitejs/plugin-react": "^4.3.1",
+        "@vitest/coverage-v8": "^2.1.2",
+        "@vitest/ui": "^2.1.2",
         "alpinejs": "^3.12.2",
         "autoprefixer": "^10.4.14",
         "eslint": "^8.44.0",
