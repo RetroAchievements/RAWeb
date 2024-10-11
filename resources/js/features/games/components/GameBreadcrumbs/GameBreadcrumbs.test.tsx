@@ -53,7 +53,7 @@ describe('Component: GameBreadcrumbs', () => {
     const system = createSystem({ name: 'SNES' });
     const game = createGame({ title: '~Hack~ Super Junkoid' });
 
-    render(<GameBreadcrumbs currentPageLabel="Some Page" game={game} system={system} />);
+    render(<GameBreadcrumbs t_currentPageLabel="Some Page" game={game} system={system} />);
 
     // ASSERT
     expect(screen.queryByText('~')).not.toBeInTheDocument();

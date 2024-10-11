@@ -80,7 +80,7 @@ describe('Component: AchievementBreadcrumbs', () => {
 
     render(
       <AchievementBreadcrumbs
-        currentPageLabel="Some Page"
+        t_currentPageLabel="Some Page"
         achievement={achievement}
         game={game}
         system={system}
