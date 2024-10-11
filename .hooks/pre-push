@@ -9,7 +9,7 @@ printf "\n⏳ composer analyse\n"
 vendor/bin/phpstan analyse --memory-limit 512M
 
 printf "\n⏳ npm run lint:eslint\n"
-npx eslint --quiet
+npm run lint:eslint
 
 printf "\n⏳ npm run tsc\n"
 npm run tsc

@@ -37,4 +37,35 @@ describe('Component: GameTitle', () => {
     expect(screen.getByText(/super mario sunshine/i)).toBeVisible();
     expect(screen.getByText(/max% pre-peach/i)).toBeVisible();
   });
+
+  it('renders multiple non-subset tags correctly', () => {
+    // ARRANGE
+    render(<GameTitle title="~Prototype~ ~Hack~ Biohazard 2" />);
+
+    // ASSERT
+    expect(screen.getByText(/prototype/i)).toBeVisible();
+    expect(screen.getByText(/hack/i)).toBeVisible();
+    expect(screen.getByText(/biohazard 2/i)).toBeVisible();
+  });
+
+  it('renders tags and subset labels simultaneously', () => {
+    // ARRANGE
+    render(<GameTitle title="~Prototype~ ~Hack~ Biohazard 2 [Subset - Bonus]" />);
+
+    // ASSERT
+    expect(screen.getByText(/prototype/i)).toBeVisible();
+    expect(screen.getByText(/hack/i)).toBeVisible();
+    expect(screen.getByText(/biohazard 2/i)).toBeVisible();
+    expect(screen.getByText(/subset/i)).toBeVisible();
+    expect(screen.getByText(/bonus/i)).toBeVisible();
+  });
+
+  it('given showTags is false, does not render tags', () => {
+    // ARRANGE
+    render(<GameTitle title="~Prototype~ ~Hack~ Biohazard 2" showTags={false} />);
+
+    // ASSERT
+    expect(screen.queryByText(/prototype/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/hack/i)).not.toBeInTheDocument();
+  });
 });

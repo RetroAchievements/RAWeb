@@ -1,19 +1,25 @@
 import type { FC } from 'react';
 
+import { useGetAwardLabelFromPlayerBadge } from '@/common/hooks/useGetAwardLabelFromPlayerBadge';
 import { AwardType } from '@/common/utils/generatedAppConstants';
-import { getLabelFromPlayerBadge } from '@/common/utils/getLabelFromPlayerBadge';
 import { cn } from '@/utils/cn';
 
-type PlayerBadgeIndicatorProps = App.Platform.Data.PlayerBadge & { className?: string };
+interface PlayerBadgeIndicatorProps {
+  playerBadge: App.Platform.Data.PlayerBadge;
 
-export const PlayerBadgeIndicator: FC<PlayerBadgeIndicatorProps> = ({
-  awardType,
-  awardDataExtra,
-  className,
-}) => {
+  className?: string;
+}
+
+export const PlayerBadgeIndicator: FC<PlayerBadgeIndicatorProps> = ({ playerBadge, className }) => {
+  const { getAwardLabelFromPlayerBadge } = useGetAwardLabelFromPlayerBadge();
+
+  const label = getAwardLabelFromPlayerBadge(playerBadge);
+
+  const { awardType, awardDataExtra } = playerBadge;
+
   return (
     <div
-      aria-label={`${getLabelFromPlayerBadge(awardType, awardDataExtra)} indicator`}
+      aria-label={`${label} indicator`}
       className={cn(
         'h-2 w-2 rounded-full',
 

@@ -11,6 +11,7 @@ use App\Data\PaginatedData;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
+use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Data\GameData;
@@ -156,6 +157,15 @@ class BuildGameListAction
         }
 
         switch ($listType) {
+            case GameListType::AllGames:
+                // Exclude non game systems, inactive systems, and subsets.
+                $query
+                    ->whereHas('system', function ($q) {
+                        return $q->gameSystems()->active();
+                    })
+                    ->where('GameData.Title', 'not like', "%[Subset -%");
+                break;
+
             case GameListType::UserPlay:
                 $query->whereHas('gameListEntries', function ($query) use ($user) {
                     $query->where('user_id', $user->id)
@@ -165,7 +175,6 @@ class BuildGameListAction
 
             // TODO implement these other use cases
             case GameListType::UserDevelop:
-            case GameListType::AllGames:
             case GameListType::System:
             case GameListType::Hub:
             case GameListType::DeveloperSets:
@@ -456,7 +465,10 @@ class BuildGameListAction
                 break;
 
             case 'none':
-                $query->where('GameData.achievements_published', 0);
+                $query->where(function ($q) {
+                    $q->where('GameData.achievements_published', 0)
+                        ->orWhereNull('GameData.achievements_published');
+                });
                 break;
 
             case 'either':

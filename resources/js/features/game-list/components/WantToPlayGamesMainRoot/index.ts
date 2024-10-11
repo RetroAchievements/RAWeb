@@ -1,1 +1,1 @@
-export * from './WantToPlayGamesRoot';
+export * from './WantToPlayGamesMainRoot';

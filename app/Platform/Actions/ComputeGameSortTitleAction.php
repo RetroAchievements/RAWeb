@@ -132,13 +132,16 @@ class ComputeGameSortTitleAction
         if ($title[0] === '~') {
             $endOfFirstTilde = strpos($title, '~', 1);
             if ($endOfFirstTilde !== false) {
-                $withinTildes = substr($title, 1, $endOfFirstTilde - 1);
+                $tagContent = substr($title, 1, $endOfFirstTilde - 1);
                 $afterTildes = trim(substr($title, $endOfFirstTilde + 1));
 
-                $title = '~' . $withinTildes . ' ' . $afterTildes;
+                // Prefix with "zzzz{" to force tagged games to sort after non-tagged games.
+                // This also handles edge cases for games like "Zzyzzyxx". The "{" character
+                // has a higher ASCII value than "z", ensuring proper sorting order.
+                $title = 'zzzz{' . mb_strtolower($tagContent) . ' ' . $afterTildes;
             }
         }
 
-        return $title;
+        return trim($title);
     }
 }

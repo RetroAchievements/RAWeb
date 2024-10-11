@@ -64,7 +64,7 @@ describe('Component: HashesList', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(hash.name ?? '')).toBeVisible();
+    expect(screen.getByText(hash.name as string)).toBeVisible();
     expect(screen.getByText(hash.md5)).toBeVisible();
   });
 
@@ -80,5 +80,64 @@ describe('Component: HashesList', () => {
     const linkEl = screen.getByRole('link', { name: /download patch file/i });
     expect(linkEl).toBeVisible();
     expect(linkEl).toHaveAttribute('href', hash.patchUrl);
+  });
+
+  it('given the hash has no patch URL, does not display a download link', () => {
+    // ARRANGE
+    const hash = createGameHash({ patchUrl: null });
+
+    render<App.Platform.Data.GameHashesPageProps>(<HashesList />, {
+      pageProps: { hashes: [hash] },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /download patch file/i })).not.toBeInTheDocument();
+  });
+
+  it('given the hash has labels with images, renders them', () => {
+    // ARRANGE
+    const label = createGameHashLabel({ imgSrc: faker.internet.url(), label: 'Redump' });
+
+    const hash = createGameHash({
+      labels: [label],
+    });
+
+    render<App.Platform.Data.GameHashesPageProps>(<HashesList />, {
+      pageProps: { hashes: [hash] },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('img', { name: /redump/i })).toBeVisible();
+  });
+
+  it('given the hash has labels without images, renders them', () => {
+    // ARRANGE
+    const label = createGameHashLabel({ imgSrc: null, label: 'Redump' });
+
+    const hash = createGameHash({
+      labels: [label],
+    });
+
+    render<App.Platform.Data.GameHashesPageProps>(<HashesList />, {
+      pageProps: { hashes: [hash] },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('img', { name: /redump/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/redump/i)).toBeVisible();
+  });
+
+  it('given there are no named hashes, does not render a named hashes section', () => {
+    // ARRANGE
+    const namedHashes: App.Platform.Data.GameHash[] = [];
+    const unnamedHashes = [createGameHash({ name: null }), createGameHash({ name: null })];
+
+    render<App.Platform.Data.GameHashesPageProps>(<HashesList />, {
+      pageProps: { hashes: [...namedHashes, ...unnamedHashes] },
+    });
+
+    // ASSERT
+    expect(screen.queryByTestId('named-hashes')).not.toBeInTheDocument();
+    expect(screen.getByTestId('unnamed-hashes')).toBeVisible();
   });
 });
