@@ -25,6 +25,7 @@ class LatestClientTest extends TestCase
             'download_x64_url' => null,
             'active' => 1,
         ]);
+
         $emulator2 = Emulator::create([
             'name' => 'RAEmu2',
             'download_url' => 'bin/RAEmu2.zip',
@@ -32,6 +33,14 @@ class LatestClientTest extends TestCase
             'active' => 1,
         ]);
         $emulator2_stable = EmulatorRelease::create(['emulator_id' => $emulator2->id, 'version' => '2.0', 'stable' => 1]);
+
+        $emulator3 = Emulator::create([
+            'name' => 'ExternalEmu',
+            'download_url' => 'http://external-emu.net/download',
+            'download_x64_url' => 'http://external-emu.net/download-x64',
+            'active' => 1,
+        ]);
+        $emulator3_stable = EmulatorRelease::create(['emulator_id' => $emulator3->id, 'version' => '1.3', 'stable' => 1]);
 
         // unknown client ID
         $this->get($this->apiUrl('latestclient', ['e' => 99]))
@@ -93,7 +102,7 @@ class LatestClientTest extends TestCase
             ]);
 
         // official release. minimum specified
-        $emulator1_1_0->minimum = true;
+        $emulator1_1_0->minimum = 1;
         $emulator1_1_0->save();
         $this->get($this->apiUrl('latestclient', ['e' => $emulator1->id]))
             ->assertStatus(200)
@@ -124,6 +133,17 @@ class LatestClientTest extends TestCase
                 'LatestVersion' => $emulator2_stable->version,
                 'LatestVersionUrl' => config('app.url') . '/bin/RAEmu2.zip',
                 'LatestVersionUrlX64' => config('app.url') . '/bin/RAEmu2-x64.zip',
+            ]);
+
+        // external emulator
+        $this->get($this->apiUrl('latestclient', ['e' => $emulator3->id]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'MinimumVersion' => $emulator3_stable->version,
+                'LatestVersion' => $emulator3_stable->version,
+                'LatestVersionUrl' => $emulator3->download_url,
+                'LatestVersionUrlX64' => $emulator3->download_x64_url,
             ]);
     }
 }
