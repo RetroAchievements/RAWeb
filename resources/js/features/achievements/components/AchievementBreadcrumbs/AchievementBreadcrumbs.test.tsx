@@ -6,7 +6,7 @@ import { AchievementBreadcrumbs } from './AchievementBreadcrumbs';
 describe('Component: AchievementBreadcrumbs', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<AchievementBreadcrumbs currentPageLabel="Some Page" />);
+    const { container } = render(<AchievementBreadcrumbs t_currentPageLabel="Some Page" />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -14,7 +14,7 @@ describe('Component: AchievementBreadcrumbs', () => {
 
   it('has a link to the All Games list', () => {
     // ARRANGE
-    render(<AchievementBreadcrumbs currentPageLabel="Some Page" />);
+    render(<AchievementBreadcrumbs t_currentPageLabel="Some Page" />);
 
     // ASSERT
     const allGamesLinkEl = screen.getByRole('link', { name: /all games/i });
@@ -27,7 +27,7 @@ describe('Component: AchievementBreadcrumbs', () => {
     const system = createSystem({ name: 'Nintendo 64' });
     const game = createGame({ system });
 
-    render(<AchievementBreadcrumbs currentPageLabel="Some Page" game={game} system={system} />);
+    render(<AchievementBreadcrumbs t_currentPageLabel="Some Page" game={game} system={system} />);
 
     // ASSERT
     const systemGamesLinkEl = screen.getByRole('link', { name: /nintendo 64/i });
@@ -40,7 +40,7 @@ describe('Component: AchievementBreadcrumbs', () => {
     const system = createSystem({ name: 'Nintendo 64' });
     const game = createGame({ system });
 
-    render(<AchievementBreadcrumbs currentPageLabel="Some Page" game={game} system={system} />);
+    render(<AchievementBreadcrumbs t_currentPageLabel="Some Page" game={game} system={system} />);
 
     // ASSERT
     const gameLinkEl = screen.getByRole('link', { name: game.title });
@@ -56,7 +56,7 @@ describe('Component: AchievementBreadcrumbs', () => {
 
     render(
       <AchievementBreadcrumbs
-        currentPageLabel="Some Page"
+        t_currentPageLabel="Some Page"
         achievement={achievement}
         game={game}
         system={system}

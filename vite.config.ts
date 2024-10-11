@@ -61,6 +61,30 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       setupFiles: 'resources/js/setupTests.ts',
       include: ['resources/js/**/*.{test,spec}.{ts,tsx}'],
       globals: true,
+
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'html'],
+        include: [
+          /*
+           * Disregard coverage for Alpine.js stuff, mounting code, and /pages.
+           *  - Alpine.js stuff will be removed.
+           *  - Covering mounting code would just test the framework.
+           *  - /pages should be covered by controller tests.
+           */
+          'resources/js/common',
+          'resources/js/features',
+          'resources/js/utils',
+        ],
+        exclude: [
+          '**/index.ts',
+          '**/*.model.ts',
+          '**/*.test.ts',
+          '**/*.test.tsx',
+          '**/*.spec.ts',
+          '**/*.spec.tsx',
+        ],
+      },
     },
 
     // @ see https://vitejs.dev/config/#server-options

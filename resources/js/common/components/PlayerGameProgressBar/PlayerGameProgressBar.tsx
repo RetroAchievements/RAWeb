@@ -1,11 +1,12 @@
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utc from 'dayjs/plugin/utc';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
-import { AwardType } from '@/common/utils/generatedAppConstants';
+import { useFormatNumber } from '@/common/hooks/useFormatNumber';
+import { useGetAwardLabelFromPlayerBadge } from '@/common/hooks/useGetAwardLabelFromPlayerBadge';
 import { getIsEventGame } from '@/common/utils/getIsEventGame';
-import { formatNumber } from '@/common/utils/l10n/formatNumber';
 import { cn } from '@/utils/cn';
 
 import { BaseProgress } from '../+vendor/BaseProgress';
@@ -22,6 +23,12 @@ interface PlayerGameProgressBarProps {
 }
 
 export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({ game, playerGame }) => {
+  const { t } = useLaravelReactI18n();
+
+  const { getAwardLabelFromPlayerBadge } = useGetAwardLabelFromPlayerBadge();
+
+  const { formatNumber } = useFormatNumber();
+
   const achievementsPublished = game?.achievementsPublished ?? 0;
   const pointsTotal = game.pointsTotal ?? 0;
   const achievementsUnlocked = playerGame?.achievementsUnlocked ?? 0;
@@ -75,10 +82,10 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({ game, pl
 
           {highestAward && !isEventGame ? (
             <div className="flex items-center gap-1">
-              <PlayerBadgeIndicator {...highestAward} className="mt-px" />
+              <PlayerBadgeIndicator playerBadge={highestAward} className="mt-px" />
               <p>
                 <PlayerBadgeLabel
-                  {...highestAward}
+                  playerBadge={highestAward}
                   className="text-2xs tracking-tighter"
                   variant="muted-group"
                 />
@@ -94,27 +101,37 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({ game, pl
             <>
               {achievementsUnlockedHardcore > 0 ? (
                 <p>
-                  {formatNumber(achievementsUnlockedHardcore)} of{' '}
-                  {formatNumber(achievementsPublished)} achievements unlocked
+                  {t(':earned of :total achievements unlocked', {
+                    earned: formatNumber(achievementsUnlockedHardcore),
+                    total: formatNumber(achievementsPublished),
+                  })}
                 </p>
               ) : null}
 
               {achievementsUnlockedSoftcore > 0 ? (
                 <p>
-                  {formatNumber(achievementsUnlockedSoftcore)} of{' '}
-                  {formatNumber(achievementsPublished)} softcore achievements unlocked
+                  {t(':earned of :total softcore achievements unlocked', {
+                    earned: formatNumber(achievementsUnlockedSoftcore),
+                    total: formatNumber(achievementsPublished),
+                  })}
                 </p>
               ) : null}
 
               {pointsHardcore > 0 ? (
                 <p>
-                  {formatNumber(pointsHardcore)} of {formatNumber(pointsTotal)} points earned
+                  {t(':earned of :total points earned', {
+                    earned: formatNumber(pointsHardcore),
+                    total: formatNumber(pointsTotal),
+                  })}
                 </p>
               ) : null}
 
               {points > 0 ? (
                 <p>
-                  {formatNumber(points)} of {formatNumber(pointsTotal)} softcore points earned
+                  {t(':earned of :total softcore points earned', {
+                    earned: formatNumber(points),
+                    total: formatNumber(pointsTotal),
+                  })}
                 </p>
               ) : null}
             </>
@@ -122,8 +139,10 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({ game, pl
 
           {highestAward ? (
             <p>
-              {getAwardLabelFromPlayerBadge(highestAward)} on{' '}
-              {getEarnDateLabelFromPlayerBadge(highestAward)}
+              {t(':awardLabel on :awardDate', {
+                awardLabel: getAwardLabelFromPlayerBadge(highestAward),
+                awardDate: getEarnDateLabelFromPlayerBadge(highestAward),
+              })}
             </p>
           ) : null}
         </div>
@@ -131,20 +150,6 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({ game, pl
     </BaseTooltip>
   );
 };
-
-function getAwardLabelFromPlayerBadge(playerBadge: App.Platform.Data.PlayerBadge): string {
-  let awardLabel = 'Finished';
-
-  const { awardType, awardDataExtra } = playerBadge;
-
-  if (awardType === AwardType.Mastery) {
-    awardLabel = awardDataExtra ? 'Mastered' : 'Completed';
-  } else if (awardType === AwardType.GameBeaten) {
-    awardLabel = awardDataExtra ? 'Beaten' : 'Beaten (softcore)';
-  }
-
-  return awardLabel;
-}
 
 function getEarnDateLabelFromPlayerBadge(playerBadge: App.Platform.Data.PlayerBadge): string {
   return dayjs.utc(playerBadge.awardDate).format('ll');
