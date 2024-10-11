@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
@@ -17,6 +18,8 @@ export function useNotificationsSectionForm(
   websitePrefs: number,
   onUpdateWebsitePrefs: (newWebsitePrefs: number) => unknown,
 ) {
+  const { t } = useLaravelReactI18n();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(websitePrefsFormSchema),
     defaultValues: convertWebsitePrefsToObject(websitePrefs),
@@ -39,13 +42,13 @@ export function useNotificationsSectionForm(
     const newWebsitePrefs = convertObjectToWebsitePrefs(formValues);
 
     toastMessage.promise(mutation.mutateAsync(newWebsitePrefs), {
-      loading: 'Updating...',
+      loading: t('Updating...'),
       success: () => {
         onUpdateWebsitePrefs(newWebsitePrefs);
 
-        return 'Updated.';
+        return t('Updated.');
       },
-      error: 'Something went wrong.',
+      error: t('Something went wrong.'),
     });
   };
 
