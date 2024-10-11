@@ -18,7 +18,7 @@ describe('Component: SectionFormCard', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <TestHarness headingLabel="Heading" onSubmit={vi.fn()}>
+      <TestHarness t_headingLabel="Heading" onSubmit={vi.fn()}>
         children
       </TestHarness>,
     );
@@ -30,7 +30,7 @@ describe('Component: SectionFormCard', () => {
   it('renders an accessible heading label', () => {
     // ARRANGE
     render(
-      <TestHarness headingLabel="Hello" onSubmit={vi.fn()}>
+      <TestHarness t_headingLabel="Hello" onSubmit={vi.fn()}>
         children
       </TestHarness>,
     );
@@ -44,7 +44,7 @@ describe('Component: SectionFormCard', () => {
     const mockOnSubmit = vi.fn();
 
     render(
-      <TestHarness headingLabel="Hello" onSubmit={mockOnSubmit}>
+      <TestHarness t_headingLabel="Hello" onSubmit={mockOnSubmit}>
         children
       </TestHarness>,
     );
@@ -60,7 +60,7 @@ describe('Component: SectionFormCard', () => {
     // ARRANGE
     render(
       <TestHarness
-        headingLabel="Hello"
+        t_headingLabel="Hello"
         onSubmit={vi.fn()}
         buttonProps={{ children: 'some different label' }}
       >

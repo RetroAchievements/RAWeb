@@ -1,5 +1,6 @@
 import type { Table } from '@tanstack/react-table';
 import { flexRender } from '@tanstack/react-table';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 
 import {
   BaseTable,
@@ -16,6 +17,8 @@ interface GameListDataTableProps<TData> {
 }
 
 export function GameListDataTable<TData>({ table }: GameListDataTableProps<TData>) {
+  const { t } = useLaravelReactI18n();
+
   const visibleColumnCount = table.getVisibleFlatColumns().length;
 
   return (
@@ -77,7 +80,7 @@ export function GameListDataTable<TData>({ table }: GameListDataTableProps<TData
               colSpan={table.getAllColumns().length}
               className="h-24 bg-embed text-center"
             >
-              No results.
+              {t('No results.')}
             </BaseTableCell>
           </BaseTableRow>
         )}

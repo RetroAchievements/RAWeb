@@ -2,21 +2,24 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
-import { formatNumber } from '@/common/utils/l10n/formatNumber';
+import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 
 interface BuildPointsTotalColumnDefProps {
+  t_label: string;
+
   tableApiRouteName?: RouteName;
 }
 
 export function buildPointsTotalColumnDef({
+  t_label,
   tableApiRouteName = 'api.game.index',
 }: BuildPointsTotalColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
     id: 'pointsTotal',
     accessorKey: 'game',
-    meta: { label: 'Points', align: 'right' },
+    meta: { t_label, align: 'right' },
     header: ({ column, table }) => (
       <DataTableColumnHeader
         column={column}
@@ -26,6 +29,9 @@ export function buildPointsTotalColumnDef({
       />
     ),
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks -- the cell component is a FC. using this hook doesn't break the rules of hooks.
+      const { formatNumber } = useFormatNumber();
+
       const pointsTotal = row.original.game?.pointsTotal ?? 0;
       const pointsWeighted = row.original.game?.pointsWeighted ?? 0;
 
@@ -36,6 +42,7 @@ export function buildPointsTotalColumnDef({
       return (
         <div className="whitespace-nowrap">
           {formatNumber(pointsTotal)}{' '}
+          {/* eslint-disable-next-line react/jsx-no-literals -- this is valid */}
           <WeightedPointsContainer>({formatNumber(pointsWeighted)})</WeightedPointsContainer>
         </div>
       );
