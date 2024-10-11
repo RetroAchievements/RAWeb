@@ -1,42 +1,41 @@
 import type { ColumnFiltersState, Table } from '@tanstack/react-table';
 import { useLaravelReactI18n } from 'laravel-react-i18n';
-import { RxCross2 } from 'react-icons/rx';
+import type { RouteName } from 'ziggy-js';
 
-import { BaseButton } from '@/common/components/+vendor/BaseButton';
+import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { formatNumber } from '@/common/utils/l10n/formatNumber';
 
 import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
+import { DataTableAchievementsPublishedFilter } from '../DataTableAchievementsPublishedFilter';
 import { DataTableFacetedFilter } from '../DataTableFacetedFilter';
+import { DataTableResetFiltersButton } from '../DataTableResetFiltersButton';
 import { DataTableSearchInput } from '../DataTableSearchInput';
 import { DataTableViewOptions } from '../DataTableViewOptions';
 
-interface WantToPlayGamesDataTableToolbarProps<TData> {
+interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   unfilteredTotal: number | null;
 
   defaultColumnFilters?: ColumnFiltersState;
+  tableApiRouteName?: RouteName;
 }
 
-export function WantToPlayGamesDataTableToolbar<TData>({
+export function DataTableToolbar<TData>({
   table,
   unfilteredTotal,
   defaultColumnFilters = [],
-}: WantToPlayGamesDataTableToolbarProps<TData>) {
-  const { filterableSystemOptions } = usePageProps<App.Community.Data.UserGameListPageProps>();
+  tableApiRouteName = 'api.game.index',
+}: DataTableToolbarProps<TData>) {
+  const { filterableSystemOptions } = usePageProps<{
+    filterableSystemOptions: App.Platform.Data.System[];
+  }>();
 
   const { t, tChoice } = useLaravelReactI18n();
 
+  const { formatNumber } = useFormatNumber();
+
   const currentFilters = table.getState().columnFilters;
   const isFiltered = getAreNonDefaultFiltersSet(currentFilters, defaultColumnFilters);
-
-  const resetFiltersToDefault = () => {
-    if (defaultColumnFilters) {
-      table.setColumnFilters(defaultColumnFilters);
-    } else {
-      table.resetColumnFilters();
-    }
-  };
 
   return (
     <div className="flex w-full flex-col justify-between gap-2 md:flex-row">
@@ -59,29 +58,15 @@ export function WantToPlayGamesDataTableToolbar<TData>({
         ) : null}
 
         {table.getColumn('achievementsPublished') ? (
-          <DataTableFacetedFilter
-            className="w-full sm:w-auto"
-            column={table.getColumn('achievementsPublished')}
-            title={t('Has achievements')}
-            options={[
-              { label: t('Yes'), value: 'has' },
-              { label: t('No'), value: 'none' },
-              { label: t('Either'), value: 'either' },
-            ]}
-            isSearchable={false}
-            isSingleSelect={true}
-          />
+          <DataTableAchievementsPublishedFilter table={table} />
         ) : null}
 
         {isFiltered ? (
-          <BaseButton
-            variant="ghost"
-            size="sm"
-            onClick={resetFiltersToDefault}
-            className="border-dashed px-2 text-link lg:px-3"
-          >
-            {t('Reset')} <RxCross2 className="ml-2 h-4 w-4" />
-          </BaseButton>
+          <DataTableResetFiltersButton
+            table={table}
+            defaultColumnFilters={defaultColumnFilters}
+            tableApiRouteName={tableApiRouteName}
+          />
         ) : null}
       </div>
 
