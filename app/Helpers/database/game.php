@@ -4,6 +4,7 @@ use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\ComputeGameSortTitleAction;
@@ -996,14 +997,6 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
         'Leaderboards' => [],
     ];
 
-    $achievements = $game->achievements()
-        ->orderBy('DisplayOrder') // explicit display order
-        ->orderBy('ID');          // tiebreaker on creation sequence
-
-    if ($flag != 0) {
-        $achievements = $achievements->where('Flags', '=', $flag);
-    }
-
     $gamePlayers = $game->players_total;
     if ($user) {
         // if the user isn't already tallied in the players for the game,
@@ -1015,37 +1008,55 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
             $gamePlayers++;
         }
     }
+    $gamePlayers = max(1, $gamePlayers); // Prevent divide by zero error if the game has never been played before.
 
-    // prevent divide by zero error if the game has never been played before
-    $gamePlayers = max(1, $gamePlayers);
+    // Attempt to retrieve the game's core achievement set.
+    $coreAchievementSet = GameAchievementSet::where('game_id', $game->id)
+        ->core()
+        ->with('achievementSet.achievements.developer')
+        ->first();
 
-    foreach ($achievements->with('developer')->get() as $achievement) {
-        if (!AchievementFlag::isValid($achievement->Flags)) {
-            continue;
+    // If the core achievement set exists, process the achievements.
+    if ($coreAchievementSet?->achievementSet) {
+        $achievements = $coreAchievementSet->achievementSet
+            ->achievements()
+            ->with('developer')
+            ->orderBy('DisplayOrder')   // explicit display order
+            ->orderBy('ID')             // tiebreaker on creation sequence
+            ->get();
+
+        if ($flag != 0) {
+            $achievements = $achievements->where('Flags', '=', $flag);
         }
 
-        // calculate rarity assuming it will be used when the player unlocks the achievement,
-        // which implies they haven't already unlocked it.
-        $rarity = min(100.0, round((float) ($achievement->unlocks_total + 1) * 100 / $gamePlayers, 2));
-        $rarityHardcore = min(100.0, round((float) ($achievement->unlocks_hardcore_total + 1) * 100 / $gamePlayers, 2));
+        foreach ($achievements as $achievement) {
+            if (!AchievementFlag::isValid($achievement->Flags)) {
+                continue;
+            }
 
-        $gameData['Achievements'][] = [
-            'ID' => $achievement->ID,
-            'MemAddr' => $achievement->MemAddr,
-            'Title' => $achievement->Title,
-            'Description' => $achievement->Description,
-            'Points' => $achievement->Points,
-            'Author' => $achievement->developer->User ?? '',
-            'Modified' => $achievement->DateModified->unix(),
-            'Created' => $achievement->DateCreated->unix(),
-            'BadgeName' => $achievement->BadgeName,
-            'Flags' => $achievement->Flags,
-            'Type' => $achievement->type,
-            'Rarity' => $rarity,
-            'RarityHardcore' => $rarityHardcore,
-            'BadgeURL' => media_asset("Badge/{$achievement->BadgeName}.png"),
-            'BadgeLockedURL' => media_asset("Badge/{$achievement->BadgeName}_lock.png"),
-        ];
+            // calculate rarity assuming it will be used when the player unlocks the achievement,
+            // which implies they haven't already unlocked it.
+            $rarity = min(100.0, round((float) ($achievement->unlocks_total + 1) * 100 / $gamePlayers, 2));
+            $rarityHardcore = min(100.0, round((float) ($achievement->unlocks_hardcore_total + 1) * 100 / $gamePlayers, 2));
+
+            $gameData['Achievements'][] = [
+                'ID' => $achievement->ID,
+                'MemAddr' => $achievement->MemAddr,
+                'Title' => $achievement->Title,
+                'Description' => $achievement->Description,
+                'Points' => $achievement->Points,
+                'Author' => $achievement->developer->User ?? '',
+                'Modified' => $achievement->DateModified->unix(),
+                'Created' => $achievement->DateCreated->unix(),
+                'BadgeName' => $achievement->BadgeName,
+                'Flags' => $achievement->Flags,
+                'Type' => $achievement->type,
+                'Rarity' => $rarity,
+                'RarityHardcore' => $rarityHardcore,
+                'BadgeURL' => media_asset("Badge/{$achievement->BadgeName}.png"),
+                'BadgeLockedURL' => media_asset("Badge/{$achievement->BadgeName}_lock.png"),
+            ];
+        }
     }
 
     $leaderboards = $game->leaderboards()
