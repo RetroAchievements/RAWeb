@@ -1,4 +1,5 @@
 import type { Table } from '@tanstack/react-table';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'react-use';
 
@@ -17,6 +18,8 @@ interface DataTableSearchInputProps<TData> {
 }
 
 export function DataTableSearchInput<TData>({ table }: DataTableSearchInputProps<TData>) {
+  const { t } = useLaravelReactI18n();
+
   const initialValue = (table.getColumn('title')?.getFilterValue() as string) ?? '';
 
   const [rawInputValue, setRawInputValue] = useState(initialValue);
@@ -63,14 +66,14 @@ export function DataTableSearchInput<TData>({ table }: DataTableSearchInputProps
   return (
     <div className="w-full sm:w-auto">
       <label htmlFor="search-field" className="sr-only">
-        Search games
+        {t('Search games')}
       </label>
 
       <div className="group relative flex items-center">
         <BaseInput
           id="search-field"
           ref={hotkeyInputRef}
-          placeholder="Search games..."
+          placeholder={t('Search games...')}
           value={rawInputValue}
           onChange={(event) => setRawInputValue(event.target.value)}
           className="peer h-8 sm:w-[150px] lg:w-[250px]"
@@ -83,16 +86,16 @@ export function DataTableSearchInput<TData>({ table }: DataTableSearchInputProps
               id="search-shortcut"
               className={cn(
                 'absolute right-2 hidden rounded-md border border-transparent bg-neutral-800/60 px-1.5 font-mono text-xs',
-                'text-neutral-400 peer-focus:opacity-0 light:bg-gray-200 light:text-gray-800',
+                'text-neutral-400 peer-focus:opacity-0 light:bg-neutral-200 light:text-neutral-800',
                 'cursor-default lg:block',
               )}
             >
-              /
+              {'/'}
             </kbd>
           </BaseTooltipTrigger>
 
           <BaseTooltipContent>
-            <p>Type / to focus the search field.</p>
+            <p>{t('Type / to focus the search field.')}</p>
           </BaseTooltipContent>
         </BaseTooltip>
       </div>

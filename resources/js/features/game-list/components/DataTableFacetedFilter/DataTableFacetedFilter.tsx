@@ -1,6 +1,8 @@
 import type { Column } from '@tanstack/react-table';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
-import { RxCheck, RxPlusCircled } from 'react-icons/rx';
+import { HiOutlineCheck } from 'react-icons/hi';
+import { RxPlusCircled } from 'react-icons/rx';
 
 import { BaseBadge } from '@/common/components/+vendor/BaseBadge';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -45,6 +47,8 @@ export function DataTableFacetedFilter<TData, TValue>({
   isSearchable = true,
   isSingleSelect = false,
 }: DataTableFacetedFilterProps<TData, TValue>) {
+  const { t } = useLaravelReactI18n();
+
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
 
@@ -95,7 +99,7 @@ export function DataTableFacetedFilter<TData, TValue>({
               <div className="hidden space-x-1 lg:flex">
                 {selectedValues.size > 2 ? (
                   <BaseBadge variant="secondary" className="rounded-sm px-1 font-normal leading-3">
-                    {selectedValues.size} selected
+                    {t(':count selected', { count: selectedValues.size })}
                   </BaseBadge>
                 ) : (
                   <>
@@ -124,7 +128,7 @@ export function DataTableFacetedFilter<TData, TValue>({
 
           <BaseCommandList>
             <BaseCommandEmpty>
-              <span className="text-muted">No options found.</span>
+              <span className="text-muted">{t('No options found.')}</span>
             </BaseCommandEmpty>
 
             <BaseCommandGroup>
@@ -138,24 +142,25 @@ export function DataTableFacetedFilter<TData, TValue>({
                   >
                     <div
                       className={cn(
-                        'border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border',
+                        'mr-2 flex h-4 w-4 items-center justify-center rounded-sm',
+                        'border border-neutral-600 light:border-neutral-900',
 
                         // If it's a single select, give the appearance of a radio button.
                         isSingleSelect ? 'rounded-full' : 'rounded-sm',
 
                         isSelected
-                          ? 'bg-primary text-neutral-50 light:text-neutral-950'
+                          ? 'border-neutral-50 bg-neutral-700 text-neutral-50 light:bg-text'
                           : 'opacity-50 [&_svg]:invisible',
                       )}
                     >
-                      {isSelected ? <RxCheck className="h-4 w-4" /> : null}
+                      {isSelected ? <HiOutlineCheck className="h-4 w-4" /> : null}
                     </div>
 
                     {option.icon ? (
                       <option.icon className="text-muted-foreground mr-2 h-4 w-4" />
                     ) : null}
 
-                    <span className="lght:text-neutral-900 text-neutral-200">{option.label}</span>
+                    <span className="text-neutral-200 light:text-neutral-900">{option.label}</span>
 
                     {facets?.get(option.value) && (
                       <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
@@ -182,15 +187,17 @@ interface ClearFiltersButtonProps {
 }
 
 const ClearFiltersButton: FC<ClearFiltersButtonProps> = ({ onClear }) => {
+  const { t } = useLaravelReactI18n();
+
   return (
-    <div className="sticky bottom-0 bg-neutral-950">
+    <div className="sticky bottom-0 bg-neutral-950 light:bg-neutral-100">
       <BaseCommandSeparator />
       <BaseCommandGroup>
         <BaseCommandItem
           onSelect={onClear}
-          className="cursor-pointer justify-center text-center text-xs text-link transition hover:bg-neutral-900"
+          className="cursor-pointer justify-center text-center text-xs text-link transition hover:bg-neutral-900 light:text-neutral-900 light:hover:bg-neutral-200"
         >
-          Clear filters
+          {t('Clear filters')}
         </BaseCommandItem>
       </BaseCommandGroup>
     </div>

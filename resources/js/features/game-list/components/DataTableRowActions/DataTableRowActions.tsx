@@ -1,4 +1,5 @@
 import type { Row } from '@tanstack/react-table';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useEffect, useState } from 'react';
 import { MdClose } from 'react-icons/md';
 
@@ -19,10 +20,22 @@ import { cn } from '@/utils/cn';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
+
+  /**
+   * If set to `false`, the add/remove backlog icon will not animate on click.
+   * This is useful if the row is going to be removed from the DOM, ie:
+   * viewing a user's backlog and them removing a game from it.
+   */
+  shouldAnimateBacklogIconOnChange?: boolean;
 }
 
-export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
+export function DataTableRowActions<TData>({
+  row,
+  shouldAnimateBacklogIconOnChange = true,
+}: DataTableRowActionsProps<TData>) {
   const { auth } = usePageProps();
+
+  const { t } = useLaravelReactI18n();
 
   const { addToWantToPlayGamesList, isPending, removeFromWantToPlayGamesList } =
     useWantToPlayGamesList();
@@ -53,7 +66,9 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
       return;
     }
 
-    setIsInBacklogOptimistic((prev) => !prev);
+    if (shouldAnimateBacklogIconOnChange) {
+      setIsInBacklogOptimistic((prev) => !prev);
+    }
 
     const mutationPromise = isInBacklog
       ? removeFromWantToPlayGamesList(gameId, gameTitle)
@@ -76,16 +91,17 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
           >
             <MdClose
               className={cn(
-                'h-4 w-4 transition-transform',
+                'h-4 w-4',
                 'hover:text-neutral-50 disabled:!text-neutral-50 light:hover:text-neutral-900 light:disabled:text-neutral-900',
+                shouldAnimateBacklogIconOnChange ? 'transition-transform' : '',
                 isInBacklogOptimistic ? '' : 'rotate-45',
               )}
             />
 
             <span className="sr-only">
               {isInBacklogOptimistic
-                ? 'Remove from Want To Play Games'
-                : 'Add to Want to Play Games'}
+                ? t('Remove from Want To Play Games')
+                : t('Add to Want to Play Games')}
             </span>
           </BaseButton>
         </div>
@@ -93,7 +109,9 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
 
       <BaseTooltipContent>
         <p>
-          {isInBacklogOptimistic ? 'Remove from Want to Play Games' : 'Add to Want to Play Games'}
+          {isInBacklogOptimistic
+            ? t('Remove from Want to Play Games')
+            : t('Add to Want to Play Games')}
         </p>
       </BaseTooltipContent>
     </BaseTooltip>

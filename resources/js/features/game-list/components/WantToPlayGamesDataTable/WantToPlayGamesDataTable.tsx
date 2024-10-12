@@ -5,16 +5,16 @@ import type {
   VisibilityState,
 } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { type Dispatch, type FC, type SetStateAction, useMemo } from 'react';
+import { type Dispatch, type FC, type SetStateAction } from 'react';
 
 import { useGameListQuery } from '@/common/hooks/useGameListQuery';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { wantToPlayGamesDefaultFilters } from '../../utils/wantToPlayGamesDefaultFilters';
 import { DataTablePagination } from '../DataTablePagination';
+import { DataTableToolbar } from '../DataTableToolbar';
 import { GameListDataTable } from '../GameListDataTable';
-import { buildColumnDefinitions } from './buildColumnDefinitions';
-import { WantToPlayGamesDataTableToolbar } from './WantToPlayGamesDataTableToolbar';
+import { useColumnDefinitions } from './useColumnDefinitions';
 
 // These values are all generated from `useGameListState`.
 interface WantToPlayGamesDataTableProps {
@@ -48,13 +48,9 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
   });
 
   const table = useReactTable({
-    columns: useMemo(
-      () =>
-        buildColumnDefinitions({
-          canSeeOpenTicketsColumn: can.develop ?? false,
-        }),
-      [can.develop],
-    ),
+    columns: useColumnDefinitions({
+      canSeeOpenTicketsColumn: can.develop ?? false,
+    }),
     data: gameListQuery.data?.items ?? [],
     manualPagination: true,
     manualSorting: true,
@@ -81,10 +77,11 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <WantToPlayGamesDataTableToolbar
+      <DataTableToolbar
         table={table}
         unfilteredTotal={gameListQuery.data?.unfilteredTotal ?? null}
         defaultColumnFilters={wantToPlayGamesDefaultFilters}
+        tableApiRouteName="api.user-game-list.index"
       />
 
       <GameListDataTable table={table} />
