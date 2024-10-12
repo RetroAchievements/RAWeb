@@ -19,13 +19,13 @@ use Illuminate\Support\HtmlString;
 
 class GameHashesRelationManager extends RelationManager
 {
-    protected static string $relationship = 'gameHashes';
+    protected static string $relationship = 'incompatibleGameHashes';
 
     protected static ?string $title = 'Incompatible Hashes';
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
     {
-        $count = $ownerRecord->gameHashes->count();
+        $count = $ownerRecord->incompatibleGameHashes->count();
 
         return $count > 0 ? "{$count}" : null;
     }
@@ -94,7 +94,7 @@ class GameHashesRelationManager extends RelationManager
                     ->action(function (array $data) use ($achievementSet) {
                         $gameHashId = (int) $data['hash'];
 
-                        $achievementSet->gameHashes()->attach($gameHashId, ['compatible' => false]);
+                        $achievementSet->incompatibleGameHashes()->attach($gameHashId);
 
                         Notification::make()
                             ->success()
@@ -107,6 +107,6 @@ class GameHashesRelationManager extends RelationManager
 
     protected function refreshBadgeCount(Model $ownerRecord): void
     {
-        $this->badge = $ownerRecord->gameHashes->count();
+        $this->badge = $ownerRecord->incompatibleGameHashes->count();
     }
 }

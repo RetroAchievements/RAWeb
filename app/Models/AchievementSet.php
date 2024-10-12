@@ -55,7 +55,7 @@ class AchievementSet extends BaseModel
         parent::boot();
 
         static::pivotAttached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes) {
-            if ($relationName === 'gameHashes') {
+            if ($relationName === 'incompatibleGameHashes') {
                 /** @var User $user */
                 $user = Auth::user();
 
@@ -73,7 +73,7 @@ class AchievementSet extends BaseModel
         });
 
         static::pivotDetached(function ($model, $relationName, $pivotIds) {
-            if ($relationName === 'gameHashes') {
+            if ($relationName === 'incompatibleGameHashes') {
                 /** @var User $user */
                 $user = Auth::user();
 
@@ -124,10 +124,9 @@ class AchievementSet extends BaseModel
     /**
      * @return BelongsToMany<GameHash>
      */
-    public function gameHashes(): BelongsToMany
+    public function incompatibleGameHashes(): BelongsToMany
     {
-        return $this->belongsToMany(GameHash::class, 'achievement_set_game_hashes')
-            ->withPivot('compatible')
+        return $this->belongsToMany(GameHash::class, 'achievement_set_incompatible_game_hashes')
             ->withTimestamps();
     }
 
