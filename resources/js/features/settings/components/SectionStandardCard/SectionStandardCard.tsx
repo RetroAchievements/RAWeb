@@ -8,15 +8,15 @@ import {
 } from '@/common/components/+vendor/BaseCard';
 
 interface SectionStandardCardProps {
-  headingLabel: string;
+  t_headingLabel: string;
   children: ReactNode;
 }
 
-export const SectionStandardCard: FC<SectionStandardCardProps> = ({ headingLabel, children }) => {
+export const SectionStandardCard: FC<SectionStandardCardProps> = ({ t_headingLabel, children }) => {
   return (
     <BaseCard className="w-full">
       <BaseCardHeader className="pb-4">
-        <BaseCardTitle>{headingLabel}</BaseCardTitle>
+        <BaseCardTitle>{t_headingLabel}</BaseCardTitle>
       </BaseCardHeader>
 
       <BaseCardContent>{children}</BaseCardContent>

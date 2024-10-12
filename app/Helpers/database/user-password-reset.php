@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Support\Str;
 
 /**
@@ -26,17 +27,10 @@ function isValidPasswordResetToken(string $usernameIn, string $passwordResetToke
 /**
  * @deprecated replace with Laravel standard features and/or Fortify
  */
-function RequestPasswordReset(string $usernameIn): bool
+function RequestPasswordReset(User $user): bool
 {
-    sanitize_sql_inputs($usernameIn);
-
-    $userFields = GetUserFields($usernameIn, ["User", "EmailAddress"]);
-    if ($userFields == null) {
-        return false;
-    }
-
-    $username = $userFields["User"];
-    $emailAddress = $userFields["EmailAddress"];
+    $username = $user->username;
+    $emailAddress = $user->EmailAddress;
 
     $newToken = Str::random(20);
 

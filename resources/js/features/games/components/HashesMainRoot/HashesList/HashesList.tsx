@@ -1,16 +1,14 @@
-import { usePage } from '@inertiajs/react';
 import type { FC } from 'react';
 
 import { Embed } from '@/common/components/Embed/Embed';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { HashesListItem } from './HashesListItem';
 
 export const hashesListContainerTestId = 'hashes-list';
 
 export const HashesList: FC = () => {
-  const {
-    props: { hashes },
-  } = usePage<App.Platform.Data.GameHashesPageProps>();
+  const { hashes } = usePageProps<App.Platform.Data.GameHashesPageProps>();
 
   if (!hashes.length) {
     return null;
@@ -22,7 +20,7 @@ export const HashesList: FC = () => {
   return (
     <Embed data-testid={hashesListContainerTestId} className="flex flex-col gap-4">
       {namedHashes.length ? (
-        <ul className="flex flex-col gap-3">
+        <ul className="flex flex-col gap-3" data-testid="named-hashes">
           {namedHashes.map((labeledHash) => (
             <HashesListItem key={labeledHash.md5} hash={labeledHash} />
           ))}
@@ -32,7 +30,7 @@ export const HashesList: FC = () => {
       {namedHashes.length && unnamedHashes.length ? <div className="my-6" /> : null}
 
       {unnamedHashes.length ? (
-        <ul className="flex flex-col">
+        <ul className="flex flex-col" data-testid="unnamed-hashes">
           {unnamedHashes.map((unlabeledHash) => (
             <HashesListItem key={unlabeledHash.md5} hash={unlabeledHash} />
           ))}
