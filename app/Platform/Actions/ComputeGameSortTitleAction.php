@@ -26,15 +26,50 @@ class ComputeGameSortTitleAction
      *
      * eg: "Mega Man 10" should not be sorted before "Mega Man 2". With the sort titles
      * set to "mega man 00010" and "mega man 00002" respectively, we can mitigate this.
+     *
+     * Standalone numbers with leading zeroes preserve their existing leading zeroes
+     * and pad the significant digits to 5 digits for consistent sorting.
+     * eg: "007" -> "0000007"
+     *
+     * Numbers already padded by replaceRomanNumerals (5 digits) are not given more padding.
+     * eg: "00002" remains "00002"
      */
     private function padNumbers(string $title): string
     {
         return preg_replace_callback(
-            // Match numbers not directly attached to letters.
-            // In other words, don't convert "Mega Man X4" to "Mega Man X00004".
-            '/(?<![a-zA-Z])(\d+)(?![a-zA-Z])/',
+            '/\d+/u',
             function ($matches) {
-                return str_pad($matches[0], 5, '0', STR_PAD_LEFT);
+                $number = $matches[0];
+
+                // If the number is already 5 digits (from replaceRomanNumerals), don't pad.
+                if (strlen($number) === 5) {
+                    return $number;
+                }
+
+                // Separate all leading zeroes from the significant digits.
+                if (preg_match('/^(0*)(\d+)$/', $number, $parts)) {
+                    $leadingZeroes = $parts[1];
+                    $significantDigits = $parts[2];
+
+                    // If there are indeed leading zeroes, pad the significant digits to 5 digits.
+                    if (strlen($leadingZeroes) > 0) {
+                        // Avoid double padding if significant digits are already 5 or more.
+                        if (strlen($significantDigits) < 5) {
+                            $significantDigits = str_pad($significantDigits, 5, '0', STR_PAD_LEFT);
+                        }
+                    } else {
+                        // No leading zeroes, pad the entire number to 5 digits.
+                        if (strlen($number) < 5) {
+                            return str_pad($number, 5, '0', STR_PAD_LEFT);
+                        }
+                    }
+
+                    // Reconstruct the number with preserved leading zeroes and padded significant digits.
+                    return $leadingZeroes . $significantDigits;
+                }
+
+                // Return the number as-is if it doesn't meet any padding criteria.
+                return $number;
             },
             $title
         );
