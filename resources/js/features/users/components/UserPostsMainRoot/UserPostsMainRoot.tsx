@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import { RecentPostsCards } from '@/common/components/RecentPostsCards';
@@ -12,10 +13,14 @@ export const UserPostsMainRoot: FC = () => {
   const { targetUser, paginatedTopics } =
     usePageProps<App.Community.Data.UserRecentPostsPageProps>();
 
+  const { t } = useLaravelReactI18n();
+
   return (
     <div>
-      <UserBreadcrumbs currentPageLabel="Forum Posts" user={targetUser} />
-      <UserHeading user={targetUser}>{targetUser.displayName}'s Forum Posts</UserHeading>
+      <UserBreadcrumbs t_currentPageLabel={t('Forum Posts')} user={targetUser} />
+      <UserHeading user={targetUser}>
+        {t(":user's Forum Posts", { user: targetUser.displayName })}
+      </UserHeading>
 
       <div className="lg:hidden">
         <RecentPostsCards paginatedTopics={paginatedTopics} showUser={false} />

@@ -13,6 +13,7 @@ services:
             - '${PHP_PORT:-64007}:80'
             - '${OCTANE_PORT:-64008}:8888'
             - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+            - '51204:51204' # Vitest UI, port is not configurable.
         environment:
             WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1
