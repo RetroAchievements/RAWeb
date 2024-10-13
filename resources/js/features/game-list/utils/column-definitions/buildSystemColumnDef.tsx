@@ -6,16 +6,19 @@ import { SystemChip } from '@/common/components/SystemChip';
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 
 interface BuildSystemColumnDefProps {
+  t_label: string;
+
   tableApiRouteName?: RouteName;
 }
 
 export function buildSystemColumnDef({
+  t_label,
   tableApiRouteName = 'api.game.index',
 }: BuildSystemColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
     id: 'system',
     accessorKey: 'game',
-    meta: { label: 'System' },
+    meta: { t_label },
     header: ({ column, table }) => (
       <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),

@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
@@ -15,6 +16,8 @@ export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
   currentWebsitePrefs,
   onUpdateWebsitePrefs,
 }) => {
+  const { t } = useLaravelReactI18n();
+
   const { form, mutation, onSubmit } = usePreferencesSectionForm(
     currentWebsitePrefs,
     onUpdateWebsitePrefs,
@@ -22,39 +25,39 @@ export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
 
   return (
     <SectionFormCard
-      headingLabel="Preferences"
+      t_headingLabel={t('Preferences')}
       formMethods={form}
       onSubmit={onSubmit}
       isSubmitting={mutation.isPending}
     >
       <div className="grid gap-x-36 gap-y-6 md:grid-cols-2">
         <PreferencesSwitchField
-          label="Suppress mature content warnings"
+          t_label={t('Suppress mature content warnings')}
           fieldName={StringifiedUserPreference.Site_SuppressMatureContentWarning}
           control={form.control}
         />
 
         <PreferencesSwitchField
-          label="Show absolute dates on forum posts"
+          t_label={t('Show absolute dates on forum posts')}
           fieldName={StringifiedUserPreference.Forum_ShowAbsoluteDates}
           control={form.control}
         />
 
         <PreferencesSwitchField
-          label="Hide missable achievement indicators"
+          t_label={t('Hide missable achievement indicators')}
           fieldName={StringifiedUserPreference.Game_HideMissableIndicators}
           control={form.control}
         />
 
         <PreferencesSwitchField
-          label="Only people I follow can message me or post on my wall"
+          t_label={t('Only people I follow can message me or post on my wall')}
           fieldName={StringifiedUserPreference.User_OnlyContactFromFollowing}
           control={form.control}
         />
 
         {import.meta.env.VITE_FEATURE_MULTISET === 'true' ? (
           <PreferencesSwitchField
-            label="Automatically opt in to all game sets"
+            t_label={t('Automatically opt in to all game sets')}
             fieldName={StringifiedUserPreference.Game_OptOutOfAllSets}
             control={form.control}
             isSwitchInverted={true}

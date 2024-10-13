@@ -1,4 +1,5 @@
 import type { Table } from '@tanstack/react-table';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { RxMixerHorizontal } from 'react-icons/rx';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -16,17 +17,19 @@ interface DataTableViewOptionsProps<TData> {
 }
 
 export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps<TData>) {
+  const { t } = useLaravelReactI18n();
+
   return (
     <BaseDropdownMenu>
       <BaseDropdownMenuTrigger asChild>
         <BaseButton size="sm" className="gap-2">
           <RxMixerHorizontal className="h-4 w-4" />
-          View
+          {t('View')}
         </BaseButton>
       </BaseDropdownMenuTrigger>
 
       <BaseDropdownMenuContent align="end">
-        <BaseDropdownMenuLabel>Toggle columns</BaseDropdownMenuLabel>
+        <BaseDropdownMenuLabel>{t('Toggle columns')}</BaseDropdownMenuLabel>
 
         <BaseDropdownMenuSeparator />
 
@@ -41,7 +44,7 @@ export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {column.columnDef.meta?.label}
+                {column.columnDef.meta?.t_label}
               </BaseDropdownMenuCheckboxItem>
             );
           })}
