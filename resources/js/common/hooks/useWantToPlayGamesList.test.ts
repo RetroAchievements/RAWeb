@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
-import { renderHook, screen } from '@/test';
+import { renderHook, screen, waitFor } from '@/test';
 
 import { useWantToPlayGamesList } from './useWantToPlayGamesList';
 
@@ -66,7 +66,9 @@ describe('Hook: useWantToPlayGamesList', () => {
     await addToWantToPlayGamesList(1, 'Sonic the Hedgehog');
 
     // ASSERT
-    expect(await screen.findByText(/added sonic the hedgehog/i)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/added sonic the hedgehog/i)).toBeVisible();
+    });
   });
 
   it('given a game is being added as a restore/undo, slightly tweaks the toast message', async () => {
@@ -83,7 +85,9 @@ describe('Hook: useWantToPlayGamesList', () => {
     await addToWantToPlayGamesList(1, 'Sonic the Hedgehog', { isUndo: true });
 
     // ASSERT
-    expect(await screen.findByText(/restored sonic the hedgehog/i)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/restored sonic the hedgehog/i)).toBeVisible();
+    });
   });
 
   it('on add, a custom toast success message can be used', async () => {
@@ -142,7 +146,10 @@ describe('Hook: useWantToPlayGamesList', () => {
     await removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog');
 
     // ASSERT
-    expect(await screen.findByText(/removed sonic the hedgehog/i)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/removed sonic the hedgehog/i)).toBeVisible();
+    });
+
     expect(screen.getByRole('button', { name: /undo/i })).toBeVisible();
   });
 
@@ -160,7 +167,9 @@ describe('Hook: useWantToPlayGamesList', () => {
     await removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog', { t_successMessage: 'Removed!' });
 
     // ASSERT
-    expect(await screen.findByText(/removed!/i)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/removed!/i)).toBeVisible();
+    });
   });
 
   it('on remove, the user can click an undo button in the popped toast to re-add the game to their backlog', async () => {
@@ -179,7 +188,10 @@ describe('Hook: useWantToPlayGamesList', () => {
     await userEvent.click(await screen.findByRole('button', { name: /undo/i }));
 
     // ASSERT
-    expect(await screen.findByText(/restored sonic the hedgehog/i)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/restored sonic the hedgehog/i)).toBeVisible();
+    });
+
     expect(postSpy).toHaveBeenCalledTimes(1);
     expect(postSpy).toHaveBeenCalledWith(['api.user-game-list.store', 1], {
       userGameListType: 'play',
