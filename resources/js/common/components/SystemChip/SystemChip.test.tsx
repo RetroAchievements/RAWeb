@@ -35,4 +35,15 @@ describe('Component: SystemChip', () => {
     expect(screen.getByRole('img', { name: system.nameShort })).toBeVisible();
     expect(screen.getByText(/gb/i)).toBeVisible();
   });
+
+  it('given children, renders children instead of the system short name', () => {
+    // ARRANGE
+    const system = createSystem({ iconUrl: faker.internet.url(), nameShort: 'GB' });
+
+    render(<SystemChip {...system}>Game Boy</SystemChip>);
+
+    // ASSERT
+    expect(screen.queryByText(/gb/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/game boy/i)).toBeVisible();
+  });
 });

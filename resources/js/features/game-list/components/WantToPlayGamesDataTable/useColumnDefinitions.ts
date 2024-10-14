@@ -28,8 +28,8 @@ export function useColumnDefinitions(options: {
     const columns: ColumnDef<App.Platform.Data.GameListEntry>[] = [
       buildTitleColumnDef({
         t_label: t('Title'),
-        tableApiRouteName,
         forUsername: options.forUsername,
+        tableApiRouteName,
       }),
       buildSystemColumnDef({ t_label: t('System'), tableApiRouteName }),
       buildAchievementsPublishedColumnDef({ t_label: t('Achievements'), tableApiRouteName }),

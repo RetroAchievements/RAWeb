@@ -4,6 +4,7 @@
 
 export interface ZiggyProps {
   defaults: unknown[];
+  device: 'mobile' | 'desktop';
   location: string;
   port: number;
   query: Record<string, string | Record<string, string>>;

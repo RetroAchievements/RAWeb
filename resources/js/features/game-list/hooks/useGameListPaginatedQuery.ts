@@ -3,26 +3,34 @@ import type { ColumnFiltersState, PaginationState, SortingState } from '@tanstac
 import axios from 'axios';
 import type { RouteName } from 'ziggy-js';
 
-import { buildGameListQueryFilterParams } from '../../utils/buildGameListQueryFilterParams';
-import { buildGameListQuerySortParam } from '../../utils/buildGameListQuerySortParam';
+import { buildGameListQueryFilterParams } from '../utils/buildGameListQueryFilterParams';
+import { buildGameListQuerySortParam } from '../utils/buildGameListQuerySortParam';
 
 const ONE_MINUTE = 1 * 60 * 1000;
 
-interface UseGameListQueryProps {
+interface UseGameListPaginatedQueryProps {
   pagination: PaginationState;
   sorting: SortingState;
   columnFilters: ColumnFiltersState;
 
+  /**
+   * Defaults to true. If false, the query will never fire.
+   * Useful when a different query is being used instead, ie: mobile environments
+   * use the useGameListInfiniteQuery hook, but both hooks are present on the page.
+   */
+  isEnabled?: boolean;
+
   apiRouteName?: RouteName;
 }
 
-export function useGameListQuery({
+export function useGameListPaginatedQuery({
   columnFilters,
   pagination,
   sorting,
+  isEnabled = true,
   apiRouteName = 'api.game.index',
-}: UseGameListQueryProps) {
-  const dataQuery = useQuery<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>({
+}: UseGameListPaginatedQueryProps) {
+  return useQuery<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>({
     // eslint-disable-next-line @tanstack/query/exhaustive-deps -- tableApiRouteName is not part of the key
     queryKey: ['data', pagination, sorting, columnFilters],
 
@@ -40,7 +48,7 @@ export function useGameListQuery({
 
     staleTime: ONE_MINUTE,
     placeholderData: keepPreviousData,
-  });
 
-  return dataQuery;
+    enabled: isEnabled,
+  });
 }
