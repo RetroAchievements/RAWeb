@@ -145,14 +145,16 @@ const GameListItems: FC<GameListItemsProps> = ({
           </div>
         ) : null}
 
-        <div className="my-2" onClick={handleShowNextPageClick}>
-          <BaseButton
-            className="w-full hover:!border-neutral-700 hover:!bg-embed hover:!text-link"
-            onClick={handleShowNextPageClick}
-          >
-            {t('Load more')}
-          </BaseButton>
-        </div>
+        {dataInfiniteQuery.hasNextPage ? (
+          <div className="my-2" onClick={handleShowNextPageClick}>
+            <BaseButton
+              className="w-full hover:!border-neutral-700 hover:!bg-embed hover:!text-link"
+              onClick={handleShowNextPageClick}
+            >
+              {t('Load more')}
+            </BaseButton>
+          </div>
+        ) : null}
 
         <InfiniteScroll loadMore={handleLoadMore} />
       </ol>
