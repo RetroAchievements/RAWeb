@@ -79,4 +79,21 @@ describe('Component: DeleteAccountSectionCard', () => {
     expect(deleteSpy).toHaveBeenCalledWith(route('api.user.delete-request.destroy'));
     expect(screen.queryByText(/you've requested account deletion/i)).not.toBeInTheDocument();
   });
+
+  it('given the user does not confirm their request for account deletion, does not send a cancellation request to the server', async () => {
+    // ARRANGE
+    vi.spyOn(window, 'confirm').mockImplementationOnce(() => false);
+
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValue({ success: true });
+
+    render(<DeleteAccountSectionCard />, {
+      pageProps: { userSettings: { deleteRequested: null } },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /request account deletion/i }));
+
+    // ASSERT
+    expect(postSpy).not.toHaveBeenCalled();
+  });
 });
