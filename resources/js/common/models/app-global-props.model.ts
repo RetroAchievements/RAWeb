@@ -5,7 +5,7 @@ import { createFactory } from '@/test/createFactory';
 
 import type { ZiggyProps } from './ziggy-props.model';
 
-type AuthenticatedUser = SetRequired<
+export type AuthenticatedUser = SetRequired<
   App.Data.User,
   'id' | 'legacyPermissions' | 'preferences' | 'roles' | 'unreadMessageCount' | 'websitePrefs'
 >;

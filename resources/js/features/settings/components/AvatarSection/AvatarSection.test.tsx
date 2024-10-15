@@ -68,4 +68,36 @@ describe('Component: AvatarSection', () => {
     // ASSERT
     expect(deleteSpy).toHaveBeenCalledWith(route('api.user.avatar.destroy'));
   });
+
+  it('given the user does not confirm they want to reset their avatar to default, does not make a request to the server', async () => {
+    // ARRANGE
+    vi.spyOn(window, 'confirm').mockImplementationOnce(() => false);
+    const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
+
+    render(<AvatarSection />, { pageProps: { can: { updateAvatar: true } } });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /reset avatar to default/i }));
+
+    // ASSERT
+    expect(deleteSpy).not.toHaveBeenCalled();
+  });
+
+  it('given something goes wrong with the API call to reset the avatar to default, pops an error toast', async () => {
+    // ARRANGE
+    vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
+    const deleteSpy = vi.spyOn(axios, 'delete').mockRejectedValue({ success: false });
+
+    render(<AvatarSection />, { pageProps: { can: { updateAvatar: true } } });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /reset avatar to default/i }));
+
+    // ASSERT
+    expect(deleteSpy).toHaveBeenCalledWith(route('api.user.avatar.destroy'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/something went wrong/i)).toBeVisible();
+    });
+  });
 });

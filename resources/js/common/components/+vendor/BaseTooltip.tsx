@@ -11,6 +11,8 @@ const BaseTooltip = TooltipPrimitive.Root;
 
 const BaseTooltipTrigger = TooltipPrimitive.Trigger;
 
+const BaseTooltipPortal = TooltipPrimitive.Portal;
+
 const BaseTooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
@@ -30,4 +32,10 @@ const BaseTooltipContent = React.forwardRef<
 ));
 BaseTooltipContent.displayName = 'BaseTooltipContent';
 
-export { BaseTooltip, BaseTooltipContent, BaseTooltipProvider, BaseTooltipTrigger };
+export {
+  BaseTooltip,
+  BaseTooltipContent,
+  BaseTooltipPortal,
+  BaseTooltipProvider,
+  BaseTooltipTrigger,
+};

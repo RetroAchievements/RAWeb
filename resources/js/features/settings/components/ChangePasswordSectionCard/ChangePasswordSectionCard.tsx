@@ -11,6 +11,7 @@ import {
 } from '@/common/components/+vendor/BaseForm';
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import type { AuthenticatedUser } from '@/common/models';
 
 import { SectionFormCard } from '../SectionFormCard';
 import { useChangePasswordForm } from './useChangePasswordForm';
@@ -21,6 +22,8 @@ export const ChangePasswordSectionCard: FC = () => {
   const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   const { t } = useLaravelReactI18n();
+
+  const { user } = auth as { user: AuthenticatedUser };
 
   return (
     <SectionFormCard
@@ -37,7 +40,7 @@ export const ChangePasswordSectionCard: FC = () => {
           */}
           <BaseInput
             autoComplete="username"
-            value={auth?.user.username ?? ''}
+            value={user.username ?? ''}
             className="sr-only"
             readOnly
           />

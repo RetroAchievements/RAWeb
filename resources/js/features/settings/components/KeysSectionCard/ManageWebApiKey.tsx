@@ -8,7 +8,12 @@ import { useCopyToClipboard, useMedia } from 'react-use';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-import { SimpleTooltip } from '@/common/components/SimpleTooltip';
+import {
+  BaseTooltip,
+  BaseTooltipContent,
+  BaseTooltipPortal,
+  BaseTooltipTrigger,
+} from '@/common/components/+vendor/BaseTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 export const ManageWebApiKey: FC = () => {
@@ -57,19 +62,23 @@ export const ManageWebApiKey: FC = () => {
         <p className="w-48 text-menu-link">{t('Web API Key')}</p>
 
         <div className="col-span-3 flex w-full flex-col gap-2">
-          <SimpleTooltip
-            isOpen={isXs ? false : undefined}
-            isWrappingTapTarget={true}
-            tooltipContent={t('Copy to clipboard')}
-          >
-            <BaseButton
-              className="flex gap-2 md:max-w-fit md:px-12"
-              onClick={handleCopyApiKeyClick}
-            >
-              <LuCopy />
-              <span className="font-mono">{safeFormatApiKey(currentWebApiKey)}</span>
-            </BaseButton>
-          </SimpleTooltip>
+          <BaseTooltip open={isXs ? false : undefined}>
+            <BaseTooltipTrigger asChild>
+              <BaseButton
+                className="flex gap-2 md:max-w-fit md:px-12"
+                onClick={handleCopyApiKeyClick}
+              >
+                <LuCopy />
+                <span className="font-mono">{safeFormatApiKey(currentWebApiKey)}</span>
+              </BaseButton>
+            </BaseTooltipTrigger>
+
+            <BaseTooltipPortal>
+              <BaseTooltipContent>
+                <p>{t('Copy to clipboard')}</p>
+              </BaseTooltipContent>
+            </BaseTooltipPortal>
+          </BaseTooltip>
 
           <div>
             <p>

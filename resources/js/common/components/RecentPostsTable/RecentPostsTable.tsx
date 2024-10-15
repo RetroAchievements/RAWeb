@@ -55,14 +55,15 @@ export const RecentPostsTable: FC<RecentPostsTableProps> = ({
                 >
                   {topic.title}
                 </a>
-                <span className="smalldate">
-                  {topic.latestComment?.createdAt ? (
+
+                {topic.latestComment?.createdAt ? (
+                  <span className="smalldate" data-testid="smalldate">
                     <PostTimestamp
                       asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates ?? false}
                       postedAt={topic.latestComment.createdAt}
                     />
-                  ) : null}
-                </span>
+                  </span>
+                ) : null}
               </p>
 
               <div className="comment text-overflow-wrap">
