@@ -34,11 +34,6 @@ class EmulatorRelease extends BaseModel implements HasMedia
         'created_at',
     ];
 
-    protected $with = [
-        'emulator',
-        'media',
-    ];
-
     protected static function booted()
     {
         static::saving(function (EmulatorRelease $release) {

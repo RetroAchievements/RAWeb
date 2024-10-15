@@ -3,6 +3,7 @@
 use App\Community\Enums\ActivityType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
+use App\Models\Emulator;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
@@ -262,19 +263,18 @@ switch ($requestType) {
             return DoRequestError("Lookup by Console ID has been deprecated");
         }
 
-        $emulator = getEmulatorReleaseByIntegrationId($emulatorId);
-
-        if ($emulator === null) {
+        $emulator = Emulator::find($emulatorId);
+        if ($emulator === null || !$emulator->active || !$emulator->latestRelease) {
             return DoRequestError("Unknown client");
         }
-        $baseDownloadUrl = str_replace('https', 'http', config('app.url')) . '/';
-        $response['MinimumVersion'] = $emulator['minimum_version'] ?? null;
-        $response['LatestVersion'] = $emulator['latest_version'] ?? null;
-        $response['LatestVersionUrl'] = null;
-        if ($emulator['latest_version_url'] ?? null) {
-            $response['LatestVersionUrl'] = $baseDownloadUrl . $emulator['latest_version_url'];
-        }
-        $response['LatestVersionUrlX64'] = ($emulator['latest_version_url_x64'] ?? null) ? $baseDownloadUrl . $emulator['latest_version_url_x64'] : null;
+
+        $format_url = function (?string $url): ?string {
+            return (!$url || str_starts_with($url, 'http')) ? $url : config('app.url') . '/' . $url;
+        };
+        $response['MinimumVersion'] = $emulator->minimumSupportedRelease?->version ?? $emulator->latestRelease->version;
+        $response['LatestVersion'] = $emulator->latestRelease->version;
+        $response['LatestVersionUrl'] = $format_url($emulator->download_url);
+        $response['LatestVersionUrlX64'] = $format_url($emulator->download_x64_url);
         break;
 
     case "latestintegration":
