@@ -2,6 +2,8 @@ import { QueryClient } from '@tanstack/react-query';
 import type { ColumnFiltersState, PaginationState, SortingState } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
 
+import { usePageProps } from '@/common/hooks/usePageProps';
+
 /**
  * We need to populate tanstack-query with an initial value during the
  * server render, otherwise it will immediately fetch data we already
@@ -24,6 +26,8 @@ export function usePreloadedTableDataQueryClient<TData = unknown>({
   pagination,
   sorting,
 }: UseSsrQueryClientHydrationProps<TData>) {
+  const { ziggy } = usePageProps();
+
   const [queryClient] = useState(() => new QueryClient());
 
   /**
@@ -32,8 +36,19 @@ export function usePreloadedTableDataQueryClient<TData = unknown>({
    * From the user's perspective, it'll appear that they can never page, filter, sort, etc.
    */
   useMemo(() => {
-    // These values come from `useGameListState()`.
-    queryClient.setQueryData(['data', pagination, sorting, columnFilters], paginatedData);
+    if (ziggy.device === 'desktop') {
+      // These values come from `useGameListState()`.
+      queryClient.setQueryData(['data', pagination, sorting, columnFilters], paginatedData);
+    }
+
+    if (ziggy.device === 'mobile') {
+      // These values come from `useGameListState()`.
+      queryClient.setQueryData(['infinite-data', pagination, sorting, columnFilters], {
+        pages: [paginatedData],
+        pageParams: [1],
+      });
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps -- needed for ssr
   }, [queryClient]);
 

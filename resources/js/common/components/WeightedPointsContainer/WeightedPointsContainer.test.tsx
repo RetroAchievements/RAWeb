@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '@/test';
+import { render, screen, waitFor } from '@/test';
 
 import { WeightedPointsContainer } from './WeightedPointsContainer';
 
@@ -33,5 +33,18 @@ describe('Component: WeightedPointsContainer', () => {
     expect(
       (await screen.findAllByText(/rarity and estimated difficulty/i)).length,
     ).toBeGreaterThanOrEqual(1);
+  });
+
+  it('can be configured to not have a tooltip', async () => {
+    // ARRANGE
+    render(<WeightedPointsContainer isTooltipEnabled={false}>100</WeightedPointsContainer>);
+
+    // ACT
+    await userEvent.hover(screen.getByText('100'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
   });
 });

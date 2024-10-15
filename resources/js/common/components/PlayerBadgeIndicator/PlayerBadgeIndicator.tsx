@@ -19,6 +19,7 @@ export const PlayerBadgeIndicator: FC<PlayerBadgeIndicatorProps> = ({ playerBadg
 
   return (
     <div
+      role="img"
       aria-label={`${label} indicator`}
       className={cn(
         'h-2 w-2 rounded-full',

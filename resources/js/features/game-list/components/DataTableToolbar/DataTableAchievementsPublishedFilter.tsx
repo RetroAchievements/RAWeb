@@ -5,10 +5,13 @@ import { DataTableFacetedFilter } from '../DataTableFacetedFilter';
 
 interface DataTableAchievementsPublishedFilterProps<TData> {
   table: Table<TData>;
+
+  variant?: 'base' | 'drawer';
 }
 
 export function DataTableAchievementsPublishedFilter<TData>({
   table,
+  variant = 'base',
 }: DataTableAchievementsPublishedFilterProps<TData>) {
   const { t } = useLaravelReactI18n();
 
@@ -24,6 +27,7 @@ export function DataTableAchievementsPublishedFilter<TData>({
       ]}
       isSearchable={false}
       isSingleSelect={true}
+      variant={variant}
     />
   );
 }

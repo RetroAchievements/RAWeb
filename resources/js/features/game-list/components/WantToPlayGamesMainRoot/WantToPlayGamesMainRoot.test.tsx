@@ -1,5 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
+import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { UserGameListType } from '@/common/utils/generatedAppConstants';
@@ -17,6 +18,9 @@ import { WantToPlayGamesMainRoot } from './WantToPlayGamesMainRoot';
 // Suppress AggregateError invocations from unmocked fetch calls to the back-end.
 console.error = vi.fn();
 
+window.HTMLElement.prototype.scrollIntoView = vi.fn();
+window.plausible = vi.fn();
+
 describe('Component: WantToPlayGamesMainRoot', () => {
   it('renders without crashing', () => {
     // ARRANGE
@@ -27,7 +31,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
           filterableSystemOptions: [],
           paginatedGameListEntries: createPaginatedData([]),
           can: { develop: false },
-          ziggy: createZiggyProps(),
+          ziggy: createZiggyProps({ device: 'desktop' }),
         },
       },
     );
@@ -36,7 +40,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
     expect(container).toBeTruthy();
   });
 
-  it('displays default columns', () => {
+  it('displays default columns', async () => {
     // ARRANGE
     render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesMainRoot />, {
       pageProps: {
@@ -44,12 +48,12 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
     // ASSERT
-    expect(screen.getByRole('columnheader', { name: /title/i }));
+    expect(await screen.findByRole('columnheader', { name: /title/i })); // The table uses React.lazy().
     expect(screen.getByRole('columnheader', { name: /system/i }));
     expect(screen.getByRole('columnheader', { name: /achievements/i }));
     expect(screen.getByRole('columnheader', { name: /points/i }));
@@ -82,7 +86,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
           createGameListEntry({ game: mockGame, playerGame: null }),
         ]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -122,7 +126,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
           createGameListEntry({ game: mockGame, isInBacklog: true }),
         ]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -165,7 +169,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
           createGameListEntry({ game: mockGame, isInBacklog: true }),
         ]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -193,7 +197,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -213,7 +217,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -234,7 +238,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: true },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -271,7 +275,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [],
         paginatedGameListEntries: createPaginatedData([createGameListEntry({ game: mockGame })]),
         can: { develop: true },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -293,7 +297,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -322,7 +326,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -343,7 +347,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         ],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -383,7 +387,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         ],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -414,7 +418,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -440,7 +444,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -463,7 +467,6 @@ describe('Component: WantToPlayGamesMainRoot', () => {
 
   it('allows the user to sort by a string column', async () => {
     // ARRANGE
-    window.HTMLElement.prototype.scrollIntoView = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
     render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesMainRoot />, {
@@ -472,7 +475,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -504,7 +507,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -536,7 +539,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -565,7 +568,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -585,12 +588,13 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
         paginatedGameListEntries: createPaginatedData([], { total: 300 }),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
     // ASSERT
-    expect(screen.getByText(/300 games/i)).toBeVisible();
+    // Mobile renders a separate element.
+    expect(screen.getAllByText(/300 games/i)[0]).toBeVisible();
   });
 
   it('given there are multiple pages, allows the user to advance to the next page', async () => {
@@ -608,7 +612,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
           perPage: 1,
         }),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -636,7 +640,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -645,5 +649,38 @@ describe('Component: WantToPlayGamesMainRoot', () => {
 
     // ASSERT
     expect(screen.getByRole('textbox', { name: /search/i })).toHaveFocus();
+  });
+
+  it('given the user is on a mobile device, renders a list rather than a table', async () => {
+    // ARRANGE
+    mockAllIsIntersecting(false);
+
+    const mockGame = createGame({
+      id: 1,
+      title: 'Sonic the Hedgehog',
+      system: createSystem({ id: 1 }),
+      achievementsPublished: 42,
+      pointsTotal: 500,
+      pointsWeighted: 1000,
+      releasedAt: '2006-08-24T00:56:00+00:00',
+      releasedAtGranularity: 'day',
+      numUnresolvedTickets: 2,
+    });
+
+    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesMainRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        paginatedGameListEntries: createPaginatedData([createGameListEntry({ game: mockGame })]),
+        can: { develop: false },
+        ziggy: createZiggyProps({ device: 'mobile' }),
+      },
+    });
+
+    // ASSERT
+    expect(await screen.findByRole('list')).toBeVisible();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+
+    expect(await screen.findByText(/sonic the hedgehog/i)).toBeVisible();
   });
 });

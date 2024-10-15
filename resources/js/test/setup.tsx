@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-imports -- test setup can import from @testing-library/react */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import * as InertiajsReactModule from '@inertiajs/react';

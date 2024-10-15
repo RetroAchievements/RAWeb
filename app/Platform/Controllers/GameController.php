@@ -20,6 +20,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
+use Jenssegers\Agent\Agent;
 
 class GameController extends Controller
 {
@@ -35,12 +36,21 @@ class GameController extends Controller
 
         $this->authorize('viewAny', [Game::class, $user]);
 
+        $isMobile = (new Agent())->isMobile();
+
         $paginatedData = (new BuildGameListAction())->execute(
             GameListType::AllGames,
             user: $user,
-            page: $request->getPage(),
             filters: $request->getFilters(),
             sort: $request->getSort(),
+            perPage: $isMobile ? 100 : 25,
+
+            /**
+             * Ignore page params on mobile.
+             * They're _always_ desktop-generated. Desktop uses smaller
+             * page sizes, so respecting these params is highly undesirable.
+             */
+            page: $isMobile ? 1 : $request->getPage(),
         );
 
         $filterableSystemOptions = System::active()

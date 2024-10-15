@@ -4,6 +4,7 @@ import type { RouteName } from 'ziggy-js';
 import { PlayerGameProgressBar } from '@/common/components/PlayerGameProgressBar';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
+import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildPlayerGameProgressColumnDefProps {
   t_label: string;
@@ -18,14 +19,9 @@ export function buildPlayerGameProgressColumnDef({
   return {
     id: 'progress',
     accessorKey: 'game',
-    meta: { t_label, align: 'left' },
+    meta: { t_label, align: 'left', sortType: 'quantity', Icon: gameListFieldIconMap.progress },
     header: ({ column, table }) => (
-      <DataTableColumnHeader
-        column={column}
-        table={table}
-        sortType="quantity"
-        tableApiRouteName={tableApiRouteName}
-      />
+      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
     cell: ({ row }) => {
       const { game, playerGame } = row.original;

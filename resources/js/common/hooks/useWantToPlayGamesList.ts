@@ -19,45 +19,57 @@ export function useWantToPlayGamesList() {
   const addToWantToPlayGamesList = (
     gameId: number,
     gameTitle: string,
-    options?: Partial<{ isUndo: boolean }>,
+    options?: Partial<{ isUndo: boolean; shouldDisableToast: boolean; t_successMessage?: string }>,
   ) => {
-    const mutationPromise = addToBacklogMutation.mutateAsync(gameId);
-
-    toastMessage.promise(mutationPromise, {
-      loading: options?.isUndo ? t('Restoring...') : t('Adding...'),
-      success: () => {
+    const mutationPromise = addToBacklogMutation.mutateAsync(gameId, {
+      onSuccess: () => {
         // Trigger a refetch of the current table page data and bust the entire cache.
         queryClient.invalidateQueries({ queryKey: ['data'] });
-
-        if (options?.isUndo) {
-          return t('Restored :gameTitle!', { gameTitle });
-        }
-
-        return t('Added :gameTitle!', { gameTitle });
       },
-      error: t('Something went wrong.'),
     });
+
+    if (!options?.shouldDisableToast) {
+      toastMessage.promise(mutationPromise, {
+        loading: options?.isUndo ? t('Restoring...') : t('Adding...'),
+        success: () => {
+          if (options?.isUndo) {
+            return t('Restored :gameTitle!', { gameTitle });
+          }
+
+          return options?.t_successMessage ?? t('Added :gameTitle!', { gameTitle });
+        },
+        error: t('Something went wrong.'),
+      });
+    }
 
     return mutationPromise;
   };
 
-  const removeFromWantToPlayGamesList = (gameId: number, gameTitle: string) => {
-    const mutationPromise = removeFromBacklogMutation.mutateAsync(gameId);
-
-    toastMessage.promise(mutationPromise, {
-      action: {
-        label: t('Undo'),
-        onClick: () => addToWantToPlayGamesList(gameId, gameTitle, { isUndo: true }),
-      },
-      loading: t('Removing...'),
-      success: () => {
+  const removeFromWantToPlayGamesList = (
+    gameId: number,
+    gameTitle: string,
+    options?: Partial<{ shouldDisableToast: boolean; t_successMessage?: string }>,
+  ) => {
+    const mutationPromise = removeFromBacklogMutation.mutateAsync(gameId, {
+      onSuccess: () => {
         // Trigger a refetch of the current table page data and bust the entire cache.
         queryClient.invalidateQueries({ queryKey: ['data'] });
-
-        return t('Removed :gameTitle!', { gameTitle });
       },
-      error: t('Something went wrong.'),
     });
+
+    if (!options?.shouldDisableToast) {
+      toastMessage.promise(mutationPromise, {
+        action: {
+          label: t('Undo'),
+          onClick: () => addToWantToPlayGamesList(gameId, gameTitle, { isUndo: true }),
+        },
+        loading: t('Removing...'),
+        success: () => {
+          return options?.t_successMessage ?? t('Removed :gameTitle!', { gameTitle });
+        },
+        error: t('Something went wrong.'),
+      });
+    }
 
     return mutationPromise;
   };
