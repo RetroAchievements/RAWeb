@@ -49,12 +49,12 @@ describe('Component: WantToPlayGamesMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('columnheader', { name: /title/i }));
-    expect(screen.getByRole('columnheader', { name: /system/i }));
-    expect(screen.getByRole('columnheader', { name: /achievements/i }));
-    expect(screen.getByRole('columnheader', { name: /points/i }));
-    expect(screen.getByRole('columnheader', { name: /rarity/i }));
-    expect(screen.getByRole('columnheader', { name: /release date/i }));
+    expect(screen.getByRole('columnheader', { name: /title/i })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: /system/i })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: /achievements/i })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: /points/i })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: /rarity/i })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: /release date/i })).toBeVisible();
   });
 
   it('shows game rows', () => {
@@ -552,6 +552,41 @@ describe('Component: WantToPlayGamesMainRoot', () => {
           'filter[achievementsPublished]': 'has',
           'page[number]': 1,
           sort: 'releasedAt',
+        },
+      ]);
+    });
+  });
+
+  it('allows the user to sort by a boolean column', async () => {
+    // ARRANGE
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
+
+    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesMainRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        paginatedGameListEntries: createPaginatedData([]),
+        can: { develop: false },
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /view/i }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /claimed/i }));
+
+    await userEvent.click(screen.getByTestId('column-header-Claimed'));
+    await userEvent.click(screen.getByRole('menuitem', { name: /yes first/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.user-game-list.index',
+        {
+          'filter[achievementsPublished]': 'has',
+          'page[number]': 1,
+          sort: '-hasActiveOrInReviewClaims',
         },
       ]);
     });
