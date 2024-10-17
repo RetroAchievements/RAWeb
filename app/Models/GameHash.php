@@ -164,10 +164,9 @@ class GameHash extends BaseModel
     /**
      * @return BelongsToMany<AchievementSet>
      */
-    public function achievementSets(): BelongsToMany
+    public function incompatibleAchievementSets(): BelongsToMany
     {
-        return $this->belongsToMany(AchievementSet::class, 'achievement_set_game_hashes')
-            ->withPivot('compatible')
+        return $this->belongsToMany(AchievementSet::class, 'achievement_set_incompatible_game_hashes')
             ->withTimestamps();
     }
 
