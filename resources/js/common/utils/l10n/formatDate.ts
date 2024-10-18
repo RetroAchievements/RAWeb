@@ -1,7 +1,9 @@
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
+import utc from 'dayjs/plugin/utc';
 
+dayjs.extend(utc);
 dayjs.extend(localizedFormat);
 
 /**
@@ -30,9 +32,13 @@ type ValidLocalizedFormat =
   | 'MMM DD, YYYY, HH:mm'; // "Aug 16, 2018, 08:02"
 
 export function formatDate(
-  date: Dayjs,
+  date: Dayjs | string,
   format: ValidLocalizedFormat | `${ValidLocalizedFormat} ${ValidLocalizedFormat}`,
 ): string {
+  if (typeof date === 'string') {
+    date = dayjs.utc(date);
+  }
+
   const currentLocale = dayjs.locale();
 
   if (format === 'MMM DD, YYYY, HH:mm') {

@@ -124,7 +124,7 @@ class ForumTopicController extends \App\Http\Controller
 
     public function recentPosts(Request $request): InertiaResponse
     {
-        $offset = $request->input('page', 1) - 1;
+        $offset = $request->input('page.number', 1) - 1;
         $count = 25;
 
         /** @var User $user */
@@ -135,7 +135,7 @@ class ForumTopicController extends \App\Http\Controller
         }
 
         $topics = $this->getRecentForumTopics(
-            page: (int) $request->input('page', 1),
+            page: (int) $request->input('page.number', 1),
             permissions: $permissions,
         );
 

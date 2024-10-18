@@ -26,7 +26,7 @@ export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({ t_currentPageLabel, 
     <div className="navpath mb-3 hidden sm:block">
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
-          <BaseBreadcrumbItem>
+          <BaseBreadcrumbItem aria-label={t('All Games')}>
             <BaseBreadcrumbLink asChild>
               <Link href={route('game.index')}>{t('All Games')}</Link>
             </BaseBreadcrumbLink>
@@ -36,7 +36,7 @@ export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({ t_currentPageLabel, 
             <>
               <BaseBreadcrumbSeparator />
 
-              <BaseBreadcrumbItem>
+              <BaseBreadcrumbItem aria-label={system.name}>
                 <BaseBreadcrumbLink href={route('system.game.index', system.id)}>
                   {system.name}
                 </BaseBreadcrumbLink>
@@ -47,7 +47,7 @@ export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({ t_currentPageLabel, 
           {game ? (
             <>
               <BaseBreadcrumbSeparator />
-              <BaseBreadcrumbItem>
+              <BaseBreadcrumbItem aria-label={game.title}>
                 <BaseBreadcrumbLink href={route('game.show', { game: game.id })}>
                   <GameTitle title={game.title} />
                 </BaseBreadcrumbLink>
@@ -57,7 +57,7 @@ export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({ t_currentPageLabel, 
 
           <BaseBreadcrumbSeparator />
 
-          <BaseBreadcrumbItem>
+          <BaseBreadcrumbItem aria-label={t_currentPageLabel}>
             <BaseBreadcrumbPage>{t_currentPageLabel}</BaseBreadcrumbPage>
           </BaseBreadcrumbItem>
         </BaseBreadcrumbList>

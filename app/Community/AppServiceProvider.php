@@ -116,18 +116,6 @@ class AppServiceProvider extends ServiceProvider
         Blade::component('user-progression-status', UserProgressionStatus::class);
         Blade::component('user-recently-played', UserRecentlyPlayed::class);
 
-        // Livewire::component('forum-topics', ForumTopics::class);
-        //
-        // Livewire::component('achievement.comments', AchievementComments::class);
-        // Livewire::component('forum-topic-comments', ForumTopicComments::class);
-        // Livewire::component('game.comments', GameComments::class);
-        // Livewire::component('news.comments', NewsComments::class);
-        // Livewire::component('user.comments', UserComments::class);
-
         Livewire::component('message-icon', MessageIcon::class);
-        // Blade::component('news-carousel', NewsCarousel::class);
-        // Livewire::component('news-grid', NewsGrid::class);
-        // Livewire::component('news-teaser', NewsTeaser::class);
-        // Livewire::component('user-activity-feed', UserActivityFeed::class);
     }
 }

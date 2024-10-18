@@ -23,7 +23,7 @@ export const UserBreadcrumbs: FC<UserBreadcrumbsProps> = ({ t_currentPageLabel, 
     <div className="navpath mb-3 hidden sm:block">
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
-          <BaseBreadcrumbItem>
+          <BaseBreadcrumbItem aria-label={t('All Users')}>
             <BaseBreadcrumbLink href="/userList.php">{t('All Users')}</BaseBreadcrumbLink>
           </BaseBreadcrumbItem>
 
@@ -31,7 +31,7 @@ export const UserBreadcrumbs: FC<UserBreadcrumbsProps> = ({ t_currentPageLabel, 
             <>
               <BaseBreadcrumbSeparator />
 
-              <BaseBreadcrumbItem>
+              <BaseBreadcrumbItem aria-label={user.displayName}>
                 <BaseBreadcrumbLink href={route('user.show', { user: user.displayName })}>
                   {user.displayName}
                 </BaseBreadcrumbLink>
@@ -41,7 +41,7 @@ export const UserBreadcrumbs: FC<UserBreadcrumbsProps> = ({ t_currentPageLabel, 
 
           <BaseBreadcrumbSeparator />
 
-          <BaseBreadcrumbItem>
+          <BaseBreadcrumbItem aria-label={t_currentPageLabel}>
             <BaseBreadcrumbPage>{t_currentPageLabel}</BaseBreadcrumbPage>
           </BaseBreadcrumbItem>
         </BaseBreadcrumbList>

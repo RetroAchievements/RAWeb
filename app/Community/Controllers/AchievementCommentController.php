@@ -6,7 +6,7 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\AddCommentAction;
 use App\Community\Actions\GetUrlToCommentDestinationAction;
-use App\Community\Requests\CommentRequest;
+use App\Community\Requests\StoreCommentRequest;
 use App\Models\Achievement;
 use App\Models\AchievementComment;
 use App\Models\Comment;
@@ -36,7 +36,7 @@ class AchievementCommentController extends CommentController
     }
 
     public function store(
-        CommentRequest $request,
+        StoreCommentRequest $request,
         Achievement $achievement,
         AddCommentAction $addCommentAction,
         GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction
@@ -63,7 +63,7 @@ class AchievementCommentController extends CommentController
     }
 
     protected function update(
-        CommentRequest $request,
+        StoreCommentRequest $request,
         AchievementComment $comment,
         GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction
     ): RedirectResponse {

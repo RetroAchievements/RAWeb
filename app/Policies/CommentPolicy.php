@@ -64,7 +64,7 @@ class CommentPolicy
     public function delete(User $user, Comment $comment): bool
     {
         // users can delete their own comments
-        if ($comment->user_id == $user->id) {
+        if ($user->is($comment->user)) {
             return true;
         }
 

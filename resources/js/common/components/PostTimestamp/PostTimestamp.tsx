@@ -6,6 +6,8 @@ import { useServerRenderTime } from '@/common/hooks/useServerRenderTime';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 import { diffForHumans } from '@/utils/diffForHumans';
 
+import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
+
 dayjs.extend(utc);
 
 interface PostTimestampProps {
@@ -16,9 +18,21 @@ interface PostTimestampProps {
 export const PostTimestamp: FC<PostTimestampProps> = ({ postedAt, asAbsoluteDate }) => {
   const { renderedAt } = useServerRenderTime();
 
+  const date = dayjs.utc(postedAt);
+
   if (asAbsoluteDate) {
-    return formatDate(dayjs.utc(postedAt), 'MMM DD, YYYY, HH:mm');
+    return formatDate(date, 'MMM DD, YYYY, HH:mm');
   }
 
-  return diffForHumans(postedAt, renderedAt);
+  return (
+    <BaseTooltip>
+      <BaseTooltipTrigger className="cursor-default">
+        <span>{diffForHumans(postedAt, renderedAt)}</span>
+      </BaseTooltipTrigger>
+
+      <BaseTooltipContent>
+        <p className="text-sm">{formatDate(date, 'lll')}</p>
+      </BaseTooltipContent>
+    </BaseTooltip>
+  );
 };

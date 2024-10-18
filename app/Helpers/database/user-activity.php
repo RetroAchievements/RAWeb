@@ -3,7 +3,6 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Comment;
-use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Facades\Cache;
 
@@ -36,26 +35,18 @@ function RemoveComment(int $commentID, int $userID, int $permissions): bool
 
 function getIsCommentDoublePost(int $userID, array|int $articleID, string $commentPayload): bool
 {
-    $query = "SELECT Comment.Payload, Comment.ArticleID
-        FROM Comment
-        WHERE user_id = :userId
-        ORDER BY Comment.Submitted DESC
-        LIMIT 1";
+    $lastComment = Comment::where('user_id', $userID)
+        ->orderBy('Submitted', 'desc')
+        ->first();
 
-    $dbResult = legacyDbFetch($query, ['userId' => $userID]);
-
-    // Otherwise the user can't make their first post.
-    if (!$dbResult) {
+    // If there are no comments at all, then this isn't a double post.
+    if (!$lastComment) {
         return false;
     }
 
-    $retrievedPayload = $dbResult['Payload'];
-    $retrievedArticleID = $dbResult['ArticleID'];
-
     return
-        $retrievedPayload === $commentPayload
-        && $retrievedArticleID === $articleID
-    ;
+        $lastComment->Payload === $commentPayload
+        && $lastComment->article_id === $articleID;
 }
 
 function addArticleComment(
@@ -72,7 +63,7 @@ function addArticleComment(
     // Note: $user is the person who just made a comment.
 
     $userID = getUserIDFromUser($user);
-    if ($userID == 0) {
+    if ($userID === 0) {
         return false;
     }
 

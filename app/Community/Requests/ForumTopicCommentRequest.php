@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Requests;
 
-class ForumTopicCommentRequest extends CommentRequest
+class ForumTopicCommentRequest extends StoreCommentRequest
 {
     public function rules(): array
     {

@@ -46,10 +46,12 @@ function getUserIDFromUser(?string $user): int
         return 0;
     }
 
-    $query = "SELECT ID FROM UserAccounts WHERE User = :user";
-    $row = legacyDbFetch($query, ['user' => $user]);
+    $userModel = User::firstWhere('User', $user);
+    if (!$userModel) {
+        return 0;
+    }
 
-    return $row ? (int) $row['ID'] : 0;
+    return $userModel->id;
 }
 
 function getUserMetadataFromID(int $userID): ?array

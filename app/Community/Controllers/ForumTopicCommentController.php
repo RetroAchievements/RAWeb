@@ -59,7 +59,7 @@ class ForumTopicCommentController extends CommentController
     ): RedirectResponse {
         $this->authorize('update', $comment);
 
-        $comment->fill($request->validated())->save();
+        // $comment->fill($request->validated())->save();
 
         // TODO replace with similar logic for ForumTopicComment, not a commentable morph anymore
         return back();
