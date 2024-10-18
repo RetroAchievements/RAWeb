@@ -20,6 +20,7 @@ export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) 
   displayName: faker.internet.displayName(),
   id: faker.number.int({ min: 1, max: 99999 }),
   isMuted: false,
+  mutedUntil: null,
   legacyPermissions: 8447,
   preferences: {
     prefersAbsoluteDates: false,

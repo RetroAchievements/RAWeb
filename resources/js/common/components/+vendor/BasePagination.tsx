@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type ComponentProps, forwardRef } from 'react';
 import { LuChevronLeft, LuChevronRight, LuMoreHorizontal } from 'react-icons/lu';
@@ -29,6 +30,7 @@ const BasePaginationItem = forwardRef<HTMLLIElement, ComponentProps<'li'>>(
 BasePaginationItem.displayName = 'BasePaginationItem';
 
 type BasePaginationLinkProps = {
+  href: string;
   isActive?: boolean;
 } & Pick<BaseButtonProps, 'size'> &
   ComponentProps<'a'>;
@@ -37,10 +39,11 @@ const BasePaginationLink = ({
   className,
   isActive,
   size = 'icon',
+  href,
   ...props
 }: BasePaginationLinkProps) => (
-  <a
-    aria-current={isActive ? 'page' : undefined}
+  <Link
+    href={href}
     className={cn(
       baseButtonVariants({
         variant: isActive ? 'outline' : 'ghost',
@@ -49,8 +52,9 @@ const BasePaginationLink = ({
       'text-xs',
       className,
     )}
-    {...props}
-  />
+  >
+    {props.children}
+  </Link>
 );
 BasePaginationLink.displayName = 'BasePaginationLink';
 
