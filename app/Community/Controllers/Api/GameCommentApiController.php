@@ -11,7 +11,6 @@ use App\Models\GameComment;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Subscription;
 
 class GameCommentApiController extends Controller
 {
@@ -39,8 +38,6 @@ class GameCommentApiController extends Controller
         }
 
         addArticleComment($user->username, $data->commentableType, $data->commentableId, $data->body);
-
-
 
         return response()->json(['success' => true]);
     }
