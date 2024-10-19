@@ -1,6 +1,8 @@
+import { faker } from '@faker-js/faker';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
 
 import { AvatarSection } from './AvatarSection';
@@ -67,6 +69,29 @@ describe('Component: AvatarSection', () => {
 
     // ASSERT
     expect(deleteSpy).toHaveBeenCalledWith(route('api.user.avatar.destroy'));
+  });
+
+  it('given the user makes the request to set their avatar to default, tries to optimistically reset references to their current avatar in the UI', async () => {
+    // ARRANGE
+    vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
+    vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
+
+    const oldSrc = faker.internet.url();
+
+    render(
+      <div>
+        <img data-testid="old-avatar" className="userpic" src={oldSrc} />
+        <AvatarSection />
+      </div>,
+      { pageProps: { auth: { user: createAuthenticatedUser() }, can: { updateAvatar: true } } },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /reset avatar to default/i }));
+
+    // ASSERT
+    const imgEl = screen.getByTestId('old-avatar');
+    expect(imgEl.getAttribute('src')).not.toEqual(oldSrc);
   });
 
   it('given the user does not confirm they want to reset their avatar to default, does not make a request to the server', async () => {
