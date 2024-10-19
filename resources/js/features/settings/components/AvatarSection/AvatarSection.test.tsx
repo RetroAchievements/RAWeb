@@ -57,6 +57,38 @@ describe('Component: AvatarSection', () => {
     });
   });
 
+  it('given an error occurs during file reading, pops an error toast', async () => {
+    // ARRANGE
+    const file = new File(['file content'], 'myfile.png', { type: 'image/png' });
+
+    const mockFileReader = {
+      readAsDataURL: vi.fn(),
+      onerror: vi.fn(),
+      onload: vi.fn(),
+    };
+
+    vi.spyOn(window, 'FileReader').mockImplementationOnce(
+      () => mockFileReader as unknown as FileReader,
+    );
+
+    render(<AvatarSection />, { pageProps: { can: { updateAvatar: true } } });
+
+    // ACT
+    const fileInputEl = screen.getByLabelText(/new image/i);
+
+    await userEvent.upload(fileInputEl, file);
+    await userEvent.click(screen.getByRole('button', { name: /upload/i }));
+
+    // Simulate an error during file reading.
+    const error = new Error('File reading error');
+    mockFileReader.onerror({ target: { error } } as unknown as ProgressEvent<FileReader>);
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/something went wrong/i)).toBeVisible();
+    });
+  });
+
   it('given the user tries to reset their avatar to the default, makes the request to the server', async () => {
     // ARRANGE
     vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
