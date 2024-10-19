@@ -23,7 +23,10 @@ class Edit extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $existingImage = $this->record->Image;
+        /** @var News $record */
+        $record = $this->record;
+
+        $existingImage = $record->Image;
 
         if (isset($data['Image'])) {
             $data['Image'] = (new ProcessUploadedImageAction())->execute($data['Image']);
