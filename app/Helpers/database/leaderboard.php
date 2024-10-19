@@ -2,29 +2,27 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
+use App\Platform\Actions\ResumePlayerSession;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
+// TODO migrate to action
 function SubmitLeaderboardEntry(
     User $user,
-    int $lbID,
+    Leaderboard $leaderboard,
     int $newEntry,
-    ?string $validation
+    ?string $validation,
+    ?GameHash $gameHash = null,
+    ?Carbon $timestamp = null,
 ): array {
     $retVal = ['Success' => true];
 
-    $leaderboard = Leaderboard::with('game')->find($lbID);
-
-    if (!$leaderboard) {
-        $retVal['Success'] = false;
-        $retVal['Error'] = "Cannot find the leaderboard with ID: $lbID";
-
-        return $retVal;
-    }
-
+    $leaderboard->loadMissing('game');
     if ($leaderboard->game->ConsoleID && !isValidConsoleId($leaderboard->game->ConsoleID)) {
         $retVal['Success'] = false;
         $retVal['Error'] = "Cannot submit entry for unsupported console";
@@ -42,6 +40,14 @@ function SubmitLeaderboardEntry(
     $retVal['Score'] = $newEntry;
     $retVal['ScoreFormatted'] = ValueFormat::format($newEntry, $leaderboard->Format);
 
+    $timestamp ??= Carbon::now();
+    $playerSession = app()->make(ResumePlayerSession::class)->execute(
+        $user,
+        $leaderboard->game,
+        ($gameHash && !$gameHash->isMultiDiscGameHash()) ? $gameHash : null,
+        timestamp: $timestamp,
+    );
+
     $existingLeaderboardEntry = LeaderboardEntry::withTrashed()
         ->where('leaderboard_id', $leaderboard->id)
         ->where('user_id', $user->id)
@@ -57,6 +63,8 @@ function SubmitLeaderboardEntry(
 
             // Update the player's entry.
             $existingLeaderboardEntry->score = $newEntry;
+            $existingLeaderboardEntry->player_session_id = $playerSession->id;
+            $existingLeaderboardEntry->updated_at = $timestamp;
             $existingLeaderboardEntry->save();
 
             $retVal['BestScore'] = $newEntry;
@@ -70,6 +78,9 @@ function SubmitLeaderboardEntry(
             'leaderboard_id' => $leaderboard->id,
             'user_id' => $user->id,
             'score' => $newEntry,
+            'player_session_id' => $playerSession->id,
+            'created_at' => $timestamp,
+            'updated_at' => $timestamp,
         ]);
 
         $retVal['BestScore'] = $newEntry;
@@ -157,10 +168,15 @@ function GetLeaderboardData(
         }
     }
 
+    if ($numToFetch === 0) {
+        return $retVal;
+    }
+
     // Now get entries:
     $index = $rank = $offset + 1;
     $rankScore = null;
     $userFound = false;
+
     $entries = $leaderboard->sortedEntries()->with('user')->skip($offset)->take($numToFetch);
     foreach ($entries->get() as $entry) {
         if ($entry->score !== $rankScore) {
@@ -222,67 +238,6 @@ function getLeaderboardUserEntry(Leaderboard $leaderboard, User $user): ?array
     $retVal['Index'] = $retVal['Rank'] + $sharedRankEarlierEntryCount;
 
     return $retVal;
-}
-
-function getLeaderboardsList(
-    int $gameID,
-    int $sortBy,
-): array {
-    $ifDesc = "";
-    if ($sortBy >= 10) {
-        $ifDesc = " DESC";
-    }
-
-    switch ($sortBy % 10) {
-        case 0:
-            $orderClause = "ORDER BY ld.DisplayOrder $ifDesc, c.ID, GameTitle";
-            break;
-        case 2:
-            $orderClause = "ORDER BY GameTitle $ifDesc";
-            break;
-        case 3:
-            $orderClause = "ORDER BY ConsoleName $ifDesc, c.ID, GameTitle";
-            break;
-        case 4:
-            $orderClause = "ORDER BY ld.Title $ifDesc";
-            break;
-        case 5:
-            $orderClause = "ORDER BY ld.Description $ifDesc";
-            break;
-        case 6:
-            $orderClause = "ORDER BY ld.LowerIsBetter $ifDesc, ld.Format $ifDesc";
-            break;
-        case 7:
-            $ifDesc = $sortBy == 17 ? "ASC" : "DESC";
-
-            $orderClause = "ORDER BY NumResults $ifDesc";
-            break;
-        default:
-            $orderClause = "ORDER BY ld.ID $ifDesc";
-            break;
-    }
-
-    $query = "SELECT
-        ld.ID, ld.Title, ld.Description, ld.Format, ld.Mem, ld.DisplayOrder,
-        leInner.NumResults,
-        ld.LowerIsBetter, ua.User AS Author,
-        gd.ID AS GameID, gd.ImageIcon AS GameIcon, gd.Title AS GameTitle,
-        c.Name AS ConsoleName, c.ID AS ConsoleID
-        FROM LeaderboardDef AS ld
-        LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
-        LEFT JOIN
-        (
-            SELECT le.leaderboard_id, COUNT(*) AS NumResults FROM leaderboard_entries AS le
-            WHERE le.deleted_at IS NULL
-            GROUP BY le.leaderboard_id
-            ) AS leInner ON leInner.leaderboard_id = ld.ID
-        LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-        LEFT JOIN UserAccounts AS ua ON ua.ID = ld.author_id
-        WHERE gd.ID = :gameId
-        GROUP BY ld.GameID, ld.ID
-        $orderClause";
-
-    return legacyDbFetchAll($query, ['gameId' => $gameID])->toArray();
 }
 
 function submitLBData(
@@ -421,28 +376,6 @@ function UploadNewLeaderboard(
             "{$authorModel->display_name} edited this leaderboard.", $authorModel->username
         );
     }
-
-    return true;
-}
-
-function requestResetLB(int $lbID): bool
-{
-    $entries = LeaderboardEntry::where('leaderboard_id', $lbID);
-    $entriesDeleted = $entries->delete();
-
-    // When `delete()` returns false, it indicates an error has occurred.
-    return $entriesDeleted !== false;
-}
-
-function requestDeleteLB(int $lbID): bool
-{
-    $leaderboard = Leaderboard::find($lbID);
-
-    if (!$leaderboard) {
-        return false;
-    }
-
-    $leaderboard->forceDelete();
 
     return true;
 }

@@ -1,85 +1,49 @@
 <?php
+
+use App\Models\System;
+use App\Support\Cache\CacheKey;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+
 /**
  * used for mobile presentation where dropdowns won't work in horizontally scrollable navbars
  */
 $mobile ??= false;
 
-$menuSystemsList = [
-    [
-        "Nintendo" => [
-            4, // Game Boy
-            6, // Game Boy Color
-            5, // Game Boy Advance
-            7, // NES/Famicom
-            3, // SNES/Super Famicom
-            2, // Nintendo 64
-            16, // Nintendo GameCube
-            18, // Nintendo DS
-            78, // Nintendo DSi
-            24, // Pokemon Mini
-            28, // Virtual Boy
-        ],
-        "Sony" => [
-            12, // PlayStation
-            21, // PlayStation 2
-            41, // PlayStation Portable
-        ],
-        "Atari" => [
-            25, // Atari 2600
-            51, // Atari 7800
-            17, // Atari Jaguar
-            77, // Atari Jaguar CD
-            13, // Atari Lynx
-        ],
-    ],
-    [
-        "Sega" => [
-            33, // SG-1000
-            11, // Master System
-            15, // Game Gear
-            1, // Genesis/Mega Drive
-            9, // Sega CD
-            10, // Sega 32X
-            39, // Sega Saturn
-            40, // Sega Dreamcast
-        ],
-        "NEC" => [
-            8, // PC Engine/TurboGrafx-16
-            76, // PC Engine CD/TurboGrafx-CD
-            47, // PC-8000/8800
-            49, // PC-FX
-        ],
-        "SNK" => [
-            56, // Neo Geo CD
-            14, // Neo Geo Pocket
-        ],
-    ],
-    [
-        "Other" => [
-            43, // 3DO Interactive Multiplayer
-            37, // Amstrad CPC
-            38, // Apple II
-            27, // Arcade
-            73, // Arcadia 2001
-            71, // Arduboy
-            44, // ColecoVision
-            75, // Elektor TV Games Computer
-            57, // Fairchild Channel F
-            45, // Intellivision
-            74, // Interton VC 4000
-            23, // Magnavox Odyssey 2
-            69, // Mega Duck
-            29, // MSX
-            102, // Standalone
-            80, // Uzebox
-            46, // Vectrex
-            72, // WASM-4
-            63, // Watara Supervision
-            53, // WonderSwan
-        ],
+/* caching this saves about 750us on every page load */
+$menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addHours(1), function() {
+    $systems = System::gameSystems()->active()
+        ->orderBy('order_column')
+        ->get();
 
-    ],
-];
+    $menuSystemsList = [
+        ['Nintendo' => [], 'Sony' => [], 'Atari' => []],
+        ['Sega' => [], 'NEC' => [], 'SNK' => []],
+    ];
+
+    $otherManufacturers = [];
+    foreach ($systems as $system) {
+        $found = false;
+        foreach ($menuSystemsList as &$column) {
+            if (array_key_exists($system->manufacturer, $column)) {
+                $column[$system->manufacturer][] = $system;
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            $otherManufacturers[] = $system;
+        }
+    }
+
+    if (!empty($otherManufacturers)) {
+        usort($otherManufacturers, fn ($a, $b) => strcasecmp($a['Name'], $b['Name']));
+        $menuSystemsList[] = ['Others' => $otherManufacturers];
+    }
+
+    return $menuSystemsList;
+});
+
 ?>
 {{--
 <x-menu.play :mobile="$mobile" />
@@ -98,16 +62,12 @@ $menuSystemsList = [
     <div class="md:flex">
         @foreach ($menuSystemsList as $column)
             <div class="dropdown-column">
-            @foreach ($column as $manufacturer => $systemIds)
+            @foreach ($column as $manufacturer => $manufacturerSystems)
                     <x-dropdown-header>{{ $manufacturer }}</x-dropdown-header>
-                    @foreach ($systemIds as $systemId)
-                        <?php
-                        $systemName = config("systems.$systemId.name");
-                        $iconName = Str::kebab(Str::lower(str_replace("/", "", config("systems.$systemId.name_short"))));
-                        ?>
-                        <x-dropdown-item :href="route('system.game.index', ['system' => $systemId])">
-                            <img src="{{ asset('assets/images/system/' . $iconName . '.png') }}" loading="lazy" width="16" height="16" alt='{{ $systemName }}'>
-                            <span>{{ $systemName }}</span>
+                    @foreach ($manufacturerSystems as $system)
+                        <x-dropdown-item :href="route('system.game.index', ['system' => $system->ID])">
+                            <img src="{!! getSystemIconUrl($system) !!}" loading="lazy" width="16" height="16" alt='{{ $system->Name }}'>
+                            <span>{{ $system->Name }}</span>
                         </x-dropdown-item>
                     @endforeach
             @endforeach
@@ -115,7 +75,7 @@ $menuSystemsList = [
         @endforeach
         <div class="dropdown-column">
             <x-dropdown-header>Miscellaneous</x-dropdown-header>
-            <x-dropdown-item :href="url('gameList.php')">All Games</x-dropdown-item>
+            <x-dropdown-item :href="route('game.index')">All Games</x-dropdown-item>
             {{--<x-dropdown-item href="popularGames.php">Most Played</x-dropdown-item>--}}
             <x-dropdown-item :href="url('gameSearch.php?p=0')">Hardest Games</x-dropdown-item>
             <x-dropdown-item :href="url('setRequestList.php')">Most Requested</x-dropdown-item>

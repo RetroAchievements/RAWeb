@@ -31,6 +31,7 @@ use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\SyncAchievements;
+use App\Platform\Commands\SyncGameAchievementSets;
 use App\Platform\Commands\SyncGameHashes;
 use App\Platform\Commands\SyncGames;
 use App\Platform\Commands\SyncGameSets;
@@ -53,6 +54,7 @@ use App\Platform\Commands\UpdatePlayerGameMetrics;
 use App\Platform\Commands\UpdatePlayerMetrics;
 use App\Platform\Commands\UpdatePlayerPointsStats;
 use App\Platform\Commands\UpdateTotalGamesCount;
+use App\Platform\Commands\WriteGameSortTitles;
 use App\Platform\Components\GameCard;
 use App\Platform\Components\GameTitle;
 use Illuminate\Console\Scheduling\Schedule;
@@ -73,6 +75,7 @@ class AppServiceProvider extends ServiceProvider
                 UpdateGameMetrics::class,
                 UpdateGameAchievementsMetrics::class,
                 UpdateGamePlayerGames::class,
+                WriteGameSortTitles::class,
 
                 // Game Hashes
                 NoIntroImport::class,
@@ -103,6 +106,7 @@ class AppServiceProvider extends ServiceProvider
 
                 // Sync
                 SyncAchievements::class,
+                SyncGameAchievementSets::class,
                 SyncGameSets::class,
                 SyncGames::class,
                 SyncLeaderboards::class,
@@ -120,7 +124,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule = $this->app->make(Schedule::class);
 
             $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
-            $schedule->command(EnqueueStaleGamePlayerGamesUpdates::class)->everyFifteenMinutes();
+            // $schedule->command(EnqueueStaleGamePlayerGamesUpdates::class)->everyFifteenMinutes();
             $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
         });

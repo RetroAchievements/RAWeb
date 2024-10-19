@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\Role;
 use App\Models\User;
@@ -62,7 +61,7 @@ class GamePolicy
         // If the user has a DEVELOPER_JUNIOR role, they need to have a claim
         // on the game or be the sole author of its achievements to be able to
         // update any of its metadata.
-        if ($user->hasRole(Role::DEVELOPER_JUNIOR) || $user->getAttribute('Permissions') === Permissions::JuniorDeveloper) {
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR)) {
             return $this->canDeveloperJuniorUpdateGame($user, $game);
         }
 
@@ -96,7 +95,7 @@ class GamePolicy
             Role::DEVELOPER_JUNIOR => ['GuideURL', 'Developer', 'Publisher', 'Genre', 'released_at', 'released_at_granularity'],
 
             Role::DEVELOPER => ['Title', 'GuideURL', 'Developer', 'Publisher', 'Genre', 'released_at', 'released_at_granularity'],
-            Role::DEVELOPER_STAFF => ['Title', 'GuideURL', 'Developer', 'Publisher', 'Genre', 'released_at', 'released_at_granularity'],
+            Role::DEVELOPER_STAFF => ['Title', 'sort_title', 'GuideURL', 'Developer', 'Publisher', 'Genre', 'released_at', 'released_at_granularity'],
         ];
 
         $userRoles = $user->getRoleNames();
@@ -131,8 +130,7 @@ class GamePolicy
             Role::DEVELOPER,
             Role::FORUM_MANAGER,
             Role::MODERATOR,
-        ])
-            || $user->getAttribute('Permissions') >= Permissions::Developer;
+        ]);
     }
 
     // TODO rename to viewActivitylog or use manage() ?
@@ -143,8 +141,7 @@ class GamePolicy
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
-        ])
-            || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
+        ]);
     }
 
     private function canDeveloperJuniorUpdateGame(User $user, Game $game): bool

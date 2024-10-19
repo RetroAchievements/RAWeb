@@ -1,6 +1,9 @@
 <?php
 
+use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Enums\UserPreference;
+use App\Models\Comment;
 use App\Models\Subscription;
 
 /**
@@ -25,74 +28,15 @@ function updateSubscription(string $subjectType, int $subjectId, int $userId, bo
 }
 
 /**
- * @deprecated $implicitSubscriptionQry considered harmful. Use Eloquent ORM.
- *
- * Checks whether a given user is subscribed to a subject, whether implicitly or explicitly.
- *
- * @param string|null $implicitSubscriptionQry optional sql query capable of identifying the existence of an implicit
- *                                         subscription to the subject (must be usable inside an EXISTS clause)
+ * Checks whether a given user is subscribed to a subject explicitly.
  */
-function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, ?string $implicitSubscriptionQry = null): bool
+function isUserSubscribedTo(string $subjectType, int $topicID, int $userID): bool
 {
-    if (!$userID) {
-        return false;
-    }
-    sanitize_sql_inputs($subjectType);
-
-    if ($implicitSubscriptionQry === null) {
-        $query = "
-            SELECT 1
-            FROM subscriptions
-            WHERE
-              subject_type = '$subjectType'
-              AND subject_id = $subjectID
-              AND user_id = $userID
-              AND state = 1
-        ";
-    } else {
-        // either there's an explicit subscription...
-        // ...or there's an implicit subscription without an explicit unsubscription
-        // optional sql query capable of identifying the existence of an implicit
-        // subscription to the subject (must be usable inside an EXISTS clause)
-        $query = "
-            SELECT 1
-            FROM subscriptions
-            WHERE
-              EXISTS (
-                SELECT 1
-                FROM subscriptions
-                WHERE
-                  subject_type = '$subjectType'
-                  AND subject_id = $subjectID
-                  AND user_id = $userID
-                  AND state = 1
-              )
-              OR (
-                  EXISTS (
-                    $implicitSubscriptionQry
-                  )
-                  AND NOT EXISTS (
-                    SELECT 1
-                    FROM subscriptions
-                    WHERE
-                      subject_type = '$subjectType'
-                      AND subject_id = $subjectID
-                      AND user_id = $userID
-                      AND state = 0
-                  )
-              )
-        ";
-    }
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return false;
-    }
-
-    $isSubscribed = mysqli_num_rows($dbResult) > 0;
-    mysqli_free_result($dbResult);
-
-    return $isSubscribed;
+    return Subscription::where('subject_type', $subjectType)
+        ->where('subject_id', $topicID)
+        ->where('user_id', $userID)
+        ->where('state', 1)
+        ->exists();
 }
 
 /**
@@ -187,37 +131,32 @@ function mergeSubscribers(array $subscribersA, array $subscribersB): array
 
 function getSubscribersOfGameWall(int $gameID): array
 {
-    return getSubscribersOfArticle(1, $gameID, 1 << 1);
+    return getSubscribersOfArticle(ArticleType::Game, $gameID, 1 << UserPreference::EmailOn_AchievementComment);
 }
 
 function getSubscribersOfAchievement(int $achievementID, int $gameID, string $achievementAuthor): array
 {
     // users directly subscribed to the achievement
-    $achievementSubs = getSubscribersOfArticle(2, $achievementID, 1 << 1, $achievementAuthor);
+    $achievementSubs = getSubscribersOfArticle(ArticleType::Achievement, $achievementID, 1 << UserPreference::EmailOn_AchievementComment, $achievementAuthor);
 
     // devs subscribed to the achievement through the game
-    $gameAchievementsSubs = getSubscribersOf(SubscriptionSubjectType::GameAchievements, $gameID, 1 << 0 /* (1 << 1) */);
+    $gameAchievementsSubs = getSubscribersOf(SubscriptionSubjectType::GameAchievements, $gameID, 1 << UserPreference::EmailOn_ActivityComment);
 
     return mergeSubscribers($achievementSubs, $gameAchievementsSubs);
 }
 
 function getSubscribersOfUserWall(int $userID, string $userName): array
 {
-    return getSubscribersOfArticle(3, $userID, 1 << 2, $userName);
-}
-
-function getSubscribersOfFeedActivity(int $activityID, string $author): array
-{
-    return getSubscribersOfArticle(5, $activityID, 1 << 0, $author, true);
+    return getSubscribersOfArticle(ArticleType::User, $userID, 1 << UserPreference::EmailOn_UserWallComment, $userName);
 }
 
 function getSubscribersOfTicket(int $ticketID, string $ticketAuthor, int $gameID): array
 {
     // users directly subscribed to the ticket
-    $ticketSubs = getSubscribersOfArticle(7, $ticketID, 1 << 1, $ticketAuthor, true);
+    $ticketSubs = getSubscribersOfArticle(ArticleType::AchievementTicket, $ticketID, 1 << UserPreference::EmailOn_TicketActivity, $ticketAuthor, true);
 
     // devs subscribed to the ticket through the game
-    $gameTicketsSubs = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, 1 << 0 /* (1 << 1) */);
+    $gameTicketsSubs = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, 1 << UserPreference::EmailOn_TicketActivity);
 
     return mergeSubscribers($ticketSubs, $gameTicketsSubs);
 }
@@ -268,7 +207,7 @@ function getSubscribersOfArticle(
     return getSubscribersOf(
         $subjectType,
         $articleID,
-        1 << 0,  // code suggests the value of $reqWebsitePrefs should be used, but the feature is disabled for now
+        1 << UserPreference::EmailOn_ActivityComment,  // code suggests the value of $reqWebsitePrefs should be used, but the feature is disabled for now
         $qry
     );
 }
@@ -281,19 +220,18 @@ function isUserSubscribedToArticleComments(int $articleType, int $articleID, int
         return false;
     }
 
-    return isUserSubscribedTo(
-        $subjectType,
-        $articleID,
-        $userID,
-        "
-            SELECT DISTINCT ua.*
-            FROM
-                Comment AS c
-                LEFT JOIN UserAccounts AS ua ON ua.ID = c.user_id
-            WHERE
-                c.ArticleType = $articleType
-                AND c.ArticleID = $articleID
-                AND c.user_id = $userID
-        "
-    );
+    $explicitSubcription = Subscription::where('subject_type', $subjectType)
+        ->where('subject_id', $articleID)
+        ->where('user_id', $userID)
+        ->first();
+
+    if ($explicitSubcription) {
+        return $explicitSubcription->state;
+    }
+
+    // a user is implicitly subscribed if they've authored at least one comment for the article
+    return Comment::where('ArticleType', $articleType)
+        ->where('ArticleID', $articleID)
+        ->where('user_id', $userID)
+        ->exists();
 }

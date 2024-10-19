@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+#[TypeScript('UserPreference')]
 abstract class UserPreference
 {
     public const EmailOn_ActivityComment = 0;
@@ -18,7 +21,7 @@ abstract class UserPreference
 
     public const EmailOn_PrivateMessage = 5;
 
-    public const EmailOn_Newsletter = 6;
+    public const EmailOn_TicketActivity = 6;
 
     public const Site_SuppressMatureContentWarning = 7;
 
@@ -41,4 +44,6 @@ abstract class UserPreference
     public const Game_HideMissableIndicators = 16;
 
     public const User_OnlyContactFromFollowing = 17;
+
+    public const Game_OptOutOfAllSets = 18;
 }

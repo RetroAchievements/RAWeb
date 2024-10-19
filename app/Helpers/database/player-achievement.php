@@ -2,17 +2,17 @@
 
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 /**
  * @deprecated see UnlockPlayerAchievementAction
  */
-function unlockAchievement(User $user, int $achievementId, bool $isHardcore): array
+function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?GameHash $gameHash = null): array
 {
     $retVal = [
         'Success' => false,
@@ -46,9 +46,11 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
         ->where('game_id', $achievement->GameID)
         ->first();
 
-    if (!$alreadyAwarded) {
-        $now = Carbon::now();
+    if ($playerGame && $gameHash) {
+        $playerGame->game_hash_id = $gameHash->id;
+    }
 
+    if (!$alreadyAwarded) {
         // The client is expecting to receive the number of AchievementsRemaining in the response, and if
         // it's 0, a mastery placard will be shown. Multiple achievements may be unlocked by the client at
         // the same time using separate requests, so we need to update the unlock counts for the
@@ -274,74 +276,82 @@ function getUnlocksInDateRange(array $achievementIDs, string $startTime, string 
  */
 function getAchievementDistribution(
     int $gameID,
-    int $hardcore,
+    int $isHardcore,
     ?string $requestedBy = null,
     int $flag = AchievementFlag::OfficialCore,
     int $numPlayers = 0
 ): array {
     /** @var Game $game */
-    $game = Game::withCount(['achievements' => fn ($query) => $query->flag($flag)])
-        ->find($gameID);
+    $game = Game::withCount(['achievements' => fn ($query) => $query->flag($flag)])->find($gameID);
+    $results = null;
 
     if (!$game || !$game->achievements_count) {
         // NOTE this will return an empty array instead of an empty object. keep it like this for backwards compatibility.
         return [];
     }
 
-    $bindings = [
-        'gameId' => $gameID,
-    ];
-
     // if a game has more than 100 players, don't filter out the untracked users as the
     // join becomes very expensive. will be addressed when denormalized data is captured
-    $joinStatement = '';
-    $joinStatementUnofficial = '';
-    $requestedByStatement = '';
-    if ($numPlayers < 100) {
-        $joinStatement = 'INNER JOIN UserAccounts AS ua ON ua.ID = pg.user_id';
-        $joinStatementUnofficial = 'INNER JOIN UserAccounts AS ua ON ua.ID = pa.user_id';
-        $requestedByStatement = 'AND (ua.Untracked = 0';
-        if ($requestedBy) {
-            $bindings['requestedBy'] = $requestedBy;
-            $requestedByStatement .= ' OR ua.User = :requestedBy';
-        }
-        $requestedByStatement .= ')';
-    }
+    $shouldJoinUsers = $numPlayers < 100;
 
     // Returns an array of the number of players who have achieved each total, up to the max.
     if ($flag === AchievementFlag::OfficialCore) {
-        $countColumn = $hardcore ? 'achievements_unlocked_hardcore' : 'achievements_unlocked';
-        $query = "SELECT pg.$countColumn AS AwardedCount, COUNT(*) AS NumUniquePlayers
-                    FROM player_games AS pg
-                    $joinStatement
-                    WHERE pg.game_id = :gameId AND pg.$countColumn > 0
-                    $requestedByStatement
-                    GROUP BY AwardedCount
-                    ORDER BY AwardedCount DESC";
+        $countColumn = $isHardcore ? 'player_games.achievements_unlocked_hardcore' : 'player_games.achievements_unlocked_softcore';
+
+        $countQuery = DB::table("player_games")
+            ->selectRaw("$countColumn as AwardedCount, count(*) as NumUniquePlayers")
+            ->where("$countColumn", ">", 0)
+            ->where('player_games.game_id', $gameID)
+            ->groupBy('AwardedCount')
+            ->orderByDesc('AwardedCount');
+
+        if ($shouldJoinUsers) {
+            $countQuery->join("UserAccounts", "player_games.user_id", "=", "UserAccounts.ID")
+                ->where(fn ($query) => $query
+                    ->where("UserAccounts.Untracked", 0)
+                    ->orWhere("UserAccounts.User", $requestedBy)
+            );
+        }
+
+        $results = $countQuery->get();
     } else {
-        $hardcoreStatement = $hardcore ? 'AND pa.unlocked_hardcore_at IS NOT NULL' : '';
-        $query = "SELECT InnerTable.AwardedCount AS AwardedCount, COUNT(*) AS NumUniquePlayers
-                FROM (
-                    SELECT COUNT(*) AS AwardedCount
-                    FROM player_achievements AS pa
-                    INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
-                    $joinStatementUnofficial
-                    WHERE ach.GameID = :gameId
-                    $hardcoreStatement
-                    AND ach.Flags = $flag
-                    $requestedByStatement
-                    GROUP BY pa.user_id
-                    ORDER BY AwardedCount DESC
-                ) AS InnerTable
-                GROUP BY InnerTable.AwardedCount";
+        $countColumn = $isHardcore ? 'sub.hardcore_unlocks' : 'sub.softcore_unlocks';
+
+        $subQuery = PlayerAchievement::query()
+            ->selectRaw(
+                "player_achievements.user_id, 
+                sum(case when player_achievements.unlocked_hardcore_at is null then 1 else 0 end) as softcore_unlocks, 
+                sum(case when player_achievements.unlocked_hardcore_at is not null then 1 else 0 end) as hardcore_unlocks"
+            )
+            ->join("Achievements", "player_achievements.achievement_id", "=", "Achievements.ID")
+            ->where("Achievements.GameID", $gameID)
+            ->where("Achievements.Flags", AchievementFlag::Unofficial)
+            ->groupBy("player_achievements.user_id");
+
+        if ($shouldJoinUsers) {
+            $subQuery->join("UserAccounts", "player_achievements.user_id", "=", "UserAccounts.ID")
+                ->where(fn ($query) => $query
+                    ->where("UserAccounts.Untracked", 0)
+                    ->orWhere("UserAccounts.User", $requestedBy)
+            );
+        }
+
+        $countQuery = PlayerAchievement::query()
+            ->fromSub($subQuery, "sub")
+            ->selectRaw("$countColumn as AwardedCount, count(*) as NumUniquePlayers")
+            ->where("$countColumn", ">", 0)
+            ->groupBy("$countColumn")
+            ->orderBy("$countColumn", "desc");
+
+        $results = $countQuery->get();
     }
 
-    $data = legacyDbFetchAll($query, $bindings)
-        ->mapWithKeys(fn ($distribution) => [(int) $distribution['AwardedCount'] => (int) $distribution['NumUniquePlayers']]);
+    $awardedCounts = $results->pluck('NumUniquePlayers', 'AwardedCount')->toArray();
 
-    return collect()->range(1, $game->achievements_count)
+    return collect()
+        ->range(1, $game->achievements_count)
         ->flip()
-        ->map(fn ($value, $index) => $data->get($index, 0))
+        ->map(fn ($value, $index) => $awardedCounts[$index] ?? 0)
         ->sortKeys()
         ->toArray();
 }

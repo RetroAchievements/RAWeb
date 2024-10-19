@@ -46,21 +46,12 @@ class AchievementSetClaimTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Developer]);
-
-        insertClaim(
-            $user,
-            $game->ID,
-            ClaimType::Primary,
-            ClaimSetType::NewSet,
-            ClaimSpecial::None,
-        );
-
-        completeClaim(
-            $user,
-            $game->id,
-        );
-
-        $claim = AchievementSetClaim::first();
+        /** @var AchievementSetClaim $claim */
+        $claim = AchievementSetClaim::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'Status' => ClaimStatus::Complete,
+        ]);
 
         $this->get($this->apiUrl('GetClaims', ['k' => '1']))
             ->assertSuccessful()
@@ -97,21 +88,12 @@ class AchievementSetClaimTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::JuniorDeveloper]);
-
-        insertClaim(
-            $user,
-            $game->id,
-            ClaimType::Primary,
-            ClaimSetType::NewSet,
-            ClaimSpecial::None,
-        );
-
-        dropClaim(
-            $user,
-            $game->id,
-        );
-
-        $claim = AchievementSetClaim::first();
+        /** @var AchievementSetClaim $claim */
+        $claim = AchievementSetClaim::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'Status' => ClaimStatus::Dropped,
+        ]);
 
         $this->get($this->apiUrl('GetClaims', ['k' => '2']))
             ->assertSuccessful()
@@ -165,15 +147,11 @@ class AchievementSetClaimTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Developer]);
-
-        insertClaim(
-            $user,
-            $game->ID,
-            ClaimType::Primary,
-            ClaimSetType::NewSet,
-            ClaimSpecial::None,
-        );
-        $claim = AchievementSetClaim::first();
+        /** @var AchievementSetClaim $claim */
+        $claim = AchievementSetClaim::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+        ]);
 
         $this->get($this->apiUrl('GetUserClaims', ['u' => $user->User]))
             ->assertSuccessful()

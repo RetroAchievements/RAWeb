@@ -22,16 +22,14 @@ class UserCommentPolicy
 
     public function viewAny(?User $user, User $commentable): bool
     {
+        if (!$commentable->UserWallActive || $commentable->banned_at) {
+            return false;
+        }
+
         /*
          * check guests first
          */
         if (!$user) {
-            /*
-             * TODO: check user privacy settings instead of wall_active flag
-             */
-            // $commentable->preferences->wall
-            // return false;
-
             return true;
         }
 
@@ -41,12 +39,6 @@ class UserCommentPolicy
         ])) {
             return true;
         }
-
-        /*
-         * TODO: check user privacy settings instead of wall_active flag
-         */
-        // $commentable->preferences->wall
-        // return false;
 
         return true;
     }
@@ -67,7 +59,11 @@ class UserCommentPolicy
             || !$user->hasVerifiedEmail()
             || $commentable->isBlocking($user)
             || !$commentable->UserWallActive
-            || ($commentable->only_allows_contact_from_followers && !$commentable->isFollowing($user))
+            || (
+                !$user->is($commentable)
+                && $commentable->only_allows_contact_from_followers
+                && !$commentable->isFollowing($user)
+            )
         ) {
             return false;
         }

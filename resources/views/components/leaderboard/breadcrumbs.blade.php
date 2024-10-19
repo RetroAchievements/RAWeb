@@ -9,7 +9,7 @@ $leaderboard->loadMissing('game.system');
 
 {{-- All Games >> Console Name >> Game Name >> Leaderboard Name >> Page Name --}}
 <div class="navpath">
-    <a href="/gameList.php">All Games</a>
+    <a href="{{ route('game.index') }}">All Games</a>
 
     &raquo;
 

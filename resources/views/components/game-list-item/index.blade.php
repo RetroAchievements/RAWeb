@@ -8,16 +8,21 @@
 ])
 
 <?php
+
+use App\Models\System;
+
 $gameId = $game['GameID'];
-$consoleId = $game['ConsoleID'];
-$consoleName = config('systems')[$consoleId]['name'];
-$consoleShortName = config('systems')[$consoleId]['name_short'];
 $hasAward = isset($game['HighestAwardKind']);
 
 $hardcoreCompletionPercentage = floor($game['PctWonHC'] * 100);
 $totalCompletionPercentage = floor($game['PctWon'] * 100);
 
-$gameSystemIconSrc = getSystemIconUrl($consoleId);
+// TODO: pass $game model with system child to avoid fetching system for every row
+$consoleId = $game['ConsoleID'];
+$system = System::find($game['ConsoleID']);
+$consoleName = $system->name;
+$consoleShortName = $system->name_short;
+$gameSystemIconSrc = getSystemIconUrl($system);
 
 $doesGameHaveAchievements = !!$game['MaxPossible'];
 ?>
@@ -68,10 +73,16 @@ $doesGameHaveAchievements = !!$game['MaxPossible'];
 
         <div class="mt-1 sm:mt-0">
             <div class="flex gap-x-2 items-center sm:gap-x-4 sm:divide-x divide-neutral-700 ml-[68px] sm:ml-0">
-                <div class="hidden sm:flex gap-x-1 items-center rounded bg-zinc-950 light:bg-zinc-300 py-0.5 px-2">
+                @php
+                    $consoleTag = $variant === 'user-recently-played' ? 'a' : 'div';
+                @endphp
+                <{{ $consoleTag }}
+                    @if ($variant === 'user-recently-played') href="{{ route('user.completion-progress', ['user' => $targetUsername, 'filter[system]' => $consoleId]) }}" @endif
+                    class="hidden sm:flex gap-x-1 items-center rounded bg-zinc-950 light:bg-zinc-300 py-0.5 px-2"
+                >
                     <img src="{{ $gameSystemIconSrc }}" width="18" height="18" alt="{{ $consoleName }} console icon">
                     <p>{{ $consoleShortName }}</p>
-                </div>
+                </{{ $consoleTag }}>
 
                 <x-game-list-item.progress-bar
                     :softcoreCompletionPercentage="$totalCompletionPercentage"
@@ -114,7 +125,7 @@ $doesGameHaveAchievements = !!$game['MaxPossible'];
             x-transition:leave="ease-in-out duration-200"
             x-transition:leave-start="opacity-1 max-h-[1000px] overflow-hidden"
             x-transition:leave-end="opacity-0 max-h-0 overflow-hidden"
-            class="transition-all"
+            class="transition-all will-change-transform"
         >
             <hr class="mt-2 border-embed-highlight">
 

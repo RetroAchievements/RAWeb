@@ -67,7 +67,7 @@ if ($canSeeOpenTickets) {
         @can('viewAny', App\Models\GameHash::class)
             <x-game.link-buttons.game-link-button
                 icon="💾"
-                :href="route('game.hash', ['game' => $game])"
+                :href="route('game.hashes.index', ['game' => $game])"
             >
                 Supported Game Files
             </x-game.link-buttons.game-link-button>
@@ -97,9 +97,17 @@ if ($canSeeOpenTickets) {
     @endif
 
     @if ($canSeeOpenTickets)
+        @php
+            if ($isViewingOfficial) {
+                $href = route('game.tickets', ['game' => $game, 'filter[achievement]' => 'core']);
+            } else {
+                $href = route('game.tickets', ['game' => $game, 'filter[achievement]' => 'unofficial']);
+            }
+        @endphp
+
         <x-game.link-buttons.game-link-button
             icon="🎫"
-            href="{{ route('game.tickets', ['game' => $game]) }}"
+            :$href
         >
             Open @if (!$isViewingOfficial) Unofficial @endif Tickets ({{ $numOpenTickets }})
         </x-game.link-buttons.game-link-button>

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\LeaderboardResource\RelationManagers;
 
+use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
+use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Platform\Actions\RemoveLeaderboardEntry;
 use App\Platform\Enums\ValueFormat;
@@ -59,6 +61,7 @@ class EntriesRelationManager extends RelationManager
                     ->dateTime(),
             ])
             ->defaultSort('score', function () {
+                /** @var Leaderboard $leaderboard */
                 $leaderboard = $this->getRelationship()->getParent();
 
                 return $leaderboard->rank_asc ? 'asc' : 'desc';
@@ -68,7 +71,7 @@ class EntriesRelationManager extends RelationManager
 
             ])
             ->headerActions([
-
+                ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

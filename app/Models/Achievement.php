@@ -41,6 +41,7 @@ class Achievement extends BaseModel implements HasComments
     /*
      * Shared Traits
      */
+    /** @use HasFactory<AchievementFactory> */
     use HasFactory;
 
     use Searchable;
@@ -176,13 +177,14 @@ class Achievement extends BaseModel implements HasComments
     {
         return LogOptions::defaults()
             ->logOnly([
-                'Title',
+                'AssocVideo',
+                'BadgeName',
                 'Description',
+                'Flags',
                 'GameID',
                 'Points',
-                'Flags',
+                'Title',
                 'type',
-                'BadgeName',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
@@ -190,9 +192,14 @@ class Achievement extends BaseModel implements HasComments
 
     // == helpers
 
-    public function unlockValidationHash(User $user, int $hardcore): string
+    public function unlockValidationHash(User $user, int $hardcore, int $offset = 0): string
     {
-        return md5($this->id . $user->username . $hardcore . $this->id);
+        $data = $this->id . $user->username . $hardcore . $this->id;
+        if ($offset > 0) {
+            $data .= $offset;
+        }
+
+        return md5($data);
     }
 
     // == accessors
@@ -299,6 +306,15 @@ class Achievement extends BaseModel implements HasComments
     // == mutators
 
     // == relations
+
+    /**
+     * @return BelongsToMany<AchievementSet>
+     */
+    public function achievementSets(): BelongsToMany
+    {
+        return $this->belongsToMany(AchievementSet::class, 'achievement_set_achievements', 'achievement_id', 'achievement_set_id', 'ID', 'id')
+            ->withPivot('order_column', 'created_at', 'updated_at');
+    }
 
     /**
      * @return BelongsTo<User, Achievement>

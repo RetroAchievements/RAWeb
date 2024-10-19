@@ -20,22 +20,38 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'emulator_version' => 'required|string',
     'core' => 'nullable|string',
     'hash' => 'nullable|string',
+    'extra' => 'nullable|string',
 ]);
 
 $achievementId = (int) $input['achievement'];
 
-$note = $input['description'];
+$note = trim($input['description']);
+$noteExtra = '';
+
+if (!empty($input['extra'])) {
+    $decoded = json_decode(base64_decode($input['extra']));
+    if ($decoded) {
+        $triggerRichPresence = $decoded->triggerRichPresence ?? '';
+        if (!empty($triggerRichPresence)) {
+            $noteExtra .= "\nRich Presence at time of trigger:\n$triggerRichPresence\n";
+        }
+    }
+}
 if (!empty($input['hash'])) {
-    $note .= "\nRetroAchievements Hash: " . $input['hash'];
+    $noteExtra .= "\nRetroAchievements Hash: " . $input['hash'];
 }
 if (!empty($input['emulator'])) {
-    $note .= "\nEmulator: " . $input['emulator'];
+    $noteExtra .= "\nEmulator: " . $input['emulator'];
     if (!empty($input['core']) && ($input['emulator'] === 'RetroArch' || $input['emulator'] === 'RALibRetro')) {
-        $note .= " (" . $input['core'] . ")";
+        $noteExtra .= " (" . $input['core'] . ")";
     }
 }
 if (!empty($input['emulator_version'])) {
-    $note .= "\nEmulator Version: " . $input['emulator_version'];
+    $noteExtra .= "\nEmulator Version: " . $input['emulator_version'];
+}
+
+if (!empty($noteExtra)) {
+    $note .= "\n" . $noteExtra;
 }
 
 $ticketID = getExistingTicketID($user, $achievementId);

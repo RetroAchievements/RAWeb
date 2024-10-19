@@ -18,7 +18,6 @@ use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
 use Filament\Tables;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,7 +33,7 @@ class AchievementResource extends Resource
 
     protected static ?string $navigationGroup = 'Platform';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $recordTitleAttribute = 'title';
 
@@ -340,12 +339,13 @@ class AchievementResource extends Resource
             ])
             ->defaultSort('DateModified', 'desc')
             ->filters([
-                SelectFilter::make('type')
+                Tables\Filters\SelectFilter::make('type')
                     ->multiple()
                     ->options(
                         collect(AchievementType::cases())
                             ->mapWithKeys(fn ($value) => [$value => __($value)])
                     ),
+
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->deferFilters()
@@ -387,7 +387,6 @@ class AchievementResource extends Resource
     {
         return [
             'index' => Pages\Index::route('/'),
-            'create' => Pages\Create::route('/create'),
             'view' => Pages\Details::route('/{record}'),
             'edit' => Pages\Edit::route('/{record}/edit'),
             'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),

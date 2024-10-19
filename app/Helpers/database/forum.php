@@ -3,10 +3,13 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
+use App\Models\Forum;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
+use App\Models\Subscription;
 use App\Models\User;
+use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Collection;
 
 function getForumList(int $categoryID = 0): array
@@ -128,23 +131,20 @@ function submitNewTopic(
 function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
 {
     // Update ForumTopic table
-    $query = "UPDATE ForumTopic SET LatestCommentID=$commentID WHERE ID=$topicID";
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        log_sql_fail();
+    $forumTopic = ForumTopic::find($topicID);
+    if (!$forumTopic) {
+        return false;
     }
 
-    // Propagate to Forum table
-    $query = "  UPDATE Forum AS f
-                INNER JOIN ForumTopic AS ft ON ft.ForumID = f.ID
-                SET f.LatestCommentID = ft.LatestCommentID
-                WHERE ft.ID = $topicID ";
+    $forumTopic->LatestCommentID = $commentID;
+    $forumTopic->timestamps = false;
+    $forumTopic->save();
 
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        log_sql_fail();
+    $forum = Forum::find($forumTopic->ForumID);
+    if ($forum) {
+        $forum->LatestCommentID = $commentID;
+        $forum->timestamps = false;
+        $forum->save();
     }
 
     return true;
@@ -155,6 +155,9 @@ function editTopicComment(int $commentId, string $newPayload): void
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $newPayload = normalize_shortcodes($newPayload);
+
+    // Convert [user=$user->username] to [user=$user->id].
+    $newPayload = Shortcode::convertUserShortcodesToUseIds($newPayload);
 
     $comment = ForumTopicComment::findOrFail($commentId);
     $comment->Payload = $newPayload;
@@ -170,6 +173,9 @@ function submitTopicComment(
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $commentPayload = normalize_shortcodes($commentPayload);
+
+    // Convert [user=$user->username] to [user=$user->id].
+    $commentPayload = Shortcode::convertUserShortcodesToUseIds($commentPayload);
 
     // if this exact message was just posted by this user, assume it's an
     // accidental double submission and ignore.
@@ -194,17 +200,15 @@ function submitTopicComment(
         $topicTitle = $topic?->title ?? '';
     }
 
-    if ($user->ManuallyVerified) {
-        notifyUsersAboutForumActivity($topicId, $topicTitle, $user->User, $newComment->id);
+    if ($user->ManuallyVerified ?? false) {
+        notifyUsersAboutForumActivity($topicId, $topicTitle, $user, $newComment->id);
     }
 
     return $newComment;
 }
 
-function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string $author, int $commentID): void
+function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, User $author, int $commentID): void
 {
-    sanitize_sql_inputs($author);
-
     // $author has made a post in the topic $topicID
     // Find all people involved in this forum topic, and if they are not the author and prefer to
     // hear about comments, let them know! Also notify users that have explicitly subscribed to
@@ -224,9 +228,15 @@ function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string 
         "
     );
 
+    $payload = null;
+    $comment = ForumTopicComment::find($commentID);
+    if ($comment) {
+        $payload = nl2br(Shortcode::stripAndClamp($comment->Payload, previewLength: 1000, preserveWhitespace: true));
+    }
+
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID#$commentID";
     foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, ArticleType::Forum, $topicTitle, $urlTarget);
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author->User, ArticleType::Forum, $topicTitle, $urlTarget, payload: $payload);
     }
 }
 
@@ -322,7 +332,7 @@ function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
 }
 
 /**
- * @return Collection<int, array>
+ * @return Collection<int, non-empty-array>
  */
 function getRecentForumPosts(
     int $offset,
@@ -375,6 +385,7 @@ function getRecentForumPosts(
         ORDER BY LatestComments.DateCreated DESC
         LIMIT 0, :limit";
 
+    /** @var Collection<int, non-empty-array> */
     return legacyDbFetchAll($query, $bindings)
         ->map(function ($post) use ($numMessageChars) {
             $post['ShortMsg'] = mb_substr($post['Payload'], 0, $numMessageChars);
@@ -382,57 +393,6 @@ function getRecentForumPosts(
 
             return $post;
         });
-}
-
-function getRecentForumTopics(int $offset, int $count, int $permissions, int $numMessageChars = 90): array
-{
-    $query = "
-        SELECT ft.ID as ForumTopicID, ft.Title as ForumTopicTitle,
-               f.ID as ForumID, f.Title as ForumTitle,
-               lc.CommentID, lftc.DateCreated as PostedAt, lftc.author_id,
-               ua.User AS Author, ua.display_name AS AuthorDisplayName,
-               LEFT(lftc.Payload, $numMessageChars) AS ShortMsg,
-               LENGTH(lftc.Payload) > $numMessageChars AS IsTruncated,
-               d1.CommentID as CommentID_1d, d1.Count as Count_1d,
-               d7.CommentID as CommentID_7d, d7.Count as Count_7d
-        FROM ForumTopic AS ft
-        LEFT JOIN Forum AS f on f.ID = ft.ForumID
-        LEFT JOIN (
-            SELECT ftc.ForumTopicId, MAX(ftc.ID) as CommentID
-            FROM ForumTopicComment ftc
-            WHERE ftc.Authorised=1
-            GROUP BY ftc.ForumTopicId
-        ) AS lc ON lc.ForumTopicId = ft.ID
-        LEFT JOIN ForumTopicComment AS lftc ON lftc.ID = lc.CommentID
-        LEFT JOIN (
-            SELECT ftc.ForumTopicId, MIN(ftc.ID) as CommentID, COUNT(ftc.ID) as Count
-            FROM ForumTopicComment ftc
-            WHERE ftc.Authorised=1 AND DateCreated >= DATE_SUB(NOW(), INTERVAL 1 DAY)
-            GROUP BY ftc.ForumTopicId
-        ) AS d1 ON d1.ForumTopicId = ft.ID
-        LEFT JOIN (
-            SELECT ftc.ForumTopicId, MIN(ftc.ID) as CommentID, COUNT(ftc.ID) as Count
-            FROM ForumTopicComment ftc
-            WHERE ftc.Authorised=1 AND DateCreated >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-            GROUP BY ftc.ForumTopicId
-        ) AS d7 ON d7.ForumTopicId = ft.ID
-        LEFT JOIN UserAccounts AS ua ON ua.ID = lftc.author_id
-        WHERE ft.RequiredPermissions <= $permissions AND ft.deleted_at IS NULL
-        ORDER BY PostedAt DESC
-        LIMIT $offset, $count";
-
-    $dataOut = [];
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult === false) {
-        log_sql_fail();
-    } else {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[] = $db_entry;
-        }
-    }
-
-    return $dataOut;
 }
 
 function updateTopicPermissions(int $topicId, int $permissions): bool
@@ -464,7 +424,7 @@ function authorizeAllForumPostsForUser(User $user): bool
             notifyUsersAboutForumActivity(
                 $unauthorizedPost->forumTopic->id,
                 $unauthorizedPost->forumTopic->title,
-                $user->User,
+                $user,
                 $unauthorizedPost->id,
             );
         }
@@ -481,10 +441,17 @@ function authorizeAllForumPostsForUser(User $user): bool
 
 function isUserSubscribedToForumTopic(int $topicID, int $userID): bool
 {
-    return isUserSubscribedTo(
-        SubscriptionSubjectType::ForumTopic,
-        $topicID,
-        $userID,
-        "SELECT 1 FROM ForumTopicComment WHERE ForumTopicID = $topicID AND author_id = $userID"
-    );
+    $explicitSubscription = Subscription::where('subject_type', SubscriptionSubjectType::ForumTopic)
+        ->where('subject_id', $topicID)
+        ->where('user_id', $userID)
+        ->first();
+
+    if ($explicitSubscription) {
+        return $explicitSubscription->state;
+    }
+
+    // a user is implicitly subscribed if they've authored at least one post in the topic
+    return ForumTopicComment::where('ForumTopicID', $topicID)
+        ->where('author_id', $userID)
+        ->exists();
 }

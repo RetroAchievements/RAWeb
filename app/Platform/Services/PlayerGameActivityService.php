@@ -17,7 +17,7 @@ class PlayerGameActivityService
 
     public function initialize(User $user, Game $game): void
     {
-        $playerSessions = $user->playerSessions()->where('game_id', $game->id)->get();
+        $playerSessions = $user->playerSessions()->with('gameHash')->where('game_id', $game->id)->get();
 
         foreach ($playerSessions as $playerSession) {
             $session = [
@@ -53,8 +53,15 @@ class PlayerGameActivityService
             ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
             ->where('Achievements.GameID', '=', $game->id)
             ->orderBy('player_achievements.unlocked_at')
-            ->select(['player_achievements.*', 'Achievements.Flags', 'Achievements.Title',
-                      'Achievements.Description', 'Achievements.Points', 'Achievements.BadgeName', 'Achievements.type'])
+            ->select([
+                'player_achievements.*',
+                'Achievements.Flags',
+                'Achievements.Title',
+                'Achievements.Description',
+                'Achievements.Points',
+                'Achievements.BadgeName',
+                'Achievements.type',
+            ])
             ->get();
         foreach ($playerAchievements as $playerAchievement) {
             if ($playerAchievement->unlocked_hardcore_at) {
@@ -110,14 +117,14 @@ class PlayerGameActivityService
             if ($unlocker) {
                 $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::ManualUnlock, $when);
             } else {
-                $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::Generated, $when);
+                $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::Reconstructed, $when);
             }
         }
 
         $this->sessions[$existingSessionIndex]['events'][] = $event;
     }
 
-    public function addCustomEvent(Carbon $when, string $description, string $header = ''): void
+    public function addCustomEvent(Carbon $when, string $sessionType, string $description, string $header = ''): void
     {
         $event = [
             'type' => PlayerGameActivityEventType::Custom,
@@ -128,7 +135,7 @@ class PlayerGameActivityService
 
         $existingSessionIndex = $this->findSession(PlayerGameActivitySessionType::Player, $when);
         if ($existingSessionIndex < 0) {
-            $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::Generated, $when);
+            $existingSessionIndex = $this->generateSession($sessionType, $when);
         }
 
         $this->sessions[$existingSessionIndex]['events'][] = $event;
@@ -181,7 +188,7 @@ class PlayerGameActivityService
 
         $index = 0;
         foreach ($this->sessions as &$session) {
-            if ($session['type'] === PlayerGameActivitySessionType::Generated
+            if ($session['type'] === PlayerGameActivitySessionType::Reconstructed
                 && $session['startTime'] >= $whenBefore
                 && $session['endTime'] <= $whenAfter) {
 
@@ -229,7 +236,7 @@ class PlayerGameActivityService
         foreach ($this->sessions as $session) {
             if ($session['type'] === PlayerGameActivitySessionType::ManualUnlock) {
                 continue;
-            } elseif ($session['type'] === PlayerGameActivitySessionType::Generated) {
+            } elseif ($session['type'] === PlayerGameActivitySessionType::Reconstructed) {
                 $generatedSessionCount++;
             }
 
@@ -260,7 +267,7 @@ class PlayerGameActivityService
                 $intermediateSessionCount = 0;
 
                 $unlockSessionCount++;
-                if ($session['type'] === PlayerGameActivitySessionType::Generated) {
+                if ($session['type'] === PlayerGameActivitySessionType::Reconstructed) {
                     $generatedUnlockSessionCount++;
                 }
             } elseif ($session['type'] === PlayerGameActivitySessionType::Player) {

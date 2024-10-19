@@ -11,6 +11,7 @@ use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
+use App\Support\Shortcode\Shortcode;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -73,10 +74,12 @@ class NotifyMessageThreadParticipants
         MessageThread $messageThread,
         Message $message
     ): void {
+        $message->body = Shortcode::stripAndClamp($message->body, 1850, preserveWhitespace: true);
+
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
         $webhookUrl = $inboxConfig['url'] ?? null;
 
-        if ($inboxConfig === null || $webhookUrl === null) {
+        if ($inboxConfig === null || empty($webhookUrl)) {
             return;
         }
 
@@ -119,6 +122,7 @@ class NotifyMessageThreadParticipants
             'Incorrect type:' => 'incorrect_type_url',
             'Issue:' => 'achievement_issues_url',
             'Unwelcome Concept:' => 'unwelcome_concept_url',
+            'Writing:' => 'url',
         ];
         foreach ($structuredTitlePrefixes as $prefix => $configKey) {
             if (mb_strpos($messageThread->title, $prefix) !== false) {
@@ -136,7 +140,7 @@ class NotifyMessageThreadParticipants
                     // We want to reformat the incoming structured title before it lands in the team forum.
                     //  - Original:  "Unwelcome Concept: Lots of Rings [12345] (Sonic the Hedgehog)"
                     //  - Formatted: "12345: Lots of Rings (Sonic the Hedgehog)"
-                    if (preg_match('/^(Incorrect type:|Issue:|Unwelcome Concept:)\s*(.*)\s*\[([0-9]+)\]\s*(\(.*\))$/', $messageThread->title, $titleMatches)) {
+                    if (preg_match('/^(Incorrect type:|Issue:|Unwelcome Concept:|Writing:)\s*(.*)\s*\[([0-9]+)\]\s*(\(.*\))$/', $messageThread->title, $titleMatches)) {
                         $newTitle = $achievementId . ': ' . $titleMatches[2] . ' ' . $titleMatches[4];
                         $messageThread->title = $newTitle;
                     }

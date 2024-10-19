@@ -4,6 +4,7 @@ use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\User;
+use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrders;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
@@ -26,14 +27,13 @@ function getAchievementsList(
     $bindings = [
         'offset' => $offset,
         'limit' => $limit,
+        'achievementFlag' => $achievementFlag,
     ];
 
-    $innerJoinPlayerAchievements = "";
-    $withAwardedDate = "";
-    if ($params > 0 && $user) {
-        $innerJoinPlayerAchievements = "LEFT JOIN player_achievements AS pa ON pa.achievement_id = ach.ID AND pa.user_id = " . $user->id;
-        $withAwardedDate = ", COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS AwardedDate";
-    }
+    $selectAwardedDate = ", NULL AS AwardedDate";
+    $joinPlayerAchievements = "";
+    $additionalWhereClauses = "";
+    $notExistsSubquery = "";
 
     // We can't run a sort on a user's achievements AwardedDate
     // if we don't have a user. Bail from the sort.
@@ -41,38 +41,61 @@ function getAchievementsList(
         $sortBy = 0;
     }
 
+    if ($params === 1 && isset($user)) {
+        // Achievements the user has unlocked.
+        $bindings['userId'] = $user->id;
+
+        $joinPlayerAchievements = "INNER JOIN player_achievements AS pa ON pa.achievement_id = ach.ID AND pa.user_id = :userId";
+        $selectAwardedDate = ", COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS AwardedDate";
+        $additionalWhereClauses .= "AND pa.unlocked_at IS NOT NULL ";
+    } elseif ($params === 2) {
+        // Achievements the user hasn't unlocked.
+        $bindings['userId'] = $user->id;
+
+        $notExistsSubquery = "AND NOT EXISTS (
+            SELECT 1 FROM player_achievements pa
+            WHERE pa.achievement_id = ach.ID AND pa.user_id = :userId
+        ) ";
+    }
+
     // TODO slow query (18)
     $query = "SELECT
-                    ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio, ach.type, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID,
-                    gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, gd.ConsoleID, c.Name AS ConsoleName,
-                    ua.User AS Author
-                    $withAwardedDate
-                FROM Achievements AS ach
-                $innerJoinPlayerAchievements
-                INNER JOIN UserAccounts AS ua ON ua.ID = ach.user_id
-                INNER JOIN GameData AS gd ON gd.ID = ach.GameID
-                INNER JOIN Console AS c ON c.ID = gd.ConsoleID ";
-
-    $bindings['achievementFlag'] = $achievementFlag;
-    $query .= "WHERE ach.Flags = :achievementFlag ";
-
-    // 1 = my unlocked achievements
-    // 2 = achievements i haven't unlocked
-    // 3 = official
-    // 5 = unofficial
-    if ($params == 1) {
-        $query .= "AND pa.unlocked_at IS NOT NULL ";
-    } elseif ($params == 2) {
-        $query .= "AND pa.unlocked_at IS NULL ";
-    }
+                ach.ID,
+                ach.Title AS AchievementTitle,
+                ach.Description,
+                ach.Points,
+                ach.TrueRatio,
+                ach.type,
+                ach.DateCreated,
+                ach.DateModified,
+                ach.BadgeName,
+                ach.GameID,
+                gd.Title AS GameTitle,
+                gd.ImageIcon AS GameIcon,
+                gd.ConsoleID,
+                c.Name AS ConsoleName,
+                ua.User AS Author
+                $selectAwardedDate
+            FROM Achievements AS ach
+            $joinPlayerAchievements
+            INNER JOIN UserAccounts AS ua ON ua.ID = ach.user_id
+            INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+            INNER JOIN Console AS c ON c.ID = gd.ConsoleID
+            WHERE ach.Flags = :achievementFlag ";
 
     if ($developer) {
-        $bindings['userId'] = $developer->id;
-        $query .= "AND ach.user_id = :userId ";
+        $bindings['developerId'] = $developer->id;
+        $query .= "AND ach.user_id = :developerId ";
     }
 
-    if ($sortBy == 4) {
+    if ($sortBy === 4) {
         $query .= "AND ach.TrueRatio > 0 ";
+    }
+
+    $query .= $additionalWhereClauses;
+
+    if (!empty($notExistsSubquery)) {
+        $query .= $notExistsSubquery;
     }
 
     switch ($sortBy) {
@@ -130,6 +153,9 @@ function getAchievementsList(
             break;
         case 19:
             $query .= "ORDER BY AwardedDate DESC ";
+            break;
+        default:
+            $query .= "ORDER BY ach.ID ";
             break;
     }
 
@@ -410,19 +436,8 @@ function updateAchievementDisplayOrder(int $achievementId, int $newDisplayOrder)
     $achievement->DisplayOrder = $newDisplayOrder;
     $achievement->save();
 
-    return true;
-}
-
-function updateAchievementEmbedVideoUrl(int $achievementId, ?string $embedUrl): bool
-{
-    $achievement = Achievement::find($achievementId);
-
-    if (!$achievement) {
-        return false;
-    }
-
-    $achievement->AssocVideo = strip_tags($embedUrl);
-    $achievement->save();
+    // Double write to achievement_set_achievements to ensure it remains in sync.
+    (new SyncAchievementSetOrderColumnsFromDisplayOrders())->execute($achievement);
 
     return true;
 }

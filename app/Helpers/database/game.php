@@ -6,7 +6,10 @@ use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\User;
+use App\Platform\Actions\ComputeGameSortTitleAction;
 use App\Platform\Actions\TrimGameMetadata;
+use App\Platform\Actions\UpdateGameSetFromGameAlternativesModification;
+use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Facades\Log;
 use Spatie\Activitylog\Facades\CauserResolver;
@@ -589,7 +592,6 @@ function modifyGameData(
     ?string $developer,
     ?string $publisher,
     ?string $genre,
-    ?string $released,
     ?string $guideUrl,
 ): bool {
     $game = Game::with("system")->find($gameId);
@@ -614,11 +616,6 @@ function modifyGameData(
     if ($game->Genre !== $genre) {
         $modifications[] = "genre";
         $game->Genre = $genre;
-    }
-    if ($game->released_at->format('Y-m-d') !== $released) {
-        $modifications[] = "first released";
-        $game->released_at = $released;
-        $game->released_at_granularity = 'day';
     }
     if ($game->GuideURL !== $guideUrl) {
         $modifications[] = "Guide URL";
@@ -653,10 +650,23 @@ function modifyGameTitle(string $username, int $gameId, string $value): bool
         return false;
     }
 
-    $game->Title = $value;
-    $game->save();
+    $originalTitle = $game->title;
+    $game->title = $value;
 
-    addArticleComment('Server', ArticleType::GameModification, $gameId, "{$username} changed the game name");
+    $newSortTitle = (new WriteGameSortTitleFromGameTitleAction())->execute(
+        $game,
+        $originalTitle,
+        shouldSaveGame: false,
+    );
+
+    if ($newSortTitle !== null) {
+        $game->sort_title = $newSortTitle;
+    }
+
+    if ($game->isDirty()) {
+        $game->save();
+        addArticleComment('Server', ArticleType::GameModification, $gameId, "{$username} changed the game name");
+    }
 
     return true;
 }
@@ -709,6 +719,11 @@ function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAd
             s_mysql_query($query);
 
             $createAuditLogEntries('added', $ids);
+
+            // Double writes to game_sets.
+            foreach ($ids as $childId) {
+                (new UpdateGameSetFromGameAlternativesModification())->execute($gameID, $childId);
+            }
         }
     }
 
@@ -721,6 +736,11 @@ function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAd
             s_mysql_query($query);
 
             $createAuditLogEntries('removed', $ids);
+
+            // Double writes to game_sets.
+            foreach ($ids as $childId) {
+                (new UpdateGameSetFromGameAlternativesModification())->execute($gameID, $childId, isAttaching: false);
+            }
         }
     }
 }
@@ -787,6 +807,7 @@ function createNewGame(string $title, int $systemId): ?array
     try {
         $game = new Game();
         $game->Title = $title;
+        $game->sort_title = (new ComputeGameSortTitleAction())->execute($title);
         $game->ConsoleID = $systemId;
         $game->ForumTopicID = null;
         $game->Flags = 0;

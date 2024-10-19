@@ -4,12 +4,22 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
+use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Game;
+use App\Models\System;
+use App\Models\User;
+use App\Platform\Actions\BuildGameListAction;
+use App\Platform\Data\GameListPagePropsData;
+use App\Platform\Data\SystemData;
+use App\Platform\Enums\GameListType;
+use App\Platform\Requests\GameListRequest;
 use App\Platform\Requests\GameRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class GameController extends Controller
 {
@@ -18,16 +28,37 @@ class GameController extends Controller
         return 'game';
     }
 
-    public function index(): View
+    public function index(GameListRequest $request): InertiaResponse
     {
-        $this->authorize('viewAny', $this->resourceClass());
+        /** @var ?User $user */
+        $user = $request->user();
 
-        /*
-         * TODO: if slug is empty or does not match -> redirect to correctly slugged url
-         */
+        $this->authorize('viewAny', [Game::class, $user]);
 
-        return view('resource.index')
-            ->with('resource', $this->resourceName());
+        $paginatedData = (new BuildGameListAction())->execute(
+            GameListType::AllGames,
+            user: $user,
+            page: $request->getPage(),
+            filters: $request->getFilters(),
+            sort: $request->getSort(),
+        );
+
+        $filterableSystemOptions = System::active()
+            ->gameSystems()
+            ->get()
+            ->map(fn ($system) => SystemData::fromSystem($system)->include('nameShort'))
+            ->values()
+            ->all();
+
+        $can = UserPermissionsData::fromUser($user)->include('develop');
+
+        $props = new GameListPagePropsData(
+            paginatedGameListEntries: $paginatedData,
+            filterableSystemOptions: $filterableSystemOptions,
+            can: $can,
+        );
+
+        return Inertia::render('game-list/index', $props);
     }
 
     public function popular(): void
@@ -105,5 +136,17 @@ class GameController extends Controller
     public function destroy(Game $game): void
     {
         $this->authorize('delete', $game);
+    }
+
+    public function random(): RedirectResponse
+    {
+        $this->authorize('viewAny', Game::class);
+
+        $randomGameWithAchievements = Game::whereNotIn('ConsoleID', System::getNonGameSystems())
+            ->where('achievements_published', '>=', 6)
+            ->inRandomOrder()
+            ->firstOrFail();
+
+        return redirect(route('game.show', ['game' => $randomGameWithAchievements]));
     }
 }

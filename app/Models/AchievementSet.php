@@ -15,6 +15,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class AchievementSet extends BaseModel
 {
+    /** @use HasFactory<AchievementSetFactory> */
     use HasFactory;
     use SoftDeletes;
     // TODO use LogsActivity;
@@ -29,6 +30,8 @@ class AchievementSet extends BaseModel
         'achievements_unpublished',
         'points_total',
         'points_weighted',
+        'created_at',
+        'updated_at',
     ];
 
     protected static function newFactory(): AchievementSetFactory
@@ -61,11 +64,21 @@ class AchievementSet extends BaseModel
     }
 
     /**
+     * @return BelongsToMany<Achievement>
+     */
+    public function achievements(): BelongsToMany
+    {
+        return $this->belongsToMany(Achievement::class, 'achievement_set_achievements', 'achievement_set_id', 'achievement_id', 'id', 'ID')
+            ->withPivot('order_column')
+            ->withTimestamps();
+    }
+
+    /**
      * @return BelongsToMany<Game>
      */
     public function games(): BelongsToMany
     {
-        return $this->belongsToMany(Game::class, 'game_achievement_sets', 'achievement_set_id', 'game_id', 'ID');
+        return $this->belongsToMany(Game::class, 'game_achievement_sets', 'achievement_set_id', 'game_id', 'id', 'ID');
     }
 
     /**

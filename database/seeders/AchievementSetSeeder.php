@@ -23,7 +23,7 @@ class AchievementSetSeeder extends Seeder
         foreach ($games as $game) {
             // Always create a core achievement set for each game.
             $coreAchievementSet = AchievementSet::factory()->create();
-            GameAchievementSet::factory()->type(AchievementSetType::Core)->create([
+            GameAchievementSet::factory()->type(AchievementSetType::Core->value)->create([
                 'game_id' => $game->id,
                 'achievement_set_id' => $coreAchievementSet->id,
             ]);
@@ -64,7 +64,7 @@ class AchievementSetSeeder extends Seeder
         $numBonusSets = mt_rand(1, 3);
         for ($i = 0; $i < $numBonusSets; $i++) {
             $bonusAchievementSet = AchievementSet::factory()->create();
-            GameAchievementSet::factory()->type(AchievementSetType::Bonus)->create([
+            GameAchievementSet::factory()->type(AchievementSetType::Bonus->value)->create([
                 'game_id' => $game->id,
                 'achievement_set_id' => $bonusAchievementSet->id,
             ]);
@@ -79,7 +79,7 @@ class AchievementSetSeeder extends Seeder
     {
         foreach ($reservedHashIds as $reservedHashId) {
             $specialtyAchievementSet = AchievementSet::factory()->create();
-            GameAchievementSet::factory()->type(AchievementSetType::Specialty)->create([
+            GameAchievementSet::factory()->type(AchievementSetType::Specialty->value)->create([
                 'game_id' => $game->id,
                 'achievement_set_id' => $specialtyAchievementSet->id,
             ]);

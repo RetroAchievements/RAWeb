@@ -1,6 +1,8 @@
 /// <reference types="vitest" />
 
+import react from '@vitejs/plugin-react';
 import { existsSync, readFileSync } from 'fs';
+import i18n from 'laravel-react-i18n/vite';
 import laravel from 'laravel-vite-plugin';
 import { homedir } from 'os';
 import { resolve } from 'path';
@@ -18,31 +20,73 @@ export default defineConfig(({ mode, isSsrBuild }) => {
   }
 
   return {
+    // Required for SSR assets to load properly
+    base: '/assets/build',
+
     // https://vitejs.dev/config/#build-options
     build: {
       outDir: isSsrBuild ? 'bootstrap/ssr' : `public/${env.VITE_BUILD_PATH}`,
       assetsDir: '',
       assetsInlineLimit: 4096,
     },
+
     // https://vitejs.dev/config/#plugins
     plugins: [
       laravel({
-        input: ['resources/css/app.css', 'resources/js/tall-stack/app.ts'],
+        input: ['resources/css/app.css', 'resources/js/tall-stack/app.ts', 'resources/js/app.tsx'],
+        ssr: 'resources/js/ssr.tsx',
         refresh: ['resources/views/**'],
       }),
+      react(),
+      i18n(),
     ],
+
+    ssr: {
+      noExternal: ['react-use'],
+    },
+
+    optimizeDeps: {
+      include: ['react-use'],
+    },
+
     resolve: {
       alias: {
         '@': resolve(__dirname, './resources/js'),
         livewire: resolve(__dirname, './vendor/livewire/livewire/dist/livewire.esm'),
       },
     },
+
     test: {
       environment: 'jsdom',
       setupFiles: 'resources/js/setupTests.ts',
-      include: ['resources/js/**/*.{test,spec}.ts'],
+      include: ['resources/js/**/*.{test,spec}.{ts,tsx}'],
       globals: true,
+
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'html'],
+        include: [
+          /*
+           * Disregard coverage for Alpine.js stuff, mounting code, and /pages.
+           *  - Alpine.js stuff will be removed.
+           *  - Covering mounting code would just test the framework.
+           *  - /pages should be covered by controller tests.
+           */
+          'resources/js/common',
+          'resources/js/features',
+          'resources/js/utils',
+        ],
+        exclude: [
+          '**/index.ts',
+          '**/*.model.ts',
+          '**/*.test.ts',
+          '**/*.test.tsx',
+          '**/*.spec.ts',
+          '**/*.spec.tsx',
+        ],
+      },
     },
+
     // @ see https://vitejs.dev/config/#server-options
     server: detectServerConfig(env),
   };

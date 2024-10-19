@@ -9,58 +9,13 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
 use App\Models\AchievementSetClaim;
+use App\Models\Game;
 use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-
-/**
- * Checks if the user is able to make a claim and inserts the claim into the database. If the claim
- * is a collaboration claim then the claim will have the same Finished time as the primary claim for the game.
- */
-function insertClaim(User $user, int $gameId, int $claimType, int $setType, int $special): bool
-{
-    $userPermissions = (int) $user->getAttribute('Permissions');
-
-    $finishedAt = Carbon::now()->addMonths(3); // Default to 3 months from now.
-
-    if ($claimType !== ClaimType::Primary) {
-        $primaryClaimFinishTime = AchievementSetClaim::where('game_id', $gameId)
-            ->active()
-            ->primaryClaim()
-            ->value('Finished');
-
-        // If a primary claim doesn't exist, treat the new claim as a primary claim.
-        if ($primaryClaimFinishTime) {
-            $finishedAt = $primaryClaimFinishTime;
-            $special = ClaimSpecial::None;
-        }
-    } elseif ($special === ClaimSpecial::None) {
-        // Different roles are allowed a maximum number of active primary claims.
-        // Does this user currently have fewer primary claims than that maximum?
-        $isUserAllowedToClaim = getActiveClaimCount($user, false) < permissionsToClaim($userPermissions);
-
-        if (!$isUserAllowedToClaim) {
-            return false;
-        }
-    }
-
-    // Create the claim.
-    AchievementSetClaim::create([
-        'user_id' => $user->id,
-        'game_id' => $gameId,
-        'ClaimType' => $claimType,
-        'SetType' => $setType,
-        'Status' => ClaimStatus::Active,
-        'Extension' => 0,
-        'Special' => $special,
-        'Finished' => $finishedAt,
-    ]);
-
-    return true;
-}
 
 /**
  * Checks if the user already has the game claimed. Allows for checking primary/collaboration claims as well as set type.
@@ -80,47 +35,6 @@ function hasSetClaimed(User $user, int $gameId, bool $isPrimaryClaim = false, ?i
     }
 
     return $query->exists();
-}
-
-/**
- * Marks a claim as complete after verifying that the user completing the claim
- * has the primary claim on the game. Any collaboration claims will also be
- * marked as complete.
- */
-function completeClaim(User $user, int $gameId): bool
-{
-    if (!hasSetClaimed($user, $gameId, isPrimaryClaim: true)) {
-        return false;
-    }
-
-    $now = Carbon::now();
-
-    AchievementSetClaim::where('game_id', $gameId)
-        ->active()
-        ->update([
-            'Status' => ClaimStatus::Complete,
-            'Finished' => $now,
-        ]);
-
-    return true;
-}
-
-/**
- * Marks a claim as dropped.
- */
-function dropClaim(User $user, int $gameId): bool
-{
-    $now = Carbon::now();
-
-    AchievementSetClaim::where('game_id', $gameId)
-        ->where('user_id', $user->id)
-        ->active() // Users cannot drop claims with a status value of ClaimStatus::InReview.
-        ->update([
-            'Status' => ClaimStatus::Dropped,
-            'Finished' => $now,
-        ]);
-
-    return true;
 }
 
 function updateClaimsForPermissionChange(User $user, int $permissionsAfter, int $permissionsBefore, ?string $actingUsername = null): void
@@ -165,37 +79,6 @@ function updateClaimsForPermissionChange(User $user, int $permissionsAfter, int 
             addArticleComment('Server', ArticleType::SetClaim, $claim->game_id, $comment);
         }
     }
-}
-
-/**
- * Extends a claim a months beyond its initial expiration time if it expires within a week.
- * Any collaboration claims will be extended as well.
- */
-function extendClaim(User $user, int $gameId): bool
-{
-    if (!hasSetClaimed($user, $gameId, true)) {
-        return false;
-    }
-
-    $query = "
-        UPDATE
-            SetClaim
-        SET
-            Extension = Extension + 1,
-            Finished = DATE_ADD(Finished, INTERVAL 3 MONTH),
-            Updated = NOW()
-        WHERE
-            Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
-            AND game_id = '$gameId'
-            AND TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 10080"; // 7 days = 7 * 24 * 60
-
-    if (s_mysql_query($query)) {
-        Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($user->User));
-
-        return true;
-    }
-
-    return false;
 }
 
 /**
@@ -479,35 +362,6 @@ function getActiveClaimCount(?User $user = null, bool $countCollaboration = true
             AND Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")";
 
     return (int) legacyDbFetch($query, $bindings)['ActiveClaims'];
-}
-
-/**
- * Updates a claim in the database. This function is only called when an admin updates a
- * claim from the Manage Claims page.
- */
-function updateClaim(int $claimID, int $claimType, int $setType, int $status, int $special, string $claimDate, string $finishedDate): bool
-{
-    $claim = AchievementSetClaim::firstWhere('ID', $claimID);
-    if (!$claim) {
-        return false;
-    }
-
-    $oldFinishedDate = $claim->Finished;
-
-    $claim->ClaimType = $claimType;
-    $claim->SetType = $setType;
-    $claim->Status = $status;
-    $claim->Special = $special;
-    $claim->Created = Carbon::parse($claimDate);
-    $claim->Finished = Carbon::parse($finishedDate);
-    $claim->save();
-
-    if ($claim->Finished !== $oldFinishedDate) {
-        $cacheKey = CacheKey::buildUserExpiringClaimsCacheKey($claim->user->username);
-        Cache::forget($cacheKey);
-    }
-
-    return true;
 }
 
 /**

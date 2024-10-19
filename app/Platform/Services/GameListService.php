@@ -63,9 +63,9 @@ class GameListService
         }
 
         $gameModelsQuery = Game::whereIn('ID', $gameIds)
-            ->orderBy('Title')
+            ->orderBy('sort_title')
             ->select([
-                'ID', 'Title', 'ImageIcon', 'ConsoleID', 'players_total',
+                'ID', 'Title', 'sort_title', 'ImageIcon', 'ConsoleID', 'players_total',
                 'achievements_published', 'points_total', 'TotalTruePoints',
             ]);
 
@@ -88,6 +88,9 @@ class GameListService
         foreach ($gameModels as &$gameModel) {
             $game = $gameModel->toArray();
 
+            $game['SortTitle'] = $game['sort_title'];
+            unset($game['sort_title']);
+
             if ($this->withLeaderboardCounts) {
                 $game['leaderboards_count'] = $gameModel->leaderboards_count;
             }
@@ -108,34 +111,6 @@ class GameListService
             $game['RetroRatio'] = $gameModel->points_total ? $gameModel->TotalTruePoints / $gameModel->points_total : 0.0;
 
             $game['ConsoleName'] = $this->consoles[$gameModel->ConsoleID]->Name;
-
-            /**
-             * Ensure games on the list are sorted properly.
-             * For titles starting with "~", the sort order is determined by the content
-             * within the "~" markers followed by the content after the "~". This ensures
-             * that titles with "~" are grouped together and sorted alphabetically based
-             * on their designated categories and then by their actual game title.
-             *
-             * The "~" prefix is retained in the SortTitle of games with "~" to ensure these
-             * games are sorted at the end of the list, maintaining a clear separation from
-             * non-prefixed titles. This approach allows game titles to be grouped and sorted
-             * in a specific order:
-             *
-             * 1. Non-prefixed titles are sorted alphabetically at the beginning of the list.
-             * 2. Titles prefixed with "~" are grouped at the end, sorted first by the category
-             *    specified within the "~" markers, and then alphabetically by the title following
-             *    the "~".
-             */
-            $game['SortTitle'] = mb_strtolower($game['Title']);
-            if ($game['SortTitle'][0] === '~') {
-                $endOfFirstTilde = strpos($game['SortTitle'], '~', 1);
-                if ($endOfFirstTilde !== false) {
-                    $withinTildes = substr($game['SortTitle'], 1, $endOfFirstTilde - 1);
-                    $afterTildes = trim(substr($game['SortTitle'], $endOfFirstTilde + 1));
-
-                    $game['SortTitle'] = '~' . $withinTildes . ' ' . $afterTildes;
-                }
-            }
 
             $this->games[] = $game;
         }
@@ -567,12 +542,12 @@ class GameListService
                             :maxProgress="$maxProgress"
                             :tooltip="$tooltip"
                         />', [
-                            'awardIndicator' => $highestAwardKind,
-                            'softcoreProgress' => $softcoreProgress,
-                            'hardcoreProgress' => $hardcoreProgress,
-                            'maxProgress' => $game['achievements_published'],
-                            'tooltip' => $tooltip,
-                        ]);
+                        'awardIndicator' => $highestAwardKind,
+                        'softcoreProgress' => $softcoreProgress,
+                        'hardcoreProgress' => $hardcoreProgress,
+                        'maxProgress' => $game['achievements_published'],
+                        'tooltip' => $tooltip,
+                    ]);
                     echo '</td>';
                 }
             },
@@ -594,9 +569,9 @@ class GameListService
                         :gameId="$gameId"
                         :isOnBacklog="$isOnBacklog"
                     />', [
-                        'gameId' => $game['ID'],
-                        'isOnBacklog' => $game['WantToPlay'] ?? false,
-                    ]);
+                    'gameId' => $game['ID'],
+                    'isOnBacklog' => $game['WantToPlay'] ?? false,
+                ]);
                 echo '</td>';
             },
         ];

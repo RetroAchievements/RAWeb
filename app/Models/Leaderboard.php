@@ -15,16 +15,23 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Leaderboard extends BaseModel
 {
     /*
      * Shared Traits
      */
+    /** @use HasFactory<LeaderboardFactory> */
     use HasFactory;
 
     use Searchable;
     use SoftDeletes;
+
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
 
     // TODO rename LeaderboardDef table to leaderboards
     // TODO rename ID column to id
@@ -45,9 +52,32 @@ class Leaderboard extends BaseModel
     public const CREATED_AT = 'Created';
     public const UPDATED_AT = 'Updated';
 
+    protected $fillable = [
+        'Title',
+        'Description',
+        'Format',
+        'LowerIsBetter',
+        'DisplayOrder',
+    ];
+
     protected static function newFactory(): LeaderboardFactory
     {
         return LeaderboardFactory::new();
+    }
+
+    // == logging
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'Title',
+                'Description',
+                'Format',
+                'LowerIsBetter',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     // == search
@@ -186,6 +216,14 @@ class Leaderboard extends BaseModel
         return $this->belongsTo(Game::class, 'GameID', 'ID');
     }
 
+    /**
+     * @return BelongsTo<LeaderboardEntry, Leaderboard>
+     */
+    public function topEntry(): BelongsTo
+    {
+        return $this->belongsTo(LeaderboardEntry::class, 'top_entry_id');
+    }
+
     // == scopes
 
     /**
@@ -197,7 +235,45 @@ class Leaderboard extends BaseModel
         return $query->where('DisplayOrder', '>=', 0);
     }
 
+    /**
+     * @param Builder<Leaderboard> $query
+     * @return Builder<Leaderboard>
+     */
+    public function scopeWithTopEntry(Builder $query): Builder
+    {
+        return $query->addSelect(['top_entry_id' => function ($subQuery) {
+            $subQuery->select('le.id')
+                ->from('leaderboard_entries as le')
+                ->join('UserAccounts as u', 'u.id', '=', 'le.user_id')
+                ->whereColumn('le.leaderboard_id', 'LeaderboardDef.ID')
+                ->whereNull('u.unranked_at')
+                ->where('u.Untracked', 0)
+                ->whereNull('u.banned_at')
+                ->whereNull('le.deleted_at')
+                ->orderByRaw('
+                    CASE
+                        WHEN (SELECT LowerIsBetter FROM LeaderboardDef WHERE ID = le.leaderboard_id) = 1 THEN le.score
+                        ELSE -le.score
+                    END ASC
+                ')
+                ->orderBy('le.updated_at', 'ASC')
+                ->limit(1);
+        }])->with(['topEntry' => function ($query) {
+            $query->with('user');
+        }]);
+    }
+
     // == helpers
+
+    public function submitValidationHash(User $user, int $score, int $offset = 0): string
+    {
+        $data = $this->id . $user->username . $score;
+        if ($offset > 0) {
+            $data .= $offset;
+        }
+
+        return md5($data);
+    }
 
     public function getRank(int $score): int
     {

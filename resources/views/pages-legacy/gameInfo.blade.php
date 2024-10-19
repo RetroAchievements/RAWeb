@@ -17,7 +17,6 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\GameListService;
-use Illuminate\Support\Carbon;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {
@@ -33,6 +32,7 @@ $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
 $officialFlag = AchievementFlag::OfficialCore;
 $unofficialFlag = AchievementFlag::Unofficial;
 $flagParam = requestInputSanitized('f', $officialFlag, 'integer');
+
 $isOfficial = false;
 if ($flagParam !== $unofficialFlag) {
     $isOfficial = true;
@@ -117,10 +117,9 @@ if ($v != 1) {
 ?>
 
 <?php
-$achDist = null;
-$achDistHardcore = null;
+$softcoreUnlocks = null;
+$hardcoreUnlocks = null;
 $authorInfo = [];
-$gameTopAchievers = null;
 $lbData = null;
 $numDistinctPlayers = null;
 $numEarnedCasual = null;
@@ -149,8 +148,8 @@ $userGameProgressionAwards = [
 if ($isFullyFeaturedGame) {
     $numDistinctPlayers = $gameData['NumDistinctPlayers'];
 
-    $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
-    $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
+    $softcoreUnlocks = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
+    $hardcoreUnlocks = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
 
     if (isset($user)) {
         // Determine if the logged in user is the sole author of the set
@@ -259,9 +258,6 @@ if ($isFullyFeaturedGame) {
         );
     }
 
-    // Get the top ten players at this game:
-    $gameTopAchievers = getGameTopAchievers($gameID);
-
     $claimData = getClaimData([$gameID], true);
 }
 
@@ -333,8 +329,8 @@ if ($isFullyFeaturedGame) {
             dataTotalScore.addRows([
                 <?php
                 [$buckets, $isDynamicBucketingEnabled] = generateEmptyBucketsWithBounds($numAchievements);
-                [$largestWonByCount] = calculateBuckets($buckets, $isDynamicBucketingEnabled, $numAchievements, $achDist, $achDistHardcore);
-                $allAchievementsCount = handleAllAchievementsCase($numAchievements, $achDist, $achDistHardcore, $buckets);
+                [$largestWonByCount] = calculateBuckets($buckets, $isDynamicBucketingEnabled, $numAchievements, $softcoreUnlocks, $hardcoreUnlocks);
+                $allAchievementsCount = handleAllAchievementsCase($numAchievements, $softcoreUnlocks, $hardcoreUnlocks, $buckets);
                 $largestWonByCount = max($allAchievementsCount, $largestWonByCount);
 
                 $numGridlines = ($numAchievements < 20) ? $numAchievements : 10;
@@ -480,7 +476,7 @@ if ($isFullyFeaturedGame) {
                     $releasedAtDisplay = null;
 
                     if ($gameModel->released_at && $gameModel->released_at_granularity) {
-                        $releasedAtDisplay = match ($gameModel->released_at_granularity) {
+                        $releasedAtDisplay = match ($gameModel->released_at_granularity->value) {
                             'year' => $gameModel->released_at->format('Y'),
                             'month' => $gameModel->released_at->format('F Y'),
                             default => $gameModel->released_at->format('F j, Y'),
@@ -512,7 +508,7 @@ if ($isFullyFeaturedGame) {
                     && $permissions >= Permissions::JuniorDeveloper
                 )
             );
-            
+
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
             echo "<div id='devboxcontent' style='display: none'>";
@@ -531,7 +527,12 @@ if ($isFullyFeaturedGame) {
 
                 // Display leaderboard management options depending on if the game has any leaderboards (including hidden)
                 if ($gameModel->leaderboards()->exists()) {
-                    echo "<div><a class='btn btn-link' href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
+                    $manageLeaderboardsRoute = route('filament.admin.resources.leaderboards.index', [
+                        'tableFilters[game][id]' => $gameID,
+                        'tableSortColumn' => 'DisplayOrder',
+                        'tableSortDirection' => 'asc',
+                    ]);
+                    echo "<div><a class='btn btn-link' href='$manageLeaderboardsRoute'>Manage Leaderboards</a></div>";
                 }
 
                 if ($permissions >= Permissions::Developer) {
@@ -1013,29 +1014,27 @@ if ($isFullyFeaturedGame) {
         if (!empty($gameHubs)) {
             RenderGameAlts($gameHubs, 'Hubs');
         }
+        ?>
 
-        if ($user !== null && $numAchievements > 0) {
-            ?>
+        @if ($user !== null && $numAchievements > 0)
             <div class="mb-4">
                 <x-game.compare-progress
                     :game="$gameModel"
                     :user="$userModel"
                 />
             </div>
-            <?php
-        }
+        @endif
 
-        if ($numAchievements > 0 && $isOfficial) {
-            echo "<div id='achdistribution' class='component' >";
-            echo "<h2 class='text-h3'>Achievement Distribution</h2>";
-            echo "<div id='chart_distribution' class='min-h-[260px]'></div>";
-            echo "</div>";
+        @if ($numAchievements > 0 && $isOfficial)
+            <div id="achdistribution" class="component">
+                <h2 class="text-h3">Achievement Distribution</h2>
+                <div id="chart_distribution" class="min-h-[260px]"></div>
+            </div>
 
-            RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
-        }
-        ?>
+            <x-game.top-achievers :game="$gameModel" />
+        @endif
 
-        @if (isValidConsoleId($consoleID))
+        @if ($gameModel->system->active)
             <x-game.leaderboards-listing :game="$gameModel" />
         @endif
     </x-slot>

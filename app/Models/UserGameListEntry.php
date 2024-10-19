@@ -29,34 +29,7 @@ class UserGameListEntry extends BaseModel
         'GameID' => 'integer',
     ];
 
-    /**
-     * @return BelongsTo<User, UserGameListEntry>
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
-    }
-
-    /**
-     * @return BelongsTo<Game, UserGameListEntry>
-     */
-    public function game(): BelongsTo
-    {
-        return $this->belongsTo(Game::class, 'GameID', 'ID');
-    }
-
-    /**
-     * @param Builder<UserGameListEntry> $query
-     * @return Builder<UserGameListEntry>
-     */
-    public function scopeWithoutAchievements(Builder $query): Builder
-    {
-        return $query
-            ->select('SetRequest.*')
-            ->leftJoin('Achievements', 'SetRequest.GameID', '=', 'Achievements.GameID')
-            ->groupBy('SetRequest.GameID')
-            ->havingRaw('count(Achievements.ID) = 0');
-    }
+    // helpers
 
     public static function getUserSetRequestsInformation(User $user): array
     {
@@ -100,5 +73,42 @@ class UserGameListEntry extends BaseModel
         settype($requests['pointsForNext'], 'integer');
 
         return $requests;
+    }
+
+    // == accessors
+
+    // == mutators
+
+    // == relations
+
+    /**
+     * @return BelongsTo<User, UserGameListEntry>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'ID');
+    }
+
+    /**
+     * @return BelongsTo<Game, UserGameListEntry>
+     */
+    public function game(): BelongsTo
+    {
+        return $this->belongsTo(Game::class, 'GameID', 'ID');
+    }
+
+    // == scopes
+
+    /**
+     * @param Builder<UserGameListEntry> $query
+     * @return Builder<UserGameListEntry>
+     */
+    public function scopeWithoutAchievements(Builder $query): Builder
+    {
+        return $query
+            ->select('SetRequest.*')
+            ->leftJoin('Achievements', 'SetRequest.GameID', '=', 'Achievements.GameID')
+            ->groupBy('SetRequest.GameID')
+            ->havingRaw('count(Achievements.ID) = 0');
     }
 }

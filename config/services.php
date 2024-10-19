@@ -21,6 +21,7 @@ return [
         'webhook' => [
             // public
             'achievements' => env('DISCORD_WEBHOOK_ACHIEVEMENTS'),
+            'claims' => env('DISCORD_WEBHOOK_CLAIMS'),
             'news' => env('DISCORD_WEBHOOK_NEWS'),
             'users' => env('DISCORD_WEBHOOK_USERS'),
             // moderation
@@ -43,6 +44,10 @@ return [
                 'mention_role' => env('DISCORD_ROLE_QATEAM'),
                 'achievement_issues_url' => env('DISCORD_WEBHOOK_QATEAM_ACHIEVEMENT_ISSUES'),
                 'incorrect_type_url' => env('DISCORD_WEBHOOK_QATEAM_INCORRECT_TYPE'),
+            ],
+            'WritingTeam' => [
+                'url' => env('DISCORD_WEBHOOK_WRITING_TEAM'),
+                'is_forum' => true,
             ],
             'QualityQuest' => [
                 'url' => env('DISCORD_WEBHOOK_QUALITYQUEST'),

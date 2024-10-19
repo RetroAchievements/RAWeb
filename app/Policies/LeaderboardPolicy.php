@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\Role;
 use App\Models\User;
@@ -32,23 +33,36 @@ class LeaderboardPolicy
         return true;
     }
 
-    public function create(User $user): bool
+    public function create(User $user, ?Game $game = null): bool
     {
-        // TODO all full devs. jr devs if they have a claim
+        if ($game && $user->hasRole(Role::DEVELOPER_JUNIOR)) {
+            return $user->hasActiveClaimOnGameId($game->id);
+        }
 
-        return false;
+        return $user->hasAnyRole([
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+        ]);
     }
 
     public function update(User $user, Leaderboard $leaderboard): bool
     {
-        // TODO all full devs. jr devs if they have a claim
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR)) {
+            return $user->is($leaderboard->developer);
+        }
 
-        return false;
+        return $user->hasAnyRole([
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+        ]);
     }
 
     public function delete(User $user, Leaderboard $leaderboard): bool
     {
-        return false;
+        return $user->hasAnyRole([
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+        ]);
     }
 
     public function restore(User $user, Leaderboard $leaderboard): bool
@@ -58,6 +72,17 @@ class LeaderboardPolicy
 
     public function forceDelete(User $user, Leaderboard $leaderboard): bool
     {
-        return false;
+        return $user->hasAnyRole([
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+        ]);
+    }
+
+    public function resetAllEntries(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+        ]);
     }
 }

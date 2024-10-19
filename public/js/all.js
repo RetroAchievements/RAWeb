@@ -14,12 +14,12 @@ $(document).ajaxError(function (event, xhr, settings, thrownError) {
   var message = thrownError;
   try {
     message = JSON.parse(xhr.responseText).message;
-  } catch (exception) {
+  } catch {
     if (message.length === 0) {
       try {
         var html = $($.parseHTML(xhr.responseText));
         message = html.filter('title').text();
-      } catch (exception2) {
+      } catch {
         message = 'Unknown error';
       }
     }
@@ -32,7 +32,7 @@ $(document).ajaxSuccess(function (event, xhr) {
   var message = null;
   try {
     message = JSON.parse(xhr.responseText).message;
-  } catch (exception) {
+  } catch {
     //
   }
   if (message) {
@@ -59,12 +59,14 @@ jQuery(document).ready(function onReady($) {
       if (event.keyCode === TABKEY) {
         $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.label + '.png'));
       }
+
       return false;
     },
   });
   $searchUser.on('autocompleteselect', function (event, ui) {
     $searchUser.val(ui.item.label);
     $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.label + '.png'));
+
     return false;
   });
 
@@ -90,10 +92,11 @@ function removeComment(artTypeID, artID, commentID) {
     commentable: artID,
     comment: commentID,
   }).done(function () {
-    document.querySelectorAll(`[id^="comment_${commentID}"]`).forEach(function (el) {
+    for (const el of document.querySelectorAll(`[id^="comment_${commentID}"]`)) {
       el.style.display = 'none';
-    });
+    }
   });
+
   return true;
 }
 

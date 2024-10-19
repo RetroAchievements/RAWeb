@@ -88,7 +88,6 @@ return [
          * leaderboards
          */
         '/leaderboardinfo.php' => '/leaderboard/{i}',
-        '/leaderboardList.php' => '/game/{g}/leaderboards',
 
         /*
          * user
@@ -135,6 +134,7 @@ return [
             '' => '/claims/active',
         ],
         '/expiringclaims.php' => '/claims/expiring',
+        '/claims' => '/manage/achievement-set-claims',
 
         /*
          * redirects (external)
