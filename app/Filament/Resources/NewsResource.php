@@ -63,7 +63,7 @@ class NewsResource extends Resource
 
                                 return new HtmlString('
                                     <div class="flex w-full justify-between">' .
-                                        '<p>HTML is not supported.</p>' .
+                                        '<p>As best as you can, try not to use BR tags.</p>' .
 
                                         '<p>' .
                                             strlen($state ?? '') . '/' . $maxLength .
@@ -82,9 +82,7 @@ class NewsResource extends Resource
                         // When the user submits, upload to S3.
                         Forms\Components\FileUpload::make('Image')
                             ->label('Upload an image')
-                            ->disk('local')
-                            ->directory('temp')
-                            ->visibility('private')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
                             ->image()
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif'])
                             ->maxSize(1024)

@@ -6,6 +6,7 @@ namespace App\Filament\Resources\NewsResource\Pages;
 
 use App\Filament\Resources\NewsResource;
 use App\Filament\Resources\NewsResource\Actions\ProcessUploadedImageAction;
+use App\Models\News;
 use Filament\Resources\Pages\CreateRecord;
 
 class Create extends CreateRecord
@@ -21,6 +22,8 @@ class Create extends CreateRecord
         if (isset($data['Image'])) {
             $data['Image'] = (new ProcessUploadedImageAction())->execute($data['Image']);
         }
+
+        $data['Payload'] = News::sanitizeMaybeInvalidHtml($data['Payload']);
 
         return $data;
     }

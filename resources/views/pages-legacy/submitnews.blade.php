@@ -91,8 +91,8 @@ $newsImage = old('image', $news['Image'] ?? '');
             <tr>
                 <td class="align-top"><label for="body">Content</label></td>
                 <td>
-                    <textarea class="w-full resize-y min-h-[250px]" id="body" rows="15" name="body"><?= old('body', $newsContent) ?></textarea>
-                    <p>HTML is no longer supported.</p>
+                    <textarea class="w-full resize-y min-h-[250px]" id="body" rows="15" name="body" maxlength="238"><?= old('body', $newsContent) ?></textarea>
+                    <p>This field has a maxlength of 238 characters.</p>
                 </td>
             </tr>
             <tr>

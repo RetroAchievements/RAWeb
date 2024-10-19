@@ -21,6 +21,9 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'image' => 'required|url',
 ]);
 
+// Sanitize the 'body' field so authors can't inject any HTML they want.
+$input['body'] = News::sanitizeMaybeInvalidHtml($input['body']);
+
 if (empty($input['body'])) {
     return back()->withErrors(__('legacy.error.invalid_news_content'));
 }
