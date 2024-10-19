@@ -96,7 +96,7 @@
     "Changed email address!": "Endereço de e-mail alterado!",
     "Changing password...": "Alterando senha...",
     "Required": "Obrigatório",
-    "Must be at least 8 characters": "A senha deve ter pelo menos 8 caracteres",
+    "Must be at least 8 characters.": "A senha deve ter pelo menos 8 caracteres.",
     "Passwords must match.": "As senhas devem corresponder.",
     "Email addresses must match.": "Os endereços de e-mail devem corresponder.",
     "Loading...": "Carregando...",
@@ -309,5 +309,8 @@
     "Earliest": "Mais antigo",
     "Latest": "Mais recente",
     "Less": "Menos",
-    "Both": "Ambos"
+    "Both": "Ambos",
+    "Locale": "Local",
+    "Current Locale": "Local Atual",
+    "Most of the website is still untranslated. If you'd like to help with translations, you can learn more about how to contribute": "A maior parte do site ainda não foi traduzida. Se você gostaria de ajudar com as traduções, pode saber mais sobre como contribuir"
 }

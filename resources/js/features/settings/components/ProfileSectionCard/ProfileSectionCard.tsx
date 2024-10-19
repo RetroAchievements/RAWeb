@@ -28,8 +28,8 @@ export const ProfileSectionCard: FC = () => {
 
   const {
     form,
-    mutation: formMutation,
     onSubmit,
+    mutation: formMutation,
   } = useProfileSectionForm({
     motto: userSettings.motto ?? '',
     userWallActive: userSettings.userWallActive ?? false,
