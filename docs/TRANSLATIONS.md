@@ -1,6 +1,6 @@
 # Contributing Translations
 
-Thank you for your interest in contribution translations to the RetroAchievements website! By helping translate our platform, you make it more accessible to a wider audience. This guide will walk you through the steps to add or update translations in the RAWeb repository.
+Thank you for your interest in contributing translations to the RetroAchievements website! By helping translate our platform, you make it more accessible to a wider audience. This guide will walk you through the steps to add or update translations in the RAWeb repository.
 
 ## Table of Contents
 
@@ -86,7 +86,7 @@ Some translation strings contain placeholders (eg: `:count`, `:total`, `:gameTit
 }
 ```
 
-- **Proper Placement:** Placeholders should be correctly positioned within the translated string to maintain the intended meaning. You can move placeholders as appropriate for your target language.
+- **Proper Placement:** Ensure placeholders are positioned correctly within the translated string to maintain the intended meaning. You can move placeholders as appropriate for your target language.
 
 ## Submitting Your Changes
 
@@ -103,7 +103,7 @@ lang/
 
 2. **Translate the Values:**
 
-- Open the JSON file in a text editor an IDE.
+- Open the JSON file in a text editor or an IDE.
 - Translate each value while keeping the keys unchanged.
 - Ensure that the JSON syntax remains valid (commas, quotes, brackets).
 
