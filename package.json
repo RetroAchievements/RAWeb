@@ -46,6 +46,7 @@
         "react-icons": "^5.2.1",
         "react-intersection-observer": "^9.13.0",
         "react-use": "^17.5.1",
+        "recharts": "^2.13.0",
         "sonner": "^1.5.0",
         "tailwindcss-animate": "^1.0.7",
         "ua-parser-js": "^1.0.35",
