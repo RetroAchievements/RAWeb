@@ -9,7 +9,7 @@ use App\Models\Achievement;
 use App\Models\EventAchievement;
 use App\Models\PlayerAchievement;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
 
 class UpdateEventAchievement
 {

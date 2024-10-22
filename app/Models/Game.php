@@ -80,6 +80,7 @@ class Game extends BaseModel implements HasComments, HasMedia
         'release',
         'Title',
         'sort_title',
+        'ConsoleID',
         'ForumTopicID',
         'Publisher',
         'Developer',

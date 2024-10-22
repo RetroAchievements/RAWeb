@@ -4,6 +4,7 @@ use App\Models\Achievement;
 use App\Models\Role;
 use App\Platform\Actions\UpdateEventAchievement;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -30,8 +31,8 @@ $sourceAchievementId = (int) $input['sourceAchievementId'];
 $sourceAchievement = Achievement::find($sourceAchievementId);
 
 (new UpdateEventAchievement())->execute($achievement, $sourceAchievement,
-    $input['activeFromDate'] ?? null,
-    $input['activeUntilDate'] ?? null
+    $input['activeFromDate'] ? Carbon::parse($input['activeFromDate']) : null,
+    $input['activeUntilDate'] ? Carbon::parse($input['activeUntilDate']) : null
 );
 
 return response()->json(['message' => __('legacy.success.ok')]);

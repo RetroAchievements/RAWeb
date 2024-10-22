@@ -10,8 +10,8 @@ use App\Models\System;
 use App\Models\User;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
-use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Carbon;
 
 class UnlockPlayerAchievement
 {
@@ -25,7 +25,7 @@ class UnlockPlayerAchievement
     ): void {
         $timestamp ??= Carbon::now();
 
-        $achievement->loadMissing('game');
+        $achievement->loadMissing('game.system');
         if (!$achievement->game) {
             throw new Exception('Achievement does not belong to any game');
         }
@@ -43,11 +43,12 @@ class UnlockPlayerAchievement
         }
 
         $playerSession = null;
-        if ($unlockedBy) {
-            // only attach the game if it's a manual unlock
+        if ($unlockedBy || !System::isGameSystem($achievement->game->system->id)) {
+            // if it's a manual unlock or a non-game achievement, attach the game
+            // but don't generate a session.
             app()->make(AttachPlayerGame::class)
                 ->execute($user, $achievement->game);
-        } elseif (System::isGameSystem($achievement->game->system->id)) {
+        } else {
             // make sure to resume the player session which will attach the game to the player, too
             $playerSession = app()->make(ResumePlayerSession::class)
                 ->execute($user, $achievement->game, gameHash: $gameHash, timestamp: $timestamp);
