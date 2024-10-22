@@ -11,7 +11,7 @@ export const RecentForumPosts: FC = () => {
 
   return (
     <div>
-      <HomeHeading>{t('Recent Forum Posts')}</HomeHeading>
+      <HomeHeading>{t('Forum Recent Posts')}</HomeHeading>
 
       <div className="flex flex-col gap-y-1">
         <RecentForumPostItem />
