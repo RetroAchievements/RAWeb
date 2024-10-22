@@ -6,8 +6,10 @@ namespace App\Platform\Actions;
 
 use App\Models\Achievement;
 use App\Models\GameHash;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Events\PlayerAchievementUnlocked;
+use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use Carbon\Carbon;
 use Exception;
 
@@ -32,11 +34,20 @@ class UnlockPlayerAchievement
             $gameHash = null;
         }
 
+        // also unlock active event achievements associated to the achievement being unlocked
+        if ($hardcore) {
+            foreach ($achievement->eventAchievements()->active($timestamp)->get() as $eventAchievement) {
+                dispatch(new UnlockPlayerAchievementJob($user->id, $eventAchievement->achievement_id, true, $timestamp, $unlockedBy?->id, $gameHash?->id))
+                    ->onQueue('player-achievements');
+            }
+        }
+
+        $playerSession = null;
         if ($unlockedBy) {
             // only attach the game if it's a manual unlock
             app()->make(AttachPlayerGame::class)
                 ->execute($user, $achievement->game);
-        } else {
+        } elseif (System::isGameSystem($achievement->game->system->id)) {
             // make sure to resume the player session which will attach the game to the player, too
             $playerSession = app()->make(ResumePlayerSession::class)
                 ->execute($user, $achievement->game, gameHash: $gameHash, timestamp: $timestamp);
@@ -75,7 +86,7 @@ class UnlockPlayerAchievement
         $unlock->unlocker_id = $unlockedBy?->id;
 
         // attach latest player session if it was not a manual unlock
-        if (!$unlockedBy) {
+        if ($playerSession) {
             $unlock->player_session_id = $playerSession->id;
 
             $playerSession->hardcore = $playerSession->hardcore ?: (bool) $unlock->unlocked_hardcore_at;

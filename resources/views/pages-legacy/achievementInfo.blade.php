@@ -4,8 +4,10 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
@@ -125,6 +127,19 @@ if ($dateWonLocal === "" && isset($user)) {
 
 $achievedLocal = ($dateWonLocal !== "");
 
+$canEditEventData = false;
+$eventAchievement = null;
+if ($game->system->id === System::Events) {
+    $canEditEventData = $userModel->hasRole(Role::EVENT_MANAGER);
+    $eventAchievement = EventAchievement::where('achievement_id', '=', $achievementID)
+        ->with('sourceAchievement')->first();
+
+    // update the ID of the dataOut so the link goes to the source achievement
+    if ($eventAchievement?->sourceAchievement) {
+        $dataOut['ID'] = $eventAchievement->sourceAchievement->ID;
+    }
+}
+
 ?>
 <x-app-layout
     pageTitle="{!! $achievementTitleRaw !!} in {!! $gameTitleRaw !!} ({{ $consoleName }})"
@@ -167,6 +182,22 @@ $achievedLocal = ($dateWonLocal !== "");
                 location.reload();
             });
     }
+    <?php if ($canEditEventData): ?>
+    function updateEventAchievementDetails() {
+        showStatusMessage('Updating...');
+
+        var $sourceAchievementId = $('#sourceAchievementId');
+        $.post('/request/achievement/update-event.php', {
+            achievement: <?= $achievementID ?>,
+            sourceAchievementId: $('#sourceAchievementId').val(),
+            activeFromDate: $('#activeFromDate').val(),
+            activeUntilDate: $('#activeUntilDate').val(),
+        })
+            .done(function () {
+                location.reload();
+            });
+    }
+    <?php endif ?>
     </script>
 <?php endif ?>
 
@@ -236,31 +267,51 @@ $achievedLocal = ($dateWonLocal !== "");
         :totalPlayerCount="$numPossibleWinners"
         :isUnlocked="$achievedLocal"
     />
+    <?php if ($eventAchievement && $eventAchievement->sourceAchievement): ?>
+        <div class="ml-4 mb-2">
+            From:
+            <x-game.multiline-avatar
+                :gameId="$eventAchievement->sourceAchievement->game->id"
+                :gameTitle="$eventAchievement->sourceAchievement->game->title"
+                :gameImageIcon="$eventAchievement->sourceAchievement->game->ImageIcon"
+                :consoleId="$eventAchievement->sourceAchievement->game->system->id"
+                :consoleName="$eventAchievement->sourceAchievement->game->system->name"
+            />
+        </div>
+    <?php endif ?>
     <?php
-    $niceDateCreated = date("d M, Y H:i", strtotime($dateCreated));
-    $niceDateModified = date("d M, Y H:i", strtotime($dateModified));
+    if ($game->system->id !== System::Events) {
+        $niceDateCreated = date("d M, Y H:i", strtotime($dateCreated));
+        $niceDateModified = date("d M, Y H:i", strtotime($dateModified));
 
-    echo "<p class='embedded smalldata mb-3'>";
-    echo "<small>";
-    if ($achFlags === AchievementFlag::Unofficial) {
-        echo "<b>Unofficial Achievement</b><br>";
-    }
-    echo "Created by " . userAvatar($author, icon: false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
-    echo "</small>";
-    echo "</p>";
+        echo "<p class='embedded smalldata mb-3'>";
+        echo "<small>";
+        if ($achFlags === AchievementFlag::Unofficial) {
+            echo "<b>Unofficial Achievement</b><br>";
+        }
+        echo "Created by " . userAvatar($author, icon: false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+        echo "</small>";
+        echo "</p>";
 
-    if (isset($user) && $permissions >= Permissions::Registered && System::isGameSystem($consoleID)) {
-        $countTickets = countOpenTicketsByAchievement($achievementID);
-        echo "<div class='flex justify-between mb-2'>";
-        if ($countTickets > 0) {
-            echo "<a href='" . route('achievement.tickets', ['achievement' => $achievementID]) ."'>$countTickets open " . mb_strtolower(__res('ticket', $countTickets)) . "</a>";
-        } else {
-            echo "<i>No open tickets</i>";
+        if (isset($user) && $permissions >= Permissions::Registered && System::isGameSystem($consoleID)) {
+            $countTickets = countOpenTicketsByAchievement($achievementID);
+            echo "<div class='flex justify-between mb-2'>";
+            if ($countTickets > 0) {
+                echo "<a href='" . route('achievement.tickets', ['achievement' => $achievementID]) ."'>$countTickets open " . mb_strtolower(__res('ticket', $countTickets)) . "</a>";
+            } else {
+                echo "<i>No open tickets</i>";
+            }
+            if ($userModel?->can('create', Ticket::class)) {
+                echo "<a class='btn btn-link' href='" . route('achievement.report-issue.index', ['achievement' => $achievementID]) ."'>Report an issue</a>";
+            }
+            echo "</div>";
         }
-        if ($userModel?->can('create', Ticket::class)) {
-            echo "<a class='btn btn-link' href='" . route('achievement.report-issue.index', ['achievement' => $achievementID]) ."'>Report an issue</a>";
-        }
-        echo "</div>";
+    } else if ($eventAchievement?->active_from && $eventAchievement?->active_until) {
+        echo "<p class='inline smalldate ml-3 mb-2'>Active from ";
+        echo Blade::render("<x-date :value=\"\$value\" />", ['value' => $eventAchievement->active_from]);
+        echo " - ";
+        echo Blade::render("<x-date :value=\"\$value\" />", ['value' => $eventAchievement->active_until]);
+        echo "</p>";
     }
 
     if ($achievedLocal) {
@@ -325,6 +376,18 @@ $achievedLocal = ($dateWonLocal !== "");
 
             echo "</tbody></table>";
             echo "&nbsp;<button type='button' class='btn' style='float: right;' onclick=\"updateAchievementDetails()\">Update</button><br><br>";
+
+            if ($canEditEventData) {
+                echo "<div>Link achievement:</div>";
+                echo "<table><tbody>";
+    
+                echo "<tr><td>Source Achievement ID:</td><td style='width:100%'><input id='sourceAchievementId' type='text' name='a' value='" . $eventAchievement?->source_achievement_id . "' style='width:100%' maxlength='8'></td></tr>";
+                echo "<tr><td>Active From:</td><td style='width:100%'><input id='activeFromDate' type='date' name='f' value='" . $eventAchievement?->active_from?->format('Y-m-d') . "' style='width:100%'></td></tr>";
+                echo "<tr><td>Active Until:</td><td style='width:100%'><input id='activeUntilDate' type='date' name='u' value='" . $eventAchievement?->active_until?->format('Y-m-d') . "' style='width:100%'></td></tr>";
+
+                echo "</tbody></table>";
+                echo "&nbsp;<button type='button' class='btn' style='float: right;' onclick=\"updateEventAchievementDetails()\">Update</button><br><br>";
+            }
 
             echo "<form class='mb-2' method='post' action='/request/achievement/update-image.php' enctype='multipart/form-data'>";
             echo csrf_field();

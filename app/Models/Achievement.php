@@ -351,6 +351,14 @@ class Achievement extends BaseModel implements HasComments
         return $this->hasMany(PlayerAchievement::class, 'achievement_id', 'ID');
     }
 
+    /**
+     * @return HasMany<EventAchievement>
+     */
+    public function eventAchievements(): HasMany
+    {
+        return $this->hasMany(EventAchievement::class, 'source_achievement_id', 'ID');
+    }
+
     // == scopes
 
     /**

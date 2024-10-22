@@ -8,6 +8,7 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\User;
 use App\Models\UserGameListEntry;
@@ -144,6 +145,17 @@ $userGameProgressionAwards = [
     'completed' => null,
     'mastered' => null,
 ];
+
+if ($isEventGame) {
+    $eventAchievements = EventAchievement::whereIn('achievement_id', array_keys($achievementData))->with('sourceAchievement.game')->get();
+    foreach ($eventAchievements as $eventAchievement) {
+        $achievementData[$eventAchievement->achievement_id]['SourceAchievementId'] = $eventAchievement->source_achievement_id;
+        $achievementData[$eventAchievement->achievement_id]['SourceGameId'] = $eventAchievement->sourceAchievement->game->id;
+        $achievementData[$eventAchievement->achievement_id]['SourceGameTitle'] = $eventAchievement->sourceAchievement->game->title;
+        $achievementData[$eventAchievement->achievement_id]['ActiveFrom'] = $eventAchievement->active_from ?? null;
+        $achievementData[$eventAchievement->achievement_id]['ActiveUntil'] = $eventAchievement->active_until?->subSeconds(1);
+    }
+}
 
 if ($isFullyFeaturedGame) {
     $numDistinctPlayers = $gameData['NumDistinctPlayers'];
@@ -876,6 +888,7 @@ if ($isFullyFeaturedGame) {
                         :isCreditDialogEnabled="$flagParam != $unofficialFlag"
                         :showAuthorNames="!$isOfficial && isset($user) && $permissions >= Permissions::JuniorDeveloper"
                         :totalPlayerCount="$numDistinctPlayers"
+                        :separateUnlockedAchievements="!$isEventGame"
                     />
                 <?php
             }
