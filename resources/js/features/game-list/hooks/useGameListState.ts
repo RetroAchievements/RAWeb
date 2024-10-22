@@ -30,10 +30,11 @@ export function useGameListState<TData = unknown>(
   const [sorting, setSorting] = useState<SortingState>(mapQueryParamsToSorting(query));
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    hasActiveOrInReviewClaims: false,
     lastUpdated: false,
-    playersTotal: false,
-    numVisibleLeaderboards: false,
     numUnresolvedTickets: false,
+    numVisibleLeaderboards: false,
+    playersTotal: false,
   });
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(

@@ -22,7 +22,7 @@ type SortConfig = {
   [key in SortDirection]: { t_label: string; icon?: IconType };
 };
 
-type SortConfigKind = 'default' | 'date' | 'quantity';
+type SortConfigKind = 'default' | 'date' | 'quantity' | 'boolean';
 
 const defaultIcons = { asc: RxArrowUp, desc: RxArrowDown };
 
@@ -66,6 +66,10 @@ export function DataTableColumnHeader<TData, TValue>({
     quantity: {
       desc: { t_label: t('More'), icon: RxArrowUp },
       asc: { t_label: t('Less'), icon: RxArrowDown },
+    },
+    boolean: {
+      desc: { t_label: t('Yes first'), icon: RxArrowUp },
+      asc: { t_label: t('No first'), icon: RxArrowDown },
     },
   };
 
