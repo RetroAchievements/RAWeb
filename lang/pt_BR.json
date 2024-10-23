@@ -336,5 +336,7 @@
     "Subscribed!": "Inscrito!",
     "Unsubscribed!": "Inscrição cancelada!",
     "Unsubscribe": "Cancelar inscrição",
-    "Subscribe": "Inscrever-se"
+    "Subscribe": "Inscrever-se",
+    ":user doesn't have any forum posts.": ":user não tem nenhuma postagem no fórum.",
+    "No recent posts could be found.": "Nenhuma postagem recente foi encontrada."
 }

@@ -336,5 +336,7 @@
     "Subscribed!": "Subscribed!",
     "Unsubscribed!": "Unsubscribed!",
     "Unsubscribe": "Unsubscribe",
-    "Subscribe": "Subscribe"
+    "Subscribe": "Subscribe",
+    ":user doesn't have any forum posts.": ":user doesn't have any forum posts.",
+    "No recent posts could be found.": "No recent posts could be found."
 }
