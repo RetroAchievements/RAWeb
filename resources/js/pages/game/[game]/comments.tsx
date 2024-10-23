@@ -10,7 +10,7 @@ const GameComments: AppPage<App.Community.Data.GameCommentsPageProps> = ({ game 
 
   return (
     <>
-      <Head title={t('Comments: :gameTitle', { gameTitle: game.title })}>
+      <Head title={t('Comments - :gameTitle', { gameTitle: game.title })}>
         <meta
           name="description"
           content={`General discussion about the achievement set for ${game.title}`}

@@ -311,7 +311,7 @@
     "Less": "Less",
     "Both": "Both",
     "Comments": "Comments",
-    "Comments: :gameTitle": "Comments: :gameTitle",
+    "Comments - :gameTitle": "Comments - :gameTitle",
     "Previous": "Previous",
     "Next": "Next",
     "Page": "Page",
