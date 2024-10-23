@@ -37,14 +37,7 @@ export const ProfileSectionCard: FC = () => {
 
   const deleteAllCommentsMutation = useMutation({
     mutationFn: async () => {
-      // This should never happen, but is here for type safety.
-      if (!auth?.user.id) {
-        toastMessage.error(t('Something went wrong.'));
-
-        return;
-      }
-
-      return axios.delete(route('user.comment.destroyAll', auth?.user.id));
+      return axios.delete(route('user.comment.destroyAll', auth!.user.id));
     },
   });
 

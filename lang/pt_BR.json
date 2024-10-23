@@ -311,5 +311,7 @@
     "Less": "Menos",
     "Both": "Ambos",
     "RSS Feeds": "Feeds RSS",
-    "News": "Notícias"
+    "News": "Notícias",
+    ":user doesn't have any forum posts.": ":user não tem nenhuma postagem no fórum.",
+    "No recent posts could be found.": "Nenhuma postagem recente foi encontrada."
 }
