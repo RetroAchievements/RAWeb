@@ -29,6 +29,13 @@ interface TransProps {
  * This component takes an `i18nKey`, optional `values` for interpolation,
  * and optional `count` for pluralization. It also accepts `children`,
  * which can include React elements to be inserted into the translated string.
+ *
+ * Element tags (<0></0>) must start at index 0 and increase sequentially.
+ *
+ * @example
+ * <Trans i18nKey="<0>:count</0> new <1>:status</1> posts" values={{ count, status }}>
+ *   <strong>{count}</strong> new <em>{status}</em> posts
+ * </Trans>
  */
 export const Trans: FC<TransProps> = ({ i18nKey, values = {}, count, children }) => {
   const { t } = useMockableLaravelReactI18n();
