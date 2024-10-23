@@ -5,6 +5,8 @@ import {
   isValidElement,
   type ReactElement,
   type ReactNode,
+  useId,
+  useRef,
 } from 'react';
 
 import { useMockableLaravelReactI18n } from './useMockableLaravelReactI18n';
@@ -30,6 +32,10 @@ interface TransProps {
  */
 export const Trans: FC<TransProps> = ({ i18nKey, values = {}, count, children }) => {
   const { t } = useMockableLaravelReactI18n();
+
+  const instanceId = useId();
+
+  const keyCounterRef = useRef<number>(0);
 
   // Merge `count` into `values` if provided, often used for pluralization.
   const interpolationValues = count !== undefined ? { ...values, count } : values;
@@ -94,7 +100,7 @@ export const Trans: FC<TransProps> = ({ i18nKey, values = {}, count, children })
       const { element, children } = frame;
 
       const newElement = element
-        ? cloneElement(element, { key: `element-${stack.length}` }, children)
+        ? cloneElement(element, { key: `trans-${instanceId}-${keyCounterRef.current++}` }, children)
         : children;
 
       parentFrame.children.push(newElement);
