@@ -309,5 +309,7 @@
     "Earliest": "Mais antigo",
     "Latest": "Mais recente",
     "Less": "Menos",
-    "Both": "Ambos"
+    "Both": "Ambos",
+    ":user doesn't have any forum posts.": ":user não tem nenhuma postagem no fórum.",
+    "No recent posts could be found.": "Nenhuma postagem recente foi encontrada."
 }

@@ -309,5 +309,7 @@
     "Earliest": "Earliest",
     "Latest": "Latest",
     "Less": "Less",
-    "Both": "Both"
+    "Both": "Both",
+    ":user doesn't have any forum posts.": ":user doesn't have any forum posts.",
+    "No recent posts could be found.": "No recent posts could be found."
 }
