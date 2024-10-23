@@ -12,10 +12,10 @@ import {
 
 // TODO support ForumCategory and Forum
 interface ForumBreadcrumbsProps {
-  currentPageLabel: string;
+  t_currentPageLabel: string;
 }
 
-export const ForumBreadcrumbs: FC<ForumBreadcrumbsProps> = ({ currentPageLabel }) => {
+export const ForumBreadcrumbs: FC<ForumBreadcrumbsProps> = ({ t_currentPageLabel }) => {
   const { t } = useLaravelReactI18n();
 
   return (
@@ -29,7 +29,7 @@ export const ForumBreadcrumbs: FC<ForumBreadcrumbsProps> = ({ currentPageLabel }
           <BaseBreadcrumbSeparator />
 
           <BaseBreadcrumbItem>
-            <BaseBreadcrumbPage>{currentPageLabel}</BaseBreadcrumbPage>
+            <BaseBreadcrumbPage>{t_currentPageLabel}</BaseBreadcrumbPage>
           </BaseBreadcrumbItem>
         </BaseBreadcrumbList>
       </BaseBreadcrumb>

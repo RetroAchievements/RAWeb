@@ -1,15 +1,9 @@
 <?php
 
-use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
-use App\Models\Achievement;
-use App\Models\Game;
 use App\Models\PlayerAchievement;
-use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
-use App\Platform\Jobs\UpdateGameMetricsJob;
-use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Illuminate\Support\Carbon;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
@@ -84,47 +78,6 @@ if ($action === 'copy-unlocks') {
                 )
             );
         }
-    }
-
-    return back()->with('success', __('legacy.success.ok'));
-}
-
-if ($action === 'migrate-achievement') {
-    $achievementIds = explode(',', requestInputSanitized('a'));
-    $gameId = requestInputSanitized('g');
-    if (!Game::where('ID', $gameId)->exists()) {
-        return back()->withErrors('Unknown game');
-    }
-
-    // determine which game(s) the achievements are coming from
-    $oldGames = Achievement::whereIn('ID', $achievementIds)->select(['GameID'])->distinct()->pluck('GameID');
-
-    // associate the achievements to the new game
-    Achievement::whereIn('ID', $achievementIds)->update(['GameID' => $gameId]);
-
-    // add an audit comment to the new game
-    addArticleComment(
-        'Server',
-        ArticleType::GameModification,
-        $gameId,
-        "$user migrated " . Str::plural('achievement', count($achievementIds)) . ' ' .
-            implode(',', $achievementIds) . ' from ' .
-            Str::plural('game', count($oldGames)) . ' ' . $oldGames->implode(',') . '.'
-    );
-
-    // ensure player_game entries exist for the new game for all affected users
-    foreach (PlayerAchievement::whereIn('achievement_id', $achievementIds)->select(['user_id'])->distinct()->pluck('user_id') as $userId) {
-        if (!PlayerGame::where('game_id', $gameId)->where('user_id', $userId)->exists()) {
-            $playerGame = new PlayerGame(['user_id' => $userId, 'game_id' => $gameId]);
-            $playerGame->save();
-            dispatch(new UpdatePlayerGameMetricsJob($userId, $gameId));
-        }
-    }
-
-    // update the metrics on the new game and the old game(s)
-    dispatch(new UpdateGameMetricsJob($gameId))->onQueue('game-metrics');
-    foreach ($oldGames as $oldGameId) {
-        dispatch(new UpdateGameMetricsJob($oldGameId))->onQueue('game-metrics');
     }
 
     return back()->with('success', __('legacy.success.ok'));
