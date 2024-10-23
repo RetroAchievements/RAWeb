@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\User;
+use App\Platform\Events\PlayerRankedStatusChanged;
 
 function getUserPermissions(?string $user): int
 {
@@ -176,4 +177,6 @@ function banAccountByUsername(string $username, int $permissions): void
 
     removeAvatar($username);
     $user->subscriptions()->delete();
+
+    PlayerRankedStatusChanged::dispatch($user, true);
 }

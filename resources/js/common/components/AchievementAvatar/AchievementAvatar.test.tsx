@@ -62,4 +62,29 @@ describe('Component: AchievementAvatar', () => {
     expect(anchorEl).toHaveAttribute('x-on:mouseleave', 'hideTooltip');
     expect(anchorEl).toHaveAttribute('x-on:mousemove', 'trackMouseMovement($event)');
   });
+
+  it('does not add card tooltip props when `hasTooltip` is false', () => {
+    // ARRANGE
+    const achievement = createAchievement({ id: 1 });
+
+    render(<AchievementAvatar {...achievement} hasTooltip={false} />);
+
+    // ASSERT
+    const anchorEl = screen.getByRole('link');
+
+    expect(anchorEl).not.toHaveAttribute('x-data');
+    expect(anchorEl).not.toHaveAttribute('x-on:mouseover');
+    expect(anchorEl).not.toHaveAttribute('x-on:mouseleave');
+    expect(anchorEl).not.toHaveAccessibleDescription('x-on:mousemove');
+  });
+
+  it('can be configured to not show an image', () => {
+    // ARRANGE
+    const achievement = createAchievement({ id: 1 });
+
+    render(<AchievementAvatar {...achievement} showImage={false} />);
+
+    // ASSERT
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
 });
