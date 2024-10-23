@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Concerns;
 
 use App\Models\Achievement;
+use App\Models\AchievementAuthor;
 use App\Models\AchievementSetClaim;
 use App\Models\Leaderboard;
 use App\Models\MemoryNote;
@@ -71,6 +72,14 @@ trait ActsAsDeveloper
     public function resolvedTickets(): HasMany
     {
         return $this->hasMany(Ticket::class, 'resolver_id', 'ID');
+    }
+
+    /**
+     * @return HasMany<AchievementAuthor>
+     */
+    public function achievementCredits(): HasMany
+    {
+        return $this->hasMany(AchievementAuthor::class, 'user_id', 'ID');
     }
 
     // == scopes
