@@ -65,7 +65,9 @@ export const LocaleSectionCard: FC = () => {
                   {t(
                     "Most of the website is still untranslated. If you'd like to help with translations, you can learn more about how to contribute",
                   )}{' '}
-                  <a href="#">{t('here')}</a>
+                  <a href="https://github.com/RetroAchievements/RAWeb/blob/master/docs/TRANSLATIONS.md">
+                    {t('here')}
+                  </a>
                   {t('.')}
                 </BaseFormDescription>
               </div>
