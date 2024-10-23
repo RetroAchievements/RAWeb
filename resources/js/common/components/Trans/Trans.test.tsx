@@ -15,12 +15,12 @@ vi.mock('./useMockableLaravelReactI18n', () => ({
 describe('Component: Trans', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    MockT.mockImplementationOnce(() => 'Welcome, :name!');
+    MockT.mockImplementationOnce(() => 'Welcome, John!');
 
     const name = 'John';
 
     const { container } = render(
-      <Trans i18nKey="welcome" values={{ name }}>
+      <Trans i18nKey="Welcome, :name!" values={{ name }}>
         Welcome, {name}
       </Trans>,
     );
@@ -36,7 +36,7 @@ describe('Component: Trans', () => {
     const name = 'John';
 
     render(
-      <Trans i18nKey="welcome" values={{ name }}>
+      <Trans i18nKey="Welcome, :name" values={{ name }}>
         Welcome, {name}
       </Trans>,
     );
@@ -53,7 +53,7 @@ describe('Component: Trans', () => {
 
     render(
       <p>
-        <Trans i18nKey="profile" values={{ name }}>
+        <Trans i18nKey="Welcome to <0>:name</0>'s profile" values={{ name }}>
           Welcome to <strong>{name}</strong>'s profile
         </Trans>
       </p>,
@@ -115,7 +115,10 @@ describe('Component: Trans', () => {
 
     render(
       <p>
-        <Trans i18nKey="welcome_full" values={{ name, time }}>
+        <Trans
+          i18nKey="Welcome back <0>:name</0>! Your last login was <1>:time</1>."
+          values={{ name, time }}
+        >
           Welcome back <strong>{name}</strong>! Your last login was <em>{time}</em>
         </Trans>
       </p>,
@@ -144,7 +147,7 @@ describe('Component: Trans', () => {
 
     render(
       <p>
-        <Trans i18nKey="nested" values={{ name, count }}>
+        <Trans i18nKey="Welcome <0>:name (<1>:count</1>)</0>" values={{ name, count }}>
           Welcome{' '}
           <strong>
             {name} (<em>{count}</em>)
@@ -176,7 +179,7 @@ describe('Component: Trans', () => {
 
     render(
       <p>
-        <Trans i18nKey="stats" values={{ completed, total }}>
+        <Trans i18nKey="Progress: <0>:completed/:total</0>" values={{ completed, total }}>
           Progress:{' '}
           <strong>
             {completed}/{total}
@@ -203,7 +206,7 @@ describe('Component: Trans', () => {
 
     render(
       <p>
-        <Trans i18nKey="greeting">
+        <Trans i18nKey="Hello <1>:name</1>">
           Hello <strong>{name}</strong>!
         </Trans>
       </p>,
