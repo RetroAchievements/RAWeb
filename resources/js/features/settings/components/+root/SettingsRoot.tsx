@@ -17,7 +17,7 @@ export const SettingsRoot: FC = () => {
 
   const { t } = useLaravelReactI18n();
 
-  const [currentWebsitePrefs, setCurrentWebsitePrefs] = useState(auth?.user.websitePrefs ?? 0);
+  const [currentWebsitePrefs, setCurrentWebsitePrefs] = useState(auth?.user.websitePrefs as number);
 
   const handleUpdateWebsitePrefs = (newWebsitePrefs: number) => {
     setCurrentWebsitePrefs(newWebsitePrefs);
