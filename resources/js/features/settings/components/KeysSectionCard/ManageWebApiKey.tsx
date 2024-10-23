@@ -9,6 +9,7 @@ import { useCopyToClipboard, useMedia } from 'react-use';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { SimpleTooltip } from '@/common/components/SimpleTooltip';
+import { Trans } from '@/common/components/Trans';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 export const ManageWebApiKey: FC = () => {
@@ -73,8 +74,10 @@ export const ManageWebApiKey: FC = () => {
 
           <div>
             <p>
-              {t('This is your')} <span className="italic">{t('personal')}</span>{' '}
-              {t('web API key. Handle it with care.')}
+              <Trans i18nKey="This is your <0>personal</0> web API key. Handle it with care.">
+                {'This is your'} <span className="italic">{'personal'}</span>{' '}
+                {'web API key. Handle it with care.'}
+              </Trans>
             </p>
             <p>
               {t('The RetroAchievements API documentation can be found')}{' '}
