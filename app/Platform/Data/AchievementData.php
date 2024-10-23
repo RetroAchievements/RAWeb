@@ -16,6 +16,7 @@ class AchievementData extends Data
     public function __construct(
         public int $id,
         public string $title,
+        public Lazy|string $description,
         public Lazy|string $badgeUnlockedUrl,
         public Lazy|string $badgeLockedUrl,
         public Lazy|GameData $game,
@@ -31,6 +32,7 @@ class AchievementData extends Data
         return new self(
             id: $achievement->id,
             title: $achievement->title,
+            description: Lazy::create(fn () => $achievement->description),
             badgeUnlockedUrl: Lazy::create(fn () => $achievement->badge_unlocked_url),
             badgeLockedUrl: Lazy::create(fn () => $achievement->badge_locked_url),
             game: Lazy::create(fn () => GameData::fromGame($achievement->game)),

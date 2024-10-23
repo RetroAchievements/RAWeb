@@ -1,6 +1,6 @@
 /**
  * Number.prototype.toLocaleString() can be quite slow if called frequently.
- * User Intl.NumberFormat with a given locale is generally much faster.
+ * Using Intl.NumberFormat with a given locale is generally much faster.
  *
  * 👉 This is a low-level utility. It requires you to manually pass in the
  *    user's locale in order to display correctly-formatted numbers.

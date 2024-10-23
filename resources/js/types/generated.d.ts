@@ -135,6 +135,7 @@ declare namespace App.Platform.Data {
   export type Achievement = {
     id: number;
     title: string;
+    description?: string;
     badgeUnlockedUrl?: string;
     badgeLockedUrl?: string;
     game?: App.Platform.Data.Game;

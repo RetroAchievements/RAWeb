@@ -7,13 +7,17 @@ import type { BaseAvatarProps } from '@/common/models';
 import { GameTitle } from '../GameTitle';
 
 type GameAvatarProps = BaseAvatarProps &
-  App.Platform.Data.Game & { showHoverCardProgressForUsername?: string };
+  App.Platform.Data.Game & {
+    showHoverCardProgressForUsername?: string;
+    gameTitleClassName?: string;
+  };
 
 export const GameAvatar: FC<GameAvatarProps> = ({
   id,
   badgeUrl,
   showHoverCardProgressForUsername,
   title,
+  gameTitleClassName,
   showImage = true,
   showLabel = true,
   size = 32,
@@ -45,7 +49,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
         />
       ) : null}
 
-      {title && showLabel ? <GameTitle title={title} /> : null}
+      {title && showLabel ? <GameTitle title={title} className={gameTitleClassName} /> : null}
     </a>
   );
 };
