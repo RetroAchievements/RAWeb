@@ -151,4 +151,25 @@ class News extends BaseModel implements HasComments, HasMedia
     }
 
     // == scopes
+
+    // == instance methods
+
+    /**
+     * TODO Migrate to Markdown. This is a temporary stopgap.
+     * Corrects missing quotes in `href` attributes of anchor
+     * tags so they don't break the site homepage.
+     */
+    public static function sanitizeMaybeInvalidHtml(string $maybeHtmlContent): string
+    {
+        // Fix missing quotes in href attributes
+        $pattern = '/<a\s+href=([^\'" >]+)(.*?)>(.*?)<\/a>/i';
+        $replacement = '<a href="$1"$2>$3</a>';
+        $fixedHtml = preg_replace($pattern, $replacement, $maybeHtmlContent);
+
+        // Allow only <a> and <br> tags
+        $allowedTags = '<a><br>';
+        $saferHtml = strip_tags($fixedHtml, $allowedTags);
+
+        return $saferHtml;
+    }
 }
