@@ -100,8 +100,7 @@ class GameHashesRelationManager extends RelationManager
                             ->label('Linked Hash')
                             ->placeholder('Select hash')
                             ->options($availableHashes)
-                            ->required()
-                            ->selectablePlaceholder(false),
+                            ->required(),
                     ])
                     ->action(function (array $data) use ($achievementSet) {
                         $gameHashId = (int) $data['hash'];

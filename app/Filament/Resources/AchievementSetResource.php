@@ -32,8 +32,6 @@ class AchievementSetResource extends Resource
 
     protected static ?int $navigationSort = 52;
 
-    protected static ?string $recordTitleAttribute = 'title';
-
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
