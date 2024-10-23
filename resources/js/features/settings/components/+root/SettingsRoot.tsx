@@ -21,7 +21,7 @@ export const SettingsRoot: FC = () => {
   // Make sure the shared websitePrefs values used between NotificationsSectionCard
   // and PreferencesSectionCard don't override each other.
   // TODO can we just have Inertia reload the page data on save?
-  const [currentWebsitePrefs, setCurrentWebsitePrefs] = useState(auth?.user.websitePrefs ?? 0);
+  const [currentWebsitePrefs, setCurrentWebsitePrefs] = useState(auth?.user.websitePrefs as number);
 
   const handleUpdateWebsitePrefs = (newWebsitePrefs: number) => {
     setCurrentWebsitePrefs(newWebsitePrefs);

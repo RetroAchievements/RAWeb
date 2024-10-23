@@ -312,5 +312,7 @@
     "Both": "Ambos",
     "Locale": "Local",
     "Current Locale": "Local Atual",
-    "Most of the website is still untranslated. If you'd like to help with translations, you can learn more about how to contribute": "A maior parte do site ainda não foi traduzida. Se você gostaria de ajudar com as traduções, pode saber mais sobre como contribuir"
+    "Most of the website is still untranslated. If you'd like to help with translations, you can learn more about how to contribute": "A maior parte do site ainda não foi traduzida. Se você gostaria de ajudar com as traduções, pode saber mais sobre como contribuir",
+    ":user doesn't have any forum posts.": ":user não tem nenhuma postagem no fórum.",
+    "No recent posts could be found.": "Nenhuma postagem recente foi encontrada."
 }
