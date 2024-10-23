@@ -54,4 +54,42 @@ describe('Component: SimplePaginator', () => {
     expect(nextLinkEl).toBeVisible();
     expect(nextLinkEl).toHaveAttribute('href', nextPageUrl);
   });
+
+  it('given there is no previous page url, does not render a previous page link', () => {
+    // ARRANGE
+    const nextPageUrl = faker.internet.url();
+    const previousPageUrl = null;
+
+    render(
+      <SimplePaginator
+        paginatedData={createPaginatedData([], {
+          perPage: 25,
+          links: { nextPageUrl, previousPageUrl, firstPageUrl: null, lastPageUrl: null },
+        })}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /next/i })).toBeVisible();
+    expect(screen.queryByRole('link', { name: /previous/i })).not.toBeInTheDocument();
+  });
+
+  it('given there is no next page url, does not render a next page link', () => {
+    // ARRANGE
+    const nextPageUrl = null;
+    const previousPageUrl = faker.internet.url();
+
+    render(
+      <SimplePaginator
+        paginatedData={createPaginatedData([], {
+          perPage: 25,
+          links: { nextPageUrl, previousPageUrl, firstPageUrl: null, lastPageUrl: null },
+        })}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /previous/i })).toBeVisible();
+    expect(screen.queryByRole('link', { name: /next/i })).not.toBeInTheDocument();
+  });
 });

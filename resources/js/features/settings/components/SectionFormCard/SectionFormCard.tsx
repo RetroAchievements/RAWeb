@@ -47,7 +47,12 @@ export const SectionFormCard: FC<SectionFormCardProps> = ({
 
           <BaseCardFooter>
             <div className="flex w-full justify-end">
-              <BaseButton type="submit" disabled={isSubmitting} {...buttonProps}>
+              <BaseButton
+                type="submit"
+                disabled={isSubmitting}
+                data-testid={`${t_headingLabel}-submit`}
+                {...buttonProps}
+              >
                 {buttonProps?.children ?? t('Update')}
               </BaseButton>
             </div>

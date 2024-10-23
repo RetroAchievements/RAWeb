@@ -107,7 +107,7 @@ describe('Util: loadDynamicTooltip', () => {
     vi.advanceTimersByTime(1000);
 
     // ASSERT
-    expect(renderTooltipSpy).toHaveBeenCalledTimes(1);
+    expect(renderTooltipSpy).toHaveBeenCalledOnce();
 
     const [, renderTooltipHtmlContentArg] = renderTooltipSpy.mock.calls[0];
     expect(renderTooltipHtmlContentArg).toContain('loading.gif');
