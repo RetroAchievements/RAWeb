@@ -16,7 +16,7 @@ type UserPreferenceValue =
   (typeof StringifiedUserPreference)[keyof typeof StringifiedUserPreference];
 
 interface PreferencesTableRowProps {
-  label: string;
+  t_label: string;
   fieldName: UserPreferenceValue;
   control: Control<PreferencesSectionFormValues>;
 
@@ -27,7 +27,7 @@ interface PreferencesTableRowProps {
 }
 
 export const PreferencesSwitchField: FC<PreferencesTableRowProps> = ({
-  label,
+  t_label,
   fieldName,
   control,
   isSwitchInverted = false,
@@ -38,7 +38,7 @@ export const PreferencesSwitchField: FC<PreferencesTableRowProps> = ({
       name={fieldName as keyof PreferencesSectionFormValues}
       render={({ field }) => (
         <BaseFormItem className="flex w-full items-center justify-between">
-          <BaseFormLabel>{label}</BaseFormLabel>
+          <BaseFormLabel>{t_label}</BaseFormLabel>
 
           <BaseFormControl>
             <BaseSwitch

@@ -44,6 +44,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => UserData::fromUser($user)->include(
                     'id',
                     'legacyPermissions',
+                    'locale',
                     'preferences',
                     'roles',
                     'unreadMessageCount',

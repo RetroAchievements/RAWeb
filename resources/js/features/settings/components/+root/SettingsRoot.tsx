@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, useState } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -14,7 +15,9 @@ import { ResetGameProgressSectionCard } from '../ResetGameProgressSectionCard';
 export const SettingsRoot: FC = () => {
   const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
-  const [currentWebsitePrefs, setCurrentWebsitePrefs] = useState(auth?.user.websitePrefs ?? 0);
+  const { t } = useLaravelReactI18n();
+
+  const [currentWebsitePrefs, setCurrentWebsitePrefs] = useState(auth?.user.websitePrefs as number);
 
   const handleUpdateWebsitePrefs = (newWebsitePrefs: number) => {
     setCurrentWebsitePrefs(newWebsitePrefs);
@@ -22,7 +25,7 @@ export const SettingsRoot: FC = () => {
 
   return (
     <div className="flex flex-col">
-      <h1>Settings</h1>
+      <h1>{t('Settings')}</h1>
 
       <div className="flex flex-col gap-4">
         <ProfileSectionCard />

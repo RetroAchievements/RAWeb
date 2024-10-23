@@ -27,6 +27,9 @@ settings:
   import/resolver:
     typescript: {} # this loads tsconfig.json to eslint
 
+  react:
+    version: detect
+
 globals:
   Atomics: readonly
   SharedArrayBuffer: readonly
@@ -104,7 +107,8 @@ rules:
   react/prop-types: off
   react/react-in-jsx-scope: off
   react/jsx-no-target-blank: off # we don't support the old browsers this rule tries to protect
-
+  react/jsx-no-literals: error # enforce i18n
+  
   # disable some of the more aggressive unicorn rules
   unicorn/filename-case: off
   unicorn/no-array-callback-reference: off
@@ -135,4 +139,5 @@ overrides:
       "@typescript-eslint/no-explicit-any": off
       testing-library/no-dom-import: off
       testing-library/no-render-in-lifecycle: off
+      react/jsx-no-literals: off
 

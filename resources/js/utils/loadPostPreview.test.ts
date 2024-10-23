@@ -46,7 +46,7 @@ describe('Util: loadPostPreview', () => {
     await userEvent.click(screen.getByRole('button', { name: /preview/i }));
 
     // ASSERT
-    expect(fetcherSpy).toHaveBeenCalledTimes(1);
+    expect(fetcherSpy).toHaveBeenCalledOnce();
     expect(screen.getByTestId('post-preview')).toHaveTextContent(/hello from preview/i);
   });
 
@@ -63,6 +63,6 @@ describe('Util: loadPostPreview', () => {
     await userEvent.click(screen.getByRole('button', { name: /preview/i }));
 
     // ASSERT
-    expect(fetcherSpy).toHaveBeenCalledTimes(1);
+    expect(fetcherSpy).toHaveBeenCalledOnce();
   });
 });

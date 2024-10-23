@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC, ReactNode } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
@@ -13,7 +14,7 @@ import {
 import { BaseFormProvider } from '@/common/components/+vendor/BaseForm';
 
 export interface SectionFormCardProps {
-  headingLabel: string;
+  t_headingLabel: string;
   children: ReactNode;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- any is valid
   formMethods: UseFormReturn<any>;
@@ -25,17 +26,19 @@ export interface SectionFormCardProps {
 }
 
 export const SectionFormCard: FC<SectionFormCardProps> = ({
-  headingLabel,
+  buttonProps,
   children,
   formMethods,
-  onSubmit,
   isSubmitting,
-  buttonProps,
+  onSubmit,
+  t_headingLabel,
 }) => {
+  const { t } = useLaravelReactI18n();
+
   return (
     <BaseCard className="w-full">
       <BaseCardHeader className="pb-4">
-        <BaseCardTitle>{headingLabel}</BaseCardTitle>
+        <BaseCardTitle>{t_headingLabel}</BaseCardTitle>
       </BaseCardHeader>
 
       <BaseFormProvider {...formMethods}>
@@ -44,8 +47,13 @@ export const SectionFormCard: FC<SectionFormCardProps> = ({
 
           <BaseCardFooter>
             <div className="flex w-full justify-end">
-              <BaseButton type="submit" disabled={isSubmitting} {...buttonProps}>
-                {buttonProps?.children ?? 'Update'}
+              <BaseButton
+                type="submit"
+                disabled={isSubmitting}
+                data-testid={`${t_headingLabel}-submit`}
+                {...buttonProps}
+              >
+                {buttonProps?.children ?? t('Update')}
               </BaseButton>
             </div>
           </BaseCardFooter>

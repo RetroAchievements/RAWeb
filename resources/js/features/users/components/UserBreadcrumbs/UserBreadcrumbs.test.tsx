@@ -6,7 +6,7 @@ import { UserBreadcrumbs } from './UserBreadcrumbs';
 describe('Component: UserBreadcrumbs', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<UserBreadcrumbs currentPageLabel="Some Page" />);
+    const { container } = render(<UserBreadcrumbs t_currentPageLabel="Some Page" />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -14,7 +14,7 @@ describe('Component: UserBreadcrumbs', () => {
 
   it('has a link to the All Users list', () => {
     // ARRANGE
-    render(<UserBreadcrumbs currentPageLabel="Some Page" />);
+    render(<UserBreadcrumbs t_currentPageLabel="Some Page" />);
 
     // ASSERT
     const allGamesLinkEl = screen.getByRole('link', { name: /all users/i });
@@ -26,7 +26,7 @@ describe('Component: UserBreadcrumbs', () => {
     // ARRANGE
     const user = createUser({ displayName: 'Scott' });
 
-    render(<UserBreadcrumbs currentPageLabel="Some Page" user={user} />);
+    render(<UserBreadcrumbs t_currentPageLabel="Some Page" user={user} />);
 
     // ASSERT
     const systemGamesLinkEl = screen.getByRole('link', { name: /scott/i });

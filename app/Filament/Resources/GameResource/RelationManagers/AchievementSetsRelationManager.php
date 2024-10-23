@@ -194,7 +194,9 @@ class AchievementSetsRelationManager extends RelationManager
                         // It'll use the same achievement_set_id.
 
                         $legacySubsetGame = Game::find((int) $data['game']);
-                        $legacySubsetAchievementSet = $legacySubsetGame->gameAchievementSets()->core()->first();
+                        $legacySubsetAchievementSet = $legacySubsetGame->achievementSets()
+                            ->wherePivot('type', AchievementSetType::Core->value)
+                            ->first();
 
                         if ($game->achievementSets()->wherePivot('achievement_set_id', $legacySubsetAchievementSet->id)->exists()) {
                             Notification::make()
