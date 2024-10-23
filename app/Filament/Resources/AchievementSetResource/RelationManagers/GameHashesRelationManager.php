@@ -43,6 +43,23 @@ class GameHashesRelationManager extends RelationManager
         /** @var AchievementSet $achievementSet */
         $achievementSet = $this->getOwnerRecord();
 
+        $existingIncompatibleIds = $achievementSet->incompatibleGameHashes()
+            ->select('game_hashes.id')
+            ->pluck('id')
+            ->toArray();
+
+        $availableHashes = $achievementSet
+            ->games()
+            ->with('hashes')
+            ->get()
+            ->pluck('hashes')
+            ->flatten()
+            ->whereNotIn('id', $existingIncompatibleIds)
+            ->mapWithKeys(function (GameHash $hash) {
+                return [$hash->id => "{$hash->name} {$hash->md5}"];
+            })
+            ->toArray();
+
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
@@ -56,12 +73,16 @@ class GameHashesRelationManager extends RelationManager
 
             ])
             ->actions([
-                Tables\Actions\DetachAction::make(),
+                Tables\Actions\DetachAction::make()
+                    ->label('Remove incompatibility')
+                    ->modalHeading('Remove incompatibility')
+                    ->modalDescription('Are you sure you want to do this? This hash will once again be compatible with the set.'),
             ])
             ->headerActions([
                 Tables\Actions\Action::make('attachHashCompatibility')
                     ->label('Mark Hash as Incompatible')
                     ->color('danger')
+                    ->disabled(empty($availableHashes))
                     ->form([
                         Forms\Components\Placeholder::make('warning')
                             ->label('')
@@ -78,18 +99,9 @@ class GameHashesRelationManager extends RelationManager
                         Select::make('hash')
                             ->label('Linked Hash')
                             ->placeholder('Select hash')
-                            ->options(
-                                $achievementSet
-                                    ->games()
-                                    ->with('hashes')
-                                    ->get()
-                                    ->pluck('hashes')
-                                    ->flatten()
-                                    ->mapWithKeys(function (GameHash $hash) {
-                                        return [$hash->id => "{$hash->name} {$hash->md5}"];
-                                    })
-                                    ->toArray()
-                            ),
+                            ->options($availableHashes)
+                            ->required()
+                            ->selectablePlaceholder(false),
                     ])
                     ->action(function (array $data) use ($achievementSet) {
                         $gameHashId = (int) $data['hash'];
