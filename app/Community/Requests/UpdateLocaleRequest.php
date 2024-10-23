@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community\Requests;
 
 use App\Models\User;
+use App\Support\Rules\LocaleExists;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateLocaleRequest extends FormRequest
@@ -24,7 +25,10 @@ class UpdateLocaleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'locale' => 'string|max:5',
+            'locale' => [
+                'string',
+                new LocaleExists(),
+            ],
         ];
     }
 }
