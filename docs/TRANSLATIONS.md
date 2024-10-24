@@ -74,15 +74,24 @@ RAWeb/
 
 ### Handling Placeholders
 
-Some translation strings contain placeholders (eg: `:count`, `:total`, `:gameTitle`). These placeholders are dynamically replaced by the application at runtime.
+Some translation strings contain placeholders (eg: `:count`, `:total`, `:gameTitle`) or special syntax used by libraries like React (eg: `<0>here</0>`). These placeholders are dynamically replaced by the application at runtime.
 
 - **Keep Placeholders Intact:** Do not translate or modify placeholders. Ensure they remain exactly as they are in the original key.
+* **For variables:** Strings like `:count`, `:total`, or `:gameTitle` should be kept as-is.
+* **For HTML-like tags:** Tags like `<0>`, `</0>`, etc, must remain intact and should be placed appropriately in the translated sentence.
 
-**Example:**
+**Examples:**
 
+* For variables:
 ```json
 {
   "Next :count": "Próximo :count"
+}
+```
+* For tags:
+```json
+{
+  "Click <0>here</0> to visit the page.": "Clique <0>aqui</0> para visitar a página."
 }
 ```
 
