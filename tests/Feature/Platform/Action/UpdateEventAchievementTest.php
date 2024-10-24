@@ -42,10 +42,13 @@ class UpdateEventAchievementTest extends TestCase
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
 
-        $time1 = Carbon::now()->subDays(1)->startOfSecond();
-        $time2 = $time1->clone()->addHours(6);
-        $time3 = $time2->clone()->addHours(3);
-        $time4 = $time3->clone()->addHours(1);
+        $day1 = Carbon::now()->subDays(3)->startOfDay();
+        $day2 = $day1->clone()->addDays(1);
+        $day3 = $day2->clone()->addDays(2);
+        $day4 = $day3->clone()->addDays(3);
+        $time1 = $day1->clone()->addHours(8)->addMinutes(37)->addSeconds(13);
+        $time2 = $day2->clone()->addHours(0)->addMinutes(3)->addSeconds(55);
+        $time3 = $day3->clone()->addHours(17)->addMinutes(15)->addSeconds(46);
 
         $this->addHardcoreUnlock($player1, $sourceAchievement, $time1);
         $this->addHardcoreUnlock($player2, $sourceAchievement, $time2);
@@ -66,7 +69,7 @@ class UpdateEventAchievementTest extends TestCase
         // bounded attachment should only copy hardcore unlocks in range
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
-        (new UpdateEventAchievement())->execute($achievement2, $sourceAchievement, $time2, null);
+        (new UpdateEventAchievement())->execute($achievement2, $sourceAchievement, $day2, null); // anything on day2 or later
 
         $this->assertEquals(3, $sourceAchievement->playerAchievements()->count());
         $this->assertEquals(1, $achievement2->playerAchievements()->count());
@@ -76,7 +79,7 @@ class UpdateEventAchievementTest extends TestCase
         // bounded attachment should only copy hardcore unlocks in range
         /** @var Achievement $achievement3 */
         $achievement3 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
-        (new UpdateEventAchievement())->execute($achievement3, $sourceAchievement, null, $time2);
+        (new UpdateEventAchievement())->execute($achievement3, $sourceAchievement, null, $day1); // anything before day2
 
         $this->assertEquals(3, $sourceAchievement->playerAchievements()->count());
         $this->assertEquals(1, $achievement3->playerAchievements()->count());
@@ -86,7 +89,7 @@ class UpdateEventAchievementTest extends TestCase
         // bounded attachment should only copy hardcore unlocks in range
         /** @var Achievement $achievement4 */
         $achievement4 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
-        (new UpdateEventAchievement())->execute($achievement4, $sourceAchievement, $time2->clone()->subMinutes(5), $time2->clone()->addMinutes(5));
+        (new UpdateEventAchievement())->execute($achievement4, $sourceAchievement, $day2, $day2); // anything on day2
 
         $this->assertEquals(3, $sourceAchievement->playerAchievements()->count());
         $this->assertEquals(1, $achievement4->playerAchievements()->count());
@@ -96,7 +99,7 @@ class UpdateEventAchievementTest extends TestCase
         // bounded attachment should only copy hardcore unlocks in range
         /** @var Achievement $achievement5 */
         $achievement5 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
-        (new UpdateEventAchievement())->execute($achievement5, $sourceAchievement, $time2->clone()->addMinutes(5), $time4);
+        (new UpdateEventAchievement())->execute($achievement5, $sourceAchievement, $day3, $day3); // anything on day3
 
         $this->assertEquals(3, $sourceAchievement->playerAchievements()->count());
         $this->assertEquals(0, $achievement5->playerAchievements()->count());
@@ -108,10 +111,10 @@ class UpdateEventAchievementTest extends TestCase
         $this->addHardcoreUnlock($player4, $sourceAchievement, $time2b);
 
         $this->assertEquals($time2b, $this->getUnlockTime($player4, $achievement, UnlockMode::Hardcore)); // unbounded
-        $this->assertEquals($time2b, $this->getUnlockTime($player4, $achievement2, UnlockMode::Hardcore)); // $time2-
-        $this->assertEquals(null, $this->getUnlockTime($player4, $achievement3, UnlockMode::Hardcore)); // -$time2
-        $this->assertEquals(null, $this->getUnlockTime($player4, $achievement4, UnlockMode::Hardcore)); // $time2 +/- 5m
-        $this->assertEquals($time2b, $this->getUnlockTime($player4, $achievement5, UnlockMode::Hardcore)); // $time2+5 - $time4
+        $this->assertEquals($time2b, $this->getUnlockTime($player4, $achievement2, UnlockMode::Hardcore)); // $day2 or after
+        $this->assertEquals(null, $this->getUnlockTime($player4, $achievement3, UnlockMode::Hardcore)); // before day2
+        $this->assertEquals($time2b, $this->getUnlockTime($player4, $achievement4, UnlockMode::Hardcore)); // on day2
+        $this->assertEquals(null, $this->getUnlockTime($player4, $achievement5, UnlockMode::Hardcore)); // on day3
 
         // unlocking achievement in softcore should not propogate to all active events
         /** @var User $player5 */
@@ -131,7 +134,7 @@ class UpdateEventAchievementTest extends TestCase
         $this->assertDoesNotHaveHardcoreUnlock($player5, $achievement5);
 
         // adjusting date range to be less inclusive does not remove existing unlocks
-        (new UpdateEventAchievement())->execute($achievement2, $sourceAchievement, $time3, null);
+        (new UpdateEventAchievement())->execute($achievement2, $sourceAchievement, $day3, null); // anything on day3 or later
 
         $this->assertEquals(2, $achievement2->playerAchievements()->count());
 
@@ -139,7 +142,7 @@ class UpdateEventAchievementTest extends TestCase
         $this->assertEquals($time2b, $this->getUnlockTime($player4, $achievement2, UnlockMode::Hardcore));
 
         // adjusting date range to be more inclusive does add new unlocks
-        (new UpdateEventAchievement())->execute($achievement2, $sourceAchievement, $time1, null);
+        (new UpdateEventAchievement())->execute($achievement2, $sourceAchievement, $day1, null); // anything on day1 or later
 
         $this->assertEquals(3, $achievement2->playerAchievements()->count());
 

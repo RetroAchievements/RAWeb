@@ -59,7 +59,7 @@ class CreateAchievementOfTheWeek
             $achievement = $achievements->slice($index, 1)->first();
             $sourceAchievement = Achievement::find($achievementId);
 
-            (new UpdateEventAchievement())->execute($achievement, $sourceAchievement, $date, $nextDate);
+            (new UpdateEventAchievement())->execute($achievement, $sourceAchievement, $date, $nextDate->clone()->subDays(1));
 
             $date = $nextDate;
             $index++;
@@ -74,7 +74,7 @@ class CreateAchievementOfTheWeek
 
             $achievement = $achievements->slice($i, 1)->first();
 
-            (new UpdateEventAchievement())->execute($achievement, null, $date, $nextDate);
+            (new UpdateEventAchievement())->execute($achievement, null, $date, $nextDate->clone()->subDays(1));
 
             $date = $nextDate;
         }

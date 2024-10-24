@@ -18,7 +18,7 @@ class UpdateEventAchievement
         Achievement $achievement,
         ?Achievement $sourceAchievement,
         ?Carbon $activeFrom,
-        ?Carbon $activeUntil,
+        ?Carbon $activeThrough,
         ?User $user = null,
     ): void {
 
@@ -27,7 +27,7 @@ class UpdateEventAchievement
             [
                 'source_achievement_id' => $sourceAchievement?->id,
                 'active_from' => $activeFrom,
-                'active_until' => $activeUntil,
+                'active_until' => $activeThrough ? $activeThrough->clone()->addDays(1) : null,
             ],
         );
 

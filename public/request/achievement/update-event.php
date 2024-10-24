@@ -17,7 +17,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'achievement' => 'required|integer|exists:Achievements,ID',
     'sourceAchievementId' => 'nullable|integer|exists:Achievements,ID',
     'activeFromDate' => 'nullable|date',
-    'activeUntilDate' => 'nullable|date',
+    'activeThroughDate' => 'nullable|date',
 ]);
 
 $achievementId = (int) $input['achievement'];
@@ -32,7 +32,8 @@ $sourceAchievement = Achievement::find($sourceAchievementId);
 
 (new UpdateEventAchievement())->execute($achievement, $sourceAchievement,
     $input['activeFromDate'] ? Carbon::parse($input['activeFromDate']) : null,
-    $input['activeUntilDate'] ? Carbon::parse($input['activeUntilDate']) : null
+    $input['activeThroughDate'] ? Carbon::parse($input['activeThroughDate']) : null,
+    $user
 );
 
 return response()->json(['message' => __('legacy.success.ok')]);

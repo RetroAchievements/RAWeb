@@ -191,7 +191,7 @@ if ($game->system->id === System::Events) {
             achievement: <?= $achievementID ?>,
             sourceAchievementId: $('#sourceAchievementId').val(),
             activeFromDate: $('#activeFromDate').val(),
-            activeUntilDate: $('#activeUntilDate').val(),
+            activeThroughDate: $('#activeThroughDate').val(),
         })
             .done(function () {
                 location.reload();
@@ -310,7 +310,7 @@ if ($game->system->id === System::Events) {
         echo "<p class='inline smalldate ml-3 mb-2'>Active from ";
         echo Blade::render("<x-date :value=\"\$value\" />", ['value' => $eventAchievement->active_from]);
         echo " - ";
-        echo Blade::render("<x-date :value=\"\$value\" />", ['value' => $eventAchievement->active_until]);
+        echo Blade::render("<x-date :value=\"\$value\" />", ['value' => $eventAchievement->active_until->clone()->subDays(1)]);
         echo "</p>";
     }
 
@@ -383,7 +383,7 @@ if ($game->system->id === System::Events) {
     
                 echo "<tr><td>Source Achievement ID:</td><td style='width:100%'><input id='sourceAchievementId' type='text' name='a' value='" . $eventAchievement?->source_achievement_id . "' style='width:100%' maxlength='8'></td></tr>";
                 echo "<tr><td>Active From:</td><td style='width:100%'><input id='activeFromDate' type='date' name='f' value='" . $eventAchievement?->active_from?->format('Y-m-d') . "' style='width:100%'></td></tr>";
-                echo "<tr><td>Active Until:</td><td style='width:100%'><input id='activeUntilDate' type='date' name='u' value='" . $eventAchievement?->active_until?->format('Y-m-d') . "' style='width:100%'></td></tr>";
+                echo "<tr><td>Active Through:</td><td style='width:100%'><input id='activeThroughDate' type='date' name='u' value='" . ($eventAchievement?->active_until ? $eventAchievement->active_until->clone()->subDays(1)->format('Y-m-d') : '') . "' style='width:100%'></td></tr>";
 
                 echo "</tbody></table>";
                 echo "&nbsp;<button type='button' class='btn' style='float: right;' onclick=\"updateEventAchievementDetails()\">Update</button><br><br>";
