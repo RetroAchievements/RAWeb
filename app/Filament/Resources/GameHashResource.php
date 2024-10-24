@@ -24,7 +24,7 @@ class GameHashResource extends Resource
 
     protected static ?string $navigationGroup = 'Platform';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 40;
 
     public static function form(Form $form): Form
     {

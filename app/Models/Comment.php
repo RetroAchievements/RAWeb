@@ -122,4 +122,20 @@ class Comment extends BaseModel
     {
         return $query->where('user_id', '!=', self::SYSTEM_USER_ID);
     }
+
+    /**
+     * @param Builder<Comment> $query
+     * @return Builder<Comment>
+     */
+    public function scopeVisibleTo(Builder $query, ?User $currentUser = null): Builder
+    {
+        if (!$currentUser || !$currentUser->hasRole([Role::ADMINISTRATOR, Role::MODERATOR])) {
+            // If the current user isn't a moderator, exclude comments from banned users.
+            $query->whereHas('user', function ($q) {
+                $q->whereNull('banned_at');
+            });
+        }
+
+        return $query;
+    }
 }
