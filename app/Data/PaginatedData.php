@@ -40,6 +40,7 @@ class PaginatedData extends Data
         LengthAwarePaginator $paginator,
         ?int $total = null,
         ?int $unfilteredTotal = null,
+        ?array $items = null,
     ): self {
         return new self(
             currentPage: $paginator->currentPage(),
@@ -47,7 +48,7 @@ class PaginatedData extends Data
             perPage: $paginator->perPage(),
             total: $total ?? $paginator->total(),
             unfilteredTotal: $unfilteredTotal,
-            items: $paginator->items(),
+            items: $items ?? $paginator->items(),
             links: [
                 'firstPageUrl' => $paginator->url(1),
                 'lastPageUrl' => $paginator->url($paginator->lastPage()),

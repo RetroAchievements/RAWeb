@@ -26,19 +26,11 @@ class GameApiController extends Controller
         return response()->json($paginatedData);
     }
 
-    public function create(): void
-    {
-    }
-
     public function store(): void
     {
     }
 
     public function show(): void
-    {
-    }
-
-    public function edit(): void
     {
     }
 
