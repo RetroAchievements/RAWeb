@@ -1,0 +1,23 @@
+.glowing-image-root {
+    position: relative;
+    @apply rounded;
+}
+   
+.glowing-image-root::before {
+    content: '';
+    position: absolute;
+    top: 60px !important;
+    inset: 0;
+    background-image: var(--img-url);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: inherit;
+    filter: blur(3.8rem) saturate(5.5) contrast(0.9);
+}
+   
+.glowing-image {
+    object-fit: cover;
+    border-radius: inherit;
+    transform: scale(0.99999);
+}

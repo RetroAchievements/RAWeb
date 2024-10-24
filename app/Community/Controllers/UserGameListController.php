@@ -18,6 +18,7 @@ use App\Platform\Enums\GameListType;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
+use Jenssegers\Agent\Agent;
 
 class UserGameListController extends Controller
 {
@@ -26,12 +27,21 @@ class UserGameListController extends Controller
         /** @var User $user */
         $user = $request->user();
 
+        $isMobile = (new Agent())->isMobile();
+
         $paginatedData = (new BuildGameListAction())->execute(
             GameListType::UserPlay,
             user: $user,
-            page: $request->getPage(),
             filters: $request->getFilters(),
             sort: $request->getSort(),
+            perPage: $isMobile ? 100 : 25,
+
+            /**
+             * Ignore page params on mobile.
+             * They're _always_ desktop-generated. Desktop uses smaller
+             * page sizes, so respecting these params is highly undesirable.
+             */
+            page: $isMobile ? 1 : $request->getPage(),
         );
 
         // Only allow filtering by systems the user has games on their list for.

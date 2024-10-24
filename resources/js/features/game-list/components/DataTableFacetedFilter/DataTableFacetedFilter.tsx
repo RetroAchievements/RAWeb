@@ -24,19 +24,22 @@ import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 import { cn } from '@/utils/cn';
 
+interface FacetedFilterOption {
+  label: string;
+  value: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  selectedLabel?: string;
+}
+
 interface DataTableFacetedFilterProps<TData, TValue> {
-  options: Array<{
-    label: string;
-    value: string;
-    icon?: React.ComponentType<{ className?: string }>;
-    selectedLabel?: string;
-  }>;
+  options: FacetedFilterOption[];
 
   className?: string;
   column?: Column<TData, TValue>;
   isSearchable?: boolean;
   isSingleSelect?: boolean;
   title?: string;
+  variant?: 'base' | 'drawer';
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
@@ -46,28 +49,31 @@ export function DataTableFacetedFilter<TData, TValue>({
   className,
   isSearchable = true,
   isSingleSelect = false,
+  variant = 'base',
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const { t } = useLaravelReactI18n();
 
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
 
-  const handleOptionToggle = (optionValue: string) => {
-    if (isSingleSelect) {
-      // For radio button behavior, set the filter to the selected option directly.
-      column?.setFilterValue([optionValue]);
-    } else {
-      // For checkbox behavior, toggle the selection in the set.
-      if (selectedValues.has(optionValue)) {
-        selectedValues.delete(optionValue);
-      } else {
-        selectedValues.add(optionValue);
-      }
+  if (variant === 'drawer') {
+    return (
+      <div className="flex flex-col gap-1">
+        <p className="text-neutral-100 light:text-neutral-950">{title}</p>
 
-      const filterValues = Array.from(selectedValues);
-      column?.setFilterValue(filterValues.length ? filterValues : undefined);
-    }
-  };
+        <FacetedFilterContent
+          facets={facets}
+          options={options}
+          selectedValues={selectedValues}
+          column={column}
+          isSearchable={isSearchable}
+          title={title}
+          isSingleSelect={isSingleSelect}
+          variant={variant}
+        />
+      </div>
+    );
+  }
 
   return (
     <BasePopover>
@@ -123,62 +129,113 @@ export function DataTableFacetedFilter<TData, TValue>({
       </BasePopoverTrigger>
 
       <BasePopoverContent className="min-w-[200px] p-0" align="start">
-        <BaseCommand>
-          {isSearchable ? <BaseCommandInput placeholder={title} /> : null}
-
-          <BaseCommandList>
-            <BaseCommandEmpty>
-              <span className="text-muted">{t('No options found.')}</span>
-            </BaseCommandEmpty>
-
-            <BaseCommandGroup>
-              {options.map((option) => {
-                const isSelected = selectedValues.has(option.value);
-
-                return (
-                  <BaseCommandItem
-                    key={option.value}
-                    onSelect={() => handleOptionToggle(option.value)}
-                  >
-                    <div
-                      className={cn(
-                        'mr-2 flex h-4 w-4 items-center justify-center rounded-sm',
-                        'border border-neutral-600 light:border-neutral-900',
-
-                        // If it's a single select, give the appearance of a radio button.
-                        isSingleSelect ? 'rounded-full' : 'rounded-sm',
-
-                        isSelected
-                          ? 'border-neutral-50 bg-neutral-700 text-neutral-50 light:bg-text'
-                          : 'opacity-50 [&_svg]:invisible',
-                      )}
-                    >
-                      {isSelected ? <HiOutlineCheck className="h-4 w-4" /> : null}
-                    </div>
-
-                    {option.icon ? (
-                      <option.icon className="text-muted-foreground mr-2 h-4 w-4" />
-                    ) : null}
-
-                    <span className="text-neutral-200 light:text-neutral-900">{option.label}</span>
-
-                    {facets?.get(option.value) && (
-                      <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                        {facets.get(option.value)}
-                      </span>
-                    )}
-                  </BaseCommandItem>
-                );
-              })}
-            </BaseCommandGroup>
-
-            {!isSingleSelect && selectedValues.size > 0 ? (
-              <ClearFiltersButton onClear={() => column?.setFilterValue(undefined)} />
-            ) : null}
-          </BaseCommandList>
-        </BaseCommand>
+        <FacetedFilterContent
+          facets={facets}
+          options={options}
+          selectedValues={selectedValues}
+          column={column}
+          isSearchable={isSearchable}
+          title={title}
+          isSingleSelect={isSingleSelect}
+          variant={variant}
+        />
       </BasePopoverContent>
     </BasePopover>
+  );
+}
+
+type FacetedFilterContentProps<TData, TValue> = DataTableFacetedFilterProps<TData, TValue> & {
+  facets: Map<unknown, number> | undefined;
+  selectedValues: Set<string>;
+};
+
+function FacetedFilterContent<TData, TValue>({
+  facets,
+  options,
+  isSingleSelect,
+  column,
+  isSearchable,
+  title,
+  selectedValues,
+  variant = 'base',
+}: FacetedFilterContentProps<TData, TValue>) {
+  const { t } = useLaravelReactI18n();
+
+  const handleOptionToggle = (optionValue: string) => {
+    if (isSingleSelect) {
+      // For radio button behavior, set the filter to the selected option directly.
+      column?.setFilterValue([optionValue]);
+    } else {
+      // For checkbox behavior, toggle the selection in the set.
+      if (selectedValues.has(optionValue)) {
+        selectedValues.delete(optionValue);
+      } else {
+        selectedValues.add(optionValue);
+      }
+
+      const filterValues = Array.from(selectedValues);
+      column?.setFilterValue(filterValues.length ? filterValues : undefined);
+    }
+  };
+
+  return (
+    <BaseCommand
+      className={cn(
+        variant === 'drawer' && !isSingleSelect
+          ? 'h-[168px] rounded-md border border-neutral-800 light:border-neutral-200'
+          : '',
+      )}
+    >
+      {isSearchable && variant !== 'drawer' ? <BaseCommandInput placeholder={title} /> : null}
+
+      <BaseCommandList>
+        <BaseCommandEmpty>
+          <span className="text-muted">{t('No options found.')}</span>
+        </BaseCommandEmpty>
+
+        <BaseCommandGroup>
+          {options.map((option) => {
+            const isSelected = selectedValues.has(option.value);
+
+            return (
+              <BaseCommandItem key={option.value} onSelect={() => handleOptionToggle(option.value)}>
+                <div
+                  className={cn(
+                    'mr-2 flex h-4 w-4 items-center justify-center rounded-sm',
+                    'border border-neutral-600 light:border-neutral-900',
+
+                    // If it's a single select, give the appearance of a radio button.
+                    isSingleSelect ? 'rounded-full' : 'rounded-sm',
+
+                    isSelected
+                      ? 'border-neutral-50 bg-neutral-700 text-neutral-50 light:bg-text'
+                      : 'opacity-50 [&_svg]:invisible',
+                  )}
+                >
+                  {isSelected ? <HiOutlineCheck className="h-4 w-4" /> : null}
+                </div>
+
+                {option.icon ? (
+                  <option.icon className="text-muted-foreground mr-2 h-4 w-4" />
+                ) : null}
+
+                <span className="text-neutral-200 light:text-neutral-900">{option.label}</span>
+
+                {facets?.get(option.value) && (
+                  <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
+                    {facets.get(option.value)}
+                  </span>
+                )}
+              </BaseCommandItem>
+            );
+          })}
+        </BaseCommandGroup>
+
+        {!isSingleSelect && selectedValues.size > 0 ? (
+          <ClearFiltersButton onClear={() => column?.setFilterValue(undefined)} />
+        ) : null}
+      </BaseCommandList>
+    </BaseCommand>
   );
 }
 

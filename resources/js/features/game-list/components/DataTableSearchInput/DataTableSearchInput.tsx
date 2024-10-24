@@ -1,6 +1,7 @@
 import type { Table } from '@tanstack/react-table';
 import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useEffect, useRef, useState } from 'react';
+import { LuX } from 'react-icons/lu';
 import { useDebounce } from 'react-use';
 
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
@@ -15,16 +16,29 @@ import { useSearchInputHotkey } from './useSearchInputHotkey';
 
 interface DataTableSearchInputProps<TData> {
   table: Table<TData>;
+
+  /**
+   * If truthy, an "X" button can be tapped that wipes the current search value.
+   * Intended for mobile users.
+   */
+  hasClearButton?: boolean;
+
+  /** Disable the "/" hotkey on XS. */
+  hasHotkey?: boolean;
 }
 
-export function DataTableSearchInput<TData>({ table }: DataTableSearchInputProps<TData>) {
+export function DataTableSearchInput<TData>({
+  table,
+  hasClearButton = false,
+  hasHotkey = true,
+}: DataTableSearchInputProps<TData>) {
   const { t } = useLaravelReactI18n();
 
   const initialValue = (table.getColumn('title')?.getFilterValue() as string) ?? '';
 
   const [rawInputValue, setRawInputValue] = useState(initialValue);
 
-  const { hotkeyInputRef } = useSearchInputHotkey({ key: '/' });
+  const { hotkeyInputRef } = useSearchInputHotkey({ isEnabled: hasHotkey, key: '/' });
 
   const isFirstRender = useRef(true);
 
@@ -63,6 +77,11 @@ export function DataTableSearchInput<TData>({ table }: DataTableSearchInputProps
     [rawInputValue],
   );
 
+  const handleClearClick = () => {
+    setRawInputValue('');
+    table.getColumn('title')?.setFilterValue('');
+  };
+
   return (
     <div className="w-full sm:w-auto">
       <label htmlFor="search-field" className="sr-only">
@@ -80,24 +99,40 @@ export function DataTableSearchInput<TData>({ table }: DataTableSearchInputProps
           aria-describedby="search-shortcut"
         />
 
-        <BaseTooltip>
-          <BaseTooltipTrigger asChild>
-            <kbd
-              id="search-shortcut"
-              className={cn(
-                'absolute right-2 hidden rounded-md border border-transparent bg-neutral-800/60 px-1.5 font-mono text-xs',
-                'text-neutral-400 peer-focus:opacity-0 light:bg-neutral-200 light:text-neutral-800',
-                'cursor-default lg:block',
-              )}
-            >
-              {'/'}
-            </kbd>
-          </BaseTooltipTrigger>
+        {hasClearButton && rawInputValue?.length ? (
+          <button
+            aria-label={t('Clear')}
+            className={cn(
+              'absolute right-2 h-5 rounded-xl border border-transparent bg-neutral-800/60 px-1 font-mono text-xs',
+              'text-neutral-200 peer-focus:opacity-0 light:bg-neutral-200 light:text-neutral-800',
+              'cursor-default border border-neutral-800 light:border-neutral-200 lg:block',
+            )}
+            onClick={handleClearClick}
+          >
+            <LuX className="h-3 w-3" />
+          </button>
+        ) : null}
 
-          <BaseTooltipContent>
-            <p>{t('Type / to focus the search field.')}</p>
-          </BaseTooltipContent>
-        </BaseTooltip>
+        {hasHotkey ? (
+          <BaseTooltip>
+            <BaseTooltipTrigger asChild>
+              <kbd
+                id="search-shortcut"
+                className={cn(
+                  'absolute right-2 hidden rounded-md border border-transparent bg-neutral-800/60 px-1.5 font-mono text-xs',
+                  'text-neutral-400 peer-focus:opacity-0 light:bg-neutral-200 light:text-neutral-800',
+                  'cursor-default lg:block',
+                )}
+              >
+                {'/'}
+              </kbd>
+            </BaseTooltipTrigger>
+
+            <BaseTooltipContent>
+              <p>{t('Type / to focus the search field.')}</p>
+            </BaseTooltipContent>
+          </BaseTooltip>
+        ) : null}
       </div>
     </div>
   );

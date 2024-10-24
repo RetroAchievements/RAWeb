@@ -16,7 +16,8 @@ interface GameListDataTableProps<TData> {
   table: Table<TData>;
 }
 
-export function GameListDataTable<TData>({ table }: GameListDataTableProps<TData>) {
+// Lazy-loaded, so using a default export.
+export default function GameListDataTable<TData>({ table }: GameListDataTableProps<TData>) {
   const { t } = useLaravelReactI18n();
 
   const visibleColumnCount = table.getVisibleFlatColumns().length;

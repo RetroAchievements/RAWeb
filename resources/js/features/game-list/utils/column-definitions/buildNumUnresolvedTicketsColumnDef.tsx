@@ -4,6 +4,7 @@ import type { RouteName } from 'ziggy-js';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
+import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildNumUnresolvedTicketsColumnDefProps {
   t_label: string;
@@ -18,14 +19,14 @@ export function buildNumUnresolvedTicketsColumnDef({
   return {
     id: 'numUnresolvedTickets',
     accessorKey: 'game',
-    meta: { t_label, align: 'right' },
+    meta: {
+      t_label,
+      align: 'right',
+      sortType: 'quantity',
+      Icon: gameListFieldIconMap.numUnresolvedTickets,
+    },
     header: ({ column, table }) => (
-      <DataTableColumnHeader
-        column={column}
-        table={table}
-        sortType="quantity"
-        tableApiRouteName={tableApiRouteName}
-      />
+      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
     cell: ({ row }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks -- the cell component is a FC. using this hook doesn't break the rules of hooks.
