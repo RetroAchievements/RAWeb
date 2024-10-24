@@ -304,6 +304,7 @@ class RouteServiceProvider extends ServiceProvider
                     'prefix' => 'internal-api/settings',
                 ], function () {
                     Route::put('profile', [UserSettingsController::class, 'updateProfile'])->name('api.settings.profile.update');
+                    Route::put('locale', [UserSettingsController::class, 'updateLocale'])->name('api.settings.locale.update');
                     Route::put('preferences', [UserSettingsController::class, 'updatePreferences'])->name('api.settings.preferences.update');
                     Route::put('password', [UserSettingsController::class, 'updatePassword'])->name('api.settings.password.update');
                     Route::put('email', [UserSettingsController::class, 'updateEmail'])->name('api.settings.email.update');
