@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Controllers\AchievementSetClaimController;
+use App\Community\Controllers\Api\GameCommentApiController;
+use App\Community\Controllers\Api\SubscriptionApiController;
 use App\Community\Controllers\Api\UserGameListApiController;
 use App\Community\Controllers\ForumTopicCommentController;
 use App\Community\Controllers\ForumTopicController;
+use App\Community\Controllers\GameCommentController;
 use App\Community\Controllers\MessageController;
 use App\Community\Controllers\MessageThreadController;
 use App\Community\Controllers\UserCommentController;
@@ -47,6 +50,12 @@ class RouteServiceProvider extends ServiceProvider
                  */
                 Route::middleware(['auth'])->group(function () {
                     Route::group(['prefix' => 'internal-api'], function () {
+                        Route::post('game/{game}/comment', [GameCommentApiController::class, 'store'])->name('api.game.comment.store');
+                        Route::delete('game/{game}/comment/{comment}', [GameCommentApiController::class, 'destroy'])->name('api.game.comment.destroy');
+
+                        Route::post('subscription/{subjectType}/{subjectId}', [SubscriptionApiController::class, 'store'])->name('api.subscription.store');
+                        Route::delete('subscription/{subjectType}/{subjectId}', [SubscriptionApiController::class, 'destroy'])->name('api.subscription.destroy');
+
                         Route::get('user-game-list', [UserGameListApiController::class, 'index'])->name('api.user-game-list.index');
                         Route::post('user-game-list/{game}', [UserGameListApiController::class, 'store'])->name('api.user-game-list.store');
                         Route::delete('user-game-list/{game}', [UserGameListApiController::class, 'destroy'])->name('api.user-game-list.destroy');
@@ -54,6 +63,8 @@ class RouteServiceProvider extends ServiceProvider
                 });
 
                 Route::middleware(['inertia'])->group(function () {
+                    Route::get('game/{game}/comments', [GameCommentController::class, 'index'])->name('game.comment.index');
+
                     Route::get('forums/recent-posts', [ForumTopicController::class, 'recentPosts'])->name('forum.recent-posts');
 
                     Route::get('user/{user}/posts', [UserForumTopicCommentController::class, 'index'])->name('user.posts.index');
@@ -74,7 +85,6 @@ class RouteServiceProvider extends ServiceProvider
                 // Route::group(['prefix' => 'achievements'], function () {
                 //     Route::resource('comment', AchievementCommentController::class)->only('show')->names(['show' => 'achievement.comment.show'])->shallow();
                 // });
-                // Route::resource('game.comments', GameCommentController::class)->only('index')->names(['index' => 'game.comment.index']);
                 // Route::group(['prefix' => 'games'], function () {
                 //     Route::resource('comment', GameCommentController::class)->only('show')->names(['show' => 'game.comment.show'])->shallow();
                 // });

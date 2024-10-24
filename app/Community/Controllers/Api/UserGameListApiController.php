@@ -28,10 +28,6 @@ class UserGameListApiController extends Controller
         return response()->json($paginatedData);
     }
 
-    public function create(): void
-    {
-    }
-
     public function store(Request $request, int $gameId): JsonResponse
     {
         /** @var User $user */
@@ -47,10 +43,6 @@ class UserGameListApiController extends Controller
     }
 
     public function show(UserGameListEntry $userGameListEntry): void
-    {
-    }
-
-    public function edit(UserGameListEntry $userGameListEntry): void
     {
     }
 
