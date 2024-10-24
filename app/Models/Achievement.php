@@ -86,6 +86,8 @@ class Achievement extends BaseModel implements HasComments
         'Points',
         'Title',
         'type',
+        'MemAddr',
+        'user_id',
     ];
 
     protected $casts = [
@@ -349,6 +351,19 @@ class Achievement extends BaseModel implements HasComments
     public function playerAchievements(): HasMany
     {
         return $this->hasMany(PlayerAchievement::class, 'achievement_id', 'ID');
+    }
+
+    /**
+     * @return HasMany<EventAchievement>
+     */
+    public function eventAchievements(): HasMany
+    {
+        return $this->hasMany(EventAchievement::class, 'source_achievement_id', 'ID');
+    }
+
+    public function eventData(): EventAchievement
+    {
+        return $this->hasOne(EventAchievement::class, 'achievement_id')->first();
     }
 
     // == scopes

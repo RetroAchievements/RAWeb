@@ -18,12 +18,13 @@ $dateTypeDefault = IntlDateFormatter::SHORT;
 $dateType = $date ? $dateTypeDefault : IntlDateFormatter::NONE;
 $timeType = $time ? ($seconds ? IntlDateFormatter::MEDIUM : IntlDateFormatter::SHORT) : IntlDateFormatter::NONE;
 $tooltip ??= true;
-$title = '';
-if ($tooltip) {
-    $title = $timezone !== 'UTC' ? $timezone . '<br>' : '';
-    $title .= '<span class="text-secondary">' . localized_date($dateTime, $locale, $dateTypeDefault, $timeType, 'UTC') . ', UTC</span>';
-}
 ?>
-<span style="cursor:help" data-toggle="{{ $tooltip ? 'tooltip' : '' }}" title="{{ $title }}">
+
+@if (!$tooltip || $timezone === 'UTC')
     {{ localized_date($dateTime, $locale, $dateType, $timeType, $timezone) }}
-</span>
+@else
+    <span style="cursor:help" data-toggle="tooltip"
+          title="{{ localized_date($dateTime, $locale, $dateTypeDefault, $timeType, 'UTC') . ' UTC' }}">
+        {{ localized_date($dateTime, $locale, $dateType, $timeType, $timezone) }}
+    </span>
+@endif

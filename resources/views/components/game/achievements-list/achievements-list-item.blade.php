@@ -65,6 +65,23 @@ if (isset($achievement['DateEarnedHardcore'])) {
                             </x-points-weighted-container>
                         </p>
                     @endif
+
+                    @if ($achievement['SourceGameId'] ?? null)
+                        <p class="inline text-xs">
+                            <span>from</span>
+                            <a class="inline mr-1" href="{{ route('game.show', $achievement['SourceGameId']) }}">
+                                <x-game-title :rawTitle="$achievement['SourceGameTitle']" />
+                            </a>
+                        </p>
+                    @endif
+
+                    @if ($achievement['ActiveFrom'] ?? null && $achievement['ActiveUntil'] ?? null)
+                        <p class="inline smalldate whitespace-nowrap">
+                            <x-date :value="$achievement['ActiveFrom']" />
+                            <span>-</span>
+                            <x-date :value="$achievement['ActiveUntil']" />
+                        </p>
+                    @endif
                 </div>
 
                 @if ($achievement['type'] && !$useMinimalLayout)

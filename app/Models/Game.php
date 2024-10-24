@@ -81,6 +81,7 @@ class Game extends BaseModel implements HasMedia
         'release',
         'Title',
         'sort_title',
+        'ConsoleID',
         'ForumTopicID',
         'Publisher',
         'Developer',

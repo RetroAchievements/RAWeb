@@ -4,16 +4,22 @@
     'totalPlayerCount' => 0,
     'isCreditDialogEnabled' => true,
     'showAuthorNames' => false,
+    'separateUnlockedAchievements' => true,
 ])
 
 <?php
-$unlockedAchievements = array_filter($achievements, function ($achievement) {
-    return !empty($achievement['DateEarned']) || !empty($achievement['DateEarnedHardcore']);
-});
+if ($separateUnlockedAchievements) {
+    $unlockedAchievements = array_filter($achievements, function ($achievement) {
+        return !empty($achievement['DateEarned']) || !empty($achievement['DateEarnedHardcore']);
+    });
 
-$lockedAchievements = array_filter($achievements, function ($achievement) {
-    return empty($achievement['DateEarned']) && empty($achievement['DateEarnedHardcore']);
-});
+    $lockedAchievements = array_filter($achievements, function ($achievement) {
+        return empty($achievement['DateEarned']) && empty($achievement['DateEarnedHardcore']);
+    });
+} else {
+    $unlockedAchievements = [];
+    $lockedAchievements = $achievements;
+}
 ?>
 
 @if (count($achievements) > 0)
