@@ -8,8 +8,9 @@ use App\Community\Enums\ArticleType;
 use App\Models\Achievement;
 use App\Models\EventAchievement;
 use App\Models\PlayerAchievement;
+use App\Models\User;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 
 class UpdateEventAchievement
 {

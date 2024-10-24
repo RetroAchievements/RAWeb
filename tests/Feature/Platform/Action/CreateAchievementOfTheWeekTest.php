@@ -44,7 +44,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals(Carbon::parse('2023-01-02'), $achievement->eventData()->active_from);
         $this->assertEquals(Carbon::parse('2023-01-09'), $achievement->eventData()->active_until);
 
-        $achievement = $event->achievements()->get()->last();
+        $achievement = $event->achievements()->firstWhere('DisplayOrder', 52);
         $this->assertEquals('Week 52', $achievement->Title);
         $this->assertEquals('TBD', $achievement->Description);
         $this->assertEquals('0=1', $achievement->MemAddr);
@@ -115,7 +115,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals(2, $achievement->unlocks_hardcore_total);
         $this->assertEquals(2, $achievement->unlocks_total);
 
-        $achievement = $event->achievements()->get()->slice(1, 1)->first();
+        $achievement = $event->achievements()->firstWhere('DisplayOrder', 2);
         $this->assertEquals($sourceAchievement2->Title, $achievement->Title);
         $this->assertEquals($sourceAchievement2->Description, $achievement->Description);
         $this->assertEquals('0=1', $achievement->MemAddr);
@@ -129,7 +129,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals(2, $achievement->unlocks_hardcore_total);
         $this->assertEquals(2, $achievement->unlocks_total);
 
-        $achievement = $event->achievements()->get()->last();
+        $achievement = $event->achievements()->firstWhere('DisplayOrder', 52);
         $this->assertEquals('Week 52', $achievement->Title);
         $this->assertEquals('TBD', $achievement->Description);
         $this->assertEquals('0=1', $achievement->MemAddr);

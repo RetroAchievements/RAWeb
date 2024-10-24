@@ -13,8 +13,8 @@ return new class() extends Migration {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('achievement_id');
             $table->unsignedBigInteger('source_achievement_id')->nullable();
-            $table->timestamp('active_from')->nullable();
-            $table->timestamp('active_until')->nullable();
+            $table->date('active_from')->nullable();
+            $table->date('active_until')->nullable();
             $table->timestamps();
         });
 

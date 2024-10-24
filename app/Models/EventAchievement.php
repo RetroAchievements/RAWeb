@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class EventAchievement extends BaseModel
@@ -24,8 +24,8 @@ class EventAchievement extends BaseModel
     ];
 
     protected $casts = [
-        'active_from' => 'datetime',
-        'active_until' => 'datetime',
+        'active_from' => 'date',
+        'active_until' => 'date',
     ];
 
     // == accessors
