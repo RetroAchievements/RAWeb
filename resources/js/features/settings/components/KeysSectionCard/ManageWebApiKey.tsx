@@ -89,11 +89,13 @@ export const ManageWebApiKey: FC = () => {
               </Trans>
             </p>
             <p>
-              {t('The RetroAchievements API documentation can be found')}{' '}
-              <a href="https://api-docs.retroachievements.org" target="_blank" rel="noreferrer">
-                {t('here')}
-              </a>
-              {t('.')}
+              <Trans i18nKey="The RetroAchievements API documentation can be found <0>here</0>.">
+                {'The RetroAchievements API documentation can be found '}
+                <a href="https://api-docs.retroachievements.org" target="_blank" rel="noreferrer">
+                  {'here'}
+                </a>
+                {'.'}
+              </Trans>
             </p>
           </div>
 
