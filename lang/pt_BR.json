@@ -329,6 +329,8 @@
     "Added :gameTitle to playlist!": ":gameTitle adicionado à playlist!",
     "Removed :gameTitle from playlist!": ":gameTitle removido da playlist!",
     "Load more": "Carregar mais",
+    "RSS Feeds": "Feeds RSS",
+    "News": "Notícias",
     ":user doesn't have any forum posts.": ":user não tem nenhuma postagem no fórum.",
     "No recent posts could be found.": "Nenhuma postagem recente foi encontrada."
 }
