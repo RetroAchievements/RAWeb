@@ -33,7 +33,7 @@ class AchievementResource extends Resource
 
     protected static ?string $navigationGroup = 'Platform';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 50;
 
     protected static ?string $recordTitleAttribute = 'title';
 
