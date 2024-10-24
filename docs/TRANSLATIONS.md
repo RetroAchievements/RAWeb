@@ -12,7 +12,7 @@ Thank you for your interest in contributing translations to the RetroAchievement
   - [Handling Placeholders](#handling-placeholders)
 - [Submitting Your Changes](#submitting-your-changes)
 - [Review Process](#review-process)
-- [Additional Resources](#additional-resources)
+- [Deleting Your Branch](#deleting-your-branch)
 
 ## Prerequisites
 
@@ -150,3 +150,21 @@ You may receive feedback or requests for revisions. Address any feedback promptl
 4. **Merging:**
 
 Once approved, your translations will be merged into the `master` branch and deployed with the next site release.
+
+## Deleting Your Branch
+
+Once your pull request is merged, you can safely delete the branch you created for the translation work.
+
+1. **Delete the Branch Locally:**
+
+```shell
+git branch -d translate/pt_BR
+```
+
+2. **Delete the Branch from Your Fork on GitHub:**
+
+```shell
+git push origin --delete translate/pt_BR
+```
+
+This will help keep your local and remote repositories clean. Each pull request you open should come from a fresh branch.
