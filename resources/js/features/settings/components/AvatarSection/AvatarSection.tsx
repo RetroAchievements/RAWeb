@@ -25,7 +25,7 @@ export const AvatarSection: FC = () => {
 
   const { t } = useLaravelReactI18n();
 
-  const { form, mutation: formMutation, onSubmit } = useAvatarSectionForm();
+  const { form, onSubmit, mutation: formMutation } = useAvatarSectionForm();
 
   const resetAvatarMutation = useResetAvatarMutation();
 

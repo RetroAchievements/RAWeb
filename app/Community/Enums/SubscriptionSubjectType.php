@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Enums;
 
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+#[TypeScript]
 abstract class SubscriptionSubjectType
 {
     public const ForumTopic = "ForumTopic";
@@ -26,5 +29,22 @@ abstract class SubscriptionSubjectType
             ArticleType::User => SubscriptionSubjectType::UserWall,
             default => null,
         };
+    }
+
+    public static function cases(): array
+    {
+        return [
+            self::ForumTopic,
+            self::UserWall,
+            self::GameWall,
+            self::Achievement,
+            self::GameTickets,
+            self::GameAchievements,
+        ];
+    }
+
+    public static function isValid(string $subjectType): bool
+    {
+        return in_array($subjectType, self::cases());
     }
 }

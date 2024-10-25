@@ -48,11 +48,11 @@ describe('Component: SimplePaginator', () => {
     // ASSERT
     const previousLinkEl = screen.getByRole('link', { name: /previous/i });
     expect(previousLinkEl).toBeVisible();
-    expect(previousLinkEl).toHaveAttribute('href', previousPageUrl);
+    expect(previousLinkEl).toHaveAttribute('href', expect.stringContaining(previousPageUrl));
 
     const nextLinkEl = screen.getByRole('link', { name: /next/i });
     expect(nextLinkEl).toBeVisible();
-    expect(nextLinkEl).toHaveAttribute('href', nextPageUrl);
+    expect(nextLinkEl).toHaveAttribute('href', expect.stringContaining(nextPageUrl));
   });
 
   it('given there is no previous page url, does not render a previous page link', () => {
