@@ -166,13 +166,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.comments": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.dev-interest": [
         {
             "name": "game",
@@ -302,6 +295,45 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.game.comment.store": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.game.comment.destroy": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.subscription.store": [
+        {
+            "name": "subjectType",
+            "required": true
+        },
+        {
+            "name": "subjectId",
+            "required": true
+        }
+    ],
+    "api.subscription.destroy": [
+        {
+            "name": "subjectType",
+            "required": true
+        },
+        {
+            "name": "subjectId",
+            "required": true
+        }
+    ],
     "api.user-game-list.index": [],
     "api.user-game-list.store": [
         {
@@ -313,6 +345,13 @@ declare module 'ziggy-js' {
         {
             "name": "game",
             "required": true
+        }
+    ],
+    "game.comment.index": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
         }
     ],
     "forum.recent-posts": [],
@@ -361,6 +400,7 @@ declare module 'ziggy-js' {
         }
     ],
     "api.settings.profile.update": [],
+    "api.settings.locale.update": [],
     "api.settings.preferences.update": [],
     "api.settings.password.update": [],
     "api.settings.email.update": [],

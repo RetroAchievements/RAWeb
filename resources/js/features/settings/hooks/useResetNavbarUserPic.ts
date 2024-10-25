@@ -8,7 +8,7 @@ export function useResetNavbarUserPic() {
     // Using document functions to mutate the DOM is very bad.
     // We only do this because the app shell is still a Blade template.
 
-    const userDisplayName = auth?.user.displayName ?? '';
+    const userDisplayName = auth!.user.displayName;
     const fileName = `/UserPic/${userDisplayName}.png`;
 
     for (const element of document.querySelectorAll<HTMLImageElement>('.userpic')) {

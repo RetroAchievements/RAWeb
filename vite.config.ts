@@ -77,6 +77,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
           'resources/js/utils',
         ],
         exclude: [
+          'resources/js/common/components/+vendor', // shadcn/ui lib code
           '**/index.ts',
           '**/*.model.ts',
           '**/*.test.ts',
