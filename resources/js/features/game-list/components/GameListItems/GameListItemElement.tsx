@@ -84,7 +84,7 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
   };
 
   return (
-    <BaseDrawer shouldScaleBackground={false}>
+    <BaseDrawer shouldScaleBackground={false} modal={false}>
       <div className="flex gap-3">
         <GameAvatar {...game} size={48} hasTooltip={false} showLabel={false} />
 
