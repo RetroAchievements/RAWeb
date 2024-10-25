@@ -45,6 +45,7 @@ class HandleInertiaRequests extends Middleware
                     'id',
                     'legacyPermissions',
                     'locale',
+                    'mutedUntil',
                     'preferences',
                     'roles',
                     'unreadMessageCount',

@@ -4,29 +4,49 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Actions\AddCommentAction;
 use App\Community\Actions\GetUrlToCommentDestinationAction;
+use App\Community\Concerns\IndexesComments;
+use App\Community\Data\CommentData;
+use App\Community\Data\UserCommentsPagePropsData;
 use App\Community\Enums\ArticleType;
 use App\Community\Requests\StoreCommentRequest;
+use App\Data\PaginatedData;
+use App\Data\UserData;
 use App\Models\Comment;
 use App\Models\User;
 use App\Models\UserComment;
+use App\Policies\UserCommentPolicy;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Response as InertiaResponse;
 
 class UserCommentController extends CommentController
 {
-    public function index(User $user): View
+    use IndexesComments;
+
+    public function index(User $user): InertiaResponse|RedirectResponse
     {
-        $this->authorize('viewAny', [UserComment::class, $user]);
-
-        $comments = UserComment::paginate();
-
-        return view('user.comment.index')
-            ->with('user', $user)
-            ->with('grid', $comments);
+        return $this->handleCommentIndex(
+            commentable: $user,
+            policy: UserComment::class,
+            routeName: 'user.comment.index',
+            routeParam: 'user',
+            view: 'user/[user]/comments',
+            createPropsData: function ($user, $paginatedComments, $isSubscribed, $me) {
+                return new UserCommentsPagePropsData(
+                    targetUser: UserData::fromUser($user)->include('id'),
+                    paginatedComments: PaginatedData::fromLengthAwarePaginator(
+                        $paginatedComments,
+                        total: $paginatedComments->total(),
+                        items: CommentData::fromCollection($paginatedComments->getCollection())
+                    ),
+                    isSubscribed: $isSubscribed,
+                    canComment: (new UserCommentPolicy())->create($me, $user)
+                );
+            }
+        );
     }
 
     /**
@@ -40,23 +60,8 @@ class UserCommentController extends CommentController
     {
     }
 
-    public function store(
-        StoreCommentRequest $request,
-        User $user,
-        AddCommentAction $addCommentAction,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction
-    ): RedirectResponse {
-        $this->authorize('create', [UserComment::class, $user]);
-
-        /** @var false|Comment $comment */
-        $comment = $addCommentAction->execute($request, $user);
-
-        if (!$comment) {
-            return back()->with('error', $this->resourceActionErrorMessage('user.comment', 'create'));
-        }
-
-        return redirect($getUrlToCommentDestinationAction->execute($comment))
-            ->with('success', $this->resourceActionSuccessMessage('user.comment', 'create'));
+    public function store(): void
+    {
     }
 
     public function edit(UserComment $comment): View

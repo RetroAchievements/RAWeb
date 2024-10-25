@@ -5,68 +5,44 @@ declare(strict_types=1);
 namespace App\Community\Controllers;
 
 use App\Community\Actions\GetUrlToCommentDestinationAction;
+use App\Community\Concerns\IndexesComments;
 use App\Community\Data\CommentData;
 use App\Community\Data\GameCommentsPagePropsData;
-use App\Community\Data\SubscriptionData;
-use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Requests\StoreCommentRequest;
 use App\Data\PaginatedData;
 use App\Models\Game;
 use App\Models\GameComment;
-use App\Models\Subscription;
-use App\Models\User;
 use App\Platform\Data\GameData;
+use App\Policies\GameCommentPolicy;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
 class GameCommentController extends CommentController
 {
+    use IndexesComments;
+
     public function index(Game $game): InertiaResponse|RedirectResponse
     {
-        $this->authorize('viewAny', [GameComment::class, $game]);
-
-        $perPage = 50;
-        $currentPage = (int) request()->input('page', 1);
-
-        // Get total comments to calculate the last page.
-        $totalComments = $game->visibleComments()->count();
-        $lastPage = (int) ceil($totalComments / $perPage);
-
-        // If the current page exceeds the last page, redirect to the last page.
-        if ($currentPage !== 1 && $currentPage > $lastPage) {
-            return redirect()->route('game.comment.index', ['game' => $game->id, 'page' => $lastPage]);
-        }
-
-        $paginatedComments = $game->visibleComments()
-            ->with(['user' => function ($query) {
-                $query->withTrashed();
-            }])
-            ->paginate(50);
-
-        /** @var ?User $user */
-        $user = Auth::user();
-        $subscription = null;
-        if ($user) {
-            $subscription = Subscription::whereUserId($user->id)
-                ->whereSubjectType(SubscriptionSubjectType::GameWall)
-                ->whereSubjectId($game->id)
-                ->first();
-        }
-
-        $props = new GameCommentsPagePropsData(
-            game: GameData::fromGame($game)->include('badgeUrl', 'system'),
-            paginatedComments: PaginatedData::fromLengthAwarePaginator(
-                $paginatedComments,
-                total: $paginatedComments->total(),
-                items: CommentData::fromCollection($paginatedComments->getCollection())
-            ),
-            subscription: $subscription ? SubscriptionData::from($subscription) : null,
+        return $this->handleCommentIndex(
+            commentable: $game,
+            policy: GameComment::class,
+            routeName: 'game.comment.index',
+            routeParam: 'game',
+            view: 'game/[game]/comments',
+            createPropsData: function ($game, $paginatedComments, $isSubscribed, $user) {
+                return new GameCommentsPagePropsData(
+                    game: GameData::fromGame($game)->include('badgeUrl', 'system'),
+                    paginatedComments: PaginatedData::fromLengthAwarePaginator(
+                        $paginatedComments,
+                        total: $paginatedComments->total(),
+                        items: CommentData::fromCollection($paginatedComments->getCollection())
+                    ),
+                    isSubscribed: $isSubscribed,
+                    canComment: (new GameCommentPolicy())->create($user, $game)
+                );
+            }
         );
-
-        return Inertia::render('game/[game]/comments', $props);
     }
 
     /**

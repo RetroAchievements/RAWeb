@@ -8,8 +8,10 @@ import { z } from 'zod';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { ArticleType } from '@/common/utils/generatedAppConstants';
 
+import { useCommentListContext } from './CommentListContext';
+
 interface UseSubmitCommentFormProps {
-  commentableId: number;
+  commentableId: number | string;
   commentableType: keyof typeof ArticleType;
 
   onSubmitSuccess?: () => void;
@@ -21,6 +23,8 @@ export function useSubmitCommentForm({
   onSubmitSuccess,
 }: UseSubmitCommentFormProps) {
   const { t } = useLaravelReactI18n();
+
+  const { targetUserDisplayName } = useCommentListContext();
 
   const addCommentFormSchema = z.object({
     body: z
@@ -38,7 +42,7 @@ export function useSubmitCommentForm({
 
   const mutation = useMutation({
     mutationFn: (formValues: FormValues) => {
-      return axios.post(buildPostRoute({ commentableId, commentableType }), {
+      return axios.post(buildPostRoute({ commentableId, commentableType, targetUserDisplayName }), {
         commentableId,
         commentableType: ArticleType[commentableType],
         body: formValues.body,
@@ -61,7 +65,11 @@ export function useSubmitCommentForm({
   return { form, mutation, onSubmit };
 }
 
-function buildPostRoute({ commentableId, commentableType }: UseSubmitCommentFormProps): string {
+function buildPostRoute({
+  commentableId,
+  commentableType,
+  targetUserDisplayName = '',
+}: UseSubmitCommentFormProps & { targetUserDisplayName?: string }): string {
   const commentableTypeRouteMap: Record<keyof typeof ArticleType, string> = {
     Achievement: 'TODO',
     AchievementTicket: 'TODO',
@@ -72,7 +80,7 @@ function buildPostRoute({ commentableId, commentableType }: UseSubmitCommentForm
     Leaderboard: 'TODO',
     News: 'TODO',
     SetClaim: 'TODO',
-    User: 'TODO',
+    User: route('api.user.comment.store', { user: targetUserDisplayName }),
     UserModeration: 'TODO',
   };
 

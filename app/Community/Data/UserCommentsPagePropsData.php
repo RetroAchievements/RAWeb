@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace App\Community\Data;
 
 use App\Data\PaginatedData;
-use App\Platform\Data\GameData;
+use App\Data\UserData;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript('GameCommentsPageProps<TItems = App.Community.Data.Comment>')]
-class GameCommentsPagePropsData extends Data
+#[TypeScript('UserCommentsPageProps<TItems = App.Community.Data.Comment>')]
+class UserCommentsPagePropsData extends Data
 {
     public function __construct(
-        public GameData $game,
+        public UserData $targetUser,
         public PaginatedData $paginatedComments,
         public bool $isSubscribed,
         public bool $canComment,

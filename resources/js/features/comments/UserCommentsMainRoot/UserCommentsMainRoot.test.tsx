@@ -4,11 +4,11 @@ import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
-import { createComment, createGame, createPaginatedData, createSystem } from '@/test/factories';
+import { createComment, createPaginatedData, createUser } from '@/test/factories';
 
-import { GameCommentsMainRoot } from './GameCommentsMainRoot';
+import { UserCommentsMainRoot } from './UserCommentsMainRoot';
 
-describe('Component: GameCommentsMainRoot', () => {
+describe('Component: UserCommentsMainRoot', () => {
   beforeEach(() => {
     window.HTMLElement.prototype.hasPointerCapture = vi.fn();
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
@@ -16,15 +16,15 @@ describe('Component: GameCommentsMainRoot', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Community.Data.GameCommentsPageProps>(
-      <GameCommentsMainRoot />,
+    const { container } = render<App.Community.Data.UserCommentsPageProps>(
+      <UserCommentsMainRoot />,
       {
         pageProps: {
           auth: null,
-          game: createGame(),
-          paginatedComments: createPaginatedData([]),
+          canComment: true,
           isSubscribed: false,
-          canComment: false,
+          paginatedComments: createPaginatedData([]),
+          targetUser: createUser(),
         },
       },
     );
@@ -33,39 +33,36 @@ describe('Component: GameCommentsMainRoot', () => {
     expect(container).toBeTruthy();
   });
 
-  it('displays game breadcrumbs', () => {
+  it('displays user breadcrumbs', () => {
     // ARRANGE
-    const system = createSystem({ name: 'Nintendo 64' });
-    const game = createGame({ system });
+    const targetUser = createUser({ displayName: 'Scott' });
 
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
-        game,
+        targetUser,
         auth: null,
-        paginatedComments: createPaginatedData([]),
+        canComment: true,
         isSubscribed: false,
-        canComment: false,
+        paginatedComments: createPaginatedData([]),
       },
     });
 
     // ASSERT
-    expect(screen.getByRole('listitem', { name: /all games/i })).toBeVisible();
-    expect(screen.getByRole('listitem', { name: system.name })).toBeVisible();
-    expect(screen.getByRole('listitem', { name: game.title })).toBeVisible();
+    expect(screen.getByRole('listitem', { name: /all users/i })).toBeVisible();
+    expect(screen.getByRole('listitem', { name: /scott/i })).toBeVisible();
   });
 
   it('displays an accessible heading', () => {
     // ARRANGE
-    const system = createSystem({ name: 'Nintendo 64' });
-    const game = createGame({ system });
+    const targetUser = createUser({ displayName: 'Scott' });
 
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
-        game,
+        targetUser,
         auth: null,
-        paginatedComments: createPaginatedData([]),
+        canComment: true,
         isSubscribed: false,
-        canComment: false,
+        paginatedComments: createPaginatedData([]),
       },
     });
 
@@ -89,13 +86,13 @@ describe('Component: GameCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
+        targetUser: createUser(),
         auth: null,
-        game: createGame(),
+        canComment: true,
         isSubscribed: false,
-        canComment: false,
       },
     });
 
@@ -107,13 +104,13 @@ describe('Component: GameCommentsMainRoot', () => {
 
   it('given the user is currently authenticated, displays a subscribe toggle button', () => {
     // ARRANGE
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        game: createGame(),
         paginatedComments: createPaginatedData([]),
-        isSubscribed: false,
+        targetUser: createUser(),
+        auth: { user: createAuthenticatedUser() },
         canComment: true,
+        isSubscribed: false,
       },
     });
 
@@ -123,13 +120,13 @@ describe('Component: GameCommentsMainRoot', () => {
 
   it('given the user is not currently authenticated, does not display a subscribe toggle button', () => {
     // ARRANGE
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
-        auth: null,
-        game: createGame(),
         paginatedComments: createPaginatedData([]),
+        targetUser: createUser(),
+        auth: null,
+        canComment: true,
         isSubscribed: false,
-        canComment: false,
       },
     });
 
@@ -139,13 +136,13 @@ describe('Component: GameCommentsMainRoot', () => {
 
   it('given there are comments, displays them', () => {
     // ARRANGE
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
-        auth: null,
-        game: createGame(),
         paginatedComments: createPaginatedData([createComment({ payload: '12345678' })]),
-        isSubscribed: false,
+        targetUser: createUser(),
+        auth: null,
         canComment: true,
+        isSubscribed: false,
       },
     });
 
@@ -169,13 +166,13 @@ describe('Component: GameCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
+        targetUser: createUser({ displayName: 'Scott' }),
         auth: null,
-        game: createGame({ id: 1 }),
-        isSubscribed: false,
         canComment: true,
+        isSubscribed: false,
       },
     });
 
@@ -186,7 +183,10 @@ describe('Component: GameCommentsMainRoot', () => {
 
     // ASSERT
     expect(visitSpy).toHaveBeenCalledOnce();
-    expect(visitSpy).toHaveBeenCalledWith(['game.comment.index', { game: 1, _query: { page: 2 } }]);
+    expect(visitSpy).toHaveBeenCalledWith([
+      'user.comment.index',
+      { user: 'Scott', _query: { page: 2 } },
+    ]);
   });
 
   it('given the user adds a comment, changes the current route correctly', async () => {
@@ -207,13 +207,13 @@ describe('Component: GameCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
-        auth: { user: createAuthenticatedUser() }, // we're logged in, so we can write comments
-        game: createGame({ id: 1 }),
-        isSubscribed: false,
+        targetUser: createUser({ displayName: 'Scott' }),
+        auth: { user: createAuthenticatedUser() },
         canComment: true,
+        isSubscribed: false,
       },
     });
 
@@ -224,7 +224,7 @@ describe('Component: GameCommentsMainRoot', () => {
     // ASSERT
     expect(visitSpy).toHaveBeenCalledOnce();
     expect(visitSpy).toHaveBeenCalledWith(
-      ['game.comment.index', { game: 1, _query: { page: 3 } }],
+      ['user.comment.index', { user: 'Scott', _query: { page: 3 } }],
       { preserveScroll: true },
     );
   });
@@ -248,13 +248,13 @@ describe('Component: GameCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameCommentsPageProps>(<GameCommentsMainRoot />, {
+    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
-        auth: { user: createAuthenticatedUser() }, // we're logged in
-        game: createGame({ id: 1 }),
-        isSubscribed: false,
+        targetUser: createUser({ displayName: 'Scott' }),
+        auth: { user: createAuthenticatedUser() },
         canComment: true,
+        isSubscribed: false,
       },
     });
 
@@ -264,7 +264,7 @@ describe('Component: GameCommentsMainRoot', () => {
     // ASSERT
     expect(visitSpy).toHaveBeenCalledOnce();
     expect(visitSpy).toHaveBeenCalledWith(
-      ['game.comment.index', { game: 1, _query: { page: 1 } }],
+      ['user.comment.index', { user: 'Scott', _query: { page: 1 } }],
       { preserveScroll: true },
     );
   });

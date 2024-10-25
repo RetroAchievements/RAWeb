@@ -341,5 +341,6 @@
     "RSS Feeds": "RSS Feeds",
     "News": "News",
     ":user doesn't have any forum posts.": ":user doesn't have any forum posts.",
-    "No recent posts could be found.": "No recent posts could be found."
+    "No recent posts could be found.": "No recent posts could be found.",
+    "Comments - :user": "Comments - :user"
 }

@@ -1,35 +1,36 @@
 import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
-import { CommentList } from '@/common/components/CommentList/CommentList';
+import { CommentList } from '@/common/components/CommentList';
 import { FullPaginator } from '@/common/components/FullPaginator';
 import { SubscribeToggleButton } from '@/common/components/SubscribeToggleButton';
+import { UserHeading } from '@/common/components/UserHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { GameBreadcrumbs } from '@/features/games/components/GameBreadcrumbs';
-import { GameHeading } from '@/features/games/components/GameHeading';
+import { UserBreadcrumbs } from '@/features/users/components/UserBreadcrumbs';
 
 import { useCommentPagination } from '../hooks/useCommentPagination';
 
-export const GameCommentsMainRoot: FC = () => {
-  const { auth, canComment, game, isSubscribed, paginatedComments } =
-    usePageProps<App.Community.Data.GameCommentsPageProps>();
+export const UserCommentsMainRoot: FC = () => {
+  const { auth, canComment, paginatedComments, isSubscribed, targetUser } =
+    usePageProps<App.Community.Data.UserCommentsPageProps>();
 
   const { t } = useLaravelReactI18n();
 
   const { handleCommentDeleteSuccess, handleCommentSubmitSuccess, handlePageSelectValueChange } =
     useCommentPagination({
       paginatedComments,
-      entityId: game.id,
-      entityType: 'Game',
-      routeName: 'game.comment.index',
+      entityId: targetUser.id!,
+      entityType: 'User',
+      routeName: 'user.comment.index',
+      displayName: targetUser.displayName,
     });
 
   return (
     <div>
-      <GameBreadcrumbs game={game} system={game.system} t_currentPageLabel={t('Comments')} />
-      <GameHeading game={game} wrapperClassName="!mb-1">
+      <UserBreadcrumbs user={targetUser} t_currentPageLabel={t('Comments')} />
+      <UserHeading user={targetUser} wrapperClassName="!mb-1">
         {t('Comments')}
-      </GameHeading>
+      </UserHeading>
 
       <div className="mb-3 flex w-full justify-between">
         <FullPaginator
@@ -39,8 +40,8 @@ export const GameCommentsMainRoot: FC = () => {
 
         {auth ? (
           <SubscribeToggleButton
-            subjectId={game.id}
-            subjectType="GameWall"
+            subjectId={targetUser.id!}
+            subjectType="UserWall"
             hasExistingSubscription={isSubscribed}
           />
         ) : null}
@@ -49,10 +50,11 @@ export const GameCommentsMainRoot: FC = () => {
       <CommentList
         canComment={canComment}
         comments={paginatedComments.items}
-        commentableId={game.id}
-        commentableType="Game"
+        commentableId={targetUser.id!}
+        commentableType="User"
         onDeleteSuccess={handleCommentDeleteSuccess}
         onSubmitSuccess={handleCommentSubmitSuccess}
+        targetUserDisplayName={targetUser.displayName}
       />
 
       <div className="mt-8 flex justify-center sm:mt-3 sm:justify-start">
