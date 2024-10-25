@@ -400,6 +400,7 @@ declare module 'ziggy-js' {
         }
     ],
     "api.settings.profile.update": [],
+    "api.settings.locale.update": [],
     "api.settings.preferences.update": [],
     "api.settings.password.update": [],
     "api.settings.email.update": [],

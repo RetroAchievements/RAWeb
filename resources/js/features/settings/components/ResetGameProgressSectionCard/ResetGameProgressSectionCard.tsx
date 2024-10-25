@@ -65,12 +65,17 @@ export const ResetGameProgressSectionCard: FC = () => {
             name="gameId"
             render={({ field }) => (
               <BaseFormItem className="flex w-full flex-col gap-1 @xl:grid @xl:grid-cols-5 @xl:items-center">
-                <BaseFormLabel className="col-span-2 text-menu-link">{t('Game')}</BaseFormLabel>
+                <BaseFormLabel
+                  className="col-span-2 text-menu-link"
+                  htmlFor="resettable-game-select"
+                >
+                  {t('Game')}
+                </BaseFormLabel>
 
                 <div ref={inViewRef} className="col-span-3 flex flex-grow flex-col gap-1">
                   <BaseSelect value={field.value} onValueChange={field.onChange}>
                     <BaseFormControl>
-                      <BaseSelectTrigger>
+                      <BaseSelectTrigger id="resettable-game-select">
                         <BaseSelectValue placeholder={t('Select a game')} />
                       </BaseSelectTrigger>
                     </BaseFormControl>
@@ -109,7 +114,10 @@ export const ResetGameProgressSectionCard: FC = () => {
             name="achievementId"
             render={({ field }) => (
               <BaseFormItem className="flex w-full flex-col gap-1 @xl:grid @xl:grid-cols-5 @xl:items-center">
-                <BaseFormLabel className="col-span-2 text-menu-link">
+                <BaseFormLabel
+                  className="col-span-2 text-menu-link"
+                  htmlFor="resettable-achievement-select"
+                >
                   {t('Achievement')}
                 </BaseFormLabel>
 
@@ -120,7 +128,7 @@ export const ResetGameProgressSectionCard: FC = () => {
                     disabled={!selectedGameId}
                   >
                     <BaseFormControl>
-                      <BaseSelectTrigger>
+                      <BaseSelectTrigger id="resettable-achievement-select">
                         <BaseSelectValue placeholder={t('Select an achievement')} />
                       </BaseSelectTrigger>
                     </BaseFormControl>
