@@ -57,4 +57,5 @@ const mockUser: App.Data.User = {
   displayName: 'Scott',
   avatarUrl: 'http://media.retroachievements.org/UserPic/Scott.png',
   isMuted: false,
+  mutedUntil: null,
 };

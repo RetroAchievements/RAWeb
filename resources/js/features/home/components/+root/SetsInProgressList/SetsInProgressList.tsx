@@ -77,6 +77,7 @@ const mockUser: App.Data.User = {
   avatarUrl: 'http://media.retroachievements.org/UserPic/voiceofautumn.png',
   displayName: 'voiceofautumn',
   isMuted: false,
+  mutedUntil: null,
 };
 
 const mockGame: App.Platform.Data.Game = {
