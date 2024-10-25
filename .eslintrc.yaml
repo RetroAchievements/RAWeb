@@ -97,7 +97,7 @@ rules:
       "tabWidth": 2,
       "printWidth": 100,
       "singleQuote": true,
-      "tailwindAttributes": ["containerClassName", "gameTitleClassName"],
+      "tailwindAttributes": ["containerClassName", "gameTitleClassName", "wrapperClassName"],
       "plugins": ["prettier-plugin-tailwindcss"]
     }
 

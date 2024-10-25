@@ -32,23 +32,14 @@ class AchievementSetSeeder extends Seeder
             // 1 = Only Core, 2 = Core + Bonus, 3 = Core + Specialty, 4 = All types.
             $setConfig = mt_rand(1, 4);
 
-            $allGameHashIds = GameHash::where('game_id', $game->id)->pluck('id')->toArray();
-
             // If a specialty set is needed, we must reserve a unique hash.
             $reservedSpecialtyHashIds = ($setConfig === 3 || $setConfig === 4)
                 ? GameHash::where('game_id', $game->id)->inRandomOrder()->take(1)->pluck('id')->toArray()
                 : [];
 
-            // Associate the core set with all of the game's hashes.
-            foreach ($allGameHashIds as $gameHashId) {
-                $coreAchievementSet->gameHashes()->attach($gameHashId, ['compatible' => true]);
-            }
-
             // Create bonus sets based on the random set configuration.
             if ($setConfig === 2 || $setConfig === 4) {
-                // It's safe to assume most of the time the bonus set(s) will be
-                // compatible with the same hashes the core set is compatible with.
-                $this->createBonusSets($game, $allGameHashIds);
+                $this->createBonusSets($game);
             }
 
             // Create specialty sets based on the random set configuration.
@@ -59,7 +50,7 @@ class AchievementSetSeeder extends Seeder
         }
     }
 
-    private function createBonusSets(Game $game, array $gameHashIds): void
+    private function createBonusSets(Game $game): void
     {
         $numBonusSets = mt_rand(1, 3);
         for ($i = 0; $i < $numBonusSets; $i++) {
@@ -68,10 +59,6 @@ class AchievementSetSeeder extends Seeder
                 'game_id' => $game->id,
                 'achievement_set_id' => $bonusAchievementSet->id,
             ]);
-
-            foreach ($gameHashIds as $gameHashId) {
-                $bonusAchievementSet->gameHashes()->attach($gameHashId, ['compatible' => true]);
-            }
         }
     }
 
@@ -83,9 +70,6 @@ class AchievementSetSeeder extends Seeder
                 'game_id' => $game->id,
                 'achievement_set_id' => $specialtyAchievementSet->id,
             ]);
-
-            // Attach the reserved hash to the specialty set.
-            $specialtyAchievementSet->gameHashes()->attach($reservedHashId, ['compatible' => true]);
         }
     }
 }

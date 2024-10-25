@@ -7,7 +7,7 @@ namespace App\Community\Controllers;
 use App\Community\Actions\AddCommentAction;
 use App\Community\Actions\GetUrlToCommentDestinationAction;
 use App\Community\Enums\ArticleType;
-use App\Community\Requests\CommentRequest;
+use App\Community\Requests\StoreCommentRequest;
 use App\Models\Comment;
 use App\Models\User;
 use App\Models\UserComment;
@@ -41,7 +41,7 @@ class UserCommentController extends CommentController
     }
 
     public function store(
-        CommentRequest $request,
+        StoreCommentRequest $request,
         User $user,
         AddCommentAction $addCommentAction,
         GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction
@@ -70,7 +70,7 @@ class UserCommentController extends CommentController
     }
 
     protected function update(
-        CommentRequest $request,
+        StoreCommentRequest $request,
         UserComment $comment,
         GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction
     ): RedirectResponse {
