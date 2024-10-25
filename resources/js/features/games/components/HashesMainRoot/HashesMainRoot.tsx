@@ -4,6 +4,7 @@ import { LuSave } from 'react-icons/lu';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { Embed } from '@/common/components/Embed/Embed';
+import { Trans } from '@/common/components/Trans';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -14,7 +15,7 @@ import { HashesList } from './HashesList';
 export const HashesMainRoot: FC = () => {
   const { can, game, hashes } = usePageProps<App.Platform.Data.GameHashesPageProps>();
 
-  const { t, tChoice } = useLaravelReactI18n();
+  const { t } = useLaravelReactI18n();
 
   const { formatNumber } = useFormatNumber();
 
@@ -48,33 +49,40 @@ export const HashesMainRoot: FC = () => {
 
           <p>
             {game.forumTopicId ? (
-              <>
-                {t('Additional information for these hashes may be listed on')}{' '}
+              <Trans i18nKey="Additional information for these hashes may be listed on <0>the game's official forum topic</0>.">
+                {'Additional information for these hashes may be listed on '}
                 <a href={`/viewtopic.php?t=${game.forumTopicId}`}>
-                  {t("the game's official forum topic")}
+                  {"the game's official forum topic"}
                 </a>
-                {t('.')}
-              </>
+                {'.'}
+              </Trans>
             ) : null}{' '}
-            {t('Details on how the hash is generated for each system can be found')}{' '}
-            <a
-              href="https://docs.retroachievements.org/developer-docs/game-identification.html"
-              target="_blank"
-            >
-              {t('here')}
-            </a>
-            {t('.')}
+            <Trans i18nKey="Details on how the hash is generated for each system can be found <0>here</0>.">
+              {'Details on how the hash is generated for each system can be found '}
+              <a
+                href="https://docs.retroachievements.org/developer-docs/game-identification.html"
+                target="_blank"
+              >
+                {'here'}
+              </a>
+              {'.'}
+            </Trans>
           </p>
         </Embed>
 
         <div className="flex flex-col gap-1">
           <p>
-            {tChoice('There is currently|There are currently', hashes.length)}{' '}
-            <span className="font-bold">{formatNumber(hashes.length)}</span>{' '}
-            {tChoice(
-              'supported game file hash registered for this game.|supported game file hashes registered for this game.',
-              hashes.length,
-            )}
+            <Trans
+              i18nKey="supportedGameFilesCountLabel"
+              count={hashes.length}
+              values={{ count: hashes.length }}
+            >
+              {hashes.length === 1 ? 'There is currently' : 'There are currently'}{' '}
+              <span className="font-bold">{formatNumber(hashes.length)}</span>{' '}
+              {hashes.length === 1
+                ? 'supported game file hash registered for this game.'
+                : 'supported game file hashes registered for this game.'}
+            </Trans>
           </p>
 
           <HashesList />

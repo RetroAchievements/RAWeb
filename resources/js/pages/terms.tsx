@@ -2,6 +2,7 @@ import { Head } from '@inertiajs/react';
 import { useLaravelReactI18n } from 'laravel-react-i18n';
 
 import { LegalNotice } from '@/common/components/LegalNotice';
+import { Trans } from '@/common/components/Trans';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 
@@ -46,18 +47,22 @@ const Terms: AppPage = () => {
                   {t('Code of Conduct')}
                 </p>
                 <p>
-                  {t('By signing up on RetroAchievements.org, you agree to the')}{' '}
-                  <a href="https://docs.retroachievements.org/guidelines/users/code-of-conduct.html">
-                    {t('Users Code of Conduct')}
-                  </a>
-                  {t('.')}
+                  <Trans i18nKey="By signing up on RetroAchievements.org, you agree to the <0>Users Code of Conduct</0>.">
+                    {'By signing up on RetroAchievements.org, you agree to the '}
+                    <a href="https://docs.retroachievements.org/guidelines/users/code-of-conduct.html">
+                      {'Users Code of Conduct'}
+                    </a>
+                    {'.'}
+                  </Trans>
                 </p>
                 <p>
-                  {t('By joining the Junior Developer and/or Developer team, you agree to the')}{' '}
-                  <a href="https://docs.retroachievements.org/guidelines/developers/code-of-conduct.html">
-                    {t('Developers Code of Conduct')}
-                  </a>
-                  {t('.')}
+                  <Trans i18nKey="By joining the Junior Developer and/or Developer team, you agree to the <0>Developers Code of Conduct</0>.">
+                    {'By joining the Junior Developer and/or Developer team, you agree to the '}
+                    <a href="https://docs.retroachievements.org/guidelines/developers/code-of-conduct.html">
+                      {'Developers Code of Conduct'}
+                    </a>
+                    {'.'}
+                  </Trans>
                 </p>
               </div>
             </div>
