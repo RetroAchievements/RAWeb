@@ -7,7 +7,6 @@ use App\Enums\Permissions;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
-use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
@@ -127,10 +126,8 @@ if ($dateWonLocal === "" && isset($user)) {
 
 $achievedLocal = ($dateWonLocal !== "");
 
-$canEditEventData = false;
 $eventAchievement = null;
 if ($game->system->id === System::Events) {
-    $canEditEventData = $userModel->hasRole(Role::EVENT_MANAGER);
     $eventAchievement = EventAchievement::where('achievement_id', '=', $achievementID)
         ->with('sourceAchievement')->first();
 
