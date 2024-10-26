@@ -317,7 +317,7 @@ function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
 
     $topicPayload = "Official Topic Post for discussion about [game=$gameId]\n" .
         "Created " . date("j M, Y H:i") . " by [user={$user->User}]\n\n" .
-        "[b][url=https://retroachievements.org/linkedhashes.php?g=$gameID]💾 Supported Game Files[/url][/b]\n\n" .
+        "[b][url=https://retroachievements.org/linkedhashes.php?g=$gameId]💾 Supported Game Files[/url][/b]\n\n" .
         "[b]Resources:[/b]\n" .
         // FIXME there is a bug here. these links are malformed for some games, such as game id 26257
         "[url=$gameFAQsURL]GameFAQs[/url]\n" .
