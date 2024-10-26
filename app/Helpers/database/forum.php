@@ -311,13 +311,14 @@ function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
     $urlSafeGameTitle = str_replace(" ", "+", "$gameTitle $consoleName");
     $urlSafeGameTitle = str_replace("'", "''", $urlSafeGameTitle);
 
+    $hashesURL = route('game.hashes.index', ['game' => $gameId]);
     $gameFAQsURL = "https://www.google.com/search?q=site:www.gamefaqs.com+$urlSafeGameTitle";
     $longplaysURL = "https://www.google.com/search?q=site:www.youtube.com+longplay+$urlSafeGameTitle";
     $wikipediaURL = "https://www.google.com/search?q=site:en.wikipedia.org+$urlSafeGameTitle";
 
     $topicPayload = "Official Topic Post for discussion about [game=$gameId]\n" .
         "Created " . date("j M, Y H:i") . " by [user={$user->User}]\n\n" .
-        "[b][url=https://retroachievements.org/linkedhashes.php?g=$gameId]💾 Supported Game Files[/url][/b]\n\n" .
+        "[b][url=$hashesURL]Supported Game Files[/url][/b]\n\n" .
         "[b]Resources:[/b]\n" .
         // FIXME there is a bug here. these links are malformed for some games, such as game id 26257
         "[url=$gameFAQsURL]GameFAQs[/url]\n" .
