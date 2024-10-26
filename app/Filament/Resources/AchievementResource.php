@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\AchievementResource\Pages;
+use App\Filament\Resources\AchievementResource\RelationManagers\EventAchievementsRelationManager;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\User;
@@ -372,7 +373,9 @@ class AchievementResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            EventAchievementsRelationManager::class,
+        ];
     }
 
     public static function getRecordSubNavigation(Page $page): array

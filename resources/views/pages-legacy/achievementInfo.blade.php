@@ -182,22 +182,6 @@ if ($game->system->id === System::Events) {
                 location.reload();
             });
     }
-    <?php if ($canEditEventData): ?>
-    function updateEventAchievementDetails() {
-        showStatusMessage('Updating...');
-
-        var $sourceAchievementId = $('#sourceAchievementId');
-        $.post('/request/achievement/update-event.php', {
-            achievement: <?= $achievementID ?>,
-            sourceAchievementId: $('#sourceAchievementId').val(),
-            activeFromDate: $('#activeFromDate').val(),
-            activeThroughDate: $('#activeThroughDate').val(),
-        })
-            .done(function () {
-                location.reload();
-            });
-    }
-    <?php endif ?>
     </script>
 <?php endif ?>
 
@@ -376,18 +360,6 @@ if ($game->system->id === System::Events) {
 
             echo "</tbody></table>";
             echo "&nbsp;<button type='button' class='btn' style='float: right;' onclick=\"updateAchievementDetails()\">Update</button><br><br>";
-
-            if ($canEditEventData) {
-                echo "<div>Link achievement:</div>";
-                echo "<table><tbody>";
-    
-                echo "<tr><td>Source Achievement ID:</td><td style='width:100%'><input id='sourceAchievementId' type='text' name='a' value='" . $eventAchievement?->source_achievement_id . "' style='width:100%' maxlength='8'></td></tr>";
-                echo "<tr><td>Active From:</td><td style='width:100%'><input id='activeFromDate' type='date' name='f' value='" . $eventAchievement?->active_from?->format('Y-m-d') . "' style='width:100%'></td></tr>";
-                echo "<tr><td>Active Through:</td><td style='width:100%'><input id='activeThroughDate' type='date' name='u' value='" . ($eventAchievement?->active_until ? $eventAchievement->active_until->clone()->subDays(1)->format('Y-m-d') : '') . "' style='width:100%'></td></tr>";
-
-                echo "</tbody></table>";
-                echo "&nbsp;<button type='button' class='btn' style='float: right;' onclick=\"updateEventAchievementDetails()\">Update</button><br><br>";
-            }
 
             echo "<form class='mb-2' method='post' action='/request/achievement/update-image.php' enctype='multipart/form-data'>";
             echo csrf_field();

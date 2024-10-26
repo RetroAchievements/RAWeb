@@ -6,9 +6,11 @@ namespace App\Platform\Actions;
 
 use App\Models\Achievement;
 use App\Models\Comment;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\System;
 use App\Platform\Enums\AchievementFlag;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 
 class CreateAchievementOfTheWeek
@@ -50,35 +52,45 @@ class CreateAchievementOfTheWeek
 
         $index = 0;
         foreach ($achievementIds as $achievementId) {
-            if ($index === $achievementCount - 1) {
-                $nextDate = Carbon::create($year + 1, 1, 1, 0, 0, 0);
-            } else {
-                $nextDate = $date->clone()->addDays(7);
-            }
-
-            $achievement = $achievements->slice($index, 1)->first();
             $sourceAchievement = Achievement::find($achievementId);
 
-            (new UpdateEventAchievement())->execute($achievement, $sourceAchievement, $date, $nextDate->clone()->subDays(1));
-
-            $date = $nextDate;
+            $this->createEventAchievement($index, $date, $achievements, $sourceAchievement);
+            $date->addDays(7);
             $index++;
         }
 
         for ($i = $index; $i < $achievementCount; $i++) {
-            if ($i === $achievementCount - 1) {
-                $nextDate = Carbon::create($year + 1, 1, 1, 0, 0, 0);
-            } else {
-                $nextDate = $date->clone()->addDays(7);
-            }
-
-            $achievement = $achievements->slice($i, 1)->first();
-
-            (new UpdateEventAchievement())->execute($achievement, null, $date, $nextDate->clone()->subDays(1));
-
-            $date = $nextDate;
+            $this->createEventAchievement($i, $date, $achievements, null);
+            $date->addDays(7);
         }
 
         return $event;
+    }
+
+    /**
+     * @param Collection<int, Achievement> $achievements
+     */
+    private function createEventAchievement(int $week, Carbon $date, Collection $achievements, ?Achievement $sourceAchievement): void
+    {
+        if ($week === $achievements->count() - 1) {
+            $nextDate = Carbon::create($date->year + 1, 1, 1, 0, 0, 0);
+        } else {
+            $nextDate = $date->clone()->addDays(7);
+        }
+
+        $achievement = $achievements->slice($week, 1)->first();
+
+        $eventAchievement = EventAchievement::updateOrCreate(
+            ['achievement_id' => $achievement->id],
+            [
+                'source_achievement_id' => $sourceAchievement?->id,
+                'active_from' => $date,
+                'active_until' => $nextDate,
+            ],
+        );
+
+        if ($sourceAchievement) {
+            (new CopyAchievementUnlocksToEventAchievement())->execute($eventAchievement);
+        }
     }
 }

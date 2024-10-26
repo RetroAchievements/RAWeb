@@ -8,12 +8,9 @@ use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class EventAchievement extends BaseModel
 {
-    // TODO use LogsActivity;
-
     protected $table = 'event_achievements';
 
     protected $fillable = [
@@ -21,6 +18,7 @@ class EventAchievement extends BaseModel
         'source_achievement_id',
         'active_from',
         'active_until',
+        'active_through',
     ];
 
     protected $casts = [
@@ -28,7 +26,25 @@ class EventAchievement extends BaseModel
         'active_until' => 'date',
     ];
 
+    protected $appends = [
+        'active_through',
+    ];
+
     // == accessors
+
+    public function getActiveThroughAttribute(): ?Carbon
+    {
+        return $this->active_until ? $this->active_until->clone()->subDays(1) : null;
+    }
+
+    public function setActiveThroughAttribute(Carbon|string|null $value): void
+    {
+        if (is_string($value)) {
+            $value = Carbon::parse($value);
+        }
+
+        $this->active_until = $value ? $value->clone()->addDays(1) : null;
+    }
 
     // == mutators
 

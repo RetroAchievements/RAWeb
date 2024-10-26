@@ -5,20 +5,35 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Action;
 
 use App\Models\Achievement;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\UpdateEventAchievement;
+use App\Platform\Actions\CopyAchievementUnlocksToEventAchievement;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
-class UpdateEventAchievementTest extends TestCase
+class CopyAchievementUnlocksToEventAchievementTest extends TestCase
 {
     use RefreshDatabase;
     use TestsPlayerAchievements;
+
+    private function copyAchievementUnlocksToEventAchievement(Achievement $achievement, ?Achievement $sourceAchievement, ?Carbon $activeFrom, ?Carbon $activeUntil): void
+    {
+        $eventAchievement = EventAchievement::updateOrCreate(
+            ['achievement_id' => $achievement->id],
+            [
+                'source_achievement_id' => $sourceAchievement?->id,
+                'active_from' => $activeFrom,
+                'active_until' => $activeUntil,
+            ],
+        );
+
+        (new CopyAchievementUnlocksToEventAchievement())->execute($eventAchievement);
+    }
 
     public function testAttachSourceAchievement(): void
     {
@@ -58,7 +73,7 @@ class UpdateEventAchievementTest extends TestCase
         $this->assertEquals(0, $achievement->playerAchievements()->count());
 
         // unbounded attachment should copy all hardcore unlocks
-        (new UpdateEventAchievement())->execute($achievement, $sourceAchievement, null, null);
+        $this->copyAchievementUnlocksToEventAchievement($achievement, $sourceAchievement, null, null);
 
         $this->assertEquals(3, $sourceAchievement->playerAchievements()->count());
         $this->assertEquals(2, $achievement->playerAchievements()->count());
@@ -69,7 +84,7 @@ class UpdateEventAchievementTest extends TestCase
         // bounded attachment should only copy hardcore unlocks in range
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
-        (new UpdateEventAchievement())->execute($achievement2, $sourceAchievement, $day2, null); // anything on day2 or later
+        $this->copyAchievementUnlocksToEventAchievement($achievement2, $sourceAchievement, $day2, null); // anything on day2 or later
 
         $this->assertEquals(3, $sourceAchievement->playerAchievements()->count());
         $this->assertEquals(1, $achievement2->playerAchievements()->count());
@@ -79,7 +94,7 @@ class UpdateEventAchievementTest extends TestCase
         // bounded attachment should only copy hardcore unlocks in range
         /** @var Achievement $achievement3 */
         $achievement3 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
-        (new UpdateEventAchievement())->execute($achievement3, $sourceAchievement, null, $day1); // anything before day2
+        $this->copyAchievementUnlocksToEventAchievement($achievement3, $sourceAchievement, null, $day2); // anything before day2
 
         $this->assertEquals(3, $sourceAchievement->playerAchievements()->count());
         $this->assertEquals(1, $achievement3->playerAchievements()->count());
@@ -89,7 +104,7 @@ class UpdateEventAchievementTest extends TestCase
         // bounded attachment should only copy hardcore unlocks in range
         /** @var Achievement $achievement4 */
         $achievement4 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
-        (new UpdateEventAchievement())->execute($achievement4, $sourceAchievement, $day2, $day2); // anything on day2
+        $this->copyAchievementUnlocksToEventAchievement($achievement4, $sourceAchievement, $day2, $day3); // anything on day2
 
         $this->assertEquals(3, $sourceAchievement->playerAchievements()->count());
         $this->assertEquals(1, $achievement4->playerAchievements()->count());
@@ -99,7 +114,7 @@ class UpdateEventAchievementTest extends TestCase
         // bounded attachment should only copy hardcore unlocks in range
         /** @var Achievement $achievement5 */
         $achievement5 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
-        (new UpdateEventAchievement())->execute($achievement5, $sourceAchievement, $day3, $day3); // anything on day3
+        $this->copyAchievementUnlocksToEventAchievement($achievement5, $sourceAchievement, $day3, $day4); // anything on day3
 
         $this->assertEquals(3, $sourceAchievement->playerAchievements()->count());
         $this->assertEquals(0, $achievement5->playerAchievements()->count());
@@ -134,7 +149,7 @@ class UpdateEventAchievementTest extends TestCase
         $this->assertDoesNotHaveHardcoreUnlock($player5, $achievement5);
 
         // adjusting date range to be less inclusive does not remove existing unlocks
-        (new UpdateEventAchievement())->execute($achievement2, $sourceAchievement, $day3, null); // anything on day3 or later
+        $this->copyAchievementUnlocksToEventAchievement($achievement2, $sourceAchievement, $day3, null); // anything on day3 or later
 
         $this->assertEquals(2, $achievement2->playerAchievements()->count());
 
@@ -142,7 +157,7 @@ class UpdateEventAchievementTest extends TestCase
         $this->assertEquals($time2b, $this->getUnlockTime($player4, $achievement2, UnlockMode::Hardcore));
 
         // adjusting date range to be more inclusive does add new unlocks
-        (new UpdateEventAchievement())->execute($achievement2, $sourceAchievement, $day1, null); // anything on day1 or later
+        $this->copyAchievementUnlocksToEventAchievement($achievement2, $sourceAchievement, $day1, null); // anything on day1 or later
 
         $this->assertEquals(3, $achievement2->playerAchievements()->count());
 

@@ -4,34 +4,21 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Community\Enums\ArticleType;
-use App\Models\Achievement;
 use App\Models\EventAchievement;
 use App\Models\PlayerAchievement;
-use App\Models\User;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
-use Carbon\Carbon;
 
-class UpdateEventAchievement
+class CopyAchievementUnlocksToEventAchievement
 {
     public function execute(
-        Achievement $achievement,
-        ?Achievement $sourceAchievement,
-        ?Carbon $activeFrom,
-        ?Carbon $activeThrough,
-        ?User $user = null,
+        EventAchievement $eventAchievement
     ): void {
+        $eventAchievement->loadMissing(['achievement', 'sourceAchievement']);
 
-        $eventAchievement = EventAchievement::updateOrCreate(
-            ['achievement_id' => $achievement->id],
-            [
-                'source_achievement_id' => $sourceAchievement?->id,
-                'active_from' => $activeFrom,
-                'active_until' => $activeThrough ? $activeThrough->clone()->addDays(1) : null,
-            ],
-        );
+        $achievement = $eventAchievement->achievement;
+        $sourceAchievement = $eventAchievement->sourceAchievement;
 
-        if ($sourceAchievement) {
+        if ($achievement && $sourceAchievement) {
             $achievement->title = $sourceAchievement->title;
             $achievement->description = $sourceAchievement->description;
             $achievement->BadgeName = $sourceAchievement->BadgeName;
@@ -51,12 +38,6 @@ class UpdateEventAchievement
                 dispatch(new UnlockPlayerAchievementJob($winner->user_id, $achievement->id, true, $winner->unlocked_hardcore_at))
                     ->onQueue('player-achievements');
             }
-        }
-
-        if ($user) {
-            $auditLog = "{$user->display_name} updated this achievement's event data.";
-
-            addArticleComment('Server', ArticleType::Achievement, $achievement->id, $auditLog, $user->User);
         }
     }
 }

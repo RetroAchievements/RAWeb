@@ -366,6 +366,15 @@ class Achievement extends BaseModel implements HasComments
         return $this->hasOne(EventAchievement::class, 'achievement_id')->first();
     }
 
+    /**
+     * An achievement should have at most one "event data", but this is needed for the management panel
+     * @return HasMany<EventAchievement>
+     */
+    public function eventDatas(): HasMany
+    {
+        return $this->hasMany(EventAchievement::class, 'achievement_id', 'ID');
+    }
+
     // == scopes
 
     /**
