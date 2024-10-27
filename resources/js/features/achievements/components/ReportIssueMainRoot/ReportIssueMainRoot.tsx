@@ -47,7 +47,8 @@ export const ReportIssueMainRoot: FC = () => {
           anchorClassName={buildTrackingClassNames('Click Report Unwelcome Concept')}
         >
           <Trans i18nKey="The achievement contains an <0>unwelcome concept</0>.">
-            {'The achievement contains an '}
+            {/* eslint-disable react/jsx-no-literals */}
+            The achievement contains an{' '}
             <a
               href="https://docs.retroachievements.org/guidelines/content/unwelcome-concepts.html"
               target="_blank"
@@ -55,7 +56,7 @@ export const ReportIssueMainRoot: FC = () => {
             >
               {'unwelcome concept'}
             </a>
-            {'.'}
+            .{/* eslint-enable react/jsx-no-literals */}
           </Trans>
         </ReportIssueOptionItem>
 

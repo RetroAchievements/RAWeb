@@ -50,22 +50,24 @@ export const HashesMainRoot: FC = () => {
           <p>
             {game.forumTopicId ? (
               <Trans i18nKey="Additional information for these hashes may be listed on <0>the game's official forum topic</0>.">
-                {'Additional information for these hashes may be listed on '}
+                {/* eslint-disable react/jsx-no-literals */}
+                Additional information for these hashes may be listed on{' '}
                 <a href={`/viewtopic.php?t=${game.forumTopicId}`}>
-                  {"the game's official forum topic"}
+                  the game's official forum topic
                 </a>
-                {'.'}
+                .{/* eslint-enable react/jsx-no-literals */}
               </Trans>
             ) : null}{' '}
             <Trans i18nKey="Details on how the hash is generated for each system can be found <0>here</0>.">
-              {'Details on how the hash is generated for each system can be found '}
+              {/* eslint-disable react/jsx-no-literals */}
+              Details on how the hash is generated for each system can be found{' '}
               <a
                 href="https://docs.retroachievements.org/developer-docs/game-identification.html"
                 target="_blank"
               >
-                {'here'}
+                here
               </a>
-              {'.'}
+              .{/* eslint-enable react/jsx-no-literals */}
             </Trans>
           </p>
         </Embed>

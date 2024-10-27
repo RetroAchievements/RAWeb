@@ -48,20 +48,22 @@ const Terms: AppPage = () => {
                 </p>
                 <p>
                   <Trans i18nKey="By signing up on RetroAchievements.org, you agree to the <0>Users Code of Conduct</0>.">
-                    {'By signing up on RetroAchievements.org, you agree to the '}
+                    {/* eslint-disable react/jsx-no-literals */}
+                    By signing up on RetroAchievements.org, you agree to the{' '}
                     <a href="https://docs.retroachievements.org/guidelines/users/code-of-conduct.html">
-                      {'Users Code of Conduct'}
+                      Users Code of Conduct
                     </a>
-                    {'.'}
+                    .{/* eslint-enable react/jsx-no-literals */}
                   </Trans>
                 </p>
                 <p>
                   <Trans i18nKey="By joining the Junior Developer and/or Developer team, you agree to the <0>Developers Code of Conduct</0>.">
-                    {'By joining the Junior Developer and/or Developer team, you agree to the '}
+                    {/* eslint-disable react/jsx-no-literals */}
+                    By joining the Junior Developer and/or Developer team, you agree to the{' '}
                     <a href="https://docs.retroachievements.org/guidelines/developers/code-of-conduct.html">
-                      {'Developers Code of Conduct'}
+                      Developers Code of Conduct
                     </a>
-                    {'.'}
+                    .{/* eslint-enable react/jsx-no-literals */}
                   </Trans>
                 </p>
               </div>
