@@ -349,7 +349,7 @@
     "Do not open tickets for network issues.": "Do not open tickets for network issues.",
     "Description": "Description",
     "Be as descriptive as possible.": "Be as descriptive as possible.",
-    "<0>Be <1>very</1> descriptive</0> about what you were doing when the problem happened. Mention if you were using any <2>non-default settings, in-game cheats, glitches</2> or were otherwise playing in some unusual way. If possible, include a <3>link to a save state or save game</3> to help us reproduce the issue.": "<0>Be <1>very</1> descriptive</0> about what you were doing when the problem happened. Mention if you were using any <2>non-default settings, in-game cheats, glitches</2> or were otherwise playing in some unusual way. If possible, include a <3>link to a save state or save game</3> to help us reproduce the issue.",
+    "<0>Be <1>very</1> descriptive</0> about what you were doing when the problem happened. Mention if you were using any <2>non-default settings, a non-English language, in-game cheats, glitches</2> or were otherwise playing in some unusual way. If possible, include a <3>link to a save state or save game</3> to help us reproduce the issue.": "<0>Be <1>very</1> descriptive</0> about what you were doing when the problem happened. Mention if you were using any <2>non-default settings, a non-English language, in-game cheats, glitches</2> or were otherwise playing in some unusual way. If possible, include a <3>link to a save state or save game</3> to help us reproduce the issue.",
     "Emulator Core": "Emulator Core",
     "enter the emulator core...": "enter the emulator core...",
     "Emulator": "Emulator",

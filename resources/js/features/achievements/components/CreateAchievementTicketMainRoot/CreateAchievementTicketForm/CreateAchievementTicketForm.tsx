@@ -78,7 +78,7 @@ export const CreateAchievementTicketForm: FC = () => {
           <DescriptionField />
         </div>
 
-        <div className="flex w-full justify-end">
+        <div className="mt-4 flex w-full justify-end">
           <BaseButton
             type="submit"
             disabled={

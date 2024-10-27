@@ -43,15 +43,15 @@ export const DescriptionField: FC = () => {
               />
             </BaseFormControl>
 
-            <BaseFormDescription className="light:text-neutral-400">
-              <Trans i18nKey="<0>Be <1>very</1> descriptive</0> about what you were doing when the problem happened. Mention if you were using any <2>non-default settings, in-game cheats, glitches</2> or were otherwise playing in some unusual way. If possible, include a <3>link to a save state or save game</3> to help us reproduce the issue.">
+            <BaseFormDescription className="!text-neutral-500 light:text-neutral-400">
+              <Trans i18nKey="<0>Be <1>very</1> descriptive</0> about what you were doing when the problem happened. Mention if you were using any <2>non-default settings, a non-English language, in-game cheats, glitches</2> or were otherwise playing in some unusual way. If possible, include a <3>link to a save state or save game</3> to help us reproduce the issue.">
                 {/* eslint-disable */}
                 <span className="text-neutral-300 light:text-neutral-950">
                   Be <span className="italic">very</span> descriptive
                 </span>{' '}
                 about what you were doing when the problem happened. Mention if you were using any{' '}
                 <span className="text-neutral-300 light:text-neutral-950">
-                  non-default settings, in-game cheats, glitches,
+                  non-default settings, a non-English language, in-game cheats, glitches,
                 </span>{' '}
                 or were otherwise playing in some unusual way. If possible, include a{' '}
                 <span className="text-neutral-300 light:text-neutral-950">link to a save state or save game</span> to help
