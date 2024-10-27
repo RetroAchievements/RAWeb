@@ -38,7 +38,7 @@ export const AchievementBreadcrumbs: FC<AchievementBreadcrumbsProps> = ({
     <div className="navpath mb-3 hidden sm:block">
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
-          <BaseBreadcrumbItem>
+          <BaseBreadcrumbItem aria-label={t('All Games')}>
             <BaseBreadcrumbLink asChild>
               <Link href={route('game.index')}>{t('All Games')}</Link>
             </BaseBreadcrumbLink>
@@ -48,7 +48,7 @@ export const AchievementBreadcrumbs: FC<AchievementBreadcrumbsProps> = ({
             <>
               <BaseBreadcrumbSeparator />
 
-              <BaseBreadcrumbItem>
+              <BaseBreadcrumbItem aria-label={system.name}>
                 <BaseBreadcrumbLink href={route('system.game.index', system.id)}>
                   {system.name}
                 </BaseBreadcrumbLink>
@@ -59,7 +59,7 @@ export const AchievementBreadcrumbs: FC<AchievementBreadcrumbsProps> = ({
           {game ? (
             <>
               <BaseBreadcrumbSeparator />
-              <BaseBreadcrumbItem>
+              <BaseBreadcrumbItem aria-label={game.title}>
                 <BaseBreadcrumbLink href={route('game.show', { game: game.id })}>
                   <GameTitle title={game.title} />
                 </BaseBreadcrumbLink>
@@ -70,7 +70,7 @@ export const AchievementBreadcrumbs: FC<AchievementBreadcrumbsProps> = ({
           {achievement ? (
             <>
               <BaseBreadcrumbSeparator />
-              <BaseBreadcrumbItem>
+              <BaseBreadcrumbItem aria-label={achievement.title}>
                 <BaseBreadcrumbLink
                   href={route('achievement.show', { achievement: achievement.id })}
                 >
@@ -82,7 +82,7 @@ export const AchievementBreadcrumbs: FC<AchievementBreadcrumbsProps> = ({
 
           <BaseBreadcrumbSeparator />
 
-          <BaseBreadcrumbItem>
+          <BaseBreadcrumbItem aria-label={t_currentPageLabel}>
             <BaseBreadcrumbPage>{t_currentPageLabel}</BaseBreadcrumbPage>
           </BaseBreadcrumbItem>
         </BaseBreadcrumbList>

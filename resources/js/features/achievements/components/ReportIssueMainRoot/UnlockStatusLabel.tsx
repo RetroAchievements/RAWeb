@@ -1,6 +1,6 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
+import { Trans } from '@/common/components/Trans';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 // Other elements on the page contain some of the same labels, so we
@@ -11,8 +11,6 @@ export const UnlockStatusLabel: FC = () => {
   const { achievement, hasSession } =
     usePageProps<App.Platform.Data.ReportAchievementIssuePageProps>();
 
-  const { t } = useLaravelReactI18n();
-
   // Don't show any label if the user has never loaded the game.
   if (!hasSession) {
     return null;
@@ -21,8 +19,11 @@ export const UnlockStatusLabel: FC = () => {
   if (!achievement.unlockedAt && !achievement.unlockedHardcoreAt) {
     return (
       <p data-testid={testId}>
-        {t('You')} <span className="font-bold">{t('have not')}</span>{' '}
-        {t('unlocked this achievement.')}
+        <Trans i18nKey="You <0>have not</0> unlocked this achievement.">
+          {/* eslint-disable react/jsx-no-literals */}
+          You <span className="font-bold">have not</span> unlocked this achievement.
+          {/* eslint-enable react/jsx-no-literals */}
+        </Trans>
       </p>
     );
   }
@@ -30,16 +31,22 @@ export const UnlockStatusLabel: FC = () => {
   if (achievement.unlockedHardcoreAt) {
     return (
       <p data-testid={testId}>
-        {t('You')} <span className="font-bold">{t('have')}</span> {t('unlocked this achievement.')}
+        <Trans i18nKey="You <0>have</0> unlocked this achievement.">
+          {/* eslint-disable react/jsx-no-literals */}
+          You <span className="font-bold">have</span> unlocked this achievement.
+          {/* eslint-enable react/jsx-no-literals */}
+        </Trans>
       </p>
     );
   }
 
   return (
     <p data-testid={testId}>
-      {t('You')} <span className="font-bold">{t('have')}</span> {t('unlocked this achievement')}{' '}
-      <span className="font-bold">{t('in softcore')}</span>
-      {t('.')}
+      <Trans i18nKey="You <0>have</0> unlocked this achievement <1>in softcore</1>.">
+        {/* eslint-disable react/jsx-no-literals */}
+        You <span className="font-bold">have</span> unlocked this achievement{' '}
+        <span className="font-bold">in softcore</span>.{/* eslint-enable react/jsx-no-literals */}
+      </Trans>
     </p>
   );
 };

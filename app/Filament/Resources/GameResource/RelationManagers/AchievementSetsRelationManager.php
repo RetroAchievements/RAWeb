@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\RelationManagers;
 
+use App\Filament\Resources\AchievementSetResource;
 use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -53,7 +54,14 @@ class AchievementSetsRelationManager extends RelationManager
             ->recordTitle(fn (AchievementSet $record): string => "{$record->games()->first()->title}")
             ->columns([
                 Tables\Columns\TextColumn::make('title')
-                    ->placeholder('Core Set'),
+                    ->placeholder('Core Set')
+                    ->url(function (AchievementSet $record) {
+                        if (!request()->user()->can('manage', GameAchievementSet::class)) {
+                            return null;
+                        }
+
+                        return AchievementSetResource::getUrl('view', ['record' => $record->id]);
+                    }),
 
                 Tables\Columns\TextColumn::make('type')
                     ->formatStateUsing(fn ($state): string => AchievementSetType::tryFrom($state)?->label())
@@ -194,7 +202,9 @@ class AchievementSetsRelationManager extends RelationManager
                         // It'll use the same achievement_set_id.
 
                         $legacySubsetGame = Game::find((int) $data['game']);
-                        $legacySubsetAchievementSet = $legacySubsetGame->gameAchievementSets()->core()->first();
+                        $legacySubsetAchievementSet = $legacySubsetGame->achievementSets()
+                            ->wherePivot('type', AchievementSetType::Core->value)
+                            ->first();
 
                         if ($game->achievementSets()->wherePivot('achievement_set_id', $legacySubsetAchievementSet->id)->exists()) {
                             Notification::make()
