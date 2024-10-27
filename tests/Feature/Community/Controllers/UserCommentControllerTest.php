@@ -16,6 +16,19 @@ class UserCommentControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function testIndexAllowsUnauthenticatedVisitors(): void
+    {
+        // Arrange
+        /** @var User $targetUser */
+        $targetUser = User::factory()->create(['User' => 'Scott']);
+
+        // Act
+        $response = $this->get(route('user.comment.index', ['user' => $targetUser]));
+
+        // Assert
+        $response->assertOk();
+    }
+
     public function testIndexReturnsCorrectInertiaResponse(): void
     {
         // Arrange

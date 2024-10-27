@@ -43,7 +43,7 @@ class UserCommentController extends CommentController
                         items: CommentData::fromCollection($paginatedComments->getCollection())
                     ),
                     isSubscribed: $isSubscribed,
-                    canComment: (new UserCommentPolicy())->create($me, $user)
+                    canComment: $me ? (new UserCommentPolicy())->create($me, $user) : false
                 );
             }
         );
