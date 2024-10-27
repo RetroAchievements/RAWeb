@@ -28,7 +28,7 @@ export function formatGameReleasedAt(
   if (releasedAtGranularity === 'day') {
     formattedDate = formatDate(dayjsDate, 'll');
   } else if (releasedAtGranularity === 'month') {
-    formattedDate = dayjsDate.format('MMM YYYY');
+    formattedDate = formatDate(dayjsDate, 'MMM YYYY');
   } else {
     formattedDate = dayjsDate.format('YYYY');
   }

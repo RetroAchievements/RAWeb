@@ -3,7 +3,7 @@ import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
-import { createGame, createGameListEntry, createSystem } from '@/test/factories';
+import { createGame, createGameListEntry, createPlayerGame, createSystem } from '@/test/factories';
 
 import { GameListItemElement } from './GameListItemElement';
 
@@ -84,6 +84,28 @@ describe('Component: GameListItemElement', () => {
     // ASSERT
     expect(screen.queryByText(/md/i)).not.toBeInTheDocument();
     expect(container).toBeTruthy();
+  });
+
+  it('given the user has progress, always displays the progress chip', () => {
+    // ARRANGE
+    const system = createSystem({ id: 1, nameShort: 'MD' });
+    const game = createGame({
+      system,
+      id: 1,
+      title: 'Sonic the Hedgehog',
+      achievementsPublished: 100,
+    });
+    const playerGame = createPlayerGame({ achievementsUnlocked: 50 });
+
+    render(
+      <GameListItemElement
+        gameListEntry={createGameListEntry({ game, playerGame })}
+        isLastItem={true}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/50%/i)).toBeVisible();
   });
 
   it('given this is the last item, does not render a horizontal rule', () => {

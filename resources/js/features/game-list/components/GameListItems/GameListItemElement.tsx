@@ -94,25 +94,35 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
               <GameTitle title={game.title} />
             </a>
 
-            <div className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-1">
               {game.system ? (
-                <SystemChip {...game.system} className="light:bg-neutral-200/70" />
+                <SystemChip
+                  {...game.system}
+                  className="light:bg-neutral-200/70"
+                  // Hide the system label when it's a date field. Otherwise, we gets really cramped,
+                  // especially when the localized date format is long, eg: "20 de abril de 1998"
+                  showLabel={sortFieldId !== 'releasedAt' && sortFieldId !== 'lastUpdated'}
+                />
               ) : null}
 
-              {sortFieldId ? (
+              {playerGame ? (
+                <ChipOfInterest game={game} playerGame={playerGame} fieldId="progress" />
+              ) : null}
+
+              {sortFieldId && sortFieldId !== 'progress' ? (
                 <ChipOfInterest
                   game={game}
                   playerGame={playerGame ?? undefined}
-                  sortFieldId={sortFieldId}
+                  fieldId={sortFieldId}
                 />
               ) : null}
             </div>
           </div>
         </div>
 
-        <div className="-mr-2.5 flex self-center">
+        <div className="-mr-1 flex self-center">
           <button
-            className="p-2 text-neutral-100 light:text-neutral-950"
+            className="p-3 text-neutral-100 light:text-neutral-950"
             onClick={handleToggleFromBacklogClick}
             disabled={isPending}
           >
@@ -132,7 +142,7 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
           </button>
 
           <BaseDrawerTrigger asChild>
-            <button className="p-2 text-neutral-100 light:text-neutral-950">
+            <button className="p-3 text-neutral-100 light:text-neutral-950">
               <RxDotsVertical className="h-4 w-4" />
               <span className="sr-only">{t('Open game details')}</span>
             </button>

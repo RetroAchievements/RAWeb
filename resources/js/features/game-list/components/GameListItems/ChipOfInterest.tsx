@@ -24,17 +24,17 @@ interface ChipOfInterestProps {
   game: App.Platform.Data.Game;
 
   playerGame?: App.Platform.Data.PlayerGame;
-  sortFieldId?: string;
+  fieldId?: string;
 }
 
-export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, sortFieldId }) => {
+export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fieldId }) => {
   const { t } = useLaravelReactI18n();
 
   const { formatNumber } = useFormatNumber();
 
   let chipContent: ReactNode = null;
 
-  switch (sortFieldId) {
+  switch (fieldId) {
     case 'achievementsPublished':
       if (gameListFieldIconMap.achievementsPublished) {
         chipContent = (
@@ -73,7 +73,12 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, sort
     case 'lastUpdated':
       if (gameListFieldIconMap.lastUpdated) {
         chipContent = (
-          <BaseChip className="text-neutral-200">
+          <BaseChip
+            className={cn(
+              'tracking-tighter',
+              game.lastUpdated ? 'text-neutral-200' : 'text-text-muted',
+            )}
+          >
             <gameListFieldIconMap.lastUpdated className="h-3 w-3" />
             {game.lastUpdated ? formatDate(dayjs.utc(game.lastUpdated), 'll') : t('unknown')}
           </BaseChip>
@@ -84,7 +89,12 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, sort
     case 'releasedAt':
       if (gameListFieldIconMap.releasedAt) {
         chipContent = (
-          <BaseChip className="text-neutral-200">
+          <BaseChip
+            className={cn(
+              'tracking-tighter',
+              game.releasedAt ? 'text-neutral-200' : 'text-text-muted',
+            )}
+          >
             <gameListFieldIconMap.releasedAt className="h-3 w-3" />
             {game.releasedAt
               ? formatGameReleasedAt(game.releasedAt, game.releasedAtGranularity)
