@@ -205,7 +205,7 @@ const Contact: AppPage = () => {
                     {
                       ' for submissions, questions, ideas, or reporting issues specifically related to '
                     }
-                    <a href={route('game.show', { game: 4721 })}>{'The Unwanted'}</a>
+                    <a href={route('game.show', { game: 4271 })}>{'The Unwanted'}</a>
                     {'.'}
                   </Trans>
                 </p>
