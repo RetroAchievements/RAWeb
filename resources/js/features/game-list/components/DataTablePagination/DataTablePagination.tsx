@@ -15,7 +15,8 @@ interface DataTablePaginationProps<TData> {
   tableApiRouteName?: RouteName;
 }
 
-export function DataTablePagination<TData>({
+// Lazy-loaded, so using a default export.
+export default function DataTablePagination<TData>({
   table,
   tableApiRouteName = 'api.game.index',
 }: DataTablePaginationProps<TData>): ReactNode {

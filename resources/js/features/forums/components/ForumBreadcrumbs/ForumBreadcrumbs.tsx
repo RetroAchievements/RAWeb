@@ -22,13 +22,13 @@ export const ForumBreadcrumbs: FC<ForumBreadcrumbsProps> = ({ t_currentPageLabel
     <div className="navpath mb-3 hidden sm:block">
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
-          <BaseBreadcrumbItem>
+          <BaseBreadcrumbItem aria-label={t('Forum Index')}>
             <BaseBreadcrumbLink href="/forum.php">{t('Forum Index')}</BaseBreadcrumbLink>
           </BaseBreadcrumbItem>
 
           <BaseBreadcrumbSeparator />
 
-          <BaseBreadcrumbItem>
+          <BaseBreadcrumbItem aria-label={t_currentPageLabel}>
             <BaseBreadcrumbPage>{t_currentPageLabel}</BaseBreadcrumbPage>
           </BaseBreadcrumbItem>
         </BaseBreadcrumbList>

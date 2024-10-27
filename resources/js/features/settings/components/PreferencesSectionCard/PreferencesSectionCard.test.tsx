@@ -64,7 +64,7 @@ describe('Component: PreferencesSectionCard', () => {
 
   it('allows the user to change their game subsets opt out preference', async () => {
     // ARRANGE
-    import.meta.env.VITE_FEATURE_MULTISET = 'true';
+    vi.stubEnv('VITE_FEATURE_MULTISET', 'true');
 
     const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });
 
@@ -78,5 +78,15 @@ describe('Component: PreferencesSectionCard', () => {
     expect(putSpy).toHaveBeenCalledWith(route('api.settings.preferences.update'), {
       websitePrefs: 262271,
     });
+  });
+
+  it('given the multiset feature is not available for users, does not show the game sets opt in toggle', () => {
+    // ARRANGE
+    vi.stubEnv('VITE_FEATURE_MULTISET', '');
+
+    render(<PreferencesSectionCard currentWebsitePrefs={127} onUpdateWebsitePrefs={vi.fn()} />);
+
+    // ASSERT
+    expect(screen.queryByRole('switch', { name: /automatically opt in/i })).not.toBeInTheDocument();
   });
 });

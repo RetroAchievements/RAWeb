@@ -135,6 +135,7 @@ return [
      */
     'contains_regular_character' => 'The :attribute must contain at least one regular character.',
     'ctype_alnum' => 'The :attribute must only contain unaccented letters and numbers.',
+    'locale' => 'The :attribute locale is not currently supported.',
 
     /*
     |--------------------------------------------------------------------------

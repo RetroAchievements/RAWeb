@@ -44,7 +44,7 @@ export function useColumnDefinitions(options: {
     columns.push(
       ...([
         buildPlayerGameProgressColumnDef({ t_label: t('Progress') }),
-        buildRowActionsColumnDef(),
+        buildRowActionsColumnDef({ shouldAnimateBacklogIconOnChange: true }),
       ] satisfies ColumnDef<App.Platform.Data.GameListEntry>[]),
     );
 

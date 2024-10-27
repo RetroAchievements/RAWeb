@@ -1,1 +1,1 @@
-export * from './GameListDataTable';
+export { default } from './GameListDataTable';
