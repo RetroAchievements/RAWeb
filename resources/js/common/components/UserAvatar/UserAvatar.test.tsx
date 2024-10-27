@@ -77,4 +77,26 @@ describe('Component: UserAvatar', () => {
     expect(anchorEl).not.toHaveAttribute('x-on:mouseleave');
     expect(anchorEl).not.toHaveAccessibleDescription('x-on:mousemove');
   });
+
+  it('given it is configured to not show an image, does not display an image', () => {
+    // ARRANGE
+    const user = createUser({ displayName: 'Scott' });
+
+    render(<UserAvatar {...user} showImage={false} />);
+
+    // ASSERT
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+
+  it('given the user has a deleted timestamp, strikes through their username', () => {
+    // ARRANGE
+    const user = createUser({ displayName: 'Scott', deletedAt: new Date().toISOString() });
+
+    render(<UserAvatar {...user} />);
+
+    // ASSERT
+    const nameEl = screen.getByText(/scott/i);
+
+    expect(nameEl).toHaveClass('line-through');
+  });
 });

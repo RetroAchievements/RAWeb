@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Community\Data;
 
 use App\Community\Requests\UpdateProfileRequest;
-use App\Models\User;
 use Spatie\LaravelData\Data;
 
 class UpdateProfileData extends Data
@@ -18,9 +17,6 @@ class UpdateProfileData extends Data
 
     public static function fromRequest(UpdateProfileRequest $request): self
     {
-        /** @var User $user */
-        $user = $request->user();
-
         return new self(
             motto: $request->motto,
             userWallActive: $request->userWallActive,
