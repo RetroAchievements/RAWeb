@@ -139,6 +139,50 @@ class UserSettingsControllerTest extends TestCase
         $this->assertEquals(true, $user->UserWallActive);
     }
 
+    public function testUpdateLocale(): void
+    {
+        // Arrange
+        $this->withoutMiddleware();
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'locale' => 'en_US',
+        ]);
+
+        // Act
+        $response = $this->actingAs($user)
+            ->putJson(route('api.settings.locale.update'), [
+                'locale' => 'pt_BR',
+            ]);
+
+        // Assert
+        $response->assertStatus(200);
+
+        $user = $user->fresh();
+        $this->assertEquals('pt_BR', $user->locale);
+    }
+
+    public function testUpdateLocaleWithInvalidLocale(): void
+    {
+        // Arrange
+        $this->withoutMiddleware();
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'locale' => 'en_US',
+        ]);
+
+        // Act
+        $response = $this->actingAs($user)
+            ->putJson(route('api.settings.locale.update'), [
+                'locale' => 'KLINGON',
+            ]);
+
+        // Assert
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['locale']);
+    }
+
     public function testUpdatePreferences(): void
     {
         // Arrange
