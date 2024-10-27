@@ -196,4 +196,73 @@ describe('Component: PlayerGameProgressBar', () => {
     expect(tooltipEl).not.toHaveTextContent(/points/i);
     expect(tooltipEl).toHaveTextContent(/mastered/i);
   });
+
+  it('passes along the given variant to the badge label', () => {
+    // ARRANGE
+    const system = createSystem({ id: 1 });
+    const game = createGame({ system, achievementsPublished: 33, pointsTotal: 400 });
+    const playerGame = createPlayerGame({
+      achievementsUnlocked: game.achievementsPublished,
+      achievementsUnlockedHardcore: game.achievementsPublished,
+      achievementsUnlockedSoftcore: 0,
+      pointsHardcore: game.pointsTotal,
+      highestAward: createPlayerBadge({
+        awardType: AwardType.Mastery,
+        awardDataExtra: 1,
+        awardDate: new Date('2023-05-06').toISOString(),
+      }),
+    });
+
+    render(<PlayerGameProgressBar game={game} playerGame={playerGame} variant="unmuted" />);
+
+    // ASSERT
+    const labelEl = screen.getByText(/mastered/i);
+
+    expect(labelEl).toBeVisible();
+    expect(labelEl).toHaveClass('text-[gold]');
+  });
+
+  it("can be configured to show the player's progress percentage", () => {
+    // ARRANGE
+    const system = createSystem({ id: 1 });
+    const game = createGame({ system, achievementsPublished: 100, pointsTotal: 400 });
+    const playerGame = createPlayerGame({
+      achievementsUnlocked: 80,
+      achievementsUnlockedHardcore: 80,
+      achievementsUnlockedSoftcore: 0,
+      pointsHardcore: game.pointsTotal,
+      highestAward: createPlayerBadge({
+        awardType: AwardType.GameBeaten,
+        awardDataExtra: 1,
+        awardDate: new Date('2023-05-06').toISOString(),
+      }),
+    });
+
+    render(
+      <PlayerGameProgressBar game={game} playerGame={playerGame} showProgressPercentage={true} />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/80\%/i)).toBeVisible();
+  });
+
+  it('given it is configured to show progress percentage and the user has no progress, displays a "none" label', () => {
+    // ARRANGE
+    const system = createSystem({ id: 1 });
+    const game = createGame({ system, achievementsPublished: 100, pointsTotal: 400 });
+    const playerGame = createPlayerGame({
+      achievementsUnlocked: 0,
+      achievementsUnlockedHardcore: 0,
+      achievementsUnlockedSoftcore: 0,
+      pointsHardcore: game.pointsTotal,
+      highestAward: null,
+    });
+
+    render(
+      <PlayerGameProgressBar game={game} playerGame={playerGame} showProgressPercentage={true} />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/none/i)).toBeVisible();
+  });
 });

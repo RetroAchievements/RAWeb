@@ -76,10 +76,6 @@ export function useResetGameProgressForm() {
         url = route('api.user.achievement.destroy', payload.achievementId);
       }
 
-      if (!url.length) {
-        throw new Error('Nothing to reset.');
-      }
-
       return axios.delete(url);
     },
     onSuccess: (_, variables) => {

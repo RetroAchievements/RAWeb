@@ -77,6 +77,7 @@ class RouteServiceProvider extends ServiceProvider
              */
             Route::middleware(['inertia'])->group(function () {
                 Route::get('contact', fn () => Inertia::render('contact'))->name('contact');
+                Route::get('rss', fn () => Inertia::render('rss'))->name('rss.index');
                 Route::get('terms', fn () => Inertia::render('terms'))->name('terms');
             });
             // Route::get('downloads', [DownloadController::class, 'index'])->name('download.index');

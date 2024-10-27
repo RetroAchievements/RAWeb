@@ -53,7 +53,7 @@ describe('Component: SectionFormCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
-    expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+    expect(mockOnSubmit).toHaveBeenCalledOnce();
   });
 
   it('can change its submit button props', () => {

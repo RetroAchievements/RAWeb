@@ -52,7 +52,7 @@ export function useColumnDefinitions(options: {
             t_yes: t('Yes'),
           },
         }),
-        buildRowActionsColumnDef(),
+        buildRowActionsColumnDef({ shouldAnimateBacklogIconOnChange: true }),
       ] satisfies ColumnDef<App.Platform.Data.GameListEntry>[]),
     );
 

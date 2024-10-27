@@ -2,19 +2,24 @@ import type {
   ColumnFiltersState,
   PaginationState,
   SortingState,
+  Table,
   VisibilityState,
 } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { type Dispatch, type FC, type SetStateAction } from 'react';
+import { type Dispatch, type FC, lazy, type SetStateAction, Suspense } from 'react';
 
-import { useGameListQuery } from '@/common/hooks/useGameListQuery';
+import { BaseSkeleton } from '@/common/components/+vendor/BaseSkeleton';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useGameListPaginatedQuery } from '@/features/game-list/hooks/useGameListPaginatedQuery';
 
 import { wantToPlayGamesDefaultFilters } from '../../utils/wantToPlayGamesDefaultFilters';
-import { DataTablePagination } from '../DataTablePagination';
 import { DataTableToolbar } from '../DataTableToolbar';
-import { GameListDataTable } from '../GameListDataTable';
+import { GameListItemsSuspenseFallback } from '../GameListItems/GameListItemsSuspenseFallback';
 import { useColumnDefinitions } from './useColumnDefinitions';
+
+const DataTablePagination = lazy(() => import('../DataTablePagination'));
+const GameListDataTable = lazy(() => import('../GameListDataTable'));
+const GameListItems = lazy(() => import('../GameListItems'));
 
 // These values are all generated from `useGameListState`.
 interface WantToPlayGamesDataTableProps {
@@ -38,19 +43,18 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
   setSorting,
   sorting,
 }) => {
-  const { can } = usePageProps<App.Community.Data.UserGameListPageProps>();
+  const { can, ziggy } = usePageProps<App.Community.Data.UserGameListPageProps>();
 
-  const gameListQuery = useGameListQuery({
+  const gameListQuery = useGameListPaginatedQuery({
     columnFilters,
     pagination,
     sorting,
     apiRouteName: 'api.user-game-list.index',
+    isEnabled: ziggy.device === 'desktop',
   });
 
   const table = useReactTable({
-    columns: useColumnDefinitions({
-      canSeeOpenTicketsColumn: can.develop ?? false,
-    }),
+    columns: useColumnDefinitions({ canSeeOpenTicketsColumn: !!can.develop }),
     data: gameListQuery.data?.items ?? [],
     manualPagination: true,
     manualSorting: true,
@@ -84,9 +88,40 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
         tableApiRouteName="api.user-game-list.index"
       />
 
-      <GameListDataTable table={table} />
+      {ziggy.device === 'mobile' ? (
+        <div className="mt-3">
+          <Suspense fallback={<GameListItemsSuspenseFallback />}>
+            <GameListItems
+              columnFilters={columnFilters}
+              pagination={pagination}
+              sorting={sorting}
+              apiRouteName="api.user-game-list.index"
+              shouldHideItemIfNotInBacklog={true}
+            />
+          </Suspense>
+        </div>
+      ) : null}
 
-      <DataTablePagination table={table} tableApiRouteName="api.user-game-list.index" />
+      {ziggy.device === 'desktop' ? (
+        <div className="flex flex-col gap-3">
+          <Suspense fallback={<BaseSkeleton className="h-[1275px] w-full" />}>
+            <GameListDataTable table={table as Table<unknown>} />
+          </Suspense>
+
+          <Suspense
+            fallback={
+              <div className="flex w-full justify-end">
+                <BaseSkeleton className="h-8 w-44" />
+              </div>
+            }
+          >
+            <DataTablePagination
+              table={table as Table<unknown>}
+              tableApiRouteName="api.user-game-list.index"
+            />
+          </Suspense>
+        </div>
+      ) : null}
     </div>
   );
 };
