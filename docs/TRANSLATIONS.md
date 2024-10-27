@@ -70,7 +70,7 @@ RAWeb/
 }
 ```
 
-- **Consistent Formatting:** Ensure that the structure and formatting (such as indentation) of the JSON file remaining consistent with the original.
+- **Consistent Formatting:** Ensure that the structure and formatting (such as indentation) of the JSON file remains consistent with the original.
 
 ### Handling Placeholders
 
@@ -162,18 +162,10 @@ Once approved, your translations will be merged into the `master` branch and dep
 
 ## Deleting Your Branch
 
-Once your pull request is merged, you can safely delete the branch you created for the translation work.
+After you pull request is merged, it's good practice to delete your working branch to keep your fork clean. GitHub makes this easy:
 
-1. **Delete the Branch Locally:**
+1. Navigate to the merged pull request page, eg: `https://github.com/RetroAchievements/RAWeb/pull/1234`.
+2. Look for the "Delete Branch" button near the bottom of the page.
+3. Click the button to remove the branch from your fork.
 
-```shell
-git branch -d translate/pt_BR
-```
-
-2. **Delete the Branch from Your Fork on GitHub:**
-
-```shell
-git push origin --delete translate/pt_BR
-```
-
-This will help keep your local and remote repositories clean. Each pull request you open should come from a fresh branch.
+For future contributions, always create a new branch for each set of changes. This helps keep your work organized and makes it easier for maintainers to review your contributions.
