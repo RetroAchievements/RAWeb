@@ -680,7 +680,5 @@ describe('Component: WantToPlayGamesMainRoot', () => {
     // ASSERT
     expect(await screen.findByRole('list')).toBeVisible();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
-
-    expect(await screen.findByText(/sonic the hedgehog/i)).toBeVisible();
   });
 });

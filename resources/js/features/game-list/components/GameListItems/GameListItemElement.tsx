@@ -1,5 +1,5 @@
 import { useLaravelReactI18n } from 'laravel-react-i18n';
-import { type FC, useState } from 'react';
+import { type FC, useEffect, useState } from 'react';
 import { MdClose } from 'react-icons/md';
 import { RxDotsVertical } from 'react-icons/rx';
 
@@ -33,15 +33,25 @@ import { GameListItemDrawerContent } from './GameListItemDrawerContent';
 interface GameListItemElementProps {
   gameListEntry: App.Platform.Data.GameListEntry;
 
+  /**
+   * If truthy, non-backlog items will be optimistically hidden from
+   * the list. This is useful specifically for the user's Want to
+   * Play Games List page, where we don't want to trigger a refetch,
+   * but we do want to hide items when they're removed.
+   */
+  shouldHideItemIfNotInBacklog?: boolean;
+
   /** If it's the last item, don't show a border at the bottom. */
   isLastItem?: boolean;
 
+  /** TODO strongly-type this */
   sortFieldId?: string;
 }
 
 export const GameListItemElement: FC<GameListItemElementProps> = ({
   gameListEntry,
   sortFieldId,
+  shouldHideItemIfNotInBacklog = false,
   isLastItem = false,
 }) => {
   const { game, playerGame, isInBacklog } = gameListEntry;
@@ -61,6 +71,12 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
    */
   const [isInBacklogOptimistic, setIsInBacklogOptimistic] = useState(isInBacklog ?? false);
 
+  useEffect(() => {
+    if (isInBacklog) {
+      setIsInBacklogOptimistic(true);
+    }
+  }, [isInBacklog]);
+
   const handleToggleFromBacklogClick = () => {
     if (!auth?.user && typeof window !== 'undefined') {
       window.location.href = route('login');
@@ -68,11 +84,13 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
       return;
     }
 
-    setIsInBacklogOptimistic((prev) => !prev);
+    const newBacklogState = !isInBacklogOptimistic;
+    setIsInBacklogOptimistic(newBacklogState);
 
     const mutationPromise = isInBacklogOptimistic
       ? removeFromWantToPlayGamesList(game.id, game.title, {
           t_successMessage: t('Removed :gameTitle from playlist!', { gameTitle: game.title }),
+          onUndo: () => setIsInBacklogOptimistic(true),
         })
       : addToWantToPlayGamesList(game.id, game.title, {
           t_successMessage: t('Added :gameTitle to playlist!', { gameTitle: game.title }),
@@ -82,6 +100,10 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
       setIsInBacklogOptimistic(isInBacklog ?? false);
     });
   };
+
+  if (shouldHideItemIfNotInBacklog && !isInBacklogOptimistic) {
+    return null;
+  }
 
   return (
     <BaseDrawer shouldScaleBackground={false} modal={false}>

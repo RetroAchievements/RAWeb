@@ -50,8 +50,8 @@ export const GameListItemDrawerBacklogToggleButton: FC<
     onToggle?.(newValue);
 
     const mutationPromise = isInBacklog
-      ? removeFromWantToPlayGamesList(game.id, game.title, { shouldDisableToast: true })
-      : addToWantToPlayGamesList(game.id, game.title, { shouldDisableToast: true });
+      ? removeFromWantToPlayGamesList(game.id, game.title, { shouldEnableToast: false })
+      : addToWantToPlayGamesList(game.id, game.title, { shouldEnableToast: false });
 
     mutationPromise.catch(() => {
       setIsInBacklogOptimistic(isInBacklog);

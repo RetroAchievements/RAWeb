@@ -41,7 +41,7 @@ describe('Hook: useWantToPlayGamesList', () => {
 
     // ACT
     const response = await addToWantToPlayGamesList(1, 'Sonic the Hedgehog', {
-      shouldDisableToast: true,
+      shouldEnableToast: true,
     });
 
     // ASSERT
@@ -119,7 +119,7 @@ describe('Hook: useWantToPlayGamesList', () => {
 
     // ACT
     const response = await removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog', {
-      shouldDisableToast: true,
+      shouldEnableToast: true,
     });
 
     // ASSERT

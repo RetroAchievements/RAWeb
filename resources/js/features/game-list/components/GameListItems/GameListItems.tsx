@@ -26,6 +26,14 @@ interface GameListItemsProps {
   columnFilters: ColumnFiltersState;
 
   apiRouteName?: RouteName;
+
+  /**
+   * If truthy, non-backlog items will be optimistically hidden from
+   * the list. This is useful specifically for the user's Want to
+   * Play Games List page, where we don't want to trigger a refetch,
+   * but we do want to hide items when they're removed.
+   */
+  shouldHideItemIfNotInBacklog?: boolean;
 }
 
 const GameListItems: FC<GameListItemsProps> = ({
@@ -33,6 +41,7 @@ const GameListItems: FC<GameListItemsProps> = ({
   pagination,
   sorting,
   apiRouteName = 'api.game.index',
+  shouldHideItemIfNotInBacklog = false,
 }) => {
   const { ziggy } = usePageProps();
 
@@ -127,6 +136,7 @@ const GameListItems: FC<GameListItemsProps> = ({
                     gameListEntry={item}
                     sortFieldId={sorting?.[0]?.id}
                     isLastItem={isLastItem}
+                    shouldHideItemIfNotInBacklog={shouldHideItemIfNotInBacklog}
                   />
                 </li>
               );

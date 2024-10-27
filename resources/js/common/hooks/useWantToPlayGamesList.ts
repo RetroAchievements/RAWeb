@@ -19,16 +19,16 @@ export function useWantToPlayGamesList() {
   const addToWantToPlayGamesList = (
     gameId: number,
     gameTitle: string,
-    options?: Partial<{ isUndo: boolean; shouldDisableToast: boolean; t_successMessage?: string }>,
+    options?: Partial<{ isUndo: boolean; shouldEnableToast: boolean; t_successMessage?: string }>,
   ) => {
-    const mutationPromise = addToBacklogMutation.mutateAsync(gameId, {
-      onSuccess: () => {
-        // Trigger a refetch of the current table page data and bust the entire cache.
-        queryClient.invalidateQueries({ queryKey: ['data'] });
-      },
+    const mutationPromise = addToBacklogMutation.mutateAsync(gameId);
+
+    mutationPromise.then(() => {
+      // Trigger a refetch of the current table page data and bust the entire cache.
+      queryClient.invalidateQueries({ queryKey: ['data'] });
     });
 
-    if (!options?.shouldDisableToast) {
+    if (options?.shouldEnableToast !== false) {
       toastMessage.promise(mutationPromise, {
         loading: options?.isUndo ? t('Restoring...') : t('Adding...'),
         success: () => {
@@ -48,20 +48,28 @@ export function useWantToPlayGamesList() {
   const removeFromWantToPlayGamesList = (
     gameId: number,
     gameTitle: string,
-    options?: Partial<{ shouldDisableToast: boolean; t_successMessage?: string }>,
+    options?: Partial<{
+      shouldEnableToast: boolean;
+      t_successMessage?: string;
+      onUndo?: () => void;
+    }>,
   ) => {
-    const mutationPromise = removeFromBacklogMutation.mutateAsync(gameId, {
-      onSuccess: () => {
-        // Trigger a refetch of the current table page data and bust the entire cache.
-        queryClient.invalidateQueries({ queryKey: ['data'] });
-      },
+    const mutationPromise = removeFromBacklogMutation.mutateAsync(gameId);
+
+    mutationPromise.then(() => {
+      // Trigger a refetch of the current table page data and bust the entire cache.
+      queryClient.invalidateQueries({ queryKey: ['data'] });
     });
 
-    if (!options?.shouldDisableToast) {
+    if (options?.shouldEnableToast !== false) {
       toastMessage.promise(mutationPromise, {
         action: {
           label: t('Undo'),
-          onClick: () => addToWantToPlayGamesList(gameId, gameTitle, { isUndo: true }),
+          onClick: () => {
+            options?.onUndo?.();
+
+            return addToWantToPlayGamesList(gameId, gameTitle, { isUndo: true });
+          },
         },
         loading: t('Removing...'),
         success: () => {

@@ -96,6 +96,7 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
               pagination={pagination}
               sorting={sorting}
               apiRouteName="api.user-game-list.index"
+              shouldHideItemIfNotInBacklog={true}
             />
           </Suspense>
         </div>
