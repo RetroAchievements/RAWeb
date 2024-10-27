@@ -32,7 +32,7 @@ class UpdateGameAchievementsMetrics
             ->leftJoin('UserAccounts as user', 'user.ID', '=', 'player_achievements.user_id')
             ->whereIn('player_achievements.achievement_id', $achievementIds)
             ->where('user.Untracked', false)
-            ->groupBy('player_achievements.achievement_id')    
+            ->groupBy('player_achievements.achievement_id')
             ->selectRaw('
                 player_achievements.achievement_id,
                 COUNT(*) as total_unlocks,
