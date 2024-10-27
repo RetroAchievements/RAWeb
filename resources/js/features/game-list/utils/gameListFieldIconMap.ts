@@ -2,7 +2,7 @@ import { FaCalendarDay, FaTicketAlt } from 'react-icons/fa';
 import { ImTrophy } from 'react-icons/im';
 import { IoLogoGameControllerA } from 'react-icons/io';
 import type { IconType } from 'react-icons/lib';
-import { LuBox, LuCalendarPlus, LuCircleDot, LuConstruction, LuGem, LuUser } from 'react-icons/lu';
+import { LuBox, LuCalendarPlus, LuCircleDot, LuGem, LuUser, LuWrench } from 'react-icons/lu';
 import { MdOutlineLeaderboard } from 'react-icons/md';
 import { PiMedalFill } from 'react-icons/pi';
 
@@ -10,7 +10,7 @@ export const gameListFieldIconMap: Partial<
   Record<keyof App.Platform.Data.Game | 'progress' | 'retroRatio', IconType>
 > = {
   achievementsPublished: ImTrophy,
-  hasActiveOrInReviewClaims: LuConstruction,
+  hasActiveOrInReviewClaims: LuWrench,
   lastUpdated: LuCalendarPlus,
   numUnresolvedTickets: FaTicketAlt,
   numVisibleLeaderboards: MdOutlineLeaderboard,
