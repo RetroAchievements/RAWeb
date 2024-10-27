@@ -39,7 +39,7 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
       if (gameListFieldIconMap.achievementsPublished) {
         chipContent = (
           <BaseChip className="text-neutral-200">
-            <gameListFieldIconMap.achievementsPublished className="h-3 w-3" />
+            <gameListFieldIconMap.achievementsPublished className="size-3" />
             {formatNumber(game.achievementsPublished ?? 0)}
           </BaseChip>
         );
@@ -50,7 +50,7 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
       if (gameListFieldIconMap.pointsTotal) {
         chipContent = (
           <BaseChip className="text-neutral-200">
-            <gameListFieldIconMap.pointsTotal className="h-3 w-3" />
+            <gameListFieldIconMap.pointsTotal className="size-3" />
             {formatNumber(game.pointsTotal ?? 0)}
           </BaseChip>
         );
@@ -61,7 +61,7 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
       if (gameListFieldIconMap.retroRatio) {
         chipContent = (
           <BaseChip className="text-neutral-200">
-            <gameListFieldIconMap.retroRatio className="h-3 w-3" />
+            <gameListFieldIconMap.retroRatio className="size-3" />
             {game.pointsTotal
               ? buildGameRarityLabel(game.pointsTotal, game.pointsWeighted)
               : t('none')}
@@ -79,7 +79,7 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
               game.lastUpdated ? 'text-neutral-200' : 'text-text-muted',
             )}
           >
-            <gameListFieldIconMap.lastUpdated className="h-3 w-3" />
+            <gameListFieldIconMap.lastUpdated className="size-3" />
             {game.lastUpdated ? formatDate(dayjs.utc(game.lastUpdated), 'll') : t('unknown')}
           </BaseChip>
         );
@@ -95,7 +95,7 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
               game.releasedAt ? 'text-neutral-200' : 'text-text-muted',
             )}
           >
-            <gameListFieldIconMap.releasedAt className="h-3 w-3" />
+            <gameListFieldIconMap.releasedAt className="size-3" />
             {game.releasedAt
               ? formatGameReleasedAt(game.releasedAt, game.releasedAtGranularity)
               : t('unknown')}
@@ -108,7 +108,7 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
       if (gameListFieldIconMap.playersTotal) {
         chipContent = (
           <BaseChip className="text-neutral-200">
-            <gameListFieldIconMap.playersTotal className="h-3 w-3" />
+            <gameListFieldIconMap.playersTotal className="size-3" />
             {formatNumber(game.playersTotal ?? 0)}
           </BaseChip>
         );
@@ -119,7 +119,7 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
       if (gameListFieldIconMap.numVisibleLeaderboards) {
         chipContent = (
           <BaseChip className="text-neutral-200">
-            <gameListFieldIconMap.numVisibleLeaderboards className="h-3 w-3" />
+            <gameListFieldIconMap.numVisibleLeaderboards className="size-3" />
             {formatNumber(game.numVisibleLeaderboards ?? 0)}
           </BaseChip>
         );
@@ -130,7 +130,7 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
       if (gameListFieldIconMap.numUnresolvedTickets) {
         chipContent = (
           <BaseChip className="text-neutral-200">
-            <gameListFieldIconMap.numUnresolvedTickets className="h-3 w-3" />
+            <gameListFieldIconMap.numUnresolvedTickets className="size-3" />
             {formatNumber(game.numUnresolvedTickets ?? 0)}
           </BaseChip>
         );
@@ -160,6 +160,17 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
                 maximumFractionDigits: 0,
                 minimumFractionDigits: 0,
               })}
+          </BaseChip>
+        );
+      }
+      break;
+
+    case 'hasActiveOrInReviewClaims':
+      if (gameListFieldIconMap.hasActiveOrInReviewClaims && game.hasActiveOrInReviewClaims) {
+        chipContent = (
+          <BaseChip className="text-neutral-200">
+            <gameListFieldIconMap.hasActiveOrInReviewClaims className="size-3" />
+            {t('Claimed')}
           </BaseChip>
         );
       }

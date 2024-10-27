@@ -8,6 +8,7 @@ import {
 } from '@/common/components/+vendor/BaseTooltip';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
+import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildHasActiveOrInReviewClaimsColumnDefProps {
   t_label: string;
@@ -27,14 +28,9 @@ export function buildHasActiveOrInReviewClaimsColumnDef({
   return {
     id: 'hasActiveOrInReviewClaims',
     accessorKey: 'game',
-    meta: { t_label },
+    meta: { t_label, sortType: 'boolean', Icon: gameListFieldIconMap.hasActiveOrInReviewClaims },
     header: ({ column, table }) => (
-      <DataTableColumnHeader
-        column={column}
-        table={table}
-        tableApiRouteName={tableApiRouteName}
-        sortType="boolean"
-      />
+      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
     cell: ({ row }) => {
       const hasActiveOrInReviewClaims = row.original.game?.hasActiveOrInReviewClaims ?? false;

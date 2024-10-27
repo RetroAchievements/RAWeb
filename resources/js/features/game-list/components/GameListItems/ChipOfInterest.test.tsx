@@ -200,6 +200,26 @@ describe('Component: ChipOfInterest', () => {
     expect(screen.getByText(/0/i)).toBeVisible();
   });
 
+  it('given the field is hasActiveOrInReviewClaims and the game is claimed, shows a chip', () => {
+    // ARRANGE
+    const game = createGame({ hasActiveOrInReviewClaims: true });
+
+    render(<ChipOfInterest game={game} fieldId="hasActiveOrInReviewClaims" />);
+
+    // ASSERT
+    expect(screen.getByText(/claimed/i)).toBeVisible();
+  });
+
+  it('given the field is hasActiveOrInReviewClaims and the game is not claimed, does not show a chip', () => {
+    // ARRANGE
+    const game = createGame({ hasActiveOrInReviewClaims: false });
+
+    render(<ChipOfInterest game={game} fieldId="hasActiveOrInReviewClaims" />);
+
+    // ASSERT
+    expect(screen.queryByText(/claimed/i)).not.toBeInTheDocument();
+  });
+
   it('given the field is progress and the player has mastered the game, renders a mastery symbol with no 100% label', () => {
     // ARRANGE
     const game = createGame({ achievementsPublished: 100, system: createSystem({ id: 1 }) });
