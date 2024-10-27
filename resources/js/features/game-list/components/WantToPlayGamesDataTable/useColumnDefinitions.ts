@@ -28,8 +28,8 @@ export function useColumnDefinitions(options: {
     const columns: ColumnDef<App.Platform.Data.GameListEntry>[] = [
       buildTitleColumnDef({
         t_label: t('Title'),
-        tableApiRouteName,
         forUsername: options.forUsername,
+        tableApiRouteName,
       }),
       buildSystemColumnDef({ t_label: t('System'), tableApiRouteName }),
       buildAchievementsPublishedColumnDef({ t_label: t('Achievements'), tableApiRouteName }),
@@ -58,7 +58,7 @@ export function useColumnDefinitions(options: {
     columns.push(
       ...([
         buildPlayerGameProgressColumnDef({ t_label: t('Progress'), tableApiRouteName }),
-        buildRowActionsColumnDef(),
+        buildRowActionsColumnDef({ shouldAnimateBacklogIconOnChange: false }),
       ] satisfies ColumnDef<App.Platform.Data.GameListEntry>[]),
     );
 
