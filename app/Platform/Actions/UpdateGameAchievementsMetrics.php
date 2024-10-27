@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Game;
-use Illuminate\Support\Facades\DB;
+use App\Models\PlayerAchievement;
 
 class UpdateGameAchievementsMetrics
 {
@@ -28,16 +28,16 @@ class UpdateGameAchievementsMetrics
         $achievementIds = $achievements->pluck('ID')->all();
 
         // Get both total and hardcore counts in a single query.
-        $unlockStats = DB::table('player_achievements as pa')
-            ->leftJoin('UserAccounts as user', 'user.ID', '=', 'pa.user_id')
-            ->whereIn('pa.achievement_id', $achievementIds)
+        $unlockStats = PlayerAchievement::query()
+            ->leftJoin('UserAccounts as user', 'user.ID', '=', 'player_achievements.user_id')
+            ->whereIn('player_achievements.achievement_id', $achievementIds)
             ->where('user.Untracked', false)
-            ->groupBy('pa.achievement_id')
-            ->select([
-                'pa.achievement_id',
-                DB::raw('COUNT(*) as total_unlocks'),
-                DB::raw('SUM(CASE WHEN unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) as hardcore_unlocks'),
-            ])
+            ->groupBy('player_achievements.achievement_id')    
+            ->selectRaw('
+                player_achievements.achievement_id,
+                COUNT(*) as total_unlocks,
+                SUM(CASE WHEN unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) as hardcore_unlocks
+            ')
             ->get();
 
         // Convert to lookup arrays for faster read access.
