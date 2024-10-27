@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Enums;
 
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+#[TypeScript]
 abstract class UnlockMode
 {
     public const Softcore = 0;

@@ -21,7 +21,7 @@ const BaseSelectTrigger = React.forwardRef<
     className={cn(
       'flex h-10 w-full items-center justify-between rounded-md border light:border-neutral-200',
       'px-3 py-2 text-sm light:bg-white light:ring-offset-white light:placeholder:text-neutral-500',
-      'focus:outline-none focus:ring-2 focus:ring-offset-2 light:focus:ring-neutral-950',
+      'focus:outline-none focus:ring-1 focus:ring-offset-1 light:focus:ring-neutral-950',
       'disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
       'border-neutral-800 bg-neutral-950 text-menu-link ring-offset-neutral-950 placeholder:text-neutral-400',
       'focus:ring-neutral-300',

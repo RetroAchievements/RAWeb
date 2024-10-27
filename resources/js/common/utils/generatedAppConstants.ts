@@ -1,5 +1,17 @@
 /* eslint-disable */
 /* generated with `composer types` */
+export const UnlockMode = {
+    Softcore: 0,
+    Hardcore: 1,
+} as const;
+
+
+export const StringifiedUnlockMode = {
+    Softcore: '0',
+    Hardcore: '1',
+} as const;
+
+
 export const UserPreference = {
     EmailOn_ActivityComment: 0,
     EmailOn_AchievementComment: 1,

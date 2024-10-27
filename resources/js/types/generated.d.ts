@@ -96,6 +96,8 @@ declare namespace App.Data {
     legacyPermissions?: number | null;
     locale?: string | null;
     motto?: string;
+    points?: number;
+    pointsSoftcore?: number;
     preferences?: { prefersAbsoluteDates: boolean };
     roles?: App.Models.UserRole[];
     apiKey?: string | null;
@@ -172,6 +174,20 @@ declare namespace App.Platform.Data {
     game?: App.Platform.Data.Game;
     unlockedAt?: string;
     unlockedHardcoreAt?: string;
+  };
+  export type CreateAchievementTicketPageProps = {
+    achievement: App.Platform.Data.Achievement;
+    emulators: Array<App.Platform.Data.Emulator>;
+    gameHashes: Array<App.Platform.Data.GameHash>;
+    selectedEmulator: string | null;
+    selectedGameHashId: number | null;
+    emulatorVersion: string | null;
+    emulatorCore: string | null;
+    selectedMode: number | null;
+  };
+  export type Emulator = {
+    id: number;
+    name: string;
   };
   export type Game = {
     id: number;
@@ -261,6 +277,7 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
+  export type UnlockMode = 0 | 1;
   export type AchievementSetType =
     | 'core'
     | 'bonus'

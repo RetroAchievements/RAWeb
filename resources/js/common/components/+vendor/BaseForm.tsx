@@ -2,6 +2,7 @@
 
 import type * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import * as React from 'react';
 import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
 import { Controller, FormProvider, useFormContext } from 'react-hook-form';
@@ -136,6 +137,7 @@ const BaseFormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
+  const { t } = useLaravelReactI18n();
   const { error, formMessageId } = useBaseFormField();
   const body = error ? String(error?.message) : children;
 
@@ -150,7 +152,7 @@ const BaseFormMessage = React.forwardRef<
       className={cn('text-sm font-medium text-red-500 dark:text-red-900', className)}
       {...props}
     >
-      {body}
+      {children ?? t(body as string)}
     </p>
   );
 });

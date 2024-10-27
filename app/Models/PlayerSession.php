@@ -5,11 +5,19 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BasePivot;
+use Database\Factories\PlayerSessionFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PlayerSession extends BasePivot
 {
+    /*
+     * Framework Traits
+     */
+    /** @use HasFactory<PlayerSessionFactory> */
+    use HasFactory;
+
     protected $table = 'player_sessions';
 
     protected $fillable = [
@@ -27,6 +35,11 @@ class PlayerSession extends BasePivot
     protected $casts = [
         'rich_presence_updated_at' => 'datetime',
     ];
+
+    protected static function newFactory(): PlayerSessionFactory
+    {
+        return PlayerSessionFactory::new();
+    }
 
     // == accessors
 
