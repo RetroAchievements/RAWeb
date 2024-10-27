@@ -25,7 +25,7 @@ describe('Component: HomeRoot', () => {
     expect(screen.getByRole('heading', { name: /active players/i })).toBeVisible();
     expect(screen.getByRole('heading', { name: /currently online/i })).toBeVisible();
     expect(screen.getByRole('heading', { name: /latest sets in progress/i })).toBeVisible();
-    expect(screen.getByRole('heading', { name: /forum recent posts/i })).toBeVisible();
+    expect(screen.getByRole('heading', { name: /recent forum posts/i })).toBeVisible();
   });
 
   it('given the user is not logged in, shows a welcome section', () => {

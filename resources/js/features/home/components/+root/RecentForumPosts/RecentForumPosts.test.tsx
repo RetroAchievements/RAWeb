@@ -16,7 +16,7 @@ describe('Component: RecentForumPosts', () => {
     render(<RecentForumPosts />);
 
     // ASSERT
-    expect(screen.getByRole('heading', { name: /forum recent posts/i })).toBeVisible();
+    expect(screen.getByRole('heading', { name: /recent forum posts/i })).toBeVisible();
   });
 
   it.todo('displays an empty state if there are no forum posts');

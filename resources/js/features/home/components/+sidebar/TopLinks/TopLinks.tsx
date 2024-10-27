@@ -29,12 +29,12 @@ export const TopLinks: FC = () => {
 
       <div className="flex flex-col gap-2.5 sm:grid sm:grid-cols-2 lg:flex">
         <a href="/globalRanking.php" className={baseButtonVariants({ size: 'sm' })}>
-          <LuCircleDot className="mr-2 h-4 w-4 text-amber-400" />
+          <PiMedalFill className="mr-2 h-4 w-4 text-amber-400" />
           {t('Global Points Ranking')}
         </a>
 
         <a href={route('ranking.beaten-games')} className={baseButtonVariants({ size: 'sm' })}>
-          <PiMedalFill className="mr-2 h-4 w-4 text-amber-400" />
+          <LuCircleDot className="mr-2 h-4 w-4 text-amber-400" />
           {t('Global Beaten Games Ranking')}
         </a>
       </div>
