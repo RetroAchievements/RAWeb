@@ -1,11 +1,24 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
+import type { FC } from 'react';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen, waitFor } from '@/test';
+import { render, screen } from '@/test';
 import { createGame } from '@/test/factories';
 
+import { useGameBacklogState } from '../../useGameBacklogState';
 import { GameListItemDrawerBacklogToggleButton } from './GameListItemDrawerBacklogToggleButton';
+
+interface TestHarnessProps {
+  game: App.Platform.Data.Game;
+  isInitiallyInBacklog: boolean;
+}
+
+const TestHarness: FC<TestHarnessProps> = ({ game, isInitiallyInBacklog }) => {
+  const backlogState = useGameBacklogState({ game, isInitiallyInBacklog });
+
+  return <GameListItemDrawerBacklogToggleButton game={game} backlogState={backlogState} />;
+};
 
 describe('Component: GameListItemDrawerBacklogToggleButton', () => {
   let originalUrl: string;
@@ -25,9 +38,9 @@ describe('Component: GameListItemDrawerBacklogToggleButton', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(
-      <GameListItemDrawerBacklogToggleButton game={createGame()} isInBacklog={false} />,
-    );
+    const { container } = render(<TestHarness game={createGame()} isInitiallyInBacklog={false} />, {
+      pageProps: { auth: { user: createAuthenticatedUser() } },
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -35,7 +48,9 @@ describe('Component: GameListItemDrawerBacklogToggleButton', () => {
 
   it("given the game is not in the user's backlog, renders an accessible button that allows them to add it", () => {
     // ARRANGE
-    render(<GameListItemDrawerBacklogToggleButton game={createGame()} isInBacklog={false} />);
+    render(<TestHarness game={createGame()} isInitiallyInBacklog={false} />, {
+      pageProps: { auth: { user: createAuthenticatedUser() } },
+    });
 
     // ASSERT
     expect(screen.getByRole('button', { name: /add to want to play games/i })).toBeVisible();
@@ -44,7 +59,9 @@ describe('Component: GameListItemDrawerBacklogToggleButton', () => {
 
   it("given the game is currently in the user's backlog, renders an accessible button that allows them to remove it", () => {
     // ARRANGE
-    render(<GameListItemDrawerBacklogToggleButton game={createGame()} isInBacklog={true} />);
+    render(<TestHarness game={createGame()} isInitiallyInBacklog={true} />, {
+      pageProps: { auth: { user: createAuthenticatedUser() } },
+    });
 
     // ASSERT
     expect(screen.getByRole('button', { name: /remove from want to play games/i })).toBeVisible();
@@ -53,7 +70,7 @@ describe('Component: GameListItemDrawerBacklogToggleButton', () => {
 
   it('given the user is not authenticated and presses the button, redirects them to login', async () => {
     // ARRANGE
-    render(<GameListItemDrawerBacklogToggleButton game={createGame()} isInBacklog={false} />, {
+    render(<TestHarness game={createGame()} isInitiallyInBacklog={false} />, {
       pageProps: { auth: null },
     });
 
@@ -70,7 +87,7 @@ describe('Component: GameListItemDrawerBacklogToggleButton', () => {
 
     const game = createGame({ id: 1 });
 
-    render(<GameListItemDrawerBacklogToggleButton game={game} isInBacklog={false} />, {
+    render(<TestHarness game={game} isInitiallyInBacklog={false} />, {
       pageProps: { auth: { user: createAuthenticatedUser() } },
     });
 
@@ -84,33 +101,13 @@ describe('Component: GameListItemDrawerBacklogToggleButton', () => {
     });
   });
 
-  // FIXME this test is throwing a exception vitest can't handle
-  it.skip('given the back-end API call throws, reverts the optimistic state', async () => {
-    // ARRANGE
-    vi.spyOn(axios, 'post').mockRejectedValueOnce({ success: false });
-
-    const game = createGame({ id: 1 });
-
-    render(<GameListItemDrawerBacklogToggleButton game={game} isInBacklog={false} />, {
-      pageProps: { auth: { user: createAuthenticatedUser() } },
-    });
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /add to want to play games/i }));
-
-    // ASSERT
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /add to want to play games/i })).toBeVisible();
-    });
-  });
-
   it("given the game is currently in the user's backlog and the user presses the button, makes the call to remove the game from the user's backlog", async () => {
     // ARRANGE
     const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
 
     const game = createGame({ id: 1 });
 
-    render(<GameListItemDrawerBacklogToggleButton game={game} isInBacklog={true} />, {
+    render(<TestHarness game={game} isInitiallyInBacklog={true} />, {
       pageProps: { auth: { user: createAuthenticatedUser() } },
     });
 

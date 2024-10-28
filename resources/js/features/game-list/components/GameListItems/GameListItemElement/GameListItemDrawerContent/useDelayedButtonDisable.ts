@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
  * If the user performs the action too quickly, the database gets
  * upset about unique constraint collisions.
  */
-export const useDelayedButtonDisable = (isPending: boolean, delay = 1000) => {
+export function useDelayedButtonDisable(isPending: boolean, delay = 1000) {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   useEffect(() => {
@@ -21,4 +21,4 @@ export const useDelayedButtonDisable = (isPending: boolean, delay = 1000) => {
   }, [isPending, delay]);
 
   return isButtonDisabled;
-};
+}

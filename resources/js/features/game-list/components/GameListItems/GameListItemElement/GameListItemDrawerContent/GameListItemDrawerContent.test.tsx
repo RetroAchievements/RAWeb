@@ -1,3 +1,4 @@
+import { BaseDrawer } from '@/common/components/+vendor/BaseDrawer';
 import { createAuthenticatedUser } from '@/common/models';
 import { AwardType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
@@ -11,10 +12,39 @@ import {
 
 import { GameListItemDrawerContent } from './GameListItemDrawerContent';
 
+// Suppress "Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}."
+console.warn = vi.fn();
+
 describe('Component: GameListItemDrawerContent', () => {
+  let originalUrl: string;
+
+  beforeEach(() => {
+    originalUrl = window.location.href;
+
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: { href: 'http://localhost?param1=oldValue1&param2=oldValue2' },
+    });
+  });
+
+  afterEach(() => {
+    window.location.href = originalUrl;
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<GameListItemDrawerContent {...createGameListEntry()} />);
+    const { container } = render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry()}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+    );
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -23,9 +53,16 @@ describe('Component: GameListItemDrawerContent', () => {
   it('displays an accessible image representing the game', () => {
     // ARRANGE
     render(
-      <GameListItemDrawerContent
-        {...createGameListEntry({ game: createGame({ title: 'Sonic the Hedgehog' }) })}
-      />,
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game: createGame({ title: 'Sonic the Hedgehog' }) })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
     );
 
     // ASSERT
@@ -35,9 +72,16 @@ describe('Component: GameListItemDrawerContent', () => {
   it('always shows the game title', () => {
     // ARRANGE
     render(
-      <GameListItemDrawerContent
-        {...createGameListEntry({ game: createGame({ title: 'Sonic the Hedgehog' }) })}
-      />,
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game: createGame({ title: 'Sonic the Hedgehog' }) })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
     );
 
     // ASSERT
@@ -47,9 +91,16 @@ describe('Component: GameListItemDrawerContent', () => {
   it('there is always one or more tappable links directly to the game page', () => {
     // ARRANGE
     render(
-      <GameListItemDrawerContent
-        {...createGameListEntry({ game: createGame({ title: 'Sonic the Hedgehog' }) })}
-      />,
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game: createGame({ title: 'Sonic the Hedgehog' }) })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
     );
 
     // ASSERT
@@ -65,7 +116,18 @@ describe('Component: GameListItemDrawerContent', () => {
       system: createSystem({ name: 'Sega Genesis/Mega Drive', nameShort: 'MD' }),
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game })} />);
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+    );
 
     // ASSERT
     expect(screen.getByText(/sega genesis/i)).toBeVisible();
@@ -79,7 +141,18 @@ describe('Component: GameListItemDrawerContent', () => {
       system: undefined,
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game })} />);
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+    );
 
     // ASSERT
     expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
@@ -92,7 +165,18 @@ describe('Component: GameListItemDrawerContent', () => {
       releasedAtGranularity: 'day',
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game })} />);
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+    );
 
     // ASSERT
     const releaseDateEl = screen.getByRole('listitem', { name: /release date/i });
@@ -109,7 +193,18 @@ describe('Component: GameListItemDrawerContent', () => {
       releasedAtGranularity: 'day',
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game })} />);
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+    );
 
     // ASSERT
     const releaseDateEl = screen.getByRole('listitem', { name: /release date/i });
@@ -125,7 +220,18 @@ describe('Component: GameListItemDrawerContent', () => {
       achievementsPublished: 123,
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game })} />);
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+    );
 
     // ASSERT
     const achievementsPublishedEl = screen.getByRole('listitem', { name: /achievements/i });
@@ -141,7 +247,18 @@ describe('Component: GameListItemDrawerContent', () => {
       achievementsPublished: undefined,
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game })} />);
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+    );
 
     // ASSERT
     const achievementsPublishedEl = screen.getByRole('listitem', { name: /achievements/i });
@@ -158,7 +275,18 @@ describe('Component: GameListItemDrawerContent', () => {
       pointsWeighted: 400,
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game })} />);
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+    );
 
     // ASSERT
     const pointsTotalEl = screen.getByRole('listitem', { name: /points/i });
@@ -175,7 +303,18 @@ describe('Component: GameListItemDrawerContent', () => {
       pointsWeighted: undefined,
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game })} />);
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+    );
 
     // ASSERT
     const pointsTotalEl = screen.getByRole('listitem', { name: /points/i });
@@ -192,7 +331,18 @@ describe('Component: GameListItemDrawerContent', () => {
       pointsWeighted: undefined,
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game })} />);
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+    );
 
     // ASSERT
     const pointsTotalEl = screen.getByRole('listitem', { name: /points/i });
@@ -209,7 +359,18 @@ describe('Component: GameListItemDrawerContent', () => {
       pointsWeighted: 400,
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game })} />);
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+    );
 
     // ASSERT
     const rarityEl = screen.getByRole('listitem', { name: /rarity/i });
@@ -226,7 +387,18 @@ describe('Component: GameListItemDrawerContent', () => {
       pointsWeighted: 400,
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game })} />);
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+    );
 
     // ASSERT
     const rarityEl = screen.getByRole('listitem', { name: /rarity/i });
@@ -242,7 +414,18 @@ describe('Component: GameListItemDrawerContent', () => {
       playersTotal: 12345,
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game })} />);
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+    );
 
     // ASSERT
     const playersEl = screen.getByRole('listitem', { name: /players/i });
@@ -258,7 +441,18 @@ describe('Component: GameListItemDrawerContent', () => {
       playersTotal: undefined,
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game })} />);
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+    );
 
     // ASSERT
     const playersEl = screen.getByRole('listitem', { name: /players/i });
@@ -270,9 +464,21 @@ describe('Component: GameListItemDrawerContent', () => {
 
   it('given the user is unauthenticated, does not display a progress row', () => {
     // ARRANGE
-    render(<GameListItemDrawerContent {...createGameListEntry()} />, {
-      pageProps: { auth: null },
-    });
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry()}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+      {
+        pageProps: { auth: null },
+      },
+    );
 
     // ASSERT
     expect(screen.queryByRole('listitem', { name: /progress/i })).not.toBeInTheDocument();
@@ -286,9 +492,21 @@ describe('Component: GameListItemDrawerContent', () => {
       highestAward: null,
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game, playerGame })} />, {
-      pageProps: { auth: { user: createAuthenticatedUser() } },
-    });
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game, playerGame })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+      {
+        pageProps: { auth: { user: createAuthenticatedUser() } },
+      },
+    );
 
     // ASSERT
     const progressEl = screen.getByRole('listitem', { name: /progress/i });
@@ -306,9 +524,21 @@ describe('Component: GameListItemDrawerContent', () => {
       highestAward: null,
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game, playerGame })} />, {
-      pageProps: { auth: { user: createAuthenticatedUser() } },
-    });
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game, playerGame })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+      {
+        pageProps: { auth: { user: createAuthenticatedUser() } },
+      },
+    );
 
     // ASSERT
     const progressEl = screen.getByRole('listitem', { name: /progress/i });
@@ -329,9 +559,21 @@ describe('Component: GameListItemDrawerContent', () => {
       }),
     });
 
-    render(<GameListItemDrawerContent {...createGameListEntry({ game, playerGame })} />, {
-      pageProps: { auth: { user: createAuthenticatedUser() } },
-    });
+    render(
+      <BaseDrawer open={true}>
+        <GameListItemDrawerContent
+          gameListEntry={createGameListEntry({ game, playerGame })}
+          backlogState={{
+            isInBacklogMaybeOptimistic: false,
+            isPending: false,
+            toggleBacklog: vi.fn(),
+          }}
+        />
+      </BaseDrawer>,
+      {
+        pageProps: { auth: { user: createAuthenticatedUser() } },
+      },
+    );
 
     // ASSERT
     const progressEl = screen.getByRole('listitem', { name: /progress/i });

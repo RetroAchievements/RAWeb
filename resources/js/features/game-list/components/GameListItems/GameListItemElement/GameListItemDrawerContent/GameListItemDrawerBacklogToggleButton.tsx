@@ -5,30 +5,22 @@ import { MdClose } from 'react-icons/md';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { cn } from '@/utils/cn';
 
+import type { useGameBacklogState } from '../../useGameBacklogState';
 import { useDelayedButtonDisable } from './useDelayedButtonDisable';
-import { useGameBacklogState } from './useGameBacklogState';
 
 interface GameListItemDrawerBacklogToggleButtonProps {
+  backlogState: ReturnType<typeof useGameBacklogState>;
   game: App.Platform.Data.Game;
-  isInBacklog: boolean;
 }
 
 export const GameListItemDrawerBacklogToggleButton: FC<
   GameListItemDrawerBacklogToggleButtonProps
-> = ({ game, isInBacklog }) => {
+> = ({ backlogState }) => {
   const { t } = useLaravelReactI18n();
 
-  const {
-    isPending,
-    toggleBacklog,
-    isInBacklogMaybeOptimistic: isInBacklogOptimistic,
-  } = useGameBacklogState({
-    game: game,
-    isInitiallyInBacklog: isInBacklog,
-    shouldShowToasts: false,
-  });
+  const isButtonDisabled = useDelayedButtonDisable(backlogState.isPending);
 
-  const isButtonDisabled = useDelayedButtonDisable(isPending);
+  const { isInBacklogMaybeOptimistic: isInBacklogOptimistic } = backlogState;
 
   return (
     <BaseButton
@@ -37,8 +29,8 @@ export const GameListItemDrawerBacklogToggleButton: FC<
         'border disabled:!pointer-events-auto disabled:!opacity-100',
         isInBacklogOptimistic ? '!border-red-500 !bg-embed !text-red-500' : 'border-transparent',
       )}
-      onClick={toggleBacklog}
-      disabled={isPending || isButtonDisabled}
+      onClick={() => backlogState.toggleBacklog({ shouldHideToasts: true })}
+      disabled={backlogState.isPending || isButtonDisabled}
     >
       <MdClose
         className={cn('mr-1 h-4 w-4 transition-all', isInBacklogOptimistic ? '' : 'rotate-45')}

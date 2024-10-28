@@ -13,9 +13,8 @@ import { formatGameReleasedAt } from '@/common/utils/formatGameReleasedAt';
 import { getIsEventGame } from '@/common/utils/getIsEventGame';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
+import { gameListFieldIconMap } from '@/features/game-list/utils/gameListFieldIconMap';
 import { cn } from '@/utils/cn';
-
-import { gameListFieldIconMap } from '../../utils/gameListFieldIconMap';
 
 dayjs.extend(utc);
 dayjs.extend(localizedFormat);
