@@ -12,6 +12,7 @@ use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -252,6 +253,46 @@ class NotifyMessageThreadParticipants
             ]);
         }
 
-        (new Client())->post($webhookUrl, ['json' => $payload]);
+        try {
+            $client = new Client();
+            $response = $client->post($webhookUrl, ['json' => $payload]);
+
+            if ($isForum) {
+                Log::info("[{$messageThread->title}] Discord forward: Request successful", [
+                    'message_id' => $message->id,
+                    'thread_id' => $messageThread->id,
+                    'status_code' => $response->getStatusCode(),
+                    'response_body' => (string) $response->getBody(),
+                    'response_headers' => $response->getHeaders(),
+                ]);
+            }
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $response = $e->getResponse();
+            $context = [
+                'message_id' => $message->id,
+                'thread_id' => $messageThread->id,
+                'is_forum' => $isForum,
+                'error' => $e->getMessage(),
+            ];
+
+            if ($response) {
+                $context['status_code'] = $response->getStatusCode();
+                $context['response_body'] = (string) $response->getBody();
+                $context['response_headers'] = $response->getHeaders();
+            }
+
+            Log::error("[{$messageThread->title}] Discord forward: Request failed", $context);
+
+            throw $e;
+        } catch (Exception $e) {
+            Log::error("[{$messageThread->title}] Discord forward: Unexpected error", [
+                'message_id' => $message->id,
+                'thread_id' => $messageThread->id,
+                'is_forum' => $isForum,
+                'error_class' => get_class($e),
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
     }
 }
