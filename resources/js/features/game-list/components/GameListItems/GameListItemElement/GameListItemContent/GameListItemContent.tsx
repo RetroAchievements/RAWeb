@@ -72,7 +72,7 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
         <div className="-mr-1 flex self-center">
           <button
             className="p-3 text-neutral-100 light:text-neutral-950"
-            onClick={backlogState.toggleBacklog}
+            onClick={() => backlogState.toggleBacklog()}
             disabled={backlogState.isPending}
           >
             <MdClose

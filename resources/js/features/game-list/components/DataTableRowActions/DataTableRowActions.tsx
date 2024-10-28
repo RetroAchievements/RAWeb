@@ -40,7 +40,6 @@ export function DataTableRowActions<TData>({
   const { isPending, toggleBacklog, isInBacklogMaybeOptimistic } = useGameBacklogState({
     game: { id: rowData?.game?.id ?? 0, title: rowData?.game?.title ?? '' },
     isInitiallyInBacklog: rowData?.isInBacklog ?? false,
-    shouldShowToasts: true,
     shouldUpdateOptimistically: shouldAnimateBacklogIconOnChange,
   });
 
@@ -56,7 +55,7 @@ export function DataTableRowActions<TData>({
           <BaseButton
             variant="ghost"
             className="group flex h-8 w-8 p-0 text-link disabled:!pointer-events-auto disabled:!opacity-100"
-            onClick={toggleBacklog}
+            onClick={() => toggleBacklog()}
             disabled={isPending}
           >
             <MdClose
