@@ -7,8 +7,8 @@
 $wonBy = 0;
 $wonByHardcore = 0;
 $unlockRate = 0;
+$hardcoreUnlockRate = 0;
 $hardcoreProgressBarWidth = 0;
-$softcoreUnlockRate = 0;
 $softcoreProgressBarWidth = 0;
 
 if ($totalPlayerCount > 0) {
@@ -24,25 +24,39 @@ if ($totalPlayerCount > 0) {
     }
 
     $unlockRate = sprintf("%01.2f", ($wonBy / $totalPlayerCount) * 100);
-    $hardcoreProgressBarWidth = sprintf("%01.2f", ($wonByHardcore / $totalPlayerCount) * 100);
-    $softcoreUnlockRate = sprintf("%01.2f", ($wonBy / $totalPlayerCount) * 100);
-    $softcoreProgressBarWidth = $softcoreUnlockRate - $hardcoreProgressBarWidth;
+    $hardcoreUnlockRate = sprintf("%01.2f", ($wonByHardcore / $totalPlayerCount) * 100);
+    $hardcoreProgressBarWidth = $hardcoreUnlockRate;
+    $softcoreProgressBarWidth = $unlockRate - $hardcoreProgressBarWidth;
 }
 ?>
 
 
 <p class="text-2xs text-center hidden md:block -mt-1.5">
-    {{ number_format($unlockRate, 2) }}% unlock rate
+    @if ($wonByHardcore > 0)
+        <span class="font-bold">{{ $hardcoreUnlockRate }}%</span>
+        <span>({{ $unlockRate }})</span>
+    @else
+        <span>{{ $unlockRate }}%</span>
+    @endif
+    unlock rate
 </p>
 
 <p id="progress-label-{{ $achievement['ID'] }}" class="mb-0.5 text-2xs md:text-center md:mb-0">
-    <span title="Total unlocks" class="cursor-help">{{ localized_number($wonBy) }}</span>
     @if ($wonByHardcore > 0)
-        <span class="font-bold cursor-help" title="Hardcore unlocks">({{ localized_number($wonByHardcore) }})</span>
+        <span class="font-bold cursor-help" title="Hardcore unlocks">{{ localized_number($wonByHardcore) }}</span>
+        <span title="Total unlocks" class="cursor-help">({{ localized_number($wonBy) }})</span>
+    @else
+        <span title="Total unlocks" class="cursor-help">{{ localized_number($wonBy) }}</span>
     @endif
     of 
     <span title="Total players" class="cursor-help">{{ localized_number($totalPlayerCount) }}</span>
-    <span class="md:hidden">– {{ $unlockRate }}%</span>
+    @if ($wonByHardcore > 0)
+        <span class="md:hidden">–</span>
+        <span class="font-bold md:hidden">{{ $hardcoreUnlockRate }}%</span>
+        <span class="md:hidden">({{ $unlockRate }})</span>
+    @else
+        <span class="md:hidden">– {{ $unlockRate }}%</span>
+    @endif
     <span class="hidden sm:inline md:hidden">unlock rate</span>
 </p>
 
@@ -70,7 +84,7 @@ if ($totalPlayerCount > 0) {
         class="bg-neutral-500 h-full"
     >
         <span class="sr-only">
-            {{ $softcoreUnlockRate }}% of players have earned the achievement in softcore mode
+            {{ $unlockRate }}% of players have earned the achievement in either hardcore or softcore mode
         </span>
     </div>
 </div>
