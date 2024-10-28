@@ -1,5 +1,5 @@
 import { useLaravelReactI18n } from 'laravel-react-i18n';
-import { type FC, useEffect, useState } from 'react';
+import { type FC } from 'react';
 import { MdClose } from 'react-icons/md';
 import { RxDotsVertical } from 'react-icons/rx';
 
@@ -15,13 +15,12 @@ import {
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { GameTitle } from '@/common/components/GameTitle';
 import { SystemChip } from '@/common/components/SystemChip';
-import { usePageProps } from '@/common/hooks/usePageProps';
-import { useWantToPlayGamesList } from '@/common/hooks/useWantToPlayGamesList';
 import { cn } from '@/utils/cn';
 
 import { ChipOfInterest } from './ChipOfInterest';
 import { GameListItemDrawerBacklogToggleButton } from './GameListItemDrawerBacklogToggleButton';
 import { GameListItemDrawerContent } from './GameListItemDrawerContent';
+import { useGameBacklogState } from './useGameBacklogState';
 
 /**
  * 🔴 If you make layout updates to this component, you must
@@ -56,50 +55,16 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
 }) => {
   const { game, playerGame, isInBacklog } = gameListEntry;
 
-  const { auth } = usePageProps();
-
   const { t } = useLaravelReactI18n();
 
-  const { addToWantToPlayGamesList, isPending, removeFromWantToPlayGamesList } =
-    useWantToPlayGamesList();
-
-  /**
-   * Invalidation of infinite queries is _very_ expensive, both for the
-   * user (needing to refetch all loaded pages in the infinite scroll), and
-   * for us (needing to actually query/load all that data quickly).
-   * To avoid this, we'll use optimistic state.
-   */
-  const [isInBacklogOptimistic, setIsInBacklogOptimistic] = useState(isInBacklog ?? false);
-
-  useEffect(() => {
-    if (isInBacklog) {
-      setIsInBacklogOptimistic(true);
-    }
-  }, [isInBacklog]);
-
-  const handleToggleFromBacklogClick = () => {
-    if (!auth?.user && typeof window !== 'undefined') {
-      window.location.href = route('login');
-
-      return;
-    }
-
-    const newBacklogState = !isInBacklogOptimistic;
-    setIsInBacklogOptimistic(newBacklogState);
-
-    const mutationPromise = isInBacklogOptimistic
-      ? removeFromWantToPlayGamesList(game.id, game.title, {
-          t_successMessage: t('Removed :gameTitle from playlist!', { gameTitle: game.title }),
-          onUndo: () => setIsInBacklogOptimistic(true),
-        })
-      : addToWantToPlayGamesList(game.id, game.title, {
-          t_successMessage: t('Added :gameTitle to playlist!', { gameTitle: game.title }),
-        });
-
-    mutationPromise.catch(() => {
-      setIsInBacklogOptimistic(isInBacklog ?? false);
-    });
-  };
+  const {
+    isPending,
+    toggleBacklog,
+    isInBacklogMaybeOptimistic: isInBacklogOptimistic,
+  } = useGameBacklogState({
+    game,
+    isInitiallyInBacklog: isInBacklog ?? false,
+  });
 
   if (shouldHideItemIfNotInBacklog && !isInBacklogOptimistic) {
     return null;
@@ -145,7 +110,7 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
         <div className="-mr-1 flex self-center">
           <button
             className="p-3 text-neutral-100 light:text-neutral-950"
-            onClick={handleToggleFromBacklogClick}
+            onClick={toggleBacklog}
             disabled={isPending}
           >
             <MdClose
@@ -190,7 +155,6 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
             <GameListItemDrawerBacklogToggleButton
               game={game}
               isInBacklog={isInBacklogOptimistic}
-              onToggle={(newValue) => setIsInBacklogOptimistic(newValue)}
             />
 
             {/* TODO after migrating the game page to Inertia, prefetch this link */}

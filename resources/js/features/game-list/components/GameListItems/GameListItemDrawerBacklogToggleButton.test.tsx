@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen } from '@/test';
+import { render, screen, waitFor } from '@/test';
 import { createGame } from '@/test/factories';
 
 import { GameListItemDrawerBacklogToggleButton } from './GameListItemDrawerBacklogToggleButton';
@@ -84,54 +84,24 @@ describe('Component: GameListItemDrawerBacklogToggleButton', () => {
     });
   });
 
-  it('given the user presses the button, an optional event is emitted that a consumer can use', async () => {
-    // ARRANGE
-    vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
-
-    const game = createGame({ id: 1 });
-
-    const onToggle = vi.fn();
-
-    render(
-      <GameListItemDrawerBacklogToggleButton game={game} isInBacklog={false} onToggle={onToggle} />,
-      {
-        pageProps: { auth: { user: createAuthenticatedUser() } },
-      },
-    );
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /add to want to play games/i }));
-
-    // ASSERT
-    expect(onToggle).toHaveBeenCalledTimes(1);
-    expect(onToggle).toHaveBeenCalledWith(true);
-  });
-
   // FIXME this test is throwing a exception vitest can't handle
-  it.skip('given the back-end API call throws, emits another optional event with the current button toggle state', async () => {
+  it.skip('given the back-end API call throws, reverts the optimistic state', async () => {
     // ARRANGE
-    vi.spyOn(axios, 'post')
-      .mockRejectedValueOnce({ success: false })
-      .mockResolvedValue({ success: true });
+    vi.spyOn(axios, 'post').mockRejectedValueOnce({ success: false });
 
     const game = createGame({ id: 1 });
 
-    const onToggle = vi.fn();
-
-    render(
-      <GameListItemDrawerBacklogToggleButton game={game} isInBacklog={false} onToggle={onToggle} />,
-      {
-        pageProps: { auth: { user: createAuthenticatedUser() } },
-      },
-    );
+    render(<GameListItemDrawerBacklogToggleButton game={game} isInBacklog={false} />, {
+      pageProps: { auth: { user: createAuthenticatedUser() } },
+    });
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /add to want to play games/i }));
 
     // ASSERT
-    expect(onToggle).toHaveBeenCalledTimes(2);
-    expect(onToggle).toHaveBeenNthCalledWith(1, true);
-    expect(onToggle).toHaveBeenNthCalledWith(2, false);
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /add to want to play games/i })).toBeVisible();
+    });
   });
 
   it("given the game is currently in the user's backlog and the user presses the button, makes the call to remove the game from the user's backlog", async () => {
