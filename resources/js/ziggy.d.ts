@@ -16,7 +16,6 @@ declare module 'ziggy-js' {
         }
     ],
     "demo": [],
-    "playground.index": [],
     "home": [],
     "tickets.index": [],
     "ranking.beaten-games": [],
@@ -215,7 +214,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "rss.index": [],
     "ticket.show": [
         {
             "name": "ticket",
@@ -448,6 +446,7 @@ declare module 'ziggy-js' {
         }
     ],
     "contact": [],
+    "rss.index": [],
     "terms": [],
     "user.permalink": [
         {

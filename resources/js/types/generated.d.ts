@@ -215,6 +215,10 @@ declare namespace App.Platform.Data {
     filterableSystemOptions: Array<App.Platform.Data.System>;
     can: App.Data.UserPermissions;
   };
+  export type GameListSort = {
+    field: App.Platform.Enums.GameListSortField;
+    direction: string;
+  };
   export type PlayerBadge = {
     awardType: number;
     awardData: number;
@@ -269,6 +273,18 @@ declare namespace App.Platform.Enums {
     | 'will_be_bonus'
     | 'will_be_specialty'
     | 'will_be_exclusive';
+  export type GameListSortField =
+    | 'title'
+    | 'system'
+    | 'achievementsPublished'
+    | 'pointsTotal'
+    | 'retroRatio'
+    | 'lastUpdated'
+    | 'releasedAt'
+    | 'playersTotal'
+    | 'numVisibleLeaderboards'
+    | 'numUnresolvedTickets'
+    | 'progress';
   export type GameSetType = 'hub' | 'similar-games';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 }
