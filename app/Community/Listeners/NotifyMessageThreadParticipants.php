@@ -261,9 +261,6 @@ class NotifyMessageThreadParticipants
                 Log::info("[{$messageThread->title}] Discord forward: Request successful", [
                     'message_id' => $message->id,
                     'thread_id' => $messageThread->id,
-                    'status_code' => $response->getStatusCode(),
-                    'response_body' => (string) $response->getBody(),
-                    'response_headers' => $response->getHeaders(),
                 ]);
             }
         } catch (\GuzzleHttp\Exception\RequestException $e) {
@@ -278,7 +275,6 @@ class NotifyMessageThreadParticipants
             if ($response) {
                 $context['status_code'] = $response->getStatusCode();
                 $context['response_body'] = (string) $response->getBody();
-                $context['response_headers'] = $response->getHeaders();
             }
 
             Log::error("[{$messageThread->title}] Discord forward: Request failed", $context);
