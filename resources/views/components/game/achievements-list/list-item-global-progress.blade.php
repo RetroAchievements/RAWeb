@@ -54,7 +54,7 @@ if ($totalPlayerCount > 0) {
     <span class="md:hidden">–</span>
     @if ($wonByHardcore > 0 && $wonBy > $wonByHardcore)
         <span title="Hardcore unlock rate" class="font-bold cursor-help md:hidden">{{ $hardcoreUnlockRate }}%</span>
-        <span title="Total unlock rate" class="cursor-help md:hidden">({{ $unlockRate }})%</span>
+        <span title="Total unlock rate" class="cursor-help md:hidden">({{ $unlockRate }}%)</span>
     @else
         <span title="Total unlock rate" class="{{ $wonByHardcore > 0 ? 'font-bold' : '' }} cursor-help md:hidden">{{ $unlockRate }}%</span>
     @endif
