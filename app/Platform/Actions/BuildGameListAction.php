@@ -159,14 +159,14 @@ class BuildGameListAction
         switch ($listType) {
             case GameListType::AllGames:
                 // Exclude non game systems, inactive systems, and subsets.
-                $validConsoleIds = System::query()
+                $validSystemIds = System::query()
                     ->active()
                     ->gameSystems()
                     ->pluck('ID')
                     ->all();
 
                 $query
-                    ->whereIn('GameData.ConsoleID', $validConsoleIds)
+                    ->whereIn('GameData.ConsoleID', $validSystemIds)
                     ->where('GameData.Title', 'not like', "%[Subset -%");
                 break;
 
