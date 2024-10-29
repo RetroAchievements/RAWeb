@@ -10,6 +10,7 @@ use App\Platform\Actions\BuildGameListAction;
 use App\Platform\Enums\GameListType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Jenssegers\Agent\Agent;
 
 class UserGameListApiController extends Controller
 {
@@ -21,13 +22,10 @@ class UserGameListApiController extends Controller
             page: $request->getPage(),
             filters: $request->getFilters(),
             sort: $request->getSort(),
+            perPage: (new Agent())->isMobile() ? 100 : 25,
         );
 
         return response()->json($paginatedData);
-    }
-
-    public function create(): void
-    {
     }
 
     public function store(Request $request, int $gameId): JsonResponse
@@ -45,10 +43,6 @@ class UserGameListApiController extends Controller
     }
 
     public function show(UserGameListEntry $userGameListEntry): void
-    {
-    }
-
-    public function edit(UserGameListEntry $userGameListEntry): void
     {
     }
 

@@ -23,7 +23,13 @@
         }
     </style>
 
-    <div id="debug" role="button" x-init="{}" @click="handleClick($el)" class="text-2xs flex flex-col rounded-lg bg-black/20 p-1">
+    <div
+        id="debug"
+        role="button"
+        x-init="{}"
+        @click="handleClick($el)"
+        class="hidden sm:flex text-2xs flex-col rounded-lg bg-black/20 p-1"
+    >
         <b class="text-danger text-capitalize">
             {{ app()->environment() }}
             {{ $_SERVER['LARAVEL_OCTANE'] ?? false ? '[Octane]' : '' }}
