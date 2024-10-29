@@ -34,11 +34,11 @@ if ($totalPlayerCount > 0) {
 <p class="text-2xs text-center hidden md:block -mt-1.5">
     @if ($wonByHardcore > 0 && $wonBy > $wonByHardcore)
         <span title="Hardcore unlock rate" class="font-bold cursor-help">{{ $hardcoreUnlockRate }}%</span>
-        <span title="Total unlock rate" class="cursor-help">({{ $unlockRate }}%)</span>
+        <span title="Total unlock rate" class="cursor-help lg:hidden xl:inline">({{ $unlockRate }}%)</span>
     @else
         <span title="Total unlock rate" class="{{ $wonByHardcore > 0 ? 'font-bold' : '' }} cursor-help">{{ $unlockRate }}%</span>
     @endif
-    <span>{{ $wonByHardcore == 0 && $wonBy > 0 ? 'softcore' : '' }}</span>
+    <span class="lg:hidden xl:inline">{{ $wonByHardcore == 0 && $wonBy > 0 ? 'softcore' : '' }}</span>
     unlock rate
 </p>
 
@@ -54,11 +54,11 @@ if ($totalPlayerCount > 0) {
     <span class="md:hidden">–</span>
     @if ($wonByHardcore > 0 && $wonBy > $wonByHardcore)
         <span title="Hardcore unlock rate" class="font-bold cursor-help md:hidden">{{ $hardcoreUnlockRate }}%</span>
-        <span title="Total unlock rate" class="cursor-help md:hidden">({{ $unlockRate }}%)</span>
+        <span title="Total unlock rate" class="cursor-help hidden sm:inline md:hidden">({{ $unlockRate }}%)</span>
     @else
         <span title="Total unlock rate" class="{{ $wonByHardcore > 0 ? 'font-bold' : '' }} cursor-help md:hidden">{{ $unlockRate }}%</span>
     @endif
-    <span class="md:hidden">{{ $wonByHardcore == 0 && $wonBy > 0 ? 'softcore' : '' }}</span>
+    <span class="hidden sm:inline md:hidden">{{ $wonByHardcore == 0 && $wonBy > 0 ? 'softcore' : '' }}</span>
     <span class="hidden sm:inline md:hidden">unlock rate</span>
 </p>
 
