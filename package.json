@@ -35,7 +35,7 @@
         "axios": "^1.7.4",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.1",
-        "cmdk": "^1.0.0",
+        "cmdk": "1.0.0",
         "dayjs": "^1.11.11",
         "js-cookie": "^3.0.5",
         "laravel-react-i18n": "^2.0.5",
