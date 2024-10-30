@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import type { RouteName } from 'ziggy-js';
 
 import { buildAchievementsPublishedColumnDef } from '../../utils/column-definitions/buildAchievementsPublishedColumnDef';
+import { buildHasActiveOrInReviewClaimsColumnDef } from '../../utils/column-definitions/buildHasActiveOrInReviewClaimsColumnDef';
 import { buildLastUpdatedColumnDef } from '../../utils/column-definitions/buildLastUpdatedColumnDef';
 import { buildNumUnresolvedTicketsColumnDef } from '../../utils/column-definitions/buildNumUnresolvedTicketsColumnDef';
 import { buildNumVisibleLeaderboardsColumnDef } from '../../utils/column-definitions/buildNumVisibleLeaderboardsColumnDef';
@@ -28,8 +29,8 @@ export function useColumnDefinitions(options: {
     const columns: ColumnDef<App.Platform.Data.GameListEntry>[] = [
       buildTitleColumnDef({
         t_label: t('Title'),
-        tableApiRouteName,
         forUsername: options.forUsername,
+        tableApiRouteName,
       }),
       buildSystemColumnDef({ t_label: t('System'), tableApiRouteName }),
       buildAchievementsPublishedColumnDef({ t_label: t('Achievements'), tableApiRouteName }),
@@ -58,7 +59,15 @@ export function useColumnDefinitions(options: {
     columns.push(
       ...([
         buildPlayerGameProgressColumnDef({ t_label: t('Progress'), tableApiRouteName }),
-        buildRowActionsColumnDef(),
+        buildHasActiveOrInReviewClaimsColumnDef({
+          tableApiRouteName,
+          t_label: t('Claimed'),
+          strings: {
+            t_description: t('One or more developers are currently working on this game.'),
+            t_yes: t('Yes'),
+          },
+        }),
+        buildRowActionsColumnDef({ shouldAnimateBacklogIconOnChange: false }),
       ] satisfies ColumnDef<App.Platform.Data.GameListEntry>[]),
     );
 

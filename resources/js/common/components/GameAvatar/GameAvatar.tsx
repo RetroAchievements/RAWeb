@@ -1,4 +1,6 @@
-import type { FC } from 'react';
+import './GlowingImage.css';
+
+import type { ComponentPropsWithoutRef, CSSProperties, FC, ImgHTMLAttributes } from 'react';
 
 import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -8,8 +10,11 @@ import { GameTitle } from '../GameTitle';
 
 type GameAvatarProps = BaseAvatarProps &
   App.Platform.Data.Game & {
-    showHoverCardProgressForUsername?: string;
     gameTitleClassName?: string;
+    decoding?: ImgHTMLAttributes<HTMLImageElement>['decoding'];
+    loading?: ImgHTMLAttributes<HTMLImageElement>['loading'];
+    shouldGlow?: boolean;
+    showHoverCardProgressForUsername?: string;
   };
 
 export const GameAvatar: FC<GameAvatarProps> = ({
@@ -18,6 +23,9 @@ export const GameAvatar: FC<GameAvatarProps> = ({
   showHoverCardProgressForUsername,
   title,
   gameTitleClassName,
+  decoding = 'async',
+  loading = 'lazy',
+  shouldGlow = false,
   showImage = true,
   showLabel = true,
   size = 32,
@@ -38,18 +46,34 @@ export const GameAvatar: FC<GameAvatarProps> = ({
       {...(hasTooltip ? cardTooltipProps : undefined)}
     >
       {showImage ? (
-        <img
-          loading="lazy"
-          decoding="async"
-          width={size}
-          height={size}
-          src={badgeUrl}
-          alt={title ?? 'Game'}
-          className="rounded-sm"
-        />
+        <>
+          {shouldGlow ? (
+            <GlowingImage width={size} height={size} src={badgeUrl} alt={title ?? 'Game'} />
+          ) : (
+            <img
+              loading={loading}
+              decoding={decoding}
+              width={size}
+              height={size}
+              src={badgeUrl}
+              alt={title ?? 'Game'}
+              className="rounded-sm"
+            />
+          )}
+        </>
       ) : null}
 
       {title && showLabel ? <GameTitle title={title} className={gameTitleClassName} /> : null}
     </a>
+  );
+};
+
+type GlowingImageProps = Pick<ComponentPropsWithoutRef<'img'>, 'src' | 'alt' | 'width' | 'height'>;
+
+const GlowingImage: FC<GlowingImageProps> = ({ src, ...rest }) => {
+  return (
+    <div className="glowing-image-root" style={{ '--img-url': `url(${src})` } as CSSProperties}>
+      <img src={src} className="glowing-image" loading="eager" decoding="sync" {...rest} />
+    </div>
   );
 };

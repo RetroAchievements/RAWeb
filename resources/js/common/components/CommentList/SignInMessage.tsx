@@ -1,14 +1,16 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
-export const SignInMessage: FC = () => {
-  const { t } = useLaravelReactI18n();
+import { Trans } from '../Trans';
 
+export const SignInMessage: FC = () => {
   return (
     <div className="mt-4 text-center">
       <p>
-        {t('You must')} <a href={route('login')}>{t('sign in')}</a>{' '}
-        {t('before you can join this conversation.')}
+        <Trans i18nKey="You must <0>sign in</0> before you can join this conversation.">
+          {/* eslint-disable react/jsx-no-literals */}
+          You must <a href={route('login')}>sign in</a> before you can join this conversation.
+          {/* eslint-enable react/jsx-no-literals */}
+        </Trans>
       </p>
     </div>
   );

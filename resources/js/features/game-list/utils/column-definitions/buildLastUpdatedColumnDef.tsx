@@ -7,6 +7,7 @@ import type { RouteName } from 'ziggy-js';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
+import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 dayjs.extend(utc);
 dayjs.extend(localizedFormat);
@@ -24,14 +25,9 @@ export function buildLastUpdatedColumnDef({
   return {
     id: 'lastUpdated',
     accessorKey: 'game',
-    meta: { t_label },
+    meta: { t_label, sortType: 'date', Icon: gameListFieldIconMap.lastUpdated },
     header: ({ column, table }) => (
-      <DataTableColumnHeader
-        column={column}
-        table={table}
-        sortType="date"
-        tableApiRouteName={tableApiRouteName}
-      />
+      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
     cell: ({ row }) => {
       const date = row.original.game?.lastUpdated ?? new Date();
