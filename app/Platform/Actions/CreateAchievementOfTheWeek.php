@@ -88,9 +88,5 @@ class CreateAchievementOfTheWeek
                 'active_until' => $nextDate,
             ],
         );
-
-        if ($sourceAchievement) {
-            (new CopyAchievementUnlocksToEventAchievement())->execute($eventAchievement);
-        }
     }
 }

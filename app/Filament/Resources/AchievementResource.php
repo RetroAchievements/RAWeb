@@ -6,7 +6,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\AchievementResource\Pages;
-use App\Filament\Resources\AchievementResource\RelationManagers\EventAchievementsRelationManager;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\System;
@@ -230,41 +229,41 @@ class AchievementResource extends Resource
                         ]),
                 ])->from('md'),
 
-            Forms\Components\Fieldset::make('Event Association')
-                ->relationship('eventData')
-                ->schema([
-                    Forms\Components\Select::make('source_achievement_id')
-                        ->label('Source Achievement')
-                        ->columnSpan(2)
-                        ->searchable()
-                        ->getSearchResultsUsing(function (string $search): array {
-                            return Achievement::where('Title', 'like', "%{$search}%")
-                                ->orWhere('ID', 'like', "%{$search}%")
-                                ->limit(50)
-                                ->get()
-                                ->mapWithKeys(function ($achievement) {
-                                    return [$achievement->id => "[{$achievement->id}] {$achievement->title}"];
-                                })
-                                ->toArray();
-                        })
-                        ->getOptionLabelUsing(function (int $value): string {
-                            $achievement = Achievement::find($value);
+                Forms\Components\Fieldset::make('Event Association')
+                    ->relationship('eventData')
+                    ->schema([
+                        Forms\Components\Select::make('source_achievement_id')
+                            ->label('Source Achievement')
+                            ->columnSpan(2)
+                            ->searchable()
+                            ->getSearchResultsUsing(function (string $search): array {
+                                return Achievement::where('Title', 'like', "%{$search}%")
+                                    ->orWhere('ID', 'like', "%{$search}%")
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(function ($achievement) {
+                                        return [$achievement->id => "[{$achievement->id}] {$achievement->title}"];
+                                    })
+                                    ->toArray();
+                            })
+                            ->getOptionLabelUsing(function (int $value): string {
+                                $achievement = Achievement::find($value);
 
-                            return "[{$achievement->id}] {$achievement->title}";
-                        }),
+                                return "[{$achievement->id}] {$achievement->title}";
+                            }),
 
-                    Forms\Components\DatePicker::make('active_from')
-                        ->label('Active From')
-                        ->native(false)
-                        ->date(),
+                        Forms\Components\DatePicker::make('active_from')
+                            ->label('Active From')
+                            ->native(false)
+                            ->date(),
 
-                    Forms\Components\DatePicker::make('active_through')
-                        ->label('Active Through')
-                        ->native(false)
-                        ->date(),
-                ])
-                ->hidden(fn ($record) => $record->game->system->id !== System::Events)
-        ]);
+                        Forms\Components\DatePicker::make('active_through')
+                            ->label('Active Through')
+                            ->native(false)
+                            ->date(),
+                    ])
+                    ->hidden(fn ($record) => $record->game->system->id !== System::Events),
+            ]);
     }
 
     public static function table(Table $table): Table

@@ -9,20 +9,20 @@ use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\CopyAchievementUnlocksToEventAchievement;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
-class CopyAchievementUnlocksToEventAchievementTest extends TestCase
+class EventAchievementObserverTest extends TestCase
 {
     use RefreshDatabase;
     use TestsPlayerAchievements;
 
     private function copyAchievementUnlocksToEventAchievement(Achievement $achievement, ?Achievement $sourceAchievement, ?Carbon $activeFrom, ?Carbon $activeUntil): void
     {
+        // assert: this will trigger the observer
         $eventAchievement = EventAchievement::updateOrCreate(
             ['achievement_id' => $achievement->id],
             [
@@ -31,8 +31,6 @@ class CopyAchievementUnlocksToEventAchievementTest extends TestCase
                 'active_until' => $activeUntil,
             ],
         );
-
-        (new CopyAchievementUnlocksToEventAchievement())->execute($eventAchievement);
     }
 
     public function testAttachSourceAchievement(): void

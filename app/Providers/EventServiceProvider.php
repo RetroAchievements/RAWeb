@@ -6,6 +6,8 @@ namespace App\Providers;
 
 use App\Events\UserDeleted;
 use App\Listeners\SendUserRegistrationNotification;
+use App\Models\EventAchievement;
+use App\Observers\EventAchievementObserver;
 use App\Platform\Events\SiteBadgeAwarded;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Registered;
@@ -65,6 +67,7 @@ class EventServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // User::observe(UserObserver::class);
+        EventAchievement::observe(EventAchievementObserver::class);
     }
 
     /**
