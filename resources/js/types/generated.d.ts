@@ -174,6 +174,7 @@ declare namespace App.Platform.Data {
   export type Achievement = {
     id: number;
     title: string;
+    description?: string;
     badgeUnlockedUrl?: string;
     badgeLockedUrl?: string;
     game?: App.Platform.Data.Game;
@@ -195,6 +196,7 @@ declare namespace App.Platform.Data {
     lastUpdated?: string;
     numVisibleLeaderboards?: number;
     numUnresolvedTickets?: number;
+    hasActiveOrInReviewClaims?: boolean;
   };
   export type GameHash = {
     id: number;

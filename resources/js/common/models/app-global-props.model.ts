@@ -32,5 +32,5 @@ export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) 
 
 export const createAppGlobalProps = createFactory<AppGlobalProps>(() => ({
   auth: { user: createAuthenticatedUser() },
-  ziggy: { defaults: [], location: '', port: 8080, query: {}, url: '' },
+  ziggy: { defaults: [], device: 'desktop', location: '', port: 8080, query: {}, url: '' },
 }));
