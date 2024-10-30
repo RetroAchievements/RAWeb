@@ -1,6 +1,28 @@
 declare namespace App.Community.Data {
+  export type Comment = {
+    id: number;
+    commentableId: number;
+    commentableType: number;
+    payload: string;
+    createdAt: string;
+    updatedAt: string | null;
+    user: App.Data.User;
+    canDelete: boolean;
+  };
+  export type GameCommentsPageProps<TItems = App.Community.Data.Comment> = {
+    game: App.Platform.Data.Game;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+    subscription: App.Community.Data.Subscription | null;
+  };
   export type RecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     paginatedTopics: App.Data.PaginatedData<TItems>;
+  };
+  export type Subscription = {
+    id: number;
+    subjectType: App.Community.Enums.SubscriptionSubjectType;
+    subjectId: number;
+    state: boolean;
+    user?: App.Data.User;
   };
   export type UserGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -17,7 +39,15 @@ declare namespace App.Community.Data {
   };
 }
 declare namespace App.Community.Enums {
+  export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   export type AwardType = 1 | 2 | 3 | 6 | 7 | 8;
+  export type SubscriptionSubjectType =
+    | 'ForumTopic'
+    | 'UserWall'
+    | 'GameWall'
+    | 'Achievement'
+    | 'GameTickets'
+    | 'GameAchievements';
   export type TicketType = 1 | 2;
   export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
 }
@@ -60,6 +90,7 @@ declare namespace App.Data {
     displayName: string;
     avatarUrl: string;
     isMuted: boolean;
+    mutedUntil: string | null;
     id?: number;
     username?: string | null;
     legacyPermissions?: number | null;
@@ -69,6 +100,7 @@ declare namespace App.Data {
     roles?: App.Models.UserRole[];
     apiKey?: string | null;
     deleteRequested?: string | null;
+    deletedAt?: string | null;
     emailAddress?: string | null;
     unreadMessageCount?: number | null;
     userWallActive?: boolean | null;
@@ -156,6 +188,7 @@ declare namespace App.Platform.Data {
     lastUpdated?: string;
     numVisibleLeaderboards?: number;
     numUnresolvedTickets?: number;
+    hasActiveOrInReviewClaims?: boolean;
   };
   export type GameHash = {
     id: number;

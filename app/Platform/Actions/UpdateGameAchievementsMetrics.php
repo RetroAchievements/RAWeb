@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Game;
+use App\Models\PlayerAchievement;
 
 class UpdateGameAchievementsMetrics
 {
@@ -20,16 +21,38 @@ class UpdateGameAchievementsMetrics
         $playersHardcoreCalc = $playersHardcore ?: 1;
         $pointsWeightedTotal = 0;
         $achievements = $game->achievements()->published()->get();
+        if ($achievements->isEmpty()) {
+            return;
+        }
+
+        $achievementIds = $achievements->pluck('ID')->all();
+
+        // Get both total and hardcore counts in a single query.
+        $unlockStats = PlayerAchievement::query()
+            ->leftJoin('UserAccounts as user', 'user.ID', '=', 'player_achievements.user_id')
+            ->whereIn('player_achievements.achievement_id', $achievementIds)
+            ->where('user.Untracked', false)
+            ->groupBy('player_achievements.achievement_id')
+            ->selectRaw('
+                player_achievements.achievement_id,
+                COUNT(*) as total_unlocks,
+                SUM(CASE WHEN unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) as hardcore_unlocks
+            ')
+            ->get();
+
+        // Convert to lookup arrays for faster read access.
+        $unlockCounts = [];
+        $hardcoreUnlockCounts = [];
+        foreach ($unlockStats as $stat) {
+            $unlockCounts[$stat->achievement_id] = $stat->total_unlocks;
+            $hardcoreUnlockCounts[$stat->achievement_id] = $stat->hardcore_unlocks;
+        }
+
+        $pointsWeightedTotal = 0;
+
         foreach ($achievements as $achievement) {
-            $unlocksCount = $achievement->playerAchievements()
-                ->leftJoin('UserAccounts as user', 'user.ID', '=', 'player_achievements.user_id')
-                ->where('user.Untracked', false)
-                ->count();
-            $unlocksHardcoreCount = $achievement->playerAchievements()
-                ->leftJoin('UserAccounts as user', 'user.ID', '=', 'player_achievements.user_id')
-                ->where('user.Untracked', false)
-                ->whereNotNull('unlocked_hardcore_at')
-                ->count();
+            $unlocksCount = $unlockCounts[$achievement->ID] ?? 0;
+            $unlocksHardcoreCount = $hardcoreUnlockCounts[$achievement->ID] ?? 0;
 
             // force all unachieved to be 1
             $unlocksHardcoreCalc = $unlocksHardcoreCount ?: 1;

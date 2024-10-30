@@ -6,7 +6,7 @@ namespace App\Models;
 
 use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
-use App\Community\Contracts\HasComments;
+use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\ReleasedAtGranularity;
 use App\Support\Database\Eloquent\BaseModel;
@@ -31,7 +31,8 @@ use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Game extends BaseModel implements HasComments, HasMedia
+// TODO implements HasComments
+class Game extends BaseModel implements HasMedia
 {
     /*
      * Community Traits
@@ -383,6 +384,29 @@ class Game extends BaseModel implements HasComments, HasMedia
     public function achievementSetClaims(): HasMany
     {
         return $this->hasMany(AchievementSetClaim::class, 'game_id');
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<Comment>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::Game);
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<Comment>
+     */
+    public function visibleComments(?User $user = null): HasMany
+    {
+        /** @var ?User $user */
+        $currentUser = $user ?? Auth::user();
+
+        return $this->comments()->visibleTo($currentUser);
     }
 
     /**
