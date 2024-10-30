@@ -8,14 +8,14 @@ vendor/bin/pint --test
 printf "\n⏳ composer analyse\n"
 vendor/bin/phpstan analyse --memory-limit 512M
 
-printf "\n⏳ npm run lint:eslint\n"
-npm run lint:eslint
+printf "\n⏳ pnpm lint:eslint\n"
+pnpm lint:eslint
 
-printf "\n⏳ npm run tsc\n"
-npm run tsc
+printf "\n⏳ pnpm tsc\n"
+pnpm tsc
 
-printf "\n⏳ npm run test\n"
-npm run test
+printf "\n⏳ pnpm test\n"
+pnpm test
 
 # Check the OS. Windows does not support the --parallel flag.
 if [ "$(uname)" = "Linux" ] || [ "$(uname)" = "Darwin" ]; then
