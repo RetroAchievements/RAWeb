@@ -3,9 +3,11 @@ import axios from 'axios';
 
 import { ArticleType } from '@/common/utils/generatedAppConstants';
 
+type MutationFnProps = App.Community.Data.Comment & { targetUserDisplayName?: string };
+
 export function useDeleteCommentMutation() {
   return useMutation({
-    mutationFn: (comment: App.Community.Data.Comment) => {
+    mutationFn: (comment: MutationFnProps) => {
       return axios.delete(buildDeleteRoute(comment));
     },
   });
@@ -15,7 +17,8 @@ function buildDeleteRoute({
   commentableId,
   commentableType,
   id,
-}: App.Community.Data.Comment): string {
+  targetUserDisplayName = '',
+}: MutationFnProps): string {
   const commentableTypeRouteMap: Record<number, string> = {
     [ArticleType.Achievement]: 'TODO',
     [ArticleType.AchievementTicket]: 'TODO',
@@ -26,7 +29,10 @@ function buildDeleteRoute({
     [ArticleType.Leaderboard]: 'TODO',
     [ArticleType.News]: 'TODO',
     [ArticleType.SetClaim]: 'TODO',
-    [ArticleType.User]: 'TODO',
+    [ArticleType.User]: route('api.user.comment.destroy', {
+      user: targetUserDisplayName,
+      comment: id,
+    }),
     [ArticleType.UserModeration]: 'TODO',
   };
 

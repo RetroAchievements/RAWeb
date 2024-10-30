@@ -20,8 +20,8 @@ class UserData extends Data
         public string $displayName,
         public string $avatarUrl,
         public bool $isMuted,
-        public ?Carbon $mutedUntil,
 
+        public Lazy|Carbon|null $mutedUntil,
         public Lazy|int $id,
         public Lazy|string|null $username,
         public Lazy|int|null $legacyPermissions,
@@ -82,8 +82,8 @@ class UserData extends Data
             displayName: $user->display_name,
             avatarUrl: $user->avatar_url,
             isMuted: $user->isMuted(),
-            mutedUntil: $user->muted_until,
 
+            mutedUntil: Lazy::create(fn () => $user->muted_until),
             id: Lazy::create(fn () => $user->id),
             username: Lazy::create(fn () => $user->username),
             legacyPermissions: Lazy::create(fn () => (int) $user->getAttribute('Permissions')),

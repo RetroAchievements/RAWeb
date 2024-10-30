@@ -93,13 +93,6 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "user.comments": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        }
-    ],
     "user.game.activity": [
         {
             "name": "user",
@@ -301,11 +294,30 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.user.comment.store": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
     "api.game.comment.destroy": [
         {
             "name": "game",
             "required": true,
             "binding": "ID"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.user.comment.destroy": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
         },
         {
             "name": "comment",
@@ -351,6 +363,13 @@ declare module 'ziggy-js' {
             "name": "game",
             "required": true,
             "binding": "ID"
+        }
+    ],
+    "user.comment.index": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
         }
     ],
     "forum.recent-posts": [],

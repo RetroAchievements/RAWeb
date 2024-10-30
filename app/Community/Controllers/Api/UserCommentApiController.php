@@ -6,38 +6,37 @@ use App\Community\Data\StoreCommentData;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Requests\StoreCommentRequest;
 use App\Http\Controller;
-use App\Models\Game;
-use App\Models\GameComment;
 use App\Models\User;
+use App\Models\UserComment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
-class GameCommentApiController extends Controller
+class UserCommentApiController extends Controller
 {
     public function index(): void
     {
     }
 
-    public function store(StoreCommentRequest $request, Game $game): JsonResponse
+    public function store(StoreCommentRequest $request, User $user): JsonResponse
     {
-        $this->authorize('create', [GameComment::class, $game]);
+        $this->authorize('create', [UserComment::class, $user]);
 
         $data = StoreCommentData::fromRequest($request);
 
-        /** @var User $user */
-        $user = Auth::user();
+        /** @var User $me */
+        $me = Auth::user();
 
-        // Automatically subscribe the user to the game wall if they've never previously
+        // Automatically subscribe the user to the user wall if they've never previously
         // been subscribed to it and then later unsubscribed.
-        $doesSubscriptionExist = $user->subscriptions()
-            ->whereSubjectType(SubscriptionSubjectType::GameWall)
-            ->whereSubjectId($game->id)
+        $doesSubscriptionExist = $me->subscriptions()
+            ->whereSubjectType(SubscriptionSubjectType::UserWall)
+            ->whereSubjectId($user->id)
             ->exists();
         if (!$doesSubscriptionExist) {
-            updateSubscription(SubscriptionSubjectType::GameWall, $game->id, $user->id, true);
+            updateSubscription(SubscriptionSubjectType::UserWall, $user->id, $me->id, true);
         }
 
-        addArticleComment($user->username, $data->commentableType, $data->commentableId, $data->body);
+        addArticleComment($me->username, $data->commentableType, $data->commentableId, $data->body);
 
         return response()->json(['success' => true]);
     }
@@ -50,7 +49,7 @@ class GameCommentApiController extends Controller
     {
     }
 
-    public function destroy(Game $game, GameComment $comment): JsonResponse
+    public function destroy(User $user, UserComment $comment): JsonResponse
     {
         $this->authorize('delete', $comment);
 

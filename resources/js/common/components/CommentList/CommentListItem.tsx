@@ -39,7 +39,8 @@ export const CommentListItem: FC<CommentListItemProps> = ({ ...comment }) => {
           ) : null}
         </div>
 
-        <p>
+        {/* Prevent long-running lines from breaking the page layout. */}
+        <p style={{ wordBreak: 'break-word' }}>
           <FormatNewlines>{comment.payload}</FormatNewlines>
         </p>
       </div>
