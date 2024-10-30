@@ -132,8 +132,7 @@ class BuildGameListAction
      */
     private function buildBaseQuery(GameListType $listType, ?User $user = null): Builder
     {
-        $query = Game::query()
-            ->with(['system'])
+        $query = Game::with(['system'])
             ->withLastAchievementUpdate()
             ->addSelect(['GameData.*'])
             ->addSelect([
