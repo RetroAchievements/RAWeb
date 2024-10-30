@@ -9,6 +9,7 @@ use App\Filament\Resources\AchievementResource\Pages;
 use App\Filament\Resources\AchievementResource\RelationManagers\EventAchievementsRelationManager;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
@@ -132,6 +133,25 @@ class AchievementResource extends Resource
                         Infolists\Components\TextEntry::make('DisplayOrder'),
                     ])->grow(false),
                 ])->from('md'),
+                Infolists\Components\Section::make('Event Association')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('eventData.source_achievement_id')
+                            ->label('Source Achievement')
+                            ->columnSpan(2)
+                            ->formatStateUsing(function (int $state): string {
+                                $achievement = Achievement::find($state);
+
+                                return "[{$achievement->id}] {$achievement->title}";
+                            }),
+                        Infolists\Components\TextEntry::make('eventData.active_from')
+                            ->label('Active From')
+                            ->date(),
+                        Infolists\Components\TextEntry::make('eventData.active_through')
+                            ->label('Active Through')
+                            ->date(),
+                    ])
+                    ->columns(['xl' => 4, 'md' => 2])
+                    ->hidden(fn ($record) => $record->game->system->id !== System::Events),
             ]);
     }
 
@@ -209,7 +229,42 @@ class AchievementResource extends Resource
                                 ->disabled(!$user->can('updateField', [$form->model, 'DisplayOrder'])),
                         ]),
                 ])->from('md'),
-            ]);
+
+            Forms\Components\Fieldset::make('Event Association')
+                ->relationship('eventData')
+                ->schema([
+                    Forms\Components\Select::make('source_achievement_id')
+                        ->label('Source Achievement')
+                        ->columnSpan(2)
+                        ->searchable()
+                        ->getSearchResultsUsing(function (string $search): array {
+                            return Achievement::where('Title', 'like', "%{$search}%")
+                                ->orWhere('ID', 'like', "%{$search}%")
+                                ->limit(50)
+                                ->get()
+                                ->mapWithKeys(function ($achievement) {
+                                    return [$achievement->id => "[{$achievement->id}] {$achievement->title}"];
+                                })
+                                ->toArray();
+                        })
+                        ->getOptionLabelUsing(function (int $value): string {
+                            $achievement = Achievement::find($value);
+
+                            return "[{$achievement->id}] {$achievement->title}";
+                        }),
+
+                    Forms\Components\DatePicker::make('active_from')
+                        ->label('Active From')
+                        ->native(false)
+                        ->date(),
+
+                    Forms\Components\DatePicker::make('active_through')
+                        ->label('Active Through')
+                        ->native(false)
+                        ->date(),
+                ])
+                ->hidden(fn ($record) => $record->game->system->id !== System::Events)
+        ]);
     }
 
     public static function table(Table $table): Table
@@ -374,7 +429,6 @@ class AchievementResource extends Resource
     public static function getRelations(): array
     {
         return [
-            EventAchievementsRelationManager::class,
         ];
     }
 

@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -361,18 +362,12 @@ class Achievement extends BaseModel implements HasComments
         return $this->hasMany(EventAchievement::class, 'source_achievement_id', 'ID');
     }
 
-    public function eventData(): EventAchievement
-    {
-        return $this->hasOne(EventAchievement::class, 'achievement_id')->first();
-    }
-
     /**
-     * An achievement should have at most one "event data", but this is needed for the management panel
-     * @return HasMany<EventAchievement>
+     * @return HasOne<EventAchievement>
      */
-    public function eventDatas(): HasMany
+    public function eventData(): HasOne
     {
-        return $this->hasMany(EventAchievement::class, 'achievement_id', 'ID');
+        return $this->hasOne(EventAchievement::class, 'achievement_id');
     }
 
     // == scopes
