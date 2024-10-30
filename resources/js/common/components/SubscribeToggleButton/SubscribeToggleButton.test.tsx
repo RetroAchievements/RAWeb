@@ -2,7 +2,6 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
 import { render, screen } from '@/test';
-import { createSubscription } from '@/test/factories';
 
 import { SubscribeToggleButton } from './SubscribeToggleButton';
 
@@ -10,36 +9,18 @@ describe('Component: SubscribeToggleButton', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <SubscribeToggleButton
-        existingSubscription={createSubscription()}
-        subjectId={1}
-        subjectType="GameWall"
-      />,
+      <SubscribeToggleButton hasExistingSubscription={true} subjectId={1} subjectType="GameWall" />,
     );
 
     // ASSERT
     expect(container).toBeTruthy();
   });
 
-  it('given the user has never previously subscribed, shows a "Subscribe" button', () => {
-    // ARRANGE
-    render(
-      <SubscribeToggleButton existingSubscription={null} subjectId={1} subjectType="GameWall" />,
-    );
-
-    // ASSERT
-    expect(screen.getByRole('button', { name: 'Subscribe' })).toBeVisible();
-  });
-
-  it('given the user has previously subscribed but is now unsubscribed, shows a "Subscribe" button', () => {
+  it('given the user is not currently subscribed, shows a "Subscribe" button', () => {
     // ARRANGE
     render(
       <SubscribeToggleButton
-        existingSubscription={createSubscription({
-          state: false,
-          subjectId: 1,
-          subjectType: 'GameWall',
-        })}
+        hasExistingSubscription={false}
         subjectId={1}
         subjectType="GameWall"
       />,
@@ -52,15 +33,7 @@ describe('Component: SubscribeToggleButton', () => {
   it('given the user is currently subscribed, shows an "Unsubscribe" button', () => {
     // ARRANGE
     render(
-      <SubscribeToggleButton
-        existingSubscription={createSubscription({
-          state: true,
-          subjectId: 1,
-          subjectType: 'GameWall',
-        })}
-        subjectId={1}
-        subjectType="GameWall"
-      />,
+      <SubscribeToggleButton hasExistingSubscription={true} subjectId={1} subjectType="GameWall" />,
     );
 
     // ASSERT
@@ -72,7 +45,11 @@ describe('Component: SubscribeToggleButton', () => {
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
 
     render(
-      <SubscribeToggleButton existingSubscription={null} subjectId={1} subjectType="GameWall" />,
+      <SubscribeToggleButton
+        hasExistingSubscription={false}
+        subjectId={1}
+        subjectType="GameWall"
+      />,
     );
 
     // ACT
@@ -91,15 +68,7 @@ describe('Component: SubscribeToggleButton', () => {
     const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
 
     render(
-      <SubscribeToggleButton
-        existingSubscription={createSubscription({
-          state: true,
-          subjectId: 1,
-          subjectType: 'GameWall',
-        })}
-        subjectId={1}
-        subjectType="GameWall"
-      />,
+      <SubscribeToggleButton hasExistingSubscription={true} subjectId={1} subjectType="GameWall" />,
     );
 
     // ACT
@@ -118,7 +87,11 @@ describe('Component: SubscribeToggleButton', () => {
     vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
 
     render(
-      <SubscribeToggleButton existingSubscription={null} subjectId={1} subjectType="GameWall" />,
+      <SubscribeToggleButton
+        hasExistingSubscription={false}
+        subjectId={1}
+        subjectType="GameWall"
+      />,
     );
 
     // ACT

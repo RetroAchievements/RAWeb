@@ -15,13 +15,13 @@ import { useToggleSubscriptionMutation } from './useToggleSubscriptionMutation';
  */
 
 interface SubscribeToggleButtonProps {
-  existingSubscription: App.Community.Data.Subscription | null;
+  hasExistingSubscription: boolean;
   subjectId: number;
   subjectType: App.Community.Enums.SubscriptionSubjectType;
 }
 
 export const SubscribeToggleButton: FC<SubscribeToggleButtonProps> = ({
-  existingSubscription,
+  hasExistingSubscription,
   subjectId,
   subjectType,
 }) => {
@@ -29,7 +29,7 @@ export const SubscribeToggleButton: FC<SubscribeToggleButtonProps> = ({
 
   const mutation = useToggleSubscriptionMutation();
 
-  const [isSubscribed, setIsSubscribed] = useState(existingSubscription?.state === true);
+  const [isSubscribed, setIsSubscribed] = useState(hasExistingSubscription);
 
   const handleClick = () => {
     const newState = !isSubscribed;
