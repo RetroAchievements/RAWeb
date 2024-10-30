@@ -37,7 +37,7 @@ export default function DataTablePagination<TData>({
 
     window.scrollTo({
       top: scrollTarget.offsetTop,
-      behavior: 'instant',
+      behavior: 'smooth',
     });
   };
 
