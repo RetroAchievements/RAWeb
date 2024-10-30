@@ -343,5 +343,7 @@
     "RSS Feeds": "RSS Feeds",
     "News": "News",
     ":user doesn't have any forum posts.": ":user doesn't have any forum posts.",
-    "No recent posts could be found.": "No recent posts could be found."
+    "No recent posts could be found.": "No recent posts could be found.",
+    "current page number": "current page number",
+    "of :totalPages": "of :totalPages"
 }
