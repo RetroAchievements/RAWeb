@@ -560,6 +560,41 @@ describe('Component: WantToPlayGamesMainRoot', () => {
     });
   });
 
+  it('allows the user to sort by a boolean column', async () => {
+    // ARRANGE
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
+
+    render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesMainRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        paginatedGameListEntries: createPaginatedData([]),
+        can: { develop: false },
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /view/i }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /claimed/i }));
+
+    await userEvent.click(screen.getByTestId('column-header-Claimed'));
+    await userEvent.click(screen.getByRole('menuitem', { name: /yes first/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.user-game-list.index',
+        {
+          'filter[achievementsPublished]': 'has',
+          'page[number]': 1,
+          sort: '-hasActiveOrInReviewClaims',
+        },
+      ]);
+    });
+  });
+
   it('allows the user to hide a column via the column header button', async () => {
     // ARRANGE
     render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesMainRoot />, {
