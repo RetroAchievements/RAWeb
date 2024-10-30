@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Concerns;
 
+use App\Community\Enums\ArticleType;
 use App\Community\Enums\UserRelationship;
 use App\Models\EmailConfirmation;
 use App\Models\ForumTopicComment;
@@ -16,7 +17,7 @@ use App\Models\UserGameListEntry;
 use App\Models\UserRelation;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\Auth;
 
 // TODO organize accessors, relations, and scopes
 
@@ -160,11 +161,26 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return MorphMany<UserComment>
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<UserComment>
      */
-    public function comments(): MorphMany
+    public function comments(): HasMany
     {
-        return $this->morphMany(UserComment::class, 'commentable')->with('user');
+        return $this->hasMany(UserComment::class, 'ArticleID')->where('ArticleType', ArticleType::User);
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<UserComment>
+     */
+    public function visibleComments(?User $user = null): HasMany
+    {
+        /** @var ?User $user */
+        $currentUser = $user ?? Auth::user();
+
+        return $this->comments()->visibleTo($currentUser);
     }
 
     /**

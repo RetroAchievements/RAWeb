@@ -43,7 +43,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
 
 // TODO MustVerifyEmail,
-class User extends Authenticatable implements CommunityMember, Developer, HasComments, HasLocalePreference, HasMedia, Player, FilamentUser, HasName
+// TODO HasComments,
+class User extends Authenticatable implements CommunityMember, Developer, HasLocalePreference, HasMedia, Player, FilamentUser, HasName
 {
     /*
      * Framework Traits
