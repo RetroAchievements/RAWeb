@@ -1,4 +1,3 @@
-import { router } from '@inertiajs/react';
 import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
@@ -9,42 +8,21 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { GameBreadcrumbs } from '@/features/games/components/GameBreadcrumbs';
 import { GameHeading } from '@/features/games/components/GameHeading';
 
+import { useCommentPagination } from '../hooks/useCommentPagination';
+
 export const GameCommentsMainRoot: FC = () => {
-  const { auth, game, subscription, paginatedComments } =
+  const { auth, canComment, game, isSubscribed, paginatedComments } =
     usePageProps<App.Community.Data.GameCommentsPageProps>();
 
   const { t } = useLaravelReactI18n();
 
-  const handleCommentDeleteSuccess = () => {
-    // If there are no comments left on the current page and we're not on
-    // the 1st page, go back one page.
-    router.visit(
-      route('game.comment.index', {
-        game: game.id,
-        _query: { page: getNewLastPageOnItemDelete(paginatedComments) },
-      }),
-      { preserveScroll: true },
-    );
-  };
-
-  const handleCommentSubmitSuccess = () => {
-    router.visit(
-      route('game.comment.index', {
-        game: game.id,
-        _query: { page: getNewLastPageOnItemAdd(paginatedComments) },
-      }),
-      { preserveScroll: true },
-    );
-  };
-
-  const handlePageSelectValueChange = (newPageValue: number) => {
-    router.visit(
-      route('game.comment.index', {
-        game: game.id,
-        _query: { page: newPageValue },
-      }),
-    );
-  };
+  const { handleCommentDeleteSuccess, handleCommentSubmitSuccess, handlePageSelectValueChange } =
+    useCommentPagination({
+      paginatedComments,
+      entityId: game.id,
+      entityType: 'Game',
+      routeName: 'game.comment.index',
+    });
 
   return (
     <div>
@@ -63,12 +41,13 @@ export const GameCommentsMainRoot: FC = () => {
           <SubscribeToggleButton
             subjectId={game.id}
             subjectType="GameWall"
-            existingSubscription={subscription}
+            hasExistingSubscription={isSubscribed}
           />
         ) : null}
       </div>
 
       <CommentList
+        canComment={canComment}
         comments={paginatedComments.items}
         commentableId={game.id}
         commentableType="Game"
@@ -85,23 +64,3 @@ export const GameCommentsMainRoot: FC = () => {
     </div>
   );
 };
-
-function getNewLastPageOnItemAdd(
-  paginatedComments: App.Community.Data.GameCommentsPageProps['paginatedComments'],
-): number {
-  const { total, perPage } = paginatedComments;
-
-  const newTotal = total + 1;
-
-  return Math.ceil(newTotal / perPage);
-}
-
-function getNewLastPageOnItemDelete(
-  paginatedComments: App.Community.Data.GameCommentsPageProps['paginatedComments'],
-): number {
-  const { total, perPage } = paginatedComments;
-
-  const newTotal = total - 1;
-
-  return Math.ceil(newTotal / perPage);
-}

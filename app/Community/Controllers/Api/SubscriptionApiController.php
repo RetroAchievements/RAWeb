@@ -63,8 +63,19 @@ class SubscriptionApiController extends Controller
             ->whereSubjectId($subjectId)
             ->first();
 
+        // It may be an implicit subscription. We'll store a new subscription
+        // record with a state explicitly set to `false`.
         if (!$subscription) {
-            return response()->json(['success' => false], 400);
+            $subscription = Subscription::updateOrCreate(
+                [
+                    'subject_type' => $subjectType,
+                    'subject_id' => $subjectId,
+                    'user_id' => $user->id,
+                ],
+                ['state' => false]
+            );
+
+            return response()->noContent();
         }
 
         $this->authorize('delete', $subscription);

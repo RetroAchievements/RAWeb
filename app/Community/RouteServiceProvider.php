@@ -7,6 +7,7 @@ namespace App\Community;
 use App\Community\Controllers\AchievementSetClaimController;
 use App\Community\Controllers\Api\GameCommentApiController;
 use App\Community\Controllers\Api\SubscriptionApiController;
+use App\Community\Controllers\Api\UserCommentApiController;
 use App\Community\Controllers\Api\UserGameListApiController;
 use App\Community\Controllers\ForumTopicCommentController;
 use App\Community\Controllers\ForumTopicController;
@@ -51,7 +52,9 @@ class RouteServiceProvider extends ServiceProvider
                 Route::middleware(['auth'])->group(function () {
                     Route::group(['prefix' => 'internal-api'], function () {
                         Route::post('game/{game}/comment', [GameCommentApiController::class, 'store'])->name('api.game.comment.store');
+                        Route::post('user/{user}/comment', [UserCommentApiController::class, 'store'])->name('api.user.comment.store');
                         Route::delete('game/{game}/comment/{comment}', [GameCommentApiController::class, 'destroy'])->name('api.game.comment.destroy');
+                        Route::delete('user/{user}/comment/{comment}', [UserCommentApiController::class, 'destroy'])->name('api.user.comment.destroy');
 
                         Route::post('subscription/{subjectType}/{subjectId}', [SubscriptionApiController::class, 'store'])->name('api.subscription.store');
                         Route::delete('subscription/{subjectType}/{subjectId}', [SubscriptionApiController::class, 'destroy'])->name('api.subscription.destroy');
@@ -64,6 +67,7 @@ class RouteServiceProvider extends ServiceProvider
 
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('game/{game}/comments', [GameCommentController::class, 'index'])->name('game.comment.index');
+                    Route::get('user/{user}/comments', [UserCommentController::class, 'index'])->name('user.comment.index');
 
                     Route::get('forums/recent-posts', [ForumTopicController::class, 'recentPosts'])->name('forum.recent-posts');
 
