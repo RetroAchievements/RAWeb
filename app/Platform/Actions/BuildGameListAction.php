@@ -158,8 +158,7 @@ class BuildGameListAction
         switch ($listType) {
             case GameListType::AllGames:
                 // Exclude non game systems, inactive systems, and subsets.
-                $validSystemIds = System::query()
-                    ->active()
+                $validSystemIds = System::active()
                     ->gameSystems()
                     ->pluck('ID')
                     ->all();
