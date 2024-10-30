@@ -278,6 +278,18 @@ declare namespace App.Platform.Enums {
     | 'will_be_bonus'
     | 'will_be_specialty'
     | 'will_be_exclusive';
+  export type GameListSortField =
+    | 'title'
+    | 'system'
+    | 'achievementsPublished'
+    | 'pointsTotal'
+    | 'retroRatio'
+    | 'lastUpdated'
+    | 'releasedAt'
+    | 'playersTotal'
+    | 'numVisibleLeaderboards'
+    | 'numUnresolvedTickets'
+    | 'progress';
   export type GameSetType = 'hub' | 'similar-games';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 }
