@@ -13,6 +13,7 @@ use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
+use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Data\GameData;
@@ -134,8 +135,7 @@ class BuildGameListAction
      */
     private function buildBaseQuery(GameListType $listType, ?User $user = null): Builder
     {
-        $query = Game::query()
-            ->with(['system'])
+        $query = Game::with(['system'])
             ->withLastAchievementUpdate()
             ->addSelect(['GameData.*'])
             ->addSelect([
@@ -166,10 +166,13 @@ class BuildGameListAction
         switch ($listType) {
             case GameListType::AllGames:
                 // Exclude non game systems, inactive systems, and subsets.
+                $validSystemIds = System::active()
+                    ->gameSystems()
+                    ->pluck('ID')
+                    ->all();
+
                 $query
-                    ->whereHas('system', function ($q) {
-                        return $q->gameSystems()->active();
-                    })
+                    ->whereIn('GameData.ConsoleID', $validSystemIds)
                     ->where('GameData.Title', 'not like', "%[Subset -%");
                 break;
 
