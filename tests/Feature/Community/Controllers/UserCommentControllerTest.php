@@ -9,11 +9,47 @@ use App\Models\Comment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class UserCommentControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function testIndexAllowsUnauthenticatedVisitors(): void
+    {
+        // Arrange
+        /** @var User $targetUser */
+        $targetUser = User::factory()->create(['User' => 'Scott']);
+
+        // Act
+        $response = $this->get(route('user.comment.index', ['user' => $targetUser]));
+
+        // Assert
+        $response->assertOk();
+    }
+
+    public function testIndexReturnsCorrectInertiaResponse(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $this->actingAs($user);
+
+        /** @var User $targetUser */
+        $targetUser = User::factory()->create(['User' => 'Scott']);
+
+        // Act
+        $response = $this->get(route('user.comment.index', ['user' => $targetUser]));
+
+        // Assert
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('targetUser.displayName', 'Scott')
+            ->has('paginatedComments.items', 0)
+            ->where('isSubscribed', false)
+            ->where('canComment', true)
+        );
+    }
 
     public function testDestroyAllUnauthorized(): void
     {

@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Community\Enums\AwardType;
+use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\UserGameListType;
 use App\Data\PaginatedData;
+use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
+use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Data\GameData;
@@ -97,17 +100,18 @@ class BuildGameListAction
 
                 return new GameListEntryData(
                     game: GameData::from($game)->include(
-                        'system.nameShort',
-                        'system.iconUrl',
                         'achievementsPublished',
                         'badgeUrl',
+                        'hasActiveOrInReviewClaims',
+                        'lastUpdated',
+                        'numVisibleLeaderboards',
+                        'playersTotal',
                         'pointsTotal',
                         'pointsWeighted',
                         'releasedAt',
                         'releasedAtGranularity',
-                        'playersTotal',
-                        'lastUpdated',
-                        'numVisibleLeaderboards',
+                        'system.iconUrl',
+                        'system.nameShort',
                         $user?->can('develop') ? 'numUnresolvedTickets' : '',
                     ),
                     playerGame: $playerGame
@@ -132,12 +136,16 @@ class BuildGameListAction
      */
     private function buildBaseQuery(GameListType $listType, ?User $user = null): Builder
     {
-        $query = Game::query()
-            ->with(['system'])
+        $query = Game::with(['system'])
             ->withLastAchievementUpdate()
             ->addSelect(['GameData.*'])
             ->addSelect([
                 // Fetch counts here to avoid N+1 query problems.
+
+                'has_active_or_in_review_claims' => AchievementSetClaim::selectRaw('CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END')
+                    ->whereColumn('SetClaim.game_id', 'GameData.ID')
+                    ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
+                    ->limit(1),
 
                 'num_visible_leaderboards' => Leaderboard::selectRaw('COUNT(*)')
                     ->whereColumn('LeaderboardDef.GameID', 'GameData.ID')
@@ -159,10 +167,13 @@ class BuildGameListAction
         switch ($listType) {
             case GameListType::AllGames:
                 // Exclude non game systems, inactive systems, and subsets.
+                $validSystemIds = System::active()
+                    ->gameSystems()
+                    ->pluck('ID')
+                    ->all();
+
                 $query
-                    ->whereHas('system', function ($q) {
-                        return $q->gameSystems()->active();
-                    })
+                    ->whereIn('GameData.ConsoleID', $validSystemIds)
                     ->where('GameData.Title', 'not like', "%[Subset -%");
                 break;
 
@@ -262,6 +273,13 @@ class BuildGameListAction
                  */
                 case GameListSortField::AchievementsPublished->value:
                     $query->orderBy('GameData.achievements_published', $sortDirection);
+                    break;
+
+                /*
+                 * whether or not there are any active or in review claims associated with the game
+                 */
+                case GameListSortField::HasActiveOrInReviewClaims->value:
+                    $query->orderBy('has_active_or_in_review_claims', $sortDirection);
                     break;
 
                 /*

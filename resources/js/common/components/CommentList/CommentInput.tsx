@@ -25,7 +25,7 @@ export const CommentInput: FC = () => {
 
   const { t } = useLaravelReactI18n();
 
-  const { commentableId, commentableType, onSubmitSuccess } = useCommentListContext();
+  const { canComment, commentableId, commentableType, onSubmitSuccess } = useCommentListContext();
 
   const { form, mutation, onSubmit } = useSubmitCommentForm({
     commentableId,
@@ -33,12 +33,12 @@ export const CommentInput: FC = () => {
     onSubmitSuccess,
   });
 
-  if (!auth?.user) {
+  if (!auth?.user || !canComment) {
     return null;
   }
 
   return (
-    <div className="-mx-2 flex items-start gap-4 p-2">
+    <div className="flex items-start gap-4 p-2">
       <div className="mt-1">
         <UserAvatar {...auth.user} showLabel={false} />
       </div>

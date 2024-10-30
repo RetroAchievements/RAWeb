@@ -12,6 +12,7 @@ enum GameListSortField: string
     case Title = 'title';
     case System = 'system';
     case AchievementsPublished = 'achievementsPublished';
+    case HasActiveOrInReviewClaims = 'hasActiveOrInReviewClaims';
     case PointsTotal = 'pointsTotal';
     case RetroRatio = 'retroRatio';
     case LastUpdated = 'lastUpdated';
