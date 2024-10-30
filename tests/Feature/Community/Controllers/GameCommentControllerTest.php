@@ -33,7 +33,8 @@ class GameCommentControllerTest extends TestCase
             ->where('game.id', 1)
             ->where('game.title', $game->title)
             ->has('paginatedComments.items', 0)
-            ->has('subscription', null)
+            ->where('isSubscribed', false)
+            ->where('canComment', true)
         );
     }
 }

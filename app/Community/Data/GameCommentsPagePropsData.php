@@ -15,7 +15,8 @@ class GameCommentsPagePropsData extends Data
     public function __construct(
         public GameData $game,
         public PaginatedData $paginatedComments,
-        public ?SubscriptionData $subscription,
+        public bool $isSubscribed,
+        public bool $canComment,
     ) {
     }
 }

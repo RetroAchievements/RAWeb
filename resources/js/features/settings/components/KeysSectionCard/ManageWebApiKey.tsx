@@ -84,16 +84,21 @@ export const ManageWebApiKey: FC = () => {
           <div>
             <p>
               <Trans i18nKey="This is your <0>personal</0> web API key. Handle it with care.">
-                {'This is your'} <span className="italic">{'personal'}</span>{' '}
-                {'web API key. Handle it with care.'}
+                {/* eslint-disable react/jsx-no-literals */}
+                This is your <span className="italic">personal</span> web API key. Handle it with
+                care.
+                {/* eslint-enable react/jsx-no-literals */}
               </Trans>
             </p>
             <p>
-              {t('The RetroAchievements API documentation can be found')}{' '}
-              <a href="https://api-docs.retroachievements.org" target="_blank" rel="noreferrer">
-                {t('here')}
-              </a>
-              {t('.')}
+              <Trans i18nKey="The RetroAchievements API documentation can be found <0>here</0>.">
+                {/* eslint-disable react/jsx-no-literals */}
+                The RetroAchievements API documentation can be found{' '}
+                <a href="https://api-docs.retroachievements.org" target="_blank" rel="noreferrer">
+                  here
+                </a>
+                .{/* eslint-enable react/jsx-no-literals */}
+              </Trans>
             </p>
           </div>
 
