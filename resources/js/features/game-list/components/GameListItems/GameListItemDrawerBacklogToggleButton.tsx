@@ -6,48 +6,43 @@ import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { cn } from '@/utils/cn';
 
 import { useDelayedButtonDisable } from './useDelayedButtonDisable';
-import { useGameBacklogState } from './useGameBacklogState';
+import type { useGameBacklogState } from './useGameBacklogState';
 
 interface GameListItemDrawerBacklogToggleButtonProps {
-  game: App.Platform.Data.Game;
-  isInBacklog: boolean;
+  backlogState: ReturnType<typeof useGameBacklogState>;
+  onToggle: () => unknown;
 }
 
 export const GameListItemDrawerBacklogToggleButton: FC<
   GameListItemDrawerBacklogToggleButtonProps
-> = ({ game, isInBacklog }) => {
+> = ({ backlogState, onToggle }) => {
   const { t } = useLaravelReactI18n();
 
-  const {
-    isPending,
-    toggleBacklog,
-    isInBacklogMaybeOptimistic: isInBacklogOptimistic,
-  } = useGameBacklogState({
-    game: game,
-    isInitiallyInBacklog: isInBacklog,
-    shouldShowToasts: false,
-  });
-
-  const isButtonDisabled = useDelayedButtonDisable(isPending);
+  const isButtonDisabled = useDelayedButtonDisable(backlogState.isPending);
 
   return (
     <BaseButton
       variant="secondary"
       className={cn(
         'border disabled:!pointer-events-auto disabled:!opacity-100',
-        isInBacklogOptimistic ? '!border-red-500 !bg-embed !text-red-500' : 'border-transparent',
+        backlogState.isInBacklogMaybeOptimistic
+          ? '!border-red-500 !bg-embed !text-red-500'
+          : 'border-transparent',
       )}
-      onClick={toggleBacklog}
-      disabled={isPending || isButtonDisabled}
+      onClick={() => onToggle()}
+      disabled={backlogState.isPending || isButtonDisabled}
     >
       <MdClose
-        className={cn('mr-1 h-4 w-4 transition-all', isInBacklogOptimistic ? '' : 'rotate-45')}
+        className={cn(
+          'mr-1 h-4 w-4 transition-all',
+          backlogState.isInBacklogMaybeOptimistic ? '' : 'rotate-45',
+        )}
       />
 
       {t('Want to Play')}
 
       <span className="sr-only">
-        {isInBacklogOptimistic
+        {backlogState.isInBacklogMaybeOptimistic
           ? t('Remove from Want to Play Games')
           : t('Add to Want to Play Games')}
       </span>

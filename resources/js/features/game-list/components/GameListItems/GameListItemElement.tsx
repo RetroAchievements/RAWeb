@@ -1,5 +1,5 @@
 import { useLaravelReactI18n } from 'laravel-react-i18n';
-import { type FC } from 'react';
+import { type FC, useState } from 'react';
 import { MdClose } from 'react-icons/md';
 import { RxDotsVertical } from 'react-icons/rx';
 
@@ -57,89 +57,108 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
 
   const { t } = useLaravelReactI18n();
 
-  const {
-    isPending,
-    toggleBacklog,
-    isInBacklogMaybeOptimistic: isInBacklogOptimistic,
-  } = useGameBacklogState({
+  const backlogState = useGameBacklogState({
     game,
     isInitiallyInBacklog: isInBacklog ?? false,
   });
 
-  if (shouldHideItemIfNotInBacklog && !isInBacklogOptimistic) {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  if (shouldHideItemIfNotInBacklog && !backlogState.isInBacklogMaybeOptimistic) {
     return null;
   }
 
+  const {
+    isPending,
+    toggleBacklog,
+    isInBacklogMaybeOptimistic: isInBacklogOptimistic,
+  } = backlogState;
+
+  const handleToggleBacklogFromDrawerButton = () => {
+    setIsDrawerOpen(false);
+
+    setTimeout(() => {
+      toggleBacklog();
+    }, 200);
+  };
+
   return (
-    <BaseDrawer shouldScaleBackground={false} modal={false}>
-      <div className="flex gap-3">
-        <GameAvatar {...game} size={48} hasTooltip={false} showLabel={false} />
+    <BaseDrawer
+      open={isDrawerOpen}
+      onOpenChange={setIsDrawerOpen}
+      shouldScaleBackground={false}
+      modal={false}
+    >
+      <li>
+        <div className="flex gap-3">
+          <GameAvatar {...game} size={48} hasTooltip={false} showLabel={false} />
 
-        <div className="flex-grow truncate">
-          <div className="flex flex-col gap-1">
-            <a href={route('game.show', { game: game.id })} className="truncate tracking-tight">
-              <GameTitle title={game.title} />
-            </a>
+          <div className="flex-grow truncate">
+            <div className="flex flex-col gap-1">
+              <a href={route('game.show', { game: game.id })} className="truncate tracking-tight">
+                <GameTitle title={game.title} />
+              </a>
 
-            <div className="flex flex-wrap items-center gap-1">
-              {game.system ? (
-                <SystemChip
-                  {...game.system}
-                  className="light:bg-neutral-200/70"
-                  // Hide the system label when it's a date field. Otherwise, we gets really cramped,
-                  // especially when the localized date format is long, eg: "20 de abril de 1998"
-                  showLabel={sortFieldId !== 'releasedAt' && sortFieldId !== 'lastUpdated'}
-                />
-              ) : null}
+              <div className="flex flex-wrap items-center gap-1">
+                {game.system ? (
+                  <SystemChip
+                    {...game.system}
+                    className="light:bg-neutral-200/70"
+                    // Hide the system label when it's a date field. Otherwise, we gets really cramped,
+                    // especially when the localized date format is long, eg: "20 de abril de 1998"
+                    showLabel={sortFieldId !== 'releasedAt' && sortFieldId !== 'lastUpdated'}
+                  />
+                ) : null}
 
-              {playerGame ? (
-                <ChipOfInterest game={game} playerGame={playerGame} fieldId="progress" />
-              ) : null}
+                {playerGame ? (
+                  <ChipOfInterest game={game} playerGame={playerGame} fieldId="progress" />
+                ) : null}
 
-              {sortFieldId && sortFieldId !== 'progress' ? (
-                <ChipOfInterest
-                  game={game}
-                  playerGame={playerGame ?? undefined}
-                  fieldId={sortFieldId}
-                />
-              ) : null}
+                {sortFieldId && sortFieldId !== 'progress' ? (
+                  <ChipOfInterest
+                    game={game}
+                    playerGame={playerGame ?? undefined}
+                    fieldId={sortFieldId}
+                  />
+                ) : null}
+              </div>
             </div>
+          </div>
+
+          <div className="-mr-1 flex self-center">
+            <button
+              className="p-3 text-neutral-100 light:text-neutral-950"
+              onClick={toggleBacklog}
+              disabled={isPending}
+            >
+              <MdClose
+                className={cn(
+                  'h-4 w-4 transition-transform',
+                  'disabled:!text-neutral-100 light:disabled:text-neutral-950',
+                  isInBacklogOptimistic ? '' : 'rotate-45',
+                )}
+              />
+
+              <span className="sr-only">
+                {isInBacklogOptimistic
+                  ? t('Remove from Want To Play Games')
+                  : t('Add to Want to Play Games')}
+              </span>
+            </button>
+
+            <BaseDrawerTrigger asChild>
+              <button className="p-3 text-neutral-100 light:text-neutral-950">
+                <RxDotsVertical className="h-4 w-4" />
+                <span className="sr-only">{t('Open game details')}</span>
+              </button>
+            </BaseDrawerTrigger>
           </div>
         </div>
 
-        <div className="-mr-1 flex self-center">
-          <button
-            className="p-3 text-neutral-100 light:text-neutral-950"
-            onClick={toggleBacklog}
-            disabled={isPending}
-          >
-            <MdClose
-              className={cn(
-                'h-4 w-4 transition-transform',
-                'disabled:!text-neutral-100 light:disabled:text-neutral-950',
-                isInBacklogOptimistic ? '' : 'rotate-45',
-              )}
-            />
-
-            <span className="sr-only">
-              {isInBacklogOptimistic
-                ? t('Remove from Want To Play Games')
-                : t('Add to Want to Play Games')}
-            </span>
-          </button>
-
-          <BaseDrawerTrigger asChild>
-            <button className="p-3 text-neutral-100 light:text-neutral-950">
-              <RxDotsVertical className="h-4 w-4" />
-              <span className="sr-only">{t('Open game details')}</span>
-            </button>
-          </BaseDrawerTrigger>
-        </div>
-      </div>
-
-      {isLastItem ? null : (
-        <hr className="ml-14 mt-2 border-neutral-700 light:border-neutral-200" />
-      )}
+        {isLastItem ? null : (
+          <hr className="ml-14 mt-2 border-neutral-700 light:border-neutral-200" />
+        )}
+      </li>
 
       <BaseDrawerContent>
         <div className="mx-auto w-full max-w-sm overflow-hidden">
@@ -153,8 +172,8 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
         <BaseDrawerFooter>
           <div className="grid grid-cols-2 gap-3">
             <GameListItemDrawerBacklogToggleButton
-              game={game}
-              isInBacklog={isInBacklogOptimistic}
+              backlogState={backlogState}
+              onToggle={handleToggleBacklogFromDrawerButton}
             />
 
             {/* TODO after migrating the game page to Inertia, prefetch this link */}
