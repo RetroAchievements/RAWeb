@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
+use App\Models\AchievementSet;
 use App\Models\Game;
 use Exception;
 use Illuminate\Console\Command;
@@ -81,7 +82,7 @@ class VerifyAchievementSetIntegrity extends Command
         $this->line("Games with errors: {$gamesWithErrors}");
     }
 
-    private function checkGameMetrics(Game $game, $set): array
+    private function checkGameMetrics(Game $game, AchievementSet $set): array
     {
         $errors = [];
 
@@ -109,7 +110,7 @@ class VerifyAchievementSetIntegrity extends Command
         return $errors;
     }
 
-    private function checkAchievements(Game $game, $set): array
+    private function checkAchievements(Game $game, AchievementSet $set): array
     {
         $errors = [];
 

@@ -50,7 +50,7 @@ class UpdateGameMetrics extends Command
 
         $processed = 0;
 
-        $query->chunk(100, function ($games) use (&$processed, &$errors, $progressBar) {
+        $query->chunk(100, function ($games) use (&$processed, $progressBar) {
             foreach ($games as $game) {
                 if ($this->argument('gameIds') === null) {
                     dispatch(new UpdateGameMetricsJob($game->id))->onQueue('game-metrics');
