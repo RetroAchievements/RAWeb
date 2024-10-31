@@ -76,26 +76,7 @@ class NotifyMessageThreadParticipants
         MessageThread $messageThread,
         Message $message
     ): void {
-        Log::info("[{$messageThread->title}] Discord forward: Starting message forward", [
-            'message_id' => $message->id,
-            'thread_id' => $messageThread->id,
-            'from_user' => $userFrom->username,
-            'to_user' => $userTo->username,
-            'original_title' => $messageThread->title,
-            'message_length' => mb_strlen($message->body),
-        ]);
-
         $message->body = Shortcode::stripAndClamp($message->body, 1850, preserveWhitespace: true);
-        Log::info("[{$messageThread->title}] Discord forward: Message body processed", [
-            'message_id' => $message->id,
-            'thread_id' => $messageThread->id,
-            'from_user' => $userFrom->username,
-            'to_user' => $userTo->username,
-            'original_title' => $messageThread->title,
-            'processed_length' => mb_strlen($message->body),
-            'truncated' => mb_strlen($message->body) === 1850,
-            'body' => $message->body,
-        ]);
 
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
         $webhookUrl = $inboxConfig['url'] ?? null;
@@ -119,10 +100,6 @@ class NotifyMessageThreadParticipants
             || mb_strpos(mb_strtolower($messageThread->title), 'verification') !== false
             || mb_strpos(mb_strtolower($messageThread->title), 'discord') !== false
         ) {
-            Log::info("[{$messageThread->title}] Discord forward: Verification message detected", [
-                'message_id' => $message->id,
-                'thread_id' => $messageThread->id,
-            ]);
             $webhookUrl = $inboxConfig['verify_url'];
             $color = hexdec('0x00CC66');
             $mentionRoles = collect();
@@ -151,17 +128,6 @@ class NotifyMessageThreadParticipants
         ];
         foreach ($structuredTitlePrefixes as $prefix => $configKey) {
             if (mb_strpos($messageThread->title, $prefix) !== false) {
-                Log::info("[{$messageThread->title}] Discord forward: Structured title message detected", [
-                    'message_id' => $message->id,
-                    'thread_id' => $messageThread->id,
-                    'from_user' => $userFrom->username,
-                    'to_user' => $userTo->username,
-                    'original_title' => $messageThread->title,
-                    'processed_length' => mb_strlen($message->body),
-                    'truncated' => mb_strlen($message->body) === 1850,
-                    'prefix' => $prefix,
-                    'body' => $message->body,
-                ]);
                 $webhookUrl = $inboxConfig[$configKey];
                 $mentionRoles = collect();
                 $isForum = true;
@@ -173,18 +139,6 @@ class NotifyMessageThreadParticipants
                     $achievementUrl = route('achievement.show', $achievementId);
                     $message->body = $achievementUrl . "\n\n" . $message->body;
 
-                    Log::info("[{$messageThread->title}] Discord forward: Added achievement URL to message", [
-                        'message_id' => $message->id,
-                        'thread_id' => $messageThread->id,
-                        'from_user' => $userFrom->username,
-                        'to_user' => $userTo->username,
-                        'original_title' => $messageThread->title,
-                        'processed_length' => mb_strlen($message->body),
-                        'truncated' => mb_strlen($message->body) === 1850,
-                        'prefix' => $prefix,
-                        'body' => $message->body,
-                    ]);
-
                     // We want to reformat the incoming structured title before it lands in the team forum.
                     //  - Original:  "Unwelcome Concept: Lots of Rings [12345] (Sonic the Hedgehog)"
                     //  - Formatted: "12345: Lots of Rings (Sonic the Hedgehog)"
@@ -192,19 +146,6 @@ class NotifyMessageThreadParticipants
                         $originalTitle = $messageThread->title;
                         $newTitle = $achievementId . ': ' . $titleMatches[2] . ' ' . $titleMatches[4];
                         $messageThread->title = $newTitle;
-
-                        Log::info("[{$messageThread->title}] Discord forward: Reformatted thread title", [
-                            'message_id' => $message->id,
-                            'thread_id' => $messageThread->id,
-                            'from_user' => $userFrom->username,
-                            'to_user' => $userTo->username,
-                            'original_title' => $originalTitle,
-                            'new_title' => $newTitle,
-                            'processed_length' => mb_strlen($message->body),
-                            'truncated' => mb_strlen($message->body) === 1850,
-                            'prefix' => $prefix,
-                            'body' => $message->body,
-                        ]);
                     }
                 }
 
@@ -238,54 +179,30 @@ class NotifyMessageThreadParticipants
         if ($isForum) {
             // Forum channels require an additional 'thread_name' JSON parameter to be successfully posted.
             $payload['thread_name'] = mb_substr($messageThread->title, 0, 100);
-            Log::info("[{$messageThread->title}] Discord forward: Preparing forum thread", [
-                'message_id' => $message->id,
-                'thread_id' => $messageThread->id,
-                'from_user' => $userFrom->username,
-                'to_user' => $userTo->username,
-                'thread_name' => $payload['thread_name'],
-                'has_content' => isset($payload['content']),
-                'body_length' => mb_strlen($message->body),
-                'is_truncated_title' => mb_strlen($messageThread->title) > 100,
-                'is_truncated_body' => mb_strlen($message->body) > 2000,
-                'body' => $message->body,
-                'payload' => $payload,
-            ]);
         }
 
         try {
+            if ($isForum) {
+                Log::info("[{$messageThread->title}] Discord forward: Initiating request", [
+                    'payload' => $payload,
+                ]);
+            }
+
             $client = new Client();
             $response = $client->post($webhookUrl, ['json' => $payload]);
 
             if ($isForum) {
                 Log::info("[{$messageThread->title}] Discord forward: Request successful", [
-                    'message_id' => $message->id,
-                    'thread_id' => $messageThread->id,
+                    'payload' => $payload,
+                    'response' => [
+                        'status' => $response->getStatusCode(),
+                        'body' => (string) $response->getBody(),
+                    ],
                 ]);
             }
-        } catch (\GuzzleHttp\Exception\RequestException $e) {
-            $response = $e->getResponse();
-            $context = [
-                'message_id' => $message->id,
-                'thread_id' => $messageThread->id,
-                'is_forum' => $isForum,
-                'error' => $e->getMessage(),
-            ];
-
-            if ($response) {
-                $context['status_code'] = $response->getStatusCode();
-                $context['response_body'] = (string) $response->getBody();
-            }
-
-            Log::error("[{$messageThread->title}] Discord forward: Request failed", $context);
-
-            throw $e;
         } catch (Exception $e) {
             Log::error("[{$messageThread->title}] Discord forward: Unexpected error", [
-                'message_id' => $message->id,
-                'thread_id' => $messageThread->id,
-                'is_forum' => $isForum,
-                'error_class' => get_class($e),
+                'payload' => $payload,
                 'error' => $e->getMessage(),
             ]);
             throw $e;
