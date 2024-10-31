@@ -1,5 +1,6 @@
 import type { Row } from '@tanstack/react-table';
 import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useState } from 'react';
 import { MdClose } from 'react-icons/md';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -44,6 +45,10 @@ export function DataTableRowActions<TData>({
     shouldUpdateOptimistically: shouldAnimateBacklogIconOnChange,
   });
 
+  const [initialRotationClassName] = useState(
+    isInBacklogMaybeOptimistic ? '!rotate-0' : '!rotate-45',
+  );
+
   // This should never happen.
   if (!gameId) {
     throw new Error('No game ID.');
@@ -56,15 +61,18 @@ export function DataTableRowActions<TData>({
           <BaseButton
             variant="ghost"
             className="group flex h-8 w-8 p-0 text-link disabled:!pointer-events-auto disabled:!opacity-100"
-            onClick={toggleBacklog}
+            onClick={() => toggleBacklog()}
             disabled={isPending}
           >
             <MdClose
               className={cn(
                 'h-4 w-4',
                 'hover:text-neutral-50 disabled:!text-neutral-50 light:hover:text-neutral-900 light:disabled:text-neutral-900',
-                shouldAnimateBacklogIconOnChange ? 'transition-transform' : '',
-                shouldAnimateBacklogIconOnChange && isInBacklogMaybeOptimistic ? '' : 'rotate-45',
+
+                !shouldAnimateBacklogIconOnChange ? initialRotationClassName : null,
+                shouldAnimateBacklogIconOnChange ? 'transition-transform' : null,
+
+                isInBacklogMaybeOptimistic ? 'rotate-0' : 'rotate-45',
               )}
             />
 

@@ -75,10 +75,14 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
   } = backlogState;
 
   const handleToggleBacklogFromDrawerButton = () => {
-    setIsDrawerOpen(false);
+    const isViewingWantToPlayGames = shouldHideItemIfNotInBacklog;
+
+    if (isViewingWantToPlayGames) {
+      setIsDrawerOpen(false);
+    }
 
     setTimeout(() => {
-      toggleBacklog();
+      toggleBacklog({ shouldHideToasts: !isViewingWantToPlayGames });
     }, 200);
   };
 
@@ -128,7 +132,7 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
           <div className="-mr-1 flex self-center">
             <button
               className="p-3 text-neutral-100 light:text-neutral-950"
-              onClick={toggleBacklog}
+              onClick={() => toggleBacklog()}
               disabled={isPending}
             >
               <MdClose
