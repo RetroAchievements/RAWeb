@@ -46,7 +46,7 @@ class GameCommentPolicy
 
     public function create(User $user, ?Game $commentable): bool
     {
-        if ($user->is_muted) {
+        if ($user->is_muted || $user->isBanned()) {
             return false;
         }
 

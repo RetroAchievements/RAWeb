@@ -116,6 +116,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                           variant="secondary"
                           key={option.value}
                           className="rounded-sm px-1 font-normal leading-3"
+                          data-testid="filter-selected-label"
                         >
                           {option.selectedLabel ?? option.label}
                         </BaseBadge>

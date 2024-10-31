@@ -28,6 +28,7 @@ class GameData extends Data
         public Lazy|Carbon $lastUpdated,
         public Lazy|int $numVisibleLeaderboards,
         public Lazy|int $numUnresolvedTickets,
+        public Lazy|bool $hasActiveOrInReviewClaims,
     ) {
     }
 
@@ -48,6 +49,7 @@ class GameData extends Data
             lastUpdated: Lazy::create(fn () => $game->lastUpdated),
             numVisibleLeaderboards: Lazy::create(fn () => $game->num_visible_leaderboards ?? 0),
             numUnresolvedTickets: Lazy::create(fn () => $game->num_unresolved_tickets ?? 0),
+            hasActiveOrInReviewClaims: Lazy::create(fn () => $game->has_active_or_in_review_claims ?? false),
         );
     }
 }
