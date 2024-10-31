@@ -134,7 +134,7 @@ const GameListItems: FC<GameListItemsProps> = ({
                 <GameListItemElement
                   key={`mobile-${item.game.id}`}
                   gameListEntry={item}
-                  sortFieldId={sorting?.[0]?.id}
+                  sortFieldId={sorting?.[0]?.id as App.Platform.Enums.GameListSortField}
                   isLastItem={isLastItem}
                   shouldHideItemIfNotInBacklog={shouldHideItemIfNotInBacklog}
                 />

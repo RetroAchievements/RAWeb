@@ -23,7 +23,8 @@ describe('Component: GameCommentsMainRoot', () => {
           auth: null,
           game: createGame(),
           paginatedComments: createPaginatedData([]),
-          subscription: null,
+          isSubscribed: false,
+          canComment: false,
         },
       },
     );
@@ -42,7 +43,8 @@ describe('Component: GameCommentsMainRoot', () => {
         game,
         auth: null,
         paginatedComments: createPaginatedData([]),
-        subscription: null,
+        isSubscribed: false,
+        canComment: false,
       },
     });
 
@@ -62,7 +64,8 @@ describe('Component: GameCommentsMainRoot', () => {
         game,
         auth: null,
         paginatedComments: createPaginatedData([]),
-        subscription: null,
+        isSubscribed: false,
+        canComment: false,
       },
     });
 
@@ -91,7 +94,8 @@ describe('Component: GameCommentsMainRoot', () => {
         paginatedComments,
         auth: null,
         game: createGame(),
-        subscription: null,
+        isSubscribed: false,
+        canComment: false,
       },
     });
 
@@ -108,7 +112,8 @@ describe('Component: GameCommentsMainRoot', () => {
         auth: { user: createAuthenticatedUser() },
         game: createGame(),
         paginatedComments: createPaginatedData([]),
-        subscription: null,
+        isSubscribed: false,
+        canComment: true,
       },
     });
 
@@ -123,7 +128,8 @@ describe('Component: GameCommentsMainRoot', () => {
         auth: null,
         game: createGame(),
         paginatedComments: createPaginatedData([]),
-        subscription: null,
+        isSubscribed: false,
+        canComment: false,
       },
     });
 
@@ -138,7 +144,8 @@ describe('Component: GameCommentsMainRoot', () => {
         auth: null,
         game: createGame(),
         paginatedComments: createPaginatedData([createComment({ payload: '12345678' })]),
-        subscription: null,
+        isSubscribed: false,
+        canComment: true,
       },
     });
 
@@ -167,7 +174,8 @@ describe('Component: GameCommentsMainRoot', () => {
         paginatedComments,
         auth: null,
         game: createGame({ id: 1 }),
-        subscription: null,
+        isSubscribed: false,
+        canComment: true,
       },
     });
 
@@ -204,7 +212,8 @@ describe('Component: GameCommentsMainRoot', () => {
         paginatedComments,
         auth: { user: createAuthenticatedUser() }, // we're logged in, so we can write comments
         game: createGame({ id: 1 }),
-        subscription: null,
+        isSubscribed: false,
+        canComment: true,
       },
     });
 
@@ -244,7 +253,8 @@ describe('Component: GameCommentsMainRoot', () => {
         paginatedComments,
         auth: { user: createAuthenticatedUser() }, // we're logged in
         game: createGame({ id: 1 }),
-        subscription: null,
+        isSubscribed: false,
+        canComment: true,
       },
     });
 

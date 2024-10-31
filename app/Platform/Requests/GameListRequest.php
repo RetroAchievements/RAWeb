@@ -4,15 +4,24 @@ declare(strict_types=1);
 
 namespace App\Platform\Requests;
 
+use App\Platform\Enums\GameListSortField;
 use Illuminate\Foundation\Http\FormRequest;
 
 class GameListRequest extends FormRequest
 {
     public function rules(): array
     {
+        // Get all valid sort values with and without the "-" prefix.
+        $sortValues = array_merge(
+            // Ascending sorts.
+            array_map(fn (GameListSortField $field) => $field->value, GameListSortField::cases()),
+            // Descending sorts with the "-" prefix.
+            array_map(fn (GameListSortField $field) => '-' . $field->value, GameListSortField::cases())
+        );
+
         return [
             'page.number' => 'integer|min:1',
-            'sort' => 'string|in:title,system,achievementsPublished,pointsTotal,retroRatio,lastUpdated,releasedAt,playersTotal,numVisibleLeaderboards,numUnresolvedTickets,progress,-title,-system,-achievementsPublished,-pointsTotal,-retroRatio,-lastUpdated,-releasedAt,-playersTotal,-numVisibleLeaderboards,-numUnresolvedTickets,-progress',
+            'sort' => 'string|in:' . implode(',', $sortValues),
             'filter.*' => 'string',
         ];
     }
@@ -22,9 +31,12 @@ class GameListRequest extends FormRequest
         return (int) $this->input('page.number', 1);
     }
 
+    /**
+     * @return array{field: string, direction: 'asc'|'desc'}
+     */
     public function getSort(): array
     {
-        $sortParam = $this->input('sort', 'title');
+        $sortParam = $this->input('sort', GameListSortField::Title->value);
         $sortDirection = 'asc';
 
         if (str_starts_with($sortParam, '-')) {
@@ -32,12 +44,18 @@ class GameListRequest extends FormRequest
             $sortParam = ltrim($sortParam, '-');
         }
 
+        /** @var GameListSortField $sortField */
+        $sortField = GameListSortField::from($sortParam);
+
         return [
-            'field' => $sortParam,
+            'field' => $sortField->value,
             'direction' => $sortDirection,
         ];
     }
 
+    /**
+     * @return array<string, array<string>>
+     */
     public function getFilters(): array
     {
         $filters = [];

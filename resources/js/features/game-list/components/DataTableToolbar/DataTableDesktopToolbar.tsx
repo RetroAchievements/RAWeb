@@ -42,7 +42,7 @@ export function DataTableDesktopToolbar<TData>({
       <div className="flex w-full flex-col items-center gap-2 sm:flex sm:flex-1 sm:flex-row">
         <DataTableSearchInput table={table} />
 
-        {table.getColumn('system') ? (
+        {table.getColumn('system') && filterableSystemOptions ? (
           <DataTableSystemFilter table={table} filterableSystemOptions={filterableSystemOptions} />
         ) : null}
 
@@ -64,14 +64,14 @@ export function DataTableDesktopToolbar<TData>({
           {unfilteredTotal && unfilteredTotal !== table.options.rowCount ? (
             <>
               {tChoice(':count of :total game|:count of :total games', unfilteredTotal, {
-                count: formatNumber(table.options.rowCount ?? 0),
+                count: formatNumber(table.options.rowCount),
                 total: formatNumber(unfilteredTotal),
               })}
             </>
           ) : (
             <>
-              {tChoice(':count game|:count games', table.options.rowCount ?? 0, {
-                count: formatNumber(table.options.rowCount ?? 0),
+              {tChoice(':count game|:count games', table.options.rowCount!, {
+                count: formatNumber(table.options.rowCount),
               })}
             </>
           )}

@@ -43,8 +43,7 @@ interface GameListItemElementProps {
   /** If it's the last item, don't show a border at the bottom. */
   isLastItem?: boolean;
 
-  /** TODO strongly-type this */
-  sortFieldId?: string;
+  sortFieldId?: App.Platform.Enums.GameListSortField;
 }
 
 export const GameListItemElement: FC<GameListItemElementProps> = ({

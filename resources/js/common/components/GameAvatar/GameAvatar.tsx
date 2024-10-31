@@ -10,6 +10,7 @@ import { GameTitle } from '../GameTitle';
 
 type GameAvatarProps = BaseAvatarProps &
   App.Platform.Data.Game & {
+    gameTitleClassName?: string;
     decoding?: ImgHTMLAttributes<HTMLImageElement>['decoding'];
     loading?: ImgHTMLAttributes<HTMLImageElement>['loading'];
     shouldGlow?: boolean;
@@ -21,6 +22,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
   badgeUrl,
   showHoverCardProgressForUsername,
   title,
+  gameTitleClassName,
   decoding = 'async',
   loading = 'lazy',
   shouldGlow = false,
@@ -61,7 +63,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
         </>
       ) : null}
 
-      {title && showLabel ? <GameTitle title={title} /> : null}
+      {title && showLabel ? <GameTitle title={title} className={gameTitleClassName} /> : null}
     </a>
   );
 };
