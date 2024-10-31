@@ -8,7 +8,7 @@ import { cn } from '@/utils/cn';
 type BaseToasterProps = ComponentProps<typeof Sonner>;
 
 const BaseToaster = ({ ...props }: BaseToasterProps) => {
-  const theme = 'dark'; // TODO
+  const theme = 'dark';
 
   return (
     <Sonner

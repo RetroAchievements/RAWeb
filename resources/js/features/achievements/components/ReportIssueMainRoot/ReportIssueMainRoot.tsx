@@ -1,6 +1,7 @@
 import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
+import { Trans } from '@/common/components/Trans';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 
@@ -45,15 +46,18 @@ export const ReportIssueMainRoot: FC = () => {
           })}
           anchorClassName={buildTrackingClassNames('Click Report Unwelcome Concept')}
         >
-          {t('The achievement contains an')}{' '}
-          <a
-            href="https://docs.retroachievements.org/guidelines/content/unwelcome-concepts.html"
-            target="_blank"
-            className={buildTrackingClassNames('Click Unwelcome Concept Docs Link')}
-          >
-            {t('unwelcome concept')}
-          </a>
-          {t('.')}
+          <Trans i18nKey="The achievement contains an <0>unwelcome concept</0>.">
+            {/* eslint-disable react/jsx-no-literals */}
+            The achievement contains an{' '}
+            <a
+              href="https://docs.retroachievements.org/guidelines/content/unwelcome-concepts.html"
+              target="_blank"
+              className={buildTrackingClassNames('Click Unwelcome Concept Docs Link')}
+            >
+              {'unwelcome concept'}
+            </a>
+            .{/* eslint-enable react/jsx-no-literals */}
+          </Trans>
         </ReportIssueOptionItem>
 
         <ReportIssueOptionItem

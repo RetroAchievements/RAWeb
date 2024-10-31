@@ -20,8 +20,8 @@ class UserData extends Data
         public string $displayName,
         public string $avatarUrl,
         public bool $isMuted,
-        public ?Carbon $mutedUntil,
 
+        public Lazy|Carbon|null $mutedUntil,
         public Lazy|int $id,
         public Lazy|string|null $username,
         public Lazy|int|null $legacyPermissions,
@@ -87,13 +87,13 @@ class UserData extends Data
             displayName: $user->display_name,
             avatarUrl: $user->avatar_url,
             isMuted: $user->isMuted(),
-            mutedUntil: $user->muted_until,
 
             // == lazy fields
             apiKey: Lazy::create(fn () => $user->APIKey),
             deletedAt: Lazy::create(fn () => $user->Deleted ? Carbon::parse($user->Deleted) : null),
             deleteRequested: Lazy::create(fn () => $user->DeleteRequested),
             emailAddress: Lazy::create(fn () => $user->EmailAddress),
+            mutedUntil: Lazy::create(fn () => $user->muted_until),
             id: Lazy::create(fn () => $user->id),
             legacyPermissions: Lazy::create(fn () => (int) $user->getAttribute('Permissions')),
             locale: Lazy::create(fn () => $user->locale === 'en' ? 'en_US' : $user->locale), // TODO remove conditional after renaming "en" to "en_US"

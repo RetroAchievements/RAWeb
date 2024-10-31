@@ -8,6 +8,7 @@ use App\Platform\Actions\BuildGameListAction;
 use App\Platform\Enums\GameListType;
 use App\Platform\Requests\GameListRequest;
 use Illuminate\Http\JsonResponse;
+use Jenssegers\Agent\Agent;
 
 class GameApiController extends Controller
 {
@@ -21,6 +22,7 @@ class GameApiController extends Controller
             page: $request->getPage(),
             filters: $request->getFilters(),
             sort: $request->getSort(),
+            perPage: (new Agent())->isMobile() ? 100 : 25,
         );
 
         return response()->json($paginatedData);

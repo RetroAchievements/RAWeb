@@ -187,7 +187,7 @@ Please see our [Security Policy](docs/SECURITY.md).
 
 ## Contributing
 
-Please see our [Contribution Guidelines](docs/CONTRIBUTING.md) and [Code of Conduct](docs/CODE_OF_CONDUCT.md).
+Please see our [Contribution Guidelines](docs/CONTRIBUTING.md), [Translations Guide](docs/TRANSLATIONS.md) and [Code of Conduct](docs/CODE_OF_CONDUCT.md).
 
 ## License
 

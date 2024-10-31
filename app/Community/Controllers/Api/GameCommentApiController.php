@@ -28,7 +28,7 @@ class GameCommentApiController extends Controller
         $user = Auth::user();
 
         // Automatically subscribe the user to the game wall if they've never previously
-        // been subscribed to it and then unsubscribed.
+        // been subscribed to it and then later unsubscribed.
         $doesSubscriptionExist = $user->subscriptions()
             ->whereSubjectType(SubscriptionSubjectType::GameWall)
             ->whereSubjectId($game->id)

@@ -31,7 +31,7 @@
     <meta property="og:image" content="{{ $pageImage ?? asset('assets/images/favicon.webp') }}">
     <meta property="og:url" content="{{ $permalink ?? request()->url() }}">
     <meta property="og:type" content="{{ $pageType ?? 'website' }}">
-    <meta name="theme-color" content="#2C2E30">
+    <meta name="theme-color" content="#161616">
     <link rel="canonical" href="{{ $canonicalUrl ?? request()->url() }}">
     <link rel="preconnect" href="{{ config('filesystems.disks.media.url') }}">
     <link rel="dns-prefetch" href="{{ config('filesystems.disks.media.url') }}">
