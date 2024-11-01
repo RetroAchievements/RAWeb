@@ -37,6 +37,8 @@ class EventAchievement extends BaseModel
         return $this->active_until ? $this->active_until->clone()->subDays(1) : null;
     }
 
+    // == mutators
+
     public function setActiveThroughAttribute(Carbon|string|null $value): void
     {
         if (is_string($value)) {
@@ -45,8 +47,6 @@ class EventAchievement extends BaseModel
 
         $this->active_until = $value ? $value->clone()->addDays(1) : null;
     }
-
-    // == mutators
 
     // == relations
 

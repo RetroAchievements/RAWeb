@@ -229,8 +229,9 @@ class AchievementResource extends Resource
                         ]),
                 ])->from('md'),
 
-                Forms\Components\Fieldset::make('Event Association')
+                Forms\Components\Section::make('Event Association')
                     ->relationship('eventData')
+                    ->columns(['xl' => 4, 'md' => 2])
                     ->schema([
                         Forms\Components\Select::make('source_achievement_id')
                             ->label('Source Achievement')
