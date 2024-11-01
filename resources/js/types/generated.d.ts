@@ -12,7 +12,8 @@ declare namespace App.Community.Data {
   export type GameCommentsPageProps<TItems = App.Community.Data.Comment> = {
     game: App.Platform.Data.Game;
     paginatedComments: App.Data.PaginatedData<TItems>;
-    subscription: App.Community.Data.Subscription | null;
+    isSubscribed: boolean;
+    canComment: boolean;
   };
   export type RecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     paginatedTopics: App.Data.PaginatedData<TItems>;
@@ -23,6 +24,12 @@ declare namespace App.Community.Data {
     subjectId: number;
     state: boolean;
     user?: App.Data.User;
+  };
+  export type UserCommentsPageProps<TItems = App.Community.Data.Comment> = {
+    targetUser: App.Data.User;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+    isSubscribed: boolean;
+    canComment: boolean;
   };
   export type UserGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -90,7 +97,7 @@ declare namespace App.Data {
     displayName: string;
     avatarUrl: string;
     isMuted: boolean;
-    mutedUntil: string | null;
+    mutedUntil?: string | null;
     id?: number;
     username?: string | null;
     legacyPermissions?: number | null;
@@ -167,6 +174,7 @@ declare namespace App.Platform.Data {
   export type Achievement = {
     id: number;
     title: string;
+    description?: string;
     badgeUnlockedUrl?: string;
     badgeLockedUrl?: string;
     game?: App.Platform.Data.Game;
@@ -188,6 +196,7 @@ declare namespace App.Platform.Data {
     lastUpdated?: string;
     numVisibleLeaderboards?: number;
     numUnresolvedTickets?: number;
+    hasActiveOrInReviewClaims?: boolean;
   };
   export type GameHash = {
     id: number;
@@ -269,6 +278,18 @@ declare namespace App.Platform.Enums {
     | 'will_be_bonus'
     | 'will_be_specialty'
     | 'will_be_exclusive';
+  export type GameListSortField =
+    | 'title'
+    | 'system'
+    | 'achievementsPublished'
+    | 'pointsTotal'
+    | 'retroRatio'
+    | 'lastUpdated'
+    | 'releasedAt'
+    | 'playersTotal'
+    | 'numVisibleLeaderboards'
+    | 'numUnresolvedTickets'
+    | 'progress';
   export type GameSetType = 'hub' | 'similar-games';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 }

@@ -5,6 +5,7 @@ import { LuX } from 'react-icons/lu';
 import { BaseButton } from '../+vendor/BaseButton';
 import { toastMessage } from '../+vendor/BaseToaster';
 import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
+import { useCommentListContext } from './CommentListContext';
 import { useDeleteCommentMutation } from './useDeleteCommentMutation';
 
 type DeleteCommentButtonProps = App.Community.Data.Comment & { onDeleteSuccess?: () => void };
@@ -15,6 +16,8 @@ export const DeleteCommentButton: FC<DeleteCommentButtonProps> = ({
 }) => {
   const { t } = useLaravelReactI18n();
 
+  const { targetUserDisplayName } = useCommentListContext();
+
   const mutation = useDeleteCommentMutation();
 
   const handleClick = () => {
@@ -22,7 +25,7 @@ export const DeleteCommentButton: FC<DeleteCommentButtonProps> = ({
       return;
     }
 
-    toastMessage.promise(mutation.mutateAsync(comment), {
+    toastMessage.promise(mutation.mutateAsync({ ...comment, targetUserDisplayName }), {
       loading: t('Deleting...'),
       success: () => {
         onDeleteSuccess?.();

@@ -11,20 +11,25 @@ import { MutedMessage } from './MutedMessage';
 import { SignInMessage } from './SignInMessage';
 
 interface CommentListProps {
+  /** Can the currently-authenticated user write a comment on this wall? */
+  canComment: boolean;
   commentableId: number;
   commentableType: keyof typeof ArticleType;
   comments: App.Community.Data.Comment[];
 
   onDeleteSuccess?: () => void;
   onSubmitSuccess?: () => void;
+  targetUserDisplayName?: string;
 }
 
 export const CommentList: FC<CommentListProps> = ({
+  canComment,
   commentableId,
   commentableType,
   comments,
   onDeleteSuccess,
   onSubmitSuccess,
+  targetUserDisplayName,
 }) => {
   const { auth } = usePageProps();
 
@@ -32,10 +37,12 @@ export const CommentList: FC<CommentListProps> = ({
 
   return (
     <CommentListProvider
+      canComment={canComment}
       commentableId={commentableId}
       commentableType={commentableType}
       onDeleteSuccess={onDeleteSuccess}
       onSubmitSuccess={onSubmitSuccess}
+      targetUserDisplayName={targetUserDisplayName}
     >
       <div>
         {comments.length ? (
