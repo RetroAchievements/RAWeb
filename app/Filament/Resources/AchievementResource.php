@@ -127,6 +127,7 @@ class AchievementResource extends Resource
                                 default => '',
                             }),
                         Infolists\Components\TextEntry::make('type')
+                            ->hidden(fn ($record) => $record->game->system->id === System::Events)
                             ->badge(),
                         Infolists\Components\TextEntry::make('Points'),
                         Infolists\Components\TextEntry::make('DisplayOrder'),
@@ -158,6 +159,8 @@ class AchievementResource extends Resource
     {
         /** @var User $user */
         $user = Auth::user();
+
+        $form->model->loadMissing('game.system');
 
         return $form
             ->columns(1)
@@ -210,6 +213,7 @@ class AchievementResource extends Resource
                                     collect(AchievementType::cases())
                                         ->mapWithKeys(fn ($value) => [$value => __($value)])
                                 )
+                                ->hidden(fn (Achievement $record) => $record->game->system->id === System::Events)
                                 ->disabled(!$user->can('updateField', [$form->model, 'type'])),
 
                             Forms\Components\Select::make('Points')

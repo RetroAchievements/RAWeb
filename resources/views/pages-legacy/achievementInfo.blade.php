@@ -145,14 +145,6 @@ if ($game->system->id === System::Events) {
     pageType="retroachievements:achievement"
 >
 <?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isAuthor)): ?>
-    <?php
-        $canHaveBeatenTypes = (
-            mb_strpos($gameTitle, "[Subset") === false
-            && mb_strpos($gameTitle, "~Test Kit~") === false
-            && $consoleID != 101
-        );
-    ?>
-
     <script>
     function updateAchievementDetails() {
         showStatusMessage('Updating...');
@@ -324,36 +316,36 @@ if ($game->system->id === System::Events) {
             echo "</select>";
             echo "</td></tr>";
 
-            $typeHelperContent = "A game is considered beaten if ALL " . __('achievement-type.' . AchievementType::Progression) . " achievements are unlocked and ANY " . __('achievement-type.' . AchievementType::WinCondition) . " achievements are unlocked.";
-            echo "<tr><td>";
-            if ($canHaveBeatenTypes) {
-                echo "<label class='cursor-help flex items-center gap-x-1' for='typeinput' title='$typeHelperContent' aria-label='Type, $typeHelperContent'>";
-                echo "Type";
-                echo "<span>";
-                ?>
-                <x-fas-info-circle class='w-5 h-5' aria-hidden='true' />
-                <?php
-                echo ":";
-                echo "</span>";
-                echo "</label>";
-            } else {
-                echo "<label for='typeinput'>Type:</label>";
+            if ($consoleID !== System::Events) {
+                $typeHelperContent = "A game is considered beaten if ALL " . __('achievement-type.' . AchievementType::Progression) . " achievements are unlocked and ANY " . __('achievement-type.' . AchievementType::WinCondition) . " achievements are unlocked.";
+                echo "<tr><td>";
+                $validTypes = AchievementType::cases();
+                if ($game->getCanHaveBeatenTypes()) {
+                    echo "<label class='cursor-help flex items-center gap-x-1' for='typeinput' title='$typeHelperContent' aria-label='Type, $typeHelperContent'>";
+                    echo "Type";
+                    echo "<span>";
+                    ?>
+                    <x-fas-info-circle class='w-5 h-5' aria-hidden='true' />
+                    <?php
+                    echo ":";
+                    echo "</span>";
+                    echo "</label>";
+                } else {
+                    echo "<label for='typeinput'>Type:</label>";
+                    $validTypes = array_filter($validTypes, function ($type) {
+                        return $type !== AchievementType::Progression && $type !== AchievementType::WinCondition;
+                    });
+                }
+                echo "</td><td>";
+                echo "<select id='typeinput' name='k'>";
+                echo "<option value=''>None</option>";
+                foreach ($validTypes as $typeOption) {
+                    echo "<option value='$typeOption' " . ($achType === $typeOption ? 'selected' : '') . ">";
+                    echo __('achievement-type.' . $typeOption);
+                    echo "</option>";
+                }
+                echo "</select></td></tr>";
             }
-            echo "</td><td>";
-            echo "<select id='typeinput' name='k'>";
-            echo "<option value=''>None</option>";
-            $allTypes = AchievementType::cases();
-            $validTypes = $canHaveBeatenTypes
-                ? $allTypes
-                : array_filter($allTypes, function ($type) {
-                    return $type !== AchievementType::Progression && $type !== AchievementType::WinCondition;
-                });
-            foreach ($validTypes as $typeOption) {
-                echo "<option value='$typeOption' " . ($achType === $typeOption ? 'selected' : '') . ">";
-                echo __('achievement-type.' . $typeOption);
-                echo "</option>";
-            }
-            echo "</select></td></tr>";
 
             echo "</tbody></table>";
             echo "&nbsp;<button type='button' class='btn' style='float: right;' onclick=\"updateAchievementDetails()\">Update</button><br><br>";
