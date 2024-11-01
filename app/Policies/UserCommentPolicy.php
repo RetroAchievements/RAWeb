@@ -90,7 +90,7 @@ class UserCommentPolicy
         /*
          * it's the user's own comment
          */
-        return $user->is($comment->commentable);
+        return $user->is($comment->user);
     }
 
     public function restore(User $user, UserComment $comment): bool

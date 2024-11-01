@@ -13,12 +13,14 @@ use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
+use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameListEntryData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\GameListSortField;
 use App\Platform\Enums\GameListType;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Database\Eloquent\Builder;
@@ -134,8 +136,7 @@ class BuildGameListAction
      */
     private function buildBaseQuery(GameListType $listType, ?User $user = null): Builder
     {
-        $query = Game::query()
-            ->with(['system'])
+        $query = Game::with(['system'])
             ->withLastAchievementUpdate()
             ->addSelect(['GameData.*'])
             ->addSelect([
@@ -166,10 +167,13 @@ class BuildGameListAction
         switch ($listType) {
             case GameListType::AllGames:
                 // Exclude non game systems, inactive systems, and subsets.
+                $validSystemIds = System::active()
+                    ->gameSystems()
+                    ->pluck('ID')
+                    ->all();
+
                 $query
-                    ->whereHas('system', function ($q) {
-                        return $q->gameSystems()->active();
-                    })
+                    ->whereIn('GameData.ConsoleID', $validSystemIds)
                     ->where('GameData.Title', 'not like', "%[Subset -%");
                 break;
 
@@ -239,42 +243,26 @@ class BuildGameListAction
     }
 
     /**
-     * ["field" => "system", "direction" => "desc"]
-     *
      * @param Builder<Game> $query
+     * @param array{field: string, direction: 'asc'|'desc'} $sort
      */
     private function applySorting(Builder $query, array $sort, ?User $user = null): void
     {
-        $validSortFields = [
-            'achievementsPublished',
-            'hasActiveOrInReviewClaims',
-            'lastUpdated',
-            'numUnresolvedTickets',
-            'numVisibleLeaderboards',
-            'playersTotal',
-            'pointsTotal',
-            'progress',
-            'releasedAt',
-            'retroRatio',
-            'system',
-            'title',
-        ];
-
-        if (isset($sort['field']) && in_array($sort['field'], $validSortFields)) {
+        if (isset($sort['field']) && GameListSortField::tryFrom($sort['field'])) {
             $sortDirection = $sort['direction'] ?? 'asc';
 
             switch ($sort['field']) {
                 /*
                  * game title, with tagged games placed at the bottom of the list
                  */
-                case 'title':
+                case GameListSortField::Title->value:
                     $query->orderBy('GameData.sort_title', $sortDirection);
                     break;
 
                 /*
                  * game system name, by name_short (eg: "A2600", not "Atari 2600")
                  */
-                case 'system':
+                case GameListSortField::System->value:
                     $query
                         ->join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
                         ->orderBy('Console.name_short', $sortDirection);
@@ -283,21 +271,21 @@ class BuildGameListAction
                 /*
                  * count of official achievements associated with the game's core set
                  */
-                case 'achievementsPublished':
+                case GameListSortField::AchievementsPublished->value:
                     $query->orderBy('GameData.achievements_published', $sortDirection);
                     break;
 
                 /*
                  * whether or not there are any active or in review claims associated with the game
                  */
-                case 'hasActiveOrInReviewClaims':
+                case GameListSortField::HasActiveOrInReviewClaims->value:
                     $query->orderBy('has_active_or_in_review_claims', $sortDirection);
                     break;
 
                 /*
                  * count of points from core/official achievements associated with the game's core set
                  */
-                case 'pointsTotal':
+                case GameListSortField::PointsTotal->value:
                     $query->orderBy('GameData.points_total', $sortDirection);
                     break;
 
@@ -305,7 +293,7 @@ class BuildGameListAction
                  * points_weighted / points_total from core/official achievements
                  * associated with the game's core set
                  */
-                case 'retroRatio':
+                case GameListSortField::RetroRatio->value:
                     $query
                         ->selectRaw(
                             "CASE
@@ -321,7 +309,7 @@ class BuildGameListAction
                  * TODO use updates from the triggers table, achievement logic changes is what players care about
                  *      and DateModified includes when other stuff changed like titles, descriptions, etc
                  */
-                case 'lastUpdated':
+                case GameListSortField::LastUpdated->value:
                     $query
                         ->selectRaw(
                             "COALESCE(
@@ -335,35 +323,35 @@ class BuildGameListAction
                 /*
                  * the game's earliest release date
                  */
-                case 'releasedAt':
+                case GameListSortField::ReleasedAt->value:
                     $this->applyReleasedAtSorting($query, $sortDirection);
                     break;
 
                 /*
                  * count of all players (softcore and hardcore) for the game
                  */
-                case 'playersTotal':
+                case GameListSortField::PlayersTotal->value:
                     $query->orderBy('GameData.players_total', $sortDirection);
                     break;
 
                 /*
                  * the game's count of non-hidden leaderboards (order_column >= 0)
                  */
-                case 'numVisibleLeaderboards':
+                case GameListSortField::NumVisibleLeaderboards->value:
                     $query->orderBy('num_visible_leaderboards', $sortDirection);
                     break;
 
                 /*
                  * the game's count of tickets awaiting resolution
                  */
-                case 'numUnresolvedTickets':
+                case GameListSortField::NumUnresolvedTickets->value:
                     $query->orderBy('num_unresolved_tickets', $sortDirection);
                     break;
 
                 /*
                  * the user's progress, ordered by # of achievements earned, on the game
                  */
-                case 'progress':
+                case GameListSortField::Progress->value:
                     $this->applyProgressSorting($query, $sortDirection, $user);
                     break;
 

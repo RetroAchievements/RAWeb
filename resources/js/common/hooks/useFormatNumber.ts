@@ -10,7 +10,7 @@ export function useFormatNumber() {
 
   const locale = auth?.user.locale ?? 'en_US';
 
-  const formatNumber = (number: number) => {
+  const formatNumber = (number = 0) => {
     return originalFormatNumber(number, { locale });
   };
 

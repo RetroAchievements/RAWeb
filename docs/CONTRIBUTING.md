@@ -30,6 +30,7 @@ Before submitting a pull request:
 
 - Check the codebase to ensure that your feature doesn't already exist.
 - Check the pull requests to ensure that another person hasn't already submitted the feature or fix.
+- Test your changes locally. As an open source project maintained by volunteers, we rely on contributors to verify their changes before submission. This includes running the test suite and manually testing the feature or fix. This helps maintain quality and allows maintainers to focus on reviewing your contribution rather than basic testing.
 
 ## Requirements
 

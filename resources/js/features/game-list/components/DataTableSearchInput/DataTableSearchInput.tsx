@@ -25,16 +25,20 @@ interface DataTableSearchInputProps<TData> {
 
   /** Disable the "/" hotkey on XS. */
   hasHotkey?: boolean;
+
+  /** The ID of the column that will be used to perform the search. */
+  searchColumnId?: string;
 }
 
 export function DataTableSearchInput<TData>({
   table,
   hasClearButton = false,
   hasHotkey = true,
+  searchColumnId = 'title',
 }: DataTableSearchInputProps<TData>) {
   const { t } = useLaravelReactI18n();
 
-  const initialValue = (table.getColumn('title')?.getFilterValue() as string) ?? '';
+  const initialValue = (table.getColumn(searchColumnId)?.getFilterValue() as string) ?? '';
 
   const [rawInputValue, setRawInputValue] = useState(initialValue);
 
