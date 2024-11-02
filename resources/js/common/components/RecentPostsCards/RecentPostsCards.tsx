@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { PostTimestamp } from '../PostTimestamp';
+import { DiffTimestamp } from '../DiffTimestamp';
 import { RecentPostAggregateLinks } from '../RecentPostAggregateLinks';
 import { Trans } from '../Trans';
 
@@ -31,9 +31,9 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
 
               {topic.latestComment?.createdAt ? (
                 <span className="smalldate" data-testid="timestamp">
-                  <PostTimestamp
+                  <DiffTimestamp
                     asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates ?? false}
-                    postedAt={topic.latestComment.createdAt}
+                    at={topic.latestComment.createdAt}
                   />
                 </span>
               ) : null}

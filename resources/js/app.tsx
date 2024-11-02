@@ -10,7 +10,7 @@ import { loadDayjsLocale } from './common/utils/l10n/loadDayjsLocale';
 const appName = import.meta.env.APP_NAME || 'RetroAchievements';
 
 createInertiaApp({
-  title: (title) => `${title} · ${appName}`,
+  title: (title) => (title ? `${title} · ${appName}` : appName),
 
   resolve: (name) =>
     resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),

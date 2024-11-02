@@ -4,7 +4,7 @@ import type { FC } from 'react';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { PostTimestamp } from '../PostTimestamp';
+import { DiffTimestamp } from '../DiffTimestamp';
 import { RecentPostAggregateLinks } from '../RecentPostAggregateLinks';
 
 interface RecentPostsTableProps {
@@ -58,9 +58,9 @@ export const RecentPostsTable: FC<RecentPostsTableProps> = ({
 
                 {topic.latestComment?.createdAt ? (
                   <span className="smalldate" data-testid="smalldate">
-                    <PostTimestamp
+                    <DiffTimestamp
                       asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates ?? false}
-                      postedAt={topic.latestComment.createdAt}
+                      at={topic.latestComment.createdAt}
                     />
                   </span>
                 ) : null}

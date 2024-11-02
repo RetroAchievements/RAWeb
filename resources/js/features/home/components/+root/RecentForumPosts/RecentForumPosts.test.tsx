@@ -1,11 +1,17 @@
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
+import {
+  createForumTopicComment,
+  createHomePageProps,
+  createRecentActiveForumTopic,
+} from '@/test/factories';
 
 import { RecentForumPosts } from './RecentForumPosts';
 
 describe('Component: RecentForumPosts', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<RecentForumPosts />);
+    const { container } = render<App.Http.Data.HomePageProps>(<RecentForumPosts />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -13,27 +19,68 @@ describe('Component: RecentForumPosts', () => {
 
   it('displays an accessible heading', () => {
     // ARRANGE
-    render(<RecentForumPosts />);
+    render<App.Http.Data.HomePageProps>(<RecentForumPosts />);
 
     // ASSERT
     expect(screen.getByRole('heading', { name: /recent forum posts/i })).toBeVisible();
   });
 
-  it.todo('displays an empty state if there are no forum posts');
-  it.todo('displays multiple forum post items');
-  it.todo('displays the author display name in each row');
-  it.todo('displays a timestamp for each post');
-  it.todo('gives each post an accessible link');
-  it.todo('displays the forum post preview content');
-
-  it('has an accessible link to the forum Recent Posts page', () => {
+  it('displays an empty state if there are no forum posts', () => {
     // ARRANGE
-    render(<RecentForumPosts />);
+    render<App.Http.Data.HomePageProps>(<RecentForumPosts />);
 
     // ASSERT
-    const linkEl = screen.getByRole('link', { name: /see more/i });
+    expect(screen.getByText(/no recent forum posts were found/i)).toBeVisible();
+  });
 
-    expect(linkEl).toBeVisible();
-    expect(linkEl).toHaveAttribute('href', 'forum.recent-posts');
+  it('given there are recent forum posts, displays them', () => {
+    // ARRANGE
+    render<App.Http.Data.HomePageProps>(<RecentForumPosts />, {
+      pageProps: createHomePageProps({
+        recentForumPosts: [
+          createRecentActiveForumTopic({ title: 'My Great Topic' }),
+          createRecentActiveForumTopic(),
+          createRecentActiveForumTopic(),
+          createRecentActiveForumTopic(),
+        ],
+      }),
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /my great topic/i })).toBeVisible();
+  });
+
+  it('given there is no post payload in the topic item, does not crash', () => {
+    // ARRANGE
+    const { container } = render<App.Http.Data.HomePageProps>(<RecentForumPosts />, {
+      pageProps: createHomePageProps({
+        recentForumPosts: [createRecentActiveForumTopic({ latestComment: undefined })],
+      }),
+    });
+
+    // ASSERT
+    expect(container).toBeTruthy();
+  });
+
+  it('given the user prefers seeing absolute dates, displays absolute dates', () => {
+    // ARRANGE
+    render<App.Http.Data.HomePageProps>(<RecentForumPosts />, {
+      pageProps: {
+        ...createHomePageProps({
+          recentForumPosts: [
+            createRecentActiveForumTopic({
+              latestComment: createForumTopicComment({
+                createdAt: new Date('2024-08-07').toISOString(),
+              }),
+            }),
+          ],
+        }),
+
+        auth: { user: createAuthenticatedUser({ preferences: { prefersAbsoluteDates: true } }) },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/aug 07/i)).toBeVisible();
   });
 });

@@ -48,6 +48,9 @@ declare namespace App.Community.Data {
 declare namespace App.Community.Enums {
   export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   export type AwardType = 1 | 2 | 3 | 6 | 7 | 8;
+  export type ClaimSetType = 0 | 1;
+  export type ClaimStatus = 0 | 1 | 2 | 3;
+  export type ClaimType = 0 | 1;
   export type SubscriptionSubjectType =
     | 'ForumTopic'
     | 'UserWall'
@@ -59,6 +62,22 @@ declare namespace App.Community.Enums {
   export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
 }
 declare namespace App.Data {
+  export type AchievementSetClaim = {
+    id: number;
+    users: Array<App.Data.User>;
+    game: App.Platform.Data.Game;
+    claimType: number;
+    setType: number;
+    status: number;
+    created: string;
+    finished: string;
+  };
+  export type CurrentlyOnline = {
+    logEntries: Array<number>;
+    numCurrentPlayers: number;
+    allTimeHighPlayers: number;
+    allTimeHighDate: string | null;
+  };
   export type ForumTopicComment = {
     id: number;
     body: string;
@@ -79,6 +98,16 @@ declare namespace App.Data {
     oldestComment7dId?: number | null;
     user: App.Data.User | null;
   };
+  export type News = {
+    id: number;
+    timestamp: string;
+    title: string;
+    lead: string | null;
+    payload: string;
+    user: App.Data.User;
+    link: string | null;
+    image: string | null;
+  };
   export type PaginatedData<TItems> = {
     currentPage: number;
     lastPage: number;
@@ -92,6 +121,21 @@ declare namespace App.Data {
       previousPageUrl: string | null;
       nextPageUrl: string | null;
     };
+  };
+  export type StaticData = {
+    numGames: number;
+    numAchievements: number;
+    numHardcoreMasteryAwards: number;
+    numHardcoreGameBeatenAwards: number;
+    numRegisteredUsers: number;
+    numAwarded: number;
+    totalPointsEarned: number;
+    eventAotwForumId: number | null;
+  };
+  export type StaticGameAward = {
+    game: App.Platform.Data.Game;
+    user: App.Data.User;
+    awardedAt: string;
   };
   export type User = {
     displayName: string;
@@ -144,6 +188,19 @@ declare namespace App.Enums {
     | 17
     | 18;
 }
+declare namespace App.Http.Data {
+  export type HomePageProps = {
+    staticData: App.Data.StaticData;
+    achievementOfTheWeek: App.Platform.Data.Achievement | null;
+    mostRecentGameMastered: App.Data.StaticGameAward | null;
+    mostRecentGameBeaten: App.Data.StaticGameAward | null;
+    recentNews: Array<App.Data.News>;
+    completedClaims: Array<App.Data.AchievementSetClaim>;
+    currentlyOnline: App.Data.CurrentlyOnline;
+    newClaims: Array<App.Data.AchievementSetClaim>;
+    recentForumPosts: Array<App.Data.ForumTopic>;
+  };
+}
 declare namespace App.Models {
   export type UserRole =
     | 'root'
@@ -180,6 +237,8 @@ declare namespace App.Platform.Data {
     game?: App.Platform.Data.Game;
     unlockedAt?: string;
     unlockedHardcoreAt?: string;
+    points?: number;
+    pointsWeighted?: number;
   };
   export type Game = {
     id: number;
@@ -282,6 +341,7 @@ declare namespace App.Platform.Enums {
     | 'title'
     | 'system'
     | 'achievementsPublished'
+    | 'hasActiveOrInReviewClaims'
     | 'pointsTotal'
     | 'retroRatio'
     | 'lastUpdated'

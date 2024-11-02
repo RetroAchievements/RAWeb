@@ -332,7 +332,7 @@
     "Last updated at :timestamp": "Last updated at :timestamp",
     "Open active players menu": "Open active players menu",
     "players are currently online.": "players are currently online.",
-    "All-time High: :number (:date)": "All-time High: :number (:date)",
+    "All-time High: :number :date": "All-time High: :number :date",
     "Welcome!": "Welcome!",
     "Build your profile, track your progress, and compete with friends on your favorite classic games.": "Build your profile, track your progress, and compete with friends on your favorite classic games.",
     "We provide": "We provide",
@@ -392,5 +392,12 @@
     "No recent posts could be found.": "No recent posts could be found.",
     "current page number": "current page number",
     "of :totalPages": "of :totalPages",
-    "Comments - :user": "Comments - :user"
+    "Comments - :user": "Comments - :user",
+    ":claimType, :timeAgo": ":claimType, :timeAgo",
+    "Couldn't find any completed claims.": "Couldn't find any completed claims.",
+    "<0>:userCount</0> users are currently online.": "<0>:userCount</0> users are currently online.",
+    "<0>:userCount</0> user is currently online.": "<0>:userCount</0> user is currently online.",
+    "Users Online": "Users Online",
+    "Couldn't find any sets in progress.": "Couldn't find any sets in progress.",
+    "No recent forum posts were found.": "No recent forum posts were found."
 }

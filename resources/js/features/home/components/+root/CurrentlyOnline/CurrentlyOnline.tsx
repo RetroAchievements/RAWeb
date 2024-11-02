@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import { useLaravelReactI18n } from 'laravel-react-i18n';
-import type { FC } from 'react';
+import { type FC } from 'react';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 import {
@@ -9,24 +10,32 @@ import {
   BaseChartTooltip,
   BaseChartTooltipContent,
 } from '@/common/components/+vendor/BaseChart';
+import { Trans } from '@/common/components/Trans';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { HomeHeading } from '../../HomeHeading';
+import { useCurrentlyOnlineChart } from './useCurrentlyOnlineChart';
 
-const chartConfig = {
-  playersOnline: {
-    label: 'Players Online',
-    color: '#c39d2a',
-  },
-} satisfies BaseChartConfig;
+dayjs.extend(utc);
 
 export const CurrentlyOnline: FC = () => {
+  const { currentlyOnline } = usePageProps<App.Http.Data.HomePageProps>();
+
   const { t } = useLaravelReactI18n();
+
+  const { chartData, yAxisTicks, formatXAxisTick, formatYAxisTick } =
+    useCurrentlyOnlineChart(currentlyOnline);
 
   const { formatNumber } = useFormatNumber();
 
-  const chartData = buildMockChartData();
+  const chartConfig = {
+    playersOnline: {
+      label: t('Users Online'),
+      color: '#c39d2a',
+    },
+  } satisfies BaseChartConfig;
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -36,36 +45,65 @@ export const CurrentlyOnline: FC = () => {
         <div className="flex items-center gap-2">
           <div className="h-2.5 w-2.5 rounded-full bg-green-500" />
           <p>
-            <span className="font-bold">{formatNumber(4124)}</span>{' '}
-            {t('players are currently online.')}
+            {currentlyOnline?.numCurrentPlayers === 1 ? (
+              <Trans
+                i18nKey="<0>:userCount</0> user is currently online."
+                values={{ userCount: formatNumber(currentlyOnline?.numCurrentPlayers) }}
+              >
+                {/* eslint-disable */}
+                <span className="font-bold">
+                  {formatNumber(currentlyOnline?.numCurrentPlayers)}
+                </span>{' '}
+                user is currently online.
+                {/* eslint-enable */}
+              </Trans>
+            ) : (
+              <Trans
+                i18nKey="<0>:userCount</0> users are currently online."
+                values={{ userCount: formatNumber(currentlyOnline?.numCurrentPlayers) }}
+              >
+                {/* eslint-disable */}
+                <span className="font-bold">
+                  {formatNumber(currentlyOnline?.numCurrentPlayers)}
+                </span>{' '}
+                users are currently online.
+                {/* eslint-enable */}
+              </Trans>
+            )}
           </p>
         </div>
 
         <p className="text-muted cursor-default italic transition hover:text-neutral-300 hover:light:text-neutral-950">
-          {t('All-time High: :number (:date)', { number: '4,494', date: 'Sept 21, 2024' })}
+          {t('All-time High: :number :date', {
+            number: formatNumber(currentlyOnline?.allTimeHighPlayers),
+            date: currentlyOnline?.allTimeHighDate
+              ? `(${formatDate(dayjs.utc(currentlyOnline.allTimeHighDate), 'll')})`
+              : '',
+          })}
         </p>
       </div>
 
       <div className="rounded bg-embed p-4">
         <BaseChartContainer config={chartConfig} className="w-full" style={{ height: 160 }}>
           <AreaChart accessibilityLayer={true} data={chartData}>
-            <CartesianGrid />
+            <CartesianGrid strokeDasharray="3 3" />
 
             <XAxis
               dataKey="time"
               tickLine={false}
               axisLine={false}
               tickMargin={12}
-              tickFormatter={(value) => formatDate(dayjs(value), 'LT')}
+              interval={7}
+              tickFormatter={formatXAxisTick}
             />
-            <YAxis tickFormatter={(value) => formatNumber(value)} tickMargin={8} />
+            <YAxis tickFormatter={formatYAxisTick} tickMargin={8} ticks={yAxisTicks} />
 
             <BaseChartTooltip content={<BaseChartTooltipContent />} />
 
             <defs>
               <linearGradient id="fillPlayersOnline" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="var(--color-playersOnline)" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="var(--color-playersOnline)" stopOpacity={0.1} />
+                <stop offset="95%" stopColor="var(--color-playersOnline)" stopOpacity={0.28} />
               </linearGradient>
             </defs>
 
@@ -85,28 +123,3 @@ export const CurrentlyOnline: FC = () => {
     </div>
   );
 };
-
-const mockPlayersOnlineLogData = [
-  3736, 3743, 3736, 3967, 3793, 3813, 3722, 3604, 3517, 3638, 3573, 3547, 3553, 3386, 3446, 3214,
-  3027, 2783, 2757, 2604, 2474, 2258, 2203, 2024, 2010, 1883, 1847, 1814, 1859, 1937, 2078, 2020,
-  2062, 2300, 2338, 2618, 2789, 2892, 3221, 3637, 3627, 3732, 3711, 3854, 3898, 4049, 4021, 4124,
-  4120, 4122,
-];
-
-function buildMockChartData() {
-  const startTime = new Date('October 20, 2024 00:00:00');
-
-  return mockPlayersOnlineLogData.map((count, index) => {
-    const THIRTY_MINUTES = 30 * 60000;
-
-    const time = new Date(startTime.getTime() + index * THIRTY_MINUTES);
-    const hours = time.getHours() % 12 || 12;
-    const minutes = time.getMinutes().toString().padStart(2, '0');
-    const ampm = time.getHours() >= 12 ? 'PM' : 'AM';
-    const constructedTime = `Oct 20, 2024, ${hours}:${minutes}:00 ${ampm}`;
-
-    const formattedTime = formatDate(dayjs(constructedTime), 'llll');
-
-    return { time: formattedTime, playersOnline: count };
-  });
-}

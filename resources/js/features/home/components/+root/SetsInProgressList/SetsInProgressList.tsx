@@ -9,85 +9,76 @@ import {
   BaseTableHeader,
   BaseTableRow,
 } from '@/common/components/+vendor/BaseTable';
+import { DiffTimestamp } from '@/common/components/DiffTimestamp';
+import { EmptyState } from '@/common/components/EmptyState';
 import { MultilineGameAvatar } from '@/common/components/MultilineGameAvatar';
 import { UserAvatar } from '@/common/components/UserAvatar';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import type { AvatarSize } from '@/common/models';
+import { ClaimSetType } from '@/common/utils/generatedAppConstants';
 
 import { ClaimMobileBlock } from '../../ClaimMobileBlock/ClaimMobileBlock';
 import { HomeHeading } from '../../HomeHeading';
 import { SeeMoreLink } from '../../SeeMoreLink';
 
 export const SetsInProgressList: FC = () => {
+  const { newClaims } = usePageProps<App.Http.Data.HomePageProps>();
+
   const { t } = useLaravelReactI18n();
 
   return (
     <div>
       <HomeHeading>{t('Latest Sets in Progress')}</HomeHeading>
 
-      <div className="flex flex-col gap-y-1 sm:hidden">
-        <ClaimMobileBlock game={mockGame} user={mockUser} />
-        <ClaimMobileBlock game={mockGame} user={mockUser} />
-        <ClaimMobileBlock game={mockGame} user={mockUser} />
-        <ClaimMobileBlock game={mockGame} user={mockUser} />
-        <ClaimMobileBlock game={mockGame} user={mockUser} />
-      </div>
+      {!newClaims?.length ? (
+        <div className="rounded bg-embed">
+          <EmptyState>{t("Couldn't find any sets in progress.")}</EmptyState>
+        </div>
+      ) : null}
 
-      <BaseTable className="table-highlight hidden sm:table">
-        <BaseTableHeader>
-          <BaseTableRow className="do-not-highlight">
-            <BaseTableHead>{t('Game')}</BaseTableHead>
-            <BaseTableHead>{t('Dev')}</BaseTableHead>
-            <BaseTableHead>{t('Type')}</BaseTableHead>
-            <BaseTableHead>{t('Started')}</BaseTableHead>
-          </BaseTableRow>
-        </BaseTableHeader>
+      {newClaims?.length ? (
+        <>
+          <div className="flex flex-col gap-y-1 sm:hidden">
+            {newClaims.map((claim) => (
+              <ClaimMobileBlock key={`mobile-claim-${claim.id}`} claim={claim} />
+            ))}
+          </div>
 
-        <BaseTableBody>
-          <SampleRow />
-          <SampleRow />
-          <SampleRow />
-          <SampleRow />
-          <SampleRow />
-        </BaseTableBody>
-      </BaseTable>
+          <BaseTable className="table-highlight hidden sm:table">
+            <BaseTableHeader>
+              <BaseTableRow className="do-not-highlight">
+                <BaseTableHead>{t('Game')}</BaseTableHead>
+                <BaseTableHead>{t('Dev')}</BaseTableHead>
+                <BaseTableHead>{t('Type')}</BaseTableHead>
+                <BaseTableHead>{t('Started')}</BaseTableHead>
+              </BaseTableRow>
+            </BaseTableHeader>
 
-      <SeeMoreLink href={route('claims.active')} />
+            <BaseTableBody>
+              {newClaims.map((claim) => (
+                <BaseTableRow key={`claim-${claim.id}`}>
+                  <BaseTableCell>
+                    <MultilineGameAvatar {...claim.game} />
+                  </BaseTableCell>
+
+                  <BaseTableCell>
+                    <UserAvatar {...claim.users[0]} size={36 as AvatarSize} />
+                  </BaseTableCell>
+                  <BaseTableCell>
+                    {claim.setType === ClaimSetType.NewSet && t('New')}
+                    {claim.setType === ClaimSetType.Revision && t('Revision')}
+                  </BaseTableCell>
+                  <BaseTableCell className="smalldate">
+                    <DiffTimestamp at={claim.created} />
+                  </BaseTableCell>
+                </BaseTableRow>
+              ))}
+            </BaseTableBody>
+          </BaseTable>
+
+          <SeeMoreLink href={route('claims.active')} />
+        </>
+      ) : null}
     </div>
   );
-};
-
-const SampleRow: FC = () => {
-  const { t } = useLaravelReactI18n();
-
-  return (
-    <BaseTableRow>
-      <BaseTableCell>
-        <MultilineGameAvatar {...mockGame} />
-      </BaseTableCell>
-      <BaseTableCell>
-        <UserAvatar {...mockUser} size={36 as AvatarSize} />
-      </BaseTableCell>
-      <BaseTableCell>{t('New')}</BaseTableCell>
-      <BaseTableCell className="smalldate">{'2 hours ago'}</BaseTableCell>
-    </BaseTableRow>
-  );
-};
-
-const mockUser: App.Data.User = {
-  avatarUrl: 'http://media.retroachievements.org/UserPic/voiceofautumn.png',
-  displayName: 'voiceofautumn',
-  isMuted: false,
-  mutedUntil: null,
-};
-
-const mockGame: App.Platform.Data.Game = {
-  id: 13776,
-  title: 'Football Frenzy',
-  badgeUrl: 'http://media.retroachievements.org/Images/103029.png',
-  system: {
-    id: 27,
-    name: 'Arcade',
-    iconUrl: 'http://localhost:64000/assets/images/system/arc.png',
-    nameShort: 'ARC',
-  },
 };

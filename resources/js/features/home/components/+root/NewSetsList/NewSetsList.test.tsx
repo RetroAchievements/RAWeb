@@ -1,11 +1,12 @@
 import { render, screen } from '@/test';
+import { createAchievementSetClaim, createHomePageProps } from '@/test/factories';
 
 import { NewSetsList } from './NewSetsList';
 
 describe('Component: NewSetsList', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<NewSetsList />);
+    const { container } = render<App.Http.Data.HomePageProps>(<NewSetsList />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -13,15 +14,25 @@ describe('Component: NewSetsList', () => {
 
   it('displays an accessible heading', () => {
     // ARRANGE
-    render(<NewSetsList />);
+    render<App.Http.Data.HomePageProps>(<NewSetsList />);
 
     // ASSERT
     expect(screen.getByRole('heading', { name: /just released/i })).toBeVisible();
   });
 
+  it('given there are no completed claims, displays an empty state and does not crash', () => {
+    // ARRANGE
+    render<App.Http.Data.HomePageProps>(<NewSetsList />);
+
+    // ASSERT
+    expect(screen.getByText(/couldn't find any completed claims/i)).toBeVisible();
+  });
+
   it('displays accessible table headers', () => {
     // ARRANGE
-    render(<NewSetsList />);
+    render<App.Http.Data.HomePageProps>(<NewSetsList />, {
+      pageProps: createHomePageProps(),
+    });
 
     // ASSERT
     expect(screen.getByRole('columnheader', { name: /game/i })).toBeVisible();
@@ -30,14 +41,32 @@ describe('Component: NewSetsList', () => {
     expect(screen.getByRole('columnheader', { name: /finished/i })).toBeVisible();
   });
 
-  it.todo('renders multiple table rows');
-  it.todo('displays game and user avatars in each row');
-  it.todo('displays an empty state when there are no new sets');
-  it.todo('displays the correct timestamps for each set in the list');
+  it('displays multiple table rows', () => {
+    // ARRANGE
+    render<App.Http.Data.HomePageProps>(<NewSetsList />, {
+      pageProps: createHomePageProps({
+        completedClaims: [
+          createAchievementSetClaim(),
+          createAchievementSetClaim(),
+          createAchievementSetClaim(),
+          createAchievementSetClaim(),
+          createAchievementSetClaim(),
+          createAchievementSetClaim(),
+        ],
+      }),
+    });
+
+    // ASSERT
+    const rowEls = screen.getAllByRole('row');
+
+    expect(rowEls.length).toEqual(7); // 6, plus the header row.
+  });
 
   it('displays a link to the "See More" page', () => {
     // ARRANGE
-    render(<NewSetsList />);
+    render<App.Http.Data.HomePageProps>(<NewSetsList />, {
+      pageProps: createHomePageProps(),
+    });
 
     // ASSERT
     const linkEl = screen.getByRole('link', { name: /see more/i });
