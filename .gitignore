@@ -28,6 +28,7 @@
 /tmp
 /.fleet
 /.idea
+/.pnpm-store
 /.project
 /.settings
 /.vscode
