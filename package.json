@@ -3,22 +3,26 @@
     "name": "raweb",
     "type": "module",
     "scripts": {
+        "preinstall": "npx only-allow pnpm",
         "dev": "vite",
         "build": "vite build && vite build --ssr",
-        "lint": "npm run lint:eslint",
+        "lint": "pnpm lint:eslint",
         "lint:eslint": "eslint public/js resources/js postcss.config.js tailwind.config.js vite.config.ts --cache",
-        "fix": "npm run fix:eslint",
+        "fix": "pnpm fix:eslint",
         "fix:eslint": "eslint public/js resources/js postcss.config.js tailwind.config.js vite.config.ts --fix",
         "test": "TZ=UTC vitest run --reporter=dot",
         "test:coverage": "TZ=UTC vitest --ui --coverage --reporter=dot",
         "test:watch": "TZ=UTC vitest",
         "tsc": "tsc --noEmit --skipLibCheck",
-        "analyze": "cross-env ANALYZE=true npm run prod"
+        "analyze": "cross-env ANALYZE=true pnpm prod"
     },
     "dependencies": {
+        "@floating-ui/core": "^1.6.8",
         "@floating-ui/dom": "^1.5.1",
         "@hookform/resolvers": "^3.9.0",
+        "@inertiajs/core": "^1.2.0",
         "@radix-ui/react-checkbox": "^1.1.1",
+        "@radix-ui/react-dialog": "^1.1.2",
         "@radix-ui/react-dropdown-menu": "^2.1.1",
         "@radix-ui/react-label": "^2.1.0",
         "@radix-ui/react-navigation-menu": "^1.1.4",
@@ -113,6 +117,6 @@
     },
     "engines": {
         "node": "20.x",
-        "npm": ">=8.18.0"
+        "pnpm": ">=9"
     }
 }
