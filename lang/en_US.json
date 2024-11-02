@@ -424,5 +424,7 @@
     "Softcore": "Softcore",
     "Toggle hardcore": "Toggle hardcore",
     "Toggle softcore": "Toggle softcore",
+    "current page number": "current page number",
+    "of :totalPages": "of :totalPages",
     "Comments - :user": "Comments - :user"
 }
