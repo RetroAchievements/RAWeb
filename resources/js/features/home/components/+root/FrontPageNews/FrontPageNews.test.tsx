@@ -112,6 +112,7 @@ describe('Component: FrontPageNews', () => {
       },
     });
 
+    // ASSERT
     expect(screen.getByText('Gaming News!')).toBeVisible();
     expect(screen.getByText('Big tournament announced!')).toBeVisible();
 
