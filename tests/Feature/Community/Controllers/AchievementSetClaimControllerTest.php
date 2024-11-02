@@ -166,6 +166,7 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertEquals(0, $claim->Extension);
 
         // extend claim
+        $claimFinished = $claim->Finished;
         $extendDate = $claimDate->clone()->addWeeks(11);
         Carbon::setTestNow($extendDate);
 
@@ -182,7 +183,7 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
         $this->assertEquals(ClaimStatus::Active, $claim->Status);
         $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($extendDate->clone()->addMonths(3), $claim->Finished);
+        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->Finished);
         $this->assertEquals($claimDate, $claim->Created);
         $this->assertEquals($extendDate, $claim->Updated);
         $this->assertEquals(1, $claim->Extension);
@@ -788,6 +789,7 @@ class AchievementSetClaimControllerTest extends TestCase
         $response->assertSessionHas('error', 'You do not have a claim on this game.');
 
         // extend claim
+        $claimFinished = $claim->Finished;
         $extendDate = $claimDate->clone()->addDays(30 + 30 + 27);
         Carbon::setTestNow($extendDate);
 
@@ -804,7 +806,7 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
         $this->assertEquals(ClaimStatus::InReview, $claim->Status);
         $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($extendDate->clone()->addMonths(3), $claim->Finished);
+        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->Finished);
         $this->assertEquals($claimDate, $claim->Created);
         $this->assertEquals($extendDate, $claim->Updated);
         $this->assertEquals(1, $claim->Extension);
@@ -824,7 +826,7 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
         $this->assertEquals(ClaimStatus::Active, $claim->Status);
         $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($extendDate->clone()->addMonths(3), $claim->Finished);
+        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->Finished);
         $this->assertEquals($claimDate, $claim->Created);
         $this->assertEquals($reviewDate, $claim->Updated);
         $this->assertEquals(1, $claim->Extension);
