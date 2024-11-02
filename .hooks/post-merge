@@ -3,7 +3,7 @@
 set -e
 
 php composer.phar install
-npm install
-npm run build
+pnpm install
+pnpm build
 
 printf "\n✅ post-merge OK\n\n"
