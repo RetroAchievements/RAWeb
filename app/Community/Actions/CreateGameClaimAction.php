@@ -36,7 +36,7 @@ class CreateGameClaimAction
         if ($primaryClaim !== null) {
             if ($primaryClaim->user->is($currentUser)) {
                 // renewing claim
-                $primaryClaim->Finished = $expiresAt;
+                $primaryClaim->Finished = $primaryClaim->Finished->addMonths(3);
                 $primaryClaim->Extension++;
                 $primaryClaim->save();
 
