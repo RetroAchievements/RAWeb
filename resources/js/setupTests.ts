@@ -6,6 +6,8 @@ import { cleanup } from '@testing-library/react';
 
 import { loadFaker } from './test/createFactory';
 
+process.env.TZ = 'UTC';
+
 beforeAll(async () => {
   /**
    * Asynchronously load faker before any tests run. `createFactory()` helpers

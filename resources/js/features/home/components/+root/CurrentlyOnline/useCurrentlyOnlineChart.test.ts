@@ -44,7 +44,7 @@ describe('Hook: useCurrentlyOnlineChart', () => {
     const formatted = current.formatXAxisTick(dayjs.utc('2024-08-07').toISOString());
 
     // ASSERT
-    expect(formatted).toEqual('8:00 PM');
+    expect(formatted).toEqual('12:00 AM');
   });
 
   it('can properly format y-axis ticks', () => {
