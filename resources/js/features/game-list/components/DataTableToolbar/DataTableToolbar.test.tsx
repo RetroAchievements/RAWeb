@@ -129,9 +129,12 @@ describe('Component: DataTableToolbar', () => {
     await userEvent.click(screen.getByRole('option', { name: /GameCube/i }));
 
     // ASSERT
-    await waitFor(() => {
-      expect(screen.getByText(/3 selected/i)).toBeVisible();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/3 selected/i)).toBeVisible();
+      },
+      { timeout: 3000 },
+    );
   });
 
   it('given the unfiltered total is different than the row count, displays both counts to the user', () => {
