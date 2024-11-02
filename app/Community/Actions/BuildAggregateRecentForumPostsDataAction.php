@@ -9,7 +9,6 @@ use App\Data\PaginatedData;
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -25,19 +24,7 @@ class BuildAggregateRecentForumPostsDataAction
         ?string $paginationPath = null,
         array $paginationQuery = [],
     ): PaginatedData|array {
-        $topics = [];
-        if ($page === null || $page <= 3) {
-            // The query to get topics is kinda expensive, and it's called
-            // frequently. Therefore, let's use a stale-while-revalidate
-            // caching strategy so this is fast for most users.
-            $topics = Cache::flexible(
-                "recent-topics:{$permissions}:{$limit}:{$page}",
-                [10, 20],
-                fn () => $this->getRecentForumTopics($page ?? 1, $permissions, $limit)
-            );
-        } else {
-            $topics = $this->getRecentForumTopics($page, $permissions, $limit);
-        }
+        $topics = $this->getRecentForumTopics($page, $permissions, $limit);
 
         $transformedTopics = array_map(
             fn ($topic) => ForumTopicData::fromRecentlyActiveTopic($topic)->include(
