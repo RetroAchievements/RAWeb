@@ -54,7 +54,7 @@ export const GameHashSelectField: FC = () => {
                 onValueChange={field.onChange}
                 defaultValue={field.value ? String(field.value) : undefined}
               >
-                <BaseSelectTrigger id="hash-select" className="sm:w-full md:w-[550px] lg:w-[740px]">
+                <BaseSelectTrigger id="hash-select">
                   <BaseSelectValue placeholder={t('Select a file')} />
                 </BaseSelectTrigger>
 

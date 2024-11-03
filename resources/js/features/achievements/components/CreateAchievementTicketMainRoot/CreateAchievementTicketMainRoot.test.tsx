@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen } from '@/test';
+import { render, screen, waitFor } from '@/test';
 import {
   createAchievement,
   createEmulator,
@@ -637,7 +637,6 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
     await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
 
-    await userEvent.clear(screen.getByRole('textbox', { name: /description/i }));
     await userEvent.type(
       screen.getByRole('textbox', { name: /description/i }),
       'Something is very wrong with this achievement. I tried many things and it just wont unlock. Help.',
@@ -646,7 +645,10 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     // ASSERT
-    expect(postSpy).toHaveBeenCalledOnce();
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledOnce();
+    });
+
     expect(postSpy).toHaveBeenCalledWith(['api.ticket.store'], {
       core: 'gambatte',
       description:
@@ -702,7 +704,6 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
     await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
 
-    await userEvent.clear(screen.getByRole('textbox', { name: /description/i }));
     await userEvent.type(
       screen.getByRole('textbox', { name: /description/i }),
       'Something is very wrong with this achievement. I tried many things and it just wont unlock. Help.',
@@ -711,7 +712,10 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     // ASSERT
-    expect(postSpy).toHaveBeenCalledOnce();
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledOnce();
+    });
+
     expect(postSpy).toHaveBeenCalledWith(['api.ticket.store'], {
       core: 'gambatte',
       description:
@@ -721,6 +725,75 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
       extra: null,
       gameHashId: gameHashes[0].id,
       issue: 2,
+      mode: 'softcore',
+      ticketableId: achievement.id,
+      ticketableModel: 'achievement',
+    });
+  });
+
+  it('allows the user to submit the form with the "Triggered at the wrong time" issue type', async () => {
+    // ARRANGE
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: 123 } });
+
+    const achievement = createAchievement();
+    const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
+    const emulators = [
+      createEmulator({ name: 'Bizhawk' }),
+      createEmulator({ name: 'RALibRetro' }),
+      createEmulator({ name: 'RetroArch' }),
+    ];
+
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          achievement,
+          emulators,
+          gameHashes,
+          auth: { user: createAuthenticatedUser({ points: 500 }) },
+          ziggy: createZiggyProps({ query: {} }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('combobox', { name: /issue/i }));
+    await userEvent.click(screen.getByRole('option', { name: /triggered at the wrong time/i }));
+
+    await userEvent.click(screen.getByRole('combobox', { name: /emulator/i }));
+    await userEvent.click(screen.getByRole('option', { name: /retroarch/i }));
+
+    await userEvent.type(screen.getByRole('textbox', { name: /emulator version/i }), '1.16.0');
+
+    await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
+
+    await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
+    await userEvent.click(screen.getByText(/softcore/i));
+
+    await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
+    await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
+
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /description/i }),
+      'Something is very wrong with this achievement. I tried many things and it just wont unlock. Help.',
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledOnce();
+    });
+
+    expect(postSpy).toHaveBeenCalledWith(['api.ticket.store'], {
+      core: 'gambatte',
+      description:
+        'Something is very wrong with this achievement. I tried many things and it just wont unlock. Help.',
+      emulator: 'RetroArch',
+      emulatorVersion: '1.16.0',
+      extra: null,
+      gameHashId: gameHashes[0].id,
+      issue: 1,
       mode: 'softcore',
       ticketableId: achievement.id,
       ticketableModel: 'achievement',
@@ -773,7 +846,6 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
     await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
 
-    await userEvent.clear(screen.getByRole('textbox', { name: /description/i }));
     await userEvent.type(
       screen.getByRole('textbox', { name: /description/i }),
       'Something is very wrong with this achievement. I tried many things and it just wont unlock. Help.',
@@ -782,7 +854,10 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     // ASSERT
-    expect(postSpy).toHaveBeenCalledOnce();
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledOnce();
+    });
+
     expect(postSpy).toHaveBeenCalledWith(['api.ticket.store'], {
       core: 'gambatte',
       description:
@@ -816,5 +891,93 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
     // ASSERT
     expect(screen.getByText(/please write your ticket description in english/i)).toBeVisible();
+  });
+
+  it('given the user enters some unhelpful text, displays a warning and does not allow the user to submit the form', async () => {
+    // ARRANGE
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: 123 } });
+
+    const achievement = createAchievement();
+    const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
+    const emulators = [
+      createEmulator({ name: 'Bizhawk' }),
+      createEmulator({ name: 'RALibRetro' }),
+      createEmulator({ name: 'RetroArch' }),
+    ];
+
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          achievement,
+          emulators,
+          gameHashes,
+          auth: { user: createAuthenticatedUser({ points: 500 }) },
+          ziggy: createZiggyProps({ query: {} }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('combobox', { name: /issue/i }));
+    await userEvent.click(screen.getByRole('option', { name: /did not trigger/i }));
+
+    await userEvent.click(screen.getByRole('combobox', { name: /emulator/i }));
+    await userEvent.click(screen.getByRole('option', { name: /retroarch/i }));
+
+    await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
+
+    await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
+    await userEvent.click(screen.getByText(/softcore/i));
+
+    await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
+    await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
+
+    await userEvent.type(screen.getByRole('textbox', { name: /description/i }), "doesn't work"); // !!
+
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/please be more specific with your issue/i)).toBeVisible();
+    });
+
+    expect(postSpy).not.toHaveBeenCalled();
+  });
+
+  it('given the user starts writing about network issues, displays a warning', async () => {
+    // ARRANGE
+    const achievement = createAchievement();
+    const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
+    const emulators = [
+      createEmulator({ name: 'Bizhawk' }),
+      createEmulator({ name: 'RALibRetro' }),
+      createEmulator({ name: 'RetroArch' }),
+    ];
+
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          achievement,
+          emulators,
+          gameHashes,
+          auth: { user: createAuthenticatedUser({ points: 500 }) },
+          ziggy: createZiggyProps({ query: {} }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.type(screen.getByRole('textbox', { name: /description/i }), 'manual unlock');
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/please do not open tickets for network issues/i)).toBeVisible();
+    });
+
+    const linkEl = screen.getByRole('link', { name: /here/i });
+    expect(linkEl).toBeVisible();
+    expect(linkEl).toHaveAttribute('href', expect.stringContaining('docs.retroachievements.org'));
   });
 });

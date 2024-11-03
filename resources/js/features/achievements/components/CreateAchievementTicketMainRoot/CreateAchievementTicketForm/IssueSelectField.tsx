@@ -58,7 +58,7 @@ export const IssueSelectField: FC = () => {
             </BaseFormControl>
 
             {field.value ? (
-              <BaseFormDescription className="text-menu-link light:text-neutral-800">
+              <BaseFormDescription className="text-neutral-500 light:text-neutral-800">
                 {field.value === 'DidNotTrigger' && (
                   <>
                     <span className="block">

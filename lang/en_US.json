@@ -396,7 +396,7 @@
     "Please be more detailed in your description.": "Please be more detailed in your description.",
     "Do not open tickets for network issues.": "Do not open tickets for network issues.",
     "Description": "Description",
-    "Be as descriptive as possible.": "Be as descriptive as possible.",
+    "Be as descriptive as possible. Give exact steps to reproduce the issue. Consider linking to a save state.": "Be as descriptive as possible. Give exact steps to reproduce the issue. Consider linking to a save state.",
     "<0>Be <1>very</1> descriptive</0> about what you were doing when the problem happened. Mention if you were using any <2>non-default settings, a non-English language, in-game cheats, glitches</2> or were otherwise playing in some unusual way. If possible, include a <3>link to a save state or save game</3> to help us reproduce the issue.": "<0>Be <1>very</1> descriptive</0> about what you were doing when the problem happened. Mention if you were using any <2>non-default settings, a non-English language, in-game cheats, glitches</2> or were otherwise playing in some unusual way. If possible, include a <3>link to a save state or save game</3> to help us reproduce the issue.",
     "Emulator Core": "Emulator Core",
     "enter the emulator core...": "enter the emulator core...",
@@ -426,5 +426,7 @@
     "Toggle softcore": "Toggle softcore",
     "current page number": "current page number",
     "of :totalPages": "of :totalPages",
-    "Comments - :user": "Comments - :user"
+    "Comments - :user": "Comments - :user",
+    "Please be more specific with your issue—such as by adding specific reproduction steps or what you did before encountering it—instead of simply stating that it didn't work. The more specific, the better.": "Please be more specific with your issue—such as by adding specific reproduction steps or what you did before encountering it—instead of simply stating that it didn't work. The more specific, the better.",
+    "Please do not open tickets for network issues. See <0>here</0> for instructions on how to request a manual unlock.": "Please do not open tickets for network issues. See <0>here</0> for instructions on how to request a manual unlock."
 }

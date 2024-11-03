@@ -22,6 +22,13 @@ export const DescriptionField: FC = () => {
 
   const form = useFormContext<CreateAchievementTicketFormValues>();
 
+  const [description] = form.watch(['description']);
+
+  const showTriggerWarning =
+    description.length < 25 && /(n'?t|not?).*(work|trigger)/gi.test(description);
+
+  const showNetworkWarning = /(manual\s+unlock|internet)/gi.test(description);
+
   return (
     <BaseFormField
       control={form.control}
@@ -35,7 +42,9 @@ export const DescriptionField: FC = () => {
           <div className="flex w-full flex-col gap-1">
             <BaseFormControl>
               <TextareaAutosize
-                placeholder={t('Be as descriptive as possible.')}
+                placeholder={t(
+                  'Be as descriptive as possible. Give exact steps to reproduce the issue. Consider linking to a save state.',
+                )}
                 minRows={10}
                 maxLength={2000}
                 className={cn(baseTextareaClassNames, 'w-full')}
@@ -60,7 +69,25 @@ export const DescriptionField: FC = () => {
               </Trans>
             </BaseFormDescription>
 
-            <BaseFormMessage />
+            <BaseFormMessage className="mt-2">
+              {showTriggerWarning
+                ? t(
+                    "Please be more specific with your issue—such as by adding specific reproduction steps or what you did before encountering it—instead of simply stating that it didn't work. The more specific, the better.",
+                  )
+                : null}
+
+              {showNetworkWarning ? (
+                <Trans i18nKey="Please do not open tickets for network issues. See <0>here</0> for instructions on how to request a manual unlock.">
+                  {/* eslint-disable */}
+                  Please do not open tickets for network issues. See{' '}
+                  <a href="https://docs.retroachievements.org/general/faq.html#how-do-i-request-a-manual-unlock">
+                    here
+                  </a>{' '}
+                  for instructions on how to request a manual unlock.
+                  {/* eslint-enable */}
+                </Trans>
+              ) : null}
+            </BaseFormMessage>
           </div>
         </BaseFormItem>
       )}

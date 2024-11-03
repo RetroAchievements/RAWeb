@@ -20,12 +20,7 @@ const createAchievementTicketFormSchema = z.object({
   description: z
     .string()
     .min(25, { message: 'Please be more detailed in your description.' })
-    .refine((desc) => !/(n'?t|not?).*(work|trigger)/i.test(desc), {
-      message: 'Please be more detailed in your description.',
-    })
-    .refine((desc) => !/(internet|wifi|connection|network)/i.test(desc), {
-      message: 'Do not open tickets for network issues.',
-    }),
+    .refine((desc) => !/(n'?t|not?).*(work|trigger)/i.test(desc)),
 });
 
 export type CreateAchievementTicketFormValues = z.infer<typeof createAchievementTicketFormSchema>;
@@ -87,10 +82,5 @@ function getTicketTypeFromIssue(issue: CreateAchievementTicketFormValues['issue'
     return TicketType.DidNotTrigger;
   }
 
-  if (issue === 'TriggeredAtWrongTime') {
-    return TicketType.TriggeredAtWrongTime;
-  }
-
-  // we expect this to fail
-  return -1;
+  return TicketType.TriggeredAtWrongTime;
 }

@@ -90,7 +90,7 @@ const BaseFormLabel = React.forwardRef<
   return (
     <BaseLabel
       ref={ref}
-      className={cn(error ? 'text-red-500 dark:text-red-900' : 'text-menu-link', className)}
+      className={cn(error ? 'text-red-500' : 'text-menu-link', className)}
       htmlFor={formItemId}
       {...props}
     />
@@ -123,12 +123,7 @@ const BaseFormDescription = React.forwardRef<
   const { formDescriptionId } = useBaseFormField();
 
   return (
-    <p
-      ref={ref}
-      id={formDescriptionId}
-      className={cn('text-neutral-500 dark:text-neutral-400', className)}
-      {...props}
-    />
+    <p ref={ref} id={formDescriptionId} className={cn('text-neutral-500', className)} {...props} />
   );
 });
 BaseFormDescription.displayName = 'BaseFormDescription';
@@ -149,7 +144,7 @@ const BaseFormMessage = React.forwardRef<
     <p
       ref={ref}
       id={formMessageId}
-      className={cn('text-sm font-medium text-red-500 dark:text-red-900', className)}
+      className={cn('text-sm font-medium text-red-500', className)}
       {...props}
     >
       {children ?? t(body as string)}

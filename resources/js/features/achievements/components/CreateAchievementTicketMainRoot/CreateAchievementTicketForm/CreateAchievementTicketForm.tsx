@@ -44,8 +44,7 @@ export const CreateAchievementTicketForm: FC = () => {
       softcore: auth!.user.pointsSoftcore,
     }),
     core: emulatorCore ?? '',
-    description:
-      '- What Happened:\n(Insert what happened here)\n\n- Steps to Reproduce:\n(Provide steps to reproduce the issue here)',
+    description: '',
   });
 
   const [issue] = form.watch(['issue']);
@@ -82,7 +81,10 @@ export const CreateAchievementTicketForm: FC = () => {
           <BaseButton
             type="submit"
             disabled={
-              !descriptionFieldState.isDirty || issue === 'NetworkIssue' || mutation.isPending
+              !descriptionFieldState.isDirty ||
+              issue === 'NetworkIssue' ||
+              mutation.isPending ||
+              mutation.isSuccess
             }
           >
             {t('Submit')}
