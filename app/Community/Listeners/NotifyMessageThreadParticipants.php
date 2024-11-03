@@ -143,7 +143,6 @@ class NotifyMessageThreadParticipants
                     //  - Original:  "Unwelcome Concept: Lots of Rings [12345] (Sonic the Hedgehog)"
                     //  - Formatted: "12345: Lots of Rings (Sonic the Hedgehog)"
                     if (preg_match('/^(Incorrect type:|Issue:|Unwelcome Concept:|Writing:)\s*(.*)\s*\[([0-9]+)\]\s*(\(.*\))$/', $messageThread->title, $titleMatches)) {
-                        $originalTitle = $messageThread->title;
                         $newTitle = $achievementId . ': ' . $titleMatches[2] . ' ' . $titleMatches[4];
                         $messageThread->title = $newTitle;
                     }
