@@ -69,14 +69,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - name: Use Node 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'pnpm'
       - name: Install
-        run: npm install
+        run: pnpm i
       - name: Type check
-        run: npm run tsc
+        run: pnpm tsc
 
   eslint:
     runs-on: ubuntu-22.04
@@ -86,14 +91,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - name: Use Node 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'pnpm'
       - name: Install
-        run: npm install
+        run: pnpm i
       - name: Lint
-        run: npm run lint
+        run: pnpm lint
 
   vitest:
     runs-on: ubuntu-22.04
@@ -103,14 +113,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - name: Use Node 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'pnpm'
       - name: Install
-        run: npm install
+        run: pnpm i
       - name: Test
-        run: npm run test
+        run: pnpm test
         env:
           VITE_BUILD_PATH: dist
           APP_URL: https://raweb.test

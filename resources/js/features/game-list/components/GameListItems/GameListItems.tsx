@@ -131,14 +131,13 @@ const GameListItems: FC<GameListItemsProps> = ({
                 groupIdx === visiblePages.length - 1 && itemIdx === group.items.length - 1;
 
               return (
-                <li key={`mobile-${item.game.id}`}>
-                  <GameListItemElement
-                    gameListEntry={item}
-                    sortFieldId={sorting?.[0]?.id as App.Platform.Enums.GameListSortField}
-                    isLastItem={isLastItem}
-                    shouldHideItemIfNotInBacklog={shouldHideItemIfNotInBacklog}
-                  />
-                </li>
+                <GameListItemElement
+                  key={`mobile-${item.game.id}`}
+                  gameListEntry={item}
+                  sortFieldId={sorting?.[0]?.id as App.Platform.Enums.GameListSortField}
+                  isLastItem={isLastItem}
+                  shouldHideItemIfNotInBacklog={shouldHideItemIfNotInBacklog}
+                />
               );
             })}
           </Fragment>

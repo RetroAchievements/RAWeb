@@ -55,6 +55,7 @@ use App\Platform\Commands\UpdatePlayerGameMetrics;
 use App\Platform\Commands\UpdatePlayerMetrics;
 use App\Platform\Commands\UpdatePlayerPointsStats;
 use App\Platform\Commands\UpdateTotalGamesCount;
+use App\Platform\Commands\VerifyAchievementSetIntegrity;
 use App\Platform\Commands\WriteGameSortTitles;
 use App\Platform\Components\GameCard;
 use App\Platform\Components\GameTitle;
@@ -76,6 +77,7 @@ class AppServiceProvider extends ServiceProvider
                 UpdateGameMetrics::class,
                 UpdateGameAchievementsMetrics::class,
                 UpdateGamePlayerGames::class,
+                VerifyAchievementSetIntegrity::class,
                 WriteGameSortTitles::class,
 
                 // Game Hashes

@@ -44,10 +44,10 @@ class UpsertGameCoreAchievementSetFromLegacyFlags
 
         // First, create the set.
         $achievementSet = AchievementSet::create([
-            'players_total' => $game->players_total,
-            'players_hardcore' => $game->players_hardcore,
             'achievements_published' => $officialAchievements->count(),
             'achievements_unpublished' => $unofficialAchievements->count(),
+            'players_hardcore' => $game->players_hardcore,
+            'players_total' => $game->players_total,
             'points_total' => $officialAchievements->sum('points'),
             'points_weighted' => $officialAchievements->sum('TrueRatio'),
 
@@ -85,6 +85,8 @@ class UpsertGameCoreAchievementSetFromLegacyFlags
         $coreSet->update([
             'achievements_published' => $officialAchievements->count(),
             'achievements_unpublished' => $unofficialAchievements->count(),
+            'players_hardcore' => $game->players_hardcore,
+            'players_total' => $game->players_total,
             'points_total' => $officialAchievements->sum('points'),
             'points_weighted' => $officialAchievements->sum('TrueRatio'),
             'updated_at' => now(),

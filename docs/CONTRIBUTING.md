@@ -36,7 +36,7 @@ Before submitting a pull request:
 
 - Follow **[PSR-12 Coding Standard](https://www.php-fig.org/psr/psr-12/)**. Run `composer fix` to fix most code style issues automatically.
 
-- Ensure ESLint rules are followed. Run `npm run fix` to fix most code style issues automatically.
+- Ensure ESLint rules are followed. Run `pnpm fix` to fix most code style issues automatically.
 
 - **Add tests!** - Your patch won't be accepted if it doesn't have tests.
 
