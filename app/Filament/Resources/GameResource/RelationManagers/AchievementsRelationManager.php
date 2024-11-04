@@ -220,8 +220,13 @@ class AchievementsRelationManager extends RelationManager
                         }),
                 ])
                     ->label('Bulk set type')
-                    ->hidden($this->getOwnerRecord()->system->id === System::Events)
-                    ->visible(fn ($record): bool => $user->can('updateField', [Achievement::class, null, 'type'])),
+                    ->visible(function ($record) use ($user) {
+                        if ($this->getOwnerRecord()->system->id === System::Events) {
+                            return false;
+                        }
+
+                        return $user->can('updateField', [Achievement::class, null, 'type']);
+                    }),
             ])
             ->recordUrl(function (Achievement $record): string {
                 /** @var User $user */
