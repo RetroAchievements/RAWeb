@@ -141,6 +141,7 @@ class UserAgentService
     {
         $version = trim($version);
         $version = ltrim($version, 'vV');
+        $version = ltrim($version, '-');
 
         return $version;
     }
@@ -162,5 +163,102 @@ class UserAgentService
     private function trimOperatingSystem(string $os): string
     {
         return trim(strtok($os, ';'));
+    }
+
+    public static function versionCompare(string $versionOne, string $versionTwo): int
+    {
+        $versionOneParts = UserAgentService::splitVersion($versionOne);
+        $versionOnePartCount = count($versionOneParts);
+        $versionTwoParts = UserAgentService::splitVersion($versionTwo);
+        $versionTwoPartCount = count($versionTwoParts);
+
+        $index = 0;
+        while (true) {
+            if ($index === $versionOnePartCount) {
+                return ($index === $versionTwoPartCount) ? 0 : -1;
+            }
+
+            if ($index === $versionTwoPartCount) {
+                return 1;
+            }
+
+            $versionOnePart = $versionOneParts[$index];
+            $versionTwoPart = $versionTwoParts[$index];
+            $diff = strcmp($versionOnePart, $versionTwoPart);
+            if ($diff !== 0) {
+                $versionOneNumeric = ctype_digit($versionOnePart);
+                $versionTwoNumeric = ctype_digit($versionTwoPart);
+                if ($versionOneNumeric) {
+                    if ($versionTwoNumeric) {
+                        // both parts are fully numeric. compare them numerically
+                        $versionOneNumber = (int) $versionOnePart;
+                        $versionTwoNumber = (int) $versionTwoPart;
+                        if ($versionOneNumber < $versionTwoNumber) {
+                            return -1;
+                        } elseif ($versionOneNumber > $versionTwoNumber) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    }
+
+                    // 1.0.1 > 1.0-dirty
+                    return 1;
+                } elseif ($versionTwoNumeric) {
+                    // 1.0-dirty < 1.0.1
+                    return -1;
+                }
+
+                // neither part is fully numeric. compare them as strings
+                return ($diff < 0) ? -1 : 1;
+            }
+
+            $index++;
+        }
+    }
+
+    private static function splitVersion(string $version): array
+    {
+        $parts = explode('.', str_replace('-', '.', $version));
+        $count = count($parts);
+
+        // ignore any chunks preceding the numeric part
+        while ($count > 1 && ctype_alpha(substr($parts[0], 0, 1))) {
+            array_shift($parts);
+            $count--;
+        }
+
+        $index = 0;
+        while ($index < $count && ctype_digit($parts[$index])) {
+            $index++;
+        }
+
+        $lastPart = ($index < $count) ? $parts[$index] : '';
+        $bonusPart = ($index + 1 < $count) ? $parts[$index + 1] : '';
+        while ($index < $count) {
+            array_pop($parts);
+            $count--;
+        }
+
+        if (strlen($lastPart) > 1) {
+            $left = substr($lastPart, 0, -1);
+            if (ctype_digit($left)) {
+                // split "6a" into "6.1"
+                array_push($parts, $left);
+                array_push($parts, strval(ord(substr($lastPart, -1, 1)) - ord('a') + 1));
+
+                // if there's a further trailing part, keep it as a differentiator
+                if (strlen($bonusPart) > 0) {
+                    array_push($parts, $bonusPart);
+                }
+            } elseif ($count === 0) {
+                // entire string was non-numeric. return empty parts array
+            } else {
+                // keep the trailing part as a differentiator
+                array_push($parts, $lastPart);
+            }
+        }
+
+        return $parts;
     }
 }
