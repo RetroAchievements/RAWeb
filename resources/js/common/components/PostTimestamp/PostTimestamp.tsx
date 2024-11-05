@@ -31,7 +31,7 @@ export const PostTimestamp: FC<PostTimestampProps> = ({ postedAt, asAbsoluteDate
       </BaseTooltipTrigger>
 
       <BaseTooltipContent>
-        <p className="text-sm">{formatDate(date, 'lll')}</p>
+        <p className="text-xs">{formatDate(date, 'lll')}</p>
       </BaseTooltipContent>
     </BaseTooltip>
   );

@@ -13,9 +13,8 @@ import { formatGameReleasedAt } from '@/common/utils/formatGameReleasedAt';
 import { getIsEventGame } from '@/common/utils/getIsEventGame';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
+import { gameListFieldIconMap } from '@/features/game-list/utils/gameListFieldIconMap';
 import { cn } from '@/utils/cn';
-
-import { gameListFieldIconMap } from '../../utils/gameListFieldIconMap';
 
 dayjs.extend(utc);
 dayjs.extend(localizedFormat);
@@ -36,105 +35,89 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
 
   switch (fieldId) {
     case 'achievementsPublished':
-      if (gameListFieldIconMap.achievementsPublished) {
-        chipContent = (
-          <BaseChip className="text-neutral-200">
-            <gameListFieldIconMap.achievementsPublished className="size-3" />
-            {formatNumber(game.achievementsPublished ?? 0)}
-          </BaseChip>
-        );
-      }
+      chipContent = (
+        <BaseChip className="text-neutral-200">
+          <gameListFieldIconMap.achievementsPublished className="size-3" />
+          {formatNumber(game.achievementsPublished ?? 0)}
+        </BaseChip>
+      );
       break;
 
     case 'pointsTotal':
-      if (gameListFieldIconMap.pointsTotal) {
-        chipContent = (
-          <BaseChip className="text-neutral-200">
-            <gameListFieldIconMap.pointsTotal className="size-3" />
-            {formatNumber(game.pointsTotal ?? 0)}
-          </BaseChip>
-        );
-      }
+      chipContent = (
+        <BaseChip className="text-neutral-200">
+          <gameListFieldIconMap.pointsTotal className="size-3" />
+          {formatNumber(game.pointsTotal ?? 0)}
+        </BaseChip>
+      );
       break;
 
     case 'retroRatio':
-      if (gameListFieldIconMap.retroRatio) {
-        chipContent = (
-          <BaseChip className="text-neutral-200">
-            <gameListFieldIconMap.retroRatio className="size-3" />
-            {game.pointsTotal
-              ? buildGameRarityLabel(game.pointsTotal, game.pointsWeighted)
-              : t('none')}
-          </BaseChip>
-        );
-      }
+      chipContent = (
+        <BaseChip className="text-neutral-200">
+          <gameListFieldIconMap.retroRatio className="size-3" />
+          {game.pointsTotal
+            ? buildGameRarityLabel(game.pointsTotal, game.pointsWeighted)
+            : t('none')}
+        </BaseChip>
+      );
       break;
 
     case 'lastUpdated':
-      if (gameListFieldIconMap.lastUpdated) {
-        chipContent = (
-          <BaseChip
-            className={cn(
-              'tracking-tighter',
-              game.lastUpdated ? 'text-neutral-200' : 'text-text-muted',
-            )}
-          >
-            <gameListFieldIconMap.lastUpdated className="size-3" />
-            {game.lastUpdated ? formatDate(dayjs.utc(game.lastUpdated), 'll') : t('unknown')}
-          </BaseChip>
-        );
-      }
+      chipContent = (
+        <BaseChip
+          className={cn(
+            'tracking-tighter',
+            game.lastUpdated ? 'text-neutral-200' : 'text-text-muted',
+          )}
+        >
+          <gameListFieldIconMap.lastUpdated className="size-3" />
+          {game.lastUpdated ? formatDate(dayjs.utc(game.lastUpdated), 'll') : t('unknown')}
+        </BaseChip>
+      );
       break;
 
     case 'releasedAt':
-      if (gameListFieldIconMap.releasedAt) {
-        chipContent = (
-          <BaseChip
-            className={cn(
-              'tracking-tighter',
-              game.releasedAt ? 'text-neutral-200' : 'text-text-muted',
-            )}
-          >
-            <gameListFieldIconMap.releasedAt className="size-3" />
-            {game.releasedAt
-              ? formatGameReleasedAt(game.releasedAt, game.releasedAtGranularity)
-              : t('unknown')}
-          </BaseChip>
-        );
-      }
+      chipContent = (
+        <BaseChip
+          className={cn(
+            'tracking-tighter',
+            game.releasedAt ? 'text-neutral-200' : 'text-text-muted',
+          )}
+        >
+          <gameListFieldIconMap.releasedAt className="size-3" />
+          {game.releasedAt
+            ? formatGameReleasedAt(game.releasedAt, game.releasedAtGranularity)
+            : t('unknown')}
+        </BaseChip>
+      );
       break;
 
     case 'playersTotal':
-      if (gameListFieldIconMap.playersTotal) {
-        chipContent = (
-          <BaseChip className="text-neutral-200">
-            <gameListFieldIconMap.playersTotal className="size-3" />
-            {formatNumber(game.playersTotal ?? 0)}
-          </BaseChip>
-        );
-      }
+      chipContent = (
+        <BaseChip className="text-neutral-200">
+          <gameListFieldIconMap.playersTotal className="size-3" />
+          {formatNumber(game.playersTotal ?? 0)}
+        </BaseChip>
+      );
       break;
 
     case 'numVisibleLeaderboards':
-      if (gameListFieldIconMap.numVisibleLeaderboards) {
-        chipContent = (
-          <BaseChip className="text-neutral-200">
-            <gameListFieldIconMap.numVisibleLeaderboards className="size-3" />
-            {formatNumber(game.numVisibleLeaderboards ?? 0)}
-          </BaseChip>
-        );
-      }
+      chipContent = (
+        <BaseChip className="text-neutral-200">
+          <gameListFieldIconMap.numVisibleLeaderboards className="size-3" />
+          {formatNumber(game.numVisibleLeaderboards ?? 0)}
+        </BaseChip>
+      );
       break;
 
     case 'numUnresolvedTickets':
-      if (gameListFieldIconMap.numUnresolvedTickets) {
-        chipContent = (
-          <BaseChip className="text-neutral-200">
-            <gameListFieldIconMap.numUnresolvedTickets className="size-3" />
-            {formatNumber(game.numUnresolvedTickets ?? 0)}
-          </BaseChip>
-        );
-      }
+      chipContent = (
+        <BaseChip className="text-neutral-200">
+          <gameListFieldIconMap.numUnresolvedTickets className="size-3" />
+          {formatNumber(game.numUnresolvedTickets ?? 0)}
+        </BaseChip>
+      );
       break;
 
     case 'progress':
@@ -143,6 +126,7 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
 
         chipContent = (
           <BaseChip
+            data-testid="progress-chip"
             className={cn(
               'h-[22px]',
               !isComplete ? 'px-2' : null,
@@ -166,7 +150,7 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
       break;
 
     case 'hasActiveOrInReviewClaims':
-      if (gameListFieldIconMap.hasActiveOrInReviewClaims && game.hasActiveOrInReviewClaims) {
+      if (game.hasActiveOrInReviewClaims) {
         chipContent = (
           <BaseChip className="text-neutral-200">
             <gameListFieldIconMap.hasActiveOrInReviewClaims className="size-3" />

@@ -392,5 +392,6 @@
     "No recent posts could be found.": "No recent posts could be found.",
     "current page number": "current page number",
     "of :totalPages": "of :totalPages",
-    "Comments - :user": "Comments - :user"
+    "Comments - :user": "Comments - :user",
+    "Comments - :achievementTitle": "Comments - :achievementTitle"
 }

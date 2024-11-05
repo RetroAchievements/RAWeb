@@ -63,6 +63,11 @@ class CommentPolicy
 
     public function delete(User $user, Comment $comment): bool
     {
+        // server-written comments cannot be deleted
+        if ($comment->is_automated) {
+            return false;
+        }
+
         // users can delete their own comments
         if ($user->is($comment->user)) {
             return true;
