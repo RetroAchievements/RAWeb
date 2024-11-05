@@ -44,7 +44,7 @@ export const DiffTimestamp: FC<DiffTimestampProps> = ({
       </BaseTooltipTrigger>
 
       <BaseTooltipContent>
-        <p className="text-sm">{formatDate(date, 'lll')}</p>
+        <p className="text-xs">{formatDate(date, 'lll')}</p>
       </BaseTooltipContent>
     </BaseTooltip>
   );

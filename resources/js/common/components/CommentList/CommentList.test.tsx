@@ -4,7 +4,7 @@ import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
-import { createComment } from '@/test/factories';
+import { createComment, createUser } from '@/test/factories';
 
 import { CommentList } from './CommentList';
 
@@ -254,5 +254,30 @@ describe('Component: CommentList', () => {
 
     // ASSERT
     expect(screen.getByRole('button', { name: /submit/i })).toBeDisabled();
+  });
+
+  it('given the comment is an automated comment, does not show an avatar or a username', () => {
+    // ARRANGE
+    const comments = [
+      createComment({
+        payload: 'Scott demoted this achievement',
+        isAutomated: true,
+        user: createUser({ displayName: 'Server' }),
+      }),
+    ];
+
+    render(
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="Game"
+        comments={comments}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/scott demoted this achievement/i)).toBeVisible();
+    expect(screen.queryByText('Server')).not.toBeInTheDocument();
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 });

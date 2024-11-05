@@ -399,5 +399,6 @@
     "<0>:userCount</0> user is currently online.": "<0>:userCount</0> user is currently online.",
     "Users Online": "Users Online",
     "Couldn't find any sets in progress.": "Couldn't find any sets in progress.",
-    "No recent forum posts were found.": "No recent forum posts were found."
+    "No recent forum posts were found.": "No recent forum posts were found.",
+    "Comments - :achievementTitle": "Comments - :achievementTitle"
 }

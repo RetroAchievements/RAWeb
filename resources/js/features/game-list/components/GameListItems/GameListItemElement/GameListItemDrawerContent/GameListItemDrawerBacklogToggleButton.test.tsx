@@ -6,8 +6,8 @@ import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
 import { createGame } from '@/test/factories';
 
+import { useGameBacklogState } from '../../useGameBacklogState';
 import { GameListItemDrawerBacklogToggleButton } from './GameListItemDrawerBacklogToggleButton';
-import { useGameBacklogState } from './useGameBacklogState';
 
 interface TestHarnessProps {
   game: App.Platform.Data.Game;

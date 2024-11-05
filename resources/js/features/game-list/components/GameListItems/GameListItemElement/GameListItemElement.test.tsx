@@ -2,13 +2,15 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen } from '@/test';
+import { fireEvent, render, screen, waitFor } from '@/test';
 import { createGame, createGameListEntry, createPlayerGame, createSystem } from '@/test/factories';
 
 import { GameListItemElement } from './GameListItemElement';
 
 // Suppress "Missing `Description` or `aria-describedby={undefined}` for {DialogContent}."
 console.warn = vi.fn();
+
+window.HTMLElement.prototype.setPointerCapture = vi.fn();
 
 describe('Component: GameListItemElement', () => {
   let originalUrl: string;
@@ -106,6 +108,31 @@ describe('Component: GameListItemElement', () => {
 
     // ASSERT
     expect(screen.getByText(/50%/i)).toBeVisible();
+    expect(screen.getByTestId('progress-chip')).toBeVisible();
+  });
+
+  it('given the user does not have progress, does not display the progress chip', () => {
+    // ARRANGE
+    const system = createSystem({ id: 1, nameShort: 'MD' });
+    const game = createGame({
+      system,
+      id: 1,
+      title: 'Sonic the Hedgehog',
+      achievementsPublished: 100,
+    });
+
+    render(
+      <GameListItemElement
+        gameListEntry={createGameListEntry({
+          game,
+          playerGame: null, // !!
+        })}
+        isLastItem={true}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.queryByTestId('progress-chip')).not.toBeInTheDocument();
   });
 
   it('given this is the last item, does not render a horizontal rule', () => {
@@ -162,6 +189,26 @@ describe('Component: GameListItemElement', () => {
 
     // ASSERT
     expect(screen.getByText(/123/i)).toBeVisible();
+  });
+
+  it('given the back-end returns a non-boolean value for `isInBacklog`, does not crash', () => {
+    // ARRANGE
+    const system = createSystem({ id: 1, nameShort: 'MD' });
+    const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog', pointsTotal: 123 });
+
+    render(
+      <GameListItemElement
+        gameListEntry={createGameListEntry({
+          game,
+          isInBacklog: null, // !!
+        })}
+        sortFieldId="pointsTotal"
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
+    expect(screen.getByRole('button', { name: /add/i })).toBeVisible();
   });
 
   it('given the user is unauthenticated and clicks the backlog toggle button, redirects them to login', async () => {
@@ -229,5 +276,120 @@ describe('Component: GameListItemElement', () => {
     expect(deleteSpy).toHaveBeenCalledWith(['api.user-game-list.destroy', 1], {
       data: { userGameListType: 'play' },
     });
+  });
+
+  it("given that the item should be hidden if it isn't on the user's backlog, does not display the item", () => {
+    // ARRANGE
+    const system = createSystem({ id: 1, nameShort: 'MD' });
+    const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
+
+    render(
+      <GameListItemElement
+        gameListEntry={createGameListEntry({ game, isInBacklog: false })}
+        shouldHideItemIfNotInBacklog={true}
+      />,
+      {
+        pageProps: { auth: { user: createAuthenticatedUser() } },
+      },
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/sonic the hedgehog/i)).not.toBeInTheDocument();
+  });
+
+  it(`
+    given:
+      - the user is authenticated
+      - the game is NOT on the user's backlog
+    
+    when:
+      - the user opens the drawer
+      - the user toggles the backlog item from the drawer
+
+    then:
+      - the correct POST API call is made
+  `, async () => {
+    // ARRANGE
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
+
+    const system = createSystem({ id: 1, nameShort: 'MD' });
+    const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
+
+    render(
+      <GameListItemElement gameListEntry={createGameListEntry({ game, isInBacklog: false })} />,
+      {
+        pageProps: { auth: { user: createAuthenticatedUser() } },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /open game details/i }));
+
+    const toggleButtonEl = await screen.findByTestId('drawer-backlog-toggle');
+
+    // The drawer component does not play nicely with userEvent.click() for some reason.
+    // To work around these, we have to reach for the lower-level `fireEvent.click()`.
+    // This is generally not recommended.
+    fireEvent.click(toggleButtonEl);
+
+    // ASSERT
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledOnce();
+    });
+
+    expect(postSpy).toHaveBeenCalledWith(['api.user-game-list.store', 1], {
+      userGameListType: 'play',
+    });
+  });
+
+  it(`
+    given:
+      - the user is authenticated
+      - the game IS on the user's backlog
+      - the game element should disappear when removed from the backlog
+
+    when:
+      - the user opens the drawer
+      - the user toggles the backlog item from the drawer
+
+    then:
+      - the correct DELETE API call is made
+      - the drawer automatically closes
+      - the game list item is no longer displayed
+  `, async () => {
+    // ARRANGE
+    const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
+
+    const system = createSystem({ id: 1, nameShort: 'MD' });
+    const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
+
+    render(
+      <GameListItemElement
+        gameListEntry={createGameListEntry({ game, isInBacklog: true })}
+        shouldHideItemIfNotInBacklog={true}
+      />,
+      {
+        pageProps: { auth: { user: createAuthenticatedUser() } },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /open game details/i }));
+
+    const toggleButtonEl = await screen.findByTestId('drawer-backlog-toggle');
+
+    // The drawer component does not play nicely with userEvent.click() for some reason.
+    // To work around these, we have to reach for the lower-level `fireEvent.click()`.
+    // This is generally not recommended.
+    fireEvent.click(toggleButtonEl);
+
+    // ASSERT
+    await waitFor(() => {
+      expect(deleteSpy).toHaveBeenCalledOnce();
+    });
+
+    expect(screen.queryByTestId('drawer-backlog-toggle')).not.toBeInTheDocument();
+    expect(screen.queryByText(/md/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/removed/i)).toBeVisible(); // this comes from the toast notification
   });
 });
