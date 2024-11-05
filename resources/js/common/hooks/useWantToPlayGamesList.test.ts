@@ -20,13 +20,10 @@ describe('Hook: useWantToPlayGamesList', () => {
     // ARRANGE
     const { result } = renderHook(() => useWantToPlayGamesList());
 
-    const { addToWantToPlayGamesList, isPending, removeFromWantToPlayGamesList } =
-      result.current as ReturnType<typeof useWantToPlayGamesList>;
-
     // ASSERT
-    expect(addToWantToPlayGamesList).toBeDefined();
-    expect(isPending).toBeDefined();
-    expect(removeFromWantToPlayGamesList).toBeDefined();
+    expect(result.current.addToWantToPlayGamesList).toBeDefined();
+    expect(result.current.isPending).toBeDefined();
+    expect(result.current.removeFromWantToPlayGamesList).toBeDefined();
   });
 
   it("allows the consumer to make a call to add a game to the user's backlog", async () => {
@@ -35,12 +32,8 @@ describe('Hook: useWantToPlayGamesList', () => {
 
     const { result } = renderHook(() => useWantToPlayGamesList());
 
-    const { addToWantToPlayGamesList } = result.current as ReturnType<
-      typeof useWantToPlayGamesList
-    >;
-
     // ACT
-    const response = await addToWantToPlayGamesList(1, 'Sonic the Hedgehog', {
+    const response = await result.current.addToWantToPlayGamesList(1, 'Sonic the Hedgehog', {
       shouldEnableToast: true,
     });
 
@@ -58,12 +51,8 @@ describe('Hook: useWantToPlayGamesList', () => {
 
     const { result } = renderHook(() => useWantToPlayGamesList());
 
-    const { addToWantToPlayGamesList } = result.current as ReturnType<
-      typeof useWantToPlayGamesList
-    >;
-
     // ACT
-    await addToWantToPlayGamesList(1, 'Sonic the Hedgehog');
+    await result.current.addToWantToPlayGamesList(1, 'Sonic the Hedgehog');
 
     // ASSERT
     await waitFor(() => {
@@ -77,12 +66,8 @@ describe('Hook: useWantToPlayGamesList', () => {
 
     const { result } = renderHook(() => useWantToPlayGamesList());
 
-    const { addToWantToPlayGamesList } = result.current as ReturnType<
-      typeof useWantToPlayGamesList
-    >;
-
     // ACT
-    await addToWantToPlayGamesList(1, 'Sonic the Hedgehog', { isUndo: true });
+    await result.current.addToWantToPlayGamesList(1, 'Sonic the Hedgehog', { isUndo: true });
 
     // ASSERT
     await waitFor(() => {
@@ -96,12 +81,10 @@ describe('Hook: useWantToPlayGamesList', () => {
 
     const { result } = renderHook(() => useWantToPlayGamesList());
 
-    const { addToWantToPlayGamesList } = result.current as ReturnType<
-      typeof useWantToPlayGamesList
-    >;
-
     // ACT
-    await addToWantToPlayGamesList(1, 'Sonic the Hedgehog', { t_successMessage: 'Added!' });
+    await result.current.addToWantToPlayGamesList(1, 'Sonic the Hedgehog', {
+      t_successMessage: 'Added!',
+    });
 
     // ASSERT
     expect(await screen.findByText(/added!/i)).toBeVisible();
@@ -113,12 +96,8 @@ describe('Hook: useWantToPlayGamesList', () => {
 
     const { result } = renderHook(() => useWantToPlayGamesList());
 
-    const { removeFromWantToPlayGamesList } = result.current as ReturnType<
-      typeof useWantToPlayGamesList
-    >;
-
     // ACT
-    const response = await removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog', {
+    const response = await result.current.removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog', {
       shouldEnableToast: true,
     });
 
@@ -138,12 +117,8 @@ describe('Hook: useWantToPlayGamesList', () => {
 
     const { result } = renderHook(() => useWantToPlayGamesList());
 
-    const { removeFromWantToPlayGamesList } = result.current as ReturnType<
-      typeof useWantToPlayGamesList
-    >;
-
     // ACT
-    await removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog');
+    await result.current.removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog');
 
     // ASSERT
     await waitFor(() => {
@@ -159,12 +134,10 @@ describe('Hook: useWantToPlayGamesList', () => {
 
     const { result } = renderHook(() => useWantToPlayGamesList());
 
-    const { removeFromWantToPlayGamesList } = result.current as ReturnType<
-      typeof useWantToPlayGamesList
-    >;
-
     // ACT
-    await removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog', { t_successMessage: 'Removed!' });
+    await result.current.removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog', {
+      t_successMessage: 'Removed!',
+    });
 
     // ASSERT
     await waitFor(() => {
@@ -179,12 +152,8 @@ describe('Hook: useWantToPlayGamesList', () => {
 
     const { result } = renderHook(() => useWantToPlayGamesList());
 
-    const { removeFromWantToPlayGamesList } = result.current as ReturnType<
-      typeof useWantToPlayGamesList
-    >;
-
     // ACT
-    await removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog');
+    await result.current.removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog');
     await userEvent.click(await screen.findByRole('button', { name: /undo/i }));
 
     // ASSERT

@@ -30,12 +30,13 @@ Before submitting a pull request:
 
 - Check the codebase to ensure that your feature doesn't already exist.
 - Check the pull requests to ensure that another person hasn't already submitted the feature or fix.
+- Test your changes locally. As an open source project maintained by volunteers, we rely on contributors to verify their changes before submission. This includes running the test suite and manually testing the feature or fix. This helps maintain quality and allows maintainers to focus on reviewing your contribution rather than basic testing.
 
 ## Requirements
 
 - Follow **[PSR-12 Coding Standard](https://www.php-fig.org/psr/psr-12/)**. Run `composer fix` to fix most code style issues automatically.
 
-- Ensure ESLint rules are followed. Run `npm run fix` to fix most code style issues automatically.
+- Ensure ESLint rules are followed. Run `pnpm fix` to fix most code style issues automatically.
 
 - **Add tests!** - Your patch won't be accepted if it doesn't have tests.
 

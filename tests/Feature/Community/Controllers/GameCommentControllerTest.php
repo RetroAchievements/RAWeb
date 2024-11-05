@@ -15,6 +15,19 @@ class GameCommentControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function testIndexWorksForUnauthenticatedVisitors(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['ID' => 1]);
+        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
+
+        // Act
+        $response = $this->get(route('game.comment.index', ['game' => $game]));
+
+        // Assert
+        $response->assertOk();
+    }
+
     public function testIndexReturnsCorrectInertiaResponse(): void
     {
         // Arrange
@@ -32,8 +45,11 @@ class GameCommentControllerTest extends TestCase
         $response->assertInertia(fn (Assert $page) => $page
             ->where('game.id', 1)
             ->where('game.title', $game->title)
+
             ->has('paginatedComments.items', 0)
-            ->has('subscription', null)
+
+            ->where('isSubscribed', false)
+            ->where('canComment', true)
         );
     }
 }
