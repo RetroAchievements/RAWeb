@@ -12,9 +12,11 @@ use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class NotifyMessageThreadParticipants
 {
@@ -178,6 +180,31 @@ class NotifyMessageThreadParticipants
             $payload['thread_name'] = mb_substr($messageThread->title, 0, 100);
         }
 
-        (new Client())->post($webhookUrl, ['json' => $payload]);
+        try {
+            if ($isForum) {
+                Log::info("[{$messageThread->title}] Discord forward: Initiating request", [
+                    'payload' => $payload,
+                ]);
+            }
+
+            $client = new Client();
+            $response = $client->post($webhookUrl, ['json' => $payload]);
+
+            if ($isForum) {
+                Log::info("[{$messageThread->title}] Discord forward: Request successful", [
+                    'payload' => $payload,
+                    'response' => [
+                        'status' => $response->getStatusCode(),
+                        'body' => (string) $response->getBody(),
+                    ],
+                ]);
+            }
+        } catch (Exception $e) {
+            Log::error("[{$messageThread->title}] Discord forward: Unexpected error", [
+                'payload' => $payload,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
     }
 }

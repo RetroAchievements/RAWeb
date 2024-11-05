@@ -11,5 +11,6 @@ export const createComment = createFactory<App.Community.Data.Comment>((faker) =
     payload: faker.word.words(20),
     updatedAt: faker.date.recent().toISOString(),
     user: createUser(),
+    isAutomated: false,
   };
 });
