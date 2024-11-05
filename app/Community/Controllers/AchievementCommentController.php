@@ -4,28 +4,45 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Actions\AddCommentAction;
 use App\Community\Actions\GetUrlToCommentDestinationAction;
+use App\Community\Concerns\IndexesComments;
+use App\Community\Data\AchievementCommentsPagePropsData;
+use App\Community\Data\CommentData;
 use App\Community\Requests\StoreCommentRequest;
+use App\Data\PaginatedData;
 use App\Models\Achievement;
 use App\Models\AchievementComment;
-use App\Models\Comment;
+use App\Platform\Data\AchievementData;
+use App\Policies\AchievementCommentPolicy;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Inertia\Response as InertiaResponse;
 
 class AchievementCommentController extends CommentController
 {
-    public function index(Achievement $achievement): View
+    use IndexesComments;
+
+    public function index(Achievement $achievement): InertiaResponse|RedirectResponse
     {
-        $this->authorize('viewAny', [AchievementComment::class, $achievement]);
-
-        $achievement->loadMissing([
-            'game',
-            'user',
-        ]);
-
-        return view('achievement.comment.index')
-            ->with('achievement', $achievement);
+        return $this->handleCommentIndex(
+            commentable: $achievement,
+            policy: AchievementComment::class,
+            routeName: 'achievement.comment.index',
+            routeParam: 'achievement',
+            view: 'achievement/[achievement]/comments',
+            createPropsData: function ($achievement, $paginatedComments, $isSubscribed, $user) {
+                return new AchievementCommentsPagePropsData(
+                    achievement: AchievementData::fromAchievement($achievement)->include('game.system', 'badgeUnlockedUrl'),
+                    paginatedComments: PaginatedData::fromLengthAwarePaginator(
+                        $paginatedComments,
+                        total: $paginatedComments->total(),
+                        items: CommentData::fromCollection($paginatedComments->getCollection())
+                    ),
+                    isSubscribed: $isSubscribed,
+                    canComment: (new AchievementCommentPolicy())->create($user, $achievement)
+                );
+            }
+        );
     }
 
     /**
@@ -35,23 +52,8 @@ class AchievementCommentController extends CommentController
     {
     }
 
-    public function store(
-        StoreCommentRequest $request,
-        Achievement $achievement,
-        AddCommentAction $addCommentAction,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction
-    ): RedirectResponse {
-        $this->authorize('create', [AchievementComment::class, $achievement]);
-
-        /** @var false|Comment $comment */
-        $comment = $addCommentAction->execute($request, $achievement);
-
-        if (!$comment) {
-            return back()->with('error', $this->resourceActionErrorMessage('achievement.comment', 'create'));
-        }
-
-        return redirect($getUrlToCommentDestinationAction->execute($comment))
-            ->with('success', $this->resourceActionSuccessMessage('achievement.comment', 'create'));
+    public function store(): void
+    {
     }
 
     public function edit(AchievementComment $comment): View
