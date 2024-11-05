@@ -17,6 +17,7 @@ class UserCommentPolicy
     {
         return $user->hasAnyRole([
             Role::MODERATOR,
+            Role::FORUM_MANAGER,
         ]);
     }
 
@@ -35,7 +36,6 @@ class UserCommentPolicy
 
         if ($user->hasAnyRole([
             Role::MODERATOR,
-            // Role::ADMINISTRATOR,
         ])) {
             return true;
         }
@@ -81,6 +81,10 @@ class UserCommentPolicy
 
     public function delete(User $user, UserComment $comment): bool
     {
+        if ($comment->is_automated) {
+            return false;
+        }
+
         if ($user->hasAnyRole([
             Role::MODERATOR,
         ])) {

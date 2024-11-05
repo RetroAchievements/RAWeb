@@ -10,8 +10,8 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useGameListInfiniteQuery } from '../../hooks/useGameListInfiniteQuery';
 import { GameListItemElement } from './GameListItemElement';
+import { LoadingGameListItemContent } from './GameListItemElement/GameListItemContent/LoadingGameListItemContent';
 import { InfiniteScroll } from './InfiniteScroll';
-import { LoadingGameListItem } from './LoadingGameListItem';
 
 /**
  * 🔴 If you make layout updates to this component, you must
@@ -60,6 +60,16 @@ const GameListItems: FC<GameListItemsProps> = ({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const isEmpty = dataInfiniteQuery.data?.pages?.[0].total === 0;
+
+  /**
+   * Because we prefetch data during scroll, even if we've loaded the last
+   * page, it may not necessarily be visible to the user yet. We need to
+   * keep track of this when determining whether or not to render the
+   * "Load More" button.
+   */
+  const lastPageNumber = dataInfiniteQuery.data?.pages?.[0].lastPage;
+  const isLastPageResultsVisible =
+    visiblePageNumbers[visiblePageNumbers.length - 1] === lastPageNumber;
 
   const handleLoadMore = () => {
     if (dataInfiniteQuery.hasNextPage && !dataInfiniteQuery.isFetchingNextPage) {
@@ -131,14 +141,13 @@ const GameListItems: FC<GameListItemsProps> = ({
                 groupIdx === visiblePages.length - 1 && itemIdx === group.items.length - 1;
 
               return (
-                <li key={`mobile-${item.game.id}`}>
-                  <GameListItemElement
-                    gameListEntry={item}
-                    sortFieldId={sorting?.[0]?.id as App.Platform.Enums.GameListSortField}
-                    isLastItem={isLastItem}
-                    shouldHideItemIfNotInBacklog={shouldHideItemIfNotInBacklog}
-                  />
-                </li>
+                <GameListItemElement
+                  key={`mobile-${item.game.id}`}
+                  gameListEntry={item}
+                  sortFieldId={sorting?.[0]?.id as App.Platform.Enums.GameListSortField}
+                  isLastItem={isLastItem}
+                  shouldHideItemIfNotInBacklog={shouldHideItemIfNotInBacklog}
+                />
               );
             })}
           </Fragment>
@@ -150,12 +159,12 @@ const GameListItems: FC<GameListItemsProps> = ({
 
             {/* Render a fixed number of loading skeletons. */}
             {Array.from({ length: 24 }).map((_, index) => (
-              <LoadingGameListItem key={`loading-${index}`} />
+              <LoadingGameListItemContent key={`loading-${index}`} />
             ))}
           </div>
         ) : null}
 
-        {dataInfiniteQuery.hasNextPage ? (
+        {dataInfiniteQuery.hasNextPage || !isLastPageResultsVisible ? (
           <div className="my-2" onClick={handleShowNextPageClick}>
             <BaseButton
               className="w-full hover:!border-neutral-700 hover:!bg-embed hover:!text-link"
@@ -169,7 +178,10 @@ const GameListItems: FC<GameListItemsProps> = ({
         <InfiniteScroll loadMore={handleLoadMore} />
       </ol>
 
-      {!dataInfiniteQuery.hasNextPage && !dataInfiniteQuery.isPending && !isEmpty ? (
+      {!dataInfiniteQuery.hasNextPage &&
+      !dataInfiniteQuery.isPending &&
+      !isEmpty &&
+      isLastPageResultsVisible ? (
         <p className="text-muted mt-4 p-4 text-center">
           {t("You've reached the end of the list.")}
         </p>

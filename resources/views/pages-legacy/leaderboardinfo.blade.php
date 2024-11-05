@@ -30,6 +30,7 @@ if (!$leaderboard) {
 $lbData = GetLeaderboardData($leaderboard, Auth::user(), $count, $offset);
 
 $numEntries = is_countable($lbData['Entries']) ? count($lbData['Entries']) : 0;
+$totalEntries = $leaderboard->entries()->count();
 $lbTitle = $leaderboard->title;
 $lbDescription = $leaderboard->description;
 $lbFormat = $leaderboard->format;
@@ -51,7 +52,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
 
 <x-app-layout
     :pageTitle="$pageTitle"
-    pageDescription="{{ $lbDescription ?? $lbTitle }}, {{ $numEntries }} entries."
+    pageDescription="{{ $lbDescription ?? $lbTitle }}, {{ $totalEntries }} entries."
     :pageImage="media_asset($gameIcon)"
     pageType="retroachievements:leaderboard"
 >
@@ -79,6 +80,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
         echo "<div>";
         echo "<a href='/leaderboard/$lbID'><strong>$lbTitle</strong></a><br>";
         echo "$lbDescription";
+        echo "<br><span class='smalltext'>$totalEntries entries</span>";
         echo "</div>";
         echo "</div>";
         echo "</td>";

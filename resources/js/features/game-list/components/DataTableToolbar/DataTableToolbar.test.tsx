@@ -124,14 +124,23 @@ describe('Component: DataTableToolbar', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /system/i }));
+
+    // Ensure the options are visible before we start trying to click on them.
+    await waitFor(() => {
+      screen.getByRole('option', { name: /NES/i });
+    });
+
     await userEvent.click(screen.getByRole('option', { name: /Nintendo 64/i }));
     await userEvent.click(screen.getByRole('option', { name: /NES/i }));
     await userEvent.click(screen.getByRole('option', { name: /GameCube/i }));
 
     // ASSERT
-    await waitFor(() => {
-      expect(screen.getByText(/3 selected/i)).toBeVisible();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/3 selected/i)).toBeVisible();
+      },
+      { timeout: 3000 },
+    );
   });
 
   it('given the unfiltered total is different than the row count, displays both counts to the user', () => {

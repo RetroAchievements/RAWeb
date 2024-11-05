@@ -286,6 +286,13 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.achievement.comment.store": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "api.game.comment.store": [
         {
             "name": "game",
@@ -298,6 +305,18 @@ declare module 'ziggy-js' {
             "name": "user",
             "required": true,
             "binding": "User"
+        }
+    ],
+    "api.achievement.comment.destroy": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
         }
     ],
     "api.game.comment.destroy": [
@@ -355,6 +374,13 @@ declare module 'ziggy-js' {
         {
             "name": "game",
             "required": true
+        }
+    ],
+    "achievement.comment.index": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
         }
     ],
     "game.comment.index": [
