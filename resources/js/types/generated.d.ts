@@ -1,4 +1,10 @@
 declare namespace App.Community.Data {
+  export type AchievementCommentsPageProps<TItems = App.Community.Data.Comment> = {
+    achievement: App.Platform.Data.Achievement;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+    isSubscribed: boolean;
+    canComment: boolean;
+  };
   export type Comment = {
     id: number;
     commentableId: number;
@@ -8,6 +14,7 @@ declare namespace App.Community.Data {
     updatedAt: string | null;
     user: App.Data.User;
     canDelete: boolean;
+    isAutomated: boolean;
   };
   export type GameCommentsPageProps<TItems = App.Community.Data.Comment> = {
     game: App.Platform.Data.Game;
@@ -299,6 +306,7 @@ declare namespace App.Platform.Enums {
     | 'title'
     | 'system'
     | 'achievementsPublished'
+    | 'hasActiveOrInReviewClaims'
     | 'pointsTotal'
     | 'retroRatio'
     | 'lastUpdated'

@@ -63,6 +63,12 @@ export function DataTableRowActions<TData>({
             className="group flex h-8 w-8 p-0 text-link disabled:!pointer-events-auto disabled:!opacity-100"
             onClick={() => toggleBacklog()}
             disabled={isPending}
+            aria-label={
+              isInBacklogMaybeOptimistic
+                ? t('Remove from Want To Play Games')
+                : t('Add to Want to Play Games')
+            }
+            data-testid={`toggle-${isInBacklogMaybeOptimistic}`}
           >
             <MdClose
               className={cn(
@@ -75,12 +81,6 @@ export function DataTableRowActions<TData>({
                 isInBacklogMaybeOptimistic ? 'rotate-0' : 'rotate-45',
               )}
             />
-
-            <span className="sr-only">
-              {isInBacklogMaybeOptimistic
-                ? t('Remove from Want To Play Games')
-                : t('Add to Want to Play Games')}
-            </span>
           </BaseButton>
         </div>
       </BaseTooltipTrigger>

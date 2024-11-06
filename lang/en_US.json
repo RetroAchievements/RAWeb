@@ -428,5 +428,6 @@
     "of :totalPages": "of :totalPages",
     "Comments - :user": "Comments - :user",
     "Please be more specific with your issue—such as by adding specific reproduction steps or what you did before encountering it—instead of simply stating that it didn't work. The more specific, the better.": "Please be more specific with your issue—such as by adding specific reproduction steps or what you did before encountering it—instead of simply stating that it didn't work. The more specific, the better.",
-    "Please do not open tickets for network issues. See <0>here</0> for instructions on how to request a manual unlock.": "Please do not open tickets for network issues. See <0>here</0> for instructions on how to request a manual unlock."
+    "Please do not open tickets for network issues. See <0>here</0> for instructions on how to request a manual unlock.": "Please do not open tickets for network issues. See <0>here</0> for instructions on how to request a manual unlock.",
+    "Comments - :achievementTitle": "Comments - :achievementTitle"
 }

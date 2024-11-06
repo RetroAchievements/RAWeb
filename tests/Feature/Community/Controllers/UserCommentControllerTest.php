@@ -16,7 +16,7 @@ class UserCommentControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testIndexAllowsUnauthenticatedVisitors(): void
+    public function testIndexWorksForUnauthenticatedVisitors(): void
     {
         // Arrange
         /** @var User $targetUser */
@@ -45,7 +45,9 @@ class UserCommentControllerTest extends TestCase
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
             ->where('targetUser.displayName', 'Scott')
+
             ->has('paginatedComments.items', 0)
+
             ->where('isSubscribed', false)
             ->where('canComment', true)
         );

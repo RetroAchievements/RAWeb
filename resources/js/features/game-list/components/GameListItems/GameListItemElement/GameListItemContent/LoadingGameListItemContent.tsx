@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import { BaseSkeleton } from '@/common/components/+vendor/BaseSkeleton';
@@ -6,14 +7,16 @@ import { BaseSkeleton } from '@/common/components/+vendor/BaseSkeleton';
  * This should mirror the layout structure of <GameListItemElement />.
  */
 
-interface LoadingGameListItemProps {
+interface LoadingGameListItemContentProps {
   /** If it's the last item, don't show a border at the bottom. */
   isLastItem?: boolean;
 }
 
-export const LoadingGameListItem: FC<LoadingGameListItemProps> = ({ isLastItem }) => {
+export const LoadingGameListItemContent: FC<LoadingGameListItemContentProps> = ({ isLastItem }) => {
+  const { t } = useLaravelReactI18n();
+
   return (
-    <div>
+    <div role="status" aria-label={t('Loading...')}>
       <div className="flex items-center gap-3">
         <BaseSkeleton className="h-12 w-12 rounded-sm" />
 
@@ -26,13 +29,13 @@ export const LoadingGameListItem: FC<LoadingGameListItemProps> = ({ isLastItem }
           </div>
         </div>
 
-        <div className="-mr-1 flex gap-3 self-center">
-          <BaseSkeleton className="h-5 w-5" />
-          <BaseSkeleton className="h-5 w-5" />
+        <div className="flex gap-3 self-center pr-0.5">
+          <BaseSkeleton className="size-7" />
+          <BaseSkeleton className="size-7" />
         </div>
       </div>
 
-      {isLastItem ? null : <BaseSkeleton className="ml-14 mt-2 h-px" />}
+      {isLastItem ? null : <BaseSkeleton data-testid="bottom-border" className="ml-14 mt-2 h-px" />}
     </div>
   );
 };
