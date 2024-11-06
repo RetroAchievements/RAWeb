@@ -10,11 +10,14 @@ jobs:
   php-setup:
     runs-on: ubuntu-22.04
     name: PHP Setup
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.value }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -22,44 +25,64 @@ jobs:
           extensions: mbstring, :psr
           tools: composer:v2
           coverage: none
+
+      - name: Generate a cache key
+        id: cache-key
+        run: echo "value=${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}" >> $GITHUB_OUTPUT
+
       - name: Cache composer packages
+        id: composer-cache
         uses: actions/cache@v4
         with:
           path: |
             ~/.composer/cache
             vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          key: ${{ steps.cache-key.outputs.value }}
           restore-keys: |
             ${{ runner.os }}-php-
+            
       - name: Install
+        if: steps.composer-cache.outputs.cache-hit != 'true'
         run: composer install --prefer-dist
 
   node-setup:
     runs-on: ubuntu-22.04
     name: Node.js Setup
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.value }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
+
       - name: Use Node 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
+
+      - name: Generate cache key
+        id: cache-key
+        run: echo "value=${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
+
       - name: Install
+        if: steps.node-cache.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile --prefer-offline
+
       - name: Cache node_modules
+        id: node-cache
         uses: actions/cache@v4
         with:
           path: |
             node_modules
             .pnpm-store
-          key: ${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ steps.cache-key.outputs.value }}
 
   php-checks:
     needs: php-setup
@@ -92,7 +115,7 @@ jobs:
           path: |
             ~/.composer/cache
             vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          key: ${{ needs.php-setup.outputs.cache-key }}
           restore-keys: |
             ${{ runner.os }}-php-
       - name: Run ${{ matrix.check }}
@@ -136,7 +159,7 @@ jobs:
           path: |
             node_modules
             .pnpm-store
-          key: ${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ needs.node-setup.outputs.cache-key }}
       - name: Run ${{ matrix.check }}
         run: ${{ matrix.command }}
         env: ${{ matrix.env || fromJSON('{}') }}
