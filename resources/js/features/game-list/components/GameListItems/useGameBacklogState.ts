@@ -50,7 +50,7 @@ export function useGameBacklogState({
       const shouldShowToasts = options?.shouldHideToasts !== true;
       const newBacklogState = !isInBacklogMaybeOptimistic;
 
-      // Only update state optimistically if configured to do so
+      // Only update state optimistically if configured to do so.
       if (shouldUpdateOptimistically) {
         setIsInBacklogMaybeOptimistic(newBacklogState);
       }

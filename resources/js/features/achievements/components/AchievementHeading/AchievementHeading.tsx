@@ -1,15 +1,22 @@
 import type { FC, ReactNode } from 'react';
 
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
+import { cn } from '@/utils/cn';
 
 interface AchievementHeadingProps {
   children: ReactNode;
   achievement: App.Platform.Data.Achievement;
+
+  wrapperClassName?: string;
 }
 
-export const AchievementHeading: FC<AchievementHeadingProps> = ({ children, achievement }) => {
+export const AchievementHeading: FC<AchievementHeadingProps> = ({
+  children,
+  achievement,
+  wrapperClassName,
+}) => {
   return (
-    <div className="mb-3 flex w-full gap-x-3">
+    <div className={cn('mb-3 flex w-full gap-x-3', wrapperClassName)}>
       <div className="mb-2 inline self-end">
         <AchievementAvatar {...achievement} showLabel={false} size={48} />
       </div>

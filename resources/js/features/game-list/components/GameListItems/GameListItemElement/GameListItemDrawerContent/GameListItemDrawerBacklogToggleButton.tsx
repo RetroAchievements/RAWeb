@@ -5,8 +5,8 @@ import { MdClose } from 'react-icons/md';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { cn } from '@/utils/cn';
 
+import type { useGameBacklogState } from '../../useGameBacklogState';
 import { useDelayedButtonDisable } from './useDelayedButtonDisable';
-import type { useGameBacklogState } from './useGameBacklogState';
 
 interface GameListItemDrawerBacklogToggleButtonProps {
   backlogState: ReturnType<typeof useGameBacklogState>;
@@ -31,6 +31,7 @@ export const GameListItemDrawerBacklogToggleButton: FC<
       )}
       onClick={() => onToggle()}
       disabled={backlogState.isPending || isButtonDisabled}
+      data-testid="drawer-backlog-toggle"
     >
       <MdClose
         className={cn(

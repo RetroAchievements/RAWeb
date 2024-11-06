@@ -21,9 +21,7 @@ describe('Hook: useFormatPercentage', () => {
     });
 
     // ACT
-    const formatted = (result.current as ReturnType<typeof useFormatPercentage>).formatPercentage(
-      0.1234,
-    );
+    const formatted = result.current.formatPercentage(0.1234);
 
     // ASSERT
     expect(formatted).toEqual('12.34%');

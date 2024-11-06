@@ -3,6 +3,7 @@
 namespace App\Community\Concerns;
 
 use App\Community\Enums\ArticleType;
+use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -13,7 +14,7 @@ use Inertia\Response as InertiaResponse;
 trait IndexesComments
 {
     protected function handleCommentIndex(
-        User|Game $commentable,
+        User|Game|Achievement $commentable,
         string $policy,
         string $routeName,
         string $routeParam,
@@ -47,8 +48,11 @@ trait IndexesComments
         $user = Auth::user();
         $isSubscribed = false;
         if ($user) {
-            // TODO support more article types
-            $articleType = $commentable instanceof User ? ArticleType::User : ArticleType::Game;
+            $articleType = match (true) {
+                $commentable instanceof User => ArticleType::User,
+                $commentable instanceof Game => ArticleType::Game,
+                $commentable instanceof Achievement => ArticleType::Achievement,
+            };
             $isSubscribed = isUserSubscribedToArticleComments($articleType, $commentable->id, $user->id);
         }
 

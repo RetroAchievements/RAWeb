@@ -188,10 +188,6 @@ function authenticateFromCookie(
         return false;
     }
 
-    // valid active account. update the last activity timestamp
-    $user->LastLogin = Carbon::now();
-    $user->save();
-
     // validate permissions for the current page if required
     if (isset($minPermissions) && $permissionsOut < $minPermissions) {
         if (request()->wantsJson()) {
