@@ -68,7 +68,7 @@ declare module '@tanstack/react-table' {
   interface ColumnMeta<TData, TValue> {
     t_label: string;
 
-    align?: 'right' | 'left' | 'center';
+    align?: 'right' | 'left';
     Icon?: IconType;
     sortType?: 'default' | 'date' | 'quantity' | 'boolean';
   }

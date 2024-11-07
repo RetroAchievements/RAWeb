@@ -25,15 +25,17 @@ export function buildNumUnresolvedTicketsColumnDef({
       sortType: 'quantity',
       Icon: gameListFieldIconMap.numUnresolvedTickets,
     },
+
     header: ({ column, table }) => (
       <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
+
     cell: ({ row }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks -- the cell component is a FC. using this hook doesn't break the rules of hooks.
       const { formatNumber } = useFormatNumber();
 
       const numUnresolvedTickets = row.original.game?.numUnresolvedTickets ?? 0;
-      const gameId = row.original.game?.id ?? 0;
+      const gameId = row.original.game.id;
 
       return (
         <a

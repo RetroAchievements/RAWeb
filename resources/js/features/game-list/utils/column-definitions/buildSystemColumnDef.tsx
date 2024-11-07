@@ -20,9 +20,11 @@ export function buildSystemColumnDef({
     id: 'system',
     accessorKey: 'game',
     meta: { t_label, Icon: gameListFieldIconMap.system },
+
     header: ({ column, table }) => (
       <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
+
     cell: ({ row }) => {
       if (!row.original.game?.system) {
         return null;

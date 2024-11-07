@@ -48,9 +48,7 @@ export default function GameListDataTable<TData>({ table }: GameListDataTablePro
             {headerGroup.headers.map((header) => {
               return (
                 <BaseTableHead key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(header.column.columnDef.header, header.getContext())}
+                  {flexRender(header.column.columnDef.header, header.getContext())}
                 </BaseTableHead>
               );
             })}
@@ -67,7 +65,6 @@ export default function GameListDataTable<TData>({ table }: GameListDataTablePro
                   key={cell.id}
                   className={cn(
                     cell.column.columnDef.meta?.align === 'right' ? 'pr-6 text-right' : '',
-                    cell.column.columnDef.meta?.align === 'center' ? 'text-center' : '',
                   )}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
