@@ -109,6 +109,7 @@ jobs:
           php-version: 8.2
           extensions: mbstring, :psr
           coverage: none
+          ini-values: memory_limit=1G
       - name: Load composer packages
         uses: actions/cache@v4
         with:
@@ -118,14 +119,6 @@ jobs:
           key: ${{ needs.php-setup.outputs.cache-key }}
           restore-keys: |
             ${{ runner.os }}-php-
-      - name: Use a warm `composer analyse` cache
-        if: matrix.check == 'analyse'
-        uses: actions/cache@v4
-        with:
-          path: phpstan
-          key: ${{ runner.os }}-phpstan-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-phpstan-
       - name: Run ${{ matrix.check }}
         run: ${{ matrix.command }}
 
