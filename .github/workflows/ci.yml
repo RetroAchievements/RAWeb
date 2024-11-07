@@ -97,7 +97,7 @@ jobs:
           - check: analyse
             command: composer analyse -- --memory-limit=1G
           - check: test
-            command: composer paratest -- --processes=$(nproc) --memory-limit=1G
+            command: composer paratest -- --processes=$(nproc)
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
