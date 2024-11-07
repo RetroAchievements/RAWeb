@@ -70,12 +70,7 @@ export function DataTableSearchInput<TData>({
         return;
       }
 
-      const currentFilterValue = (table.getColumn('title')?.getFilterValue() as string) ?? '';
-
-      // Only update the filter if the value has changed.
-      if (rawInputValue !== currentFilterValue) {
-        table.getColumn('title')?.setFilterValue(rawInputValue);
-      }
+      table.getColumn('title')?.setFilterValue(rawInputValue);
     },
     getDebounceDuration(rawInputValue),
     [rawInputValue],
