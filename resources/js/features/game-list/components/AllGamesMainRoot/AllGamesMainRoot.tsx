@@ -12,7 +12,7 @@ import { AllGamesDataTable } from '../AllGamesDataTable';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
 
 export const AllGamesMainRoot: FC = () => {
-  const { paginatedGameListEntries } = usePageProps<App.Platform.Data.GameListPageProps>();
+  const { auth, paginatedGameListEntries } = usePageProps<App.Platform.Data.GameListPageProps>();
 
   const { t } = useLaravelReactI18n();
 
@@ -25,7 +25,10 @@ export const AllGamesMainRoot: FC = () => {
     setPagination,
     setSorting,
     sorting,
-  } = useGameListState(paginatedGameListEntries, { defaultColumnFilters: allGamesDefaultFilters });
+  } = useGameListState(paginatedGameListEntries, {
+    canShowProgressColumn: !!auth?.user,
+    defaultColumnFilters: allGamesDefaultFilters,
+  });
 
   const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
     columnFilters,

@@ -17,7 +17,16 @@ import type { AppGlobalProps } from '@/common/models';
 
 export function useGameListState<TData = unknown>(
   paginatedGames: App.Data.PaginatedData<TData>,
-  options?: Partial<{ defaultColumnFilters: ColumnFiltersState }>,
+  options: {
+    /**
+     * Should be set to truthy if the user is authenticated.
+     * If the user is not authenticated, the player count column will
+     * be shown instead.
+     */
+    canShowProgressColumn: boolean;
+
+    defaultColumnFilters?: ColumnFiltersState;
+  },
 ) {
   const {
     ziggy: { query },
@@ -34,7 +43,8 @@ export function useGameListState<TData = unknown>(
     lastUpdated: false,
     numUnresolvedTickets: false,
     numVisibleLeaderboards: false,
-    playersTotal: false,
+    playersTotal: !options.canShowProgressColumn,
+    progress: options.canShowProgressColumn,
   });
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
