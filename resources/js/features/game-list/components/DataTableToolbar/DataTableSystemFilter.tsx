@@ -11,9 +11,9 @@ interface DataTableSystemFilterProps<TData> {
 }
 
 export function DataTableSystemFilter<TData>({
-  filterableSystemOptions,
   table,
   variant,
+  filterableSystemOptions = [],
 }: DataTableSystemFilterProps<TData>) {
   const { t } = useLaravelReactI18n();
 
