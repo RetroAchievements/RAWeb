@@ -393,5 +393,7 @@
     "current page number": "current page number",
     "of :totalPages": "of :totalPages",
     "Comments - :user": "Comments - :user",
-    "Comments - :achievementTitle": "Comments - :achievementTitle"
+    "Comments - :achievementTitle": "Comments - :achievementTitle",
+    "Comments - :leaderboardTitle": "Comments - :leaderboardTitle",
+    "Comments: :leaderboardTitle": "Comments: :leaderboardTitle"
 }

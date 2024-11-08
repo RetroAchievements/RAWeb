@@ -8,7 +8,7 @@ import { SimplePaginator } from '@/common/components/SimplePaginator';
 import { UserHeading } from '@/common/components/UserHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { UserBreadcrumbs } from '../UserBreadcrumbs';
+import { UserBreadcrumbs } from '../../../../common/components/UserBreadcrumbs';
 
 export const UserPostsMainRoot: FC = () => {
   const { targetUser, paginatedTopics } =

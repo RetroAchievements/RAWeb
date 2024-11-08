@@ -8,36 +8,23 @@ import {
   BaseBreadcrumbList,
   BaseBreadcrumbPage,
   BaseBreadcrumbSeparator,
-} from '@/common/components/+vendor/BaseBreadcrumb';
+} from '../+vendor/BaseBreadcrumb';
 
-interface UserBreadcrumbsProps {
+// TODO support ForumCategory and Forum
+interface ForumBreadcrumbsProps {
   t_currentPageLabel: string;
-
-  user?: App.Data.User;
 }
 
-export const UserBreadcrumbs: FC<UserBreadcrumbsProps> = ({ t_currentPageLabel, user }) => {
+export const ForumBreadcrumbs: FC<ForumBreadcrumbsProps> = ({ t_currentPageLabel }) => {
   const { t } = useLaravelReactI18n();
 
   return (
     <div className="navpath mb-3 hidden sm:block">
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
-          <BaseBreadcrumbItem aria-label={t('All Users')}>
-            <BaseBreadcrumbLink href="/userList.php">{t('All Users')}</BaseBreadcrumbLink>
+          <BaseBreadcrumbItem aria-label={t('Forum Index')}>
+            <BaseBreadcrumbLink href="/forum.php">{t('Forum Index')}</BaseBreadcrumbLink>
           </BaseBreadcrumbItem>
-
-          {user ? (
-            <>
-              <BaseBreadcrumbSeparator />
-
-              <BaseBreadcrumbItem aria-label={user.displayName}>
-                <BaseBreadcrumbLink href={route('user.show', { user: user.displayName })}>
-                  {user.displayName}
-                </BaseBreadcrumbLink>
-              </BaseBreadcrumbItem>
-            </>
-          ) : null}
 
           <BaseBreadcrumbSeparator />
 

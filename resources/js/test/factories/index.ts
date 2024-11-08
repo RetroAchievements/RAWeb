@@ -5,6 +5,7 @@ export * from './createGame';
 export * from './createGameHash';
 export * from './createGameHashLabel';
 export * from './createGameListEntry';
+export * from './createLeaderboard';
 export * from './createPaginatedData';
 export * from './createPlayerBadge';
 export * from './createPlayerGame';

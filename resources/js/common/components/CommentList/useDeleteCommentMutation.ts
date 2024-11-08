@@ -35,7 +35,10 @@ function buildDeleteRoute({
 
     [ArticleType.GameModification]: 'TODO',
 
-    [ArticleType.Leaderboard]: 'TODO',
+    [ArticleType.Leaderboard]: route('api.leaderboard.comment.destroy', {
+      leaderboard: commentableId,
+      comment: id,
+    }),
 
     [ArticleType.News]: 'TODO',
 

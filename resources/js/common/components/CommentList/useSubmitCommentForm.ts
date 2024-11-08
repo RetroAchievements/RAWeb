@@ -72,15 +72,25 @@ function buildPostRoute({
 }: UseSubmitCommentFormProps & { targetUserDisplayName?: string }): string {
   const commentableTypeRouteMap: Record<keyof typeof ArticleType, string> = {
     Achievement: route('api.achievement.comment.store', { achievement: commentableId }),
+
     AchievementTicket: 'TODO',
+
     Forum: 'TODO',
+
     Game: route('api.game.comment.store', { game: commentableId }),
+
     GameHash: 'TODO',
+
     GameModification: 'TODO',
-    Leaderboard: 'TODO',
+
+    Leaderboard: route('api.leaderboard.comment.store', { leaderboard: commentableId }),
+
     News: 'TODO',
+
     SetClaim: 'TODO',
+
     User: route('api.user.comment.store', { user: targetUserDisplayName }),
+
     UserModeration: 'TODO',
   };
 

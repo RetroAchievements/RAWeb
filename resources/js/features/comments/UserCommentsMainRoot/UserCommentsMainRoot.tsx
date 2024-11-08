@@ -6,7 +6,7 @@ import { FullPaginator } from '@/common/components/FullPaginator';
 import { SubscribeToggleButton } from '@/common/components/SubscribeToggleButton';
 import { UserHeading } from '@/common/components/UserHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { UserBreadcrumbs } from '@/features/users/components/UserBreadcrumbs';
+import { UserBreadcrumbs } from '@/common/components/UserBreadcrumbs';
 
 import { useCommentPagination } from '../hooks/useCommentPagination';
 
