@@ -5,7 +5,7 @@ namespace App\Platform\Jobs;
 use App\Models\Achievement;
 use App\Models\GameHash;
 use App\Models\User;
-use App\Platform\Actions\UnlockPlayerAchievement;
+use App\Platform\Actions\UnlockPlayerAchievementAction;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -45,7 +45,7 @@ class UnlockPlayerAchievementJob implements ShouldQueue
 
     public function handle(): void
     {
-        app()->make(UnlockPlayerAchievement::class)->execute(
+        app()->make(UnlockPlayerAchievementAction::class)->execute(
             User::findOrFail($this->userId),
             Achievement::findOrFail($this->achievementId),
             $this->hardcore,

@@ -7,7 +7,7 @@ namespace App\Filament\Resources\GameResource\RelationManagers;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\User;
-use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrders;
+use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use Filament\Forms;
@@ -281,7 +281,7 @@ class AchievementsRelationManager extends RelationManager
         // Double write to achievement_set_achievements to ensure it remains in sync.
         $firstAchievementId = (int) $order[0];
         $firstAchievement = Achievement::find($firstAchievementId);
-        (new SyncAchievementSetOrderColumnsFromDisplayOrders())->execute($firstAchievement);
+        (new SyncAchievementSetOrderColumnsFromDisplayOrdersAction())->execute($firstAchievement);
     }
 
     private function canReorderAchievements(): bool

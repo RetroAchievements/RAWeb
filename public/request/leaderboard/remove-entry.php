@@ -3,7 +3,7 @@
 use App\Enums\Permissions;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
-use App\Platform\Actions\RemoveLeaderboardEntry;
+use App\Platform\Actions\RemoveLeaderboardEntryAction;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -35,6 +35,6 @@ if (!$currentUser->can('delete', $entry)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-(new RemoveLeaderboardEntry())->execute($entry, $reason);
+(new RemoveLeaderboardEntryAction())->execute($entry, $reason);
 
 return back()->with('success', __('legacy.success.ok'));

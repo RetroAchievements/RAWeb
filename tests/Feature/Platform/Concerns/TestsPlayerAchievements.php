@@ -7,7 +7,7 @@ namespace Tests\Feature\Platform\Concerns;
 use App\Models\Achievement;
 use App\Models\GameHash;
 use App\Models\User;
-use App\Platform\Actions\UnlockPlayerAchievement;
+use App\Platform\Actions\UnlockPlayerAchievementAction;
 use App\Platform\Enums\UnlockMode;
 use Carbon\Carbon;
 
@@ -20,7 +20,7 @@ trait TestsPlayerAchievements
         Carbon $softcoreUnlockTime,
         ?GameHash $gameHash = null,
     ): void {
-        (new UnlockPlayerAchievement())
+        (new UnlockPlayerAchievementAction())
             ->execute(
                 $user,
                 $achievement,

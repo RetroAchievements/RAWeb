@@ -56,7 +56,7 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
         // the same time using separate requests, so we need to update the unlock counts for the
         // player_game (and commit it) as soon as possible so whichever request is processed last _should_
         // return the correct number of remaining achievements. It will be accurately recalculated by the
-        // UpdatePlayerGameMetrics action triggered by an asynchronous UnlockPlayerAchievementJob.
+        // UpdatePlayerGameMetricsAction triggered by an asynchronous UnlockPlayerAchievementJob.
         // Also update user points for the response, but don't immediately commit them to avoid unnecessary
         // DB writes.
         if ($isHardcore && !$hasHardcore) {

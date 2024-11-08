@@ -9,7 +9,7 @@ use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\ResetPlayerProgress;
+use App\Platform\Actions\ResetPlayerProgressAction;
 use App\Platform\Data\PlayerResettableGameAchievementData;
 use App\Platform\Data\PlayerResettableGameData;
 use Illuminate\Contracts\View\View;
@@ -94,7 +94,7 @@ class PlayerGameController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        (new ResetPlayerProgress())->execute($user, gameID: $game->id);
+        (new ResetPlayerProgressAction())->execute($user, gameID: $game->id);
 
         return response()->json(['message' => __('legacy.success.reset')]);
     }
