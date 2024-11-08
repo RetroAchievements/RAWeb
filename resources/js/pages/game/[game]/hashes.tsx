@@ -1,13 +1,16 @@
 import { Head } from '@inertiajs/react';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { HashesMainRoot } from '@/features/games/components/HashesMainRoot';
 
 const Hashes: AppPage<App.Platform.Data.GameHashesPageProps> = ({ game, hashes }) => {
+  const { t } = useLaravelReactI18n();
+
   return (
     <>
-      <Head title={`Supported Game Files - ${game.title}`}>
+      <Head title={t('Supported Game Files - :gameTitle', { gameTitle: game.title })}>
         <meta
           name="description"
           content={`View the ${hashes.length} supported ROM ${hashes.length === 1 ? 'hash' : 'hashes'} for ${game.title} achievements. Access additional details on hash generation and patch downloads.`}

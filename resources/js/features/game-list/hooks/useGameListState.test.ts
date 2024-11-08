@@ -28,9 +28,7 @@ describe('Hook: useGameListState', () => {
     });
 
     // ASSERT
-    const currentValue = result.current as ReturnType<typeof useGameListState>;
-
-    expect(currentValue.pagination).toEqual({ pageIndex: 0, pageSize: 25 });
+    expect(result.current.pagination).toEqual({ pageIndex: 0, pageSize: 25 });
   });
 
   it('given no sort param, correctly sets the initial sorting state', () => {
@@ -45,9 +43,7 @@ describe('Hook: useGameListState', () => {
     });
 
     // ASSERT
-    const currentValue = result.current as ReturnType<typeof useGameListState>;
-
-    expect(currentValue.sorting).toEqual([]);
+    expect(result.current.sorting).toEqual([{ id: 'title', desc: false }]);
   });
 
   it('given a sort param, correctly sets the initial sorting state', () => {
@@ -62,9 +58,22 @@ describe('Hook: useGameListState', () => {
     });
 
     // ASSERT
-    const currentValue = result.current as ReturnType<typeof useGameListState>;
+    expect(result.current.sorting).toEqual([{ id: 'system', desc: false }]);
+  });
 
-    expect(currentValue.sorting).toEqual([{ id: 'system', desc: false }]);
+  it('given an array sort param from the browser, bails to a sane default sort value', () => {
+    // ARRANGE
+    const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
+
+    const { result } = renderHook(() => useGameListState(createPaginatedData([])), {
+      initialProps: paginatedGames,
+      pageProps: {
+        ziggy: createZiggyProps({ query: [] as any }),
+      },
+    });
+
+    // ASSERT
+    expect(result.current.sorting).toEqual([{ id: 'title', desc: false }]);
   });
 
   it('given a negative sort param, correctly sets the initial sorting state', () => {
@@ -79,9 +88,7 @@ describe('Hook: useGameListState', () => {
     });
 
     // ASSERT
-    const currentValue = result.current as ReturnType<typeof useGameListState>;
-
-    expect(currentValue.sorting).toEqual([{ id: 'title', desc: true }]);
+    expect(result.current.sorting).toEqual([{ id: 'title', desc: true }]);
   });
 
   it('given no filter param, correctly sets the initial columnFilters state', () => {
@@ -96,9 +103,7 @@ describe('Hook: useGameListState', () => {
     });
 
     // ASSERT
-    const currentValue = result.current as ReturnType<typeof useGameListState>;
-
-    expect(currentValue.columnFilters).toEqual([]);
+    expect(result.current.columnFilters).toEqual([]);
   });
 
   it('given a single filter param, correctly sets the initial columnFilters state', () => {
@@ -117,9 +122,7 @@ describe('Hook: useGameListState', () => {
     });
 
     // ASSERT
-    const currentValue = result.current as ReturnType<typeof useGameListState>;
-
-    expect(currentValue.columnFilters).toEqual([{ id: 'system', value: ['1', '5'] }]);
+    expect(result.current.columnFilters).toEqual([{ id: 'system', value: ['1', '5'] }]);
   });
 
   it('given multiple filter params, correctly sets the initial columnFilters state', () => {
@@ -138,9 +141,7 @@ describe('Hook: useGameListState', () => {
     });
 
     // ASSERT
-    const currentValue = result.current as ReturnType<typeof useGameListState>;
-
-    expect(currentValue.columnFilters).toEqual([
+    expect(result.current.columnFilters).toEqual([
       { id: 'system', value: ['1'] },
       { id: 'achievementsPublished', value: ['has'] },
     ]);
@@ -164,9 +165,7 @@ describe('Hook: useGameListState', () => {
     );
 
     // ASSERT
-    const currentValue = result.current as ReturnType<typeof useGameListState>;
-
-    expect(currentValue.columnFilters).toEqual([{ id: 'system', value: ['10'] }]);
+    expect(result.current.columnFilters).toEqual([{ id: 'system', value: ['10'] }]);
   });
 
   it('given default column filters, does not override existing set filter id values', () => {
@@ -191,8 +190,6 @@ describe('Hook: useGameListState', () => {
     );
 
     // ASSERT
-    const currentValue = result.current as ReturnType<typeof useGameListState>;
-
-    expect(currentValue.columnFilters).toEqual([{ id: 'system', value: ['1'] }]);
+    expect(result.current.columnFilters).toEqual([{ id: 'system', value: ['1'] }]);
   });
 });

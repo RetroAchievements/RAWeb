@@ -17,6 +17,7 @@ class UserCommentPolicy
     {
         return $user->hasAnyRole([
             Role::MODERATOR,
+            Role::FORUM_MANAGER,
         ]);
     }
 
@@ -35,7 +36,6 @@ class UserCommentPolicy
 
         if ($user->hasAnyRole([
             Role::MODERATOR,
-            // Role::ADMINISTRATOR,
         ])) {
             return true;
         }
@@ -59,7 +59,11 @@ class UserCommentPolicy
             || !$user->hasVerifiedEmail()
             || $commentable->isBlocking($user)
             || !$commentable->UserWallActive
-            || ($commentable->only_allows_contact_from_followers && !$commentable->isFollowing($user))
+            || (
+                !$user->is($commentable)
+                && $commentable->only_allows_contact_from_followers
+                && !$commentable->isFollowing($user)
+            )
         ) {
             return false;
         }
@@ -77,6 +81,10 @@ class UserCommentPolicy
 
     public function delete(User $user, UserComment $comment): bool
     {
+        if ($comment->is_automated) {
+            return false;
+        }
+
         if ($user->hasAnyRole([
             Role::MODERATOR,
         ])) {
@@ -86,7 +94,7 @@ class UserCommentPolicy
         /*
          * it's the user's own comment
          */
-        return $user->is($comment->commentable);
+        return $user->is($comment->user);
     }
 
     public function restore(User $user, UserComment $comment): bool

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Community\Enums\ArticleType;
-use App\Enums\Permissions;
 use App\Models\Comment;
 use App\Models\Role;
 use App\Models\User;
@@ -21,7 +20,7 @@ class CommentPolicy
     {
         return $user->hasAnyRole([
             Role::MODERATOR,
-        ]) || $user->getAttribute('Permissions') >= Permissions::Moderator;
+        ]);
     }
 
     public function view(?User $user, Comment $comment): bool
@@ -41,14 +40,7 @@ class CommentPolicy
                 return
                     $didAuthorAchievement
                     && $commentable->is_open
-                    && (
-                        $user->hasAnyRole([
-                            Role::DEVELOPER_STAFF,
-                            Role::DEVELOPER,
-                        ])
-                            || $user->getAttribute('Permissions') >= Permissions::Developer
-                    );
-
+                    && $user->hasAnyRole([Role::DEVELOPER_STAFF, Role::DEVELOPER]);
             }
 
             return false;
@@ -71,8 +63,13 @@ class CommentPolicy
 
     public function delete(User $user, Comment $comment): bool
     {
+        // server-written comments cannot be deleted
+        if ($comment->is_automated) {
+            return false;
+        }
+
         // users can delete their own comments
-        if ($comment->user_id == $user->id) {
+        if ($user->is($comment->user)) {
             return true;
         }
 

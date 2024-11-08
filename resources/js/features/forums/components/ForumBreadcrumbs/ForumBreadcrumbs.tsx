@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import {
@@ -11,22 +12,24 @@ import {
 
 // TODO support ForumCategory and Forum
 interface ForumBreadcrumbsProps {
-  currentPageLabel: string;
+  t_currentPageLabel: string;
 }
 
-export const ForumBreadcrumbs: FC<ForumBreadcrumbsProps> = ({ currentPageLabel }) => {
+export const ForumBreadcrumbs: FC<ForumBreadcrumbsProps> = ({ t_currentPageLabel }) => {
+  const { t } = useLaravelReactI18n();
+
   return (
     <div className="navpath mb-3 hidden sm:block">
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
-          <BaseBreadcrumbItem>
-            <BaseBreadcrumbLink href="/forum.php">Forum Index</BaseBreadcrumbLink>
+          <BaseBreadcrumbItem aria-label={t('Forum Index')}>
+            <BaseBreadcrumbLink href="/forum.php">{t('Forum Index')}</BaseBreadcrumbLink>
           </BaseBreadcrumbItem>
 
           <BaseBreadcrumbSeparator />
 
-          <BaseBreadcrumbItem>
-            <BaseBreadcrumbPage>{currentPageLabel}</BaseBreadcrumbPage>
+          <BaseBreadcrumbItem aria-label={t_currentPageLabel}>
+            <BaseBreadcrumbPage>{t_currentPageLabel}</BaseBreadcrumbPage>
           </BaseBreadcrumbItem>
         </BaseBreadcrumbList>
       </BaseBreadcrumb>

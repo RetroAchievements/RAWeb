@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -18,6 +19,8 @@ const resetGameProgressFormSchema = z.object({
 export type FormValues = z.infer<typeof resetGameProgressFormSchema>;
 
 export function useResetGameProgressForm() {
+  const { t } = useLaravelReactI18n();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(resetGameProgressFormSchema),
   });
@@ -73,10 +76,6 @@ export function useResetGameProgressForm() {
         url = route('api.user.achievement.destroy', payload.achievementId);
       }
 
-      if (!url.length) {
-        throw new Error('Nothing to reset.');
-      }
-
       return axios.delete(url);
     },
     onSuccess: (_, variables) => {
@@ -117,7 +116,7 @@ export function useResetGameProgressForm() {
   });
 
   const onSubmit = (formValues: FormValues) => {
-    if (!confirm('Are you sure you want to reset this progress? This cannot be reversed.')) {
+    if (!confirm(t('Are you sure you want to reset this progress? This cannot be reversed.'))) {
       return;
     }
 
@@ -129,9 +128,9 @@ export function useResetGameProgressForm() {
         : { achievementId: formValues.achievementId };
 
     toastMessage.promise(mutation.mutateAsync(payload), {
-      loading: 'Resetting progress...',
-      success: 'Progress was reset successfully.',
-      error: 'Something went wrong.',
+      loading: t('Resetting progress...'),
+      success: t('Progress was reset successfully.'),
+      error: t('Something went wrong.'),
     });
   };
 

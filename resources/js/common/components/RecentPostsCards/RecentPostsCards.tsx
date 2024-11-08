@@ -5,6 +5,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { PostTimestamp } from '../PostTimestamp';
 import { RecentPostAggregateLinks } from '../RecentPostAggregateLinks';
+import { Trans } from '../Trans';
 
 interface RecentPostsCardsProps {
   paginatedTopics: App.Data.PaginatedData<App.Data.ForumTopic>;
@@ -29,7 +30,7 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
               ) : null}
 
               {topic.latestComment?.createdAt ? (
-                <span className="smalldate">
+                <span className="smalldate" data-testid="timestamp">
                   <PostTimestamp
                     asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates ?? false}
                     postedAt={topic.latestComment.createdAt}
@@ -43,12 +44,16 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
 
           <div className="flex flex-col gap-y-2">
             <p className="truncate">
-              in{' '}
-              <a
-                href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment?.id}#${topic.latestComment?.id}`}
-              >
-                {topic.title}
-              </a>
+              <Trans i18nKey="in <0>:forumTopicTitle</0>" values={{ forumTopicTitle: topic.title }}>
+                {/* eslint-disable react/jsx-no-literals */}
+                in{' '}
+                <a
+                  href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment?.id}#${topic.latestComment?.id}`}
+                >
+                  {topic.title}
+                </a>
+                {/* eslint-enable react/jsx-no-literals */}
+              </Trans>
             </p>
 
             <p className="line-clamp-3 text-xs">{topic.latestComment?.body}</p>

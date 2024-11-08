@@ -26,15 +26,50 @@ class ComputeGameSortTitleAction
      *
      * eg: "Mega Man 10" should not be sorted before "Mega Man 2". With the sort titles
      * set to "mega man 00010" and "mega man 00002" respectively, we can mitigate this.
+     *
+     * Standalone numbers with leading zeroes preserve their existing leading zeroes
+     * and pad the significant digits to 5 digits for consistent sorting.
+     * eg: "007" -> "0000007"
+     *
+     * Numbers already padded by replaceRomanNumerals (5 digits) are not given more padding.
+     * eg: "00002" remains "00002"
      */
     private function padNumbers(string $title): string
     {
         return preg_replace_callback(
-            // Match numbers not directly attached to letters.
-            // In other words, don't convert "Mega Man X4" to "Mega Man X00004".
-            '/(?<=\b|\s)(\d+)(?=\b|\s)/',
+            '/\d+/u',
             function ($matches) {
-                return str_pad($matches[0], 5, '0', STR_PAD_LEFT);
+                $number = $matches[0];
+
+                // If the number is already 5 digits (from replaceRomanNumerals), don't pad.
+                if (strlen($number) === 5) {
+                    return $number;
+                }
+
+                // Separate all leading zeroes from the significant digits.
+                if (preg_match('/^(0*)(\d+)$/', $number, $parts)) {
+                    $leadingZeroes = $parts[1];
+                    $significantDigits = $parts[2];
+
+                    // If there are indeed leading zeroes, pad the significant digits to 5 digits.
+                    if (strlen($leadingZeroes) > 0) {
+                        // Avoid double padding if significant digits are already 5 or more.
+                        if (strlen($significantDigits) < 5) {
+                            $significantDigits = str_pad($significantDigits, 5, '0', STR_PAD_LEFT);
+                        }
+                    } else {
+                        // No leading zeroes, pad the entire number to 5 digits.
+                        if (strlen($number) < 5) {
+                            return str_pad($number, 5, '0', STR_PAD_LEFT);
+                        }
+                    }
+
+                    // Reconstruct the number with preserved leading zeroes and padded significant digits.
+                    return $leadingZeroes . $significantDigits;
+                }
+
+                // Return the number as-is if it doesn't meet any padding criteria.
+                return $number;
             },
             $title
         );
@@ -58,11 +93,18 @@ class ComputeGameSortTitleAction
          * non-apostrophe punctuation (or whitespace then punctuation) like :, -, &, or (.
          */
         $title = preg_replace_callback(
-            '/\b([IVX]+)(?=(?:$|\s*[:\-&\(\)]|\s*$))/i',
+            '/\b([IVX]+)(?:$|\s*[:&(]|\s*$|-\d+)/i',
             function ($matches) use ($romanNumerals) {
-                $roman = $matches[1];
+                $roman = strtoupper($matches[1]);
                 if (isset($romanNumerals[$roman])) {
-                    return sprintf('%02d', $romanNumerals[$roman]);
+                    $numericValue = sprintf('%05d', $romanNumerals[$roman]);
+
+                    // If there's a hyphen and number after the Roman numeral, pad that number too.
+                    if ($matches[0] && preg_match('/-(\d+)$/', $matches[0], $suffixMatch)) {
+                        $numericValue .= '-' . sprintf('%05d', $suffixMatch[1]);
+                    }
+
+                    return $numericValue;
                 }
 
                 return $roman;
@@ -82,12 +124,12 @@ class ComputeGameSortTitleAction
      */
     private function removeArticles(string $title): string
     {
-    // Remove articles at the start of the title
-        if (preg_match('/^\s*(a|an|the)\b\s*(.*)$/i', $title, $matches)) {
+        // Remove articles at the start of the title, but not if they're part of a hyphenated word.
+        if (preg_match('/^\s*(a|an|the)\b(?!-)\s*(.*)$/i', $title, $matches)) {
             $title = $matches[2];
         }
 
-        // Remove articles at the end after a comma
+        // Remove articles at the end after a comma.
         if (preg_match('/^(.+),\s*(a|an|the)\b(.*)$/i', $title, $matches)) {
             // Combine the main title and any trailing text.
             $title = trim($matches[1] . $matches[3]);
@@ -125,13 +167,16 @@ class ComputeGameSortTitleAction
         if ($title[0] === '~') {
             $endOfFirstTilde = strpos($title, '~', 1);
             if ($endOfFirstTilde !== false) {
-                $withinTildes = substr($title, 1, $endOfFirstTilde - 1);
+                $tagContent = substr($title, 1, $endOfFirstTilde - 1);
                 $afterTildes = trim(substr($title, $endOfFirstTilde + 1));
 
-                $title = '~' . $withinTildes . ' ' . $afterTildes;
+                // Prefix with "zzzz{" to force tagged games to sort after non-tagged games.
+                // This also handles edge cases for games like "Zzyzzyxx". The "{" character
+                // has a higher ASCII value than "z", ensuring proper sorting order.
+                $title = 'zzzz{' . mb_strtolower($tagContent) . ' ' . $afterTildes;
             }
         }
 
-        return $title;
+        return trim($title);
     }
 }

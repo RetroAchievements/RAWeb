@@ -491,9 +491,11 @@ if ($isFullyFeaturedGame) {
         @endif
 
         @if ($isFullyFeaturedGame)
-            @can('manage', $gameModel)
+            @if ($userModel && $userModel->can('update', $gameModel))
+                <a class="btn mb-1" href="{{ route('filament.admin.resources.games.edit', ['record' => $gameModel->id]) }}">Manage</a>
+            @elseif ($userModel && $userModel->can('manage', $gameModel))
                 <a class="btn mb-1" href="{{ route('filament.admin.resources.games.view', ['record' => $gameModel->id]) }}">Manage</a>
-            @endcan
+            @endif
         @endif
 
         <?php

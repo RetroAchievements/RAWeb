@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 import { LuAlertCircle } from 'react-icons/lu';
 
@@ -22,7 +23,9 @@ import { useResetAvatarMutation } from './useResetAvatarMutation';
 export const AvatarSection: FC = () => {
   const { can } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
-  const { form, mutation: formMutation, onSubmit } = useAvatarSectionForm();
+  const { t } = useLaravelReactI18n();
+
+  const { form, onSubmit, mutation: formMutation } = useAvatarSectionForm();
 
   const resetAvatarMutation = useResetAvatarMutation();
 
@@ -31,20 +34,20 @@ export const AvatarSection: FC = () => {
   const handleResetAvatarClick = () => {
     if (
       !confirm(
-        'Are you sure you want to reset your avatar to the default? This cannot be reversed.',
+        t('Are you sure you want to reset your avatar to the default? This cannot be reversed.'),
       )
     ) {
       return;
     }
 
     toastMessage.promise(resetAvatarMutation.mutateAsync(), {
-      loading: 'Resetting...',
+      loading: t('Resetting...'),
       success: () => {
         resetNavbarUserPic();
 
-        return 'Reset avatar!';
+        return t('Reset avatar!');
       },
-      error: 'Something went wrong.',
+      error: t('Something went wrong.'),
     });
   };
 
@@ -52,11 +55,11 @@ export const AvatarSection: FC = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <h3 className={baseCardTitleClassNames}>Avatar</h3>
+      <h3 className={baseCardTitleClassNames}>{t('Avatar')}</h3>
 
       {can.updateAvatar ? (
         <>
-          <p>Only png, jpeg, and gif files are supported.</p>
+          <p>{t('Only png, jpeg, and gif files are supported.')}</p>
 
           <BaseFormProvider {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-1">
@@ -66,7 +69,7 @@ export const AvatarSection: FC = () => {
                   name="imageData"
                   render={({ field }) => (
                     <BaseFormItem className="flex flex-col gap-2">
-                      <BaseFormLabel className="text-menu-link">New Image</BaseFormLabel>
+                      <BaseFormLabel className="text-menu-link">{t('New Image')}</BaseFormLabel>
 
                       <BaseFormControl>
                         <BaseInput
@@ -90,15 +93,16 @@ export const AvatarSection: FC = () => {
 
               <div className="flex w-full justify-end">
                 <BaseButton type="submit" disabled={!imageData || formMutation.isPending}>
-                  Upload
+                  {t('Upload')}
                 </BaseButton>
               </div>
             </form>
           </BaseFormProvider>
 
           <p>
-            After uploading, press Ctrl + F5. This refreshes your browser cache making the new image
-            visible.
+            {t(
+              'After uploading, press Ctrl + F5. This refreshes your browser cache making the new image visible.',
+            )}
           </p>
 
           <BaseButton
@@ -108,12 +112,14 @@ export const AvatarSection: FC = () => {
             onClick={handleResetAvatarClick}
           >
             <LuAlertCircle className="h-4 w-4" />
-            Reset Avatar to Default
+            {t('Reset Avatar to Default')}
           </BaseButton>
         </>
       ) : (
         <p>
-          To upload an avatar, earn 250 points or wait until your account is at least 14 days old.
+          {t(
+            'To upload an avatar, earn 250 points or wait until your account is at least 14 days old.',
+          )}
         </p>
       )}
     </div>

@@ -1,5 +1,7 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
+import { EmptyState } from '@/common/components/EmptyState';
 import { RecentPostsCards } from '@/common/components/RecentPostsCards';
 import { RecentPostsTable } from '@/common/components/RecentPostsTable';
 import { SimplePaginator } from '@/common/components/SimplePaginator';
@@ -12,22 +14,34 @@ export const UserPostsMainRoot: FC = () => {
   const { targetUser, paginatedTopics } =
     usePageProps<App.Community.Data.UserRecentPostsPageProps>();
 
+  const { t } = useLaravelReactI18n();
+
   return (
     <div>
-      <UserBreadcrumbs currentPageLabel="Forum Posts" user={targetUser} />
-      <UserHeading user={targetUser}>{targetUser.displayName}'s Forum Posts</UserHeading>
+      <UserBreadcrumbs t_currentPageLabel={t('Forum Posts')} user={targetUser} />
+      <UserHeading user={targetUser}>
+        {t(":user's Forum Posts", { user: targetUser.displayName })}
+      </UserHeading>
 
-      <div className="lg:hidden">
-        <RecentPostsCards paginatedTopics={paginatedTopics} showUser={false} />
-      </div>
+      {paginatedTopics.items.length > 0 ? (
+        <>
+          <div className="lg:hidden">
+            <RecentPostsCards paginatedTopics={paginatedTopics} showUser={false} />
+          </div>
 
-      <div className="hidden lg:block">
-        <RecentPostsTable
-          paginatedTopics={paginatedTopics}
-          showAdditionalPosts={false}
-          showLastPostBy={false}
-        />
-      </div>
+          <div className="hidden lg:block">
+            <RecentPostsTable
+              paginatedTopics={paginatedTopics}
+              showAdditionalPosts={false}
+              showLastPostBy={false}
+            />
+          </div>
+        </>
+      ) : (
+        <EmptyState>
+          {t(":user doesn't have any forum posts.", { user: targetUser.displayName })}
+        </EmptyState>
+      )}
 
       <div className="mt-2 flex w-full justify-end">
         <SimplePaginator paginatedData={paginatedTopics} />

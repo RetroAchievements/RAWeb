@@ -1,4 +1,5 @@
 export * from './createAchievement';
+export * from './createComment';
 export * from './createForumTopicComment';
 export * from './createGame';
 export * from './createGameHash';
@@ -8,7 +9,9 @@ export * from './createPaginatedData';
 export * from './createPlayerBadge';
 export * from './createPlayerGame';
 export * from './createPlayerResettableGame';
+export * from './createPlayerResettableGameAchievement';
 export * from './createRecentActiveForumTopic';
+export * from './createSubscription';
 export * from './createSystem';
 export * from './createUser';
 export * from './createZiggyProps';

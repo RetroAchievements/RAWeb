@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useForm } from 'react-hook-form';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
@@ -11,6 +12,8 @@ interface FormValues {
 }
 
 export function useAvatarSectionForm() {
+  const { t } = useLaravelReactI18n();
+
   const form = useForm<FormValues>();
 
   const mutation = useMutation({
@@ -37,13 +40,13 @@ export function useAvatarSectionForm() {
 
   const onSubmit = (formValues: FormValues) => {
     toastMessage.promise(mutation.mutateAsync(formValues), {
-      loading: 'Uploading new avatar...',
+      loading: t('Uploading new avatar...'),
       success: () => {
         resetNavbarUserPic();
 
-        return 'Uploaded!';
+        return t('Uploaded!');
       },
-      error: 'Something went wrong.',
+      error: t('Something went wrong.'),
     });
   };
 

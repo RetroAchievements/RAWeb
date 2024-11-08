@@ -1,16 +1,20 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, Fragment } from 'react';
 
 interface GameTitleProps {
   title: string;
 
+  className?: string;
   showTags?: boolean;
 }
 
-export const GameTitle: FC<GameTitleProps> = ({ title, showTags = true }) => {
+export const GameTitle: FC<GameTitleProps> = ({ title, className, showTags = true }) => {
+  const { t } = useLaravelReactI18n();
+
   const { subsetKind, nonSubsetTags, strippedTitle } = stripTagsFromTitle(title);
 
   return (
-    <span>
+    <span className={className}>
       {strippedTitle}
 
       {showTags ? (
@@ -28,7 +32,7 @@ export const GameTitle: FC<GameTitleProps> = ({ title, showTags = true }) => {
             <>
               {' '}
               <span className="tag">
-                <span className="tag-label">Subset</span>
+                <span className="tag-label">{t('Subset')}</span>
                 <span className="tag-arrow" />
                 <span>{subsetKind}</span>
               </span>

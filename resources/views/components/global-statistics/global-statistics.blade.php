@@ -4,7 +4,7 @@
     <div class="infobox">
         <div class="w-full">
             <div class="grid grid-cols-2 gap-px mb-2">
-                <x-global-statistics.stat-embed label="Games" :count="$numGames" href="{{ route('game.index', ['s' => 1]) }}" />
+                <x-global-statistics.stat-embed label="Games" :count="$numGames" href="{{ route('game.index') }}" />
                 <x-global-statistics.stat-embed label="Achievements" :count="$numAchievements" href="/achievementList.php" />
                 <x-global-statistics.stat-embed label="Games Mastered" :count="$numHardcoreMasteryAwards" href="/recentMastery.php?t=1&m=1" />
                 <x-global-statistics.stat-embed label="Games Beaten" :count="$numHardcoreGameBeatenAwards" href="/recentMastery.php?t=8&m=1" />

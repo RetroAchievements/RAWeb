@@ -2,28 +2,24 @@ import type {
   ColumnFiltersState,
   PaginationState,
   SortingState,
+  Table,
   VisibilityState,
 } from '@tanstack/react-table';
-import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { type Dispatch, type FC, type SetStateAction } from 'react';
-import { useMemo } from 'react';
+import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { type Dispatch, type FC, lazy, type SetStateAction, Suspense } from 'react';
 
-import {
-  BaseTable,
-  BaseTableBody,
-  BaseTableCell,
-  BaseTableHead,
-  BaseTableHeader,
-  BaseTableRow,
-} from '@/common/components/+vendor/BaseTable';
-import { useGameListQuery } from '@/common/hooks/useGameListQuery';
+import { BaseSkeleton } from '@/common/components/+vendor/BaseSkeleton';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { cn } from '@/utils/cn';
+import { useGameListPaginatedQuery } from '@/features/game-list/hooks/useGameListPaginatedQuery';
 
 import { wantToPlayGamesDefaultFilters } from '../../utils/wantToPlayGamesDefaultFilters';
-import { buildColumnDefinitions } from './buildColumnDefinitions';
-import { DataTablePagination } from './DataTablePagination';
-import { WantToPlayGamesDataTableToolbar } from './WantToPlayGamesDataTableToolbar';
+import { DataTableToolbar } from '../DataTableToolbar';
+import { GameListItemsSuspenseFallback } from '../GameListItems/GameListItemsSuspenseFallback';
+import { useColumnDefinitions } from './useColumnDefinitions';
+
+const DataTablePagination = lazy(() => import('../DataTablePagination'));
+const GameListDataTable = lazy(() => import('../GameListDataTable'));
+const GameListItems = lazy(() => import('../GameListItems'));
 
 // These values are all generated from `useGameListState`.
 interface WantToPlayGamesDataTableProps {
@@ -47,18 +43,18 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
   setSorting,
   sorting,
 }) => {
-  const { can } = usePageProps<App.Community.Data.UserGameListPageProps>();
+  const { can, ziggy } = usePageProps<App.Community.Data.UserGameListPageProps>();
 
-  const gameListQuery = useGameListQuery({ columnFilters, pagination, sorting });
+  const gameListQuery = useGameListPaginatedQuery({
+    columnFilters,
+    pagination,
+    sorting,
+    apiRouteName: 'api.user-game-list.index',
+    isEnabled: ziggy.device === 'desktop',
+  });
 
   const table = useReactTable({
-    columns: useMemo(
-      () =>
-        buildColumnDefinitions({
-          canSeeOpenTicketsColumn: can.develop ?? false,
-        }),
-      [can.develop],
-    ),
+    columns: useColumnDefinitions({ canSeeOpenTicketsColumn: !!can.develop }),
     data: gameListQuery.data?.items ?? [],
     manualPagination: true,
     manualSorting: true,
@@ -83,82 +79,49 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
     state: { columnFilters, columnVisibility, pagination, sorting },
   });
 
-  const visibleColumnCount = table.getVisibleFlatColumns().length;
-
   return (
     <div className="flex flex-col gap-3">
-      <WantToPlayGamesDataTableToolbar
+      <DataTableToolbar
         table={table}
         unfilteredTotal={gameListQuery.data?.unfilteredTotal ?? null}
         defaultColumnFilters={wantToPlayGamesDefaultFilters}
+        tableApiRouteName="api.user-game-list.index"
       />
 
-      <BaseTable
-        containerClassName={cn(
-          'overflow-auto rounded-md border border-neutral-700/80 bg-embed',
-          'light:border-neutral-300 lg:overflow-visible lg:rounded-sm',
+      {ziggy.device === 'mobile' ? (
+        <div className="mt-3">
+          <Suspense fallback={<GameListItemsSuspenseFallback />}>
+            <GameListItems
+              columnFilters={columnFilters}
+              pagination={pagination}
+              sorting={sorting}
+              apiRouteName="api.user-game-list.index"
+              shouldHideItemIfNotInBacklog={true}
+            />
+          </Suspense>
+        </div>
+      ) : null}
 
-          // A sticky header cannot support this many columns. We have to drop stickiness.
-          visibleColumnCount > 8 ? 'lg:!overflow-x-scroll' : '',
-          visibleColumnCount > 10 ? 'xl:!overflow-x-scroll' : '',
-        )}
-      >
-        <BaseTableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <BaseTableRow
-              key={headerGroup.id}
-              className={cn(
-                'do-not-highlight bg-embed lg:sticky lg:top-[41px] lg:z-10',
+      {ziggy.device === 'desktop' ? (
+        <div className="flex flex-col gap-3">
+          <Suspense fallback={<BaseSkeleton className="h-[1275px] w-full" />}>
+            <GameListDataTable table={table as Table<unknown>} />
+          </Suspense>
 
-                // A sticky header cannot support this many columns. We have to drop stickiness.
-                visibleColumnCount > 8 ? 'lg:!top-0' : '',
-                visibleColumnCount > 10 ? 'xl:!top-0' : '',
-              )}
-            >
-              {headerGroup.headers.map((header) => {
-                return (
-                  <BaseTableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </BaseTableHead>
-                );
-              })}
-            </BaseTableRow>
-          ))}
-        </BaseTableHeader>
-
-        <BaseTableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <BaseTableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                {row.getVisibleCells().map((cell) => (
-                  <BaseTableCell
-                    key={cell.id}
-                    className={cn(
-                      cell.column.columnDef.meta?.align === 'right' ? 'pr-6 text-right' : '',
-                      cell.column.columnDef.meta?.align === 'center' ? 'text-center' : '',
-                    )}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </BaseTableCell>
-                ))}
-              </BaseTableRow>
-            ))
-          ) : (
-            <BaseTableRow>
-              <BaseTableCell
-                colSpan={table.getAllColumns().length}
-                className="h-24 bg-embed text-center"
-              >
-                No results.
-              </BaseTableCell>
-            </BaseTableRow>
-          )}
-        </BaseTableBody>
-      </BaseTable>
-
-      <DataTablePagination table={table} />
+          <Suspense
+            fallback={
+              <div className="flex w-full justify-end">
+                <BaseSkeleton className="h-8 w-44" />
+              </div>
+            }
+          >
+            <DataTablePagination
+              table={table as Table<unknown>}
+              tableApiRouteName="api.user-game-list.index"
+            />
+          </Suspense>
+        </div>
+      ) : null}
     </div>
   );
 };

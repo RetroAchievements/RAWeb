@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Action;
 
 use App\Community\Actions\AddGameToListAction;
+use App\Community\Actions\CreateGameClaimAction;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\UserGameListType;
 use App\Models\Achievement;
@@ -47,7 +48,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $system = System::factory()->create();
-        $games = Game::factory()->count(20)->create(['ConsoleID' => $system->id]);
+        $games = Game::factory()->count(10)->create(['ConsoleID' => $system->id]);
 
         $addGameToListAction = new AddGameToListAction();
         foreach ($games as $game) {
@@ -55,10 +56,10 @@ class BuildGameListActionTest extends TestCase
         }
 
         // Act
-        $result = (new BuildGameListAction())->execute(GameListType::UserPlay, $user, perPage: 8);
+        $result = (new BuildGameListAction())->execute(GameListType::UserPlay, $user, perPage: 4);
 
         // Assert
-        $this->assertEquals(20, $result->total);
+        $this->assertEquals(10, $result->total);
         $this->assertEquals(1, $result->currentPage);
         $this->assertEquals(3, $result->lastPage);
     }
@@ -355,6 +356,31 @@ class BuildGameListActionTest extends TestCase
         $this->assertEquals($result->items[3]->game->title, "Double Moon Densetsu");                            // 1992-10-14, day
         $this->assertEquals($result->items[4]->game->title, "~Hack~ Twitch Plays Pokemon: Anniversary Red");    // 2015-01-01, year
         $this->assertEquals($result->items[5]->game->title, "Cycle Race: Road Man");                            // null
+    }
+
+    public function testItCanSortByActiveClaims(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        $game = Game::find(1004);
+        (new CreateGameClaimAction())->execute($game, $user);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            sort: ['field' => 'hasActiveOrInReviewClaims', 'direction' => 'desc'],
+        );
+
+        $firstItem = $result->items[0];
+
+        // Assert
+        $this->assertEquals(1004, $firstItem->game->id);
+        $this->assertEquals(1, $firstItem->game->hasActiveOrInReviewClaims->resolve());
     }
 
     public function testItCanSortByNumVisibleLeaderboards(): void
@@ -786,6 +812,32 @@ class BuildGameListActionTest extends TestCase
         $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(3, $result->total);
         $this->assertEquals(3, count($result->items)); // These values can differ unless we override ->total.
+    }
+
+    public function testItReturnsCorrectGamesForAllGamesList(): void
+    {
+        // Arrange
+        $activeGameSystem = System::factory()->create(['ID' => 1, 'name' => 'NES/Famicom', 'name_short' => 'NES', 'active' => true]);
+        $inactiveGameSystem = System::factory()->create(['ID' => 2, 'name' => 'PlayStation 5', 'name_short' => 'PS5', 'active' => false]);
+
+        Game::factory()->create(['Title' => 'AAAAAAA', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
+        Game::factory()->create(['Title' => 'BBBBBBB', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
+
+        // Event, hub, inactive system, and subset games should all be excluded from the "All Games" list.
+        Game::factory()->create(['Title' => 'CCCCCCC', 'achievements_published' => 50, 'ConsoleID' => System::Events]);
+        Game::factory()->create(['Title' => 'DDDDDDD', 'achievements_published' => 50, 'ConsoleID' => System::Hubs]);
+        Game::factory()->create(['Title' => 'EEEEEEE', 'achievements_published' => 50, 'ConsoleID' => $inactiveGameSystem->id]);
+        Game::factory()->create(['Title' => 'AAAAAAA [Subset - Bonus]', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::AllGames,
+            user: null
+        );
+
+        // Assert
+        $this->assertEquals(2, $result->total);
+        $this->assertEquals(2, count($result->items)); // These values can differ unless we override ->total.
     }
 
     private function seedGamesForLists(): void

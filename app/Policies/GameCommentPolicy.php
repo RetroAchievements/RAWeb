@@ -44,9 +44,13 @@ class GameCommentPolicy
         return true;
     }
 
-    public function create(User $user, ?Game $commentable): bool
+    public function create(?User $user, ?Game $commentable): bool
     {
-        if ($user->is_muted) {
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->is_muted || $user->isBanned()) {
             return false;
         }
 
@@ -76,7 +80,7 @@ class GameCommentPolicy
         /*
          * it's the user's own comment
          */
-        return $user->is($comment->commentable);
+        return $user->is($comment->user);
     }
 
     public function restore(User $user, GameComment $comment): bool

@@ -1,3 +1,4 @@
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 
 import {
@@ -10,25 +11,27 @@ import {
 } from '@/common/components/+vendor/BaseBreadcrumb';
 
 interface UserBreadcrumbsProps {
-  currentPageLabel: string;
+  t_currentPageLabel: string;
 
   user?: App.Data.User;
 }
 
-export const UserBreadcrumbs: FC<UserBreadcrumbsProps> = ({ currentPageLabel, user }) => {
+export const UserBreadcrumbs: FC<UserBreadcrumbsProps> = ({ t_currentPageLabel, user }) => {
+  const { t } = useLaravelReactI18n();
+
   return (
     <div className="navpath mb-3 hidden sm:block">
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
-          <BaseBreadcrumbItem>
-            <BaseBreadcrumbLink href="/userList.php">All Users</BaseBreadcrumbLink>
+          <BaseBreadcrumbItem aria-label={t('All Users')}>
+            <BaseBreadcrumbLink href="/userList.php">{t('All Users')}</BaseBreadcrumbLink>
           </BaseBreadcrumbItem>
 
           {user ? (
             <>
               <BaseBreadcrumbSeparator />
 
-              <BaseBreadcrumbItem>
+              <BaseBreadcrumbItem aria-label={user.displayName}>
                 <BaseBreadcrumbLink href={route('user.show', { user: user.displayName })}>
                   {user.displayName}
                 </BaseBreadcrumbLink>
@@ -38,8 +41,8 @@ export const UserBreadcrumbs: FC<UserBreadcrumbsProps> = ({ currentPageLabel, us
 
           <BaseBreadcrumbSeparator />
 
-          <BaseBreadcrumbItem>
-            <BaseBreadcrumbPage>{currentPageLabel}</BaseBreadcrumbPage>
+          <BaseBreadcrumbItem aria-label={t_currentPageLabel}>
+            <BaseBreadcrumbPage>{t_currentPageLabel}</BaseBreadcrumbPage>
           </BaseBreadcrumbItem>
         </BaseBreadcrumbList>
       </BaseBreadcrumb>

@@ -51,7 +51,7 @@ use App\Models\User;
                             :user="$user"
                             :score="$playerGame['points_hardcore']"
                             :maxScore="$maxScore"
-                            :beatenAt="$playerGame['beaten_at']"
+                            :beatenAt="$playerGame['beaten_hardcore_at']"
                         />
                     @endif
                     @php

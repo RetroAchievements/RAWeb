@@ -43,7 +43,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
 
 // TODO MustVerifyEmail,
-class User extends Authenticatable implements CommunityMember, Developer, HasComments, HasLocalePreference, HasMedia, Player, FilamentUser, HasName
+// TODO HasComments,
+class User extends Authenticatable implements CommunityMember, Developer, HasLocalePreference, HasMedia, Player, FilamentUser, HasName
 {
     /*
      * Framework Traits
@@ -131,6 +132,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'APIUses',
         'APIKey',
         'banned_at',
+        'cookie', // fillable for when users are banned
         'ContribCount',
         'ContribYield',
         'country',
@@ -148,12 +150,14 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'Motto',
         'muted_until',
         'password', // fillable for registration
+        'PasswordResetToken', // fillable for when users are banned
         'Permissions',
         'preferences',
         'RAPoints',
         'RASoftcorePoints',
         'RichPresenceMsg',
         'RichPresenceMsgDate',
+        'SaltedPass', // fillable for when users are banned
         'TrueRAPoints',
         'timezone',
         'unranked_at',

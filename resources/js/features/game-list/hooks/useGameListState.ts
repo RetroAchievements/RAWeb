@@ -30,10 +30,11 @@ export function useGameListState<TData = unknown>(
   const [sorting, setSorting] = useState<SortingState>(mapQueryParamsToSorting(query));
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    hasActiveOrInReviewClaims: false,
     lastUpdated: false,
-    playersTotal: false,
-    numVisibleLeaderboards: false,
     numUnresolvedTickets: false,
+    numVisibleLeaderboards: false,
+    playersTotal: false,
   });
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -66,7 +67,7 @@ function mapQueryParamsToSorting(query: AppGlobalProps['ziggy']['query']): Sorti
 
   // `sort` is actually part of `query`'s prototype, so we have to be
   // extra explicit in how we check for the presence of the param.
-  if (typeof query.sort === 'function') {
+  if (typeof query.sort === 'function' || typeof query.sort === 'undefined') {
     sorting.push({ id: 'title', desc: false });
 
     return sorting;

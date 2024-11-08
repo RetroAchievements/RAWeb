@@ -108,4 +108,44 @@ describe('Component: GameAvatar', () => {
 
     expect(xDataAttribute).toContain(`dynamicContext: 'televandalist'`);
   });
+
+  it('can be configured to not show an image', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+
+    render(<GameAvatar {...game} showImage={false} />);
+
+    // ASSERT
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+
+  it('can be configured to display an accessible image with smart glow enabled', () => {
+    // ARRANGE
+    const game = createGame({ id: 1, title: 'Sonic the Hedgehog' });
+
+    render(<GameAvatar {...game} shouldGlow={true} />);
+
+    // ASSERT
+    expect(screen.getByRole('img', { name: /sonic the hedgehog/i })).toBeVisible();
+  });
+
+  it('given it is configured to not show an image, ignores the glowable image setting', () => {
+    // ARRANGE
+    const game = createGame({ id: 1, title: 'Sonic the Hedgehog' });
+
+    render(<GameAvatar {...game} showImage={false} shouldGlow={true} />);
+
+    // ASSERT
+    expect(screen.queryByRole('img', { name: /sonic the hedgehog/i })).not.toBeInTheDocument();
+  });
+
+  it('given it is configured to show a glowable image, renders an accessible image even if the game title cannot be found', () => {
+    // ARRANGE
+    const game = createGame({ id: 1, title: undefined });
+
+    render(<GameAvatar {...game} shouldGlow={true} />);
+
+    // ASSERT
+    expect(screen.getByRole('img', { name: /game/i })).toBeVisible();
+  });
 });

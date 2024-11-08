@@ -4,13 +4,23 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
+use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Game;
 use App\Models\System;
+use App\Models\User;
+use App\Platform\Actions\BuildGameListAction;
+use App\Platform\Data\GameListPagePropsData;
+use App\Platform\Data\SystemData;
+use App\Platform\Enums\GameListType;
+use App\Platform\Requests\GameListRequest;
 use App\Platform\Requests\GameRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
+use Jenssegers\Agent\Agent;
 
 class GameController extends Controller
 {
@@ -19,16 +29,46 @@ class GameController extends Controller
         return 'game';
     }
 
-    public function index(): View
+    public function index(GameListRequest $request): InertiaResponse
     {
-        $this->authorize('viewAny', $this->resourceClass());
+        /** @var ?User $user */
+        $user = $request->user();
 
-        /*
-         * TODO: if slug is empty or does not match -> redirect to correctly slugged url
-         */
+        $this->authorize('viewAny', [Game::class, $user]);
 
-        return view('resource.index')
-            ->with('resource', $this->resourceName());
+        $isMobile = (new Agent())->isMobile();
+
+        $paginatedData = (new BuildGameListAction())->execute(
+            GameListType::AllGames,
+            user: $user,
+            filters: $request->getFilters(),
+            sort: $request->getSort(),
+            perPage: $isMobile ? 100 : 25,
+
+            /**
+             * Ignore page params on mobile.
+             * They're _always_ desktop-generated. Desktop uses smaller
+             * page sizes, so respecting these params is highly undesirable.
+             */
+            page: $isMobile ? 1 : $request->getPage(),
+        );
+
+        $filterableSystemOptions = System::active()
+            ->gameSystems()
+            ->get()
+            ->map(fn ($system) => SystemData::fromSystem($system)->include('nameShort'))
+            ->values()
+            ->all();
+
+        $can = UserPermissionsData::fromUser($user)->include('develop');
+
+        $props = new GameListPagePropsData(
+            paginatedGameListEntries: $paginatedData,
+            filterableSystemOptions: $filterableSystemOptions,
+            can: $can,
+        );
+
+        return Inertia::render('game-list/index', $props);
     }
 
     public function popular(): void

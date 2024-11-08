@@ -6,6 +6,7 @@ namespace App\Data;
 
 use App\Enums\Permissions;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\LiteralTypeScriptType;
@@ -20,10 +21,12 @@ class UserData extends Data
         public string $avatarUrl,
         public bool $isMuted,
 
+        public Lazy|Carbon|null $mutedUntil,
         public Lazy|int $id,
         public Lazy|string|null $username,
-        public Lazy|string $motto,
         public Lazy|int|null $legacyPermissions,
+        public Lazy|string|null $locale,
+        public Lazy|string $motto,
 
         #[TypeScriptType([
             'prefersAbsoluteDates' => 'boolean',
@@ -35,6 +38,7 @@ class UserData extends Data
 
         public Lazy|string|null $apiKey,
         public Lazy|string|null $deleteRequested,
+        public Lazy|Carbon|null $deletedAt,
         public Lazy|string|null $emailAddress,
         public Lazy|int|null $unreadMessageCount,
         public Lazy|bool|null $userWallActive,
@@ -49,16 +53,19 @@ class UserData extends Data
             displayName: $topic['AuthorDisplayName'] ?? $topic['Author'],
             avatarUrl: media_asset('UserPic/' . $topic['Author'] . '.png'),
             isMuted: false,
+            mutedUntil: null,
             id: Lazy::create(fn () => (int) $topic['author_id']),
             username: Lazy::create(fn () => $topic['Author']),
 
             legacyPermissions: null,
+            locale: null,
+            motto: '',
             preferences: null,
             roles: null,
-            motto: '',
 
             apiKey: null,
             deleteRequested: null,
+            deletedAt: null,
             emailAddress: null,
             unreadMessageCount: null,
             userWallActive: null,
@@ -76,10 +83,13 @@ class UserData extends Data
             avatarUrl: $user->avatar_url,
             isMuted: $user->isMuted(),
 
+            mutedUntil: Lazy::create(fn () => $user->muted_until),
             id: Lazy::create(fn () => $user->id),
             username: Lazy::create(fn () => $user->username),
-            motto: Lazy::create(fn () => $user->Motto),
             legacyPermissions: Lazy::create(fn () => (int) $user->getAttribute('Permissions')),
+            // TODO remove conditional after renaming "en" to "en_US"
+            locale: Lazy::create(fn () => $user->locale === 'en' ? 'en_US' : $user->locale),
+            motto: Lazy::create(fn () => $user->Motto),
             preferences: Lazy::create(
                 fn () => [
                     'prefersAbsoluteDates' => $user->prefers_absolute_dates,
@@ -89,6 +99,7 @@ class UserData extends Data
 
             apiKey: Lazy::create(fn () => $user->APIKey),
             deleteRequested: Lazy::create(fn () => $user->DeleteRequested),
+            deletedAt: Lazy::create(fn () => $user->Deleted ? Carbon::parse($user->Deleted) : null),
             emailAddress: Lazy::create(fn () => $user->EmailAddress),
             unreadMessageCount: Lazy::create(fn () => $user->UnreadMessageCount),
             userWallActive: Lazy::create(fn () => $user->UserWallActive),
