@@ -4,9 +4,9 @@ import type { FC } from 'react';
 import { CommentList } from '@/common/components/CommentList';
 import { FullPaginator } from '@/common/components/FullPaginator';
 import { SubscribeToggleButton } from '@/common/components/SubscribeToggleButton';
+import { UserBreadcrumbs } from '@/common/components/UserBreadcrumbs';
 import { UserHeading } from '@/common/components/UserHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { UserBreadcrumbs } from '@/common/components/UserBreadcrumbs';
 
 import { useCommentPagination } from '../hooks/useCommentPagination';
 
