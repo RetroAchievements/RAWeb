@@ -1,5 +1,7 @@
 # Contributing Translations
 
+NOTE: A major breaking change is coming in https://github.com/RetroAchievements/RAWeb/pull/2807. Please hold off on opening new PRs until this is merged.
+
 Thank you for your interest in contributing translations to the RetroAchievements website! By helping translate our platform, you make it more accessible to a wider audience. This guide will walk you through the steps to add or update translations in the RAWeb repository.
 
 ## Table of Contents
