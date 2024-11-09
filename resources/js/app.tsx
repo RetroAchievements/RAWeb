@@ -10,7 +10,7 @@ import i18n from './i18n-client';
 const appName = import.meta.env.APP_NAME || 'RetroAchievements';
 
 createInertiaApp({
-  title: (title) => `${title} · ${appName}`,
+  title: (title) => (title ? `${title} · ${appName}` : appName),
 
   resolve: (name) =>
     resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),

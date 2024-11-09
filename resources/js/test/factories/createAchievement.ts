@@ -9,5 +9,7 @@ export const createAchievement = createFactory<App.Platform.Data.Achievement>((f
     badgeLockedUrl: faker.internet.url(),
     badgeUnlockedUrl: faker.internet.url(),
     game: createGame(),
+    points: faker.helpers.arrayElement([0, 1, 2, 3, 4, 5, 10, 25, 50, 100]),
+    pointsWeighted: faker.number.int({ min: 0, max: 1000 }),
   };
 });

@@ -1,61 +1,39 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { UserAvatar } from '@/common/components/UserAvatar';
+import { EmptyState } from '@/common/components/EmptyState';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { HomeHeading } from '../../HomeHeading';
 import { SeeMoreLink } from '../../SeeMoreLink';
+import { RecentForumPostItem } from './RecentForumPostItem';
 
 export const RecentForumPosts: FC = () => {
+  const { recentForumPosts } = usePageProps<App.Http.Data.HomePageProps>();
+
   const { t } = useTranslation();
 
   return (
     <div>
       <HomeHeading>{t('Recent Forum Posts')}</HomeHeading>
 
-      <div className="flex flex-col gap-y-1">
-        <RecentForumPostItem />
-        <RecentForumPostItem />
-        <RecentForumPostItem />
-        <RecentForumPostItem />
-      </div>
-
-      <SeeMoreLink href={route('forum.recent-posts')} asClientSideRoute={true} />
-    </div>
-  );
-};
-
-const RecentForumPostItem: FC = () => {
-  const { t } = useTranslation();
-
-  return (
-    <div className="rounded bg-embed px-2.5 py-1.5">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <UserAvatar {...mockUser} size={16} />
-          <span className="smalldate">{'1 week ago'}</span>
+      {!recentForumPosts?.length ? (
+        <div className="rounded bg-embed">
+          <EmptyState>{t('No recent forum posts were found.')}</EmptyState>
         </div>
+      ) : null}
 
-        <a href="#">{t('View')}</a>
-      </div>
+      {recentForumPosts?.length ? (
+        <>
+          <div className="flex flex-col gap-y-1">
+            {recentForumPosts.map((recentForumPost) => (
+              <RecentForumPostItem key={`post-${recentForumPost.id}`} post={recentForumPost} />
+            ))}
+          </div>
 
-      <p>
-        {t('in')} <a href="#">{'RoadKill'}</a>
-      </p>
-
-      <p className="text-overflow-wrap">
-        {
-          "That's a pretty much complete list only things I can really think of would be achievements for killi..."
-        }
-      </p>
+          <SeeMoreLink href={route('forum.recent-posts')} asClientSideRoute={true} />
+        </>
+      ) : null}
     </div>
   );
-};
-
-const mockUser: App.Data.User = {
-  id: 1,
-  displayName: 'Scott',
-  avatarUrl: 'http://media.retroachievements.org/UserPic/Scott.png',
-  isMuted: false,
-  mutedUntil: null,
 };

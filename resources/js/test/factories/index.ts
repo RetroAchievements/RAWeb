@@ -1,4 +1,5 @@
 export * from './createAchievement';
+export * from './createAchievementSetClaim';
 export * from './createComment';
 export * from './createEmulator';
 export * from './createForumTopicComment';
@@ -6,6 +7,8 @@ export * from './createGame';
 export * from './createGameHash';
 export * from './createGameHashLabel';
 export * from './createGameListEntry';
+export * from './createHomePageProps';
+export * from './createNews';
 export * from './createPaginatedData';
 export * from './createPlayerBadge';
 export * from './createPlayerGame';

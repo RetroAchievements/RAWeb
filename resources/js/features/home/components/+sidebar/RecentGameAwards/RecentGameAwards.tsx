@@ -1,65 +1,46 @@
 import type { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { SystemChip } from '@/common/components/SystemChip';
 import { UserAvatar } from '@/common/components/UserAvatar';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import type { AvatarSize } from '@/common/models';
 
-const mockGame: App.Platform.Data.Game = {
-  id: 7528,
-  title: 'Shanghai II',
-  badgeUrl: 'http://media.retroachievements.org/Images/099406.png',
-  system: {
-    id: 7,
-    name: 'NES/Famicom',
-    iconUrl: 'http://localhost:64000/assets/images/system/nes.png',
-    nameShort: 'NES',
-  },
-};
-
-const mockGame2: App.Platform.Data.Game = {
-  id: 14034,
-  title: 'Number Munchers',
-  badgeUrl: 'http://media.retroachievements.org/Images/073051.png',
-  system: {
-    id: 38,
-    name: 'Apple II',
-    iconUrl: 'http://localhost:64000/assets/images/system/a2.png',
-    nameShort: 'A2',
-  },
-};
-
-const mockUser: App.Data.User = {
-  id: 1,
-  displayName: 'Scott',
-  avatarUrl: 'http://media.retroachievements.org/UserPic/Scott.png',
-  isMuted: false,
-  mutedUntil: null,
-};
-
 export const RecentGameAwards: FC = () => {
+  const { mostRecentGameBeaten, mostRecentGameMastered } =
+    usePageProps<App.Http.Data.HomePageProps>();
+
   const { t } = useTranslation();
 
   return (
     <div className="flex flex-col gap-8 sm:grid sm:grid-cols-2 lg:flex">
-      <div className="flex flex-col gap-1">
-        <GameAwardHeadline>
-          <p>{t('Most recent game mastered')}</p>
-          <p>{'2 MINS AGO'}</p>
-        </GameAwardHeadline>
+      {mostRecentGameMastered ? (
+        <div className="flex flex-col gap-1">
+          <GameAwardHeadline>
+            <p>{t('Most recent game mastered')}</p>
+            <p>
+              <DiffTimestamp at={mostRecentGameMastered.awardedAt} className="uppercase" />
+            </p>
+          </GameAwardHeadline>
 
-        <GameAwardCard game={mockGame} user={mockUser} />
-      </div>
+          <GameAwardCard game={mostRecentGameMastered.game} user={mostRecentGameMastered.user} />
+        </div>
+      ) : null}
 
-      <div className="flex flex-col gap-1">
-        <GameAwardHeadline>
-          <p>{t('Most recent game beaten')}</p>
-          <p>{'1 MIN AGO'}</p>
-        </GameAwardHeadline>
+      {mostRecentGameBeaten ? (
+        <div className="flex flex-col gap-1">
+          <GameAwardHeadline>
+            <p>{t('Most recent game beaten')}</p>
+            <p>
+              <DiffTimestamp at={mostRecentGameBeaten.awardedAt} className="uppercase" />
+            </p>
+          </GameAwardHeadline>
 
-        <GameAwardCard game={mockGame2} user={mockUser} />
-      </div>
+          <GameAwardCard game={mostRecentGameBeaten.game} user={mostRecentGameBeaten.user} />
+        </div>
+      ) : null}
     </div>
   );
 };

@@ -6,6 +6,8 @@ import { cleanup } from '@testing-library/react';
 
 import { loadFaker } from './test/createFactory';
 
+process.env.TZ = 'UTC';
+
 beforeAll(async () => {
   /**
    * Asynchronously load faker before any tests run. `createFactory()` helpers
@@ -18,17 +20,20 @@ beforeAll(() => {
   /**
    * ResizeObserver is unavailable in NodeJS.
    */
-  global.ResizeObserver = class ResizeObserver {
-    observe() {
-      // do nothing
-    }
-    unobserve() {
-      // do nothing
-    }
-    disconnect() {
-      // do nothing
-    }
-  };
+  Object.defineProperty(window, 'ResizeObserver', {
+    writable: true,
+    value: class ResizeObserver {
+      observe() {
+        // do nothing
+      }
+      unobserve() {
+        // do nothing
+      }
+      disconnect() {
+        // do nothing
+      }
+    },
+  });
 });
 
 beforeEach(() => {
