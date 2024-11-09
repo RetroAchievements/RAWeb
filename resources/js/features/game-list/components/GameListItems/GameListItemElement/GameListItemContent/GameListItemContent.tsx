@@ -95,7 +95,7 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
 
             <span className="sr-only">
               {backlogState.isInBacklogMaybeOptimistic
-                ? t('Remove from Want To Play Games')
+                ? t('Remove from Want to Play Games')
                 : t('Add to Want to Play Games')}
             </span>
           </button>

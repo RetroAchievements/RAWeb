@@ -65,7 +65,7 @@ export function DataTableRowActions<TData>({
             disabled={isPending}
             aria-label={
               isInBacklogMaybeOptimistic
-                ? t('Remove from Want To Play Games')
+                ? t('Remove from Want to Play Games')
                 : t('Add to Want to Play Games')
             }
             data-testid={`toggle-${isInBacklogMaybeOptimistic}`}
