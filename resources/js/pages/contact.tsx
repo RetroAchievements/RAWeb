@@ -1,12 +1,12 @@
 import { Head } from '@inertiajs/react';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import type { FC } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 
-import { Trans } from '@/common/components/Trans';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 
 const Contact: AppPage = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -26,13 +26,12 @@ const Contact: AppPage = () => {
               <div>
                 <h2 className="text-h4">{t('Admins and Moderators')}</h2>
                 <p>
-                  <Trans i18nKey="<0>Send a message to RAdmin</0> for:">
-                    {/* eslint-disable react/jsx-no-literals */}
-                    <a href={route('message.create', { to: 'RAdmin' })}>
-                      Send a message to RAdmin
-                    </a>{' '}
-                    for:
-                    {/* eslint-enable react/jsx-no-literals */}
+                  <Trans
+                    i18nKey="<1>Send a message to RAdmin</1> for:"
+                    components={{ 1: <RAdminLink /> }}
+                  >
+                    <RAdminLink />
+                    {' for:'}
                   </Trans>
                 </p>
                 <ul className="list-inside list-disc">
@@ -47,13 +46,12 @@ const Contact: AppPage = () => {
               <div>
                 <h2 className="text-h4">{t('Developer Compliance')}</h2>
                 <p>
-                  <Trans i18nKey="<0>Send a message to DevCompliance</0> for:">
-                    {/* eslint-disable react/jsx-no-literals */}
-                    <a href={route('message.create', { to: 'DevCompliance' })}>
-                      Send a message to DevCompliance
-                    </a>{' '}
-                    for:
-                    {/* eslint-enable react/jsx-no-literals */}
+                  <Trans
+                    i18nKey="<1>Send a message to DevCompliance</1> for:"
+                    components={{ 1: <DevComplianceLink /> }}
+                  >
+                    <DevComplianceLink />
+                    {' for:'}
                   </Trans>
                 </p>
                 <ul className="list-inside list-disc">
@@ -68,13 +66,12 @@ const Contact: AppPage = () => {
               <div>
                 <h2 className="text-h4">{t('Quality Assurance')}</h2>
                 <p>
-                  <Trans i18nKey="<0>Send a message to QATeam</0> for:">
-                    {/* eslint-disable react/jsx-no-literals */}
-                    <a href={route('message.create', { to: 'QATeam' })}>
-                      Send a message to QATeam
-                    </a>{' '}
-                    for:
-                    {/* eslint-enable react/jsx-no-literals */}
+                  <Trans
+                    i18nKey="<1>Send a message to QATeam</1> for:"
+                    components={{ 1: <QATeamLink /> }}
+                  >
+                    <QATeamLink />
+                    {' for:'}
                   </Trans>
                 </p>
                 <ul className="list-inside list-disc">
@@ -91,13 +88,12 @@ const Contact: AppPage = () => {
               <div>
                 <h2 className="text-h4">{t('Art Team')}</h2>
                 <p>
-                  <Trans i18nKey="<0>Send a message to RAArtTeam</0> for:">
-                    {/* eslint-disable react/jsx-no-literals */}
-                    <a href={route('message.create', { to: 'RAArtTeam' })}>
-                      Send a message to RAArtTeam
-                    </a>{' '}
-                    for:
-                    {/* eslint-enable react/jsx-no-literals */}
+                  <Trans
+                    i18nKey="<1>Send a message to RAArtTeam</1> for:"
+                    components={{ 1: <RAArtTeamLink /> }}
+                  >
+                    <RAArtTeamLink />
+                    {' for:'}
                   </Trans>
                 </p>
                 <ul className="list-inside list-disc">
@@ -113,14 +109,14 @@ const Contact: AppPage = () => {
               <div>
                 <h2 className="text-h4">{t('DevQuest')}</h2>
                 <p>
-                  <Trans i18nKey="<0>Send a message to DevQuest</0> for submissions, questions, ideas, or reporting issues related to <1>DevQuest</1>.">
-                    {/* eslint-disable react/jsx-no-literals */}
-                    <a href={route('message.create', { to: 'DevQuest' })}>
-                      Send a message to DevQuest
-                    </a>{' '}
-                    for submissions, questions, ideas, or reporting issues related to{' '}
-                    <a href={route('game.show', { game: 5686 })}>DevQuest</a>.
-                    {/* eslint-enable react/jsx-no-literals */}
+                  <Trans
+                    i18nKey="<1>Send a message to DevQuest</1> for submissions, questions, ideas, or reporting issues related to <2>DevQuest</2>."
+                    components={{ 1: <DevQuestContactLink />, 2: <DevQuestHubLink /> }}
+                  >
+                    <DevQuestContactLink />
+                    {' for submissions, questions, ideas, or reporting issues related to '}
+                    <DevQuestHubLink />
+                    {'.'}
                   </Trans>
                 </p>
               </div>
@@ -132,16 +128,14 @@ const Contact: AppPage = () => {
               <div>
                 <h2 className="text-h4">{t('Cheating Reports')}</h2>
                 <p className="mb-2">
-                  <Trans i18nKey="<0>Send a message to RACheats</0> if you believe someone is in violation of our <1>Global Leaderboard and Achievement Hunting Rules</1>.">
-                    {/* eslint-disable react/jsx-no-literals */}
-                    <a href={route('message.create', { to: 'RACheats' })}>
-                      Send a message to RACheats
-                    </a>{' '}
-                    if you believe someone is in violation of our{' '}
-                    <a href="https://docs.retroachievements.org/guidelines/users/global-leaderboard-and-achievement-hunting-rules.html#not-allowed">
-                      Global Leaderboard and Achievement Hunting Rules
-                    </a>
-                    .{/* eslint-enable react/jsx-no-literals */}
+                  <Trans
+                    i18nKey="<1>Send a message to RACheats</1> if you believe someone is in violation of our <2>Global Leaderboard and Achievement Hunting Rules</2>."
+                    components={{ 1: <RACheatsLink />, 2: <LeaderboardRulesDocsLink /> }}
+                  >
+                    <RACheatsLink />
+                    {' if you believe someone is in violation of our '}
+                    <LeaderboardRulesDocsLink />
+                    {'.'}
                   </Trans>
                 </p>
                 <p>
@@ -156,13 +150,12 @@ const Contact: AppPage = () => {
               <div>
                 <h2 className="text-h4">{t('Writing Team')}</h2>
                 <p>
-                  <Trans i18nKey="<0>Send a message to WritingTeam</0> for:">
-                    {/* eslint-disable react/jsx-no-literals */}
-                    <a href={route('message.create', { to: 'WritingTeam' })}>
-                      Send a message to WritingTeam
-                    </a>{' '}
-                    for:
-                    {/* eslint-enable react/jsx-no-literals */}
+                  <Trans
+                    i18nKey="<1>Send a message to WritingTeam</1> for:"
+                    components={{ 1: <WritingTeamLink /> }}
+                  >
+                    <WritingTeamLink />
+                    {' for:'}
                   </Trans>
                 </p>
                 <ul className="list-inside list-disc">
@@ -180,13 +173,12 @@ const Contact: AppPage = () => {
               <div>
                 <h2 className="text-h4">{t('RANews')}</h2>
                 <p>
-                  <Trans i18nKey="<0>Send a message to RANews</0> for:">
-                    {/* eslint-disable react/jsx-no-literals */}
-                    <a href={route('message.create', { to: 'RANews' })}>
-                      Send a message to RANews
-                    </a>{' '}
-                    for:
-                    {/* eslint-enable react/jsx-no-literals */}
+                  <Trans
+                    i18nKey="<1>Send a message to RANews</1> for:"
+                    components={{ 1: <RANewsLink /> }}
+                  >
+                    <RANewsLink />
+                    {' for:'}
                   </Trans>
                 </p>
                 <ul className="list-inside list-disc">
@@ -202,25 +194,27 @@ const Contact: AppPage = () => {
               <div>
                 <h2 className="text-h4">{t('RAEvents')}</h2>
                 <p className="mb-4">
-                  <Trans i18nKey="<0>Send a message to RAEvents</0> for submissions, questions, ideas, or reporting issues related to <1>community events</1>.">
-                    {/* eslint-disable react/jsx-no-literals */}
-                    <a href={route('message.create', { to: 'RAEvents' })}>
-                      Send a message to RAEvents
-                    </a>{' '}
-                    for submissions, questions, ideas, or reporting issues related to{' '}
-                    <a href={route('game.show', { game: 3105 })}>{'community events'}</a>.
-                    {/* eslint-enable react/jsx-no-literals */}
+                  <Trans
+                    i18nKey="<1>Send a message to RAEvents</1> for submissions, questions, ideas, or reporting issues related to <2>community events</2>."
+                    components={{ 1: <RAEventsLink />, 2: <CommunityEventsHubLink /> }}
+                  >
+                    <RAEventsLink />
+                    {' for submissions, questions, ideas, or reporting issues related to '}
+                    <CommunityEventsHubLink />
+                    {'.'}
                   </Trans>
                 </p>
                 <p>
-                  <Trans i18nKey="<0>Send a message to TheUnwanted</0> for submissions, questions, ideas, or reporting issues specifically related to <1>The Unwanted</1>.">
-                    {/* eslint-disable react/jsx-no-literals */}
-                    <a href={route('message.create', { to: 'TheUnwanted' })}>
-                      Send a message to TheUnwanted
-                    </a>{' '}
-                    for submissions, questions, ideas, or reporting issues specifically related to{' '}
-                    <a href={route('game.show', { game: 4271 })}>{'The Unwanted'}</a>.
-                    {/* eslint-enable react/jsx-no-literals */}
+                  <Trans
+                    i18nKey="<1>Send a message to TheUnwanted</1> for submissions, questions, ideas, or reporting issues specifically related to <2>The Unwanted</2>."
+                    components={{ 1: <TheUnwantedContactLink />, 2: <TheUnwantedGameLink /> }}
+                  >
+                    <TheUnwantedContactLink />
+                    {
+                      ' for submissions, questions, ideas, or reporting issues specifically related to '
+                    }
+                    <TheUnwantedGameLink />
+                    {'.'}
                   </Trans>
                 </p>
               </div>
@@ -233,5 +227,48 @@ const Contact: AppPage = () => {
 };
 
 Contact.layout = (page) => <AppLayout withSidebar={false}>{page}</AppLayout>;
+
+const RAdminLink: FC = () => (
+  <a href={route('message.create', { to: 'RAdmin' })}>{'Send a message to RAdmin'}</a>
+);
+const DevComplianceLink: FC = () => (
+  <a href={route('message.create', { to: 'DevCompliance' })}>{'Send a message to DevCompliance'}</a>
+);
+const QATeamLink: FC = () => (
+  <a href={route('message.create', { to: 'QATeam' })}>{'Send a message to QATeam'}</a>
+);
+const RAArtTeamLink: FC = () => (
+  <a href={route('message.create', { to: 'RAArtTeam' })}>{'Send a message to RAArtTeam'}</a>
+);
+const DevQuestContactLink: FC = () => (
+  <a href={route('message.create', { to: 'DevQuest' })}>{'Send a message to DevQuest'}</a>
+);
+const DevQuestHubLink: FC = () => <a href={route('game.show', { game: 5686 })}>{'DevQuest'}</a>;
+const RACheatsLink: FC = () => (
+  <a href={route('message.create', { to: 'RACheats' })}>{'Send a message to RACheats'}</a>
+);
+const LeaderboardRulesDocsLink: FC = () => (
+  <a href="https://docs.retroachievements.org/guidelines/users/global-leaderboard-and-achievement-hunting-rules.html#not-allowed">
+    {'Global Leaderboard and Achievement Hunting Rules'}
+  </a>
+);
+const WritingTeamLink: FC = () => (
+  <a href={route('message.create', { to: 'WritingTeam' })}>{'Send a message to WritingTeam'}</a>
+);
+const RANewsLink: FC = () => (
+  <a href={route('message.create', { to: 'RANews' })}>{'Send a message to RANews'}</a>
+);
+const RAEventsLink: FC = () => (
+  <a href={route('message.create', { to: 'RAEvents' })}>{'Send a message to RAEvents'}</a>
+);
+const CommunityEventsHubLink: FC = () => (
+  <a href={route('game.show', { game: 3105 })}>{'community events'}</a>
+);
+const TheUnwantedContactLink: FC = () => (
+  <a href={route('message.create', { to: 'TheUnwanted' })}>{'Send a message to TheUnwanted'}</a>
+);
+const TheUnwantedGameLink: FC = () => (
+  <a href={route('game.show', { game: 4271 })}>{'The Unwanted'}</a>
+);
 
 export default Contact;

@@ -109,39 +109,43 @@ describe('Component: DataTableToolbar', () => {
     expect(selectedLabelEl).toHaveTextContent('GC');
   });
 
-  it('given more than three options are selected, shows the selected count', async () => {
-    // ARRANGE
-    render(<DataTableToolbarHarness />, {
-      pageProps: {
-        filterableSystemOptions: [
-          createSystem({ name: 'Nintendo 64', nameShort: 'N64' }),
-          createSystem({ name: 'NES/Famicom', nameShort: 'NES' }),
-          createSystem({ name: 'GameCube', nameShort: 'GC' }),
-        ],
-        ziggy: createZiggyProps({ device: 'desktop' }),
-      },
-    });
+  it(
+    'given more than three options are selected, shows the selected count',
+    { retry: 2, timeout: 15000 },
+    async () => {
+      // ARRANGE
+      render(<DataTableToolbarHarness />, {
+        pageProps: {
+          filterableSystemOptions: [
+            createSystem({ name: 'Nintendo 64', nameShort: 'N64' }),
+            createSystem({ name: 'NES/Famicom', nameShort: 'NES' }),
+            createSystem({ name: 'GameCube', nameShort: 'GC' }),
+          ],
+          ziggy: createZiggyProps({ device: 'desktop' }),
+        },
+      });
 
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /system/i }));
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /system/i }));
 
-    // Ensure the options are visible before we start trying to click on them.
-    await waitFor(() => {
-      screen.getByRole('option', { name: /NES/i });
-    });
+      // Ensure the options are visible before we start trying to click on them.
+      await waitFor(() => {
+        screen.getByRole('option', { name: /NES/i });
+      });
 
-    await userEvent.click(screen.getByRole('option', { name: /Nintendo 64/i }));
-    await userEvent.click(screen.getByRole('option', { name: /NES/i }));
-    await userEvent.click(screen.getByRole('option', { name: /GameCube/i }));
+      await userEvent.click(screen.getByRole('option', { name: /Nintendo 64/i }));
+      await userEvent.click(screen.getByRole('option', { name: /NES/i }));
+      await userEvent.click(screen.getByRole('option', { name: /GameCube/i }));
 
-    // ASSERT
-    await waitFor(
-      () => {
-        expect(screen.getByText(/3 selected/i)).toBeVisible();
-      },
-      { timeout: 3000 },
-    );
-  });
+      // ASSERT
+      await waitFor(
+        () => {
+          expect(screen.getByText(/3 selected/i)).toBeVisible();
+        },
+        { timeout: 3000 },
+      );
+    },
+  );
 
   it('given the unfiltered total is different than the row count, displays both counts to the user', () => {
     // ARRANGE

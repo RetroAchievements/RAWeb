@@ -1,6 +1,6 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC, ReactNode } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import type { BaseButtonProps } from '@/common/components/+vendor/BaseButton';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -33,7 +33,7 @@ export const SectionFormCard: FC<SectionFormCardProps> = ({
   onSubmit,
   t_headingLabel,
 }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <BaseCard className="w-full">

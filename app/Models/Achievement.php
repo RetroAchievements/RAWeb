@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -90,6 +91,8 @@ class Achievement extends BaseModel
         'Points',
         'Title',
         'type',
+        'MemAddr',
+        'user_id',
     ];
 
     protected $casts = [
@@ -353,6 +356,22 @@ class Achievement extends BaseModel
     public function playerAchievements(): HasMany
     {
         return $this->hasMany(PlayerAchievement::class, 'achievement_id', 'ID');
+    }
+
+    /**
+     * @return HasMany<EventAchievement>
+     */
+    public function eventAchievements(): HasMany
+    {
+        return $this->hasMany(EventAchievement::class, 'source_achievement_id', 'ID');
+    }
+
+    /**
+     * @return HasOne<EventAchievement>
+     */
+    public function eventData(): HasOne
+    {
+        return $this->hasOne(EventAchievement::class, 'achievement_id');
     }
 
     /**
