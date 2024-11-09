@@ -86,7 +86,6 @@ export function DataTableColumnHeader<TData, TValue>({
       className={cn(
         'flex items-center space-x-2',
         column.columnDef.meta?.align === 'right' ? 'justify-end' : '',
-        column.columnDef.meta?.align === 'center' ? 'justify-center' : '',
         className,
       )}
     >

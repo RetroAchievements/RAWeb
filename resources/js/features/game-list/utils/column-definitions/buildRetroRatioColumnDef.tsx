@@ -22,9 +22,11 @@ export function buildRetroRatioColumnDef({
     id: 'retroRatio',
     accessorKey: 'game',
     meta: { t_label, align: 'right', sortType: 'quantity', Icon: gameListFieldIconMap.retroRatio },
+
     header: ({ column, table }) => (
       <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
+
     cell: ({ row }) => {
       const pointsTotal = row.original.game?.pointsTotal ?? 0;
 
