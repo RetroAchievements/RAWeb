@@ -10,17 +10,6 @@
         pre.xdebug-var-dump {
             background: #FFFFFF;
         }
-
-        #debug {
-            position: fixed;
-            @if(app()->environment('local'))
-            bottom: 40px;
-            @else
-            bottom: 10px;
-            @endif
-            left: 4px;
-            z-index: 100;
-        }
     </style>
 
     <div
@@ -28,25 +17,39 @@
         role="button"
         x-init="{}"
         @click="handleClick($el)"
-        class="hidden sm:flex text-2xs flex-col rounded-lg bg-black/20 p-1"
+        @class([
+            'fixed left-0 -bottom-0.5 z-50 sm:left-1',
+            'flex gap-1 sm:flex-col rounded bg-black p-1 text-neutral-200 text-2xs',
+            app()->environment('local') ? 'sm:bottom-10' : 'sm:bottom-2.5'
+        ])
     >
-        <b class="text-danger text-capitalize">
+        <span class="font-bold text-danger text-capitalize">
             {{ app()->environment() }}
             {{ $_SERVER['LARAVEL_OCTANE'] ?? false ? '[Octane]' : '' }}
-            ({{ config('app.branch') }})
-        </b>
+            @if (app()->environment() !== 'local')
+                ({{ config('app.branch') }})
+            @endif
+        </span>
 
         <div>
-            <b>
+            <span class="font-medium">
                 <span class="sm:hidden">XS</span>
                 <span class="hidden sm:inline-block md:hidden">SM</span>
                 <span class="hidden md:inline-block lg:hidden">MD</span>
                 <span class="hidden lg:inline-block xl:hidden">LG</span>
                 <span class="hidden xl:inline-block 2xl:hidden">XL</span>
                 <span class="hidden 2xl:inline-block">2XL</span>
-            </b>
-            <b>{{ app()->getLocale() }}</b>
-            <b>{{ Locale::getDisplayLanguage(app()->getLocale()) }}</b>
+            </span>
+        </div>
+
+        <div>
+            @php
+                $currentLocale = Auth::user()?->locale ?? app()->getLocale();
+                if ($currentLocale === 'en') {
+                    $currentLocale = 'en_US';
+                }
+            @endphp
+            <span>{{ $currentLocale }}</span>
         </div>
     </div>
 @endif
