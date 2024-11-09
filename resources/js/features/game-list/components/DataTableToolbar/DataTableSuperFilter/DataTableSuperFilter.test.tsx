@@ -101,7 +101,7 @@ describe('Component: DataTableSuperFilter', () => {
       );
 
       // ASSERT
-      expect(screen.getByRole('button', { name: 'Playable, 1 system' })).toBeVisible(); // FIXME should be capitalized after react-i18next migration
+      expect(screen.getByRole('button', { name: 'Playable, 1 System' })).toBeVisible();
     });
 
     it('given multiple system filters are set, displays the correct label', () => {
