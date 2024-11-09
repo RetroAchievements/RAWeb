@@ -245,7 +245,7 @@ class UserAgentService
             if (ctype_digit($left)) {
                 // split "6a" into "6.1"
                 array_push($parts, $left);
-                array_push($parts, strval(ord(substr($lastPart, -1, 1)) - ord('a') + 1));
+                array_push($parts, strval(ord(strtolower(substr($lastPart, -1, 1))) - ord('a') + 1));
 
                 // if there's a further trailing part, keep it as a differentiator
                 if (strlen($bonusPart) > 0) {

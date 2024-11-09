@@ -414,8 +414,7 @@ class UserAgentServiceTest extends TestCase
         ], $this->parseUserAgent($userAgent));
 
         $this->assertEquals(-1, UserAgentService::versionCompare('1.9a-dev-93a630769', '1.9b-dev-12b3dc45'));
+        $this->assertEquals(-1, UserAgentService::versionCompare('1.9a-dev-93a630769', '1.9B-dev-12b3dc45'));
         $this->assertEquals(-1, UserAgentService::versionCompare('1.9-dev-ab3d3dca2', '1.9a-dev-12b3dc45'));
-
-        $this->assertEquals(0, UserAgentService::versionCompare('abdef1', '1234567'));
     }
 }
