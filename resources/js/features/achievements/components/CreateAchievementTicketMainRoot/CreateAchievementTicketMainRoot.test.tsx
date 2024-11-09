@@ -982,7 +982,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
       expect(screen.getByText(/please do not open tickets for network issues/i)).toBeVisible();
     });
 
-    const linkEl = screen.getByRole('link', { name: /here/i });
+    const linkEl = screen.getByRole('link', { name: 'here' });
     expect(linkEl).toBeVisible();
     expect(linkEl).toHaveAttribute('href', expect.stringContaining('docs.retroachievements.org'));
   });
