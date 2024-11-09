@@ -1,9 +1,9 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useTranslation } from 'react-i18next';
 
 import { AwardType } from '../utils/generatedAppConstants';
 
 export function useGetAwardLabelFromPlayerBadge() {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const getAwardLabelFromPlayerBadge = (playerBadge: App.Platform.Data.PlayerBadge): string => {
     let awardLabel = t('Finished');

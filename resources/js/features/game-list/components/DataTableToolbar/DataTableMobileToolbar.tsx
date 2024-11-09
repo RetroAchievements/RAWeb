@@ -1,11 +1,10 @@
 import type { Table } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useTranslation } from 'react-i18next';
 import { IoLogoGameControllerA } from 'react-icons/io';
 import type { RouteName } from 'ziggy-js';
 
 import { BaseChip } from '@/common/components/+vendor/BaseChip';
 import { BaseSkeleton } from '@/common/components/+vendor/BaseSkeleton';
-import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 
 import { useGameListInfiniteQuery } from '../../hooks/useGameListInfiniteQuery';
 import { DataTableSearchInput } from '../DataTableSearchInput';
@@ -29,9 +28,7 @@ export default function DataTableMobileToolbar<TData>({
   table,
   tableApiRouteName = 'api.game.index',
 }: DataTableMobileToolbarProps<TData>) {
-  const { tChoice } = useLaravelReactI18n();
-
-  const { formatNumber } = useFormatNumber();
+  const { t } = useTranslation();
 
   const tableState = table.getState();
 
@@ -54,9 +51,7 @@ export default function DataTableMobileToolbar<TData>({
           {infiniteQuery.isPending ? (
             <BaseSkeleton className="w-16" />
           ) : (
-            tChoice(':count Game|:count Games', totalGames, {
-              count: formatNumber(totalGames),
-            })
+            t('{{val, number}} Games', { count: totalGames, val: totalGames })
           )}
         </BaseChip>
 

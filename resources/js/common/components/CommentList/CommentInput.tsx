@@ -1,9 +1,8 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import TextareaAutosize from 'react-textarea-autosize';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { formatNumber } from '@/common/utils/l10n/formatNumber';
 
 import { BaseButton } from '../+vendor/BaseButton';
 import {
@@ -23,7 +22,7 @@ import { useSubmitCommentForm } from './useSubmitCommentForm';
 export const CommentInput: FC = () => {
   const { auth } = usePageProps();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { canComment, commentableId, commentableType, onSubmitSuccess } = useCommentListContext();
 
@@ -66,9 +65,10 @@ export const CommentInput: FC = () => {
 
                   <BaseFormDescription>
                     <span>
-                      {field.value.length}
-                      {' / '}
-                      {formatNumber(2000)}
+                      {t('{{current, number}} / {{max, number}}', {
+                        current: field.value.length,
+                        max: 2000,
+                      })}
                     </span>
                   </BaseFormDescription>
 

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Enums;
 
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+#[TypeScript]
 abstract class ClaimStatus
 {
     public const Active = 0;

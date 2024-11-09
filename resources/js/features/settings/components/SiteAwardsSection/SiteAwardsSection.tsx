@@ -1,12 +1,12 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { baseCardTitleClassNames } from '@/common/components/+vendor/BaseCard';
 import { cn } from '@/utils/cn';
 
 export const SiteAwardsSection: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col gap-4">

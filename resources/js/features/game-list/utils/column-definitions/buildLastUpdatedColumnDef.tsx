@@ -26,9 +26,11 @@ export function buildLastUpdatedColumnDef({
     id: 'lastUpdated',
     accessorKey: 'game',
     meta: { t_label, sortType: 'date', Icon: gameListFieldIconMap.lastUpdated },
+
     header: ({ column, table }) => (
       <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
+
     cell: ({ row }) => {
       const date = row.original.game?.lastUpdated ?? new Date();
 

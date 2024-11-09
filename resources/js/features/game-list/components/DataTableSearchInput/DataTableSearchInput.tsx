@@ -1,6 +1,6 @@
 import type { Table } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuX } from 'react-icons/lu';
 import { useDebounce } from 'react-use';
 
@@ -36,7 +36,7 @@ export function DataTableSearchInput<TData>({
   hasHotkey = true,
   searchColumnId = 'title',
 }: DataTableSearchInputProps<TData>) {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const initialValue = (table.getColumn(searchColumnId)?.getFilterValue() as string) ?? '';
 
@@ -70,12 +70,7 @@ export function DataTableSearchInput<TData>({
         return;
       }
 
-      const currentFilterValue = (table.getColumn('title')?.getFilterValue() as string) ?? '';
-
-      // Only update the filter if the value has changed.
-      if (rawInputValue !== currentFilterValue) {
-        table.getColumn('title')?.setFilterValue(rawInputValue);
-      }
+      table.getColumn('title')?.setFilterValue(rawInputValue);
     },
     getDebounceDuration(rawInputValue),
     [rawInputValue],
