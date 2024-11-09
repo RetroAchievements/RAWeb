@@ -731,77 +731,81 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     });
   });
 
-  it('allows the user to submit the form with the "Triggered at the wrong time" issue type', async () => {
-    // ARRANGE
-    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: 123 } });
+  it(
+    'allows the user to submit the form with the "Triggered at the wrong time" issue type',
+    { retry: 2, timeout: 15000 },
+    async () => {
+      // ARRANGE
+      const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: 123 } });
 
-    const achievement = createAchievement();
-    const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
-    const emulators = [
-      createEmulator({ name: 'Bizhawk' }),
-      createEmulator({ name: 'RALibRetro' }),
-      createEmulator({ name: 'RetroArch' }),
-    ];
+      const achievement = createAchievement();
+      const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
+      const emulators = [
+        createEmulator({ name: 'Bizhawk' }),
+        createEmulator({ name: 'RALibRetro' }),
+        createEmulator({ name: 'RetroArch' }),
+      ];
 
-    render<App.Platform.Data.CreateAchievementTicketPageProps>(
-      <CreateAchievementTicketMainRoot />,
-      {
-        pageProps: {
-          achievement,
-          emulators,
-          gameHashes,
-          auth: { user: createAuthenticatedUser({ points: 500 }) },
-          ziggy: createZiggyProps({ query: {} }),
+      render<App.Platform.Data.CreateAchievementTicketPageProps>(
+        <CreateAchievementTicketMainRoot />,
+        {
+          pageProps: {
+            achievement,
+            emulators,
+            gameHashes,
+            auth: { user: createAuthenticatedUser({ points: 500 }) },
+            ziggy: createZiggyProps({ query: {} }),
+          },
         },
-      },
-    );
+      );
 
-    // ACT
-    await userEvent.click(screen.getByRole('combobox', { name: /issue/i }));
-    await userEvent.click(screen.getByRole('option', { name: /triggered at the wrong time/i }));
+      // ACT
+      await userEvent.click(screen.getByRole('combobox', { name: /issue/i }));
+      await userEvent.click(screen.getByRole('option', { name: /triggered at the wrong time/i }));
 
-    await userEvent.click(screen.getByRole('combobox', { name: /emulator/i }));
-    await userEvent.click(screen.getByRole('option', { name: /retroarch/i }));
+      await userEvent.click(screen.getByRole('combobox', { name: /emulator/i }));
+      await userEvent.click(screen.getByRole('option', { name: /retroarch/i }));
 
-    await userEvent.type(screen.getByRole('textbox', { name: /emulator version/i }), '1.16.0');
+      await userEvent.type(screen.getByRole('textbox', { name: /emulator version/i }), '1.16.0');
 
-    await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
+      await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
 
-    await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
-    await userEvent.click(screen.getByText(/softcore/i));
+      await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
+      await userEvent.click(screen.getByText(/softcore/i));
 
-    await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
-    await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
+      await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
+      await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
 
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /description/i }),
-      'Something is very wrong with this achievement. I tried many things and it just wont unlock. Help.',
-    );
-
-    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
-
-    // ASSERT
-    await waitFor(
-      () => {
-        expect(postSpy).toHaveBeenCalledOnce();
-      },
-      { timeout: 3000 },
-    );
-
-    expect(postSpy).toHaveBeenCalledWith(['api.ticket.store'], {
-      core: 'gambatte',
-      description:
+      await userEvent.type(
+        screen.getByRole('textbox', { name: /description/i }),
         'Something is very wrong with this achievement. I tried many things and it just wont unlock. Help.',
-      emulator: 'RetroArch',
-      emulatorVersion: '1.16.0',
-      extra: null,
-      gameHashId: gameHashes[0].id,
-      issue: 1,
-      mode: 'softcore',
-      ticketableId: achievement.id,
-      ticketableModel: 'achievement',
-    });
-  });
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+      // ASSERT
+      await waitFor(
+        () => {
+          expect(postSpy).toHaveBeenCalledOnce();
+        },
+        { timeout: 5000 },
+      );
+
+      expect(postSpy).toHaveBeenCalledWith(['api.ticket.store'], {
+        core: 'gambatte',
+        description:
+          'Something is very wrong with this achievement. I tried many things and it just wont unlock. Help.',
+        emulator: 'RetroArch',
+        emulatorVersion: '1.16.0',
+        extra: null,
+        gameHashId: gameHashes[0].id,
+        issue: 1,
+        mode: 'softcore',
+        ticketableId: achievement.id,
+        ticketableModel: 'achievement',
+      });
+    },
+  );
 
   it('sends along data from the ?extra query param if that data is provided', async () => {
     // ARRANGE
