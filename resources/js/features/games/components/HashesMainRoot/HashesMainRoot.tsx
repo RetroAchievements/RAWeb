@@ -4,11 +4,11 @@ import { LuSave } from 'react-icons/lu';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { Embed } from '@/common/components/Embed/Embed';
+import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
+import { GameHeading } from '@/common/components/GameHeading/GameHeading';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { GameBreadcrumbs } from '../GameBreadcrumbs';
-import { GameHeading } from '../GameHeading/GameHeading';
 import { HashesList } from './HashesList';
 
 export const HashesMainRoot: FC = () => {

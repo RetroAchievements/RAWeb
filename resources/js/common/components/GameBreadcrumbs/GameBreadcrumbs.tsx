@@ -9,8 +9,8 @@ import {
   BaseBreadcrumbList,
   BaseBreadcrumbPage,
   BaseBreadcrumbSeparator,
-} from '@/common/components/+vendor/BaseBreadcrumb';
-import { GameTitle } from '@/common/components/GameTitle';
+} from '../+vendor/BaseBreadcrumb';
+import { GameTitle } from '../GameTitle';
 
 interface GameBreadcrumbsProps {
   t_currentPageLabel: string;

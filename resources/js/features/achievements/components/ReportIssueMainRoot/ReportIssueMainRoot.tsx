@@ -1,11 +1,11 @@
 import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
+import { AchievementBreadcrumbs } from '@/common/components/AchievementBreadcrumbs';
+import { AchievementHeading } from '@/common/components/AchievementHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 
-import { AchievementBreadcrumbs } from '../AchievementBreadcrumbs';
-import { AchievementHeading } from '../AchievementHeading';
 import { buildStructuredMessage } from './buildStructuredMessage';
 import { ReportIssueOptionItem } from './ReportIssueOptionItem';
 import { SessionDrivenIssueListItems } from './SessionDrivenIssueListItems';

@@ -8,7 +8,7 @@ import {
   BaseBreadcrumbList,
   BaseBreadcrumbPage,
   BaseBreadcrumbSeparator,
-} from '@/common/components/+vendor/BaseBreadcrumb';
+} from '../+vendor/BaseBreadcrumb';
 
 // TODO support ForumCategory and Forum
 interface ForumBreadcrumbsProps {

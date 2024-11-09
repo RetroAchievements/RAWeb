@@ -8,7 +8,7 @@ import {
   BaseBreadcrumbList,
   BaseBreadcrumbPage,
   BaseBreadcrumbSeparator,
-} from '@/common/components/+vendor/BaseBreadcrumb';
+} from '../+vendor/BaseBreadcrumb';
 
 interface UserBreadcrumbsProps {
   t_currentPageLabel: string;

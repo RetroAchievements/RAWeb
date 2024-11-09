@@ -1,7 +1,8 @@
 import type { FC, ReactNode } from 'react';
 
-import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { cn } from '@/utils/cn';
+
+import { AchievementAvatar } from '../AchievementAvatar';
 
 interface AchievementHeadingProps {
   children: ReactNode;
