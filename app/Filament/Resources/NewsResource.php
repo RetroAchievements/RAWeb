@@ -63,7 +63,7 @@ class NewsResource extends Resource
 
                                 return new HtmlString('
                                     <div class="flex w-full justify-between">' .
-                                        '<p>As best as you can, try not to use BR tags.</p>' .
+                                        '<p>Try not to use BR tags. Summaries should be a single sentence/paragraph.</p>' .
 
                                         '<p>' .
                                             strlen($state ?? '') . '/' . $maxLength .
