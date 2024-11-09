@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuMenu } from 'react-icons/lu';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -9,7 +9,7 @@ import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { HomeHeading } from '../../HomeHeading';
 
 export const ActivePlayers: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { formatNumber } = useFormatNumber();
 
@@ -34,7 +34,7 @@ export const ActivePlayers: FC = () => {
       </div>
 
       <div className="flex w-full justify-end">
-        <p className="text-2xs">{t('Last updated at :timestamp', { timestamp: 'TODO' })}</p>
+        <p className="text-2xs">{t('Last updated at {{timestamp}}', { timestamp: 'TODO' })}</p>
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ class NewsFactory extends Factory
         return [
             'Title' => ucwords(fake()->words(2, true)),
             'user_id' => $author->ID,
-            // 'link' => mt_rand(0, 1) ? $faker->url : null,
+            'link' => fake()->url,
             'lead' => fake()->text(200),
             'Payload' => fake()->text,
         ];

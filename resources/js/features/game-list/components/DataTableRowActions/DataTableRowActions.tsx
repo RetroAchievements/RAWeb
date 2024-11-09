@@ -1,6 +1,6 @@
 import type { Row } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MdClose } from 'react-icons/md';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -33,7 +33,7 @@ export function DataTableRowActions<TData>({
   row,
   shouldAnimateBacklogIconOnChange = true,
 }: DataTableRowActionsProps<TData>) {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const rowData = row.original as Partial<App.Platform.Data.GameListEntry>;
   const gameId = rowData?.game?.id ?? 0;
@@ -65,7 +65,7 @@ export function DataTableRowActions<TData>({
             disabled={isPending}
             aria-label={
               isInBacklogMaybeOptimistic
-                ? t('Remove from Want To Play Games')
+                ? t('Remove from Want to Play Games')
                 : t('Add to Want to Play Games')
             }
             data-testid={`toggle-${isInBacklogMaybeOptimistic}`}

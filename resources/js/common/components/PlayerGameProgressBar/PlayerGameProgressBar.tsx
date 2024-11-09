@@ -1,10 +1,9 @@
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utc from 'dayjs/plugin/utc';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { useFormatPercentage } from '@/common/hooks/useFormatPercentage';
 import { useGetAwardLabelFromPlayerBadge } from '@/common/hooks/useGetAwardLabelFromPlayerBadge';
 import { buildAwardLabelColorClassNames } from '@/common/utils/buildAwardLabelColorClassNames';
@@ -57,11 +56,9 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
   showProgressPercentage = false,
   variant = 'base',
 }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { getAwardLabelFromPlayerBadge } = useGetAwardLabelFromPlayerBadge();
-
-  const { formatNumber } = useFormatNumber();
 
   const { formatPercentage } = useFormatPercentage();
 
@@ -165,36 +162,36 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
             <>
               {achievementsUnlockedHardcore > 0 ? (
                 <p>
-                  {t(':earned of :total achievements unlocked', {
-                    earned: formatNumber(achievementsUnlockedHardcore),
-                    total: formatNumber(achievementsPublished),
+                  {t('{{earned, number}} of {{total, number}} achievements unlocked', {
+                    earned: achievementsUnlockedHardcore,
+                    total: achievementsPublished,
                   })}
                 </p>
               ) : null}
 
               {achievementsUnlockedSoftcore > 0 ? (
                 <p>
-                  {t(':earned of :total softcore achievements unlocked', {
-                    earned: formatNumber(achievementsUnlockedSoftcore),
-                    total: formatNumber(achievementsPublished),
+                  {t('{{earned, number}} of {{total, number}} softcore achievements unlocked', {
+                    earned: achievementsUnlockedSoftcore,
+                    total: achievementsPublished,
                   })}
                 </p>
               ) : null}
 
               {pointsHardcore > 0 ? (
                 <p>
-                  {t(':earned of :total points earned', {
-                    earned: formatNumber(pointsHardcore),
-                    total: formatNumber(pointsTotal),
+                  {t('{{earned, number}} of {{total, number}} points earned', {
+                    earned: pointsHardcore,
+                    total: pointsTotal,
                   })}
                 </p>
               ) : null}
 
               {points > 0 ? (
                 <p>
-                  {t(':earned of :total softcore points earned', {
-                    earned: formatNumber(points),
-                    total: formatNumber(pointsTotal),
+                  {t('{{earned, number}} of {{total, number}} softcore points earned', {
+                    earned: points,
+                    total: pointsTotal,
                   })}
                 </p>
               ) : null}
@@ -203,7 +200,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
 
           {highestAward ? (
             <p>
-              {t(':awardLabel on :awardDate', {
+              {t('{{awardLabel}} on {{awardDate}}', {
                 awardLabel: getAwardLabelFromPlayerBadge(highestAward),
                 awardDate: getEarnDateLabelFromPlayerBadge(highestAward),
               })}

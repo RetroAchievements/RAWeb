@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuStar } from 'react-icons/lu';
 
 import {
@@ -12,7 +12,7 @@ import {
 // TODO ensure no hydration issues
 
 export const GuestWelcomeCta: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <BaseAlert className="text-text">
@@ -46,7 +46,7 @@ export const GuestWelcomeCta: FC = () => {
 };
 
 const RandomGameLink: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const randomGameIds = [
     1, // Sonic the Hedgehog (Mega Drive)

@@ -10,24 +10,37 @@ import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/
 
 dayjs.extend(utc);
 
-interface PostTimestampProps {
-  postedAt: string;
-  asAbsoluteDate: boolean;
+interface DiffTimestampProps {
+  /** ISO8601 */
+  at: string;
+
+  asAbsoluteDate?: boolean;
+  className?: string;
+  enableTooltip?: boolean;
 }
 
-export const PostTimestamp: FC<PostTimestampProps> = ({ postedAt, asAbsoluteDate }) => {
+export const DiffTimestamp: FC<DiffTimestampProps> = ({
+  at,
+  className,
+  asAbsoluteDate = false,
+  enableTooltip = true,
+}) => {
   const { renderedAt } = useServerRenderTime();
 
-  const date = dayjs.utc(postedAt);
+  const date = dayjs.utc(at);
 
   if (asAbsoluteDate) {
     return formatDate(date, 'MMM DD, YYYY, HH:mm');
   }
 
+  if (!enableTooltip) {
+    return <span className={className}>{diffForHumans(at, renderedAt)}</span>;
+  }
+
   return (
     <BaseTooltip>
       <BaseTooltipTrigger className="cursor-default">
-        <span>{diffForHumans(postedAt, renderedAt)}</span>
+        <span className={className}>{diffForHumans(at, renderedAt)}</span>
       </BaseTooltipTrigger>
 
       <BaseTooltipContent>

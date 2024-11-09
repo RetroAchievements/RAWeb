@@ -1,5 +1,5 @@
 import type { Table } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useTranslation } from 'react-i18next';
 
 import { DataTableFacetedFilter } from '../DataTableFacetedFilter';
 
@@ -13,7 +13,7 @@ export function DataTableAchievementsPublishedFilter<TData>({
   table,
   variant = 'base',
 }: DataTableAchievementsPublishedFilterProps<TData>) {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <DataTableFacetedFilter

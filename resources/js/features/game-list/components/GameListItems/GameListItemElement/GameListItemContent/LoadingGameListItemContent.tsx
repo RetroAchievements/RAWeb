@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { BaseSkeleton } from '@/common/components/+vendor/BaseSkeleton';
 
@@ -13,7 +13,7 @@ interface LoadingGameListItemContentProps {
 }
 
 export const LoadingGameListItemContent: FC<LoadingGameListItemContentProps> = ({ isLastItem }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div role="status" aria-label={t('Loading...')}>
