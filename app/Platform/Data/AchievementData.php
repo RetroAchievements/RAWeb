@@ -22,6 +22,8 @@ class AchievementData extends Data
         public Lazy|GameData $game,
         public Lazy|string $unlockedAt,
         public Lazy|string $unlockedHardcoreAt,
+        public Lazy|int $points,
+        public Lazy|int $pointsWeighted,
     ) {
     }
 
@@ -32,13 +34,15 @@ class AchievementData extends Data
         return new self(
             id: $achievement->id,
             title: $achievement->title,
+
             description: Lazy::create(fn () => $achievement->description),
             badgeUnlockedUrl: Lazy::create(fn () => $achievement->badge_unlocked_url),
             badgeLockedUrl: Lazy::create(fn () => $achievement->badge_locked_url),
             game: Lazy::create(fn () => GameData::fromGame($achievement->game)),
-
             unlockedAt: Lazy::create(fn () => $playerAchievement?->unlocked_at),
             unlockedHardcoreAt: Lazy::create(fn () => $playerAchievement?->unlocked_hardcore_at),
+            points: Lazy::create(fn () => $achievement->points),
+            pointsWeighted: Lazy::create(fn () => $achievement->points_weighted),
         );
     }
 }

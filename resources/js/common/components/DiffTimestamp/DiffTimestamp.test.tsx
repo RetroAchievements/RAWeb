@@ -5,15 +5,15 @@ import utc from 'dayjs/plugin/utc';
 
 import { render, screen } from '@/test';
 
-import { PostTimestamp } from './PostTimestamp';
+import { DiffTimestamp } from './DiffTimestamp';
 
 dayjs.extend(utc);
 
-describe('Component: PostTimestamp', () => {
+describe('Component: DiffTimestamp', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <PostTimestamp asAbsoluteDate={false} postedAt={faker.date.recent().toISOString()} />,
+      <DiffTimestamp asAbsoluteDate={false} at={faker.date.recent().toISOString()} />,
     );
 
     // ASSERT
@@ -27,7 +27,7 @@ describe('Component: PostTimestamp', () => {
 
     const mockPostDate = dayjs.utc('2024-05-04T05:08.00').toDate();
 
-    render(<PostTimestamp asAbsoluteDate={false} postedAt={mockPostDate.toISOString()} />);
+    render(<DiffTimestamp asAbsoluteDate={false} at={mockPostDate.toISOString()} />);
 
     // ASSERT
     expect(screen.getByText(/3 days ago/i)).toBeVisible();
@@ -40,7 +40,7 @@ describe('Component: PostTimestamp', () => {
 
     const mockPostDate = dayjs.utc('2024-05-04T05:08.00').toDate();
 
-    render(<PostTimestamp asAbsoluteDate={true} postedAt={mockPostDate.toISOString()} />);
+    render(<DiffTimestamp asAbsoluteDate={true} at={mockPostDate.toISOString()} />);
 
     // ASSERT
     expect(screen.getByText(/May 04, 2024, 05:08/i)).toBeVisible();
@@ -56,8 +56,8 @@ describe('Component: PostTimestamp', () => {
 
     render(
       <div>
-        <PostTimestamp asAbsoluteDate={false} postedAt={mockPostOneDate.toISOString()} />
-        <PostTimestamp asAbsoluteDate={false} postedAt={mockPostTwoDate.toISOString()} />
+        <DiffTimestamp asAbsoluteDate={false} at={mockPostOneDate.toISOString()} />
+        <DiffTimestamp asAbsoluteDate={false} at={mockPostTwoDate.toISOString()} />
       </div>,
     );
 
@@ -74,7 +74,7 @@ describe('Component: PostTimestamp', () => {
 
     const mockPostDate = dayjs.utc('2024-05-04T05:08.00').toDate();
 
-    render(<PostTimestamp asAbsoluteDate={false} postedAt={mockPostDate.toISOString()} />);
+    render(<DiffTimestamp asAbsoluteDate={false} at={mockPostDate.toISOString()} />);
 
     // ACT
     await user.hover(screen.getByText(/3 days ago/i));

@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   BasePagination,
@@ -14,7 +14,7 @@ interface SimplePaginatorProps<TData = unknown> {
 }
 
 export const SimplePaginator: FC<SimplePaginatorProps> = ({ paginatedData }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const {
     perPage,
@@ -31,7 +31,7 @@ export const SimplePaginator: FC<SimplePaginatorProps> = ({ paginatedData }) => 
         {previousPageUrl ? (
           <BasePaginationItem>
             <BasePaginationPrevious href={previousPageUrl}>
-              {t('Previous :count', { count: perPage })}
+              {t('Previous {{count, number}}', { count: perPage })}
             </BasePaginationPrevious>
           </BasePaginationItem>
         ) : null}
@@ -39,7 +39,7 @@ export const SimplePaginator: FC<SimplePaginatorProps> = ({ paginatedData }) => 
         {nextPageUrl ? (
           <BasePaginationItem>
             <BasePaginationNext href={nextPageUrl}>
-              {t('Next :count', { count: perPage })}
+              {t('Next {{count, number}}', { count: perPage })}
             </BasePaginationNext>
           </BasePaginationItem>
         ) : null}

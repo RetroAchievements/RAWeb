@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MdClose } from 'react-icons/md';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -16,7 +16,7 @@ interface GameListItemDrawerBacklogToggleButtonProps {
 export const GameListItemDrawerBacklogToggleButton: FC<
   GameListItemDrawerBacklogToggleButtonProps
 > = ({ backlogState, onToggle }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const isButtonDisabled = useDelayedButtonDisable(backlogState.isPending);
 

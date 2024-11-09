@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SeeMoreLinkProps {
   href: string;
@@ -13,7 +13,7 @@ interface SeeMoreLinkProps {
 }
 
 export const SeeMoreLink: FC<SeeMoreLinkProps> = ({ href, asClientSideRoute }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const Wrapper = asClientSideRoute ? Link : 'a';
 

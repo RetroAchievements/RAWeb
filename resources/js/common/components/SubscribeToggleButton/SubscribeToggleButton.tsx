@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { BaseButton } from '../+vendor/BaseButton';
 import { toastMessage } from '../+vendor/BaseToaster';
@@ -25,7 +25,7 @@ export const SubscribeToggleButton: FC<SubscribeToggleButtonProps> = ({
   subjectId,
   subjectType,
 }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const mutation = useToggleSubscriptionMutation();
 
