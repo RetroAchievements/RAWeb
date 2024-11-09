@@ -1,13 +1,13 @@
 import { Head } from '@inertiajs/react';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import type { FC } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { LegalNotice } from '@/common/components/LegalNotice';
-import { Trans } from '@/common/components/Trans';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 
 const Terms: AppPage = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -47,23 +47,25 @@ const Terms: AppPage = () => {
                   {t('Code of Conduct')}
                 </p>
                 <p>
-                  <Trans i18nKey="By signing up on RetroAchievements.org, you agree to the <0>Users Code of Conduct</0>.">
-                    {/* eslint-disable react/jsx-no-literals */}
-                    By signing up on RetroAchievements.org, you agree to the{' '}
-                    <a href="https://docs.retroachievements.org/guidelines/users/code-of-conduct.html">
-                      Users Code of Conduct
-                    </a>
-                    .{/* eslint-enable react/jsx-no-literals */}
+                  <Trans
+                    i18nKey="By signing up on RetroAchievements.org, you agree to the <1>Users Code of Conduct</1>."
+                    components={{
+                      1: <UsersCodeOfConductLink />,
+                    }}
+                  >
+                    {'By signing up on RetroAchievements.org, you agree to the '}
+                    <UsersCodeOfConductLink />
+                    {'.'}
                   </Trans>
                 </p>
                 <p>
-                  <Trans i18nKey="By joining the Junior Developer and/or Developer team, you agree to the <0>Developers Code of Conduct</0>.">
-                    {/* eslint-disable react/jsx-no-literals */}
-                    By joining the Junior Developer and/or Developer team, you agree to the{' '}
-                    <a href="https://docs.retroachievements.org/guidelines/developers/code-of-conduct.html">
-                      Developers Code of Conduct
-                    </a>
-                    .{/* eslint-enable react/jsx-no-literals */}
+                  <Trans
+                    i18nKey="By joining the Junior Developer and/or Developer team, you agree to the <1>Developers Code of Conduct</1>."
+                    components={{ 1: <DevelopersCodeOfConductLink /> }}
+                  >
+                    {'By joining the Junior Developer and/or Developer team, you agree to the '}
+                    <DevelopersCodeOfConductLink />
+                    {'.'}
                   </Trans>
                 </p>
               </div>
@@ -176,5 +178,16 @@ const Terms: AppPage = () => {
 };
 
 Terms.layout = (page) => <AppLayout withSidebar={false}>{page}</AppLayout>;
+
+const UsersCodeOfConductLink: FC = () => (
+  <a href="https://docs.retroachievements.org/guidelines/users/code-of-conduct.html">
+    {'Users Code of Conduct'}
+  </a>
+);
+const DevelopersCodeOfConductLink: FC = () => (
+  <a href="https://docs.retroachievements.org/guidelines/developers/code-of-conduct.html">
+    {'Developers Code of Conduct'}
+  </a>
+);
 
 export default Terms;

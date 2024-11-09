@@ -55,6 +55,12 @@ class HandleInertiaRequests extends Middleware
                 ),
             ] : null,
 
+            'config' => [
+                'services' => [
+                    'patreon' => ['userId' => config('services.patreon.user_id')],
+                ],
+            ],
+
             'ziggy' => fn () => [
                 ...(new Ziggy())->toArray(),
                 'device' => (new Agent())->isMobile() ? 'mobile' : 'desktop',

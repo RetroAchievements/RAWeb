@@ -1,14 +1,10 @@
 import type { Table } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
-
-import { useFormatNumber } from '@/common/hooks/useFormatNumber';
+import { useTranslation } from 'react-i18next';
 
 type AchievementsPublishedFilterValue = 'has' | 'none' | 'either';
 
 export function useCurrentSuperFilterLabel<TData>(table: Table<TData>): string {
-  const { t, tChoice } = useLaravelReactI18n();
-
-  const { formatNumber } = useFormatNumber();
+  const { t } = useTranslation();
 
   const achievementsPublished = table.getColumn('achievementsPublished');
   const achievementsPublishedFilterValue =
@@ -27,9 +23,7 @@ export function useCurrentSuperFilterLabel<TData>(table: Table<TData>): string {
 
   const systemsCount = systemFilterValue?.length ?? 0;
   if (systemsCount > 0) {
-    const systemsLabel = tChoice(':count system|:count Systems', systemsCount, {
-      count: formatNumber(systemsCount),
-    });
+    const systemsLabel = t('{{val, number}} Systems', { count: systemsCount, val: systemsCount });
 
     filterLabel += `, ${systemsLabel}`;
   } else {

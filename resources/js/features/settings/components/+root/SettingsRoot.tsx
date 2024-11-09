@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -16,7 +16,7 @@ import { ResetGameProgressSectionCard } from '../ResetGameProgressSectionCard';
 export const SettingsRoot: FC = () => {
   const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   // Make sure the shared websitePrefs values used between NotificationsSectionCard
   // and PreferencesSectionCard don't override each other.

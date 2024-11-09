@@ -25,12 +25,12 @@
             {!! $news->Payload !!}
         </p>
 
-            <div class="hidden sm:flex flex-col justify-end items-end text-shadow absolute bottom-2 right-2">
-                @if ($news?->user?->User)
-                    {!! userAvatar($news->user->User, icon: false) !!}
-                @endif
-                
-                {{ $news->Timestamp->format('M j, Y') }}
-            </div>
+        <div class="hidden sm:flex flex-col justify-end items-end text-shadow absolute bottom-2 right-2">
+            @if ($news?->user?->User)
+                {!! userAvatar($news->user->User, icon: false) !!}
+            @endif
+            
+            {{ $news->Timestamp->format('M j, Y') }}
+        </div>
     </div>
 </div>

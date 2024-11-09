@@ -1,16 +1,16 @@
 import { Head } from '@inertiajs/react';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useTranslation } from 'react-i18next';
 
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { GameCommentsMainRoot } from '@/features/comments/GameCommentsMainRoot';
 
 const GameComments: AppPage<App.Community.Data.GameCommentsPageProps> = ({ game }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <>
-      <Head title={t('Comments - :gameTitle', { gameTitle: game.title })}>
+      <Head title={t('Comments - {{gameTitle}}', { gameTitle: game.title })}>
         <meta
           name="description"
           content={`General discussion about the achievement set for ${game.title}`}

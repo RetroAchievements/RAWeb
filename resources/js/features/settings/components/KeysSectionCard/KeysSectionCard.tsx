@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -10,7 +10,7 @@ import { ManageWebApiKey } from './ManageWebApiKey';
 export const KeysSectionCard: FC = () => {
   const { can } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   if (!can.manipulateApiKeys) {
     return null;

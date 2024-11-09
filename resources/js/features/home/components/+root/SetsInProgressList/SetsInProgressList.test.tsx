@@ -1,11 +1,12 @@
 import { render, screen } from '@/test';
+import { createAchievementSetClaim, createHomePageProps } from '@/test/factories';
 
 import { SetsInProgressList } from './SetsInProgressList';
 
 describe('Component: SetsInProgressList', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<SetsInProgressList />);
+    const { container } = render<App.Http.Data.HomePageProps>(<SetsInProgressList />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -13,15 +14,25 @@ describe('Component: SetsInProgressList', () => {
 
   it('displays an accessible heading', () => {
     // ARRANGE
-    render(<SetsInProgressList />);
+    render<App.Http.Data.HomePageProps>(<SetsInProgressList />);
 
     // ASSERT
     expect(screen.getByRole('heading', { name: /latest sets in progress/i })).toBeVisible();
   });
 
+  it('given there are no completed claims, displays an empty state and does not crash', () => {
+    // ARRANGE
+    render<App.Http.Data.HomePageProps>(<SetsInProgressList />);
+
+    // ASSERT
+    expect(screen.getByText(/couldn't find any sets in progress/i)).toBeVisible();
+  });
+
   it('displays accessible table headers', () => {
     // ARRANGE
-    render(<SetsInProgressList />);
+    render<App.Http.Data.HomePageProps>(<SetsInProgressList />, {
+      pageProps: createHomePageProps(),
+    });
 
     // ASSERT
     expect(screen.getByRole('columnheader', { name: /game/i })).toBeVisible();
@@ -30,14 +41,31 @@ describe('Component: SetsInProgressList', () => {
     expect(screen.getByRole('columnheader', { name: /started/i })).toBeVisible();
   });
 
-  it.todo('renders multiple table rows');
-  it.todo('displays game and user avatars in each row');
-  it.todo('displays an empty state when there are no new sets');
-  it.todo('displays the correct timestamps for each set in the list');
+  it('displays multiple table rows', () => {
+    // ARRANGE
+    render<App.Http.Data.HomePageProps>(<SetsInProgressList />, {
+      pageProps: createHomePageProps({
+        newClaims: [
+          createAchievementSetClaim(),
+          createAchievementSetClaim(),
+          createAchievementSetClaim(),
+          createAchievementSetClaim(),
+          createAchievementSetClaim(),
+        ],
+      }),
+    });
+
+    // ASSERT
+    const rowEls = screen.getAllByRole('row');
+
+    expect(rowEls.length).toEqual(6); // 5, plus the header row.
+  });
 
   it('displays a link to the "See More" page', () => {
     // ARRANGE
-    render(<SetsInProgressList />);
+    render<App.Http.Data.HomePageProps>(<SetsInProgressList />, {
+      pageProps: createHomePageProps(),
+    });
 
     // ASSERT
     const linkEl = screen.getByRole('link', { name: /see more/i });

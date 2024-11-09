@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -14,7 +14,7 @@ import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTar
 export const AllGamesMainRoot: FC = () => {
   const { paginatedGameListEntries } = usePageProps<App.Platform.Data.GameListPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const {
     columnFilters,

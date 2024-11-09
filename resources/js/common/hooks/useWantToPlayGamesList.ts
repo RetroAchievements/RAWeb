@@ -1,12 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useTranslation } from 'react-i18next';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { useAddToGameListMutation } from '@/common/hooks/useAddToGameListMutation';
 import { useRemoveFromGameListMutation } from '@/common/hooks/useRemoveFromGameListMutation';
 
 export function useWantToPlayGamesList() {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const queryClient = useQueryClient();
 
@@ -33,10 +33,10 @@ export function useWantToPlayGamesList() {
         loading: options?.isUndo ? t('Restoring...') : t('Adding...'),
         success: () => {
           if (options?.isUndo) {
-            return t('Restored :gameTitle!', { gameTitle });
+            return t('Restored {{gameTitle}}!', { gameTitle });
           }
 
-          return options?.t_successMessage ?? t('Added :gameTitle!', { gameTitle });
+          return options?.t_successMessage ?? t('Added {{gameTitle}}!', { gameTitle });
         },
         error: t('Something went wrong.'),
       });
@@ -73,7 +73,7 @@ export function useWantToPlayGamesList() {
         },
         loading: t('Removing...'),
         success: () => {
-          return options?.t_successMessage ?? t('Removed :gameTitle!', { gameTitle });
+          return options?.t_successMessage ?? t('Removed {{gameTitle}}!', { gameTitle });
         },
         error: t('Something went wrong.'),
       });

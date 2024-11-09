@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utc from 'dayjs/plugin/utc';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { BaseChip } from '@/common/components/+vendor/BaseChip';
 import { PlayerBadgeIndicator } from '@/common/components/PlayerBadgeIndicator';
@@ -27,7 +27,7 @@ interface ChipOfInterestProps {
 }
 
 export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fieldId }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { formatNumber } = useFormatNumber();
 
