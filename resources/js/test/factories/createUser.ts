@@ -7,6 +7,7 @@ export const createUser = createFactory<App.Data.User>((faker) => {
     displayName,
     username: displayName,
     isMuted: faker.datatype.boolean(),
+    mutedUntil: null,
     avatarUrl: `http://media.retroachievements.org/UserPic/${displayName}.png`,
     id: faker.number.int({ min: 1, max: 1000000 }),
     legacyPermissions: faker.number.int({ min: 0, max: 4 }),

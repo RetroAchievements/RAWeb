@@ -1,7 +1,11 @@
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
+import utc from 'dayjs/plugin/utc';
 
+// TODO switch from dayjs to date-fns for better perf and localization support
+
+dayjs.extend(utc);
 dayjs.extend(localizedFormat);
 
 /**
@@ -16,7 +20,7 @@ dayjs.extend(localizedFormat);
 /**
  * @see https://day.js.org/docs/en/display/format#list-of-localized-formats
  */
-type ValidLocalizedFormat =
+type StandardLocalizedFormat =
   | 'LT' // "8:02 PM"
   | 'LTS' // "8:02:18 PM"
   | 'L' // "08/16/2018"
@@ -26,22 +30,42 @@ type ValidLocalizedFormat =
   | 'l' // "8/16/2018"
   | 'll' // "Aug 16, 2018"
   | 'lll' // "Aug 16, 2018 8:02 PM"
-  | 'llll' // "Thu, Aug 16, 2018 8:02 PM"
-  | 'MMM DD, YYYY, HH:mm'; // "Aug 16, 2018, 08:02"
+  | 'llll'; // "Thu, Aug 16, 2018 8:02 PM"
+
+type CustomLocalizedFormat = 'MMM DD, YYYY, HH:mm' | 'MMM YYYY';
+
+type ValidLocalizedFormat = StandardLocalizedFormat | CustomLocalizedFormat;
+
+const formatOverrides: Partial<
+  Record<
+    ValidLocalizedFormat | `${ValidLocalizedFormat} ${ValidLocalizedFormat}`,
+    (locale: string) => string
+  >
+> = {
+  'MMM DD, YYYY, HH:mm': (locale) =>
+    ['en', 'en-us'].includes(locale) ? 'MMM DD, YYYY, HH:mm' : 'DD MMM YYYY, HH:mm',
+  'MMM YYYY': (locale) => {
+    switch (locale) {
+      case 'en':
+      case 'en-us':
+        return 'MMM YYYY';
+      case 'pt-br':
+        return 'MMM [de] YYYY';
+      default:
+        return 'MMM YYYY';
+    }
+  },
+};
 
 export function formatDate(
-  date: Dayjs,
+  date: Dayjs | string,
   format: ValidLocalizedFormat | `${ValidLocalizedFormat} ${ValidLocalizedFormat}`,
 ): string {
-  const currentLocale = dayjs.locale();
+  const dayjsDate = typeof date === 'string' ? dayjs.utc(date) : date;
+  const locale = dayjs.locale();
 
-  if (format === 'MMM DD, YYYY, HH:mm') {
-    if (currentLocale === 'en' || currentLocale === 'en-us') {
-      return date.format(format);
-    } else {
-      return date.format('DD MMM YYYY, HH:mm');
-    }
-  }
+  // Determine if there's a format override for the current format and locale
+  const overriddenFormat = formatOverrides[format]?.(locale) || format;
 
-  return date.format(format);
+  return dayjsDate.format(overriddenFormat);
 }

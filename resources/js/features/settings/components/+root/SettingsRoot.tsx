@@ -7,6 +7,7 @@ import { ChangeEmailAddressSectionCard } from '../ChangeEmailAddressSectionCard'
 import { ChangePasswordSectionCard } from '../ChangePasswordSectionCard';
 import { DeleteAccountSectionCard } from '../DeleteAccountSectionCard';
 import { KeysSectionCard } from '../KeysSectionCard';
+// import { LocaleSectionCard } from '../LocaleSectionCard';
 import { NotificationsSectionCard } from '../NotificationsSectionCard';
 import { PreferencesSectionCard } from '../PreferencesSectionCard';
 import { ProfileSectionCard } from '../ProfileSectionCard';
@@ -17,7 +18,10 @@ export const SettingsRoot: FC = () => {
 
   const { t } = useLaravelReactI18n();
 
-  const [currentWebsitePrefs, setCurrentWebsitePrefs] = useState(auth?.user.websitePrefs ?? 0);
+  // Make sure the shared websitePrefs values used between NotificationsSectionCard
+  // and PreferencesSectionCard don't override each other.
+  // TODO can we just have Inertia reload the page data on save?
+  const [currentWebsitePrefs, setCurrentWebsitePrefs] = useState(auth?.user.websitePrefs as number);
 
   const handleUpdateWebsitePrefs = (newWebsitePrefs: number) => {
     setCurrentWebsitePrefs(newWebsitePrefs);
@@ -30,11 +34,13 @@ export const SettingsRoot: FC = () => {
       <div className="flex flex-col gap-4">
         <ProfileSectionCard />
 
-        {/* Make sure the shared websitePrefs values don't accidentally override each other. */}
         <NotificationsSectionCard
           currentWebsitePrefs={currentWebsitePrefs}
           onUpdateWebsitePrefs={handleUpdateWebsitePrefs}
         />
+
+        {/* <LocaleSectionCard /> */}
+
         <PreferencesSectionCard
           currentWebsitePrefs={currentWebsitePrefs}
           onUpdateWebsitePrefs={handleUpdateWebsitePrefs}

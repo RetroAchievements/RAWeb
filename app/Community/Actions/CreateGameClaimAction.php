@@ -21,10 +21,9 @@ use Illuminate\Support\Facades\Cache;
 
 class CreateGameClaimAction
 {
-    public function execute(Game $game): AchievementSetClaim
+    public function execute(Game $game, ?User $currentUser = null): AchievementSetClaim
     {
-        /** @var User $currentUser */
-        $currentUser = Auth::user();
+        $currentUser ??= Auth::user();
 
         // Devs have 3 months to complete a claim.
         $expiresAt = Carbon::now()->addMonths(3);
@@ -37,7 +36,7 @@ class CreateGameClaimAction
         if ($primaryClaim !== null) {
             if ($primaryClaim->user->is($currentUser)) {
                 // renewing claim
-                $primaryClaim->Finished = $expiresAt;
+                $primaryClaim->Finished = $primaryClaim->Finished->addMonths(3);
                 $primaryClaim->Extension++;
                 $primaryClaim->save();
 

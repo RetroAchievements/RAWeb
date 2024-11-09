@@ -5,7 +5,7 @@ import { createFactory } from '@/test/createFactory';
 
 import type { ZiggyProps } from './ziggy-props.model';
 
-type AuthenticatedUser = SetRequired<
+export type AuthenticatedUser = SetRequired<
   App.Data.User,
   'id' | 'legacyPermissions' | 'preferences' | 'roles' | 'unreadMessageCount' | 'websitePrefs'
 >;
@@ -20,6 +20,7 @@ export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) 
   displayName: faker.internet.displayName(),
   id: faker.number.int({ min: 1, max: 99999 }),
   isMuted: false,
+  mutedUntil: null,
   legacyPermissions: 8447,
   preferences: {
     prefersAbsoluteDates: false,
@@ -31,5 +32,5 @@ export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) 
 
 export const createAppGlobalProps = createFactory<AppGlobalProps>(() => ({
   auth: { user: createAuthenticatedUser() },
-  ziggy: { defaults: [], location: '', port: 8080, query: {}, url: '' },
+  ziggy: { defaults: [], device: 'desktop', location: '', port: 8080, query: {}, url: '' },
 }));

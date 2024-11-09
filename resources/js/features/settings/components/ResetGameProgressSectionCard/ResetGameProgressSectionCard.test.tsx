@@ -197,4 +197,46 @@ describe('Component: ResetGameProgressSectionCard', () => {
 
     expect(await screen.findByText(/progress was reset/i)).toBeVisible();
   });
+
+  it('given the user does not confirm the prompt to reset progress, does not send a request to the server', async () => {
+    // ARRANGE
+    const deleteSpy = vi.spyOn(axios, 'delete');
+
+    vi.spyOn(window, 'confirm').mockReturnValueOnce(false);
+
+    nock('http://localhost:3000')
+      .get('/player.games.resettable')
+      .reply(200, {
+        results: [createPlayerResettableGame({ id: 1, title: 'Sonic the Hedgehog' })],
+      });
+
+    nock('http://localhost:3000')
+      .get('/player.game.achievements.resettable,1')
+      .reply(200, {
+        results: [
+          createPlayerResettableGameAchievement({
+            id: 9,
+            title: 'That Was Easy!',
+            points: 5,
+            isHardcore: false,
+          }),
+        ],
+      });
+
+    render(<ResetGameProgressSectionCard />);
+
+    // ACT
+    mockAllIsIntersecting(true);
+
+    await userEvent.click(screen.getByRole('combobox', { name: /game/i }));
+    await userEvent.click(await screen.findByRole('option', { name: /sonic the hedgehog/i }));
+
+    await userEvent.click(screen.getByRole('combobox', { name: /achievement/i }));
+    await userEvent.click(screen.getByRole('option', { name: /that was easy/i }));
+
+    await userEvent.click(screen.getByRole('button', { name: /reset progress/i }));
+
+    // ASSERT
+    expect(deleteSpy).not.toHaveBeenCalled();
+  });
 });

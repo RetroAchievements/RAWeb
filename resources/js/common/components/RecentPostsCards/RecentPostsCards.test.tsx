@@ -1,3 +1,4 @@
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import {
   createForumTopicComment,
@@ -98,5 +99,23 @@ describe('Component: RecentPostsCards', () => {
 
     // ASSERT
     expect(screen.queryByTestId('timestamp')).not.toBeInTheDocument();
+  });
+
+  it('given the user has the prefers absolute dates preference set, shows an absolute date', () => {
+    // ARRANGE
+    const mockDate = new Date('2021-12-25');
+
+    const recentActiveForumTopic = createRecentActiveForumTopic({
+      latestComment: createForumTopicComment({ createdAt: mockDate.toISOString() }),
+    });
+
+    render(<RecentPostsCards paginatedTopics={createPaginatedData([recentActiveForumTopic])} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ preferences: { prefersAbsoluteDates: true } }) },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText('Dec 25, 2021, 00:00')).toBeVisible();
   });
 });

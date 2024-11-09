@@ -26,14 +26,6 @@ function isValidConsoleId(int $consoleId): bool
     return in_array($consoleId, getValidConsoleIds());
 }
 
-function getEmulatorReleaseByIntegrationId(?int $integrationId): ?array
-{
-    $releases = getReleasesFromFile();
-    $emulators = $releases['emulators'] ?? [];
-
-    return $emulators[$integrationId] ?? null;
-}
-
 function getIntegrationRelease(): ?array
 {
     $releases = getReleasesFromFile();
