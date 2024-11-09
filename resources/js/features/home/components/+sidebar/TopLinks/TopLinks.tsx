@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   LuBook,
   LuCircleDot,
@@ -19,7 +19,7 @@ import { cn } from '@/utils/cn';
 export const TopLinks: FC = () => {
   const { config } = usePageProps<App.Http.Data.HomePageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col gap-2.5">

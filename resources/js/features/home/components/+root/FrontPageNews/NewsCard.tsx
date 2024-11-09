@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, type ReactNode, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/utils/cn';
 
@@ -24,7 +24,7 @@ export const NewsCard: FC<NewsCardProps> = ({
   title,
   className,
 }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <a
@@ -51,7 +51,7 @@ export const NewsCard: FC<NewsCardProps> = ({
         <p className="mb-1 hidden text-2xs text-neutral-400/90 sm:block">
           {PostedAt}{' '}
           <span className="normal-case italic">
-            {'·'} {t('by :authorDisplayName', { authorDisplayName })}
+            {'·'} {t('by {{authorDisplayName}}', { authorDisplayName })}
           </span>
         </p>
 

@@ -1,6 +1,6 @@
 import type { Table } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuArrowLeft, LuArrowLeftToLine, LuArrowRight, LuArrowRightToLine } from 'react-icons/lu';
 import type { RouteName } from 'ziggy-js';
 
@@ -20,7 +20,7 @@ export default function DataTablePagination<TData>({
   table,
   tableApiRouteName = 'api.game.index',
 }: DataTablePaginationProps<TData>): ReactNode {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { pagination } = table.getState();
 

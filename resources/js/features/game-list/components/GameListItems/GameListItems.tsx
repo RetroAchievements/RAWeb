@@ -1,7 +1,7 @@
 import type { ColumnFiltersState, PaginationState, SortingState } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, useEffect, useState } from 'react';
 import { Fragment } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { RouteName } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -45,7 +45,7 @@ const GameListItems: FC<GameListItemsProps> = ({
 }) => {
   const { ziggy } = usePageProps();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const dataInfiniteQuery = useGameListInfiniteQuery({
     columnFilters,

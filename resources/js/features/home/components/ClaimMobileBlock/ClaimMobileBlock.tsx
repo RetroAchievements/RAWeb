@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { GameAvatar } from '@/common/components/GameAvatar';
@@ -13,7 +13,7 @@ interface ClaimMobileBlockProps {
 }
 
 export const ClaimMobileBlock: FC<ClaimMobileBlockProps> = ({ claim }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { game, users } = claim;
 

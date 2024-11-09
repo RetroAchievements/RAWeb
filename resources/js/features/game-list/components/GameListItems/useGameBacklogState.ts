@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useWantToPlayGamesList } from '@/common/hooks/useWantToPlayGamesList';
@@ -19,7 +19,7 @@ export function useGameBacklogState({
 }: UseGameBacklogStateProps) {
   const { auth } = usePageProps();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   /**
    * Invalidation of infinite queries is _very_ expensive, both for the
@@ -62,8 +62,8 @@ export function useGameBacklogState({
       if (shouldShowToasts) {
         // Add the success message when toasts are enabled.
         mutationOptions.t_successMessage = newBacklogState
-          ? t('Added :gameTitle to playlist!', { gameTitle: game.title })
-          : t('Removed :gameTitle from playlist!', { gameTitle: game.title });
+          ? t('Added {{gameTitle}} to playlist!', { gameTitle: game.title })
+          : t('Removed {{gameTitle}} from playlist!', { gameTitle: game.title });
 
         // Add the undo callback only when removing from backlog and toasts are enabled.
         if (!newBacklogState) {

@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { GameAvatar } from '@/common/components/GameAvatar';
@@ -12,7 +12,7 @@ export const RecentGameAwards: FC = () => {
   const { mostRecentGameBeaten, mostRecentGameMastered } =
     usePageProps<App.Http.Data.HomePageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col gap-8 sm:grid sm:grid-cols-2 lg:flex">

@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { GameAvatar } from '@/common/components/GameAvatar';
@@ -15,7 +15,7 @@ import { HomeHeading } from '../../HomeHeading';
 export const AchievementOfTheWeek: FC = () => {
   const { achievementOfTheWeek, staticData } = usePageProps<App.Http.Data.HomePageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   // TODO needs better empty state
   if (!achievementOfTheWeek?.game?.system) {

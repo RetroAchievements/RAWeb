@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
 import dayjs from 'dayjs';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -14,7 +14,7 @@ import { HomeHeading } from '../../HomeHeading';
 export const GlobalStatistics: FC = () => {
   const { staticData } = usePageProps<App.Http.Data.HomePageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { formatNumber } = useFormatNumber();
 
@@ -76,7 +76,7 @@ export const GlobalStatistics: FC = () => {
 
         <div className="group flex h-full flex-col rounded bg-embed px-2 py-2.5">
           <p className="text-xs leading-4 text-neutral-400/90 light:text-neutral-950 lg:text-2xs">
-            {t('Points Earned Since :date', { date: formatDate(dayjs('2013-03-02'), 'LL') })}
+            {t('Points Earned Since {{date}}', { date: formatDate(dayjs('2013-03-02'), 'LL') })}
           </p>
           <p className="!text-[20px] leading-7 text-neutral-300 light:text-neutral-950">
             {formatNumber(staticData?.totalPointsEarned)}

@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -12,7 +12,7 @@ import { NewsCard } from './NewsCard';
 export const FrontPageNews: FC = () => {
   const { recentNews } = usePageProps<App.Http.Data.HomePageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   if (!recentNews) {
     return null;

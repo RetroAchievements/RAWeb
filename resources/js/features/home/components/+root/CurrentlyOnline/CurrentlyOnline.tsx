@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
-import { type FC } from 'react';
+import type { FC } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 import {
@@ -10,7 +10,6 @@ import {
   BaseChartTooltip,
   BaseChartTooltipContent,
 } from '@/common/components/+vendor/BaseChart';
-import { Trans } from '@/common/components/Trans';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { formatDate } from '@/common/utils/l10n/formatDate';
@@ -23,7 +22,7 @@ dayjs.extend(utc);
 export const CurrentlyOnline: FC = () => {
   const { currentlyOnline } = usePageProps<App.Http.Data.HomePageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { chartData, yAxisTicks, formatXAxisTick, formatYAxisTick } =
     useCurrentlyOnlineChart(currentlyOnline);
@@ -45,40 +44,22 @@ export const CurrentlyOnline: FC = () => {
         <div className="flex items-center gap-2">
           <div className="h-2.5 w-2.5 rounded-full bg-green-500" />
           <p>
-            {currentlyOnline?.numCurrentPlayers === 1 ? (
-              <Trans
-                i18nKey="<0>:userCount</0> user is currently online."
-                values={{ userCount: formatNumber(currentlyOnline?.numCurrentPlayers) }}
-              >
-                {/* eslint-disable */}
-                <span className="font-bold">
-                  {formatNumber(currentlyOnline?.numCurrentPlayers)}
-                </span>{' '}
-                user is currently online.
-                {/* eslint-enable */}
-              </Trans>
-            ) : (
-              <Trans
-                i18nKey="<0>:userCount</0> users are currently online."
-                values={{ userCount: formatNumber(currentlyOnline?.numCurrentPlayers) }}
-              >
-                {/* eslint-disable */}
-                <span className="font-bold">
-                  {formatNumber(currentlyOnline?.numCurrentPlayers)}
-                </span>{' '}
-                users are currently online.
-                {/* eslint-enable */}
-              </Trans>
-            )}
+            <Trans
+              i18nKey="userCount"
+              count={currentlyOnline?.numCurrentPlayers ?? 1}
+              values={{ userCount: currentlyOnline?.numCurrentPlayers ?? 1 }}
+              components={{ 1: <span className="font-bold" /> }}
+            >
+              <span className="font-bold">{formatNumber(currentlyOnline?.numCurrentPlayers)}</span>{' '}
+              {'users are currently online.'}
+            </Trans>
           </p>
         </div>
 
         <p className="text-muted cursor-default italic transition hover:text-neutral-300 hover:light:text-neutral-950">
-          {t('All-time High: :number :date', {
-            number: formatNumber(currentlyOnline?.allTimeHighPlayers),
-            date: currentlyOnline?.allTimeHighDate
-              ? `(${formatDate(dayjs.utc(currentlyOnline.allTimeHighDate), 'll')})`
-              : '',
+          {t('All-time High: {{val, number}} ({{date}})', {
+            val: currentlyOnline.allTimeHighPlayers,
+            date: formatDate(dayjs.utc(currentlyOnline.allTimeHighDate), 'll'),
           })}
         </p>
       </div>
