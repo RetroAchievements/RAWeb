@@ -6,6 +6,7 @@ namespace App\Filament\Resources\GameResource\RelationManagers;
 
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrders;
 use App\Platform\Enums\AchievementFlag;
@@ -219,7 +220,13 @@ class AchievementsRelationManager extends RelationManager
                         }),
                 ])
                     ->label('Bulk set type')
-                    ->visible(fn (): bool => $user->can('updateField', [Achievement::class, null, 'type'])),
+                    ->visible(function ($record) use ($user) {
+                        if ($this->getOwnerRecord()->system->id === System::Events) {
+                            return false;
+                        }
+
+                        return $user->can('updateField', [Achievement::class, null, 'type']);
+                    }),
             ])
             ->recordUrl(function (Achievement $record): string {
                 /** @var User $user */
