@@ -6,6 +6,7 @@ namespace App\Policies;
 
 use App\Models\Achievement;
 use App\Models\AchievementComment;
+use App\Models\Comment;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -32,7 +33,6 @@ class AchievementCommentPolicy
 
         if ($user->hasAnyRole([
             Role::MODERATOR,
-            // Role::ADMINISTRATOR,
         ])) {
             return true;
         }
@@ -45,9 +45,13 @@ class AchievementCommentPolicy
         return true;
     }
 
-    public function create(User $user, ?Achievement $commentable): bool
+    public function create(?User $user, ?Achievement $commentable): bool
     {
-        if ($user->isMuted()) {
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->isMuted() || $user->isBanned()) {
             return false;
         }
 
@@ -68,9 +72,12 @@ class AchievementCommentPolicy
 
     public function delete(User $user, AchievementComment $comment): bool
     {
+        if ($comment->is_automated) {
+            return false;
+        }
+
         if ($user->hasAnyRole([
             Role::MODERATOR,
-            // Role::ADMINISTRATOR,
         ])) {
             return true;
         }
@@ -78,7 +85,7 @@ class AchievementCommentPolicy
         /*
          * it's the user's own comment
          */
-        return $user->is($comment->commentable);
+        return $user->is($comment->user);
     }
 
     public function restore(User $user, AchievementComment $comment): bool

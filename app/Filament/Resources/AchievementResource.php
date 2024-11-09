@@ -160,7 +160,7 @@ class AchievementResource extends Resource
         /** @var User $user */
         $user = Auth::user();
 
-        $form->model->loadMissing('game.system');
+        $form->model?->loadMissing('game.system');
 
         return $form
             ->columns(1)
@@ -267,7 +267,7 @@ class AchievementResource extends Resource
                             ->native(false)
                             ->date(),
                     ])
-                    ->hidden(fn ($record) => $record->game->system->id !== System::Events),
+                    ->hidden(fn ($record) => $record && $record->game->system->id !== System::Events),
             ]);
     }
 

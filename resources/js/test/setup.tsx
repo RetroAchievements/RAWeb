@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import * as InertiajsReactModule from '@inertiajs/react';
+import type { RenderHookOptions as RTLRenderHookOptions } from '@testing-library/react';
 import { render as defaultRender, renderHook as defaultRenderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
@@ -147,21 +148,29 @@ export function render<TPageProps = Record<string, unknown>>(
   };
 }
 
-// -----------------
+/*
+|--------------------------------------------------------------------------
+| Test Suite Custom Render Hook Method
+|--------------------------------------------------------------------------
+|
+| It's often useful to define a custom renderHook method that includes things
+| like global context providers, data stores, etc.
+| https://testing-library.com/docs/react-testing-library/setup#custom-render
+|
+*/
 
-type DefaultRenderHookParams = Parameters<typeof defaultRenderHook>;
-type RenderCallback = DefaultRenderHookParams[0];
-type RenderHookOptions<TPageProps = Record<string, unknown>> = DefaultRenderHookParams[1] & {
-  pageProps?: Partial<TPageProps & AppGlobalProps>;
+type RenderHookOptions<Props> = RTLRenderHookOptions<Props> & {
+  pageProps?: Partial<AppGlobalProps>;
 };
 
-export function renderHook<TPageProps = Record<string, unknown>>(
-  callback: RenderCallback,
+export function renderHook<Result, Props = undefined>(
+  callback: (props: Props) => Result,
   {
     wrapper,
-    pageProps = {} as Partial<TPageProps & AppGlobalProps>,
+    initialProps,
+    pageProps = {} as Partial<AppGlobalProps>,
     ...options
-  }: RenderHookOptions<TPageProps> = {},
+  }: RenderHookOptions<Props> = {},
 ) {
   vi.spyOn(InertiajsReactModule, 'usePage').mockImplementation(() => ({
     component: '',
@@ -176,7 +185,5 @@ export function renderHook<TPageProps = Record<string, unknown>>(
     wrapper = ({ children }: WrapperProps) => <AppProviders>{children}</AppProviders>;
   }
 
-  return {
-    ...defaultRenderHook(callback, { wrapper, ...options }),
-  };
+  return defaultRenderHook(callback, { wrapper, initialProps, ...options });
 }

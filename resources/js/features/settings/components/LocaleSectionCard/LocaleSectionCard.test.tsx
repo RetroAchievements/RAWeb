@@ -6,6 +6,9 @@ import { render, screen, waitFor } from '@/test';
 
 import { LocaleSectionCard } from './LocaleSectionCard';
 
+// Suppress "Error: Not implemented: navigation (except hash changes)".
+console.error = vi.fn();
+
 describe('Component: LocaleSectionCard', () => {
   const originalLocation = window.location;
 
