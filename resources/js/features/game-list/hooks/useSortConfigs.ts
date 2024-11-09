@@ -1,10 +1,10 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useTranslation } from 'react-i18next';
 import { RxArrowDown, RxArrowUp } from 'react-icons/rx';
 
 import type { SortConfig, SortConfigKind } from '../models';
 
 export function useSortConfigs() {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   /**
    * The order of `asc` and `desc` determines the order they'll

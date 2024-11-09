@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   BaseTable,
@@ -18,7 +18,7 @@ import { HomeHeading } from '../../HomeHeading';
 import { SeeMoreLink } from '../../SeeMoreLink';
 
 export const SetsInProgressList: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div>
@@ -57,7 +57,7 @@ export const SetsInProgressList: FC = () => {
 };
 
 const SampleRow: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <BaseTableRow>

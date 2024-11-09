@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   BaseFormControl,
@@ -23,7 +23,7 @@ import { useLocaleSectionForm } from './useLocaleSectionForm';
 export const LocaleSectionCard: FC = () => {
   const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { form, mutation, onSubmit } = useLocaleSectionForm({
     locale: auth?.user.locale?.length ? auth.user.locale : 'en_US',

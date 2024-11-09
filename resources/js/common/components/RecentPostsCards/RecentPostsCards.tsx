@@ -1,11 +1,11 @@
 import type { FC } from 'react';
+import { Trans } from 'react-i18next';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { PostTimestamp } from '../PostTimestamp';
 import { RecentPostAggregateLinks } from '../RecentPostAggregateLinks';
-import { Trans } from '../Trans';
 
 interface RecentPostsCardsProps {
   paginatedTopics: App.Data.PaginatedData<App.Data.ForumTopic>;
@@ -44,15 +44,15 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
 
           <div className="flex flex-col gap-y-2">
             <p className="truncate">
-              <Trans i18nKey="in <0>:forumTopicTitle</0>" values={{ forumTopicTitle: topic.title }}>
-                {/* eslint-disable react/jsx-no-literals */}
-                in{' '}
-                <a
-                  href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment?.id}#${topic.latestComment?.id}`}
-                >
-                  {topic.title}
-                </a>
-                {/* eslint-enable react/jsx-no-literals */}
+              <Trans
+                i18nKey="in <1>{{forumTopicTitle}}</1>"
+                values={{ forumTopicTitle: topic.title }}
+                components={{
+                  1: <TopicLink topic={topic} />,
+                }}
+              >
+                {'in '}
+                <TopicLink topic={topic} />
               </Trans>
             </p>
 
@@ -61,5 +61,19 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
         </div>
       ))}
     </div>
+  );
+};
+
+interface TopicLinkProps {
+  topic: App.Data.ForumTopic;
+}
+
+const TopicLink: FC<TopicLinkProps> = ({ topic }) => {
+  return (
+    <a
+      href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment?.id}#${topic.latestComment?.id}`}
+    >
+      {topic.title}
+    </a>
   );
 };

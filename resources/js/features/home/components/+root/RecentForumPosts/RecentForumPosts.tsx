@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
 
@@ -7,7 +7,7 @@ import { HomeHeading } from '../../HomeHeading';
 import { SeeMoreLink } from '../../SeeMoreLink';
 
 export const RecentForumPosts: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div>
@@ -26,7 +26,7 @@ export const RecentForumPosts: FC = () => {
 };
 
 const RecentForumPostItem: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div className="rounded bg-embed px-2.5 py-1.5">

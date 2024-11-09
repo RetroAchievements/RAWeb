@@ -1,5 +1,5 @@
 import type { ColumnFiltersState, Table } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useTranslation } from 'react-i18next';
 import { RxCross2 } from 'react-icons/rx';
 import type { RouteName } from 'ziggy-js';
 
@@ -20,7 +20,7 @@ export function DataTableResetFiltersButton<TData>({
   defaultColumnFilters = [],
   tableApiRouteName = 'api.game.index',
 }: DataTableResetFiltersButtonProps<TData>) {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { prefetchResetFilters } = useDataTablePrefetchResetFilters(
     table,

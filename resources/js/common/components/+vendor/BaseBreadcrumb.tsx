@@ -1,13 +1,13 @@
 /* eslint-disable no-restricted-imports -- base components can import from @radix-ui */
 
 import { Slot } from '@radix-ui/react-slot';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import {
   type ComponentProps,
   type ComponentPropsWithoutRef,
   forwardRef,
   type ReactNode,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuChevronRight, LuMoreHorizontal } from 'react-icons/lu';
 
 import { cn } from '@/utils/cn';
@@ -86,7 +86,7 @@ const BaseBreadcrumbSeparator = ({ children, className, ...props }: ComponentPro
 BaseBreadcrumbSeparator.displayName = 'BaseBreadcrumbSeparator';
 
 const BaseBreadcrumbEllipsis = ({ className, ...props }: ComponentProps<'span'>) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <span
