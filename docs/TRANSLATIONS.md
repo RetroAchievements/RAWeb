@@ -2,6 +2,8 @@
 
 Thank you for your interest in contributing translations to the RetroAchievements website! By helping translate our platform, you make it more accessible to a wider audience. This guide will walk you through the steps to add or update translations in the RAWeb repository.
 
+NOTE: The website does not support RTL (right-to-left) languages at this time.
+
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
