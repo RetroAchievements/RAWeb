@@ -7,6 +7,7 @@ import {
   BaseFormField,
   BaseFormItem,
   BaseFormLabel,
+  BaseFormMessage,
 } from '@/common/components/+vendor/BaseForm';
 import {
   BaseSelect,
@@ -61,6 +62,10 @@ export const EmulatorSelectField: FC = () => {
                     </BaseSelectItem>
                   ))}
                 </BaseSelectContent>
+
+                <BaseFormMessage>
+                  {form.formState.errors.emulator?.message === 'Required' ? t('Required') : null}
+                </BaseFormMessage>
               </BaseSelect>
             </BaseFormControl>
           </div>

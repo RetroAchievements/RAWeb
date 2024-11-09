@@ -980,4 +980,95 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     expect(linkEl).toBeVisible();
     expect(linkEl).toHaveAttribute('href', expect.stringContaining('docs.retroachievements.org'));
   });
+
+  it('given the user writes a description "this achievement doesn\'t work", displays a warning on attempted submit', async () => {
+    // ARRANGE
+    const achievement = createAchievement();
+    const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
+    const emulators = [
+      createEmulator({ name: 'Bizhawk' }),
+      createEmulator({ name: 'RALibRetro' }),
+      createEmulator({ name: 'RetroArch' }),
+    ];
+
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          achievement,
+          emulators,
+          gameHashes,
+          auth: { user: createAuthenticatedUser({ points: 500 }) },
+          ziggy: createZiggyProps({ query: {} }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /description/i }),
+      "this achievement doesn't work",
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/please be more specific/i)).toBeVisible();
+    });
+  });
+
+  it('given the user does not select an emulator and a hash, shows required validation messages', async () => {
+    // ARRANGE
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: 123 } });
+
+    const achievement = createAchievement();
+    const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
+    const emulators = [
+      createEmulator({ name: 'Bizhawk' }),
+      createEmulator({ name: 'RALibRetro' }),
+      createEmulator({ name: 'RetroArch' }),
+    ];
+
+    render<App.Platform.Data.CreateAchievementTicketPageProps>(
+      <CreateAchievementTicketMainRoot />,
+      {
+        pageProps: {
+          achievement,
+          emulators,
+          gameHashes,
+          auth: { user: createAuthenticatedUser({ points: 500 }) },
+          ziggy: createZiggyProps({ query: {} }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('combobox', { name: /issue/i }));
+    await userEvent.click(screen.getByRole('option', { name: /did not trigger/i }));
+
+    // !! no emulator selected
+    // await userEvent.click(screen.getByRole('combobox', { name: /emulator/i }));
+    // await userEvent.click(screen.getByRole('option', { name: /retroarch/i }));
+
+    await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
+
+    await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
+    await userEvent.click(screen.getByText(/softcore/i));
+
+    // !! no hash selected
+    // await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
+    // await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
+
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /description/i }),
+      'this is my sample description this is hopefully a helpful label so you can repro the issue',
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    // ASSERT
+    expect(screen.getAllByText('Required').length).toBeGreaterThanOrEqual(2);
+    expect(postSpy).not.toHaveBeenCalled();
+  });
 });

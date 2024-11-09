@@ -20,7 +20,9 @@ const createAchievementTicketFormSchema = z.object({
   description: z
     .string()
     .min(25, { message: 'Please be more detailed in your description.' })
-    .refine((desc) => !/(n'?t|not?).*(work|trigger)/i.test(desc)),
+    .refine((desc) => !/(n'?t|not?).*(work|trigger)/i.test(desc), {
+      message: 'BE_MORE_DESCRIPTIVE',
+    }),
 });
 
 export type CreateAchievementTicketFormValues = z.infer<typeof createAchievementTicketFormSchema>;
