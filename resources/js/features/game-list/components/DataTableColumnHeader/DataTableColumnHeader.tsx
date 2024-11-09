@@ -1,6 +1,6 @@
 import type { Column, SortDirection, Table } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC, HTMLAttributes, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { IconType } from 'react-icons/lib';
 import { RxArrowDown, RxArrowUp, RxCaretSort, RxEyeNone } from 'react-icons/rx';
 import type { RouteName } from 'ziggy-js';
@@ -35,7 +35,7 @@ export function DataTableColumnHeader<TData, TValue>({
   table,
   tableApiRouteName = 'api.game.index',
 }: DataTableColumnHeaderProps<TData, TValue>): ReactNode {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   /**
    * On hovering over a sort menu item, prefetch the result.
@@ -86,7 +86,6 @@ export function DataTableColumnHeader<TData, TValue>({
       className={cn(
         'flex items-center space-x-2',
         column.columnDef.meta?.align === 'right' ? 'justify-end' : '',
-        column.columnDef.meta?.align === 'center' ? 'justify-center' : '',
         className,
       )}
     >

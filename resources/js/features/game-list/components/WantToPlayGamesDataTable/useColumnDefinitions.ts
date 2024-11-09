@@ -1,6 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { RouteName } from 'ziggy-js';
 
 import { buildAchievementsPublishedColumnDef } from '../../utils/column-definitions/buildAchievementsPublishedColumnDef';
@@ -23,7 +23,7 @@ export function useColumnDefinitions(options: {
   canSeeOpenTicketsColumn: boolean;
   forUsername?: string;
 }): ColumnDef<App.Platform.Data.GameListEntry>[] {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const columnDefinitions = useMemo(() => {
     const columns: ColumnDef<App.Platform.Data.GameListEntry>[] = [

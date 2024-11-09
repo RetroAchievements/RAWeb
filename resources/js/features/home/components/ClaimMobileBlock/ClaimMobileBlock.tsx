@@ -1,16 +1,22 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
+import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { GameTitle } from '@/common/components/GameTitle';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import type { AvatarSize } from '@/common/models';
+import { ClaimSetType } from '@/common/utils/generatedAppConstants';
 
 interface ClaimMobileBlockProps {
-  game: App.Platform.Data.Game;
-  user: App.Data.User;
+  claim: App.Data.AchievementSetClaim;
 }
 
-export const ClaimMobileBlock: FC<ClaimMobileBlockProps> = ({ game, user }) => {
+export const ClaimMobileBlock: FC<ClaimMobileBlockProps> = ({ claim }) => {
+  const { t } = useTranslation();
+
+  const { game, users } = claim;
+
   return (
     <div className="w-full rounded bg-embed p-2">
       <div className="flex items-center gap-x-2.5">
@@ -31,8 +37,13 @@ export const ClaimMobileBlock: FC<ClaimMobileBlockProps> = ({ game, user }) => {
           ) : null}
 
           <div className="flex justify-between text-xs">
-            <UserAvatar {...user} size={14 as AvatarSize} />
-            <span className="text-xs tracking-tighter">{'New, 2 weeks ago'}</span>
+            <UserAvatar {...users[0]} size={14 as AvatarSize} />
+            <span className="text-xs tracking-tighter">
+              {claim.setType === ClaimSetType.NewSet && t('New')}
+              {claim.setType === ClaimSetType.Revision && t('Revision')}
+              {', '}
+              <DiffTimestamp at={claim.finished} />
+            </span>
           </div>
         </div>
       </div>

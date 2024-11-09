@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
 
@@ -16,7 +16,7 @@ export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
   currentWebsitePrefs,
   onUpdateWebsitePrefs,
 }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { form, mutation, onSubmit } = usePreferencesSectionForm(
     currentWebsitePrefs,

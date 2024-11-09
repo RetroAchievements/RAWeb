@@ -26,6 +26,31 @@ class ForumTopicData extends Data
         ) {
     }
 
+    public static function fromHomePageQuery(array $comment): self
+    {
+        return new self(
+            id: $comment['ForumTopicID'],
+            title: $comment['ForumTopicTitle'],
+            createdAt: Carbon::parse($comment['PostedAt']),
+
+            user: null,
+
+            commentCount24h: null,
+            oldestComment24hId: null,
+            commentCount7d: null,
+            oldestComment7dId: null,
+
+            latestComment: Lazy::create(fn () => new ForumTopicCommentData(
+                id: $comment['CommentID'],
+                body: Shortcode::stripAndClamp($comment['ShortMsg'], 100),
+                createdAt: Carbon::parse($comment['PostedAt']),
+                updatedAt: null,
+                user: UserData::fromRecentForumTopic($comment),
+                authorized: true
+            )),
+        );
+    }
+
     public static function fromRecentlyActiveTopic(array $topic): self
     {
         return new self(

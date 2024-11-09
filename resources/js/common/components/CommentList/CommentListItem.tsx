@@ -2,8 +2,8 @@ import type { FC } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { DiffTimestamp } from '../DiffTimestamp';
 import { FormatNewlines } from '../FormatNewlines';
-import { PostTimestamp } from '../PostTimestamp';
 import { UserAvatar } from '../UserAvatar';
 import { useCommentListContext } from './CommentListContext';
 import { DeleteCommentButton } from './DeleteCommentButton';
@@ -31,9 +31,9 @@ export const CommentListItem: FC<CommentListItemProps> = ({ ...comment }) => {
             {comment.isAutomated ? null : <UserAvatar {...comment.user} showImage={false} />}
 
             <span className="smalldate">
-              <PostTimestamp
+              <DiffTimestamp
                 asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates ?? false}
-                postedAt={comment.createdAt}
+                at={comment.createdAt}
               />
             </span>
           </div>

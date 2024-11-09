@@ -1,6 +1,6 @@
 import type { ColumnDef, SortDirection, Table } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { Fragment } from 'react/jsx-runtime';
+import { useTranslation } from 'react-i18next';
 import { HiFilter } from 'react-icons/hi';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -39,7 +39,7 @@ export function DataTableSuperFilter<TData>({ table }: DataTableSuperFilterProps
     filterableSystemOptions: App.Platform.Data.System[];
   }>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const currentSuperFilterLabel = useCurrentSuperFilterLabel(table);
 

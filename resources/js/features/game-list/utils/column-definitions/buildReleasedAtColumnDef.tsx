@@ -22,9 +22,11 @@ export function buildReleasedAtColumnDef({
     id: 'releasedAt',
     accessorKey: 'game',
     meta: { t_label, sortType: 'date', Icon: gameListFieldIconMap.releasedAt },
+
     header: ({ column, table }) => (
       <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
+
     cell: ({ row }) => {
       const date = row.original.game?.releasedAt ?? null;
       const granularity = row.original.game?.releasedAtGranularity ?? 'day';
