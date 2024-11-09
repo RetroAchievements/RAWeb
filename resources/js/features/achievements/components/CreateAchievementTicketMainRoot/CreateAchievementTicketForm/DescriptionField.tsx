@@ -1,6 +1,6 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { Trans, useTranslation } from 'react-i18next';
 import TextareaAutosize from 'react-textarea-autosize';
 
 import {
@@ -12,13 +12,12 @@ import {
   BaseFormMessage,
 } from '@/common/components/+vendor/BaseForm';
 import { baseTextareaClassNames } from '@/common/components/+vendor/BaseTextarea';
-import { Trans } from '@/common/components/Trans';
 import { cn } from '@/utils/cn';
 
 import type { CreateAchievementTicketFormValues } from './useCreateAchievementTicketForm';
 
 export const DescriptionField: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const form = useFormContext<CreateAchievementTicketFormValues>();
 
@@ -55,19 +54,21 @@ export const DescriptionField: FC = () => {
             </BaseFormControl>
 
             <BaseFormDescription className="!text-neutral-500 light:text-neutral-400">
-              <Trans i18nKey="<0>Be <1>very</1> descriptive</0> about what you were doing when the problem happened. Mention if you were using any <2>non-default settings, a non-English language, in-game cheats, glitches</2> or were otherwise playing in some unusual way. If possible, include a <3>link to a save state or save game</3> to help us reproduce the issue.">
-                {/* eslint-disable */}
-                <span className="text-neutral-300 light:text-neutral-950">
-                  Be <span className="italic">very</span> descriptive
-                </span>{' '}
-                about what you were doing when the problem happened. Mention if you were using any{' '}
-                <span className="text-neutral-300 light:text-neutral-950">
-                  non-default settings, a non-English language, in-game cheats, glitches,
-                </span>{' '}
-                or were otherwise playing in some unusual way. If possible, include a{' '}
-                <span className="text-neutral-300 light:text-neutral-950">link to a save state or save game</span> to help
-                us reproduce the issue.
-                {/* eslint-enable */}
+              <Trans
+                i18nKey="<1>Be very descriptive</1> about what you were doing when the problem happened. Mention if you were using any <2>non-default settings, a non-English language, in-game cheats, glitches</2> or were otherwise playing in some unusual way. If possible, include a <3>link to a save state or save game</3> to help us reproduce the issue."
+                components={{
+                  1: <BeVeryDescriptive />,
+                  2: <NonDefaultSettings />,
+                  3: <LinkToASave />,
+                }}
+              >
+                <BeVeryDescriptive />{' '}
+                {
+                  'about what you were doing when the problem happened. Mention if you were using any '
+                }
+                <NonDefaultSettings />{' '}
+                {'or were otherwise playing in some unusual way. If possible, include a '}
+                <LinkToASave /> {'to help us reproduce the issue.'}
               </Trans>
             </BaseFormDescription>
 
@@ -79,14 +80,12 @@ export const DescriptionField: FC = () => {
                 : null}
 
               {showNetworkWarning ? (
-                <Trans i18nKey="Please do not open tickets for network issues. See <0>here</0> for instructions on how to request a manual unlock.">
-                  {/* eslint-disable */}
-                  Please do not open tickets for network issues. See{' '}
+                <Trans i18nKey="Please do not open tickets for network issues. See <1>here</1> for instructions on how to request a manual unlock.">
+                  {'Please do not open tickets for network issues. See '}
                   <a href="https://docs.retroachievements.org/general/faq.html#how-do-i-request-a-manual-unlock">
-                    here
+                    {'here'}
                   </a>{' '}
-                  for instructions on how to request a manual unlock.
-                  {/* eslint-enable */}
+                  {'for instructions on how to request a manual unlock.'}
                 </Trans>
               ) : null}
             </BaseFormMessage>
@@ -96,3 +95,17 @@ export const DescriptionField: FC = () => {
     />
   );
 };
+
+const BeVeryDescriptive: FC = () => (
+  <span className="text-neutral-300 light:text-neutral-950">{'Be very descriptive'}</span>
+);
+const NonDefaultSettings: FC = () => (
+  <span className="text-neutral-300 light:text-neutral-950">
+    {'non-default settings, a non-English language, in-game cheats, glitches,'}
+  </span>
+);
+const LinkToASave: FC = () => (
+  <span className="text-neutral-300 light:text-neutral-950">
+    {'link to a save state or save game'}
+  </span>
+);

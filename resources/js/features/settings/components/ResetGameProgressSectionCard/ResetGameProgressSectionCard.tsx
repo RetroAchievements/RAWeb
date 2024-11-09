@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useInView } from 'react-intersection-observer';
 
 import {
@@ -20,7 +20,7 @@ import { SectionFormCard } from '../SectionFormCard';
 import { useResetGameProgressForm } from './useResetGameProgressForm';
 
 export const ResetGameProgressSectionCard: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const {
     filteredAchievements,
@@ -88,12 +88,15 @@ export const ResetGameProgressSectionCard: FC = () => {
                               key={`resettable-game-${game.id}`}
                               value={String(game.id)}
                             >
-                              {t(':gameTitle (:consoleName) (:numAwarded / :numPossible won)', {
-                                gameTitle: game.title,
-                                consoleName: game.consoleName,
-                                numAwarded: game.numAwarded,
-                                numPossible: game.numPossible,
-                              })}
+                              {t(
+                                '{{gameTitle}} ({{consoleName}}) ({{numAwarded, number}} / {{numPossible, number}} won)',
+                                {
+                                  gameTitle: game.title,
+                                  consoleName: game.consoleName,
+                                  numAwarded: game.numAwarded,
+                                  numPossible: game.numPossible,
+                                },
+                              )}
                             </BaseSelectItem>
                           ))}
                         </>
@@ -145,7 +148,7 @@ export const ResetGameProgressSectionCard: FC = () => {
                               key={`resettable-achievement-${achievement.id}`}
                               value={String(achievement.id)}
                             >
-                              {t(':achievementTitle (:achievementPoints points)', {
+                              {t('{{achievementTitle}} ({{achievementPoints, number}} points)', {
                                 achievementTitle: achievement.title,
                                 achievementPoints: achievement.points,
                               })}{' '}

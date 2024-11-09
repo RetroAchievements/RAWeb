@@ -1,6 +1,6 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import {
   BaseFormControl,
@@ -24,7 +24,7 @@ import type { CreateAchievementTicketFormValues } from './useCreateAchievementTi
 export const GameHashSelectField: FC = () => {
   const { gameHashes } = usePageProps<App.Platform.Data.CreateAchievementTicketPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const form = useFormContext<CreateAchievementTicketFormValues>();
 

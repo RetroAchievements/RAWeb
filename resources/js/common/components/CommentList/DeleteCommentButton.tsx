@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuX } from 'react-icons/lu';
 
 import { BaseButton } from '../+vendor/BaseButton';
@@ -14,7 +14,7 @@ export const DeleteCommentButton: FC<DeleteCommentButtonProps> = ({
   onDeleteSuccess,
   ...comment
 }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { targetUserDisplayName } = useCommentListContext();
 

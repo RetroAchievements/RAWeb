@@ -1,6 +1,6 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import {
   BaseFormControl,
@@ -13,7 +13,7 @@ import { BaseToggleGroup, BaseToggleGroupItem } from '@/common/components/+vendo
 import type { CreateAchievementTicketFormValues } from './useCreateAchievementTicketForm';
 
 export const SessionModeToggleGroup: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const form = useFormContext<CreateAchievementTicketFormValues>();
 

@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
@@ -9,7 +9,7 @@ import { CreateAchievementTicketMainRoot } from '@/features/achievements/compone
 const CreateAchievementTicket: AppPage = () => {
   const { achievement } = usePageProps<App.Platform.Data.CreateAchievementTicketPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <>

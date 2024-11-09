@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { GameAvatar } from '@/common/components/GameAvatar';
@@ -33,7 +33,7 @@ const mockAchievement: App.Platform.Data.Achievement = {
 };
 
 export const AchievementOfTheWeek: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const game = mockAchievement.game as App.Platform.Data.Game;
   const system = mockAchievement.game?.system as App.Platform.Data.System;

@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { IconType } from 'react-icons/lib';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
@@ -36,7 +36,7 @@ export const GameListItemDrawerContent: FC<GameListItemDrawerContentProps> = ({
 }) => {
   const { auth } = usePageProps();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { formatNumber } = useFormatNumber();
 

@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuArrowLeft, LuArrowLeftToLine, LuArrowRight, LuArrowRightToLine } from 'react-icons/lu';
 
 import {
@@ -28,7 +28,7 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
   onPageSelectValueChange,
   paginatedData,
 }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const {
     currentPage,
@@ -100,7 +100,9 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
             </BaseSelectContent>
           </BaseSelect>
 
-          <span className="whitespace-nowrap">{t('of :pageNumber', { pageNumber: lastPage })}</span>
+          <span className="whitespace-nowrap">
+            {t('of {{pageNumber, number}}', { pageNumber: lastPage })}
+          </span>
         </BasePaginationItem>
 
         {currentPage !== lastPage && nextPageUrl ? (

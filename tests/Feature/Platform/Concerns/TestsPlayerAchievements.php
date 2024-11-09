@@ -105,6 +105,10 @@ trait TestsPlayerAchievements
     {
         $unlock = $user->playerAchievements()->where('achievement_id', $achievement->ID)->first();
 
+        if (!$unlock) {
+            return null;
+        }
+
         return $mode === UnlockMode::Hardcore ? $unlock->unlocked_hardcore_at : $unlock->unlocked_at;
     }
 }

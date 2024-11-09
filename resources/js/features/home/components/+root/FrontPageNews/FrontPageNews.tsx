@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { HomeHeading } from '../../HomeHeading';
 import { SeeMoreLink } from '../../SeeMoreLink';
@@ -7,7 +7,7 @@ import { SeeMoreLink } from '../../SeeMoreLink';
 // TODO track click and position when clicked
 
 export const FrontPageNews: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -71,7 +71,7 @@ const NewsCard: FC<NewsCardProps> = ({
   postedAt,
   title,
 }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <a
@@ -104,7 +104,7 @@ const NewsCard: FC<NewsCardProps> = ({
         <p className="mb-1 hidden text-2xs uppercase text-neutral-400/90 sm:block">
           {postedAt}{' '}
           <span className="normal-case italic">
-            {'·'} {t('by :authorDisplayName', { authorDisplayName })}
+            {'·'} {t('by {{authorDisplayName}}', { authorDisplayName })}
           </span>
         </p>
 

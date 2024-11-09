@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
@@ -12,7 +12,7 @@ export const SessionDrivenIssueListItems: FC = () => {
   const { achievement, hasSession, ticketType, extra } =
     usePageProps<App.Platform.Data.ReportAchievementIssuePageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   // Don't allow the player to create tickets if they've never loaded the game.
   if (!hasSession) {

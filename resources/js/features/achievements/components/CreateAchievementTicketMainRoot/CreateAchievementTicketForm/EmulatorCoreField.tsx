@@ -1,6 +1,6 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import {
   BaseFormControl,
@@ -13,7 +13,7 @@ import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import type { CreateAchievementTicketFormValues } from './useCreateAchievementTicketForm';
 
 export const EmulatorCoreField: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const form = useFormContext<CreateAchievementTicketFormValues>();
 

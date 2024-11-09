@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   BaseAlert,
@@ -32,7 +32,7 @@ export const CreateAchievementTicketForm: FC = () => {
     ziggy: { query },
   } = usePageProps<App.Platform.Data.CreateAchievementTicketPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { form, mutation, onSubmit } = useCreateAchievementTicketForm({
     emulatorVersion: emulatorVersion ?? '',

@@ -2,10 +2,10 @@
 
 import type * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import * as React from 'react';
 import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
 import { Controller, FormProvider, useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/utils/cn';
 
@@ -132,7 +132,7 @@ const BaseFormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
   const { error, formMessageId } = useBaseFormField();
   const body = error ? String(error?.message) : children;
 

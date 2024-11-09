@@ -1,6 +1,6 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { Trans, useTranslation } from 'react-i18next';
 
 import {
   BaseFormControl,
@@ -16,12 +16,11 @@ import {
   BaseSelectTrigger,
   BaseSelectValue,
 } from '@/common/components/+vendor/BaseSelect';
-import { Trans } from '@/common/components/Trans';
 
 import type { CreateAchievementTicketFormValues } from './useCreateAchievementTicketForm';
 
 export const IssueSelectField: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const form = useFormContext<CreateAchievementTicketFormValues>();
 
@@ -93,13 +92,15 @@ export const IssueSelectField: FC = () => {
                       {t('Please do not create a ticket for this issue.')}
                     </span>
                     <span className="block">
-                      <Trans i18nKey="If the achievement unlocked in your emulator but doesn't appear as unlocked on the website, this is usually caused by network issues. You can request a manual unlock on the <0>RetroAchievements Discord server</0>. Include a screenshot or some other form of proof.">
-                        {/* eslint-disable */}
-                        If the achievement unlocked in your emulator but doesn't appear as unlocked
-                        on the website, this is usually caused by network issues. You can request a
-                        manual unlock on the <a href="https://discord.com/invite/retroachievements">RetroAchievements Discord server</a>.
-                        Include a screenshot or some other form of proof.
-                        {/* eslint-enable */}
+                      <Trans
+                        i18nKey="If the achievement unlocked in your emulator but doesn't appear as unlocked on the website, this is usually caused by network issues. You can request a manual unlock on the <1>RetroAchievements Discord server</1>. Include a screenshot or some other form of proof."
+                        components={{ 1: <DiscordLink /> }}
+                      >
+                        {
+                          "If the achievement unlocked in your emulator but doesn't appear as unlocked on the website, this is usually caused by network issues. You can request a manual unlock on the "
+                        }
+                        <DiscordLink />
+                        {'. Include a screenshot or some other form of proof.'}
                       </Trans>
                     </span>
                   </>
@@ -112,3 +113,7 @@ export const IssueSelectField: FC = () => {
     />
   );
 };
+
+const DiscordLink: FC = () => (
+  <a href="https://discord.com/invite/retroachievements">{'RetroAchievements Discord server'}</a>
+);
