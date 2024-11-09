@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   BaseTable,
@@ -23,7 +23,7 @@ import { SeeMoreLink } from '../../SeeMoreLink';
 // TODO empty state
 
 export const NewSetsList: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -65,7 +65,7 @@ export const NewSetsList: FC = () => {
 };
 
 const SampleRow: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <BaseTableRow>

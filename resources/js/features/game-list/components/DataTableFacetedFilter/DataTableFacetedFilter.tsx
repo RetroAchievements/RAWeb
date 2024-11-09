@@ -1,6 +1,6 @@
 import type { Column } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { HiOutlineCheck } from 'react-icons/hi';
 import { RxPlusCircled } from 'react-icons/rx';
 
@@ -51,7 +51,7 @@ export function DataTableFacetedFilter<TData, TValue>({
   isSingleSelect = false,
   variant = 'base',
 }: DataTableFacetedFilterProps<TData, TValue>) {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
@@ -105,7 +105,7 @@ export function DataTableFacetedFilter<TData, TValue>({
               <div className="hidden space-x-1 lg:flex">
                 {selectedValues.size > 2 ? (
                   <BaseBadge variant="secondary" className="rounded-sm px-1 font-normal leading-3">
-                    {t(':count selected', { count: selectedValues.size })}
+                    {t('{{count, number}} selected', { count: selectedValues.size })}
                   </BaseBadge>
                 ) : (
                   <>
@@ -114,7 +114,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                       .map((option) => (
                         <BaseBadge
                           variant="secondary"
-                          key={option.value}
+                          key={`label-${option.value}`}
                           className="rounded-sm px-1 font-normal leading-3"
                           data-testid="filter-selected-label"
                         >
@@ -160,7 +160,7 @@ function FacetedFilterContent<TData, TValue>({
   selectedValues,
   variant = 'base',
 }: FacetedFilterContentProps<TData, TValue>) {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const handleOptionToggle = (optionValue: string) => {
     if (isSingleSelect) {
@@ -245,7 +245,7 @@ interface ClearFiltersButtonProps {
 }
 
 const ClearFiltersButton: FC<ClearFiltersButtonProps> = ({ onClear }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div className="sticky bottom-0 bg-neutral-950 light:bg-neutral-100">

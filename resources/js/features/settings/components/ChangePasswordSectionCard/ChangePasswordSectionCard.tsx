@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   BaseFormControl,
@@ -21,7 +21,7 @@ export const ChangePasswordSectionCard: FC = () => {
 
   const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { user } = auth as { user: AuthenticatedUser };
 

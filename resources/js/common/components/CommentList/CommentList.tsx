@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import type { ArticleType } from '@/common/utils/generatedAppConstants';
 
@@ -33,7 +33,7 @@ export const CommentList: FC<CommentListProps> = ({
 }) => {
   const { auth } = usePageProps();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <CommentListProvider

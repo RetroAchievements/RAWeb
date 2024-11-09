@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 import {
@@ -22,7 +22,7 @@ const chartConfig = {
 } satisfies BaseChartConfig;
 
 export const CurrentlyOnline: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { formatNumber } = useFormatNumber();
 
@@ -42,7 +42,7 @@ export const CurrentlyOnline: FC = () => {
         </div>
 
         <p className="text-muted cursor-default italic transition hover:text-neutral-300 hover:light:text-neutral-950">
-          {t('All-time High: :number (:date)', { number: '4,494', date: 'Sept 21, 2024' })}
+          {t('All-time High: {{val, number}} ({{date}})', { val: '4,494', date: 'Sept 21, 2024' })}
         </p>
       </div>
 
