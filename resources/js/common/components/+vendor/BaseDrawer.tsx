@@ -74,7 +74,7 @@ const BaseDrawerHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivE
 BaseDrawerHeader.displayName = 'BaseDrawerHeader';
 
 const BaseDrawerFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('mt-auto flex flex-col gap-2 p-4', className)} {...props} />
+  <div className={cn('mt-auto flex flex-col gap-2 px-4 pb-6 pt-4', className)} {...props} />
 );
 BaseDrawerFooter.displayName = 'BaseDrawerFooter';
 
