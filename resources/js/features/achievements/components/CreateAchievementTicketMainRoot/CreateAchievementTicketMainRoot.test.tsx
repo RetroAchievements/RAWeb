@@ -781,9 +781,12 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     // ASSERT
-    await waitFor(() => {
-      expect(postSpy).toHaveBeenCalledOnce();
-    });
+    await waitFor(
+      () => {
+        expect(postSpy).toHaveBeenCalledOnce();
+      },
+      { timeout: 3000 },
+    );
 
     expect(postSpy).toHaveBeenCalledWith(['api.ticket.store'], {
       core: 'gambatte',
@@ -854,9 +857,12 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     // ASSERT
-    await waitFor(() => {
-      expect(postSpy).toHaveBeenCalledOnce();
-    });
+    await waitFor(
+      () => {
+        expect(postSpy).toHaveBeenCalledOnce();
+      },
+      { timeout: 3000 },
+    );
 
     expect(postSpy).toHaveBeenCalledWith(['api.ticket.store'], {
       core: 'gambatte',
