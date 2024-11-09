@@ -25,6 +25,11 @@ $newsImage = old('image', $news['Image'] ?? '');
 ?>
 
 <x-app-layout pageTitle="Manage News">
+    <p class="text-center mb-4 text-red-600 font-bold">
+        This page will be removed soon. We recommend managing news in the new
+        <a href="{{ route('filament.admin.resources.news.index') }}">management app</a>.
+    </p>
+
     <div class="mb-5">
         <h2 class="longheader">Manage News</h2>
         <div class="embedded grid gap-y-2">
@@ -86,7 +91,8 @@ $newsImage = old('image', $news['Image'] ?? '');
             <tr>
                 <td class="align-top"><label for="body">Content</label></td>
                 <td>
-                    <textarea class="w-full resize-y min-h-[250px]" id="body" rows="15" name="body"><?= old('body', $newsContent) ?></textarea>
+                    <textarea class="w-full resize-y min-h-[250px]" id="body" rows="15" name="body" maxlength="238"><?= old('body', $newsContent) ?></textarea>
+                    <p>This field has a maxlength of 238 characters.</p>
                 </td>
             </tr>
             <tr>

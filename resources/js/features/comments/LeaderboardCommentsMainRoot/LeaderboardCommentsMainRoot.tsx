@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { CommentList } from '@/common/components/CommentList';
 import { FullPaginator } from '@/common/components/FullPaginator';
@@ -13,7 +13,7 @@ export const LeaderboardCommentsMainRoot: FC = () => {
   const { canComment, leaderboard, paginatedComments } =
     usePageProps<App.Community.Data.LeaderboardCommentsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { handleCommentDeleteSuccess, handleCommentSubmitSuccess, handlePageSelectValueChange } =
     useCommentPagination({
@@ -32,7 +32,7 @@ export const LeaderboardCommentsMainRoot: FC = () => {
         t_currentPageLabel={t('Comments')}
       />
       <GameHeading game={leaderboard.game!} wrapperClassName="!mb-1">
-        {t('Comments: :leaderboardTitle', { leaderboardTitle: leaderboard.title })}
+        {t('Comments: {{leaderboardTitle}}', { leaderboardTitle: leaderboard.title })}
       </GameHeading>
 
       <div className="mb-3 flex w-full justify-between">

@@ -23,9 +23,11 @@ export function buildAchievementsPublishedColumnDef({
       sortType: 'quantity',
       Icon: gameListFieldIconMap.achievementsPublished,
     },
+
     header: ({ column, table }) => (
       <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
+
     cell: ({ row }) => {
       const achievementsPublished = row.original.game?.achievementsPublished ?? 0;
 

@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/common/components/EmptyState';
 import { RecentPostsCards } from '@/common/components/RecentPostsCards';
@@ -12,7 +12,7 @@ import { ForumBreadcrumbs } from '../../../../common/components/ForumBreadcrumbs
 export const RecentPostsMainRoot: FC = () => {
   const { paginatedTopics } = usePageProps<App.Community.Data.RecentPostsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div>

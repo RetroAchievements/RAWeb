@@ -390,6 +390,9 @@ describe('Component: GameListItemElement', () => {
 
     expect(screen.queryByTestId('drawer-backlog-toggle')).not.toBeInTheDocument();
     expect(screen.queryByText(/md/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/removed/i)).toBeVisible(); // this comes from the toast notification
+
+    await waitFor(() => {
+      expect(screen.getByText(/removed/i)).toBeVisible(); // this comes from the toast notification
+    });
   });
 });

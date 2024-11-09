@@ -4,6 +4,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
 use App\Models\System;
@@ -125,6 +126,17 @@ if ($dateWonLocal === "" && isset($user)) {
 
 $achievedLocal = ($dateWonLocal !== "");
 
+$eventAchievement = null;
+if ($game->system->id === System::Events) {
+    $eventAchievement = EventAchievement::where('achievement_id', '=', $achievementID)
+        ->with('sourceAchievement')->first();
+
+    // update the ID of the dataOut so the link goes to the source achievement
+    if ($eventAchievement?->sourceAchievement) {
+        $dataOut['ID'] = $eventAchievement->sourceAchievement->ID;
+    }
+}
+
 ?>
 <x-app-layout
     pageTitle="{!! $achievementTitleRaw !!} in {!! $gameTitleRaw !!} ({{ $consoleName }})"
@@ -133,14 +145,6 @@ $achievedLocal = ($dateWonLocal !== "");
     pageType="retroachievements:achievement"
 >
 <?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isAuthor)): ?>
-    <?php
-        $canHaveBeatenTypes = (
-            mb_strpos($gameTitle, "[Subset") === false
-            && mb_strpos($gameTitle, "~Test Kit~") === false
-            && $consoleID != 101
-        );
-    ?>
-
     <script>
     function updateAchievementDetails() {
         showStatusMessage('Updating...');
@@ -236,31 +240,51 @@ $achievedLocal = ($dateWonLocal !== "");
         :totalPlayerCount="$numPossibleWinners"
         :isUnlocked="$achievedLocal"
     />
+    <?php if ($eventAchievement && $eventAchievement->sourceAchievement): ?>
+        <div class="ml-4 mb-2">
+            From:
+            <x-game.multiline-avatar
+                :gameId="$eventAchievement->sourceAchievement->game->id"
+                :gameTitle="$eventAchievement->sourceAchievement->game->title"
+                :gameImageIcon="$eventAchievement->sourceAchievement->game->ImageIcon"
+                :consoleId="$eventAchievement->sourceAchievement->game->system->id"
+                :consoleName="$eventAchievement->sourceAchievement->game->system->name"
+            />
+        </div>
+    <?php endif ?>
     <?php
-    $niceDateCreated = date("d M, Y H:i", strtotime($dateCreated));
-    $niceDateModified = date("d M, Y H:i", strtotime($dateModified));
+    if ($game->system->id !== System::Events) {
+        $niceDateCreated = date("d M, Y H:i", strtotime($dateCreated));
+        $niceDateModified = date("d M, Y H:i", strtotime($dateModified));
 
-    echo "<p class='embedded smalldata mb-3'>";
-    echo "<small>";
-    if ($achFlags === AchievementFlag::Unofficial) {
-        echo "<b>Unofficial Achievement</b><br>";
-    }
-    echo "Created by " . userAvatar($author, icon: false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
-    echo "</small>";
-    echo "</p>";
+        echo "<p class='embedded smalldata mb-3'>";
+        echo "<small>";
+        if ($achFlags === AchievementFlag::Unofficial) {
+            echo "<b>Unofficial Achievement</b><br>";
+        }
+        echo "Created by " . userAvatar($author, icon: false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+        echo "</small>";
+        echo "</p>";
 
-    if (isset($user) && $permissions >= Permissions::Registered && System::isGameSystem($consoleID)) {
-        $countTickets = countOpenTicketsByAchievement($achievementID);
-        echo "<div class='flex justify-between mb-2'>";
-        if ($countTickets > 0) {
-            echo "<a href='" . route('achievement.tickets', ['achievement' => $achievementID]) ."'>$countTickets open " . mb_strtolower(__res('ticket', $countTickets)) . "</a>";
-        } else {
-            echo "<i>No open tickets</i>";
+        if (isset($user) && $permissions >= Permissions::Registered && System::isGameSystem($consoleID)) {
+            $countTickets = countOpenTicketsByAchievement($achievementID);
+            echo "<div class='flex justify-between mb-2'>";
+            if ($countTickets > 0) {
+                echo "<a href='" . route('achievement.tickets', ['achievement' => $achievementID]) ."'>$countTickets open " . mb_strtolower(__res('ticket', $countTickets)) . "</a>";
+            } else {
+                echo "<i>No open tickets</i>";
+            }
+            if ($userModel?->can('create', Ticket::class)) {
+                echo "<a class='btn btn-link' href='" . route('achievement.report-issue.index', ['achievement' => $achievementID]) ."'>Report an issue</a>";
+            }
+            echo "</div>";
         }
-        if ($userModel?->can('create', Ticket::class)) {
-            echo "<a class='btn btn-link' href='" . route('achievement.report-issue.index', ['achievement' => $achievementID]) ."'>Report an issue</a>";
-        }
-        echo "</div>";
+    } else if ($eventAchievement?->active_from && $eventAchievement?->active_until) {
+        echo "<p class='inline smalldate ml-3 mb-2'>Active from ";
+        echo Blade::render("<x-date :value=\"\$value\" />", ['value' => $eventAchievement->active_from]);
+        echo " - ";
+        echo Blade::render("<x-date :value=\"\$value\" />", ['value' => $eventAchievement->active_until->clone()->subDays(1)]);
+        echo "</p>";
     }
 
     if ($achievedLocal) {
@@ -292,36 +316,36 @@ $achievedLocal = ($dateWonLocal !== "");
             echo "</select>";
             echo "</td></tr>";
 
-            $typeHelperContent = "A game is considered beaten if ALL " . __('achievement-type.' . AchievementType::Progression) . " achievements are unlocked and ANY " . __('achievement-type.' . AchievementType::WinCondition) . " achievements are unlocked.";
-            echo "<tr><td>";
-            if ($canHaveBeatenTypes) {
-                echo "<label class='cursor-help flex items-center gap-x-1' for='typeinput' title='$typeHelperContent' aria-label='Type, $typeHelperContent'>";
-                echo "Type";
-                echo "<span>";
-                ?>
-                <x-fas-info-circle class='w-5 h-5' aria-hidden='true' />
-                <?php
-                echo ":";
-                echo "</span>";
-                echo "</label>";
-            } else {
-                echo "<label for='typeinput'>Type:</label>";
+            if ($consoleID !== System::Events) {
+                $typeHelperContent = "A game is considered beaten if ALL " . __('achievement-type.' . AchievementType::Progression) . " achievements are unlocked and ANY " . __('achievement-type.' . AchievementType::WinCondition) . " achievements are unlocked.";
+                echo "<tr><td>";
+                $validTypes = AchievementType::cases();
+                if ($game->getCanHaveBeatenTypes()) {
+                    echo "<label class='cursor-help flex items-center gap-x-1' for='typeinput' title='$typeHelperContent' aria-label='Type, $typeHelperContent'>";
+                    echo "Type";
+                    echo "<span>";
+                    ?>
+                    <x-fas-info-circle class='w-5 h-5' aria-hidden='true' />
+                    <?php
+                    echo ":";
+                    echo "</span>";
+                    echo "</label>";
+                } else {
+                    echo "<label for='typeinput'>Type:</label>";
+                    $validTypes = array_filter($validTypes, function ($type) {
+                        return $type !== AchievementType::Progression && $type !== AchievementType::WinCondition;
+                    });
+                }
+                echo "</td><td>";
+                echo "<select id='typeinput' name='k'>";
+                echo "<option value=''>None</option>";
+                foreach ($validTypes as $typeOption) {
+                    echo "<option value='$typeOption' " . ($achType === $typeOption ? 'selected' : '') . ">";
+                    echo __('achievement-type.' . $typeOption);
+                    echo "</option>";
+                }
+                echo "</select></td></tr>";
             }
-            echo "</td><td>";
-            echo "<select id='typeinput' name='k'>";
-            echo "<option value=''>None</option>";
-            $allTypes = AchievementType::cases();
-            $validTypes = $canHaveBeatenTypes
-                ? $allTypes
-                : array_filter($allTypes, function ($type) {
-                    return $type !== AchievementType::Progression && $type !== AchievementType::WinCondition;
-                });
-            foreach ($validTypes as $typeOption) {
-                echo "<option value='$typeOption' " . ($achType === $typeOption ? 'selected' : '') . ">";
-                echo __('achievement-type.' . $typeOption);
-                echo "</option>";
-            }
-            echo "</select></td></tr>";
 
             echo "</tbody></table>";
             echo "&nbsp;<button type='button' class='btn' style='float: right;' onclick=\"updateAchievementDetails()\">Update</button><br><br>";

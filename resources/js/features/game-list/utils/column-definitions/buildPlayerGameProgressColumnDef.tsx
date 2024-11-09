@@ -20,9 +20,11 @@ export function buildPlayerGameProgressColumnDef({
     id: 'progress',
     accessorKey: 'game',
     meta: { t_label, align: 'left', sortType: 'quantity', Icon: gameListFieldIconMap.progress },
+
     header: ({ column, table }) => (
       <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
+
     cell: ({ row }) => {
       const { game, playerGame } = row.original;
 

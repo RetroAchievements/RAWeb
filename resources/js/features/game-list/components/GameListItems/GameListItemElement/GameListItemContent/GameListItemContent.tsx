@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MdClose } from 'react-icons/md';
 import { RxDotsVertical } from 'react-icons/rx';
 
@@ -33,7 +33,7 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
   isLastItem,
   sortFieldId,
 }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { game, playerGame } = gameListEntry;
 
@@ -95,7 +95,7 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
 
             <span className="sr-only">
               {backlogState.isInBacklogMaybeOptimistic
-                ? t('Remove from Want To Play Games')
+                ? t('Remove from Want to Play Games')
                 : t('Add to Want to Play Games')}
             </span>
           </button>

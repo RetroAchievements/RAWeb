@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { AchievementBreadcrumbs } from '@/common/components/AchievementBreadcrumbs';
 import { AchievementHeading } from '@/common/components/AchievementHeading';
@@ -14,7 +14,7 @@ export const AchievementCommentsMainRoot: FC = () => {
   const { achievement, auth, canComment, isSubscribed, paginatedComments } =
     usePageProps<App.Community.Data.AchievementCommentsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { handleCommentDeleteSuccess, handleCommentSubmitSuccess, handlePageSelectValueChange } =
     useCommentPagination({

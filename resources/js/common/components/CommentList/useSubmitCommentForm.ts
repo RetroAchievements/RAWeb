@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
@@ -22,7 +22,7 @@ export function useSubmitCommentForm({
   commentableType,
   onSubmitSuccess,
 }: UseSubmitCommentFormProps) {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { targetUserDisplayName } = useCommentListContext();
 

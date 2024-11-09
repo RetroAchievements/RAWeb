@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { CommentList } from '@/common/components/CommentList';
 import { FullPaginator } from '@/common/components/FullPaginator';
@@ -14,7 +14,7 @@ export const UserCommentsMainRoot: FC = () => {
   const { auth, canComment, paginatedComments, isSubscribed, targetUser } =
     usePageProps<App.Community.Data.UserCommentsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { handleCommentDeleteSuccess, handleCommentSubmitSuccess, handlePageSelectValueChange } =
     useCommentPagination({

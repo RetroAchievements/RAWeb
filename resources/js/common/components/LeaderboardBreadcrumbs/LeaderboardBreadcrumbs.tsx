@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   BaseBreadcrumb,
@@ -32,7 +32,7 @@ export const LeaderboardBreadcrumbs: FC<LeaderboardBreadcrumbsProps> = ({
   system,
   t_currentPageLabel,
 }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div className="navpath mb-3 hidden sm:block">

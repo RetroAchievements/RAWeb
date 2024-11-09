@@ -1,8 +1,8 @@
 /* eslint-disable no-restricted-imports -- base components can import from @radix-ui */
 
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { RxCross2 } from 'react-icons/rx';
 
 import { cn } from '@/utils/cn';
@@ -35,7 +35,7 @@ const BaseDialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
 >(({ className, children, ...props }, ref) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <BaseDialogPortal>
