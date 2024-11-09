@@ -14,7 +14,7 @@ i18n
     }),
   )
   .init({
-    debug: import.meta.env.DEV,
+    debug: import.meta.env.DEV && import.meta.env.NODE_ENV !== 'test',
     fallbackLng: 'en_US',
     interpolation: { escapeValue: false },
     detection: {

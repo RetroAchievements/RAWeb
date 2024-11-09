@@ -100,7 +100,6 @@ describe('Component: CurrentlyOnline', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/all-time high/i)).toBeVisible();
-    expect(screen.getByText(/4,744/i)).toBeVisible();
+    expect(screen.queryByText(/all-time high/i)).not.toBeInTheDocument();
   });
 });

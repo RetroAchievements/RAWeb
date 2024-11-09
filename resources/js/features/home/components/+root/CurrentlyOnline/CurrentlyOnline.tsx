@@ -56,12 +56,14 @@ export const CurrentlyOnline: FC = () => {
           </p>
         </div>
 
-        <p className="text-muted cursor-default italic transition hover:text-neutral-300 hover:light:text-neutral-950">
-          {t('All-time High: {{val, number}} ({{date}})', {
-            val: currentlyOnline.allTimeHighPlayers,
-            date: formatDate(dayjs.utc(currentlyOnline.allTimeHighDate), 'll'),
-          })}
-        </p>
+        {currentlyOnline?.allTimeHighDate && currentlyOnline?.allTimeHighPlayers ? (
+          <p className="text-muted cursor-default italic transition hover:text-neutral-300 hover:light:text-neutral-950">
+            {t('All-time High: {{val, number}} ({{date}})', {
+              val: currentlyOnline.allTimeHighPlayers,
+              date: formatDate(dayjs.utc(currentlyOnline.allTimeHighDate), 'll'),
+            })}
+          </p>
+        ) : null}
       </div>
 
       <div className="rounded bg-embed p-4">
