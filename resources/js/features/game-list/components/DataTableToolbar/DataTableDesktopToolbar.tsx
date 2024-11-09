@@ -1,8 +1,7 @@
 import type { ColumnFiltersState, Table } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useTranslation } from 'react-i18next';
 import type { RouteName } from 'ziggy-js';
 
-import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
@@ -30,9 +29,7 @@ export function DataTableDesktopToolbar<TData>({
     filterableSystemOptions: App.Platform.Data.System[];
   }>();
 
-  const { tChoice } = useLaravelReactI18n();
-
-  const { formatNumber } = useFormatNumber();
+  const { t } = useTranslation();
 
   const currentFilters = table.getState().columnFilters;
   const isFiltered = getAreNonDefaultFiltersSet(currentFilters, defaultColumnFilters);
@@ -63,15 +60,17 @@ export function DataTableDesktopToolbar<TData>({
         <p className="text-neutral-200 light:text-neutral-900">
           {unfilteredTotal && unfilteredTotal !== table.options.rowCount ? (
             <>
-              {tChoice(':count of :total game|:count of :total games', unfilteredTotal, {
-                count: formatNumber(table.options.rowCount),
-                total: formatNumber(unfilteredTotal),
+              {t('{{visible, number}} of {{total, number}} games', {
+                visible: table.options.rowCount,
+                total: unfilteredTotal,
+                count: unfilteredTotal,
               })}
             </>
           ) : (
             <>
-              {tChoice(':count game|:count games', table.options.rowCount!, {
-                count: formatNumber(table.options.rowCount),
+              {t('{{val, number}} games', {
+                count: table.options.rowCount,
+                val: table.options.rowCount,
               })}
             </>
           )}

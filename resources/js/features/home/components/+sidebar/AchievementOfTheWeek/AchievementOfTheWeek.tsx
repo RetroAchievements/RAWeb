@@ -1,42 +1,29 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { SystemChip } from '@/common/components/SystemChip';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import type { AvatarSize } from '@/common/models';
 
 import { HomeHeading } from '../../HomeHeading';
 
 // TODO try different achievement description lengths
 // TODO try different game title length
-// TODO thread link
-// TODO learn more link
-
-const mockAchievement: App.Platform.Data.Achievement = {
-  id: 87552,
-  title: "Maybe... It's Time... The Legend Repeats Itself",
-  description: 'Save the Earth spirit.',
-  badgeLockedUrl: 'http://media.retroachievements.org/Badge/85195_lock.png',
-  badgeUnlockedUrl: 'http://media.retroachievements.org/Badge/85195.png',
-  game: {
-    id: 1432,
-    title: 'Monster World IV',
-    badgeUrl: 'http://media.retroachievements.org/Images/020058.png',
-    system: {
-      id: 1,
-      name: 'Genesis/Mega Drive',
-      iconUrl: 'http://localhost:64000/assets/images/system/md.png',
-      nameShort: 'MD',
-    },
-  },
-};
 
 export const AchievementOfTheWeek: FC = () => {
-  const { t } = useLaravelReactI18n();
+  const { achievementOfTheWeek, staticData } = usePageProps<App.Http.Data.HomePageProps>();
 
-  const game = mockAchievement.game as App.Platform.Data.Game;
-  const system = mockAchievement.game?.system as App.Platform.Data.System;
+  const { t } = useTranslation();
+
+  // TODO needs better empty state
+  if (!achievementOfTheWeek?.game?.system) {
+    return null;
+  }
+
+  const game = achievementOfTheWeek.game;
+  const system = achievementOfTheWeek.game.system;
 
   return (
     <div>
@@ -47,17 +34,18 @@ export const AchievementOfTheWeek: FC = () => {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <AchievementAvatar
-                {...mockAchievement}
+                {...achievementOfTheWeek}
                 hasTooltip={false}
                 size={64}
                 showLabel={false}
               />
 
-              <div className="flex flex-col gap-0.5">
-                <a href={route('achievement.show', { achievement: mockAchievement.id })}>
-                  {mockAchievement.title}
+              <div className="flex flex-col gap-0.5 self-start">
+                <a href={route('achievement.show', { achievement: achievementOfTheWeek.id })}>
+                  {achievementOfTheWeek.title}
                 </a>
-                <p>{mockAchievement.description}</p>
+
+                <p>{achievementOfTheWeek.description}</p>
               </div>
             </div>
 
@@ -72,11 +60,13 @@ export const AchievementOfTheWeek: FC = () => {
           </div>
         </div>
 
-        <div className="w-ful flex justify-end">
-          <a className="text-xs" href="#">
-            {t('Learn more about this event')}
-          </a>
-        </div>
+        {staticData.eventAotwForumId ? (
+          <div className="w-ful flex justify-end">
+            <a className="text-xs" href={`/viewtopic.php?t=${staticData.eventAotwForumId}`}>
+              {t('Learn more about this event')}
+            </a>
+          </div>
+        ) : null}
       </div>
     </div>
   );

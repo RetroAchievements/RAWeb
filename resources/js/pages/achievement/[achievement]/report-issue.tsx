@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
@@ -9,11 +9,13 @@ import { ReportIssueMainRoot } from '@/features/achievements/components/ReportIs
 const ReportIssue: AppPage = () => {
   const { achievement } = usePageProps<App.Platform.Data.ReportAchievementIssuePageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <>
-      <Head title={t('Report Issue - :achievementTitle', { achievementTitle: achievement.title })}>
+      <Head
+        title={t('Report Issue - {{achievementTitle}}', { achievementTitle: achievement.title })}
+      >
         <meta
           name="description"
           content={`Report an issue with the achievement: ${achievement.title}`}

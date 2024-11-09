@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuAlertCircle } from 'react-icons/lu';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -23,7 +23,7 @@ import { useResetAvatarMutation } from './useResetAvatarMutation';
 export const AvatarSection: FC = () => {
   const { can } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { form, onSubmit, mutation: formMutation } = useAvatarSectionForm();
 

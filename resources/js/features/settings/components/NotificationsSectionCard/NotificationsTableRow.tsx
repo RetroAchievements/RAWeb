@@ -1,6 +1,6 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, useId } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { BaseCheckbox } from '@/common/components/+vendor/BaseCheckbox';
 import { BaseFormControl, BaseFormField } from '@/common/components/+vendor/BaseForm';
@@ -21,7 +21,7 @@ export const NotificationsTableRow: FC<NotificationsTableRowProps> = ({
   emailFieldName,
   siteFieldName,
 }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { control } = useFormContext<NotificationsSectionFormValues>();
 

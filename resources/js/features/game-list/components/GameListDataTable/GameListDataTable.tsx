@@ -1,6 +1,6 @@
 import type { Table } from '@tanstack/react-table';
 import { flexRender } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useTranslation } from 'react-i18next';
 
 import {
   BaseTable,
@@ -18,7 +18,7 @@ interface GameListDataTableProps<TData> {
 
 // Lazy-loaded, so using a default export.
 export default function GameListDataTable<TData>({ table }: GameListDataTableProps<TData>) {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const visibleColumnCount = table.getVisibleFlatColumns().length;
 
