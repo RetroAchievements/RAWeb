@@ -89,7 +89,8 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
               className={cn(
                 'h-4 w-4 transition-transform',
                 'disabled:!text-neutral-100 light:disabled:text-neutral-950',
-                backlogState.isInBacklogMaybeOptimistic ? '' : 'rotate-45',
+
+                backlogState.isInBacklogMaybeOptimistic ? 'text-red-500' : 'rotate-45',
               )}
             />
 
