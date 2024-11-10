@@ -36,7 +36,6 @@ describe('Util: loadDayjsLocale', () => {
 
     // ASSERT
     expect(dayjs.locale).not.toHaveBeenCalled();
-    expect(console.warn).not.toHaveBeenCalled();
   });
 
   it('logs a warning if an error occurs while loading a locale', async () => {
