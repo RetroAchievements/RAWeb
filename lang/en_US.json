@@ -121,7 +121,7 @@
     "Email addresses must match.": "Email addresses must match.",
     "Email me": "Email me",
     "Email notifications": "Email notifications",
-    "Ends": "Ends",
+    "Ends <1>{{when}}</1>": "Ends <1>{{when}}</1>",
     "FAQ": "FAQ",
     "Finished": "Finished",
     "Forum Index": "Forum Index",

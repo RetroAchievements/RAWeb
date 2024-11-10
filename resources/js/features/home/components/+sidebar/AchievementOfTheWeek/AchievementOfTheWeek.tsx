@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
@@ -14,19 +14,14 @@ import { HomeHeading } from '../../HomeHeading';
 // TODO try different game title length
 
 export const AchievementOfTheWeek: FC = () => {
-  const { auth } = usePageProps();
-  const { achievementOfTheWeek } = usePageProps<App.Http.Data.HomePageProps>();
+  const { achievementOfTheWeek, auth } = usePageProps<App.Http.Data.HomePageProps>();
 
   const { t } = useTranslation();
 
-  if (achievementOfTheWeek?.achievement === undefined) {
-    return null;
-  }
-
-  const game = achievementOfTheWeek.sourceAchievement?.game;
+  const game = achievementOfTheWeek?.sourceAchievement?.game;
   const system = game?.system;
 
-  if (game === undefined || system === undefined) {
+  if (!achievementOfTheWeek?.achievement || !game || !system) {
     return null;
   }
 
@@ -63,20 +58,24 @@ export const AchievementOfTheWeek: FC = () => {
 
               <div className="flex flex-col gap-0.5">
                 <GameAvatar {...game} showImage={false} />
-                <div className="flex items-center">
+                <div className="flex w-full items-center justify-between">
                   <SystemChip {...system} className="bg-zinc-800" />
 
                   {achievementOfTheWeek.activeUntil ? (
-                    // TODO: make this align bottom right
-                    <div className="w-ful flex-end justify-end">
-                      <span className="smalldate">
-                        <span>{t('Ends')} </span>
-                        <DiffTimestamp
-                          at={achievementOfTheWeek.activeUntil}
-                          asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates}
-                        />
-                      </span>
-                    </div>
+                    <span className="smalldate">
+                      <Trans
+                        i18nKey="Ends <1>{{when}}</1>"
+                        values={{ when: achievementOfTheWeek.activeUntil }}
+                        components={{
+                          1: (
+                            <DiffTimestamp
+                              at={achievementOfTheWeek.activeUntil}
+                              asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates}
+                            />
+                          ),
+                        }}
+                      />
+                    </span>
                   ) : null}
                 </div>
               </div>

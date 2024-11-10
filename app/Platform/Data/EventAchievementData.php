@@ -22,13 +22,13 @@ class EventAchievementData extends Data
     }
 
     public static function fromEventAchievement(
-        EventAchievement $achievement,
+        EventAchievement $eventAchievement,
     ): self {
         return new self(
-            achievement: Lazy::create(fn () => AchievementData::fromAchievement($achievement->achievement)),
-            sourceAchievement: Lazy::create(fn () => AchievementData::fromAchievement($achievement->sourceAchievement)),
-            activeUntil: Lazy::create(fn () => $achievement->active_until),
-            forumTopicId: Lazy::create(fn () => $achievement->achievement->game->ForumTopicID),
+            achievement: Lazy::create(fn () => AchievementData::fromAchievement($eventAchievement->achievement)),
+            sourceAchievement: Lazy::create(fn () => AchievementData::fromAchievement($eventAchievement->sourceAchievement)),
+            activeUntil: Lazy::create(fn () => $eventAchievement->active_until),
+            forumTopicId: Lazy::create(fn () => $eventAchievement->achievement->game->ForumTopicID),
         );
     }
 }

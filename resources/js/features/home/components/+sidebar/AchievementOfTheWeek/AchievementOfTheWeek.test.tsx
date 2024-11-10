@@ -1,3 +1,4 @@
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import {
   createAchievement,
@@ -161,6 +162,27 @@ describe('Component: AchievementOfTheWeek', () => {
     // ASSERT
     expect(screen.getByText(/Ends/i)).toBeVisible();
     expect(screen.getByText(/2 days from now/i)).toBeVisible();
+  });
+
+  it('displays the end date', () => {
+    // ARRANGE
+    const sourceAchievement = createAchievement({ id: 9, title: 'That Was Easy' });
+    const achievementOfTheWeek = createEventAchievement({
+      achievement: sourceAchievement,
+      sourceAchievement: sourceAchievement,
+      activeUntil: new Date('2030-04-08').toISOString(),
+    });
+
+    render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ preferences: { prefersAbsoluteDates: true } }) },
+        ...createHomePageProps({ achievementOfTheWeek }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/Ends/i)).toBeVisible();
+    expect(screen.getByText(/Apr 08, 2030, 00:00/i)).toBeVisible();
   });
 
   it('does not display remaining time with no end date', () => {
