@@ -1,12 +1,12 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { AchievementBreadcrumbs } from '@/common/components/AchievementBreadcrumbs';
+import { AchievementHeading } from '@/common/components/AchievementHeading';
 import { CommentList } from '@/common/components/CommentList/CommentList';
 import { FullPaginator } from '@/common/components/FullPaginator';
 import { SubscribeToggleButton } from '@/common/components/SubscribeToggleButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { AchievementBreadcrumbs } from '@/features/achievements/components/AchievementBreadcrumbs';
-import { AchievementHeading } from '@/features/achievements/components/AchievementHeading';
 
 import { useCommentPagination } from '../hooks/useCommentPagination';
 

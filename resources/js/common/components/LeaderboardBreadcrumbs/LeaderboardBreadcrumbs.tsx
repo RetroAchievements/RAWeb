@@ -9,8 +9,8 @@ import {
   BaseBreadcrumbList,
   BaseBreadcrumbPage,
   BaseBreadcrumbSeparator,
-} from '@/common/components/+vendor/BaseBreadcrumb';
-import { GameTitle } from '@/common/components/GameTitle';
+} from '../+vendor/BaseBreadcrumb';
+import { GameTitle } from '../GameTitle';
 
 /**
  * TODO this is intentionally quite duplicative with GameBreadcrumbs.
@@ -18,16 +18,16 @@ import { GameTitle } from '@/common/components/GameTitle';
  * breadcrumbs abstraction to reduce this duplication.
  */
 
-interface AchievementBreadcrumbsProps {
+interface LeaderboardBreadcrumbsProps {
   t_currentPageLabel: string;
 
-  achievement?: App.Platform.Data.Achievement;
+  leaderboard?: App.Platform.Data.Leaderboard;
   game?: App.Platform.Data.Game;
   system?: App.Platform.Data.System;
 }
 
-export const AchievementBreadcrumbs: FC<AchievementBreadcrumbsProps> = ({
-  achievement,
+export const LeaderboardBreadcrumbs: FC<LeaderboardBreadcrumbsProps> = ({
+  leaderboard,
   game,
   system,
   t_currentPageLabel,
@@ -67,14 +67,14 @@ export const AchievementBreadcrumbs: FC<AchievementBreadcrumbsProps> = ({
             </>
           ) : null}
 
-          {achievement ? (
+          {leaderboard ? (
             <>
               <BaseBreadcrumbSeparator />
-              <BaseBreadcrumbItem aria-label={achievement.title}>
+              <BaseBreadcrumbItem aria-label={leaderboard.title}>
                 <BaseBreadcrumbLink
-                  href={route('achievement.show', { achievement: achievement.id })}
+                  href={route('leaderboard.show', { leaderboard: leaderboard.id })}
                 >
-                  {achievement.title}
+                  {leaderboard.title}
                 </BaseBreadcrumbLink>
               </BaseBreadcrumbItem>
             </>

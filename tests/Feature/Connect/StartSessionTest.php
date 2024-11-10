@@ -6,6 +6,7 @@ namespace Tests\Feature\Connect;
 
 use App\Enums\Permissions;
 use App\Models\Achievement;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\PlayerSession;
@@ -175,6 +176,163 @@ class StartSessionTest extends TestCase
         $this->assertNotEquals($playerSession->id, $playerSession2->id);
         $this->assertEquals(1, $playerSession2->duration);
         $this->assertEquals('Playing ' . $game2->title, $playerSession2->rich_presence);
+
+        // ----------------------------
+        // not-unlocked event achievement hides hardcore unlock when active
+        System::factory()->create(['ID' => System::Events]);
+        /** @var Game $eventGame */
+        $eventGame = Game::factory()->create(['ConsoleID' => System::Events]);
+        /** @var Achievement $eventAchievement1 */
+        $eventAchievement1 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+
+        Carbon::setTestNow($now->addWeeks(1));
+        EventAchievement::create([
+            'achievement_id' => $eventAchievement1->ID,
+            'source_achievement_id' => $achievement1->ID,
+            'active_from' => $now->clone()->subDays(1),
+            'active_until' => $now->clone()->addDays(2),
+        ]);
+        $this->withHeaders(['User-Agent' => 'MyApp/1.0'])
+            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'HardcoreUnlocks' => [
+                    [
+                        'ID' => $achievement2->ID,
+                        'When' => $unlock2Date->timestamp,
+                    ],
+                ],
+                'Unlocks' => [
+                    [
+                        'ID' => $achievement1->ID,
+                        'When' => $unlock1Date->timestamp,
+                    ],
+                    [
+                        'ID' => $achievement3->ID,
+                        'When' => $unlock3Date->timestamp,
+                    ],
+                ],
+                'ServerNow' => Carbon::now()->timestamp,
+            ]);
+
+        // ----------------------------
+        // after event achievement is unlocked, hardcore unlock is returned
+        $this->addHardcoreUnlock($this->user, $eventAchievement1, $now);
+        $this->withHeaders(['User-Agent' => 'MyApp/1.0'])
+            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'HardcoreUnlocks' => [
+                    [
+                        'ID' => $achievement1->ID,
+                        'When' => $unlock1Date->timestamp,
+                    ],
+                    [
+                        'ID' => $achievement2->ID,
+                        'When' => $unlock2Date->timestamp,
+                    ],
+                ],
+                'Unlocks' => [
+                    [
+                        'ID' => $achievement3->ID,
+                        'When' => $unlock3Date->timestamp,
+                    ],
+                ],
+                'ServerNow' => Carbon::now()->timestamp,
+            ]);
+
+        // ----------------------------
+        // if multiple event achievements are active for a single source achievement, all must be unlocked to keep hardcore unlock
+        /** @var Achievement $eventAchievement2 */
+        $eventAchievement2 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+        EventAchievement::create([
+            'achievement_id' => $eventAchievement2->ID,
+            'source_achievement_id' => $achievement1->ID,
+            'active_from' => $now->clone()->subDays(2),
+            'active_until' => $now->clone()->addDays(3),
+        ]);
+        $this->withHeaders(['User-Agent' => 'MyApp/1.0'])
+            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'HardcoreUnlocks' => [
+                    [
+                        'ID' => $achievement2->ID,
+                        'When' => $unlock2Date->timestamp,
+                    ],
+                ],
+                'Unlocks' => [
+                    [
+                        'ID' => $achievement1->ID,
+                        'When' => $unlock1Date->timestamp,
+                    ],
+                    [
+                        'ID' => $achievement3->ID,
+                        'When' => $unlock3Date->timestamp,
+                    ],
+                ],
+                'ServerNow' => Carbon::now()->timestamp,
+            ]);
+
+        // ----------------------------
+        // after all event achievements are unlocked, hardcore unlock is returned
+        $this->addHardcoreUnlock($this->user, $eventAchievement2, $now);
+        $this->withHeaders(['User-Agent' => 'MyApp/1.0'])
+            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'HardcoreUnlocks' => [
+                    [
+                        'ID' => $achievement1->ID,
+                        'When' => $unlock1Date->timestamp,
+                    ],
+                    [
+                        'ID' => $achievement2->ID,
+                        'When' => $unlock2Date->timestamp,
+                    ],
+                ],
+                'Unlocks' => [
+                    [
+                        'ID' => $achievement3->ID,
+                        'When' => $unlock3Date->timestamp,
+                    ],
+                ],
+                'ServerNow' => Carbon::now()->timestamp,
+            ]);
+
+        // ----------------------------
+        // event achievement outside of active range is ignored
+        /** @var Achievement $eventAchievement2 */
+        $eventAchievement3 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+        EventAchievement::create([
+            'achievement_id' => $eventAchievement2->ID,
+            'source_achievement_id' => $achievement1->ID,
+            'active_from' => $now->clone()->addDays(2),
+            'active_until' => $now->clone()->addDays(5),
+        ]);
+
+        $this->withHeaders(['User-Agent' => 'MyApp/1.0'])
+            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'HardcoreUnlocks' => [
+                    [
+                        'ID' => $achievement1->ID,
+                        'When' => $unlock1Date->timestamp,
+                    ],
+                    [
+                        'ID' => $achievement2->ID,
+                        'When' => $unlock2Date->timestamp,
+                    ],
+                ],
+                'Unlocks' => [
+                    [
+                        'ID' => $achievement3->ID,
+                        'When' => $unlock3Date->timestamp,
+                    ],
+                ],
+                'ServerNow' => Carbon::now()->timestamp,
+            ]);
     }
 
     public function testStartSessionDelegated(): void
