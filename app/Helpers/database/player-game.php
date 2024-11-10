@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
@@ -232,6 +233,40 @@ function getUserAchievementUnlocksForGame(User|string $user, int $gameID, int $f
         });
 
     return $playerAchievements->toArray();
+}
+
+function reactivateUserEventAchievements(User $user, array $userUnlocks): array
+{
+    // find any active event achievements for the set of achievements that the user has already unlocked
+    $activeEventAchievementMap = EventAchievement::active()
+        ->whereIn('source_achievement_id', array_keys($userUnlocks))
+        ->get(['source_achievement_id', 'achievement_id'])
+        ->mapWithKeys(function ($eventAchievement, int $key) {
+            return [$eventAchievement->achievement_id => $eventAchievement->source_achievement_id];
+        })
+        ->toArray();
+
+    // no active event achievements found - we're done
+    if (empty($activeEventAchievementMap)) {
+        return $userUnlocks;
+    }
+
+    // see if the user has unlocked any of the active event achievements
+    $playerUnlockedEventAchievementIds = $user->playerAchievements()
+        ->whereIn('achievement_id', array_keys($activeEventAchievementMap))
+        ->whereNotNull('unlocked_hardcore_at')
+        ->pluck('achievement_id')
+        ->toArray();
+
+    // clear out the hardcore unlock date for the source achievement of each event
+    // achievement the user has not unlocked
+    foreach ($activeEventAchievementMap as $eventAchievementId => $achievementId) {
+        if (!in_array($eventAchievementId, $playerUnlockedEventAchievementIds)) {
+            unset($userUnlocks[$achievementId]['DateEarnedHardcore']);
+        }
+    }
+
+    return $userUnlocks;
 }
 
 function GetAllUserProgress(User $user, int $consoleID): array
