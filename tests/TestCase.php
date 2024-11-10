@@ -8,7 +8,7 @@ use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\LinkHashToGame;
+use App\Platform\Actions\LinkHashToGameAction;
 use Database\Seeders\Concerns\SeedsUsers;
 use Database\Seeders\RolesTableSeeder;
 use Database\Seeders\UsersTableSeeder;
@@ -71,7 +71,7 @@ abstract class TestCase extends BaseTestCase
         $games = $system->games()->saveMany(Game::factory()->count($amount)->create());
 
         if ($withHash) {
-            $games->each(fn (Game $game) => (bool) (new LinkHashToGame())->execute($game->ID . '_hash', $game));
+            $games->each(fn (Game $game) => (bool) (new LinkHashToGameAction())->execute($game->ID . '_hash', $game));
         }
 
         if ($achievementsAmount > 0) {

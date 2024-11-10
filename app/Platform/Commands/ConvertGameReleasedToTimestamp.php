@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Models\Game;
-use App\Platform\Actions\ConvertGameReleasedToTimestamp as ConvertGameReleasedToTimestampAction;
+use App\Platform\Actions\ConvertGameReleasedToTimestampAction;
 use Illuminate\Console\Command;
 
 class ConvertGameReleasedToTimestamp extends Command
