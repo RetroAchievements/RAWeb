@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuAlertCircle } from 'react-icons/lu';
 
 import {
@@ -18,7 +18,7 @@ import { useManageAccountDeletion } from './useManageAccountDeletion';
 export const DeleteAccountSectionCard: FC = () => {
   const { userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const [isDeleteAlreadyRequested, setIsDeleteAlreadyRequested] = useState(
     !!userSettings.deleteRequested,
@@ -70,7 +70,7 @@ export const DeleteAccountSectionCard: FC = () => {
             <LuAlertCircle className="h-5 w-5" />
             <BaseAlertTitle>{t("You've requested account deletion.")}</BaseAlertTitle>
             <BaseAlertDescription>
-              {t('Your account will be permanently deleted on :date', {
+              {t('Your account will be permanently deleted on {{date}}', {
                 date: deletionDate.format('MMMM D'),
               })}
             </BaseAlertDescription>

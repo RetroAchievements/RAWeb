@@ -29,9 +29,11 @@ export function buildHasActiveOrInReviewClaimsColumnDef({
     id: 'hasActiveOrInReviewClaims',
     accessorKey: 'game',
     meta: { t_label, sortType: 'boolean', Icon: gameListFieldIconMap.hasActiveOrInReviewClaims },
+
     header: ({ column, table }) => (
       <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
+
     cell: ({ row }) => {
       const hasActiveOrInReviewClaims = row.original.game?.hasActiveOrInReviewClaims ?? false;
 

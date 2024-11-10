@@ -2,6 +2,8 @@
 
 Thank you for your interest in contributing translations to the RetroAchievements website! By helping translate our platform, you make it more accessible to a wider audience. This guide will walk you through the steps to add or update translations in the RAWeb repository.
 
+NOTE: The website does not support RTL (right-to-left) languages at this time.
+
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
@@ -66,7 +68,7 @@ RAWeb/
 
 ```json
 {
-  ":count posts in the last 24 hours": ":count posts nas últimas 24 horas"
+  "{{count, number}} posts in the last 24 hours": "{{count, number}} posts nas últimas 24 horas"
 }
 ```
 
@@ -74,24 +76,24 @@ RAWeb/
 
 ### Handling Placeholders
 
-Some translation strings contain placeholders (eg: `:count`, `:total`, `:gameTitle`) or special syntax used by libraries like React (eg: `<0>here</0>`). These placeholders are dynamically replaced by the application at runtime.
+Some translation strings contain placeholders (eg: `{{count, number}}`, `{{total}}`, `{{gameTitle}}`) or special syntax used by libraries like React (eg: `<1>here</1>`). These placeholders are dynamically replaced by the application at runtime.
 
 - **Keep Placeholders Intact:** Do not translate or modify placeholders. Ensure they remain exactly as they are in the original key.
-* **For variables:** Strings like `:count`, `:total`, or `:gameTitle` should be kept as-is.
-* **For HTML-like tags:** Tags like `<0>`, `</0>`, etc, must remain intact and should be placed appropriately in the translated sentence.
+* **For variables:** Strings like `{{count, number}}`, `{{total}}`, or `{{gameTitle}}` should be kept as-is.
+* **For HTML-like tags:** Tags like `<1>`, `</1>`, etc, must remain intact and should be placed appropriately in the translated sentence.
 
 **Examples:**
 
 * For variables:
 ```json
 {
-  "Next :count": "Próximo :count"
+  "Next {{count, number}}": "Próximo {{count, number}}"
 }
 ```
 * For tags:
 ```json
 {
-  "Click <0>here</0> to visit the page.": "Clique <0>aqui</0> para visitar a página."
+  "Click <1>here</1> to visit the page.": "Clique <1>aqui</1> para visitar a página."
 }
 ```
 

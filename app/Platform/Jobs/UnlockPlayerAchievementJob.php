@@ -6,12 +6,12 @@ use App\Models\Achievement;
 use App\Models\GameHash;
 use App\Models\User;
 use App\Platform\Actions\UnlockPlayerAchievementAction;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Carbon;
 
 class UnlockPlayerAchievementJob implements ShouldQueue
 {

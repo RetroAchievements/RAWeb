@@ -6,8 +6,10 @@ namespace App\Platform\Actions;
 
 use App\Models\Achievement;
 use App\Models\GameHash;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Events\PlayerAchievementUnlocked;
+use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use Carbon\Carbon;
 use Exception;
 
@@ -23,7 +25,7 @@ class UnlockPlayerAchievementAction
     ): void {
         $timestamp ??= Carbon::now();
 
-        $achievement->loadMissing('game');
+        $achievement->loadMissing('game.system');
         if (!$achievement->game) {
             throw new Exception('Achievement does not belong to any game');
         }
@@ -32,8 +34,18 @@ class UnlockPlayerAchievementAction
             $gameHash = null;
         }
 
-        if ($unlockedBy) {
-            // only attach the game if it's a manual unlock
+        // also unlock active event achievements associated to the achievement being unlocked
+        if ($hardcore) {
+            foreach ($achievement->eventAchievements()->active($timestamp)->get() as $eventAchievement) {
+                dispatch(new UnlockPlayerAchievementJob($user->id, $eventAchievement->achievement_id, true, $timestamp, $unlockedBy?->id, $gameHash?->id))
+                    ->onQueue('player-achievements');
+            }
+        }
+
+        $playerSession = null;
+        if ($unlockedBy || !System::isGameSystem($achievement->game->system->id)) {
+            // if it's a manual unlock or a non-game achievement, attach the game
+            // but don't generate a session.
             app()->make(AttachPlayerGameAction::class)
                 ->execute($user, $achievement->game);
         } else {
@@ -75,7 +87,7 @@ class UnlockPlayerAchievementAction
         $unlock->unlocker_id = $unlockedBy?->id;
 
         // attach latest player session if it was not a manual unlock
-        if (!$unlockedBy) {
+        if ($playerSession) {
             $unlock->player_session_id = $playerSession->id;
 
             $playerSession->hardcore = $playerSession->hardcore ?: (bool) $unlock->unlocked_hardcore_at;

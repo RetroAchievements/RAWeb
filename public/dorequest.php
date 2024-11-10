@@ -541,7 +541,9 @@ switch ($requestType) {
         PlayerSessionHeartbeat::dispatch($user, $game, null, $gameHash);
 
         $response['Success'] = true;
-        $userUnlocks = getUserAchievementUnlocksForGame($username, $gameID);
+        $userModel = User::firstWhere('User', $username);
+        $userUnlocks = getUserAchievementUnlocksForGame($userModel, $gameID);
+        $userUnlocks = reactivateUserEventAchievements($userModel, $userUnlocks);
         foreach ($userUnlocks as $achId => $unlock) {
             if (array_key_exists('DateEarnedHardcore', $unlock)) {
                 $response['HardcoreUnlocks'][] = [
@@ -636,8 +638,10 @@ switch ($requestType) {
 
     case "unlocks":
         $hardcoreMode = (int) request()->input('h', 0) === UnlockMode::Hardcore;
-        $userUnlocks = getUserAchievementUnlocksForGame($username, $gameID);
+        $userModel = User::firstWhere('User', $username);
+        $userUnlocks = getUserAchievementUnlocksForGame($userModel, $gameID);
         if ($hardcoreMode) {
+            $userUnlocks = reactivateUserEventAchievements($userModel, $userUnlocks);
             $response['UserUnlocks'] = collect($userUnlocks)
                 ->filter(fn ($value, $key) => array_key_exists('DateEarnedHardcore', $value))
                 ->keys();

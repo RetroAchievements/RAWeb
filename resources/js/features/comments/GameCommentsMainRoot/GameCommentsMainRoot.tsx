@@ -1,12 +1,12 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { CommentList } from '@/common/components/CommentList/CommentList';
 import { FullPaginator } from '@/common/components/FullPaginator';
+import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
+import { GameHeading } from '@/common/components/GameHeading';
 import { SubscribeToggleButton } from '@/common/components/SubscribeToggleButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { GameBreadcrumbs } from '@/features/games/components/GameBreadcrumbs';
-import { GameHeading } from '@/features/games/components/GameHeading';
 
 import { useCommentPagination } from '../hooks/useCommentPagination';
 
@@ -14,7 +14,7 @@ export const GameCommentsMainRoot: FC = () => {
   const { auth, canComment, game, isSubscribed, paginatedComments } =
     usePageProps<App.Community.Data.GameCommentsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { handleCommentDeleteSuccess, handleCommentSubmitSuccess, handlePageSelectValueChange } =
     useCommentPagination({

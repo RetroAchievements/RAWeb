@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/common/components/EmptyState';
 import { RecentPostsCards } from '@/common/components/RecentPostsCards';
@@ -8,19 +8,19 @@ import { SimplePaginator } from '@/common/components/SimplePaginator';
 import { UserHeading } from '@/common/components/UserHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { UserBreadcrumbs } from '../UserBreadcrumbs';
+import { UserBreadcrumbs } from '../../../../common/components/UserBreadcrumbs';
 
 export const UserPostsMainRoot: FC = () => {
   const { targetUser, paginatedTopics } =
     usePageProps<App.Community.Data.UserRecentPostsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div>
       <UserBreadcrumbs t_currentPageLabel={t('Forum Posts')} user={targetUser} />
       <UserHeading user={targetUser}>
-        {t(":user's Forum Posts", { user: targetUser.displayName })}
+        {t("{{user}}'s Forum Posts", { user: targetUser.displayName })}
       </UserHeading>
 
       {paginatedTopics.items.length > 0 ? (
@@ -39,7 +39,7 @@ export const UserPostsMainRoot: FC = () => {
         </>
       ) : (
         <EmptyState>
-          {t(":user doesn't have any forum posts.", { user: targetUser.displayName })}
+          {t("{{user}} doesn't have any forum posts.", { user: targetUser.displayName })}
         </EmptyState>
       )}
 
