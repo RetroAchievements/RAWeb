@@ -1,26 +1,31 @@
 import dayjs from 'dayjs';
 
-const LOCALE_MAP: Record<string, string> = {
-  pt_BR: 'pt-br',
-  pl_PL: 'pl',
-  es_ES: 'es',
-};
-
 /**
  * Dynamically load the Day.js locale code based on the user's
  * locale preference. This method of dynamic loading helps keep
  * the client-side JS bundle size down.
  */
 export async function loadDayjsLocale(userLocale: string) {
-  const dayjsLocale = LOCALE_MAP[userLocale];
-
-  if (!dayjsLocale) {
-    return;
-  }
-
   try {
-    await import(`dayjs/locale/${dayjsLocale}.js`);
-    dayjs.locale(dayjsLocale);
+    switch (userLocale) {
+      case 'es_ES':
+        await import('dayjs/locale/es.js');
+        dayjs.locale('es');
+        break;
+
+      case 'pl_PL':
+        await import('dayjs/locale/pl.js');
+        dayjs.locale('pl');
+        break;
+
+      case 'pt_BR':
+        await import('dayjs/locale/pt-br.js');
+        dayjs.locale('pt-br');
+        break;
+
+      default:
+        console.warn(`Locale ${userLocale} is not supported.`);
+    }
   } catch (err) {
     console.warn(`Unable to load Day.js locale for ${userLocale}.`, err);
   }
