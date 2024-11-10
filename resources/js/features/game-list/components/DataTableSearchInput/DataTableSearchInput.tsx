@@ -10,6 +10,7 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/utils/cn';
 
 import { useSearchInputHotkey } from './useSearchInputHotkey';
@@ -36,6 +37,10 @@ export function DataTableSearchInput<TData>({
   hasHotkey = true,
   searchColumnId = 'title',
 }: DataTableSearchInputProps<TData>) {
+  const {
+    ziggy: { device },
+  } = usePageProps();
+
   const { t } = useTranslation();
 
   const initialValue = (table.getColumn(searchColumnId)?.getFilterValue() as string) ?? '';
@@ -94,7 +99,10 @@ export function DataTableSearchInput<TData>({
           placeholder={t('Search games...')}
           value={rawInputValue}
           onChange={(event) => setRawInputValue(event.target.value)}
-          className="peer h-8 sm:w-[150px] lg:w-[250px]"
+          className={cn(
+            'peer h-8 sm:w-[150px] lg:w-[250px]',
+            device === 'mobile' ? 'text-[16px]' : '',
+          )}
           aria-describedby="search-shortcut"
         />
 

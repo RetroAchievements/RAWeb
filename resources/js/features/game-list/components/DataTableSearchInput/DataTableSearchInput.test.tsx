@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import type { FC } from 'react';
 
 import { render, screen } from '@/test';
+import { createZiggyProps } from '@/test/factories';
 
 import { DataTableSearchInput } from './DataTableSearchInput';
 
@@ -26,7 +27,9 @@ const TestHarness: FC<TestHarnessProps> = ({ hasClearButton, hasHotkey }) => {
 describe('Component: DataTableSearchInput', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<TestHarness />);
+    const { container } = render(<TestHarness />, {
+      pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -34,7 +37,9 @@ describe('Component: DataTableSearchInput', () => {
 
   it('is accessible', () => {
     // ARRANGE
-    render(<TestHarness />);
+    render(<TestHarness />, {
+      pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+    });
 
     // ASSERT
     expect(screen.getByLabelText(/search games/i)).toBeVisible();
@@ -42,7 +47,9 @@ describe('Component: DataTableSearchInput', () => {
 
   it('displays placeholder text', () => {
     // ARRANGE
-    render(<TestHarness />);
+    render(<TestHarness />, {
+      pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+    });
 
     // ASSERT
     expect(screen.getByPlaceholderText(/search games.../i)).toBeVisible();
@@ -50,7 +57,9 @@ describe('Component: DataTableSearchInput', () => {
 
   it('given the global hotkey is not enabled, does not display the hotkey badge', () => {
     // ARRANGE
-    render(<TestHarness hasHotkey={false} />);
+    render(<TestHarness hasHotkey={false} />, {
+      pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+    });
 
     // ASSERT
     expect(screen.queryByText('/')).not.toBeInTheDocument();
@@ -58,7 +67,9 @@ describe('Component: DataTableSearchInput', () => {
 
   it('given the global hotkey is enabled, displays the hotkey badge', () => {
     // ARRANGE
-    render(<TestHarness hasHotkey={true} />);
+    render(<TestHarness hasHotkey={true} />, {
+      pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+    });
 
     // ASSERT
     expect(screen.getByText('/')).toBeVisible();
@@ -66,7 +77,9 @@ describe('Component: DataTableSearchInput', () => {
 
   it('given the clear button is enabled and there is user input, displays the clear button', async () => {
     // ARRANGE
-    render(<TestHarness hasClearButton={true} />);
+    render(<TestHarness hasClearButton={true} />, {
+      pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+    });
 
     // ACT
     await userEvent.type(screen.getByPlaceholderText(/search games/i), 'test');
@@ -77,7 +90,9 @@ describe('Component: DataTableSearchInput', () => {
 
   it('given the clear button is clicked, clears user input', async () => {
     // ARRANGE
-    render(<TestHarness hasClearButton={true} />);
+    render(<TestHarness hasClearButton={true} />, {
+      pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+    });
 
     // ACT
     await userEvent.type(screen.getByPlaceholderText(/search games/i), 'test');
@@ -90,7 +105,9 @@ describe('Component: DataTableSearchInput', () => {
 
   it('given the "/" key is pressed, focuses the input', async () => {
     // ARRANGE
-    render(<TestHarness hasHotkey={true} />);
+    render(<TestHarness hasHotkey={true} />, {
+      pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+    });
 
     // ACT
     await userEvent.keyboard('/');

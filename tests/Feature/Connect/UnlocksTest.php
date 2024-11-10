@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature\Connect;
 
 use App\Models\Achievement;
+use App\Models\EventAchievement;
 use App\Models\Game;
+use App\Models\System;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
@@ -75,6 +77,49 @@ class UnlocksTest extends TestCase
 
         // via POST
         $this->post('dorequest.php', $this->apiParams('unlocks', ['g' => $game->ID, 'h' => 1]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameID' => $game->ID,
+                'HardcoreMode' => true,
+                'UserUnlocks' => [$achievement1->ID, $achievement2->ID],
+            ]);
+
+        // not-unlocked event achievement hides hardcore unlock when active
+        System::factory()->create(['ID' => System::Events]);
+        /** @var Game $eventGame */
+        $eventGame = Game::factory()->create(['ConsoleID' => System::Events]);
+        /** @var Achievement $eventAchievement1 */
+        $eventAchievement1 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+
+        Carbon::setTestNow($now->addWeeks(1));
+        EventAchievement::create([
+            'achievement_id' => $eventAchievement1->ID,
+            'source_achievement_id' => $achievement1->ID,
+            'active_from' => $now->clone()->subDays(1),
+            'active_until' => $now->clone()->addDays(2),
+        ]);
+
+        // softcore ignores event achievement
+        $this->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 0]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameID' => $game->ID,
+                'HardcoreMode' => false,
+                'UserUnlocks' => [$achievement1->ID, $achievement2->ID, $achievement3->ID],
+            ]);
+
+        // hardcore excludes active event achievement
+        $this->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 1]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameID' => $game->ID,
+                'HardcoreMode' => true,
+                'UserUnlocks' => [$achievement2->ID],
+            ]);
+
+        // event achievement returned as unlocked after unlocking it
+        $this->addHardcoreUnlock($this->user, $eventAchievement1, $now);
+        $this->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 1]))
             ->assertExactJson([
                 'Success' => true,
                 'GameID' => $game->ID,
