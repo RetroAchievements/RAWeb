@@ -8,14 +8,54 @@ describe('Util: loadDayjsLocale', () => {
     expect(loadDayjsLocale).toBeDefined();
   });
 
-  it('given the user locale is pt_BR, loads and sets the pt_BR locale successfully', async () => {
+  it.each`
+    userLocale | dayjsLocale
+    ${'en_GB'} | ${'en-gb'}
+    ${'es_ES'} | ${'es'}
+    ${'pl_PL'} | ${'pl'}
+    ${'pt_BR'} | ${'pt-br'}
+  `('loads and sets the $userLocale locale successfully', async ({ userLocale, dayjsLocale }) => {
     // ARRANGE
-    vi.spyOn(dayjs, 'locale').mockImplementationOnce(vi.fn());
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const localeSpy = vi.spyOn(dayjs, 'locale');
+
+    // ACT
+    await loadDayjsLocale(userLocale);
+
+    // ASSERT
+    expect(localeSpy).toHaveBeenCalledWith(dayjsLocale);
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
+  it('when given an unsupported locale, does nothing', async () => {
+    // ARRANGE
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(dayjs, 'locale').mockImplementation(vi.fn());
+
+    // ACT
+    await loadDayjsLocale('klingon');
+
+    // ASSERT
+    expect(dayjs.locale).not.toHaveBeenCalled();
+  });
+
+  it('logs a warning if an error occurs while loading a locale', async () => {
+    // ARRANGE
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(dayjs, 'locale').mockImplementation(vi.fn());
+
+    // Temporarily mock the dynamic import to throw an error.
+    vi.doMock('dayjs/locale/pt-br.js', () => {
+      throw new Error('Import failed');
+    });
 
     // ACT
     await loadDayjsLocale('pt_BR');
 
     // ASSERT
-    expect(dayjs.locale).toHaveBeenCalledWith('pt-br');
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining('Unable to load Day.js locale for pt_BR'),
+      expect.any(Error),
+    );
   });
 });
