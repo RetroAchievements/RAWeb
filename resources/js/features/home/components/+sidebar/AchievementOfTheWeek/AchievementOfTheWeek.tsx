@@ -46,7 +46,11 @@ export const AchievementOfTheWeek: FC = () => {
               />
 
               <div className="flex flex-col gap-0.5 self-start">
-                <a href={route('achievement.show', { achievement: achievementOfTheWeek.achievement.id })}>
+                <a
+                  href={route('achievement.show', {
+                    achievement: achievementOfTheWeek.achievement.id,
+                  })}
+                >
                   {achievementOfTheWeek.achievement.title}
                 </a>
 
@@ -64,9 +68,9 @@ export const AchievementOfTheWeek: FC = () => {
 
                   {achievementOfTheWeek.activeUntil ? (
                     // TODO: make this align bottom right
-                    <div className="w-ful flex flex-end justify-end">
+                    <div className="w-ful flex-end justify-end">
                       <span className="smalldate">
-                        <span>{t('Ends')}: </span>
+                        <span>{t('Ends')} </span>
                         <DiffTimestamp
                           at={achievementOfTheWeek.activeUntil}
                           asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates}
