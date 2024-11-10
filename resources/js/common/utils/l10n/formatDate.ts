@@ -54,16 +54,26 @@ export function formatDate(
 
     return formatter.format(dayjsDate.toDate());
   } else if (format === 'MMM DD, YYYY, HH:mm') {
-    const formatter = new Intl.DateTimeFormat(nativeLocale, {
+    const dateFormatter = new Intl.DateTimeFormat(nativeLocale, {
       month: 'short',
       day: '2-digit',
       year: 'numeric',
+    });
+
+    const timeFormatter = new Intl.DateTimeFormat(nativeLocale, {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
     });
 
-    return formatter.format(dayjsDate.toDate());
+    let timeStr = timeFormatter.format(dayjsDate.toDate());
+
+    // Replace 24:00 with 00:00 if needed.
+    if (timeStr.startsWith('24:')) {
+      timeStr = timeStr.replace('24:', '00:');
+    }
+
+    return `${dateFormatter.format(dayjsDate.toDate())}, ${timeStr}`;
   }
 
   return dayjsDate.format(format);

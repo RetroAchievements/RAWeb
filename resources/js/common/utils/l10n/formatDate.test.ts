@@ -82,4 +82,42 @@ describe('Util: formatDate', () => {
       expect(formatted).toEqual('czerwiec 2023');
     });
   });
+
+  describe('MMM DD, YYYY, HH:mm', () => {
+    it('formats midnight correctly in en-us', () => {
+      // ARRANGE
+      dayjs.locale('en-us');
+      const date = dayjs.utc('2023-12-25');
+
+      // ACT
+      const formatted = formatDate(date, 'MMM DD, YYYY, HH:mm');
+
+      // ASSERT
+      expect(formatted).toEqual('Dec 25, 2023, 00:00');
+    });
+
+    it('formats regular time correctly in en-us', () => {
+      // ARRANGE
+      dayjs.locale('en-us');
+      const date = dayjs.utc('2023-12-25T14:30:00Z');
+
+      // ACT
+      const formatted = formatDate(date, 'MMM DD, YYYY, HH:mm');
+
+      // ASSERT
+      expect(formatted).toEqual('Dec 25, 2023, 14:30');
+    });
+
+    it('formats midnight correctly in pt-br', () => {
+      // ARRANGE
+      dayjs.locale('pt-br');
+      const date = dayjs.utc('2023-12-25');
+
+      // ACT
+      const formatted = formatDate(date, 'MMM DD, YYYY, HH:mm');
+
+      // ASSERT
+      expect(formatted).toEqual('25 de dez. de 2023, 00:00');
+    });
+  });
 });
