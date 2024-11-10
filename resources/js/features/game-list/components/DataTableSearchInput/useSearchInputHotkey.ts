@@ -10,7 +10,8 @@ export function useSearchInputHotkey({ isEnabled, key }: UseSearchInputHotkeyPro
   // Attach this to the input.
   const hotkeyInputRef = useRef<HTMLInputElement>(null);
 
-  const isCurrentlyFocused = document.activeElement === hotkeyInputRef.current;
+  const isCurrentlyFocused =
+    typeof document !== 'undefined' && document.activeElement === hotkeyInputRef.current;
 
   // When the user presses the given key on the keyboard, auto-focus the input.
   useKeyPressEvent(key, (event) => {
