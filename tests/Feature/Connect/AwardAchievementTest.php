@@ -7,6 +7,7 @@ namespace Tests\Feature\Connect;
 use App\Community\Enums\AwardType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\PlayerAchievement;
@@ -726,5 +727,133 @@ class AwardAchievementTest extends TestCase
        $user1 = User::firstWhere('User', $this->user->User);
        $this->assertEquals($scoreBefore, $user1->RAPoints);
        $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
+    }
+
+    public function testHardcoreEventUnlock(): void
+    {
+        $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
+        Carbon::setTestNow($now);
+
+        /** @var User $author */
+        $author = User::factory()->create();
+        $game = $this->seedGame(withHash: false);
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
+        /** @var Achievement $achievement1 */
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        /** @var Achievement $achievement2 */
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        /** @var Achievement $achievement3 */
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        /** @var Achievement $achievement4 */
+        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        /** @var Achievement $achievement5 */
+        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        /** @var Achievement $achievement6 */
+        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date, $gameHash);
+        $this->addHardcoreUnlock($this->user, $achievement5, $unlock1Date, $gameHash);
+        $this->addHardcoreUnlock($this->user, $achievement6, $unlock1Date, $gameHash);
+
+        $playerSession1 = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => $achievement3->game_id,
+            'game_hash_id' => $gameHash->id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession1);
+
+        // not-unlocked event achievement hides hardcore unlock when active
+        System::factory()->create(['ID' => System::Events]);
+        /** @var Game $eventGame */
+        $eventGame = Game::factory()->create(['ConsoleID' => System::Events]);
+        /** @var Achievement $eventAchievement1 */
+        $eventAchievement1 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+        EventAchievement::create([
+            'achievement_id' => $eventAchievement1->ID,
+            'source_achievement_id' => $achievement1->ID,
+            'active_from' => $now->clone()->subDays(1),
+            'active_until' => $now->clone()->addDays(2),
+        ]);
+
+        // do the hardcore unlock
+        $validationHash = $this->buildValidationHash($achievement1, $this->user, 1);
+        $scoreBefore = $this->user->RAPoints;
+        $softcoreScoreBefore = $this->user->RASoftcorePoints;
+        $truePointsBefore = $this->user->TrueRAPoints;
+
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement1->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->assertExactJson([
+                // client assumes success - it will blindly dispatch the event unlock
+                'Success' => true,
+                // client detects the "User already has" and does not report this as an error.
+                'Error' => 'User already has this achievement unlocked in hardcore mode.',
+                'AchievementID' => $achievement1->ID,
+                'AchievementsRemaining' => 3,
+                'Score' => $scoreBefore,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $this->user->refresh();
+
+        // achievement unlocked
+        $this->assertHasHardcoreUnlock($this->user, $eventAchievement1);
+
+        // player score should not have increased
+        $user1 = User::firstWhere('User', $this->user->User);
+        $this->assertEquals($scoreBefore, $user1->RAPoints);
+        $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
+
+        /** @var Achievement $eventAchievement2 */
+        $eventAchievement2 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+        EventAchievement::create([
+            'achievement_id' => $eventAchievement2->ID,
+            'source_achievement_id' => $achievement2->ID,
+            'active_from' => $now->clone()->subDays(1),
+            'active_until' => $now->clone()->addDays(2),
+        ]);
+
+        // softcore unlock (user has neither event achievement nor source achievement unlocked)
+        $validationHash = $this->buildValidationHash($achievement2, $this->user, 0);
+        $scoreBefore = $this->user->RAPoints;
+        $softcoreScoreBefore = $this->user->RASoftcorePoints;
+        $truePointsBefore = $this->user->TrueRAPoints;
+
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement2->ID,
+                'AchievementsRemaining' => 2,
+                'Score' => $scoreBefore,
+                'SoftcoreScore' => $softcoreScoreBefore + $achievement2->Points,
+            ]);
+
+        // player score updated
+        $this->user->refresh();
+        $this->assertEquals($scoreBefore, $this->user->RAPoints);
+        $this->assertEquals($softcoreScoreBefore + $achievement2->Points, $this->user->RASoftcorePoints);
+        $softcoreScoreBefore = $this->user->RASoftcorePoints;
+
+        // event achievement not unlocked
+        $this->assertDoesNotHaveAnyUnlock($this->user, $eventAchievement2);
+
+        // do the hardcore unlock
+        $validationHash = $this->buildValidationHash($achievement2, $this->user, 1);
+
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement2->ID,
+                'AchievementsRemaining' => 2,
+                'Score' => $scoreBefore + $achievement2->Points,
+                'SoftcoreScore' => $softcoreScoreBefore - $achievement2->Points,
+            ]);
+
+        // player score updated
+        $this->user->refresh();
+        $this->assertEquals($scoreBefore + $achievement2->Points, $this->user->RAPoints);
+        $this->assertEquals($softcoreScoreBefore - $achievement2->Points, $this->user->RASoftcorePoints);
+
+        // achievement unlocked
+        $this->assertHasHardcoreUnlock($this->user, $eventAchievement2);
     }
 }
