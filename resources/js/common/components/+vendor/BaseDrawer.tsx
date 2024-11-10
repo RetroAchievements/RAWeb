@@ -23,14 +23,12 @@ const BaseDrawer = ({
   };
 
   return (
-    <>
-      <DrawerPrimitive.Root
-        shouldScaleBackground={shouldScaleBackground}
-        noBodyStyles={true}
-        onOpenChange={handleOnOpenChange}
-        {...props}
-      />
-    </>
+    <DrawerPrimitive.Root
+      shouldScaleBackground={shouldScaleBackground}
+      noBodyStyles={true}
+      onOpenChange={handleOnOpenChange}
+      {...props}
+    />
   );
 };
 BaseDrawer.displayName = 'BaseDrawer';
