@@ -7,7 +7,7 @@ import { ChangeEmailAddressSectionCard } from '../ChangeEmailAddressSectionCard'
 import { ChangePasswordSectionCard } from '../ChangePasswordSectionCard';
 import { DeleteAccountSectionCard } from '../DeleteAccountSectionCard';
 import { KeysSectionCard } from '../KeysSectionCard';
-// import { LocaleSectionCard } from '../LocaleSectionCard';
+import { LocaleSectionCard } from '../LocaleSectionCard';
 import { NotificationsSectionCard } from '../NotificationsSectionCard';
 import { PreferencesSectionCard } from '../PreferencesSectionCard';
 import { ProfileSectionCard } from '../ProfileSectionCard';
@@ -39,7 +39,7 @@ export const SettingsRoot: FC = () => {
           onUpdateWebsitePrefs={handleUpdateWebsitePrefs}
         />
 
-        {/* <LocaleSectionCard /> */}
+        <LocaleSectionCard />
 
         <PreferencesSectionCard
           currentWebsitePrefs={currentWebsitePrefs}
