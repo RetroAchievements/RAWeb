@@ -44,12 +44,43 @@ describe('Component: TopLinks', () => {
     expect(linkEl).toHaveAttribute('href', 'ranking.beaten-games');
   });
 
-  it.todo(
-    'given there is a Discord invite URL configured, displays an accessible link to the platform Discord server',
-  );
-  it.todo(
-    'given there is a Patreon user ID configured, displays an accessible link to the Patreon page',
-  );
+  it('displays an accessible link to the platform Discord server', () => {
+    // ARRANGE
+    render(<TopLinks />);
+
+    // ASSERT
+    const linkEl = screen.getByRole('link', { name: /join us on discord/i });
+
+    expect(linkEl).toBeVisible();
+    expect(linkEl).toHaveAttribute('href', 'https://discord.com/invite/retroachievements');
+  });
+
+  it('given there is a Patreon user ID configured, displays an accessible link to the Patreon page', () => {
+    // ARRANGE
+    render(<TopLinks />, {
+      pageProps: {
+        config: { services: { patreon: { userId: 5407777 } } },
+      },
+    });
+
+    // ASSERT
+    const linkEl = screen.getByRole('link', { name: /become a patron/i });
+
+    expect(linkEl).toBeVisible();
+    expect(linkEl).toHaveAttribute('href', 'https://www.patreon.com/bePatron?u=5407777');
+  });
+
+  it('given there is not a Patreon user ID configured, does not render the link', () => {
+    // ARRANGE
+    render(<TopLinks />, {
+      pageProps: {
+        config: { services: { patreon: {} } },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /become a patron/i })).not.toBeInTheDocument();
+  });
 
   it('displays an accessible link to RANews', () => {
     // ARRANGE

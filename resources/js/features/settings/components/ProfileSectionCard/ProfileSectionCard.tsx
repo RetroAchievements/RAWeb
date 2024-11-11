@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
 import { useId } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuAlertCircle } from 'react-icons/lu';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -24,7 +24,7 @@ import { useProfileSectionForm } from './useProfileSectionForm';
 export const ProfileSectionCard: FC = () => {
   const { auth, can, userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const {
     form,

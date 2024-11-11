@@ -49,7 +49,7 @@ describe('Util: formatGameReleasedAt', () => {
 
     // ASSERT
     expect(resultOne).toEqual('1987');
-    expect(resultTwo).toEqual('mai de 1987');
+    expect(resultTwo).toEqual('maio de 1987');
     expect(resultThree).toEqual('5 de mai de 1987');
     expect(resultFour).toEqual('1987');
   });

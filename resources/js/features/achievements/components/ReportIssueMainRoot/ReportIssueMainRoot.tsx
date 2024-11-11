@@ -1,12 +1,11 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 
-import { Trans } from '@/common/components/Trans';
+import { AchievementBreadcrumbs } from '@/common/components/AchievementBreadcrumbs';
+import { AchievementHeading } from '@/common/components/AchievementHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 
-import { AchievementBreadcrumbs } from '../AchievementBreadcrumbs';
-import { AchievementHeading } from '../AchievementHeading';
 import { buildStructuredMessage } from './buildStructuredMessage';
 import { ReportIssueOptionItem } from './ReportIssueOptionItem';
 import { SessionDrivenIssueListItems } from './SessionDrivenIssueListItems';
@@ -15,7 +14,7 @@ import { UnlockStatusLabel } from './UnlockStatusLabel';
 export const ReportIssueMainRoot: FC = () => {
   const { achievement } = usePageProps<App.Platform.Data.ReportAchievementIssuePageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div>
@@ -26,7 +25,7 @@ export const ReportIssueMainRoot: FC = () => {
         achievement={achievement}
       />
       <AchievementHeading achievement={achievement}>
-        {t(':achievementTitle - Report Issue', { achievementTitle: achievement.title })}
+        {t('{{achievementTitle}} - Report Issue', { achievementTitle: achievement.title })}
       </AchievementHeading>
 
       <div className="mb-3">
@@ -46,17 +45,13 @@ export const ReportIssueMainRoot: FC = () => {
           })}
           anchorClassName={buildTrackingClassNames('Click Report Unwelcome Concept')}
         >
-          <Trans i18nKey="The achievement contains an <0>unwelcome concept</0>.">
-            {/* eslint-disable react/jsx-no-literals */}
-            The achievement contains an{' '}
-            <a
-              href="https://docs.retroachievements.org/guidelines/content/unwelcome-concepts.html"
-              target="_blank"
-              className={buildTrackingClassNames('Click Unwelcome Concept Docs Link')}
-            >
-              {'unwelcome concept'}
-            </a>
-            .{/* eslint-enable react/jsx-no-literals */}
+          <Trans
+            i18nKey="The achievement contains an <1>unwelcome concept</1>."
+            components={{ 1: <UnwelcomeConceptLink /> }}
+          >
+            {'The achievement contains an '}
+            <UnwelcomeConceptLink />
+            {'.'}
           </Trans>
         </ReportIssueOptionItem>
 
@@ -94,3 +89,13 @@ export const ReportIssueMainRoot: FC = () => {
     </div>
   );
 };
+
+const UnwelcomeConceptLink: FC = () => (
+  <a
+    href="https://docs.retroachievements.org/guidelines/content/unwelcome-concepts.html"
+    target="_blank"
+    className={buildTrackingClassNames('Click Unwelcome Concept Docs Link')}
+  >
+    {'unwelcome concept'}
+  </a>
+);

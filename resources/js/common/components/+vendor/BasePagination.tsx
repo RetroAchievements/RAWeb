@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type ComponentProps, forwardRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuChevronLeft, LuChevronRight, LuMoreHorizontal } from 'react-icons/lu';
 
 import { cn } from '@/utils/cn';
@@ -78,7 +78,7 @@ const BasePaginationNext = ({ className, ...props }: ComponentProps<typeof BaseP
 BasePaginationNext.displayName = 'BasePaginationNext';
 
 const BasePaginationEllipsis = ({ className, ...props }: ComponentProps<'span'>) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <span

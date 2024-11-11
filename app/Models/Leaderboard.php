@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\ArticleType;
 use App\Platform\Enums\ValueFormat;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\LeaderboardFactory;
@@ -13,11 +14,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+// TODO implements HasComments
 class Leaderboard extends BaseModel
 {
     /*
@@ -222,6 +225,29 @@ class Leaderboard extends BaseModel
     public function topEntry(): BelongsTo
     {
         return $this->belongsTo(LeaderboardEntry::class, 'top_entry_id');
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<Comment>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::Leaderboard);
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<Comment>
+     */
+    public function visibleComments(?User $user = null): HasMany
+    {
+        /** @var ?User $user */
+        $currentUser = $user ?? Auth::user();
+
+        return $this->comments()->visibleTo($currentUser);
     }
 
     // == scopes

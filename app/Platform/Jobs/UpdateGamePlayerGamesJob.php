@@ -3,7 +3,7 @@
 namespace App\Platform\Jobs;
 
 use App\Models\Game;
-use App\Platform\Actions\UpdateGamePlayerGames;
+use App\Platform\Actions\UpdateGamePlayerGamesAction;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -42,7 +42,7 @@ class UpdateGamePlayerGamesJob implements ShouldQueue, ShouldBeUniqueUntilProces
 
     public function handle(): void
     {
-        app()->make(UpdateGamePlayerGames::class)
+        app()->make(UpdateGamePlayerGamesAction::class)
             ->execute(Game::findOrFail($this->gameId));
     }
 }

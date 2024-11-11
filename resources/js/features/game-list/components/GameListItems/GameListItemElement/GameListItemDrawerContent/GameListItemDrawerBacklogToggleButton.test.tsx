@@ -16,6 +16,7 @@ interface TestHarnessProps {
   onToggle?: () => void;
 }
 
+// We need to instantiate props with a hook, so a test harness is required.
 const TestHarness: FC<TestHarnessProps> = ({ game, isInitiallyInBacklog, onToggle }) => {
   const backlogState = useGameBacklogState({ game, isInitiallyInBacklog });
 

@@ -3,7 +3,7 @@
 namespace App\Platform\Jobs;
 
 use App\Models\Game;
-use App\Platform\Actions\UpdateGameMetrics;
+use App\Platform\Actions\UpdateGameMetricsAction;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -48,7 +48,7 @@ class UpdateGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
             return;
         }
 
-        app()->make(UpdateGameMetrics::class)
+        app()->make(UpdateGameMetricsAction::class)
             ->execute(Game::findOrFail($this->gameId));
     }
 }

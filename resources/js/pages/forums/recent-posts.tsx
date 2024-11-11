@@ -1,12 +1,12 @@
 import { Head } from '@inertiajs/react';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useTranslation } from 'react-i18next';
 
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { RecentPostsMainRoot } from '@/features/forums/components/RecentPostsMainRoot';
 
 const RecentPosts: AppPage = () => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <>

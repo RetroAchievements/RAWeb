@@ -2,20 +2,35 @@
 
 import * as React from 'react';
 import { RxCross2 } from 'react-icons/rx';
+import { useLockBodyScroll, useToggle } from 'react-use';
 import { Drawer as DrawerPrimitive } from 'vaul';
 
 import { cn } from '@/utils/cn';
 
 const BaseDrawer = ({
   shouldScaleBackground = true,
+  onOpenChange,
   ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
-  <DrawerPrimitive.Root
-    shouldScaleBackground={shouldScaleBackground}
-    noBodyStyles={true}
-    {...props}
-  />
-);
+}: React.ComponentProps<typeof DrawerPrimitive.Root>) => {
+  const [isLocked, toggleIsLocked] = useToggle(false);
+
+  useLockBodyScroll(isLocked);
+
+  const handleOnOpenChange = (isOpen: boolean) => {
+    onOpenChange?.(isOpen);
+
+    toggleIsLocked(isOpen);
+  };
+
+  return (
+    <DrawerPrimitive.Root
+      shouldScaleBackground={shouldScaleBackground}
+      noBodyStyles={true}
+      onOpenChange={handleOnOpenChange}
+      {...props}
+    />
+  );
+};
 BaseDrawer.displayName = 'BaseDrawer';
 
 const BaseDrawerTrigger = DrawerPrimitive.Trigger;
@@ -74,7 +89,7 @@ const BaseDrawerHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivE
 BaseDrawerHeader.displayName = 'BaseDrawerHeader';
 
 const BaseDrawerFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('mt-auto flex flex-col gap-2 p-4', className)} {...props} />
+  <div className={cn('mt-auto flex flex-col gap-2 px-4 pb-6 pt-4', className)} {...props} />
 );
 BaseDrawerFooter.displayName = 'BaseDrawerFooter';
 

@@ -7,7 +7,7 @@ namespace Tests\Feature\Platform;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\UpdatePlayerBeatenGamesStats;
+use App\Platform\Actions\UpdatePlayerBeatenGamesStatsAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
@@ -44,9 +44,9 @@ class BeatenGamesLeaderboardTest extends TestCase
         $this->addGameBeatenAward($users->get(2), $games->get(1));
         $this->addGameBeatenAward($users->get(2), $games->get(2));
 
-        (new UpdatePlayerBeatenGamesStats())->execute($users->get(0));
-        (new UpdatePlayerBeatenGamesStats())->execute($users->get(1));
-        (new UpdatePlayerBeatenGamesStats())->execute($users->get(2));
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(0));
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(1));
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(2));
 
         // Act
         $view = $this->get('/ranking/beaten-games');
@@ -74,9 +74,9 @@ class BeatenGamesLeaderboardTest extends TestCase
         $this->addGameBeatenAward($users->get(2), $games->get(0));
         $this->addGameBeatenAward($users->get(2), $games->get(1));
 
-        (new UpdatePlayerBeatenGamesStats())->execute($users->get(0));
-        (new UpdatePlayerBeatenGamesStats())->execute($users->get(1));
-        (new UpdatePlayerBeatenGamesStats())->execute($users->get(2));
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(0));
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(1));
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(2));
 
         // Act
         $view = $this->get('/ranking/beaten-games');
@@ -111,9 +111,9 @@ class BeatenGamesLeaderboardTest extends TestCase
         $this->addGameBeatenAward($users->get(2), $gameTwo);
         $this->addGameBeatenAward($users->get(2), $gameThree);
 
-        (new UpdatePlayerBeatenGamesStats())->execute($users->get(0));
-        (new UpdatePlayerBeatenGamesStats())->execute($users->get(1));
-        (new UpdatePlayerBeatenGamesStats())->execute($users->get(2));
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(0));
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(1));
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(2));
 
         // Act
         $view = $this->get('/ranking/beaten-games?filter[system]=' . $systems->get(1)->ID);
@@ -137,7 +137,7 @@ class BeatenGamesLeaderboardTest extends TestCase
         $this->addGameBeatenAward($user, $hack);
         $this->addGameBeatenAward($user, $retail);
 
-        (new UpdatePlayerBeatenGamesStats())->execute($user);
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
 
         // Act
         $view = $this->get('/ranking/beaten-games?filter[kind]=retail');
