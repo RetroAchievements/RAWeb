@@ -32,12 +32,14 @@ $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
 
 $officialFlag = AchievementFlag::OfficialCore->value;
 $unofficialFlag = AchievementFlag::Unofficial->value;
-$flagParam = requestInputSanitized('f', $officialFlag, 'integer');
+$flagParam = AchievementFlag::tryFrom(
+    requestInputSanitized('f', AchievementFlag::OfficialCore->value, 'integer')
+) ?? AchievementFlag::OfficialCore;
 
 $isOfficial = false;
-if ($flagParam !== $unofficialFlag) {
-    $isOfficial = true;
-    $flagParam = $officialFlag;
+if ($flagParam !== AchievementFlag::Unofficial) {
+   $isOfficial = true;
+   $flagParam = AchievementFlag::OfficialCore;
 }
 
 $userModel = null;
@@ -878,7 +880,7 @@ if ($isFullyFeaturedGame) {
                         :numMissableAchievements="$gameMetaBindings['numMissableAchievements']"
                     />
                 <?php
-                RenderGameSort($isFullyFeaturedGame, $flagParam, $officialFlag, $gameID, $sortBy, canSortByType: $isGameBeatable);
+                RenderGameSort($isFullyFeaturedGame, $flagParam?->value, $officialFlag, $gameID, $sortBy, canSortByType: $isGameBeatable);
                 echo "</div>";
             }
 
