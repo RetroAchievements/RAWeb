@@ -348,6 +348,7 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
+  export type AchievementFlag = 3 | 5;
   export type AchievementSetType =
     | 'core'
     | 'bonus'

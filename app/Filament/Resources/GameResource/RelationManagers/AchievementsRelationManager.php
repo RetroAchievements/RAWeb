@@ -21,6 +21,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AchievementsRelationManager extends RelationManager
@@ -30,7 +31,7 @@ class AchievementsRelationManager extends RelationManager
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($ownerRecord instanceof Game) {
             return $user->can('manage', $ownerRecord);
@@ -52,7 +53,7 @@ class AchievementsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
 
         return $table
             ->recordTitleAttribute('title')
@@ -103,10 +104,10 @@ class AchievementsRelationManager extends RelationManager
                 Filters\SelectFilter::make('Flags')
                     ->options([
                         0 => 'All',
-                        AchievementFlag::OfficialCore => 'Published',
-                        AchievementFlag::Unofficial => 'Unpublished',
+                        AchievementFlag::OfficialCore->value => __('Published'),
+                        AchievementFlag::Unofficial->value => __('Unpublished'),
                     ])
-                    ->default(AchievementFlag::OfficialCore)
+                    ->default(AchievementFlag::OfficialCore->value)
                     ->selectablePlaceholder(false)
                     ->placeholder('All')
                     ->query(function (array $data, Builder $query) {
@@ -135,7 +136,7 @@ class AchievementsRelationManager extends RelationManager
                                     return;
                                 }
 
-                                $record->Flags = AchievementFlag::OfficialCore;
+                                $record->Flags = AchievementFlag::OfficialCore->value;
                                 $record->save();
                             });
                         }),
@@ -151,7 +152,7 @@ class AchievementsRelationManager extends RelationManager
                                     return;
                                 }
 
-                                $record->Flags = AchievementFlag::Unofficial;
+                                $record->Flags = AchievementFlag::Unofficial->value;
                                 $record->save();
                             });
                         }),
@@ -230,7 +231,7 @@ class AchievementsRelationManager extends RelationManager
             ])
             ->recordUrl(function (Achievement $record): string {
                 /** @var User $user */
-                $user = auth()->user();
+                $user = Auth::user();
 
                 if ($user->can('update', $record)) {
                     return route('filament.admin.resources.achievements.edit', ['record' => $record]);
@@ -261,7 +262,7 @@ class AchievementsRelationManager extends RelationManager
         parent::reorderTable($order);
 
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
         /** @var Game $game */
         $game = $this->getOwnerRecord();
 
@@ -279,7 +280,7 @@ class AchievementsRelationManager extends RelationManager
         if (!$recentReorderingActivity) {
             activity()
                 ->useLog('default')
-                ->causedBy(auth()->user())
+                ->causedBy($user)
                 ->performedOn($game)
                 ->event('reorderedAchievements')
                 ->log('Reordered Achievements');
@@ -294,7 +295,7 @@ class AchievementsRelationManager extends RelationManager
     private function canReorderAchievements(): bool
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
 
         /** @var Game $game */
         $game = $this->getOwnerRecord();

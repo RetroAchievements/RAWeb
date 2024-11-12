@@ -203,7 +203,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
     return $libraryOut;
 }
 
-function getUserAchievementUnlocksForGame(User|string $user, int $gameID, int $flag = AchievementFlag::OfficialCore): array
+function getUserAchievementUnlocksForGame(User|string $user, int $gameID, AchievementFlag $flag = AchievementFlag::OfficialCore): array
 {
     $user = is_string($user) ? User::firstWhere('User', $user) : $user;
 
@@ -211,7 +211,7 @@ function getUserAchievementUnlocksForGame(User|string $user, int $gameID, int $f
         ->playerAchievements()
         ->join('Achievements', 'Achievements.ID', '=', 'achievement_id')
         ->where('GameID', $gameID)
-        ->where('Flags', $flag)
+        ->where('Flags', $flag->value)
         ->get([
             'achievement_id',
             'unlocked_at',

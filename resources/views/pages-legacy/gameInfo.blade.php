@@ -30,8 +30,8 @@ $userID = $userDetails['ID'] ?? 0;
 $userWebsitePrefs = $userDetails['websitePrefs'] ?? null;
 $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
 
-$officialFlag = AchievementFlag::OfficialCore;
-$unofficialFlag = AchievementFlag::Unofficial;
+$officialFlag = AchievementFlag::OfficialCore->value;
+$unofficialFlag = AchievementFlag::Unofficial->value;
 $flagParam = requestInputSanitized('f', $officialFlag, 'integer');
 
 $isOfficial = false;
