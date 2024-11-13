@@ -19,7 +19,7 @@ export const UserPreference = {
     Forum_ShowAbsoluteDates: 15,
     Game_HideMissableIndicators: 16,
     User_OnlyContactFromFollowing: 17,
-    Game_OptOutOfAllSets: 18,
+    Game_OptOutOfAllSubsets: 18,
 } as const;
 
 
@@ -42,7 +42,7 @@ export const StringifiedUserPreference = {
     Forum_ShowAbsoluteDates: '15',
     Game_HideMissableIndicators: '16',
     User_OnlyContactFromFollowing: '17',
-    Game_OptOutOfAllSets: '18',
+    Game_OptOutOfAllSubsets: '18',
 } as const;
 
 
