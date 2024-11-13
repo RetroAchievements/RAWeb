@@ -161,6 +161,8 @@ jobs:
             node_modules
             .pnpm-store
           key: ${{ needs.node-setup.outputs.cache-key }}
+      - name: Install
+        run: pnpm install --frozen-lockfile --prefer-offline
       - name: Run ${{ matrix.check }}
         run: ${{ matrix.command }}
         env: ${{ matrix.env || fromJSON('{}') }}
