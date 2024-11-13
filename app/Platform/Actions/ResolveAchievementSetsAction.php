@@ -183,16 +183,16 @@ class ResolveAchievementSetsAction
      */
     private function attachCoreGameIds(Collection $sortedSets): void
     {
-        // Collect all unique achievement_set_ids from the sorted sets
+        // Collect all unique achievement_set_id values from the sorted sets.
         $achievementSetIds = $sortedSets->pluck('achievement_set_id')->unique();
 
-        // Fetch all core GameAchievementSets for these achievement_set_ids
+        // Fetch all core GameAchievementSet entities for the given achievement_set_ids.
         $coreSets = GameAchievementSet::whereIn('achievement_set_id', $achievementSetIds)
             ->where('type', AchievementSetType::Core)
             ->get()
             ->keyBy('achievement_set_id');
 
-        // Iterate over each set and attach the core_game_id
+        // Iterate over each set and attach the core_game_id value.
         foreach ($sortedSets as $set) {
             $coreSet = $coreSets->get($set->achievement_set_id);
             $set->core_game_id = $coreSet ? $coreSet->game_id : null;
