@@ -55,6 +55,7 @@ export function DataTableFacetedFilter<TData, TValue>({
 
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
+  const columnId = column!.id;
 
   if (variant === 'drawer') {
     return (
@@ -82,10 +83,10 @@ export function DataTableFacetedFilter<TData, TValue>({
           size="sm"
           className={cn(
             'border-dashed',
-            buildTrackingClassNames(`Click ${t_title} Filter`),
+            buildTrackingClassNames(`Click ${columnId} Filter`),
             className,
           )}
-          data-testid={`filter-${t_title}`}
+          data-testid={`filter-${columnId}`}
         >
           <RxPlusCircled className="mr-2 h-4 w-4" />
 
