@@ -8,6 +8,19 @@ describe('Util: loadDayjsLocale', () => {
     expect(loadDayjsLocale).toBeDefined();
   });
 
+  it('given the locale is en_US, does not log a warning', async () => {
+    // ARRANGE
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const localeSpy = vi.spyOn(dayjs, 'locale');
+
+    // ACT
+    await loadDayjsLocale('en_US');
+
+    // ASSERT
+    expect(localeSpy).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
   it.each`
     userLocale | dayjsLocale
     ${'pt_BR'} | ${'pt-br'}
