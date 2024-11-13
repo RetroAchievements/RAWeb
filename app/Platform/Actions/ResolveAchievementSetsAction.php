@@ -42,6 +42,10 @@ class ResolveAchievementSetsAction
         // Sort the sets based on their type priority.
         $sortedSets = $this->sortSets($filteredSets);
 
+        // Attach core_game_id to each set, which may be used later to resolve
+        // things such as leaderboard definitions.
+        $this->attachCoreGameIds($sortedSets);
+
         return $sortedSets->values();
     }
 
@@ -170,5 +174,28 @@ class ResolveAchievementSetsAction
                 default => 4,
             };
         });
+    }
+
+    /**
+     * Attaches the core_game_id to each achievement set in the collection.
+     *
+     * @param Collection<int, GameAchievementSet> $sortedSets
+     */
+    private function attachCoreGameIds(Collection $sortedSets): void
+    {
+        // Collect all unique achievement_set_ids from the sorted sets
+        $achievementSetIds = $sortedSets->pluck('achievement_set_id')->unique();
+
+        // Fetch all core GameAchievementSets for these achievement_set_ids
+        $coreSets = GameAchievementSet::whereIn('achievement_set_id', $achievementSetIds)
+            ->where('type', AchievementSetType::Core)
+            ->get()
+            ->keyBy('achievement_set_id');
+
+        // Iterate over each set and attach the core_game_id
+        foreach ($sortedSets as $set) {
+            $coreSet = $coreSets->get($set->achievement_set_id);
+            $set->core_game_id = $coreSet ? $coreSet->game_id : null;
+        }
     }
 }

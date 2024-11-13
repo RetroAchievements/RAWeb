@@ -475,4 +475,32 @@ class ResolveAchievementSetsActionTest extends TestCase
         $this->assertContainsAchievementSetType($resolved, AchievementSetType::Specialty);
         $this->assertNotContainsAchievementSetType($resolved, AchievementSetType::Exclusive);
     }
+
+    public function testCoreGameIdIsCorrectlySet(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', 6, 1);
+        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', 8, 1);
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame);
+
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+
+        $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
+
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $resolved = (new ResolveAchievementSetsAction())->execute($bonusGameHash, $user);
+
+        // Assert
+        $this->assertCount(2, $resolved);
+
+        $coreSet = $resolved->firstWhere('type', AchievementSetType::Core);
+        $bonusSet = $resolved->firstWhere('type', AchievementSetType::Bonus);
+
+        $this->assertEquals($baseGame->id, $coreSet->core_game_id);
+        $this->assertEquals($bonusGame->id, $bonusSet->core_game_id);
+    }
 }
