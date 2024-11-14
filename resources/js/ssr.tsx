@@ -40,6 +40,8 @@ createServer(
         const userLocale = globalProps.auth?.user.locale ?? 'en_US';
 
         // Always reset the dayjs locale state on each request.
+        // Otherwise, we may be holding on to a different user's locale
+        // setting, and the current user will get a hydration issue.
         dayjs.locale('en');
 
         const i18nInstance = await createServerI18nInstance(userLocale);
