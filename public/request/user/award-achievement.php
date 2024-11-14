@@ -3,7 +3,7 @@
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\User;
-use App\Platform\Actions\UnlockPlayerAchievement;
+use App\Platform\Actions\UnlockPlayerAchievementAction;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -32,7 +32,7 @@ if (array_key_exists('Error', $awardResponse)) {
    return response()->json(['error' => $awardResponse['Error']]);
 }
 
-$action = app()->make(UnlockPlayerAchievement::class);
+$action = app()->make(UnlockPlayerAchievementAction::class);
 
 $action->execute(
     $player,

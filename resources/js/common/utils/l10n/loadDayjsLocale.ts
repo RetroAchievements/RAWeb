@@ -6,30 +6,31 @@ import dayjs from 'dayjs';
  * the client-side JS bundle size down.
  */
 export async function loadDayjsLocale(userLocale: string) {
-  if (userLocale === 'pt_BR') {
-    try {
-      await import('dayjs/locale/pt-br.js');
-      dayjs.locale('pt-br');
-    } catch (err) {
-      console.warn('Unable to load Day.js locale for pt_BR.', err);
-    }
-  }
+  try {
+    switch (userLocale) {
+      case 'en':
+      case 'en_US':
+        break;
 
-  if (userLocale === 'pl_PL') {
-    try {
-      await import('dayjs/locale/pl.js');
-      dayjs.locale('pl');
-    } catch (err) {
-      console.warn('Unable to load Day.js locale for pl_PL.', err);
-    }
-  }
+      case 'es_ES':
+        await import('dayjs/locale/es.js');
+        dayjs.locale('es');
+        break;
 
-  if (userLocale === 'es_ES') {
-    try {
-      await import('dayjs/locale/es.js');
-      dayjs.locale('es');
-    } catch (err) {
-      console.warn('Unable to load Day.js locale for es_ES.', err);
+      case 'pl_PL':
+        await import('dayjs/locale/pl.js');
+        dayjs.locale('pl');
+        break;
+
+      case 'pt_BR':
+        await import('dayjs/locale/pt-br.js');
+        dayjs.locale('pt-br');
+        break;
+
+      default:
+        console.warn(`Locale ${userLocale} is not supported.`);
     }
+  } catch (err) {
+    console.warn(`Unable to load Day.js locale for ${userLocale}.`, err);
   }
 }
