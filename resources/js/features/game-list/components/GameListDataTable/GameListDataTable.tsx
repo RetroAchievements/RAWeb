@@ -1,6 +1,6 @@
 import type { Table } from '@tanstack/react-table';
 import { flexRender } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useTranslation } from 'react-i18next';
 
 import {
   BaseTable,
@@ -16,8 +16,9 @@ interface GameListDataTableProps<TData> {
   table: Table<TData>;
 }
 
-export function GameListDataTable<TData>({ table }: GameListDataTableProps<TData>) {
-  const { t } = useLaravelReactI18n();
+// Lazy-loaded, so using a default export.
+export default function GameListDataTable<TData>({ table }: GameListDataTableProps<TData>) {
+  const { t } = useTranslation();
 
   const visibleColumnCount = table.getVisibleFlatColumns().length;
 
@@ -47,9 +48,7 @@ export function GameListDataTable<TData>({ table }: GameListDataTableProps<TData
             {headerGroup.headers.map((header) => {
               return (
                 <BaseTableHead key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(header.column.columnDef.header, header.getContext())}
+                  {flexRender(header.column.columnDef.header, header.getContext())}
                 </BaseTableHead>
               );
             })}
@@ -66,7 +65,6 @@ export function GameListDataTable<TData>({ table }: GameListDataTableProps<TData
                   key={cell.id}
                   className={cn(
                     cell.column.columnDef.meta?.align === 'right' ? 'pr-6 text-right' : '',
-                    cell.column.columnDef.meta?.align === 'center' ? 'text-center' : '',
                   )}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

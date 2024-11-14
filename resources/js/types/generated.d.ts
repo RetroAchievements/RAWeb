@@ -1,4 +1,10 @@
 declare namespace App.Community.Data {
+  export type AchievementCommentsPageProps<TItems = App.Community.Data.Comment> = {
+    achievement: App.Platform.Data.Achievement;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+    isSubscribed: boolean;
+    canComment: boolean;
+  };
   export type Comment = {
     id: number;
     commentableId: number;
@@ -8,11 +14,19 @@ declare namespace App.Community.Data {
     updatedAt: string | null;
     user: App.Data.User;
     canDelete: boolean;
+    isAutomated: boolean;
   };
   export type GameCommentsPageProps<TItems = App.Community.Data.Comment> = {
     game: App.Platform.Data.Game;
     paginatedComments: App.Data.PaginatedData<TItems>;
-    subscription: App.Community.Data.Subscription | null;
+    isSubscribed: boolean;
+    canComment: boolean;
+  };
+  export type LeaderboardCommentsPageProps<TItems = App.Community.Data.Comment> = {
+    leaderboard: App.Platform.Data.Leaderboard;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+    isSubscribed: boolean;
+    canComment: boolean;
   };
   export type RecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     paginatedTopics: App.Data.PaginatedData<TItems>;
@@ -23,6 +37,12 @@ declare namespace App.Community.Data {
     subjectId: number;
     state: boolean;
     user?: App.Data.User;
+  };
+  export type UserCommentsPageProps<TItems = App.Community.Data.Comment> = {
+    targetUser: App.Data.User;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+    isSubscribed: boolean;
+    canComment: boolean;
   };
   export type UserGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -41,6 +61,9 @@ declare namespace App.Community.Data {
 declare namespace App.Community.Enums {
   export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   export type AwardType = 1 | 2 | 3 | 6 | 7 | 8;
+  export type ClaimSetType = 0 | 1;
+  export type ClaimStatus = 0 | 1 | 2 | 3;
+  export type ClaimType = 0 | 1;
   export type SubscriptionSubjectType =
     | 'ForumTopic'
     | 'UserWall'
@@ -52,6 +75,22 @@ declare namespace App.Community.Enums {
   export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
 }
 declare namespace App.Data {
+  export type AchievementSetClaim = {
+    id: number;
+    users: Array<App.Data.User>;
+    game: App.Platform.Data.Game;
+    claimType: number;
+    setType: number;
+    status: number;
+    created: string;
+    finished: string;
+  };
+  export type CurrentlyOnline = {
+    logEntries: Array<number>;
+    numCurrentPlayers: number;
+    allTimeHighPlayers: number;
+    allTimeHighDate: string | null;
+  };
   export type ForumTopicComment = {
     id: number;
     body: string;
@@ -72,6 +111,16 @@ declare namespace App.Data {
     oldestComment7dId?: number | null;
     user: App.Data.User | null;
   };
+  export type News = {
+    id: number;
+    timestamp: string;
+    title: string;
+    lead: string | null;
+    payload: string;
+    user: App.Data.User;
+    link: string | null;
+    image: string | null;
+  };
   export type PaginatedData<TItems> = {
     currentPage: number;
     lastPage: number;
@@ -86,11 +135,26 @@ declare namespace App.Data {
       nextPageUrl: string | null;
     };
   };
+  export type StaticData = {
+    numGames: number;
+    numAchievements: number;
+    numHardcoreMasteryAwards: number;
+    numHardcoreGameBeatenAwards: number;
+    numRegisteredUsers: number;
+    numAwarded: number;
+    totalPointsEarned: number;
+    eventAotwForumId: number | null;
+  };
+  export type StaticGameAward = {
+    game: App.Platform.Data.Game;
+    user: App.Data.User;
+    awardedAt: string;
+  };
   export type User = {
     displayName: string;
     avatarUrl: string;
     isMuted: boolean;
-    mutedUntil: string | null;
+    mutedUntil?: string | null;
     id?: number;
     username?: string | null;
     legacyPermissions?: number | null;
@@ -137,6 +201,19 @@ declare namespace App.Enums {
     | 17
     | 18;
 }
+declare namespace App.Http.Data {
+  export type HomePageProps = {
+    staticData: App.Data.StaticData;
+    achievementOfTheWeek: App.Platform.Data.Achievement | null;
+    mostRecentGameMastered: App.Data.StaticGameAward | null;
+    mostRecentGameBeaten: App.Data.StaticGameAward | null;
+    recentNews: Array<App.Data.News>;
+    completedClaims: Array<App.Data.AchievementSetClaim>;
+    currentlyOnline: App.Data.CurrentlyOnline;
+    newClaims: Array<App.Data.AchievementSetClaim>;
+    recentForumPosts: Array<App.Data.ForumTopic>;
+  };
+}
 declare namespace App.Models {
   export type UserRole =
     | 'root'
@@ -167,11 +244,14 @@ declare namespace App.Platform.Data {
   export type Achievement = {
     id: number;
     title: string;
+    description?: string;
     badgeUnlockedUrl?: string;
     badgeLockedUrl?: string;
     game?: App.Platform.Data.Game;
     unlockedAt?: string;
     unlockedHardcoreAt?: string;
+    points?: number;
+    pointsWeighted?: number;
   };
   export type Game = {
     id: number;
@@ -188,6 +268,7 @@ declare namespace App.Platform.Data {
     lastUpdated?: string;
     numVisibleLeaderboards?: number;
     numUnresolvedTickets?: number;
+    hasActiveOrInReviewClaims?: boolean;
   };
   export type GameHash = {
     id: number;
@@ -214,6 +295,12 @@ declare namespace App.Platform.Data {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
     filterableSystemOptions: Array<App.Platform.Data.System>;
     can: App.Data.UserPermissions;
+  };
+  export type Leaderboard = {
+    id: number;
+    title: string;
+    description?: string;
+    game?: App.Platform.Data.Game;
   };
   export type PlayerBadge = {
     awardType: number;
@@ -269,6 +356,19 @@ declare namespace App.Platform.Enums {
     | 'will_be_bonus'
     | 'will_be_specialty'
     | 'will_be_exclusive';
+  export type GameListSortField =
+    | 'title'
+    | 'system'
+    | 'achievementsPublished'
+    | 'hasActiveOrInReviewClaims'
+    | 'pointsTotal'
+    | 'retroRatio'
+    | 'lastUpdated'
+    | 'releasedAt'
+    | 'playersTotal'
+    | 'numVisibleLeaderboards'
+    | 'numUnresolvedTickets'
+    | 'progress';
   export type GameSetType = 'hub' | 'similar-games';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 }

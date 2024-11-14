@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Http\Concerns\HandlesPublicFileRequests;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -76,6 +77,8 @@ class RouteServiceProvider extends ServiceProvider
              * content
              */
             Route::middleware(['inertia'])->group(function () {
+                Route::get('demo/home', [HomeController::class, 'index'])->name('demo.home');
+
                 Route::get('contact', fn () => Inertia::render('contact'))->name('contact');
                 Route::get('rss', fn () => Inertia::render('rss'))->name('rss.index');
                 Route::get('terms', fn () => Inertia::render('terms'))->name('terms');

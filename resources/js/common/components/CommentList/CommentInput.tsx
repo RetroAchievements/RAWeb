@@ -1,9 +1,8 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import TextareaAutosize from 'react-textarea-autosize';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { formatNumber } from '@/common/utils/l10n/formatNumber';
 
 import { BaseButton } from '../+vendor/BaseButton';
 import {
@@ -23,9 +22,9 @@ import { useSubmitCommentForm } from './useSubmitCommentForm';
 export const CommentInput: FC = () => {
   const { auth } = usePageProps();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
-  const { commentableId, commentableType, onSubmitSuccess } = useCommentListContext();
+  const { canComment, commentableId, commentableType, onSubmitSuccess } = useCommentListContext();
 
   const { form, mutation, onSubmit } = useSubmitCommentForm({
     commentableId,
@@ -33,12 +32,12 @@ export const CommentInput: FC = () => {
     onSubmitSuccess,
   });
 
-  if (!auth?.user) {
+  if (!auth?.user || !canComment) {
     return null;
   }
 
   return (
-    <div className="-mx-2 flex items-start gap-4 p-2">
+    <div className="flex items-start gap-4 p-2">
       <div className="mt-1">
         <UserAvatar {...auth.user} showLabel={false} />
       </div>
@@ -66,9 +65,10 @@ export const CommentInput: FC = () => {
 
                   <BaseFormDescription>
                     <span>
-                      {field.value.length}
-                      {' / '}
-                      {formatNumber(2000)}
+                      {t('{{current, number}} / {{max, number}}', {
+                        current: field.value.length,
+                        max: 2000,
+                      })}
                     </span>
                   </BaseFormDescription>
 

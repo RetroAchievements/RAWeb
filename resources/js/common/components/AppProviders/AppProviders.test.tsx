@@ -1,3 +1,4 @@
+import i18n from '@/i18n-client';
 import { render, screen } from '@/test';
 
 import { AppProviders } from './AppProviders';
@@ -5,7 +6,7 @@ import { AppProviders } from './AppProviders';
 describe('Component: AppProviders', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<AppProviders>content</AppProviders>, {
+    const { container } = render(<AppProviders i18n={i18n}>content</AppProviders>, {
       wrapper: (props) => <div {...props}></div>,
     });
 
@@ -15,7 +16,9 @@ describe('Component: AppProviders', () => {
 
   it('renders children', () => {
     // ARRANGE
-    render(<AppProviders>content</AppProviders>, { wrapper: (props) => <div {...props} /> });
+    render(<AppProviders i18n={i18n}>content</AppProviders>, {
+      wrapper: (props) => <div {...props} />,
+    });
 
     // ASSERT
     expect(screen.getByText(/content/i)).toBeVisible();
@@ -25,7 +28,9 @@ describe('Component: AppProviders', () => {
     // ARRANGE
     vi.stubEnv('VITE_REACT_QUERY_DEVTOOLS_ENABLED', 'true');
 
-    render(<AppProviders>content</AppProviders>, { wrapper: (props) => <div {...props} /> });
+    render(<AppProviders i18n={i18n}>content</AppProviders>, {
+      wrapper: (props) => <div {...props} />,
+    });
 
     // ASSERT
     expect(screen.getByTestId('query-devtools')).toBeVisible();
@@ -35,7 +40,9 @@ describe('Component: AppProviders', () => {
     // ARRANGE
     vi.stubEnv('VITE_REACT_QUERY_DEVTOOLS_ENABLED', 'false');
 
-    render(<AppProviders>content</AppProviders>, { wrapper: (props) => <div {...props} /> });
+    render(<AppProviders i18n={i18n}>content</AppProviders>, {
+      wrapper: (props) => <div {...props} />,
+    });
 
     // ASSERT
     expect(screen.queryByTestId('query-devtools')).not.toBeInTheDocument();

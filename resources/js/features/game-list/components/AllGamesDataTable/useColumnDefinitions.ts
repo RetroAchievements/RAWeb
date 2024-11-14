@@ -1,8 +1,9 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { buildAchievementsPublishedColumnDef } from '../../utils/column-definitions/buildAchievementsPublishedColumnDef';
+import { buildHasActiveOrInReviewClaimsColumnDef } from '../../utils/column-definitions/buildHasActiveOrInReviewClaimsColumnDef';
 import { buildLastUpdatedColumnDef } from '../../utils/column-definitions/buildLastUpdatedColumnDef';
 import { buildNumUnresolvedTicketsColumnDef } from '../../utils/column-definitions/buildNumUnresolvedTicketsColumnDef';
 import { buildNumVisibleLeaderboardsColumnDef } from '../../utils/column-definitions/buildNumVisibleLeaderboardsColumnDef';
@@ -19,7 +20,7 @@ export function useColumnDefinitions(options: {
   canSeeOpenTicketsColumn: boolean;
   forUsername?: string;
 }): ColumnDef<App.Platform.Data.GameListEntry>[] {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const columnDefinitions = useMemo(() => {
     const columns: ColumnDef<App.Platform.Data.GameListEntry>[] = [
@@ -44,7 +45,14 @@ export function useColumnDefinitions(options: {
     columns.push(
       ...([
         buildPlayerGameProgressColumnDef({ t_label: t('Progress') }),
-        buildRowActionsColumnDef(),
+        buildHasActiveOrInReviewClaimsColumnDef({
+          t_label: t('Claimed'),
+          strings: {
+            t_description: t('One or more developers are currently working on this game.'),
+            t_yes: t('Yes'),
+          },
+        }),
+        buildRowActionsColumnDef({ shouldAnimateBacklogIconOnChange: true }),
       ] satisfies ColumnDef<App.Platform.Data.GameListEntry>[]),
     );
 

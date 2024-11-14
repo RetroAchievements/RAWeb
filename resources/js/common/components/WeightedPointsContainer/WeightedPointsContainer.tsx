@@ -1,17 +1,22 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
 
 interface WeightedPointsContainerProps {
   children: ReactNode;
+
+  isTooltipEnabled?: boolean;
 }
 
-export const WeightedPointsContainer: FC<WeightedPointsContainerProps> = ({ children }) => {
-  const { t } = useLaravelReactI18n();
+export const WeightedPointsContainer: FC<WeightedPointsContainerProps> = ({
+  children,
+  isTooltipEnabled = true,
+}) => {
+  const { t } = useTranslation();
 
   return (
-    <BaseTooltip delayDuration={700}>
+    <BaseTooltip delayDuration={700} open={isTooltipEnabled ? undefined : false}>
       <BaseTooltipTrigger className="cursor-default">
         <span className="TrueRatio light:text-neutral-400">{children}</span>
       </BaseTooltipTrigger>

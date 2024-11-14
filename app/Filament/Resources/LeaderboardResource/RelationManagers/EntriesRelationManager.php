@@ -7,7 +7,7 @@ namespace App\Filament\Resources\LeaderboardResource\RelationManagers;
 use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
-use App\Platform\Actions\RemoveLeaderboardEntry;
+use App\Platform\Actions\RemoveLeaderboardEntryAction;
 use App\Platform\Enums\ValueFormat;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -94,7 +94,7 @@ class EntriesRelationManager extends RelationManager
                     ->action(function (LeaderboardEntry $entry, array $data) {
                         $reason = $data['reason'];
 
-                        (new RemoveLeaderboardEntry())->execute($entry, $reason);
+                        (new RemoveLeaderboardEntryAction())->execute($entry, $reason);
 
                         Notification::make()
                             ->title('Success')

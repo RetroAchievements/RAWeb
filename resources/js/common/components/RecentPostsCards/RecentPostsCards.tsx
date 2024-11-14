@@ -1,10 +1,10 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { Trans } from 'react-i18next';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { PostTimestamp } from '../PostTimestamp';
+import { DiffTimestamp } from '../DiffTimestamp';
 import { RecentPostAggregateLinks } from '../RecentPostAggregateLinks';
 
 interface RecentPostsCardsProps {
@@ -19,8 +19,6 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
 }) => {
   const { auth } = usePageProps<App.Community.Data.RecentPostsPageProps>();
 
-  const { t } = useLaravelReactI18n();
-
   return (
     <div className="flex flex-col gap-y-2">
       {paginatedTopics.items.map((topic) => (
@@ -33,9 +31,9 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
 
               {topic.latestComment?.createdAt ? (
                 <span className="smalldate" data-testid="timestamp">
-                  <PostTimestamp
+                  <DiffTimestamp
                     asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates ?? false}
-                    postedAt={topic.latestComment.createdAt}
+                    at={topic.latestComment.createdAt}
                   />
                 </span>
               ) : null}
@@ -46,12 +44,16 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
 
           <div className="flex flex-col gap-y-2">
             <p className="truncate">
-              {t('in')}{' '}
-              <a
-                href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment?.id}#${topic.latestComment?.id}`}
+              <Trans
+                i18nKey="in <1>{{forumTopicTitle}}</1>"
+                values={{ forumTopicTitle: topic.title }}
+                components={{
+                  1: <TopicLink topic={topic} />,
+                }}
               >
-                {topic.title}
-              </a>
+                {'in '}
+                <TopicLink topic={topic} />
+              </Trans>
             </p>
 
             <p className="line-clamp-3 text-xs">{topic.latestComment?.body}</p>
@@ -59,5 +61,19 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
         </div>
       ))}
     </div>
+  );
+};
+
+interface TopicLinkProps {
+  topic: App.Data.ForumTopic;
+}
+
+const TopicLink: FC<TopicLinkProps> = ({ topic }) => {
+  return (
+    <a
+      href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment?.id}#${topic.latestComment?.id}`}
+    >
+      {topic.title}
+    </a>
   );
 };

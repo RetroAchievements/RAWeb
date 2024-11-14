@@ -1,6 +1,6 @@
-import type { Column, Table } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import type { Column, SortDirection, Table } from '@tanstack/react-table';
 import type { FC, HTMLAttributes, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { IconType } from 'react-icons/lib';
 import { RxArrowDown, RxArrowUp, RxCaretSort, RxEyeNone } from 'react-icons/rx';
 import type { RouteName } from 'ziggy-js';
@@ -16,13 +16,8 @@ import {
 import { cn } from '@/utils/cn';
 
 import { useDataTablePrefetchSort } from '../../hooks/useDataTablePrefetchSort';
-
-type SortDirection = 'asc' | 'desc';
-type SortConfig = {
-  [key in SortDirection]: { t_label: string; icon?: IconType };
-};
-
-type SortConfigKind = 'default' | 'date' | 'quantity';
+import { useSortConfigs } from '../../hooks/useSortConfigs';
+import type { SortConfigKind } from '../../models';
 
 const defaultIcons = { asc: RxArrowUp, desc: RxArrowDown };
 
@@ -30,7 +25,6 @@ interface DataTableColumnHeaderProps<TData, TValue> extends HTMLAttributes<HTMLD
   column: Column<TData, TValue>;
   table: Table<TData>;
 
-  sortType?: SortConfigKind;
   /** The controller route name where client-side calls for this datatable are made. */
   tableApiRouteName?: RouteName;
 }
@@ -39,36 +33,25 @@ export function DataTableColumnHeader<TData, TValue>({
   className,
   column,
   table,
-  sortType = 'default',
   tableApiRouteName = 'api.game.index',
 }: DataTableColumnHeaderProps<TData, TValue>): ReactNode {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
+  /**
+   * On hovering over a sort menu item, prefetch the result.
+   */
   const { prefetchSort } = useDataTablePrefetchSort(table, tableApiRouteName);
+
+  /**
+   * Used to determine what labels and icons should be shown in the header's sort menu.
+   */
+  const { sortConfigs } = useSortConfigs();
 
   if (!column.getCanSort()) {
     return <div className={cn(className)}>{column.columnDef.meta?.t_label}</div>;
   }
 
-  /**
-   * The order of `asc` and `desc` determines the order they'll
-   * appear in the menu as menuitems.
-   */
-  const sortConfigs: Record<SortConfigKind, SortConfig> = {
-    default: {
-      asc: { t_label: t('Ascending (A - Z)') },
-      desc: { t_label: t('Descending (Z - A)') },
-    },
-    date: {
-      asc: { t_label: t('Earliest') },
-      desc: { t_label: t('Latest') },
-    },
-    quantity: {
-      desc: { t_label: t('More'), icon: RxArrowUp },
-      asc: { t_label: t('Less'), icon: RxArrowDown },
-    },
-  };
-
+  const sortType = (column.columnDef.meta?.sortType ?? 'default') as SortConfigKind;
   const sortConfig = sortConfigs[sortType];
 
   const getIcon = (direction: 'asc' | 'desc'): IconType =>
@@ -86,12 +69,23 @@ export function DataTableColumnHeader<TData, TValue>({
 
   const SortIcon = getCurrentSortIcon();
 
+  const handleSortMenuItemClick = (desc?: boolean) => {
+    column.toggleSorting(desc);
+
+    // Track the most common sorts.
+    if (plausible) {
+      const order = desc ? `-${column.columnDef.id}` : column.columnDef.id;
+      if (order) {
+        plausible('Game List Sort', { props: { order } });
+      }
+    }
+  };
+
   return (
     <div
       className={cn(
         'flex items-center space-x-2',
         column.columnDef.meta?.align === 'right' ? 'justify-end' : '',
-        column.columnDef.meta?.align === 'center' ? 'justify-center' : '',
         className,
       )}
     >
@@ -115,7 +109,7 @@ export function DataTableColumnHeader<TData, TValue>({
               direction={direction}
               icon={getIcon(direction)}
               label={sortConfig[direction].t_label}
-              onClick={() => column.toggleSorting(direction === 'desc')}
+              onClick={() => handleSortMenuItemClick(direction === 'desc')}
               onMouseEnter={() => prefetchSort(column.columnDef.id, direction)}
             />
           ))}

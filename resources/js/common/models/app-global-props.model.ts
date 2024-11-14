@@ -12,6 +12,13 @@ export type AuthenticatedUser = SetRequired<
 
 export interface AppGlobalProps extends PageProps {
   auth: { user: AuthenticatedUser } | null;
+
+  config: {
+    services: {
+      patreon: { userId?: string | number };
+    };
+  };
+
   ziggy: ZiggyProps;
 }
 
@@ -32,5 +39,8 @@ export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) 
 
 export const createAppGlobalProps = createFactory<AppGlobalProps>(() => ({
   auth: { user: createAuthenticatedUser() },
-  ziggy: { defaults: [], location: '', port: 8080, query: {}, url: '' },
+
+  config: { services: { patreon: {} } },
+
+  ziggy: { defaults: [], device: 'desktop', location: '', port: 8080, query: {}, url: '' },
 }));

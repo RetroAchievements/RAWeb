@@ -1,19 +1,20 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, Fragment } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface GameTitleProps {
   title: string;
 
+  className?: string;
   showTags?: boolean;
 }
 
-export const GameTitle: FC<GameTitleProps> = ({ title, showTags = true }) => {
-  const { t } = useLaravelReactI18n();
+export const GameTitle: FC<GameTitleProps> = ({ title, className, showTags = true }) => {
+  const { t } = useTranslation();
 
   const { subsetKind, nonSubsetTags, strippedTitle } = stripTagsFromTitle(title);
 
   return (
-    <span>
+    <span className={className}>
       {strippedTitle}
 
       {showTags ? (

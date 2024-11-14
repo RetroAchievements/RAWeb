@@ -97,7 +97,13 @@ rules:
       "tabWidth": 2,
       "printWidth": 100,
       "singleQuote": true,
-      "tailwindAttributes": ["containerClassName", "wrapperClassName"],
+      "tailwindAttributes":
+        [
+          "anchorClassName",
+          "containerClassName",
+          "gameTitleClassName",
+          "wrapperClassName",
+        ],
       "plugins": ["prettier-plugin-tailwindcss"]
     }
 
@@ -125,8 +131,10 @@ rules:
   no-restricted-imports:
     - error
     - patterns:
+      - '@testing-library/react'
       - '@radix-ui/*'
       - 'sonner'
+      - 'vaul'
 
 # don't enforce explicit-any rule in test files
 overrides:

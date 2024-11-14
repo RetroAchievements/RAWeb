@@ -1,7 +1,10 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 
+import { buildGameRarityLabel } from '@/common/utils/buildGameRarityLabel';
+
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
+import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildRetroRatioColumnDefProps {
   t_label: string;
@@ -18,15 +21,12 @@ export function buildRetroRatioColumnDef({
   return {
     id: 'retroRatio',
     accessorKey: 'game',
-    meta: { t_label, align: 'right' },
+    meta: { t_label, align: 'right', sortType: 'quantity', Icon: gameListFieldIconMap.retroRatio },
+
     header: ({ column, table }) => (
-      <DataTableColumnHeader
-        column={column}
-        table={table}
-        sortType="quantity"
-        tableApiRouteName={tableApiRouteName}
-      />
+      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
+
     cell: ({ row }) => {
       const pointsTotal = row.original.game?.pointsTotal ?? 0;
 
@@ -36,10 +36,7 @@ export function buildRetroRatioColumnDef({
 
       const pointsWeighted = row.original.game?.pointsWeighted ?? 0;
 
-      const result = pointsWeighted / pointsTotal;
-
-      // eslint-disable-next-line react/jsx-no-literals -- this is valid
-      return <p>&times;{(Math.round((result + Number.EPSILON) * 100) / 100).toFixed(2)}</p>;
+      return <p>{buildGameRarityLabel(pointsTotal, pointsWeighted)}</p>;
     },
   };
 }

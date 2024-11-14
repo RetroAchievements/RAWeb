@@ -1,10 +1,11 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuX } from 'react-icons/lu';
 
 import { BaseButton } from '../+vendor/BaseButton';
 import { toastMessage } from '../+vendor/BaseToaster';
 import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
+import { useCommentListContext } from './CommentListContext';
 import { useDeleteCommentMutation } from './useDeleteCommentMutation';
 
 type DeleteCommentButtonProps = App.Community.Data.Comment & { onDeleteSuccess?: () => void };
@@ -13,7 +14,9 @@ export const DeleteCommentButton: FC<DeleteCommentButtonProps> = ({
   onDeleteSuccess,
   ...comment
 }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
+
+  const { targetUserDisplayName } = useCommentListContext();
 
   const mutation = useDeleteCommentMutation();
 
@@ -22,7 +25,7 @@ export const DeleteCommentButton: FC<DeleteCommentButtonProps> = ({
       return;
     }
 
-    toastMessage.promise(mutation.mutateAsync(comment), {
+    toastMessage.promise(mutation.mutateAsync({ ...comment, targetUserDisplayName }), {
       loading: t('Deleting...'),
       success: () => {
         onDeleteSuccess?.();

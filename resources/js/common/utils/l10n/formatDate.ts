@@ -3,6 +3,10 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utc from 'dayjs/plugin/utc';
 
+import { mapDayjsLocaleToIntlLocale } from './mapDayjsLocaleToIntlLocale';
+
+// TODO switch from dayjs to date-fns for better perf and localization support
+
 dayjs.extend(utc);
 dayjs.extend(localizedFormat);
 
@@ -18,7 +22,7 @@ dayjs.extend(localizedFormat);
 /**
  * @see https://day.js.org/docs/en/display/format#list-of-localized-formats
  */
-type ValidLocalizedFormat =
+type StandardLocalizedFormat =
   | 'LT' // "8:02 PM"
   | 'LTS' // "8:02:18 PM"
   | 'L' // "08/16/2018"
@@ -28,26 +32,52 @@ type ValidLocalizedFormat =
   | 'l' // "8/16/2018"
   | 'll' // "Aug 16, 2018"
   | 'lll' // "Aug 16, 2018 8:02 PM"
-  | 'llll' // "Thu, Aug 16, 2018 8:02 PM"
-  | 'MMM DD, YYYY, HH:mm'; // "Aug 16, 2018, 08:02"
+  | 'llll'; // "Thu, Aug 16, 2018 8:02 PM"
+
+type CustomLocalizedFormat = 'MMM DD, YYYY, HH:mm' | 'MMM YYYY';
+
+type ValidLocalizedFormat = StandardLocalizedFormat | CustomLocalizedFormat;
 
 export function formatDate(
   date: Dayjs | string,
   format: ValidLocalizedFormat | `${ValidLocalizedFormat} ${ValidLocalizedFormat}`,
 ): string {
-  if (typeof date === 'string') {
-    date = dayjs.utc(date);
-  }
+  const dayjsDate = typeof date === 'string' ? dayjs.utc(date) : date;
+  const locale = dayjs.locale();
+  const nativeLocale = mapDayjsLocaleToIntlLocale(locale);
 
-  const currentLocale = dayjs.locale();
+  if (format === 'MMM YYYY') {
+    const formatter = new Intl.DateTimeFormat(nativeLocale, {
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    });
 
-  if (format === 'MMM DD, YYYY, HH:mm') {
-    if (currentLocale === 'en' || currentLocale === 'en-us') {
-      return date.format(format);
-    } else {
-      return date.format('DD MMM YYYY, HH:mm');
+    return formatter.format(dayjsDate.toDate());
+  } else if (format === 'MMM DD, YYYY, HH:mm') {
+    const dateFormatter = new Intl.DateTimeFormat(nativeLocale, {
+      month: 'short',
+      day: '2-digit',
+      year: 'numeric',
+      timeZone: 'UTC',
+    });
+
+    const timeFormatter = new Intl.DateTimeFormat(nativeLocale, {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'UTC',
+    });
+
+    let timeStr = timeFormatter.format(dayjsDate.toDate());
+
+    // Replace 24:00 with 00:00 if needed.
+    if (timeStr.startsWith('24:')) {
+      timeStr = timeStr.replace('24:', '00:');
     }
+
+    return `${dateFormatter.format(dayjsDate.toDate())}, ${timeStr}`;
   }
 
-  return date.format(format);
+  return dayjsDate.format(format);
 }

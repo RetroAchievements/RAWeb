@@ -2,6 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
+import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildAchievementsPublishedColumnDefProps {
   t_label: string;
@@ -16,15 +17,17 @@ export function buildAchievementsPublishedColumnDef({
   return {
     id: 'achievementsPublished',
     accessorKey: 'game',
-    meta: { t_label, align: 'right' },
+    meta: {
+      t_label,
+      align: 'right',
+      sortType: 'quantity',
+      Icon: gameListFieldIconMap.achievementsPublished,
+    },
+
     header: ({ column, table }) => (
-      <DataTableColumnHeader
-        column={column}
-        table={table}
-        sortType="quantity"
-        tableApiRouteName={tableApiRouteName}
-      />
+      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
+
     cell: ({ row }) => {
       const achievementsPublished = row.original.game?.achievementsPublished ?? 0;
 

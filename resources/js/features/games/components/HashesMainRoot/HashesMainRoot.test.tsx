@@ -1,5 +1,5 @@
 import { render, screen } from '@/test';
-import { createGame } from '@/test/factories';
+import { createGame, createGameHash } from '@/test/factories';
 
 import { HashesMainRoot } from './HashesMainRoot';
 
@@ -44,5 +44,33 @@ describe('Component: HashesMainRoot', () => {
 
     // ASSERT
     expect(screen.queryByText(/official forum topic/i)).not.toBeInTheDocument();
+  });
+
+  it('given there is only a single hash, pluralizes correctly', () => {
+    // ARRANGE
+    render<App.Platform.Data.GameHashesPageProps>(<HashesMainRoot />, {
+      pageProps: {
+        can: { manageGameHashes: true },
+        game: createGame({ forumTopicId: undefined }),
+        hashes: [createGameHash()],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/supported game file hash registered for this game/i)).toBeVisible();
+  });
+
+  it('given there are multiple hashes, pluralizes correctly', () => {
+    // ARRANGE
+    render<App.Platform.Data.GameHashesPageProps>(<HashesMainRoot />, {
+      pageProps: {
+        can: { manageGameHashes: true },
+        game: createGame({ forumTopicId: undefined }),
+        hashes: [createGameHash(), createGameHash()],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/supported game file hashes registered for this game/i)).toBeVisible();
   });
 });

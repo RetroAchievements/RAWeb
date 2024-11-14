@@ -4,6 +4,7 @@ import type { RouteName } from 'ziggy-js';
 import { SystemChip } from '@/common/components/SystemChip';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
+import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildSystemColumnDefProps {
   t_label: string;
@@ -18,10 +19,12 @@ export function buildSystemColumnDef({
   return {
     id: 'system',
     accessorKey: 'game',
-    meta: { t_label },
+    meta: { t_label, Icon: gameListFieldIconMap.system },
+
     header: ({ column, table }) => (
       <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
+
     cell: ({ row }) => {
       if (!row.original.game?.system) {
         return null;

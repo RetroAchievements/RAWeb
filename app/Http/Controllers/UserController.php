@@ -7,7 +7,7 @@ namespace App\Http\Controllers;
 use App\Http\Controller;
 use App\Models\PlayerGame;
 use App\Models\User;
-use App\Platform\Actions\RequestAccountDeletion;
+use App\Platform\Actions\RequestAccountDeletionAction;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\View;
@@ -134,7 +134,7 @@ class UserController extends Controller
 
         $this->authorize('update', $user);
 
-        (new RequestAccountDeletion())->execute($user);
+        (new RequestAccountDeletionAction())->execute($user);
 
         return response()->json(['success' => true]);
     }

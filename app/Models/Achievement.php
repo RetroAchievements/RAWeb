@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
+use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\AchievementCreated;
@@ -21,9 +22,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
@@ -31,7 +34,9 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Achievement extends BaseModel implements HasComments
+// TODO implements HasComments
+
+class Achievement extends BaseModel
 {
     /*
      * Community Traits
@@ -86,6 +91,8 @@ class Achievement extends BaseModel implements HasComments
         'Points',
         'Title',
         'type',
+        'MemAddr',
+        'user_id',
     ];
 
     protected $casts = [
@@ -349,6 +356,45 @@ class Achievement extends BaseModel implements HasComments
     public function playerAchievements(): HasMany
     {
         return $this->hasMany(PlayerAchievement::class, 'achievement_id', 'ID');
+    }
+
+    /**
+     * @return HasMany<EventAchievement>
+     */
+    public function eventAchievements(): HasMany
+    {
+        return $this->hasMany(EventAchievement::class, 'source_achievement_id', 'ID');
+    }
+
+    /**
+     * @return HasOne<EventAchievement>
+     */
+    public function eventData(): HasOne
+    {
+        return $this->hasOne(EventAchievement::class, 'achievement_id');
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<Comment>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::Achievement);
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<Comment>
+     */
+    public function visibleComments(?User $user = null): HasMany
+    {
+        /** @var ?User $user */
+        $currentUser = $user ?? Auth::user();
+
+        return $this->comments()->visibleTo($currentUser);
     }
 
     // == scopes

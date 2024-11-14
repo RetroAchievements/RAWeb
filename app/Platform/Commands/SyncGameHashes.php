@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Models\Game;
-use App\Platform\Actions\LinkHashToGame;
+use App\Platform\Actions\LinkHashToGameAction;
 use App\Support\Sync\SyncTrait;
 use Exception;
 use Illuminate\Console\Command;
@@ -18,7 +18,7 @@ class SyncGameHashes extends Command
     protected $description = 'Sync game hashes';
 
     public function __construct(
-        private readonly LinkHashToGame $linkHashToGameAction
+        private readonly LinkHashToGameAction $linkHashToGameAction
     ) {
         parent::__construct();
     }

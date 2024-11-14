@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { Trans } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -11,8 +11,6 @@ export const UnlockStatusLabel: FC = () => {
   const { achievement, hasSession } =
     usePageProps<App.Platform.Data.ReportAchievementIssuePageProps>();
 
-  const { t } = useLaravelReactI18n();
-
   // Don't show any label if the user has never loaded the game.
   if (!hasSession) {
     return null;
@@ -21,8 +19,16 @@ export const UnlockStatusLabel: FC = () => {
   if (!achievement.unlockedAt && !achievement.unlockedHardcoreAt) {
     return (
       <p data-testid={testId}>
-        {t('You')} <span className="font-bold">{t('have not')}</span>{' '}
-        {t('unlocked this achievement.')}
+        <Trans
+          i18nKey="You <1>have not</1> unlocked this achievement."
+          components={{
+            1: <HaveNotSpan />,
+          }}
+        >
+          {'You '}
+          <HaveNotSpan />
+          {' unlocked this achievement.'}
+        </Trans>
       </p>
     );
   }
@@ -30,16 +36,34 @@ export const UnlockStatusLabel: FC = () => {
   if (achievement.unlockedHardcoreAt) {
     return (
       <p data-testid={testId}>
-        {t('You')} <span className="font-bold">{t('have')}</span> {t('unlocked this achievement.')}
+        <Trans
+          i18nKey="You <1>have</1> unlocked this achievement."
+          components={{ 1: <HaveSpan /> }}
+        >
+          {'You '}
+          <HaveSpan />
+          {' unlocked this achievement.'}
+        </Trans>
       </p>
     );
   }
 
   return (
     <p data-testid={testId}>
-      {t('You')} <span className="font-bold">{t('have')}</span> {t('unlocked this achievement')}{' '}
-      <span className="font-bold">{t('in softcore')}</span>
-      {t('.')}
+      <Trans
+        i18nKey="You <1>have</1> unlocked this achievement <2>in softcore</2>."
+        components={{ 1: <HaveSpan />, 2: <InSoftcoreSpan /> }}
+      >
+        {'You '}
+        <HaveSpan />
+        {' unlocked this achievement '}
+        <InSoftcoreSpan />
+        {'.'}
+      </Trans>
     </p>
   );
 };
+
+const HaveNotSpan = () => <span className="font-bold">{'have not'}</span>;
+const HaveSpan = () => <span className="font-bold">{'have'}</span>;
+const InSoftcoreSpan = () => <span className="font-bold">{'in softcore'}</span>;

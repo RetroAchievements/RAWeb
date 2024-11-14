@@ -1,15 +1,10 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import dayjs from 'dayjs';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
-import utc from 'dayjs/plugin/utc';
 import type { RouteName } from 'ziggy-js';
 
-import { formatDate } from '@/common/utils/l10n/formatDate';
+import { formatGameReleasedAt } from '@/common/utils/formatGameReleasedAt';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
-
-dayjs.extend(utc);
-dayjs.extend(localizedFormat);
+import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildReleasedAtColumnDefProps {
   t_label: string;
@@ -26,15 +21,12 @@ export function buildReleasedAtColumnDef({
   return {
     id: 'releasedAt',
     accessorKey: 'game',
-    meta: { t_label },
+    meta: { t_label, sortType: 'date', Icon: gameListFieldIconMap.releasedAt },
+
     header: ({ column, table }) => (
-      <DataTableColumnHeader
-        column={column}
-        table={table}
-        sortType="date"
-        tableApiRouteName={tableApiRouteName}
-      />
+      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
+
     cell: ({ row }) => {
       const date = row.original.game?.releasedAt ?? null;
       const granularity = row.original.game?.releasedAtGranularity ?? 'day';
@@ -43,17 +35,7 @@ export function buildReleasedAtColumnDef({
         return <p className="text-muted italic">{strings.t_unknown}</p>;
       }
 
-      const dayjsDate = dayjs.utc(date);
-      let formattedDate;
-      if (granularity === 'day') {
-        formattedDate = formatDate(dayjsDate, 'll');
-      } else if (granularity === 'month') {
-        formattedDate = dayjsDate.format('MMM YYYY');
-      } else {
-        formattedDate = dayjsDate.format('YYYY');
-      }
-
-      return <p>{formattedDate}</p>;
+      return <p>{formatGameReleasedAt(date, granularity)}</p>;
     },
   };
 }

@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { BaseButton } from '../+vendor/BaseButton';
 import { toastMessage } from '../+vendor/BaseToaster';
@@ -15,21 +15,21 @@ import { useToggleSubscriptionMutation } from './useToggleSubscriptionMutation';
  */
 
 interface SubscribeToggleButtonProps {
-  existingSubscription: App.Community.Data.Subscription | null;
+  hasExistingSubscription: boolean;
   subjectId: number;
   subjectType: App.Community.Enums.SubscriptionSubjectType;
 }
 
 export const SubscribeToggleButton: FC<SubscribeToggleButtonProps> = ({
-  existingSubscription,
+  hasExistingSubscription,
   subjectId,
   subjectType,
 }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const mutation = useToggleSubscriptionMutation();
 
-  const [isSubscribed, setIsSubscribed] = useState(existingSubscription?.state === true);
+  const [isSubscribed, setIsSubscribed] = useState(hasExistingSubscription);
 
   const handleClick = () => {
     const newState = !isSubscribed;

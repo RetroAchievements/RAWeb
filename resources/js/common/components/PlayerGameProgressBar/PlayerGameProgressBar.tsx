@@ -1,11 +1,12 @@
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utc from 'dayjs/plugin/utc';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { useFormatNumber } from '@/common/hooks/useFormatNumber';
+import { useFormatPercentage } from '@/common/hooks/useFormatPercentage';
 import { useGetAwardLabelFromPlayerBadge } from '@/common/hooks/useGetAwardLabelFromPlayerBadge';
+import { buildAwardLabelColorClassNames } from '@/common/utils/buildAwardLabelColorClassNames';
 import { getIsEventGame } from '@/common/utils/getIsEventGame';
 import { cn } from '@/utils/cn';
 
@@ -20,14 +21,46 @@ dayjs.extend(localizedFormat);
 interface PlayerGameProgressBarProps {
   game: App.Platform.Data.Game;
   playerGame: App.Platform.Data.PlayerGame | null;
+
+  /**
+   * Defaults to true. When truthy, links directly to the game page.
+   */
+  isHyperlink?: boolean;
+
+  isTooltipEnabled?: boolean;
+
+  /**
+   * Pass along classnames to the underlying <BaseProgress /> component.
+   */
+  progressClassName?: string;
+
+  /**
+   * Defaults to false. When truthy, show a percentage underneath the progress bar.
+   * This is best reserved for mobile-only UI, where tooltips are cumbersome.
+   */
+  showProgressPercentage?: boolean;
+
+  /**
+   * base: The award label is subdued. Useful when many progress bars are in a "stacked" layout.
+   * unmuted: The award label is not subdued. Good for when there aren't many bars to display.
+   */
+  variant?: 'base' | 'unmuted';
 }
 
-export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({ game, playerGame }) => {
-  const { t } = useLaravelReactI18n();
+export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
+  game,
+  playerGame,
+  progressClassName,
+  isHyperlink = true,
+  isTooltipEnabled = true,
+  showProgressPercentage = false,
+  variant = 'base',
+}) => {
+  const { t } = useTranslation();
 
   const { getAwardLabelFromPlayerBadge } = useGetAwardLabelFromPlayerBadge();
 
-  const { formatNumber } = useFormatNumber();
+  const { formatPercentage } = useFormatPercentage();
 
   const achievementsPublished = game?.achievementsPublished ?? 0;
   const pointsTotal = game.pointsTotal ?? 0;
@@ -55,21 +88,24 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({ game, pl
 
   const Wrapper = achievementsUnlocked ? 'a' : 'div';
 
+  const canLinkToGamePage = isHyperlink && achievementsUnlocked;
+
   return (
-    <BaseTooltip open={achievementsUnlocked === 0 ? false : undefined}>
+    <BaseTooltip open={achievementsUnlocked === 0 || !isTooltipEnabled ? false : undefined}>
       <BaseTooltipTrigger
         className={cn(
           'group min-w-[120px] max-w-[120px]',
           achievementsUnlocked === 0 ? '!cursor-auto' : '',
-          !highestAward ? 'py-2' : '', // increase the hover surface area
+          !highestAward && isTooltipEnabled ? 'py-2' : '', // increase the hover surface area
         )}
       >
         <Wrapper
           className="flex max-w-[120px] flex-col gap-0.5"
-          href={achievementsUnlocked ? route('game.show', { game: game.id }) : undefined}
-          aria-label={achievementsUnlocked ? `Navigate to ${game.title}` : undefined}
+          href={canLinkToGamePage ? route('game.show', { game: game.id }) : undefined}
+          aria-label={canLinkToGamePage ? `Navigate to ${game.title}` : undefined}
         >
           <BaseProgress
+            className={progressClassName}
             max={achievementsPublished}
             segments={[
               {
@@ -80,18 +116,43 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({ game, pl
             ]}
           />
 
-          {highestAward && !isEventGame ? (
-            <div className="flex items-center gap-1">
-              <PlayerBadgeIndicator playerBadge={highestAward} className="mt-px" />
-              <p>
-                <PlayerBadgeLabel
-                  playerBadge={highestAward}
-                  className="text-2xs tracking-tighter"
-                  variant="muted-group"
-                />
+          <div className={cn('flex w-full items-center justify-between')}>
+            {highestAward && !isEventGame ? (
+              <div className={cn('flex items-center gap-1')}>
+                <PlayerBadgeIndicator playerBadge={highestAward} className="mt-px" />
+                <p>
+                  <PlayerBadgeLabel
+                    playerBadge={highestAward}
+                    className="text-2xs tracking-tighter"
+                    variant={variant === 'base' ? 'muted-group' : 'base'}
+                  />
+                </p>
+              </div>
+            ) : (
+              <>{showProgressPercentage ? <div /> : null}</>
+            )}
+
+            {showProgressPercentage ? (
+              <p
+                className={cn(
+                  achievementsUnlocked
+                    ? buildAwardLabelColorClassNames(
+                        highestAward?.awardType,
+                        highestAward?.awardDataExtra,
+                      )
+                    : 'text-muted italic',
+                  'mt-0.5 text-2xs tracking-tighter',
+                )}
+              >
+                {achievementsUnlocked && achievementsPublished
+                  ? formatPercentage(achievementsUnlocked / achievementsPublished, {
+                      maximumFractionDigits: 0,
+                      minimumFractionDigits: 0,
+                    })
+                  : t('none')}
               </p>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
         </Wrapper>
       </BaseTooltipTrigger>
 
@@ -101,36 +162,36 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({ game, pl
             <>
               {achievementsUnlockedHardcore > 0 ? (
                 <p>
-                  {t(':earned of :total achievements unlocked', {
-                    earned: formatNumber(achievementsUnlockedHardcore),
-                    total: formatNumber(achievementsPublished),
+                  {t('{{earned, number}} of {{total, number}} achievements unlocked', {
+                    earned: achievementsUnlockedHardcore,
+                    total: achievementsPublished,
                   })}
                 </p>
               ) : null}
 
               {achievementsUnlockedSoftcore > 0 ? (
                 <p>
-                  {t(':earned of :total softcore achievements unlocked', {
-                    earned: formatNumber(achievementsUnlockedSoftcore),
-                    total: formatNumber(achievementsPublished),
+                  {t('{{earned, number}} of {{total, number}} softcore achievements unlocked', {
+                    earned: achievementsUnlockedSoftcore,
+                    total: achievementsPublished,
                   })}
                 </p>
               ) : null}
 
               {pointsHardcore > 0 ? (
                 <p>
-                  {t(':earned of :total points earned', {
-                    earned: formatNumber(pointsHardcore),
-                    total: formatNumber(pointsTotal),
+                  {t('{{earned, number}} of {{total, number}} points earned', {
+                    earned: pointsHardcore,
+                    total: pointsTotal,
                   })}
                 </p>
               ) : null}
 
               {points > 0 ? (
                 <p>
-                  {t(':earned of :total softcore points earned', {
-                    earned: formatNumber(points),
-                    total: formatNumber(pointsTotal),
+                  {t('{{earned, number}} of {{total, number}} softcore points earned', {
+                    earned: points,
+                    total: pointsTotal,
                   })}
                 </p>
               ) : null}
@@ -139,7 +200,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({ game, pl
 
           {highestAward ? (
             <p>
-              {t(':awardLabel on :awardDate', {
+              {t('{{awardLabel}} on {{awardDate}}', {
                 awardLabel: getAwardLabelFromPlayerBadge(highestAward),
                 awardDate: getEarnDateLabelFromPlayerBadge(highestAward),
               })}
