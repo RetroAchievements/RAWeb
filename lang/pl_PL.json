@@ -383,7 +383,7 @@
     "players are currently online.": "players are currently online.",
     "players in-game.": "players in-game.",
     "supportedGameFilesCountLabel_one": "Obecnie jest <1>{{count, number}}</1> zarejestrowany hash pliku wspierający tę grę.",
-    "supportedGameFilesCountLabel_other": "There are currently <1>{{count, number}}</1> supported game file hashes registered for this game.",
+    "supportedGameFilesCountLabel_other": "Obecnie są <1>{{count, number}}</1> zarejestrowane hashe pliku wspierające tę grę.",
     "the emulators": "the emulators",
     "the games": "the games",
     "unknown": "nieznany",
@@ -405,11 +405,11 @@
     "{{user}} doesn't have any forum posts.": "{{user}} nie ma żadnych postów na forum.",
     "{{user}}'s Forum Posts": "{{user}} posty na forum",
     "{{val, number}} Games_one": "{{val, number}} gra",
-    "{{val, number}} Games_other": "{{val, number}} Games",
+    "{{val, number}} Games_other": "{{val, number}} gry",
     "{{val, number}} Systems_one": "{{val, number}} system",
-    "{{val, number}} Systems_other": "{{val, number}} Systems",
+    "{{val, number}} Systems_other": "{{val, number}} systemy",
     "{{val, number}} games_one": "{{val, number}} gra",
-    "{{val, number}} games_other": "{{val, number}} games",
+    "{{val, number}} games_other": "{{val, number}} gry",
     "{{visible, number}} of {{total, number}} games_one": "{{visible, number}} z {{total, number}} gry",
-    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} of {{total, number}} games"
+    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} z {{total, number}} gier"
 }
