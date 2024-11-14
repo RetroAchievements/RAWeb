@@ -117,8 +117,8 @@ class AchievementResource extends Resource
                         Infolists\Components\TextEntry::make('Flags')
                             ->badge()
                             ->formatStateUsing(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
-                                AchievementFlag::OfficialCore => __('Published'),
-                                AchievementFlag::Unofficial => __('Unpublished'),
+                                AchievementFlag::OfficialCore => AchievementFlag::OfficialCore->label(),
+                                AchievementFlag::Unofficial => AchievementFlag::Unofficial->label(),
                                 default => '',
                             })
                             ->color(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
@@ -201,8 +201,8 @@ class AchievementResource extends Resource
                         ->schema([
                             Forms\Components\Select::make('Flags')
                                 ->options([
-                                    AchievementFlag::OfficialCore->value => __('Published'),
-                                    AchievementFlag::Unofficial->value => __('Unpublished'),
+                                    AchievementFlag::OfficialCore->value => AchievementFlag::OfficialCore->label(),
+                                    AchievementFlag::Unofficial->value => AchievementFlag::Unofficial->label(),
                                 ])
                                 ->default(AchievementFlag::Unofficial->value)
                                 ->required()
@@ -303,8 +303,8 @@ class AchievementResource extends Resource
                 Tables\Columns\TextColumn::make('Flags')
                     ->badge()
                     ->formatStateUsing(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
-                        AchievementFlag::OfficialCore => __('Published'),
-                        AchievementFlag::Unofficial => __('Unpublished'),
+                        AchievementFlag::OfficialCore => AchievementFlag::OfficialCore->label(),
+                        AchievementFlag::Unofficial => AchievementFlag::Unofficial->label(),
                         default => '',
                     })
                     ->color(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {

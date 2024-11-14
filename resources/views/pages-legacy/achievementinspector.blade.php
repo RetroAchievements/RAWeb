@@ -15,7 +15,9 @@ $userModel = Auth::user();
 $fullModifyOK = $permissions >= Permissions::Developer;
 
 $gameID = requestInputSanitized('g', null, 'integer');
-$flag = requestInputSanitized('f', 3, 'integer');
+$flag = AchievementFlag::tryFrom(
+    requestInputSanitized('f', AchievementFlag::OfficialCore->value, 'integer')
+) ?? AchievementFlag::OfficialCore;
 
 // TODO use a policy
 $partialModifyOK =
@@ -79,10 +81,10 @@ function updateDisplayOrder(objID) {
 }
 </script>
 <?php
-if ($flag === AchievementFlag::Unofficial->value) {
+if ($flag === AchievementFlag::Unofficial) {
     echo "<h2>Unofficial Achievement Inspector</h2>";
 }
-if ($flag === AchievementFlag::OfficialCore->value) {
+if ($flag === AchievementFlag::OfficialCore) {
     echo "<h2>Core Achievement Inspector</h2>";
 }
 
@@ -124,8 +126,8 @@ if ($gameIDSpecified) {
         }
 
         if ($fullModifyOK) {
-            echo "<p>You can " . ($flag === AchievementFlag::Unofficial->value ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
-                "the desired checkboxes in the far left column and clicking the '" . ($flag === AchievementFlag::Unofficial->value ? "Promote" : "Demote") . " Selected' " .
+            echo "<p>You can " . ($flag === AchievementFlag::Unofficial ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
+                "the desired checkboxes in the far left column and clicking the '" . ($flag === AchievementFlag::Unofficial ? "Promote" : "Demote") . " Selected' " .
                 "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p>";
         }
     }
@@ -258,7 +260,7 @@ if ($gameIDSpecified) {
         <x-developer.inspector-toolbox
             :canHaveBeatenTypes="$canHaveBeatenTypes"
             :gameId="$gameID"
-            :isManagingCoreAchievements="$flag === AchievementFlag::OfficialCore->value"
+            :isManagingCoreAchievements="$flag === AchievementFlag::OfficialCore"
             :modificationLevel="$modificationLevel"
         />
     </div>
