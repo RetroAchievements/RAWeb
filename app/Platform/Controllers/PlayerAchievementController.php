@@ -7,7 +7,7 @@ namespace App\Platform\Controllers;
 use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\User;
-use App\Platform\Actions\ResetPlayerProgress;
+use App\Platform\Actions\ResetPlayerProgressAction;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -45,7 +45,7 @@ class PlayerAchievementController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        (new ResetPlayerProgress())->execute($user, achievementID: $achievement->id);
+        (new ResetPlayerProgressAction())->execute($user, achievementID: $achievement->id);
 
         return response()->json(['message' => __('legacy.success.reset')]);
     }

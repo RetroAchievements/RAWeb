@@ -8,8 +8,8 @@ use App\Models\GameAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\ComputeGameSortTitleAction;
-use App\Platform\Actions\TrimGameMetadata;
-use App\Platform\Actions\UpdateGameSetFromGameAlternativesModification;
+use App\Platform\Actions\TrimGameMetadataAction;
+use App\Platform\Actions\UpdateGameSetFromGameAlternativesModificationAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Facades\Log;
@@ -600,10 +600,11 @@ function modifyGameData(
         return false;
     }
 
-    $developer = TrimGameMetadata::trimWhitespace($developer);
-    $publisher = TrimGameMetadata::trimWhitespace($publisher);
-    $genre = TrimGameMetadata::trimWhitespace($genre);
-    $guideUrl = TrimGameMetadata::trimWhitespace($guideUrl);
+    // FIXME actions should only expose `execute()`
+    $developer = TrimGameMetadataAction::trimWhitespace($developer);
+    $publisher = TrimGameMetadataAction::trimWhitespace($publisher);
+    $genre = TrimGameMetadataAction::trimWhitespace($genre);
+    $guideUrl = TrimGameMetadataAction::trimWhitespace($guideUrl);
 
     $modifications = [];
     if ($game->Developer !== $developer) {
@@ -723,7 +724,7 @@ function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAd
 
             // Double writes to game_sets.
             foreach ($ids as $childId) {
-                (new UpdateGameSetFromGameAlternativesModification())->execute($gameID, $childId);
+                (new UpdateGameSetFromGameAlternativesModificationAction())->execute($gameID, $childId);
             }
         }
     }
@@ -740,7 +741,7 @@ function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAd
 
             // Double writes to game_sets.
             foreach ($ids as $childId) {
-                (new UpdateGameSetFromGameAlternativesModification())->execute($gameID, $childId, isAttaching: false);
+                (new UpdateGameSetFromGameAlternativesModificationAction())->execute($gameID, $childId, isAttaching: false);
             }
         }
     }

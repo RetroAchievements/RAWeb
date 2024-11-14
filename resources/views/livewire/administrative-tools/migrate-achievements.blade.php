@@ -3,7 +3,7 @@
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\User;
-use App\Platform\Actions\MigrateAchievementIdsToDifferentGameId;
+use App\Platform\Actions\MigrateAchievementIdsToDifferentGameIdAction;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -42,7 +42,7 @@ new class extends Component implements HasForms {
         /** @var User $user */
         $user = Auth::user();
 
-        (new MigrateAchievementIdsToDifferentGameId())->execute(
+        (new MigrateAchievementIdsToDifferentGameIdAction())->execute(
             $allAchievementIds,
             $this->gameId,
             $user,

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Models\Game;
-use App\Platform\Actions\TrimGameMetadata as TrimGameMetadataAction;
+use App\Platform\Actions\TrimGameMetadataAction;
 use Illuminate\Console\Command;
 
 class TrimGameMetadata extends Command
