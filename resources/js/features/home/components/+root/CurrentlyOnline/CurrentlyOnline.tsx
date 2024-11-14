@@ -81,7 +81,14 @@ export const CurrentlyOnline: FC = () => {
             />
             <YAxis tickFormatter={formatYAxisTick} tickMargin={8} ticks={yAxisTicks} />
 
-            <BaseChartTooltip content={<BaseChartTooltipContent />} />
+            <BaseChartTooltip
+              content={
+                <BaseChartTooltipContent
+                  className="min-w-[164px]"
+                  labelFormatter={(isoDate: string) => dayjs.utc(isoDate).format('llll')}
+                />
+              }
+            />
 
             <defs>
               <linearGradient id="fillPlayersOnline" x1="0" y1="0" x2="0" y2="1">
