@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Models\Game;
-use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlags;
+use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use Illuminate\Console\Command;
 
 class SyncGameAchievementSets extends Command
@@ -15,7 +15,7 @@ class SyncGameAchievementSets extends Command
     protected $description = 'Sync games and their attached achievements to formal sets';
 
     public function __construct(
-        protected UpsertGameCoreAchievementSetFromLegacyFlags $upsertGameCoreAchievementSetFromLegacyFlags
+        protected UpsertGameCoreAchievementSetFromLegacyFlagsAction $upsertGameCoreAchievementSetFromLegacyFlags
     ) {
         parent::__construct();
     }

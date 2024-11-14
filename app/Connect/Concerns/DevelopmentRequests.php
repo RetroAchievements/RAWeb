@@ -9,7 +9,7 @@ use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\GameHashSet;
 use App\Models\MemoryNote;
-use App\Platform\Actions\LinkHashToGame;
+use App\Platform\Actions\LinkHashToGameAction;
 use Illuminate\Http\Request;
 
 trait DevelopmentRequests
@@ -91,8 +91,8 @@ trait DevelopmentRequests
 
         /** @var Game $game */
 
-        /** @var LinkHashToGame $linkHashToGameAction */
-        $linkHashToGameAction = app()->make(LinkHashToGame::class);
+        /** @var LinkHashToGameAction $linkHashToGameAction */
+        $linkHashToGameAction = app()->make(LinkHashToGameAction::class);
         $linkHashToGameAction->execute($hash, $game, $gameHashTitle);
 
         return [

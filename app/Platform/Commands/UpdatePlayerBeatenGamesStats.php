@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Models\User;
-use App\Platform\Actions\UpdatePlayerBeatenGamesStats as UpdatePlayerBeatenGamesStatsAction;
+use App\Platform\Actions\UpdatePlayerBeatenGamesStatsAction;
 use App\Platform\Jobs\UpdatePlayerBeatenGamesStatsJob;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;

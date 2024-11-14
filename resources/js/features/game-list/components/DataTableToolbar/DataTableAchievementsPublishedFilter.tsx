@@ -19,7 +19,7 @@ export function DataTableAchievementsPublishedFilter<TData>({
     <DataTableFacetedFilter
       className="w-full sm:w-auto"
       column={table.getColumn('achievementsPublished')}
-      title="Has achievements"
+      t_title={t('Has achievements')}
       options={[
         { label: t('Yes'), value: 'has' },
         { label: t('No'), value: 'none' },
