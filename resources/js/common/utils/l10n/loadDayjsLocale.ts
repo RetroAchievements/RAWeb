@@ -8,6 +8,10 @@ import dayjs from 'dayjs';
 export async function loadDayjsLocale(userLocale: string) {
   try {
     switch (userLocale) {
+      case 'en':
+      case 'en_US':
+        break;
+
       case 'en_GB':
         await import('dayjs/locale/en-gb.js');
         dayjs.locale('en-gb');

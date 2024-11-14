@@ -9,7 +9,7 @@ use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\System;
-use App\Platform\Actions\UpdateGameMetrics;
+use App\Platform\Actions\UpdateGameMetricsAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -80,7 +80,7 @@ class GameListTest extends TestCase
         $game4->hashes()->save($hash2);
 
         // ensure metrics are updated
-        $action = new UpdateGameMetrics();
+        $action = new UpdateGameMetricsAction();
         $action->execute($game1);
         $action->execute($game2);
         $action->execute($game3);
