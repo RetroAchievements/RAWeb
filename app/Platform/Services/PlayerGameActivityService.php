@@ -324,7 +324,7 @@ class PlayerGameActivityService
                     $client .= ' - ' . $decoded['clientVariation'];
                 }
 
-                if (in_array($client, $clients)) {
+                if (array_key_exists($client, $clients)) {
                     $clients[$client]['duration'] = $clients[$client]['duration'] + $session['duration'];
                     if (!in_array($userAgent, $clients[$client]['agents'])) {
                         $clients[$client]['agents'][] = $userAgent;
