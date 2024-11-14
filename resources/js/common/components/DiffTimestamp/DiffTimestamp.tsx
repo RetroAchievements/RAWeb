@@ -4,7 +4,7 @@ import { type FC } from 'react';
 
 import { useServerRenderTime } from '@/common/hooks/useServerRenderTime';
 import { formatDate } from '@/common/utils/l10n/formatDate';
-import { diffForHumans } from '@/utils/diffForHumans';
+import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 
 import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
 
@@ -26,6 +26,8 @@ export const DiffTimestamp: FC<DiffTimestampProps> = ({
   enableTooltip = true,
 }) => {
   const { renderedAt } = useServerRenderTime();
+
+  const { diffForHumans } = useDiffForHumans();
 
   const date = dayjs.utc(at);
 

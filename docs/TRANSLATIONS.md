@@ -164,7 +164,7 @@ Once approved, your translations will be merged into the `master` branch and dep
 
 ## Deleting Your Branch
 
-After you pull request is merged, it's good practice to delete your working branch to keep your fork clean. GitHub makes this easy:
+After your pull request is merged, it's good practice to delete your working branch to keep your fork clean. GitHub makes this easy:
 
 1. Navigate to the merged pull request page, eg: `https://github.com/RetroAchievements/RAWeb/pull/1234`.
 2. Look for the "Delete Branch" button near the bottom of the page.

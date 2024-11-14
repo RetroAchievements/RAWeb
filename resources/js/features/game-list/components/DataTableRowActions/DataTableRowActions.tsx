@@ -75,10 +75,11 @@ export function DataTableRowActions<TData>({
                 'h-4 w-4',
                 'hover:text-neutral-50 disabled:!text-neutral-50 light:hover:text-neutral-900 light:disabled:text-neutral-900',
 
-                !shouldAnimateBacklogIconOnChange ? initialRotationClassName : null,
-                shouldAnimateBacklogIconOnChange ? 'transition-transform' : null,
+                shouldAnimateBacklogIconOnChange ? 'transition' : initialRotationClassName,
 
-                isInBacklogMaybeOptimistic ? 'rotate-0' : 'rotate-45',
+                isInBacklogMaybeOptimistic
+                  ? 'rotate-0 text-red-500 group-hover:text-neutral-50'
+                  : 'rotate-45',
               )}
             />
           </BaseButton>

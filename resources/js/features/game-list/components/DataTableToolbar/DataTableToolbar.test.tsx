@@ -104,10 +104,11 @@ describe('Component: DataTableToolbar', () => {
     await userEvent.click(screen.getByRole('option', { name: /GameCube/i }));
 
     // ASSERT
-    const selectedLabelEl = screen.getByTestId('filter-selected-label');
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-selected-label')).toBeVisible();
+    });
 
-    expect(selectedLabelEl).toBeVisible();
-    expect(selectedLabelEl).toHaveTextContent('GC');
+    expect(screen.getByTestId('filter-selected-label')).toHaveTextContent('GC');
   });
 
   it(

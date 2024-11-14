@@ -6,7 +6,7 @@ namespace App\Platform\Commands;
 
 use App\Models\Achievement;
 use App\Models\User;
-use App\Platform\Actions\UnlockPlayerAchievement as UnlockPlayerAchievementAction;
+use App\Platform\Actions\UnlockPlayerAchievementAction;
 use Exception;
 use Illuminate\Console\Command;
 
