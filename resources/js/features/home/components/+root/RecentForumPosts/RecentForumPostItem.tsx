@@ -43,24 +43,12 @@ export const RecentForumPostItem: FC<RecentForumPostItemProps> = ({ post }) => {
           i18nKey="in <1>{{forumTopicTitle}}</1>"
           values={{ forumTopicTitle: post.title }}
           components={{
-            1: <TopicLink postUrl={postUrl} postTitle={post.title} />,
+            1: <a href={postUrl} />,
           }}
-        >
-          {'in '}
-          <TopicLink postUrl={postUrl} postTitle={post.title} />
-        </Trans>
+        />
       </p>
 
       <p className="line-clamp-1">{post.latestComment.body}</p>
     </div>
   );
-};
-
-interface TopicLinkProps {
-  postUrl: string;
-  postTitle: string;
-}
-
-const TopicLink: FC<TopicLinkProps> = ({ postUrl, postTitle }) => {
-  return <a href={postUrl}>{postTitle}</a>;
 };
