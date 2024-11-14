@@ -15,7 +15,7 @@
         "test:watch": "TZ=UTC vitest",
         "tsc": "tsc --noEmit --skipLibCheck",
         "analyze": "cross-env ANALYZE=true pnpm prod",
-        "i18n:sync": "sync-i18n --files 'lang/*.json' --primary en_US --languages es_ES pl_PL pt_BR --space 4"
+        "i18n:sync": "sync-i18n --files 'lang/*.json' --primary en_US --languages en_GB es_ES pl_PL pt_BR --space 4"
     },
     "dependencies": {
         "@floating-ui/core": "^1.6.8",
