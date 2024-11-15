@@ -161,7 +161,7 @@ describe('Component: AchievementOfTheWeek', () => {
 
     // ASSERT
     expect(screen.getByText(/Ends/i)).toBeVisible();
-    expect(screen.getByText(/2 days from now/i)).toBeVisible();
+    expect(screen.getByText(/in 2 days/i)).toBeVisible();
   });
 
   it('displays the end date', () => {

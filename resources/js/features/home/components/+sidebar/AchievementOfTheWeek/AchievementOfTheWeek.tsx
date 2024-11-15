@@ -56,7 +56,7 @@ export const AchievementOfTheWeek: FC = () => {
             <div className="flex items-center gap-2">
               <GameAvatar {...game} size={44 as AvatarSize} showLabel={false} />
 
-              <div className="flex flex-col gap-0.5">
+              <div className="flex w-full flex-col gap-0.5">
                 <GameAvatar {...game} showImage={false} />
                 <div className="flex w-full items-center justify-between">
                   <SystemChip {...system} className="bg-zinc-800" />
