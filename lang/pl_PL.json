@@ -117,7 +117,6 @@
     "Download Emulator": "Download Emulator",
     "Download Patch File": "Pobierz plik z łatką",
     "Earliest": "Najwcześniejsze",
-    "Either": "Oba",
     "Email addresses must match.": "Adres email musi się zgadzać.",
     "Email me": "Wyślij e-mail",
     "Email notifications": "Powiadomienia e-mail",
@@ -388,7 +387,7 @@
     "the emulators": "the emulators",
     "the games": "the games",
     "unknown": "nieznany",
-    "userCount_one": "<1>{{userCount, number}}</1> user is currently online.",
+    "userCount_one": "<1>{{userCount, number}}</1> użytkownik jest obecnie online.",
     "userCount_other": "<1>{{userCount, number}}</1> users are currently online.",
     "{{achievementTitle}} ({{achievementPoints, number}} points)": "{{achievementTitle}} ({{achievementPoints, number}} punktów)",
     "{{achievementTitle}} - Report Issue": "{{achievementTitle}} - Zgłoś błąd",
@@ -411,6 +410,6 @@
     "{{val, number}} Systems_other": "{{val, number}} systemy",
     "{{val, number}} games_one": "{{val, number}} gra",
     "{{val, number}} games_other": "{{val, number}} gry",
-    "{{visible, number}} of {{total, number}} games_one": "{{visible, number}} z {{total, number}} gier",
+    "{{visible, number}} of {{total, number}} games_one": "{{visible, number}} z {{total, number}} gry",
     "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} z {{total, number}} gier"
 }

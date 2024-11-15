@@ -84,22 +84,22 @@ export const ManageWebApiKey: FC = () => {
             <p>
               <Trans
                 i18nKey="This is your <1>personal</1> web API key. Handle it with care."
-                components={{ 1: <PersonalSpan /> }}
-              >
-                {'This is your '}
-                <PersonalSpan />
-                {' web API key. Handle it with care.'}
-              </Trans>
+                components={{ 1: <span className="italic" /> }}
+              />
             </p>
             <p>
               <Trans
                 i18nKey="The RetroAchievements API documentation can be found <1>here</1>."
-                components={{ 1: <ApiDocumentationLink /> }}
-              >
-                {'The RetroAchievements API documentation can be found '}
-                <ApiDocumentationLink />
-                {'.'}
-              </Trans>
+                components={{
+                  1: (
+                    <a
+                      href="https://api-docs.retroachievements.org"
+                      target="_blank"
+                      rel="noreferrer"
+                    />
+                  ),
+                }}
+              />
             </p>
           </div>
 
@@ -131,10 +131,3 @@ function safeFormatApiKey(apiKey: string): string {
   // "AAAAAA...123456"
   return `${apiKey.slice(0, 6)}...${apiKey.slice(-6)}`;
 }
-
-const PersonalSpan: FC = () => <span className="italic">{'personal'}</span>;
-const ApiDocumentationLink: FC = () => (
-  <a href="https://api-docs.retroachievements.org" target="_blank" rel="noreferrer">
-    {'here'}
-  </a>
-);
