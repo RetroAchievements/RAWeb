@@ -10,7 +10,7 @@ use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\UpdateGameMetrics;
+use App\Platform\Actions\UpdateGameMetricsAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
@@ -91,7 +91,7 @@ class UserSummaryTest extends TestCase
             'ImageBoxArt' => '/Images/001237.png',
         ]);
         $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
-        (new UpdateGameMetrics())->execute($game);
+        (new UpdateGameMetricsAction())->execute($game);
 
         /** @var User $user */
         $user = User::factory()->create([
@@ -115,7 +115,7 @@ class UserSummaryTest extends TestCase
             'ImageIngame' => '/Images/002347.png',
             'ImageBoxArt' => '/Images/002348.png',
         ]);
-        (new UpdateGameMetrics())->execute($game2);
+        (new UpdateGameMetricsAction())->execute($game2);
 
         $earnedAchievement = $publishedAchievements->get(0);
         $unlockTime = Carbon::now()->subDays(5);

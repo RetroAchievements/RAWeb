@@ -9,7 +9,7 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlags;
+use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -27,7 +27,7 @@ class UserGameAchievementSetPreferenceControllerTest extends TestCase
 
         $achievements = Achievement::factory()->published()->count(10)->create(['GameID' => $game->id]);
 
-        (new UpsertGameCoreAchievementSetFromLegacyFlags())->execute($game);
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
         $gameAchievementSet = GameAchievementSet::first();
 
         /** @var User $user */

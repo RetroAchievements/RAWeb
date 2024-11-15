@@ -1,6 +1,6 @@
 import type { Column } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { HiOutlineCheck } from 'react-icons/hi';
 import { RxPlusCircled } from 'react-icons/rx';
 
@@ -38,28 +38,29 @@ interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
   isSearchable?: boolean;
   isSingleSelect?: boolean;
-  title?: string;
+  t_title?: string;
   variant?: 'base' | 'drawer';
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   options,
   column,
-  title,
+  t_title,
   className,
   isSearchable = true,
   isSingleSelect = false,
   variant = 'base',
 }: DataTableFacetedFilterProps<TData, TValue>) {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
+  const columnId = column!.id;
 
   if (variant === 'drawer') {
     return (
       <div className="flex flex-col gap-1">
-        <p className="text-neutral-100 light:text-neutral-950">{title}</p>
+        <p className="text-neutral-100 light:text-neutral-950">{t_title}</p>
 
         <FacetedFilterContent
           facets={facets}
@@ -67,7 +68,7 @@ export function DataTableFacetedFilter<TData, TValue>({
           selectedValues={selectedValues}
           column={column}
           isSearchable={isSearchable}
-          title={title}
+          t_title={t_title}
           isSingleSelect={isSingleSelect}
           variant={variant}
         />
@@ -82,14 +83,14 @@ export function DataTableFacetedFilter<TData, TValue>({
           size="sm"
           className={cn(
             'border-dashed',
-            buildTrackingClassNames(`Click ${title} Filter`),
+            buildTrackingClassNames(`Click ${columnId} Filter`),
             className,
           )}
-          data-testid={`filter-${title}`}
+          data-testid={`filter-${columnId}`}
         >
           <RxPlusCircled className="mr-2 h-4 w-4" />
 
-          {title}
+          {t_title}
 
           {selectedValues?.size > 0 ? (
             <>
@@ -105,7 +106,7 @@ export function DataTableFacetedFilter<TData, TValue>({
               <div className="hidden space-x-1 lg:flex">
                 {selectedValues.size > 2 ? (
                   <BaseBadge variant="secondary" className="rounded-sm px-1 font-normal leading-3">
-                    {t(':count selected', { count: selectedValues.size })}
+                    {t('{{count, number}} selected', { count: selectedValues.size })}
                   </BaseBadge>
                 ) : (
                   <>
@@ -114,7 +115,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                       .map((option) => (
                         <BaseBadge
                           variant="secondary"
-                          key={option.value}
+                          key={`label-${option.value}`}
                           className="rounded-sm px-1 font-normal leading-3"
                           data-testid="filter-selected-label"
                         >
@@ -136,7 +137,7 @@ export function DataTableFacetedFilter<TData, TValue>({
           selectedValues={selectedValues}
           column={column}
           isSearchable={isSearchable}
-          title={title}
+          t_title={t_title}
           isSingleSelect={isSingleSelect}
           variant={variant}
         />
@@ -156,11 +157,11 @@ function FacetedFilterContent<TData, TValue>({
   isSingleSelect,
   column,
   isSearchable,
-  title,
+  t_title,
   selectedValues,
   variant = 'base',
 }: FacetedFilterContentProps<TData, TValue>) {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const handleOptionToggle = (optionValue: string) => {
     if (isSingleSelect) {
@@ -187,7 +188,7 @@ function FacetedFilterContent<TData, TValue>({
           : '',
       )}
     >
-      {isSearchable && variant !== 'drawer' ? <BaseCommandInput placeholder={title} /> : null}
+      {isSearchable && variant !== 'drawer' ? <BaseCommandInput placeholder={t_title} /> : null}
 
       <BaseCommandList>
         <BaseCommandEmpty>
@@ -245,7 +246,7 @@ interface ClearFiltersButtonProps {
 }
 
 const ClearFiltersButton: FC<ClearFiltersButtonProps> = ({ onClear }) => {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <div className="sticky bottom-0 bg-neutral-950 light:bg-neutral-100">

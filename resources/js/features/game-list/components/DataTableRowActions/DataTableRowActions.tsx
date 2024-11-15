@@ -1,6 +1,6 @@
 import type { Row } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MdClose } from 'react-icons/md';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -33,7 +33,7 @@ export function DataTableRowActions<TData>({
   row,
   shouldAnimateBacklogIconOnChange = true,
 }: DataTableRowActionsProps<TData>) {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const rowData = row.original as Partial<App.Platform.Data.GameListEntry>;
   const gameId = rowData?.game?.id ?? 0;
@@ -63,24 +63,25 @@ export function DataTableRowActions<TData>({
             className="group flex h-8 w-8 p-0 text-link disabled:!pointer-events-auto disabled:!opacity-100"
             onClick={() => toggleBacklog()}
             disabled={isPending}
+            aria-label={
+              isInBacklogMaybeOptimistic
+                ? t('Remove from Want to Play Games')
+                : t('Add to Want to Play Games')
+            }
+            data-testid={`toggle-${isInBacklogMaybeOptimistic}`}
           >
             <MdClose
               className={cn(
                 'h-4 w-4',
                 'hover:text-neutral-50 disabled:!text-neutral-50 light:hover:text-neutral-900 light:disabled:text-neutral-900',
 
-                !shouldAnimateBacklogIconOnChange ? initialRotationClassName : null,
-                shouldAnimateBacklogIconOnChange ? 'transition-transform' : null,
+                shouldAnimateBacklogIconOnChange ? 'transition' : initialRotationClassName,
 
-                isInBacklogMaybeOptimistic ? 'rotate-0' : 'rotate-45',
+                isInBacklogMaybeOptimistic
+                  ? 'rotate-0 text-red-500 group-hover:text-neutral-50'
+                  : 'rotate-45',
               )}
             />
-
-            <span className="sr-only">
-              {isInBacklogMaybeOptimistic
-                ? t('Remove from Want To Play Games')
-                : t('Add to Want to Play Games')}
-            </span>
           </BaseButton>
         </div>
       </BaseTooltipTrigger>

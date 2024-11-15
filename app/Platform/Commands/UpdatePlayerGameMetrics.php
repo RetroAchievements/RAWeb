@@ -6,8 +6,8 @@ namespace App\Platform\Commands;
 
 use App\Models\Game;
 use App\Models\User;
-use App\Platform\Actions\UpdatePlayerGameMetrics as UpdatePlayerGameMetricsAction;
-use App\Platform\Actions\UpdatePlayerMetrics as UpdatePlayerMetricsAction;
+use App\Platform\Actions\UpdatePlayerGameMetricsAction;
+use App\Platform\Actions\UpdatePlayerMetricsAction;
 use Illuminate\Console\Command;
 
 class UpdatePlayerGameMetrics extends Command

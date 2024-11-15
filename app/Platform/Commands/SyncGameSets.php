@@ -10,7 +10,7 @@ use App\Models\GameSet;
 use App\Models\GameSetGame;
 use App\Models\GameSetLink;
 use App\Models\System;
-use App\Platform\Actions\UpdateGameSetFromGameAlternativesModification;
+use App\Platform\Actions\UpdateGameSetFromGameAlternativesModificationAction;
 use App\Platform\Enums\GameSetType;
 use Illuminate\Console\Command;
 
@@ -44,7 +44,7 @@ class SyncGameSets extends Command
         foreach ($distinctGameIds as $gameId) {
             $game = Game::find($gameId);
 
-            /** see UpdateGameSetFromGameAlternativesModification::instantiateGameSetFromGame() */
+            /** see UpdateGameSetFromGameAlternativesModificationAction::instantiateGameSetFromGame() */
             $isGameHub = $game->ConsoleID === System::Hubs;
             GameSet::updateOrCreate(
                 ['game_id' => $game->id],
@@ -65,7 +65,7 @@ class SyncGameSets extends Command
         $progressBar = $this->output->createProgressBar($gameAltsCount);
 
         foreach (GameAlternative::cursor() as $gameAlt) {
-            (new UpdateGameSetFromGameAlternativesModification())->execute(
+            (new UpdateGameSetFromGameAlternativesModificationAction())->execute(
                 parentGameId: $gameAlt->gameID,
                 childGameId: $gameAlt->gameIDAlt,
                 isAttaching: true,

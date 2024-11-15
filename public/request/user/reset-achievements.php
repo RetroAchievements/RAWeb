@@ -1,6 +1,6 @@
 <?php
 
-use App\Platform\Actions\ResetPlayerProgress;
+use App\Platform\Actions\ResetPlayerProgressAction;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -14,7 +14,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'achievement' => 'required_without:game|integer|exists:Achievements,ID',
 ]);
 
-$action = app()->make(ResetPlayerProgress::class);
+$action = app()->make(ResetPlayerProgressAction::class);
 
 if (!empty($input['achievement'])) {
     $action->execute($user, achievementID: (int) $input['achievement']);

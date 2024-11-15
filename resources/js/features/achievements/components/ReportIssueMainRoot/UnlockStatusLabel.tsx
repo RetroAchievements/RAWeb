@@ -1,6 +1,6 @@
 import type { FC } from 'react';
+import { Trans } from 'react-i18next';
 
-import { Trans } from '@/common/components/Trans';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 // Other elements on the page contain some of the same labels, so we
@@ -19,11 +19,12 @@ export const UnlockStatusLabel: FC = () => {
   if (!achievement.unlockedAt && !achievement.unlockedHardcoreAt) {
     return (
       <p data-testid={testId}>
-        <Trans i18nKey="You <0>have not</0> unlocked this achievement.">
-          {/* eslint-disable react/jsx-no-literals */}
-          You <span className="font-bold">have not</span> unlocked this achievement.
-          {/* eslint-enable react/jsx-no-literals */}
-        </Trans>
+        <Trans
+          i18nKey="You <1>have not</1> unlocked this achievement."
+          components={{
+            1: <span className="font-bold" />,
+          }}
+        />
       </p>
     );
   }
@@ -31,22 +32,20 @@ export const UnlockStatusLabel: FC = () => {
   if (achievement.unlockedHardcoreAt) {
     return (
       <p data-testid={testId}>
-        <Trans i18nKey="You <0>have</0> unlocked this achievement.">
-          {/* eslint-disable react/jsx-no-literals */}
-          You <span className="font-bold">have</span> unlocked this achievement.
-          {/* eslint-enable react/jsx-no-literals */}
-        </Trans>
+        <Trans
+          i18nKey="You <1>have</1> unlocked this achievement."
+          components={{ 1: <span className="font-bold" /> }}
+        />
       </p>
     );
   }
 
   return (
     <p data-testid={testId}>
-      <Trans i18nKey="You <0>have</0> unlocked this achievement <1>in softcore</1>.">
-        {/* eslint-disable react/jsx-no-literals */}
-        You <span className="font-bold">have</span> unlocked this achievement{' '}
-        <span className="font-bold">in softcore</span>.{/* eslint-enable react/jsx-no-literals */}
-      </Trans>
+      <Trans
+        i18nKey="You <1>have</1> unlocked this achievement <2>in softcore</2>."
+        components={{ 1: <span className="font-bold" />, 2: <span className="font-bold" /> }}
+      />
     </p>
   );
 };

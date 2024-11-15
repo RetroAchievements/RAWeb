@@ -1,6 +1,6 @@
 import type { ColumnDef, SortDirection, Table } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { Fragment } from 'react/jsx-runtime';
+import { useTranslation } from 'react-i18next';
 import { HiFilter } from 'react-icons/hi';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -39,11 +39,11 @@ export function DataTableSuperFilter<TData>({ table }: DataTableSuperFilterProps
     filterableSystemOptions: App.Platform.Data.System[];
   }>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const currentSuperFilterLabel = useCurrentSuperFilterLabel(table);
 
-  const { buildSortLabel } = useBuildSortLabel();
+  const { buildSortOptionLabel } = useBuildSortLabel();
 
   const { sortConfigs } = useSortConfigs();
 
@@ -62,8 +62,8 @@ export function DataTableSuperFilter<TData>({ table }: DataTableSuperFilterProps
     table.getColumn(columnId)?.toggleSorting(direction === 'desc');
 
     // Track the most common sorts.
-    if (plausible) {
-      plausible('Game List Sort', { props: { order: newValue } });
+    if (window.plausible) {
+      window.plausible('Game List Sort', { props: { order: newValue } });
     }
   };
 
@@ -96,6 +96,7 @@ export function DataTableSuperFilter<TData>({ table }: DataTableSuperFilterProps
               <BaseLabel htmlFor="supersort" className="text-neutral-100 light:text-neutral-950">
                 {t('Sort order')}
               </BaseLabel>
+
               <BaseSelect value={currentSort} onValueChange={handleSortOrderValueChange}>
                 <BaseSelectTrigger id="supersort" className="w-full">
                   <BaseSelectValue placeholder={t('Sort order')}></BaseSelectValue>
@@ -114,7 +115,7 @@ export function DataTableSuperFilter<TData>({ table }: DataTableSuperFilterProps
                             value={direction === 'asc' ? column.id : `-${column.id}`}
                             Icon={column.columnDef.meta?.Icon}
                           >
-                            {buildSortLabel(column.columnDef, direction)}
+                            {buildSortOptionLabel(column.columnDef, direction)}
                           </BaseSelectItem>
                         </Fragment>
                       ));
@@ -139,7 +140,7 @@ export function DataTableSuperFilter<TData>({ table }: DataTableSuperFilterProps
 function useBuildSortLabel() {
   const { sortConfigs } = useSortConfigs();
 
-  const buildSortLabel = <TData,>(
+  const buildSortOptionLabel = <TData,>(
     columnDef: ColumnDef<TData, unknown>,
     direction: 'asc' | 'desc',
   ) => {
@@ -151,5 +152,5 @@ function useBuildSortLabel() {
     return `${columnDef.meta?.t_label}, ${sortLabel}`;
   };
 
-  return { buildSortLabel };
+  return { buildSortOptionLabel };
 }

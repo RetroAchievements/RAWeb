@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Listeners;
 
 use App\Events\UserDeleted;
-use App\Platform\Actions\ResetPlayerProgress as ResetPlayerProgressAction;
+use App\Platform\Actions\ResetPlayerProgressAction;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ResetPlayerProgress implements ShouldQueue

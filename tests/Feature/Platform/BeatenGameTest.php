@@ -8,7 +8,7 @@ use App\Community\Enums\AwardType;
 use App\Models\Achievement;
 use App\Models\PlayerBadge;
 use App\Models\User;
-use App\Platform\Actions\UpdatePlayerGameMetrics;
+use App\Platform\Actions\UpdatePlayerGameMetricsAction;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -272,8 +272,8 @@ class BeatenGameTest extends TestCase
 
         Achievement::factory()->published()->progression()->create(['GameID' => $game->id]);
 
-        // TODO trigger achievement set update which will trigger UpdatePlayerGameMetrics
-        (new UpdatePlayerGameMetrics())->execute($user->playerGame($game));
+        // TODO trigger achievement set update which will trigger UpdatePlayerGameMetricsAction
+        (new UpdatePlayerGameMetricsAction())->execute($user->playerGame($game));
 
         $this->assertEquals(0, PlayerBadge::where('user_id', $user->id)->where('AwardType', AwardType::GameBeaten)->count());
     }
@@ -306,8 +306,8 @@ class BeatenGameTest extends TestCase
         /** @var Achievement $newAchievement */
         $newAchievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->id]);
 
-        // TODO trigger achievement set update which will trigger UpdatePlayerGameMetrics
-        (new UpdatePlayerGameMetrics())->execute($user->playerGame($game));
+        // TODO trigger achievement set update which will trigger UpdatePlayerGameMetricsAction
+        (new UpdatePlayerGameMetricsAction())->execute($user->playerGame($game));
 
         $this->assertEquals(0, PlayerBadge::where('user_id', $user->id)->where('AwardType', AwardType::GameBeaten)->count());
 
@@ -381,8 +381,8 @@ class BeatenGameTest extends TestCase
             $achievement->saveQuietly();
         }
 
-        // TODO trigger achievement set update which will trigger UpdatePlayerGameMetrics
-        (new UpdatePlayerGameMetrics())->execute($user->playerGame($game));
+        // TODO trigger achievement set update which will trigger UpdatePlayerGameMetricsAction
+        (new UpdatePlayerGameMetricsAction())->execute($user->playerGame($game));
         $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('AwardType', AwardType::GameBeaten)->count());
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
             ->where('AwardType', AwardType::GameBeaten)
@@ -447,8 +447,8 @@ class BeatenGameTest extends TestCase
             $achievement->saveQuietly();
         }
 
-        // TODO trigger achievement set update which will trigger UpdatePlayerGameMetrics
-        (new UpdatePlayerGameMetrics())->execute($user->playerGame($game));
+        // TODO trigger achievement set update which will trigger UpdatePlayerGameMetricsAction
+        (new UpdatePlayerGameMetricsAction())->execute($user->playerGame($game));
 
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
             ->where('AwardType', AwardType::GameBeaten)

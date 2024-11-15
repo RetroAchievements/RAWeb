@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { LuAlertCircle, LuCopy } from 'react-icons/lu';
 import { useCopyToClipboard, useMedia } from 'react-use';
 
@@ -14,13 +14,12 @@ import {
   BaseTooltipPortal,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
-import { Trans } from '@/common/components/Trans';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 export const ManageWebApiKey: FC = () => {
   const { userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const [, copyToClipboard] = useCopyToClipboard();
 
@@ -83,22 +82,24 @@ export const ManageWebApiKey: FC = () => {
 
           <div>
             <p>
-              <Trans i18nKey="This is your <0>personal</0> web API key. Handle it with care.">
-                {/* eslint-disable react/jsx-no-literals */}
-                This is your <span className="italic">personal</span> web API key. Handle it with
-                care.
-                {/* eslint-enable react/jsx-no-literals */}
-              </Trans>
+              <Trans
+                i18nKey="This is your <1>personal</1> web API key. Handle it with care."
+                components={{ 1: <span className="italic" /> }}
+              />
             </p>
             <p>
-              <Trans i18nKey="The RetroAchievements API documentation can be found <0>here</0>.">
-                {/* eslint-disable react/jsx-no-literals */}
-                The RetroAchievements API documentation can be found{' '}
-                <a href="https://api-docs.retroachievements.org" target="_blank" rel="noreferrer">
-                  here
-                </a>
-                .{/* eslint-enable react/jsx-no-literals */}
-              </Trans>
+              <Trans
+                i18nKey="The RetroAchievements API documentation can be found <1>here</1>."
+                components={{
+                  1: (
+                    <a
+                      href="https://api-docs.retroachievements.org"
+                      target="_blank"
+                      rel="noreferrer"
+                    />
+                  ),
+                }}
+              />
             </p>
           </div>
 

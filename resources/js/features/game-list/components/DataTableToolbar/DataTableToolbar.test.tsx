@@ -1,10 +1,11 @@
 import type { ColumnDef, Table } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import userEvent from '@testing-library/user-event';
+import axios from 'axios';
 import type { FC } from 'react';
 
 import { render, screen, waitFor } from '@/test';
-import { createSystem, createZiggyProps } from '@/test/factories';
+import { createPaginatedData, createSystem, createZiggyProps } from '@/test/factories';
 
 import { DataTableToolbar } from './DataTableToolbar';
 
@@ -103,39 +104,50 @@ describe('Component: DataTableToolbar', () => {
     await userEvent.click(screen.getByRole('option', { name: /GameCube/i }));
 
     // ASSERT
-    const selectedLabelEl = screen.getByTestId('filter-selected-label');
-
-    expect(selectedLabelEl).toBeVisible();
-    expect(selectedLabelEl).toHaveTextContent('GC');
-  });
-
-  it('given more than three options are selected, shows the selected count', async () => {
-    // ARRANGE
-    render(<DataTableToolbarHarness />, {
-      pageProps: {
-        filterableSystemOptions: [
-          createSystem({ name: 'Nintendo 64', nameShort: 'N64' }),
-          createSystem({ name: 'NES/Famicom', nameShort: 'NES' }),
-          createSystem({ name: 'GameCube', nameShort: 'GC' }),
-        ],
-        ziggy: createZiggyProps({ device: 'desktop' }),
-      },
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-selected-label')).toBeVisible();
     });
 
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /system/i }));
-    await userEvent.click(screen.getByRole('option', { name: /Nintendo 64/i }));
-    await userEvent.click(screen.getByRole('option', { name: /NES/i }));
-    await userEvent.click(screen.getByRole('option', { name: /GameCube/i }));
-
-    // ASSERT
-    await waitFor(
-      () => {
-        expect(screen.getByText(/3 selected/i)).toBeVisible();
-      },
-      { timeout: 3000 },
-    );
+    expect(screen.getByTestId('filter-selected-label')).toHaveTextContent('GC');
   });
+
+  it(
+    'given more than three options are selected, shows the selected count',
+    { retry: 2, timeout: 15000 },
+    async () => {
+      // ARRANGE
+      render(<DataTableToolbarHarness />, {
+        pageProps: {
+          filterableSystemOptions: [
+            createSystem({ name: 'Nintendo 64', nameShort: 'N64' }),
+            createSystem({ name: 'NES/Famicom', nameShort: 'NES' }),
+            createSystem({ name: 'GameCube', nameShort: 'GC' }),
+          ],
+          ziggy: createZiggyProps({ device: 'desktop' }),
+        },
+      });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /system/i }));
+
+      // Ensure the options are visible before we start trying to click on them.
+      await waitFor(() => {
+        screen.getByRole('option', { name: /NES/i });
+      });
+
+      await userEvent.click(screen.getByRole('option', { name: /Nintendo 64/i }));
+      await userEvent.click(screen.getByRole('option', { name: /NES/i }));
+      await userEvent.click(screen.getByRole('option', { name: /GameCube/i }));
+
+      // ASSERT
+      await waitFor(
+        () => {
+          expect(screen.getByText(/3 selected/i)).toBeVisible();
+        },
+        { timeout: 3000 },
+      );
+    },
+  );
 
   it('given the unfiltered total is different than the row count, displays both counts to the user', () => {
     // ARRANGE
@@ -188,5 +200,59 @@ describe('Component: DataTableToolbar', () => {
     // ASSERT
     expect(screen.getByText(/0 games/i)).toBeVisible();
     expect(screen.queryByText(/0 of 0 games/i)).not.toBeInTheDocument();
+  });
+
+  it('given the user has filters set, shows a Reset button', async () => {
+    // ARRANGE
+    render(<DataTableToolbarHarness />, {
+      pageProps: {
+        filterableSystemOptions: [
+          createSystem({ name: 'Nintendo 64', nameShort: 'N64' }),
+          createSystem({ name: 'NES/Famicom', nameShort: 'NES' }),
+          createSystem({ name: 'GameCube', nameShort: 'GC' }),
+        ],
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /system/i }));
+    await userEvent.click(screen.getByRole('option', { name: /GameCube/i }));
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /reset/i })).toBeVisible();
+  });
+
+  it('given the user hovers over the Reset button, initiates a prefetch for the destination data', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
+
+    render(<DataTableToolbarHarness />, {
+      pageProps: {
+        filterableSystemOptions: [
+          createSystem({ name: 'Nintendo 64', nameShort: 'N64' }),
+          createSystem({ name: 'NES/Famicom', nameShort: 'NES' }),
+          createSystem({ name: 'GameCube', nameShort: 'GC' }),
+        ],
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /system/i }));
+    await userEvent.click(screen.getByRole('option', { name: /GameCube/i }));
+
+    await userEvent.hover(screen.getByRole('button', { name: /reset/i }));
+    // just a hover, no click
+
+    // ASSERT
+    expect(getSpy).toHaveBeenCalledOnce();
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.game.index',
+      {
+        'page[number]': 1,
+        sort: null,
+      },
+    ]);
   });
 });

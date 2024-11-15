@@ -23,14 +23,12 @@ export function buildTitleColumnDef({
     accessorKey: 'game',
     meta: { t_label, Icon: gameListFieldIconMap.title },
     enableHiding: false,
+
     header: ({ column, table }) => (
       <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
-    cell: ({ row }) => {
-      if (!row.original.game) {
-        return null;
-      }
 
+    cell: ({ row }) => {
       return (
         <div className="min-w-[180px] max-w-fit">
           <div className="max-w-[400px]">

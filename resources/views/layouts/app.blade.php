@@ -16,7 +16,7 @@
     class="{{ config('app.debug') ? 'debug' : '' }} {{ !Route::is('news.index') ? 'with-news' : '' }} with-footer"
 >
     <div data-vaul-drawer-wrapper="">
-        @if (Route::is('home'))
+        @if (Route::is('home') || Route::is('demo.home'))
             <x-brand-top />
         @endif
 

@@ -1,23 +1,19 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { LuSave } from 'react-icons/lu';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { Embed } from '@/common/components/Embed/Embed';
-import { Trans } from '@/common/components/Trans';
-import { useFormatNumber } from '@/common/hooks/useFormatNumber';
+import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
+import { GameHeading } from '@/common/components/GameHeading/GameHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { GameBreadcrumbs } from '../GameBreadcrumbs';
-import { GameHeading } from '../GameHeading/GameHeading';
 import { HashesList } from './HashesList';
 
 export const HashesMainRoot: FC = () => {
   const { can, game, hashes } = usePageProps<App.Platform.Data.GameHashesPageProps>();
 
-  const { t } = useLaravelReactI18n();
-
-  const { formatNumber } = useFormatNumber();
+  const { t } = useTranslation();
 
   return (
     <div>
@@ -49,26 +45,22 @@ export const HashesMainRoot: FC = () => {
 
           <p>
             {game.forumTopicId ? (
-              <Trans i18nKey="Additional information for these hashes may be listed on <0>the game's official forum topic</0>.">
-                {/* eslint-disable react/jsx-no-literals */}
-                Additional information for these hashes may be listed on{' '}
-                <a href={`/viewtopic.php?t=${game.forumTopicId}`}>
-                  the game's official forum topic
-                </a>
-                .{/* eslint-enable react/jsx-no-literals */}
-              </Trans>
+              <Trans
+                i18nKey="Additional information for these hashes may be listed on <1>the game's official forum topic</1>."
+                components={{ 1: <a href={`/viewtopic.php?t=${game.forumTopicId}`} /> }}
+              />
             ) : null}{' '}
-            <Trans i18nKey="Details on how the hash is generated for each system can be found <0>here</0>.">
-              {/* eslint-disable react/jsx-no-literals */}
-              Details on how the hash is generated for each system can be found{' '}
-              <a
-                href="https://docs.retroachievements.org/developer-docs/game-identification.html"
-                target="_blank"
-              >
-                here
-              </a>
-              .{/* eslint-enable react/jsx-no-literals */}
-            </Trans>
+            <Trans
+              i18nKey="Details on how the hash is generated for each system can be found <1>here</1>."
+              components={{
+                1: (
+                  <a
+                    href="https://docs.retroachievements.org/developer-docs/game-identification.html"
+                    target="_blank"
+                  />
+                ),
+              }}
+            />
           </p>
         </Embed>
 
@@ -77,14 +69,9 @@ export const HashesMainRoot: FC = () => {
             <Trans
               i18nKey="supportedGameFilesCountLabel"
               count={hashes.length}
+              components={{ 1: <span className="font-bold" /> }}
               values={{ count: hashes.length }}
-            >
-              {hashes.length === 1 ? 'There is currently' : 'There are currently'}{' '}
-              <span className="font-bold">{formatNumber(hashes.length)}</span>{' '}
-              {hashes.length === 1
-                ? 'supported game file hash registered for this game.'
-                : 'supported game file hashes registered for this game.'}
-            </Trans>
+            />
           </p>
 
           <HashesList />

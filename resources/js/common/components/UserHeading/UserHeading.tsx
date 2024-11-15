@@ -1,7 +1,8 @@
 import type { FC, ReactNode } from 'react';
 
-import { UserAvatar } from '@/common/components/UserAvatar';
 import { cn } from '@/utils/cn';
+
+import { UserAvatar } from '../UserAvatar';
 
 interface UserHeadingProps {
   children: ReactNode;

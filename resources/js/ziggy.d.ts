@@ -35,13 +35,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "achievement.comments": [
-        {
-            "name": "achievement",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "redirect": [],
     "developer.tickets": [
         {
@@ -128,13 +121,6 @@ declare module 'ziggy-js' {
             "name": "user",
             "required": true,
             "binding": "User"
-        }
-    ],
-    "leaderboard.comments": [
-        {
-            "name": "leaderboard",
-            "required": true,
-            "binding": "ID"
         }
     ],
     "game.hash.manage": [
@@ -286,9 +272,23 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.achievement.comment.store": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "api.game.comment.store": [
         {
             "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.leaderboard.comment.store": [
+        {
+            "name": "leaderboard",
             "required": true,
             "binding": "ID"
         }
@@ -300,9 +300,33 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
+    "api.achievement.comment.destroy": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "api.game.comment.destroy": [
         {
             "name": "game",
+            "required": true,
+            "binding": "ID"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.leaderboard.comment.destroy": [
+        {
+            "name": "leaderboard",
             "required": true,
             "binding": "ID"
         },
@@ -357,9 +381,23 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "achievement.comment.index": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.comment.index": [
         {
             "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "leaderboard.comment.index": [
+        {
+            "name": "leaderboard",
             "required": true,
             "binding": "ID"
         }
