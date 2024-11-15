@@ -5,8 +5,8 @@ namespace App\Platform\Jobs;
 use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\User;
-use App\Platform\Actions\UpdatePlayerGameMetrics;
-use App\Platform\Actions\UpdatePlayerMetrics;
+use App\Platform\Actions\UpdatePlayerGameMetricsAction;
+use App\Platform\Actions\UpdatePlayerMetricsAction;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -64,7 +64,7 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
 
         $isBatched = $this->batchId !== null;
 
-        app()->make(UpdatePlayerGameMetrics::class)
+        app()->make(UpdatePlayerGameMetricsAction::class)
             ->execute($playerGame, silent: $isBatched);
 
         // if this job was executed from within a batch it means that it's been initiated
@@ -74,7 +74,7 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
         if ($isBatched) {
             $user = User::find($this->userId);
             if ($user) {
-                app()->make(UpdatePlayerMetrics::class)
+                app()->make(UpdatePlayerMetricsAction::class)
                     ->execute($user);
             }
         }

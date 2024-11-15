@@ -7,7 +7,7 @@ namespace Tests\Feature\Api\V1;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\System;
-use App\Platform\Actions\UpdateGameMetrics;
+use App\Platform\Actions\UpdateGameMetricsAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
@@ -37,7 +37,7 @@ class UserProgressTest extends TestCase
         /** @var Game $game2 */
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
         $publishedAchievements2 = Achievement::factory()->published()->count(5)->create(['GameID' => $game2->ID]);
-        (new UpdateGameMetrics())->execute($game2);
+        (new UpdateGameMetricsAction())->execute($game2);
         /** @var Game $game3 */
         $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
 

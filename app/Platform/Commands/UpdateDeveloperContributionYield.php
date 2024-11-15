@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Models\User;
-use App\Platform\Actions\UpdateDeveloperContributionYield as UpdateDeveloperContributionYieldAction;
+use App\Platform\Actions\UpdateDeveloperContributionYieldAction;
 use Illuminate\Console\Command;
 
 class UpdateDeveloperContributionYield extends Command

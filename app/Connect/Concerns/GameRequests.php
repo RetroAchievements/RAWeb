@@ -7,7 +7,7 @@ namespace App\Connect\Concerns;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\GameHashSet;
-use App\Platform\Actions\ResumePlayerSession;
+use App\Platform\Actions\ResumePlayerSessionAction;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -86,8 +86,8 @@ trait GameRequests
         // NOTE: checking for a game id by hash might be done by tools as well
         // this endpoint is sometimes retried in quick succession, too
         try {
-            /** @var ResumePlayerSession $resumePlayerSessionAction */
-            $resumePlayerSessionAction = app()->make(ResumePlayerSession::class);
+            /** @var ResumePlayerSessionAction $resumePlayerSessionAction */
+            $resumePlayerSessionAction = app()->make(ResumePlayerSessionAction::class);
             $resumePlayerSessionAction->execute($request->user('connect-token'), $game, $gameHash);
         } catch (Exception) {
             // fail silently - might be an unauthenticated request (RetroArch)
