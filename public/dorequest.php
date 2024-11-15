@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\ActivityType;
+use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Emulator;
@@ -13,6 +14,7 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
+use App\Platform\Services\UserAgentService;
 use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
@@ -72,6 +74,36 @@ if (!function_exists('DoRequestError')) {
         }
 
         return response()->json($response);
+    }
+}
+
+if (!function_exists('LogDeprecatedUserAgent')) {
+    function LogDeprecatedUserAgent(string $requestType, ClientSupportLevel $clientSupportLevel): void
+    {
+        $userAgentValue = request()->header('User-Agent');
+        $userAgentService = new UserAgentService();
+        $userAgent = $userAgentService->decode($userAgentValue);
+        $clientVersion = $userAgent['client'] . '-' . $userAgent['clientVersion'];
+        $user = request()->user('connect-token')->User ?? 'no-user';
+
+        $cacheKey = 'deprecated-user-agent-' . $clientVersion . '-' . $user;
+        if (Cache::get($cacheKey)) {
+            // recently logged
+            return;
+        }
+
+        Cache::put($cacheKey, 1, Carbon::now()->addDay());
+
+        $data = [
+            'User' => $user,
+            'User-Agent' => $userAgentValue,
+        ];
+
+        if ($clientSupportLevel === ClientSupportLevel::Outdated) {
+            Log::info("Detected deprecated client for $requestType: $clientVersion");
+        } else {
+            Log::info("Detected unknown client for $requestType: $clientVersion");
+        }
     }
 }
 
@@ -228,7 +260,18 @@ switch ($requestType) {
 
     case "gameid":
         $md5 = request()->input('m') ?? '';
-        $response['GameID'] = getGameIDFromMD5($md5);
+        $userAgentService = new UserAgentService();
+        $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
+        if ($clientSupportLevel === ClientSupportLevel::Blocked) {
+            $response = [
+                'Status' => 403,
+                'Success' => false,
+                'Error' => "This client is not supported",
+                'GameID' => 0,
+            ];
+        } else {
+            $response['GameID'] = getGameIDFromMD5($md5);
+        }
         break;
 
     case "gameslist":
@@ -336,6 +379,21 @@ switch ($requestType) {
         $hardcore = (bool) request()->input('h', 0);
         $validationHash = request()->input('v');
         $gameHashMd5 = request()->input('m');
+
+        $userAgentService = new UserAgentService();
+        $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
+        if ($clientSupportLevel === ClientSupportLevel::Blocked) {
+            $response = [
+                'Status' => 403,
+                'Success' => false,
+                'Error' => 'This client is not supported',
+            ];
+            break;
+        }
+        elseif ($clientSupportLevel !== ClientSupportLevel::Full && $hardcore) {
+            // TODO: block submission
+            LogDeprecatedUserAgent($requestType, $clientSupportLevel);
+        }
 
         // ignore negative values and offsets greater than max. clamping offset will invalidate validationHash.
         $maxOffset = 14 * 24 * 60 * 60; // 14 days
@@ -588,18 +646,31 @@ switch ($requestType) {
         $validationHash = request()->input('v');
         $gameHashMd5 = request()->input('m');
 
+        $userAgentService = new UserAgentService();
+        $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
+        if ($clientSupportLevel === ClientSupportLevel::Blocked) {
+            $response = [
+                'Status' => 403,
+                'Success' => false,
+                'Error' => 'This client is not supported',
+            ];
+            break;
+        }
+        elseif ($clientSupportLevel !== ClientSupportLevel::Full) {
+            // TODO: block submission
+            LogDeprecatedUserAgent($requestType, $clientSupportLevel);
+        }
+
         // ignore negative values and offsets greater than max. clamping offset will invalidate validationHash.
         $maxOffset = 14 * 24 * 60 * 60; // 14 days
         $offset = min(max((int) request()->input('o', 0), 0), $maxOffset);
 
-        // TODO dispatch job or event/listener using an action
-
         $foundLeaderboard = Leaderboard::where('ID', $lbID)->first();
         if (!$foundLeaderboard) {
-            $retVal['Success'] = false;
-            $retVal['Error'] = "Cannot find the leaderboard with ID: $lbID";
+            $response['Success'] = false;
+            $response['Error'] = "Cannot find the leaderboard with ID: $lbID";
 
-            return $retVal;
+            break;
         }
 
         if (
@@ -616,6 +687,8 @@ switch ($requestType) {
         if ($gameHashMd5) {
             $gameHash = GameHash::whereMd5($gameHashMd5)->first();
         }
+
+        // TODO dispatch job or event/listener using an action
 
         $response['Response'] = SubmitLeaderboardEntry($user, $foundLeaderboard, $score, $validationHash, $gameHash, Carbon::now()->subSeconds($offset));
         $response['Success'] = $response['Response']['Success']; // Passthru

@@ -14,12 +14,14 @@ use App\Models\UserRelation;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Tests\Feature\Concerns\TestsEmulatorUserAgent;
 use Tests\TestCase;
 
 class SubmitLeaderboardEntryTest extends TestCase
 {
     use BootstrapsConnect;
     use RefreshDatabase;
+    use TestsEmulatorUserAgent;
 
     private function buildValidationHash(Leaderboard $leaderboard, User $user, int $score, int $offset = 0): string
     {
@@ -791,6 +793,84 @@ class SubmitLeaderboardEntryTest extends TestCase
                         $this->buildEntry(1, $this->user, $bestScore, $now),
                     ],
                 ],
+            ]);
+    }
+
+    public function testUserAgent(): void
+    {
+        $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
+        Carbon::setTestNow($now);
+
+        /** @var Game $game */
+        $game = $this->seedGame();
+        $md5 = $game->hashes()->first()->md5;
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
+
+        $this->seedEmulatorUserAgents();
+
+        $score = 55555;
+        $validResponse = [
+            'Success' => true,
+            'Score' => $score,
+            'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+            'BestScore' => $score,
+            'LBData' => $this->buildLBData($leaderboard),
+            'RankInfo' => [
+                'NumEntries' => 1,
+                'Rank' => 1,
+            ],
+            'TopEntries' => [
+                $this->buildEntry(1, $this->user, $score, $now),
+            ],
+            'TopEntriesFriends' => [
+                $this->buildEntry(1, $this->user, $score, $now),
+            ]
+        ];
+
+        // no user agent (TODO: will return failure in the future)
+        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => $validResponse,
+            ]);
+
+        // unknown user agent (TODO: will return failure in the future)
+        $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => $validResponse,
+            ]);
+
+        // outdated user agent (TODO: will return failure in the future)
+        $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => $validResponse,
+            ]);
+
+        // valid user agent
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => $validResponse,
+            ]);
+
+        // blocked user agent
+        $this->withHeaders(['User-Agent' => $this->userAgentBlocked])
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $md5]))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Success' => false,
+                'Error' => 'This client is not supported',
             ]);
     }
 }
