@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Models\Game;
-use App\Platform\Actions\UpdateGameMetrics as UpdateGameMetricsAction;
+use App\Platform\Actions\UpdateGameMetricsAction;
 use App\Platform\Jobs\UpdateGameMetricsJob;
 use Illuminate\Console\Command;
 

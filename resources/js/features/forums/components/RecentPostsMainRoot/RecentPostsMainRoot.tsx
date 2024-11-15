@@ -7,7 +7,7 @@ import { RecentPostsTable } from '@/common/components/RecentPostsTable';
 import { SimplePaginator } from '@/common/components/SimplePaginator';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { ForumBreadcrumbs } from '../ForumBreadcrumbs';
+import { ForumBreadcrumbs } from '../../../../common/components/ForumBreadcrumbs';
 
 export const RecentPostsMainRoot: FC = () => {
   const { paginatedTopics } = usePageProps<App.Community.Data.RecentPostsPageProps>();

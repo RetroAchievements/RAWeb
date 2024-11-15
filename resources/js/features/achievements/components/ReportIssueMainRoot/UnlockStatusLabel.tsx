@@ -22,13 +22,9 @@ export const UnlockStatusLabel: FC = () => {
         <Trans
           i18nKey="You <1>have not</1> unlocked this achievement."
           components={{
-            1: <HaveNotSpan />,
+            1: <span className="font-bold" />,
           }}
-        >
-          {'You '}
-          <HaveNotSpan />
-          {' unlocked this achievement.'}
-        </Trans>
+        />
       </p>
     );
   }
@@ -38,12 +34,8 @@ export const UnlockStatusLabel: FC = () => {
       <p data-testid={testId}>
         <Trans
           i18nKey="You <1>have</1> unlocked this achievement."
-          components={{ 1: <HaveSpan /> }}
-        >
-          {'You '}
-          <HaveSpan />
-          {' unlocked this achievement.'}
-        </Trans>
+          components={{ 1: <span className="font-bold" /> }}
+        />
       </p>
     );
   }
@@ -52,18 +44,8 @@ export const UnlockStatusLabel: FC = () => {
     <p data-testid={testId}>
       <Trans
         i18nKey="You <1>have</1> unlocked this achievement <2>in softcore</2>."
-        components={{ 1: <HaveSpan />, 2: <InSoftcoreSpan /> }}
-      >
-        {'You '}
-        <HaveSpan />
-        {' unlocked this achievement '}
-        <InSoftcoreSpan />
-        {'.'}
-      </Trans>
+        components={{ 1: <span className="font-bold" />, 2: <span className="font-bold" /> }}
+      />
     </p>
   );
 };
-
-const HaveNotSpan = () => <span className="font-bold">{'have not'}</span>;
-const HaveSpan = () => <span className="font-bold">{'have'}</span>;
-const InSoftcoreSpan = () => <span className="font-bold">{'in softcore'}</span>;

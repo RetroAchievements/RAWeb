@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next';
 
 import { CommentList } from '@/common/components/CommentList/CommentList';
 import { FullPaginator } from '@/common/components/FullPaginator';
+import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
+import { GameHeading } from '@/common/components/GameHeading';
 import { SubscribeToggleButton } from '@/common/components/SubscribeToggleButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { GameBreadcrumbs } from '@/features/games/components/GameBreadcrumbs';
-import { GameHeading } from '@/features/games/components/GameHeading';
 
 import { useCommentPagination } from '../hooks/useCommentPagination';
 

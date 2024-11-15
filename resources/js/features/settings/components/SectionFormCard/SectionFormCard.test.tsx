@@ -7,6 +7,7 @@ import { render, screen } from '@/test';
 
 import { SectionFormCard, type SectionFormCardProps } from './SectionFormCard';
 
+// We need to instantiate props with a hook, so a test harness is required.
 const TestHarness: FC<Omit<SectionFormCardProps, 'formMethods' | 'isSubmitting'>> = (props) => {
   const formMethods = useForm();
   const mutation = useMutation({});

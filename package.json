@@ -15,7 +15,9 @@
         "test:watch": "TZ=UTC vitest",
         "tsc": "tsc --noEmit --skipLibCheck",
         "analyze": "cross-env ANALYZE=true pnpm prod",
-        "i18n:sync": "sync-i18n --files '**/lang/*.json' --primary en_US --languages es_ES pl_PL pt_BR --space 4"
+        "i18n:rename-to-dashes": "renamer --find \"_\" --replace \"-\" \"lang/*.json\"",
+        "i18n:rename-to-underscores": "renamer --find \"-\" --replace \"_\" \"lang/*.json\"",
+        "i18n:sync": "pnpm i18n:rename-to-dashes && i18next-locales-sync -p en-US -s en-GB es-ES pt-BR fr-FR pl-PL -l lang --spaces=4 && pnpm i18n:rename-to-underscores"
     },
     "dependencies": {
         "@floating-ui/core": "^1.6.8",
@@ -103,7 +105,7 @@
         "eslint-plugin-testing-library": "^6.3.0",
         "eslint-plugin-unicorn": "^55.0.0",
         "eslint-plugin-vitest": "^0.5.4",
-        "i18next-json-sync": "^3.1.2",
+        "i18next-locales-sync": "^2.1.0",
         "jsdom": "^22.1.0",
         "laravel-echo": "^1.15.1",
         "laravel-vite-plugin": "^1.0.4",
@@ -113,6 +115,7 @@
         "prettier": "3.2.5",
         "prettier-plugin-tailwindcss": "^0.6.6",
         "pusher-js": "^8.2.0",
+        "renamer": "^5.0.2",
         "tailwind-merge": "^2.3.0",
         "tailwindcss": "^3.4.3",
         "type-fest": "^4.25.0",

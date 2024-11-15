@@ -1,5 +1,4 @@
 import { Head } from '@inertiajs/react';
-import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { LegalNotice } from '@/common/components/LegalNotice';
@@ -50,23 +49,21 @@ const Terms: AppPage = () => {
                   <Trans
                     i18nKey="By signing up on RetroAchievements.org, you agree to the <1>Users Code of Conduct</1>."
                     components={{
-                      1: <UsersCodeOfConductLink />,
+                      1: (
+                        <a href="https://docs.retroachievements.org/guidelines/users/code-of-conduct.html" />
+                      ),
                     }}
-                  >
-                    {'By signing up on RetroAchievements.org, you agree to the '}
-                    <UsersCodeOfConductLink />
-                    {'.'}
-                  </Trans>
+                  />
                 </p>
                 <p>
                   <Trans
                     i18nKey="By joining the Junior Developer and/or Developer team, you agree to the <1>Developers Code of Conduct</1>."
-                    components={{ 1: <DevelopersCodeOfConductLink /> }}
-                  >
-                    {'By joining the Junior Developer and/or Developer team, you agree to the '}
-                    <DevelopersCodeOfConductLink />
-                    {'.'}
-                  </Trans>
+                    components={{
+                      1: (
+                        <a href="https://docs.retroachievements.org/guidelines/developers/code-of-conduct.html" />
+                      ),
+                    }}
+                  />
                 </p>
               </div>
             </div>
@@ -178,16 +175,5 @@ const Terms: AppPage = () => {
 };
 
 Terms.layout = (page) => <AppLayout withSidebar={false}>{page}</AppLayout>;
-
-const UsersCodeOfConductLink: FC = () => (
-  <a href="https://docs.retroachievements.org/guidelines/users/code-of-conduct.html">
-    {'Users Code of Conduct'}
-  </a>
-);
-const DevelopersCodeOfConductLink: FC = () => (
-  <a href="https://docs.retroachievements.org/guidelines/developers/code-of-conduct.html">
-    {'Developers Code of Conduct'}
-  </a>
-);
 
 export default Terms;

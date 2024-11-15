@@ -58,7 +58,7 @@ $route = match((int) $articleType) {
     ArticleType::GameHash => route('game.hashes.comments', ['game' => $articleId]),
     ArticleType::SetClaim => route('game.claims.comments', ['game' => $articleId]),
     ArticleType::Achievement => route('achievement.comment.index', ['achievement' => $articleId]),
-    ArticleType::Leaderboard => route('leaderboard.comments', ['leaderboard' => $articleId]),
+    ArticleType::Leaderboard => route('leaderboard.comment.index', ['leaderboard' => $articleId]),
     ArticleType::User => route('user.comment.index', ['user' => $article ?? User::find($articleId)]),
     ArticleType::UserModeration => route('user.moderation-comments', ['user' => $article ?? User::find($articleId)]),
     default => 'unsupported type ' . $articleType,

@@ -388,11 +388,11 @@ describe('Component: AllGamesMainRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByTestId('filter-System'));
+    await userEvent.click(screen.getByTestId('filter-system'));
     await userEvent.click(screen.getByRole('option', { name: /genesis/i }));
 
     // ASSERT
-    const systemFilterButtonEl = screen.getByTestId('filter-System');
+    const systemFilterButtonEl = screen.getByTestId('filter-system');
     expect(systemFilterButtonEl).toHaveTextContent(/md/i);
 
     await waitFor(() => {
@@ -428,16 +428,16 @@ describe('Component: AllGamesMainRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByTestId('filter-System'));
+    await userEvent.click(screen.getByTestId('filter-system'));
     await userEvent.click(screen.getByRole('option', { name: /genesis/i }));
 
     await userEvent.click(screen.getByRole('button', { name: /reset/i }));
 
     // ASSERT
-    const defaultFilterButtonEl = screen.getByTestId('filter-Has achievements');
+    const defaultFilterButtonEl = screen.getByTestId('filter-achievementsPublished');
     expect(defaultFilterButtonEl).toHaveTextContent(/yes/i);
 
-    const systemFilterButtonEl = screen.getByTestId('filter-System');
+    const systemFilterButtonEl = screen.getByTestId('filter-system');
     expect(systemFilterButtonEl).not.toHaveTextContent(/md/i);
   });
 
@@ -459,7 +459,7 @@ describe('Component: AllGamesMainRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByTestId('filter-System'));
+    await userEvent.click(screen.getByTestId('filter-system'));
     await userEvent.click(screen.getByRole('option', { name: /genesis/i }));
 
     // ASSERT
@@ -485,7 +485,7 @@ describe('Component: AllGamesMainRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByTestId('filter-Has achievements'));
+    await userEvent.click(screen.getByTestId('filter-achievementsPublished'));
     await userEvent.click(screen.getByRole('option', { name: /no/i }));
 
     // ASSERT

@@ -11,9 +11,9 @@ interface DataTableSystemFilterProps<TData> {
 }
 
 export function DataTableSystemFilter<TData>({
-  filterableSystemOptions,
   table,
   variant,
+  filterableSystemOptions = [],
 }: DataTableSystemFilterProps<TData>) {
   const { t } = useTranslation();
 
@@ -21,7 +21,7 @@ export function DataTableSystemFilter<TData>({
     <DataTableFacetedFilter
       className="w-full sm:w-auto"
       column={table.getColumn('system')}
-      title={t('System')}
+      t_title={t('System')}
       variant={variant}
       options={filterableSystemOptions
         .sort((a, b) => a.name.localeCompare(b.name))
