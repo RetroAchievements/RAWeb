@@ -23,7 +23,7 @@ export const CurrentlyOnline: FC = () => {
 
   const { t } = useTranslation();
 
-  const { chartData, yAxisTicks, formatXAxisTick, formatYAxisTick } =
+  const { chartData, yAxisTicks, formatTooltipLabel, formatXAxisTick, formatYAxisTick } =
     useCurrentlyOnlineChart(currentlyOnline);
 
   const chartConfig = {
@@ -79,7 +79,7 @@ export const CurrentlyOnline: FC = () => {
               content={
                 <BaseChartTooltipContent
                   className="min-w-[164px]"
-                  labelFormatter={(isoDate: string) => dayjs.utc(isoDate).format('llll')}
+                  labelFormatter={formatTooltipLabel}
                 />
               }
             />
