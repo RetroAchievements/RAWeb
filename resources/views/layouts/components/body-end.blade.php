@@ -20,13 +20,13 @@
         @class([
             'fixed left-0 -bottom-0.5 z-50 sm:left-1',
             'flex gap-1 sm:flex-col rounded bg-black p-1 text-neutral-200 text-2xs',
-            app()->environment('local') ? 'sm:bottom-10' : 'sm:bottom-2.5'
+            app()->isLocal() ? 'sm:bottom-10' : 'sm:bottom-2.5'
         ])
     >
         <span class="font-bold text-danger text-capitalize">
             {{ app()->environment() }}
             {{ $_SERVER['LARAVEL_OCTANE'] ?? false ? '[Octane]' : '' }}
-            @if (app()->environment() !== 'local')
+            @if (!app()->isLocal())
                 ({{ config('app.branch') }})
             @endif
         </span>
