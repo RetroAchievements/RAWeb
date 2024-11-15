@@ -106,6 +106,8 @@ class UserAgentServiceTest extends TestCase
             'client' => 'RetroArch',
             'clientVersion' => 'Unknown',
         ], $this->parseUserAgent($userAgent));
+
+        $this->assertEquals(-1, UserAgentService::versionCompare('Unknown', '1.8.1')); // Unknown < 1.8.1
     }
 
     public function testRANESUserAgent(): void
@@ -213,6 +215,8 @@ class UserAgentServiceTest extends TestCase
             'client' => 'PPSSPP',
             'clientVersion' => '1.17.1',
         ], $this->parseUserAgent($userAgent));
+
+        $this->assertEquals(-1, UserAgentService::versionCompare('PPSSPP/1.17.1-103.20240327git768174e.fc40', 'PPSSPP/v1.17.5'));
     }
 
     public function testDuckStationForAndroidUserAgent(): void
@@ -246,6 +250,25 @@ class UserAgentServiceTest extends TestCase
             'client' => 'BizHawk',
             'clientVersion' => '2.9.2',
         ], $this->parseUserAgent($userAgent));
+
+        // bizhawk changed its user agent in Sep 2024
+        // https://discord.com/channels/476211979464343552/757767535293890682/1279957558320173108
+        $userAgent = 'EmuHawk/2.9.2';
+
+        $this->assertEquals([
+            'client' => 'EmuHawk',
+            'clientVersion' => '2.9.2',
+        ], $this->parseUserAgent($userAgent));
+    }
+
+    public function testBizHawkNightlyUserAgent(): void
+    {
+        $userAgent = 'BizHawk/GIT HEAD#2206571';
+
+        $this->assertEquals([
+            'client' => 'BizHawk',
+            'clientVersion' => 'GIT',
+        ], $this->parseUserAgent($userAgent));
     }
 
     public function testHorizonUserAgent(): void
@@ -267,6 +290,18 @@ class UserAgentServiceTest extends TestCase
             'clientVersion' => '1.4-3064-gf36e49ad1',
             'os' => 'Android',
         ], $this->parseUserAgent($userAgent));
+
+        $userAgent = 'AetherSX2 V-1.22-BlackHawk (Android)';
+
+        $this->assertEquals([
+            'client' => 'AetherSX2',
+            'clientVersion' => '1.22-BlackHawk',
+            'os' => 'Android',
+        ], $this->parseUserAgent($userAgent));
+
+        $this->assertEquals(-1, UserAgentService::versionCompare('1.4-3064-gf36e49ad1', '1.4-3065-abcdef0123')); // 3064 < 3065
+        $this->assertEquals(-1, UserAgentService::versionCompare('1.4-3064-gf36e49ad1', '1.22-BlackHawk')); // 1.4 < 1.22
+        $this->assertEquals(-1, UserAgentService::versionCompare('1.4-3064-gf36e49ad1', '1.5-4248-g3a6307d69')); // 1.4 < 1.5
     }
 
     public function testEmuchievementsUserAgent(): void
@@ -305,6 +340,9 @@ class UserAgentServiceTest extends TestCase
             'client' => 'melonDS-android',
             'clientVersion' => 'beta-1.9.3-ps',
         ], $this->parseUserAgent($userAgent));
+
+        $this->assertEquals(-1, UserAgentService::versionCompare('beta-1.9.3-ps', '2.9.1'));
+        $this->assertEquals(1, UserAgentService::versionCompare('beta-1.9.3-ps', '1.9.1'));
     }
 
     public function testDolphinAlphaUserAgent(): void
@@ -317,5 +355,66 @@ class UserAgentServiceTest extends TestCase
             'os' => 'WindowsNT 10.0',
             'integrationVersion' => '1.2.1.47-alpha',
         ], $this->parseUserAgent($userAgent));
+    }
+
+    public function testDolphinUserAgent(): void
+    {
+        $userAgent = 'Dolphin/2407-123';
+
+        $this->assertEquals([
+            'client' => 'Dolphin',
+            'clientVersion' => '2407-123',
+        ], $this->parseUserAgent($userAgent));
+
+        $userAgent = 'Dolphin/2407-171-dirty';
+
+        $this->assertEquals([
+            'client' => 'Dolphin',
+            'clientVersion' => '2407-171-dirty',
+        ], $this->parseUserAgent($userAgent));
+
+        $userAgent = 'Dolphin/5.0-21878';
+
+        $this->assertEquals([
+            'client' => 'Dolphin',
+            'clientVersion' => '5.0-21878',
+        ], $this->parseUserAgent($userAgent));
+
+        // dolphin changed user agent from 5.0-build to YYMM-build in July 2024
+        $this->assertEquals(-1, UserAgentService::versionCompare('2407-123', '2407-123-dirty')); // 2407-123 < 2407-123-dirty
+        $this->assertEquals(-1, UserAgentService::versionCompare('2407-5', '2409-17')); // 2407-5 < 2409-17
+        $this->assertEquals(1, UserAgentService::versionCompare('2409-67', '5.0-21878')); // 2409-67 > 5.0-21878
+    }
+
+    public function testFlycastUserAgent(): void
+    {
+        $userAgent = 'Flycast/45bf218df CFNetwork/1498.700.2 Darwin/23.6.0';
+
+        $this->assertEquals([
+            'client' => 'Flycast',
+            'clientVersion' => '45bf218df',
+            'extra' => [
+                'CFNetwork' => '1498.700.2',
+                'Darwin' => '23.6.0',
+            ],
+        ], $this->parseUserAgent($userAgent));
+
+        // we can't enforce minimum versions on git hashes
+        $this->assertEquals(0, UserAgentService::versionCompare('45bf218df', '2d4684a46'));
+    }
+
+    public function testNetherSX2UserAgent(): void
+    {
+        $userAgent = 'NetherSX2 v1.9a-dev-g3a6307d69 (Android)';
+
+        $this->assertEquals([
+            'client' => 'NetherSX2',
+            'clientVersion' => '1.9a-dev-g3a6307d69',
+            'os' => 'Android',
+        ], $this->parseUserAgent($userAgent));
+
+        $this->assertEquals(-1, UserAgentService::versionCompare('1.9a-dev-93a630769', '1.9b-dev-12b3dc45'));
+        $this->assertEquals(-1, UserAgentService::versionCompare('1.9a-dev-93a630769', '1.9B-dev-12b3dc45'));
+        $this->assertEquals(-1, UserAgentService::versionCompare('1.9-dev-ab3d3dca2', '1.9a-dev-12b3dc45'));
     }
 }
