@@ -271,21 +271,7 @@ class UserAgentService
             return ClientSupportLevel::Unknown;
         }
 
-        // expected format: <product>/<product-version> (<system-information>) <extensions>
-
-        $indexParens = strpos($userAgent, '(');
-        if ($indexParens !== false) {
-            // OS information provided, assume everything before the OS is the client version
-            $data = $this->extractClient(substr($userAgent, 0, $indexParens));
-        } else {
-            $indexSpace = strpos($userAgent, ' ');
-            if ($indexSpace === false) {
-                // only one part - assume it's Client/Version
-                $data = $this->extractClient($userAgent);
-            } else {
-                $data = $this->extractClient(substr($userAgent, 0, $indexSpace));
-            }
-        }
+        $data = $this->decode($userAgent);
 
         $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $data['client']);
         if (!$emulatorUserAgent) {

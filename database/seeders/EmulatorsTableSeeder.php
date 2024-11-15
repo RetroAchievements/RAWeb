@@ -59,6 +59,10 @@ class EmulatorsTableSeeder extends Seeder
                 'source_url' => $emulatorRelease['source'] ?? null,
             ]);
             $emulator->systems()->sync($emulatorRelease['systems'] ?? []);
+            $emulator->userAgents()->create([
+                'client' => $emulatorRelease['handle'],
+                'minimum_hardcore_version' => $emulatorRelease['minimum_version'] ?? null,
+            ]);
         }
     }
 }

@@ -92,7 +92,7 @@ if (!function_exists('LogDeprecatedUserAgent')) {
             return;
         }
 
-        Cache::put($cacheKey, 1, Carbon::now()->addDay());
+        Cache::put($cacheKey, 1, Carbon::now()->addHours(18));
 
         $data = [
             'User' => $user,
@@ -100,9 +100,9 @@ if (!function_exists('LogDeprecatedUserAgent')) {
         ];
 
         if ($clientSupportLevel === ClientSupportLevel::Outdated) {
-            Log::info("Detected deprecated client for $requestType: $clientVersion");
+            Log::info("Detected deprecated client for $requestType: $clientVersion", $data);
         } else {
-            Log::info("Detected unknown client for $requestType: $clientVersion");
+            Log::info("Detected unknown client for $requestType: $clientVersion", $data);
         }
     }
 }
