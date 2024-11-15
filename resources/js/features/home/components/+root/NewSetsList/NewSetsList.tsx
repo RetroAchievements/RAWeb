@@ -14,7 +14,6 @@ import { EmptyState } from '@/common/components/EmptyState';
 import { MultilineGameAvatar } from '@/common/components/MultilineGameAvatar';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import type { AvatarSize } from '@/common/models';
 import { ClaimSetType } from '@/common/utils/generatedAppConstants';
 
 import { ClaimMobileBlock } from '../../ClaimMobileBlock/ClaimMobileBlock';
@@ -64,7 +63,7 @@ export const NewSetsList: FC = () => {
                   </BaseTableCell>
 
                   <BaseTableCell>
-                    <UserAvatar {...claim.users[0]} size={36 as AvatarSize} />
+                    <UserAvatar {...claim.users[0]} size={32} />
                   </BaseTableCell>
                   <BaseTableCell>
                     {claim.setType === ClaimSetType.NewSet && t('New')}

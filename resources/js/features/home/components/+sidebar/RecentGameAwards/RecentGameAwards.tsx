@@ -72,7 +72,7 @@ const GameAwardCard: FC<GameAwardCardProps> = ({ game, user }) => {
       <div className="flex flex-col gap-1">
         <div className="-mt-0.5 flex flex-col">
           <span className="text-xs">
-            <GameAvatar {...game} showImage={false} />
+            <GameAvatar {...game} showImage={false} gameTitleClassName="line-clamp-1" />
           </span>
 
           <SystemChip {...system} className="bg-zinc-800" />

@@ -19,7 +19,7 @@ import { useCurrentlyOnlineChart } from './useCurrentlyOnlineChart';
 dayjs.extend(utc);
 
 export const CurrentlyOnline: FC = () => {
-  const { currentlyOnline } = usePageProps<App.Http.Data.HomePageProps>();
+  const { currentlyOnline, ziggy } = usePageProps<App.Http.Data.HomePageProps>();
 
   const { t } = useTranslation();
 
@@ -37,7 +37,7 @@ export const CurrentlyOnline: FC = () => {
     <div className="flex flex-col gap-2.5">
       <HomeHeading>{t('Currently Online')}</HomeHeading>
 
-      <div className="flex w-full items-center justify-between">
+      <div className="flex w-full flex-col justify-between sm:flex-row">
         <div className="flex items-center gap-2">
           <div className="h-2.5 w-2.5 rounded-full bg-green-500" />
           <p>
@@ -70,7 +70,7 @@ export const CurrentlyOnline: FC = () => {
               tickLine={false}
               axisLine={false}
               tickMargin={12}
-              interval={7}
+              interval={ziggy.device === 'mobile' ? 12 : 7}
               tickFormatter={formatXAxisTick}
             />
             <YAxis tickFormatter={formatYAxisTick} tickMargin={8} ticks={yAxisTicks} />
