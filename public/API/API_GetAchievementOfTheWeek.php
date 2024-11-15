@@ -109,6 +109,7 @@ if ($achievementOfTheWeek) {
     $playerAchievements = $achievementOfTheWeek->achievement->playerAchievements()
         ->with('user')
         ->orderBy(DB::raw('IFNULL(unlocked_hardcore_at, unlocked_at)'))
+        ->limit(500)
         ->get();
     $numWinners = $playerAchievements->count();
     $numWinnersHardcore = 0;
