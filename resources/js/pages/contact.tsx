@@ -1,5 +1,4 @@
 import { Head } from '@inertiajs/react';
-import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { AppLayout } from '@/common/layouts/AppLayout';
@@ -28,11 +27,8 @@ const Contact: AppPage = () => {
                 <p>
                   <Trans
                     i18nKey="<1>Send a message to RAdmin</1> for:"
-                    components={{ 1: <RAdminLink /> }}
-                  >
-                    <RAdminLink />
-                    {' for:'}
-                  </Trans>
+                    components={{ 1: <a href={route('message.create', { to: 'RAdmin' })} /> }}
+                  />
                 </p>
                 <ul className="list-inside list-disc">
                   <li>{t('Reporting offensive behavior.')}</li>
@@ -48,11 +44,10 @@ const Contact: AppPage = () => {
                 <p>
                   <Trans
                     i18nKey="<1>Send a message to DevCompliance</1> for:"
-                    components={{ 1: <DevComplianceLink /> }}
-                  >
-                    <DevComplianceLink />
-                    {' for:'}
-                  </Trans>
+                    components={{
+                      1: <a href={route('message.create', { to: 'DevCompliance' })} />,
+                    }}
+                  />
                 </p>
                 <ul className="list-inside list-disc">
                   <li>{t('Requesting set approval or early set release.')}</li>
@@ -68,11 +63,8 @@ const Contact: AppPage = () => {
                 <p>
                   <Trans
                     i18nKey="<1>Send a message to QATeam</1> for:"
-                    components={{ 1: <QATeamLink /> }}
-                  >
-                    <QATeamLink />
-                    {' for:'}
-                  </Trans>
+                    components={{ 1: <a href={route('message.create', { to: 'QATeam' })} /> }}
+                  />
                 </p>
                 <ul className="list-inside list-disc">
                   <li>{t('Reporting a broken set, leaderboard, or rich presence.')}</li>
@@ -90,11 +82,8 @@ const Contact: AppPage = () => {
                 <p>
                   <Trans
                     i18nKey="<1>Send a message to RAArtTeam</1> for:"
-                    components={{ 1: <RAArtTeamLink /> }}
-                  >
-                    <RAArtTeamLink />
-                    {' for:'}
-                  </Trans>
+                    components={{ 1: <a href={route('message.create', { to: 'RAArtTeam' })} /> }}
+                  />
                 </p>
                 <ul className="list-inside list-disc">
                   <li>{t('Icon Gauntlets and how to start one.')}</li>
@@ -111,13 +100,11 @@ const Contact: AppPage = () => {
                 <p>
                   <Trans
                     i18nKey="<1>Send a message to DevQuest</1> for submissions, questions, ideas, or reporting issues related to <2>DevQuest</2>."
-                    components={{ 1: <DevQuestContactLink />, 2: <DevQuestHubLink /> }}
-                  >
-                    <DevQuestContactLink />
-                    {' for submissions, questions, ideas, or reporting issues related to '}
-                    <DevQuestHubLink />
-                    {'.'}
-                  </Trans>
+                    components={{
+                      1: <a href={route('message.create', { to: 'DevQuest' })} />,
+                      2: <a href={route('game.show', { game: 5686 })} />,
+                    }}
+                  />
                 </p>
               </div>
             </div>
@@ -130,13 +117,13 @@ const Contact: AppPage = () => {
                 <p className="mb-2">
                   <Trans
                     i18nKey="<1>Send a message to RACheats</1> if you believe someone is in violation of our <2>Global Leaderboard and Achievement Hunting Rules</2>."
-                    components={{ 1: <RACheatsLink />, 2: <LeaderboardRulesDocsLink /> }}
-                  >
-                    <RACheatsLink />
-                    {' if you believe someone is in violation of our '}
-                    <LeaderboardRulesDocsLink />
-                    {'.'}
-                  </Trans>
+                    components={{
+                      1: <a href={route('message.create', { to: 'RACheats' })} />,
+                      2: (
+                        <a href="https://docs.retroachievements.org/guidelines/users/global-leaderboard-and-achievement-hunting-rules.html#not-allowed" />
+                      ),
+                    }}
+                  />
                 </p>
                 <p>
                   {t(
@@ -152,11 +139,8 @@ const Contact: AppPage = () => {
                 <p>
                   <Trans
                     i18nKey="<1>Send a message to WritingTeam</1> for:"
-                    components={{ 1: <WritingTeamLink /> }}
-                  >
-                    <WritingTeamLink />
-                    {' for:'}
-                  </Trans>
+                    components={{ 1: <a href={route('message.create', { to: 'WritingTeam' })} /> }}
+                  />
                 </p>
                 <ul className="list-inside list-disc">
                   <li>{t('Reporting achievements with grammatical mistakes.')}</li>
@@ -175,11 +159,8 @@ const Contact: AppPage = () => {
                 <p>
                   <Trans
                     i18nKey="<1>Send a message to RANews</1> for:"
-                    components={{ 1: <RANewsLink /> }}
-                  >
-                    <RANewsLink />
-                    {' for:'}
-                  </Trans>
+                    components={{ 1: <a href={route('message.create', { to: 'RANews' })} /> }}
+                  />
                 </p>
                 <ul className="list-inside list-disc">
                   <li>{t('Submitting a Play This Set, Wish This Set, or RAdvantage entry.')}</li>
@@ -196,26 +177,20 @@ const Contact: AppPage = () => {
                 <p className="mb-4">
                   <Trans
                     i18nKey="<1>Send a message to RAEvents</1> for submissions, questions, ideas, or reporting issues related to <2>community events</2>."
-                    components={{ 1: <RAEventsLink />, 2: <CommunityEventsHubLink /> }}
-                  >
-                    <RAEventsLink />
-                    {' for submissions, questions, ideas, or reporting issues related to '}
-                    <CommunityEventsHubLink />
-                    {'.'}
-                  </Trans>
+                    components={{
+                      1: <a href={route('message.create', { to: 'RAEvents' })} />,
+                      2: <a href={route('game.show', { game: 3105 })} />,
+                    }}
+                  />
                 </p>
                 <p>
                   <Trans
                     i18nKey="<1>Send a message to TheUnwanted</1> for submissions, questions, ideas, or reporting issues specifically related to <2>The Unwanted</2>."
-                    components={{ 1: <TheUnwantedContactLink />, 2: <TheUnwantedGameLink /> }}
-                  >
-                    <TheUnwantedContactLink />
-                    {
-                      ' for submissions, questions, ideas, or reporting issues specifically related to '
-                    }
-                    <TheUnwantedGameLink />
-                    {'.'}
-                  </Trans>
+                    components={{
+                      1: <a href={route('message.create', { to: 'TheUnwanted' })} />,
+                      2: <a href={route('game.show', { game: 4271 })} />,
+                    }}
+                  />
                 </p>
               </div>
             </div>
@@ -227,48 +202,5 @@ const Contact: AppPage = () => {
 };
 
 Contact.layout = (page) => <AppLayout withSidebar={false}>{page}</AppLayout>;
-
-const RAdminLink: FC = () => (
-  <a href={route('message.create', { to: 'RAdmin' })}>{'Send a message to RAdmin'}</a>
-);
-const DevComplianceLink: FC = () => (
-  <a href={route('message.create', { to: 'DevCompliance' })}>{'Send a message to DevCompliance'}</a>
-);
-const QATeamLink: FC = () => (
-  <a href={route('message.create', { to: 'QATeam' })}>{'Send a message to QATeam'}</a>
-);
-const RAArtTeamLink: FC = () => (
-  <a href={route('message.create', { to: 'RAArtTeam' })}>{'Send a message to RAArtTeam'}</a>
-);
-const DevQuestContactLink: FC = () => (
-  <a href={route('message.create', { to: 'DevQuest' })}>{'Send a message to DevQuest'}</a>
-);
-const DevQuestHubLink: FC = () => <a href={route('game.show', { game: 5686 })}>{'DevQuest'}</a>;
-const RACheatsLink: FC = () => (
-  <a href={route('message.create', { to: 'RACheats' })}>{'Send a message to RACheats'}</a>
-);
-const LeaderboardRulesDocsLink: FC = () => (
-  <a href="https://docs.retroachievements.org/guidelines/users/global-leaderboard-and-achievement-hunting-rules.html#not-allowed">
-    {'Global Leaderboard and Achievement Hunting Rules'}
-  </a>
-);
-const WritingTeamLink: FC = () => (
-  <a href={route('message.create', { to: 'WritingTeam' })}>{'Send a message to WritingTeam'}</a>
-);
-const RANewsLink: FC = () => (
-  <a href={route('message.create', { to: 'RANews' })}>{'Send a message to RANews'}</a>
-);
-const RAEventsLink: FC = () => (
-  <a href={route('message.create', { to: 'RAEvents' })}>{'Send a message to RAEvents'}</a>
-);
-const CommunityEventsHubLink: FC = () => (
-  <a href={route('game.show', { game: 3105 })}>{'community events'}</a>
-);
-const TheUnwantedContactLink: FC = () => (
-  <a href={route('message.create', { to: 'TheUnwanted' })}>{'Send a message to TheUnwanted'}</a>
-);
-const TheUnwantedGameLink: FC = () => (
-  <a href={route('game.show', { game: 4271 })}>{'The Unwanted'}</a>
-);
 
 export default Contact;

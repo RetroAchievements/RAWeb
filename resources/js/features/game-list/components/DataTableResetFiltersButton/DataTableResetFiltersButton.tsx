@@ -43,6 +43,7 @@ export function DataTableResetFiltersButton<TData>({
       onClick={resetFiltersToDefault}
       onMouseEnter={() => prefetchResetFilters()}
       className="px-2 text-link lg:px-3"
+      data-testid="reset-all-filters"
     >
       {t('Reset')} <RxCross2 className="ml-2 h-4 w-4" />
     </BaseButton>

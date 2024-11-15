@@ -3,7 +3,7 @@
 namespace App\Platform\Jobs;
 
 use App\Models\User;
-use App\Platform\Actions\UpdateGameMetricsForGamesPlayedByUser;
+use App\Platform\Actions\UpdateGameMetricsForGamesPlayedByUserAction;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -55,7 +55,7 @@ class UpdateGameMetricsForGamesPlayedByUserJob implements ShouldQueue, ShouldBeU
             return;
         }
 
-        app()->make(UpdateGameMetricsForGamesPlayedByUser::class)
+        app()->make(UpdateGameMetricsForGamesPlayedByUserAction::class)
             ->execute($user);
     }
 }

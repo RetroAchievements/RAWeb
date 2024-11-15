@@ -8,6 +8,7 @@ export * from './createGameHash';
 export * from './createGameHashLabel';
 export * from './createGameListEntry';
 export * from './createHomePageProps';
+export * from './createLeaderboard';
 export * from './createNews';
 export * from './createPaginatedData';
 export * from './createPlayerBadge';

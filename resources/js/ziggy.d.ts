@@ -116,13 +116,6 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "leaderboard.comments": [
-        {
-            "name": "leaderboard",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.hash.manage": [
         {
             "name": "game",
@@ -294,6 +287,13 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.leaderboard.comment.store": [
+        {
+            "name": "leaderboard",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "api.user.comment.store": [
         {
             "name": "user",
@@ -316,6 +316,18 @@ declare module 'ziggy-js' {
     "api.game.comment.destroy": [
         {
             "name": "game",
+            "required": true,
+            "binding": "ID"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.leaderboard.comment.destroy": [
+        {
+            "name": "leaderboard",
             "required": true,
             "binding": "ID"
         },
@@ -380,6 +392,13 @@ declare module 'ziggy-js' {
     "game.comment.index": [
         {
             "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "leaderboard.comment.index": [
+        {
+            "name": "leaderboard",
             "required": true,
             "binding": "ID"
         }

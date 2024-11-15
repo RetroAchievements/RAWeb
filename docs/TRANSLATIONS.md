@@ -2,6 +2,8 @@
 
 Thank you for your interest in contributing translations to the RetroAchievements website! By helping translate our platform, you make it more accessible to a wider audience. This guide will walk you through the steps to add or update translations in the RAWeb repository.
 
+NOTE: The website does not support RTL (right-to-left) languages at this time.
+
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
@@ -162,7 +164,7 @@ Once approved, your translations will be merged into the `master` branch and dep
 
 ## Deleting Your Branch
 
-After you pull request is merged, it's good practice to delete your working branch to keep your fork clean. GitHub makes this easy:
+After your pull request is merged, it's good practice to delete your working branch to keep your fork clean. GitHub makes this easy:
 
 1. Navigate to the merged pull request page, eg: `https://github.com/RetroAchievements/RAWeb/pull/1234`.
 2. Look for the "Delete Branch" button near the bottom of the page.

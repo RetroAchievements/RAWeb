@@ -21,9 +21,11 @@ export function buildPointsTotalColumnDef({
     id: 'pointsTotal',
     accessorKey: 'game',
     meta: { t_label, align: 'right', sortType: 'quantity', Icon: gameListFieldIconMap.pointsTotal },
+
     header: ({ column, table }) => (
       <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
     ),
+
     cell: ({ row }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks -- the cell component is a FC. using this hook doesn't break the rules of hooks.
       const { formatNumber } = useFormatNumber();

@@ -3,7 +3,7 @@
 namespace App\Platform\Jobs;
 
 use App\Models\User;
-use App\Platform\Actions\UpdateDeveloperContributionYield;
+use App\Platform\Actions\UpdateDeveloperContributionYieldAction;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -42,7 +42,7 @@ class UpdateDeveloperContributionYieldJob implements ShouldQueue, ShouldBeUnique
 
     public function handle(): void
     {
-        app()->make(UpdateDeveloperContributionYield::class)
+        app()->make(UpdateDeveloperContributionYieldAction::class)
             ->execute(User::withTrashed()->findOrFail($this->userId));
     }
 }

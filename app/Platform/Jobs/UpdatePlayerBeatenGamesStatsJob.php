@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Jobs;
 
 use App\Models\User;
-use App\Platform\Actions\UpdatePlayerBeatenGamesStats;
+use App\Platform\Actions\UpdatePlayerBeatenGamesStatsAction;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -56,7 +56,7 @@ class UpdatePlayerBeatenGamesStatsJob implements ShouldQueue, ShouldBeUniqueUnti
             return;
         }
 
-        app()->make(UpdatePlayerBeatenGamesStats::class)
+        app()->make(UpdatePlayerBeatenGamesStatsAction::class)
             ->execute($user);
     }
 }

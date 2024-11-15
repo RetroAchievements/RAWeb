@@ -269,4 +269,32 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     // ASSERT
     expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games'));
   });
+
+  it('given a non-array filter value is set to empty, removes it from query params', () => {
+    // ARRANGE
+    const columnFilters: ColumnFiltersState = [
+      { id: 'achievementsPublished', value: ['has'] },
+      { id: 'title', value: 'mario' }, // !!
+    ];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: false }];
+
+    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+      initialProps: { columnFilters, pagination, sorting },
+    });
+
+    // ACT
+    const updatedFilters: ColumnFiltersState = [
+      { id: 'achievementsPublished', value: ['has'] },
+      { id: 'title', value: '' }, // set to an empty string
+    ];
+    rerender({
+      pagination,
+      sorting,
+      columnFilters: updatedFilters,
+    });
+
+    // ASSERT
+    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games'));
+  });
 });

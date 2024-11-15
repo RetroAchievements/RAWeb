@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Models\User;
-use App\Platform\Actions\UpdatePlayerPointsStats as UpdatePlayerPointsStatsAction;
+use App\Platform\Actions\UpdatePlayerPointsStatsAction;
 use App\Platform\Enums\PlayerStatType;
 use App\Platform\Jobs\UpdatePlayerPointsStatsJob;
 use Illuminate\Console\Command;
