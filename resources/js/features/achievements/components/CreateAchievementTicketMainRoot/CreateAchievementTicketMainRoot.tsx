@@ -1,10 +1,10 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { AchievementBreadcrumbs } from '@/common/components/AchievementBreadcrumbs';
+import { AchievementHeading } from '@/common/components/AchievementHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { AchievementBreadcrumbs } from '../AchievementBreadcrumbs';
-import { AchievementHeading } from '../AchievementHeading';
 import { CreateAchievementTicketForm } from './CreateAchievementTicketForm';
 
 export const CreateAchievementTicketMainRoot: FC = () => {
