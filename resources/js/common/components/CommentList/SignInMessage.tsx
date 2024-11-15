@@ -7,15 +7,9 @@ export const SignInMessage: FC = () => {
       <p>
         <Trans
           i18nKey="You must <1>sign in</1> before you can join this conversation."
-          components={{ 1: <SignInLink /> }}
-        >
-          {'You must '}
-          <SignInLink />
-          {' before you can join this conversation.'}
-        </Trans>
+          components={{ 1: <a href={route('login')} /> }}
+        />
       </p>
     </div>
   );
 };
-
-const SignInLink: FC = () => <a href={route('login')}>{'sign in'}</a>;

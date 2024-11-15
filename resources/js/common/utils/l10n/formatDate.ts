@@ -3,6 +3,8 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utc from 'dayjs/plugin/utc';
 
+import { mapDayjsLocaleToIntlLocale } from './mapDayjsLocaleToIntlLocale';
+
 // TODO switch from dayjs to date-fns for better perf and localization support
 
 dayjs.extend(utc);
@@ -36,36 +38,46 @@ type CustomLocalizedFormat = 'MMM DD, YYYY, HH:mm' | 'MMM YYYY';
 
 type ValidLocalizedFormat = StandardLocalizedFormat | CustomLocalizedFormat;
 
-const formatOverrides: Partial<
-  Record<
-    ValidLocalizedFormat | `${ValidLocalizedFormat} ${ValidLocalizedFormat}`,
-    (locale: string) => string
-  >
-> = {
-  'MMM DD, YYYY, HH:mm': (locale) =>
-    ['en', 'en-us'].includes(locale) ? 'MMM DD, YYYY, HH:mm' : 'DD MMM YYYY, HH:mm',
-  'MMM YYYY': (locale) => {
-    switch (locale) {
-      case 'en':
-      case 'en-us':
-        return 'MMM YYYY';
-      case 'pt-br':
-        return 'MMM [de] YYYY';
-      default:
-        return 'MMM YYYY';
-    }
-  },
-};
-
 export function formatDate(
   date: Dayjs | string,
   format: ValidLocalizedFormat | `${ValidLocalizedFormat} ${ValidLocalizedFormat}`,
 ): string {
   const dayjsDate = typeof date === 'string' ? dayjs.utc(date) : date;
   const locale = dayjs.locale();
+  const nativeLocale = mapDayjsLocaleToIntlLocale(locale);
 
-  // Determine if there's a format override for the current format and locale
-  const overriddenFormat = formatOverrides[format]?.(locale) || format;
+  if (format === 'MMM YYYY') {
+    const formatter = new Intl.DateTimeFormat(nativeLocale, {
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    });
 
-  return dayjsDate.format(overriddenFormat);
+    return formatter.format(dayjsDate.toDate());
+  } else if (format === 'MMM DD, YYYY, HH:mm') {
+    const dateFormatter = new Intl.DateTimeFormat(nativeLocale, {
+      month: 'short',
+      day: '2-digit',
+      year: 'numeric',
+      timeZone: 'UTC',
+    });
+
+    const timeFormatter = new Intl.DateTimeFormat(nativeLocale, {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'UTC',
+    });
+
+    let timeStr = timeFormatter.format(dayjsDate.toDate());
+
+    // Replace 24:00 with 00:00 if needed.
+    if (timeStr.startsWith('24:')) {
+      timeStr = timeStr.replace('24:', '00:');
+    }
+
+    return `${dateFormatter.format(dayjsDate.toDate())}, ${timeStr}`;
+  }
+
+  return dayjsDate.format(format);
 }

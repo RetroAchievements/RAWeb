@@ -10,7 +10,6 @@ import {
   BaseChartTooltip,
   BaseChartTooltipContent,
 } from '@/common/components/+vendor/BaseChart';
-import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 
@@ -26,8 +25,6 @@ export const CurrentlyOnline: FC = () => {
 
   const { chartData, yAxisTicks, formatXAxisTick, formatYAxisTick } =
     useCurrentlyOnlineChart(currentlyOnline);
-
-  const { formatNumber } = useFormatNumber();
 
   const chartConfig = {
     playersOnline: {
@@ -49,10 +46,7 @@ export const CurrentlyOnline: FC = () => {
               count={currentlyOnline?.numCurrentPlayers ?? 1}
               values={{ userCount: currentlyOnline?.numCurrentPlayers ?? 1 }}
               components={{ 1: <span className="font-bold" /> }}
-            >
-              <span className="font-bold">{formatNumber(currentlyOnline?.numCurrentPlayers)}</span>{' '}
-              {'users are currently online.'}
-            </Trans>
+            />
           </p>
         </div>
 
@@ -81,7 +75,14 @@ export const CurrentlyOnline: FC = () => {
             />
             <YAxis tickFormatter={formatYAxisTick} tickMargin={8} ticks={yAxisTicks} />
 
-            <BaseChartTooltip content={<BaseChartTooltipContent />} />
+            <BaseChartTooltip
+              content={
+                <BaseChartTooltipContent
+                  className="min-w-[164px]"
+                  labelFormatter={(isoDate: string) => dayjs.utc(isoDate).format('llll')}
+                />
+              }
+            />
 
             <defs>
               <linearGradient id="fillPlayersOnline" x1="0" y1="0" x2="0" y2="1">

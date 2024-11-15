@@ -38,14 +38,14 @@ interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
   isSearchable?: boolean;
   isSingleSelect?: boolean;
-  title?: string;
+  t_title?: string;
   variant?: 'base' | 'drawer';
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   options,
   column,
-  title,
+  t_title,
   className,
   isSearchable = true,
   isSingleSelect = false,
@@ -55,11 +55,12 @@ export function DataTableFacetedFilter<TData, TValue>({
 
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
+  const columnId = column!.id;
 
   if (variant === 'drawer') {
     return (
       <div className="flex flex-col gap-1">
-        <p className="text-neutral-100 light:text-neutral-950">{title}</p>
+        <p className="text-neutral-100 light:text-neutral-950">{t_title}</p>
 
         <FacetedFilterContent
           facets={facets}
@@ -67,7 +68,7 @@ export function DataTableFacetedFilter<TData, TValue>({
           selectedValues={selectedValues}
           column={column}
           isSearchable={isSearchable}
-          title={title}
+          t_title={t_title}
           isSingleSelect={isSingleSelect}
           variant={variant}
         />
@@ -82,14 +83,14 @@ export function DataTableFacetedFilter<TData, TValue>({
           size="sm"
           className={cn(
             'border-dashed',
-            buildTrackingClassNames(`Click ${title} Filter`),
+            buildTrackingClassNames(`Click ${columnId} Filter`),
             className,
           )}
-          data-testid={`filter-${title}`}
+          data-testid={`filter-${columnId}`}
         >
           <RxPlusCircled className="mr-2 h-4 w-4" />
 
-          {title}
+          {t_title}
 
           {selectedValues?.size > 0 ? (
             <>
@@ -136,7 +137,7 @@ export function DataTableFacetedFilter<TData, TValue>({
           selectedValues={selectedValues}
           column={column}
           isSearchable={isSearchable}
-          title={title}
+          t_title={t_title}
           isSingleSelect={isSingleSelect}
           variant={variant}
         />
@@ -156,7 +157,7 @@ function FacetedFilterContent<TData, TValue>({
   isSingleSelect,
   column,
   isSearchable,
-  title,
+  t_title,
   selectedValues,
   variant = 'base',
 }: FacetedFilterContentProps<TData, TValue>) {
@@ -187,7 +188,7 @@ function FacetedFilterContent<TData, TValue>({
           : '',
       )}
     >
-      {isSearchable && variant !== 'drawer' ? <BaseCommandInput placeholder={title} /> : null}
+      {isSearchable && variant !== 'drawer' ? <BaseCommandInput placeholder={t_title} /> : null}
 
       <BaseCommandList>
         <BaseCommandEmpty>

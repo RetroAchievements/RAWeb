@@ -16,6 +16,11 @@ module.exports = {
     './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
   ],
 
+  blocklist: [
+    /** This causes localization issues. */
+    'capitalize',
+  ],
+
   corePlugins: {
     // turn off preflight (reset/normalize)
     // https://tailwindcss.com/docs/preflight#disabling-preflight
