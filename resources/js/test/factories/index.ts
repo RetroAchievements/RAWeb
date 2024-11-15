@@ -1,6 +1,7 @@
 export * from './createAchievement';
 export * from './createAchievementSetClaim';
 export * from './createComment';
+export * from './createEmulator';
 export * from './createForumTopicComment';
 export * from './createGame';
 export * from './createGameHash';

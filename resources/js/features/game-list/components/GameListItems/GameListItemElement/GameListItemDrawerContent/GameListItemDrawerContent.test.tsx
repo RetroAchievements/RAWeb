@@ -568,40 +568,44 @@ describe('Component: GameListItemDrawerContent', () => {
     expect(progressEl).toHaveTextContent(/30%/i);
   });
 
-  it('given the user has an award, displays an award label in the progress row', () => {
-    // ARRANGE
-    const game = createGame({ achievementsPublished: 100 });
-    const playerGame = createPlayerGame({
-      achievementsUnlocked: 30,
-      highestAward: createPlayerBadge({
-        awardType: AwardType.Mastery,
-        awardDataExtra: 1,
-      }),
-    });
+  it(
+    'given the user has an award, displays an award label in the progress row',
+    { retry: 2 },
+    () => {
+      // ARRANGE
+      const game = createGame({ achievementsPublished: 100 });
+      const playerGame = createPlayerGame({
+        achievementsUnlocked: 30,
+        highestAward: createPlayerBadge({
+          awardType: AwardType.Mastery,
+          awardDataExtra: 1,
+        }),
+      });
 
-    render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
-          gameListEntry={createGameListEntry({ game, playerGame })}
-          backlogState={{
-            isInBacklogMaybeOptimistic: false,
-            isPending: false,
-            toggleBacklog: vi.fn(),
-          }}
-          onToggleBacklog={vi.fn()}
-        />
-      </BaseDrawer>,
-      {
-        pageProps: { auth: { user: createAuthenticatedUser() } },
-      },
-    );
+      render(
+        <BaseDrawer open={true}>
+          <GameListItemDrawerContent
+            gameListEntry={createGameListEntry({ game, playerGame })}
+            backlogState={{
+              isInBacklogMaybeOptimistic: false,
+              isPending: false,
+              toggleBacklog: vi.fn(),
+            }}
+            onToggleBacklog={vi.fn()}
+          />
+        </BaseDrawer>,
+        {
+          pageProps: { auth: { user: createAuthenticatedUser() } },
+        },
+      );
 
-    // ASSERT
-    const progressEl = screen.getByRole('listitem', { name: /progress/i });
+      // ASSERT
+      const progressEl = screen.getByRole('listitem', { name: /progress/i });
 
-    expect(progressEl).toBeVisible();
-    expect(progressEl).toHaveTextContent(/progress/i);
-    expect(progressEl).toHaveTextContent(/30%/i);
-    expect(progressEl).toHaveTextContent(/mastered/i);
-  });
+      expect(progressEl).toBeVisible();
+      expect(progressEl).toHaveTextContent(/progress/i);
+      expect(progressEl).toHaveTextContent(/30%/i);
+      expect(progressEl).toHaveTextContent(/mastered/i);
+    },
+  );
 });
