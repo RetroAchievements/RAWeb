@@ -402,7 +402,7 @@
     "{{earned, number}} of {{total, number}} points earned": "{{earned, number}} из {{total, number}} очков заработано",
     "{{earned, number}} of {{total, number}} softcore achievements unlocked": "{{earned, number}} из {{total, number}} софткор достижений заработано",
     "{{earned, number}} of {{total, number}} softcore points earned": "{{earned, number}} из {{total, number}} софткор очков заработано",
-    "{{gameTitle}} ({{consoleName}}) ({{numAwarded, number}} / {{numPossible, number}} won)": "{{gameTitle}} ({{consoleName}}) ({{numAwarded, number}} / {{numPossible, number}} won)",
+    "{{gameTitle}} ({{consoleName}}) ({{numAwarded, number}} / {{numPossible, number}} won)": "{{gameTitle}} ({{consoleName}}) ({{numAwarded, number}} / {{numPossible, number}} заработано)",
     "{{user}} doesn't have any forum posts.": "У {{user}} нету не одного поста на форуме.",
     "{{user}}'s Forum Posts": "{{user}}'s посты на форуме",
     "{{val, number}} Games_one": "{{val, number}} игры",
