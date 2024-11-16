@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Community\Actions;
 
-use App\Community\Actions\BuildAllActivePlayersAction;
+use App\Community\Actions\BuildActivePlayersAction;
 use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\System;
@@ -12,14 +12,14 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class BuildAllActivePlayersActionTest extends TestCase
+class BuildActivePlayersActionTest extends TestCase
 {
     use RefreshDatabase;
 
     public function testItReturnsEmptyDataWhenNoActivePlayers(): void
     {
         // Act
-        $result = (new BuildAllActivePlayersAction())->execute();
+        $result = (new BuildActivePlayersAction())->execute();
 
         // Assert
         $this->assertEquals(0, $result->total);
@@ -40,7 +40,7 @@ class BuildAllActivePlayersActionTest extends TestCase
         ]);
 
         // Act
-        $result = (new BuildAllActivePlayersAction())->execute(perPage: 2, page: 1);
+        $result = (new BuildActivePlayersAction())->execute(perPage: 2, page: 1);
 
         // Assert
         $this->assertEquals(5, $result->total);
@@ -68,7 +68,7 @@ class BuildAllActivePlayersActionTest extends TestCase
         ]);
 
         // Act
-        $result = (new BuildAllActivePlayersAction())->execute(gameIds: [$game1->id]);
+        $result = (new BuildActivePlayersAction())->execute(gameIds: [$game1->id]);
 
         // Assert
         $this->assertEquals(5, $result->total);
@@ -99,7 +99,7 @@ class BuildAllActivePlayersActionTest extends TestCase
         ]);
 
         // Act
-        $result = (new BuildAllActivePlayersAction())->execute(search: 'testuser');
+        $result = (new BuildActivePlayersAction())->execute(search: 'testuser');
 
         // Assert
         $this->assertEquals(1, $result->total);
@@ -128,7 +128,7 @@ class BuildAllActivePlayersActionTest extends TestCase
         ]);
 
         // Act
-        $result = (new BuildAllActivePlayersAction())->execute(search: 'developing');
+        $result = (new BuildActivePlayersAction())->execute(search: 'developing');
 
         // Assert
         $this->assertEquals(1, $result->total);
@@ -157,7 +157,7 @@ class BuildAllActivePlayersActionTest extends TestCase
         ]);
 
         // Act
-        $result = (new BuildAllActivePlayersAction())->execute(search: 'zelda');
+        $result = (new BuildActivePlayersAction())->execute(search: 'zelda');
 
         // Assert
         $this->assertEquals(1, $result->total);
@@ -191,7 +191,7 @@ class BuildAllActivePlayersActionTest extends TestCase
         ]);
 
         // Act
-        $result = (new BuildAllActivePlayersAction())->execute(search: 'developing || fixing');
+        $result = (new BuildActivePlayersAction())->execute(search: 'developing || fixing');
 
         // Assert
         $this->assertEquals(2, $result->total);
@@ -215,7 +215,7 @@ class BuildAllActivePlayersActionTest extends TestCase
         ]);
 
         // Act
-        $result = (new BuildAllActivePlayersAction())->execute();
+        $result = (new BuildActivePlayersAction())->execute();
 
         // Assert
         $this->assertEquals(1, $result->total);
@@ -253,7 +253,7 @@ class BuildAllActivePlayersActionTest extends TestCase
         ]);
 
         // Act
-        $result = (new BuildAllActivePlayersAction())->execute();
+        $result = (new BuildActivePlayersAction())->execute();
 
         // Assert
         $this->assertEquals(3, $result->total);

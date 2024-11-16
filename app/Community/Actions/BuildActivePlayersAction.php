@@ -12,7 +12,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-class BuildAllActivePlayersAction
+class BuildActivePlayersAction
 {
     public function execute(
         int $perPage = 300,
