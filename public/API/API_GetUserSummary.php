@@ -85,8 +85,8 @@
  *  int        ContribYield            points awarded to others
  */
 
-use App\Support\Rules\CtypeAlnum;
 use App\Models\User;
+use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
