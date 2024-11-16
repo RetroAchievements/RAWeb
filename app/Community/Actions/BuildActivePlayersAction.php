@@ -169,7 +169,7 @@ class BuildActivePlayersAction
                 return null;
             }
 
-            return ActivePlayerData::fromHydratedTuple($user, $game);
+            return ActivePlayerData::fromHydratedCachedValue($user, $game);
         })->filter();
     }
 }

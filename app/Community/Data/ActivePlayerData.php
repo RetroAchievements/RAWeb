@@ -20,7 +20,7 @@ class ActivePlayerData extends Data
     ) {
     }
 
-    public static function fromHydratedTuple(User $user, Game $game): self
+    public static function fromHydratedCachedValue(User $user, Game $game): self
     {
         return new self(
             user: UserData::fromUser($user)->include('richPresenceMsg'),
