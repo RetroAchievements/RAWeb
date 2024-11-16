@@ -48,12 +48,13 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
                 i18nKey="in <1>{{forumTopicTitle}}</1>"
                 values={{ forumTopicTitle: topic.title }}
                 components={{
-                  1: <TopicLink topic={topic} />,
+                  1: (
+                    <a
+                      href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment?.id}#${topic.latestComment?.id}`}
+                    />
+                  ),
                 }}
-              >
-                {'in '}
-                <TopicLink topic={topic} />
-              </Trans>
+              />
             </p>
 
             <p className="line-clamp-3 text-xs">{topic.latestComment?.body}</p>
@@ -61,19 +62,5 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
         </div>
       ))}
     </div>
-  );
-};
-
-interface TopicLinkProps {
-  topic: App.Data.ForumTopic;
-}
-
-const TopicLink: FC<TopicLinkProps> = ({ topic }) => {
-  return (
-    <a
-      href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment?.id}#${topic.latestComment?.id}`}
-    >
-      {topic.title}
-    </a>
   );
 };

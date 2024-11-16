@@ -5,6 +5,7 @@ import { Slot } from '@radix-ui/react-slot';
 import * as React from 'react';
 import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
 import { Controller, FormProvider, useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/utils/cn';
 
@@ -89,7 +90,7 @@ const BaseFormLabel = React.forwardRef<
   return (
     <BaseLabel
       ref={ref}
-      className={cn(error ? 'text-red-500 dark:text-red-900' : 'text-menu-link', className)}
+      className={cn(error ? 'text-red-500' : 'text-menu-link', className)}
       htmlFor={formItemId}
       {...props}
     />
@@ -122,12 +123,7 @@ const BaseFormDescription = React.forwardRef<
   const { formDescriptionId } = useBaseFormField();
 
   return (
-    <p
-      ref={ref}
-      id={formDescriptionId}
-      className={cn('text-neutral-500 dark:text-neutral-400', className)}
-      {...props}
-    />
+    <p ref={ref} id={formDescriptionId} className={cn('text-neutral-500', className)} {...props} />
   );
 });
 BaseFormDescription.displayName = 'BaseFormDescription';
@@ -136,6 +132,7 @@ const BaseFormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
+  const { t } = useTranslation();
   const { error, formMessageId } = useBaseFormField();
   const body = error ? String(error?.message) : children;
 
@@ -147,10 +144,10 @@ const BaseFormMessage = React.forwardRef<
     <p
       ref={ref}
       id={formMessageId}
-      className={cn('text-sm font-medium text-red-500 dark:text-red-900', className)}
+      className={cn('text-sm font-medium text-red-500', className)}
       {...props}
     >
-      {body}
+      {children ?? t(body as string)}
     </p>
   );
 });

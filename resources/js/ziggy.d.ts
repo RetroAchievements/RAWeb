@@ -28,13 +28,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "achievement.create-ticket": [
-        {
-            "name": "achievement",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "redirect": [],
     "developer.tickets": [
         {
@@ -243,6 +236,7 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "api.ticket.store": [],
     "game-hash.update": [
         {
             "name": "gameHash",
@@ -266,6 +260,13 @@ declare module 'ziggy-js' {
         }
     ],
     "achievement.report-issue.index": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "achievement.tickets.create": [
         {
             "name": "achievement",
             "required": true,
