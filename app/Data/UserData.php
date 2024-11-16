@@ -19,62 +19,51 @@ class UserData extends Data
     public function __construct(
         public string $displayName,
         public string $avatarUrl,
-        public bool $isMuted,
 
-        public Lazy|Carbon|null $mutedUntil,
-        public Lazy|int $id,
-        public Lazy|string|null $username,
-        public Lazy|int|null $legacyPermissions,
-        public Lazy|string|null $locale,
-        public Lazy|string $motto,
-        public Lazy|int $points,
-        public Lazy|int $pointsSoftcore,
+        public Lazy|string|null $apiKey = null,
+        public Lazy|string|null $deleteRequested = null,
+        public Lazy|Carbon|null $deletedAt = null,
+        public Lazy|string|null $emailAddress = null,
+        public Lazy|int $id = 0,
+        public Lazy|bool $isMuted = false,
+        public Lazy|int|null $legacyPermissions = null,
+        public Lazy|string|null $locale = null,
+        public Lazy|string $motto = '',
+        public Lazy|Carbon|null $mutedUntil = null,
+        public Lazy|int $points = 0,
+        public Lazy|int $pointsSoftcore = 0,
+        public Lazy|string|null $richPresenceMsg = null,
+        public Lazy|int|null $unreadMessageCount = null,
+        public Lazy|string|null $username = null,
+        public Lazy|bool|null $userWallActive = null,
+        public Lazy|string|null $visibleRole = null,
+        public Lazy|int|null $websitePrefs = null,
 
-        #[TypeScriptType([
-            'prefersAbsoluteDates' => 'boolean',
-        ])]
-        public Lazy|array|null $preferences,
-
+        #[TypeScriptType(['prefersAbsoluteDates' => 'boolean'])]
+        public Lazy|array|null $preferences = [],
         #[LiteralTypeScriptType('App.Models.UserRole[]')]
-        public Lazy|array|null $roles,
-
-        public Lazy|string|null $apiKey,
-        public Lazy|string|null $deleteRequested,
-        public Lazy|Carbon|null $deletedAt,
-        public Lazy|string|null $emailAddress,
-        public Lazy|int|null $unreadMessageCount,
-        public Lazy|bool|null $userWallActive,
-        public Lazy|string|null $visibleRole,
-        public Lazy|int|null $websitePrefs,
+        public Lazy|array|null $roles = [],
     ) {
     }
 
-    // TODO remove this
+    /**
+     * @see ActivePlayersService.php
+     */
+    public static function fromActivePlayers(array $activePlayerRecord): self
+    {
+        return new self(
+            displayName: $activePlayerRecord['display_name'] ?? $activePlayerRecord['User'],
+            avatarUrl: media_asset('UserPic/' . $activePlayerRecord['User'] . '.png'),
+        );
+    }
+
     public static function fromRecentForumTopic(array $topic): self
     {
         return new self(
             displayName: $topic['AuthorDisplayName'] ?? $topic['Author'],
             avatarUrl: media_asset('UserPic/' . $topic['Author'] . '.png'),
-            isMuted: false,
-            mutedUntil: null,
             id: Lazy::create(fn () => (int) $topic['author_id']),
             username: Lazy::create(fn () => $topic['Author']),
-
-            apiKey: null,
-            deletedAt: null,
-            deleteRequested: null,
-            emailAddress: null,
-            legacyPermissions: null,
-            locale: null,
-            motto: '',
-            points: 0,
-            pointsSoftcore: 0,
-            preferences: null,
-            roles: null,
-            unreadMessageCount: null,
-            userWallActive: null,
-            visibleRole: null,
-            websitePrefs: null,
         );
     }
 
@@ -105,6 +94,7 @@ class UserData extends Data
             ),
             points: Lazy::create(fn () => $user->points),
             pointsSoftcore: Lazy::create(fn () => $user->points_softcore),
+            richPresenceMsg: Lazy::create(fn () => $user->RichPresenceMsg),
             roles: Lazy::create(fn () => $user->getRoleNames()->toArray()),
             unreadMessageCount: Lazy::create(fn () => $user->UnreadMessageCount),
             username: Lazy::create(fn () => $user->username),
