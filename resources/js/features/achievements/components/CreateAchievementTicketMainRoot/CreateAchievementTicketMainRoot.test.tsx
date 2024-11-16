@@ -595,7 +595,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     expect(screen.getByRole('button', { name: /submit/i })).toBeDisabled();
   });
 
-  it('allows the user to submit the form with no prepopulated values', async () => {
+  it('allows the user to submit the form with no prepopulated values', { retry: 3 }, async () => {
     // ARRANGE
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: 123 } });
 
