@@ -5,6 +5,7 @@ namespace App\Community\Concerns;
 use App\Community\Enums\ArticleType;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\Leaderboard;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +15,7 @@ use Inertia\Response as InertiaResponse;
 trait IndexesComments
 {
     protected function handleCommentIndex(
-        User|Game|Achievement $commentable,
+        User|Game|Achievement|Leaderboard $commentable,
         string $policy,
         string $routeName,
         string $routeParam,
@@ -52,6 +53,7 @@ trait IndexesComments
                 $commentable instanceof User => ArticleType::User,
                 $commentable instanceof Game => ArticleType::Game,
                 $commentable instanceof Achievement => ArticleType::Achievement,
+                $commentable instanceof Leaderboard => ArticleType::Leaderboard,
             };
             $isSubscribed = isUserSubscribedToArticleComments($articleType, $commentable->id, $user->id);
         }

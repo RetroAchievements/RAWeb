@@ -1,5 +1,17 @@
 /* eslint-disable */
 /* generated with `composer types` */
+export const UnlockMode = {
+    Softcore: 0,
+    Hardcore: 1,
+} as const;
+
+
+export const StringifiedUnlockMode = {
+    Softcore: '0',
+    Hardcore: '1',
+} as const;
+
+
 export const UserPreference = {
     EmailOn_ActivityComment: 0,
     EmailOn_AchievementComment: 1,
@@ -70,6 +82,34 @@ export const UserRole = {
     TEAM_ACCOUNT: 'team-account',
     BETA: 'beta',
     DEVELOPER_VETERAN: 'developer-veteran',
+} as const;
+
+
+export const ClaimStatus = {
+    Active: 0,
+    Complete: 1,
+    Dropped: 2,
+    InReview: 3,
+} as const;
+
+
+export const StringifiedClaimStatus = {
+    Active: '0',
+    Complete: '1',
+    Dropped: '2',
+    InReview: '3',
+} as const;
+
+
+export const ClaimType = {
+    Primary: 0,
+    Collaboration: 1,
+} as const;
+
+
+export const StringifiedClaimType = {
+    Primary: '0',
+    Collaboration: '1',
 } as const;
 
 
@@ -149,5 +189,17 @@ export const UserGameListType = {
     AchievementSetRequest: 'achievement_set_request',
     Play: 'play',
     Develop: 'develop',
+} as const;
+
+
+export const ClaimSetType = {
+    NewSet: 0,
+    Revision: 1,
+} as const;
+
+
+export const StringifiedClaimSetType = {
+    NewSet: '0',
+    Revision: '1',
 } as const;
 

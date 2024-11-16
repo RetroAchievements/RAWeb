@@ -1,5 +1,5 @@
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import type { FC } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 
 import {
   BaseFormControl,
@@ -23,7 +23,7 @@ import { useLocaleSectionForm } from './useLocaleSectionForm';
 export const LocaleSectionCard: FC = () => {
   const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const { form, mutation, onSubmit } = useLocaleSectionForm({
     locale: auth?.user.locale?.length ? auth.user.locale : 'en_US',
@@ -56,19 +56,24 @@ export const LocaleSectionCard: FC = () => {
                     <BaseSelectContent>
                       {/* These labels should not be localized. */}
                       <BaseSelectItem value="en_US">{'English (US)'}</BaseSelectItem>
+                      <BaseSelectItem value="en_GB">{'English (UK)'}</BaseSelectItem>
+                      <BaseSelectItem value="es_ES">{'Español (España)'}</BaseSelectItem>
+                      <BaseSelectItem value="fr_FR">{'Français (France)'}</BaseSelectItem>
+                      <BaseSelectItem value="pl_PL">{'Polski (Polska)'}</BaseSelectItem>
                       <BaseSelectItem value="pt_BR">{'Português (Brasil)'}</BaseSelectItem>
                     </BaseSelectContent>
                   </BaseSelect>
                 </BaseFormControl>
 
                 <BaseFormDescription>
-                  {t(
-                    "Most of the website is still untranslated. If you'd like to help with translations, you can learn more about how to contribute",
-                  )}{' '}
-                  <a href="https://github.com/RetroAchievements/RAWeb/blob/master/docs/TRANSLATIONS.md">
-                    {t('here')}
-                  </a>
-                  {t('.')}
+                  <Trans
+                    i18nKey="Most of the website is still untranslated. If you'd like to help with translations, you can learn more about how to contribute <1>here</1>."
+                    components={{
+                      1: (
+                        <a href="https://github.com/RetroAchievements/RAWeb/blob/master/docs/TRANSLATIONS.md" />
+                      ),
+                    }}
+                  />
                 </BaseFormDescription>
               </div>
             </BaseFormItem>

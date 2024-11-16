@@ -110,7 +110,7 @@ class ForumTopicController extends Controller
 
         $paginatedTopics = $buildAggregateRecentPostsData->execute(
             permissions: $permissions,
-            page: (int) $request->input('page.number', 1),
+            page: (int) $request->input('page', 1),
             limit: 25,
             paginationPath: $request->url(),
             paginationQuery: $request->query(),

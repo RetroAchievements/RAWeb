@@ -1,6 +1,6 @@
 import type { Table } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuX } from 'react-icons/lu';
 import { useDebounce } from 'react-use';
 
@@ -10,6 +10,7 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/utils/cn';
 
 import { useSearchInputHotkey } from './useSearchInputHotkey';
@@ -36,7 +37,11 @@ export function DataTableSearchInput<TData>({
   hasHotkey = true,
   searchColumnId = 'title',
 }: DataTableSearchInputProps<TData>) {
-  const { t } = useLaravelReactI18n();
+  const {
+    ziggy: { device },
+  } = usePageProps();
+
+  const { t } = useTranslation();
 
   const initialValue = (table.getColumn(searchColumnId)?.getFilterValue() as string) ?? '';
 
@@ -70,12 +75,7 @@ export function DataTableSearchInput<TData>({
         return;
       }
 
-      const currentFilterValue = (table.getColumn('title')?.getFilterValue() as string) ?? '';
-
-      // Only update the filter if the value has changed.
-      if (rawInputValue !== currentFilterValue) {
-        table.getColumn('title')?.setFilterValue(rawInputValue);
-      }
+      table.getColumn('title')?.setFilterValue(rawInputValue);
     },
     getDebounceDuration(rawInputValue),
     [rawInputValue],
@@ -99,7 +99,10 @@ export function DataTableSearchInput<TData>({
           placeholder={t('Search games...')}
           value={rawInputValue}
           onChange={(event) => setRawInputValue(event.target.value)}
-          className="peer h-8 sm:w-[150px] lg:w-[250px]"
+          className={cn(
+            'peer h-8 sm:w-[150px] lg:w-[250px]',
+            device === 'mobile' ? 'text-[16px]' : '',
+          )}
           aria-describedby="search-shortcut"
         />
 

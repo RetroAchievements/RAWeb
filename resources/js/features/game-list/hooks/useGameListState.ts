@@ -93,8 +93,6 @@ function mapQueryParamsToSorting(query: AppGlobalProps['ziggy']['query']): Sorti
     } else {
       sorting.push({ id: sortValue, desc: false });
     }
-  } else {
-    // TODO do we ever land in here..?
   }
 
   return sorting;

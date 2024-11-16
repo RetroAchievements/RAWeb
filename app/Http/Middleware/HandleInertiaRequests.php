@@ -46,6 +46,8 @@ class HandleInertiaRequests extends Middleware
                     'id',
                     'legacyPermissions',
                     'locale',
+                    'points',
+                    'pointsSoftcore',
                     'mutedUntil',
                     'preferences',
                     'roles',
@@ -54,6 +56,12 @@ class HandleInertiaRequests extends Middleware
                     'websitePrefs',
                 ),
             ] : null,
+
+            'config' => [
+                'services' => [
+                    'patreon' => ['userId' => config('services.patreon.user_id')],
+                ],
+            ],
 
             'ziggy' => fn () => [
                 ...(new Ziggy())->toArray(),

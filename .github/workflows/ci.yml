@@ -1,14 +1,23 @@
+name: CI
+
 on: [pull_request]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  pint:
+  php-setup:
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: true
-    name: pint
+    name: PHP Setup
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.value }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -16,59 +25,126 @@ jobs:
           extensions: mbstring, :psr
           tools: composer:v2
           coverage: none
-      - name: Install
-        run: composer install
-      - name: Lint
-        run: composer lint
 
-  phpstan:
+      - name: Generate a cache key
+        id: cache-key
+        run: echo "value=${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}" >> $GITHUB_OUTPUT
+
+      - name: Cache composer packages
+        id: composer-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: ${{ steps.cache-key.outputs.value }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+            
+      - name: Install
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --prefer-dist
+
+  node-setup:
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: true
-    name: phpstan
+    name: Node.js Setup
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.value }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Generate cache key
+        id: cache-key
+        run: echo "value=${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
+
+      - name: Install
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Cache node_modules
+        id: node-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            .pnpm-store
+          key: ${{ steps.cache-key.outputs.value }}
+
+  php-checks:
+    needs: php-setup
+    runs-on: ubuntu-22.04
+    name: PHP Checks
+    strategy:
+      matrix:
+        check: ['lint', 'analyse', 'test']
+        include:
+          - check: lint
+            command: composer lint
+          - check: analyse
+            command: composer analyse -- --memory-limit=1G
+          - check: test
+            command: composer paratest -- --processes=$(nproc)
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.2
           extensions: mbstring, :psr
-          tools: composer:v2
           coverage: none
-      - name: Install
-        run: composer install
-      - name: Analyse
-        run: composer analyse
-
-  phpunit:
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: true
-    name: phpunit
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+          ini-values: memory_limit=1G
+      - name: Load composer packages
+        uses: actions/cache@v4
         with:
-          php-version: 8.2
-          extensions: mbstring, :psr
-          tools: composer:v2
-          coverage: none
-      - name: Install
-        run: composer install
-      - name: Test
-        run: composer paratest
+          path: |
+            ~/.composer/cache
+            vendor
+          key: ${{ needs.php-setup.outputs.cache-key }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+      - name: Run ${{ matrix.check }}
+        run: ${{ matrix.command }}
 
-  tsc:
+  node-checks:
+    needs: node-setup
     runs-on: ubuntu-22.04
+    name: Node.js Checks
     strategy:
-      fail-fast: true
-    name: tsc
+      matrix:
+        check: ['tsc', 'lint', 'test']
+        include:
+          - check: tsc
+            command: pnpm tsc
+          - check: lint
+            command: pnpm lint
+          - check: test
+            command: pnpm test
+            env:
+              VITE_BUILD_PATH: dist
+              APP_URL: https://raweb.test
+              LARAVEL_BYPASS_ENV_CHECK: 1
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -78,55 +154,13 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-      - name: Install
-        run: pnpm i
-      - name: Type check
-        run: pnpm tsc
-
-  eslint:
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: true
-    name: eslint
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - name: Restore node_modules
+        uses: actions/cache@v4
         with:
-          version: 9
-      - name: Use Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-      - name: Install
-        run: pnpm i
-      - name: Lint
-        run: pnpm lint
-
-  vitest:
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: true
-    name: vitest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - name: Use Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-      - name: Install
-        run: pnpm i
-      - name: Test
-        run: pnpm test
-        env:
-          VITE_BUILD_PATH: dist
-          APP_URL: https://raweb.test
-          LARAVEL_BYPASS_ENV_CHECK: 1
+          path: |
+            node_modules
+            .pnpm-store
+          key: ${{ needs.node-setup.outputs.cache-key }}
+      - name: Run ${{ matrix.check }}
+        run: ${{ matrix.command }}
+        env: ${{ matrix.env || fromJSON('{}') }}

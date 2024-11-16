@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { UserHeading } from '@/common/components/UserHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -16,7 +16,7 @@ export const WantToPlayGamesMainRoot: FC = () => {
   const { auth, paginatedGameListEntries } =
     usePageProps<App.Community.Data.UserGameListPageProps>();
 
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   const {
     columnFilters,

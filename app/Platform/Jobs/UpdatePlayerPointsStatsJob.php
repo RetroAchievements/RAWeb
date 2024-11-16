@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Jobs;
 
 use App\Models\User;
-use App\Platform\Actions\UpdatePlayerPointsStats;
+use App\Platform\Actions\UpdatePlayerPointsStatsAction;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -62,7 +62,7 @@ class UpdatePlayerPointsStatsJob implements ShouldQueue, ShouldBeUniqueUntilProc
             Carbon::setTestNow(Carbon::parse($this->mockCurrentDate));
         }
 
-        app()->make(UpdatePlayerPointsStats::class)
+        app()->make(UpdatePlayerPointsStatsAction::class)
             ->execute($user);
     }
 }

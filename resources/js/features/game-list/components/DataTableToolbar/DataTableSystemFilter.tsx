@@ -1,5 +1,5 @@
 import type { Table } from '@tanstack/react-table';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { useTranslation } from 'react-i18next';
 
 import { DataTableFacetedFilter } from '../DataTableFacetedFilter';
 
@@ -11,17 +11,17 @@ interface DataTableSystemFilterProps<TData> {
 }
 
 export function DataTableSystemFilter<TData>({
-  filterableSystemOptions,
   table,
   variant,
+  filterableSystemOptions = [],
 }: DataTableSystemFilterProps<TData>) {
-  const { t } = useLaravelReactI18n();
+  const { t } = useTranslation();
 
   return (
     <DataTableFacetedFilter
       className="w-full sm:w-auto"
       column={table.getColumn('system')}
-      title={t('System')}
+      t_title={t('System')}
       variant={variant}
       options={filterableSystemOptions
         .sort((a, b) => a.name.localeCompare(b.name))
