@@ -9,6 +9,7 @@ use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\PlayerAchievement;
 use App\Models\User;
+use App\Platform\Actions\BuildConnectPatchDataAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerSessionHeartbeat;
@@ -501,7 +502,18 @@ switch ($requestType) {
 
     case "patch":
         $flag = (int) request()->input('f', 0);
-        $response = GetPatchData($gameID, $user, $flag);
+        $gameHashMd5 = request()->input('m');
+
+        try {
+            $response = (new BuildConnectPatchDataAction())->execute(
+                gameHash: $gameHashMd5 ? GameHash::whereMd5($gameHashMd5)->first() : null,
+                game: $gameHashMd5 ? null : Game::find($gameID),
+                user: $user,
+                flag: AchievementFlag::tryFrom($flag),
+            );
+        } catch (InvalidArgumentException $e) {
+            return DoRequestError('Unknown game', 404, 'not_found');
+        }
         break;
 
     case "postactivity":
