@@ -85,7 +85,6 @@
  *  int        ContribYield            points awarded to others
  */
 
-use App\Models\User;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -100,31 +99,21 @@ $user = request()->query('u');
 $recentGamesPlayed = (int) request()->query('g', '0');
 $recentAchievementsEarned = (int) request()->query('a', '10');
 
-// Get canonical username from db
-$canonicalUser = User::byDisplayName($user)->value('User');
-if (!$canonicalUser) {
+// Cap `$recentGamesPlayed` to a maximum of 100.
+if ($recentGamesPlayed > 100) {
+    $recentGamesPlayed = 100;
+}
+
+$retVal = getUserPageInfo($user, $recentGamesPlayed, $recentAchievementsEarned);
+
+if (empty($retVal)) {
     return response()->json([
         'ID' => null,
         'User' => $user,
     ], 404);
 }
 
-// Cap `$recentGamesPlayed` to a maximum of 100.
-if ($recentGamesPlayed > 100) {
-    $recentGamesPlayed = 100;
-}
-
-$retVal = getUserPageInfo($canonicalUser, $recentGamesPlayed, $recentAchievementsEarned);
-
-if (empty($retVal)) {
-    return response()->json([
-        'ID' => null,
-        'User' => $canonicalUser,
-    ], 404);
-}
-
-// Use the canonical username for UserPic path
-$retVal['UserPic'] = "/UserPic/" . $canonicalUser . ".png";
+$retVal['UserPic'] = "/UserPic/" . $retVal['User'] . ".png";
 $retVal['TotalRanked'] = countRankedUsers();
 
 // assume caller doesn't care about the rich presence script for the last game played
@@ -142,7 +131,7 @@ $retVal['LastActivity'] = [
     'timestamp' => null,
     'lastupdate' => null,
     'activitytype' => null,
-    'User' => $canonicalUser,
+    'User' => $retVal['User'],
     'data' => null,
     'data2' => null,
 ];

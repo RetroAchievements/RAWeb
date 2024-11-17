@@ -480,29 +480,25 @@ class UserSummaryTest extends TestCase
             ->assertJsonCount(1, "RecentAchievements.{$game2->ID}");
     }
 
-    public function testUsernameCaseSensitivityHandling(): void
+    public function testUsernameCaseConsistency(): void
     {
         $user = User::factory()->create([
             'User' => 'NicoPlaysThings',
-            'UserWallActive' => true,
         ]);
 
-        // Test with lowercase username
-        $response = $this->get($this->apiUrl('GetUserSummary', ['u' => 'nicoplaysthings']));
-        $response->assertOk()
-            ->assertJsonPath('UserPic', '/UserPic/NicoPlaysThings.png')
-            ->assertJsonPath('LastActivity.User', 'NicoPlaysThings');
+        $variations = [
+            'NICOPLAYSTHINGS',
+            'nicoplaysthings',
+            'NicoPlaysThings',
+        ];
 
-        // Test with uppercase username
-        $response = $this->get($this->apiUrl('GetUserSummary', ['u' => 'NICOPLAYSTHINGS']));
-        $response->assertOk()
-            ->assertJsonPath('UserPic', '/UserPic/NicoPlaysThings.png')
-            ->assertJsonPath('LastActivity.User', 'NicoPlaysThings');
+        foreach ($variations as $input) {
+            $response = $this->get($this->apiUrl('GetUserSummary', ['u' => $input]));
 
-        // Test with mixed case but different from database
-        $response = $this->get($this->apiUrl('GetUserSummary', ['u' => 'NicoPLAYSthings']));
-        $response->assertOk()
-            ->assertJsonPath('UserPic', '/UserPic/NicoPlaysThings.png')
-            ->assertJsonPath('LastActivity.User', 'NicoPlaysThings');
+            $response->assertOk()
+                    ->assertJsonPath('User', 'NicoPlaysThings')
+                    ->assertJsonPath('LastActivity.User', 'NicoPlaysThings')
+                    ->assertJsonPath('UserPic', '/UserPic/NicoPlaysThings.png');
+        }
     }
 }
