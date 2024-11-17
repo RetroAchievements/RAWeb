@@ -21,13 +21,12 @@ class LoadThinActivePlayersListAction
      *   game_title: string,
      * }>
      */
-    public function execute(): array
-    {
-        return Cache::flexible('all-active-players', [20, 60], function () {
-            $recentMinutes = 5;
-            $permissionsCutoff = Permissions::Registered;
-
-            $timestampCutoff = Carbon::now()->subMinutes($recentMinutes);
+    public function execute(
+        int $lookbackMinutes = 5,
+        int $minimumPermissions = Permissions::Registered,
+    ): array {
+        return Cache::flexible('all-active-players', [20, 60], function () use ($lookbackMinutes, $minimumPermissions) {
+            $timestampCutoff = Carbon::now()->subMinutes($lookbackMinutes);
 
             $activePlayers = User::select([
                 "ID as user_id",
@@ -39,7 +38,7 @@ class LoadThinActivePlayersListAction
                 ->with(['lastGame'])
                 ->where("RichPresenceMsgDate", ">", $timestampCutoff)
                 ->where("LastGameID", "<>", 0)
-                ->where("Permissions", ">=", $permissionsCutoff)
+                ->where("Permissions", ">=", $minimumPermissions)
                 ->orderBy("Untracked", "asc")
                 ->orderByDesc("RAPoints")
                 ->orderByDesc("RASoftcorePoints")
