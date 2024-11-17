@@ -546,7 +546,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
      */
     public function scopeByDisplayName(Builder $query, string $username): Builder
     {
-        return $query->whereRaw('LOWER(User) = ?', [strtolower($username)]);
+        return $query->where('User', $username);
     }
 
     /**
