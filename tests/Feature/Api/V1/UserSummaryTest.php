@@ -479,26 +479,4 @@ class UserSummaryTest extends TestCase
             ->assertJsonCount(5, "RecentAchievements.{$game->ID}")
             ->assertJsonCount(1, "RecentAchievements.{$game2->ID}");
     }
-
-    // public function testUsernameCaseConsistency(): void
-    // {
-    //     $user = User::factory()->create([
-    //         'User' => 'NicoPlaysThings',
-    //     ]);
-
-    //     $variations = [
-    //         'NICOPLAYSTHINGS',
-    //         'nicoplaysthings',
-    //         'NicoPlaysThings',
-    //     ];
-
-    //     foreach ($variations as $input) {
-    //         $response = $this->get($this->apiUrl('GetUserSummary', ['u' => $input]));
-
-    //         $response->assertOk()
-    //                 ->assertJsonPath('User', 'NicoPlaysThings')
-    //                 ->assertJsonPath('LastActivity.User', 'NicoPlaysThings')
-    //                 ->assertJsonPath('UserPic', '/UserPic/NicoPlaysThings.png');
-    //     }
-    // }
 }
