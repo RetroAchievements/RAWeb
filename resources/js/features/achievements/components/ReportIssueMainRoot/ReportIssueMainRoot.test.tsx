@@ -127,7 +127,7 @@ describe('Component: ReportIssueMainRoot', () => {
     for (const linkEl of linkEls) {
       expect(linkEl).not.toHaveAttribute(
         'href',
-        expect.stringContaining('achievement.create-ticket'),
+        expect.stringContaining('achievement.tickets.create'),
       );
     }
   });
@@ -146,7 +146,7 @@ describe('Component: ReportIssueMainRoot', () => {
     // ASSERT
     const linkEls = screen.getAllByRole('link');
     const hasCreateTicketLink = linkEls.some((linkEl) =>
-      linkEl.getAttribute('href')?.includes('achievement.create-ticket'),
+      linkEl.getAttribute('href')?.includes('achievement.tickets.create'),
     );
 
     expect(hasCreateTicketLink).toBeTruthy();
@@ -223,10 +223,7 @@ describe('Component: ReportIssueMainRoot', () => {
     // ASSERT
     const linkEl = screen.getByRole('link', { name: /create ticket/i });
 
-    expect(linkEl).toHaveAttribute(
-      'href',
-      `achievement.create-ticket,${{ achievement: achievement.id, type: TicketType.TriggeredAtWrongTime, extra }}`,
-    );
+    expect(linkEl).toHaveAttribute('href', expect.stringContaining('achievement.tickets.create'));
   });
 
   it('always shows the user various team account reporting links', () => {

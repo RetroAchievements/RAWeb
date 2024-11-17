@@ -40,8 +40,7 @@ function buildChartData(logEntries: number[]): Array<{ time: string; playersOnli
 
   return logEntries.map((count, index) => {
     const time = startTime.add(index * 30, 'minute');
-    const formattedTime = formatDate(time, 'llll');
 
-    return { time: formattedTime, playersOnline: count };
+    return { time: time.toISOString(), playersOnline: count };
   });
 }

@@ -47,12 +47,16 @@ export const ReportIssueMainRoot: FC = () => {
         >
           <Trans
             i18nKey="The achievement contains an <1>unwelcome concept</1>."
-            components={{ 1: <UnwelcomeConceptLink /> }}
-          >
-            {'The achievement contains an '}
-            <UnwelcomeConceptLink />
-            {'.'}
-          </Trans>
+            components={{
+              1: (
+                <a
+                  href="https://docs.retroachievements.org/guidelines/content/unwelcome-concepts.html"
+                  target="_blank"
+                  className={buildTrackingClassNames('Click Unwelcome Concept Docs Link')}
+                />
+              ),
+            }}
+          />
         </ReportIssueOptionItem>
 
         <ReportIssueOptionItem
@@ -89,13 +93,3 @@ export const ReportIssueMainRoot: FC = () => {
     </div>
   );
 };
-
-const UnwelcomeConceptLink: FC = () => (
-  <a
-    href="https://docs.retroachievements.org/guidelines/content/unwelcome-concepts.html"
-    target="_blank"
-    className={buildTrackingClassNames('Click Unwelcome Concept Docs Link')}
-  >
-    {'unwelcome concept'}
-  </a>
-);
