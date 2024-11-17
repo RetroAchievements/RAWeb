@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Tests\Feature\Community\Actions;
 
 use App\Community\Actions\BuildTrendingGamesAction;
+use App\Community\Data\TrendingGameData;
 use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Data\GameData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -62,11 +62,16 @@ class BuildTrendingGamesActionTest extends TestCase
 
         // Assert
         $this->assertCount(4, $result);
-        $this->assertContainsOnlyInstancesOf(GameData::class, $result);
+        $this->assertContainsOnlyInstancesOf(TrendingGameData::class, $result);
 
-        $this->assertEquals('most_popular', $result[0]->title);
-        $this->assertEquals('second_most_popular', $result[1]->title);
-        $this->assertEquals('third_most_popular', $result[2]->title);
-        $this->assertEquals('fourth_most_popular', $result[3]->title);
+        $this->assertEquals('most_popular', $result[0]->game->title);
+        $this->assertEquals('second_most_popular', $result[1]->game->title);
+        $this->assertEquals('third_most_popular', $result[2]->game->title);
+        $this->assertEquals('fourth_most_popular', $result[3]->game->title);
+
+        $this->assertEquals(4, $result[0]->playerCount);
+        $this->assertEquals(3, $result[1]->playerCount);
+        $this->assertEquals(2, $result[2]->playerCount);
+        $this->assertEquals(1, $result[3]->playerCount);
     }
 }

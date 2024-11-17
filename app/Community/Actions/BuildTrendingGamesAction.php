@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
+use App\Community\Data\TrendingGameData;
 use App\Models\Game;
 use App\Platform\Data\GameData;
 use Illuminate\Support\Collection;
@@ -24,7 +25,7 @@ use Illuminate\Support\Collection;
 class BuildTrendingGamesAction
 {
     /**
-     * @return Collection<int, GameData>
+     * @return Collection<int, TrendingGameData>
      */
     public function execute(): Collection
     {
@@ -42,9 +43,22 @@ class BuildTrendingGamesAction
         // Take the top 4 game IDs.
         $trendingGameIds = array_slice(array_keys($gameCounts), 0, 4);
 
-        // Convert to GameData objects.
-        return Game::whereIn('ID', $trendingGameIds)
+        // Convert to TrendingGameData objects.
+        return Game::with('system')->whereIn('ID', $trendingGameIds)
             ->get()
-            ->map(fn (Game $game) => GameData::from($game));
+            ->map(function (Game $game) use ($gameCounts) {
+                $gameData = GameData::from($game)->include(
+                    'badgeUrl',
+                    'system.iconUrl',
+                    'system.nameShort'
+                );
+
+                return new TrendingGameData(
+                    game: $gameData,
+                    playerCount: $gameCounts[$game->ID] ?? 0
+                );
+            })
+            ->sortByDesc(fn (TrendingGameData $data) => $data->playerCount)
+            ->values();
     }
 }

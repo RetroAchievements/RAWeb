@@ -22,7 +22,7 @@ class LoadThinActivePlayersListAction
      * }>
      */
     public function execute(
-        int $lookbackMinutes = 5,
+        int $lookbackMinutes = 10,
         int $minimumPermissions = Permissions::Registered
     ): array {
         return Cache::flexible(

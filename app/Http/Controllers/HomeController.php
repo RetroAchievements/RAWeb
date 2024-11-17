@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Community\Actions\BuildActivePlayersAction;
 use App\Community\Actions\BuildThinRecentForumPostsDataAction;
+use App\Community\Actions\BuildTrendingGamesAction;
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimStatus;
 use App\Data\StaticDataData;
@@ -29,11 +31,12 @@ class HomeController extends Controller
         BuildMostRecentGameAwardDataAction $buildMostRecentGameAwardData,
         BuildNewsDataAction $buildNewsData,
         BuildCurrentlyOnlineDataAction $buildCurrentlyOnlineData,
+        BuildActivePlayersAction $buildActivePlayers,
+        BuildTrendingGamesAction $buildTrendingGames,
         BuildHomePageClaimsDataAction $buildHomePageClaimsData,
         BuildThinRecentForumPostsDataAction $buildThinRecentForumPostsData,
     ): InertiaResponse {
         $staticData = StaticData::first();
-
         $staticDataData = StaticDataData::fromStaticData($staticData);
 
         $achievementOfTheWeek = $buildAchievementOfTheWeekData->execute($staticData);
@@ -43,6 +46,9 @@ class HomeController extends Controller
         $completedClaims = $buildHomePageClaimsData->execute(ClaimStatus::Complete, 6);
         $newClaims = $buildHomePageClaimsData->execute(ClaimStatus::Active, 5);
         $currentlyOnline = $buildCurrentlyOnlineData->execute();
+
+        $activePlayers = $buildActivePlayers->execute(perPage: 20); // TODO user's search cookie
+        $trendingGames = $buildTrendingGames->execute();
 
         /** @var ?User $user */
         $user = Auth::user();
@@ -60,6 +66,8 @@ class HomeController extends Controller
             completedClaims: $completedClaims,
             currentlyOnline: $currentlyOnline,
             newClaims: $newClaims,
+            activePlayers: $activePlayers,
+            trendingGames: $trendingGames,
             recentForumPosts: $recentForumPosts,
         );
 
