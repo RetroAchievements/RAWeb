@@ -54,6 +54,10 @@
   }
 }
 
+div.phpdebugbar {
+  @apply hidden sm:block;
+}
+
 /** Properly show the red background on barryvdh/laravel-debugbar query timing measurements. **/
 div.phpdebugbar-widgets-sqlqueries div.phpdebugbar-widgets-bg-measure div.phpdebugbar-widgets-value {
   height: 100% !important;

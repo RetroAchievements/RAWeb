@@ -31,32 +31,37 @@ describe('Component: LocaleSectionCard', () => {
     expect(container).toBeTruthy();
   });
 
-  it('correctly sets the initial form values if the user has never previously set their locale', () => {
+  it('correctly sets the initial form values if the user has never previously set their locale', async () => {
     // ARRANGE
     render(<LocaleSectionCard />, {
       pageProps: { auth: { user: createAuthenticatedUser({ locale: '' }) } },
     });
 
-    // ASSERT
+    // ACT
     const comboboxEl = screen.getByRole('combobox', { name: /current locale/i });
+    await userEvent.click(comboboxEl);
 
-    expect(comboboxEl).toBeVisible();
-    expect(screen.getAllByText(/english/i).length).toBeGreaterThanOrEqual(2); // there's an option and a visible label
-    expect(screen.getAllByText(/brasil/i).length).toEqual(1); // there's an option, but it's hidden
+    // ASSERT
+    const enUsOptionEl = screen.getByRole('option', { name: 'English (US)' });
+    expect(enUsOptionEl).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('correctly sets the initial form values if the user has previously set their locale', () => {
+  it('correctly sets the initial form values if the user has previously set their locale', async () => {
     // ARRANGE
     render(<LocaleSectionCard />, {
       pageProps: { auth: { user: createAuthenticatedUser({ locale: 'pt_BR' }) } },
     });
 
-    // ASSERT
+    // ACT
     const comboboxEl = screen.getByRole('combobox', { name: /current locale/i });
+    await userEvent.click(comboboxEl);
 
-    expect(comboboxEl).toBeVisible();
-    expect(screen.getAllByText(/brasil/i).length).toBeGreaterThanOrEqual(2); // there's an option and a visible label
-    expect(screen.getAllByText(/english/i).length).toEqual(1); // there's an option, but it's hidden
+    // ASSERT
+    const ptBrOptionEl = screen.getByRole('option', { name: 'Português (Brasil)' });
+    expect(ptBrOptionEl).toHaveAttribute('aria-selected', 'true');
+
+    const enUsOptionEl = screen.getByRole('option', { name: 'English (US)' });
+    expect(enUsOptionEl).not.toHaveAttribute('aria-selected', 'true');
   });
 
   it('displays an accessible link to the translations documentation', () => {

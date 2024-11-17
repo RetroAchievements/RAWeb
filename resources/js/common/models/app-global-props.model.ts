@@ -7,7 +7,14 @@ import type { ZiggyProps } from './ziggy-props.model';
 
 export type AuthenticatedUser = SetRequired<
   App.Data.User,
-  'id' | 'legacyPermissions' | 'preferences' | 'roles' | 'unreadMessageCount' | 'websitePrefs'
+  | 'id'
+  | 'legacyPermissions'
+  | 'points'
+  | 'pointsSoftcore'
+  | 'preferences'
+  | 'roles'
+  | 'unreadMessageCount'
+  | 'websitePrefs'
 >;
 
 export interface AppGlobalProps extends PageProps {
@@ -29,6 +36,8 @@ export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) 
   isMuted: false,
   mutedUntil: null,
   legacyPermissions: 8447,
+  points: faker.number.int({ min: 0, max: 100000 }),
+  pointsSoftcore: faker.number.int({ min: 0, max: 100000 }),
   preferences: {
     prefersAbsoluteDates: false,
   },

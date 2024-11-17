@@ -6,7 +6,6 @@ import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { Embed } from '@/common/components/Embed/Embed';
 import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
 import { GameHeading } from '@/common/components/GameHeading/GameHeading';
-import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { HashesList } from './HashesList';
@@ -15,8 +14,6 @@ export const HashesMainRoot: FC = () => {
   const { can, game, hashes } = usePageProps<App.Platform.Data.GameHashesPageProps>();
 
   const { t } = useTranslation();
-
-  const { formatNumber } = useFormatNumber();
 
   return (
     <div>
@@ -50,21 +47,20 @@ export const HashesMainRoot: FC = () => {
             {game.forumTopicId ? (
               <Trans
                 i18nKey="Additional information for these hashes may be listed on <1>the game's official forum topic</1>."
-                components={{ 1: <GameForumTopicLink game={game} /> }}
-              >
-                {'Additional information for these hashes may be listed on '}
-                <GameForumTopicLink game={game} />
-                {'.'}
-              </Trans>
+                components={{ 1: <a href={`/viewtopic.php?t=${game.forumTopicId}`} /> }}
+              />
             ) : null}{' '}
             <Trans
               i18nKey="Details on how the hash is generated for each system can be found <1>here</1>."
-              components={{ 1: <GameIdentificationDetailsLink /> }}
-            >
-              {'Details on how the hash is generated for each system can be found '}
-              <GameIdentificationDetailsLink />
-              {'.'}
-            </Trans>
+              components={{
+                1: (
+                  <a
+                    href="https://docs.retroachievements.org/developer-docs/game-identification.html"
+                    target="_blank"
+                  />
+                ),
+              }}
+            />
           </p>
         </Embed>
 
@@ -73,15 +69,9 @@ export const HashesMainRoot: FC = () => {
             <Trans
               i18nKey="supportedGameFilesCountLabel"
               count={hashes.length}
+              components={{ 1: <span className="font-bold" /> }}
               values={{ count: hashes.length }}
-              components={{ 1: <HashesCountSpan hashesCount={hashes.length} /> }}
-            >
-              {hashes.length === 1 ? 'There is currently' : 'There are currently'}{' '}
-              <span className="font-bold">{formatNumber(hashes.length)}</span>{' '}
-              {hashes.length === 1
-                ? 'supported game file hash registered for this game.'
-                : 'supported game file hashes registered for this game.'}
-            </Trans>
+            />
           </p>
 
           <HashesList />
@@ -89,31 +79,4 @@ export const HashesMainRoot: FC = () => {
       </div>
     </div>
   );
-};
-
-interface GameForumTopicLinkProps {
-  game: App.Platform.Data.Game;
-}
-
-const GameForumTopicLink: FC<GameForumTopicLinkProps> = ({ game }) => {
-  return <a href={`/viewtopic.php?t=${game.forumTopicId}`}>{"the game's official forum topic"}</a>;
-};
-
-const GameIdentificationDetailsLink: FC = () => (
-  <a
-    href="https://docs.retroachievements.org/developer-docs/game-identification.html"
-    target="_blank"
-  >
-    {'here'}
-  </a>
-);
-
-interface HashesCountSpanProps {
-  hashesCount: number;
-}
-
-const HashesCountSpan: FC<HashesCountSpanProps> = ({ hashesCount }) => {
-  const { formatNumber } = useFormatNumber();
-
-  return <span className="font-bold">{formatNumber(hashesCount)}</span>;
 };

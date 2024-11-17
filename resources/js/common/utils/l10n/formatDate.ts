@@ -50,6 +50,7 @@ export function formatDate(
     const formatter = new Intl.DateTimeFormat(nativeLocale, {
       month: 'long',
       year: 'numeric',
+      timeZone: 'UTC',
     });
 
     return formatter.format(dayjsDate.toDate());
@@ -58,12 +59,14 @@ export function formatDate(
       month: 'short',
       day: '2-digit',
       year: 'numeric',
+      timeZone: 'UTC',
     });
 
     const timeFormatter = new Intl.DateTimeFormat(nativeLocale, {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
+      timeZone: 'UTC',
     });
 
     let timeStr = timeFormatter.format(dayjsDate.toDate());
