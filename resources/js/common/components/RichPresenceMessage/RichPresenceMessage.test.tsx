@@ -26,4 +26,12 @@ describe('Component: RichPresenceMessage', () => {
     // ASSERT
     expect(screen.getByText(/playing legend of zelda/i)).toBeVisible();
   });
+
+  it('given there is no rich presence message, falls back to displaying the game title', () => {
+    // ARRANGE
+    render(<RichPresenceMessage gameTitle="Legend of Zelda" />);
+
+    // ASSERT
+    expect(screen.getByText(/playing legend of zelda/i)).toBeVisible();
+  });
 });

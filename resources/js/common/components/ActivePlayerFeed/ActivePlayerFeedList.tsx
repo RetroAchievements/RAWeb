@@ -33,7 +33,7 @@ export const ActivePlayerFeedList: FC<ActivePlayerFeedListProps> = ({ onLoadMore
               style={{ wordBreak: 'break-word' }}
             >
               <RichPresenceMessage
-                message={player.user.richPresenceMsg!}
+                message={player.user.richPresenceMsg}
                 gameTitle={player.game.title}
               />
             </p>
