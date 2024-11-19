@@ -1,7 +1,9 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
+use App\Models\Achievement;
 use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -12,6 +14,8 @@ use App\Platform\Actions\TrimGameMetadataAction;
 use App\Platform\Actions\UpdateGameSetFromGameAlternativesModificationAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Services\UserAgentService;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Spatie\Activitylog\Facades\CauserResolver;
 
@@ -977,6 +981,16 @@ function getRichPresencePatch(int $gameId, ?string &$dataOut): bool
 
 function GetPatchData(int $gameID, ?User $user, int $flag): array
 {
+    $userAgentService = new UserAgentService();
+    $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
+    if ($clientSupportLevel === ClientSupportLevel::Blocked) {
+        return [
+            'Status' => 403,
+            'Success' => false,
+            'Error' => 'This client is not supported',
+        ];
+    }
+
     $game = Game::find($gameID);
     if (!$game) {
         return [
@@ -997,6 +1011,29 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
         'Achievements' => [],
         'Leaderboards' => [],
     ];
+
+    if ($clientSupportLevel !== ClientSupportLevel::Full) {
+        if ($game->achievements_published > 0) {
+            $gameData['Achievements'][] = [
+                'ID' => Achievement::CLIENT_WARNING_ID,
+                'MemAddr' => '1=1.300.', // pop after 5 seconds
+                'Title' => ($clientSupportLevel === ClientSupportLevel::Outdated) ?
+                    'Warning: Outdated Client (please update)' : 'Warning: Unknown Client',
+                'Description' => 'Hardcore unlocks cannot be earned using this client.',
+                'Points' => 0,
+                'Author' => '',
+                'Modified' => Carbon::now()->unix(),
+                'Created' => Carbon::now()->unix(),
+                'BadgeName' => '00000',
+                'Flags' => AchievementFlag::OfficialCore,
+                'Type' => null,
+                'Rarity' => 0.0,
+                'RarityHardcore' => 0.0,
+                'BadgeURL' => media_asset("Badge/00000.png"),
+                'BadgeLockedURL' => media_asset("Badge/00000_lock.png"),
+            ];
+        }
+    }
 
     $gamePlayers = $game->players_total;
     if ($user) {
@@ -1076,8 +1113,14 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
         ];
     }
 
-    return [
+    $result = [
         'Success' => true,
         'PatchData' => $gameData,
     ];
+
+    if ($clientSupportLevel === ClientSupportLevel::Unknown) {
+        $result['Warning'] = 'The server does not recognize this client and will not allow hardcore unlocks. Please contact RAdmin for information on how to submit your emulator for hardcore consideration.';
+    }
+
+    return $result;
 }

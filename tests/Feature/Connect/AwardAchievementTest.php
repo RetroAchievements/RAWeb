@@ -1035,4 +1035,23 @@ class AwardAchievementTest extends TestCase
                 'Error' => 'This client is not supported',
             ]);
     }
+
+    public function testUnlockWarningAchievement(): void
+    {
+        // requesting an unlock for the warning achievement should return success without actually unlocking it
+        $this->get($this->apiUrl('awardachievement', ['a' => Achievement::CLIENT_WARNING_ID, 'h' => 1]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => Achievement::CLIENT_WARNING_ID,
+                'AchievementsRemaining' => 9999,
+                'Score' => $this->user->RAPoints,
+                'SoftcoreScore' => $this->user->RASoftcorePoints,
+            ]);
+
+        $this->assertFalse(
+            $this->user->playerAchievements()->where('achievement_id', Achievement::CLIENT_WARNING_ID)->exists(),
+            'Found unlock for warning achievement'
+        );
+    }
 }

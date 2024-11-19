@@ -160,6 +160,8 @@ class Achievement extends BaseModel
         return AchievementFactory::new();
     }
 
+    public const CLIENT_WARNING_ID = 101000001;
+
     // search
 
     public function toSearchableArray(): array

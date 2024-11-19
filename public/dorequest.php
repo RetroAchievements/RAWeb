@@ -380,6 +380,17 @@ switch ($requestType) {
         $validationHash = request()->input('v');
         $gameHashMd5 = request()->input('m');
 
+        if ($achIDToAward == Achievement::CLIENT_WARNING_ID) {
+            $response = [
+                'Success' => true,
+                'Score' => $user->RAPoints,
+                'SoftcoreScore' => $user->RASoftcorePoints,
+                'AchievementID' => $achIDToAward,
+                'AchievementsRemaining' => 9999,
+            ];
+            break;
+        }
+
         $userAgentService = new UserAgentService();
         $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
         if ($clientSupportLevel === ClientSupportLevel::Blocked) {
@@ -391,7 +402,7 @@ switch ($requestType) {
             break;
         }
         elseif ($clientSupportLevel !== ClientSupportLevel::Full && $hardcore) {
-            // TODO: block submission
+            // TODO: convert to softcore
             LogDeprecatedUserAgent($requestType, $clientSupportLevel);
         }
 
@@ -615,6 +626,17 @@ switch ($requestType) {
                 ];
             }
         }
+
+        $userAgentService = new UserAgentService();
+        $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
+        if ($clientSupportLevel === ClientSupportLevel::Unknown || $clientSupportLevel === ClientSupportLevel::Outdated) {
+            // don't allow outdated client popup to appear in softcore mode
+            $response['Unlocks'][] = [
+                'ID' => Achievement::CLIENT_WARNING_ID,
+                'When' => Carbon::now()->unix(),
+            ];
+        }
+
         $response['ServerNow'] = Carbon::now()->timestamp;
         break;
 
@@ -720,12 +742,25 @@ switch ($requestType) {
                 ->keys();
         } else {
             $response['UserUnlocks'] = array_keys($userUnlocks);
+
+            $userAgentService = new UserAgentService();
+            $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
+            if ($clientSupportLevel !== ClientSupportLevel::Full) {
+                // don't allow outdated client popup to appear in softcore mode
+                $response['UserUnlocks'][] = Achievement::CLIENT_WARNING_ID;
+            }
         }
         $response['GameID'] = $gameID;     // Repeat this back to the caller?
         $response['HardcoreMode'] = $hardcoreMode;
         break;
 
     case "uploadachievement":
+        if ($achievementID === Achievement::CLIENT_WARNING_ID) {
+            $response['Error'] = 'Cannot modify warning achievement';
+            $response['Success'] = false;
+            break;
+        }
+
         $errorOut = "";
         $response['Success'] = UploadNewAchievement(
             authorUsername: $username,

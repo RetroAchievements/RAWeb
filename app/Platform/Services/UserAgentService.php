@@ -265,13 +265,13 @@ class UserAgentService
         return $parts;
     }
 
-    public function getSupportLevel(string $userAgent): ClientSupportLevel
+    public function getSupportLevel(string|array|null $userAgent): ClientSupportLevel
     {
         if (empty($userAgent) || $userAgent === '[not provided]') {
             return ClientSupportLevel::Unknown;
         }
 
-        $data = $this->decode($userAgent);
+        $data = is_string($userAgent) ? $this->decode($userAgent) : $userAgent;
 
         $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $data['client']);
         if (!$emulatorUserAgent) {
