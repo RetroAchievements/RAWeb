@@ -400,8 +400,7 @@ switch ($requestType) {
                 'Error' => 'This client is not supported',
             ];
             break;
-        }
-        elseif ($clientSupportLevel !== ClientSupportLevel::Full && $hardcore) {
+        } elseif ($clientSupportLevel !== ClientSupportLevel::Full && $hardcore) {
             // TODO: convert to softcore
             LogDeprecatedUserAgent($requestType, $clientSupportLevel);
         }
@@ -677,8 +676,7 @@ switch ($requestType) {
                 'Error' => 'This client is not supported',
             ];
             break;
-        }
-        elseif ($clientSupportLevel !== ClientSupportLevel::Full) {
+        } elseif ($clientSupportLevel !== ClientSupportLevel::Full) {
             // TODO: block submission
             LogDeprecatedUserAgent($requestType, $clientSupportLevel);
         }

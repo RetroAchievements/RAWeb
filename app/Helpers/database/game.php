@@ -1013,7 +1013,7 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
     ];
 
     if ($clientSupportLevel !== ClientSupportLevel::Full) {
-        if (false) {//$game->achievements_published > 0) {
+        if (false) {// $game->achievements_published > 0) {
             $gameData['Achievements'][] = [
                 'ID' => Achievement::CLIENT_WARNING_ID,
                 'MemAddr' => '1=1.300.', // pop after 5 seconds

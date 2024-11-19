@@ -278,14 +278,14 @@ class UserAgentService
             return ClientSupportLevel::Unknown;
         }
 
-        if ($emulatorUserAgent->minimum_allowed_version && 
-            UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_allowed_version) < 0) {
+        if ($emulatorUserAgent->minimum_allowed_version
+            && UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_allowed_version) < 0) {
 
             return ClientSupportLevel::Blocked;
         }
 
-        if ($emulatorUserAgent->minimum_hardcore_version && 
-            UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_hardcore_version) < 0) {
+        if ($emulatorUserAgent->minimum_hardcore_version
+            && UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_hardcore_version) < 0) {
 
             return ClientSupportLevel::Outdated;
         }

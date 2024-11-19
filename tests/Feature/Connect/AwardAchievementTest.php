@@ -21,8 +21,8 @@ use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
+use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
 class AwardAchievementTest extends TestCase

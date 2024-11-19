@@ -825,7 +825,7 @@ class SubmitLeaderboardEntryTest extends TestCase
             ],
             'TopEntriesFriends' => [
                 $this->buildEntry(1, $this->user, $score, $now),
-            ]
+            ],
         ];
 
         // no user agent (TODO: will return failure in the future)

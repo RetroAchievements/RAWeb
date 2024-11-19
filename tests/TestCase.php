@@ -79,6 +79,7 @@ abstract class TestCase extends BaseTestCase
                     'name' => 'hash_' . $game->id,
                     'description' => 'hash_' . $game->id,
                 ]);
+
                 return true;
             });
         }
