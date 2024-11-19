@@ -191,7 +191,7 @@ class BuildActivePlayersActionTest extends TestCase
         ]);
 
         // Act
-        $result = (new BuildActivePlayersAction())->execute(search: 'developing || fixing');
+        $result = (new BuildActivePlayersAction())->execute(search: 'developing|fixing');
 
         // Assert
         $this->assertEquals(2, $result->total);

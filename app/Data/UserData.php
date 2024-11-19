@@ -75,7 +75,6 @@ class UserData extends Data
             // == eager fields
             displayName: $user->display_name,
             avatarUrl: $user->avatar_url,
-            isMuted: $user->isMuted(),
 
             // == lazy fields
             apiKey: Lazy::create(fn () => $user->APIKey),
@@ -84,6 +83,7 @@ class UserData extends Data
             emailAddress: Lazy::create(fn () => $user->EmailAddress),
             mutedUntil: Lazy::create(fn () => $user->muted_until),
             id: Lazy::create(fn () => $user->id),
+            isMuted: Lazy::create(fn () => $user->isMuted()),
             legacyPermissions: Lazy::create(fn () => (int) $user->getAttribute('Permissions')),
             locale: Lazy::create(fn () => $user->locale === 'en' ? 'en_US' : $user->locale), // TODO remove conditional after renaming "en" to "en_US"
             motto: Lazy::create(fn () => $user->Motto),

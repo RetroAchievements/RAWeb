@@ -102,10 +102,10 @@ class BuildActivePlayersAction
         $search = Str::lower(trim($search));
 
         // We should also support logical OR searches, for example:
-        // "developing || inspecting".
+        // "developing|inspecting".
         $searchTerms = array_map(
             fn (string $term) => Str::lower(trim($term)),
-            explode('||', $search)
+            explode('|', $search)
         );
 
         // Filter out any empty terms.

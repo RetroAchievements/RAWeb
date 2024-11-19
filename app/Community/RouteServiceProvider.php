@@ -7,6 +7,7 @@ namespace App\Community;
 use App\Community\Controllers\AchievementCommentController;
 use App\Community\Controllers\AchievementSetClaimController;
 use App\Community\Controllers\Api\AchievementCommentApiController;
+use App\Community\Controllers\Api\ActivePlayersApiController;
 use App\Community\Controllers\Api\GameCommentApiController;
 use App\Community\Controllers\Api\LeaderboardCommentApiController;
 use App\Community\Controllers\Api\SubscriptionApiController;
@@ -325,6 +326,13 @@ class RouteServiceProvider extends ServiceProvider
 
                     Route::delete('keys/web', [UserSettingsController::class, 'resetWebApiKey'])->name('api.settings.keys.web.destroy');
                     Route::delete('keys/connect', [UserSettingsController::class, 'resetConnectApiKey'])->name('api.settings.keys.connect.destroy');
+                });
+
+                /*
+                 * active players
+                 */
+                Route::group(['prefix' => 'internal-api'], function () {
+                    Route::get('active-players', [ActivePlayersApiController::class, 'index'])->name('api.active-player.index');
                 });
             });
     }

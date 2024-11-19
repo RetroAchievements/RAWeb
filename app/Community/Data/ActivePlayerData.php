@@ -24,7 +24,7 @@ class ActivePlayerData extends Data
     {
         return new self(
             user: UserData::fromUser($user)->include('richPresenceMsg'),
-            game: GameData::fromGame($game),
+            game: GameData::fromGame($game)->include('badgeUrl'),
         );
     }
 }

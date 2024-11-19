@@ -39,6 +39,7 @@ class HomePagePropsData extends Data
         public Collection $trendingGames,
         public Collection $newClaims,
         public Collection $recentForumPosts,
+        public ?string $persistedActivePlayersSearch,
     ) {
     }
 }

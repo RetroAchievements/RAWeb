@@ -20,6 +20,7 @@ use App\Http\Controller;
 use App\Http\Data\HomePagePropsData;
 use App\Models\StaticData;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
@@ -27,6 +28,7 @@ use Inertia\Response as InertiaResponse;
 class HomeController extends Controller
 {
     public function index(
+        Request $request,
         BuildAchievementOfTheWeekDataAction $buildAchievementOfTheWeekData,
         BuildMostRecentGameAwardDataAction $buildMostRecentGameAwardData,
         BuildNewsDataAction $buildNewsData,
@@ -47,7 +49,8 @@ class HomeController extends Controller
         $newClaims = $buildHomePageClaimsData->execute(ClaimStatus::Active, 5);
         $currentlyOnline = $buildCurrentlyOnlineData->execute();
 
-        $activePlayers = $buildActivePlayers->execute(perPage: 20); // TODO user's search cookie
+        $persistedActivePlayersSearch = $request->cookie('active_players_search');
+        $activePlayers = $buildActivePlayers->execute(perPage: 20, search: $persistedActivePlayersSearch);
         $trendingGames = $buildTrendingGames->execute();
 
         /** @var ?User $user */
@@ -69,6 +72,7 @@ class HomeController extends Controller
             activePlayers: $activePlayers,
             trendingGames: $trendingGames,
             recentForumPosts: $recentForumPosts,
+            persistedActivePlayersSearch: $persistedActivePlayersSearch,
         );
 
         return Inertia::render('index', $props);
