@@ -3,8 +3,11 @@ import { createFactory } from '@/test/createFactory';
 
 import { createAchievement } from '../createAchievement';
 import { createAchievementSetClaim } from '../createAchievementSetClaim';
+import { createActivePlayer } from '../createActivePlayer';
 import { createNews } from '../createNews';
+import { createPaginatedData } from '../createPaginatedData';
 import { createRecentActiveForumTopic } from '../createRecentActiveForumTopic';
+import { createTrendingGame } from '../createTrendingGame';
 import { createStaticData } from './createStaticData';
 import { createStaticGameAward } from './createStaticGameAward';
 
@@ -32,6 +35,20 @@ export const createHomePageProps = createFactory<App.Http.Data.HomePageProps>((f
       createAchievementSetClaim({ status: ClaimStatus.Active }),
       createAchievementSetClaim({ status: ClaimStatus.Active }),
     ],
+
+    activePlayers: createPaginatedData(
+      [createActivePlayer(), createActivePlayer(), createActivePlayer(), createActivePlayer()],
+      { total: 4, unfilteredTotal: 4, currentPage: 1, lastPage: 1, perPage: 20 },
+    ),
+
+    trendingGames: [
+      createTrendingGame(),
+      createTrendingGame(),
+      createTrendingGame(),
+      createTrendingGame(),
+    ],
+
+    persistedActivePlayersSearch: null,
 
     currentlyOnline: {
       allTimeHighDate: faker.date.recent().toISOString(),

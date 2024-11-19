@@ -22,6 +22,17 @@ vi.mock('@inertiajs/react', async (importOriginal) => {
   };
 });
 
+/**
+ * Before reaching for this util, make absolutely sure your problem can't
+ * be solved by using `waitFor()` or `screen.findBy*()`. This should
+ * only be used as a last resort!
+ */
+export function __UNSAFE_VERY_DANGEROUS_SLEEP(milliseconds: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+}
+
 /*
 |--------------------------------------------------------------------------
 | Test Suite Custom Render Method

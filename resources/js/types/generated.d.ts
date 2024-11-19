@@ -42,6 +42,10 @@ declare namespace App.Community.Data {
     state: boolean;
     user?: App.Data.User;
   };
+  export type TrendingGame = {
+    game: App.Platform.Data.Game;
+    playerCount: number;
+  };
   export type UserCommentsPageProps<TItems = App.Community.Data.Comment> = {
     targetUser: App.Data.User;
     paginatedComments: App.Data.PaginatedData<TItems>;
@@ -209,7 +213,7 @@ declare namespace App.Enums {
     | 18;
 }
 declare namespace App.Http.Data {
-  export type HomePageProps = {
+  export type HomePageProps<TItems = App.Community.Data.ActivePlayer> = {
     staticData: App.Data.StaticData;
     achievementOfTheWeek: App.Platform.Data.Achievement | null;
     mostRecentGameMastered: App.Data.StaticGameAward | null;
@@ -217,8 +221,11 @@ declare namespace App.Http.Data {
     recentNews: Array<App.Data.News>;
     completedClaims: Array<App.Data.AchievementSetClaim>;
     currentlyOnline: App.Data.CurrentlyOnline;
+    activePlayers: App.Data.PaginatedData<TItems>;
+    trendingGames: Array<App.Community.Data.TrendingGame>;
     newClaims: Array<App.Data.AchievementSetClaim>;
     recentForumPosts: Array<App.Data.ForumTopic>;
+    persistedActivePlayersSearch: string | null;
   };
 }
 declare namespace App.Models {

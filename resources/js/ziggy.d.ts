@@ -462,6 +462,7 @@ declare module 'ziggy-js' {
     "api.settings.email.update": [],
     "api.settings.keys.web.destroy": [],
     "api.settings.keys.connect.destroy": [],
+    "api.active-player.index": [],
     "login": [],
     "logout": [],
     "password.confirmation": [],

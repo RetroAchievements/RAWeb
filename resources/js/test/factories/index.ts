@@ -1,5 +1,6 @@
 export * from './createAchievement';
 export * from './createAchievementSetClaim';
+export * from './createActivePlayer';
 export * from './createComment';
 export * from './createEmulator';
 export * from './createForumTopicComment';
@@ -18,5 +19,6 @@ export * from './createPlayerResettableGameAchievement';
 export * from './createRecentActiveForumTopic';
 export * from './createSubscription';
 export * from './createSystem';
+export * from './createTrendingGame';
 export * from './createUser';
 export * from './createZiggyProps';
