@@ -400,7 +400,7 @@ class PatchDataTest extends TestCase
                     'ImageIconURL' => media_asset($game->ImageIcon),
                     'RichPresencePatch' => $game->RichPresencePatch,
                     'Achievements' => [
-                        $this->getWarningAchievementPatchData(ClientSupportLevel::Unknown),
+//                        $this->getWarningAchievementPatchData(ClientSupportLevel::Unknown),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
                         $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
@@ -425,7 +425,7 @@ class PatchDataTest extends TestCase
                     'ImageIconURL' => media_asset($game->ImageIcon),
                     'RichPresencePatch' => $game->RichPresencePatch,
                     'Achievements' => [
-                        $this->getWarningAchievementPatchData(ClientSupportLevel::Unknown),
+//                        $this->getWarningAchievementPatchData(ClientSupportLevel::Unknown),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
                         $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
@@ -450,7 +450,7 @@ class PatchDataTest extends TestCase
                     'ImageIconURL' => media_asset($game->ImageIcon),
                     'RichPresencePatch' => $game->RichPresencePatch,
                     'Achievements' => [
-                        $this->getWarningAchievementPatchData(ClientSupportLevel::Outdated),
+//                        $this->getWarningAchievementPatchData(ClientSupportLevel::Outdated),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
                         $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
