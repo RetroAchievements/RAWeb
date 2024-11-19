@@ -46,6 +46,7 @@ class PatchDataTest extends TestCase
         ];
     }
 
+    /* TODO: uncomment when functionality is enabled
     private function getWarningAchievementPatchData(ClientSupportLevel $clientSupportLevel): array
     {
         return [
@@ -67,6 +68,7 @@ class PatchDataTest extends TestCase
             'BadgeLockedURL' => media_asset("Badge/00000_lock.png"),
         ];
     }
+    */
 
     private function getLeaderboardPatchData(Leaderboard $leaderboard): array
     {

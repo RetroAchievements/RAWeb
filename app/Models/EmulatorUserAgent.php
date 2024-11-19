@@ -45,7 +45,7 @@ class EmulatorUserAgent extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<Emulator, EmulatorRelease>
+     * @return BelongsTo<Emulator, EmulatorUserAgent>
      */
     public function emulator(): BelongsTo
     {
