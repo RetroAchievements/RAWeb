@@ -172,7 +172,6 @@
     "Keys": "Chaves",
     "Last Post By": "Última Postagem por",
     "Last Updated": "Última Atualização",
-    "Last updated at {{timestamp}}": "Última Atualização em {{timestamp}}",
     "Latest": "Mais recente",
     "Latest Sets in Progress": "Últimos Conjuntos em Andamento",
     "Leaderboards": "Tabela de Classificação",
@@ -217,7 +216,6 @@
     "Only people I follow can message me or post on my wall": "Apenas pessoas que sigo podem me enviar mensagens ou postar na minha parede",
     "Only png, jpeg, and gif files are supported.": "Apenas arquivos png, jpeg e gif são suportados.",
     "Open Game": "Abrir Jogo",
-    "Open active players menu": "Abrir o menu de jogadores ativos",
     "Open game details": "Abrir detalhes do jogo",
     "Our web pages and their contents are subject to copyright law. Unless expressly permitted by law, every form of utilizing, reproducing or processing works subject to copyright protection on our web pages requires the prior consent of the respective owner of the rights. Individual reproductions of a work are allowed only for private use. The company names, product names, service names and logotypes on this web site are for identification purposes only. All trademarks and registered trademarks are the property of their respective owners.": "Nossas páginas da web e seus conteúdos estão sujeitos à legislação de direitos autorais. A menos que expressamente permitido por lei, toda forma de utilização, reprodução ou processamento de obras sujeitas à proteção de direitos autorais em nossas páginas da web requer o consentimento prévio do respectivo proprietário dos direitos. Reprodução individual de uma obra é permitida apenas para uso privado. Os nomes de empresas, nomes de produtos, nomes de serviços e logotipos neste site são apenas para fins de identificação. Todas as marcas registradas e marcas registradas são de propriedade de seus respectivos proprietários.",
     "Page": "Página",
@@ -365,7 +363,6 @@
     "Users Online": "Usuários Online",
     "Verify your email to update your motto.": "Verifique seu e-mail para atualizar seu lema.",
     "View": "Visualizar",
-    "Viewing": "Visualizando",
     "Visible Role": "Função Visível",
     "Want to Play": "Quero Jogar",
     "Want to Play Games": "Quero Jogar",
@@ -416,8 +413,6 @@
     "less than a minute ago": "menos de um minuto atrás",
     "none": "nenhum",
     "of {{pageNumber, number}}": "de {{pageNumber, number}}",
-    "players are currently online.": "Jogadores que estão atualmente online.",
-    "players in-game.": "Jogados em game.",
     "supportedGameFilesCountLabel_one": "Atualmente existe <1>{{count, number}}</1> hash de arquivo de jogo suportado registrado para este jogo.",
     "supportedGameFilesCountLabel_many": "Atualmente existem <1>{{count, number}}</1> hashes de arquivos de jogo suportados registrados para este jogo.",
     "supportedGameFilesCountLabel_other": "Atualmente existem <1>{{count, number}}</1> hashes de arquivos de jogo suportados registrados para este jogo.",
@@ -464,5 +459,6 @@
     "Search active players": "Search active players",
     "Search by player name, game title, or Rich Presence...": "Search by player name, game title, or Rich Presence...",
     "Remember my search": "Remember my search",
-    "Trending right now": "Trending right now"
+    "Trending right now": "Trending right now",
+    "⚠️ Playing {{gameTitle}}": "⚠️ Playing {{gameTitle}}"
 }

@@ -2,6 +2,7 @@ import { type FC } from 'react';
 
 import { GameAvatar } from '../GameAvatar';
 import { InfiniteScrollLoadMore } from '../InfiniteScrollLoadMore';
+import { RichPresenceMessage } from '../RichPresenceMessage';
 import { UserAvatar } from '../UserAvatar';
 
 interface ActivePlayerFeedListProps {
@@ -27,8 +28,14 @@ export const ActivePlayerFeedList: FC<ActivePlayerFeedListProps> = ({ onLoadMore
               <GameAvatar {...player.game} showImage={false} />
             </div>
 
-            <p className="line-clamp-1 text-2xs text-neutral-600 group-hover:text-neutral-300">
-              {player.user.richPresenceMsg}
+            <p
+              className="line-clamp-1 text-2xs text-neutral-600 group-hover:text-neutral-300"
+              style={{ wordBreak: 'break-word' }}
+            >
+              <RichPresenceMessage
+                message={player.user.richPresenceMsg!}
+                gameTitle={player.game.title}
+              />
             </p>
           </div>
         </li>

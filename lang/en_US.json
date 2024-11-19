@@ -451,5 +451,6 @@
     "Search active players": "Search active players",
     "Search by player name, game title, or Rich Presence...": "Search by player name, game title, or Rich Presence...",
     "Remember my search": "Remember my search",
-    "Trending right now": "Trending right now"
+    "Trending right now": "Trending right now",
+    "⚠️ Playing {{gameTitle}}": "⚠️ Playing {{gameTitle}}"
 }
