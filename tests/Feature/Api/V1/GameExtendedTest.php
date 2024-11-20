@@ -151,7 +151,7 @@ class GameExtendedTest extends TestCase
                 ],
             ]);
 
-        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID, 'f' => AchievementFlag::Unofficial]))
+        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID, 'f' => AchievementFlag::Unofficial->value]))
             ->assertSuccessful()
             ->assertJson([
                 'Achievements' => [

@@ -215,7 +215,7 @@ declare namespace App.Enums {
 declare namespace App.Http.Data {
   export type HomePageProps<TItems = App.Community.Data.ActivePlayer> = {
     staticData: App.Data.StaticData;
-    achievementOfTheWeek: App.Platform.Data.Achievement | null;
+    achievementOfTheWeek: App.Platform.Data.EventAchievement | null;
     mostRecentGameMastered: App.Data.StaticGameAward | null;
     mostRecentGameBeaten: App.Data.StaticGameAward | null;
     recentNews: Array<App.Data.News>;
@@ -280,6 +280,12 @@ declare namespace App.Platform.Data {
   export type Emulator = {
     id: number;
     name: string;
+  };
+  export type EventAchievement = {
+    achievement?: App.Platform.Data.Achievement;
+    sourceAchievement?: App.Platform.Data.Achievement;
+    activeUntil?: string;
+    forumTopicId?: number;
   };
   export type Game = {
     id: number;
@@ -377,6 +383,7 @@ declare namespace App.Platform.Data {
 }
 declare namespace App.Platform.Enums {
   export type UnlockMode = 0 | 1;
+  export type AchievementFlag = 3 | 5;
   export type AchievementSetType =
     | 'core'
     | 'bonus'

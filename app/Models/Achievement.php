@@ -95,6 +95,7 @@ class Achievement extends BaseModel
         'user_id',
     ];
 
+    // TODO cast Flags to AchievementFlag if it isn't dropped from the table
     protected $casts = [
         'DateModified' => 'datetime',
         'Flags' => 'integer',
@@ -137,11 +138,11 @@ class Achievement extends BaseModel
             }
 
             if ($achievement->wasChanged('Flags')) {
-                if ($achievement->Flags === AchievementFlag::OfficialCore) {
+                if ($achievement->Flags === AchievementFlag::OfficialCore->value) {
                     AchievementPublished::dispatch($achievement);
                 }
 
-                if ($achievement->Flags === AchievementFlag::Unofficial) {
+                if ($achievement->Flags === AchievementFlag::Unofficial->value) {
                     AchievementUnpublished::dispatch($achievement);
                 }
             }
@@ -258,7 +259,7 @@ class Achievement extends BaseModel
 
     public function getIsPublishedAttribute(): bool
     {
-        return $this->Flags === AchievementFlag::OfficialCore;
+        return $this->Flags === AchievementFlag::OfficialCore->value;
     }
 
     // TODO remove after rename
@@ -403,9 +404,9 @@ class Achievement extends BaseModel
      * @param Builder<Achievement> $query
      * @return Builder<Achievement>
      */
-    public function scopeFlag(Builder $query, int $flag): Builder
+    public function scopeFlag(Builder $query, AchievementFlag $flag): Builder
     {
-        return $query->where('Flags', $flag);
+        return $query->where('Flags', $flag->value);
     }
 
     /**

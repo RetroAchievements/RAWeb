@@ -3,6 +3,7 @@ export * from './createAchievementSetClaim';
 export * from './createActivePlayer';
 export * from './createComment';
 export * from './createEmulator';
+export * from './createEventAchievement';
 export * from './createForumTopicComment';
 export * from './createGame';
 export * from './createGameHash';
