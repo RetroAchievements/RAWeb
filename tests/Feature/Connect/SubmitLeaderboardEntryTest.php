@@ -870,7 +870,7 @@ class SubmitLeaderboardEntryTest extends TestCase
             ->assertExactJson([
                 'Status' => 403,
                 'Success' => false,
-                'Error' => 'This client is not supported',
+                'Error' => 'This emulator is not supported',
             ]);
     }
 }

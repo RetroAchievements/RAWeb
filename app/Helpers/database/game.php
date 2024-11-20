@@ -1018,8 +1018,8 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
                 'ID' => Achievement::CLIENT_WARNING_ID,
                 'MemAddr' => '1=1.300.', // pop after 5 seconds
                 'Title' => ($clientSupportLevel === ClientSupportLevel::Outdated) ?
-                    'Warning: Outdated Client (please update)' : 'Warning: Unknown Client',
-                'Description' => 'Hardcore unlocks cannot be earned using this client.',
+                    'Warning: Outdated Emulator (please update)' : 'Warning: Unknown Emulator',
+                'Description' => 'Hardcore unlocks cannot be earned using this emulator.',
                 'Points' => 0,
                 'Author' => '',
                 'Modified' => Carbon::now()->unix(),

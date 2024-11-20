@@ -18,6 +18,8 @@ use App\Platform\Services\UserAgentService;
 use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @usage
@@ -266,7 +268,7 @@ switch ($requestType) {
             $response = [
                 'Status' => 403,
                 'Success' => false,
-                'Error' => "This client is not supported",
+                'Error' => "This emulator is not supported",
                 'GameID' => 0,
             ];
         } else {
@@ -397,7 +399,7 @@ switch ($requestType) {
             $response = [
                 'Status' => 403,
                 'Success' => false,
-                'Error' => 'This client is not supported',
+                'Error' => 'This emulator is not supported',
             ];
             break;
         } elseif ($clientSupportLevel !== ClientSupportLevel::Full && $hardcore) {
@@ -673,7 +675,7 @@ switch ($requestType) {
             $response = [
                 'Status' => 403,
                 'Success' => false,
-                'Error' => 'This client is not supported',
+                'Error' => 'This emulator is not supported',
             ];
             break;
         } elseif ($clientSupportLevel !== ClientSupportLevel::Full) {
