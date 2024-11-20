@@ -1119,7 +1119,7 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
     ];
 
     if ($clientSupportLevel === ClientSupportLevel::Unknown) {
-        $result['Warning'] = 'The server does not recognize this client and will not allow hardcore unlocks. Please contact RAdmin for information on how to submit your emulator for hardcore consideration.';
+        $result['Warning'] = 'The server does not recognize this client and will not allow hardcore unlocks. Please send a message to RAdmin on the RetroAchievements website for information on how to submit your emulator for hardcore consideration.';
     }
 
     return $result;
