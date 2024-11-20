@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Achievement;
-use App\Models\Comment;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\System;
@@ -29,6 +28,7 @@ class CreateAchievementOfTheWeek
             $event = Game::Create([
                 'Title' => $eventTitle,
                 'sort_title' => (new ComputeGameSortTitleAction())->execute($eventTitle),
+                'Publisher' => 'RetroAchievements',
                 'ConsoleID' => System::Events,
             ]);
         }
@@ -42,7 +42,7 @@ class CreateAchievementOfTheWeek
                 'MemAddr' => '0=1',
                 'Flags' => AchievementFlag::OfficialCore->value,
                 'GameID' => $event->id,
-                'user_id' => Comment::SYSTEM_USER_ID,
+                'user_id' => EventAchievement::RAEVENTS_USER_ID,
                 'BadgeName' => '00000',
                 'DisplayOrder' => $achievementCount,
             ]);
