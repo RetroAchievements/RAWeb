@@ -116,12 +116,12 @@ class AchievementResource extends Resource
                             ->hidden(fn ($state) => !$state),
                         Infolists\Components\TextEntry::make('Flags')
                             ->badge()
-                            ->formatStateUsing(fn (int $state): string => match ($state) {
-                                AchievementFlag::OfficialCore => __('published'),
-                                AchievementFlag::Unofficial => __('unpublished'),
+                            ->formatStateUsing(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
+                                AchievementFlag::OfficialCore => AchievementFlag::OfficialCore->label(),
+                                AchievementFlag::Unofficial => AchievementFlag::Unofficial->label(),
                                 default => '',
                             })
-                            ->color(fn (int $state): string => match ($state) {
+                            ->color(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
                                 AchievementFlag::OfficialCore => 'success',
                                 AchievementFlag::Unofficial => 'info',
                                 default => '',
@@ -201,10 +201,10 @@ class AchievementResource extends Resource
                         ->schema([
                             Forms\Components\Select::make('Flags')
                                 ->options([
-                                    AchievementFlag::OfficialCore => __('published'),
-                                    AchievementFlag::Unofficial => __('unpublished'),
+                                    AchievementFlag::OfficialCore->value => AchievementFlag::OfficialCore->label(),
+                                    AchievementFlag::Unofficial->value => AchievementFlag::Unofficial->label(),
                                 ])
-                                ->default(AchievementFlag::Unofficial)
+                                ->default(AchievementFlag::Unofficial->value)
                                 ->required()
                                 ->disabled(!$user->can('updateField', [$form->model, 'Flags'])),
 
@@ -302,12 +302,12 @@ class AchievementResource extends Resource
 
                 Tables\Columns\TextColumn::make('Flags')
                     ->badge()
-                    ->formatStateUsing(fn (int $state): string => match ($state) {
-                        AchievementFlag::OfficialCore => 'Published',
-                        AchievementFlag::Unofficial => 'Unpublished',
+                    ->formatStateUsing(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
+                        AchievementFlag::OfficialCore => AchievementFlag::OfficialCore->label(),
+                        AchievementFlag::Unofficial => AchievementFlag::Unofficial->label(),
                         default => '',
                     })
-                    ->color(fn (int $state): string => match ($state) {
+                    ->color(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
                         AchievementFlag::OfficialCore => 'success',
                         AchievementFlag::Unofficial => 'info',
                         default => '',

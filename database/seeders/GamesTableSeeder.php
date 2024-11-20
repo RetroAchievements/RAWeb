@@ -45,7 +45,7 @@ class GamesTableSeeder extends Seeder
         Game::all()->each(function (Game $game) {
             $game->achievements()->saveMany(Achievement::factory()->count(random_int(0, 10))->create([
                 'GameID' => $game->ID,
-                'Flags' => AchievementFlag::OfficialCore,
+                'Flags' => AchievementFlag::OfficialCore->value,
             ]));
         });
 

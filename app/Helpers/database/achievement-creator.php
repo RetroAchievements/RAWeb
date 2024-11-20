@@ -50,7 +50,7 @@ function getUserSetsPerConsole(User $user): array
 
     return legacyDbFetchAll($query, [
         'userId' => $user->id,
-        'achievementFlag' => AchievementFlag::OfficialCore,
+        'achievementFlag' => AchievementFlag::OfficialCore->value,
     ])->toArray();
 }
 
@@ -105,7 +105,7 @@ function getOwnAchievementsObtained(User $user): array
     return legacyDbFetch($query, [
         'authorId' => $user->id,
         'userId' => $user->id,
-        'achievementFlag' => AchievementFlag::OfficialCore,
+        'achievementFlag' => AchievementFlag::OfficialCore->value,
     ]);
 }
 
@@ -132,7 +132,7 @@ function getObtainersOfSpecificUser(User $user): array
     return legacyDbFetchAll($query, [
         'authorId' => $user->id,
         'userId' => $user->id,
-        'achievementFlag' => AchievementFlag::OfficialCore,
+        'achievementFlag' => AchievementFlag::OfficialCore->value,
     ])->toArray();
 }
 
@@ -168,7 +168,7 @@ function getRecentUnlocksForDev(User $user, int $offset = 0, int $count = 200): 
 function checkIfSoleDeveloper(User $user, int $gameId): bool
 {
     $developerUserIdsForGame = Achievement::where('GameID', $gameId)
-        ->where('Flags', AchievementFlag::OfficialCore)
+        ->where('Flags', AchievementFlag::OfficialCore->value)
         ->distinct()
         ->pluck('user_id');
 
