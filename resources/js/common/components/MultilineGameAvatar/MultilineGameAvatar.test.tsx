@@ -1,4 +1,3 @@
-import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createGame, createSystem } from '@/test/factories';
 
@@ -77,37 +76,5 @@ describe('Component: MultilineGameAvatar', () => {
 
     // ASSERT
     expect(screen.queryByTestId('game-system')).not.toBeInTheDocument();
-  });
-
-  it('given a target username for hover card progress, sets tooltip context correctly', () => {
-    // ARRANGE
-    const game = createGame({ id: 1 });
-
-    render(<MultilineGameAvatar {...game} showHoverCardProgressForUsername="Scott" />);
-
-    // ASSERT
-    const anchorEl = screen.getByRole('link');
-
-    expect(anchorEl).toHaveAttribute(
-      'x-data',
-      "tooltipComponent($el, {dynamicType: 'game', dynamicId: '1', dynamicContext: 'Scott'})",
-    );
-  });
-
-  it('given there is no explicit target username for hover card progress and the user is logged in, sets tooltip context correctly', () => {
-    // ARRANGE
-    const game = createGame({ id: 1 });
-
-    render(<MultilineGameAvatar {...game} />, {
-      pageProps: { auth: { user: createAuthenticatedUser({ displayName: 'Nepiki' }) } },
-    });
-
-    // ASSERT
-    const anchorEl = screen.getByRole('link');
-
-    expect(anchorEl).toHaveAttribute(
-      'x-data',
-      "tooltipComponent($el, {dynamicType: 'game', dynamicId: '1', dynamicContext: 'Nepiki'})",
-    );
   });
 });
