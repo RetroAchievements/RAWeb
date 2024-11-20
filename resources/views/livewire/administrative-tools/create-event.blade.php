@@ -7,6 +7,7 @@ use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\ComputeGameSortTitleAction;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Jobs\UpdateGameMetricsJob;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -27,7 +28,7 @@ new class extends Component implements HasForms {
         $this->form->getState();
 
         $eventTitle = $this->title ?? 'New Event';
-        $event = Game::Create([
+        $event = Game::create([
             'Title' => $eventTitle,
             'sort_title' => (new ComputeGameSortTitleAction())->execute($eventTitle),
             'Publisher' => 'RetroAchievements',
@@ -35,7 +36,7 @@ new class extends Component implements HasForms {
         ]);
 
         for ($i = 0; $i < $this->numberOfAchievements; $i++) {
-            $achievement = Achievement::Create([
+            $achievement = Achievement::create([
                 'Title' => "$eventTitle",
                 'Description' => 'TBD',
                 'MemAddr' => '0=1',
@@ -46,6 +47,9 @@ new class extends Component implements HasForms {
                 'DisplayOrder' => $i + 1,
             ]);
         }
+
+        // update metrics and sync to game_achievement_set
+        dispatch(new UpdateGameMetricsJob($event->id))->onQueue('game-metrics');
 
         Notification::make()
             ->success()
