@@ -88,46 +88,44 @@ class BuildGameListAction
             $backlogGames = $this->getBacklogGames($user, $entries->pluck('id'));
         }
 
-        $transformedEntries = $entries
-            ->getCollection()
-            ->map(function (Game $game) use (
-                $listType,
-                $user,
-                $playerGames,
-                $backlogGames
-            ): GameListEntryData {
-                $playerGame = $playerGames->get($game->id);
+        $transformedEntries = $entries->getCollection()->map(function (Game $game) use (
+            $listType,
+            $user,
+            $playerGames,
+            $backlogGames
+        ): GameListEntryData {
+            $playerGame = $playerGames->get($game->id);
 
-                return new GameListEntryData(
-                    game: GameData::from($game)->include(
-                        'achievementsPublished',
-                        'badgeUrl',
-                        'hasActiveOrInReviewClaims',
-                        'lastUpdated',
-                        'numVisibleLeaderboards',
-                        'playersTotal',
-                        'pointsTotal',
-                        'pointsWeighted',
-                        'releasedAt',
-                        'releasedAtGranularity',
-                        'system.iconUrl',
-                        'system.nameShort',
-                        $user?->can('develop') ? 'numUnresolvedTickets' : '',
-                    ),
-                    playerGame: $playerGame
-                        ? PlayerGameData::fromPlayerGame($playerGame)->include('highestAward')
-                        : null,
-                    isInBacklog: $listType === GameListType::UserPlay
-                        ? true
-                        : $backlogGames->has($game->id),
-                );
-            });
-        $entries->setCollection($transformedEntries);
+            return new GameListEntryData(
+                game: GameData::from($game)->include(
+                    'achievementsPublished',
+                    'badgeUrl',
+                    'hasActiveOrInReviewClaims',
+                    'lastUpdated',
+                    'numVisibleLeaderboards',
+                    'playersTotal',
+                    'pointsTotal',
+                    'pointsWeighted',
+                    'releasedAt',
+                    'releasedAtGranularity',
+                    'system.iconUrl',
+                    'system.nameShort',
+                    $user?->can('develop') ? 'numUnresolvedTickets' : '',
+                ),
+                playerGame: $playerGame
+                    ? PlayerGameData::fromPlayerGame($playerGame)->include('highestAward')
+                    : null,
+                isInBacklog: $listType === GameListType::UserPlay
+                    ? true
+                    : $backlogGames->has($game->id),
+            );
+        })->all(); // Convert the collection into an array.
 
         return PaginatedData::fromLengthAwarePaginator(
             $entries,
             total: $total,
             unfilteredTotal: $unfilteredTotal,
+            items: $transformedEntries,
         );
     }
 
