@@ -46,6 +46,8 @@ class HandleInertiaRequests extends Middleware
                     'id',
                     'legacyPermissions',
                     'locale',
+                    'points',
+                    'pointsSoftcore',
                     'mutedUntil',
                     'preferences',
                     'roles',

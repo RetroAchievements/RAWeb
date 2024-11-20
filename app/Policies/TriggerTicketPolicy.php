@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Enums\Permissions;
+use App\Models\Achievement;
+use App\Models\Leaderboard;
 use App\Models\Role;
 use App\Models\TriggerTicket;
 use App\Models\User;
@@ -21,8 +22,7 @@ class TriggerTicketPolicy
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
-        ])
-            || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
+        ]);
     }
 
     public function view(User $user, TriggerTicket $achievementTicket): bool
@@ -30,9 +30,21 @@ class TriggerTicketPolicy
         return false;
     }
 
-    public function create(User $user): bool
+    public function create(User $user, Achievement|Leaderboard $triggerable): bool
     {
-        return $user->hasVerifiedEmail();
+        if (!$user->hasVerifiedEmail()) {
+            return false;
+        }
+
+        if ($user->isMuted()) {
+            return false;
+        }
+
+        if ($triggerable instanceof Achievement) {
+            return $this->createAchievementTicket($user, $triggerable);
+        } elseif ($triggerable instanceof Leaderboard) {
+            return $this->createLeaderboardTicket($user, $triggerable);
+        }
     }
 
     public function update(User $user, TriggerTicket $achievementTicket): bool
@@ -53,5 +65,23 @@ class TriggerTicketPolicy
     public function forceDelete(User $user, TriggerTicket $achievementTicket): bool
     {
         return false;
+    }
+
+    private function createAchievementTicket(User $user, Achievement $achievement): bool
+    {
+        /*
+         * users must have played the game to be able to create tickets for its achievements
+         */
+
+        return $user->hasPlayed($achievement->game);
+    }
+
+    private function createLeaderboardTicket(User $user, Leaderboard $leaderboard): bool
+    {
+        /*
+         * users must have played the game to be able to create tickets for its leaderboards
+         */
+
+        return $user->hasPlayed($leaderboard->game);
     }
 }
