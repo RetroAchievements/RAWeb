@@ -3,6 +3,7 @@
 
 import { createInertiaApp } from '@inertiajs/react';
 import createServer from '@inertiajs/react/server';
+import dayjs from 'dayjs';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import ReactDOMServer from 'react-dom/server';
 import type { RouteName, RouteParams } from 'ziggy-js';
@@ -37,6 +38,11 @@ createServer(
 
         const globalProps = props.initialPage.props as AppGlobalProps;
         const userLocale = globalProps.auth?.user.locale ?? 'en_US';
+
+        // Always reset the dayjs locale state on each request.
+        // Otherwise, we may be holding on to a different user's locale
+        // setting, and the current user will get a hydration issue.
+        dayjs.locale('en');
 
         const i18nInstance = await createServerI18nInstance(userLocale);
         await loadDayjsLocale(userLocale);

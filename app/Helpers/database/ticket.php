@@ -169,7 +169,7 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
         'ReportNotes' => $note,
     ]);
 
-    expireUserTicketCounts($achievement->developer->User);
+    expireUserTicketCounts($achievement->developer->username);
 
     sendInitialTicketEmailToAssignee($newTicket, $achievement->game, $achievement);
 
@@ -181,18 +181,12 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
 
 function getExistingTicketID(User $user, int $achievementID): int
 {
-    $userID = $user->ID;
-    $query = "SELECT ID FROM Ticket WHERE reporter_id=$userID AND AchievementID=$achievementID"
-           . " AND ReportState NOT IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
-    $dbResult = s_mysql_query($query);
-    if ($dbResult) {
-        $existingTicket = mysqli_fetch_assoc($dbResult);
-        if ($existingTicket) {
-            return (int) $existingTicket['ID'];
-        }
-    }
+    $ticket = Ticket::whereReporterId($user->id)
+        ->where('AchievementID', $achievementID)
+        ->whereNotIn('ReportState', [TicketState::Closed, TicketState::Resolved])
+        ->first();
 
-    return 0;
+    return $ticket ? $ticket->id : 0;
 }
 
 function getTicket(int $ticketID): ?array

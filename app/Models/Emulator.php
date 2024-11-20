@@ -6,8 +6,10 @@ namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
 use App\Support\Database\Eloquent\BasePivot;
+use Database\Factories\EmulatorFactory;
 use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -29,6 +31,8 @@ class Emulator extends BaseModel implements HasMedia
      */
     use SoftDeletes;
     use SortableTrait;
+    /** @use HasFactory<EmulatorFactory> */
+    use HasFactory;
 
     /*
      * Providers Traits
@@ -54,6 +58,11 @@ class Emulator extends BaseModel implements HasMedia
     protected $casts = [
         'active' => 'boolean',
     ];
+
+    protected static function newFactory(): EmulatorFactory
+    {
+        return EmulatorFactory::new();
+    }
 
     public static function boot()
     {
