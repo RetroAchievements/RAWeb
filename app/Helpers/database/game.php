@@ -49,7 +49,7 @@ function getGameMetadata(
     ?array &$gameDataOut,
     int $sortBy = 1,
     ?User $user2 = null,
-    int $flag = AchievementFlag::OfficialCore,
+    AchievementFlag $flag = AchievementFlag::OfficialCore,
     bool $metrics = false,
 ): int {
     $flag = $flag !== AchievementFlag::Unofficial ? AchievementFlag::OfficialCore : AchievementFlag::Unofficial;
@@ -136,7 +136,7 @@ function getGameMetadata(
 
     $achievementDataOut = legacyDbFetchAll($query, array_merge([
         'gameId' => $gameID,
-        'achievementFlag' => $flag,
+        'achievementFlag' => $flag->value,
     ], $metricsBindings))
         ->keyBy('ID')
         ->toArray();
@@ -198,10 +198,10 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
 
     $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,
               CASE
-                WHEN (SELECT COUNT(*) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementFlag::OfficialCore . ") > 0 THEN 1
+                WHEN (SELECT COUNT(*) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementFlag::OfficialCore->value . ") > 0 THEN 1
                 ELSE 0
               END AS HasAchievements,
-              (SELECT SUM(ach.Points) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementFlag::OfficialCore . ") AS Points,
+              (SELECT SUM(ach.Points) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementFlag::OfficialCore->value . ") AS Points,
               gd.TotalTruePoints
               FROM GameAlternatives AS ga
               LEFT JOIN GameData AS gd ON gd.ID = ga.gameIDAlt
@@ -316,7 +316,7 @@ function getGamesListByDev(
         $query = "SELECT $foundRows gd.ID, MAX(ach.DateModified) AS DateModified
                   FROM GameData gd
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
-                  LEFT JOIN Achievements ach ON ach.GameID=gd.ID AND ach.Flags=" . AchievementFlag::OfficialCore . "
+                  LEFT JOIN Achievements ach ON ach.GameID=gd.ID AND ach.Flags=" . AchievementFlag::OfficialCore->value . "
                   WHERE 1=1 $whereClause
                   GROUP BY gd.ID $orderBy";
     } else {
@@ -367,7 +367,7 @@ function getGamesListByDev(
                   FROM Achievements ach
                   INNER JOIN GameData gd ON gd.ID = ach.GameID
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
-                  WHERE ach.user_id = :userId AND ach.Flags = " . AchievementFlag::OfficialCore . " $whereClause
+                  WHERE ach.user_id = :userId AND ach.Flags = " . AchievementFlag::OfficialCore->value . " $whereClause
                   GROUP BY ach.GameID $orderBy";
         foreach (legacyDbFetchAll($query, ['userId' => $dev->id]) as $row) {
             if (!$initialQuery) {
@@ -463,7 +463,7 @@ function getGamesListByDev(
     $query = "SELECT GameID, MAX(DateModified) AS DateModified
               FROM Achievements
               WHERE GameID IN ($gameList)
-              AND Flags=" . AchievementFlag::OfficialCore . "
+              AND Flags=" . AchievementFlag::OfficialCore->value . "
               GROUP BY GameID";
     foreach (legacyDbFetchAll($query) as $row) {
         $games[$row['GameID']]['DateModified'] = $row['DateModified'];
@@ -518,7 +518,7 @@ function getGamesListData(?int $consoleID = null, bool $officialFlag = false): a
     $whereClause = "";
     if ($officialFlag) {
         $leftJoinAch = "LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID ";
-        $whereClause = "WHERE ach.Flags=" . AchievementFlag::OfficialCore . ' ';
+        $whereClause = "WHERE ach.Flags=" . AchievementFlag::OfficialCore->value . ' ';
     }
 
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
@@ -1031,7 +1031,7 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
         }
 
         foreach ($achievements as $achievement) {
-            if (!AchievementFlag::isValid($achievement->Flags)) {
+            if (!AchievementFlag::tryFrom($achievement->Flags)) {
                 continue;
             }
 

@@ -416,8 +416,8 @@ class BuildGameListActionTest extends TestCase
         $this->seedGamesForLists();
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
-        $achievement1001 = Achievement::factory()->create(['GameID' => 1001, 'Flags' => AchievementFlag::OfficialCore]);
-        $achievement1003 = Achievement::factory()->create(['GameID' => 1003, 'Flags' => AchievementFlag::OfficialCore]);
+        $achievement1001 = Achievement::factory()->create(['GameID' => 1001, 'Flags' => AchievementFlag::OfficialCore->value]);
+        $achievement1003 = Achievement::factory()->create(['GameID' => 1003, 'Flags' => AchievementFlag::OfficialCore->value]);
 
         Ticket::factory()->count(3)->create(['AchievementID' => $achievement1001->id, 'ReportState' => TicketState::Open]);
         Ticket::factory()->count(27)->create(['AchievementID' => $achievement1003->id, 'ReportState' => TicketState::Closed]);
@@ -470,8 +470,8 @@ class BuildGameListActionTest extends TestCase
         $this->seedGamesForLists();
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
-        $achievement1001 = Achievement::factory()->create(['GameID' => 1001, 'Flags' => AchievementFlag::OfficialCore]);
-        $achievement1003 = Achievement::factory()->create(['GameID' => 1003, 'Flags' => AchievementFlag::OfficialCore]);
+        $achievement1001 = Achievement::factory()->create(['GameID' => 1001, 'Flags' => AchievementFlag::OfficialCore->value]);
+        $achievement1003 = Achievement::factory()->create(['GameID' => 1003, 'Flags' => AchievementFlag::OfficialCore->value]);
 
         Ticket::factory()->count(3)->create(['AchievementID' => $achievement1001->id, 'ReportState' => TicketState::Open]);
         Ticket::factory()->count(27)->create(['AchievementID' => $achievement1003->id, 'ReportState' => TicketState::Closed]);

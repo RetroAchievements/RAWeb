@@ -38,7 +38,7 @@ export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
         />
 
         <PreferencesSwitchField
-          t_label={t('Show absolute dates on forum posts')}
+          t_label={t('Prefer absolute dates')}
           fieldName={StringifiedUserPreference.Forum_ShowAbsoluteDates}
           control={form.control}
         />

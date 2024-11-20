@@ -138,7 +138,7 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         $this->assertPointBadgeTier($author, 2, 1);
 
         // demoted achievement removes contributions, but not badge.
-        $achievements[3]->Flags = AchievementFlag::Unofficial;
+        $achievements[3]->Flags = AchievementFlag::Unofficial->value;
         $achievements[3]->save();
         $action->execute($author);
         $this->assertEquals(2, $author->ContribCount);
@@ -153,7 +153,7 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         $this->assertPointBadgeTier($author, 2);
 
         // promoted achievement restores contributions, crosses tier, and awards new badge.
-        $achievements[3]->Flags = AchievementFlag::OfficialCore;
+        $achievements[3]->Flags = AchievementFlag::OfficialCore->value;
         $achievements[3]->save();
         $action->execute($author);
         $this->assertEquals(4, $author->ContribCount);

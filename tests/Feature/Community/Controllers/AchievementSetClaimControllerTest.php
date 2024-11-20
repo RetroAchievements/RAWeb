@@ -646,7 +646,7 @@ class AchievementSetClaimControllerTest extends TestCase
 
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
-        Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $user->id, 'Flags' => AchievementFlag::OfficialCore]);
+        Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $user->id, 'Flags' => AchievementFlag::OfficialCore->value]);
         $game->achievements_published = 40;
         $game->save();
 

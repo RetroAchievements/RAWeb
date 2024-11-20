@@ -4,7 +4,6 @@ use App\Enums\PlayerGameActivityEventType;
 use App\Enums\PlayerGameActivitySessionType;
 use App\Models\Game;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\PlayerGameActivityPageService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;

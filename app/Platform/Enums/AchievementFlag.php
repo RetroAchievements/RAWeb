@@ -4,31 +4,20 @@ declare(strict_types=1);
 
 namespace App\Platform\Enums;
 
-abstract class AchievementFlag
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+#[TypeScript]
+enum AchievementFlag: int
 {
-    public const OfficialCore = 3;
+    case OfficialCore = 3;
 
-    public const Unofficial = 5;
+    case Unofficial = 5;
 
-    public static function cases(): array
+    public function label(): string
     {
-        return [
-            self::OfficialCore,
-            self::Unofficial,
-        ];
-    }
-
-    public static function isValid(int $flag): bool
-    {
-        return in_array($flag, self::cases());
-    }
-
-    public static function toString(int $flag): string
-    {
-        return match ($flag) {
-            AchievementFlag::OfficialCore => 'Published',
-            AchievementFlag::Unofficial => 'Unpublished',
-            default => 'Invalid flag',
+        return match ($this) {
+            self::OfficialCore => __('Published'),
+            self::Unofficial => __('Unpublished'),
         };
     }
 }
