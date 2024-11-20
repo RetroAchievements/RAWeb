@@ -1025,7 +1025,7 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
                 'Modified' => Carbon::now()->unix(),
                 'Created' => Carbon::now()->unix(),
                 'BadgeName' => '00000',
-                'Flags' => AchievementFlag::OfficialCore,
+                'Flags' => AchievementFlag::OfficialCore->value,
                 'Type' => null,
                 'Rarity' => 0.0,
                 'RarityHardcore' => 0.0,

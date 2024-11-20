@@ -23,7 +23,7 @@ class PatchDataTest extends TestCase
     use RefreshDatabase;
     use TestsEmulatorUserAgent;
 
-    private string $unknownClientWarning = 'The server does not recognize this client and will not allow hardcore unlocks. Please contact RAdmin for information on how to submit your emulator for hardcore consideration.';
+    private string $unknownClientWarning = 'The server does not recognize this client and will not allow hardcore unlocks. Please send a message to RAdmin on the RetroAchievements website for information on how to submit your emulator for hardcore consideration.';
 
     private function getAchievementPatchData(Achievement $achievement, float $rarity = 100.0, float $rarityHardcore = 100.0): array
     {
@@ -60,7 +60,7 @@ class PatchDataTest extends TestCase
             'Modified' => Carbon::now()->unix(),
             'Created' => Carbon::now()->unix(),
             'BadgeName' => '00000',
-            'Flags' => AchievementFlag::OfficialCore,
+            'Flags' => AchievementFlag::OfficialCore->value,
             'Type' => null,
             'Rarity' => 0.0,
             'RarityHardcore' => 0.0,
