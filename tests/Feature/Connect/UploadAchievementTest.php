@@ -92,7 +92,7 @@ class UploadAchievementTest extends TestCase
             'd' => 'Description1',
             'z' => 5,
             'm' => '0xH0000=1',
-            'f' => AchievementFlag::OfficialCore, // Unofficial - hardcode for test to prevent false success if enum changes
+            'f' => AchievementFlag::OfficialCore->value, // Unofficial - hardcode for test to prevent false success if enum changes
             'b' => '001234',
         ]))
             ->assertExactJson([
@@ -150,7 +150,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title1');
         $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
         $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->user_id, $author->id);
         $this->assertEquals($achievement2->BadgeName, '001234');
@@ -176,7 +176,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title1');
         $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
         $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->BadgeName, '001234');
 
@@ -205,7 +205,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->BadgeName, '002345');
 
@@ -243,7 +243,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->BadgeName, '002345');
 
@@ -273,7 +273,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->BadgeName, '002345');
 
@@ -303,7 +303,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->BadgeName, '002345');
 
@@ -333,7 +333,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->BadgeName, '002345');
 
@@ -436,7 +436,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title1');
         $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
         $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->BadgeName, '001234');
 
@@ -461,7 +461,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->BadgeName, '002345');
 
@@ -479,7 +479,7 @@ class UploadAchievementTest extends TestCase
         $this->assertNotEquals($achievement1->Title, 'Title2');
         $this->assertNotEquals($achievement1->MemAddr, '0xH0001=1');
         $this->assertNotEquals($achievement1->Points, 10);
-        $this->assertEquals($achievement1->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement1->Flags, AchievementFlag::Unofficial->value);
         $this->assertNotEquals($achievement1->type, 'progression');
         $this->assertNotEquals($achievement1->BadgeName, '002345');
 
@@ -499,13 +499,13 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->BadgeName, '002345');
 
         // ====================================================
         // junior developer cannot demote their own achievement
-        $achievement2->Flags = AchievementFlag::OfficialCore;
+        $achievement2->Flags = AchievementFlag::OfficialCore->value;
         $achievement2->save();
         $params['f'] = 5;
         $this->get($this->apiUrl('uploadachievement', $params))
@@ -520,7 +520,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->BadgeName, '002345');
 
@@ -540,7 +540,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->BadgeName, '002345');
 
@@ -564,7 +564,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title3');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->BadgeName, '003456');
     }
@@ -622,7 +622,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title1');
         $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
         $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->BadgeName, '001234');
 
@@ -647,7 +647,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->BadgeName, '002345');
 
@@ -666,7 +666,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->BadgeName, '002345');
 
@@ -690,7 +690,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title3');
         $this->assertEquals($achievement2->MemAddr, '0xH0002=1');
         $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->BadgeName, '003456');
 
@@ -709,7 +709,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title3');
         $this->assertEquals($achievement2->MemAddr, '0xH0002=1');
         $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->BadgeName, '003456');
 
@@ -733,7 +733,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement1->Title, 'Title2');
         $this->assertEquals($achievement1->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement1->Points, 10);
-        $this->assertEquals($achievement1->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement1->Flags, AchievementFlag::Unofficial->value);
         $this->assertEquals($achievement1->type, 'progression');
         $this->assertEquals($achievement1->BadgeName, '002345');
 
@@ -752,7 +752,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement1->Title, 'Title2');
         $this->assertEquals($achievement1->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement1->Points, 10);
-        $this->assertEquals($achievement1->Flags, AchievementFlag::OfficialCore);
+        $this->assertEquals($achievement1->Flags, AchievementFlag::OfficialCore->value);
         $this->assertEquals($achievement1->type, 'progression');
         $this->assertEquals($achievement1->BadgeName, '002345');
 
@@ -776,7 +776,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement1->Title, 'Title3');
         $this->assertEquals($achievement1->MemAddr, '0xH0002=1');
         $this->assertEquals($achievement1->Points, 5);
-        $this->assertEquals($achievement1->Flags, AchievementFlag::OfficialCore);
+        $this->assertEquals($achievement1->Flags, AchievementFlag::OfficialCore->value);
         $this->assertNull($achievement1->type);
         $this->assertEquals($achievement1->BadgeName, '003456');
 
@@ -795,7 +795,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement1->Title, 'Title3');
         $this->assertEquals($achievement1->MemAddr, '0xH0002=1');
         $this->assertEquals($achievement1->Points, 5);
-        $this->assertEquals($achievement1->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement1->Flags, AchievementFlag::Unofficial->value);
         $this->assertNull($achievement1->type);
         $this->assertEquals($achievement1->BadgeName, '003456');
     }
@@ -846,7 +846,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title1');
         $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
         $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->user_id, $author->id);
         $this->assertEquals($achievement2->BadgeName, '001234');
@@ -872,7 +872,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title1');
         $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
         $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->BadgeName, '001234');
 
@@ -911,7 +911,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
         $this->assertEquals($achievement2->type, null);
         $this->assertEquals($achievement2->BadgeName, '002345');
 
@@ -967,7 +967,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title1');
         $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
         $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->user_id, $author->id);
         $this->assertEquals($achievement2->BadgeName, '001234');
@@ -998,7 +998,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->BadgeName, '002345');
 
@@ -1022,7 +1022,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->BadgeName, '002345');
     }

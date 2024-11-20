@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import type { FC, ReactNode } from 'react';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
@@ -9,6 +10,8 @@ interface ReportIssueOptionItemProps {
   href: string;
 
   anchorClassName?: string;
+  /** Set this to truthy if we're navigating to a React page. */
+  shouldUseClientSideRoute?: boolean;
 }
 
 export const ReportIssueOptionItem: FC<ReportIssueOptionItemProps> = ({
@@ -16,15 +19,18 @@ export const ReportIssueOptionItem: FC<ReportIssueOptionItemProps> = ({
   children,
   href,
   anchorClassName,
+  shouldUseClientSideRoute = false,
 }) => {
+  const AnchorTag = shouldUseClientSideRoute ? Link : 'a';
+
   return (
     <li className="flex w-full flex-col items-center justify-between gap-2 rounded bg-embed px-3 py-2 sm:flex-row">
       <p>{children}</p>
 
       <div className="self-end sm:self-auto">
-        <a href={href} className={cn(baseButtonVariants({ size: 'sm' }), anchorClassName)}>
+        <AnchorTag href={href} className={cn(baseButtonVariants({ size: 'sm' }), anchorClassName)}>
           {t_buttonText}
-        </a>
+        </AnchorTag>
       </div>
     </li>
   );

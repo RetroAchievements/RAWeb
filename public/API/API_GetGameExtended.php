@@ -58,7 +58,7 @@ use App\Platform\Enums\AchievementFlag;
 use Carbon\Carbon;
 
 $gameId = (int) request()->query('i');
-$flag = (int) request()->query('f', (string) AchievementFlag::OfficialCore);
+$flag = AchievementFlag::tryFrom((int) request()->query('f', (string) AchievementFlag::OfficialCore->value));
 
 $game = Game::with('system')->find($gameId);
 
@@ -67,7 +67,7 @@ if (!$game) {
 }
 
 $gameAchievementSetClaims = AchievementSetClaim::with('user')->where('game_id', $gameId)->get();
-$gameAchievements = Achievement::where('GameID', $gameId)->where('Flags', $flag)->findMany($game->achievements);
+$gameAchievements = Achievement::where('GameID', $gameId)->where('Flags', $flag->value)->findMany($game->achievements);
 
 $gameData = [
     'ID' => $game->ID,

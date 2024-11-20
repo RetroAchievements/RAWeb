@@ -159,7 +159,7 @@ class BuildGameListAction
                 'num_unresolved_tickets' => Ticket::selectRaw('COUNT(*)')
                     ->join('Achievements', 'Ticket.AchievementID', '=', 'Achievements.ID')
                     ->whereColumn('Achievements.GameID', 'GameData.ID')
-                    ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+                    ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
                     ->whereIn('Ticket.ReportState', [TicketState::Open, TicketState::Request]),
             ]);
         }
