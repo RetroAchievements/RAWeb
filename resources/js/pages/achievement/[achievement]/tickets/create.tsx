@@ -13,7 +13,9 @@ const CreateAchievementTicket: AppPage = () => {
 
   return (
     <>
-      <Head title={t('Create Ticket - :achievementTitle', { achievementTitle: achievement.title })}>
+      <Head
+        title={t('Create Ticket - {{achievementTitle}}', { achievementTitle: achievement.title })}
+      >
         <meta
           name="description"
           content={`Create a ticket for the achievement: ${achievement.title}`}

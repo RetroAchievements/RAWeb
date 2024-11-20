@@ -23,7 +23,7 @@ export const EmulatorCoreField: FC = () => {
       name="core"
       render={({ field }) => (
         <BaseFormItem className="flex w-full flex-col gap-1 sm:flex-row sm:items-center">
-          <BaseFormLabel className="text-menu-link sm:mt-[13px] sm:min-w-36 sm:self-start">
+          <BaseFormLabel className="w-36 text-menu-link sm:mt-[13px] sm:min-w-36 sm:self-start">
             {t('Emulator Core')}
           </BaseFormLabel>
 

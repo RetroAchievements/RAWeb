@@ -36,6 +36,7 @@ describe('Util: loadDayjsLocale', () => {
 
   it.each`
     userLocale | dayjsLocale
+    ${'de_DE'} | ${'de'}
     ${'en_GB'} | ${'en-gb'}
     ${'es_ES'} | ${'es'}
     ${'fr_FR'} | ${'fr'}
