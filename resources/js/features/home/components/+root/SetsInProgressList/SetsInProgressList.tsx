@@ -16,7 +16,7 @@ import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { ClaimSetType } from '@/common/utils/generatedAppConstants';
 
-import { ClaimMobileBlock } from '../../ClaimMobileBlock/ClaimMobileBlock';
+import { ClaimMobileBlock } from '../../ClaimMobileBlock';
 import { HomeHeading } from '../../HomeHeading';
 import { SeeMoreLink } from '../../SeeMoreLink';
 
@@ -39,7 +39,7 @@ export const SetsInProgressList: FC = () => {
         <>
           <div className="flex flex-col gap-y-1 sm:hidden">
             {newClaims.map((claim) => (
-              <ClaimMobileBlock key={`mobile-claim-${claim.id}`} claim={claim} />
+              <ClaimMobileBlock key={`mobile-claim-${claim.id}`} claim={claim} variant="new" />
             ))}
           </div>
 
