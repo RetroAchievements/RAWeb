@@ -48,12 +48,11 @@ export function DataTableSuperFilter<TData>({ table }: DataTableSuperFilterProps
   const { sortConfigs } = useSortConfigs();
 
   const sortableColumns = table.getAllColumns().filter((c) => c.getCanSort());
+  const sortingState = table.getState().sorting;
 
-  const currentSort =
-    table
-      .getState()
-      .sorting.map((sort) => (sort.desc ? `-${sort.id}` : sort.id))
-      .join() ?? 'title';
+  const currentSort = sortingState.length
+    ? sortingState.map((sort) => (sort.desc ? `-${sort.id}` : sort.id)).join()
+    : 'title';
 
   const handleSortOrderValueChange = (newValue: string) => {
     const direction = newValue.startsWith('-') ? 'desc' : 'asc';
