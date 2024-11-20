@@ -327,7 +327,7 @@ class Game extends BaseModel implements HasMedia
 
         // Check if any achievement is authored by the given user.
         return $this->achievements->some(function ($achievement) use ($user) {
-            return $achievement->Flags === AchievementFlag::OfficialCore && $achievement->developer->id === $user->id;
+            return $achievement->Flags === AchievementFlag::OfficialCore->value && $achievement->developer->id === $user->id;
         });
     }
 

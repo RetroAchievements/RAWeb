@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\EventAchievement;
 use App\Models\StaticData;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /*
  *  API_GetAchievementOfTheWeek
@@ -45,9 +47,28 @@ use Illuminate\Support\Carbon;
  *       filters the Unlocks to just those entries after StartAt.
  */
 
-$staticData = StaticData::first();
-$achievementID = $staticData['Event_AOTW_AchievementID'] ?? null;
-$startAt = $staticData['Event_AOTW_StartAt'] ?? null;
+$achievementOfTheWeek = EventAchievement::active()
+    ->whereHas('achievement.game', function ($query) {
+        $query->where('Title', 'like', '%of the week%');
+    })
+    ->with('achievement.game')
+    ->first();
+
+if ($achievementOfTheWeek) {
+    $achievementID = $achievementOfTheWeek->source_achievement_id;
+    $startAt = $achievementOfTheWeek->active_from;
+
+    $forumTopic = ['ID' => $achievementOfTheWeek->achievement->game->ForumTopicID];
+} else {
+    // fallback to static data until an AotW event is generated
+    $staticData = StaticData::first();
+    $achievementID = $staticData['Event_AOTW_AchievementID'] ?? null;
+    $startAt = $staticData['Event_AOTW_StartAt'] ?? null;
+
+    $forumTopic = [
+        'ID' => $staticData['Event_AOTW_ForumID'] ?? null,
+    ];
+}
 
 if (empty($achievementID)) {
     return response()->json([
@@ -82,26 +103,50 @@ $console = [
     'Title' => $achievementData['ConsoleName'] ?? null,
 ];
 
-$forumTopic = [
-    'ID' => $staticData['Event_AOTW_ForumID'] ?? null,
-];
-
-$parentGame = getParentGameFromGameTitle($game['Title'], $achievementData['ConsoleID']);
-$unlocks = getAchievementUnlocksData((int) $achievementID, null, $numWinners, $numWinnersHardcore, $numPossibleWinners, $parentGame?->id, 0, 500);
-
-/*
- * reset unlocks if there is no start date to prevent listing invalid entries
- */
-if (empty($startAt)) {
+if ($achievementOfTheWeek) {
     $unlocks = collect();
-}
 
-if (!empty($startAt)) {
-    $unlocks = $unlocks->filter(fn ($unlock) => Carbon::parse($unlock['DateAwarded'])->gte($startAt));
-}
+    $playerAchievements = $achievementOfTheWeek->achievement->playerAchievements()
+        ->with('user')
+        ->orderBy(DB::raw('IFNULL(unlocked_hardcore_at, unlocked_at)'))
+        ->limit(500)
+        ->get();
+    $numWinners = $playerAchievements->count();
+    $numWinnersHardcore = 0;
 
-// reverse order so newest winners are last
-$unlocks->sortByDesc('DateAwarded');
+    foreach ($playerAchievements as $playerAchievement) {
+        $unlocks[] = [
+            'User' => $playerAchievement->user->display_name,
+            'RAPoints' => $playerAchievement->user->RAPoints,
+            'RASoftcorePoints' => $playerAchievement->user->RASoftcorePoints,
+            'HardcoreMode' => $playerAchievement->unlocked_hardcore_at !== null ? 1 : 0,
+        ];
+
+        if ($playerAchievement->unlocked_hardcore_at !== null) {
+            $numWinnersHardcore++;
+        }
+    }
+
+    $numPossibleWinners = $achievementOfTheWeek->achievement->game->players_total;
+
+} else {
+    $parentGame = getParentGameFromGameTitle($game['Title'], $achievementData['ConsoleID']);
+    $unlocks = getAchievementUnlocksData((int) $achievementID, null, $numWinners, $numWinnersHardcore, $numPossibleWinners, $parentGame?->id, 0, 500);
+
+    /*
+    * reset unlocks if there is no start date to prevent listing invalid entries
+    */
+    if (empty($startAt)) {
+        $unlocks = collect();
+    }
+
+    if (!empty($startAt)) {
+        $unlocks = $unlocks->filter(fn ($unlock) => Carbon::parse($unlock['DateAwarded'])->gte($startAt));
+    }
+
+    // reverse order so newest winners are last
+    $unlocks->sortByDesc('DateAwarded');
+}
 
 return response()->json([
     'Achievement' => $achievement,
