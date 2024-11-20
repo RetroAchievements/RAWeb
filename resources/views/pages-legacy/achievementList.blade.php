@@ -1,6 +1,6 @@
 <?php
 
-// TODO migrate to AchievementController::index() pages/achievements.blade.php
+// TODO migrate to AchievementController::index()
 
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
@@ -25,8 +25,8 @@ if ($user == null) {
     $params = 3;
 }
 $flags = match ($params) {
-    5 => 5,
-    default => 3,
+    5 => AchievementFlag::Unofficial,
+    default => AchievementFlag::OfficialCore,
 };
 
 $dev_param = null;
@@ -66,15 +66,15 @@ if ($consoleIDInput !== 0) {
     echo "<div class='flex flex-wrap justify-between'>";
     echo "<div>";
 
-    echo $params !== AchievementFlag::OfficialCore ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementFlag::OfficialCore . "$dev_param'>" : "<b>";
+    echo $params !== AchievementFlag::OfficialCore->value ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementFlag::OfficialCore->value . "$dev_param'>" : "<b>";
     echo "Achievements in Core Sets";
-    echo $params !== AchievementFlag::OfficialCore ? "</a>" : "</b>";
+    echo $params !== AchievementFlag::OfficialCore->value ? "</a>" : "</b>";
     echo "<br>";
 
     if ($user !== null) {
-        echo $params !== AchievementFlag::Unofficial ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementFlag::Unofficial . "$dev_param'>" : "<b>";
+        echo $params !== AchievementFlag::Unofficial->value ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementFlag::Unofficial->value . "$dev_param'>" : "<b>";
         echo "Achievements in Unofficial Sets";
-        echo $params !== AchievementFlag::Unofficial ? "</a>" : "</b>";
+        echo $params !== AchievementFlag::Unofficial->value ? "</a>" : "</b>";
         echo "<br>";
 
         echo $params !== 1 ? "<a href='/achievementList.php?s=$sortBy&p=1$dev_param'>" : "<b>";

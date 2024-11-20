@@ -18,6 +18,6 @@ use Illuminate\Support\Facades\Auth;
 $gameID = (int) request()->query('i');
 $hardcore = (int) request()->query('h', (string) UnlockMode::Softcore);
 $requestedBy = Auth::user()->User;
-$flag = (int) request()->query('f', (string) AchievementFlag::OfficialCore);
+$flag = AchievementFlag::tryFrom((int) request()->query('f', (string) AchievementFlag::OfficialCore->value));
 
 return response()->json(getAchievementDistribution($gameID, $hardcore, $requestedBy, $flag));

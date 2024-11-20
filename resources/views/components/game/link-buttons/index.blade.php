@@ -20,7 +20,6 @@
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\Ticket;
-use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Facades\Auth;
 
 $user = Auth::user();

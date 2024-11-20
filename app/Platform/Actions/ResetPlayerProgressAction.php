@@ -34,7 +34,7 @@ class ResetPlayerProgressAction
             FROM player_achievements pa
             INNER JOIN Achievements ach ON ach.ID = pa.achievement_id
             INNER JOIN UserAccounts ua ON ua.ID = ach.user_id
-            WHERE ach.Flags = " . AchievementFlag::OfficialCore . "
+            WHERE ach.Flags = " . AchievementFlag::OfficialCore->value . "
             AND pa.user_id = {$user->id} $clause
             GROUP BY ach.user_id, ach.GameID, HardcoreMode
         ");
