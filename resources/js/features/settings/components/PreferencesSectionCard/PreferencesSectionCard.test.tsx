@@ -29,7 +29,7 @@ describe('Component: PreferencesSectionCard', () => {
 
     // ASSERT
     expect(screen.getByRole('switch', { name: /suppress mature content warnings/i })).toBeChecked();
-    expect(screen.getByRole('switch', { name: /show absolute dates/i })).not.toBeChecked();
+    expect(screen.getByRole('switch', { name: /prefer absolute dates/i })).not.toBeChecked();
     expect(screen.getByRole('switch', { name: /hide missable/i })).not.toBeChecked();
     expect(screen.getByRole('switch', { name: /only people i follow/i })).toBeChecked();
   });
