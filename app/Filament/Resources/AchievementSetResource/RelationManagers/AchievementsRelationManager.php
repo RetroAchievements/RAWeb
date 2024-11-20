@@ -76,10 +76,10 @@ class AchievementsRelationManager extends RelationManager
                 Filters\SelectFilter::make('Flags')
                     ->options([
                         0 => 'All',
-                        AchievementFlag::OfficialCore => 'Published',
-                        AchievementFlag::Unofficial => 'Unpublished',
+                        AchievementFlag::OfficialCore->value => AchievementFlag::OfficialCore->label(),
+                        AchievementFlag::Unofficial->value => AchievementFlag::Unofficial->label(),
                     ])
-                    ->default(AchievementFlag::OfficialCore)
+                    ->default(AchievementFlag::OfficialCore->value)
                     ->selectablePlaceholder(false)
                     ->placeholder('All')
                     ->query(function (array $data, Builder $query) {

@@ -35,7 +35,7 @@ class AchievementFactory extends Factory
             'Description' => fake()->sentence(),
             'MemAddr' => '0x000000',
             'user_id' => $user?->id ?? 1,
-            'Flags' => AchievementFlag::Unofficial,
+            'Flags' => AchievementFlag::Unofficial->value,
             'type' => null,
             'Points' => array_rand(array_diff(AchievementPoints::cases(), [0])),
             'TrueRatio' => rand(1, 1000),
@@ -48,7 +48,7 @@ class AchievementFactory extends Factory
     public function published(): static
     {
         return $this->state(fn (array $attributes) => [
-            'Flags' => AchievementFlag::OfficialCore,
+            'Flags' => AchievementFlag::OfficialCore->value,
         ]);
     }
 

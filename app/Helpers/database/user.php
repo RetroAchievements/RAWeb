@@ -264,7 +264,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
         $query = "SELECT ua.ID, ua.User, ua.Permissions, ua.ContribCount, ua.ContribYield,
                          ua.LastLogin, SUM(!ISNULL(ach.ID)) AS NumAchievements
                   FROM UserAccounts ua
-                  LEFT JOIN Achievements ach ON ach.user_id = ua.ID AND ach.Flags = " . AchievementFlag::OfficialCore . "
+                  LEFT JOIN Achievements ach ON ach.user_id = ua.ID AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
                   WHERE ua.ID IN ($devList)
                   GROUP BY ua.ID";
         $buildData($query);
@@ -344,7 +344,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
               INNER JOIN Achievements as ach ON ach.ID = tick.AchievementID
               WHERE tick.resolver_id != tick.reporter_id
               AND ach.user_id != tick.resolver_id
-              AND ach.Flags = " . AchievementFlag::OfficialCore . "
+              AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
               AND tick.ReportState = " . TicketState::Resolved . "
               AND tick.resolver_id IN ($devList)
               GROUP BY tick.resolver_id";

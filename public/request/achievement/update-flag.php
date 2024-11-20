@@ -13,24 +13,24 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'achievements' => 'required',
-    'flag' => ['required', 'integer', Rule::in(AchievementFlag::cases())],
+    'flag' => ['required', 'integer', Rule::in(array_map(fn ($case) => $case->value, AchievementFlag::cases()))],
 ]);
 
 $achievementIds = $input['achievements'];
-$value = (int) $input['flag'];
+$flag = AchievementFlag::from((int) $input['flag']);
 
 $achievement = GetAchievementData((int) (is_array($achievementIds) ? $achievementIds[0] : $achievementIds));
-if ($value === AchievementFlag::OfficialCore && !isValidConsoleId($achievement['ConsoleID'])) {
+if ($flag === AchievementFlag::OfficialCore && !isValidConsoleId($achievement['ConsoleID'])) {
     abort(400, 'Invalid console');
 }
 
-updateAchievementFlag($achievementIds, $value);
+updateAchievementFlag($achievementIds, $flag);
 
 $commentText = '';
-if ($value == AchievementFlag::OfficialCore) {
+if ($flag === AchievementFlag::OfficialCore) {
     $commentText = 'promoted this achievement to the Core set';
 }
-if ($value == AchievementFlag::Unofficial) {
+if ($flag === AchievementFlag::Unofficial) {
     $commentText = 'demoted this achievement to Unofficial';
 }
 addArticleComment("Server", ArticleType::Achievement, $achievementIds, "$user $commentText.", $user);

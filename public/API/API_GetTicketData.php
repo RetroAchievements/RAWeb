@@ -264,7 +264,7 @@ if ($gameIDGiven > 0) {
     $game = Game::where('ID', $gameIDGiven)->with('system')->first();
     if ($game) {
         $tickets = Ticket::forGame($game);
-        if ($gamesTableFlag === AchievementFlag::Unofficial) {
+        if ($gamesTableFlag === AchievementFlag::Unofficial->value) {
             $tickets->unofficial();
         } else {
             $tickets->officialCore();

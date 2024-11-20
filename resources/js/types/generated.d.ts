@@ -371,6 +371,7 @@ declare namespace App.Platform.Data {
 }
 declare namespace App.Platform.Enums {
   export type UnlockMode = 0 | 1;
+  export type AchievementFlag = 3 | 5;
   export type AchievementSetType =
     | 'core'
     | 'bonus'
