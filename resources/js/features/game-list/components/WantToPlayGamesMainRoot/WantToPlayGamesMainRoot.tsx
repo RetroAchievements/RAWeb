@@ -28,6 +28,7 @@ export const WantToPlayGamesMainRoot: FC = () => {
     setSorting,
     sorting,
   } = useGameListState(paginatedGameListEntries, {
+    canShowProgressColumn: true,
     defaultColumnFilters: wantToPlayGamesDefaultFilters,
   });
 
