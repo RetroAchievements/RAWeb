@@ -1,8 +1,8 @@
 import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { createFactory } from '@/test/createFactory';
 
-import { createAchievement } from '../createAchievement';
 import { createAchievementSetClaim } from '../createAchievementSetClaim';
+import { createEventAchievement } from '../createEventAchievement';
 import { createNews } from '../createNews';
 import { createRecentActiveForumTopic } from '../createRecentActiveForumTopic';
 import { createStaticData } from './createStaticData';
@@ -10,7 +10,7 @@ import { createStaticGameAward } from './createStaticGameAward';
 
 export const createHomePageProps = createFactory<App.Http.Data.HomePageProps>((faker) => {
   return {
-    achievementOfTheWeek: createAchievement(),
+    achievementOfTheWeek: createEventAchievement(),
     staticData: createStaticData(),
     mostRecentGameBeaten: createStaticGameAward(),
     mostRecentGameMastered: createStaticGameAward(),

@@ -332,7 +332,7 @@ function countOpenTicketsByDev(User $dev): array
     $counts = Ticket::with('achievement')
         ->where('ticketable_author_id', $dev->id)
         ->whereHas('achievement', function ($query) {
-            $query->whereIn('Flags', [AchievementFlag::OfficialCore, AchievementFlag::Unofficial]);
+            $query->whereIn('Flags', [AchievementFlag::OfficialCore->value, AchievementFlag::Unofficial->value]);
         })
         ->whereIn('ReportState', [TicketState::Open, TicketState::Request])
         ->select('ReportState', DB::raw('count(*) as Count'))
@@ -391,7 +391,7 @@ function gamesSortedByOpenTickets(int $count): array
         LEFT JOIN
             Console AS cons ON cons.ID = gd.ConsoleID
         WHERE
-            tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ") AND ach.Flags = " . AchievementFlag::OfficialCore . "
+            tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ") AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
         GROUP BY
             gd.ID
         ORDER BY
@@ -411,7 +411,7 @@ function getTicketsForUser(User $user): array
             $query->where('ID', $user->id);
         })
         ->whereHas('achievement', function ($query) {
-            $query->where('Flags', AchievementFlag::OfficialCore);
+            $query->where('Flags', AchievementFlag::OfficialCore->value);
         })
         ->groupBy('AchievementID', 'ReportState')
         ->orderBy('AchievementID')
@@ -431,7 +431,7 @@ function getUserGameWithMostTickets(User $user): ?array
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE t.ticketable_author_id = {$user->id}
-              AND ach.Flags = " . AchievementFlag::OfficialCore . "
+              AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
               AND t.ReportState != " . TicketState::Closed . "
               GROUP BY gd.Title
               ORDER BY TicketCount DESC
@@ -456,7 +456,7 @@ function getUserAchievementWithMostTickets(User $user): ?array
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE t.ticketable_author_id = {$user->id}
-              AND ach.Flags = " . AchievementFlag::OfficialCore . "
+              AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
               AND t.ReportState != " . TicketState::Closed . "
               GROUP BY ach.ID
               ORDER BY TicketCount DESC
@@ -511,7 +511,7 @@ function getNumberOfTicketsClosedForOthers(User $user): array
               AND ua.ID != {$user->id}
               AND t.ticketable_author_id != {$user->id}
               AND ua2.ID = {$user->id}
-              AND ach.Flags = " . AchievementFlag::OfficialCore . "
+              AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
               GROUP BY t.ticketable_author_id
               ORDER BY TicketCount DESC, Author";
 
@@ -540,7 +540,7 @@ function getNumberOfTicketsClosed(User $user): array
               WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
               AND t.reporter_id != {$user->id}
               AND t.ticketable_author_id = {$user->id}
-              AND ach.Flags = " . AchievementFlag::OfficialCore . "
+              AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
               GROUP BY ResolvedByUser
               ORDER BY TicketCount DESC, ResolvedByUser";
 

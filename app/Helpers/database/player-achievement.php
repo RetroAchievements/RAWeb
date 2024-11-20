@@ -8,6 +8,7 @@ use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @deprecated see UnlockPlayerAchievementAction
@@ -25,7 +26,7 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
         return $retVal;
     }
 
-    if ($achievement->Flags === AchievementFlag::Unofficial) { // do not award Unofficial achievements
+    if ($achievement->Flags === AchievementFlag::Unofficial->value) { // do not award Unofficial achievements
         $retVal['Error'] = "Unofficial achievements cannot be unlocked";
 
         return $retVal;
@@ -284,7 +285,7 @@ function getAchievementDistribution(
     int $gameID,
     int $isHardcore,
     ?string $requestedBy = null,
-    int $flag = AchievementFlag::OfficialCore,
+    AchievementFlag $flag = AchievementFlag::OfficialCore,
     int $numPlayers = 0
 ): array {
     /** @var Game $game */
@@ -331,7 +332,7 @@ function getAchievementDistribution(
             )
             ->join("Achievements", "player_achievements.achievement_id", "=", "Achievements.ID")
             ->where("Achievements.GameID", $gameID)
-            ->where("Achievements.Flags", AchievementFlag::Unofficial)
+            ->where("Achievements.Flags", AchievementFlag::Unofficial->value)
             ->groupBy("player_achievements.user_id");
 
         if ($shouldJoinUsers) {

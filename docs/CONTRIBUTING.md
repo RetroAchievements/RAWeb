@@ -52,7 +52,7 @@ Before submitting a pull request:
 
 **PHPUnit** is used for testing. Write feature and/or unit tests where applicable.  
 
-**PHP CS Fixer** comes as a dev dependency. Use it before you commit. See the [README](README.md) 
+**PHP CS Fixer** comes as a dev dependency. Use it before you commit. See the [README](https://github.com/RetroAchievements/RAWeb/blob/master/README.md).
 
 **PHPStan** is used for static analysis. Make sure to run it and that your code follows its advice.
 

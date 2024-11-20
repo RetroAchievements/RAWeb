@@ -214,7 +214,7 @@ class ResetPlayerProgressActionTest extends TestCase
         /** @var Achievement $unofficialAchievement */
         $unofficialAchievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
         $this->addHardcoreUnlock($user, $unofficialAchievement);
-        $unofficialAchievement->Flags = AchievementFlag::Unofficial;
+        $unofficialAchievement->Flags = AchievementFlag::Unofficial->value;
         $unofficialAchievement->save();
 
         foreach ($achievements as $achievement) {

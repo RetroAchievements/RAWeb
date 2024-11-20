@@ -263,7 +263,7 @@ class SuggestGamesService
 
             case 8: // same set author (10%)
                 $author = Achievement::where('GameID', $gameId)
-                    ->where('Flags', '=', AchievementFlag::OfficialCore)
+                    ->where('Flags', '=', AchievementFlag::OfficialCore->value)
                     ->join('UserAccounts', 'Achievements.user_id', '=', 'UserAccounts.ID')
                     ->groupBy('Achievements.user_id')
                     ->selectRaw('count(*) as Count, UserAccounts.User as Author, Achievements.user_id as AuthorUserID')
@@ -276,7 +276,7 @@ class SuggestGamesService
                         ->where('GameID', '!=', $gameId)
                         ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
                         ->where('GameData.achievements_published', '>', 0)
-                        ->where('Achievements.Flags', '=', AchievementFlag::OfficialCore)
+                        ->where('Achievements.Flags', '=', AchievementFlag::OfficialCore->value)
                         ->groupBy('GameID')
                         ->select('GameID')
                         ->first();

@@ -193,7 +193,7 @@ if ($game->system->id === System::Events) {
      * @param {3 | 5} newFlag - see AchievementFlag.php
      */
     function updateAchievementFlag(newFlag) {
-        const actionLabel = newFlag === <?= AchievementFlag::OfficialCore ?> ? 'promote' : 'demote';
+        const actionLabel = newFlag === <?= AchievementFlag::OfficialCore->value ?> ? 'promote' : 'demote';
         if (!confirm(`Are you sure you want to ${actionLabel} this achievement?`)) {
             return;
         }
@@ -259,7 +259,7 @@ if ($game->system->id === System::Events) {
 
         echo "<p class='embedded smalldata mb-3'>";
         echo "<small>";
-        if ($achFlags === AchievementFlag::Unofficial) {
+        if ($achFlags === AchievementFlag::Unofficial->value) {
             echo "<b>Unofficial Achievement</b><br>";
         }
         echo "Created by " . userAvatar($author, icon: false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
@@ -399,11 +399,11 @@ if ($game->system->id === System::Events) {
             echo "</tbody></table>";
             echo "&nbsp;<button class='btn' style='float: right;' onclick=\"PostEmbedUpdate()\">Submit</button><br><br>";
 
-            if ($achFlags === AchievementFlag::OfficialCore) {
-                echo "<li>State: Official&nbsp;<button class='btn btn-danger' type='button' onclick='updateAchievementFlag(" . AchievementFlag::Unofficial . ")'>Demote To Unofficial</button></li>";
+            if ($achFlags === AchievementFlag::OfficialCore->value) {
+                echo "<li>State: Official&nbsp;<button class='btn btn-danger' type='button' onclick='updateAchievementFlag(" . AchievementFlag::Unofficial->value . ")'>Demote To Unofficial</button></li>";
             }
-            if ($achFlags === AchievementFlag::Unofficial) {
-                echo "<li>State: Unofficial&nbsp;<button class='btn' type='button' onclick='updateAchievementFlag(" . AchievementFlag::OfficialCore . ")'>Promote To Official</button></li>";
+            if ($achFlags === AchievementFlag::Unofficial->value) {
+                echo "<li>State: Unofficial&nbsp;<button class='btn' type='button' onclick='updateAchievementFlag(" . AchievementFlag::OfficialCore->value . ")'>Promote To Official</button></li>";
             }
         }
 

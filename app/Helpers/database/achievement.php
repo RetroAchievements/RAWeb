@@ -21,13 +21,13 @@ function getAchievementsList(
     int $params,
     int $limit,
     int $offset,
-    ?int $achievementFlag = AchievementFlag::OfficialCore,
+    ?AchievementFlag $achievementFlag = null,
     ?User $developer = null
 ): Collection {
     $bindings = [
         'offset' => $offset,
         'limit' => $limit,
-        'achievementFlag' => $achievementFlag,
+        'achievementFlag' => $achievementFlag?->value ?? AchievementFlag::OfficialCore->value,
     ];
 
     $selectAwardedDate = ", NULL AS AwardedDate";
@@ -225,13 +225,13 @@ function UploadNewAchievement(
         return false;
     }
 
-    if (!AchievementFlag::isValid($flag)) {
+    if (!AchievementFlag::tryFrom($flag)) {
         $errorOut = "Invalid achievement flag";
 
         return false;
     }
 
-    if ($flag === AchievementFlag::OfficialCore && !isValidConsoleId($consoleID)) {
+    if ($flag === AchievementFlag::OfficialCore->value && !isValidConsoleId($consoleID)) {
         $errorOut = "You cannot promote achievements for a game from an unsupported console (console ID: " . $consoleID . ").";
 
         return false;
@@ -353,7 +353,7 @@ function UploadNewAchievement(
             $achievement->Flags = $flag;
         }
 
-        if ($flag === AchievementFlag::OfficialCore || $changingAchSet) { // If modifying core or changing achievement state
+        if ($flag === AchievementFlag::OfficialCore->value || $changingAchSet) { // If modifying core or changing achievement state
             // changing ach set detected; user is $author, permissions is $authorPermissions, target set is $flag
 
             // Only allow jr. devs to modify core achievements if they are the author and not updating logic or state
@@ -366,7 +366,7 @@ function UploadNewAchievement(
             }
         }
 
-        if ($flag === AchievementFlag::Unofficial) { // If modifying unofficial
+        if ($flag === AchievementFlag::Unofficial->value) { // If modifying unofficial
             // Only allow jr. devs to modify unofficial if they are the author
             // TODO use a policy
             if ($authorPermissions == Permissions::JuniorDeveloper && $achievement->user_id !== $author->id) {
@@ -386,7 +386,7 @@ function UploadNewAchievement(
             static_setlastupdatedachievement($idInOut);
 
             if ($changingAchSet) {
-                if ($flag === AchievementFlag::OfficialCore) {
+                if ($flag === AchievementFlag::OfficialCore->value) {
                     addArticleComment(
                         "Server",
                         ArticleType::Achievement,
@@ -394,7 +394,7 @@ function UploadNewAchievement(
                         "$authorUsername promoted this achievement to the Core set.",
                         $authorUsername
                     );
-                } elseif ($flag === AchievementFlag::Unofficial) {
+                } elseif ($flag === AchievementFlag::Unofficial->value) {
                     addArticleComment(
                         "Server",
                         ArticleType::Achievement,
@@ -442,16 +442,16 @@ function updateAchievementDisplayOrder(int $achievementId, int $newDisplayOrder)
     return true;
 }
 
-function updateAchievementFlag(int|string|array $inputAchievementIds, int $newFlag): void
+function updateAchievementFlag(int|string|array $inputAchievementIds, AchievementFlag $newFlag): void
 {
     $achievementIds = is_array($inputAchievementIds) ? $inputAchievementIds : [$inputAchievementIds];
 
     $achievements = Achievement::whereIn('ID', $achievementIds)
-        ->where('Flags', '!=', $newFlag)
+        ->where('Flags', '!=', $newFlag->value)
         ->get();
 
     foreach ($achievements as $achievement) {
-        $achievement->Flags = $newFlag;
+        $achievement->Flags = $newFlag->value;
         $achievement->save();
     }
 }

@@ -10,6 +10,7 @@ use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
+use App\Models\EventAchievement;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
@@ -150,16 +151,21 @@ class HomeControllerTest extends TestCase
             'ConsoleID' => $system->id,
         ]);
 
-        // TODO use event achievements
         $achievement = Achievement::factory()->create([
             'ID' => 9,
             'Title' => 'That Was Easy',
             'GameID' => $game->id,
         ]);
 
-        StaticData::factory()->create([
-            'Event_AOTW_AchievementID' => $achievement->id, // TODO use event achievements
-            'Event_AOTW_ForumID' => 14029,
+        System::factory()->create(['ID' => System::Events]);
+        /** @var Game $eventGame */
+        $eventGame = Game::factory()->create(['ConsoleID' => System::Events, 'Title' => 'Achievement of the Week', 'ForumTopicId' => 14029]);
+        /** @var Achievement $eventAchievement */
+        $eventAchievement = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+
+        EventAchievement::create([
+            'achievement_id' => $eventAchievement->id,
+            'source_achievement_id' => $achievement->id,
         ]);
 
         // Act
@@ -167,18 +173,18 @@ class HomeControllerTest extends TestCase
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
-            ->where('achievementOfTheWeek.id', $achievement->id)
-            ->where('achievementOfTheWeek.title', $achievement->title)
-            ->where('achievementOfTheWeek.description', $achievement->description)
+            ->where('achievementOfTheWeek.achievement.id', $eventAchievement->id)
+            ->where('achievementOfTheWeek.achievement.title', $achievement->title)
+            ->where('achievementOfTheWeek.achievement.description', $achievement->description)
 
-            ->where('achievementOfTheWeek.game.id', $game->id)
-            ->where('achievementOfTheWeek.game.title', $game->title)
-            ->where('achievementOfTheWeek.game.badgeUrl', $game->badgeUrl)
+            ->where('achievementOfTheWeek.sourceAchievement.game.id', $game->id)
+            ->where('achievementOfTheWeek.sourceAchievement.game.title', $game->title)
+            ->where('achievementOfTheWeek.sourceAchievement.game.badgeUrl', $game->badgeUrl)
 
-            ->where('achievementOfTheWeek.game.system.name', $system->name)
-            ->where('achievementOfTheWeek.game.system.iconUrl', $system->iconUrl)
+            ->where('achievementOfTheWeek.sourceAchievement.game.system.name', $system->name)
+            ->where('achievementOfTheWeek.sourceAchievement.game.system.iconUrl', $system->iconUrl)
 
-            ->where('staticData.eventAotwForumId', 14029)
+            ->where('achievementOfTheWeek.forumTopicId', 14029)
         );
     }
 

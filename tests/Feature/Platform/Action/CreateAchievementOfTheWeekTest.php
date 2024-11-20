@@ -36,7 +36,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals('Week 1', $achievement->Title);
         $this->assertEquals('TBD', $achievement->Description);
         $this->assertEquals('0=1', $achievement->MemAddr);
-        $this->assertEquals(AchievementFlag::OfficialCore, $achievement->Flags);
+        $this->assertEquals(AchievementFlag::OfficialCore->value, $achievement->Flags);
         $this->assertEquals(Comment::SYSTEM_USER_ID, $achievement->user_id);
         $this->assertEquals('00000', $achievement->BadgeName);
         $this->assertEquals(1, $achievement->DisplayOrder);
@@ -48,7 +48,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals('Week 52', $achievement->Title);
         $this->assertEquals('TBD', $achievement->Description);
         $this->assertEquals('0=1', $achievement->MemAddr);
-        $this->assertEquals(AchievementFlag::OfficialCore, $achievement->Flags);
+        $this->assertEquals(AchievementFlag::OfficialCore->value, $achievement->Flags);
         $this->assertEquals(Comment::SYSTEM_USER_ID, $achievement->user_id);
         $this->assertEquals('00000', $achievement->BadgeName);
         $this->assertEquals(52, $achievement->DisplayOrder);
@@ -105,7 +105,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals($sourceAchievement1->Title, $achievement->Title);
         $this->assertEquals($sourceAchievement1->Description, $achievement->Description);
         $this->assertEquals('0=1', $achievement->MemAddr);
-        $this->assertEquals(AchievementFlag::OfficialCore, $achievement->Flags);
+        $this->assertEquals(AchievementFlag::OfficialCore->value, $achievement->Flags);
         $this->assertEquals(Comment::SYSTEM_USER_ID, $achievement->user_id);
         $this->assertEquals($sourceAchievement1->BadgeName, $achievement->BadgeName);
         $this->assertEquals(1, $achievement->DisplayOrder);
@@ -119,7 +119,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals($sourceAchievement2->Title, $achievement->Title);
         $this->assertEquals($sourceAchievement2->Description, $achievement->Description);
         $this->assertEquals('0=1', $achievement->MemAddr);
-        $this->assertEquals(AchievementFlag::OfficialCore, $achievement->Flags);
+        $this->assertEquals(AchievementFlag::OfficialCore->value, $achievement->Flags);
         $this->assertEquals(Comment::SYSTEM_USER_ID, $achievement->user_id);
         $this->assertEquals($sourceAchievement2->BadgeName, $achievement->BadgeName);
         $this->assertEquals(2, $achievement->DisplayOrder);
@@ -133,7 +133,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals('Week 52', $achievement->Title);
         $this->assertEquals('TBD', $achievement->Description);
         $this->assertEquals('0=1', $achievement->MemAddr);
-        $this->assertEquals(AchievementFlag::OfficialCore, $achievement->Flags);
+        $this->assertEquals(AchievementFlag::OfficialCore->value, $achievement->Flags);
         $this->assertEquals(Comment::SYSTEM_USER_ID, $achievement->user_id);
         $this->assertEquals('00000', $achievement->BadgeName);
         $this->assertEquals(52, $achievement->DisplayOrder);
