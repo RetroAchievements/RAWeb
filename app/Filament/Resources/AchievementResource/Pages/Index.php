@@ -27,9 +27,9 @@ class Index extends ListRecords
         return [
             'all' => Components\Tab::make(),
             'published' => Components\Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('Flags', AchievementFlag::OfficialCore)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('Flags', AchievementFlag::OfficialCore->value)),
             'unpublished' => Components\Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('Flags', AchievementFlag::Unofficial)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('Flags', AchievementFlag::Unofficial->value)),
         ];
     }
 }

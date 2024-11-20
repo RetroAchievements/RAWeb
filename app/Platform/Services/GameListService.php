@@ -46,7 +46,7 @@ class GameListService
             $gameTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
                 ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
                 ->whereIn('Achievements.GameID', $gameIds)
-                ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+                ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
                 ->select(['GameID',
                     DB::raw('COUNT(Ticket.ID) AS NumTickets'),
                 ])
