@@ -10,7 +10,7 @@ use App\Data\ForumTopicData;
 use App\Data\NewsData;
 use App\Data\StaticDataData;
 use App\Data\StaticGameAwardData;
-use App\Platform\Data\AchievementData;
+use App\Platform\Data\EventAchievementData;
 use Illuminate\Support\Collection;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -26,7 +26,7 @@ class HomePagePropsData extends Data
      */
     public function __construct(
         public StaticDataData $staticData,
-        public ?AchievementData $achievementOfTheWeek,
+        public ?EventAchievementData $achievementOfTheWeek,
         public ?StaticGameAwardData $mostRecentGameMastered,
         public ?StaticGameAwardData $mostRecentGameBeaten,
         public Collection $recentNews,

@@ -104,8 +104,8 @@ class AchievementsRelationManager extends RelationManager
                 Filters\SelectFilter::make('Flags')
                     ->options([
                         0 => 'All',
-                        AchievementFlag::OfficialCore->value => __('Published'),
-                        AchievementFlag::Unofficial->value => __('Unpublished'),
+                        AchievementFlag::OfficialCore->value => AchievementFlag::OfficialCore->label(),
+                        AchievementFlag::Unofficial->value => AchievementFlag::Unofficial->label(),
                     ])
                     ->default(AchievementFlag::OfficialCore->value)
                     ->selectablePlaceholder(false)

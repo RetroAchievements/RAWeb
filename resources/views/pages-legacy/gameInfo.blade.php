@@ -30,8 +30,8 @@ $userID = $userDetails['ID'] ?? 0;
 $userWebsitePrefs = $userDetails['websitePrefs'] ?? null;
 $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
 
-$officialFlag = AchievementFlag::OfficialCore->value;
-$unofficialFlag = AchievementFlag::Unofficial->value;
+$officialFlag = AchievementFlag::OfficialCore;
+$unofficialFlag = AchievementFlag::Unofficial;
 $flagParam = AchievementFlag::tryFrom(
     requestInputSanitized('f', AchievementFlag::OfficialCore->value, 'integer')
 ) ?? AchievementFlag::OfficialCore;
@@ -533,7 +533,7 @@ if ($isFullyFeaturedGame) {
                 echo "<div class='lg:flex justify-between gap-5 mb-5'>";
                 echo "<div class='grow'>";
 
-                if ($flagParam == $unofficialFlag) {
+                if ($flagParam === $unofficialFlag) {
                     echo "<div><a class='btn btn-link' href='/game/$gameID" . ($v == 1 ? '?v=1' : '') . "'>View Core Achievements</a></div>";
                     echo "<div><a class='btn btn-link' href='/achievementinspector.php?g=$gameID&f=5'>Manage Unofficial Achievements</a></div>";
                 } else {
@@ -791,7 +791,7 @@ if ($isFullyFeaturedGame) {
             echo "<div class='md:float-right mb-4 md:mb-0'>";
 
             // Only show set request option for logged in users, games without achievements, and core achievement page
-            if ($user !== null && $numAchievements == 0 && $flagParam == $officialFlag) {
+            if ($user !== null && $numAchievements == 0 && $flagParam === $officialFlag) {
                 ?>
                     <x-game.set-requests :gameId="$gameID" />
                 <?php
@@ -822,7 +822,7 @@ if ($isFullyFeaturedGame) {
             }
 
             // Display claim information
-            if ($user !== null && $flagParam == $officialFlag && !$isEventGame) {
+            if ($user !== null && $flagParam === $officialFlag && !$isEventGame) {
                 ?>
                     <x-game.claim-info
                         :achievementSetClaims="$gameModel->achievementSetClaims->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])"
@@ -880,7 +880,7 @@ if ($isFullyFeaturedGame) {
                         :numMissableAchievements="$gameMetaBindings['numMissableAchievements']"
                     />
                 <?php
-                RenderGameSort($isFullyFeaturedGame, $flagParam?->value, $officialFlag, $gameID, $sortBy, canSortByType: $isGameBeatable);
+                RenderGameSort($isFullyFeaturedGame, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
                 echo "</div>";
             }
 
@@ -889,7 +889,7 @@ if ($isFullyFeaturedGame) {
                     <x-game.achievements-list.root
                         :achievements="$achievementData"
                         :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
-                        :isCreditDialogEnabled="$flagParam != $unofficialFlag"
+                        :isCreditDialogEnabled="$flagParam !== $unofficialFlag"
                         :showAuthorNames="!$isOfficial && isset($user) && $permissions >= Permissions::JuniorDeveloper"
                         :totalPlayerCount="$numDistinctPlayers"
                         :separateUnlockedAchievements="!$isEventGame"

@@ -15,7 +15,9 @@ $userModel = Auth::user();
 $fullModifyOK = $permissions >= Permissions::Developer;
 
 $gameID = requestInputSanitized('g', null, 'integer');
-$flag = requestInputSanitized('f', 3, 'integer');
+$flag = AchievementFlag::tryFrom(
+    requestInputSanitized('f', AchievementFlag::OfficialCore->value, 'integer')
+) ?? AchievementFlag::OfficialCore;
 
 // TODO use a policy
 $partialModifyOK =
