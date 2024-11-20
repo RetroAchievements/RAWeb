@@ -1,3 +1,4 @@
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createGame, createSystem } from '@/test/factories';
 
