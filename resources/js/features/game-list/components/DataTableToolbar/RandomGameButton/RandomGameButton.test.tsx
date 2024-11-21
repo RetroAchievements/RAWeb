@@ -5,6 +5,9 @@ import { render, screen } from '@/test';
 
 import { RandomGameButton } from './RandomGameButton';
 
+// Suppress "Error: AggregateError".
+console.error = vi.fn();
+
 describe('Component: RandomGameButton', () => {
   it('renders without crashing', () => {
     // ARRANGE
