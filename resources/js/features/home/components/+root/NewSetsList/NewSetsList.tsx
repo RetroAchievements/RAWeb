@@ -14,10 +14,9 @@ import { EmptyState } from '@/common/components/EmptyState';
 import { MultilineGameAvatar } from '@/common/components/MultilineGameAvatar';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import type { AvatarSize } from '@/common/models';
 import { ClaimSetType } from '@/common/utils/generatedAppConstants';
 
-import { ClaimMobileBlock } from '../../ClaimMobileBlock/ClaimMobileBlock';
+import { ClaimMobileBlock } from '../../ClaimMobileBlock';
 import { HomeHeading } from '../../HomeHeading';
 import { SeeMoreLink } from '../../SeeMoreLink';
 
@@ -42,7 +41,11 @@ export const NewSetsList: FC = () => {
         <>
           <div className="flex flex-col gap-y-1 sm:hidden">
             {completedClaims.map((claim) => (
-              <ClaimMobileBlock key={`mobile-claim-${claim.id}`} claim={claim} />
+              <ClaimMobileBlock
+                key={`mobile-claim-${claim.id}`}
+                claim={claim}
+                variant="completed"
+              />
             ))}
           </div>
 
@@ -64,7 +67,7 @@ export const NewSetsList: FC = () => {
                   </BaseTableCell>
 
                   <BaseTableCell>
-                    <UserAvatar {...claim.users[0]} size={36 as AvatarSize} />
+                    <UserAvatar {...claim.users[0]} size={32} />
                   </BaseTableCell>
                   <BaseTableCell>
                     {claim.setType === ClaimSetType.NewSet && t('New')}
