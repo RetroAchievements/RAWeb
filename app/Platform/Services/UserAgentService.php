@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
+use App\Enums\ClientSupportLevel;
+use App\Models\EmulatorUserAgent;
+
 class UserAgentService
 {
     public array $cache = [];
@@ -260,5 +263,33 @@ class UserAgentService
         }
 
         return $parts;
+    }
+
+    public function getSupportLevel(string|array|null $userAgent): ClientSupportLevel
+    {
+        if (empty($userAgent) || $userAgent === '[not provided]') {
+            return ClientSupportLevel::Unknown;
+        }
+
+        $data = is_string($userAgent) ? $this->decode($userAgent) : $userAgent;
+
+        $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $data['client']);
+        if (!$emulatorUserAgent) {
+            return ClientSupportLevel::Unknown;
+        }
+
+        if ($emulatorUserAgent->minimum_allowed_version
+            && UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_allowed_version) < 0) {
+
+            return ClientSupportLevel::Blocked;
+        }
+
+        if ($emulatorUserAgent->minimum_hardcore_version
+            && UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_hardcore_version) < 0) {
+
+            return ClientSupportLevel::Outdated;
+        }
+
+        return ClientSupportLevel::Full;
     }
 }

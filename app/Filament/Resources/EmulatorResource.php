@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EmulatorResource\Pages;
 use App\Filament\Resources\EmulatorResource\RelationManagers\EmulatorReleasesRelationManager;
+use App\Filament\Resources\EmulatorResource\RelationManagers\EmulatorUserAgentsRelationManager;
 use App\Filament\Resources\EmulatorResource\RelationManagers\SystemsRelationManager;
 use App\Filament\Rules\DisallowHtml;
 use App\Models\Emulator;
@@ -227,6 +228,7 @@ class EmulatorResource extends Resource
         return [
             SystemsRelationManager::class,
             EmulatorReleasesRelationManager::class,
+            EmulatorUserAgentsRelationManager::class,
         ];
     }
 
