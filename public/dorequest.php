@@ -83,6 +83,10 @@ if (!function_exists('LogDeprecatedUserAgent')) {
     function LogDeprecatedUserAgent(string $requestType, ClientSupportLevel $clientSupportLevel): void
     {
         $userAgentValue = request()->header('User-Agent');
+        if (!$userAgentValue) {
+            return;
+        }
+
         $userAgentService = new UserAgentService();
         $userAgent = $userAgentService->decode($userAgentValue);
         $clientVersion = $userAgent['client'] . '-' . $userAgent['clientVersion'];
