@@ -281,6 +281,11 @@ class UserAgentService
         if ($emulatorUserAgent->minimum_allowed_version
             && UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_allowed_version) < 0) {
 
+            // special case: Dolphin/e5d32f273f must still be allowed as it's the most stable development build
+            if (str_starts_with($userAgent, 'Dolphin/e5d32f273f ')) {
+                return ClientSupportLevel::Outdated;
+            }
+
             return ClientSupportLevel::Blocked;
         }
 
