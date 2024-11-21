@@ -29,7 +29,7 @@ function getUserBestDaysList(User $user, int $offset, int $limit, int $sortBy): 
                 FROM player_achievements pa
                 INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
                 WHERE pa.user_id={$user->id}
-                AND ach.Flags = " . AchievementFlag::OfficialCore . "
+                AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
                 GROUP BY Date
                 $orderCond
                 LIMIT $offset, $limit";
@@ -55,7 +55,7 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, User $
         'dateStart' => $dateStart,
         'dateEnd' => $dateEnd,
         'userid' => $user->id,
-        'achievementFlag' => AchievementFlag::OfficialCore,
+        'achievementFlag' => AchievementFlag::OfficialCore->value,
     ];
 
     $query = "SELECT COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS Date,
@@ -134,7 +134,7 @@ function getAwardedList(
                 INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
                 INNER JOIN GameData AS gd ON gd.ID = ach.GameID
                 WHERE pa.user_id = {$user->id}
-                AND ach.Flags = " . AchievementFlag::OfficialCore . "
+                AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
                 $dateCondition
                 GROUP BY Date
                 ORDER BY Date ASC

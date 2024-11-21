@@ -115,7 +115,7 @@ abstract class ResourceAuditLog extends Page implements HasForms
     protected function createFieldValueMap(): Collection
     {
         return collect([
-            'Flags' => fn (int $flag): string => AchievementFlag::toString($flag),
+            'Flags' => fn (int $flag): string => AchievementFlag::tryFrom($flag)?->label() ?? 'Invalid flag',
         ]);
     }
 

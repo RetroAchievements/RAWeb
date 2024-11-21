@@ -1,7 +1,8 @@
 import type { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
+import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { SystemChip } from '@/common/components/SystemChip';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -13,17 +14,16 @@ import { HomeHeading } from '../../HomeHeading';
 // TODO try different game title length
 
 export const AchievementOfTheWeek: FC = () => {
-  const { achievementOfTheWeek, staticData } = usePageProps<App.Http.Data.HomePageProps>();
+  const { achievementOfTheWeek, auth } = usePageProps<App.Http.Data.HomePageProps>();
 
   const { t } = useTranslation();
 
-  // TODO needs better empty state
-  if (!achievementOfTheWeek?.game?.system) {
+  const game = achievementOfTheWeek?.sourceAchievement?.game;
+  const system = game?.system;
+
+  if (!achievementOfTheWeek?.achievement || !game || !system) {
     return null;
   }
-
-  const game = achievementOfTheWeek.game;
-  const system = achievementOfTheWeek.game.system;
 
   return (
     <div>
@@ -34,35 +34,58 @@ export const AchievementOfTheWeek: FC = () => {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <AchievementAvatar
-                {...achievementOfTheWeek}
+                {...achievementOfTheWeek.achievement}
                 hasTooltip={false}
                 size={64}
                 showLabel={false}
               />
 
               <div className="flex flex-col gap-0.5 self-start">
-                <a href={route('achievement.show', { achievement: achievementOfTheWeek.id })}>
-                  {achievementOfTheWeek.title}
+                <a
+                  href={route('achievement.show', {
+                    achievement: achievementOfTheWeek.achievement.id,
+                  })}
+                >
+                  {achievementOfTheWeek.achievement.title}
                 </a>
 
-                <p>{achievementOfTheWeek.description}</p>
+                <p>{achievementOfTheWeek.achievement.description}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               <GameAvatar {...game} size={44 as AvatarSize} showLabel={false} />
 
-              <div className="flex flex-col gap-0.5">
+              <div className="flex w-full flex-col gap-0.5">
                 <GameAvatar {...game} showImage={false} />
-                <SystemChip {...system} className="bg-zinc-800" />
+                <div className="flex w-full items-center justify-between">
+                  <SystemChip {...system} className="bg-zinc-800" />
+
+                  {achievementOfTheWeek.activeUntil ? (
+                    <span className="smalldate">
+                      <Trans
+                        i18nKey="Ends <1>{{when}}</1>"
+                        values={{ when: achievementOfTheWeek.activeUntil }}
+                        components={{
+                          1: (
+                            <DiffTimestamp
+                              at={achievementOfTheWeek.activeUntil}
+                              asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates}
+                            />
+                          ),
+                        }}
+                      />
+                    </span>
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {staticData.eventAotwForumId ? (
+        {achievementOfTheWeek.forumTopicId ? (
           <div className="w-ful flex justify-end">
-            <a className="text-xs" href={`/viewtopic.php?t=${staticData.eventAotwForumId}`}>
+            <a className="text-xs" href={`/viewtopic.php?t=${achievementOfTheWeek.forumTopicId}`}>
               {t('Learn more about this event')}
             </a>
           </div>

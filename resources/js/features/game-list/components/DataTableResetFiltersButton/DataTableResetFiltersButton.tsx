@@ -29,11 +29,7 @@ export function DataTableResetFiltersButton<TData>({
   );
 
   const resetFiltersToDefault = () => {
-    if (defaultColumnFilters) {
-      table.setColumnFilters(defaultColumnFilters);
-    } else {
-      table.resetColumnFilters();
-    }
+    table.setColumnFilters(defaultColumnFilters);
   };
 
   return (

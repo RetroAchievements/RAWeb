@@ -2,35 +2,20 @@
 
 import * as React from 'react';
 import { RxCross2 } from 'react-icons/rx';
-import { useLockBodyScroll, useToggle } from 'react-use';
 import { Drawer as DrawerPrimitive } from 'vaul';
 
 import { cn } from '@/utils/cn';
 
 const BaseDrawer = ({
   shouldScaleBackground = true,
-  onOpenChange,
   ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Root>) => {
-  const [isLocked, toggleIsLocked] = useToggle(false);
-
-  useLockBodyScroll(isLocked);
-
-  const handleOnOpenChange = (isOpen: boolean) => {
-    onOpenChange?.(isOpen);
-
-    toggleIsLocked(isOpen);
-  };
-
-  return (
-    <DrawerPrimitive.Root
-      shouldScaleBackground={shouldScaleBackground}
-      noBodyStyles={true}
-      onOpenChange={handleOnOpenChange}
-      {...props}
-    />
-  );
-};
+}: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
+  <DrawerPrimitive.Root
+    shouldScaleBackground={shouldScaleBackground}
+    noBodyStyles={true}
+    {...props}
+  />
+);
 BaseDrawer.displayName = 'BaseDrawer';
 
 const BaseDrawerTrigger = DrawerPrimitive.Trigger;

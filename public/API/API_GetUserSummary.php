@@ -113,7 +113,7 @@ if (empty($retVal)) {
     ], 404);
 }
 
-$retVal['UserPic'] = "/UserPic/" . $user . ".png";
+$retVal['UserPic'] = "/UserPic/" . $retVal['User'] . ".png";
 $retVal['TotalRanked'] = countRankedUsers();
 
 // assume caller doesn't care about the rich presence script for the last game played
@@ -131,7 +131,7 @@ $retVal['LastActivity'] = [
     'timestamp' => null,
     'lastupdate' => null,
     'activitytype' => null,
-    'User' => $user,
+    'User' => $retVal['User'],
     'data' => null,
     'data2' => null,
 ];
