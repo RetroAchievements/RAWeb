@@ -5,6 +5,7 @@ namespace App\Platform\Controllers\Api;
 use App\Http\Controller;
 use App\Models\Game;
 use App\Platform\Actions\BuildGameListAction;
+use App\Platform\Actions\GetRandomGameAction;
 use App\Platform\Enums\GameListType;
 use App\Platform\Requests\GameListRequest;
 use Illuminate\Http\JsonResponse;
@@ -42,5 +43,18 @@ class GameApiController extends Controller
 
     public function destroy(): void
     {
+    }
+
+    public function random(GameListRequest $request): JsonResponse
+    {
+        $this->authorize('viewAny', Game::class);
+
+        $randomGame = (new GetRandomGameAction())->execute(
+            GameListType::AllGames,
+            user: $request->user(),
+            filters: $request->getFilters(),
+        );
+
+        return response()->json(['gameId' => $randomGame->id]);
     }
 }

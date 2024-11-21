@@ -85,6 +85,7 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
         table={table}
         unfilteredTotal={gameListQuery.data?.unfilteredTotal ?? null}
         defaultColumnFilters={wantToPlayGamesDefaultFilters}
+        randomGameApiRouteName="api.user-game-list.random"
         tableApiRouteName="api.user-game-list.index"
       />
 

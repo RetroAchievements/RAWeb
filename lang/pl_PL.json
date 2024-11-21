@@ -151,7 +151,6 @@
     "Go to next page": "Przejdź na następną stronę",
     "Go to previous page": "Przejdź na poprzednią stronę",
     "Hardcore": "Hardcore",
-    "Has achievements": "Ma osiągnięcia",
     "Hash compatibility questions.": "Zapytać o kompatybilność hashów.",
     "Hide": "Ukryj",
     "Hide missable achievement indicators": "Ukryj wskaźniki pomijalnych osiągnięć",
@@ -462,5 +461,6 @@
     "{{visible, number}} of {{total, number}} games_one": "{{visible, number}} z {{total, number}} gry",
     "{{visible, number}} of {{total, number}} games_few": "{{visible, number}} z {{total, number}} gier",
     "{{visible, number}} of {{total, number}} games_many": "{{visible, number}} z {{total, number}} gier",
-    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} z {{total, number}} gier"
+    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} z {{total, number}} gier",
+    "Surprise me": "Surprise me"
 }
