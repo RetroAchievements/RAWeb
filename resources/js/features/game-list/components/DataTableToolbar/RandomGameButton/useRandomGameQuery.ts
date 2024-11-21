@@ -16,7 +16,7 @@ export function useRandomGameQuery({
   apiRouteName = 'api.game.random',
 }: UseRandomGameQueryProps) {
   return useQuery({
-    queryKey: ['random-game', columnFilters, apiRouteName],
+    queryKey: ['random-game', { columnFilters, apiRouteName }],
 
     queryFn: async () => {
       const response = await axios.get<{ gameId: number }>(
@@ -25,8 +25,5 @@ export function useRandomGameQuery({
 
       return response.data;
     },
-
-    refetchInterval: Infinity,
-    refetchOnWindowFocus: false,
   });
 }
