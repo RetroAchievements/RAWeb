@@ -74,40 +74,86 @@ class UserAgentService
 
     private function extractClient(string $clause): array
     {
+        $data = [];
+
         $clause = trim($clause);
+        $client = $clause;
+        $version = null;
 
-        $index = strpos($clause, '/');
-        if ($index !== false) {
-            // found "Client/Version", just split it
-            return [
-                'client' => substr($clause, 0, $index),
-                'clientVersion' => $this->trimVersion(substr($clause, $index + 1)),
-            ];
-        }
+        // split on spaces, then on slashes. if something that looks like a version is found,
+        // take the first part of the clause (up to the first space if present) as the client.
 
-        // assuming first word is client and last word is version
         $parts = explode(' ', $clause);
-        if (count($parts) > 1) {
-            return [
-                'client' => $parts[0],
-                'clientVersion' => $this->trimVersion($parts[count($parts) - 1]),
-            ];
+        if (count($parts) == 1) {
+            $index = strpos($clause, '/');
+            if ($index !== false) {
+                // found "Client/Version", just split it
+                $client = substr($clause, 0, $index);
+                $version = $this->trimVersion(substr($clause, $index + 1));
+            }
+        } else {
+            $client = $version = null;
+            for ($i = 0; $i < count($parts); $i++) {
+                $part = $parts[$i];
+
+                // part is only punctuation, ignore it if not in the middle of client name
+                if (empty($client) && ctype_punct($part)) {
+                    continue;
+                }
+
+                $index = strpos($part, '/');
+                if ($index !== false) {
+                    // found "Client/Version", just split it
+                    $front = substr($part, 0, $index);
+                    $back = substr($part, $index + 1);
+
+                    $version = $this->trimVersion($back);
+                    if (!$this->looksLikeVersion($version)) {
+                        $client ??= $part;
+                        continue;
+                    }
+
+                    $client ??= $front;
+                } else {
+                    $version = $this->trimVersion($part);
+                    if (!$this->looksLikeVersion($version)) {
+                        $client ??= $part;
+                        continue;
+                    }
+                }
+
+                if (array_key_exists('client', $data)) {
+                    if (!array_key_exists('extra', $data)) {
+                        $data['extra'] = [];
+                    }
+
+                    $data['extra'][$client] = $version;
+                } else {
+                    $data['client'] = $client;
+                    $data['clientVersion'] = $version;
+                }
+
+                $client = $version = null;
+            }
         }
 
-        // special case: 'libretro' => 'RetroArch'
-        if ($clause === 'libretro') {
-            return [
-                'client' => 'RetroArch',
-                'clientVersion' => 'Unknown',
-            ];
+        if (!array_key_exists('client', $data)) {
+            // special case: 'libretro' => 'RetroArch'
+            if ($client === 'libretro') {
+                $client = 'RetroArch';
+            } else {
+                // if there's a space in the client name, only use the first word
+                $index = strpos($client, ' ');
+                if ($index !== false) {
+                    $client = substr($client, 0, $index);
+                }
+            }
+
+            $data['client'] = empty($client) ? 'Unknown' : $client;
+            $data['clientVersion'] = empty($version) ? 'Unknown' : $version;
         }
 
-        // did not find a version number at the end of the string, just return
-        // the whole clause as the client
-        return [
-            'client' => $clause ? $clause : 'Unknown',
-            'clientVersion' => 'Unknown',
-        ];
+        return $data;
     }
 
     private function addSecondaryInformation(array &$data, string $clause): void
