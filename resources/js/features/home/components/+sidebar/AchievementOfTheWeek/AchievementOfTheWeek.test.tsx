@@ -148,7 +148,11 @@ describe('Component: AchievementOfTheWeek', () => {
     // ARRANGE
     const now = new Date();
     const tomorrow = new Date(now.getTime() + 64 * 60 * 60 * 1000); // 64 hours = 2.6 days
-    const sourceAchievement = createAchievement({ id: 9, title: 'That Was Easy' });
+    const sourceAchievement = createAchievement({
+      id: 9,
+      title: 'That Was Easy',
+      description: 'foo',
+    });
     const achievementOfTheWeek = createEventAchievement({
       achievement: sourceAchievement,
       sourceAchievement: sourceAchievement,
@@ -160,13 +164,17 @@ describe('Component: AchievementOfTheWeek', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/Ends/i)).toBeVisible();
+    expect(screen.getByText(/ends/i)).toBeVisible();
     expect(screen.getByText(/in 2 days/i)).toBeVisible();
   });
 
   it('displays the end date', () => {
     // ARRANGE
-    const sourceAchievement = createAchievement({ id: 9, title: 'That Was Easy' });
+    const sourceAchievement = createAchievement({
+      id: 9,
+      title: 'That Was Easy',
+      description: 'foo',
+    });
     const achievementOfTheWeek = createEventAchievement({
       achievement: sourceAchievement,
       sourceAchievement: sourceAchievement,
@@ -181,13 +189,17 @@ describe('Component: AchievementOfTheWeek', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/Ends/i)).toBeVisible();
+    expect(screen.getByText(/ends/i)).toBeVisible();
     expect(screen.getByText(/Apr 08, 2030, 00:00/i)).toBeVisible();
   });
 
   it('does not display remaining time with no end date', () => {
     // ARRANGE
-    const sourceAchievement = createAchievement({ id: 9, title: 'That Was Easy' });
+    const sourceAchievement = createAchievement({
+      id: 9,
+      title: 'That Was Easy',
+      description: 'foo',
+    });
     const achievementOfTheWeek = createEventAchievement({
       achievement: sourceAchievement,
       sourceAchievement: sourceAchievement,
@@ -199,7 +211,7 @@ describe('Component: AchievementOfTheWeek', () => {
     });
 
     // ASSERT
-    expect(screen.queryByText(/Ends/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/ends/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/from now/i)).not.toBeInTheDocument();
   });
 });
