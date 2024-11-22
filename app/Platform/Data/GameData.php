@@ -24,9 +24,11 @@ class GameData extends Data
         public Lazy|int $pointsWeighted,
         public Lazy|Carbon|null $releasedAt,
         public Lazy|string|null $releasedAtGranularity,
+        public Lazy|int $playersTotal,
         public Lazy|Carbon $lastUpdated,
         public Lazy|int $numVisibleLeaderboards,
         public Lazy|int $numUnresolvedTickets,
+        public Lazy|bool $hasActiveOrInReviewClaims,
     ) {
     }
 
@@ -43,9 +45,11 @@ class GameData extends Data
             pointsWeighted: Lazy::create(fn () => $game->TotalTruePoints),
             releasedAt: Lazy::create(fn () => $game->released_at),
             releasedAtGranularity: Lazy::create(fn () => $game->released_at_granularity),
+            playersTotal: Lazy::create(fn () => $game->players_total),
             lastUpdated: Lazy::create(fn () => $game->lastUpdated),
             numVisibleLeaderboards: Lazy::create(fn () => $game->num_visible_leaderboards ?? 0),
             numUnresolvedTickets: Lazy::create(fn () => $game->num_unresolved_tickets ?? 0),
+            hasActiveOrInReviewClaims: Lazy::create(fn () => $game->has_active_or_in_review_claims ?? false),
         );
     }
 }

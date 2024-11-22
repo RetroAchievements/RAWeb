@@ -3,7 +3,8 @@
 namespace App\Platform\Jobs;
 
 use App\Models\Game;
-use App\Platform\Actions\UpdateGameMetrics;
+use App\Platform\Actions\UpdateGameMetricsAction;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,6 +14,7 @@ use Illuminate\Queue\SerializesModels;
 
 class UpdateGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
+    use Batchable;
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
@@ -42,7 +44,11 @@ class UpdateGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 
     public function handle(): void
     {
-        app()->make(UpdateGameMetrics::class)
+        if ($this->batch()?->cancelled()) {
+            return;
+        }
+
+        app()->make(UpdateGameMetricsAction::class)
             ->execute(Game::findOrFail($this->gameId));
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\System;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -24,14 +25,6 @@ function isValidConsoleId(int $consoleId): bool
     // the same amount of time to query all active IDs as it does to query each individual
     // ID, so fetch them all once per request, even if we only ever need one.
     return in_array($consoleId, getValidConsoleIds());
-}
-
-function getEmulatorReleaseByIntegrationId(?int $integrationId): ?array
-{
-    $releases = getReleasesFromFile();
-    $emulators = $releases['emulators'] ?? [];
-
-    return $emulators[$integrationId] ?? null;
 }
 
 function getIntegrationRelease(): ?array

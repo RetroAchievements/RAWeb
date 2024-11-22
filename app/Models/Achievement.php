@@ -23,9 +23,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
@@ -33,7 +35,9 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Achievement extends BaseModel implements HasComments
+// TODO implements HasComments
+
+class Achievement extends BaseModel
 {
     /*
      * Community Traits
@@ -88,8 +92,11 @@ class Achievement extends BaseModel implements HasComments
         'Points',
         'Title',
         'type',
+        'MemAddr',
+        'user_id',
     ];
 
+    // TODO cast Flags to AchievementFlag if it isn't dropped from the table
     protected $casts = [
         'DateModified' => 'datetime',
         'Flags' => 'integer',
@@ -132,11 +139,11 @@ class Achievement extends BaseModel implements HasComments
             }
 
             if ($achievement->wasChanged('Flags')) {
-                if ($achievement->Flags === AchievementFlag::OfficialCore) {
+                if ($achievement->Flags === AchievementFlag::OfficialCore->value) {
                     AchievementPublished::dispatch($achievement);
                 }
 
-                if ($achievement->Flags === AchievementFlag::Unofficial) {
+                if ($achievement->Flags === AchievementFlag::Unofficial->value) {
                     AchievementUnpublished::dispatch($achievement);
                 }
             }
@@ -154,6 +161,8 @@ class Achievement extends BaseModel implements HasComments
     {
         return AchievementFactory::new();
     }
+
+    public const CLIENT_WARNING_ID = 101000001;
 
     // search
 
@@ -261,7 +270,7 @@ class Achievement extends BaseModel implements HasComments
 
     public function getIsPublishedAttribute(): bool
     {
-        return $this->Flags === AchievementFlag::OfficialCore;
+        return $this->Flags === AchievementFlag::OfficialCore->value;
     }
 
     // TODO remove after rename
@@ -380,15 +389,54 @@ class Achievement extends BaseModel implements HasComments
         return $this->hasMany(PlayerAchievement::class, 'achievement_id', 'ID');
     }
 
+    /**
+     * @return HasMany<EventAchievement>
+     */
+    public function eventAchievements(): HasMany
+    {
+        return $this->hasMany(EventAchievement::class, 'source_achievement_id', 'ID');
+    }
+
+    /**
+     * @return HasOne<EventAchievement>
+     */
+    public function eventData(): HasOne
+    {
+        return $this->hasOne(EventAchievement::class, 'achievement_id');
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<Comment>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::Achievement);
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<Comment>
+     */
+    public function visibleComments(?User $user = null): HasMany
+    {
+        /** @var ?User $user */
+        $currentUser = $user ?? Auth::user();
+
+        return $this->comments()->visibleTo($currentUser);
+    }
+
     // == scopes
 
     /**
      * @param Builder<Achievement> $query
      * @return Builder<Achievement>
      */
-    public function scopeFlag(Builder $query, int $flag): Builder
+    public function scopeFlag(Builder $query, AchievementFlag $flag): Builder
     {
-        return $query->where('Flags', $flag);
+        return $query->where('Flags', $flag->value);
     }
 
     /**

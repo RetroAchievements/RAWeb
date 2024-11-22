@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 /** @type {import('tailwindcss').Config} */
@@ -13,6 +14,11 @@ module.exports = {
     './storage/framework/views/*.php',
     './vendor/filament/**/*.blade.php',
     './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
+  ],
+
+  blocklist: [
+    /** This causes localization issues. */
+    'capitalize',
   ],
 
   corePlugins: {

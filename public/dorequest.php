@@ -1,8 +1,10 @@
 <?php
 
 use App\Community\Enums\ActivityType;
+use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
+use App\Models\Emulator;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
@@ -12,9 +14,12 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
+use App\Platform\Services\UserAgentService;
 use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @usage
@@ -71,6 +76,40 @@ if (!function_exists('DoRequestError')) {
         }
 
         return response()->json($response);
+    }
+}
+
+if (!function_exists('LogDeprecatedUserAgent')) {
+    function LogDeprecatedUserAgent(string $requestType, ClientSupportLevel $clientSupportLevel): void
+    {
+        $userAgentValue = request()->header('User-Agent');
+        if (!$userAgentValue) {
+            return;
+        }
+
+        $userAgentService = new UserAgentService();
+        $userAgent = $userAgentService->decode($userAgentValue);
+        $clientVersion = $userAgent['client'] . '-' . $userAgent['clientVersion'];
+        $user = request()->user('connect-token')->User ?? 'no-user';
+
+        $cacheKey = 'deprecated-user-agent-' . $clientVersion . '-' . $user;
+        if (Cache::get($cacheKey)) {
+            // recently logged
+            return;
+        }
+
+        Cache::put($cacheKey, 1, Carbon::now()->addHours(18));
+
+        $data = [
+            'User' => $user,
+            'User-Agent' => $userAgentValue,
+        ];
+
+        if ($clientSupportLevel === ClientSupportLevel::Outdated) {
+            Log::info("Detected deprecated client for $requestType: $clientVersion", $data);
+        } else {
+            Log::info("Detected unknown client for $requestType: $clientVersion", $data);
+        }
     }
 }
 
@@ -227,7 +266,18 @@ switch ($requestType) {
 
     case "gameid":
         $md5 = request()->input('m') ?? '';
-        $response['GameID'] = getGameIDFromMD5($md5);
+        $userAgentService = new UserAgentService();
+        $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
+        if ($clientSupportLevel === ClientSupportLevel::Blocked) {
+            $response = [
+                'Status' => 403,
+                'Success' => false,
+                'Error' => "This emulator is not supported",
+                'GameID' => 0,
+            ];
+        } else {
+            $response['GameID'] = getGameIDFromMD5($md5);
+        }
         break;
 
     case "gameslist":
@@ -262,19 +312,18 @@ switch ($requestType) {
             return DoRequestError("Lookup by Console ID has been deprecated");
         }
 
-        $emulator = getEmulatorReleaseByIntegrationId($emulatorId);
-
-        if ($emulator === null) {
+        $emulator = Emulator::find($emulatorId);
+        if ($emulator === null || !$emulator->active || !$emulator->latestRelease) {
             return DoRequestError("Unknown client");
         }
-        $baseDownloadUrl = str_replace('https', 'http', config('app.url')) . '/';
-        $response['MinimumVersion'] = $emulator['minimum_version'] ?? null;
-        $response['LatestVersion'] = $emulator['latest_version'] ?? null;
-        $response['LatestVersionUrl'] = null;
-        if ($emulator['latest_version_url'] ?? null) {
-            $response['LatestVersionUrl'] = $baseDownloadUrl . $emulator['latest_version_url'];
-        }
-        $response['LatestVersionUrlX64'] = ($emulator['latest_version_url_x64'] ?? null) ? $baseDownloadUrl . $emulator['latest_version_url_x64'] : null;
+
+        $format_url = function (?string $url): ?string {
+            return (!$url || str_starts_with($url, 'http')) ? $url : config('app.url') . '/' . $url;
+        };
+        $response['MinimumVersion'] = $emulator->minimumSupportedRelease?->version ?? $emulator->latestRelease->version;
+        $response['LatestVersion'] = $emulator->latestRelease->version;
+        $response['LatestVersionUrl'] = $format_url($emulator->download_url);
+        $response['LatestVersionUrlX64'] = $format_url($emulator->download_x64_url);
         break;
 
     case "latestintegration":
@@ -336,6 +385,31 @@ switch ($requestType) {
         $hardcore = (bool) request()->input('h', 0);
         $validationHash = request()->input('v');
         $gameHashMd5 = request()->input('m');
+
+        if ($achIDToAward == Achievement::CLIENT_WARNING_ID) {
+            $response = [
+                'Success' => true,
+                'Score' => $user->RAPoints,
+                'SoftcoreScore' => $user->RASoftcorePoints,
+                'AchievementID' => $achIDToAward,
+                'AchievementsRemaining' => 9999,
+            ];
+            break;
+        }
+
+        $userAgentService = new UserAgentService();
+        $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
+        if ($clientSupportLevel === ClientSupportLevel::Blocked) {
+            $response = [
+                'Status' => 403,
+                'Success' => false,
+                'Error' => 'This emulator is not supported',
+            ];
+            break;
+        } elseif ($clientSupportLevel !== ClientSupportLevel::Full && $hardcore) {
+            // TODO: convert to softcore
+            LogDeprecatedUserAgent($requestType, $clientSupportLevel);
+        }
 
         // ignore negative values and offsets greater than max. clamping offset will invalidate validationHash.
         $maxOffset = 14 * 24 * 60 * 60; // 14 days
@@ -541,7 +615,9 @@ switch ($requestType) {
         PlayerSessionHeartbeat::dispatch($user, $game, null, $gameHash);
 
         $response['Success'] = true;
-        $userUnlocks = getUserAchievementUnlocksForGame($username, $gameID);
+        $userModel = User::firstWhere('User', $username);
+        $userUnlocks = getUserAchievementUnlocksForGame($userModel, $gameID);
+        $userUnlocks = reactivateUserEventAchievements($userModel, $userUnlocks);
         foreach ($userUnlocks as $achId => $unlock) {
             if (array_key_exists('DateEarnedHardcore', $unlock)) {
                 $response['HardcoreUnlocks'][] = [
@@ -555,6 +631,17 @@ switch ($requestType) {
                 ];
             }
         }
+
+        $userAgentService = new UserAgentService();
+        $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
+        if ($clientSupportLevel === ClientSupportLevel::Unknown || $clientSupportLevel === ClientSupportLevel::Outdated) {
+            // don't allow outdated client popup to appear in softcore mode
+            $response['Unlocks'][] = [
+                'ID' => Achievement::CLIENT_WARNING_ID,
+                'When' => Carbon::now()->unix(),
+            ];
+        }
+
         $response['ServerNow'] = Carbon::now()->timestamp;
         break;
 
@@ -586,18 +673,30 @@ switch ($requestType) {
         $validationHash = request()->input('v');
         $gameHashMd5 = request()->input('m');
 
+        $userAgentService = new UserAgentService();
+        $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
+        if ($clientSupportLevel === ClientSupportLevel::Blocked) {
+            $response = [
+                'Status' => 403,
+                'Success' => false,
+                'Error' => 'This emulator is not supported',
+            ];
+            break;
+        } elseif ($clientSupportLevel !== ClientSupportLevel::Full) {
+            // TODO: block submission
+            LogDeprecatedUserAgent($requestType, $clientSupportLevel);
+        }
+
         // ignore negative values and offsets greater than max. clamping offset will invalidate validationHash.
         $maxOffset = 14 * 24 * 60 * 60; // 14 days
         $offset = min(max((int) request()->input('o', 0), 0), $maxOffset);
 
-        // TODO dispatch job or event/listener using an action
-
         $foundLeaderboard = Leaderboard::where('ID', $lbID)->first();
         if (!$foundLeaderboard) {
-            $retVal['Success'] = false;
-            $retVal['Error'] = "Cannot find the leaderboard with ID: $lbID";
+            $response['Success'] = false;
+            $response['Error'] = "Cannot find the leaderboard with ID: $lbID";
 
-            return $retVal;
+            break;
         }
 
         if (
@@ -614,6 +713,8 @@ switch ($requestType) {
         if ($gameHashMd5) {
             $gameHash = GameHash::whereMd5($gameHashMd5)->first();
         }
+
+        // TODO dispatch job or event/listener using an action
 
         $response['Response'] = SubmitLeaderboardEntry($user, $foundLeaderboard, $score, $validationHash, $gameHash, Carbon::now()->subSeconds($offset));
         $response['Success'] = $response['Response']['Success']; // Passthru
@@ -636,19 +737,34 @@ switch ($requestType) {
 
     case "unlocks":
         $hardcoreMode = (int) request()->input('h', 0) === UnlockMode::Hardcore;
-        $userUnlocks = getUserAchievementUnlocksForGame($username, $gameID);
+        $userModel = User::firstWhere('User', $username);
+        $userUnlocks = getUserAchievementUnlocksForGame($userModel, $gameID);
         if ($hardcoreMode) {
+            $userUnlocks = reactivateUserEventAchievements($userModel, $userUnlocks);
             $response['UserUnlocks'] = collect($userUnlocks)
                 ->filter(fn ($value, $key) => array_key_exists('DateEarnedHardcore', $value))
                 ->keys();
         } else {
             $response['UserUnlocks'] = array_keys($userUnlocks);
+
+            $userAgentService = new UserAgentService();
+            $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
+            if ($clientSupportLevel !== ClientSupportLevel::Full) {
+                // don't allow outdated client popup to appear in softcore mode
+                $response['UserUnlocks'][] = Achievement::CLIENT_WARNING_ID;
+            }
         }
         $response['GameID'] = $gameID;     // Repeat this back to the caller?
         $response['HardcoreMode'] = $hardcoreMode;
         break;
 
     case "uploadachievement":
+        if ($achievementID === Achievement::CLIENT_WARNING_ID) {
+            $response['Error'] = 'Cannot modify warning achievement';
+            $response['Success'] = false;
+            break;
+        }
+
         $errorOut = "";
         $response['Success'] = UploadNewAchievement(
             authorUsername: $username,
@@ -658,7 +774,7 @@ switch ($requestType) {
             points: (int) request()->input('z', 0),
             type: request()->input('x', 'not-given'), // `null` is a valid achievement type value, so we use a different fallback value.
             mem: request()->input('m'),
-            flag: (int) request()->input('f', AchievementFlag::Unofficial),
+            flag: (int) request()->input('f', AchievementFlag::Unofficial->value),
             idInOut: $achievementID,
             badge: request()->input('b'),
             errorOut: $errorOut

@@ -9,7 +9,7 @@ import { cn } from '@/utils/cn';
 const baseButtonVariants = cva(
   [
     'inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium light:ring-offset-white',
-    'focus-visible:outline-none focus-visible:ring-2 light:focus-visible:ring-neutral-950 focus-visible:ring-offset-2',
+    'focus-visible:outline-none focus-visible:ring-1 light:focus-visible:ring-neutral-950 focus-visible:ring-offset-2',
     'disabled:pointer-events-none disabled:opacity-50',
     'ring-offset-neutral-950 focus-visible:ring-neutral-300',
     'lg:active:translate-y-[1px] lg:active:scale-[0.98] lg:transition-transform lg:duration-100',
@@ -23,7 +23,7 @@ const baseButtonVariants = cva(
         outline:
           'border light:border-neutral-200 light:bg-white light:hover:bg-neutral-100 light:hover:text-neutral-900 border-neutral-800 bg-neutral-950 hover:bg-neutral-800 hover:text-neutral-50',
         secondary:
-          'light:bg-neutral-100 light:text-neutral-900 light:hover:bg-neutral-100/80 bg-neutral-800 text-neutral-50 hover:bg-neutral-800/80',
+          'light:bg-neutral-200 light:text-neutral-900 bg-neutral-800 text-neutral-50 hover:bg-neutral-800/80',
         ghost:
           'light:hover:bg-neutral-100 light:hover:text-neutral-900 hover:bg-neutral-800 hover:text-neutral-50',
         link: 'light:text-neutral-900 underline-offset-4 hover:underline text-neutral-50',

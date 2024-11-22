@@ -4,7 +4,7 @@ namespace App\Platform\Listeners;
 
 use App\Models\Game;
 use App\Models\User;
-use App\Platform\Actions\ResumePlayerSession as ResumePlayerSessionAction;
+use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Events\PlayerSessionHeartbeat;
 use Illuminate\Contracts\Queue\ShouldQueue;
 

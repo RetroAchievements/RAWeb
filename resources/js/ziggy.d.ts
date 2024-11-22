@@ -16,27 +16,12 @@ declare module 'ziggy-js' {
         }
     ],
     "demo": [],
-    "playground.index": [],
     "home": [],
     "tickets.index": [],
     "ranking.beaten-games": [],
     "message-thread.index": [],
     "message.create": [],
     "achievement.tickets": [
-        {
-            "name": "achievement",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
-    "achievement.create-ticket": [
-        {
-            "name": "achievement",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
-    "achievement.comments": [
         {
             "name": "achievement",
             "required": true,
@@ -93,13 +78,6 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "user.comments": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        }
-    ],
     "user.game.activity": [
         {
             "name": "user",
@@ -138,13 +116,6 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "leaderboard.comments": [
-        {
-            "name": "leaderboard",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.hash.manage": [
         {
             "name": "game",
@@ -160,13 +131,6 @@ declare module 'ziggy-js' {
         }
     ],
     "game.tickets": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
-    "game.comments": [
         {
             "name": "game",
             "required": true,
@@ -222,7 +186,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "rss.index": [],
     "ticket.show": [
         {
             "name": "ticket",
@@ -238,11 +201,11 @@ declare module 'ziggy-js' {
         }
     ],
     "games.suggest": [],
-    "claims.index": [],
     "claims.expiring": [],
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],
+    "api.game.index": [],
     "game.hashes.index": [
         {
             "name": "game",
@@ -250,7 +213,30 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.index": [],
     "game.random": [],
+    "api.user.game.destroy": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.user.achievement.destroy": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.user.game-achievement-set.preference.update": [
+        {
+            "name": "gameAchievementSet",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "api.ticket.store": [],
     "game-hash.update": [
         {
             "name": "gameHash",
@@ -273,25 +259,155 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "user.game.destroy": [
+    "achievement.report-issue.index": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "achievement.tickets.create": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.achievement.comment.store": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.game.comment.store": [
         {
             "name": "game",
             "required": true,
             "binding": "ID"
         }
     ],
-    "user.achievement.destroy": [
+    "api.leaderboard.comment.store": [
+        {
+            "name": "leaderboard",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.user.comment.store": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
+    "api.achievement.comment.destroy": [
+        {
+            "name": "achievement",
+            "required": true,
+            "binding": "ID"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.game.comment.destroy": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.leaderboard.comment.destroy": [
+        {
+            "name": "leaderboard",
+            "required": true,
+            "binding": "ID"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.user.comment.destroy": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.subscription.store": [
+        {
+            "name": "subjectType",
+            "required": true
+        },
+        {
+            "name": "subjectId",
+            "required": true
+        }
+    ],
+    "api.subscription.destroy": [
+        {
+            "name": "subjectType",
+            "required": true
+        },
+        {
+            "name": "subjectId",
+            "required": true
+        }
+    ],
+    "api.user-game-list.index": [],
+    "api.user-game-list.store": [
+        {
+            "name": "game",
+            "required": true
+        }
+    ],
+    "api.user-game-list.destroy": [
+        {
+            "name": "game",
+            "required": true
+        }
+    ],
+    "achievement.comment.index": [
         {
             "name": "achievement",
             "required": true,
             "binding": "ID"
         }
     ],
-    "achievement.report-issue.index": [
+    "game.comment.index": [
         {
-            "name": "achievement",
+            "name": "game",
             "required": true,
             "binding": "ID"
+        }
+    ],
+    "leaderboard.comment.index": [
+        {
+            "name": "leaderboard",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "user.comment.index": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
         }
     ],
     "forum.recent-posts": [],
@@ -309,6 +425,28 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "game-list.play.index": [],
+    "achievement-set-claim.create": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "achievement-set-claim.delete": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "achievement-set-claim.update": [
+        {
+            "name": "claim",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "message.store": [],
     "message-thread.destroy": [
         {
@@ -317,18 +455,18 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "settings.profile.update": [],
-    "settings.preferences.update": [],
-    "settings.password.update": [],
-    "settings.email.update": [],
-    "settings.keys.web.destroy": [],
-    "settings.keys.connect.destroy": [],
+    "api.settings.profile.update": [],
+    "api.settings.locale.update": [],
+    "api.settings.preferences.update": [],
+    "api.settings.password.update": [],
+    "api.settings.email.update": [],
+    "api.settings.keys.web.destroy": [],
+    "api.settings.keys.connect.destroy": [],
     "login": [],
     "logout": [],
     "password.confirmation": [],
     "password.confirm": [],
     "download.index": [],
-    "game.index": [],
     "user.show": [
         {
             "name": "user",
@@ -366,6 +504,7 @@ declare module 'ziggy-js' {
         }
     ],
     "contact": [],
+    "rss.index": [],
     "terms": [],
     "user.permalink": [
         {
@@ -373,10 +512,10 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
-    "user.delete-request.store": [],
-    "user.delete-request.destroy": [],
-    "user.avatar.store": [],
-    "user.avatar.destroy": []
+    "api.user.delete-request.store": [],
+    "api.user.delete-request.destroy": [],
+    "api.user.avatar.store": [],
+    "api.user.avatar.destroy": []
 }
 }
 export {};

@@ -201,16 +201,14 @@ function submitTopicComment(
     }
 
     if ($user->ManuallyVerified ?? false) {
-        notifyUsersAboutForumActivity($topicId, $topicTitle, $user->User, $newComment->id);
+        notifyUsersAboutForumActivity($topicId, $topicTitle, $user, $newComment->id);
     }
 
     return $newComment;
 }
 
-function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string $author, int $commentID): void
+function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, User $author, int $commentID): void
 {
-    sanitize_sql_inputs($author);
-
     // $author has made a post in the topic $topicID
     // Find all people involved in this forum topic, and if they are not the author and prefer to
     // hear about comments, let them know! Also notify users that have explicitly subscribed to
@@ -230,9 +228,15 @@ function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string 
         "
     );
 
+    $payload = null;
+    $comment = ForumTopicComment::find($commentID);
+    if ($comment) {
+        $payload = nl2br(Shortcode::stripAndClamp($comment->Payload, previewLength: 1000, preserveWhitespace: true));
+    }
+
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID#$commentID";
     foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, ArticleType::Forum, $topicTitle, $urlTarget);
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author->User, ArticleType::Forum, $topicTitle, $urlTarget, payload: $payload);
     }
 }
 
@@ -307,12 +311,14 @@ function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
     $urlSafeGameTitle = str_replace(" ", "+", "$gameTitle $consoleName");
     $urlSafeGameTitle = str_replace("'", "''", $urlSafeGameTitle);
 
+    $hashesURL = route('game.hashes.index', ['game' => $gameId]);
     $gameFAQsURL = "https://www.google.com/search?q=site:www.gamefaqs.com+$urlSafeGameTitle";
     $longplaysURL = "https://www.google.com/search?q=site:www.youtube.com+longplay+$urlSafeGameTitle";
     $wikipediaURL = "https://www.google.com/search?q=site:en.wikipedia.org+$urlSafeGameTitle";
 
     $topicPayload = "Official Topic Post for discussion about [game=$gameId]\n" .
         "Created " . date("j M, Y H:i") . " by [user={$user->User}]\n\n" .
+        "[b][url=$hashesURL]Supported Game Files[/url][/b]\n\n" .
         "[b]Resources:[/b]\n" .
         // FIXME there is a bug here. these links are malformed for some games, such as game id 26257
         "[url=$gameFAQsURL]GameFAQs[/url]\n" .
@@ -420,7 +426,7 @@ function authorizeAllForumPostsForUser(User $user): bool
             notifyUsersAboutForumActivity(
                 $unauthorizedPost->forumTopic->id,
                 $unauthorizedPost->forumTopic->title,
-                $user->User,
+                $user,
                 $unauthorizedPost->id,
             );
         }

@@ -117,14 +117,14 @@ class PlayerGameActivityService
             if ($unlocker) {
                 $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::ManualUnlock, $when);
             } else {
-                $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::Generated, $when);
+                $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::Reconstructed, $when);
             }
         }
 
         $this->sessions[$existingSessionIndex]['events'][] = $event;
     }
 
-    public function addCustomEvent(Carbon $when, string $description, string $header = ''): void
+    public function addCustomEvent(Carbon $when, string $sessionType, string $description, string $header = ''): void
     {
         $event = [
             'type' => PlayerGameActivityEventType::Custom,
@@ -135,7 +135,7 @@ class PlayerGameActivityService
 
         $existingSessionIndex = $this->findSession(PlayerGameActivitySessionType::Player, $when);
         if ($existingSessionIndex < 0) {
-            $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::Generated, $when);
+            $existingSessionIndex = $this->generateSession($sessionType, $when);
         }
 
         $this->sessions[$existingSessionIndex]['events'][] = $event;
@@ -188,7 +188,7 @@ class PlayerGameActivityService
 
         $index = 0;
         foreach ($this->sessions as &$session) {
-            if ($session['type'] === PlayerGameActivitySessionType::Generated
+            if ($session['type'] === PlayerGameActivitySessionType::Reconstructed
                 && $session['startTime'] >= $whenBefore
                 && $session['endTime'] <= $whenAfter) {
 
@@ -236,7 +236,7 @@ class PlayerGameActivityService
         foreach ($this->sessions as $session) {
             if ($session['type'] === PlayerGameActivitySessionType::ManualUnlock) {
                 continue;
-            } elseif ($session['type'] === PlayerGameActivitySessionType::Generated) {
+            } elseif ($session['type'] === PlayerGameActivitySessionType::Reconstructed) {
                 $generatedSessionCount++;
             }
 
@@ -267,7 +267,7 @@ class PlayerGameActivityService
                 $intermediateSessionCount = 0;
 
                 $unlockSessionCount++;
-                if ($session['type'] === PlayerGameActivitySessionType::Generated) {
+                if ($session['type'] === PlayerGameActivitySessionType::Reconstructed) {
                     $generatedUnlockSessionCount++;
                 }
             } elseif ($session['type'] === PlayerGameActivitySessionType::Player) {
@@ -324,7 +324,7 @@ class PlayerGameActivityService
                     $client .= ' - ' . $decoded['clientVariation'];
                 }
 
-                if (in_array($client, $clients)) {
+                if (array_key_exists($client, $clients)) {
                     $clients[$client]['duration'] = $clients[$client]['duration'] + $session['duration'];
                     if (!in_array($userAgent, $clients[$client]['agents'])) {
                         $clients[$client]['agents'][] = $userAgent;

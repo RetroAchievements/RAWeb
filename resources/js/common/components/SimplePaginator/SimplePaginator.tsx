@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   BasePagination,
@@ -13,6 +14,8 @@ interface SimplePaginatorProps<TData = unknown> {
 }
 
 export const SimplePaginator: FC<SimplePaginatorProps> = ({ paginatedData }) => {
+  const { t } = useTranslation();
+
   const {
     perPage,
     links: { nextPageUrl, previousPageUrl },
@@ -28,14 +31,16 @@ export const SimplePaginator: FC<SimplePaginatorProps> = ({ paginatedData }) => 
         {previousPageUrl ? (
           <BasePaginationItem>
             <BasePaginationPrevious href={previousPageUrl}>
-              Previous {perPage}
+              {t('Previous {{count, number}}', { count: perPage })}
             </BasePaginationPrevious>
           </BasePaginationItem>
         ) : null}
 
         {nextPageUrl ? (
           <BasePaginationItem>
-            <BasePaginationNext href={nextPageUrl}>Next {perPage}</BasePaginationNext>
+            <BasePaginationNext href={nextPageUrl}>
+              {t('Next {{count, number}}', { count: perPage })}
+            </BasePaginationNext>
           </BasePaginationItem>
         ) : null}
       </BasePaginationContent>

@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
@@ -18,6 +19,8 @@ const resetGameProgressFormSchema = z.object({
 export type FormValues = z.infer<typeof resetGameProgressFormSchema>;
 
 export function useResetGameProgressForm() {
+  const { t } = useTranslation();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(resetGameProgressFormSchema),
   });
@@ -68,13 +71,9 @@ export function useResetGameProgressForm() {
     mutationFn: (payload: Partial<FormValues>) => {
       let url = '';
       if (payload.gameId) {
-        url = route('user.game.destroy', payload.gameId);
+        url = route('api.user.game.destroy', payload.gameId);
       } else if (payload.achievementId) {
-        url = route('user.achievement.destroy', payload.achievementId);
-      }
-
-      if (!url.length) {
-        throw new Error('Nothing to reset.');
+        url = route('api.user.achievement.destroy', payload.achievementId);
       }
 
       return axios.delete(url);
@@ -117,7 +116,7 @@ export function useResetGameProgressForm() {
   });
 
   const onSubmit = (formValues: FormValues) => {
-    if (!confirm('Are you sure you want to reset this progress? This cannot be reversed.')) {
+    if (!confirm(t('Are you sure you want to reset this progress? This cannot be reversed.'))) {
       return;
     }
 
@@ -129,9 +128,9 @@ export function useResetGameProgressForm() {
         : { achievementId: formValues.achievementId };
 
     toastMessage.promise(mutation.mutateAsync(payload), {
-      loading: 'Resetting progress...',
-      success: 'Progress was reset successfully.',
-      error: 'Something went wrong.',
+      loading: t('Resetting progress...'),
+      success: t('Progress was reset successfully.'),
+      error: t('Something went wrong.'),
     });
   };
 

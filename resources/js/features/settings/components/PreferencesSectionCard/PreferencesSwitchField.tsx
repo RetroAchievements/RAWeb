@@ -16,26 +16,37 @@ type UserPreferenceValue =
   (typeof StringifiedUserPreference)[keyof typeof StringifiedUserPreference];
 
 interface PreferencesTableRowProps {
-  label: string;
+  t_label: string;
   fieldName: UserPreferenceValue;
   control: Control<PreferencesSectionFormValues>;
+
+  /**
+   * If true, the switch will show as enabled when the setting is turned off.
+   */
+  isSwitchInverted?: boolean;
 }
 
 export const PreferencesSwitchField: FC<PreferencesTableRowProps> = ({
-  label,
+  t_label,
   fieldName,
   control,
+  isSwitchInverted = false,
 }) => {
   return (
     <BaseFormField
       control={control}
       name={fieldName as keyof PreferencesSectionFormValues}
       render={({ field }) => (
-        <BaseFormItem className="flex w-full items-center justify-between">
-          <BaseFormLabel>{label}</BaseFormLabel>
+        <BaseFormItem className="flex w-full items-center justify-between gap-1">
+          <BaseFormLabel>{t_label}</BaseFormLabel>
 
           <BaseFormControl>
-            <BaseSwitch checked={field.value} onCheckedChange={field.onChange} />
+            <BaseSwitch
+              checked={isSwitchInverted ? !field.value : field.value}
+              onCheckedChange={(newValue) => {
+                field.onChange(isSwitchInverted ? !newValue : newValue);
+              }}
+            />
           </BaseFormControl>
         </BaseFormItem>
       )}

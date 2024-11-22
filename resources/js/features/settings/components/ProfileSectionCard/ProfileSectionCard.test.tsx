@@ -83,7 +83,30 @@ describe('Component: ProfileSectionCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /delete all comments on/i }));
 
     // ASSERT
-    expect(deleteSpy).toHaveBeenCalledTimes(1);
+    expect(deleteSpy).toHaveBeenCalledOnce();
+  });
+
+  it('given the user clicks the delete all comments button but does not confirm, does not make a call to the server with the request', async () => {
+    // ARRANGE
+    vi.spyOn(window, 'confirm').mockImplementationOnce(() => false);
+
+    const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
+
+    render<App.Community.Data.UserSettingsPageProps>(<ProfileSectionCard />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({ username: 'Scott', id: 1 }),
+        },
+        can: {},
+        userSettings: createUser({ visibleRole: null }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /delete all comments on/i }));
+
+    // ASSERT
+    expect(deleteSpy).not.toHaveBeenCalled();
   });
 
   it("correctly prepopulates the user's motto and wall preference", () => {
@@ -144,7 +167,7 @@ describe('Component: ProfileSectionCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
-    expect(putSpy).toHaveBeenCalledWith(route('settings.profile.update'), {
+    expect(putSpy).toHaveBeenCalledWith(route('api.settings.profile.update'), {
       motto: 'https://www.youtube.com/watch?v=YYOKMUTTDdA',
       userWallActive: false,
     });

@@ -7,6 +7,7 @@ import {
   forwardRef,
   type ReactNode,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuChevronRight, LuMoreHorizontal } from 'react-icons/lu';
 
 import { cn } from '@/utils/cn';
@@ -84,17 +85,21 @@ const BaseBreadcrumbSeparator = ({ children, className, ...props }: ComponentPro
 );
 BaseBreadcrumbSeparator.displayName = 'BaseBreadcrumbSeparator';
 
-const BaseBreadcrumbEllipsis = ({ className, ...props }: ComponentProps<'span'>) => (
-  <span
-    role="presentation"
-    aria-hidden="true"
-    className={cn('flex h-9 w-9 items-center justify-center', className)}
-    {...props}
-  >
-    <LuMoreHorizontal className="h-4 w-4" />
-    <span className="sr-only">More</span>
-  </span>
-);
+const BaseBreadcrumbEllipsis = ({ className, ...props }: ComponentProps<'span'>) => {
+  const { t } = useTranslation();
+
+  return (
+    <span
+      role="presentation"
+      aria-hidden="true"
+      className={cn('flex h-9 w-9 items-center justify-center', className)}
+      {...props}
+    >
+      <LuMoreHorizontal className="h-4 w-4" />
+      <span className="sr-only">{t('More')}</span>
+    </span>
+  );
+};
 BaseBreadcrumbEllipsis.displayName = 'BaseBreadcrumbElipssis';
 
 export {

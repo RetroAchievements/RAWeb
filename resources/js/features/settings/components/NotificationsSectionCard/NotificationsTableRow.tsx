@@ -1,28 +1,28 @@
 import { type FC, useId } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { BaseCheckbox } from '@/common/components/+vendor/BaseCheckbox';
 import { BaseFormControl, BaseFormField } from '@/common/components/+vendor/BaseForm';
 import { BaseLabel } from '@/common/components/+vendor/BaseLabel';
-import type { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
 
+import type { UserPreferenceValue } from '../../models';
 import type { FormValues as NotificationsSectionFormValues } from './useNotificationsSectionForm';
 
-type UserPreferenceValue =
-  (typeof StringifiedUserPreference)[keyof typeof StringifiedUserPreference];
-
 interface NotificationsTableRowProps {
-  label: string;
+  t_label: string;
 
   emailFieldName?: UserPreferenceValue;
   siteFieldName?: UserPreferenceValue;
 }
 
 export const NotificationsTableRow: FC<NotificationsTableRowProps> = ({
-  label,
+  t_label,
   emailFieldName,
   siteFieldName,
 }) => {
+  const { t } = useTranslation();
+
   const { control } = useFormContext<NotificationsSectionFormValues>();
 
   const emailId = useId();
@@ -31,7 +31,7 @@ export const NotificationsTableRow: FC<NotificationsTableRowProps> = ({
   return (
     <tr>
       <th scope="row" className="w-[40%]">
-        {label}
+        {t_label}
       </th>
 
       <td>
@@ -47,11 +47,11 @@ export const NotificationsTableRow: FC<NotificationsTableRowProps> = ({
                       id={emailId}
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      data-testid={`email-checkbox-${label.replace(/\s+/g, '-').toLowerCase()}`}
+                      data-testid={`email-checkbox-${t_label.replace(/\s+/g, '-').toLowerCase()}`}
                     />
                   </BaseFormControl>
 
-                  <BaseLabel htmlFor={emailId}>Email me</BaseLabel>
+                  <BaseLabel htmlFor={emailId}>{t('Email me')}</BaseLabel>
                 </>
               )}
             />
@@ -72,11 +72,11 @@ export const NotificationsTableRow: FC<NotificationsTableRowProps> = ({
                       id={siteId}
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      data-testid={`site-checkbox-${label.replace(/\s+/g, '-').toLowerCase()}`}
+                      data-testid={`site-checkbox-${t_label.replace(/\s+/g, '-').toLowerCase()}`}
                     />
                   </BaseFormControl>
 
-                  <BaseLabel htmlFor={siteId}>Notify me on the site</BaseLabel>
+                  <BaseLabel htmlFor={siteId}>{t('Notify me on the site')}</BaseLabel>
                 </>
               )}
             />

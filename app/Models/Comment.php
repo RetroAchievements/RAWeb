@@ -92,6 +92,13 @@ class Comment extends BaseModel
         throw new Exception('Use derived comment model class in the comments() morphTo() relationship instead of ' . Comment::class . '. Add link attribute getters to the derived class. Use A dedicated controller for it and use the prepared actions.');
     }
 
+    // == accessors
+
+    public function getIsAutomatedAttribute(): bool
+    {
+        return $this->user_id === self::SYSTEM_USER_ID;
+    }
+
     // == mutators
 
     // == relations
@@ -112,6 +119,16 @@ class Comment extends BaseModel
         return $this->belongsTo(User::class, 'user_id', 'ID')->withDefault(['username' => 'Deleted User']);
     }
 
+    /**
+     * @return BelongsTo<User, Comment>
+     */
+    public function userWithTrashed(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'ID')
+            ->withTrashed()
+            ->withDefault(['username' => 'Deleted User']);
+    }
+
     // == scopes
 
     /**
@@ -130,5 +147,21 @@ class Comment extends BaseModel
     public function scopeNotAutomated(Builder $query): Builder
     {
         return $query->where('user_id', '!=', self::SYSTEM_USER_ID);
+    }
+
+    /**
+     * @param Builder<Comment> $query
+     * @return Builder<Comment>
+     */
+    public function scopeVisibleTo(Builder $query, ?User $currentUser = null): Builder
+    {
+        if (!$currentUser || !$currentUser->hasRole([Role::ADMINISTRATOR, Role::MODERATOR])) {
+            // If the current user isn't a moderator, exclude comments from banned users.
+            $query->whereHas('userWithTrashed', function ($q) {
+                $q->whereNull('banned_at');
+            });
+        }
+
+        return $query;
     }
 }

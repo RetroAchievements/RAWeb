@@ -48,7 +48,7 @@ class GameExtendedTest extends TestCase
             'Genre' => 'Action',
             'Released' => 'Jan 1989',
             'released_at' => $releasedAt,
-            'released_at_granularity' => 'week',
+            'released_at_granularity' => 'day',
         ]);
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
@@ -102,7 +102,7 @@ class GameExtendedTest extends TestCase
                 'Developer' => $game->Developer,
                 'Genre' => $game->Genre,
                 'Released' => $releasedAt->format('Y-m-d'),
-                'ReleasedAtGranularity' => 'week',
+                'ReleasedAtGranularity' => 'day',
                 'IsFinal' => 0,
                 'NumAchievements' => 3,
                 'NumDistinctPlayers' => 4,
@@ -151,7 +151,7 @@ class GameExtendedTest extends TestCase
                 ],
             ]);
 
-        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID, 'f' => AchievementFlag::Unofficial]))
+        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID, 'f' => AchievementFlag::Unofficial->value]))
             ->assertSuccessful()
             ->assertJson([
                 'Achievements' => [
@@ -191,7 +191,7 @@ class GameExtendedTest extends TestCase
             'Genre' => 'Action',
             'Released' => 'Jan 1989',
             'released_at' => $releasedAt,
-            'released_at_granularity' => 'week',
+            'released_at_granularity' => 'day',
         ]);
 
         /** @var User $user2 */
@@ -220,7 +220,7 @@ class GameExtendedTest extends TestCase
                 'Developer' => $game->Developer,
                 'Genre' => $game->Genre,
                 'Released' => $releasedAt->format('Y-m-d'),
-                'ReleasedAtGranularity' => 'week',
+                'ReleasedAtGranularity' => 'day',
                 'IsFinal' => 0,
                 'Achievements' => [],
                 'Claims' => [

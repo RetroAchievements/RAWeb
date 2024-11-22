@@ -72,7 +72,7 @@ use \Illuminate\Support\Js;
                                 </x-filament-tables::cell>
 
                                 <x-filament-tables::cell width="40%" class="px-4 py-2 align-top break-all !whitespace-normal">
-                                    @if ($oldRelatedModels->isNotEmpty())
+                                    @if ($oldRelatedModels->isNotEmpty() && isset($oldRelatedModels->first()->name))
                                         @foreach ($oldRelatedModels as $relatedModel)
                                             <div class="inline-block">
                                                 <x-filament::badge>
@@ -84,7 +84,7 @@ use \Illuminate\Support\Js;
                                     @elseif ($oldValue && $this->getIsImageField($field))
                                         <img src="{{ $oldValue }}" alt="Old Image" class="max-w-full h-auto"/>
                                     @elseif (is_array($oldValue))
-                                        <pre class="text-xs text-gray-500">{{ json_encode($oldValue, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                                        <pre class="text-xs text-neutral-400">{{ json_encode($oldValue, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
                                     @else
                                         {{ $oldValue }}
                                     @endif
@@ -95,7 +95,7 @@ use \Illuminate\Support\Js;
                                 </x-filament-tables::cell>
 
                                 <x-filament-tables::cell width="40%" class="px-4 py-2 align-top break-all !whitespace-normal">
-                                    @if ($newRelatedModels->isNotEmpty())
+                                    @if ($newRelatedModels->isNotEmpty() && isset($newRelatedModels->first()->name))
                                         @foreach ($newRelatedModels as $relatedModel)
                                             <div class="inline-block">
                                                 <x-filament::badge>
@@ -107,7 +107,7 @@ use \Illuminate\Support\Js;
                                     @elseif ($this->getIsImageField($field))
                                         <img src="{{ $newValue }}" alt="New Image" class="max-w-full h-auto"/>
                                     @elseif (is_array($newValue))
-                                        <pre class="text-xs text-gray-500">{{ json_encode($newValue, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                                        <pre class="text-xs text-neutral-400">{{ json_encode($newValue, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
                                     @else
                                         {{ $newValue }}
                                     @endif

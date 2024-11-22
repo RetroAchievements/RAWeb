@@ -10,8 +10,8 @@ use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\PlayerSession;
 use App\Models\User;
-use App\Platform\Actions\ResumePlayerSession;
-use App\Platform\Actions\UnlockPlayerAchievement;
+use App\Platform\Actions\ResumePlayerSessionAction;
+use App\Platform\Actions\UnlockPlayerAchievementAction;
 use App\Platform\Services\PlayerGameActivityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -36,7 +36,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $time1 = $now->clone()->subMinutes(100);
         Carbon::setTestNow($time1);
         /** @var PlayerSession $playerSession */
-        $playerSession = (new ResumePlayerSession())->execute($user, $game);
+        $playerSession = (new ResumePlayerSessionAction())->execute($user, $game);
         $playerSession->duration = $now->diffInMinutes($time1);
         $playerSession->save();
 
@@ -56,7 +56,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $time2 = $time1->clone()->addMinutes(5);
         $ach1 = $game->achievements()->first();
         $this->addHardcoreUnlock($user, $ach1, $time2);
-        // UnlockPlayerAchievement action updates duration to be 'unlock time - created_at'
+        // UnlockPlayerAchievementAction updates duration to be 'unlock time - created_at'
         $playerSession->refresh();
         $playerSession->duration = $now->diffInMinutes($time1);
         $playerSession->save();
@@ -79,7 +79,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->addHardcoreUnlock($user, $ach2, $time3);
         $ach3 = $game->achievements()->skip(2)->first();
         $this->addHardcoreUnlock($user, $ach3, $time3);
-        // UnlockPlayerAchievement action updates duration to be 'unlock time - created_at'
+        // UnlockPlayerAchievementAction updates duration to be 'unlock time - created_at'
         $playerSession->refresh();
         $playerSession->duration = $now->diffInMinutes($time1);
         $playerSession->save();
@@ -124,7 +124,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $time5 = $time4->clone()->addHours(8);
         Carbon::setTestNow($time5);
         /** @var PlayerSession $playerSession2 */
-        $playerSession2 = (new ResumePlayerSession())->execute($user, $game);
+        $playerSession2 = (new ResumePlayerSessionAction())->execute($user, $game);
 
         $activity = new PlayerGameActivityService();
         $activity->initialize($user, $game);
@@ -154,7 +154,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $activity->initialize($user, $game);
         $this->assertEquals(2, count($activity->sessions));
         $session = $activity->sessions[0];
-        $this->assertEquals(PlayerGameActivitySessionType::Generated, $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Reconstructed, $session['type']);
         $this->assertEquals($time2, $session['startTime']);
         $this->assertEquals($time3->diffInSeconds($time2), $session['duration']);
         $this->assertEquals($time3, $session['endTime']);
@@ -175,13 +175,13 @@ class PlayerGameActivityServiceTest extends TestCase
         $ach4 = $game->achievements()->skip(3)->first();
         /** @var User $user2 */
         $user2 = User::factory()->create();
-        (new UnlockPlayerAchievement())->execute($user, $ach4, true, $time6, unlockedBy: $user2);
+        (new UnlockPlayerAchievementAction())->execute($user, $ach4, true, $time6, unlockedBy: $user2);
 
         $activity = new PlayerGameActivityService();
         $activity->initialize($user, $game);
         $this->assertEquals(3, count($activity->sessions));
         $session = $activity->sessions[0];
-        $this->assertEquals(PlayerGameActivitySessionType::Generated, $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Reconstructed, $session['type']);
         $this->assertEquals($time2, $session['startTime']);
         $this->assertEquals($time3->diffInSeconds($time2), $session['duration']);
         $this->assertEquals($time3, $session['endTime']);
@@ -220,14 +220,14 @@ class PlayerGameActivityServiceTest extends TestCase
         $time7 = $time5->clone()->addMinutes(9);
         $ach5 = $game->achievements()->skip(4)->first();
         $this->addHardcoreUnlock($user, $ach5, $time7);
-        // UnlockPlayerAchievement action updates duration to be 'unlock time - created_at'
+        // UnlockPlayerAchievementAction updates duration to be 'unlock time - created_at'
         $playerSession2->refresh();
 
         $activity = new PlayerGameActivityService();
         $activity->initialize($user, $game);
         $this->assertEquals(3, count($activity->sessions));
         $session = $activity->sessions[0];
-        $this->assertEquals(PlayerGameActivitySessionType::Generated, $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Reconstructed, $session['type']);
         $this->assertEquals($time2, $session['startTime']);
         $this->assertEquals($time3->diffInSeconds($time2), $session['duration']);
         $this->assertEquals($time3, $session['endTime']);

@@ -1,3 +1,4 @@
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createGame } from '@/test/factories';
 
@@ -76,5 +77,75 @@ describe('Component: GameAvatar', () => {
     expect(anchorEl).not.toHaveAttribute('x-on:mouseover');
     expect(anchorEl).not.toHaveAttribute('x-on:mouseleave');
     expect(anchorEl).not.toHaveAccessibleDescription('x-on:mousemove');
+  });
+
+  it('given the user is authenticated, sends their username as dynamicContext (to show progress in the hover card)', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+
+    render(<GameAvatar {...game} />, {
+      pageProps: { auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) } },
+    });
+
+    // ASSERT
+    const anchorEl = screen.getByRole('link');
+    const xDataAttribute = anchorEl.getAttribute('x-data');
+
+    expect(xDataAttribute).toContain(`dynamicContext: 'Scott'`);
+  });
+
+  it('can be overriden with a custom username for dynamicContext (to show progress in the hover card)', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+
+    render(<GameAvatar {...game} showHoverCardProgressForUsername="televandalist" />, {
+      pageProps: { auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) } },
+    });
+
+    // ASSERT
+    const anchorEl = screen.getByRole('link');
+    const xDataAttribute = anchorEl.getAttribute('x-data');
+
+    expect(xDataAttribute).toContain(`dynamicContext: 'televandalist'`);
+  });
+
+  it('can be configured to not show an image', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+
+    render(<GameAvatar {...game} showImage={false} />);
+
+    // ASSERT
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+
+  it('can be configured to display an accessible image with smart glow enabled', () => {
+    // ARRANGE
+    const game = createGame({ id: 1, title: 'Sonic the Hedgehog' });
+
+    render(<GameAvatar {...game} shouldGlow={true} />);
+
+    // ASSERT
+    expect(screen.getByRole('img', { name: /sonic the hedgehog/i })).toBeVisible();
+  });
+
+  it('given it is configured to not show an image, ignores the glowable image setting', () => {
+    // ARRANGE
+    const game = createGame({ id: 1, title: 'Sonic the Hedgehog' });
+
+    render(<GameAvatar {...game} showImage={false} shouldGlow={true} />);
+
+    // ASSERT
+    expect(screen.queryByRole('img', { name: /sonic the hedgehog/i })).not.toBeInTheDocument();
+  });
+
+  it('given it is configured to show a glowable image, renders an accessible image even if the game title cannot be found', () => {
+    // ARRANGE
+    const game = createGame({ id: 1, title: undefined });
+
+    render(<GameAvatar {...game} shouldGlow={true} />);
+
+    // ASSERT
+    expect(screen.getByRole('img', { name: /game/i })).toBeVisible();
   });
 });

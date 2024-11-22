@@ -9,6 +9,7 @@ use App\Filament\Resources\AchievementResource\Pages;
 use App\Filament\Resources\AchievementResource\RelationManagers\AuthorshipCreditsRelationManager;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
@@ -19,7 +20,6 @@ use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
 use Filament\Tables;
-use Filament\Tables\Filters;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
@@ -35,7 +35,7 @@ class AchievementResource extends Resource
 
     protected static ?string $navigationGroup = 'Platform';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 50;
 
     protected static ?string $recordTitleAttribute = 'title';
 
@@ -127,18 +127,19 @@ class AchievementResource extends Resource
 
                         Infolists\Components\TextEntry::make('Flags')
                             ->badge()
-                            ->formatStateUsing(fn (int $state): string => match ($state) {
-                                AchievementFlag::OfficialCore => __('published'),
-                                AchievementFlag::Unofficial => __('unpublished'),
+                            ->formatStateUsing(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
+                                AchievementFlag::OfficialCore => AchievementFlag::OfficialCore->label(),
+                                AchievementFlag::Unofficial => AchievementFlag::Unofficial->label(),
                                 default => '',
                             })
-                            ->color(fn (int $state): string => match ($state) {
+                            ->color(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
                                 AchievementFlag::OfficialCore => 'success',
                                 AchievementFlag::Unofficial => 'info',
                                 default => '',
                             }),
 
                         Infolists\Components\TextEntry::make('type')
+                            ->hidden(fn ($record) => $record->game->system->id === System::Events)
                             ->badge(),
 
                         Infolists\Components\TextEntry::make('Points'),
@@ -146,6 +147,25 @@ class AchievementResource extends Resource
                         Infolists\Components\TextEntry::make('DisplayOrder'),
                     ])->grow(false),
                 ])->from('md'),
+                Infolists\Components\Section::make('Event Association')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('eventData.source_achievement_id')
+                            ->label('Source Achievement')
+                            ->columnSpan(2)
+                            ->formatStateUsing(function (int $state): string {
+                                $achievement = Achievement::find($state);
+
+                                return "[{$achievement->id}] {$achievement->title}";
+                            }),
+                        Infolists\Components\TextEntry::make('eventData.active_from')
+                            ->label('Active From')
+                            ->date(),
+                        Infolists\Components\TextEntry::make('eventData.active_through')
+                            ->label('Active Through')
+                            ->date(),
+                    ])
+                    ->columns(['xl' => 4, 'md' => 2])
+                    ->hidden(fn ($record) => $record->game->system->id !== System::Events),
             ]);
     }
 
@@ -153,6 +173,8 @@ class AchievementResource extends Resource
     {
         /** @var User $user */
         $user = Auth::user();
+
+        $form->model?->loadMissing('game.system');
 
         return $form
             ->columns(1)
@@ -193,10 +215,10 @@ class AchievementResource extends Resource
                         ->schema([
                             Forms\Components\Select::make('Flags')
                                 ->options([
-                                    AchievementFlag::OfficialCore => __('published'),
-                                    AchievementFlag::Unofficial => __('unpublished'),
+                                    AchievementFlag::OfficialCore->value => AchievementFlag::OfficialCore->label(),
+                                    AchievementFlag::Unofficial->value => AchievementFlag::Unofficial->label(),
                                 ])
-                                ->default(AchievementFlag::Unofficial)
+                                ->default(AchievementFlag::Unofficial->value)
                                 ->required()
                                 ->disabled(!$user->can('updateField', [$form->model, 'Flags'])),
 
@@ -205,6 +227,7 @@ class AchievementResource extends Resource
                                     collect(AchievementType::cases())
                                         ->mapWithKeys(fn ($value) => [$value => __($value)])
                                 )
+                                ->hidden(fn (Achievement $record) => $record->game->system->id === System::Events)
                                 ->disabled(!$user->can('updateField', [$form->model, 'type'])),
 
                             Forms\Components\Select::make('Points')
@@ -223,6 +246,42 @@ class AchievementResource extends Resource
                                 ->disabled(!$user->can('updateField', [$form->model, 'DisplayOrder'])),
                         ]),
                 ])->from('md'),
+
+                Forms\Components\Section::make('Event Association')
+                    ->relationship('eventData')
+                    ->columns(['xl' => 4, 'md' => 2])
+                    ->schema([
+                        Forms\Components\Select::make('source_achievement_id')
+                            ->label('Source Achievement')
+                            ->columnSpan(2)
+                            ->searchable()
+                            ->getSearchResultsUsing(function (string $search): array {
+                                return Achievement::where('Title', 'like', "%{$search}%")
+                                    ->orWhere('ID', 'like', "%{$search}%")
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(function ($achievement) {
+                                        return [$achievement->id => "[{$achievement->id}] {$achievement->title}"];
+                                    })
+                                    ->toArray();
+                            })
+                            ->getOptionLabelUsing(function (int $value): string {
+                                $achievement = Achievement::find($value);
+
+                                return "[{$achievement->id}] {$achievement->title}";
+                            }),
+
+                        Forms\Components\DatePicker::make('active_from')
+                            ->label('Active From')
+                            ->native(false)
+                            ->date(),
+
+                        Forms\Components\DatePicker::make('active_through')
+                            ->label('Active Through')
+                            ->native(false)
+                            ->date(),
+                    ])
+                    ->hidden(fn ($record) => $record && $record->game->system->id !== System::Events),
             ]);
     }
 
@@ -257,12 +316,12 @@ class AchievementResource extends Resource
 
                 Tables\Columns\TextColumn::make('Flags')
                     ->badge()
-                    ->formatStateUsing(fn (int $state): string => match ($state) {
-                        AchievementFlag::OfficialCore => 'Published',
-                        AchievementFlag::Unofficial => 'Unpublished',
+                    ->formatStateUsing(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
+                        AchievementFlag::OfficialCore => AchievementFlag::OfficialCore->label(),
+                        AchievementFlag::Unofficial => AchievementFlag::Unofficial->label(),
                         default => '',
                     })
-                    ->color(fn (int $state): string => match ($state) {
+                    ->color(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
                         AchievementFlag::OfficialCore => 'success',
                         AchievementFlag::Unofficial => 'info',
                         default => '',
@@ -354,13 +413,14 @@ class AchievementResource extends Resource
             ])
             ->defaultSort('DateModified', 'desc')
             ->filters([
-                Filters\SelectFilter::make('type')
+                Tables\Filters\SelectFilter::make('type')
                     ->multiple()
                     ->options(
                         collect(AchievementType::cases())
                             ->mapWithKeys(fn ($value) => [$value => __($value)])
                     ),
-                Filters\TrashedFilter::make(),
+
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->deferFilters()
             ->actions([

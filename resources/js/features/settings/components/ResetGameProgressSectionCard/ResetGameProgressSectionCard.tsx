@@ -1,4 +1,5 @@
 import { type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useInView } from 'react-intersection-observer';
 
 import {
@@ -19,6 +20,8 @@ import { SectionFormCard } from '../SectionFormCard';
 import { useResetGameProgressForm } from './useResetGameProgressForm';
 
 export const ResetGameProgressSectionCard: FC = () => {
+  const { t } = useTranslation();
+
   const {
     filteredAchievements,
     filteredGames,
@@ -45,12 +48,12 @@ export const ResetGameProgressSectionCard: FC = () => {
 
   return (
     <SectionFormCard
-      headingLabel="Reset Game Progress"
+      t_headingLabel={t('Reset Game Progress')}
       formMethods={form}
       onSubmit={onSubmit}
       isSubmitting={mutation.isPending}
       buttonProps={{
-        children: 'Reset Progress',
+        children: t('Reset Progress'),
         variant: 'destructive',
         disabled: !form.formState.isValid,
       }}
@@ -62,13 +65,18 @@ export const ResetGameProgressSectionCard: FC = () => {
             name="gameId"
             render={({ field }) => (
               <BaseFormItem className="flex w-full flex-col gap-1 @xl:grid @xl:grid-cols-5 @xl:items-center">
-                <BaseFormLabel className="col-span-2 text-menu-link">Game</BaseFormLabel>
+                <BaseFormLabel
+                  className="col-span-2 text-menu-link"
+                  htmlFor="resettable-game-select"
+                >
+                  {t('Game')}
+                </BaseFormLabel>
 
                 <div ref={inViewRef} className="col-span-3 flex flex-grow flex-col gap-1">
                   <BaseSelect value={field.value} onValueChange={field.onChange}>
                     <BaseFormControl>
-                      <BaseSelectTrigger>
-                        <BaseSelectValue placeholder="Select a game" />
+                      <BaseSelectTrigger id="resettable-game-select">
+                        <BaseSelectValue placeholder={t('Select a game')} />
                       </BaseSelectTrigger>
                     </BaseFormControl>
 
@@ -80,14 +88,21 @@ export const ResetGameProgressSectionCard: FC = () => {
                               key={`resettable-game-${game.id}`}
                               value={String(game.id)}
                             >
-                              {game.title} ({game.consoleName}) ({game.numAwarded} /{' '}
-                              {game.numPossible} won)
+                              {t(
+                                '{{gameTitle}} ({{consoleName}}) ({{numAwarded, number}} / {{numPossible, number}} won)',
+                                {
+                                  gameTitle: game.title,
+                                  consoleName: game.consoleName,
+                                  numAwarded: game.numAwarded,
+                                  numPossible: game.numPossible,
+                                },
+                              )}
                             </BaseSelectItem>
                           ))}
                         </>
                       ) : (
                         <BaseSelectItem value="null" disabled>
-                          Loading...
+                          {t('Loading...')}
                         </BaseSelectItem>
                       )}
                     </BaseSelectContent>
@@ -102,7 +117,12 @@ export const ResetGameProgressSectionCard: FC = () => {
             name="achievementId"
             render={({ field }) => (
               <BaseFormItem className="flex w-full flex-col gap-1 @xl:grid @xl:grid-cols-5 @xl:items-center">
-                <BaseFormLabel className="col-span-2 text-menu-link">Achievement</BaseFormLabel>
+                <BaseFormLabel
+                  className="col-span-2 text-menu-link"
+                  htmlFor="resettable-achievement-select"
+                >
+                  {t('Achievement')}
+                </BaseFormLabel>
 
                 <div ref={inViewRef} className="col-span-3 flex flex-grow flex-col gap-1">
                   <BaseSelect
@@ -111,14 +131,14 @@ export const ResetGameProgressSectionCard: FC = () => {
                     disabled={!selectedGameId}
                   >
                     <BaseFormControl>
-                      <BaseSelectTrigger>
-                        <BaseSelectValue placeholder="Select an achievement" />
+                      <BaseSelectTrigger id="resettable-achievement-select">
+                        <BaseSelectValue placeholder={t('Select an achievement')} />
                       </BaseSelectTrigger>
                     </BaseFormControl>
 
                     <BaseSelectContent>
                       <BaseSelectItem value="all">
-                        All won achievements for this game
+                        {t('All won achievements for this game')}
                       </BaseSelectItem>
 
                       {resettableGameAchievementsQuery.isFetched ? (
@@ -128,14 +148,17 @@ export const ResetGameProgressSectionCard: FC = () => {
                               key={`resettable-achievement-${achievement.id}`}
                               value={String(achievement.id)}
                             >
-                              {achievement.title} ({achievement.points} points){' '}
-                              {achievement.isHardcore ? '(Hardcore)' : null}
+                              {t('{{achievementTitle}} ({{achievementPoints, number}} points)', {
+                                achievementTitle: achievement.title,
+                                achievementPoints: achievement.points,
+                              })}{' '}
+                              {achievement.isHardcore ? t('(Hardcore)') : null}
                             </BaseSelectItem>
                           ))}
                         </>
                       ) : (
                         <BaseSelectItem value="null" disabled>
-                          Loading...
+                          {t('Loading...')}
                         </BaseSelectItem>
                       )}
                     </BaseSelectContent>

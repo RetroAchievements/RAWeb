@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 
@@ -11,6 +12,8 @@ interface FormValues {
 }
 
 export function useAvatarSectionForm() {
+  const { t } = useTranslation();
+
   const form = useForm<FormValues>();
 
   const mutation = useMutation({
@@ -25,7 +28,7 @@ export function useAvatarSectionForm() {
       const formData = new FormData();
       formData.append('imageData', base64ImageData);
 
-      return axios.post(route('user.avatar.store'), formData, {
+      return axios.post(route('api.user.avatar.store'), formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -37,13 +40,13 @@ export function useAvatarSectionForm() {
 
   const onSubmit = (formValues: FormValues) => {
     toastMessage.promise(mutation.mutateAsync(formValues), {
-      loading: 'Uploading new avatar...',
+      loading: t('Uploading new avatar...'),
       success: () => {
         resetNavbarUserPic();
 
-        return 'Uploaded!';
+        return t('Uploaded!');
       },
-      error: 'Something went wrong.',
+      error: t('Something went wrong.'),
     });
   };
 

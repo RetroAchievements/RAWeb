@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
@@ -14,6 +15,8 @@ const profileFormSchema = z.object({
 type FormValues = z.infer<typeof profileFormSchema>;
 
 export function useProfileSectionForm(initialValues: FormValues) {
+  const { t } = useTranslation();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: initialValues,
@@ -21,15 +24,15 @@ export function useProfileSectionForm(initialValues: FormValues) {
 
   const mutation = useMutation({
     mutationFn: (formValues: FormValues) => {
-      return axios.put(route('settings.profile.update'), formValues);
+      return axios.put(route('api.settings.profile.update'), formValues);
     },
   });
 
   const onSubmit = (formValues: FormValues) => {
     toastMessage.promise(mutation.mutateAsync(formValues), {
-      loading: 'Updating...',
-      success: 'Updated.',
-      error: 'Something went wrong.',
+      loading: t('Updating...'),
+      success: t('Updated.'),
+      error: t('Something went wrong.'),
     });
   };
 

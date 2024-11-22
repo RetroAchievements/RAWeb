@@ -46,11 +46,11 @@ class AchievementTest extends TestCase
         ]);
         Event::assertDispatched(AchievementCreated::class);
 
-        $achievement->Flags = AchievementFlag::OfficialCore;
+        $achievement->Flags = AchievementFlag::OfficialCore->value;
         $achievement->save();
         Event::assertDispatched(AchievementPublished::class);
 
-        $achievement->Flags = AchievementFlag::Unofficial;
+        $achievement->Flags = AchievementFlag::Unofficial->value;
         $achievement->save();
         Event::assertDispatched(AchievementUnpublished::class);
 

@@ -25,6 +25,7 @@ use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Platform\Commands\ConvertGameReleasedToTimestamp;
+use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
 use App\Platform\Commands\EnqueueStaleGamePlayerGamesUpdates;
 use App\Platform\Commands\MigrateMissableAchievementsToType;
@@ -55,6 +56,7 @@ use App\Platform\Commands\UpdatePlayerGameMetrics;
 use App\Platform\Commands\UpdatePlayerMetrics;
 use App\Platform\Commands\UpdatePlayerPointsStats;
 use App\Platform\Commands\UpdateTotalGamesCount;
+use App\Platform\Commands\VerifyAchievementSetIntegrity;
 use App\Platform\Commands\WriteGameSortTitles;
 use App\Platform\Components\GameCard;
 use App\Platform\Components\GameTitle;
@@ -76,6 +78,7 @@ class AppServiceProvider extends ServiceProvider
                 UpdateGameMetrics::class,
                 UpdateGameAchievementsMetrics::class,
                 UpdateGamePlayerGames::class,
+                VerifyAchievementSetIntegrity::class,
                 WriteGameSortTitles::class,
 
                 // Game Hashes
@@ -104,6 +107,9 @@ class AppServiceProvider extends ServiceProvider
 
                 // Developer
                 UpdateDeveloperContributionYield::class,
+
+                // Events
+                CreateAchievementOfTheWeek::class,
 
                 // Sync
                 SyncAchievementAuthors::class,

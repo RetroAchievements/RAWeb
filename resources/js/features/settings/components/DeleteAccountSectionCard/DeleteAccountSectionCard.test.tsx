@@ -58,7 +58,7 @@ describe('Component: DeleteAccountSectionCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /request account deletion/i }));
 
     // ASSERT
-    expect(postSpy).toHaveBeenCalledWith(route('user.delete-request.store'));
+    expect(postSpy).toHaveBeenCalledWith(route('api.user.delete-request.store'));
     expect(screen.getByText(/you've requested account deletion/i)).toBeVisible();
   });
 
@@ -76,7 +76,24 @@ describe('Component: DeleteAccountSectionCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /cancel account deletion request/i }));
 
     // ASSERT
-    expect(deleteSpy).toHaveBeenCalledWith(route('user.delete-request.destroy'));
+    expect(deleteSpy).toHaveBeenCalledWith(route('api.user.delete-request.destroy'));
     expect(screen.queryByText(/you've requested account deletion/i)).not.toBeInTheDocument();
+  });
+
+  it('given the user does not confirm their request for account deletion, does not send a cancellation request to the server', async () => {
+    // ARRANGE
+    vi.spyOn(window, 'confirm').mockImplementationOnce(() => false);
+
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValue({ success: true });
+
+    render(<DeleteAccountSectionCard />, {
+      pageProps: { userSettings: { deleteRequested: null } },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /request account deletion/i }));
+
+    // ASSERT
+    expect(postSpy).not.toHaveBeenCalled();
   });
 });

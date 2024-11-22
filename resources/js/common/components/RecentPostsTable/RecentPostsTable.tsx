@@ -1,9 +1,10 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { PostTimestamp } from '../PostTimestamp';
+import { DiffTimestamp } from '../DiffTimestamp';
 import { RecentPostAggregateLinks } from '../RecentPostAggregateLinks';
 
 interface RecentPostsTableProps {
@@ -20,16 +21,18 @@ export const RecentPostsTable: FC<RecentPostsTableProps> = ({
 }) => {
   const { auth } = usePageProps();
 
+  const { t } = useTranslation();
+
   return (
     <table className="table-highlight">
       <thead>
         <tr className="do-not-highlight">
-          {showLastPostBy ? <th>Last Post By</th> : null}
+          {showLastPostBy ? <th className="min-w-40">{t('Last Post By')}</th> : null}
 
-          <th>Message</th>
+          <th>{t('Message')}</th>
 
           {showAdditionalPosts ? (
-            <th className="whitespace-nowrap text-right">Additional Posts</th>
+            <th className="whitespace-nowrap text-right">{t('Additional Posts')}</th>
           ) : null}
         </tr>
       </thead>
@@ -52,14 +55,15 @@ export const RecentPostsTable: FC<RecentPostsTableProps> = ({
                 >
                   {topic.title}
                 </a>
-                <span className="smalldate">
-                  {topic.latestComment?.createdAt ? (
-                    <PostTimestamp
+
+                {topic.latestComment?.createdAt ? (
+                  <span className="smalldate" data-testid="smalldate">
+                    <DiffTimestamp
                       asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates ?? false}
-                      postedAt={topic.latestComment.createdAt}
+                      at={topic.latestComment.createdAt}
                     />
-                  ) : null}
-                </span>
+                  </span>
+                ) : null}
               </p>
 
               <div className="comment text-overflow-wrap">

@@ -121,7 +121,7 @@ const newsCarouselStore = {
       this.resetCarouselToIndex(imageListEl, this.totalSlideCount - 1);
     } else {
       this.activeIndex = direction === 'next' ? this.activeIndex + 1 : this.activeIndex - 1;
-      privateUtils.scrollToIndex(imageListEl, this.activeIndex);
+      this.resetCarouselToIndex(imageListEl, this.activeIndex);
     }
 
     this.updateActiveSlideTextVisibility();

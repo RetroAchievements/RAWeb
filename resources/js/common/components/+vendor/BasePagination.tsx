@@ -1,4 +1,6 @@
+import { Link } from '@inertiajs/react';
 import { type ComponentProps, forwardRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuChevronLeft, LuChevronRight, LuMoreHorizontal } from 'react-icons/lu';
 
 import { cn } from '@/utils/cn';
@@ -28,6 +30,7 @@ const BasePaginationItem = forwardRef<HTMLLIElement, ComponentProps<'li'>>(
 BasePaginationItem.displayName = 'BasePaginationItem';
 
 type BasePaginationLinkProps = {
+  href: string;
   isActive?: boolean;
 } & Pick<BaseButtonProps, 'size'> &
   ComponentProps<'a'>;
@@ -36,10 +39,11 @@ const BasePaginationLink = ({
   className,
   isActive,
   size = 'icon',
+  href,
   ...props
 }: BasePaginationLinkProps) => (
-  <a
-    aria-current={isActive ? 'page' : undefined}
+  <Link
+    href={href}
     className={cn(
       baseButtonVariants({
         variant: isActive ? 'outline' : 'ghost',
@@ -48,8 +52,9 @@ const BasePaginationLink = ({
       'text-xs',
       className,
     )}
-    {...props}
-  />
+  >
+    {props.children}
+  </Link>
 );
 BasePaginationLink.displayName = 'BasePaginationLink';
 
@@ -72,16 +77,20 @@ const BasePaginationNext = ({ className, ...props }: ComponentProps<typeof BaseP
 );
 BasePaginationNext.displayName = 'BasePaginationNext';
 
-const BasePaginationEllipsis = ({ className, ...props }: ComponentProps<'span'>) => (
-  <span
-    aria-hidden
-    className={cn('flex h-9 w-9 items-center justify-center', className)}
-    {...props}
-  >
-    <LuMoreHorizontal className="h-4 w-4" />
-    <span className="sr-only">More pages</span>
-  </span>
-);
+const BasePaginationEllipsis = ({ className, ...props }: ComponentProps<'span'>) => {
+  const { t } = useTranslation();
+
+  return (
+    <span
+      aria-hidden
+      className={cn('flex h-9 w-9 items-center justify-center', className)}
+      {...props}
+    >
+      <LuMoreHorizontal className="h-4 w-4" />
+      <span className="sr-only">{t('More pages')}</span>
+    </span>
+  );
+};
 BasePaginationEllipsis.displayName = 'BasePaginationEllipsis';
 
 export {

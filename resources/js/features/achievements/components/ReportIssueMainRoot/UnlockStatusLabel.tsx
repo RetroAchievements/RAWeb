@@ -1,6 +1,7 @@
 import type { FC } from 'react';
+import { Trans } from 'react-i18next';
 
-import { usePageProps } from '@/features/settings/hooks/usePageProps';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
 // Other elements on the page contain some of the same labels, so we
 // need to target specifically by this <p> tag.
@@ -18,7 +19,12 @@ export const UnlockStatusLabel: FC = () => {
   if (!achievement.unlockedAt && !achievement.unlockedHardcoreAt) {
     return (
       <p data-testid={testId}>
-        You <span className="font-bold">have not</span> unlocked this achievement.
+        <Trans
+          i18nKey="You <1>have not</1> unlocked this achievement."
+          components={{
+            1: <span className="font-bold" />,
+          }}
+        />
       </p>
     );
   }
@@ -26,15 +32,20 @@ export const UnlockStatusLabel: FC = () => {
   if (achievement.unlockedHardcoreAt) {
     return (
       <p data-testid={testId}>
-        You <span className="font-bold">have</span> unlocked this achievement.
+        <Trans
+          i18nKey="You <1>have</1> unlocked this achievement."
+          components={{ 1: <span className="font-bold" /> }}
+        />
       </p>
     );
   }
 
   return (
     <p data-testid={testId}>
-      You <span className="font-bold">have</span> unlocked this achievement{' '}
-      <span className="font-bold">in softcore</span>.
+      <Trans
+        i18nKey="You <1>have</1> unlocked this achievement <2>in softcore</2>."
+        components={{ 1: <span className="font-bold" />, 2: <span className="font-bold" /> }}
+      />
     </p>
   );
 };

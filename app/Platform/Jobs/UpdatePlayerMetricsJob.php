@@ -3,7 +3,7 @@
 namespace App\Platform\Jobs;
 
 use App\Models\User;
-use App\Platform\Actions\UpdatePlayerMetrics;
+use App\Platform\Actions\UpdatePlayerMetricsAction;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -55,7 +55,7 @@ class UpdatePlayerMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessi
             return;
         }
 
-        app()->make(UpdatePlayerMetrics::class)
-            ->execute(User::findOrFail($this->userId));
+        app()->make(UpdatePlayerMetricsAction::class)
+            ->execute($user);
     }
 }

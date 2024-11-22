@@ -2,6 +2,16 @@
 
 Please read and understand the contribution guide before creating an issue or pull request.
 
+## Table of Contents
+
+- [Viability](#viability)
+- [Procedure](#procedure)
+- [Requirements](#requirements)
+- [Testing, Code Style, and Static Analysis](#testing-code-style-and-static-analysis)
+- [APIs, Backwards Compatibility, and Deprecation](#apis-backwards-compatibility-and-deprecation)
+- [Implementation Details](#implementation-details)
+- [Translating the Application](#translating-the-application)
+
 ## Viability
 
 When requesting or submitting new features, first consider whether it might be useful to others. Think about whether
@@ -20,12 +30,13 @@ Before submitting a pull request:
 
 - Check the codebase to ensure that your feature doesn't already exist.
 - Check the pull requests to ensure that another person hasn't already submitted the feature or fix.
+- Test your changes locally. As an open source project maintained by volunteers, we rely on contributors to verify their changes before submission. This includes running the test suite and manually testing the feature or fix. This helps maintain quality and allows maintainers to focus on reviewing your contribution rather than basic testing.
 
 ## Requirements
 
 - Follow **[PSR-12 Coding Standard](https://www.php-fig.org/psr/psr-12/)**. Run `composer fix` to fix most code style issues automatically.
 
-- Ensure ESLint rules are followed. Run `npm run fix` to fix most code style issues automatically.
+- Ensure ESLint rules are followed. Run `pnpm fix` to fix most code style issues automatically.
 
 - **Add tests!** - Your patch won't be accepted if it doesn't have tests.
 
@@ -37,15 +48,15 @@ Before submitting a pull request:
 
 - **Send coherent history** - Make sure each individual commit in your pull request is meaningful. If you had to make multiple intermediate commits while developing, please [squash them](https://www.git-scm.com/book/en/v2/Git-Tools-Rewriting-History#Changing-Multiple-Commit-Messages) before submitting.
 
-## Testing, Code Style (CS) & Static Analysis
+## Testing, Code Style, and Static Analysis
 
 **PHPUnit** is used for testing. Write feature and/or unit tests where applicable.  
 
-**PHP CS Fixer** comes as a dev dependency. Use it before you commit. See the [README](README.md) 
+**PHP CS Fixer** comes as a dev dependency. Use it before you commit. See the [README](https://github.com/RetroAchievements/RAWeb/blob/master/README.md).
 
 **PHPStan** is used for static analysis. Make sure to run it and that your code follows its advice.
 
-## APIs, backwards compatibility & deprecation
+## APIs, Backwards Compatibility, and Deprecation
 
 APIs have to accommodate to old clients' requirements as upgrade paths are very slow for some of them.
 
@@ -62,7 +73,7 @@ Do not use authorizeResource() in Controllers' constructor.
 
 Use FormRequests in controllers for validation. Ignore Form Requests' authorization capabilities (should be done in controllers/actions instead). 
 
-**Controllers, actions, Reusable action classes**
+**Controllers, Actions, Reusable Action Classes**
 
 Controllers should be slim, start with an ability authorization, even if it's an "always-public" route.
  
@@ -76,7 +87,7 @@ This is not a Single Page Application.
 
 Avoid inline styles and custom CSS unless there's a compelling reason. The project uses [TailwindCSS](https://tailwindcss.com/docs) and it should cover most styling needs.
 
-JavaScript kept vanilla and to a minimum - most dynamic features use Laravel LiveWire and/or Alpine.js.
+The UI is currently undergoing a migration from PHP to React. All React components should be use TypeScript and be well-tested.
 
 **Routes**
 
@@ -86,3 +97,7 @@ Slugs are kebab-cased and _appended_ to model IDs (which in turn can be hashed/m
 This allows keeping /create, /edit, etc routes without having to deal with conflicts.
 
 Route keys for route model binding should be validated in the respective RouteServiceProvider. 
+
+## Translating the Application
+
+We welcome contributions to translate the RetroAchievements website into different languages. To get started, please refer to our [translations guide](TRANSLATIONS.md) for detailed instructions on how to add or update translations.

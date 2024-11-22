@@ -6,9 +6,9 @@ namespace Tests;
 
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\LinkHashToGame;
 use Database\Seeders\Concerns\SeedsUsers;
 use Database\Seeders\RolesTableSeeder;
 use Database\Seeders\UsersTableSeeder;
@@ -71,7 +71,17 @@ abstract class TestCase extends BaseTestCase
         $games = $system->games()->saveMany(Game::factory()->count($amount)->create());
 
         if ($withHash) {
-            $games->each(fn (Game $game) => (bool) (new LinkHashToGame())->execute($game->ID . '_hash', $game));
+            $games->each(function (Game $game): bool {
+                GameHash::create([
+                    'game_id' => $game->id,
+                    'system_id' => $game->system_id,
+                    'md5' => fake()->md5,
+                    'name' => 'hash_' . $game->id,
+                    'description' => 'hash_' . $game->id,
+                ]);
+
+                return true;
+            });
         }
 
         if ($achievementsAmount > 0) {
@@ -97,6 +107,9 @@ abstract class TestCase extends BaseTestCase
 
         /** @var Collection<int, Achievement> $achievements */
         $achievements = $game->achievements()->saveMany(Achievement::factory()->published()->count($amount)->create());
+
+        $game->achievements_published += $amount;
+        $game->save();
 
         return $achievements;
     }

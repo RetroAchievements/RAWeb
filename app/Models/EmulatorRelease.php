@@ -8,6 +8,8 @@ use App\Platform\Concerns\HasStabilityFlags;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -17,6 +19,10 @@ class EmulatorRelease extends BaseModel implements HasMedia
     use InteractsWithMedia;
     use HasStabilityFlags;
 
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
+
     protected $table = 'emulator_releases';
 
     protected $fillable = [
@@ -25,12 +31,37 @@ class EmulatorRelease extends BaseModel implements HasMedia
         'notes',
         'stable',
         'version',
+        'created_at',
     ];
 
-    protected $with = [
-        'emulator',
-        'media',
-    ];
+    protected static function booted()
+    {
+        static::saving(function (EmulatorRelease $release) {
+            if ($release->minimum) {
+                // Set all other releases for this emulator to not be the minimum.
+                // There can only be one minimum.
+                static::where('emulator_id', $release->emulator_id)
+                    ->where('id', '!=', $release->id)
+                    ->update(['minimum' => false]);
+            }
+        });
+    }
+
+    // audit activity log
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'emulator_id',
+                'version',
+                'stable',
+                'minimum',
+                'notes',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     // == media
 

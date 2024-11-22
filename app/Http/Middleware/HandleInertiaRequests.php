@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Data\UserData;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Jenssegers\Agent\Agent;
 use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
@@ -44,6 +45,10 @@ class HandleInertiaRequests extends Middleware
                 'user' => UserData::fromUser($user)->include(
                     'id',
                     'legacyPermissions',
+                    'locale',
+                    'points',
+                    'pointsSoftcore',
+                    'mutedUntil',
                     'preferences',
                     'roles',
                     'unreadMessageCount',
@@ -52,9 +57,17 @@ class HandleInertiaRequests extends Middleware
                 ),
             ] : null,
 
+            'config' => [
+                'services' => [
+                    'patreon' => ['userId' => config('services.patreon.user_id')],
+                ],
+            ],
+
             'ziggy' => fn () => [
                 ...(new Ziggy())->toArray(),
+                'device' => (new Agent())->isMobile() ? 'mobile' : 'desktop',
                 'location' => $request->url(),
+                'query' => $request->query(),
             ],
         ]);
     }

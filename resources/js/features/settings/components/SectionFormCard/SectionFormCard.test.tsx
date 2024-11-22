@@ -7,6 +7,7 @@ import { render, screen } from '@/test';
 
 import { SectionFormCard, type SectionFormCardProps } from './SectionFormCard';
 
+// We need to instantiate props with a hook, so a test harness is required.
 const TestHarness: FC<Omit<SectionFormCardProps, 'formMethods' | 'isSubmitting'>> = (props) => {
   const formMethods = useForm();
   const mutation = useMutation({});
@@ -18,7 +19,7 @@ describe('Component: SectionFormCard', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <TestHarness headingLabel="Heading" onSubmit={vi.fn()}>
+      <TestHarness t_headingLabel="Heading" onSubmit={vi.fn()}>
         children
       </TestHarness>,
     );
@@ -30,7 +31,7 @@ describe('Component: SectionFormCard', () => {
   it('renders an accessible heading label', () => {
     // ARRANGE
     render(
-      <TestHarness headingLabel="Hello" onSubmit={vi.fn()}>
+      <TestHarness t_headingLabel="Hello" onSubmit={vi.fn()}>
         children
       </TestHarness>,
     );
@@ -44,7 +45,7 @@ describe('Component: SectionFormCard', () => {
     const mockOnSubmit = vi.fn();
 
     render(
-      <TestHarness headingLabel="Hello" onSubmit={mockOnSubmit}>
+      <TestHarness t_headingLabel="Hello" onSubmit={mockOnSubmit}>
         children
       </TestHarness>,
     );
@@ -53,14 +54,14 @@ describe('Component: SectionFormCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
-    expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+    expect(mockOnSubmit).toHaveBeenCalledOnce();
   });
 
   it('can change its submit button props', () => {
     // ARRANGE
     render(
       <TestHarness
-        headingLabel="Hello"
+        t_headingLabel="Hello"
         onSubmit={vi.fn()}
         buttonProps={{ children: 'some different label' }}
       >

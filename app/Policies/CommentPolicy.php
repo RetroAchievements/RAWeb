@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Community\Enums\ArticleType;
-use App\Enums\Permissions;
 use App\Models\Comment;
 use App\Models\Role;
 use App\Models\User;
@@ -21,7 +20,7 @@ class CommentPolicy
     {
         return $user->hasAnyRole([
             Role::MODERATOR,
-        ]) || $user->getAttribute('Permissions') >= Permissions::Moderator;
+        ]);
     }
 
     public function view(?User $user, Comment $comment): bool
@@ -29,10 +28,27 @@ class CommentPolicy
         return $user->isNotBanned();
     }
 
-    public function create(User $user, ?Model $commentable = null, ?int $articleType = null): bool
+    public function viewAny(?User $user, Model $commentable): bool
     {
-        if ($user->isMuted()) {
+        /*
+         * check guests first
+         */
+        if (!$user) {
+            return true;
+        }
+
+        if ($user->isBanned()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function create(?User $user, ?Model $commentable = null, ?int $articleType = null): bool
+    {
+        if ($user?->isMuted()) {
             // Even when muted, developers may still comment on tickets for their own achievements.
+            // TODO this is silly. delete all of this.
             if ($commentable !== null && $commentable instanceof \App\Models\Ticket) {
                 $commentable->loadMissing(['achievement.developer']);
 
@@ -41,20 +57,13 @@ class CommentPolicy
                 return
                     $didAuthorAchievement
                     && $commentable->is_open
-                    && (
-                        $user->hasAnyRole([
-                            Role::DEVELOPER_STAFF,
-                            Role::DEVELOPER,
-                        ])
-                            || $user->getAttribute('Permissions') >= Permissions::Developer
-                    );
-
+                    && $user->hasAnyRole([Role::DEVELOPER_STAFF, Role::DEVELOPER]);
             }
 
             return false;
         }
 
-        if (!$user->hasVerifiedEmail()) {
+        if ($user && !$user->hasVerifiedEmail()) {
             return false;
         }
 
@@ -63,7 +72,7 @@ class CommentPolicy
             && $commentable instanceof User
             && $articleType !== ArticleType::UserModeration
         ) {
-            return $user->can('create', [UserComment::class, $commentable]);
+            return $user?->can('create', [UserComment::class, $commentable]);
         }
 
         return true;
@@ -71,8 +80,13 @@ class CommentPolicy
 
     public function delete(User $user, Comment $comment): bool
     {
+        // server-written comments cannot be deleted
+        if ($comment->is_automated) {
+            return false;
+        }
+
         // users can delete their own comments
-        if ($comment->user_id == $user->id) {
+        if ($user->is($comment->user)) {
             return true;
         }
 

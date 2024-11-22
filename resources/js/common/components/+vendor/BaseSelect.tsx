@@ -2,7 +2,8 @@
 
 import * as SelectPrimitive from '@radix-ui/react-select';
 import * as React from 'react';
-import { LuCheck, LuChevronDown, LuChevronUp } from 'react-icons/lu';
+import type { IconType } from 'react-icons/lib';
+import { LuCheck, LuChevronDown } from 'react-icons/lu';
 
 import { cn } from '@/utils/cn';
 
@@ -21,7 +22,7 @@ const BaseSelectTrigger = React.forwardRef<
     className={cn(
       'flex h-10 w-full items-center justify-between rounded-md border light:border-neutral-200',
       'px-3 py-2 text-sm light:bg-white light:ring-offset-white light:placeholder:text-neutral-500',
-      'focus:outline-none focus:ring-2 focus:ring-offset-2 light:focus:ring-neutral-950',
+      'focus:outline-none focus:ring-1 focus:ring-offset-1 light:focus:ring-neutral-950',
       'disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
       'border-neutral-800 bg-neutral-950 text-menu-link ring-offset-neutral-950 placeholder:text-neutral-400',
       'focus:ring-neutral-300',
@@ -36,34 +37,6 @@ const BaseSelectTrigger = React.forwardRef<
   </SelectPrimitive.Trigger>
 ));
 BaseSelectTrigger.displayName = 'BaseSelectTrigger';
-
-const BaseSelectScrollUpButton = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.ScrollUpButton>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpButton>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.ScrollUpButton
-    ref={ref}
-    className={cn('flex cursor-default items-center justify-center py-1', className)}
-    {...props}
-  >
-    <LuChevronUp className="h-4 w-4" />
-  </SelectPrimitive.ScrollUpButton>
-));
-BaseSelectScrollUpButton.displayName = 'BaseSelectScrollUpButton';
-
-const BaseSelectScrollDownButton = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.ScrollDownButton>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollDownButton>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.ScrollDownButton
-    ref={ref}
-    className={cn('flex cursor-default items-center justify-center py-1', className)}
-    {...props}
-  >
-    <LuChevronDown className="h-4 w-4" />
-  </SelectPrimitive.ScrollDownButton>
-));
-BaseSelectScrollDownButton.displayName = 'BaseSelectScrollDownButton';
 
 const BaseSelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
@@ -88,7 +61,6 @@ const BaseSelectContent = React.forwardRef<
       position={position}
       {...props}
     >
-      <BaseSelectScrollUpButton />
       <SelectPrimitive.Viewport
         className={cn(
           'p-1',
@@ -98,7 +70,6 @@ const BaseSelectContent = React.forwardRef<
       >
         {children}
       </SelectPrimitive.Viewport>
-      <BaseSelectScrollDownButton />
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ));
@@ -118,8 +89,8 @@ BaseSelectLabel.displayName = 'BaseSelectLabel';
 
 const BaseSelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
->(({ className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> & { Icon?: IconType }
+>(({ className, children, Icon, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
@@ -136,7 +107,12 @@ const BaseSelectItem = React.forwardRef<
       </SelectPrimitive.ItemIndicator>
     </span>
 
-    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    <SelectPrimitive.ItemText>
+      <span className="flex items-center gap-2">
+        {Icon ? <Icon className="h-4 w-4" /> : null}
+        {children}
+      </span>
+    </SelectPrimitive.ItemText>
   </SelectPrimitive.Item>
 ));
 BaseSelectItem.displayName = 'BaseSelectItem';
@@ -147,7 +123,7 @@ const BaseSelectSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
     ref={ref}
-    className={cn('-mx-1 my-1 h-px bg-neutral-100 dark:bg-neutral-800', className)}
+    className={cn('-mx-1 my-1 h-px bg-neutral-800 light:bg-neutral-100', className)}
     {...props}
   />
 ));
@@ -159,8 +135,6 @@ export {
   BaseSelectGroup,
   BaseSelectItem,
   BaseSelectLabel,
-  BaseSelectScrollDownButton,
-  BaseSelectScrollUpButton,
   BaseSelectSeparator,
   BaseSelectTrigger,
   BaseSelectValue,

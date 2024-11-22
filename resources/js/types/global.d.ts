@@ -1,4 +1,5 @@
 import type { Alpine } from 'alpinejs';
+import type { IconType } from 'react-icons/lib';
 import type { route as routeFn } from 'ziggy-js';
 
 import type {
@@ -22,6 +23,11 @@ import type { injectShortcode as InjectShortcode } from '@/utils/injectShortcode
 import type { loadPostPreview as LoadPostPreview } from '@/utils/loadPostPreview';
 import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibility } from '@/utils/toggleUserCompletedSetsVisibility';
 import type { updateUrlParameter as UpdateUrlParameter } from '@/utils/updateUrlParameter';
+
+interface PlausibleEventOptions {
+  callback?: () => void;
+  props?: Record<string, string | boolean | number>;
+}
 
 declare global {
   // Alpine.js
@@ -52,4 +58,18 @@ declare global {
 
   // Inertia
   var route: typeof routeFn;
+
+  // Plausible
+  var plausible: ((eventName: string, options?: PlausibleEventOptions) => void) | undefined;
+}
+
+declare module '@tanstack/react-table' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- this is valid
+  interface ColumnMeta<TData, TValue> {
+    t_label: string;
+
+    align?: 'right' | 'left';
+    Icon?: IconType;
+    sortType?: 'default' | 'date' | 'quantity' | 'boolean';
+  }
 }

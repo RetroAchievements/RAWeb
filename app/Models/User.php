@@ -32,6 +32,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Jenssegers\Optimus\Optimus;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
@@ -42,7 +43,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
 
 // TODO MustVerifyEmail,
-class User extends Authenticatable implements CommunityMember, Developer, HasComments, HasLocalePreference, HasMedia, Player, FilamentUser, HasName
+// TODO HasComments,
+class User extends Authenticatable implements CommunityMember, Developer, HasLocalePreference, HasMedia, Player, FilamentUser, HasName
 {
     /*
      * Framework Traits
@@ -130,6 +132,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'APIUses',
         'APIKey',
         'banned_at',
+        'cookie', // fillable for when users are banned
         'ContribCount',
         'ContribYield',
         'country',
@@ -147,12 +150,14 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'Motto',
         'muted_until',
         'password', // fillable for registration
+        'PasswordResetToken', // fillable for when users are banned
         'Permissions',
         'preferences',
         'RAPoints',
         'RASoftcorePoints',
         'RichPresenceMsg',
         'RichPresenceMsgDate',
+        'SaltedPass', // fillable for when users are banned
         'TrueRAPoints',
         'timezone',
         'unranked_at',
@@ -219,7 +224,9 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
 
         static::pivotAttached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes) {
             if ($relationName === 'roles') {
-                activity()->causedBy(auth()->user())->performedOn($model)
+                $user = Auth::user();
+
+                activity()->causedBy($user)->performedOn($model)
                     ->withProperty('old', [$relationName => null])
                     ->withProperty('attributes', [$relationName => (new Collection($pivotIds))
                         ->map(fn ($pivotId) => [
@@ -234,7 +241,9 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
 
         static::pivotDetached(function ($model, $relationName, $pivotIds) {
             if ($relationName === 'roles') {
-                activity()->causedBy(auth()->user())->performedOn($model)
+                $user = Auth::user();
+
+                activity()->causedBy($user)->performedOn($model)
                     ->withProperty('old', [$relationName => (new Collection($pivotIds))
                         ->map(fn ($pivotId) => [
                             'id' => $pivotId,

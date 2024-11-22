@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   BaseFormControl,
@@ -9,8 +10,9 @@ import {
   BaseFormMessage,
 } from '@/common/components/+vendor/BaseForm';
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
+import { usePageProps } from '@/common/hooks/usePageProps';
+import type { AuthenticatedUser } from '@/common/models';
 
-import { usePageProps } from '../../hooks/usePageProps';
 import { SectionFormCard } from '../SectionFormCard';
 import { useChangePasswordForm } from './useChangePasswordForm';
 
@@ -19,9 +21,13 @@ export const ChangePasswordSectionCard: FC = () => {
 
   const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
+  const { t } = useTranslation();
+
+  const { user } = auth as { user: AuthenticatedUser };
+
   return (
     <SectionFormCard
-      headingLabel="Change Password"
+      t_headingLabel={t('Change Password')}
       formMethods={form}
       onSubmit={onSubmit}
       isSubmitting={mutation.isPending}
@@ -34,7 +40,7 @@ export const ChangePasswordSectionCard: FC = () => {
           */}
           <BaseInput
             autoComplete="username"
-            value={auth?.user.username ?? ''}
+            value={user.username ?? ''}
             className="sr-only"
             readOnly
           />
@@ -44,13 +50,15 @@ export const ChangePasswordSectionCard: FC = () => {
             name="currentPassword"
             render={({ field }) => (
               <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
-                <BaseFormLabel className="text-menu-link @xl:w-2/5">Current Password</BaseFormLabel>
+                <BaseFormLabel className="text-menu-link @xl:w-2/5">
+                  {t('Current Password')}
+                </BaseFormLabel>
 
                 <div className="flex flex-grow flex-col gap-1">
                   <BaseFormControl>
                     <BaseInput
                       type="password"
-                      placeholder="enter your current password here..."
+                      placeholder={t('enter your current password here...')}
                       autoComplete="current-password"
                       required
                       {...field}
@@ -68,13 +76,15 @@ export const ChangePasswordSectionCard: FC = () => {
             name="newPassword"
             render={({ field }) => (
               <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
-                <BaseFormLabel className="text-menu-link @xl:w-2/5">New Password</BaseFormLabel>
+                <BaseFormLabel className="text-menu-link @xl:w-2/5">
+                  {t('New Password')}
+                </BaseFormLabel>
 
                 <div className="flex flex-grow flex-col gap-1">
                   <BaseFormControl>
                     <BaseInput
                       type="password"
-                      placeholder="enter a new password here..."
+                      placeholder={t('enter a new password here...')}
                       autoComplete="new-password"
                       required
                       minLength={8}
@@ -82,7 +92,7 @@ export const ChangePasswordSectionCard: FC = () => {
                     />
                   </BaseFormControl>
 
-                  <BaseFormDescription>Must be at least 8 characters.</BaseFormDescription>
+                  <BaseFormDescription>{t('Must be at least 8 characters.')}</BaseFormDescription>
 
                   <BaseFormMessage />
                 </div>
@@ -95,13 +105,15 @@ export const ChangePasswordSectionCard: FC = () => {
             name="confirmPassword"
             render={({ field }) => (
               <BaseFormItem className="flex w-full flex-col gap-1 @xl:flex-row @xl:items-center">
-                <BaseFormLabel className="text-menu-link @xl:w-2/5">Confirm Password</BaseFormLabel>
+                <BaseFormLabel className="text-menu-link @xl:w-2/5">
+                  {t('Confirm Password')}
+                </BaseFormLabel>
 
                 <div className="flex flex-grow flex-col gap-1">
                   <BaseFormControl>
                     <BaseInput
                       type="password"
-                      placeholder="confirm your new password here..."
+                      placeholder={t('confirm your new password here...')}
                       autoComplete="new-password"
                       required
                       minLength={8}

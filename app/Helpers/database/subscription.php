@@ -5,6 +5,8 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\UserPreference;
 use App\Models\Comment;
 use App\Models\Subscription;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Update a subscription, i.e, either subscribe or unsubscribe a given user to or from a subject.
@@ -50,57 +52,58 @@ function isUserSubscribedTo(string $subjectType, int $topicID, int $userID): boo
  */
 function getSubscribersOf(string $subjectType, int $subjectID, ?int $reqWebsitePrefs = null, ?string $implicitSubscriptionQry = null): array
 {
-    sanitize_sql_inputs($subjectType);
+    $explicitSubscribers = Subscription::query()
+        ->select('UserAccounts.User', 'UserAccounts.EmailAddress')
+        ->join('UserAccounts', 'UserAccounts.ID', '=', 'subscriptions.user_id')
+        ->where('subscriptions.subject_type', $subjectType)
+        ->where('subscriptions.subject_id', $subjectID)
+        ->where('subscriptions.state', 1);
 
-    $websitePrefsFilter = (
-        $reqWebsitePrefs === null ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0"
-    );
+    if ($reqWebsitePrefs !== null) {
+        $explicitSubscribers->whereRaw('(UserAccounts.websitePrefs & ?) != 0', [$reqWebsitePrefs]);
+    }
 
-    $explicitSubscriptionQry = "
-        SELECT
-          _ua.User,
-          _ua.EmailAddress
-        FROM
-          subscriptions AS _sub
-          INNER JOIN UserAccounts AS _ua
-              ON _ua.ID = _sub.user_id
-        WHERE
-          _sub.subject_type = '$subjectType'
-          AND _sub.subject_id = $subjectID
-          AND _sub.state = 1
-          $websitePrefsFilter
-    ";
+    $explicitSubscribersResult = $explicitSubscribers->get()->toArray();
 
     if ($implicitSubscriptionQry === null) {
-        $query = $explicitSubscriptionQry;
+        return $explicitSubscribersResult;
     } else {
-        $query = "
-          SELECT
-            _ua.User,
-            _ua.EmailAddress
-          FROM
-            (
-              $implicitSubscriptionQry
-            ) as _ua
-            LEFT JOIN subscriptions AS _sub
-                ON (_sub.subject_type = '$subjectType'
-                    AND _sub.subject_id = $subjectID
-                    AND _sub.user_id = _ua.ID)
-            WHERE
-              COALESCE(_sub.state, 1) = 1
-              $websitePrefsFilter
-          UNION
-          $explicitSubscriptionQry
-      ";
+        $implicitUsers = DB::select($implicitSubscriptionQry);
+
+        // Once executed, extract user IDs from the result.
+        $userIds = array_map(function ($user) {
+            return $user->ID;
+        }, $implicitUsers);
+
+        $implicitSubscribersQuery = User::query()
+            ->select('UserAccounts.User', 'UserAccounts.EmailAddress')
+            ->leftJoin('subscriptions as _sub', function ($join) use ($subjectType, $subjectID) {
+                $join->on('_sub.user_id', '=', 'UserAccounts.ID')
+                     ->where('_sub.subject_type', '=', $subjectType)
+                     ->where('_sub.subject_id', '=', $subjectID);
+            })
+            ->whereIn('UserAccounts.ID', $userIds)
+            ->whereRaw('COALESCE(_sub.state, 1) = 1');
+
+        if ($reqWebsitePrefs !== null) {
+            $implicitSubscribersQuery->whereRaw('(UserAccounts.websitePrefs & ?) != 0', [$reqWebsitePrefs]);
+        }
+
+        $implicitSubscribersResult = $implicitSubscribersQuery->get()->toArray();
+
+        // Merge and remove duplicates.
+        $mergedResults = array_merge($explicitSubscribersResult, $implicitSubscribersResult);
+        $uniqueResults = [];
+
+        foreach ($mergedResults as $result) {
+            if (isset($result['User']) && isset($result['EmailAddress'])) {
+                $key = $result['User'] . '|' . $result['EmailAddress'];
+                $uniqueResults[$key] = $result;
+            }
+        }
+
+        return array_values($uniqueResults);
     }
-
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        return [];
-    }
-
-    return mysqli_fetch_all($dbResult, MYSQLI_ASSOC);
 }
 
 /**

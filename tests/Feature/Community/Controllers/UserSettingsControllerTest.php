@@ -28,7 +28,7 @@ class UserSettingsControllerTest extends TestCase
 
         // Act
         $response = $this->actingAs($user)
-            ->putJson(route('settings.password.update'), [
+            ->putJson(route('api.settings.password.update'), [
                 'currentPassword' => 'oldPassword123',
                 'newPassword' => 'newPassword123',
             ]);
@@ -54,7 +54,7 @@ class UserSettingsControllerTest extends TestCase
 
         // Act
         $response = $this->actingAs($user)
-            ->putJson(route('settings.password.update'), [
+            ->putJson(route('api.settings.password.update'), [
                 'currentPassword' => '12345678',
                 'newPassword' => 'newPassword123',
             ]);
@@ -77,7 +77,7 @@ class UserSettingsControllerTest extends TestCase
 
         // Act
         $response = $this->actingAs($user)
-            ->putJson(route('settings.password.update'), [
+            ->putJson(route('api.settings.password.update'), [
                 'currentPassword' => 'oldPassword123',
                 'newPassword' => 'MyUsername',
             ]);
@@ -99,7 +99,7 @@ class UserSettingsControllerTest extends TestCase
 
         // Act
         $response = $this->actingAs($user)
-            ->putJson(route('settings.email.update'), [
+            ->putJson(route('api.settings.email.update'), [
                 'newEmail' => 'bar@baz.com',
             ]);
 
@@ -126,7 +126,7 @@ class UserSettingsControllerTest extends TestCase
 
         // Act
         $response = $this->actingAs($user)
-            ->putJson(route('settings.profile.update'), [
+            ->putJson(route('api.settings.profile.update'), [
                 'motto' => 'New motto',
                 'userWallActive' => true,
             ]);
@@ -137,6 +137,50 @@ class UserSettingsControllerTest extends TestCase
         $user = $user->fresh();
         $this->assertEquals('New motto', $user->Motto);
         $this->assertEquals(true, $user->UserWallActive);
+    }
+
+    public function testUpdateLocale(): void
+    {
+        // Arrange
+        $this->withoutMiddleware();
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'locale' => 'en_US',
+        ]);
+
+        // Act
+        $response = $this->actingAs($user)
+            ->putJson(route('api.settings.locale.update'), [
+                'locale' => 'pt_BR',
+            ]);
+
+        // Assert
+        $response->assertStatus(200);
+
+        $user = $user->fresh();
+        $this->assertEquals('pt_BR', $user->locale);
+    }
+
+    public function testUpdateLocaleWithInvalidLocale(): void
+    {
+        // Arrange
+        $this->withoutMiddleware();
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'locale' => 'en_US',
+        ]);
+
+        // Act
+        $response = $this->actingAs($user)
+            ->putJson(route('api.settings.locale.update'), [
+                'locale' => 'KLINGON',
+            ]);
+
+        // Assert
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['locale']);
     }
 
     public function testUpdatePreferences(): void
@@ -151,7 +195,7 @@ class UserSettingsControllerTest extends TestCase
 
         // Act
         $response = $this->actingAs($user)
-            ->putJson(route('settings.preferences.update'), [
+            ->putJson(route('api.settings.preferences.update'), [
                 'websitePrefs' => 2222,
             ]);
 
@@ -173,7 +217,7 @@ class UserSettingsControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->actingAs($user)->deleteJson(route('settings.keys.web.destroy'));
+        $response = $this->actingAs($user)->deleteJson(route('api.settings.keys.web.destroy'));
 
         // Assert
         $response->assertStatus(200)->assertJsonStructure(['newKey']);
@@ -191,7 +235,7 @@ class UserSettingsControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->actingAs($user)->deleteJson(route('settings.keys.connect.destroy'));
+        $response = $this->actingAs($user)->deleteJson(route('api.settings.keys.connect.destroy'));
 
         // Assert
         $response->assertStatus(200)->assertJson(['success' => true]);

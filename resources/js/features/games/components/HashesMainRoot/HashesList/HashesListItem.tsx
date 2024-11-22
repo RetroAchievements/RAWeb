@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 
@@ -7,6 +8,8 @@ interface HashListingProps {
 }
 
 export const HashesListItem: FC<HashListingProps> = ({ hash }) => {
+  const { t } = useTranslation();
+
   return (
     <li>
       <p className="space-x-1 sm:space-x-2">
@@ -14,8 +17,8 @@ export const HashesListItem: FC<HashListingProps> = ({ hash }) => {
 
         {hash.labels.length ? (
           <>
-            {hash.labels.map((hashLabel) => (
-              <HashLabel key={`${hash.md5}-${hashLabel.label}`} hashLabel={hashLabel} />
+            {hash.labels.map((hashLabel, index) => (
+              <HashLabel key={`${hash.md5}-${hashLabel.label}-${index}`} hashLabel={hashLabel} />
             ))}
           </>
         ) : null}
@@ -29,7 +32,7 @@ export const HashesListItem: FC<HashListingProps> = ({ hash }) => {
             href={hash.patchUrl}
             className={buildTrackingClassNames('Download Patch File', { md5: hash.md5 })}
           >
-            Download Patch File
+            {t('Download Patch File')}
           </a>
         ) : null}
       </div>
@@ -45,8 +48,9 @@ export const HashLabel: FC<HashLabelProps> = ({ hashLabel }) => {
   const { imgSrc, label } = hashLabel;
 
   if (!imgSrc) {
+    // eslint-disable-next-line react/jsx-no-literals -- the brackets don't need a translation
     return <span>[{label}]</span>;
   }
 
-  return <img className="inline-image" src={imgSrc} />;
+  return <img className="inline-image" src={imgSrc} alt={label} />;
 };

@@ -166,6 +166,7 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertEquals(0, $claim->Extension);
 
         // extend claim
+        $claimFinished = $claim->Finished;
         $extendDate = $claimDate->clone()->addWeeks(11);
         Carbon::setTestNow($extendDate);
 
@@ -182,7 +183,7 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
         $this->assertEquals(ClaimStatus::Active, $claim->Status);
         $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($extendDate->clone()->addMonths(3), $claim->Finished);
+        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->Finished);
         $this->assertEquals($claimDate, $claim->Created);
         $this->assertEquals($extendDate, $claim->Updated);
         $this->assertEquals(1, $claim->Extension);
@@ -645,7 +646,7 @@ class AchievementSetClaimControllerTest extends TestCase
 
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
-        Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $user->id, 'Flags' => AchievementFlag::OfficialCore]);
+        Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $user->id, 'Flags' => AchievementFlag::OfficialCore->value]);
         $game->achievements_published = 40;
         $game->save();
 
@@ -717,5 +718,117 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertEquals($claimDate, $claim->Created);
         $this->assertEquals($completeDate, $claim->Updated);
         $this->assertEquals(0, $claim->Extension);
+    }
+
+    public function testPrimaryClaimInReview(): void
+    {
+        $this->seed(RolesTableSeeder::class);
+
+        /** @var User $user */
+        $user = User::factory()->create();
+        $user->assignRole(Role::DEVELOPER);
+
+        /** @var Game $game */
+        $game = $this->seedGame(withHash: false);
+
+        // initial claim
+        $claimDate = Carbon::now()->startOfSecond();
+        Carbon::setTestNow($claimDate);
+
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.create', $game->id));
+
+        $response->assertStatus(302); // redirect
+        $response->assertRedirect('/'); // back() redirects to home when no source is provided
+        $response->assertSessionHas('success', 'Claim created successfully');
+
+        $claim = $game->achievementSetClaims()->first();
+        $this->assertNotNull($claim);
+        $this->assertEquals($user->id, $claim->user_id);
+        $this->assertEquals($game->id, $claim->game_id);
+        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
+        $this->assertEquals(ClaimStatus::Active, $claim->Status);
+        $this->assertEquals(ClaimSpecial::None, $claim->Special);
+        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->Finished);
+        $this->assertEquals($claimDate, $claim->Created);
+        $this->assertEquals($claimDate, $claim->Updated);
+        $this->assertEquals(0, $claim->Extension);
+
+        // change to review status
+        $reviewDate = $claimDate->clone()->addWeeks(11);
+        Carbon::setTestNow($reviewDate);
+
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.update', $claim->ID), [
+            'status' => ClaimStatus::InReview,
+        ]);
+
+        $response->assertStatus(302); // redirect
+        $response->assertRedirect('/'); // back() redirects to home when no source is provided
+        $response->assertSessionHas('success', 'Claim updated successfully');
+
+        $claim->refresh();
+        $this->assertEquals($user->id, $claim->user_id);
+        $this->assertEquals($game->id, $claim->game_id);
+        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
+        $this->assertEquals(ClaimStatus::InReview, $claim->Status);
+        $this->assertEquals(ClaimSpecial::None, $claim->Special);
+        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->Finished);
+        $this->assertEquals($claimDate, $claim->Created);
+        $this->assertEquals($reviewDate, $claim->Updated);
+        $this->assertEquals(0, $claim->Extension);
+
+        // attempt to drop claim
+        $dropDate = $reviewDate->clone()->addDays(2);
+        Carbon::setTestNow($dropDate);
+
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.delete', $game->id));
+
+        $response->assertStatus(302); // redirect
+        $response->assertRedirect('/'); // back() redirects to home when no source is provided
+        $response->assertSessionHas('error', 'You do not have a claim on this game.');
+
+        // extend claim
+        $claimFinished = $claim->Finished;
+        $extendDate = $claimDate->clone()->addDays(30 + 30 + 27);
+        Carbon::setTestNow($extendDate);
+
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.create', $game->id));
+
+        $response->assertStatus(302); // redirect
+        $response->assertRedirect('/'); // back() redirects to home when no source is provided
+        $response->assertSessionHas('success', 'Claim updated successfully');
+
+        $claim->refresh();
+        $this->assertEquals($user->id, $claim->user_id);
+        $this->assertEquals($game->id, $claim->game_id);
+        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
+        $this->assertEquals(ClaimStatus::InReview, $claim->Status);
+        $this->assertEquals(ClaimSpecial::None, $claim->Special);
+        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->Finished);
+        $this->assertEquals($claimDate, $claim->Created);
+        $this->assertEquals($extendDate, $claim->Updated);
+        $this->assertEquals(1, $claim->Extension);
+
+        // end review
+        $reviewDate = $extendDate->clone()->addWeeks(1);
+        Carbon::setTestNow($reviewDate);
+
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.update', $claim->ID), [
+            'status' => ClaimStatus::Active,
+        ]);
+
+        $claim->refresh();
+        $this->assertEquals($user->id, $claim->user_id);
+        $this->assertEquals($game->id, $claim->game_id);
+        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
+        $this->assertEquals(ClaimStatus::Active, $claim->Status);
+        $this->assertEquals(ClaimSpecial::None, $claim->Special);
+        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->Finished);
+        $this->assertEquals($claimDate, $claim->Created);
+        $this->assertEquals($reviewDate, $claim->Updated);
+        $this->assertEquals(1, $claim->Extension);
     }
 }

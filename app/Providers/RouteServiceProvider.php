@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Http\Concerns\HandlesPublicFileRequests;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -64,7 +65,6 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::middleware(['web', 'csp'])->group(function () {
             Route::get('download.php', fn () => $this->handlePageRequest('download'))->name('download.index');
-            Route::get('gameList.php', fn () => $this->handlePageRequest('gameList'))->name('game.index');
             Route::get('{path}.php', fn (string $path) => $this->handlePageRequest($path))->where('path', '(.*)');
             Route::get('user/{user}', fn (string $user) => $this->handlePageRequest('userInfo', $user))->name('user.show');
             Route::get('achievement/{achievement}{slug?}', fn ($achievement) => $this->handlePageRequest('achievementInfo', $achievement))->name('achievement.show');
@@ -77,7 +77,10 @@ class RouteServiceProvider extends ServiceProvider
              * content
              */
             Route::middleware(['inertia'])->group(function () {
+                Route::get('demo/home', [HomeController::class, 'index'])->name('demo.home');
+
                 Route::get('contact', fn () => Inertia::render('contact'))->name('contact');
+                Route::get('rss', fn () => Inertia::render('rss'))->name('rss.index');
                 Route::get('terms', fn () => Inertia::render('terms'))->name('terms');
             });
             // Route::get('downloads', [DownloadController::class, 'index'])->name('download.index');
@@ -108,14 +111,15 @@ class RouteServiceProvider extends ServiceProvider
              */
             Route::group([
                 'middleware' => ['auth'],
+                'prefix' => 'internal-api',
             ], function () {
                 // Route::get('notifications', [NotificationsController::class, 'index'])->name('notification.index');
 
-                Route::post('delete-request', [UserController::class, 'requestAccountDeletion'])->name('user.delete-request.store');
-                Route::delete('delete-request', [UserController::class, 'cancelAccountDeletion'])->name('user.delete-request.destroy');
+                Route::post('delete-request', [UserController::class, 'requestAccountDeletion'])->name('api.user.delete-request.store');
+                Route::delete('delete-request', [UserController::class, 'cancelAccountDeletion'])->name('api.user.delete-request.destroy');
 
-                Route::post('avatar', [UserController::class, 'uploadAvatar'])->name('user.avatar.store');
-                Route::delete('avatar', [UserController::class, 'deleteAvatar'])->name('user.avatar.destroy');
+                Route::post('avatar', [UserController::class, 'uploadAvatar'])->name('api.user.avatar.store');
+                Route::delete('avatar', [UserController::class, 'deleteAvatar'])->name('api.user.avatar.destroy');
             });
         });
     }

@@ -16,7 +16,7 @@ $newPass = $input['password'];
 
 $targetUser = User::firstWhere('User', $input['username']);
 
-if (!$targetUser || !isValidPasswordResetToken($targetUser->username, $passResetToken)) {
+if (!$targetUser || $targetUser->isBanned() || !isValidPasswordResetToken($targetUser->username, $passResetToken)) {
     return back()->withErrors(__('legacy.error.token'));
 }
 

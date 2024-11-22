@@ -78,6 +78,10 @@ class System extends BaseModel implements HasMedia
         'active',
     ];
 
+    protected $casts = [
+        'active' => 'boolean',
+    ];
+
     // == constants
 
     public const Arduboy = 71;
@@ -224,7 +228,7 @@ class System extends BaseModel implements HasMedia
     {
         return $this->belongsToMany(Emulator::class, 'system_emulators')
             ->using(BasePivot::class)
-            ->withTimestamps();
+            ->withTimestamps('created_at', 'updated_at');
     }
 
     /**
