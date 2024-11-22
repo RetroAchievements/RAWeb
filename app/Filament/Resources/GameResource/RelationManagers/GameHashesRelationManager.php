@@ -16,6 +16,7 @@ use Filament\Support\Enums\FontFamily;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class GameHashesRelationManager extends RelationManager
 {
@@ -24,7 +25,7 @@ class GameHashesRelationManager extends RelationManager
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
 
         return $user->can('manage', GameHash::class);
     }
@@ -95,7 +96,7 @@ class GameHashesRelationManager extends RelationManager
                                     ->label('Patch URL')
                                     ->placeholder('https://github.com/RetroAchievements/RAPatches/raw/main/NES/Subset/5136-CastlevaniaIIBonus.zip')
                                     ->helperText('This MUST be a URL to a .zip or .7z file in the RAPatches GitHub repo, eg: https://github.com/RetroAchievements/RAPatches/raw/main/NES/Subset/5136-CastlevaniaIIBonus.zip')
-                                    ->regex('/^https:\/\/github\.com\/RetroAchievements\/RAPatches\/raw\/main\/.*\.(zip|7z)$/i'),
+                                    ->regex('/^https:\/\/github\.com\/RetroAchievements\/RAPatches\/raw\/(?:refs\/heads\/)?main\/.*\.(zip|7z)$/i'),
 
                                 Forms\Components\TextInput::make('source')
                                     ->label('Resource Page URL')
@@ -112,7 +113,7 @@ class GameHashesRelationManager extends RelationManager
                     ->modalDescription("ARE YOU ABSOLUTELY SURE you want to unlink the hash from this game? This can cause a lot of tickets if you don't know what you're doing.")
                     ->action(function (GameHash $gameHash) {
                         /** @var User $user */
-                        $user = auth()->user();
+                        $user = Auth::user();
                         /** @var Game $game */
                         $game = $gameHash->game;
 
@@ -156,7 +157,7 @@ class GameHashesRelationManager extends RelationManager
                     })
                     ->visible(function (GameHash $gameHash): bool {
                         /** @var User $user */
-                        $user = auth()->user();
+                        $user = Auth::user();
 
                         return $user->can('forceDelete', $gameHash);
                     }),
