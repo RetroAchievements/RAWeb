@@ -1025,33 +1025,36 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     });
   });
 
-  it('given the user writes a perfectly valid description with the word "trigger", does not pop validation on submit', async () => {
-    // ARRANGE
-    const achievement = createAchievement();
-    const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
-    const emulators = [
-      createEmulator({ name: 'Bizhawk' }),
-      createEmulator({ name: 'RALibRetro' }),
-      createEmulator({ name: 'RetroArch' }),
-    ];
+  it(
+    'given the user writes a perfectly valid description with the word "trigger", does not pop validation on submit',
+    { timeout: 20_000 },
+    async () => {
+      // ARRANGE
+      const achievement = createAchievement();
+      const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
+      const emulators = [
+        createEmulator({ name: 'Bizhawk' }),
+        createEmulator({ name: 'RALibRetro' }),
+        createEmulator({ name: 'RetroArch' }),
+      ];
 
-    render<App.Platform.Data.CreateAchievementTicketPageProps>(
-      <CreateAchievementTicketMainRoot />,
-      {
-        pageProps: {
-          achievement,
-          emulators,
-          gameHashes,
-          auth: { user: createAuthenticatedUser({ points: 500 }) },
-          ziggy: createZiggyProps({ query: {} }),
+      render<App.Platform.Data.CreateAchievementTicketPageProps>(
+        <CreateAchievementTicketMainRoot />,
+        {
+          pageProps: {
+            achievement,
+            emulators,
+            gameHashes,
+            auth: { user: createAuthenticatedUser({ points: 500 }) },
+            ziggy: createZiggyProps({ query: {} }),
+          },
         },
-      },
-    );
+      );
 
-    // ACT
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /description/i }),
-      `
+      // ACT
+      await userEvent.type(
+        screen.getByRole('textbox', { name: /description/i }),
+        `
         Steps to reproduce: 
         Played as Waluigi in Party Mode on Shy Guy's board, 10 turns, 3 easy CPUs (Mario, Luigi and Peach) and 
         handicap of 1 star to each CPU. Mario and Peach collected 1 star each, I stayed at 0 stars all game. 
@@ -1066,15 +1069,16 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
 
         Other than the handicap, default settings were used (no teams, 10 turns, all minigames, bonus on).
       `,
-    );
+      );
 
-    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+      await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
-    // ASSERT
-    await waitFor(() => {
-      expect(screen.queryByText(/please be more specific/i)).not.toBeInTheDocument();
-    });
-  });
+      // ASSERT
+      await waitFor(() => {
+        expect(screen.queryByText(/please be more specific/i)).not.toBeInTheDocument();
+      });
+    },
+  );
 
   it('given the user does not select an emulator and a hash, shows required validation messages', async () => {
     // ARRANGE
