@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import type { ColumnFiltersState } from '@tanstack/react-table';
 import axios from 'axios';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import type { RouteName } from 'ziggy-js';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -17,7 +17,7 @@ export function useRandomGameId({ apiRouteName, columnFilters }: UseRandomGameId
     ziggy: { device },
   } = usePageProps();
 
-  const [prefetchedGameId, setPrefetchedGameId] = useState<number | null>(null);
+  const prefetchedResult = useRef<{ gameId: number; filters: ColumnFiltersState } | null>(null);
 
   const currentPromise = useRef<Promise<{ gameId: number }> | null>(null);
 
@@ -30,11 +30,20 @@ export function useRandomGameId({ apiRouteName, columnFilters }: UseRandomGameId
       return response.data;
     },
 
-    onSuccess: (data) => setPrefetchedGameId(data.gameId),
+    onSuccess: (data) => {
+      prefetchedResult.current = {
+        gameId: data.gameId,
+        filters: [...columnFilters],
+      };
+    },
   });
 
   const prefetchRandomGameId = (options?: { shouldForce: boolean }) => {
-    if (!options?.shouldForce && (device === 'mobile' || prefetchedGameId || mutation.isPending)) {
+    const areFiltersEqual =
+      prefetchedResult.current &&
+      getAreFiltersEqual(prefetchedResult.current.filters, columnFilters);
+
+    if (!options?.shouldForce && (device === 'mobile' || areFiltersEqual || mutation.isPending)) {
       return;
     }
 
@@ -47,16 +56,20 @@ export function useRandomGameId({ apiRouteName, columnFilters }: UseRandomGameId
   };
 
   const getRandomGameId = async () => {
-    if (prefetchedGameId) {
-      const gameId = prefetchedGameId;
-      setPrefetchedGameId(null);
+    const areFiltersEqual =
+      prefetchedResult.current &&
+      getAreFiltersEqual(prefetchedResult.current.filters, columnFilters);
+
+    if (prefetchedResult.current && areFiltersEqual) {
+      const { gameId } = prefetchedResult.current;
+      prefetchedResult.current = null;
 
       return gameId;
     }
 
     if (mutation.isPending && currentPromise.current) {
       const result = await currentPromise.current;
-      setPrefetchedGameId(null);
+      prefetchedResult.current = null;
 
       return result.gameId;
     }
@@ -68,3 +81,6 @@ export function useRandomGameId({ apiRouteName, columnFilters }: UseRandomGameId
 
   return { getRandomGameId, prefetchRandomGameId };
 }
+
+const getAreFiltersEqual = (filters1: ColumnFiltersState, filters2: ColumnFiltersState): boolean =>
+  JSON.stringify(filters1) === JSON.stringify(filters2);
