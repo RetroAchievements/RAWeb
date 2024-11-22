@@ -1,7 +1,9 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
+use App\Models\Achievement;
 use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -12,6 +14,8 @@ use App\Platform\Actions\TrimGameMetadataAction;
 use App\Platform\Actions\UpdateGameSetFromGameAlternativesModificationAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Services\UserAgentService;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Spatie\Activitylog\Facades\CauserResolver;
 
@@ -49,7 +53,7 @@ function getGameMetadata(
     ?array &$gameDataOut,
     int $sortBy = 1,
     ?User $user2 = null,
-    int $flag = AchievementFlag::OfficialCore,
+    AchievementFlag $flag = AchievementFlag::OfficialCore,
     bool $metrics = false,
 ): int {
     $flag = $flag !== AchievementFlag::Unofficial ? AchievementFlag::OfficialCore : AchievementFlag::Unofficial;
@@ -136,7 +140,7 @@ function getGameMetadata(
 
     $achievementDataOut = legacyDbFetchAll($query, array_merge([
         'gameId' => $gameID,
-        'achievementFlag' => $flag,
+        'achievementFlag' => $flag->value,
     ], $metricsBindings))
         ->keyBy('ID')
         ->toArray();
@@ -198,10 +202,10 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
 
     $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,
               CASE
-                WHEN (SELECT COUNT(*) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementFlag::OfficialCore . ") > 0 THEN 1
+                WHEN (SELECT COUNT(*) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementFlag::OfficialCore->value . ") > 0 THEN 1
                 ELSE 0
               END AS HasAchievements,
-              (SELECT SUM(ach.Points) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementFlag::OfficialCore . ") AS Points,
+              (SELECT SUM(ach.Points) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementFlag::OfficialCore->value . ") AS Points,
               gd.TotalTruePoints
               FROM GameAlternatives AS ga
               LEFT JOIN GameData AS gd ON gd.ID = ga.gameIDAlt
@@ -316,7 +320,7 @@ function getGamesListByDev(
         $query = "SELECT $foundRows gd.ID, MAX(ach.DateModified) AS DateModified
                   FROM GameData gd
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
-                  LEFT JOIN Achievements ach ON ach.GameID=gd.ID AND ach.Flags=" . AchievementFlag::OfficialCore . "
+                  LEFT JOIN Achievements ach ON ach.GameID=gd.ID AND ach.Flags=" . AchievementFlag::OfficialCore->value . "
                   WHERE 1=1 $whereClause
                   GROUP BY gd.ID $orderBy";
     } else {
@@ -367,7 +371,7 @@ function getGamesListByDev(
                   FROM Achievements ach
                   INNER JOIN GameData gd ON gd.ID = ach.GameID
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
-                  WHERE ach.user_id = :userId AND ach.Flags = " . AchievementFlag::OfficialCore . " $whereClause
+                  WHERE ach.user_id = :userId AND ach.Flags = " . AchievementFlag::OfficialCore->value . " $whereClause
                   GROUP BY ach.GameID $orderBy";
         foreach (legacyDbFetchAll($query, ['userId' => $dev->id]) as $row) {
             if (!$initialQuery) {
@@ -463,7 +467,7 @@ function getGamesListByDev(
     $query = "SELECT GameID, MAX(DateModified) AS DateModified
               FROM Achievements
               WHERE GameID IN ($gameList)
-              AND Flags=" . AchievementFlag::OfficialCore . "
+              AND Flags=" . AchievementFlag::OfficialCore->value . "
               GROUP BY GameID";
     foreach (legacyDbFetchAll($query) as $row) {
         $games[$row['GameID']]['DateModified'] = $row['DateModified'];
@@ -518,7 +522,7 @@ function getGamesListData(?int $consoleID = null, bool $officialFlag = false): a
     $whereClause = "";
     if ($officialFlag) {
         $leftJoinAch = "LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID ";
-        $whereClause = "WHERE ach.Flags=" . AchievementFlag::OfficialCore . ' ';
+        $whereClause = "WHERE ach.Flags=" . AchievementFlag::OfficialCore->value . ' ';
     }
 
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
@@ -977,6 +981,16 @@ function getRichPresencePatch(int $gameId, ?string &$dataOut): bool
 
 function GetPatchData(int $gameID, ?User $user, int $flag): array
 {
+    $userAgentService = new UserAgentService();
+    $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
+    if ($clientSupportLevel === ClientSupportLevel::Blocked) {
+        return [
+            'Status' => 403,
+            'Success' => false,
+            'Error' => 'This client is not supported',
+        ];
+    }
+
     $game = Game::find($gameID);
     if (!$game) {
         return [
@@ -997,6 +1011,29 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
         'Achievements' => [],
         'Leaderboards' => [],
     ];
+
+    if ($clientSupportLevel !== ClientSupportLevel::Full) {
+        if ($game->achievements_published < 0) { // will never be true. change to > when ready
+            $gameData['Achievements'][] = [
+                'ID' => Achievement::CLIENT_WARNING_ID,
+                'MemAddr' => '1=1.300.', // pop after 5 seconds
+                'Title' => ($clientSupportLevel === ClientSupportLevel::Outdated) ?
+                    'Warning: Outdated Emulator (please update)' : 'Warning: Unknown Emulator',
+                'Description' => 'Hardcore unlocks cannot be earned using this emulator.',
+                'Points' => 0,
+                'Author' => '',
+                'Modified' => Carbon::now()->unix(),
+                'Created' => Carbon::now()->unix(),
+                'BadgeName' => '00000',
+                'Flags' => AchievementFlag::OfficialCore->value,
+                'Type' => null,
+                'Rarity' => 0.0,
+                'RarityHardcore' => 0.0,
+                'BadgeURL' => media_asset("Badge/00000.png"),
+                'BadgeLockedURL' => media_asset("Badge/00000_lock.png"),
+            ];
+        }
+    }
 
     $gamePlayers = $game->players_total;
     if ($user) {
@@ -1031,7 +1068,7 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
         }
 
         foreach ($achievements as $achievement) {
-            if (!AchievementFlag::isValid($achievement->Flags)) {
+            if (!AchievementFlag::tryFrom($achievement->Flags)) {
                 continue;
             }
 
@@ -1076,8 +1113,14 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
         ];
     }
 
-    return [
+    $result = [
         'Success' => true,
         'PatchData' => $gameData,
     ];
+
+    if ($clientSupportLevel === ClientSupportLevel::Unknown) {
+        $result['Warning'] = 'The server does not recognize this client and will not allow hardcore unlocks. Please send a message to RAdmin on the RetroAchievements website for information on how to submit your emulator for hardcore consideration.';
+    }
+
+    return $result;
 }

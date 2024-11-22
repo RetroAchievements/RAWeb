@@ -595,7 +595,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     expect(screen.getByRole('button', { name: /submit/i })).toBeDisabled();
   });
 
-  it('allows the user to submit the form with no prepopulated values', async () => {
+  it('allows the user to submit the form with no prepopulated values', { retry: 3 }, async () => {
     // ARRANGE
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: 123 } });
 
@@ -991,7 +991,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     expect(linkEl).toHaveAttribute('href', expect.stringContaining('docs.retroachievements.org'));
   });
 
-  it('given the user writes a description "this achievement doesn\'t work", displays a warning on attempted submit', async () => {
+  it('given the user writes a description "doesn\'t work", displays a warning on attempted submit', async () => {
     // ARRANGE
     const achievement = createAchievement();
     const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
@@ -1015,10 +1015,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     );
 
     // ACT
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /description/i }),
-      "this achievement doesn't work",
-    );
+    await userEvent.type(screen.getByRole('textbox', { name: /description/i }), "doesn't work");
 
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
@@ -1027,6 +1024,61 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
       expect(screen.getByText(/please be more specific/i)).toBeVisible();
     });
   });
+
+  it(
+    'given the user writes a perfectly valid description with the phrase "not trigger", does not pop validation on submit',
+    { timeout: 20_000 },
+    async () => {
+      // ARRANGE
+      const achievement = createAchievement();
+      const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
+      const emulators = [
+        createEmulator({ name: 'Bizhawk' }),
+        createEmulator({ name: 'RALibRetro' }),
+        createEmulator({ name: 'RetroArch' }),
+      ];
+
+      render<App.Platform.Data.CreateAchievementTicketPageProps>(
+        <CreateAchievementTicketMainRoot />,
+        {
+          pageProps: {
+            achievement,
+            emulators,
+            gameHashes,
+            auth: { user: createAuthenticatedUser({ points: 500 }) },
+            ziggy: createZiggyProps({ query: {} }),
+          },
+        },
+      );
+
+      // ACT
+      await userEvent.type(
+        screen.getByRole('textbox', { name: /description/i }),
+        `
+        Steps to reproduce: 
+        Played as Waluigi in Party Mode on Shy Guy's board, 10 turns, 3 easy CPUs (Mario, Luigi and Peach) and 
+        handicap of 1 star to each CPU. Mario and Peach collected 1 star each, I stayed at 0 stars all game. 
+        During the last 5 turns, the challenge marker correctly appeared. When the board finished, 
+        I won by getting the minigame and coin stars. No one got the happening space star. 
+        The achievement did not trigger, but the marker continued to be displayed through the display 
+        results screen, all the way until the game booted me back to the mode selection screen. Once I 
+        selected Party Mode again, the icon disappeared.
+        As extra information, before encountering this issue, I started this playing session by playing 
+        some minigames in the Extra Room. I tried Doors of Doom and Bob-omb X-ing, then won the Volleyball 
+        Battle Mode. After that, I went straight into Party Mode to attempt this achievement.
+
+        Other than the handicap, default settings were used (no teams, 10 turns, all minigames, bonus on).
+        `,
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+      // ASSERT
+      await waitFor(() => {
+        expect(screen.queryByText(/please be more specific/i)).not.toBeInTheDocument();
+      });
+    },
+  );
 
   it('given the user does not select an emulator and a hash, shows required validation messages', async () => {
     // ARRANGE

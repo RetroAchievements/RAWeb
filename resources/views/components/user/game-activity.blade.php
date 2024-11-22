@@ -77,7 +77,7 @@ use App\Platform\Enums\AchievementFlag;
                                 @if ($event['type'] === PlayerGameActivityEventType::Unlock)
                                     @php $achievement = $event['achievement'] @endphp
                                     {!! achievementAvatar($achievement) !!}
-                                    @if ($achievement['Flags'] != AchievementFlag::OfficialCore)
+                                    @if ($achievement['Flags'] != AchievementFlag::OfficialCore->value)
                                         (Unofficial)
                                     @endif
                                     @if ($event['hardcoreLater'] ?? false)

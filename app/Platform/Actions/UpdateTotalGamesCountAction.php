@@ -21,7 +21,7 @@ class UpdateTotalGamesCountAction
         $gameCount = Game::whereNotIn("ConsoleID", System::getNonGameSystems())
             ->where("Title", "not like", "%[Subset%") // TODO this can probably be removed after multiset
             ->whereHas("achievements", function ($query) {
-                $query->where("Flags", AchievementFlag::OfficialCore);
+                $query->where("Flags", AchievementFlag::OfficialCore->value);
             }, ">=", 6)
             ->count();
 

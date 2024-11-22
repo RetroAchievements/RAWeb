@@ -40,7 +40,7 @@ class CreateAchievementOfTheWeek
                 'Title' => "Week $achievementCount",
                 'Description' => 'TBD',
                 'MemAddr' => '0=1',
-                'Flags' => AchievementFlag::OfficialCore,
+                'Flags' => AchievementFlag::OfficialCore->value,
                 'GameID' => $event->id,
                 'user_id' => Comment::SYSTEM_USER_ID,
                 'BadgeName' => '00000',
