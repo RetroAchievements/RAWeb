@@ -17,7 +17,7 @@
         "analyze": "cross-env ANALYZE=true pnpm prod",
         "i18n:rename-to-dashes": "renamer --find \"_\" --replace \"-\" \"lang/*.json\"",
         "i18n:rename-to-underscores": "renamer --find \"-\" --replace \"_\" \"lang/*.json\"",
-        "i18n:sync": "pnpm i18n:rename-to-dashes && i18next-locales-sync -p en-US -s de-DE en-GB es-ES fr-FR ru-RU pt-BR pl-PL -l lang --spaces=4 && pnpm i18n:rename-to-underscores"
+        "i18n:sync": "pnpm i18n:rename-to-dashes && i18next-locales-sync -p en-US -s de-DE en-GB es-ES fr-FR pt-BR pl-PL ru-RU -l lang --spaces=4 && pnpm i18n:rename-to-underscores"
     },
     "dependencies": {
         "@floating-ui/core": "^1.6.8",
