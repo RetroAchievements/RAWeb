@@ -1026,7 +1026,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
   });
 
   it(
-    'given the user writes a perfectly valid description with the word "trigger", does not pop validation on submit',
+    'given the user writes a perfectly valid description with the phrase "not trigger", does not pop validation on submit',
     { timeout: 20_000 },
     async () => {
       // ARRANGE
@@ -1068,7 +1068,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
         Battle Mode. After that, I went straight into Party Mode to attempt this achievement.
 
         Other than the handicap, default settings were used (no teams, 10 turns, all minigames, bonus on).
-      `,
+        `,
       );
 
       await userEvent.click(screen.getByRole('button', { name: /submit/i }));
