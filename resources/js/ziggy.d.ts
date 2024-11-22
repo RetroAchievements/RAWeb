@@ -123,13 +123,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.hashes.comments": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.tickets": [
         {
             "name": "game",
@@ -287,6 +280,12 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.game.hashes.comment.store": [
+        {
+            "name": "game",
+            "required": true
+        }
+    ],
     "api.leaderboard.comment.store": [
         {
             "name": "leaderboard",
@@ -314,6 +313,18 @@ declare module 'ziggy-js' {
         }
     ],
     "api.game.comment.destroy": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.game.hashes.comment.destroy": [
         {
             "name": "game",
             "required": true,
@@ -390,6 +401,13 @@ declare module 'ziggy-js' {
         }
     ],
     "game.comment.index": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "game.hashes.comment.index": [
         {
             "name": "game",
             "required": true,
