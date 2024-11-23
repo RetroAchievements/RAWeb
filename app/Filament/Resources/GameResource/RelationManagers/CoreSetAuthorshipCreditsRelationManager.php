@@ -117,10 +117,12 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
                         }
                     })
                     ->using(function (array $data, string $model): Model {
+                        /** @var Game $game */
+                        $game = $this->ownerRecord;
                         $user = User::withTrashed()->find((int) $data['user_id']);
 
                         return (new AddGameBadgeCreditAction())->execute(
-                            game: $this->ownerRecord,
+                            game: $game,
                             user: $user,
                             date: Carbon::parse($data['created_at']),
                         );
