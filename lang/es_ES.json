@@ -97,7 +97,7 @@
     "Couldn't find any completed claims.": "No se encontraron reclamaciones completadas.",
     "Couldn't find any sets in progress.": "No se encontraron sets en progreso.",
     "Create Ticket": "Crear ticket",
-    "Create Ticket - :achievementTitle": "Crear ticket - :achievementTitle",
+    "Create Ticket - {{achievementTitle}}": "Crear ticket - {{achievementTitle}}",
     "Current Email Address": "Dirección de correo electrónico actual",
     "Current Locale": "Idioma actual",
     "Current Password": "Contraseña actual",

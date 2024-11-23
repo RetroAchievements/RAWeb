@@ -8,6 +8,19 @@ describe('Util: loadDayjsLocale', () => {
     expect(loadDayjsLocale).toBeDefined();
   });
 
+  it('given the locale is en, does not log a warning', async () => {
+    // ARRANGE
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const localeSpy = vi.spyOn(dayjs, 'locale');
+
+    // ACT
+    await loadDayjsLocale('en');
+
+    // ASSERT
+    expect(localeSpy).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
   it('given the locale is en_US, does not log a warning', async () => {
     // ARRANGE
     vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -23,10 +36,12 @@ describe('Util: loadDayjsLocale', () => {
 
   it.each`
     userLocale | dayjsLocale
+    ${'de_DE'} | ${'de'}
     ${'en_GB'} | ${'en-gb'}
-    ${'pt_BR'} | ${'pt-br'}
-    ${'pl_PL'} | ${'pl'}
     ${'es_ES'} | ${'es'}
+    ${'fr_FR'} | ${'fr'}
+    ${'pl_PL'} | ${'pl'}
+    ${'pt_BR'} | ${'pt-br'}
   `('loads and sets the $userLocale locale successfully', async ({ userLocale, dayjsLocale }) => {
     // ARRANGE
     vi.spyOn(console, 'warn').mockImplementation(() => {});

@@ -5,6 +5,7 @@ use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\User;
 use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
+use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
@@ -298,6 +299,8 @@ function UploadNewAchievement(
         $achievement->save();
         $idInOut = $achievement->ID;
 
+        $achievement->ensureAuthorshipCredit($author, AchievementAuthorTask::Logic);
+
         static_addnewachievement($idInOut);
         addArticleComment(
             "Server",
@@ -384,6 +387,10 @@ function UploadNewAchievement(
 
             static_setlastupdatedgame($gameID);
             static_setlastupdatedachievement($idInOut);
+
+            if ($changingLogic) {
+                $achievement->ensureAuthorshipCredit($author, AchievementAuthorTask::Logic);
+            }
 
             if ($changingAchSet) {
                 if ($flag === AchievementFlag::OfficialCore->value) {

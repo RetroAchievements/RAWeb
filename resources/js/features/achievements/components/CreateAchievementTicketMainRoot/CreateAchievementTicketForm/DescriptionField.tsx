@@ -25,8 +25,7 @@ export const DescriptionField: FC = () => {
 
   const showTriggerWarning =
     (description.length < 25 && /(n'?t|not?).*(work|trigger)/gi.test(description)) ||
-    form.formState.errors.description?.type === 'too_small' ||
-    form.formState.errors.description?.message === 'BE_MORE_DESCRIPTIVE';
+    form.formState.errors.description?.type === 'too_small';
 
   const showNetworkWarning = /(manual\s+unlock|internet)/gi.test(description);
 
@@ -57,19 +56,11 @@ export const DescriptionField: FC = () => {
               <Trans
                 i18nKey="<1>Be very descriptive</1> about what you were doing when the problem happened. Mention if you were using any <2>non-default settings, a non-English language, in-game cheats, glitches</2> or were otherwise playing in some unusual way. If possible, include a <3>link to a save state or save game</3> to help us reproduce the issue."
                 components={{
-                  1: <BeVeryDescriptive />,
-                  2: <NonDefaultSettings />,
-                  3: <LinkToASave />,
+                  1: <span className="text-neutral-300 light:text-neutral-950" />,
+                  2: <span className="text-neutral-300 light:text-neutral-950" />,
+                  3: <span className="text-neutral-300 light:text-neutral-950" />,
                 }}
-              >
-                <BeVeryDescriptive />{' '}
-                {
-                  'about what you were doing when the problem happened. Mention if you were using any '
-                }
-                <NonDefaultSettings />{' '}
-                {'or were otherwise playing in some unusual way. If possible, include a '}
-                <LinkToASave /> {'to help us reproduce the issue.'}
-              </Trans>
+              />
             </BaseFormDescription>
 
             <BaseFormMessage className="mt-2">
@@ -80,13 +71,14 @@ export const DescriptionField: FC = () => {
                 : null}
 
               {showNetworkWarning ? (
-                <Trans i18nKey="Please do not open tickets for network issues. See <1>here</1> for instructions on how to request a manual unlock.">
-                  {'Please do not open tickets for network issues. See '}
-                  <a href="https://docs.retroachievements.org/general/faq.html#how-do-i-request-a-manual-unlock">
-                    {'here'}
-                  </a>{' '}
-                  {'for instructions on how to request a manual unlock.'}
-                </Trans>
+                <Trans
+                  i18nKey="Please do not open tickets for network issues. See <1>here</1> for instructions on how to request a manual unlock."
+                  components={{
+                    1: (
+                      <a href="https://docs.retroachievements.org/general/faq.html#how-do-i-request-a-manual-unlock" />
+                    ),
+                  }}
+                />
               ) : null}
             </BaseFormMessage>
           </div>
@@ -95,17 +87,3 @@ export const DescriptionField: FC = () => {
     />
   );
 };
-
-const BeVeryDescriptive: FC = () => (
-  <span className="text-neutral-300 light:text-neutral-950">{'Be very descriptive'}</span>
-);
-const NonDefaultSettings: FC = () => (
-  <span className="text-neutral-300 light:text-neutral-950">
-    {'non-default settings, a non-English language, in-game cheats, glitches,'}
-  </span>
-);
-const LinkToASave: FC = () => (
-  <span className="text-neutral-300 light:text-neutral-950">
-    {'link to a save state or save game'}
-  </span>
-);
