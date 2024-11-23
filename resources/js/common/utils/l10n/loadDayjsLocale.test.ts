@@ -40,6 +40,7 @@ describe('Util: loadDayjsLocale', () => {
     ${'en_GB'} | ${'en-gb'}
     ${'es_ES'} | ${'es'}
     ${'fr_FR'} | ${'fr'}
+    ${'ru_RU'} | ${'ru'}
     ${'pl_PL'} | ${'pl'}
     ${'pt_BR'} | ${'pt-br'}
   `('loads and sets the $userLocale locale successfully', async ({ userLocale, dayjsLocale }) => {
