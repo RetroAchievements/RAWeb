@@ -37,7 +37,7 @@ class ResolveAchievementSetsAction
         $userSetPreferences = $this->getUserSetPreferences($user, $allSets);
 
         // Filter the sets based on preferences and hash compatibility.
-        $filteredSets = $this->filterSets($allSets, $gameHash, $user, $userSetPreferences);
+        $filteredSets = $this->filterSets($allSets, $gameHash, $user, $userSetPreferences, $initialSet);
 
         // Sort the sets based on their type priority.
         $sortedSets = $this->sortSets($filteredSets);
@@ -59,14 +59,12 @@ class ResolveAchievementSetsAction
         $links = GameAchievementSet::where('achievement_set_id', $initialSet->achievement_set_id)->get();
 
         $exclusiveLink = $links->firstWhere('type', AchievementSetType::Exclusive);
-        $specialtyLink = $links->firstWhere('type', AchievementSetType::Specialty);
-        $bonusLink = $links->firstWhere('type', AchievementSetType::Bonus);
-
         if ($exclusiveLink !== null) {
             // Exclusive set: only load the exclusive set.
             return [$exclusiveLink->game_id, [AchievementSetType::Exclusive]];
         }
 
+        $specialtyLink = $links->firstWhere('type', AchievementSetType::Specialty);
         if ($specialtyLink !== null) {
             // Specialty set: load all sets from the base game except exclusive.
             $typesToLoad = [
@@ -78,6 +76,7 @@ class ResolveAchievementSetsAction
             return [$specialtyLink->game_id, $typesToLoad];
         }
 
+        $bonusLink = $links->firstWhere('type', AchievementSetType::Bonus);
         if ($bonusLink !== null) {
             // Bonus set: load core and bonus sets from the linked game.
             return [$bonusLink->game_id, [AchievementSetType::Core, AchievementSetType::Bonus]];
@@ -133,26 +132,41 @@ class ResolveAchievementSetsAction
         Collection $allSets,
         GameHash $gameHash,
         User $user,
-        Collection $userSetPreferences
+        Collection $userSetPreferences,
+        GameAchievementSet $initialSet
     ): Collection {
-        return $allSets->filter(function (GameAchievementSet $set) use ($gameHash, $user, $userSetPreferences) {
-            // Exclude if this hash is marked as incompatible
+        // Determine if the initial set is a subset's "core" set.
+        $isSubsetGame = $this->isSubsetGame($initialSet);
+
+        return $allSets->filter(function (GameAchievementSet $set) use ($gameHash, $user, $userSetPreferences, $initialSet, $isSubsetGame) {
+            // Exclude if this hash is marked as incompatible.
             if ($set->achievementSet->incompatibleGameHashes->contains('id', $gameHash->id)) {
                 return false;
             }
 
-            // Check user-specific preferences
+            // Check user-specific preferences.
             $preference = $userSetPreferences->get($set->id);
             if ($preference !== null) {
                 return $preference->opted_in;
             }
 
-            // Apply global preference for non-core sets
+            // Always include the initial set.
+            if ($set->achievement_set_id === $initialSet->achievement_set_id) {
+                return true;
+            }
+
+            // If the initial set is a subset's core set and the user is globally opted out,
+            // exclude other sets unless the user has locally opted in to them.
+            if ($isSubsetGame && $user->is_globally_opted_out_of_subsets) {
+                return false;
+            }
+
+            // Apply global preference for non-core sets.
             if ($set->type !== AchievementSetType::Core) {
                 return !$user->is_globally_opted_out_of_subsets;
             }
 
-            // Include core sets by default
+            // Include core sets by default.
             return true;
         });
     }
@@ -169,8 +183,8 @@ class ResolveAchievementSetsAction
             return match ($set->type) {
                 AchievementSetType::Exclusive => 0,
                 AchievementSetType::Core => 1,
-                AchievementSetType::Bonus => 2,
-                AchievementSetType::Specialty => 3,
+                AchievementSetType::Specialty => 2,
+                AchievementSetType::Bonus => 3,
                 default => 4,
             };
         });
@@ -197,5 +211,16 @@ class ResolveAchievementSetsAction
             $coreSet = $coreSets->get($set->achievement_set_id);
             $set->core_game_id = $coreSet ? $coreSet->game_id : null;
         }
+    }
+
+    private function isSubsetGame(GameAchievementSet $initialSet): bool
+    {
+        // Check if the initial set's achievement set is linked to other games (e.g., the base game)
+        $linkedSets = GameAchievementSet::where('achievement_set_id', $initialSet->achievement_set_id)
+            ->where('game_id', '!=', $initialSet->game_id)
+            ->get();
+
+        // If the set is linked to other game IDs and the initial set is of type Core, then it's a subset's core set.
+        return $initialSet->type === AchievementSetType::Core && $linkedSets->isNotEmpty();
     }
 }

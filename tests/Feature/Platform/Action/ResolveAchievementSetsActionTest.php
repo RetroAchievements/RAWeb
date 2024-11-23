@@ -503,4 +503,87 @@ class ResolveAchievementSetsActionTest extends TestCase
         $this->assertEquals($baseGame->id, $coreSet->core_game_id);
         $this->assertEquals($bonusGame->id, $bonusSet->core_game_id);
     }
+
+    /**
+     * If the user is globally opted out of subsets and they load a bonus subset
+     * game's hash, then it's like the user is still living in the pre-multiset
+     * world. The only set that resolves is the set for the subset game.
+     */
+    public function testGloballyOptedOutOfSubsetsAndLoadedSubsetHash(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', 1, 0);
+        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', 2, 0);
+        $bonusGame2 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus 2]', 3, 0);
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame2);
+
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame2, AchievementSetType::Bonus, 'Bonus 2');
+
+        $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
+
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED]);
+
+        // Act
+        $resolved = (new ResolveAchievementSetsAction())->execute($bonusGameHash, $user);
+
+        // Assert
+        $this->assertCount(1, $resolved);
+
+        $set = $resolved->first();
+        $this->assertAchievementSet($set, AchievementSetType::Bonus, $baseGame->id, 2, 0);
+    }
+
+    /**
+     * If the user has multiset enabled, they load a bonus subset game's hash, but are locally
+     * opted out of that subset, then we treat it like they loaded a core game hash. They'll
+     * receive the core set and any other bonus sets, but not the set they've opted out of.
+     */
+    public function testLocallyOptedOutOfSubsetsAndLoadedOptedOutSubsetHash(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', 1, 0);
+        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', 2, 0);
+        $bonusGame2 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus 2]', 3, 0);
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame2);
+
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus'); // !!
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame2, AchievementSetType::Bonus, 'Bonus 2');
+
+        $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
+
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // They're going to load a hash for $bonusGame, but they're also locally opted out of
+        // $bonusGame's achievement set.
+        $optOutSet = GameAchievementSet::firstWhere('title', 'Bonus'); // !!
+        UserGameAchievementSetPreference::factory()->create([
+            'user_id' => $user->id,
+            'game_achievement_set_id' => GameAchievementSet::whereGameId($baseGame->id)
+                ->whereType(AchievementSetType::Bonus)
+                ->whereAchievementSetId($optOutSet->achievement_set_id)
+                ->first()
+                ->id,
+            'opted_in' => false,
+        ]);
+
+        // Act
+        $resolved = (new ResolveAchievementSetsAction())->execute($bonusGameHash, $user);
+
+        // Assert
+        $this->assertCount(2, $resolved);
+
+        $coreSet = $resolved->first();
+        $this->assertAchievementSet($coreSet, AchievementSetType::Core, $baseGame->id, 1, 0);
+
+        $bonusSet = $resolved->last();
+        $this->assertEquals('Bonus 2', $bonusSet->title);
+        $this->assertAchievementSet($bonusSet, AchievementSetType::Bonus, $baseGame->id, 3, 0);
+    }
 }
