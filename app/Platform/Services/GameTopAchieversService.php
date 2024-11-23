@@ -118,7 +118,7 @@ class GameTopAchieversService
         $query = $this->highestPointEarnersQuery();
 
         if ($this->masteryPoints === 0) {
-            $query->where('achievements_unlocked_hardcore', '>', $playergGame->achievements_unlocked_hardcore);
+            $query->where('achievements_unlocked_hardcore', '>', $playerGame->achievements_unlocked_hardcore);
         } else {
             $query->where('points_hardcore', '>', $playerGame->points_hardcore);
         }

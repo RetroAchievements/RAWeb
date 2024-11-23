@@ -18,7 +18,7 @@ import { cn } from '@/utils/cn';
 import { PlayerBadgeIndicator } from '@/common/components/PlayerBadgeIndicator';
 import { PlayerBadgeLabel } from '@/common/components/PlayerBadgeLabel';
 
-export const hashesListContainerTestId = 'hashes-list';
+export const TopAchieversListContainerTestId = 'top-achievers-list';
 
 export const TopAchieversList: FC = () => {
   const { paginatedUsers } = usePageProps<App.Platform.Data.GameTopAchieversPageProps>();
@@ -48,7 +48,7 @@ export const TopAchieversList: FC = () => {
 
       <BaseTableBody>
         {paginatedUsers.items.map((achiever) => (
-          <BaseTableRow>
+          <BaseTableRow key={achiever.user.displayName}>
             <BaseTableCell>
               {achiever.rank}
             </BaseTableCell>
@@ -59,7 +59,7 @@ export const TopAchieversList: FC = () => {
 
             <BaseTableCell>
               {achiever.badge ? (
-                <p>
+                <div>
                   {achiever.badge.awardType == AwardType.Mastery && (
                     <span>{formatDate(achiever.badge.awardDate, 'lll')}</span>
                   )}
@@ -72,7 +72,7 @@ export const TopAchieversList: FC = () => {
                     <PlayerBadgeIndicator playerBadge={achiever.badge} className="mt-px" />
                     <PlayerBadgeLabel playerBadge={achiever.badge} variant='muted-group' />
                   </div>
-                </p>
+                </div>
               ) : (
                 <span>{achiever.score}</span>
               )}

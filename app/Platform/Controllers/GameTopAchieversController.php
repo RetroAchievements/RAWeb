@@ -96,7 +96,6 @@ class GameTopAchieversController extends Controller
             );
         }
 
-
         $props = new GameTopAchieversPagePropsData(
             GameData::fromGame($game)->include('badgeUrl'),
             PaginatedData::fromLengthAwarePaginator(
