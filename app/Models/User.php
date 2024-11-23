@@ -567,4 +567,13 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     {
         return $query->where('Permissions', '>', 0);
     }
+
+    /**
+     * @param Builder<User> $query
+     * @return Builder<User>
+     */
+    public function scopeTracked(Builder $query): Builder
+    {
+        return $query->where('Untracked', false); // TODO: use unranked_at=NULL?
+    }
 }

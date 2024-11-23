@@ -182,6 +182,7 @@ declare namespace App.Data {
   };
 }
 declare namespace App.Enums {
+  export type ClientSupportLevel = 0 | 1 | 2 | 3;
   export type UserPreference =
     | 0
     | 1
@@ -318,6 +319,16 @@ declare namespace App.Platform.Data {
     filterableSystemOptions: Array<App.Platform.Data.System>;
     can: App.Data.UserPermissions;
   };
+  export type GameTopAchiever = {
+    rank: number;
+    user: App.Data.User;
+    score: number;
+    badge: App.Platform.Data.PlayerBadge | null;
+  };
+  export type GameTopAchieversPageProps<TItems = App.Platform.Data.GameTopAchiever> = {
+    game: App.Platform.Data.Game;
+    paginatedUsers: App.Data.PaginatedData<TItems>;
+  };
   export type Leaderboard = {
     id: number;
     title: string;
@@ -370,7 +381,6 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
-  export type UnlockMode = 0 | 1;
   export type AchievementFlag = 3 | 5;
   export type AchievementSetType =
     | 'core'
@@ -393,6 +403,7 @@ declare namespace App.Platform.Enums {
     | 'numVisibleLeaderboards'
     | 'numUnresolvedTickets'
     | 'progress';
+  export type UnlockMode = 0 | 1;
   export type GameSetType = 'hub' | 'similar-games';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 }
