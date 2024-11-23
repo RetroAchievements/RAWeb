@@ -81,7 +81,8 @@ class GameHashesRelationManager extends RelationManager
                 Tables\Actions\DetachAction::make()
                     ->label('Remove incompatibility')
                     ->modalHeading('Remove incompatibility')
-                    ->modalDescription('Are you sure you want to do this? This hash will once again be compatible with the set.'),
+                    ->modalDescription('Are you sure you want to do this? This hash will once again be compatible with the set.')
+                    ->visible(fn () => $user->can('markGameHashAsIncompatible', [AchievementSet::class])),
             ])
             ->headerActions([
                 Tables\Actions\Action::make('attachHashCompatibility')
