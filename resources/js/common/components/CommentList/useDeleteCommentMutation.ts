@@ -31,7 +31,10 @@ function buildDeleteRoute({
 
     [ArticleType.Game]: route('api.game.comment.destroy', { game: commentableId, comment: id }),
 
-    [ArticleType.GameHash]: 'TODO',
+    [ArticleType.GameHash]: route('api.game.hashes.comment.destroy', {
+      game: commentableId,
+      comment: id,
+    }),
 
     [ArticleType.GameModification]: 'TODO',
 
