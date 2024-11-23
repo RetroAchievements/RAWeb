@@ -21,8 +21,8 @@ class GameTopAchieversService
     public function initialize(Game $game): void
     {
         $this->gameId = $game->id;
-        $this->masteryAchievements = $game->achievements_published;
-        $this->masteryPoints = $game->points_total;
+        $this->masteryAchievements = $game->achievements_published ?? 0;
+        $this->masteryPoints = $game->points_total ?? 0;
     }
 
     /**

@@ -22,6 +22,12 @@ declare namespace App.Community.Data {
     isSubscribed: boolean;
     canComment: boolean;
   };
+  export type GameHashesCommentsPageProps<TItems = App.Community.Data.Comment> = {
+    game: App.Platform.Data.Game;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+    isSubscribed: boolean;
+    canComment: boolean;
+  };
   export type LeaderboardCommentsPageProps<TItems = App.Community.Data.Comment> = {
     leaderboard: App.Platform.Data.Leaderboard;
     paginatedComments: App.Data.PaginatedData<TItems>;
