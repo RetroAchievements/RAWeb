@@ -36,7 +36,7 @@ class GameTopAchieversController extends Controller
         // If the current page exceeds the last page, redirect to the last page.
         if ($currentPage !== 1 && $currentPage > $lastPage) {
             return redirect()->route('game.top-achievers.index', [
-                $routeParam => $game->id,
+                'game' => $game->id,
                 'page' => $lastPage,
             ]);
         }

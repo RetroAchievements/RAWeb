@@ -18,7 +18,7 @@ class GameTopAchieversControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function addMastery(User $user, Game $game, Carbon $when)
+    private function addMastery(User $user, Game $game, Carbon $when): void
     {
         PlayerGame::factory()->create(['user_id' => $user->id,
             'achievements_unlocked_hardcore' => $game->achievements_published,
@@ -29,7 +29,7 @@ class GameTopAchieversControllerTest extends TestCase
         ]);
     }
 
-    private function addBeaten(User $user, Game $game, Carbon $when, int $missingPoints)
+    private function addBeaten(User $user, Game $game, Carbon $when, int $missingPoints): void
     {
         PlayerGame::factory()->create(['user_id' => $user->id,
             'achievements_unlocked_hardcore' => $game->achievements_published - 1,
@@ -39,7 +39,7 @@ class GameTopAchieversControllerTest extends TestCase
         ]);
     }
 
-    private function addNotBeaten(User $user, Game $game, Carbon $when, int $missingPoints)
+    private function addNotBeaten(User $user, Game $game, Carbon $when, int $missingPoints): void
     {
         PlayerGame::factory()->create(['user_id' => $user->id,
             'achievements_unlocked_hardcore' => $game->achievements_published - 1,
@@ -48,7 +48,7 @@ class GameTopAchieversControllerTest extends TestCase
         ]);
     }
 
-    private function addCompleted(User $user, Game $game, Carbon $when)
+    private function addCompleted(User $user, Game $game, Carbon $when): void
     {
         PlayerGame::factory()->create(['user_id' => $user->id,
             'achievements_unlocked' => $game->achievements_published,
