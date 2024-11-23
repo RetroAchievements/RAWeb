@@ -1,6 +1,6 @@
+import { router } from '@inertiajs/react';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { router } from '@inertiajs/react';
 
 import { FullPaginator } from '@/common/components/FullPaginator';
 import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
@@ -14,15 +14,14 @@ export const TopAchieversMainRoot: FC = () => {
 
   const { t } = useTranslation();
 
-  const handlePageSelectValueChange =
-    (newPageValue: number) => {
-      router.visit(
-        route('game.top-achievers.index', {
-          game: game.id,
-          _query: { page: newPageValue },
-        }),
-      );
-    }
+  const handlePageSelectValueChange = (newPageValue: number) => {
+    router.visit(
+      route('game.top-achievers.index', {
+        game: game.id,
+        _query: { page: newPageValue },
+      }),
+    );
+  };
 
   return (
     <div>

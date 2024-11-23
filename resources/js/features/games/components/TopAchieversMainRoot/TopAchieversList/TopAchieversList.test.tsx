@@ -1,12 +1,9 @@
-import { faker } from '@faker-js/faker';
-
-import { render, screen, within } from '@/test';
-
+import { AwardType } from '@/common/utils/generatedAppConstants';
+import { render, screen } from '@/test';
 import { createFactory } from '@/test/createFactory';
-import { createGame, createPaginatedData, createPlayerBadge, createSystem, createUser } from '@/test/factories';
+import { createGame, createPaginatedData, createPlayerBadge, createUser } from '@/test/factories';
 
 import { TopAchieversList, TopAchieversListContainerTestId } from './TopAchieversList';
-import { AwardType } from '@/common/utils/generatedAppConstants';
 
 export const createAchiever = createFactory<App.Platform.Data.GameTopAchiever>((faker) => {
   return {
@@ -20,11 +17,14 @@ export const createAchiever = createFactory<App.Platform.Data.GameTopAchiever>((
 describe('Component: TopAchieversList', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Platform.Data.GameTopAchieversPageProps>(<TopAchieversList />, {
-      pageProps: {
-        paginatedUsers: createPaginatedData([createAchiever()]),
+    const { container } = render<App.Platform.Data.GameTopAchieversPageProps>(
+      <TopAchieversList />,
+      {
+        pageProps: {
+          paginatedUsers: createPaginatedData([createAchiever()]),
+        },
       },
-    });
+    );
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -49,7 +49,15 @@ describe('Component: TopAchieversList', () => {
       pageProps: {
         game: createGame(),
         paginatedUsers: createPaginatedData([
-          createAchiever({ user: user, score: 753, badge: createPlayerBadge({ awardType: AwardType.Mastery, awardDataExtra: 1, awardDate: '2024-11-01 05:55:55' }) })
+          createAchiever({
+            user: user,
+            score: 753,
+            badge: createPlayerBadge({
+              awardType: AwardType.Mastery,
+              awardDataExtra: 1,
+              awardDate: '2024-11-01 05:55:55',
+            }),
+          }),
         ]),
       },
     });
@@ -68,7 +76,15 @@ describe('Component: TopAchieversList', () => {
       pageProps: {
         game: createGame(),
         paginatedUsers: createPaginatedData([
-          createAchiever({ user: user, score: 222, badge: createPlayerBadge({ awardType: AwardType.GameBeaten, awardDataExtra: 1, awardDate: '2024-11-01 05:55:55' }) })
+          createAchiever({
+            user: user,
+            score: 222,
+            badge: createPlayerBadge({
+              awardType: AwardType.GameBeaten,
+              awardDataExtra: 1,
+              awardDate: '2024-11-01 05:55:55',
+            }),
+          }),
         ]),
       },
     });
@@ -85,9 +101,7 @@ describe('Component: TopAchieversList', () => {
     render<App.Platform.Data.GameTopAchieversPageProps>(<TopAchieversList />, {
       pageProps: {
         game: createGame(),
-        paginatedUsers: createPaginatedData([
-          createAchiever({ user: user, score: 59 })
-        ]),
+        paginatedUsers: createPaginatedData([createAchiever({ user: user, score: 59 })]),
       },
     });
 

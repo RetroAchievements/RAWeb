@@ -1,11 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { UserAvatar } from '@/common/components/UserAvatar';
-import { usePageProps } from '@/common/hooks/usePageProps';
-import { AwardType } from '@/common/utils/generatedAppConstants';
-import { formatDate } from '@/common/utils/l10n/formatDate';
-
 import {
   BaseTable,
   BaseTableBody,
@@ -14,9 +9,13 @@ import {
   BaseTableHeader,
   BaseTableRow,
 } from '@/common/components/+vendor/BaseTable';
-import { cn } from '@/utils/cn';
 import { PlayerBadgeIndicator } from '@/common/components/PlayerBadgeIndicator';
 import { PlayerBadgeLabel } from '@/common/components/PlayerBadgeLabel';
+import { UserAvatar } from '@/common/components/UserAvatar';
+import { usePageProps } from '@/common/hooks/usePageProps';
+import { AwardType } from '@/common/utils/generatedAppConstants';
+import { formatDate } from '@/common/utils/l10n/formatDate';
+import { cn } from '@/utils/cn';
 
 export const TopAchieversListContainerTestId = 'top-achievers-list';
 
@@ -49,9 +48,7 @@ export const TopAchieversList: FC = () => {
       <BaseTableBody>
         {paginatedUsers.items.map((achiever) => (
           <BaseTableRow key={achiever.user.displayName}>
-            <BaseTableCell>
-              {achiever.rank}
-            </BaseTableCell>
+            <BaseTableCell>{achiever.rank}</BaseTableCell>
 
             <BaseTableCell>
               <UserAvatar {...achiever.user} size={32} />
@@ -66,11 +63,14 @@ export const TopAchieversList: FC = () => {
 
                   <div className={cn('flex items-center gap-1')}>
                     {achiever.badge.awardType == AwardType.GameBeaten && (
-                      <span>{achiever.score}<span className='text-muted'> - </span></span>
+                      <span>
+                        {achiever.score}
+                        <span className="text-muted">{' - '}</span>
+                      </span>
                     )}
 
                     <PlayerBadgeIndicator playerBadge={achiever.badge} className="mt-px" />
-                    <PlayerBadgeLabel playerBadge={achiever.badge} variant='muted-group' />
+                    <PlayerBadgeLabel playerBadge={achiever.badge} variant="muted-group" />
                   </div>
                 </div>
               ) : (
@@ -80,6 +80,6 @@ export const TopAchieversList: FC = () => {
           </BaseTableRow>
         ))}
       </BaseTableBody>
-    </BaseTable >
+    </BaseTable>
   );
 };

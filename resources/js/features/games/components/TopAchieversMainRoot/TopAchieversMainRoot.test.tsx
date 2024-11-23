@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
 import { createFactory } from '@/test/createFactory';
-import { createGame, createPaginatedData, createPlayerBadge, createSystem, createUser } from '@/test/factories';
+import { createGame, createPaginatedData, createSystem, createUser } from '@/test/factories';
 
 import { TopAchieversMainRoot } from './TopAchieversMainRoot';
 
@@ -147,6 +147,9 @@ describe('Component: TopAchieversMainRoot', () => {
 
     // ASSERT
     expect(visitSpy).toHaveBeenCalledOnce();
-    expect(visitSpy).toHaveBeenCalledWith(['game.top-achievers.index', { game: 1, _query: { page: 2 } }]);
+    expect(visitSpy).toHaveBeenCalledWith([
+      'game.top-achievers.index',
+      { game: 1, _query: { page: 2 } },
+    ]);
   });
 });
