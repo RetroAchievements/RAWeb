@@ -452,5 +452,6 @@
     "{{visible, number}} of {{total, number}} games_one": "{{visible, number}} von {{total, number}} Spiel",
     "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} von {{total, number}} Spielen",
     "Hash Comments - {{gameTitle}}": "Hash Comments - {{gameTitle}}",
-    "Hash Comments": "Hash Comments"
+    "Hash Comments": "Hash Comments",
+    "Surprise me": "Surprise me"
 }

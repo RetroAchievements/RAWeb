@@ -458,5 +458,6 @@
     "{{visible, number}} of {{total, number}} games_many": "{{visible, number}} of {{total, number}} jeux",
     "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} sur {{total, number}} jeux",
     "Hash Comments - {{gameTitle}}": "Hash Comments - {{gameTitle}}",
-    "Hash Comments": "Hash Comments"
+    "Hash Comments": "Hash Comments",
+    "Surprise me": "Surprise me"
 }

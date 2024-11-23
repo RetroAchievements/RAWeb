@@ -14,6 +14,7 @@ interface DataTableToolbarProps<TData> {
   unfilteredTotal: number | null;
 
   defaultColumnFilters?: ColumnFiltersState;
+  randomGameApiRouteName?: RouteName;
   tableApiRouteName?: RouteName;
 }
 
@@ -21,6 +22,7 @@ export function DataTableToolbar<TData>({
   table,
   unfilteredTotal,
   defaultColumnFilters = [],
+  randomGameApiRouteName = 'api.game.random',
   tableApiRouteName = 'api.game.index',
 }: DataTableToolbarProps<TData>) {
   const { ziggy } = usePageProps<{
@@ -32,6 +34,7 @@ export function DataTableToolbar<TData>({
       <Suspense fallback={<DataTableMobileToolbarSuspenseFallback />}>
         <DataTableMobileToolbar
           table={table as Table<unknown>}
+          randomGameApiRouteName={randomGameApiRouteName}
           tableApiRouteName={tableApiRouteName}
         />
       </Suspense>
@@ -43,6 +46,7 @@ export function DataTableToolbar<TData>({
       table={table}
       unfilteredTotal={unfilteredTotal}
       defaultColumnFilters={defaultColumnFilters}
+      randomGameApiRouteName={randomGameApiRouteName}
       tableApiRouteName={tableApiRouteName}
     />
   );

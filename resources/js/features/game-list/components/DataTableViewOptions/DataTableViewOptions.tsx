@@ -22,7 +22,7 @@ export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps
   return (
     <BaseDropdownMenu>
       <BaseDropdownMenuTrigger asChild>
-        <BaseButton size="sm" className="gap-2">
+        <BaseButton size="sm" className="gap-1.5">
           <RxMixerHorizontal className="h-4 w-4" />
           {t('View')}
         </BaseButton>

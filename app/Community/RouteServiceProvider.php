@@ -72,6 +72,7 @@ class RouteServiceProvider extends ServiceProvider
                         Route::delete('subscription/{subjectType}/{subjectId}', [SubscriptionApiController::class, 'destroy'])->name('api.subscription.destroy');
 
                         Route::get('user-game-list', [UserGameListApiController::class, 'index'])->name('api.user-game-list.index');
+                        Route::get('user-game-list/random', [UserGameListApiController::class, 'random'])->name('api.user-game-list.random');
                         Route::post('user-game-list/{game}', [UserGameListApiController::class, 'store'])->name('api.user-game-list.store');
                         Route::delete('user-game-list/{game}', [UserGameListApiController::class, 'destroy'])->name('api.user-game-list.destroy');
                     });
