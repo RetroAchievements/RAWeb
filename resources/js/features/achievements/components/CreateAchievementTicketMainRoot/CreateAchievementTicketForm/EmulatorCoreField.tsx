@@ -30,7 +30,6 @@ export const EmulatorCoreField: FC = () => {
           <div className="flex w-full flex-col gap-1">
             <BaseFormControl>
               <BaseInput
-                maxLength={10}
                 placeholder={t('enter the emulator core...')}
                 className="w-full md:w-96"
                 {...field}
