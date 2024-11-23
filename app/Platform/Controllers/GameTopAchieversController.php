@@ -9,14 +9,11 @@ use App\Data\PaginatedData;
 use App\Data\UserData;
 use App\Http\Controller;
 use App\Models\Game;
-use App\Models\GameComment;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameTopAchieverData;
 use App\Platform\Data\GameTopAchieversPagePropsData;
 use App\Platform\Data\PlayerBadgeData;
 use App\Platform\Services\GameTopAchieversService;
-use App\Policies\GameCommentPolicy;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
@@ -26,8 +23,7 @@ class GameTopAchieversController extends Controller
     public function index(
         Game $game,
         GameTopAchieversService $topAchieversService,
-    ): InertiaResponse|RedirectResponse
-    {
+    ): InertiaResponse|RedirectResponse {
         $this->authorize('viewAny', [$game]);
 
         $perPage = 50;
@@ -57,7 +53,7 @@ class GameTopAchieversController extends Controller
             $score = $topAchieversService->getPoints($playerGame);
 
             if ($rank === 0) {
-                $rank = $firstRank = $nextRank = 
+                $rank = $firstRank = $nextRank =
                     ($currentPage === 1) ? 1 : $topAchieversService->getRank($playerGame);
                 $rankScore = $score;
             } else {

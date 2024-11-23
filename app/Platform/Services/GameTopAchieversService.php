@@ -91,7 +91,7 @@ class GameTopAchieversService
             $query = $query->orderByDesc('points_hardcore');
         }
 
-        return $query->with('user')->orderBy('last_unlock_hardcore_at');        
+        return $query->with('user')->orderBy('last_unlock_hardcore_at');
     }
 
     /**
@@ -99,7 +99,7 @@ class GameTopAchieversService
      */
     public function highestPointEarners(int $count = 10): Collection
     {
-        return $this->highestPointEarnersQuery()           
+        return $this->highestPointEarnersQuery()
             ->limit($count)
             ->get();
     }

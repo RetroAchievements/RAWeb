@@ -7,7 +7,6 @@ namespace Tests\Feature\Platform\Controllers;
 use App\Community\Enums\AwardType;
 use App\Models\Game;
 use App\Models\PlayerGame;
-use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\UpdateGameMetricsAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,7 +20,7 @@ class GameTopAchieversControllerTest extends TestCase
 
     private function addMastery(User $user, Game $game, Carbon $when)
     {
-        PlayerGame::factory()->create(['user_id' => $user->id, 
+        PlayerGame::factory()->create(['user_id' => $user->id,
             'achievements_unlocked_hardcore' => $game->achievements_published,
             'points_hardcore' => $game->points_total,
             'beaten_hardcore_at' => $when->clone()->subMinutes(5),
@@ -32,7 +31,7 @@ class GameTopAchieversControllerTest extends TestCase
 
     private function addBeaten(User $user, Game $game, Carbon $when, int $missingPoints)
     {
-        PlayerGame::factory()->create(['user_id' => $user->id, 
+        PlayerGame::factory()->create(['user_id' => $user->id,
             'achievements_unlocked_hardcore' => $game->achievements_published - 1,
             'points_hardcore' => $game->points_total - $missingPoints,
             'beaten_hardcore_at' => $when,
@@ -42,7 +41,7 @@ class GameTopAchieversControllerTest extends TestCase
 
     private function addNotBeaten(User $user, Game $game, Carbon $when, int $missingPoints)
     {
-        PlayerGame::factory()->create(['user_id' => $user->id, 
+        PlayerGame::factory()->create(['user_id' => $user->id,
             'achievements_unlocked_hardcore' => $game->achievements_published - 1,
             'points_hardcore' => $game->points_total - $missingPoints,
             'last_unlock_hardcore_at' => $when,
@@ -51,7 +50,7 @@ class GameTopAchieversControllerTest extends TestCase
 
     private function addCompleted(User $user, Game $game, Carbon $when)
     {
-        PlayerGame::factory()->create(['user_id' => $user->id, 
+        PlayerGame::factory()->create(['user_id' => $user->id,
             'achievements_unlocked' => $game->achievements_published,
             'points' => $game->points_total,
             'beaten_at' => $when->clone()->subMinutes(5),
