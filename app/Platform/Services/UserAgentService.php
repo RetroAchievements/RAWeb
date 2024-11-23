@@ -29,7 +29,7 @@ class UserAgentService
 
         $userAgentLength = strlen($userAgent);
 
-        $indexParens = strpos($userAgent, '(');
+        $indexParens = strpos($userAgent, ' (');
         if ($indexParens !== false) {
             // OS information provided, assume everything before the OS is the client version
             $data = $this->extractClient(substr($userAgent, 0, $indexParens));
@@ -39,7 +39,7 @@ class UserAgentService
                 return $data;
             }
 
-            $os = substr($userAgent, $indexParens + 1, $indexCloseParens - $indexParens - 1);
+            $os = substr($userAgent, $indexParens + 2, $indexCloseParens - $indexParens - 2);
             $data['os'] = $this->trimOperatingSystem($os);
 
             $indexNext = $indexCloseParens + 1;

@@ -98,6 +98,31 @@ class UserAgentServiceTest extends TestCase
         ], $this->parseUserAgent($userAgent));
     }
 
+    public function testRetroArchUserAgentWithUnversionedCore(): void
+    {
+        $userAgent = 'RetroArch/1.10.3 fceumm_libretro/(SVN)';
+
+        $this->assertEquals([
+            'client' => 'RetroArch',
+            'clientVersion' => '1.10.3',
+            'clientVariation' => 'fceumm',
+            'extra' => [
+                'fceumm_libretro' => '(SVN)',
+            ],
+        ], $this->parseUserAgent($userAgent));
+
+        $userAgent = 'RetroArch/1.10.0 fceumm_libretro_ps3/(SVN)_744f5d9';
+
+        $this->assertEquals([
+            'client' => 'RetroArch',
+            'clientVersion' => '1.10.0',
+            'clientVariation' => 'fceumm',
+            'extra' => [
+                'fceumm_libretro_ps3' => '(SVN)_744f5d9',
+            ],
+        ], $this->parseUserAgent($userAgent));
+    }
+
     public function testRetroArchPreUserAgent(): void
     {
         $userAgent = 'libretro';
