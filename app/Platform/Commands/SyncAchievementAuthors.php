@@ -76,9 +76,12 @@ class SyncAchievementAuthors extends Command
             $words = explode(' ', $payload);
             $username = array_shift($words); // Username is always the first word.
 
+            // Remove punctuation.
+            $sanitizedWords = array_map(fn ($word) => rtrim($word, ".,"), $words);
+
             $expectedPhraseOne = "edited";
             $expectedPhraseTwo = "logic";
-            if (in_array($expectedPhraseOne, $words) && in_array($expectedPhraseTwo, $words)) {
+            if (in_array($expectedPhraseOne, $sanitizedWords) && in_array($expectedPhraseTwo, $sanitizedWords)) {
                 $user = User::withTrashed()
                     ->where('User', $username)
                     ->orWhere('display_name', $username)
