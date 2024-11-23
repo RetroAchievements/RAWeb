@@ -32,7 +32,7 @@ class LoadThinActivePlayersListAction
                 $timestampCutoff = Carbon::now()->subMinutes($lookbackMinutes);
 
                 $activePlayers = User::select([
-                    'ID as user_id',
+                    'ID',
                     'LastGameID',
                     'User',
                     'display_name',
@@ -50,7 +50,7 @@ class LoadThinActivePlayersListAction
 
                 return $activePlayers->map(function ($player) {
                     return [
-                        'user_id' => $player->user_id,
+                        'user_id' => $player->ID,
                         'game_id' => $player->LastGameID,
                         'username' => $player->username,
                         'display_name' => $player->display_name,
