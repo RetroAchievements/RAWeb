@@ -44,7 +44,8 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
                     ->getSearchResultsUsing(function (string $search): array {
                         $lowercased = strtolower($search);
 
-                        return User::whereRaw('LOWER(User) = ?', [$lowercased])
+                        return User::withTrashed()
+                            ->whereRaw('LOWER(User) = ?', [$lowercased])
                             ->orWhere(function ($query) use ($lowercased) {
                                 $query->whereRaw('LOWER(display_name) like ?', ["%{$lowercased}%"])
                                     ->orWhereRaw('LOWER(User) like ?', ["%{$lowercased}%"]);
@@ -55,7 +56,7 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
                             ->pluck('display_name', 'id')
                             ->toArray();
                     })
-                    ->getOptionLabelUsing(fn (int $value): string => User::find($value)?->display_name ?? 'Deleted User')
+                    ->getOptionLabelUsing(fn (int $value): string => User::withTrashed()->find($value)?->display_name ?? 'Deleted User')
                     ->required(),
 
                 Forms\Components\DatePicker::make('created_at')
@@ -77,7 +78,7 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('task')
                     ->label('Task')
-                    ->formatStateUsing(fn ($state) => AchievementSetAuthorTask::tryFrom($state)?->label() ?? ucfirst($state)),
+                    ->formatStateUsing(fn ($state) => $state?->label() ?? ucfirst($state)),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Date Credited')
@@ -111,14 +112,16 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
                                 ->body('This user already has this type of credit for this game.')
                                 ->persistent()
                                 ->send();
-                        }
 
-                        $action->halt();
+                            $action->halt();
+                        }
                     })
                     ->using(function (array $data, string $model): Model {
+                        $user = User::withTrashed()->find((int) $data['user_id']);
+
                         return (new AddGameBadgeCreditAction())->execute(
                             game: $this->ownerRecord,
-                            user: Auth::user(),
+                            user: $user,
                             date: Carbon::parse($data['created_at']),
                         );
                     })
