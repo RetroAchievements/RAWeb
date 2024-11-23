@@ -20,15 +20,21 @@ trait IndexesComments
         string $routeName,
         string $routeParam,
         string $view,
-        callable $createPropsData
+        callable $createPropsData,
+        ?string $commentableType = null,
     ): InertiaResponse|RedirectResponse {
         $this->authorize('viewAny', [$policy, $commentable]);
 
         $perPage = 50;
         $currentPage = (int) request()->input('page', 1);
 
+        $commentsQuery = $commentable->visibleComments();
+        if ($commentable instanceof Game && $commentableType === 'hashes') {
+            $commentsQuery = $commentable->visibleHashesComments();
+        }
+
         // Get total comments to calculate the last page.
-        $totalComments = $commentable->visibleComments()->count();
+        $totalComments = $commentsQuery->count();
         $lastPage = (int) ceil($totalComments / $perPage);
 
         // If the current page exceeds the last page, redirect to the last page.
@@ -39,7 +45,7 @@ trait IndexesComments
             ]);
         }
 
-        $paginatedComments = $commentable->visibleComments()
+        $paginatedComments = $commentsQuery
             ->with(['user' => function ($query) {
                 $query->withTrashed();
             }])

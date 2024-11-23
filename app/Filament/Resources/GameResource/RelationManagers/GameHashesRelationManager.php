@@ -70,7 +70,7 @@ class GameHashesRelationManager extends RelationManager
                 Tables\Actions\Action::make('view-comments')
                     ->color($nonAutomatedCommentsCount > 0 ? 'info' : 'gray')
                     ->label("View Comments ({$nonAutomatedCommentsCount})")
-                    ->url(route('game.hashes.comments', ['game' => $this->ownerRecord->id])),
+                    ->url(route('game.hashes.comment.index', ['game' => $this->ownerRecord->id])),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

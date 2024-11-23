@@ -32,6 +32,11 @@ export async function loadDayjsLocale(userLocale: string) {
         dayjs.locale('fr');
         break;
 
+      case 'ru_RU':
+        await import('dayjs/locale/ru.js');
+        dayjs.locale('ru');
+        break;
+
       case 'pl_PL':
         await import('dayjs/locale/pl.js');
         dayjs.locale('pl');
