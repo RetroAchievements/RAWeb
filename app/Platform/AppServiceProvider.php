@@ -31,6 +31,7 @@ use App\Platform\Commands\EnqueueStaleGamePlayerGamesUpdates;
 use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ResetPlayerAchievement;
+use App\Platform\Commands\SyncAchievementAuthors;
 use App\Platform\Commands\SyncAchievements;
 use App\Platform\Commands\SyncGameAchievementSets;
 use App\Platform\Commands\SyncGameHashes;
@@ -111,17 +112,19 @@ class AppServiceProvider extends ServiceProvider
                 CreateAchievementOfTheWeek::class,
 
                 // Sync
+                SyncAchievementAuthors::class,
                 SyncAchievements::class,
                 SyncGameAchievementSets::class,
-                SyncGameSets::class,
+                SyncGameHashes::class,
                 SyncGames::class,
-                SyncLeaderboards::class,
+                SyncGameSets::class,
+                SyncGameSets::class,
                 SyncLeaderboardEntries::class,
+                SyncLeaderboards::class,
                 SyncMemoryNotes::class,
                 SyncPlayerBadges::class,
                 SyncPlayerRichPresence::class,
                 SyncPlayerSession::class,
-                SyncGameHashes::class,
             ]);
         }
 

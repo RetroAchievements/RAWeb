@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Achievement;
-use App\Models\Comment;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\System;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Jobs\UpdateGameMetricsJob;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 
@@ -26,9 +26,10 @@ class CreateAchievementOfTheWeek
 
         $event = Game::firstWhere('Title', '=', $eventTitle);
         if (!$event) {
-            $event = Game::Create([
+            $event = Game::create([
                 'Title' => $eventTitle,
                 'sort_title' => (new ComputeGameSortTitleAction())->execute($eventTitle),
+                'Publisher' => 'RetroAchievements',
                 'ConsoleID' => System::Events,
             ]);
         }
@@ -36,13 +37,13 @@ class CreateAchievementOfTheWeek
         $achievementCount = $event->achievements()->count();
         while ($achievementCount < 52) {
             $achievementCount++;
-            $achievement = Achievement::Create([
+            $achievement = Achievement::create([
                 'Title' => "Week $achievementCount",
                 'Description' => 'TBD',
                 'MemAddr' => '0=1',
                 'Flags' => AchievementFlag::OfficialCore->value,
                 'GameID' => $event->id,
-                'user_id' => Comment::SYSTEM_USER_ID,
+                'user_id' => EventAchievement::RAEVENTS_USER_ID,
                 'BadgeName' => '00000',
                 'DisplayOrder' => $achievementCount,
             ]);
@@ -63,6 +64,9 @@ class CreateAchievementOfTheWeek
             $this->createEventAchievement($i, $date, $achievements, null);
             $date->addDays(7);
         }
+
+        // update metrics and sync to game_achievement_set
+        dispatch(new UpdateGameMetricsJob($event->id))->onQueue('game-metrics');
 
         return $event;
     }

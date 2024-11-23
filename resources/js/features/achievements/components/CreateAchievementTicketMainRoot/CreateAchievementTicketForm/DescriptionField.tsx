@@ -25,8 +25,7 @@ export const DescriptionField: FC = () => {
 
   const showTriggerWarning =
     (description.length < 25 && /(n'?t|not?).*(work|trigger)/gi.test(description)) ||
-    form.formState.errors.description?.type === 'too_small' ||
-    form.formState.errors.description?.message === 'BE_MORE_DESCRIPTIVE';
+    form.formState.errors.description?.type === 'too_small';
 
   const showNetworkWarning = /(manual\s+unlock|internet)/gi.test(description);
 

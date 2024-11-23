@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
 use App\Community\Enums\ArticleType;
+use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\AchievementCreated;
@@ -202,6 +203,14 @@ class Achievement extends BaseModel
 
     // == helpers
 
+    public function ensureAuthorshipCredit(User $user, AchievementAuthorTask $task, ?Carbon $backdate = null): AchievementAuthor
+    {
+        return $this->authorshipCredits()->firstOrCreate(
+            ['user_id' => $user->id, 'task' => $task->value],
+            ['created_at' => $backdate ?? now(), 'updated_at' => now()]
+        );
+    }
+
     public function unlockValidationHash(User $user, int $hardcore, int $offset = 0): string
     {
         $data = $this->id . $user->username . $hardcore . $this->id;
@@ -318,6 +327,14 @@ class Achievement extends BaseModel
     // == relations
 
     /**
+     * @return HasMany<AchievementAuthor>
+     */
+    public function authorshipCredits(): HasMany
+    {
+        return $this->hasMany(AchievementAuthor::class, 'achievement_id', 'ID');
+    }
+
+    /**
      * @return BelongsToMany<AchievementSet>
      */
     public function achievementSets(): BelongsToMany
@@ -342,6 +359,17 @@ class Achievement extends BaseModel
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class, 'GameID');
+    }
+
+    /**
+     * @return HasMany<Comment>
+     *
+     * TODO use ->comments() after commentable_type and commentable_id are synced in Comments table
+     */
+    public function legacyComments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'ArticleID', 'ID')
+            ->where('ArticleType', ArticleType::Achievement);
     }
 
     /**
