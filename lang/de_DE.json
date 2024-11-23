@@ -450,5 +450,6 @@
     "{{val, number}} games_one": "{{val, number}} Spiel",
     "{{val, number}} games_other": "{{val, number}} Spiele",
     "{{visible, number}} of {{total, number}} games_one": "{{visible, number}} von {{total, number}} Spiel",
-    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} von {{total, number}} Spielen"
+    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} von {{total, number}} Spielen",
+    "Surprise me": "Surprise me"
 }

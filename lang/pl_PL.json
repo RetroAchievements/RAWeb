@@ -462,5 +462,6 @@
     "{{visible, number}} of {{total, number}} games_one": "{{visible, number}} z {{total, number}} gry",
     "{{visible, number}} of {{total, number}} games_few": "{{visible, number}} z {{total, number}} gier",
     "{{visible, number}} of {{total, number}} games_many": "{{visible, number}} z {{total, number}} gier",
-    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} z {{total, number}} gier"
+    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} z {{total, number}} gier",
+    "Surprise me": "Surprise me"
 }

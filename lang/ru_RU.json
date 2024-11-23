@@ -462,5 +462,6 @@
     "{{visible, number}} of {{total, number}} games_one": "{{visible, number}} из {{total, number}} игры",
     "{{visible, number}} of {{total, number}} games_few": "{{visible, number}} из {{total, number}} игр",
     "{{visible, number}} of {{total, number}} games_many": "{{visible, number}} из {{total, number}} игр",
-    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} из {{total, number}} игр"
+    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} из {{total, number}} игр",
+    "Surprise me": "Surprise me"
 }
