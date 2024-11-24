@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\RelationManagers;
 
+use App\Filament\Resources\AchievementAuthorshipCreditFormSchema;
 use App\Models\Achievement;
+use App\Models\AchievementAuthor;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
+use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
@@ -20,6 +24,7 @@ use Filament\Tables\Filters;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -139,6 +144,12 @@ class AchievementsRelationManager extends RelationManager
                                 $record->Flags = AchievementFlag::OfficialCore->value;
                                 $record->save();
                             });
+
+                            Notification::make()
+                                ->title('Success')
+                                ->body('Successfully promoted selected achievements.')
+                                ->success()
+                                ->send();
                         }),
 
                     Tables\Actions\BulkAction::make('flags-unofficial')
@@ -155,6 +166,12 @@ class AchievementsRelationManager extends RelationManager
                                 $record->Flags = AchievementFlag::Unofficial->value;
                                 $record->save();
                             });
+
+                            Notification::make()
+                                ->title('Success')
+                                ->body('Successfully demoted selected achievements.')
+                                ->success()
+                                ->send();
                         }),
                 ])
                     ->label('Bulk promote or demote')
@@ -174,6 +191,12 @@ class AchievementsRelationManager extends RelationManager
                                 $record->type = AchievementType::Progression;
                                 $record->save();
                             });
+
+                            Notification::make()
+                                ->title('Success')
+                                ->body('Successfully set selected achievements to Progression.')
+                                ->success()
+                                ->send();
                         }),
 
                     Tables\Actions\BulkAction::make('type-win-condition')
@@ -189,6 +212,12 @@ class AchievementsRelationManager extends RelationManager
                                 $record->type = AchievementType::WinCondition;
                                 $record->save();
                             });
+
+                            Notification::make()
+                                ->title('Success')
+                                ->body('Successfully set selected achievements to Win Condition.')
+                                ->success()
+                                ->send();
                         }),
 
                     Tables\Actions\BulkAction::make('type-missable')
@@ -204,6 +233,12 @@ class AchievementsRelationManager extends RelationManager
                                 $record->type = AchievementType::Missable;
                                 $record->save();
                             });
+
+                            Notification::make()
+                                ->title('Success')
+                                ->body('Successfully set selected achievements to Missable.')
+                                ->success()
+                                ->send();
                         }),
 
                     Tables\Actions\BulkAction::make('type-null')
@@ -218,6 +253,12 @@ class AchievementsRelationManager extends RelationManager
                                 $record->type = null;
                                 $record->save();
                             });
+
+                            Notification::make()
+                                ->title('Success')
+                                ->body('Successfully removed type from selected achievements.')
+                                ->success()
+                                ->send();
                         }),
                 ])
                     ->label('Bulk set type')
@@ -228,6 +269,34 @@ class AchievementsRelationManager extends RelationManager
 
                         return $user->can('updateField', [Achievement::class, null, 'type']);
                     }),
+
+                Tables\Actions\BulkAction::make('add-credit')
+                    ->label('Bulk add credit')
+                    ->modalHeading('Bulk add credit')
+                    ->color('gray')
+                    ->form(AchievementAuthorshipCreditFormSchema::getSchema())
+                    ->action(function (Collection $records, array $data) use ($user) {
+                        if (!$user->can('create', [AchievementAuthor::class])) {
+                            return false;
+                        }
+
+                        $records->each(function (Achievement $record) use ($data) {
+                            $targetUser = User::find($data['user_id']);
+
+                            $record->ensureAuthorshipCredit(
+                                $targetUser,
+                                AchievementAuthorTask::from($data['task']),
+                                backdate: Carbon::parse($data['created_at']) ?? now(),
+                            );
+                        });
+
+                        Notification::make()
+                            ->title('Success')
+                            ->body('Successfully added credit to selected achievements.')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn (): bool => $user->can('create', [AchievementAuthor::class])),
             ])
             ->recordUrl(function (Achievement $record): string {
                 /** @var User $user */

@@ -9,6 +9,8 @@ import { createPaginatedData, createSystem, createZiggyProps } from '@/test/fact
 
 import { DataTableToolbar } from './DataTableToolbar';
 
+vi.mock('./RandomGameButton');
+
 // We'll use a sample data type.
 interface Model {
   title: string;

@@ -30,6 +30,8 @@ class EventAchievement extends BaseModel
         'active_through',
     ];
 
+    public const RAEVENTS_USER_ID = 279854;
+
     // == accessors
 
     public function getActiveThroughAttribute(): ?Carbon
