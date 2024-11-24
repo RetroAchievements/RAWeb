@@ -15,7 +15,7 @@ enum AchievementAuthorTask: string
     public function label(): string
     {
         return match ($this) {
-            self::Artwork => 'Artwork',
+            self::Artwork => 'Badge Artwork',
             self::Design => 'Design',
             self::Logic => 'Logic',
             self::Testing => 'Testing',

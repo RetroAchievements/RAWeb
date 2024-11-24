@@ -8,6 +8,7 @@ use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\ReleasedAtGranularity;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameFactory;
@@ -385,6 +386,21 @@ class Game extends BaseModel implements HasMedia
     public function achievementSetClaims(): HasMany
     {
         return $this->hasMany(AchievementSetClaim::class, 'game_id');
+    }
+
+    /**
+     * @return HasManyThrough<AchievementSetAuthor>
+     */
+    public function coreSetAuthorshipCredits(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            AchievementSetAuthor::class,
+            GameAchievementSet::class,
+            'game_id',
+            'achievement_set_id',
+            'ID',
+            'achievement_set_id'
+        )->where('game_achievement_sets.type', AchievementSetType::Core);
     }
 
     /**

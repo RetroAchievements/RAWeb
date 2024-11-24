@@ -58,7 +58,7 @@ class GameHashController extends Controller
             'patch_url' => [
                 'nullable',
                 'url',
-                'regex:/^https:\/\/github\.com\/RetroAchievements\/RAPatches\/raw\/main\/.*\.(zip|7z)$/i',
+                'regex:/^https:\/\/github\.com\/RetroAchievements\/RAPatches\/raw\/(?:refs\/heads\/)?main\/.*\.(zip|7z)$/i',
             ],
             'source' => 'nullable|url',
         ]);
