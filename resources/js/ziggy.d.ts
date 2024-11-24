@@ -165,13 +165,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.claims.comments": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "system.game.index": [
         {
             "name": "system",
