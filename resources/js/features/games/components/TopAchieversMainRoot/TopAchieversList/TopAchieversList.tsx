@@ -12,17 +12,17 @@ import {
 import { PlayerBadgeIndicator } from '@/common/components/PlayerBadgeIndicator';
 import { PlayerBadgeLabel } from '@/common/components/PlayerBadgeLabel';
 import { UserAvatar } from '@/common/components/UserAvatar';
+import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AwardType } from '@/common/utils/generatedAppConstants';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 import { cn } from '@/utils/cn';
 
-export const TopAchieversListContainerTestId = 'top-achievers-list';
-
 export const TopAchieversList: FC = () => {
   const { paginatedUsers } = usePageProps<App.Platform.Data.GameTopAchieversPageProps>();
 
   const { t } = useTranslation();
+  const { formatNumber } = useFormatNumber();
 
   if (!paginatedUsers.items.length) {
     return null;
@@ -33,8 +33,6 @@ export const TopAchieversList: FC = () => {
       containerClassName={cn(
         'overflow-auto rounded-md border border-neutral-700/80 bg-embed',
         'light:border-neutral-300 lg:overflow-visible lg:rounded-sm',
-        '',
-        '',
       )}
     >
       <BaseTableHeader>
@@ -48,23 +46,25 @@ export const TopAchieversList: FC = () => {
       <BaseTableBody>
         {paginatedUsers.items.map((achiever) => (
           <BaseTableRow key={achiever.user.displayName}>
-            <BaseTableCell>{achiever.rank}</BaseTableCell>
+            <BaseTableCell>{formatNumber(achiever.rank)}</BaseTableCell>
 
             <BaseTableCell>
-              <UserAvatar {...achiever.user} size={32} />
+              <div className="max-w-fit">
+                <UserAvatar {...achiever.user} size={32} />
+              </div>
             </BaseTableCell>
 
             <BaseTableCell>
               {achiever.badge ? (
                 <div>
-                  {achiever.badge.awardType == AwardType.Mastery && (
+                  {achiever.badge.awardType === AwardType.Mastery && (
                     <span>{formatDate(achiever.badge.awardDate, 'lll')}</span>
                   )}
 
-                  <div className={cn('flex items-center gap-1')}>
-                    {achiever.badge.awardType == AwardType.GameBeaten && (
+                  <div className="flex items-center gap-1">
+                    {achiever.badge.awardType === AwardType.GameBeaten && (
                       <span>
-                        {achiever.score}
+                        {formatNumber(achiever.score)}
                         <span className="text-muted">{' - '}</span>
                       </span>
                     )}
@@ -74,7 +74,7 @@ export const TopAchieversList: FC = () => {
                   </div>
                 </div>
               ) : (
-                <span>{achiever.score}</span>
+                <span>{formatNumber(achiever.score)}</span>
               )}
             </BaseTableCell>
           </BaseTableRow>

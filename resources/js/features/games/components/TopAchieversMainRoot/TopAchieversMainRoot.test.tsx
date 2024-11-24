@@ -2,19 +2,15 @@ import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
-import { createFactory } from '@/test/createFactory';
-import { createGame, createPaginatedData, createSystem, createUser } from '@/test/factories';
+import {
+  createGame,
+  createGameTopAchiever,
+  createPaginatedData,
+  createSystem,
+  createUser,
+} from '@/test/factories';
 
 import { TopAchieversMainRoot } from './TopAchieversMainRoot';
-
-export const createAchiever = createFactory<App.Platform.Data.GameTopAchiever>((faker) => {
-  return {
-    rank: 1,
-    user: createUser(),
-    score: faker.number.int({ min: 1, max: 100 }),
-    badge: null,
-  };
-});
 
 describe('Component: TopAchieversMainRoot', () => {
   beforeEach(() => {
@@ -71,7 +67,7 @@ describe('Component: TopAchieversMainRoot', () => {
 
   it('displays pagination controls', () => {
     // ARRANGE
-    const paginatedUsers = createPaginatedData([createAchiever()], {
+    const paginatedUsers = createPaginatedData([createGameTopAchiever()], {
       currentPage: 1,
       lastPage: 2,
       perPage: 1,
@@ -106,8 +102,8 @@ describe('Component: TopAchieversMainRoot', () => {
       pageProps: {
         game: createGame(),
         paginatedUsers: createPaginatedData([
-          createAchiever({ user: user1 }),
-          createAchiever({ user: user2 }),
+          createGameTopAchiever({ user: user1 }),
+          createGameTopAchiever({ user: user2 }),
         ]),
       },
     });
@@ -121,7 +117,7 @@ describe('Component: TopAchieversMainRoot', () => {
     // ARRANGE
     const visitSpy = vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
 
-    const paginatedUsers = createPaginatedData([createAchiever()], {
+    const paginatedUsers = createPaginatedData([createGameTopAchiever()], {
       perPage: 1,
       lastPage: 2,
       currentPage: 1,

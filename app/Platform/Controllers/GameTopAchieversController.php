@@ -49,7 +49,7 @@ class GameTopAchieversController extends Controller
         $rankScore = -1;
         $firstRank = 0;
         $nextRank = 0;
-        foreach ($paginatedUsers->getCollection() as $playerGame) {
+        foreach ($paginatedUsers->items() as $playerGame) {
             $score = $topAchieversService->getPoints($playerGame);
 
             if ($rank === 0) {

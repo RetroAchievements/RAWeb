@@ -25,12 +25,8 @@ export const TopAchieversMainRoot: FC = () => {
 
   return (
     <div>
-      <GameBreadcrumbs
-        game={game}
-        system={game.system}
-        t_currentPageLabel={t('Game Top Achievers')}
-      />
-      <GameHeading game={game}>{t('Game Top Achievers')}</GameHeading>
+      <GameBreadcrumbs game={game} system={game.system} t_currentPageLabel={t('Top Achievers')} />
+      <GameHeading game={game}>{t('Top Achievers')}</GameHeading>
 
       <div className="mb-3 flex w-full justify-between">
         <FullPaginator
