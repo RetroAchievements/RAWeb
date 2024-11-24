@@ -12,6 +12,7 @@ import { createSystem } from '@/test/factories';
 import { DataTableSuperFilter } from './DataTableSuperFilter';
 
 vi.mock('@/common/components/GameAvatar', () => ({ GameAvatar: () => null }));
+vi.mock('../RandomGameButton', () => ({ RandomGameButton: () => null }));
 
 // Suppress vaul a11y warnings.
 console.warn = vi.fn();

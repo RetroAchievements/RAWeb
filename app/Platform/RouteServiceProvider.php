@@ -49,6 +49,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware(['web', 'csp'])->group(function () {
             Route::group(['prefix' => 'internal-api'], function () {
                 Route::get('games', [GameApiController::class, 'index'])->name('api.game.index');
+                Route::get('games/random', [GameApiController::class, 'random'])->name('api.game.random');
             });
 
             Route::middleware(['inertia'])->group(function () {
