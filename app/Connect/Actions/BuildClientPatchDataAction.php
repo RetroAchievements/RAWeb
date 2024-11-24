@@ -14,8 +14,6 @@ use App\Platform\Enums\AchievementFlag;
 use Illuminate\Database\Eloquent\Collection;
 use InvalidArgumentException;
 
-// TODO more tests
-
 // OPEN QUESTION when given a GameHash, should the root Achievements & Leaderboards be returned as `null`?
 
 class BuildClientPatchDataAction
