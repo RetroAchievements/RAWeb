@@ -376,7 +376,8 @@ class Game extends BaseModel implements HasMedia
     public function achievementSets(): BelongsToMany
     {
         return $this->belongsToMany(AchievementSet::class, 'game_achievement_sets', 'game_id', 'achievement_set_id', 'ID', 'id')
-            ->withPivot('order_column');
+            ->withPivot(['type', 'title', 'order_column'])
+            ->withTimestamps('created_at', 'updated_at');
     }
 
     /**
