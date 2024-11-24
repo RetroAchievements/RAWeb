@@ -1,3 +1,5 @@
+/* eslint-disable object-shorthand */
+
 function mediaAsset(uri) {
   return window.mediaAssetUrl + '/' + uri.replace(/^\/|\/$/g, '');
 }
