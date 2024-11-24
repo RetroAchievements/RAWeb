@@ -10,6 +10,7 @@ use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\BuildGameListAction;
+use App\Platform\Actions\GetRandomGameAction;
 use App\Platform\Data\GameListPagePropsData;
 use App\Platform\Data\SystemData;
 use App\Platform\Enums\GameListType;
@@ -148,15 +149,19 @@ class GameController extends Controller
         $this->authorize('delete', $game);
     }
 
-    public function random(): RedirectResponse
+    public function random(GameListRequest $request): RedirectResponse
     {
         $this->authorize('viewAny', Game::class);
 
-        $randomGameWithAchievements = Game::whereNotIn('ConsoleID', System::getNonGameSystems())
-            ->where('achievements_published', '>=', 6)
-            ->inRandomOrder()
-            ->firstOrFail();
+        $randomGame = (new GetRandomGameAction())->execute(
+            GameListType::AllGames,
+            filters: $request->getFilters(),
+        );
 
-        return redirect(route('game.show', ['game' => $randomGameWithAchievements]));
+        if (!$randomGame) {
+            return redirect()->back()->with('error', 'No games with achievements found.');
+        }
+
+        return redirect()->route('game.show', ['game' => $randomGame]);
     }
 }

@@ -47,8 +47,8 @@
     "Art Team": "Команда художников",
     "Ascending (A - Z)": "По возрастанию (A - Z)",
     "Automatically opt in to all game sets": "Автоматически активировать все сеты",
-    "Be as descriptive as possible. Give exact steps to reproduce the issue. Consider linking to a save state.": "Опишите проблему как можно более детально. Дайте точные шаги для воспроизведения проблемы. Попробуйте добавить ссылку на save state.",
     "Avatar": "Аватар",
+    "Be as descriptive as possible. Give exact steps to reproduce the issue. Consider linking to a save state.": "Опишите проблему как можно более детально. Дайте точные шаги для воспроизведения проблемы. Попробуйте добавить ссылку на save state.",
     "Beaten": "Пройдено",
     "Beaten (softcore)": "Пройдено (софткор)",
     "Become a Patron": "Поддержите нас на Patreon",
@@ -97,7 +97,7 @@
     "Couldn't find any completed claims.": "Не удалось найти завершенные клэймы.",
     "Couldn't find any sets in progress.": "Не удалось найти сеты в разработке.",
     "Create Ticket": "Создать тикет",
-    "Create Ticket - :achievementTitle": "Создать тикет - :achievementTitle",
+    "Create Ticket - {{achievementTitle}}": "Создать тикет - {{achievementTitle}}",
     "Current Email Address": "Текущий почтовый адрес",
     "Current Locale": "Текущая локаль",
     "Current Password": "Текущий пароль",
@@ -462,5 +462,8 @@
     "{{visible, number}} of {{total, number}} games_one": "{{visible, number}} из {{total, number}} игры",
     "{{visible, number}} of {{total, number}} games_few": "{{visible, number}} из {{total, number}} игр",
     "{{visible, number}} of {{total, number}} games_many": "{{visible, number}} из {{total, number}} игр",
-    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} из {{total, number}} игр"
+    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} из {{total, number}} игр",
+    "Hash Comments - {{gameTitle}}": "Hash Comments - {{gameTitle}}",
+    "Hash Comments": "Hash Comments",
+    "Surprise me": "Surprise me"
 }
