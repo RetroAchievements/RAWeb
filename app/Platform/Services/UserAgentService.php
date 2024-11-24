@@ -27,117 +27,146 @@ class UserAgentService
 
         // expected format: <product>/<product-version> (<system-information>) <extensions>
 
-        $userAgentLength = strlen($userAgent);
+        $data = [];
 
-        $indexParens = strpos($userAgent, '(');
-        if ($indexParens !== false) {
-            // OS information provided, assume everything before the OS is the client version
-            $data = $this->extractClient(substr($userAgent, 0, $indexParens));
+        $client = $userAgent;
+        $version = null;
 
-            $indexCloseParens = strpos($userAgent, ')', $indexParens);
-            if ($indexCloseParens === false) {
-                return $data;
+        // split on spaces, then on slashes. if something that looks like a version is found,
+        // take the first part of the clause (up to the first space if present) as the client.
+
+        $parts = explode(' ', $userAgent);
+        if (count($parts) === 1) {
+            $index = strpos($userAgent, '/');
+            if ($index !== false) {
+                // found "Client/Version", just split it
+                $client = substr($userAgent, 0, $index);
+                $version = $this->trimVersion(substr($userAgent, $index + 1));
             }
-
-            $os = substr($userAgent, $indexParens + 1, $indexCloseParens - $indexParens - 1);
-            $data['os'] = $this->trimOperatingSystem($os);
-
-            $indexNext = $indexCloseParens + 1;
         } else {
-            $indexSpace = strpos($userAgent, ' ');
-            if ($indexSpace === false) {
-                // only one part - assume it's Client/Version
-                return $this->extractClient($userAgent);
-            }
+            $client = $lastClient = $version = null;
+            for ($i = 0; $i < count($parts); $i++) {
+                $part = $parts[$i];
 
-            $data = $this->extractClient(substr($userAgent, 0, $indexSpace));
-            $indexNext = $indexSpace;
+                // part is only punctuation, ignore it if not in the middle of client name
+                if (empty($client) && ctype_punct($part)) {
+                    continue;
+                }
+
+                if ($part[0] === '(') {
+                    // system information - match until closing parenthesis
+                    if ($part[-1] === ')') {
+                        $os = substr($part, 1, -1);
+                    } else {
+                        $os = substr($part, 1);
+
+                        $i++;
+                        while ($i < count($parts)) {
+                            $os .= ' ';
+
+                            $part = $parts[$i];
+                            if ($part[-1] === ')') {
+                                $os .= substr($part, 0, -1);
+                                break;
+                            }
+
+                            $os .= $part;
+                            $i++;
+                        }
+                    }
+
+                    if (!array_key_exists('os', $data)) {
+                        $data['os'] = $this->trimOperatingSystem($os);
+                    }
+
+                    continue;
+                }
+
+                $index = strpos($part, '/');
+                if ($index !== false) {
+                    // found "Client/Version", just split it
+                    $front = substr($part, 0, $index);
+                    $back = substr($part, $index + 1);
+
+                    $client ??= $front;
+                    $version = $this->trimVersion($back);
+                } else {
+                    // if we didn't find something that looks like a version,
+                    // assume its part of the client name and continue.
+                    $version = $this->trimVersion($part);
+                    if (!$this->looksLikeVersion($version)) {
+                        // only keep the first word of the client name
+                        $client ??= $part;
+                        continue;
+                    }
+
+                    // if we didn't find a new client moniker, update the version of the last client
+                    if (empty($client)) {
+                        $primaryClient = $data['client'] ?? '';
+                        if ($lastClient === $primaryClient) {
+                            if (!$this->looksLikeVersion($data['clientVersion'] ?? '')) {
+                                $data['clientVersion'] = $version;
+                            }
+                        } elseif (array_key_exists('extra', $data)) {
+                            $lastClientVersion = $data['extra'][$lastClient] ?? '';
+                            if (!$this->looksLikeVersion($lastClientVersion)) {
+                                $data['extra'][$lastClient] = $version;
+                            }
+                        }
+
+                        continue;
+                    }
+                }
+
+                // found client and version, store it
+                if (!array_key_exists('client', $data)) {
+                    // assume first clause is primary client
+                    $data['client'] = $client;
+                    $data['clientVersion'] = $version;
+                } else {
+                    // primary client already captured, delegate to extra subarray
+                    if ($client === 'Integration') {
+                        // promote RAIntegration version information
+                        $data['integrationVersion'] = $version;
+                    } else {
+                        if (!array_key_exists('extra', $data)) {
+                            $data['extra'] = [];
+                        }
+
+                        $data['extra'][$client] = $version;
+
+                        // promote libretro core information
+                        $index = strpos($client, '_libretro');
+                        if ($index !== false) {
+                            $data['clientVariation'] = substr($client, 0, $index);
+                        }
+                    }
+                }
+
+                $lastClient = $client;
+                $client = $version = null;
+            }
         }
 
-        while ($indexNext < $userAgentLength) {
-            if ($userAgent[$indexNext] == ' ') {
-                $indexNext++;
-                continue;
+        // if no primary client or primary client version was found,
+        // populate whatever we can and fill the rest with Unknowns.
+        if (!array_key_exists('client', $data)) {
+            // special case: 'libretro' => 'RetroArch'
+            if ($client === 'libretro') {
+                $client = 'RetroArch';
+            } else {
+                // if there's a space in the client name, only use the first word
+                $index = strpos($client, ' ');
+                if ($index !== false) {
+                    $client = substr($client, 0, $index);
+                }
             }
 
-            $indexSpace = strpos($userAgent, ' ', $indexNext);
-            if ($indexSpace === false) {
-                $indexSpace = $userAgentLength;
-            }
-
-            $this->addSecondaryInformation($data, substr($userAgent, $indexNext, $indexSpace - $indexNext));
-            $indexNext = $indexSpace + 1;
+            $data['client'] = empty($client) ? 'Unknown' : $client;
+            $data['clientVersion'] = empty($version) ? 'Unknown' : $version;
         }
 
         return $data;
-    }
-
-    private function extractClient(string $clause): array
-    {
-        $clause = trim($clause);
-
-        $index = strpos($clause, '/');
-        if ($index !== false) {
-            // found "Client/Version", just split it
-            return [
-                'client' => substr($clause, 0, $index),
-                'clientVersion' => $this->trimVersion(substr($clause, $index + 1)),
-            ];
-        }
-
-        // assuming first word is client and last word is version
-        $parts = explode(' ', $clause);
-        if (count($parts) > 1) {
-            return [
-                'client' => $parts[0],
-                'clientVersion' => $this->trimVersion($parts[count($parts) - 1]),
-            ];
-        }
-
-        // special case: 'libretro' => 'RetroArch'
-        if ($clause === 'libretro') {
-            return [
-                'client' => 'RetroArch',
-                'clientVersion' => 'Unknown',
-            ];
-        }
-
-        // did not find a version number at the end of the string, just return
-        // the whole clause as the client
-        return [
-            'client' => $clause ? $clause : 'Unknown',
-            'clientVersion' => 'Unknown',
-        ];
-    }
-
-    private function addSecondaryInformation(array &$data, string $clause): void
-    {
-        $index = strpos($clause, '/');
-        if ($index !== false) {
-            // found "Client/Version", just split it
-            $thing = trim(substr($clause, 0, $index));
-            $version = trim(substr($clause, $index + 1));
-
-            if ($thing === 'Integration') {
-                $data['integrationVersion'] = $version;
-            } else {
-                if (!array_key_exists('extra', $data)) {
-                    $data['extra'] = [];
-                }
-
-                $data['extra'][$thing] = $this->trimVersion($version);
-
-                $index = strpos($thing, '_libretro');
-                if ($index !== false) {
-                    $data['clientVariation'] = substr($thing, 0, $index);
-                }
-            }
-        }
-
-        $potentialVersion = $this->trimVersion($clause);
-        if ($this->looksLikeVersion($potentialVersion) && !$this->looksLikeVersion($data['clientVersion'])) {
-            $data['clientVersion'] = $potentialVersion;
-        }
     }
 
     private function trimVersion(string $version): string
@@ -280,6 +309,11 @@ class UserAgentService
 
         if ($emulatorUserAgent->minimum_allowed_version
             && UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_allowed_version) < 0) {
+
+            // special case: Dolphin/e5d32f273f must still be allowed as it's the most stable development build
+            if (str_starts_with($userAgent, 'Dolphin/e5d32f273f ')) {
+                return ClientSupportLevel::Outdated;
+            }
 
             return ClientSupportLevel::Blocked;
         }

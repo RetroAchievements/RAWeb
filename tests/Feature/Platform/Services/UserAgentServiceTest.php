@@ -98,6 +98,31 @@ class UserAgentServiceTest extends TestCase
         ], $this->parseUserAgent($userAgent));
     }
 
+    public function testRetroArchUserAgentWithUnversionedCore(): void
+    {
+        $userAgent = 'RetroArch/1.10.3 fceumm_libretro/(SVN)';
+
+        $this->assertEquals([
+            'client' => 'RetroArch',
+            'clientVersion' => '1.10.3',
+            'clientVariation' => 'fceumm',
+            'extra' => [
+                'fceumm_libretro' => '(SVN)',
+            ],
+        ], $this->parseUserAgent($userAgent));
+
+        $userAgent = 'RetroArch/1.10.0 fceumm_libretro_ps3/(SVN)_744f5d9';
+
+        $this->assertEquals([
+            'client' => 'RetroArch',
+            'clientVersion' => '1.10.0',
+            'clientVariation' => 'fceumm',
+            'extra' => [
+                'fceumm_libretro_ps3' => '(SVN)_744f5d9',
+            ],
+        ], $this->parseUserAgent($userAgent));
+    }
+
     public function testRetroArchPreUserAgent(): void
     {
         $userAgent = 'libretro';
@@ -416,5 +441,21 @@ class UserAgentServiceTest extends TestCase
         $this->assertEquals(-1, UserAgentService::versionCompare('1.9a-dev-93a630769', '1.9b-dev-12b3dc45'));
         $this->assertEquals(-1, UserAgentService::versionCompare('1.9a-dev-93a630769', '1.9B-dev-12b3dc45'));
         $this->assertEquals(-1, UserAgentService::versionCompare('1.9-dev-ab3d3dca2', '1.9a-dev-12b3dc45'));
+    }
+
+    public function testRetrobootUserAgent(): void
+    {
+        $userAgent = 'RetroArch/1.9.0 | Retroboot 1.2.1 (Linux 4.4) picodrive_libretro/1.92_600894e';
+
+        $this->assertEquals([
+            'client' => 'RetroArch',
+            'clientVersion' => '1.9.0',
+            'os' => 'Linux 4.4',
+            'extra' => [
+                'Retroboot' => '1.2.1',
+                'picodrive_libretro' => '1.92_600894e',
+            ],
+            'clientVariation' => 'picodrive',
+        ], $this->parseUserAgent($userAgent));
     }
 }
