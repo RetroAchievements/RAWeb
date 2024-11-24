@@ -18,7 +18,7 @@ class StoreTriggerTicketData extends Data
         public int $issue,
         public string $description,
         public string $emulator,
-        public string $emulatorVersion,
+        public ?string $emulatorVersion,
         public ?string $core,
         public GameHash $gameHash,
         public ?string $extra,

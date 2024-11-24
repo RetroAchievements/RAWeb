@@ -10,9 +10,10 @@ import { ClaimSetType } from '@/common/utils/generatedAppConstants';
 
 interface ClaimMobileBlockProps {
   claim: App.Data.AchievementSetClaim;
+  variant: 'completed' | 'new';
 }
 
-export const ClaimMobileBlock: FC<ClaimMobileBlockProps> = ({ claim }) => {
+export const ClaimMobileBlock: FC<ClaimMobileBlockProps> = ({ claim, variant }) => {
   const { t } = useTranslation();
 
   const { game, users } = claim;
@@ -42,7 +43,7 @@ export const ClaimMobileBlock: FC<ClaimMobileBlockProps> = ({ claim }) => {
               {claim.setType === ClaimSetType.NewSet && t('New')}
               {claim.setType === ClaimSetType.Revision && t('Revision')}
               {', '}
-              <DiffTimestamp at={claim.finished} />
+              <DiffTimestamp at={variant === 'completed' ? claim.finished : claim.created} />
             </span>
           </div>
         </div>

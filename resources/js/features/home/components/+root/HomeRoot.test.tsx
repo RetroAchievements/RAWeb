@@ -1,6 +1,6 @@
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
-import { createHomePageProps } from '@/test/factories';
+import { createHomePageProps, createZiggyProps } from '@/test/factories';
 
 import { HomeRoot } from './HomeRoot';
 
@@ -10,7 +10,9 @@ console.warn = vi.fn();
 describe('Component: HomeRoot', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Http.Data.HomePageProps>(<HomeRoot />);
+    const { container } = render<App.Http.Data.HomePageProps>(<HomeRoot />, {
+      pageProps: { ziggy: createZiggyProps() },
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -18,7 +20,9 @@ describe('Component: HomeRoot', () => {
 
   it('displays several section components', () => {
     // ARRANGE
-    render<App.Http.Data.HomePageProps>(<HomeRoot />, { pageProps: createHomePageProps() });
+    render<App.Http.Data.HomePageProps>(<HomeRoot />, {
+      pageProps: { ...createHomePageProps(), ziggy: createZiggyProps() },
+    });
 
     // ASSERT
     expect(screen.getByRole('heading', { name: /news/i })).toBeVisible();
@@ -31,7 +35,9 @@ describe('Component: HomeRoot', () => {
 
   it('given the user is not logged in, shows a welcome section', () => {
     // ARRANGE
-    render<App.Http.Data.HomePageProps>(<HomeRoot />, { pageProps: { auth: null } });
+    render<App.Http.Data.HomePageProps>(<HomeRoot />, {
+      pageProps: { auth: null, ziggy: createZiggyProps() },
+    });
 
     // ASSERT
     expect(screen.getByRole('heading', { name: /welcome/i })).toBeVisible();
@@ -40,7 +46,7 @@ describe('Component: HomeRoot', () => {
   it('given the user is logged in, does not show a welcome section', () => {
     // ARRANGE
     render<App.Http.Data.HomePageProps>(<HomeRoot />, {
-      pageProps: { auth: { user: createAuthenticatedUser() } },
+      pageProps: { auth: { user: createAuthenticatedUser() }, ziggy: createZiggyProps() },
     });
 
     // ASSERT

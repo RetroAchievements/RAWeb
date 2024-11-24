@@ -20,12 +20,14 @@ import { DataTableSuperFilter } from './DataTableSuperFilter';
 interface DataTableMobileToolbarProps<TData> {
   table: Table<TData>;
 
+  randomGameApiRouteName?: RouteName;
   tableApiRouteName?: RouteName;
 }
 
 // Lazy-loaded, so using a default export.
 export default function DataTableMobileToolbar<TData>({
   table,
+  randomGameApiRouteName = 'api.game.random',
   tableApiRouteName = 'api.game.index',
 }: DataTableMobileToolbarProps<TData>) {
   const { t } = useTranslation();
@@ -55,7 +57,7 @@ export default function DataTableMobileToolbar<TData>({
           )}
         </BaseChip>
 
-        <DataTableSuperFilter table={table} />
+        <DataTableSuperFilter table={table} randomGameApiRouteName={randomGameApiRouteName} />
       </div>
 
       <DataTableSearchInput table={table} hasClearButton={true} hasHotkey={false} />

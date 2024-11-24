@@ -97,7 +97,7 @@
     "Couldn't find any completed claims.": "Impossible de trouver des demandes complétées.",
     "Couldn't find any sets in progress.": "Impossible de trouver des sets en cours de développement.",
     "Create Ticket": "Créer un Ticket",
-    "Create Ticket - :achievementTitle": "Créer un ticket - :achievementTitle",
+    "Create Ticket - {{achievementTitle}}": "Créer un ticket - {{achievementTitle}}",
     "Current Email Address": "Adresse e-mail actuelle",
     "Current Locale": "Langue Actuelle",
     "Current Password": "Mot de Passe Actuel",
@@ -456,5 +456,8 @@
     "{{val, number}} games_other": "{{val, number}} jeux",
     "{{visible, number}} of {{total, number}} games_one": "{{visible, number}} sur {{total, number}} jeu",
     "{{visible, number}} of {{total, number}} games_many": "{{visible, number}} of {{total, number}} jeux",
-    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} sur {{total, number}} jeux"
+    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} sur {{total, number}} jeux",
+    "Hash Comments - {{gameTitle}}": "Hash Comments - {{gameTitle}}",
+    "Hash Comments": "Hash Comments",
+    "Surprise me": "Surprise me"
 }
