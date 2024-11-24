@@ -182,6 +182,7 @@ declare namespace App.Data {
   };
 }
 declare namespace App.Enums {
+  export type ClientSupportLevel = 0 | 1 | 2 | 3;
   export type UserPreference =
     | 0
     | 1
@@ -240,7 +241,7 @@ declare namespace App.Models {
     | 'engineer'
     | 'team-account'
     | 'beta'
-    | 'developer-veteran';
+    | 'developer-retired';
 }
 declare namespace App.Platform.Data {
   export type Achievement = {
@@ -370,6 +371,7 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
+  export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
   export type UnlockMode = 0 | 1;
   export type AchievementFlag = 3 | 5;
   export type AchievementSetType =

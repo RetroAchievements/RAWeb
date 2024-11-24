@@ -53,33 +53,35 @@ class Roles extends ManageRelatedRecords
 
                         $attachedRole = Role::findById((int) $data['recordId']);
 
+                        $newPermissions = Permissions::Registered;
                         if ($attachedRole->name === Role::DEVELOPER_JUNIOR) {
                             $targetUser->removeRole(Role::DEVELOPER);
                             $targetUser->removeRole(Role::DEVELOPER_STAFF);
-                            $targetUser->removeRole(Role::DEVELOPER_VETERAN);
+                            $targetUser->removeRole(Role::DEVELOPER_RETIRED);
 
-                            $targetUser->setAttribute('Permissions', Permissions::JuniorDeveloper);
-                            $targetUser->save();
+                            $newPermissions = Permissions::JuniorDeveloper;
                         } elseif ($attachedRole->name === Role::DEVELOPER) {
                             $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
                             $targetUser->removeRole(Role::DEVELOPER_STAFF);
-                            $targetUser->removeRole(Role::DEVELOPER_VETERAN);
+                            $targetUser->removeRole(Role::DEVELOPER_RETIRED);
 
-                            $targetUser->setAttribute('Permissions', Permissions::Developer);
-                            $targetUser->save();
+                            $newPermissions = Permissions::Developer;
                         } elseif ($attachedRole->name === Role::DEVELOPER_STAFF) {
                             $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
                             $targetUser->removeRole(Role::DEVELOPER);
-                            $targetUser->removeRole(Role::DEVELOPER_VETERAN);
+                            $targetUser->removeRole(Role::DEVELOPER_RETIRED);
 
-                            $targetUser->setAttribute('Permissions', Permissions::Developer);
-                            $targetUser->save();
-                        } elseif ($attachedRole->name === Role::DEVELOPER_VETERAN) {
+                            $newPermissions = Permissions::Developer;
+                        } elseif ($attachedRole->name === Role::DEVELOPER_RETIRED) {
                             $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
                             $targetUser->removeRole(Role::DEVELOPER);
                             $targetUser->removeRole(Role::DEVELOPER_STAFF);
+                        }
 
-                            $targetUser->setAttribute('Permissions', Permissions::Registered);
+                        $currentPermissions = (int) $targetUser->getAttribute('Permissions');
+                        // Don't strip moderation power away if the user already has it.
+                        if ($currentPermissions < Permissions::Moderator) {
+                            $targetUser->setAttribute('Permissions', $newPermissions);
                             $targetUser->save();
                         }
                     }),

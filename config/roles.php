@@ -18,7 +18,7 @@ $adminAssignable = [
     Role::CHEAT_INVESTIGATOR,
     Role::DEVELOPER_JUNIOR,
     Role::DEVELOPER_STAFF,
-    Role::DEVELOPER_VETERAN,
+    Role::DEVELOPER_RETIRED,
     Role::DEVELOPER,
     Role::EVENT_MANAGER,
     Role::FORUM_MANAGER,
@@ -183,7 +183,7 @@ return [
     // vanity roles assigned by admin
 
     [
-        'name' => Role::DEVELOPER_VETERAN,
+        'name' => Role::DEVELOPER_RETIRED,
         'display' => 5,
         'legacy_role' => Permissions::Registered,
     ],
