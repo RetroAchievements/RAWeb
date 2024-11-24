@@ -1026,6 +1026,43 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
   });
 
   it(
+    'given the user writes a description that is too small, pops validation on submit',
+    { timeout: 15_000 },
+    async () => {
+      // ARRANGE
+      const achievement = createAchievement();
+      const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
+      const emulators = [
+        createEmulator({ name: 'Bizhawk' }),
+        createEmulator({ name: 'RALibRetro' }),
+        createEmulator({ name: 'RetroArch' }),
+      ];
+
+      render<App.Platform.Data.CreateAchievementTicketPageProps>(
+        <CreateAchievementTicketMainRoot />,
+        {
+          pageProps: {
+            achievement,
+            emulators,
+            gameHashes,
+            auth: { user: createAuthenticatedUser({ points: 500 }) },
+            ziggy: createZiggyProps({ query: {} }),
+          },
+        },
+      );
+
+      // ACT
+      await userEvent.type(screen.getByRole('textbox', { name: /description/i }), 'foo');
+      await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+      // ASSERT
+      await waitFor(() => {
+        expect(screen.getByText(/please be more specific/i)).toBeVisible();
+      });
+    },
+  );
+
+  it(
     'given the user writes a perfectly valid description with the phrase "not trigger", does not pop validation on submit',
     { timeout: 20_000 },
     async () => {

@@ -15,6 +15,8 @@ import {
 
 import { AllGamesMainRoot } from './AllGamesMainRoot';
 
+vi.mock('../DataTableToolbar/RandomGameButton');
+
 // Suppress AggregateError invocations from unmocked fetch calls to the back-end.
 console.error = vi.fn();
 

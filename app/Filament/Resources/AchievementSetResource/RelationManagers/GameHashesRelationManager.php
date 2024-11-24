@@ -6,6 +6,7 @@ namespace App\Filament\Resources\AchievementSetResource\RelationManagers;
 
 use App\Models\AchievementSet;
 use App\Models\GameHash;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
@@ -15,6 +16,7 @@ use Filament\Support\Enums\FontFamily;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 
 class GameHashesRelationManager extends RelationManager
@@ -42,6 +44,9 @@ class GameHashesRelationManager extends RelationManager
     {
         /** @var AchievementSet $achievementSet */
         $achievementSet = $this->getOwnerRecord();
+
+        /** @var User $user */
+        $user = Auth::user();
 
         $existingIncompatibleIds = $achievementSet->incompatibleGameHashes()
             ->select('game_hashes.id')
@@ -76,7 +81,8 @@ class GameHashesRelationManager extends RelationManager
                 Tables\Actions\DetachAction::make()
                     ->label('Remove incompatibility')
                     ->modalHeading('Remove incompatibility')
-                    ->modalDescription('Are you sure you want to do this? This hash will once again be compatible with the set.'),
+                    ->modalDescription('Are you sure you want to do this? This hash will once again be compatible with the set.')
+                    ->visible(fn () => $user->can('markGameHashAsIncompatible', [AchievementSet::class])),
             ])
             ->headerActions([
                 Tables\Actions\Action::make('attachHashCompatibility')
@@ -112,7 +118,8 @@ class GameHashesRelationManager extends RelationManager
                             ->title('Success')
                             ->body('Successfully marked hash as incompatible.')
                             ->send();
-                    }),
+                    })
+                    ->visible(fn () => $user->can('markGameHashAsIncompatible', [AchievementSet::class])),
             ]);
     }
 

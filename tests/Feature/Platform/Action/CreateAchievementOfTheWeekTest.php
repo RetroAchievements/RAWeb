@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Action;
 
 use App\Models\Achievement;
-use App\Models\Comment;
+use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
@@ -37,7 +37,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals('TBD', $achievement->Description);
         $this->assertEquals('0=1', $achievement->MemAddr);
         $this->assertEquals(AchievementFlag::OfficialCore->value, $achievement->Flags);
-        $this->assertEquals(Comment::SYSTEM_USER_ID, $achievement->user_id);
+        $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
         $this->assertEquals('00000', $achievement->BadgeName);
         $this->assertEquals(1, $achievement->DisplayOrder);
         $this->assertEquals(null, $achievement->eventData->sourceAchievement);
@@ -49,7 +49,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals('TBD', $achievement->Description);
         $this->assertEquals('0=1', $achievement->MemAddr);
         $this->assertEquals(AchievementFlag::OfficialCore->value, $achievement->Flags);
-        $this->assertEquals(Comment::SYSTEM_USER_ID, $achievement->user_id);
+        $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
         $this->assertEquals('00000', $achievement->BadgeName);
         $this->assertEquals(52, $achievement->DisplayOrder);
         $this->assertEquals(null, $achievement->eventData->sourceAchievement);
@@ -106,7 +106,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals($sourceAchievement1->Description, $achievement->Description);
         $this->assertEquals('0=1', $achievement->MemAddr);
         $this->assertEquals(AchievementFlag::OfficialCore->value, $achievement->Flags);
-        $this->assertEquals(Comment::SYSTEM_USER_ID, $achievement->user_id);
+        $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
         $this->assertEquals($sourceAchievement1->BadgeName, $achievement->BadgeName);
         $this->assertEquals(1, $achievement->DisplayOrder);
         $this->assertEquals($sourceAchievement1->id, $achievement->eventData->sourceAchievement->id);
@@ -120,7 +120,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals($sourceAchievement2->Description, $achievement->Description);
         $this->assertEquals('0=1', $achievement->MemAddr);
         $this->assertEquals(AchievementFlag::OfficialCore->value, $achievement->Flags);
-        $this->assertEquals(Comment::SYSTEM_USER_ID, $achievement->user_id);
+        $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
         $this->assertEquals($sourceAchievement2->BadgeName, $achievement->BadgeName);
         $this->assertEquals(2, $achievement->DisplayOrder);
         $this->assertEquals($sourceAchievement2->id, $achievement->eventData->sourceAchievement->id);
@@ -134,7 +134,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals('TBD', $achievement->Description);
         $this->assertEquals('0=1', $achievement->MemAddr);
         $this->assertEquals(AchievementFlag::OfficialCore->value, $achievement->Flags);
-        $this->assertEquals(Comment::SYSTEM_USER_ID, $achievement->user_id);
+        $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
         $this->assertEquals('00000', $achievement->BadgeName);
         $this->assertEquals(52, $achievement->DisplayOrder);
         $this->assertEquals(null, $achievement->eventData->sourceAchievement);
