@@ -7,11 +7,13 @@ namespace Tests\Feature\Connect\Actions;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
 use App\Models\System;
 use App\Models\User;
+use App\Models\UserGameAchievementSetPreference;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementFlag;
@@ -311,5 +313,115 @@ class BuildClientPatchDataActionTest extends TestCase
         // Assert
         $this->assertTrue($result['Success']);
         $this->assertArrayNotHasKey('Sets', $result['PatchData']);
+    }
+
+    /**
+     * If the user is globally opted out of subsets and they load a bonus subset
+     * game's hash, then it's like the user is still living in the pre-multiset
+     * world. The only set that resolves is the set for the subset game.
+     */
+    public function testGloballyOptedOutOfSubsetsAndLoadedSubsetHash(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 1);
+        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', publishedCount: 2);
+        $bonusGame2 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus 2]', publishedCount: 3);
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame2);
+
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame2, AchievementSetType::Bonus, 'Bonus 2');
+
+        $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
+
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED]);
+
+        // Act
+        $result = (new BuildClientPatchDataAction())->execute(
+            gameHash: $bonusGameHash,
+            user: $user
+        );
+
+        // Assert
+        $this->assertTrue($result['Success']);
+
+        $this->assertEquals(2, $result['PatchData']['ID']);
+        $this->assertEquals('Dragon Quest III [Subset - Bonus]', $result['PatchData']['Title']);
+        $this->assertCount(2, $result['PatchData']['Achievements']);
+
+        $this->assertCount(1, $result['PatchData']['Sets']);
+        $this->assertEquals('bonus', $result['PatchData']['Sets'][0]['Type']);
+        $this->assertEquals(2, $result['PatchData']['Sets'][0]['CoreGameID']);
+        $this->assertCount(2, $result['PatchData']['Sets'][0]['Achievements']);
+    }
+
+    /**
+     * If the user has multiset enabled, they load a bonus subset game's hash, but are locally
+     * opted out of that subset, then we treat it like they loaded a core game hash. They'll
+     * receive the core set and any other bonus sets, but not the set they've opted out of.
+     */
+    public function testLocallyOptedOutOfSubsetsAndLoadedOptedOutSubsetHash(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 1);
+        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', publishedCount: 2);
+        $bonusGame2 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus 2]', publishedCount: 3);
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame2);
+
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus'); // !!
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame2, AchievementSetType::Bonus, 'Bonus 2');
+
+        $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
+
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // They're going to load a hash for $bonusGame, but they're also locally opted out of
+        // $bonusGame's achievement set.
+        $optOutSet = GameAchievementSet::firstWhere('title', 'Bonus'); // !!
+        UserGameAchievementSetPreference::factory()->create([
+            'user_id' => $user->id,
+            'game_achievement_set_id' => GameAchievementSet::whereGameId($baseGame->id)
+                ->whereType(AchievementSetType::Bonus)
+                ->whereAchievementSetId($optOutSet->achievement_set_id)
+                ->first()
+                ->id,
+            'opted_in' => false,
+        ]);
+
+        // Act
+        $result = (new BuildClientPatchDataAction())->execute(
+            gameHash: $bonusGameHash,
+            user: $user
+        );
+
+        // 🔴 JAMIRAS LOOK HERE
+        // "Sets" only contains $baseGame and $bonusGame2.
+        // However, PatchData still contains all the pre-multiset stuff, eg
+        //   - "Title" is "Dragon Quest III [Subset - Bonus]"
+        //   - "Achievements" has 2 published achievements
+        // Is this ok left as-is, or should this data be changed?
+
+        // Assert
+        $this->assertTrue($result['Success']);
+
+        $this->assertEquals(2, $result['PatchData']['ID']);
+        $this->assertEquals('Dragon Quest III [Subset - Bonus]', $result['PatchData']['Title']);
+        $this->assertCount(2, $result['PatchData']['Achievements']);
+
+        $this->assertCount(2, $result['PatchData']['Sets']);
+
+        $this->assertEquals('core', $result['PatchData']['Sets'][0]['Type']);
+        $this->assertEquals(1, $result['PatchData']['Sets'][0]['CoreGameID']);
+        $this->assertCount(1, $result['PatchData']['Sets'][0]['Achievements']);
+
+        $this->assertEquals('bonus', $result['PatchData']['Sets'][1]['Type']);
+        $this->assertEquals(3, $result['PatchData']['Sets'][1]['CoreGameID']);
+        $this->assertEquals('Bonus 2', $result['PatchData']['Sets'][1]['Title']);
+        $this->assertCount(3, $result['PatchData']['Sets'][1]['Achievements']);
     }
 }

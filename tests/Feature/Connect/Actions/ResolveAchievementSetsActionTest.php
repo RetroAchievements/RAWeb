@@ -49,7 +49,7 @@ class ResolveAchievementSetsActionTest extends TestCase
         System $system,
         string $title,
         int $publishedCount,
-        int $unpublishedCount
+        int $unpublishedCount = 0
     ): Game {
         $game = Game::factory()->create(['Title' => $title, 'ConsoleID' => $system->id]);
         Achievement::factory()->published()->count($publishedCount)->create(['GameID' => $game->id]);
@@ -217,9 +217,9 @@ class ResolveAchievementSetsActionTest extends TestCase
     public function testItAllowsSpecialtySetPlayersToOptOutOfTheCoreSet(): void
     {
         // Arrange
-        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', 5, 0);
-        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', 3, 0);
-        $specialtyGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Specialty]', 1, 0);
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', 5);
+        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', 3);
+        $specialtyGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Specialty]', 1);
 
         $this->upsertGameCoreSetAction->execute($baseGame);
         $this->upsertGameCoreSetAction->execute($bonusGame);
@@ -255,9 +255,9 @@ class ResolveAchievementSetsActionTest extends TestCase
     public function testItAllowsSpecialtySetPlayersToOptOutOfBonusSets(): void
     {
         // Arrange
-        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', 5, 0);
-        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', 3, 0);
-        $specialtyGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Specialty]', 1, 0);
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 5);
+        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', publishedCount: 3);
+        $specialtyGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Specialty]', publishedCount: 1);
 
         $this->upsertGameCoreSetAction->execute($baseGame);
         $this->upsertGameCoreSetAction->execute($bonusGame);
@@ -383,9 +383,9 @@ class ResolveAchievementSetsActionTest extends TestCase
     public function testItReturnsExclusiveSetAndNothingElseForExclusiveHash(): void
     {
         // Arrange
-        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', 5, 0);
-        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', 3, 0);
-        $exclusiveGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Exclusive]', 6, 0);
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 5);
+        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', publishedCount: 3);
+        $exclusiveGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Exclusive]', publishedCount: 6);
 
         $this->upsertGameCoreSetAction->execute($baseGame);
         $this->upsertGameCoreSetAction->execute($bonusGame);
@@ -411,8 +411,8 @@ class ResolveAchievementSetsActionTest extends TestCase
     public function testItExcludesAchievementSetIfHashIsIncompatible(): void
     {
         // Arrange
-        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', 5, 0);
-        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', 3, 0);
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 5);
+        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', publishedCount: 3);
 
         $this->upsertGameCoreSetAction->execute($baseGame);
         $this->upsertGameCoreSetAction->execute($bonusGame);
@@ -512,9 +512,9 @@ class ResolveAchievementSetsActionTest extends TestCase
     public function testGloballyOptedOutOfSubsetsAndLoadedSubsetHash(): void
     {
         // Arrange
-        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', 1, 0);
-        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', 2, 0);
-        $bonusGame2 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus 2]', 3, 0);
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 1);
+        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', publishedCount: 2);
+        $bonusGame2 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus 2]', publishedCount: 3);
 
         $this->upsertGameCoreSetAction->execute($baseGame);
         $this->upsertGameCoreSetAction->execute($bonusGame);
@@ -545,9 +545,9 @@ class ResolveAchievementSetsActionTest extends TestCase
     public function testLocallyOptedOutOfSubsetsAndLoadedOptedOutSubsetHash(): void
     {
         // Arrange
-        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', 1, 0);
-        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', 2, 0);
-        $bonusGame2 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus 2]', 3, 0);
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 1);
+        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', publishedCount: 2);
+        $bonusGame2 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus 2]', publishedCount: 3);
 
         $this->upsertGameCoreSetAction->execute($baseGame);
         $this->upsertGameCoreSetAction->execute($bonusGame);
