@@ -131,10 +131,10 @@ class BuildActivePlayersAction
         $checkPlayer = function (array $player) use ($searchTerms): bool {
             // Combine all searchable fields into one string and lowercase it.
             $searchableText = Str::lower(
-                $player['username'] . ' ' .
-                $player['display_name'] . ' ' .
-                $player['rich_presence'] . ' ' .
-                $player['game_title'] . ' '
+                $player['username'] . '|' .
+                $player['display_name'] . '|' .
+                $player['rich_presence'] . '|' .
+                $player['game_title'] . '|'
             );
 
             foreach ($searchTerms as $term) {
