@@ -51,8 +51,8 @@ class AuthorshipCreditsRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->label('Add achievement credit')
-                    ->modalHeading('Add achievement credit')
+                    ->label('Add contribution credit')
+                    ->modalHeading('Add contribution credit')
                     ->using(function (array $data, string $model): Model {
                         /** @var Achievement $achievement */
                         $achievement = $this->ownerRecord;
@@ -121,10 +121,10 @@ class AuthorshipCreditsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->modalHeading('Edit achievement credit'),
+                    ->modalHeading('Edit contribution credit'),
 
                 Tables\Actions\DeleteAction::make()
-                    ->modalHeading('Delete achievement credit')
+                    ->modalHeading('Delete contribution credit')
                     ->hidden(fn (AchievementAuthor $record) => $earliestLogicCredit && $earliestLogicCredit->id === $record->id),
             ])
             ->bulkActions([
