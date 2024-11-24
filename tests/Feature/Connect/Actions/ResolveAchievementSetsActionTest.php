@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Platform\Action;
+namespace Tests\Feature\Connect\Actions;
 
+use App\Connect\Actions\ResolveAchievementSetsAction;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -12,7 +13,6 @@ use App\Models\System;
 use App\Models\User;
 use App\Models\UserGameAchievementSetPreference;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
-use App\Platform\Actions\ResolveAchievementSetsAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;

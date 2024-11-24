@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Platform\Action;
+namespace Tests\Feature\Connect\Actions;
 
+use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameHash;
@@ -12,7 +13,6 @@ use App\Models\PlayerGame;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
-use App\Platform\Actions\BuildConnectPatchDataAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
@@ -20,7 +20,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
 use Tests\TestCase;
 
-class BuildConnectPatchDataActionTest extends TestCase
+class BuildClientPatchDataActionTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -104,7 +104,7 @@ class BuildConnectPatchDataActionTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Either gameHash or game must be provided to build patch data.');
 
-        (new BuildConnectPatchDataAction())->execute();
+        (new BuildClientPatchDataAction())->execute();
     }
 
     public function testItReturnsBaseGameDataWithNoAchievements(): void
@@ -117,7 +117,7 @@ class BuildConnectPatchDataActionTest extends TestCase
         ]);
 
         // Act
-        $result = (new BuildConnectPatchDataAction())->execute(game: $game);
+        $result = (new BuildClientPatchDataAction())->execute(game: $game);
 
         // Assert
         $this->assertTrue($result['Success']);
@@ -143,7 +143,7 @@ class BuildConnectPatchDataActionTest extends TestCase
         $user = User::factory()->create();
 
         // Act
-        $result = (new BuildConnectPatchDataAction())->execute(game: $game, user: $user);
+        $result = (new BuildClientPatchDataAction())->execute(game: $game, user: $user);
 
         // Assert
         $this->assertTrue($result['Success']);
@@ -180,7 +180,7 @@ class BuildConnectPatchDataActionTest extends TestCase
         ]);
 
         // Act
-        $result = (new BuildConnectPatchDataAction())->execute(game: $game, user: $user);
+        $result = (new BuildClientPatchDataAction())->execute(game: $game, user: $user);
 
         // Assert
         $this->assertTrue($result['Success']);
@@ -213,7 +213,7 @@ class BuildConnectPatchDataActionTest extends TestCase
         ]);
 
         // Act
-        $result = (new BuildConnectPatchDataAction())->execute(game: $game);
+        $result = (new BuildClientPatchDataAction())->execute(game: $game);
 
         // Assert
         $this->assertTrue($result['Success']);
@@ -243,7 +243,7 @@ class BuildConnectPatchDataActionTest extends TestCase
         $this->upsertGameCoreSetAction->execute($game);
 
         // Act
-        $result = (new BuildConnectPatchDataAction())->execute(
+        $result = (new BuildClientPatchDataAction())->execute(
             game: $game,
             flag: AchievementFlag::OfficialCore // !!
         );
@@ -271,7 +271,7 @@ class BuildConnectPatchDataActionTest extends TestCase
         $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
-        $result = (new BuildConnectPatchDataAction())->execute(gameHash: $gameHash, user: $user);
+        $result = (new BuildClientPatchDataAction())->execute(gameHash: $gameHash, user: $user);
 
         // Assert
         $this->assertTrue($result['Success']);
@@ -302,7 +302,7 @@ class BuildConnectPatchDataActionTest extends TestCase
         $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
-        $result = (new BuildConnectPatchDataAction())->execute(
+        $result = (new BuildClientPatchDataAction())->execute(
             game: $baseGame,
             gameHash: null, // !!
             user: $user

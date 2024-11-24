@@ -1,7 +1,9 @@
 <?php
 
 use App\Community\Enums\ActivityType;
+use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
+use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
@@ -11,7 +13,6 @@ use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\PlayerAchievement;
 use App\Models\User;
-use App\Platform\Actions\BuildConnectPatchDataAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerSessionHeartbeat;
@@ -587,18 +588,25 @@ switch ($requestType) {
         }
 
         try {
-            $response = (new BuildConnectPatchDataAction())->execute(
-                clientSupportLevel: $clientSupportLevel,
-                gameHash: $gameHashMd5 ? GameHash::whereMd5($gameHashMd5)->first() : null,
-                game: $gameHashMd5 ? null : Game::find($gameID),
+            $gameHash = $gameHashMd5 ? GameHash::whereMd5($gameHashMd5)->first() : null;
+            $game = $gameHashMd5 ? null : Game::find($gameID);
+
+            $response = (new BuildClientPatchDataAction())->execute(
+                gameHash: $gameHash,
+                game: $game,
                 user: $user,
                 flag: AchievementFlag::tryFrom($flag),
             );
 
-            // TODO middleware?
-            if ($clientSupportLevel === ClientSupportLevel::Unknown) {
-                $response['Warning'] = 'The server does not recognize this client and will not allow hardcore unlocks. Please send a message to RAdmin on the RetroAchievements website for information on how to submit your emulator for hardcore consideration.';
-            }
+            // Based on the user's current client support level, we may want to attach
+            // some metadata into the patch response. We'll do that as part of a separate
+            // action to keep the original data construction pure.
+            $response = (new InjectPatchClientSupportLevelDataAction())->execute(
+                $response,
+                $clientSupportLevel,
+                $gameHash,
+                $game,
+            );
         } catch (InvalidArgumentException $e) {
             return DoRequestError('Unknown game', 404, 'not_found');
         }

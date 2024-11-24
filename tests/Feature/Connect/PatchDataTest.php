@@ -467,6 +467,7 @@ class PatchDataTest extends TestCase
             ->get($this->apiUrl('patch', ['g' => $game->ID]))
             ->assertStatus(403)
             ->assertExactJson([
+                'Code' => 'unsupported_client',
                 'Status' => 403,
                 'Success' => false,
                 'Error' => 'This client is not supported',
