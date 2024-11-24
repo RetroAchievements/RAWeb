@@ -97,7 +97,7 @@
     "Couldn't find any completed claims.": "Não foi possível encontrar nenhuma reivindicação completa.",
     "Couldn't find any sets in progress.": "Não foi possível encontrar nenhum conjunto em andamento.",
     "Create Ticket": "Criar Ticket",
-    "Create Ticket - :achievementTitle": "Criar Ticket - :achievementTitle",
+    "Create Ticket - {{achievementTitle}}": "Criar Ticket - {{achievementTitle}}",
     "Current Email Address": "Endereço de E-mail Atual",
     "Current Locale": "Local Atual",
     "Current Password": "Senha Atual",
@@ -456,5 +456,8 @@
     "{{val, number}} games_other": "{{val, number}} jogos",
     "{{visible, number}} of {{total, number}} games_one": "{{visible, number}} de {{total, number}} jogo",
     "{{visible, number}} of {{total, number}} games_many": "{{visible, number}} of {{total, number}} jogos",
-    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} de {{total, number}} jogos"
+    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} de {{total, number}} jogos",
+    "Hash Comments - {{gameTitle}}": "Hash Comments - {{gameTitle}}",
+    "Hash Comments": "Hash Comments",
+    "Surprise me": "Surprise me"
 }

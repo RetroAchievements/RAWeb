@@ -1,5 +1,5 @@
 import { render, screen } from '@/test';
-import { createHomePageProps } from '@/test/factories';
+import { createHomePageProps, createZiggyProps } from '@/test/factories';
 
 import { CurrentlyOnline } from './CurrentlyOnline';
 
@@ -15,7 +15,9 @@ describe('Component: CurrentlyOnline', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Http.Data.HomePageProps>(<CurrentlyOnline />);
+    const { container } = render<App.Http.Data.HomePageProps>(<CurrentlyOnline />, {
+      pageProps: { ziggy: createZiggyProps() },
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -23,7 +25,9 @@ describe('Component: CurrentlyOnline', () => {
 
   it('displays an accessible heading', () => {
     // ARRANGE
-    render<App.Http.Data.HomePageProps>(<CurrentlyOnline />);
+    render<App.Http.Data.HomePageProps>(<CurrentlyOnline />, {
+      pageProps: { ziggy: createZiggyProps() },
+    });
 
     // ASSERT
     expect(screen.getByRole('heading', { name: /currently online/i })).toBeVisible();
@@ -32,14 +36,17 @@ describe('Component: CurrentlyOnline', () => {
   it('given only one user is online, shows a singular user count message', () => {
     // ARRANGE
     render<App.Http.Data.HomePageProps>(<CurrentlyOnline />, {
-      pageProps: createHomePageProps({
-        currentlyOnline: {
-          logEntries,
-          allTimeHighDate: null,
-          allTimeHighPlayers: 1000,
-          numCurrentPlayers: 1,
-        },
-      }),
+      pageProps: {
+        ziggy: createZiggyProps(),
+        ...createHomePageProps({
+          currentlyOnline: {
+            logEntries,
+            allTimeHighDate: null,
+            allTimeHighPlayers: 1000,
+            numCurrentPlayers: 1,
+          },
+        }),
+      },
     });
 
     // ASSERT
@@ -49,14 +56,17 @@ describe('Component: CurrentlyOnline', () => {
   it('given many users are online, shows a plural user count message', () => {
     // ARRANGE
     render<App.Http.Data.HomePageProps>(<CurrentlyOnline />, {
-      pageProps: createHomePageProps({
-        currentlyOnline: {
-          logEntries,
-          allTimeHighDate: null,
-          allTimeHighPlayers: 1000,
-          numCurrentPlayers: 100,
-        },
-      }),
+      pageProps: {
+        ziggy: createZiggyProps({ device: 'mobile' }),
+        ...createHomePageProps({
+          currentlyOnline: {
+            logEntries,
+            allTimeHighDate: null,
+            allTimeHighPlayers: 1000,
+            numCurrentPlayers: 100,
+          },
+        }),
+      },
     });
 
     // ASSERT
@@ -68,14 +78,17 @@ describe('Component: CurrentlyOnline', () => {
     const allTimeHighDate = new Date('2024-08-07').toISOString();
 
     render<App.Http.Data.HomePageProps>(<CurrentlyOnline />, {
-      pageProps: createHomePageProps({
-        currentlyOnline: {
-          logEntries,
-          allTimeHighDate,
-          allTimeHighPlayers: 4744,
-          numCurrentPlayers: 100,
-        },
-      }),
+      pageProps: {
+        ziggy: createZiggyProps(),
+        ...createHomePageProps({
+          currentlyOnline: {
+            logEntries,
+            allTimeHighDate,
+            allTimeHighPlayers: 4744,
+            numCurrentPlayers: 100,
+          },
+        }),
+      },
     });
 
     // ASSERT
@@ -89,14 +102,17 @@ describe('Component: CurrentlyOnline', () => {
   it('does not crash if the all-time high date is missing', () => {
     // ARRANGE
     render<App.Http.Data.HomePageProps>(<CurrentlyOnline />, {
-      pageProps: createHomePageProps({
-        currentlyOnline: {
-          logEntries,
-          allTimeHighDate: null, // !!
-          allTimeHighPlayers: 4744,
-          numCurrentPlayers: 100,
-        },
-      }),
+      pageProps: {
+        ziggy: createZiggyProps(),
+        ...createHomePageProps({
+          currentlyOnline: {
+            logEntries,
+            allTimeHighDate: null, // !!
+            allTimeHighPlayers: 4744,
+            numCurrentPlayers: 100,
+          },
+        }),
+      },
     });
 
     // ASSERT

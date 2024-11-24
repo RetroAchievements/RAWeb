@@ -9,6 +9,8 @@ import { createPaginatedData, createSystem, createZiggyProps } from '@/test/fact
 
 import { DataTableToolbar } from './DataTableToolbar';
 
+vi.mock('./RandomGameButton');
+
 // We'll use a sample data type.
 interface Model {
   title: string;
@@ -16,7 +18,7 @@ interface Model {
   achievementsPublished: number;
 }
 
-const columns: ColumnDef<Model>[] = [
+const mockColumns: ColumnDef<Model>[] = [
   {
     accessorKey: 'title',
     meta: { t_label: 'Title' },
@@ -37,11 +39,13 @@ const mockData: Model[] = [
 ];
 
 interface DataTableToolbarHarnessProps {
+  columns?: ColumnDef<Model>[];
   data?: Model[];
   unfilteredTotal?: number;
 }
 
 const DataTableToolbarHarness: FC<DataTableToolbarHarnessProps> = ({
+  columns = mockColumns,
   data = mockData,
   unfilteredTotal,
 }) => {

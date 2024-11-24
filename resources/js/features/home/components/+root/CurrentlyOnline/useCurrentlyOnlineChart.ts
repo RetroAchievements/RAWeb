@@ -24,8 +24,9 @@ export function useCurrentlyOnlineChart(currentlyOnline: App.Data.CurrentlyOnlin
 
   const formatXAxisTick = (value: string) => formatDate(dayjs(value), 'LT');
   const formatYAxisTick = (value: number) => formatNumber(value);
+  const formatTooltipLabel = (isoDate: string) => dayjs.utc(isoDate).format('llll');
 
-  return { chartData, yAxisTicks, formatXAxisTick, formatYAxisTick };
+  return { chartData, yAxisTicks, formatTooltipLabel, formatXAxisTick, formatYAxisTick };
 }
 
 function buildChartData(logEntries: number[]): Array<{ time: string; playersOnline: number }> {

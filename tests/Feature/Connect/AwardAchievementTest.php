@@ -16,10 +16,12 @@ use App\Models\PlayerGame;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Actions\UnlockPlayerAchievementAction;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Tests\Feature\Concerns\TestsEmulatorUserAgent;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
@@ -27,6 +29,7 @@ class AwardAchievementTest extends TestCase
 {
     use BootstrapsConnect;
     use RefreshDatabase;
+    use TestsEmulatorUserAgent;
     use TestsPlayerAchievements;
 
     private function buildValidationHash(Achievement $achievement, User $user, int $hardcore, int $offset = 0): string
@@ -855,5 +858,200 @@ class AwardAchievementTest extends TestCase
 
         // achievement unlocked
         $this->assertHasHardcoreUnlock($this->user, $eventAchievement2);
+    }
+
+    public function testUserAgentHardcore(): void
+    {
+        $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
+        Carbon::setTestNow($now);
+
+        $game = $this->seedGame();
+        $md5 = $game->hashes()->first()->md5;
+        $achievement1 = $this->seedAchievement($game);
+        $achievement2 = $this->seedAchievement($game);
+        $achievement3 = $this->seedAchievement($game);
+        $achievement4 = $this->seedAchievement($game);
+        $achievement5 = $this->seedAchievement($game);
+        $achievement6 = $this->seedAchievement($game);
+
+        $this->seedEmulatorUserAgents();
+
+        // force an achievement unlock to reconstruct the user state (primarily his points)
+        (new UnlockPlayerAchievementAction())->execute($this->user, $achievement6, true);
+        $this->user->refresh();
+        $scoreBefore = $this->user->RAPoints;
+
+        // no user agent (TODO: will return failure in the future)
+        $validationHash = $this->buildValidationHash($achievement1, $this->user, 1);
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement1->ID, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement1->ID,
+                'AchievementsRemaining' => 4,
+                'Score' => $scoreBefore + $achievement1->Points,
+                'SoftcoreScore' => $this->user->RASoftcorePoints,
+            ]);
+        $scoreBefore += $achievement1->Points;
+
+        // unknown user agent (TODO: will return failure in the future)
+        $validationHash = $this->buildValidationHash($achievement2, $this->user, 1);
+        $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement2->ID,
+                'AchievementsRemaining' => 3,
+                'Score' => $scoreBefore + $achievement2->Points,
+                'SoftcoreScore' => $this->user->RASoftcorePoints,
+            ]);
+        $scoreBefore += $achievement2->Points;
+
+        // outdated user agent (TODO: will return failure in the future)
+        $validationHash = $this->buildValidationHash($achievement3, $this->user, 1);
+        $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->ID,
+                'AchievementsRemaining' => 2,
+                'Score' => $scoreBefore + $achievement3->Points,
+                'SoftcoreScore' => $this->user->RASoftcorePoints,
+            ]);
+        $scoreBefore += $achievement3->Points;
+
+        // valid user agent
+        $validationHash = $this->buildValidationHash($achievement4, $this->user, 1);
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement4->ID,
+                'AchievementsRemaining' => 1,
+                'Score' => $scoreBefore + $achievement4->Points,
+                'SoftcoreScore' => $this->user->RASoftcorePoints,
+            ]);
+        $scoreBefore += $achievement4->Points;
+
+        // blocked user agent
+        $validationHash = $this->buildValidationHash($achievement5, $this->user, 1);
+        $this->withHeaders(['User-Agent' => $this->userAgentBlocked])
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement5->ID, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Success' => false,
+                'Error' => 'This emulator is not supported',
+            ]);
+    }
+
+    public function testUserAgentSoftcore(): void
+    {
+        $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
+        Carbon::setTestNow($now);
+
+        $game = $this->seedGame();
+        $md5 = $game->hashes()->first()->md5;
+        $achievement1 = $this->seedAchievement($game);
+        $achievement2 = $this->seedAchievement($game);
+        $achievement3 = $this->seedAchievement($game);
+        $achievement4 = $this->seedAchievement($game);
+        $achievement5 = $this->seedAchievement($game);
+        $achievement6 = $this->seedAchievement($game);
+
+        $this->seedEmulatorUserAgents();
+
+        // force an achievement unlock to reconstruct the user state (primarily his points)
+        (new UnlockPlayerAchievementAction())->execute($this->user, $achievement6, false);
+        $this->user->refresh();
+        $scoreBefore = $this->user->RASoftcorePoints;
+
+        // no user agent
+        $validationHash = $this->buildValidationHash($achievement1, $this->user, 0);
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement1->ID, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement1->ID,
+                'AchievementsRemaining' => 4,
+                'Score' => $this->user->RAPoints,
+                'SoftcoreScore' => $scoreBefore + $achievement1->Points,
+            ]);
+        $scoreBefore += $achievement1->Points;
+
+        // unknown user agent
+        $validationHash = $this->buildValidationHash($achievement2, $this->user, 0);
+        $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement2->ID,
+                'AchievementsRemaining' => 3,
+                'Score' => $this->user->RAPoints,
+                'SoftcoreScore' => $scoreBefore + $achievement2->Points,
+            ]);
+        $scoreBefore += $achievement2->Points;
+
+        // outdated user agent
+        $validationHash = $this->buildValidationHash($achievement3, $this->user, 0);
+        $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->ID,
+                'AchievementsRemaining' => 2,
+                'Score' => $this->user->RAPoints,
+                'SoftcoreScore' => $scoreBefore + $achievement3->Points,
+            ]);
+        $scoreBefore += $achievement3->Points;
+
+        // valid user agent
+        $validationHash = $this->buildValidationHash($achievement4, $this->user, 0);
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement4->ID,
+                'AchievementsRemaining' => 1,
+                'Score' => $this->user->RAPoints,
+                'SoftcoreScore' => $scoreBefore + $achievement4->Points,
+            ]);
+        $scoreBefore += $achievement4->Points;
+
+        // blocked user agent
+        $validationHash = $this->buildValidationHash($achievement5, $this->user, 0);
+        $this->withHeaders(['User-Agent' => $this->userAgentBlocked])
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement5->ID, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Success' => false,
+                'Error' => 'This emulator is not supported',
+            ]);
+    }
+
+    public function testUnlockWarningAchievement(): void
+    {
+        // requesting an unlock for the warning achievement should return success without actually unlocking it
+        $this->get($this->apiUrl('awardachievement', ['a' => Achievement::CLIENT_WARNING_ID, 'h' => 1]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => Achievement::CLIENT_WARNING_ID,
+                'AchievementsRemaining' => 9999,
+                'Score' => $this->user->RAPoints,
+                'SoftcoreScore' => $this->user->RASoftcorePoints,
+            ]);
+
+        $this->assertFalse(
+            $this->user->playerAchievements()->where('achievement_id', Achievement::CLIENT_WARNING_ID)->exists(),
+            'Found unlock for warning achievement'
+        );
     }
 }

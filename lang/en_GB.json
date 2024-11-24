@@ -97,7 +97,7 @@
     "Couldn't find any completed claims.": "Couldn't find any completed claims.",
     "Couldn't find any sets in progress.": "Couldn't find any sets in progress.",
     "Create Ticket": "Create Ticket",
-    "Create Ticket - :achievementTitle": "Create Ticket - :achievementTitle",
+    "Create Ticket - {{achievementTitle}}": "Create Ticket - {{achievementTitle}}",
     "Current Email Address": "Current Email Address",
     "Current Locale": "Current Locale",
     "Current Password": "Current Password",
@@ -450,5 +450,8 @@
     "{{val, number}} games_one": "{{val, number}} game",
     "{{val, number}} games_other": "{{val, number}} games",
     "{{visible, number}} of {{total, number}} games_one": "{{visible, number}} of {{total, number}} game",
-    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} of {{total, number}} games"
+    "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} of {{total, number}} games",
+    "Hash Comments - {{gameTitle}}": "Hash Comments - {{gameTitle}}",
+    "Hash Comments": "Hash Comments",
+    "Surprise me": "Surprise me"
 }
