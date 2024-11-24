@@ -135,6 +135,15 @@ class Comment extends BaseModel
      * @param Builder<Achievement> $query
      * @return Builder<Achievement>
      */
+    public function scopeAutomated(Builder $query): Builder
+    {
+        return $query->where('user_id', self::SYSTEM_USER_ID);
+    }
+
+    /**
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
     public function scopeNotAutomated(Builder $query): Builder
     {
         return $query->where('user_id', '!=', self::SYSTEM_USER_ID);

@@ -44,7 +44,7 @@ export const GameHashSelectField: FC = () => {
         <BaseFormItem className="flex w-full flex-col gap-1 sm:flex-row sm:items-center">
           <BaseFormLabel
             htmlFor="hash-select"
-            className="text-menu-link sm:mt-[13px] sm:min-w-36 sm:self-start"
+            className="w-36 text-menu-link sm:mt-[13px] sm:min-w-36 sm:self-start"
           >
             {t('Supported Game File')}
           </BaseFormLabel>

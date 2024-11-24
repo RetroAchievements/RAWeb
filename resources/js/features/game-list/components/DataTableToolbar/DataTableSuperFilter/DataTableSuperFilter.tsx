@@ -2,6 +2,7 @@ import type { ColumnDef, SortDirection, Table } from '@tanstack/react-table';
 import { Fragment } from 'react/jsx-runtime';
 import { useTranslation } from 'react-i18next';
 import { HiFilter } from 'react-icons/hi';
+import type { RouteName } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
@@ -28,13 +29,19 @@ import { useSortConfigs } from '../../../hooks/useSortConfigs';
 import type { SortConfigKind } from '../../../models';
 import { DataTableAchievementsPublishedFilter } from '../DataTableAchievementsPublishedFilter';
 import { DataTableSystemFilter } from '../DataTableSystemFilter';
+import { RandomGameButton } from '../RandomGameButton';
 import { useCurrentSuperFilterLabel } from './useCurrentSuperFilterLabel';
 
 interface DataTableSuperFilterProps<TData> {
   table: Table<TData>;
+
+  randomGameApiRouteName?: RouteName;
 }
 
-export function DataTableSuperFilter<TData>({ table }: DataTableSuperFilterProps<TData>) {
+export function DataTableSuperFilter<TData>({
+  table,
+  randomGameApiRouteName = 'api.game.random',
+}: DataTableSuperFilterProps<TData>) {
   const { filterableSystemOptions } = usePageProps<{
     filterableSystemOptions: App.Platform.Data.System[];
   }>();
@@ -48,12 +55,13 @@ export function DataTableSuperFilter<TData>({ table }: DataTableSuperFilterProps
   const { sortConfigs } = useSortConfigs();
 
   const sortableColumns = table.getAllColumns().filter((c) => c.getCanSort());
+  const sortingState = table.getState().sorting;
 
-  const currentSort =
-    table
-      .getState()
-      .sorting.map((sort) => (sort.desc ? `-${sort.id}` : sort.id))
-      .join() ?? 'title';
+  const currentSort = sortingState.length
+    ? sortingState.map((sort) => (sort.desc ? `-${sort.id}` : sort.id)).join()
+    : 'title';
+
+  const currentFilters = table.getState().columnFilters;
 
   const handleSortOrderValueChange = (newValue: string) => {
     const direction = newValue.startsWith('-') ? 'desc' : 'asc';
@@ -127,9 +135,17 @@ export function DataTableSuperFilter<TData>({ table }: DataTableSuperFilterProps
           </div>
 
           <BaseDrawerFooter>
-            <BaseDrawerClose asChild>
-              <BaseButton variant="secondary">{t('Close')}</BaseButton>
-            </BaseDrawerClose>
+            <div className="grid grid-cols-2 gap-3">
+              <RandomGameButton
+                variant="mobile-drawer"
+                apiRouteName={randomGameApiRouteName}
+                columnFilters={currentFilters}
+              />
+
+              <BaseDrawerClose asChild>
+                <BaseButton variant="secondary">{t('Close')}</BaseButton>
+              </BaseDrawerClose>
+            </div>
           </BaseDrawerFooter>
         </div>
       </BaseDrawerContent>

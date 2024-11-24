@@ -49,10 +49,8 @@ class AssociateAchievementSetToGameAction
     ): void {
         $game->achievementSets()->attach($achievementSet->id, [
             'type' => $type->value,
-            'order_column' => 1,
+            'order_column' => ($game->achievementSets()->max('order_column') ?? 0) + 1,
             'title' => $title,
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
     }
 }

@@ -4,13 +4,20 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Enums\ClientSupportLevel;
+use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameHash;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use InvalidArgumentException;
+
+// TODO move to app/Connect/Actions
+// TODO more tests
 
 // OPEN QUESTION when given a GameHash, should the root Achievements & Leaderboards be returned as `null`?
 
@@ -30,10 +37,11 @@ class BuildConnectPatchDataAction
      * @param Game|null $game The game to build patch data for
      * @param User|null $user The current user requesting the patch data (for player count calculations)
      * @param AchievementFlag|null $flag Optional flag to filter the achievements by (eg: only official achievements)
-     *
+     * @param ClientSupportLevel $clientSupportLevel the current support level of the user's client/emulator
      * @throws InvalidArgumentException when neither $gameHash nor $game is provided
      */
     public function execute(
+        ClientSupportLevel $clientSupportLevel,
         ?GameHash $gameHash = null,
         ?Game $game = null,
         ?User $user = null,
@@ -57,7 +65,13 @@ class BuildConnectPatchDataAction
                 ...$this->buildBaseGameData($coreGame),
 
                 'Achievements' => $coreAchievementSet
-                    ? $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $flag)
+                    ? $this->buildAchievementsData(
+                        $coreAchievementSet,
+                        $gamePlayerCount,
+                        $flag,
+                        $clientSupportLevel,
+                        canAddWarningAchievement: $game->achievements_published < 0 // will never be true. change to > when ready
+                    )
                     : [],
 
                 'Leaderboards' => $this->buildLeaderboardsData($coreGame),
@@ -103,7 +117,7 @@ class BuildConnectPatchDataAction
                 'Type' => $resolvedSet->type->value,
                 'ImageIcon' => $setGame->ImageIcon,
                 'ImageIconURL' => media_asset($setGame->ImageIcon),
-                'Achievements' => $this->buildAchievementsData($resolvedSet, $gamePlayerCount, $flag),
+                'Achievements' => $this->buildAchievementsData($resolvedSet, $gamePlayerCount, $flag, null),
                 'Leaderboards' => $this->buildLeaderboardsData($setGame),
             ];
         }
@@ -117,12 +131,17 @@ class BuildConnectPatchDataAction
      * @param GameAchievementSet $gameAchievementSet The achievement set to build achievement data for
      * @param int $gamePlayerCount The total number of players (minimum of 1 to prevent division by zero)
      * @param AchievementFlag|null $flag Optional flag to filter the achievements by (eg: only official achievements)
+     * @param ClientSupportLevel|null $clientSupportLevel the current support level of the user's client/emulator
+     * @param bool $canAddWarningAchievement whether or not a warning achievement can be inserted at the top of the achievements list
      */
     private function buildAchievementsData(
         GameAchievementSet $gameAchievementSet,
         int $gamePlayerCount,
-        ?AchievementFlag $flag
+        ?AchievementFlag $flag,
+        ?ClientSupportLevel $clientSupportLevel,
+        bool $canAddWarningAchievement = false
     ): array {
+        /** @var Collection<int, Achievement> $achievements */
         $achievements = $gameAchievementSet->achievementSet
             ->achievements()
             ->with('developer')
@@ -135,6 +154,14 @@ class BuildConnectPatchDataAction
         }
 
         $achievementsData = [];
+
+        if (!is_null($clientSupportLevel) && $clientSupportLevel !== ClientSupportLevel::Full) {
+            if ($canAddWarningAchievement) {
+                // We intentionally place the warning achievement at the top of the list.
+                $achievementsData[] = $this->buildClientSupportWarningAchievement($clientSupportLevel);
+            }
+        }
+
         foreach ($achievements as $achievement) {
             // If an achievement has an invalid flag, skip it.
             if (!AchievementFlag::tryFrom($achievement->Flags)) {
@@ -166,6 +193,35 @@ class BuildConnectPatchDataAction
         }
 
         return $achievementsData;
+    }
+
+    /**
+     * This warning achievement should appear at the top of the emulator's achievements
+     * list. It should automatically unlock after a few seconds of patch data retrieval.
+     * The intention is to notify a user that they are using an outdated client
+     * and need to update, as well as what the repercussions of their continued
+     * play session with their current client might be.
+     */
+    private function buildClientSupportWarningAchievement($clientSupportLevel): array
+    {
+        return [
+            'ID' => Achievement::CLIENT_WARNING_ID,
+            'MemAddr' => '1=1.300.', // pop after 5 seconds
+            'Title' => ($clientSupportLevel === ClientSupportLevel::Outdated) ?
+                'Warning: Outdated Emulator (please update)' : 'Warning: Unknown Emulator',
+            'Description' => 'Hardcore unlocks cannot be earned using this emulator.',
+            'Points' => 0,
+            'Author' => '',
+            'Modified' => Carbon::now()->unix(),
+            'Created' => Carbon::now()->unix(),
+            'BadgeName' => '00000',
+            'Flags' => AchievementFlag::OfficialCore->value,
+            'Type' => null,
+            'Rarity' => 0.0,
+            'RarityHardcore' => 0.0,
+            'BadgeURL' => media_asset("Badge/00000.png"),
+            'BadgeLockedURL' => media_asset("Badge/00000_lock.png"),
+        ];
     }
 
     /**

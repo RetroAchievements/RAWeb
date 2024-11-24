@@ -27,6 +27,24 @@ describe('Hook: useCurrentlyOnlineChart', () => {
     expect(result).toBeTruthy();
   });
 
+  it('can properly format tooltip labels', () => {
+    // ARRANGE
+    const { result } = renderHook(() =>
+      useCurrentlyOnlineChart({
+        allTimeHighDate: new Date('2024-08-07').toISOString(),
+        allTimeHighPlayers: 4744,
+        logEntries: [],
+        numCurrentPlayers: 0,
+      }),
+    );
+
+    // ACT
+    const formatted = result.current.formatTooltipLabel(new Date('2023-05-07').toISOString());
+
+    // ASSERT
+    expect(formatted).toEqual('Sun, May 7, 2023 12:00 AM');
+  });
+
   it('can properly format x-axis ticks', () => {
     // ARRANGE
     const { result } = renderHook(() =>
@@ -38,10 +56,8 @@ describe('Hook: useCurrentlyOnlineChart', () => {
       }),
     );
 
-    const current = result.current as ReturnType<typeof useCurrentlyOnlineChart>;
-
     // ACT
-    const formatted = current.formatXAxisTick(dayjs.utc('2024-08-07').toISOString());
+    const formatted = result.current.formatXAxisTick(dayjs.utc('2024-08-07').toISOString());
 
     // ASSERT
     expect(formatted).toEqual('12:00 AM');
@@ -58,10 +74,8 @@ describe('Hook: useCurrentlyOnlineChart', () => {
       }),
     );
 
-    const current = result.current as ReturnType<typeof useCurrentlyOnlineChart>;
-
     // ACT
-    const formatted = current.formatYAxisTick(1000);
+    const formatted = result.current.formatYAxisTick(1000);
 
     // ASSERT
     expect(formatted).toEqual('1,000');
@@ -81,11 +95,9 @@ describe('Hook: useCurrentlyOnlineChart', () => {
       }),
     );
 
-    const current = result.current as ReturnType<typeof useCurrentlyOnlineChart>;
-
     // ASSERT
-    const firstEntryTime = dayjs(current.chartData[0].time);
-    const lastEntryTime = dayjs(current.chartData[current.chartData.length - 1].time);
+    const firstEntryTime = dayjs(result.current.chartData[0].time);
+    const lastEntryTime = dayjs(result.current.chartData[result.current.chartData.length - 1].time);
 
     expect(firstEntryTime.format('HH:mm')).toBe('10:30');
     expect(lastEntryTime.format('HH:mm')).toBe('10:00');
@@ -105,11 +117,9 @@ describe('Hook: useCurrentlyOnlineChart', () => {
       }),
     );
 
-    const current = result.current as ReturnType<typeof useCurrentlyOnlineChart>;
-
     // ASSERT
-    const firstEntryTime = dayjs(current.chartData[0].time);
-    const lastEntryTime = dayjs(current.chartData[current.chartData.length - 1].time);
+    const firstEntryTime = dayjs(result.current.chartData[0].time);
+    const lastEntryTime = dayjs(result.current.chartData[result.current.chartData.length - 1].time);
 
     expect(firstEntryTime.format('HH:mm')).toBe('11:00');
     expect(lastEntryTime.format('HH:mm')).toBe('10:30');
