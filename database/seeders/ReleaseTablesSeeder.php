@@ -15,11 +15,11 @@ class ReleaseTablesSeeder extends Seeder
     {
         $releasesData = getReleasesFromFile() ?? [];
 
-        if (!empty($releasesData['integration']) !== null && IntegrationRelease::count() === 0) {
+        if (array_key_exists('integration', $releasesData) && !empty($releasesData['integration']) !== null && IntegrationRelease::count() === 0) {
             $this->seedIntegrationReleases($releasesData['integration']);
         }
 
-        if (!empty($releasesData['emulators']) !== null && EmulatorRelease::count() === 0) {
+        if (array_key_exists('emulators', $releasesData) && !empty($releasesData['emulators']) !== null && EmulatorRelease::count() === 0) {
             $this->seedEmulatorReleases($releasesData['emulators']);
         }
     }
