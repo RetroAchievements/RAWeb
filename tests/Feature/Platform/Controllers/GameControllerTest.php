@@ -37,6 +37,7 @@ class GameControllerTest extends TestCase
         $response->assertInertia(fn (Assert $page) => $page
             ->where('can.develop', false)
             ->has('paginatedGameListEntries.items', 2)
+            ->where('defaultPageSize', 25)
             ->where('paginatedGameListEntries.items.0.game.title', $gameOne->title)
             ->where('paginatedGameListEntries.items.0.game.system.id', $gameOne->system->id)
         );

@@ -54,6 +54,7 @@ declare namespace App.Community.Data {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
     filterableSystemOptions: Array<App.Platform.Data.System>;
     can: App.Data.UserPermissions;
+    defaultDesktopPageSize: number;
   };
   export type UserRecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     targetUser: App.Data.User;
@@ -324,6 +325,7 @@ declare namespace App.Platform.Data {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
     filterableSystemOptions: Array<App.Platform.Data.System>;
     can: App.Data.UserPermissions;
+    defaultDesktopPageSize: number;
   };
   export type Leaderboard = {
     id: number;
@@ -377,6 +379,8 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
+  export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
+  export type AchievementSetAuthorTask = 'artwork';
   export type UnlockMode = 0 | 1;
   export type AchievementFlag = 3 | 5;
   export type AchievementSetType =

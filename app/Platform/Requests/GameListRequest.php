@@ -9,6 +9,11 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class GameListRequest extends FormRequest
 {
+    // (!!) Be sure to do performance testing on any default higher than 125.
+    // Note that mobile _ALWAYS_ uses a page size of 100.
+    private const DEFAULT_PAGE_SIZE = 25;
+    private const MAX_PAGE_SIZE = 500;
+
     public function rules(): array
     {
         // Get all valid sort values with and without the "-" prefix.
@@ -21,6 +26,7 @@ class GameListRequest extends FormRequest
 
         return [
             'page.number' => 'integer|min:1',
+            'page.size' => 'integer|min:1|max:' . self::MAX_PAGE_SIZE,
             'sort' => 'string|in:' . implode(',', $sortValues),
             'filter.*' => 'string',
         ];
@@ -29,6 +35,11 @@ class GameListRequest extends FormRequest
     public function getPage(): int
     {
         return (int) $this->input('page.number', 1);
+    }
+
+    public function getPageSize(): int
+    {
+        return (int) $this->input('page.size', self::DEFAULT_PAGE_SIZE);
     }
 
     /**
