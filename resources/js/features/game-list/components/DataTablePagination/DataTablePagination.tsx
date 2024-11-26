@@ -90,6 +90,12 @@ export function DataTablePagination<TData>({
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
+    // If the user is changing the page size and they're not on the first page,
+    // auto-scroll to the top. Otherwise, things can quickly get disorienting.
+    if (pagination.pageIndex !== 0) {
+      scrollToTopOfPage();
+    }
+
     table.setPagination({ pageIndex: 0, pageSize: newPageSize });
   };
 
