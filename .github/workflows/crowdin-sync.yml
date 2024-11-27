@@ -1,0 +1,38 @@
+name: Crowdin Sync
+
+on:
+  schedule:
+    # Runs at 00:00 UTC every Wednesday.
+    - cron: '0 0 * * 3'
+  workflow_dispatch: # This allows the action to be manually triggered.
+
+# Set up the permissions needed for creating PRs.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync-translations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Crowdin Sync
+        uses: crowdin/github-action@v2
+        with:
+          upload_sources: false
+          upload_translations: false
+          download_translations: true
+          download_bundle: 2
+          create_pull_request: true
+          pull_request_title: 'chore: sync Crowdin translations'
+          pull_request_body: 'This is an automated PR created by Crowdin to update translations for the project.'
+          localization_branch_name: 'chore/crowdin-sync'
+          pull_request_base_branch_name: 'master'
+          github_user_name: 'github-actions[bot]'
+          github_user_email: '41898282+github-actions[bot]@users.noreply.github.com'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+        CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
