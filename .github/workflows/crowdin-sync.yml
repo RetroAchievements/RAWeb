@@ -22,16 +22,15 @@ jobs:
         uses: crowdin/github-action@v2
         with:
           upload_sources: false
-          upload_translations: false
-          download_translations: false
-          download_bundle: 2
+          download_translations: true
+          project_id: ${{ secrets.CROWDIN_PROJECT_ID }}
+          token: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+          source: 'lang/en_US.json'
+          translation: 'lang/%locale%.json'
+          localization_branch_name: crowdin-translation-update
           create_pull_request: true
-          pull_request_title: 'chore: sync Crowdin translations'
-          pull_request_body: 'This is an automated PR created by Crowdin to update translations for the project.'
-          localization_branch_name: 'chore/crowdin-sync'
-          pull_request_base_branch_name: 'master'
-          github_user_name: 'github-actions[bot]'
-          github_user_email: '41898282+github-actions[bot]@users.noreply.github.com'
+          pull_request_title: 'chore: update translations from Crowdin'
+          pull_request_body: 'Auto-generated PR with latest translations from Crowdin'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
