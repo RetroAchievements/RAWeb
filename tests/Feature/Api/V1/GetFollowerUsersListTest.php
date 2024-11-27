@@ -33,12 +33,12 @@ class GetFollowerUsersListTest extends TestCase
         return sprintf('API/API_%s.php?%s', $method, http_build_query($params));
     }
 
-    public function testGetFollowedUsersList(): void
+    public function testGetFollowerUsersList(): void
     {
         Carbon::setTestNow(Carbon::now());
 
         /** @var User $followerUser1 */
-        $followerUser1 = User::factory()->create(['User' => 'myFollowerUser1', 'RichPresenceMsg' => 'Playing Friendship 1']);
+        $followerUser1 = User::factory()->create(['User' => 'myFollowerUser1']);
         UserRelation::create([
             'user_id' => $followerUser1->id,
             'related_user_id' => $this->user->id,
@@ -51,7 +51,7 @@ class GetFollowerUsersListTest extends TestCase
         ]);
 
         /** @var User $followerUser2 */
-        $followerUser2 = User::factory()->create(['User' => 'myFollowerUser2', 'RichPresenceMsg' => 'Playing Friendship 2']);
+        $followerUser2 = User::factory()->create(['User' => 'myFollowerUser2']);
         UserRelation::create([
             'user_id' => $followerUser2->id,
             'related_user_id' => $this->user->id,
@@ -59,7 +59,7 @@ class GetFollowerUsersListTest extends TestCase
         ]);
 
         /** @var User $followerUser3 */
-        $followerUser3 = User::factory()->create(['User' => 'myFollowerUser3', 'RichPresenceMsg' => 'Playing Friendship 3']);
+        $followerUser3 = User::factory()->create(['User' => 'myFollowerUser3']);
         UserRelation::create([
             'user_id' => $followerUser3->id,
             'related_user_id' => $this->user->id,
@@ -67,7 +67,7 @@ class GetFollowerUsersListTest extends TestCase
         ]);
 
         /** @var User $followerUser4 */
-        $followerUser4 = User::factory()->create(['User' => 'myFollowerUser4', 'RichPresenceMsg' => 'Playing Friendship 4']);
+        $followerUser4 = User::factory()->create(['User' => 'myFollowerUser4']);
         UserRelation::create([
             'user_id' => $followerUser4->id,
             'related_user_id' => $this->user->id,
@@ -89,44 +89,34 @@ class GetFollowerUsersListTest extends TestCase
                 'Total' => 5,
                 'Results' => [
                     [
-                        "Friend" => $followerUser1->User,
+                        "User" => $followerUser1->display_name,
                         "Points" => $followerUser1->Points,
                         "PointsSoftcore" => $followerUser1->points_softcore,
-                        "LastSeen" => $followerUser1->RichPresenceMsg,
                         "FollowingBack" => true,
-                        "ID" => $followerUser1->ID,
                     ],
                     [
-                        "Friend" => $followerUser2->User,
+                        "User" => $followerUser2->display_name,
                         "Points" => $followerUser2->Points,
                         "PointsSoftcore" => $followerUser2->points_softcore,
-                        "LastSeen" => $followerUser2->RichPresenceMsg,
                         "FollowingBack" => false,
-                        "ID" => $followerUser2->ID,
                     ],
                     [
-                        "Friend" => $followerUser3->User,
+                        "User" => $followerUser3->display_name,
                         "Points" => $followerUser3->Points,
                         "PointsSoftcore" => $followerUser3->points_softcore,
-                        "LastSeen" => $followerUser3->RichPresenceMsg,
                         "FollowingBack" => false,
-                        "ID" => $followerUser3->ID,
                     ],
                     [
-                        "Friend" => $followerUser4->User,
+                        "User" => $followerUser4->display_name,
                         "Points" => $followerUser4->Points,
                         "PointsSoftcore" => $followerUser4->points_softcore,
-                        "LastSeen" => $followerUser4->RichPresenceMsg,
                         "FollowingBack" => false,
-                        "ID" => $followerUser4->ID,
                     ],
                     [
-                        "Friend" => $followerUser5->User,
+                        "User" => $followerUser5->display_name,
                         "Points" => $followerUser5->Points,
                         "PointsSoftcore" => $followerUser5->points_softcore,
-                        "LastSeen" => 'Unknown', // No Rich Presence
                         "FollowingBack" => false,
-                        "ID" => $followerUser5->ID,
                     ],
                 ],
             ]);
@@ -138,20 +128,16 @@ class GetFollowerUsersListTest extends TestCase
                     'Total' => 5,
                     'Results' => [
                         [
-                            "Friend" => $followerUser4->User,
+                            "User" => $followerUser4->display_name,
                             "Points" => $followerUser4->Points,
                             "PointsSoftcore" => $followerUser4->points_softcore,
-                            "LastSeen" => $followerUser4->RichPresenceMsg,
                             "FollowingBack" => false,
-                            "ID" => $followerUser4->ID,
                         ],
                         [
-                            "Friend" => $followerUser5->User,
+                            "User" => $followerUser5->display_name,
                             "Points" => $followerUser5->Points,
                             "PointsSoftcore" => $followerUser5->points_softcore,
-                            "LastSeen" => 'Unknown', // No Rich Presence
                             "FollowingBack" => false,
-                            "ID" => $followerUser5->ID,
                         ],
                     ],
                 ]);
@@ -163,20 +149,16 @@ class GetFollowerUsersListTest extends TestCase
                     'Total' => 5,
                     'Results' => [
                         [
-                            "Friend" => $followerUser1->User,
+                            "User" => $followerUser1->display_name,
                             "Points" => $followerUser1->Points,
                             "PointsSoftcore" => $followerUser1->points_softcore,
-                            "LastSeen" => $followerUser1->RichPresenceMsg,
                             "FollowingBack" => true,
-                            "ID" => $followerUser1->ID,
                         ],
                         [
-                            "Friend" => $followerUser2->User,
+                            "User" => $followerUser2->display_name,
                             "Points" => $followerUser2->Points,
                             "PointsSoftcore" => $followerUser2->points_softcore,
-                            "LastSeen" => $followerUser2->RichPresenceMsg,
                             "FollowingBack" => false,
-                            "ID" => $followerUser2->ID,
                         ],
                     ],
                 ]);
@@ -188,20 +170,16 @@ class GetFollowerUsersListTest extends TestCase
                     'Total' => 5,
                     'Results' => [
                         [
-                            "Friend" => $followerUser2->User,
+                            "User" => $followerUser2->display_name,
                             "Points" => $followerUser2->Points,
                             "PointsSoftcore" => $followerUser2->points_softcore,
-                            "LastSeen" => $followerUser2->RichPresenceMsg,
                             "FollowingBack" => false,
-                            "ID" => $followerUser2->ID,
                         ],
                         [
-                            "Friend" => $followerUser3->User,
+                            "User" => $followerUser3->display_name,
                             "Points" => $followerUser3->Points,
                             "PointsSoftcore" => $followerUser3->points_softcore,
-                            "LastSeen" => $followerUser3->RichPresenceMsg,
                             "FollowingBack" => false,
-                            "ID" => $followerUser3->ID,
                         ],
                     ],
                 ]);

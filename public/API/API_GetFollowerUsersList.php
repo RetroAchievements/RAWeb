@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  API_GetFollowerUsersList - returns list of follower users
+ *  API_GetFollowerUsersList - returns list of the caller's follower users
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of entries to return (default: 100, max: 500)
  *  int         Count                       number of user records returned in the response
@@ -11,9 +11,7 @@
  *    string     User                       username
  *    int        Points                     number of hardcore points the user has earned
  *    int        PointsSoftcore             number of softcore points the user has earned
- *    string     LastSeen                   rich presence message for the user
- *    boolean    FollowingBack              whether the request user follows the follower user back
- *    int        ID                         unique id of the user
+ *    boolean    FollowingBack              whether the caller user follows the follower user back
  */
 
 use App\Models\User;
@@ -44,12 +42,10 @@ $usersList = $user->followerUsers()
     ->get()
     ->map(function ($followerUser) use ($user) {
         return [
-            'Friend' => $followerUser->User,
+            'User' => $followerUser->display_name,
             'Points' => $followerUser->points,
             'PointsSoftcore' => $followerUser->points_softcore,
-            'LastSeen' => empty($followerUser->RichPresenceMsg) ? 'Unknown' : strip_tags($followerUser->RichPresenceMsg),
             'FollowingBack' => $user->isFollowing($followerUser),
-            'ID' => $followerUser->id,
         ];
     });
 
