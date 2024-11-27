@@ -32,7 +32,7 @@ class GameTopAchieversService
     {
         return PlayerGame::where('game_id', $this->gameId)
             ->whereHas('user', function ($query) {
-                return $query->whereNull('unranked_at')->where('Untracked', 0);
+                return $query->tracked();
             });
     }
 
@@ -77,9 +77,9 @@ class GameTopAchieversService
     }
 
     /**
-     * @return Collection<int, PlayerGame>
+     * @return Builder<PlayerGame>
      */
-    public function highestPointEarners(int $count = 10): Collection
+    public function highestPointEarnersQuery(): Builder
     {
         $query = $this->baseQuery()->where('achievements_unlocked_hardcore', '>', 0);
 
@@ -91,11 +91,39 @@ class GameTopAchieversService
             $query = $query->orderByDesc('points_hardcore');
         }
 
-        return $query
-            ->orderBy('last_unlock_hardcore_at')
-            ->with('user')
+        return $query->with('user')->orderBy('last_unlock_hardcore_at');
+    }
+
+    /**
+     * @return Collection<int, PlayerGame>
+     */
+    public function highestPointEarners(int $count = 10): Collection
+    {
+        return $this->highestPointEarnersQuery()
             ->limit($count)
             ->get();
+    }
+
+    public function getPoints(PlayerGame $playerGame): int
+    {
+        if ($this->masteryPoints === 0) {
+            return $playerGame->achievements_unlocked_hardcore;
+        } else {
+            return $playerGame->points_hardcore;
+        }
+    }
+
+    public function getRank(PlayerGame $playerGame): int
+    {
+        $query = $this->highestPointEarnersQuery();
+
+        if ($this->masteryPoints === 0) {
+            $query->where('achievements_unlocked_hardcore', '>', $playerGame->achievements_unlocked_hardcore);
+        } else {
+            $query->where('points_hardcore', '>', $playerGame->points_hardcore);
+        }
+
+        return $query->count() + 1;
     }
 
     public static function expireTopAchieversComponentData(int $gameId): void
