@@ -28,7 +28,7 @@
     "Additional information for these hashes may be listed on <1>the game's official forum topic</1>.": "Дополнительная информация об этих хэшах может быть опубликована на <1>официальной ветки форума для этой игры</1>.",
     "Admins and Moderators": "Администраторы и Модераторы",
     "After requesting account deletion you may cancel your request within 14 days.": "После запроса об удалении аккаунта, вы можете отменить свой запрос в течение 14 дней.",
-    "After uploading, press Ctrl + F5. This refreshes your browser cache making the new image visible.": "После загрузки, нажмите Ctrl + F5. Это перезагружает кэш вашего браузера, что делает новое изображение видимым.",
+    "After uploading, press Ctrl + F5. This refreshes your browser cache making the new image visible.": "После загрузки, нажмите Ctrl + F5. Это перезагружает кэш вашего браузера, что сделает новое изображение видимым.",
     "All Games": "Все игры",
     "All Systems": "Все системы",
     "All Users": "Все пользователи",
@@ -330,7 +330,7 @@
     "Supported Game Files": "Поддерживаемые файлы",
     "Supported Game Files - {{gameTitle}}": "Поддерживаемые файлы - {{gameTitle}}",
     "Suppress mature content warnings": "Подавлять предупреждения о взрослом контенте",
-    "System": "система",
+    "System": "Система",
     "Terms and Conditions": "Условия Использования",
     "The RetroAchievements API documentation can be found <1>here</1>.": "Документацию для RetroAchievements API можно найти <1>тут</1>.",
     "The achievement contains an <1>unwelcome concept</1>.": "Это достижение содержит <1>неприемлемые концепты</1>.",
@@ -464,7 +464,7 @@
     "{{visible, number}} of {{total, number}} games_few": "{{visible, number}} из {{total, number}} игр",
     "{{visible, number}} of {{total, number}} games_many": "{{visible, number}} из {{total, number}} игр",
     "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} из {{total, number}} игр",
-    "Hash Comments - {{gameTitle}}": "Hash Comments - {{gameTitle}}",
-    "Hash Comments": "Hash Comments",
-    "Surprise me": "Surprise me"
+    "Hash Comments - {{gameTitle}}": "Комментарии о хэше - {{gameTitle}}",
+    "Hash Comments": "Комментарии о хэше",
+    "Surprise me": "Удивите меня"
 }
