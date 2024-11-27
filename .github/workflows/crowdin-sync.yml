@@ -23,7 +23,7 @@ jobs:
         with:
           upload_sources: false
           upload_translations: false
-          download_translations: true
+          download_translations: false
           download_bundle: 2
           create_pull_request: true
           pull_request_title: 'chore: sync Crowdin translations'
