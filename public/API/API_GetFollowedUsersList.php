@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'c' => 'nullable|integer|min:0',
-    'o' => 'nullable|integer|min:0',
+    'o' => 'nullable|integer|min:1|max:500',
 ]);
 
 $offset = $input['o'] ?? 0;
