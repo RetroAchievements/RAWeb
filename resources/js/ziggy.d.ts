@@ -144,13 +144,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.masters": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.suggest": [
         {
             "name": "game",
@@ -159,13 +152,6 @@ declare module 'ziggy-js' {
         }
     ],
     "game.claims": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
-    "game.claims.comments": [
         {
             "name": "game",
             "required": true,
@@ -201,6 +187,13 @@ declare module 'ziggy-js' {
     "api.game.index": [],
     "api.game.random": [],
     "game.hashes.index": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "game.top-achievers.index": [
         {
             "name": "game",
             "required": true,
@@ -281,6 +274,12 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.game.claims.comment.store": [
+        {
+            "name": "game",
+            "required": true
+        }
+    ],
     "api.game.hashes.comment.store": [
         {
             "name": "game",
@@ -314,6 +313,18 @@ declare module 'ziggy-js' {
         }
     ],
     "api.game.comment.destroy": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.game.claims.comment.destroy": [
         {
             "name": "game",
             "required": true,
@@ -403,6 +414,13 @@ declare module 'ziggy-js' {
         }
     ],
     "game.comment.index": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "game.claims.comment.index": [
         {
             "name": "game",
             "required": true,

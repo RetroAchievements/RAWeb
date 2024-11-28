@@ -20,6 +20,12 @@ declare namespace App.Community.Data {
     canDelete: boolean;
     isAutomated: boolean;
   };
+  export type GameClaimsCommentsPageProps<TItems = App.Community.Data.Comment> = {
+    game: App.Platform.Data.Game;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+    isSubscribed: boolean;
+    canComment: boolean;
+  };
   export type GameCommentsPageProps<TItems = App.Community.Data.Comment> = {
     game: App.Platform.Data.Game;
     paginatedComments: App.Data.PaginatedData<TItems>;
@@ -399,6 +405,9 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
+  export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
+  export type AchievementSetAuthorTask = 'artwork';
+  export type UnlockMode = 0 | 1;
   export type AchievementFlag = 3 | 5;
   export type AchievementSetType =
     | 'core'
@@ -421,7 +430,6 @@ declare namespace App.Platform.Enums {
     | 'numVisibleLeaderboards'
     | 'numUnresolvedTickets'
     | 'progress';
-  export type UnlockMode = 0 | 1;
   export type GameSetType = 'hub' | 'similar-games';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 }

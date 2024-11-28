@@ -475,5 +475,7 @@
     "⚠️ Playing {{gameTitle}}": "⚠️ Playing {{gameTitle}}",
     "Hash Comments - {{gameTitle}}": "Комментарии о хэше - {{gameTitle}}",
     "Hash Comments": "Комментарии о хэше",
-    "Surprise me": "Удивите меня"
+    "Surprise me": "Удивите меня",
+    "Claim Comments - {{gameTitle}}": "Claim Comments - {{gameTitle}}",
+    "Claim Comments": "Claim Comments"
 }
