@@ -89,6 +89,9 @@ importers:
       i18next:
         specifier: ^23.16.4
         version: 23.16.4
+      i18next-resources-to-backend:
+        specifier: ^1.2.1
+        version: 1.2.1
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
@@ -2864,6 +2867,9 @@ packages:
     resolution: {integrity: sha512-83TLJMD0368y3pLhQshYpO0kWYW0YTIg/vwI5IlB9ZaSTKA9stubTBJHFBugOg3TLc3ps+Qo6X9RIs2DTP+rHA==}
     engines: {node: '>=12'}
     hasBin: true
+
+  i18next-resources-to-backend@1.2.1:
+    resolution: {integrity: sha512-okHbVA+HZ7n1/76MsfhPqDou0fptl2dAlhRDu2ideXloRRduzHsqDOznJBef+R3DFZnbvWoBW+KxJ7fnFjd6Yw==}
 
   i18next@23.16.4:
     resolution: {integrity: sha512-9NIYBVy9cs4wIqzurf7nLXPyf3R78xYbxExVqHLK9od3038rjpyOEzW+XB130kZ1N4PZ9inTtJ471CRJ4Ituyg==}
@@ -7144,6 +7150,10 @@ snapshots:
       fs-extra: 10.1.0
       picomatch: 4.0.2
       yargs: 17.7.2
+
+  i18next-resources-to-backend@1.2.1:
+    dependencies:
+      '@babel/runtime': 7.26.0
 
   i18next@23.16.4:
     dependencies:
