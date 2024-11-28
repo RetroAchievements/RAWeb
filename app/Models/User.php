@@ -433,6 +433,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         return BitSet($this->getAttribute('websitePrefs'), UserPreference::Forum_ShowAbsoluteDates);
     }
 
+    public function getIsGloballyOptedOutOfSubsetsAttribute(): bool
+    {
+        return BitSet($this->getAttribute('websitePrefs'), UserPreference::Game_OptOutOfAllSubsets);
+    }
+
     public function getOnlyAllowsContactFromFollowersAttribute(): bool
     {
         return BitSet($this->getAttribute('websitePrefs'), UserPreference::User_OnlyContactFromFollowing);
@@ -566,5 +571,14 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     public function scopeVerified(Builder $query): Builder
     {
         return $query->where('Permissions', '>', 0);
+    }
+
+    /**
+     * @param Builder<User> $query
+     * @return Builder<User>
+     */
+    public function scopeTracked(Builder $query): Builder
+    {
+        return $query->where('Untracked', false); // TODO: use unranked_at=NULL?
     }
 }

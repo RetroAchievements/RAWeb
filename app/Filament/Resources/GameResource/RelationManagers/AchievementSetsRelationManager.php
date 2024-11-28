@@ -9,6 +9,7 @@ use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\User;
+use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Enums\AchievementSetType;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
+use InvalidArgumentException;
 use Livewire\Component;
 
 class AchievementSetsRelationManager extends RelationManager
@@ -197,38 +199,26 @@ class AchievementSetsRelationManager extends RelationManager
                             ]),
                     ])
                     ->action(function (array $data) use ($game) {
-                        // Add a new game_achievement_set row. The existing row stays
-                        // New row is basically the same as the old row, but the game_id and type are different values.
-                        // It'll use the same achievement_set_id.
+                        try {
+                            (new AssociateAchievementSetToGameAction())->execute(
+                                targetGame: $game,
+                                sourceGame: Game::find((int) $data['game']),
+                                type: AchievementSetType::from($data['type']),
+                                title: $data['title']
+                            );
 
-                        $legacySubsetGame = Game::find((int) $data['game']);
-                        $legacySubsetAchievementSet = $legacySubsetGame->achievementSets()
-                            ->wherePivot('type', AchievementSetType::Core->value)
-                            ->first();
-
-                        if ($game->achievementSets()->wherePivot('achievement_set_id', $legacySubsetAchievementSet->id)->exists()) {
+                            Notification::make()
+                                ->success()
+                                ->title('Success')
+                                ->body('Subset successfully associated with the game.')
+                                ->send();
+                        } catch (InvalidArgumentException $e) {
                             Notification::make()
                                 ->danger()
                                 ->title('Error')
-                                ->body('This subset is already associated with the game.')
+                                ->body($e->getMessage())
                                 ->send();
-
-                            return;
                         }
-
-                        $game->achievementSets()->attach($legacySubsetAchievementSet->id, [
-                            'type' => $data['type'],
-                            'order_column' => 1,
-                            'title' => $data['title'],
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-
-                        Notification::make()
-                            ->success()
-                            ->title('Success')
-                            ->body('Subset successfully associated with the game.')
-                            ->send();
                     }),
             ])
             ->actions([
