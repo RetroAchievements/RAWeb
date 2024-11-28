@@ -21,7 +21,7 @@ export function updateUrlParameter(paramName: string | string[], newQueryParamVa
     const currentParamName = paramNames[i];
     const currentNewQueryParamValue = newQueryParamValues[i];
 
-    if (currentNewQueryParamValue != null) {
+    if (currentNewQueryParamValue !== null) {
       params.set(currentParamName, currentNewQueryParamValue);
     } else {
       params.delete(currentParamName);

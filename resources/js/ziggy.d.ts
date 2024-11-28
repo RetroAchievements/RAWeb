@@ -144,13 +144,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.masters": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.suggest": [
         {
             "name": "game",
@@ -194,6 +187,13 @@ declare module 'ziggy-js' {
     "api.game.index": [],
     "api.game.random": [],
     "game.hashes.index": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "game.top-achievers.index": [
         {
             "name": "game",
             "required": true,
@@ -500,6 +500,7 @@ declare module 'ziggy-js' {
     "api.settings.email.update": [],
     "api.settings.keys.web.destroy": [],
     "api.settings.keys.connect.destroy": [],
+    "api.active-player.index": [],
     "login": [],
     "logout": [],
     "password.confirmation": [],
