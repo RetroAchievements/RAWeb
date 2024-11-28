@@ -96,8 +96,10 @@ function getSubscribersOf(string $subjectType, int $subjectID, ?int $reqWebsiteP
         $uniqueResults = [];
 
         foreach ($mergedResults as $result) {
-            $key = $result['User'] . '|' . $result['EmailAddress'];
-            $uniqueResults[$key] = $result;
+            if (isset($result['User']) && isset($result['EmailAddress'])) {
+                $key = $result['User'] . '|' . $result['EmailAddress'];
+                $uniqueResults[$key] = $result;
+            }
         }
 
         return array_values($uniqueResults);

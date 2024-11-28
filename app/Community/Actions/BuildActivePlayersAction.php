@@ -68,9 +68,17 @@ class BuildActivePlayersAction
             return $players;
         }
 
-        return array_filter(
-            $players,
-            fn ($player) => in_array($player['game_id'], $gameIds, strict: true)
+        // Put game IDs in a dictionary for O(1) lookups.
+        $gameIdSet = [];
+        foreach ($gameIds as $id) {
+            $gameIdSet[$id] = true;
+        }
+
+        return array_values(
+            array_filter(
+                $players,
+                fn ($player) => isset($gameIdSet[$player['game_id']])
+            )
         );
     }
 
@@ -101,37 +109,44 @@ class BuildActivePlayersAction
 
         $search = Str::lower(trim($search));
 
-        // We should also support logical OR searches, for example:
+        if ($search === '') {
+            return $players;
+        }
+
+        // We also support logical OR searches, for example:
         // "developing|inspecting".
-        $searchTerms = array_map(
-            fn (string $term) => Str::lower(trim($term)),
-            explode('|', $search)
+        $searchTerms = array_filter(
+            array_map(
+                fn (string $term) => Str::lower(trim($term)),
+                explode('|', $search)
+            ),
+            fn ($term) => $term !== ''
         );
 
-        // Filter out any empty terms.
-        $searchTerms = array_filter($searchTerms);
         if (empty($searchTerms)) {
             return $players;
         }
 
-        return array_filter(
-            $players,
-            function ($player) use ($searchTerms) {
-                // For each search term, check if it exists in any of the fields.
-                foreach ($searchTerms as $term) {
-                    if (
-                        str_contains(Str::lower($player['username']), $term)
-                        || str_contains(Str::lower($player['display_name']), $term)
-                        || str_contains(Str::lower($player['rich_presence']), $term)
-                        || str_contains(Str::lower($player['game_title']), $term)
-                    ) {
-                        return true;
-                    }
-                }
+        // This lookup function checks all fields at once.
+        $checkPlayer = function (array $player) use ($searchTerms): bool {
+            // Combine all searchable fields into one string and lowercase it.
+            $searchableText = Str::lower(
+                $player['username'] . '|' .
+                $player['display_name'] . '|' .
+                $player['rich_presence'] . '|' .
+                $player['game_title'] . '|'
+            );
 
-                return false;
+            foreach ($searchTerms as $term) {
+                if (str_contains($searchableText, $term)) {
+                    return true;
+                }
             }
-        );
+
+            return false;
+        };
+
+        return array_values(array_filter($players, $checkPlayer));
     }
 
     /**

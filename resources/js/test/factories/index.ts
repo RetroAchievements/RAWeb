@@ -9,6 +9,7 @@ export * from './createGame';
 export * from './createGameHash';
 export * from './createGameHashLabel';
 export * from './createGameListEntry';
+export * from './createGameTopAchiever';
 export * from './createHomePageProps';
 export * from './createLeaderboard';
 export * from './createNews';

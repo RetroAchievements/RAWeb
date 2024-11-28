@@ -45,5 +45,5 @@ abstract class UserPreference
 
     public const User_OnlyContactFromFollowing = 17;
 
-    public const Game_OptOutOfAllSets = 18;
+    public const Game_OptOutOfAllSubsets = 18;
 }

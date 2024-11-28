@@ -58,7 +58,7 @@ export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
         {import.meta.env.VITE_FEATURE_MULTISET === 'true' ? (
           <PreferencesSwitchField
             t_label={t('Automatically opt in to all game sets')}
-            fieldName={StringifiedUserPreference.Game_OptOutOfAllSets}
+            fieldName={StringifiedUserPreference.Game_OptOutOfAllSubsets}
             control={form.control}
             isSwitchInverted={true}
           />

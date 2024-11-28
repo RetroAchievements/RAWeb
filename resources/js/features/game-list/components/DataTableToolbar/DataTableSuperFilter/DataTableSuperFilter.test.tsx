@@ -5,10 +5,14 @@ import type { FC } from 'react';
 
 import { buildAchievementsPublishedColumnDef } from '@/features/game-list/utils/column-definitions/buildAchievementsPublishedColumnDef';
 import { buildSystemColumnDef } from '@/features/game-list/utils/column-definitions/buildSystemColumnDef';
+import { buildTitleColumnDef } from '@/features/game-list/utils/column-definitions/buildTitleColumnDef';
 import { render, screen } from '@/test';
 import { createSystem } from '@/test/factories';
 
 import { DataTableSuperFilter } from './DataTableSuperFilter';
+
+vi.mock('@/common/components/GameAvatar', () => ({ GameAvatar: () => null }));
+vi.mock('../RandomGameButton', () => ({ RandomGameButton: () => null }));
 
 // Suppress vaul a11y warnings.
 console.warn = vi.fn();
@@ -17,6 +21,7 @@ interface TestHarnessProps {
   columnFilters?: ColumnFiltersState;
   onColumnFiltersChange?: (filters: ColumnFiltersState) => void;
   onSortingChange?: (sorting: SortingState) => void;
+  sorting?: SortingState;
 }
 
 // We need to instantiate props with a hook, so a test harness is required.
@@ -24,11 +29,13 @@ const TestHarness: FC<TestHarnessProps> = ({
   columnFilters = [],
   onColumnFiltersChange = () => {},
   onSortingChange = () => {},
+  sorting = [],
 }) => {
   const table = useReactTable({
     onColumnFiltersChange: onColumnFiltersChange as any,
     onSortingChange: onSortingChange as any,
     columns: [
+      buildTitleColumnDef({ t_label: 'Title' }),
       buildSystemColumnDef({ t_label: 'System' }),
       buildAchievementsPublishedColumnDef({ t_label: 'Achievements' }),
     ],
@@ -36,7 +43,7 @@ const TestHarness: FC<TestHarnessProps> = ({
     getCoreRowModel: getCoreRowModel(),
     state: {
       columnFilters,
-      sorting: [],
+      sorting,
     },
   });
 
@@ -266,6 +273,21 @@ describe('Component: DataTableSuperFilter', () => {
       expect(mockPlausible).toHaveBeenCalledWith('Game List Sort', {
         props: { order: '-achievementsPublished' },
       });
+    });
+  });
+
+  describe('Sort State Handling', () => {
+    it('given no sorting state exists, uses a fallback "title" sort', async () => {
+      // ARRANGE
+      render(<TestHarness sorting={[]} />, { pageProps: { filterableSystemOptions: [] } });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button'));
+      const sortSelect = screen.getByRole('combobox', { name: /sort/i });
+      await userEvent.click(sortSelect);
+
+      // ASSERT
+      expect(screen.getAllByText('Title, Ascending (A - Z)')[0]).toBeVisible();
     });
   });
 });

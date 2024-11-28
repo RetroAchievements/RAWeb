@@ -46,17 +46,6 @@ class UserData extends Data
     ) {
     }
 
-    /**
-     * @see ActivePlayersService.php
-     */
-    public static function fromActivePlayers(array $activePlayerRecord): self
-    {
-        return new self(
-            displayName: $activePlayerRecord['display_name'] ?? $activePlayerRecord['User'],
-            avatarUrl: media_asset('UserPic/' . $activePlayerRecord['User'] . '.png'),
-        );
-    }
-
     public static function fromRecentForumTopic(array $topic): self
     {
         return new self(

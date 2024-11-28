@@ -376,9 +376,18 @@ function getExpiringClaim(User $user): array
         return $value;
     }
 
+    // TIMESTAMPDIFF() is not supported by SQLite, so any test that passes through
+    // here will always fail. We need to add a special exception for when this is
+    // called by tests.
+    if (DB::connection()->getDriverName() === 'sqlite') {
+        $minuteDiff = "round((julianday(Finished) - julianday('now')) * 1440)";
+    } else {
+        $minuteDiff = "TIMESTAMPDIFF(MINUTE, NOW(), Finished)";
+    }
+
     $claims = AchievementSetClaim::select(
-        DB::raw('COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 0 THEN 1 ELSE 0 END), 0) AS Expired'),
-        DB::raw('COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, NOW(), Finished) BETWEEN 0 AND 10080 THEN 1 ELSE 0 END), 0) AS Expiring'),
+        DB::raw("COALESCE(SUM(CASE WHEN {$minuteDiff} <= 0 THEN 1 ELSE 0 END), 0) AS Expired"),
+        DB::raw("COALESCE(SUM(CASE WHEN {$minuteDiff} BETWEEN 0 AND 10080 THEN 1 ELSE 0 END), 0) AS Expiring"),
         DB::raw('COUNT(*) AS Count')
     )
         ->where('user_id', $user->id)

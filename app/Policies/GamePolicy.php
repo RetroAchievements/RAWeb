@@ -17,9 +17,12 @@ class GamePolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
+
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
+
+            Role::ARTIST,
         ]);
     }
 
@@ -141,6 +144,15 @@ class GamePolicy
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
+        ]);
+    }
+
+    public function addContributionCredit(User $user, Game $game): bool
+    {
+        return $user->hasAnyRole([
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::ARTIST,
         ]);
     }
 

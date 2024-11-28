@@ -9,6 +9,7 @@ use App\Community\Controllers\AchievementSetClaimController;
 use App\Community\Controllers\Api\AchievementCommentApiController;
 use App\Community\Controllers\Api\ActivePlayersApiController;
 use App\Community\Controllers\Api\GameCommentApiController;
+use App\Community\Controllers\Api\GameHashesCommentApiController;
 use App\Community\Controllers\Api\LeaderboardCommentApiController;
 use App\Community\Controllers\Api\SubscriptionApiController;
 use App\Community\Controllers\Api\UserCommentApiController;
@@ -16,6 +17,7 @@ use App\Community\Controllers\Api\UserGameListApiController;
 use App\Community\Controllers\ForumTopicCommentController;
 use App\Community\Controllers\ForumTopicController;
 use App\Community\Controllers\GameCommentController;
+use App\Community\Controllers\GameHashesCommentController;
 use App\Community\Controllers\LeaderboardCommentController;
 use App\Community\Controllers\MessageController;
 use App\Community\Controllers\MessageThreadController;
@@ -58,10 +60,12 @@ class RouteServiceProvider extends ServiceProvider
                     Route::group(['prefix' => 'internal-api'], function () {
                         Route::post('achievement/{achievement}/comment', [AchievementCommentApiController::class, 'store'])->name('api.achievement.comment.store');
                         Route::post('game/{game}/comment', [GameCommentApiController::class, 'store'])->name('api.game.comment.store');
+                        Route::post('game/{game}/hashes/comment', [GameHashesCommentApiController::class, 'store'])->name('api.game.hashes.comment.store');
                         Route::post('leaderboard/{leaderboard}/comment', [LeaderboardCommentApiController::class, 'store'])->name('api.leaderboard.comment.store');
                         Route::post('user/{user}/comment', [UserCommentApiController::class, 'store'])->name('api.user.comment.store');
                         Route::delete('achievement/{achievement}/comment/{comment}', [AchievementCommentApiController::class, 'destroy'])->name('api.achievement.comment.destroy');
                         Route::delete('game/{game}/comment/{comment}', [GameCommentApiController::class, 'destroy'])->name('api.game.comment.destroy');
+                        Route::delete('game/{game}/hashes/comment/{comment}', [GameHashesCommentApiController::class, 'destroy'])->name('api.game.hashes.comment.destroy');
                         Route::delete('leaderboard/{leaderboard}/comment/{comment}', [LeaderboardCommentApiController::class, 'destroy'])->name('api.leaderboard.comment.destroy');
                         Route::delete('user/{user}/comment/{comment}', [UserCommentApiController::class, 'destroy'])->name('api.user.comment.destroy');
 
@@ -69,6 +73,7 @@ class RouteServiceProvider extends ServiceProvider
                         Route::delete('subscription/{subjectType}/{subjectId}', [SubscriptionApiController::class, 'destroy'])->name('api.subscription.destroy');
 
                         Route::get('user-game-list', [UserGameListApiController::class, 'index'])->name('api.user-game-list.index');
+                        Route::get('user-game-list/random', [UserGameListApiController::class, 'random'])->name('api.user-game-list.random');
                         Route::post('user-game-list/{game}', [UserGameListApiController::class, 'store'])->name('api.user-game-list.store');
                         Route::delete('user-game-list/{game}', [UserGameListApiController::class, 'destroy'])->name('api.user-game-list.destroy');
                     });
@@ -77,6 +82,7 @@ class RouteServiceProvider extends ServiceProvider
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('achievement/{achievement}/comments', [AchievementCommentController::class, 'index'])->name('achievement.comment.index');
                     Route::get('game/{game}/comments', [GameCommentController::class, 'index'])->name('game.comment.index');
+                    Route::get('game/{game}/hashes/comments', [GameHashesCommentController::class, 'index'])->name('game.hashes.comment.index');
                     Route::get('leaderboard/{leaderboard}/comments', [LeaderboardCommentController::class, 'index'])->name('leaderboard.comment.index');
                     Route::get('user/{user}/comments', [UserCommentController::class, 'index'])->name('user.comment.index');
 

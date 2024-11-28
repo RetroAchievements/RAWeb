@@ -97,7 +97,7 @@
     "Couldn't find any completed claims.": "Não foi possível encontrar nenhuma reivindicação completa.",
     "Couldn't find any sets in progress.": "Não foi possível encontrar nenhum conjunto em andamento.",
     "Create Ticket": "Criar Ticket",
-    "Create Ticket - :achievementTitle": "Criar Ticket - :achievementTitle",
+    "Create Ticket - {{achievementTitle}}": "Criar Ticket - {{achievementTitle}}",
     "Current Email Address": "Endereço de E-mail Atual",
     "Current Locale": "Local Atual",
     "Current Password": "Senha Atual",
@@ -346,6 +346,7 @@
     "Toggle columns": "Alternar colunas",
     "Toggle hardcore": "Alternar para o modo hardcore",
     "Toggle softcore": "Alternar para o modo softcore",
+    "Top Achievers": "Top Achievers",
     "Triggered at the wrong time": "Acionado no momento errado",
     "Triggered, but not showing as earned on site": "Acionado, mas não aparecendo como conquistado no site",
     "Type": "Tipo",
@@ -463,5 +464,8 @@
     "Search by player name, game title, or Rich Presence...": "Search by player name, game title, or Rich Presence...",
     "Remember my search": "Remember my search",
     "Trending right now": "Trending right now",
-    "⚠️ Playing {{gameTitle}}": "⚠️ Playing {{gameTitle}}"
+    "⚠️ Playing {{gameTitle}}": "⚠️ Playing {{gameTitle}}",
+    "Hash Comments - {{gameTitle}}": "Hash Comments - {{gameTitle}}",
+    "Hash Comments": "Hash Comments",
+    "Surprise me": "Surprise me"
 }
