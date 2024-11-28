@@ -65,9 +65,10 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         reporter: ['text', 'html'],
         include: [
           /*
-           * Disregard coverage for Alpine.js stuff, mounting code, and /pages.
+           * Disregard coverage for Alpine.js stuff, mounting code, /pages, and /tools.
            *  - Alpine.js stuff will be removed.
            *  - Covering mounting code would just test the framework.
+           *  - /tools is internal and not user-facing.
            *  - /pages should be covered by controller tests.
            */
           'resources/js/common',
