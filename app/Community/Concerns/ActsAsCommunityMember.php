@@ -78,9 +78,29 @@ trait ActsAsCommunityMember
     /**
      * @return BelongsToMany<User>
      */
+    public function followedUsersWithFollowBackDetail(): BelongsToMany
+    {
+        return $this->followedUsers()
+            ->select()
+            ->selectRaw(...$this->buildFollowBackValue('is_following_me'));
+    }
+
+    /**
+     * @return BelongsToMany<User>
+     */
     public function followerUsers(): BelongsToMany
     {
         return $this->inverseRelatedUsers()->where('Friendship', '=', UserRelationship::Following);
+    }
+
+    /**
+     * @return BelongsToMany<User>
+     */
+    public function followerUsersWithFollowBackDetail(): BelongsToMany
+    {
+        return $this->followerUsers()
+            ->select()
+            ->selectRaw(...$this->buildFollowBackValue('am_i_following_back'));
     }
 
     public function getRelationship(User $user): int
@@ -218,5 +238,22 @@ trait ActsAsCommunityMember
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class, 'user_id', 'ID');
+    }
+
+    private function buildFollowBackValue(string $propertyName): array
+    {
+        $userRelationTableName = (new UserRelation())->getTable();
+
+        return [
+            sprintf(
+            'EXISTS (
+                SELECT 1
+                FROM %1$s AS ur
+                WHERE ur.user_id = `%1$s`.`related_user_id`
+                AND ur.related_user_id = `%1$s`.`user_id`
+                AND ur.Friendship = ?
+            ) AS %2$s', $userRelationTableName, $propertyName),
+            [UserRelationship::Following],
+        ];
     }
 }

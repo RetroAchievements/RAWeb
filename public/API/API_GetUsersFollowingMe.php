@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  API_GetFollowedUsersList - returns list of the caller's followed users
+ *  API_GetUsersFollowingMe - returns list of the caller's follower users
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of entries to return (default: 100, max: 500)
  *  int         Count                       number of user records returned in the response
@@ -11,7 +11,7 @@
  *    string     User                       username
  *    int        Points                     number of hardcore points the user has earned
  *    int        PointsSoftcore             number of softcore points the user has earned
- *    boolean    FollowsBack                whether the followed user follows the caller user back
+ *    boolean    AmIFollowing               whether the caller user follows the follower user back
  */
 
 use App\Models\User;
@@ -20,8 +20,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'c' => 'nullable|integer|min:0',
-    'o' => 'nullable|integer|min:1|max:500',
+    'o' => 'nullable|integer|min:0',
+    'c' => 'nullable|integer|min:1|max:500',
 ]);
 
 $offset = $input['o'] ?? 0;
@@ -30,22 +30,22 @@ $count = $input['c'] ?? 100;
 /** @var User $user */
 $user = Auth::user();
 
-$totalUsers = $user->followedUsers()
+$totalUsers = $user->followerUsers()
     ->whereNull('Deleted')
     ->count();
 
-$usersList = $user->followedUsers()
+$usersList = $user->followerUsersWithFollowBackDetail()
     ->whereNull('Deleted')
     ->orderBy('LastActivityID', 'DESC')
     ->skip($offset)
     ->take($count)
     ->get()
-    ->map(function ($followedUser) use ($user) {
+    ->map(function ($followerUser) {
         return [
-            'User' => $followedUser->display_name,
-            'Points' => $followedUser->points,
-            'PointsSoftcore' => $followedUser->points_softcore,
-            'FollowsBack' => $followedUser->isFollowing($user),
+            'User' => $followerUser->display_name,
+            'Points' => $followerUser->points,
+            'PointsSoftcore' => $followerUser->points_softcore,
+            'AmIFollowing' => filter_var($followerUser->am_i_following_back, FILTER_VALIDATE_BOOLEAN),
         ];
     });
 

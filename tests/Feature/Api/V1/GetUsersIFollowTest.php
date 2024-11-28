@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
-class GetFollowedUsersListTest extends TestCase
+class GetUsersIFollowTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -36,6 +36,8 @@ class GetFollowedUsersListTest extends TestCase
     public function testGetFollowedUsersList(): void
     {
         Carbon::setTestNow(Carbon::now());
+
+        $api = "GetUsersIFollow";
 
         /** @var User $followedUser1 */
         $followedUser1 = User::factory()->create(['User' => 'myFollowedUser1']);
@@ -82,7 +84,7 @@ class GetFollowedUsersListTest extends TestCase
             'Friendship' => UserRelationship::Following,
         ]);
 
-        $this->get($this->apiUrl('GetFollowedUsersList'))
+        $this->get($this->apiUrl($api))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 5,
@@ -92,36 +94,36 @@ class GetFollowedUsersListTest extends TestCase
                         "User" => $followedUser1->display_name,
                         "Points" => $followedUser1->Points,
                         "PointsSoftcore" => $followedUser1->points_softcore,
-                        "FollowsBack" => true,
+                        "IsFollowingMe" => true,
                     ],
                     [
                         "User" => $followedUser2->display_name,
                         "Points" => $followedUser2->Points,
                         "PointsSoftcore" => $followedUser2->points_softcore,
-                        "FollowsBack" => false,
+                        "IsFollowingMe" => false,
                     ],
                     [
                         "User" => $followedUser3->display_name,
                         "Points" => $followedUser3->Points,
                         "PointsSoftcore" => $followedUser3->points_softcore,
-                        "FollowsBack" => false,
+                        "IsFollowingMe" => false,
                     ],
                     [
                         "User" => $followedUser4->display_name,
                         "Points" => $followedUser4->Points,
                         "PointsSoftcore" => $followedUser4->points_softcore,
-                        "FollowsBack" => false,
+                        "IsFollowingMe" => false,
                     ],
                     [
                         "User" => $followedUser5->display_name,
                         "Points" => $followedUser5->Points,
                         "PointsSoftcore" => $followedUser5->points_softcore,
-                        "FollowsBack" => false,
+                        "IsFollowingMe" => false,
                     ],
                 ],
             ]);
 
-            $this->get($this->apiUrl('GetFollowedUsersList', ['o' => 3]))
+            $this->get($this->apiUrl($api, ['o' => 3]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -131,18 +133,18 @@ class GetFollowedUsersListTest extends TestCase
                             "User" => $followedUser4->display_name,
                             "Points" => $followedUser4->Points,
                             "PointsSoftcore" => $followedUser4->points_softcore,
-                            "FollowsBack" => false,
+                            "IsFollowingMe" => false,
                         ],
                         [
                             "User" => $followedUser5->display_name,
                             "Points" => $followedUser5->Points,
                             "PointsSoftcore" => $followedUser5->points_softcore,
-                            "FollowsBack" => false,
+                            "IsFollowingMe" => false,
                         ],
                     ],
                 ]);
 
-            $this->get($this->apiUrl('GetFollowedUsersList', ['c' => 2]))
+            $this->get($this->apiUrl($api, ['c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -152,18 +154,29 @@ class GetFollowedUsersListTest extends TestCase
                             "User" => $followedUser1->display_name,
                             "Points" => $followedUser1->Points,
                             "PointsSoftcore" => $followedUser1->points_softcore,
-                            "FollowsBack" => true,
+                            "IsFollowingMe" => true,
                         ],
                         [
                             "User" => $followedUser2->display_name,
                             "Points" => $followedUser2->Points,
                             "PointsSoftcore" => $followedUser2->points_softcore,
-                            "FollowsBack" => false,
+                            "IsFollowingMe" => false,
                         ],
                     ],
                 ]);
 
-            $this->get($this->apiUrl('GetFollowedUsersList', ['o' => 1, 'c' => 2]))
+            $this->get($this->apiUrl($api, ['c' => 750]))
+                ->assertUnprocessable()
+                ->assertJson([
+                    'message' => 'The c must not be greater than 500.',
+                    'errors' => [
+                        "c" => [
+                            'The c must not be greater than 500.',
+                        ],
+                    ],
+                ]);
+
+            $this->get($this->apiUrl($api, ['o' => 1, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -173,13 +186,13 @@ class GetFollowedUsersListTest extends TestCase
                             "User" => $followedUser2->display_name,
                             "Points" => $followedUser2->Points,
                             "PointsSoftcore" => $followedUser2->points_softcore,
-                            "FollowsBack" => false,
+                            "IsFollowingMe" => false,
                         ],
                         [
                             "User" => $followedUser3->display_name,
                             "Points" => $followedUser3->Points,
                             "PointsSoftcore" => $followedUser3->points_softcore,
-                            "FollowsBack" => false,
+                            "IsFollowingMe" => false,
                         ],
                     ],
                 ]);
