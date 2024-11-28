@@ -524,6 +524,96 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertEquals(0, $collabClaim->Extension);
     }
 
+    public function testCollaborationClaimAndPrimaryExtend(): void
+    {
+        $this->seed(RolesTableSeeder::class);
+
+        /** @var User $user */
+        $user = User::factory()->create();
+        $user->assignRole(Role::DEVELOPER);
+
+        /** @var User $user2 */
+        $user2 = User::factory()->create();
+        $user2->assignRole(Role::DEVELOPER);
+
+        /** @var Game $game */
+        $game = $this->seedGame(withHash: false);
+
+        // initial claim
+        $claimDate = Carbon::now()->startOfSecond();
+        Carbon::setTestNow($claimDate);
+
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.create', $game->id));
+
+        $response->assertStatus(302); // redirect
+        $response->assertRedirect('/'); // back() redirects to home when no source is provided
+        $response->assertSessionHas('success', 'Claim created successfully');
+
+        $claim = $game->achievementSetClaims()->first();
+        $this->assertNotNull($claim);
+
+        // collaboration claim
+        $collabDate = $claimDate->clone()->addHours(2);
+        Carbon::setTestNow($collabDate);
+
+        Session::flush();
+        $response = $this->actingAs($user2)->postJson(route('achievement-set-claim.create', $game->ID));
+
+        $response->assertStatus(302); // redirect
+        $response->assertRedirect('/'); // back() redirects to home when no source is provided
+        $response->assertSessionHas('success', 'Claim created successfully');
+
+        $collabClaim = $game->achievementSetClaims()->where('user_id', $user2->id)->first();
+        $this->assertNotNull($collabClaim);
+        $this->assertEquals($user2->id, $collabClaim->user_id);
+        $this->assertEquals($game->id, $collabClaim->game_id);
+        $this->assertEquals(ClaimType::Collaboration, $collabClaim->ClaimType);
+        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->SetType);
+        $this->assertEquals(ClaimStatus::Active, $collabClaim->Status);
+        $this->assertEquals(ClaimSpecial::None, $collabClaim->Special);
+        $this->assertEquals($collabDate->clone()->addMonths(3), $collabClaim->Finished);
+        $this->assertEquals($collabDate, $collabClaim->Created);
+        $this->assertEquals($collabDate, $collabClaim->Updated);
+        $this->assertEquals(0, $collabClaim->Extension);
+
+        // extend primary claim
+        $claimFinished = $claim->Finished;
+        $extendDate = $claimDate->clone()->addWeeks(11);
+        Carbon::setTestNow($extendDate);
+
+        Session::flush();
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.create', $game->id));
+
+        $response->assertStatus(302); // redirect
+        $response->assertRedirect('/'); // back() redirects to home when no source is provided
+        $response->assertSessionHas('success', 'Claim updated successfully');
+
+        $claim->refresh();
+        $this->assertEquals($user->id, $claim->user_id);
+        $this->assertEquals($game->id, $claim->game_id);
+        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
+        $this->assertEquals(ClaimStatus::Active, $claim->Status);
+        $this->assertEquals(ClaimSpecial::None, $claim->Special);
+        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->Finished);
+        $this->assertEquals($claimDate, $claim->Created);
+        $this->assertEquals($extendDate, $claim->Updated);
+        $this->assertEquals(1, $claim->Extension);
+
+        // collab claim should be also be extended
+        $collabClaim->refresh();
+        $this->assertEquals($user2->id, $collabClaim->user_id);
+        $this->assertEquals($game->id, $collabClaim->game_id);
+        $this->assertEquals(ClaimType::Collaboration, $collabClaim->ClaimType);
+        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->SetType);
+        $this->assertEquals(ClaimStatus::Active, $collabClaim->Status);
+        $this->assertEquals(ClaimSpecial::None, $collabClaim->Special);
+        $this->assertEquals($claimFinished->clone()->addMonths(3), $collabClaim->Finished);
+        $this->assertEquals($collabDate, $collabClaim->Created);
+        $this->assertEquals($extendDate, $collabClaim->Updated);
+        $this->assertEquals(1, $collabClaim->Extension);
+    }
+
     public function testPrimaryRevisionClaimAndComplete(): void
     {
         $this->seed(RolesTableSeeder::class);
