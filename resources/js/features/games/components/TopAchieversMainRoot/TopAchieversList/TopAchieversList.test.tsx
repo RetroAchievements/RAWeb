@@ -46,7 +46,7 @@ describe('Component: TopAchieversList', () => {
         game: createGame(),
         paginatedUsers: createPaginatedData([
           createGameTopAchiever({
-            user: user,
+            user,
             score: 753,
             badge: createPlayerBadge({
               awardType: AwardType.Mastery,
@@ -73,7 +73,7 @@ describe('Component: TopAchieversList', () => {
         game: createGame(),
         paginatedUsers: createPaginatedData([
           createGameTopAchiever({
-            user: user,
+            user,
             score: 222,
             badge: createPlayerBadge({
               awardType: AwardType.GameBeaten,
@@ -97,7 +97,7 @@ describe('Component: TopAchieversList', () => {
     render<App.Platform.Data.GameTopAchieversPageProps>(<TopAchieversList />, {
       pageProps: {
         game: createGame(),
-        paginatedUsers: createPaginatedData([createGameTopAchiever({ user: user, score: 59 })]),
+        paginatedUsers: createPaginatedData([createGameTopAchiever({ user, score: 59 })]),
       },
     });
 
