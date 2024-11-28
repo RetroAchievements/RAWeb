@@ -14,9 +14,9 @@ export function useToggleSubscriptionMutation() {
         return axios.post<App.Community.Data.Subscription>(
           route('api.subscription.store', pathParams),
         );
-      } else {
-        return axios.delete(route('api.subscription.destroy', pathParams));
       }
+
+      return axios.delete(route('api.subscription.destroy', pathParams));
     },
   });
 }

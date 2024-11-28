@@ -6,9 +6,9 @@ import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createComment, createGame, createPaginatedData, createSystem } from '@/test/factories';
 
-import { GameHashesCommentsMainRoot } from './GameHashesCommentsMainRoot';
+import { GameClaimsCommentsMainRoot } from './GameClaimsCommentsMainRoot';
 
-describe('Component: GameHashesCommentsMainRoot', () => {
+describe('Component: GameClaimsCommentsMainRoot', () => {
   beforeEach(() => {
     window.HTMLElement.prototype.hasPointerCapture = vi.fn();
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
@@ -16,8 +16,8 @@ describe('Component: GameHashesCommentsMainRoot', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Community.Data.GameCommentsPageProps>(
-      <GameHashesCommentsMainRoot />,
+    const { container } = render<App.Community.Data.GameClaimsCommentsPageProps>(
+      <GameClaimsCommentsMainRoot />,
       {
         pageProps: {
           auth: null,
@@ -38,7 +38,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
     const system = createSystem({ name: 'Nintendo 64' });
     const game = createGame({ system });
 
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.GameClaimsCommentsPageProps>(<GameClaimsCommentsMainRoot />, {
       pageProps: {
         game,
         auth: null,
@@ -59,7 +59,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
     const system = createSystem({ name: 'Nintendo 64' });
     const game = createGame({ system });
 
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.GameClaimsCommentsPageProps>(<GameClaimsCommentsMainRoot />, {
       pageProps: {
         game,
         auth: null,
@@ -70,7 +70,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('heading', { name: /hash comments/i })).toBeVisible();
+    expect(screen.getByRole('heading', { name: /claim comments/i })).toBeVisible();
   });
 
   it('displays pagination controls', () => {
@@ -89,7 +89,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.GameClaimsCommentsPageProps>(<GameClaimsCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         game: createGame(),
@@ -107,7 +107,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
 
   it('does not display a subscribe toggle button', () => {
     // ARRANGE
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.GameClaimsCommentsPageProps>(<GameClaimsCommentsMainRoot />, {
       pageProps: {
         auth: null,
         game: createGame(),
@@ -123,7 +123,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
 
   it('given there are comments, displays them', () => {
     // ARRANGE
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.GameClaimsCommentsPageProps>(<GameClaimsCommentsMainRoot />, {
       pageProps: {
         auth: null,
         game: createGame(),
@@ -153,7 +153,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.GameClaimsCommentsPageProps>(<GameClaimsCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: null,
@@ -171,7 +171,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
     // ASSERT
     expect(visitSpy).toHaveBeenCalledOnce();
     expect(visitSpy).toHaveBeenCalledWith([
-      'game.hashes.comment.index',
+      'game.claims.comment.index',
       { game: 1, _query: { page: 2 } },
     ]);
   });
@@ -194,7 +194,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.GameClaimsCommentsPageProps>(<GameClaimsCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: { user: createAuthenticatedUser() }, // we're logged in, so we can write comments
@@ -211,7 +211,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
     // ASSERT
     expect(visitSpy).toHaveBeenCalledOnce();
     expect(visitSpy).toHaveBeenCalledWith(
-      ['game.hashes.comment.index', { game: 1, _query: { page: 3 } }],
+      ['game.claims.comment.index', { game: 1, _query: { page: 3 } }],
       { preserveScroll: true },
     );
   });
@@ -235,7 +235,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.GameHashesCommentsPageProps>(<GameHashesCommentsMainRoot />, {
+    render<App.Community.Data.GameClaimsCommentsPageProps>(<GameClaimsCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         auth: { user: createAuthenticatedUser() }, // we're logged in
@@ -251,7 +251,7 @@ describe('Component: GameHashesCommentsMainRoot', () => {
     // ASSERT
     expect(visitSpy).toHaveBeenCalledOnce();
     expect(visitSpy).toHaveBeenCalledWith(
-      ['game.hashes.comment.index', { game: 1, _query: { page: 1 } }],
+      ['game.claims.comment.index', { game: 1, _query: { page: 1 } }],
       { preserveScroll: true },
     );
   });
