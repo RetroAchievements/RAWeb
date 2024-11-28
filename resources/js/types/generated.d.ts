@@ -5,6 +5,10 @@ declare namespace App.Community.Data {
     isSubscribed: boolean;
     canComment: boolean;
   };
+  export type ActivePlayer = {
+    user: App.Data.User;
+    game: App.Platform.Data.Game;
+  };
   export type Comment = {
     id: number;
     commentableId: number;
@@ -159,25 +163,26 @@ declare namespace App.Data {
   export type User = {
     displayName: string;
     avatarUrl: string;
-    isMuted: boolean;
-    mutedUntil?: string | null;
-    id?: number;
-    username?: string | null;
-    legacyPermissions?: number | null;
-    locale?: string | null;
-    motto?: string;
-    points?: number;
-    pointsSoftcore?: number;
-    preferences?: { prefersAbsoluteDates: boolean };
-    roles?: App.Models.UserRole[];
     apiKey?: string | null;
     deleteRequested?: string | null;
     deletedAt?: string | null;
     emailAddress?: string | null;
+    id?: number;
+    isMuted?: boolean;
+    legacyPermissions?: number | null;
+    locale?: string | null;
+    motto?: string;
+    mutedUntil?: string | null;
+    points?: number;
+    pointsSoftcore?: number;
+    richPresenceMsg?: string | null;
     unreadMessageCount?: number | null;
+    username?: string | null;
     userWallActive?: boolean | null;
     visibleRole?: string | null;
     websitePrefs?: number | null;
+    preferences?: { prefersAbsoluteDates: boolean };
+    roles?: App.Models.UserRole[];
   };
   export type UserPermissions = {
     develop?: boolean;
