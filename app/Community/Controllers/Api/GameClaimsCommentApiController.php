@@ -7,14 +7,14 @@ namespace App\Community\Controllers\Api;
 use App\Community\Data\StoreCommentData;
 use App\Community\Requests\StoreCommentRequest;
 use App\Http\Controller;
+use App\Models\AchievementSetClaim;
 use App\Models\Comment;
 use App\Models\Game;
-use App\Models\GameHash;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
-class GameHashesCommentApiController extends Controller
+class GameClaimsCommentApiController extends Controller
 {
     public function index(): void
     {
@@ -22,7 +22,7 @@ class GameHashesCommentApiController extends Controller
 
     public function store(StoreCommentRequest $request): JsonResponse
     {
-        $this->authorize('manage', [GameHash::class]);
+        $this->authorize('manage', [AchievementSetClaim::class]);
 
         $data = StoreCommentData::fromRequest($request);
 

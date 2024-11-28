@@ -54,10 +54,10 @@ export function createFactory<T>(defaultProps: (faker: Faker) => T): FactoryFunc
         ...props,
       };
     };
-  } else {
-    // In non-test environments, we return a function that immediately throws to prevent accidental use.
-    return (): never => {
-      throw new Error('Factories are not available outside of the test environment.');
-    };
   }
+
+  // In non-test environments, we return a function that immediately throws to prevent accidental use.
+  return (): never => {
+    throw new Error('Factories are not available outside of the test environment.');
+  };
 }
