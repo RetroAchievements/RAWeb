@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Community\Controllers\Api;
 
 use App\Community\Data\StoreCommentData;

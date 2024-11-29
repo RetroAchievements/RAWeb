@@ -11,7 +11,7 @@ import { useCommentPagination } from '../hooks/useCommentPagination';
 
 export const GameHashesCommentsMainRoot: FC = () => {
   const { canComment, game, paginatedComments } =
-    usePageProps<App.Community.Data.GameCommentsPageProps>();
+    usePageProps<App.Community.Data.GameHashesCommentsPageProps>();
 
   const { t } = useTranslation();
 
