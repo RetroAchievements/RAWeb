@@ -27,6 +27,7 @@ class GameFactory extends Factory
             'sort_title' => null,
             'ConsoleID' => 0,
             'ImageIcon' => '/Images/000001.png',
+            'RichPresencePatch' => fake()->words(10, true),
         ];
     }
 

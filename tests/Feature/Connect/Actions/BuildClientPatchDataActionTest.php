@@ -351,10 +351,7 @@ class BuildClientPatchDataActionTest extends TestCase
         $this->assertEquals('Dragon Quest III [Subset - Bonus]', $result['PatchData']['Title']);
         $this->assertCount(2, $result['PatchData']['Achievements']);
 
-        $this->assertCount(1, $result['PatchData']['Sets']);
-        $this->assertEquals('bonus', $result['PatchData']['Sets'][0]['Type']);
-        $this->assertEquals(2, $result['PatchData']['Sets'][0]['CoreGameID']);
-        $this->assertCount(2, $result['PatchData']['Sets'][0]['Achievements']);
+        $this->assertArrayNotHasKey('Sets', $result['PatchData']);
     }
 
     /**
@@ -365,8 +362,18 @@ class BuildClientPatchDataActionTest extends TestCase
     public function testLocallyOptedOutOfSubsetsAndLoadedOptedOutSubsetHash(): void
     {
         // Arrange
-        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 1);
-        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', publishedCount: 2);
+        $baseGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III',
+            publishedCount: 1,
+            imagePath: '/Images/000001.png'
+        );
+        $bonusGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III [Subset - Bonus]',
+            publishedCount: 2,
+            imagePath: '/Images/000002.png'
+        );
         $bonusGame2 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus 2]', publishedCount: 3);
 
         $this->upsertGameCoreSetAction->execute($baseGame);
@@ -399,19 +406,15 @@ class BuildClientPatchDataActionTest extends TestCase
             user: $user
         );
 
-        // 🔴 JAMIRAS LOOK HERE
-        // "Sets" only contains $baseGame and $bonusGame2.
-        // However, PatchData still contains all the pre-multiset stuff, eg
-        //   - "Title" is "Dragon Quest III [Subset - Bonus]"
-        //   - "Achievements" has 2 published achievements
-        // Is this ok left as-is, or should this data be changed?
-
         // Assert
         $this->assertTrue($result['Success']);
 
-        $this->assertEquals(2, $result['PatchData']['ID']);
-        $this->assertEquals('Dragon Quest III [Subset - Bonus]', $result['PatchData']['Title']);
-        $this->assertCount(2, $result['PatchData']['Achievements']);
+        $this->assertEquals($baseGame->id, $result['PatchData']['ID']);
+        $this->assertEquals($baseGame->title, $result['PatchData']['Title']);
+        $this->assertEquals($baseGame->ImageIcon, $result['PatchData']['ImageIcon']);
+        $this->assertCount(1, $result['PatchData']['Achievements']);
+
+        $this->assertEquals($baseGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
 
         $this->assertCount(2, $result['PatchData']['Sets']);
 
@@ -421,7 +424,267 @@ class BuildClientPatchDataActionTest extends TestCase
 
         $this->assertEquals('bonus', $result['PatchData']['Sets'][1]['Type']);
         $this->assertEquals(3, $result['PatchData']['Sets'][1]['CoreGameID']);
-        $this->assertEquals('Bonus 2', $result['PatchData']['Sets'][1]['Title']);
+        $this->assertEquals('Bonus 2', $result['PatchData']['Sets'][1]['SetTitle']);
         $this->assertCount(3, $result['PatchData']['Sets'][1]['Achievements']);
+    }
+
+    public function testItPrioritizesSpecialtySetRichPresenceScript(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III',
+            publishedCount: 1,
+            imagePath: '/Images/000001.png'
+        );
+        $specialtyGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III [Subset - Special]',
+            publishedCount: 2,
+            imagePath: '/Images/000002.png'
+        );
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($specialtyGame);
+        $this->associateAchievementSetToGameAction->execute($baseGame, $specialtyGame, AchievementSetType::Specialty, 'Special');
+
+        $specialtyGameHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $result = (new BuildClientPatchDataAction())->execute(gameHash: $specialtyGameHash, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+        $this->assertEquals($baseGame->id, $result['PatchData']['ID']); // Use core game's ID...
+        $this->assertEquals($specialtyGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']); // ... but specialty RP.
+    }
+
+    public function testItPrioritizesExclusiveSetRichPresenceScript(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III',
+            publishedCount: 1
+        );
+        $exclusiveGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III [Subset - Exclusive]',
+            publishedCount: 2
+        );
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($exclusiveGame);
+        $this->associateAchievementSetToGameAction->execute($baseGame, $exclusiveGame, AchievementSetType::Exclusive, 'Exclusive');
+
+        $exclusiveGameHash = GameHash::factory()->create(['game_id' => $exclusiveGame->id]);
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $result = (new BuildClientPatchDataAction())->execute(gameHash: $exclusiveGameHash, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+        $this->assertEquals($baseGame->id, $result['PatchData']['ID']); // Use core game's ID...
+        $this->assertEquals($exclusiveGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']); // ... but exclusive RP.
+    }
+
+    public function testItFallsBackToCoreSetRichPresenceScript(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III',
+            publishedCount: 1,
+            imagePath: '/Images/000001.png'
+        );
+        $specialtyGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III [Subset - Special]',
+            publishedCount: 2,
+            imagePath: '/Images/000002.png'
+        );
+
+        $specialtyGame->RichPresencePatch = ""; // !!
+        $specialtyGame->save();
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($specialtyGame);
+        $this->associateAchievementSetToGameAction->execute($baseGame, $specialtyGame, AchievementSetType::Specialty, 'Special');
+
+        $specialtyGameHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $result = (new BuildClientPatchDataAction())->execute(gameHash: $specialtyGameHash, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+        $this->assertEquals($baseGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
+    }
+
+    public function testItUsesCoreGameRichPresenceForBonusSet(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III',
+            publishedCount: 1
+        );
+        $bonusGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III [Subset - Bonus]',
+            publishedCount: 2
+        );
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame);
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+
+        $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $result = (new BuildClientPatchDataAction())->execute(gameHash: $bonusGameHash, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+        $this->assertEquals($baseGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
+    }
+
+    public function testItResolvesRootDataCorrectlyForSpecialtySet(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III',
+            publishedCount: 3,
+        );
+        $specialtyGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III [Subset - Special]',
+            publishedCount: 2,
+        );
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($specialtyGame);
+        $this->associateAchievementSetToGameAction->execute($baseGame, $specialtyGame, AchievementSetType::Specialty, 'Special');
+
+        $specialtyGameHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $result = (new BuildClientPatchDataAction())->execute(gameHash: $specialtyGameHash, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+
+        // ... root data should be from the base game ...
+        $this->assertEquals($baseGame->id, $result['PatchData']['ID']);
+        $this->assertEquals($baseGame->title, $result['PatchData']['Title']);
+        $this->assertEquals($baseGame->ImageIcon, $result['PatchData']['ImageIcon']);
+        $this->assertCount(3, $result['PatchData']['Achievements']); // the base game's achievements
+
+        // ... RP should be from the specialty game ...
+        $this->assertEquals($specialtyGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
+    }
+
+    public function testItResolvesRootDataCorrectlyForExclusiveSet(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III',
+            publishedCount: 3,
+        );
+        $exclusiveGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III [Subset - Exclusive]',
+            publishedCount: 2,
+        );
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($exclusiveGame);
+        $this->associateAchievementSetToGameAction->execute($baseGame, $exclusiveGame, AchievementSetType::Exclusive, 'Exclusive');
+
+        $exclusiveGameHash = GameHash::factory()->create(['game_id' => $exclusiveGame->id]);
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $result = (new BuildClientPatchDataAction())->execute(gameHash: $exclusiveGameHash, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+
+        // ... root data should be from the base game ...
+        $this->assertEquals($baseGame->id, $result['PatchData']['ID']);
+        $this->assertEquals($baseGame->title, $result['PatchData']['Title']);
+        $this->assertEquals($baseGame->ImageIcon, $result['PatchData']['ImageIcon']);
+        $this->assertCount(3, $result['PatchData']['Achievements']); // ... base game's achievements ...
+
+        // ... RP should be from the exclusive game ...
+        $this->assertEquals($exclusiveGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
+
+        // ... sets should only contain the exclusive set ...
+        $this->assertCount(1, $result['PatchData']['Sets']);
+        $this->assertEquals('exclusive', $result['PatchData']['Sets'][0]['Type']);
+    }
+
+    public function testItHandlesGameWithNoAchievementSets(): void
+    {
+        // Arrange
+        $game = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III',
+            publishedCount: 0,
+            unpublishedCount: 0,
+        );
+
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $result = (new BuildClientPatchDataAction())->execute(gameHash: $gameHash, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+        $this->assertEmpty($result['PatchData']['Achievements']);
+        $this->assertEmpty($result['PatchData']['Sets'] ?? []);
+        $this->assertEquals($game->id, $result['PatchData']['ID']);
+        $this->assertEquals($game->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
+    }
+
+    public function testItHandlesSubsetWithNoCoreGame(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III',
+            publishedCount: 0,
+            unpublishedCount: 0,
+        );
+        $subsetGame = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III [Subset - Gold Medals]',
+            publishedCount: 2,
+        );
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($subsetGame);
+        $this->associateAchievementSetToGameAction->execute($baseGame, $subsetGame, AchievementSetType::Specialty, 'Gold Medals');
+
+        $subsetGameHash = GameHash::factory()->create(['game_id' => $subsetGame->id]);
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $result = (new BuildClientPatchDataAction())->execute(gameHash: $subsetGameHash, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+        $this->assertEquals($baseGame->id, $result['PatchData']['ID']);
+        $this->assertEquals($subsetGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
+        $this->assertCount(0, $result['PatchData']['Achievements']);
+        $this->assertCount(2, $result['PatchData']['Sets']);
     }
 }
