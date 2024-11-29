@@ -6,16 +6,10 @@ import type { RouteName } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { BasePagination, BasePaginationContent } from '@/common/components/+vendor/BasePagination';
-import {
-  BaseSelect,
-  BaseSelectContent,
-  BaseSelectItem,
-  BaseSelectTrigger,
-  BaseSelectValue,
-} from '@/common/components/+vendor/BaseSelect';
 
 import { useDataTablePrefetchPagination } from '../../hooks/useDataTablePrefetchPagination';
 import { ManualPaginatorField } from './ManualPaginatorField';
+import { PageSizeSelect } from './PageSizeSelect';
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
@@ -105,40 +99,13 @@ export function DataTablePagination<TData>({
       <div />
 
       <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-6 lg:gap-8">
-        <div className="flex items-center gap-2">
-          <label id="rows-per-page-label" htmlFor="rows-per-page-select">
-            {t('Rows per page')}
-          </label>
-
-          <BaseSelect
-            value={`${table.getState().pagination.pageSize}`}
-            onValueChange={(value) => {
-              handlePageSizeChange(Number(value));
-            }}
-          >
-            <BaseSelectTrigger
-              id="rows-per-page-select"
-              aria-labelledby="rows-per-page-label"
-              className="h-8 w-[70px]"
-            >
-              <BaseSelectValue placeholder={table.getState().pagination.pageSize} />
-            </BaseSelectTrigger>
-
-            <BaseSelectContent side="top">
-              {[25, 50, 150].map((pageSize) => (
-                <BaseSelectItem
-                  key={pageSize}
-                  value={`${pageSize}`}
-                  onMouseEnter={() => {
-                    prefetchPagination({ newPageIndex: 0, newPageSize: pageSize });
-                  }}
-                >
-                  {pageSize}
-                </BaseSelectItem>
-              ))}
-            </BaseSelectContent>
-          </BaseSelect>
-        </div>
+        <PageSizeSelect
+          value={table.getState().pagination.pageSize}
+          onMouseEnterPageSizeOption={(pageSize) => {
+            prefetchPagination({ newPageIndex: 0, newPageSize: pageSize });
+          }}
+          onChange={handlePageSizeChange}
+        />
 
         <BasePagination className="flex items-center gap-6 lg:gap-8">
           <ManualPaginatorField table={table} onPageChange={handlePageChange} />

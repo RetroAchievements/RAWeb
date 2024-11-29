@@ -9,10 +9,10 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class GameListRequest extends FormRequest
 {
-    // (!!) Be sure to do performance testing on any default higher than 125.
+    // (!!) Be sure to do performance testing on any default higher than 100.
     // Note that mobile _ALWAYS_ uses a page size of 100.
     private const DEFAULT_PAGE_SIZE = 25;
-    private const MAX_PAGE_SIZE = 500;
+    private const VALID_PAGE_SIZES = [10, 25, 50, 100, 200];
 
     public function rules(): array
     {
@@ -26,7 +26,7 @@ class GameListRequest extends FormRequest
 
         return [
             'page.number' => 'integer|min:1',
-            'page.size' => 'integer|min:1|max:' . self::MAX_PAGE_SIZE,
+            'page.size' => 'integer|in:' . implode(',', self::VALID_PAGE_SIZES),
             'sort' => 'string|in:' . implode(',', $sortValues),
             'filter.*' => 'string',
         ];
