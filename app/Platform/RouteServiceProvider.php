@@ -10,6 +10,7 @@ use App\Platform\Controllers\Api\GameApiController;
 use App\Platform\Controllers\Api\TriggerTicketApiController;
 use App\Platform\Controllers\GameController;
 use App\Platform\Controllers\GameHashController;
+use App\Platform\Controllers\GameTopAchieversController;
 use App\Platform\Controllers\PlayerAchievementController;
 use App\Platform\Controllers\PlayerGameController;
 use App\Platform\Controllers\ReportAchievementIssueController;
@@ -54,6 +55,7 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware(['inertia'])->group(function () {
                 Route::get('game/{game}/hashes', [GameHashController::class, 'index'])->name('game.hashes.index');
+                Route::get('game/{game}/top-achievers', [GameTopAchieversController::class, 'index'])->name('game.top-achievers.index');
 
                 Route::get('games', [GameController::class, 'index'])->name('game.index');
             });

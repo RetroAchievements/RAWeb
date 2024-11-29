@@ -21,7 +21,7 @@ trait IndexesComments
         string $routeParam,
         string $view,
         callable $createPropsData,
-        ?string $commentableType = null,
+        ?string $commentableType = null, // 'hashes' | 'claims'
     ): InertiaResponse|RedirectResponse {
         $this->authorize('viewAny', [$policy, $commentable]);
 
@@ -31,6 +31,8 @@ trait IndexesComments
         $commentsQuery = $commentable->visibleComments();
         if ($commentable instanceof Game && $commentableType === 'hashes') {
             $commentsQuery = $commentable->visibleHashesComments();
+        } elseif ($commentable instanceof Game && $commentableType === 'claims') {
+            $commentsQuery = $commentable->visibleClaimsComments();
         }
 
         // Get total comments to calculate the last page.

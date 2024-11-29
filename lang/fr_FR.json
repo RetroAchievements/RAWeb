@@ -348,6 +348,7 @@
     "Toggle columns": "Basculer les colonnes",
     "Toggle hardcore": "Choisir hardcore",
     "Toggle softcore": "Choisir softcore",
+    "Top Achievers": "Top Achievers",
     "Triggered at the wrong time": "Déclenché au mauvais moment",
     "Triggered, but not showing as earned on site": "Déclenché, mais n'apparaît pas comme obtenu sur le site",
     "Type": "Type",
@@ -459,5 +460,7 @@
     "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} sur {{total, number}} jeux",
     "Hash Comments - {{gameTitle}}": "Hash Comments - {{gameTitle}}",
     "Hash Comments": "Hash Comments",
-    "Surprise me": "Surprise me"
+    "Surprise me": "Surprise me",
+    "Claim Comments - {{gameTitle}}": "Claim Comments - {{gameTitle}}",
+    "Claim Comments": "Claim Comments"
 }

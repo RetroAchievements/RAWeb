@@ -54,6 +54,21 @@ class CreateGameClaimAction
                     (new Client())->post($webhookUrl, ['json' => $payload]);
                 }
 
+                $collaborationClaims = $game->achievementSetClaims()
+                    ->activeOrInReview()
+                    ->collaborationClaim()
+                    ->with('user')
+                    ->get();
+                foreach ($collaborationClaims as $collaborationClaim) {
+                    $collaborationClaim->Finished = $primaryClaim->Finished;
+                    $collaborationClaim->Extension++;
+                    $collaborationClaim->save();
+
+                    Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($collaborationClaim->user->User));
+                    addArticleComment("Server", ArticleType::SetClaim, $game->ID,
+                        $collaborationClaim->user->display_name . "'s collaboration claim extended by " . $currentUser->display_name);
+                }
+
                 return $primaryClaim;
             }
 
