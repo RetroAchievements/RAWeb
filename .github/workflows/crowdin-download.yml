@@ -48,7 +48,7 @@ jobs:
           commit-message: 'chore: sync translations from Crowdin'
           title: 'chore: sync translations from Crowdin'
           body: |
-            This PR was automatically created by _crowdin-scheduled-pr.yml_.
+            This PR was automatically created by _crowdin-download.yml_.
             
             It synchronizes our translations with the latest versions from Crowdin.
           branch: chore/sync-translations
