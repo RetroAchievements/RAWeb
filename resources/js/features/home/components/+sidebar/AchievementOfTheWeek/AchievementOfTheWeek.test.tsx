@@ -92,7 +92,7 @@ describe('Component: AchievementOfTheWeek', () => {
     const sourceAchievement = createAchievement({ game, id: 9, title: 'That Was Easy' });
     const achievementOfTheWeek = createEventAchievement({
       achievement: sourceAchievement,
-      sourceAchievement: sourceAchievement,
+      sourceAchievement,
     });
 
     render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
@@ -113,7 +113,7 @@ describe('Component: AchievementOfTheWeek', () => {
     const sourceAchievement = createAchievement({ game, id: 9, title: 'That Was Easy' });
     const achievementOfTheWeek = createEventAchievement({
       achievement: sourceAchievement,
-      sourceAchievement: sourceAchievement,
+      sourceAchievement,
     });
 
     render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
@@ -132,7 +132,7 @@ describe('Component: AchievementOfTheWeek', () => {
     const sourceAchievement = createAchievement({ game, id: 9, title: 'That Was Easy' });
     const achievementOfTheWeek = createEventAchievement({
       achievement: sourceAchievement,
-      sourceAchievement: sourceAchievement,
+      sourceAchievement,
     });
 
     render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
@@ -155,7 +155,7 @@ describe('Component: AchievementOfTheWeek', () => {
     });
     const achievementOfTheWeek = createEventAchievement({
       achievement: sourceAchievement,
-      sourceAchievement: sourceAchievement,
+      sourceAchievement,
       activeUntil: tomorrow.toISOString(),
     });
 
@@ -177,7 +177,7 @@ describe('Component: AchievementOfTheWeek', () => {
     });
     const achievementOfTheWeek = createEventAchievement({
       achievement: sourceAchievement,
-      sourceAchievement: sourceAchievement,
+      sourceAchievement,
       activeUntil: new Date('2030-04-08').toISOString(),
     });
 
@@ -202,7 +202,7 @@ describe('Component: AchievementOfTheWeek', () => {
     });
     const achievementOfTheWeek = createEventAchievement({
       achievement: sourceAchievement,
-      sourceAchievement: sourceAchievement,
+      sourceAchievement,
       activeUntil: undefined,
     });
 

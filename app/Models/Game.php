@@ -8,6 +8,7 @@ use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\ReleasedAtGranularity;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameFactory;
@@ -375,7 +376,8 @@ class Game extends BaseModel implements HasMedia
     public function achievementSets(): BelongsToMany
     {
         return $this->belongsToMany(AchievementSet::class, 'game_achievement_sets', 'game_id', 'achievement_set_id', 'ID', 'id')
-            ->withPivot('order_column');
+            ->withPivot(['type', 'title', 'order_column'])
+            ->withTimestamps('created_at', 'updated_at');
     }
 
     /**
@@ -384,6 +386,21 @@ class Game extends BaseModel implements HasMedia
     public function achievementSetClaims(): HasMany
     {
         return $this->hasMany(AchievementSetClaim::class, 'game_id');
+    }
+
+    /**
+     * @return HasManyThrough<AchievementSetAuthor>
+     */
+    public function coreSetAuthorshipCredits(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            AchievementSetAuthor::class,
+            GameAchievementSet::class,
+            'game_id',
+            'achievement_set_id',
+            'ID',
+            'achievement_set_id'
+        )->where('game_achievement_sets.type', AchievementSetType::Core);
     }
 
     /**
@@ -407,6 +424,29 @@ class Game extends BaseModel implements HasMedia
         $currentUser = $user ?? Auth::user();
 
         return $this->comments()->visibleTo($currentUser);
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<Comment>
+     */
+    public function claimsComments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::SetClaim);
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<Comment>
+     */
+    public function visibleClaimsComments(?User $user = null): HasMany
+    {
+        /** @var ?User $user */
+        $currentUser = $user ?? Auth::user();
+
+        return $this->claimsComments()->visibleTo($currentUser);
     }
 
     /**

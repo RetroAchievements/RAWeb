@@ -15,9 +15,9 @@ export const useDelayedButtonDisable = (isPending: boolean, delay = 1000) => {
       }, delay);
 
       return () => clearTimeout(timeoutId);
-    } else {
-      setIsButtonDisabled(true);
     }
+
+    setIsButtonDisabled(true);
   }, [isPending, delay]);
 
   return isButtonDisabled;
