@@ -53,6 +53,15 @@ class Roles extends ManageRelatedRecords
 
                         $attachedRole = Role::findById((int) $data['recordId']);
 
+                        if (!in_array($attachedRole->name, [
+                            Role::DEVELOPER_JUNIOR,
+                            Role::DEVELOPER,
+                            Role::DEVELOPER_STAFF,
+                            Role::DEVELOPER_RETIRED,
+                        ])) {
+                            return;
+                        }
+
                         $newPermissions = Permissions::Registered;
                         if ($attachedRole->name === Role::DEVELOPER_JUNIOR) {
                             $targetUser->removeRole(Role::DEVELOPER);
@@ -91,13 +100,28 @@ class Roles extends ManageRelatedRecords
                 Tables\Actions\DetachAction::make()
                     ->label(__('Remove'))
                     ->authorize(fn (SpatieRole $record) => $user->can('detachRole', [$this->getRecord(), $record]))
-                    ->after(function () {
+                    ->after(function (SpatieRole $record) {
                         /** @var User $targetUser */
                         $targetUser = $this->getRecord();
 
+                        // Only reset permissions if it's a developer role being removed.
+                        // Users can only have a single kind of developer role attached.
+                        if (!in_array($record->name, [
+                            Role::DEVELOPER_JUNIOR,
+                            Role::DEVELOPER,
+                            Role::DEVELOPER_STAFF,
+                            Role::DEVELOPER_RETIRED,
+                        ])) {
+                            return;
+                        }
+
                         // Keep legacy permissions in sync.
-                        $targetUser->setAttribute('Permissions', Permissions::Registered);
-                        $targetUser->save();
+                        $currentPermissions = (int) $targetUser->getAttribute('Permissions');
+                        // Don't strip moderation power away if the user already has it.
+                        if ($currentPermissions < Permissions::Moderator) {
+                            $targetUser->setAttribute('Permissions', Permissions::Registered);
+                            $targetUser->save();
+                        }
                     }),
             ])
             ->bulkActions([
