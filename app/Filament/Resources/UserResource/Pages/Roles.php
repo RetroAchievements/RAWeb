@@ -90,6 +90,9 @@ class Roles extends ManageRelatedRecords
                                 $targetUser->setAttribute('Permissions', $newPermissions);
                                 $targetUser->save();
                             }
+                        } else {
+                            // There's nothing to synchronize for non-developer roles.
+                            return;
                         }
                     }),
             ])
