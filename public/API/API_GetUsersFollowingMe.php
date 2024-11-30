@@ -14,13 +14,13 @@
  *    boolean    AmIFollowing               whether the caller user follows the follower user back
  */
 
+use App\Community\Enums\UserRelationship;
 use App\Models\User;
 use App\Models\UserRelation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use App\Community\Enums\UserRelationship;
+use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'o' => 'nullable|integer|min:0',
@@ -53,7 +53,7 @@ $usersList = $user->followerUsers()
         ) AS am_i_following_back"),
         "$friendTable.user_id as pivot_user_id",
         "$friendTable.related_user_id as pivot_related_user_id",
-        "$friendTable.Friendship as pivot_Friendship"
+        "$friendTable.Friendship as pivot_Friendship",
     ])
     ->whereNull('Deleted')
     ->orderBy('LastActivityID', 'DESC')
