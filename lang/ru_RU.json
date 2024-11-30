@@ -468,5 +468,7 @@
     "Hash Comments": "Комментарии о хэше",
     "Surprise me": "Удивите меня",
     "Claim Comments - {{gameTitle}}": "Claim Comments - {{gameTitle}}",
-    "Claim Comments": "Claim Comments"
+    "Claim Comments": "Claim Comments",
+    "Modification Comments - {{gameTitle}}": "Modification Comments - {{gameTitle}}",
+    "Modification Comments": "Modification Comments"
 }
