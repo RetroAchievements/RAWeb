@@ -16,10 +16,8 @@
 
 use App\Community\Enums\UserRelationship;
 use App\Models\User;
-use App\Models\UserRelation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
@@ -37,37 +35,28 @@ $totalUsers = $user->followerUsers()
     ->whereNull('Deleted')
     ->count();
 
-$userTable = $user->getTable();
-$friendTable = (new UserRelation())->getTable();
-$friendshipStatus = UserRelationship::Following;
-
-$usersList = $user->followerUsers()
-    ->select([
-        "$userTable.*",
-        DB::raw("EXISTS (
-            SELECT 1
-            FROM $friendTable AS ur
-            WHERE ur.user_id = $friendTable.related_user_id
-            AND ur.related_user_id = $friendTable.user_id
-            AND ur.Friendship = $friendshipStatus
-        ) AS am_i_following_back"),
-        "$friendTable.user_id as pivot_user_id",
-        "$friendTable.related_user_id as pivot_related_user_id",
-        "$friendTable.Friendship as pivot_Friendship",
-    ])
-    ->whereNull('Deleted')
-    ->orderBy('LastActivityID', 'DESC')
-    ->skip($offset)
-    ->take($count)
-    ->get()
-    ->map(function ($followerUser) {
-        return [
-            'User' => $followerUser->display_name,
-            'Points' => $followerUser->points,
-            'PointsSoftcore' => $followerUser->points_softcore,
-            'AmIFollowing' => filter_var($followerUser->am_i_following_back, FILTER_VALIDATE_BOOLEAN),
-        ];
-    });
+$usersList = $user
+  ->followerUsers()
+  ->whereNull("Deleted")
+  ->with([
+      "inverseRelatedUsers" => fn ($q) => $q
+        ->select(sprintf("%s.ID", $user->getTable()), "related_user_id")
+        ->where("user_id", $user->id)
+        ->withPivot("Friendship"),
+  ])
+  ->orderBy("LastActivityID", "DESC")
+  ->skip($offset)
+  ->take($count)
+  ->get()
+  ->map(
+    fn ($followerUser) => [
+        "User" => $followerUser->display_name,
+        "Points" => $followerUser->points,
+        "PointsSoftcore" => $followerUser->points_softcore,
+        "AmIFollowing" => $followerUser->inverseRelatedUsers->first()?->pivot?->Friendship ===
+          UserRelationship::Following,
+    ]
+  );
 
 return response()->json([
     'Count' => count($usersList),
