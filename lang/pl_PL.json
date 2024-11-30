@@ -466,5 +466,7 @@
     "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} z {{total, number}} gier",
     "Hash Comments - {{gameTitle}}": "Hash Comments - {{gameTitle}}",
     "Hash Comments": "Hash Comments",
-    "Surprise me": "Surprise me"
+    "Surprise me": "Surprise me",
+    "Claim Comments - {{gameTitle}}": "Claim Comments - {{gameTitle}}",
+    "Claim Comments": "Claim Comments"
 }

@@ -45,7 +45,10 @@ function buildDeleteRoute({
 
     [ArticleType.News]: 'TODO',
 
-    [ArticleType.SetClaim]: 'TODO',
+    [ArticleType.SetClaim]: route('api.game.claims.comment.destroy', {
+      game: commentableId,
+      comment: id,
+    }),
 
     [ArticleType.User]: route('api.user.comment.destroy', {
       user: targetUserDisplayName,

@@ -52,58 +52,31 @@ function isUserSubscribedTo(string $subjectType, int $topicID, int $userID): boo
  */
 function getSubscribersOf(string $subjectType, int $subjectID, ?int $reqWebsitePrefs = null, ?string $implicitSubscriptionQry = null): array
 {
-    $explicitSubscribers = Subscription::query()
-        ->select('UserAccounts.User', 'UserAccounts.EmailAddress')
-        ->join('UserAccounts', 'UserAccounts.ID', '=', 'subscriptions.user_id')
-        ->where('subscriptions.subject_type', $subjectType)
-        ->where('subscriptions.subject_id', $subjectID)
-        ->where('subscriptions.state', 1);
+    $explicitSubscribers = User::select('User', 'EmailAddress')
+        ->whereHas('subscriptions', fn ($q) => $q
+            ->where('subject_type', $subjectType)
+            ->where('subject_id', $subjectID)
+            ->where('state', 1)
+        )
+        ->when($reqWebsitePrefs !== null, fn ($q) => $q->whereRaw('(websitePrefs & ?) != 0', [$reqWebsitePrefs]));
 
-    if ($reqWebsitePrefs !== null) {
-        $explicitSubscribers->whereRaw('(UserAccounts.websitePrefs & ?) != 0', [$reqWebsitePrefs]);
+    if (!$implicitSubscriptionQry) {
+        return $explicitSubscribers->get()->toArray();
     }
 
-    $explicitSubscribersResult = $explicitSubscribers->get()->toArray();
-
-    if ($implicitSubscriptionQry === null) {
-        return $explicitSubscribersResult;
-    } else {
-        $implicitUsers = DB::select($implicitSubscriptionQry);
-
-        // Once executed, extract user IDs from the result.
-        $userIds = array_map(function ($user) {
-            return $user->ID;
-        }, $implicitUsers);
-
-        $implicitSubscribersQuery = User::query()
-            ->select('UserAccounts.User', 'UserAccounts.EmailAddress')
-            ->leftJoin('subscriptions as _sub', function ($join) use ($subjectType, $subjectID) {
-                $join->on('_sub.user_id', '=', 'UserAccounts.ID')
-                     ->where('_sub.subject_type', '=', $subjectType)
-                     ->where('_sub.subject_id', '=', $subjectID);
-            })
-            ->whereIn('UserAccounts.ID', $userIds)
-            ->whereRaw('COALESCE(_sub.state, 1) = 1');
-
-        if ($reqWebsitePrefs !== null) {
-            $implicitSubscribersQuery->whereRaw('(UserAccounts.websitePrefs & ?) != 0', [$reqWebsitePrefs]);
-        }
-
-        $implicitSubscribersResult = $implicitSubscribersQuery->get()->toArray();
-
-        // Merge and remove duplicates.
-        $mergedResults = array_merge($explicitSubscribersResult, $implicitSubscribersResult);
-        $uniqueResults = [];
-
-        foreach ($mergedResults as $result) {
-            if (isset($result['User']) && isset($result['EmailAddress'])) {
-                $key = $result['User'] . '|' . $result['EmailAddress'];
-                $uniqueResults[$key] = $result;
-            }
-        }
-
-        return array_values($uniqueResults);
-    }
+    return DB::table(DB::raw("($implicitSubscriptionQry) as ua"))
+        ->select('User', 'EmailAddress')
+        ->leftJoin('subscriptions as sub', fn ($join) => $join
+            ->on('sub.user_id', '=', 'ua.ID')
+            ->where('sub.subject_type', '=', $subjectType)
+            ->where('sub.subject_id', '=', $subjectID)
+        )
+        ->whereRaw('COALESCE(sub.state, 1) = 1')
+        ->when($reqWebsitePrefs !== null, fn ($q) => $q->whereRaw('(ua.websitePrefs & ?) != 0', [$reqWebsitePrefs]))
+        ->union($explicitSubscribers)
+        ->get()
+        ->map(fn ($user) => ['User' => $user->User, 'EmailAddress' => $user->EmailAddress])
+        ->toArray();
 }
 
 /**
