@@ -9,9 +9,9 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useCommentPagination } from '../hooks/useCommentPagination';
 
-export const GameHashesCommentsMainRoot: FC = () => {
+export const GameClaimsCommentsMainRoot: FC = () => {
   const { canComment, game, paginatedComments } =
-    usePageProps<App.Community.Data.GameHashesCommentsPageProps>();
+    usePageProps<App.Community.Data.GameClaimsCommentsPageProps>();
 
   const { t } = useTranslation();
 
@@ -19,15 +19,15 @@ export const GameHashesCommentsMainRoot: FC = () => {
     useCommentPagination({
       paginatedComments,
       entityId: game.id,
-      entityType: 'Game', // required to build the /game/{game}/hashes/comments routes correctly
-      routeName: 'game.hashes.comment.index',
+      entityType: 'Game', // required to build the /game/{game}/claims/comments routes correctly
+      routeName: 'game.claims.comment.index',
     });
 
   return (
     <div>
       <GameBreadcrumbs game={game} system={game.system} t_currentPageLabel={t('Hash Comments')} />
       <GameHeading game={game} wrapperClassName="!mb-1">
-        {t('Hash Comments')}
+        {t('Claim Comments')}
       </GameHeading>
 
       <div className="mb-3 flex w-full justify-between">
@@ -41,7 +41,7 @@ export const GameHashesCommentsMainRoot: FC = () => {
         canComment={canComment}
         comments={paginatedComments.items}
         commentableId={game.id}
-        commentableType="GameHash"
+        commentableType="SetClaim"
         onDeleteSuccess={handleCommentDeleteSuccess}
         onSubmitSuccess={handleCommentSubmitSuccess}
       />

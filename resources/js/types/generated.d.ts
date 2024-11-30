@@ -20,6 +20,12 @@ declare namespace App.Community.Data {
     canDelete: boolean;
     isAutomated: boolean;
   };
+  export type GameClaimsCommentsPageProps<TItems = App.Community.Data.Comment> = {
+    game: App.Platform.Data.Game;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+    isSubscribed: boolean;
+    canComment: boolean;
+  };
   export type GameCommentsPageProps<TItems = App.Community.Data.Comment> = {
     game: App.Platform.Data.Game;
     paginatedComments: App.Data.PaginatedData<TItems>;
@@ -47,6 +53,10 @@ declare namespace App.Community.Data {
     subjectId: number;
     state: boolean;
     user?: App.Data.User;
+  };
+  export type TrendingGame = {
+    game: App.Platform.Data.Game;
+    playerCount: number;
   };
   export type UserCommentsPageProps<TItems = App.Community.Data.Comment> = {
     targetUser: App.Data.User;
@@ -216,7 +226,7 @@ declare namespace App.Enums {
     | 18;
 }
 declare namespace App.Http.Data {
-  export type HomePageProps = {
+  export type HomePageProps<TItems = App.Community.Data.ActivePlayer> = {
     staticData: App.Data.StaticData;
     achievementOfTheWeek: App.Platform.Data.EventAchievement | null;
     mostRecentGameMastered: App.Data.StaticGameAward | null;
@@ -224,8 +234,11 @@ declare namespace App.Http.Data {
     recentNews: Array<App.Data.News>;
     completedClaims: Array<App.Data.AchievementSetClaim>;
     currentlyOnline: App.Data.CurrentlyOnline;
+    activePlayers: App.Data.PaginatedData<TItems>;
+    trendingGames: Array<App.Community.Data.TrendingGame>;
     newClaims: Array<App.Data.AchievementSetClaim>;
     recentForumPosts: Array<App.Data.ForumTopic>;
+    persistedActivePlayersSearch: string | null;
   };
 }
 declare namespace App.Models {
@@ -392,6 +405,9 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
+  export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
+  export type AchievementSetAuthorTask = 'artwork';
+  export type UnlockMode = 0 | 1;
   export type AchievementFlag = 3 | 5;
   export type AchievementSetType =
     | 'core'
@@ -414,7 +430,6 @@ declare namespace App.Platform.Enums {
     | 'numVisibleLeaderboards'
     | 'numUnresolvedTickets'
     | 'progress';
-  export type UnlockMode = 0 | 1;
   export type GameSetType = 'hub' | 'similar-games';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 }
