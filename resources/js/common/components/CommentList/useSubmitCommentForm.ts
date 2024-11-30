@@ -87,7 +87,7 @@ function buildPostRoute({
 
     News: 'TODO',
 
-    SetClaim: 'TODO',
+    SetClaim: route('api.game.claims.comment.store', { game: commentableId }),
 
     User: route('api.user.comment.store', { user: targetUserDisplayName }),
 
