@@ -25,7 +25,11 @@ export const GameModificationCommentsMainRoot: FC = () => {
 
   return (
     <div>
-      <GameBreadcrumbs game={game} system={game.system} t_currentPageLabel={t('Hash Comments')} />
+      <GameBreadcrumbs
+        game={game}
+        system={game.system}
+        t_currentPageLabel={t('Modification Comments')}
+      />
       <GameHeading game={game} wrapperClassName="!mb-1">
         {t('Modification Comments')}
       </GameHeading>
