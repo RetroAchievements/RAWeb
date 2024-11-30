@@ -21,7 +21,7 @@ class GameModificationsCommentApiController extends Controller
 
     public function store(StoreCommentRequest $request): JsonResponse
     {
-        $this->authorize('develop');
+        $this->authorize('manage', [Game::class]);
 
         $data = StoreCommentData::fromRequest($request);
 

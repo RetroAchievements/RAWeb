@@ -20,7 +20,7 @@ class GameModificationsCommentController extends CommentController
 
     public function index(Game $game): InertiaResponse|RedirectResponse
     {
-        $this->authorize('develop');
+        $this->authorize('manage', [Game::class]);
 
         return $this->handleCommentIndex(
             commentable: $game,
