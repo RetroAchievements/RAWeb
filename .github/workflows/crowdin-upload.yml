@@ -1,0 +1,34 @@
+name: Upload Source Translations to Crowdin
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'lang/en_US.json' # only trigger when this file changes
+
+jobs:
+  upload-translations:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Node.js Setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Upload source translations
+        run: pnpm crowdin:upload
+        env:
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
