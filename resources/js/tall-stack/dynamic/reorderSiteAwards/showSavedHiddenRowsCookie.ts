@@ -1,4 +1,4 @@
-import { getCookie, setCookie } from '@/utils/cookie';
+import { getCookie, setCookie } from '@/tall-stack/utils/cookie';
 
 const cookieName = 'prefers_seeing_saved_hidden_rows_when_reordering';
 

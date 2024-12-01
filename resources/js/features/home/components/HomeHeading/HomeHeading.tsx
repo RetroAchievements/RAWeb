@@ -1,6 +1,6 @@
 import type { FC, ReactNode } from 'react';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 /**
  * If you need this outside the Home feature, just extract it into @/common/components.

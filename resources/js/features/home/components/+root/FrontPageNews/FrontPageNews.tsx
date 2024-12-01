@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 import { HomeHeading } from '../../HomeHeading';
 import { NewsCard } from './NewsCard';

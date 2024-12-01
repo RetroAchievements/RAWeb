@@ -2,8 +2,7 @@ import { screen } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-import * as CookieModule from '@/utils/cookie';
-
+import * as CookieModule from './cookie';
 import { cookieName, toggleUserCompletedSetsVisibility } from './toggleUserCompletedSetsVisibility';
 
 function render() {
