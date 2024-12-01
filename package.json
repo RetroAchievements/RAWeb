@@ -15,7 +15,7 @@
         "test:watch": "TZ=UTC vitest",
         "tsc": "tsc --noEmit --skipLibCheck",
         "analyze": "cross-env ANALYZE=true pnpm prod",
-        "crowdin:sync": "tsx --env-file=.env resources/js/tools/crowdin-sync.ts",
+        "crowdin:download": "tsx --env-file=.env resources/js/tools/crowdin-download.ts",
         "i18n:rename-to-dashes": "renamer --find \"_\" --replace \"-\" \"lang/*.json\"",
         "i18n:rename-to-underscores": "renamer --find \"-\" --replace \"_\" \"lang/*.json\"",
         "i18n:sync": "pnpm i18n:rename-to-dashes && i18next-locales-sync -p en-US -s de-DE en-GB es-ES fr-FR pt-BR pl-PL ru-RU -l lang --spaces=4 && pnpm i18n:rename-to-underscores"
