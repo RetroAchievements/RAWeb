@@ -6,15 +6,16 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
+import type { TranslatedString } from '@/types/i18next';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildHasActiveOrInReviewClaimsColumnDefProps {
-  t_label: string;
+  t_label: TranslatedString;
   strings: {
-    t_yes: string;
-    t_description: string;
+    t_yes: TranslatedString;
+    t_description: TranslatedString;
   };
 
   tableApiRouteName?: RouteName;

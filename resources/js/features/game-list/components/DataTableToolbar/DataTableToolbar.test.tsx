@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import type { FC } from 'react';
 
+import i18n from '@/i18n-client';
 import { render, screen, waitFor } from '@/test';
 import { createPaginatedData, createSystem, createZiggyProps } from '@/test/factories';
 
@@ -21,15 +22,15 @@ interface Model {
 const mockColumns: ColumnDef<Model>[] = [
   {
     accessorKey: 'title',
-    meta: { t_label: 'Title' },
+    meta: { t_label: i18n.t('Title') },
   },
   {
     accessorKey: 'system',
-    meta: { t_label: 'System' },
+    meta: { t_label: i18n.t('System') },
   },
   {
     accessorKey: 'achievementsPublished',
-    meta: { t_label: 'Achievements Published' },
+    meta: { t_label: i18n.t('Achievements') },
   },
 ];
 

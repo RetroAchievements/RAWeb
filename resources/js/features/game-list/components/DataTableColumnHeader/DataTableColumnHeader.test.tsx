@@ -1,6 +1,7 @@
 import { type Column, type ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import type { FC } from 'react';
 
+import i18n from '@/i18n-client';
 import { render, screen } from '@/test';
 
 import { DataTableColumnHeader } from './DataTableColumnHeader';
@@ -34,7 +35,7 @@ describe('Component: DataTableColumnHeader', () => {
     const column = {
       columnDef: {
         accessorKey: 'title',
-        meta: { t_label: 'Title', align: 'left' },
+        meta: { t_label: i18n.t('Title'), align: 'left' },
       },
       getCanSort: () => false,
       getIsSorted: () => false,
@@ -52,7 +53,7 @@ describe('Component: DataTableColumnHeader', () => {
     const column = {
       columnDef: {
         accessorKey: 'title',
-        meta: { t_label: 'Title', align: 'left' },
+        meta: { t_label: i18n.t('Title'), align: 'left' },
       },
       getCanSort: () => false,
       getIsSorted: () => false,
@@ -70,7 +71,7 @@ describe('Component: DataTableColumnHeader', () => {
     const column = {
       columnDef: {
         accessorKey: 'title',
-        meta: { t_label: 'Title', align: 'left' },
+        meta: { t_label: i18n.t('Title'), align: 'left' },
       },
       getCanSort: () => true,
       getIsSorted: () => false,

@@ -24,6 +24,8 @@ import type { loadPostPreview as LoadPostPreview } from '@/utils/loadPostPreview
 import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibility } from '@/utils/toggleUserCompletedSetsVisibility';
 import type { updateUrlParameter as UpdateUrlParameter } from '@/utils/updateUrlParameter';
 
+import type { TranslatedString } from './i18next';
+
 interface PlausibleEventOptions {
   callback?: () => void;
   props?: Record<string, string | boolean | number>;
@@ -66,7 +68,7 @@ declare global {
 declare module '@tanstack/react-table' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- this is valid
   interface ColumnMeta<TData, TValue> {
-    t_label: string;
+    t_label: TranslatedString;
 
     align?: 'right' | 'left';
     Icon?: IconType;
