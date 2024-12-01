@@ -38,6 +38,7 @@ class UserGameListControllerTest extends TestCase
             ->has('filterableSystemOptions', 1)
             ->where('can.develop', false)
             ->has('paginatedGameListEntries.items', 1)
+            ->where('defaultDesktopPageSize', 25)
             ->where('paginatedGameListEntries.items.0.game.title', $games->get(0)->title)
             ->where('paginatedGameListEntries.items.0.game.system.id', $games->get(0)->system->id)
         );

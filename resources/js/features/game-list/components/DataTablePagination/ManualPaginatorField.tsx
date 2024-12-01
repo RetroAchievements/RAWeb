@@ -43,23 +43,32 @@ export function ManualPaginatorField<TData>({
 
   return (
     <div className="flex items-center gap-2 whitespace-nowrap text-neutral-200 light:text-neutral-900">
-      <Trans
-        i18nKey="Page <1></1> of {{totalPages, number}}"
-        values={{ totalPages: table.getPageCount() }}
-        components={{
-          1: (
-            <BaseInput
-              type="number"
-              min={1}
-              max={totalPages}
-              className="h-8 max-w-[80px] pt-[5px] text-[13px] text-neutral-200 light:text-neutral-900"
-              value={inputValue}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
-              aria-label={t('current page number')}
-            />
-          ),
-        }}
-      />
+      {totalPages === 1 ? (
+        <p>
+          {t('Page {{currentPage, number}} of {{totalPages, number}}', {
+            currentPage: 1,
+            totalPages: 1,
+          })}
+        </p>
+      ) : (
+        <Trans
+          i18nKey="Page <1></1> of {{totalPages, number}}"
+          values={{ totalPages: table.getPageCount() }}
+          components={{
+            1: (
+              <BaseInput
+                type="number"
+                min={1}
+                max={totalPages}
+                className="h-8 max-w-[80px] pt-[5px] text-[13px] text-neutral-200 light:text-neutral-900"
+                value={inputValue}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
+                aria-label={t('current page number')}
+              />
+            ),
+          }}
+        />
+      )}
     </div>
   );
 }
