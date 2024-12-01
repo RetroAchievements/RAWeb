@@ -51,13 +51,14 @@ class BuildClientPatchDataActionTest extends TestCase
         string $title,
         int $publishedCount,
         int $unpublishedCount = 0,
-        string $imagePath = '/Images/000011.png'
+        string $imagePath = '/Images/000011.png',
+        string $richPresencePatch = "Display:\nTest",
     ): Game {
         $game = Game::factory()->create([
             'Title' => $title,
             'ConsoleID' => $system->id,
             'ImageIcon' => $imagePath,
-            'RichPresencePatch' => "Display:\nTest",
+            'RichPresencePatch' => $richPresencePatch,
         ]);
 
         Achievement::factory()->published()->count($publishedCount)->create(['GameID' => $game->id]);
@@ -366,13 +367,15 @@ class BuildClientPatchDataActionTest extends TestCase
             $this->system,
             'Dragon Quest III',
             publishedCount: 1,
-            imagePath: '/Images/000001.png'
+            imagePath: '/Images/000001.png',
+            richPresencePatch: 'Foo',
         );
         $bonusGame = $this->createGameWithAchievements(
             $this->system,
             'Dragon Quest III [Subset - Bonus]',
             publishedCount: 2,
-            imagePath: '/Images/000002.png'
+            imagePath: '/Images/000002.png',
+            richPresencePatch: 'Bar',
         );
         $bonusGame2 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus 2]', publishedCount: 3);
 
@@ -435,13 +438,15 @@ class BuildClientPatchDataActionTest extends TestCase
             $this->system,
             'Dragon Quest III',
             publishedCount: 1,
-            imagePath: '/Images/000001.png'
+            imagePath: '/Images/000001.png',
+            richPresencePatch: 'Foo',
         );
         $specialtyGame = $this->createGameWithAchievements(
             $this->system,
             'Dragon Quest III [Subset - Special]',
             publishedCount: 2,
-            imagePath: '/Images/000002.png'
+            imagePath: '/Images/000002.png',
+            richPresencePatch: 'Bar',
         );
 
         $this->upsertGameCoreSetAction->execute($baseGame);
@@ -466,12 +471,14 @@ class BuildClientPatchDataActionTest extends TestCase
         $baseGame = $this->createGameWithAchievements(
             $this->system,
             'Dragon Quest III',
-            publishedCount: 1
+            publishedCount: 1,
+            richPresencePatch: 'Foo',
         );
         $exclusiveGame = $this->createGameWithAchievements(
             $this->system,
             'Dragon Quest III [Subset - Exclusive]',
-            publishedCount: 2
+            publishedCount: 2,
+            richPresencePatch: 'Bar',
         );
 
         $this->upsertGameCoreSetAction->execute($baseGame);
@@ -497,13 +504,14 @@ class BuildClientPatchDataActionTest extends TestCase
             $this->system,
             'Dragon Quest III',
             publishedCount: 1,
-            imagePath: '/Images/000001.png'
+            imagePath: '/Images/000001.png',
+            richPresencePatch: 'Foo',
         );
         $specialtyGame = $this->createGameWithAchievements(
             $this->system,
             'Dragon Quest III [Subset - Special]',
             publishedCount: 2,
-            imagePath: '/Images/000002.png'
+            imagePath: '/Images/000002.png',
         );
 
         $specialtyGame->RichPresencePatch = ""; // !!
@@ -530,12 +538,14 @@ class BuildClientPatchDataActionTest extends TestCase
         $baseGame = $this->createGameWithAchievements(
             $this->system,
             'Dragon Quest III',
-            publishedCount: 1
+            publishedCount: 1,
+            richPresencePatch: 'Foo',
         );
         $bonusGame = $this->createGameWithAchievements(
             $this->system,
             'Dragon Quest III [Subset - Bonus]',
-            publishedCount: 2
+            publishedCount: 2,
+            richPresencePatch: 'Bar',
         );
 
         $this->upsertGameCoreSetAction->execute($baseGame);
@@ -560,11 +570,13 @@ class BuildClientPatchDataActionTest extends TestCase
             $this->system,
             'Dragon Quest III',
             publishedCount: 3,
+            richPresencePatch: 'Foo',
         );
         $specialtyGame = $this->createGameWithAchievements(
             $this->system,
             'Dragon Quest III [Subset - Special]',
             publishedCount: 2,
+            richPresencePatch: 'Bar',
         );
 
         $this->upsertGameCoreSetAction->execute($baseGame);
@@ -597,11 +609,13 @@ class BuildClientPatchDataActionTest extends TestCase
             $this->system,
             'Dragon Quest III',
             publishedCount: 3,
+            richPresencePatch: 'Foo',
         );
         $exclusiveGame = $this->createGameWithAchievements(
             $this->system,
             'Dragon Quest III [Subset - Exclusive]',
             publishedCount: 2,
+            richPresencePatch: 'Bar',
         );
 
         $this->upsertGameCoreSetAction->execute($baseGame);
@@ -663,11 +677,13 @@ class BuildClientPatchDataActionTest extends TestCase
             'Dragon Quest III',
             publishedCount: 0,
             unpublishedCount: 0,
+            richPresencePatch: 'Foo',
         );
         $subsetGame = $this->createGameWithAchievements(
             $this->system,
             'Dragon Quest III [Subset - Gold Medals]',
             publishedCount: 2,
+            richPresencePatch: 'Bar',
         );
 
         $this->upsertGameCoreSetAction->execute($baseGame);

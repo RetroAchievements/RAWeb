@@ -65,10 +65,13 @@ class BuildClientPatchDataAction
         $coreSet = $resolvedSets->first();
         $coreGame = Game::find($coreSet->game_id) ?? $hashGame;
 
-        // Check if we're loading a specialty/exclusive set to determine which RP script to use.
-        $hashGameSet = GameAchievementSet::where('game_id', $hashGame->id)->first();
+        // Look up if this hash game's achievement set is attached as a subset to the core game.
+        $hashGameSubsetAttachment = GameAchievementSet::where('game_id', $coreGame->id)
+            ->where('achievement_set_id', $hashGame->gameAchievementSets()->core()->first()?->achievement_set_id)
+            ->first();
+
         $richPresencePatch = $coreGame->RichPresencePatch;
-        if ($hashGameSet && in_array($hashGameSet->type, [AchievementSetType::Specialty, AchievementSetType::Exclusive])) {
+        if ($hashGameSubsetAttachment && in_array($hashGameSubsetAttachment->type, [AchievementSetType::Specialty, AchievementSetType::Exclusive])) {
             // For specialty/exclusive sets, use their RP script if present.
             if ($hashGame->RichPresencePatch) {
                 $richPresencePatch = $hashGame->RichPresencePatch;
