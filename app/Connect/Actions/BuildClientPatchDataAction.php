@@ -65,17 +65,30 @@ class BuildClientPatchDataAction
         $coreSet = $resolvedSets->first();
         $coreGame = Game::find($coreSet->game_id) ?? $hashGame;
 
-        // Look up if this hash game's achievement set is attached as a subset to the core game.
+        $richPresencePatch = $coreGame->RichPresencePatch;
+
+        // Look up if this hash game's achievement set is attached as a subset to the core game
         $hashGameSubsetAttachment = GameAchievementSet::where('game_id', $coreGame->id)
             ->where('achievement_set_id', $hashGame->gameAchievementSets()->core()->first()?->achievement_set_id)
             ->first();
 
-        $richPresencePatch = $coreGame->RichPresencePatch;
         if ($hashGameSubsetAttachment && in_array($hashGameSubsetAttachment->type, [AchievementSetType::Specialty, AchievementSetType::Exclusive])) {
-            // For specialty/exclusive sets, use their RP script if present.
-            if ($hashGame->RichPresencePatch) {
-                $richPresencePatch = $hashGame->RichPresencePatch;
-            }
+            /**
+             * At the root level:
+             * - Use the subset game's ID and achievements.
+             * - Use the core game's title and image.
+             * - Use the subset game's RP, if present.
+             */
+            $richPresencePatch = $hashGame->RichPresencePatch ?: $richPresencePatch;
+
+            return $this->buildPatchData(
+                $hashGame, // ... use the subset game for ID and achievements ...
+                $resolvedSets,
+                $user,
+                $flag,
+                $richPresencePatch,
+                $coreGame // ... use the core game for title and image ...
+            );
         }
 
         return $this->buildPatchData($coreGame, $resolvedSets, $user, $flag, $richPresencePatch);
@@ -87,13 +100,15 @@ class BuildClientPatchDataAction
      * @param User|null $user The current user requesting the patch data (for player count calculations)
      * @param AchievementFlag|null $flag Optional flag to filter the achievements by (eg: only official achievements)
      * @param string|null $richPresencePatch The RP patch code that the client should use
+     * @param Game|null $titleGame Optional game to use for title and image (for specialty/exclusive sets)
      */
     private function buildPatchData(
         Game $game,
         ?Collection $resolvedSets,
         ?User $user,
         ?AchievementFlag $flag,
-        ?string $richPresencePatch = null
+        ?string $richPresencePatch = null,
+        ?Game $titleGame = null
     ): array {
         $gamePlayerCount = $this->calculateGamePlayerCount($game, $user);
 
@@ -127,7 +142,7 @@ class BuildClientPatchDataAction
         return [
             'Success' => true,
             'PatchData' => [
-                ...$this->buildBaseGameData($game, $richPresencePatch),
+                ...$this->buildBaseGameData($game, $richPresencePatch, $titleGame),
                 'Achievements' => $coreAchievementSet
                     ? $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $flag)
                     : [],
@@ -199,15 +214,18 @@ class BuildClientPatchDataAction
     /**
      * Builds the basic game information needed by emulators.
      */
-    private function buildBaseGameData(Game $game, ?string $richPresencePatch): array
+    private function buildBaseGameData(Game $game, ?string $richPresencePatch, ?Game $titleGame): array
     {
+        // If a title game is provided, use its title and image.
+        $titleGame = $titleGame ?? $game;
+
         return [
             'ID' => $game->id,
-            'Title' => $game->title,
-            'ImageIcon' => $game->ImageIcon,
+            'Title' => $titleGame->title,
+            'ImageIcon' => $titleGame->ImageIcon,
             'RichPresencePatch' => $richPresencePatch ?? $game->RichPresencePatch,
             'ConsoleID' => $game->ConsoleID,
-            'ImageIconURL' => media_asset($game->ImageIcon),
+            'ImageIconURL' => media_asset($titleGame->ImageIcon),
         ];
     }
 

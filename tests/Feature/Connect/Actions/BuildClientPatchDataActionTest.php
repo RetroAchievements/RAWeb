@@ -461,8 +461,8 @@ class BuildClientPatchDataActionTest extends TestCase
 
         // Assert
         $this->assertTrue($result['Success']);
-        $this->assertEquals($baseGame->id, $result['PatchData']['ID']); // Use core game's ID...
-        $this->assertEquals($specialtyGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']); // ... but specialty RP.
+        $this->assertEquals($specialtyGame->id, $result['PatchData']['ID']); // ... use subset game's ID ...
+        $this->assertEquals($specialtyGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']); // ... and specialty RP.
     }
 
     public function testItPrioritizesExclusiveSetRichPresenceScript(): void
@@ -493,7 +493,7 @@ class BuildClientPatchDataActionTest extends TestCase
 
         // Assert
         $this->assertTrue($result['Success']);
-        $this->assertEquals($baseGame->id, $result['PatchData']['ID']); // Use core game's ID...
+        $this->assertEquals($exclusiveGame->id, $result['PatchData']['ID']); // ... use subset game's ID ...
         $this->assertEquals($exclusiveGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']); // ... but exclusive RP.
     }
 
@@ -592,11 +592,13 @@ class BuildClientPatchDataActionTest extends TestCase
         // Assert
         $this->assertTrue($result['Success']);
 
-        // ... root data should be from the base game ...
-        $this->assertEquals($baseGame->id, $result['PatchData']['ID']);
+        // ... title and image should be from the base game ...
         $this->assertEquals($baseGame->title, $result['PatchData']['Title']);
         $this->assertEquals($baseGame->ImageIcon, $result['PatchData']['ImageIcon']);
-        $this->assertCount(3, $result['PatchData']['Achievements']); // the base game's achievements
+
+        // ... id and achievements should be from the subset ...
+        $this->assertEquals($specialtyGame->id, $result['PatchData']['ID']);
+        $this->assertCount(2, $result['PatchData']['Achievements']); // the subset game's achievements
 
         // ... RP should be from the specialty game ...
         $this->assertEquals($specialtyGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
@@ -631,11 +633,13 @@ class BuildClientPatchDataActionTest extends TestCase
         // Assert
         $this->assertTrue($result['Success']);
 
-        // ... root data should be from the base game ...
-        $this->assertEquals($baseGame->id, $result['PatchData']['ID']);
+        // ... title and image should be from the base game ...
         $this->assertEquals($baseGame->title, $result['PatchData']['Title']);
         $this->assertEquals($baseGame->ImageIcon, $result['PatchData']['ImageIcon']);
-        $this->assertCount(3, $result['PatchData']['Achievements']); // ... base game's achievements ...
+
+        // ... id and achievements should be from the subset ...
+        $this->assertEquals($exclusiveGame->id, $result['PatchData']['ID']);
+        $this->assertCount(2, $result['PatchData']['Achievements']); // the subset game's achievements
 
         // ... RP should be from the exclusive game ...
         $this->assertEquals($exclusiveGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
@@ -698,7 +702,7 @@ class BuildClientPatchDataActionTest extends TestCase
 
         // Assert
         $this->assertTrue($result['Success']);
-        $this->assertEquals($baseGame->id, $result['PatchData']['ID']);
+        $this->assertEquals($subsetGame->id, $result['PatchData']['ID']);
         $this->assertEquals($subsetGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
         $this->assertCount(0, $result['PatchData']['Achievements']);
         $this->assertCount(2, $result['PatchData']['Sets']);
