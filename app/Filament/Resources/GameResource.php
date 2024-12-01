@@ -17,7 +17,6 @@ use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\ReleasedAtGranularity;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -245,30 +244,7 @@ class GameResource extends Resource
                             ->required()
                             ->minLength(2)
                             ->maxLength(80)
-                            ->disabled(!$user->can('updateField', [$form->model, 'Title']))
-                            ->afterStateUpdated(function (Game $record, callable $set, callable $get, string $state) {
-                                // If the user is updating the sort title, don't try to override their update of that field.
-                                if ($get('sort_title') !== $get('original_sort_title')) {
-                                    return;
-                                }
-
-                                $newTitle = $state;
-                                $originalTitle = $record->title;
-
-                                $record->title = $newTitle;
-                                $record->save();
-                                $record->refresh();
-
-                                $newSortTitle = (new WriteGameSortTitleFromGameTitleAction())->execute(
-                                    $record,
-                                    $originalTitle,
-                                );
-
-                                if ($newSortTitle) {
-                                    $set('sort_title', $newSortTitle);
-                                    $set('original_sort_title', $newSortTitle);
-                                }
-                            }),
+                            ->disabled(!$user->can('updateField', [$form->model, 'Title'])),
 
                         Forms\Components\TextInput::make('sort_title')
                             ->required()
