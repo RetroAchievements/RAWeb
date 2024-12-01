@@ -52,7 +52,7 @@ class BuildClientPatchDataActionTest extends TestCase
         int $publishedCount,
         int $unpublishedCount = 0,
         string $imagePath = '/Images/000011.png',
-        string $richPresencePatch = "Display:\nTest",
+        ?string $richPresencePatch = "Display:\nTest",
     ): Game {
         $game = Game::factory()->create([
             'Title' => $title,
@@ -196,6 +196,37 @@ class BuildClientPatchDataActionTest extends TestCase
             $achievement,
             50.00, // (49 + 1) / 100 * 100
             25.00  // (24 + 1) / 100 * 100
+        );
+    }
+
+    public function testItHandlesZeroPlayerCountCorrectly(): void
+    {
+        // Arrange
+        $game = $this->createGameWithAchievements($this->system, 'Zero Player Game', publishedCount: 1);
+        $this->upsertGameCoreSetAction->execute($game);
+
+        $achievement = Achievement::firstWhere('GameID', $game->id);
+        $achievement->unlocks_total = 0;
+        $achievement->unlocks_hardcore_total = 0;
+        $achievement->save();
+
+        $game->players_total = 0; // !!
+        $game->save();
+
+        $user = User::factory()->create();
+
+        // Act
+        $result = (new BuildClientPatchDataAction())->execute(game: $game, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+        $this->assertCount(1, $result['PatchData']['Achievements']);
+
+        $this->assertAchievementData(
+            $result['PatchData']['Achievements'][0],
+            $achievement,
+            100.00, // (0 + 1) / 1 * 100, capped at 100
+            100.00  // (0 + 1) / 1 * 100, capped at 100
         );
     }
 
@@ -704,7 +735,80 @@ class BuildClientPatchDataActionTest extends TestCase
         $this->assertTrue($result['Success']);
         $this->assertEquals($subsetGame->id, $result['PatchData']['ID']);
         $this->assertEquals($subsetGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
-        $this->assertCount(0, $result['PatchData']['Achievements']);
+        $this->assertCount(2, $result['PatchData']['Achievements']);
         $this->assertCount(2, $result['PatchData']['Sets']);
+    }
+
+    public function testItBuildsPatchDataWithGameHashAndNullUser(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Hash Null User Game', publishedCount: 6);
+        $this->upsertGameCoreSetAction->execute($baseGame);
+
+        $gameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
+
+        // Act
+        $result = (new BuildClientPatchDataAction())->execute(gameHash: $gameHash, user: null);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+        $this->assertBaseGameData($result['PatchData'], $baseGame);
+        $this->assertCount(6, $result['PatchData']['Achievements']);
+    }
+
+    public function testItDoesntCrashFromNullRichPresencePatch(): void
+    {
+        // Arrange
+        $game = $this->createGameWithAchievements(
+            $this->system,
+            'Dragon Quest III',
+            publishedCount: 6,
+            richPresencePatch: null, // !!
+        );
+
+        $this->upsertGameCoreSetAction->execute($game);
+
+        // Act
+        $result = (new BuildClientPatchDataAction())->execute(game: $game);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+        $this->assertCount(6, $result['PatchData']['Achievements']);
+
+        $this->assertNull($result['PatchData']['RichPresencePatch']);
+    }
+
+    public function testItResolvesSetTypesForBaseGameHashesCorrectly(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Multi-Set Game', publishedCount: 2);
+        $bonusSet = $this->createGameWithAchievements($this->system, 'Multi-Set Game [Subset - Bonus]', publishedCount: 1);
+        $bonusSet2 = $this->createGameWithAchievements($this->system, 'Multi-Set Game [Subset - Bonus 2]', publishedCount: 1);
+        $specialtySet = $this->createGameWithAchievements($this->system, 'Multi-Set Game [Subset - Specialty]', publishedCount: 1);
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($bonusSet);
+        $this->upsertGameCoreSetAction->execute($bonusSet2);
+        $this->upsertGameCoreSetAction->execute($specialtySet);
+
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusSet, AchievementSetType::Bonus, 'Bonus');
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusSet2, AchievementSetType::Bonus, 'Bonus 2');
+        $this->associateAchievementSetToGameAction->execute($baseGame, $specialtySet, AchievementSetType::Specialty, 'Specialty');
+
+        $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]); // !!
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $result = (new BuildClientPatchDataAction())->execute(gameHash: $baseGameHash, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+        $this->assertArrayHasKey('Sets', $result['PatchData']);
+        $this->assertCount(3, $result['PatchData']['Sets']); // only core and bonus
+
+        $setTypes = array_column($result['PatchData']['Sets'], 'Type');
+        $this->assertContains(AchievementSetType::Core->value, $setTypes);
+        $this->assertContains(AchievementSetType::Bonus->value, $setTypes);
+        $this->assertNotContains(AchievementSetType::Specialty->value, $setTypes);
     }
 }
