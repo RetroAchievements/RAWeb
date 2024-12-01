@@ -30,7 +30,7 @@ class WriteGameSortTitleFromGameTitleAction
         // Otherwise, compute and save the new sort title.
         $game->sort_title = $computeAction->execute($game->title);
         if ($shouldSaveGame) {
-            $game->saveQuietly();
+            $game->save();
         }
 
         return $game->sort_title;
