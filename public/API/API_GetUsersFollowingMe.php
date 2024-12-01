@@ -44,7 +44,7 @@ $usersList = $user
         ->where("user_id", $user->id)
         ->withPivot("Friendship"),
   ])
-  ->orderBy("LastActivityID", "DESC")
+  ->orderByDesc("LastActivityID")
   ->skip($offset)
   ->take($count)
   ->get()
