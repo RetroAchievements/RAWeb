@@ -29,14 +29,17 @@ class WriteGameSortTitleFromGameTitleActionTest extends TestCase
     public function testItPreservesCustomSortTitlesByDefault(): void
     {
         // Arrange
-        $game = Game::factory()->create(['Title' => 'Final Fantasy IV', 'sort_title' => 'final fantasy 04']);
+        $game = Game::factory()->create(['Title' => 'Final Fantasy IV', 'sort_title' => 'final fantasy 00004']);
+
+        $game->sort_title = 'ff4';
+        $game->save();
 
         // Act
         (new WriteGameSortTitleFromGameTitleAction())->execute($game, $game->title);
         $game = $game->fresh();
 
         // Assert
-        $this->assertEquals('final fantasy 04', $game->sort_title);
+        $this->assertEquals('ff4', $game->sort_title);
     }
 
     public function testItCanBeConfiguredToOverrideCustomSortTitles(): void
