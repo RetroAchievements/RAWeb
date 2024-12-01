@@ -350,6 +350,7 @@
     "Toggle columns": "Включить столбцы",
     "Toggle hardcore": "Режим хардкор",
     "Toggle softcore": "Режим софткор",
+    "Top Achievers": "Top Achievers",
     "Triggered at the wrong time": "Активировалось в неправильный момент",
     "Triggered, but not showing as earned on site": "Активировалось, но не отображается таковым на сайте",
     "Type": "Тип",
@@ -467,5 +468,7 @@
     "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} из {{total, number}} игр",
     "Hash Comments - {{gameTitle}}": "Комментарии о хэше - {{gameTitle}}",
     "Hash Comments": "Комментарии о хэше",
-    "Surprise me": "Удивите меня"
+    "Surprise me": "Удивите меня",
+    "Claim Comments - {{gameTitle}}": "Claim Comments - {{gameTitle}}",
+    "Claim Comments": "Claim Comments"
 }

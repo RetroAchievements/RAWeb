@@ -5,6 +5,10 @@ declare namespace App.Community.Data {
     isSubscribed: boolean;
     canComment: boolean;
   };
+  export type ActivePlayer = {
+    user: App.Data.User;
+    game: App.Platform.Data.Game;
+  };
   export type Comment = {
     id: number;
     commentableId: number;
@@ -15,6 +19,12 @@ declare namespace App.Community.Data {
     user: App.Data.User;
     canDelete: boolean;
     isAutomated: boolean;
+  };
+  export type GameClaimsCommentsPageProps<TItems = App.Community.Data.Comment> = {
+    game: App.Platform.Data.Game;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+    isSubscribed: boolean;
+    canComment: boolean;
   };
   export type GameCommentsPageProps<TItems = App.Community.Data.Comment> = {
     game: App.Platform.Data.Game;
@@ -43,6 +53,10 @@ declare namespace App.Community.Data {
     subjectId: number;
     state: boolean;
     user?: App.Data.User;
+  };
+  export type TrendingGame = {
+    game: App.Platform.Data.Game;
+    playerCount: number;
   };
   export type UserCommentsPageProps<TItems = App.Community.Data.Comment> = {
     targetUser: App.Data.User;
@@ -160,25 +174,26 @@ declare namespace App.Data {
   export type User = {
     displayName: string;
     avatarUrl: string;
-    isMuted: boolean;
-    mutedUntil?: string | null;
-    id?: number;
-    username?: string | null;
-    legacyPermissions?: number | null;
-    locale?: string | null;
-    motto?: string;
-    points?: number;
-    pointsSoftcore?: number;
-    preferences?: { prefersAbsoluteDates: boolean };
-    roles?: App.Models.UserRole[];
     apiKey?: string | null;
     deleteRequested?: string | null;
     deletedAt?: string | null;
     emailAddress?: string | null;
+    id?: number;
+    isMuted?: boolean;
+    legacyPermissions?: number | null;
+    locale?: string | null;
+    motto?: string;
+    mutedUntil?: string | null;
+    points?: number;
+    pointsSoftcore?: number;
+    richPresenceMsg?: string | null;
     unreadMessageCount?: number | null;
+    username?: string | null;
     userWallActive?: boolean | null;
     visibleRole?: string | null;
     websitePrefs?: number | null;
+    preferences?: { prefersAbsoluteDates: boolean };
+    roles?: App.Models.UserRole[];
   };
   export type UserPermissions = {
     develop?: boolean;
@@ -212,7 +227,7 @@ declare namespace App.Enums {
     | 18;
 }
 declare namespace App.Http.Data {
-  export type HomePageProps = {
+  export type HomePageProps<TItems = App.Community.Data.ActivePlayer> = {
     staticData: App.Data.StaticData;
     achievementOfTheWeek: App.Platform.Data.EventAchievement | null;
     mostRecentGameMastered: App.Data.StaticGameAward | null;
@@ -220,8 +235,11 @@ declare namespace App.Http.Data {
     recentNews: Array<App.Data.News>;
     completedClaims: Array<App.Data.AchievementSetClaim>;
     currentlyOnline: App.Data.CurrentlyOnline;
+    activePlayers: App.Data.PaginatedData<TItems>;
+    trendingGames: Array<App.Community.Data.TrendingGame>;
     newClaims: Array<App.Data.AchievementSetClaim>;
     recentForumPosts: Array<App.Data.ForumTopic>;
+    persistedActivePlayersSearch: string | null;
   };
 }
 declare namespace App.Models {
@@ -326,6 +344,16 @@ declare namespace App.Platform.Data {
     filterableSystemOptions: Array<App.Platform.Data.System>;
     can: App.Data.UserPermissions;
     defaultDesktopPageSize: number;
+  };
+  export type GameTopAchiever = {
+    rank: number;
+    user: App.Data.User;
+    score: number;
+    badge: App.Platform.Data.PlayerBadge | null;
+  };
+  export type GameTopAchieversPageProps<TItems = App.Platform.Data.GameTopAchiever> = {
+    game: App.Platform.Data.Game;
+    paginatedUsers: App.Data.PaginatedData<TItems>;
   };
   export type Leaderboard = {
     id: number;

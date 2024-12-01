@@ -431,6 +431,29 @@ class Game extends BaseModel implements HasMedia
      *
      * @return HasMany<Comment>
      */
+    public function claimsComments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::SetClaim);
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<Comment>
+     */
+    public function visibleClaimsComments(?User $user = null): HasMany
+    {
+        /** @var ?User $user */
+        $currentUser = $user ?? Auth::user();
+
+        return $this->claimsComments()->visibleTo($currentUser);
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<Comment>
+     */
     public function hashesComments(): HasMany
     {
         return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::GameHash);
