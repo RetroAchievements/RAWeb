@@ -16,8 +16,7 @@ interface GameListDataTableProps<TData> {
   table: Table<TData>;
 }
 
-// Lazy-loaded, so using a default export.
-export default function GameListDataTable<TData>({ table }: GameListDataTableProps<TData>) {
+export function GameListDataTable<TData>({ table }: GameListDataTableProps<TData>) {
   const { t } = useTranslation();
 
   const visibleColumnCount = table.getVisibleFlatColumns().length;

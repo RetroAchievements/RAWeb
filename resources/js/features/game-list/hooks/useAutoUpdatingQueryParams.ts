@@ -5,6 +5,8 @@ interface UseAutoUpdatingQueryParamsProps {
   pagination: PaginationState;
   columnFilters: ColumnFiltersState;
   sorting: SortingState;
+
+  defaultPageSize?: number;
 }
 
 /**
@@ -14,12 +16,13 @@ export function useAutoUpdatingQueryParams({
   columnFilters,
   pagination,
   sorting,
+  defaultPageSize = 25,
 }: UseAutoUpdatingQueryParamsProps) {
   useUpdateEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
 
     // Update individual components of the query params.
-    updatePagination(searchParams, pagination);
+    updatePagination(searchParams, pagination, defaultPageSize);
     updateFilters(searchParams, columnFilters);
     updateSorting(searchParams, sorting);
 
@@ -34,11 +37,21 @@ export function useAutoUpdatingQueryParams({
   }, [pagination, sorting, columnFilters]);
 }
 
-function updatePagination(searchParams: URLSearchParams, pagination: PaginationState): void {
+function updatePagination(
+  searchParams: URLSearchParams,
+  pagination: PaginationState,
+  defaultPageSize: number,
+): void {
   if (pagination.pageIndex > 0) {
     searchParams.set('page[number]', String(pagination.pageIndex + 1));
   } else {
     searchParams.delete('page[number]');
+  }
+
+  if (pagination.pageSize !== defaultPageSize) {
+    searchParams.set('page[size]', String(pagination.pageSize));
+  } else {
+    searchParams.delete('page[size]');
   }
 }
 
