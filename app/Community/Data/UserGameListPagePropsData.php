@@ -20,6 +20,7 @@ class UserGameListPagePropsData extends Data
         public PaginatedData $paginatedGameListEntries,
         public array $filterableSystemOptions,
         public UserPermissionsData $can,
+        public int $defaultDesktopPageSize = 25,
     ) {
     }
 }
