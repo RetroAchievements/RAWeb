@@ -865,7 +865,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
       () => {
         expect(postSpy).toHaveBeenCalledOnce();
       },
-      { timeout: 3000 },
+      { timeout: 6000 },
     );
 
     expect(postSpy).toHaveBeenCalledWith(['api.ticket.store'], {

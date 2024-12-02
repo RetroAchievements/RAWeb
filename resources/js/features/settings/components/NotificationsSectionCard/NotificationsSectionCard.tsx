@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
+import type { TranslatedString } from '@/types/i18next';
 
 import type { UserPreferenceValue } from '../../models';
 import { SectionFormCard } from '../SectionFormCard';
@@ -75,7 +76,7 @@ function useNotificationSettings() {
   const { t } = useTranslation();
 
   const notificationSettings: Array<{
-    t_label: string;
+    t_label: TranslatedString;
     emailFieldName?: UserPreferenceValue;
     siteFieldName?: UserPreferenceValue;
   }> = [

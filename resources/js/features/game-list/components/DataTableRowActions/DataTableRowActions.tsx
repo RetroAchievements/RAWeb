@@ -9,7 +9,7 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 import { useGameBacklogState } from '../GameListItems/useGameBacklogState';
 
@@ -35,12 +35,11 @@ export function DataTableRowActions<TData>({
 }: DataTableRowActionsProps<TData>) {
   const { t } = useTranslation();
 
-  const rowData = row.original as Partial<App.Platform.Data.GameListEntry>;
-  const gameId = rowData?.game?.id ?? 0;
+  const { game, isInBacklog } = row.original as App.Platform.Data.GameListEntry;
 
   const { isPending, toggleBacklog, isInBacklogMaybeOptimistic } = useGameBacklogState({
-    game: { id: rowData?.game?.id ?? 0, title: rowData?.game?.title ?? '' },
-    isInitiallyInBacklog: rowData?.isInBacklog ?? false,
+    game,
+    isInitiallyInBacklog: isInBacklog ?? false,
     shouldShowToasts: true,
     shouldUpdateOptimistically: shouldAnimateBacklogIconOnChange,
   });
@@ -48,11 +47,6 @@ export function DataTableRowActions<TData>({
   const [initialRotationClassName] = useState(
     isInBacklogMaybeOptimistic ? '!rotate-0' : '!rotate-45',
   );
-
-  // This should never happen.
-  if (!gameId) {
-    throw new Error('No game ID.');
-  }
 
   return (
     <BaseTooltip>

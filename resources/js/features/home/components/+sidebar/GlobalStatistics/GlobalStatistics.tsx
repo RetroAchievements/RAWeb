@@ -6,8 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
+import { cn } from '@/common/utils/cn';
 import { formatDate } from '@/common/utils/l10n/formatDate';
-import { cn } from '@/utils/cn';
+import type { TranslatedString } from '@/types/i18next';
 
 import { HomeHeading } from '../../HomeHeading';
 
@@ -88,7 +89,7 @@ export const GlobalStatistics: FC = () => {
 };
 
 interface StatBoxProps {
-  t_label: string;
+  t_label: TranslatedString;
   href: string;
   children: ReactNode;
 

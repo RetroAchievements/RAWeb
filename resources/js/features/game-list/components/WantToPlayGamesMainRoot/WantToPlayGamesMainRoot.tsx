@@ -13,7 +13,7 @@ import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTar
 import { WantToPlayGamesDataTable } from '../WantToPlayGamesDataTable';
 
 export const WantToPlayGamesMainRoot: FC = () => {
-  const { auth, paginatedGameListEntries } =
+  const { auth, defaultDesktopPageSize, paginatedGameListEntries } =
     usePageProps<App.Community.Data.UserGameListPageProps>();
 
   const { t } = useTranslation();
@@ -39,7 +39,12 @@ export const WantToPlayGamesMainRoot: FC = () => {
     paginatedData: paginatedGameListEntries,
   });
 
-  useAutoUpdatingQueryParams({ columnFilters, pagination, sorting });
+  useAutoUpdatingQueryParams({
+    columnFilters,
+    pagination,
+    sorting,
+    defaultPageSize: defaultDesktopPageSize,
+  });
 
   if (!auth?.user) {
     return null;

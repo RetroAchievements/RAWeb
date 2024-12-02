@@ -4,17 +4,4 @@ set -e
 
 # consider using pre-push instead
 
-# get all staged files
-staged_files=$(git diff --cached --name-only)
-
-# if en_US.json is among staged files, sync i18n
-if echo "$staged_files" | grep -q "lang/en_US.json"; then
-    printf "\n🌎 Changes detected in the en_US locale."
-    printf "\n⏳ pnpm i18n:sync\n"
-    pnpm i18n:sync
-
-    # stage all updated locale files
-    git add lang/*.json
-fi
-
 printf "\n✅ pre-commit OK\n\n"

@@ -9,14 +9,14 @@ import { BasePagination, BasePaginationContent } from '@/common/components/+vend
 
 import { useDataTablePrefetchPagination } from '../../hooks/useDataTablePrefetchPagination';
 import { ManualPaginatorField } from './ManualPaginatorField';
+import { PageSizeSelect } from './PageSizeSelect';
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
   tableApiRouteName?: RouteName;
 }
 
-// Lazy-loaded, so using a default export.
-export default function DataTablePagination<TData>({
+export function DataTablePagination<TData>({
   table,
   tableApiRouteName = 'api.game.index',
 }: DataTablePaginationProps<TData>): ReactNode {
@@ -68,20 +68,45 @@ export default function DataTablePagination<TData>({
     const canPrefetchPrevious = prefetchDirections?.includes('previous') && newPageIndex > 0;
 
     if (canPrefetchNext) {
-      prefetchPagination(Math.min(newPageIndex + 1, lastPageIndex));
+      prefetchPagination({
+        newPageIndex: Math.min(newPageIndex + 1, lastPageIndex),
+        newPageSize: pagination.pageSize,
+      });
     }
     if (canPrefetchPrevious) {
-      prefetchPagination(Math.max(newPageIndex - 1, 0));
+      prefetchPagination({
+        newPageIndex: Math.max(newPageIndex - 1, 0),
+        newPageSize: pagination.pageSize,
+      });
     }
 
     scrollToTopOfPage();
   };
 
+  const handlePageSizeChange = (newPageSize: number) => {
+    // If the user is changing the page size and they're not on the first page,
+    // auto-scroll to the top. Otherwise, things can quickly get disorienting.
+    if (pagination.pageIndex !== 0) {
+      scrollToTopOfPage();
+    }
+
+    table.setPagination({ pageIndex: 0, pageSize: newPageSize });
+  };
+
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-center sm:justify-between">
+      {/* TODO X of Y rows selected */}
       <div />
 
-      <div className="flex items-center gap-6 lg:gap-8">
+      <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-6 lg:gap-8">
+        <PageSizeSelect
+          value={table.getState().pagination.pageSize}
+          onMouseEnterPageSizeOption={(pageSize) => {
+            prefetchPagination({ newPageIndex: 0, newPageSize: pageSize });
+          }}
+          onChange={handlePageSizeChange}
+        />
+
         <BasePagination className="flex items-center gap-6 lg:gap-8">
           <ManualPaginatorField table={table} onPageChange={handlePageChange} />
 
@@ -89,7 +114,9 @@ export default function DataTablePagination<TData>({
             <BaseButton
               className="size-8 p-0"
               onClick={() => handlePageChange(0, ['next'])}
-              onMouseEnter={() => prefetchPagination(0)}
+              onMouseEnter={() =>
+                prefetchPagination({ newPageIndex: 0, newPageSize: pagination.pageSize })
+              }
               disabled={!table.getCanPreviousPage()}
               aria-label={t('Go to first page')}
             >
@@ -99,7 +126,12 @@ export default function DataTablePagination<TData>({
             <BaseButton
               className="size-8 p-0"
               onClick={() => handlePageChange(pagination.pageIndex - 1, ['previous'])}
-              onMouseEnter={() => prefetchPagination(pagination.pageIndex - 1)}
+              onMouseEnter={() =>
+                prefetchPagination({
+                  newPageIndex: pagination.pageIndex - 1,
+                  newPageSize: pagination.pageSize,
+                })
+              }
               disabled={!table.getCanPreviousPage()}
               aria-label={t('Go to previous page')}
             >
@@ -109,7 +141,12 @@ export default function DataTablePagination<TData>({
             <BaseButton
               className="size-8 p-0"
               onClick={() => handlePageChange(pagination.pageIndex + 1, ['next'])}
-              onMouseEnter={() => prefetchPagination(pagination.pageIndex + 1)}
+              onMouseEnter={() =>
+                prefetchPagination({
+                  newPageIndex: pagination.pageIndex + 1,
+                  newPageSize: pagination.pageSize,
+                })
+              }
               disabled={!table.getCanNextPage()}
               aria-label={t('Go to next page')}
             >
@@ -119,7 +156,12 @@ export default function DataTablePagination<TData>({
             <BaseButton
               className="size-8 p-0"
               onClick={() => handlePageChange(table.getPageCount() - 1, ['previous'])}
-              onMouseEnter={() => prefetchPagination(table.getPageCount() - 1)}
+              onMouseEnter={() =>
+                prefetchPagination({
+                  newPageIndex: table.getPageCount() - 1,
+                  newPageSize: pagination.pageSize,
+                })
+              }
               disabled={!table.getCanNextPage()}
               aria-label={t('Go to last page')}
             >

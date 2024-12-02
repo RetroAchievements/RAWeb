@@ -19,6 +19,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildGameRarityLabel } from '@/common/utils/buildGameRarityLabel';
 import { formatGameReleasedAt } from '@/common/utils/formatGameReleasedAt';
 import { gameListFieldIconMap } from '@/features/game-list/utils/gameListFieldIconMap';
+import type { TranslatedString } from '@/types/i18next';
 
 import type { useGameBacklogState } from '../../useGameBacklogState';
 import { GameListItemDrawerBacklogToggleButton } from './GameListItemDrawerBacklogToggleButton';
@@ -182,7 +183,7 @@ export const GameListItemDrawerContent: FC<GameListItemDrawerContentProps> = ({
 interface DrawerListItemProps {
   children: ReactNode;
   Icon: IconType;
-  t_label: string;
+  t_label: TranslatedString;
 
   hasBottomBorder?: boolean;
 }
