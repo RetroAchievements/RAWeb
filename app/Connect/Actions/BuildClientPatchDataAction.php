@@ -127,8 +127,6 @@ class BuildClientPatchDataAction
                 $setGame = $games[$resolvedSet->core_game_id];
                 $sets[] = [
                     'GameAchievementSetID' => $resolvedSet->id,
-                    'CoreGameID' => $resolvedSet->core_game_id,
-                    'CoreGameTitle' => $setGame->title,
                     'SetTitle' => $resolvedSet->title,
                     'Type' => $resolvedSet->type->value,
                     'ImageIcon' => $setGame->ImageIcon,

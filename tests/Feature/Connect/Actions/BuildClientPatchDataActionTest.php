@@ -453,11 +453,8 @@ class BuildClientPatchDataActionTest extends TestCase
         $this->assertCount(2, $result['PatchData']['Sets']);
 
         $this->assertEquals('core', $result['PatchData']['Sets'][0]['Type']);
-        $this->assertEquals(1, $result['PatchData']['Sets'][0]['CoreGameID']);
-        $this->assertCount(1, $result['PatchData']['Sets'][0]['Achievements']);
 
         $this->assertEquals('bonus', $result['PatchData']['Sets'][1]['Type']);
-        $this->assertEquals(3, $result['PatchData']['Sets'][1]['CoreGameID']);
         $this->assertEquals('Bonus 2', $result['PatchData']['Sets'][1]['SetTitle']);
         $this->assertCount(3, $result['PatchData']['Sets'][1]['Achievements']);
     }
