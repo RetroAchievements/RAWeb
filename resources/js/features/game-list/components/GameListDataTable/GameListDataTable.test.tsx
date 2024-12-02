@@ -15,7 +15,7 @@ import { buildPlayersTotalColumnDef } from '../../utils/column-definitions/build
 import { buildRetroRatioColumnDef } from '../../utils/column-definitions/buildRetroRatioColumnDef';
 import { buildSystemColumnDef } from '../../utils/column-definitions/buildSystemColumnDef';
 import { buildTitleColumnDef } from '../../utils/column-definitions/buildTitleColumnDef';
-import GameListDataTable from './GameListDataTable';
+import { GameListDataTable } from './GameListDataTable';
 
 dayjs.extend(utc);
 

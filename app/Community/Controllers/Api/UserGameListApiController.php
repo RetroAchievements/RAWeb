@@ -23,7 +23,7 @@ class UserGameListApiController extends Controller
             page: $request->getPage(),
             filters: $request->getFilters(),
             sort: $request->getSort(),
-            perPage: (new Agent())->isMobile() ? 100 : 25,
+            perPage: (new Agent())->isMobile() ? 100 : $request->getPageSize(),
         );
 
         return response()->json($paginatedData);
