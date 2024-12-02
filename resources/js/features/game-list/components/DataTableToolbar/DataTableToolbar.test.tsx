@@ -55,6 +55,9 @@ const DataTableToolbarHarness: FC<DataTableToolbarHarnessProps> = ({
   const table = useReactTable({
     data,
     columns,
+    state: {
+      pagination: { pageIndex: 0, pageSize: 25 },
+    },
     rowCount: data.length ?? 0,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -258,6 +261,7 @@ describe('Component: DataTableToolbar', () => {
       'api.game.index',
       {
         'page[number]': 1,
+        'page[size]': 25,
         sort: null,
       },
     ]);
