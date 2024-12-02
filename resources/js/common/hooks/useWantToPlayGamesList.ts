@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { useAddToGameListMutation } from '@/common/hooks/useAddToGameListMutation';
 import { useRemoveFromGameListMutation } from '@/common/hooks/useRemoveFromGameListMutation';
+import type { TranslatedString } from '@/types/i18next';
 
 export function useWantToPlayGamesList() {
   const { t } = useTranslation();
@@ -19,7 +20,11 @@ export function useWantToPlayGamesList() {
   const addToWantToPlayGamesList = (
     gameId: number,
     gameTitle: string,
-    options?: Partial<{ isUndo: boolean; shouldEnableToast: boolean; t_successMessage?: string }>,
+    options?: Partial<{
+      isUndo: boolean;
+      shouldEnableToast: boolean;
+      t_successMessage?: TranslatedString;
+    }>,
   ) => {
     const mutationPromise = addToBacklogMutation.mutateAsync(gameId);
 
@@ -50,7 +55,7 @@ export function useWantToPlayGamesList() {
     gameTitle: string,
     options?: Partial<{
       shouldEnableToast: boolean;
-      t_successMessage?: string;
+      t_successMessage?: TranslatedString;
       onUndo?: () => void;
     }>,
   ) => {

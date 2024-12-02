@@ -1,6 +1,8 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import type { TranslatedString } from '@/types/i18next';
+
 import {
   BaseBreadcrumb,
   BaseBreadcrumbItem,
@@ -11,7 +13,7 @@ import {
 } from '../+vendor/BaseBreadcrumb';
 
 interface UserBreadcrumbsProps {
-  t_currentPageLabel: string;
+  t_currentPageLabel: TranslatedString;
 
   user?: App.Data.User;
 }
