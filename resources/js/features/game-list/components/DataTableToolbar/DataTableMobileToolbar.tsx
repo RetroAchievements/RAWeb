@@ -51,7 +51,7 @@ export default function DataTableMobileToolbar<TData>({
           <IoLogoGameControllerA className="mr-0.5 h-6 w-6" />
 
           {infiniteQuery.isPending ? (
-            <BaseSkeleton className="w-16" />
+            <BaseSkeleton data-testid="skeleton" className="w-16" />
           ) : (
             t('{{val, number}} Games', { count: totalGames, val: totalGames })
           )}

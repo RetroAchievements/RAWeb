@@ -10,7 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { LuChevronRight, LuMoreHorizontal } from 'react-icons/lu';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 const BaseBreadcrumb = forwardRef<
   HTMLElement,

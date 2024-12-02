@@ -2,6 +2,8 @@ import { Link } from '@inertiajs/react';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import type { TranslatedString } from '@/types/i18next';
+
 import {
   BaseBreadcrumb,
   BaseBreadcrumbItem,
@@ -19,7 +21,7 @@ import { GameTitle } from '../GameTitle';
  */
 
 interface AchievementBreadcrumbsProps {
-  t_currentPageLabel: string;
+  t_currentPageLabel: TranslatedString;
 
   achievement?: App.Platform.Data.Achievement;
   game?: App.Platform.Data.Game;

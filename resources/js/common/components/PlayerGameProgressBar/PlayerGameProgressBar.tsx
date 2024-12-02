@@ -7,8 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { useFormatPercentage } from '@/common/hooks/useFormatPercentage';
 import { useGetAwardLabelFromPlayerBadge } from '@/common/hooks/useGetAwardLabelFromPlayerBadge';
 import { buildAwardLabelColorClassNames } from '@/common/utils/buildAwardLabelColorClassNames';
+import { cn } from '@/common/utils/cn';
 import { getIsEventGame } from '@/common/utils/getIsEventGame';
-import { cn } from '@/utils/cn';
 
 import { BaseProgress } from '../+vendor/BaseProgress';
 import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';

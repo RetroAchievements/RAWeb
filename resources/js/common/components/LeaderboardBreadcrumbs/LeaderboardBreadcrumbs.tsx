@@ -2,6 +2,8 @@ import { Link } from '@inertiajs/react';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import type { TranslatedString } from '@/types/i18next';
+
 import {
   BaseBreadcrumb,
   BaseBreadcrumbItem,
@@ -19,7 +21,7 @@ import { GameTitle } from '../GameTitle';
  */
 
 interface LeaderboardBreadcrumbsProps {
-  t_currentPageLabel: string;
+  t_currentPageLabel: TranslatedString;
 
   leaderboard?: App.Platform.Data.Leaderboard;
   game?: App.Platform.Data.Game;
