@@ -15,6 +15,8 @@ class BuildAchievementOfTheWeekDataAction
     public function execute(?StaticData $staticData): ?EventAchievementData
     {
         $achievementOfTheWeek = EventAchievement::active()
+            ->whereNotNull('active_from')
+            ->whereNotNull('active_until')
             ->whereHas('achievement.game', function ($query) {
                 $query->where('Title', 'like', '%of the week%');
             })

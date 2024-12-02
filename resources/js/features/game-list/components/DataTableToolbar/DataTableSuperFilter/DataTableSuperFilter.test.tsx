@@ -290,5 +290,24 @@ describe('Component: DataTableSuperFilter', () => {
       // ASSERT
       expect(screen.getAllByText('Title, Ascending (A - Z)')[0]).toBeVisible();
     });
+
+    it('given there is an active sort state with multiple sorts, shows the first sort as selected', async () => {
+      // ARRANGE
+      render(
+        <TestHarness
+          sorting={[
+            { id: 'title', desc: true },
+            { id: 'system', desc: false },
+          ]}
+        />,
+      );
+
+      // ACT
+      await userEvent.click(screen.getByRole('button'));
+      await userEvent.click(screen.getByRole('combobox', { name: /sort/i }));
+
+      // ASSERT
+      expect(screen.getByRole('option', { name: /title.*descending/i })).toBeVisible();
+    });
   });
 });

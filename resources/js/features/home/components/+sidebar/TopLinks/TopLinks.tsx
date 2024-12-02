@@ -14,7 +14,7 @@ import { SiDiscord, SiPatreon } from 'react-icons/si';
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 export const TopLinks: FC = () => {
   const { config } = usePageProps<App.Http.Data.HomePageProps>();

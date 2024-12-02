@@ -6,9 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
+import { cn } from '@/common/utils/cn';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 import type { TranslatedString } from '@/types/i18next';
-import { cn } from '@/utils/cn';
 
 import { HomeHeading } from '../../HomeHeading';
 

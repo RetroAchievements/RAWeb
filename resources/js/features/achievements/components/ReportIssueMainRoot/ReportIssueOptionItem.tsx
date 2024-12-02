@@ -2,8 +2,8 @@ import { Link } from '@inertiajs/react';
 import type { FC, ReactNode } from 'react';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
+import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
-import { cn } from '@/utils/cn';
 
 interface ReportIssueOptionItemProps {
   t_buttonText: TranslatedString;

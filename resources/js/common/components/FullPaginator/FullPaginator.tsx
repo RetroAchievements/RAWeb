@@ -8,7 +8,7 @@ import {
   BasePaginationItem,
   BasePaginationLink,
 } from '@/common/components/+vendor/BasePagination';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 import { baseButtonVariants } from '../+vendor/BaseButton';
 import {

@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as RechartsPrimitive from 'recharts';
 
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: '', dark: '.dark' } as const;

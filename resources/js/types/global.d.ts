@@ -9,20 +9,20 @@ import type {
   toggleAchievementRowsComponent as ToggleAchievementRowsComponent,
   tooltipComponent as TooltipComponent,
 } from '@/tall-stack/alpine';
-import type { autoExpandTextInput as AutoExpandTextInput } from '@/utils/autoExpandTextInput';
+import type { autoExpandTextInput as AutoExpandTextInput } from '@/tall-stack/utils/autoExpandTextInput';
 import type {
   deleteCookie as DeleteCookie,
   getCookie as GetCookie,
   setCookie as SetCookie,
-} from '@/utils/cookie';
-import type { fetcher as Fetcher } from '@/utils/fetcher';
-import type { getStringByteCount as GetStringByteCount } from '@/utils/getStringByteCount';
-import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/utils/handleLeaderboardTabClick';
-import type { initializeTextareaCounter as InitializeTextareaCounter } from '@/utils/initializeTextareaCounter';
-import type { injectShortcode as InjectShortcode } from '@/utils/injectShortcode';
-import type { loadPostPreview as LoadPostPreview } from '@/utils/loadPostPreview';
-import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibility } from '@/utils/toggleUserCompletedSetsVisibility';
-import type { updateUrlParameter as UpdateUrlParameter } from '@/utils/updateUrlParameter';
+} from '@/tall-stack/utils/cookie';
+import type { fetcher as Fetcher } from '@/tall-stack/utils/fetcher';
+import type { getStringByteCount as GetStringByteCount } from '@/tall-stack/utils/getStringByteCount';
+import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/tall-stack/utils/handleLeaderboardTabClick';
+import type { initializeTextareaCounter as InitializeTextareaCounter } from '@/tall-stack/utils/initializeTextareaCounter';
+import type { injectShortcode as InjectShortcode } from '@/tall-stack/utils/injectShortcode';
+import type { loadPostPreview as LoadPostPreview } from '@/tall-stack/utils/loadPostPreview';
+import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibility } from '@/tall-stack/utils/toggleUserCompletedSetsVisibility';
+import type { updateUrlParameter as UpdateUrlParameter } from '@/tall-stack/utils/updateUrlParameter';
 
 import type { TranslatedString } from './i18next';
 

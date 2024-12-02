@@ -12,7 +12,7 @@ import {
   BaseFormMessage,
 } from '@/common/components/+vendor/BaseForm';
 import { baseTextareaClassNames } from '@/common/components/+vendor/BaseTextarea';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 import type { CreateAchievementTicketFormValues } from './useCreateAchievementTicketForm';
 

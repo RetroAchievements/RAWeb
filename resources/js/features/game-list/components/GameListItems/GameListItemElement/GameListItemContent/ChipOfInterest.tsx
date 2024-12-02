@@ -9,12 +9,12 @@ import { PlayerBadgeIndicator } from '@/common/components/PlayerBadgeIndicator';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { buildAwardLabelColorClassNames } from '@/common/utils/buildAwardLabelColorClassNames';
 import { buildGameRarityLabel } from '@/common/utils/buildGameRarityLabel';
+import { cn } from '@/common/utils/cn';
 import { formatGameReleasedAt } from '@/common/utils/formatGameReleasedAt';
 import { getIsEventGame } from '@/common/utils/getIsEventGame';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 import { gameListFieldIconMap } from '@/features/game-list/utils/gameListFieldIconMap';
-import { cn } from '@/utils/cn';
 
 dayjs.extend(utc);
 dayjs.extend(localizedFormat);
