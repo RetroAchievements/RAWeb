@@ -273,11 +273,11 @@ describe('Component: DataTableToolbar', () => {
     const columnsWithoutAchievements: ColumnDef<Model>[] = [
       {
         accessorKey: 'title',
-        meta: { t_label: 'Title' },
+        meta: { t_label: i18n.t('Title') },
       },
       {
         accessorKey: 'system',
-        meta: { t_label: 'System' },
+        meta: { t_label: i18n.t('System') },
       },
       // !! no achievementsPublished column
     ];
