@@ -7,27 +7,31 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import type { BaseAvatarProps } from '@/common/models';
 
 import { GameTitle } from '../GameTitle';
+import { SystemChip } from '../SystemChip';
 
 type GameAvatarProps = BaseAvatarProps &
   App.Platform.Data.Game & {
-    gameTitleClassName?: string;
     decoding?: ImgHTMLAttributes<HTMLImageElement>['decoding'];
+    gameTitleClassName?: string;
     loading?: ImgHTMLAttributes<HTMLImageElement>['loading'];
     shouldGlow?: boolean;
     showHoverCardProgressForUsername?: string;
+    showSystemChip?: boolean;
   };
 
 export const GameAvatar: FC<GameAvatarProps> = ({
-  id,
   badgeUrl,
-  showHoverCardProgressForUsername,
-  title,
   gameTitleClassName,
+  id,
+  showHoverCardProgressForUsername,
+  system,
+  title,
   decoding = 'async',
   loading = 'lazy',
   shouldGlow = false,
   showImage = true,
   showLabel = true,
+  showSystemChip = false,
   size = 32,
   hasTooltip = true,
 }) => {
@@ -63,7 +67,13 @@ export const GameAvatar: FC<GameAvatarProps> = ({
         </>
       ) : null}
 
-      {title && showLabel ? <GameTitle title={title} className={gameTitleClassName} /> : null}
+      <div className="flex flex-col gap-0.5">
+        {title && showLabel ? <GameTitle title={title} className={gameTitleClassName} /> : null}
+
+        {system && showSystemChip ? (
+          <SystemChip {...system} className="text-text hover:text-text" />
+        ) : null}
+      </div>
     </a>
   );
 };

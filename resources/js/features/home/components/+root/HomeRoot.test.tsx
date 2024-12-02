@@ -1,3 +1,5 @@
+import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
+
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createHomePageProps, createZiggyProps } from '@/test/factories';
@@ -8,10 +10,14 @@ import { HomeRoot } from './HomeRoot';
 console.warn = vi.fn();
 
 describe('Component: HomeRoot', () => {
+  beforeEach(() => {
+    mockAllIsIntersecting(false);
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render<App.Http.Data.HomePageProps>(<HomeRoot />, {
-      pageProps: { ziggy: createZiggyProps() },
+      pageProps: { ...createHomePageProps(), ziggy: createZiggyProps() },
     });
 
     // ASSERT
@@ -36,7 +42,7 @@ describe('Component: HomeRoot', () => {
   it('given the user is not logged in, shows a welcome section', () => {
     // ARRANGE
     render<App.Http.Data.HomePageProps>(<HomeRoot />, {
-      pageProps: { auth: null, ziggy: createZiggyProps() },
+      pageProps: { ...createHomePageProps(), auth: null, ziggy: createZiggyProps() },
     });
 
     // ASSERT
@@ -46,7 +52,11 @@ describe('Component: HomeRoot', () => {
   it('given the user is logged in, does not show a welcome section', () => {
     // ARRANGE
     render<App.Http.Data.HomePageProps>(<HomeRoot />, {
-      pageProps: { auth: { user: createAuthenticatedUser() }, ziggy: createZiggyProps() },
+      pageProps: {
+        ...createHomePageProps(),
+        auth: { user: createAuthenticatedUser() },
+        ziggy: createZiggyProps(),
+      },
     });
 
     // ASSERT
