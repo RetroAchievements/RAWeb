@@ -5,12 +5,13 @@ import { useTranslation } from 'react-i18next';
 import { BaseCheckbox } from '@/common/components/+vendor/BaseCheckbox';
 import { BaseFormControl, BaseFormField } from '@/common/components/+vendor/BaseForm';
 import { BaseLabel } from '@/common/components/+vendor/BaseLabel';
+import type { TranslatedString } from '@/types/i18next';
 
 import type { UserPreferenceValue } from '../../models';
 import type { FormValues as NotificationsSectionFormValues } from './useNotificationsSectionForm';
 
 interface NotificationsTableRowProps {
-  t_label: string;
+  t_label: TranslatedString;
 
   emailFieldName?: UserPreferenceValue;
   siteFieldName?: UserPreferenceValue;

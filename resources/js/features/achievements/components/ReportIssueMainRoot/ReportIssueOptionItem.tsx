@@ -3,9 +3,10 @@ import type { FC, ReactNode } from 'react';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { cn } from '@/common/utils/cn';
+import type { TranslatedString } from '@/types/i18next';
 
 interface ReportIssueOptionItemProps {
-  t_buttonText: string;
+  t_buttonText: TranslatedString;
   children: ReactNode;
   href: string;
 

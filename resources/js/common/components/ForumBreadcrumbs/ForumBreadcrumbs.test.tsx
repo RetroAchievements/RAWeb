@@ -1,3 +1,4 @@
+import i18n from '@/i18n-client';
 import { render, screen } from '@/test';
 
 import { ForumBreadcrumbs } from './ForumBreadcrumbs';
@@ -5,7 +6,7 @@ import { ForumBreadcrumbs } from './ForumBreadcrumbs';
 describe('Component: ForumBreadcrumbs', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<ForumBreadcrumbs t_currentPageLabel="Recent Posts" />);
+    const { container } = render(<ForumBreadcrumbs t_currentPageLabel={i18n.t('Recent Posts')} />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -13,7 +14,7 @@ describe('Component: ForumBreadcrumbs', () => {
 
   it('has a link back to the forum index', () => {
     // ARRANGE
-    render(<ForumBreadcrumbs t_currentPageLabel="Recent Posts" />);
+    render(<ForumBreadcrumbs t_currentPageLabel={i18n.t('Recent Posts')} />);
 
     // ASSERT
     const forumIndexLinkEl = screen.getByRole('link', { name: /forum index/i });
@@ -23,7 +24,7 @@ describe('Component: ForumBreadcrumbs', () => {
 
   it('communicates the active link in an accessible manner', () => {
     // ARRANGE
-    render(<ForumBreadcrumbs t_currentPageLabel="Recent Posts" />);
+    render(<ForumBreadcrumbs t_currentPageLabel={i18n.t('Recent Posts')} />);
 
     // ASSERT
     const activeLinkEl = screen.getByRole('link', { name: /recent posts/i });
