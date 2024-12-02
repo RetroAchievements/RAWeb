@@ -1,4 +1,4 @@
-import { fetcher } from '@/utils';
+import { fetcher } from '@/tall-stack/utils';
 
 export function modalComponent(
   resourceApiRoute?: string,

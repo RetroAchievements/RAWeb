@@ -379,5 +379,47 @@ describe('Component: GameListDataTable', () => {
       expect(screen.queryByText('-')).not.toBeInTheDocument();
       expect(screen.getByText('yes')).toBeVisible();
     });
+
+    it('given there are 9 visible columns, applies the correct overflow scroll styles', () => {
+      // ARRANGE
+      const columns = Array(9)
+        .fill(null)
+        .map((_, i) => ({
+          id: `col${i}`,
+          header: `Column ${i}`,
+        }));
+
+      render(<TestHarness columns={columns} data={[]} />);
+
+      // ASSERT
+      const tableContainer = screen.getByRole('table').parentElement;
+      expect(tableContainer).toHaveClass('lg:!overflow-x-scroll');
+      expect(tableContainer).not.toHaveClass('xl:!overflow-x-scroll');
+
+      const headerRow = screen.getAllByRole('row')[0];
+      expect(headerRow).toHaveClass('lg:!top-0');
+      expect(headerRow).not.toHaveClass('xl:!top-0');
+    });
+
+    it('given there are 11 visible columns, applies the correct overflow scroll styles', () => {
+      // ARRANGE
+      const columns = Array(11)
+        .fill(null)
+        .map((_, i) => ({
+          id: `col${i}`,
+          header: `Column ${i}`,
+        }));
+
+      render(<TestHarness columns={columns} data={[]} />);
+
+      // ASSERT
+      const tableContainer = screen.getByRole('table').parentElement;
+      expect(tableContainer).toHaveClass('lg:!overflow-x-scroll');
+      expect(tableContainer).toHaveClass('xl:!overflow-x-scroll');
+
+      const headerRow = screen.getAllByRole('row')[0];
+      expect(headerRow).toHaveClass('lg:!top-0');
+      expect(headerRow).toHaveClass('xl:!top-0');
+    });
   });
 });

@@ -9,6 +9,9 @@ import { createPaginatedData, createSystem, createZiggyProps } from '@/test/fact
 
 import { DataTableToolbar } from './DataTableToolbar';
 
+// Suppress "Column with id 'achievementsPublished' does not exist".
+console.error = vi.fn();
+
 vi.mock('./RandomGameButton');
 
 // We'll use a sample data type.
@@ -262,5 +265,30 @@ describe('Component: DataTableToolbar', () => {
         sort: null,
       },
     ]);
+  });
+
+  it('given the table has no achievements published column, does not show the "Has achievements" filter', () => {
+    // ARRANGE
+    const columnsWithoutAchievements: ColumnDef<Model>[] = [
+      {
+        accessorKey: 'title',
+        meta: { t_label: 'Title' },
+      },
+      {
+        accessorKey: 'system',
+        meta: { t_label: 'System' },
+      },
+      // !! no achievementsPublished column
+    ];
+
+    render(<DataTableToolbarHarness columns={columnsWithoutAchievements} />, {
+      pageProps: {
+        ziggy: createZiggyProps({ device: 'desktop' }),
+        filterableSystemOptions: [createSystem({ name: 'Nintendo 64', nameShort: 'N64' })],
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /has achievements/i })).not.toBeInTheDocument();
   });
 });

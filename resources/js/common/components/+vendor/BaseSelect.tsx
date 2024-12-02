@@ -5,7 +5,7 @@ import * as React from 'react';
 import type { IconType } from 'react-icons/lib';
 import { LuCheck, LuChevronDown } from 'react-icons/lu';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 const BaseSelect = SelectPrimitive.Root;
 
