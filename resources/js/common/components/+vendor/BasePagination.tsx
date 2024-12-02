@@ -3,7 +3,7 @@ import { type ComponentProps, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronLeft, LuChevronRight, LuMoreHorizontal } from 'react-icons/lu';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 import { type BaseButtonProps, baseButtonVariants } from './BaseButton';
 

@@ -2,12 +2,13 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 
 import { GameAvatar } from '@/common/components/GameAvatar';
+import type { TranslatedString } from '@/types/i18next';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildTitleColumnDefProps {
-  t_label: string;
+  t_label: TranslatedString;
 
   forUsername?: string;
   tableApiRouteName?: RouteName;

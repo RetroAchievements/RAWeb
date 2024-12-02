@@ -6,9 +6,10 @@ import {
   BaseCardHeader,
   BaseCardTitle,
 } from '@/common/components/+vendor/BaseCard';
+import type { TranslatedString } from '@/types/i18next';
 
 interface SectionStandardCardProps {
-  t_headingLabel: string;
+  t_headingLabel: TranslatedString;
   children: ReactNode;
 }
 

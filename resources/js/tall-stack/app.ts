@@ -6,6 +6,16 @@
 // eslint-disable-next-line camelcase
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
+import { Alpine, Livewire } from '../../../vendor/livewire/livewire/dist/livewire.esm';
+import {
+  linkifyDirective,
+  modalComponent,
+  navbarSearchComponent,
+  newsCarouselComponent,
+  toggleAchievementRowsComponent,
+  tooltipComponent,
+} from './alpine';
+import { lazyLoadModuleOnIdFound } from './lazyLoadModuleOnIdFound';
 import {
   autoExpandTextInput,
   copyToClipboard,
@@ -21,18 +31,7 @@ import {
   themeChange,
   toggleUserCompletedSetsVisibility,
   updateUrlParameter,
-} from '@/utils';
-
-import { Alpine, Livewire } from '../../../vendor/livewire/livewire/dist/livewire.esm';
-import {
-  linkifyDirective,
-  modalComponent,
-  navbarSearchComponent,
-  newsCarouselComponent,
-  toggleAchievementRowsComponent,
-  tooltipComponent,
-} from './alpine';
-import { lazyLoadModuleOnIdFound } from './lazyLoadModuleOnIdFound';
+} from './utils';
 
 // livewire_hot_reload();
 
