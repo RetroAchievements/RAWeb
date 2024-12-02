@@ -21,6 +21,7 @@ const DataTableResetFiltersButtonTestHarness: FC<DataTableResetFiltersButtonTest
     columns: [],
     state: {
       columnFilters,
+      pagination: { pageIndex: 0, pageSize: 25 },
     },
     getCoreRowModel: getCoreRowModel(),
   });
@@ -59,6 +60,9 @@ describe('Component: DataTableResetFiltersButton', () => {
       expect(getSpy).toHaveBeenCalledOnce();
     });
 
-    expect(getSpy).toHaveBeenCalledWith(['api.game.index', { 'page[number]': 1, sort: null }]);
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.game.index',
+      { 'page[number]': 1, 'page[size]': 25, sort: null },
+    ]);
   });
 });

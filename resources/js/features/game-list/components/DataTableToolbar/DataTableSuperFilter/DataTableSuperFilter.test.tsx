@@ -6,6 +6,7 @@ import type { FC } from 'react';
 import { buildAchievementsPublishedColumnDef } from '@/features/game-list/utils/column-definitions/buildAchievementsPublishedColumnDef';
 import { buildSystemColumnDef } from '@/features/game-list/utils/column-definitions/buildSystemColumnDef';
 import { buildTitleColumnDef } from '@/features/game-list/utils/column-definitions/buildTitleColumnDef';
+import i18n from '@/i18n-client';
 import { render, screen } from '@/test';
 import { createSystem } from '@/test/factories';
 
@@ -35,9 +36,9 @@ const TestHarness: FC<TestHarnessProps> = ({
     onColumnFiltersChange: onColumnFiltersChange as any,
     onSortingChange: onSortingChange as any,
     columns: [
-      buildTitleColumnDef({ t_label: 'Title' }),
-      buildSystemColumnDef({ t_label: 'System' }),
-      buildAchievementsPublishedColumnDef({ t_label: 'Achievements' }),
+      buildTitleColumnDef({ t_label: i18n.t('Title') }),
+      buildSystemColumnDef({ t_label: i18n.t('System') }),
+      buildAchievementsPublishedColumnDef({ t_label: i18n.t('Achievements') }),
     ],
     data: [],
     getCoreRowModel: getCoreRowModel(),
@@ -288,6 +289,25 @@ describe('Component: DataTableSuperFilter', () => {
 
       // ASSERT
       expect(screen.getAllByText('Title, Ascending (A - Z)')[0]).toBeVisible();
+    });
+
+    it('given there is an active sort state with multiple sorts, shows the first sort as selected', async () => {
+      // ARRANGE
+      render(
+        <TestHarness
+          sorting={[
+            { id: 'title', desc: true },
+            { id: 'system', desc: false },
+          ]}
+        />,
+      );
+
+      // ACT
+      await userEvent.click(screen.getByRole('button'));
+      await userEvent.click(screen.getByRole('combobox', { name: /sort/i }));
+
+      // ASSERT
+      expect(screen.getByRole('option', { name: /title.*descending/i })).toBeVisible();
     });
   });
 });

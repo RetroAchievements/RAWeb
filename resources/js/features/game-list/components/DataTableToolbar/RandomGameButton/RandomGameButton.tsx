@@ -6,7 +6,7 @@ import type { RouteName } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 import { useRandomGameId } from './useRandomGameId';
 

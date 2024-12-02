@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+import i18n from '@/i18n-client';
 import { render, screen } from '@/test';
 
 import { NotificationsTableRow } from './NotificationsTableRow';
@@ -22,7 +23,11 @@ describe('Component: NotificationsTableRow', () => {
     // ARRANGE
     const { container } = render(
       <Wrapper>
-        <NotificationsTableRow t_label="t_label" emailFieldName="0" siteFieldName="1" />
+        <NotificationsTableRow
+          t_label={i18n.t('Achievements')}
+          emailFieldName="0"
+          siteFieldName="1"
+        />
       </Wrapper>,
     );
 
@@ -34,7 +39,7 @@ describe('Component: NotificationsTableRow', () => {
     // ARRANGE
     render(
       <Wrapper>
-        <NotificationsTableRow t_label="t_label" siteFieldName="1" />
+        <NotificationsTableRow t_label={i18n.t('Achievements')} siteFieldName="1" />
       </Wrapper>,
     );
 
@@ -47,7 +52,7 @@ describe('Component: NotificationsTableRow', () => {
     // ARRANGE
     render(
       <Wrapper>
-        <NotificationsTableRow t_label="t_label" emailFieldName="1" />
+        <NotificationsTableRow t_label={i18n.t('Achievements')} emailFieldName="1" />
       </Wrapper>,
     );
 

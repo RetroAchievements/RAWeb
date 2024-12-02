@@ -2,7 +2,7 @@ import type { FC } from 'react';
 
 import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 import type { BaseAvatarProps } from '@/common/models';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 type UserAvatarProps = BaseAvatarProps & App.Data.User;
 

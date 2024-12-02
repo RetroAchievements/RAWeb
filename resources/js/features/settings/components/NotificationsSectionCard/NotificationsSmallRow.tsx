@@ -6,6 +6,7 @@ import { BaseCheckbox } from '@/common/components/+vendor/BaseCheckbox';
 import { BaseFormControl, BaseFormField } from '@/common/components/+vendor/BaseForm';
 import { BaseLabel } from '@/common/components/+vendor/BaseLabel';
 import type { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
+import type { TranslatedString } from '@/types/i18next';
 
 import type { FormValues as NotificationsSectionFormValues } from './useNotificationsSectionForm';
 
@@ -13,7 +14,7 @@ type UserPreferenceValue =
   (typeof StringifiedUserPreference)[keyof typeof StringifiedUserPreference];
 
 interface NotificationsTableRowProps {
-  t_label: string;
+  t_label: TranslatedString;
 
   emailFieldName?: UserPreferenceValue;
   siteFieldName?: UserPreferenceValue;

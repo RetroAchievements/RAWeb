@@ -10,14 +10,13 @@ import {
   BaseTableHeader,
   BaseTableRow,
 } from '@/common/components/+vendor/BaseTable';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 interface GameListDataTableProps<TData> {
   table: Table<TData>;
 }
 
-// Lazy-loaded, so using a default export.
-export default function GameListDataTable<TData>({ table }: GameListDataTableProps<TData>) {
+export function GameListDataTable<TData>({ table }: GameListDataTableProps<TData>) {
   const { t } = useTranslation();
 
   const visibleColumnCount = table.getVisibleFlatColumns().length;
@@ -59,7 +58,7 @@ export default function GameListDataTable<TData>({ table }: GameListDataTablePro
       <BaseTableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => (
-            <BaseTableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+            <BaseTableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
                 <BaseTableCell
                   key={cell.id}

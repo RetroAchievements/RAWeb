@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { baseCardTitleClassNames } from '@/common/components/+vendor/BaseCard';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 export const SiteAwardsSection: FC = () => {
   const { t } = useTranslation();

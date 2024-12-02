@@ -1,6 +1,6 @@
 import { autoUpdate, computePosition, type ReferenceElement } from '@floating-ui/dom';
 
-import { fetcher } from '@/utils';
+import { fetcher } from '@/tall-stack/utils';
 
 interface SearchResult {
   label: string;

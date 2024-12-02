@@ -1,9 +1,8 @@
 import userEvent from '@testing-library/user-event';
-import axios from 'axios';
 import type { FC } from 'react';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen, waitFor } from '@/test';
+import { render, screen } from '@/test';
 import { createGame } from '@/test/factories';
 
 import { useGameBacklogState } from '../../useGameBacklogState';
@@ -85,26 +84,6 @@ describe('Component: GameListItemDrawerBacklogToggleButton', () => {
 
     // ASSERT
     expect(onToggle).toHaveBeenCalledOnce();
-  });
-
-  // FIXME this test is throwing a exception vitest can't handle
-  it.skip('given the back-end API call throws, reverts the optimistic state', async () => {
-    // ARRANGE
-    vi.spyOn(axios, 'post').mockRejectedValueOnce({ success: false });
-
-    const game = createGame({ id: 1 });
-
-    render(<TestHarness game={game} isInitiallyInBacklog={false} />, {
-      pageProps: { auth: { user: createAuthenticatedUser() } },
-    });
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /add to want to play games/i }));
-
-    // ASSERT
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /add to want to play games/i })).toBeVisible();
-    });
   });
 
   it("given the game is currently in the user's backlog and the user presses the button, invokes the toggle event", async () => {

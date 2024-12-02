@@ -2,13 +2,14 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 
 import { buildGameRarityLabel } from '@/common/utils/buildGameRarityLabel';
+import type { TranslatedString } from '@/types/i18next';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildRetroRatioColumnDefProps {
-  t_label: string;
-  strings: { t_none: string };
+  t_label: TranslatedString;
+  strings: { t_none: TranslatedString };
 
   tableApiRouteName?: RouteName;
 }

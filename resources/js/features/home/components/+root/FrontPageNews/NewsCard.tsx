@@ -1,7 +1,7 @@
 import { type FC, type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 interface NewsCardProps {
   authorDisplayName: string;

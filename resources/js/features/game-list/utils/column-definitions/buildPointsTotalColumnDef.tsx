@@ -3,12 +3,13 @@ import type { RouteName } from 'ziggy-js';
 
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
+import type { TranslatedString } from '@/types/i18next';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildPointsTotalColumnDefProps {
-  t_label: string;
+  t_label: TranslatedString;
 
   tableApiRouteName?: RouteName;
 }

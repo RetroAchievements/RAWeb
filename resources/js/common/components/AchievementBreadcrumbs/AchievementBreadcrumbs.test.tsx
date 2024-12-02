@@ -1,3 +1,4 @@
+import i18n from '@/i18n-client';
 import { render, screen } from '@/test';
 import { createAchievement, createGame, createSystem } from '@/test/factories';
 
@@ -6,7 +7,9 @@ import { AchievementBreadcrumbs } from './AchievementBreadcrumbs';
 describe('Component: AchievementBreadcrumbs', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<AchievementBreadcrumbs t_currentPageLabel="Some Page" />);
+    const { container } = render(
+      <AchievementBreadcrumbs t_currentPageLabel={i18n.t('Comments')} />,
+    );
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -14,7 +17,7 @@ describe('Component: AchievementBreadcrumbs', () => {
 
   it('has a link to the All Games list', () => {
     // ARRANGE
-    render(<AchievementBreadcrumbs t_currentPageLabel="Some Page" />);
+    render(<AchievementBreadcrumbs t_currentPageLabel={i18n.t('Comments')} />);
 
     // ASSERT
     const allGamesLinkEl = screen.getByRole('link', { name: /all games/i });
@@ -27,7 +30,13 @@ describe('Component: AchievementBreadcrumbs', () => {
     const system = createSystem({ name: 'Nintendo 64' });
     const game = createGame({ system });
 
-    render(<AchievementBreadcrumbs t_currentPageLabel="Some Page" game={game} system={system} />);
+    render(
+      <AchievementBreadcrumbs
+        t_currentPageLabel={i18n.t('Comments')}
+        game={game}
+        system={system}
+      />,
+    );
 
     // ASSERT
     const systemGamesLinkEl = screen.getByRole('link', { name: /nintendo 64/i });
@@ -40,7 +49,13 @@ describe('Component: AchievementBreadcrumbs', () => {
     const system = createSystem({ name: 'Nintendo 64' });
     const game = createGame({ system });
 
-    render(<AchievementBreadcrumbs t_currentPageLabel="Some Page" game={game} system={system} />);
+    render(
+      <AchievementBreadcrumbs
+        t_currentPageLabel={i18n.t('Comments')}
+        game={game}
+        system={system}
+      />,
+    );
 
     // ASSERT
     const gameLinkEl = screen.getByRole('link', { name: game.title });
@@ -56,7 +71,7 @@ describe('Component: AchievementBreadcrumbs', () => {
 
     render(
       <AchievementBreadcrumbs
-        t_currentPageLabel="Some Page"
+        t_currentPageLabel={i18n.t('Comments')}
         achievement={achievement}
         game={game}
         system={system}
@@ -80,7 +95,7 @@ describe('Component: AchievementBreadcrumbs', () => {
 
     render(
       <AchievementBreadcrumbs
-        t_currentPageLabel="Some Page"
+        t_currentPageLabel={i18n.t('Comments')}
         achievement={achievement}
         game={game}
         system={system}
