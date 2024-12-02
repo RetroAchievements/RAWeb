@@ -8,17 +8,16 @@ import type {
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { type Dispatch, type FC, lazy, type SetStateAction, Suspense } from 'react';
 
-import { BaseSkeleton } from '@/common/components/+vendor/BaseSkeleton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useGameListPaginatedQuery } from '@/features/game-list/hooks/useGameListPaginatedQuery';
 
 import { wantToPlayGamesDefaultFilters } from '../../utils/wantToPlayGamesDefaultFilters';
+import { DataTablePagination } from '../DataTablePagination';
 import { DataTableToolbar } from '../DataTableToolbar';
+import { GameListDataTable } from '../GameListDataTable';
 import { GameListItemsSuspenseFallback } from '../GameListItems/GameListItemsSuspenseFallback';
 import { useColumnDefinitions } from './useColumnDefinitions';
 
-const DataTablePagination = lazy(() => import('../DataTablePagination'));
-const GameListDataTable = lazy(() => import('../GameListDataTable'));
 const GameListItems = lazy(() => import('../GameListItems'));
 
 // These values are all generated from `useGameListState`.
@@ -105,22 +104,12 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
 
       {ziggy.device === 'desktop' ? (
         <div className="flex flex-col gap-3">
-          <Suspense fallback={<BaseSkeleton className="h-[1275px] w-full" />}>
-            <GameListDataTable table={table as Table<unknown>} />
-          </Suspense>
+          <GameListDataTable table={table as Table<unknown>} />
 
-          <Suspense
-            fallback={
-              <div className="flex w-full justify-end">
-                <BaseSkeleton className="h-8 w-44" />
-              </div>
-            }
-          >
-            <DataTablePagination
-              table={table as Table<unknown>}
-              tableApiRouteName="api.user-game-list.index"
-            />
-          </Suspense>
+          <DataTablePagination
+            table={table as Table<unknown>}
+            tableApiRouteName="api.user-game-list.index"
+          />
         </div>
       ) : null}
     </div>

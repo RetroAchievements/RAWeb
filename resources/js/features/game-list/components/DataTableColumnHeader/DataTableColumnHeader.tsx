@@ -13,7 +13,7 @@ import {
   BaseDropdownMenuSeparator,
   BaseDropdownMenuTrigger,
 } from '@/common/components/+vendor/BaseDropdownMenu';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 import { useDataTablePrefetchSort } from '../../hooks/useDataTablePrefetchSort';
 import { useSortConfigs } from '../../hooks/useSortConfigs';

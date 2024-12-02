@@ -2,7 +2,7 @@ import type { FC } from 'react';
 
 import { useGetAwardLabelFromPlayerBadge } from '@/common/hooks/useGetAwardLabelFromPlayerBadge';
 import { buildAwardLabelColorClassNames } from '@/common/utils/buildAwardLabelColorClassNames';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 type PlayerBadgeLabelProps = {
   playerBadge: App.Platform.Data.PlayerBadge;

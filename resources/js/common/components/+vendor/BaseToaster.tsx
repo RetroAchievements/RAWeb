@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { toast, Toaster as Sonner } from 'sonner';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 type BaseToasterProps = ComponentProps<typeof Sonner>;
 

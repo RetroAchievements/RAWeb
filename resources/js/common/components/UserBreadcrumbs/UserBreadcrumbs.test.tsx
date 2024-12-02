@@ -1,3 +1,4 @@
+import i18n from '@/i18n-client';
 import { render, screen } from '@/test';
 import { createUser } from '@/test/factories';
 
@@ -6,7 +7,7 @@ import { UserBreadcrumbs } from './UserBreadcrumbs';
 describe('Component: UserBreadcrumbs', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<UserBreadcrumbs t_currentPageLabel="Some Page" />);
+    const { container } = render(<UserBreadcrumbs t_currentPageLabel={i18n.t('Comments')} />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -14,7 +15,7 @@ describe('Component: UserBreadcrumbs', () => {
 
   it('has a link to the All Users list', () => {
     // ARRANGE
-    render(<UserBreadcrumbs t_currentPageLabel="Some Page" />);
+    render(<UserBreadcrumbs t_currentPageLabel={i18n.t('Comments')} />);
 
     // ASSERT
     const allGamesLinkEl = screen.getByRole('link', { name: /all users/i });
@@ -26,7 +27,7 @@ describe('Component: UserBreadcrumbs', () => {
     // ARRANGE
     const user = createUser({ displayName: 'Scott' });
 
-    render(<UserBreadcrumbs t_currentPageLabel="Some Page" user={user} />);
+    render(<UserBreadcrumbs t_currentPageLabel={i18n.t('Comments')} user={user} />);
 
     // ASSERT
     const systemGamesLinkEl = screen.getByRole('link', { name: /scott/i });

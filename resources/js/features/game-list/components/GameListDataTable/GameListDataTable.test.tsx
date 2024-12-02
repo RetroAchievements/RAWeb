@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import type { FC } from 'react';
 
+import i18n from '@/i18n-client';
 import { render, screen } from '@/test';
 import { createGame, createGameListEntry, createSystem } from '@/test/factories';
 
@@ -15,7 +16,7 @@ import { buildPlayersTotalColumnDef } from '../../utils/column-definitions/build
 import { buildRetroRatioColumnDef } from '../../utils/column-definitions/buildRetroRatioColumnDef';
 import { buildSystemColumnDef } from '../../utils/column-definitions/buildSystemColumnDef';
 import { buildTitleColumnDef } from '../../utils/column-definitions/buildTitleColumnDef';
-import GameListDataTable from './GameListDataTable';
+import { GameListDataTable } from './GameListDataTable';
 
 dayjs.extend(utc);
 
@@ -56,8 +57,8 @@ describe('Component: GameListDataTable', () => {
       const { container } = render(
         <TestHarness
           columns={[
-            buildTitleColumnDef({ t_label: 'Title' }),
-            buildSystemColumnDef({ t_label: 'System' }),
+            buildTitleColumnDef({ t_label: i18n.t('Title') }),
+            buildSystemColumnDef({ t_label: i18n.t('System') }),
           ]}
           data={[gameListEntry]}
         />,
@@ -77,8 +78,8 @@ describe('Component: GameListDataTable', () => {
       render(
         <TestHarness
           columns={[
-            buildTitleColumnDef({ t_label: 'Title' }),
-            buildSystemColumnDef({ t_label: 'System' }),
+            buildTitleColumnDef({ t_label: i18n.t('Title') }),
+            buildSystemColumnDef({ t_label: i18n.t('System') }),
           ]}
           data={[gameListEntry]}
         />,
@@ -101,8 +102,11 @@ describe('Component: GameListDataTable', () => {
       render(
         <TestHarness
           columns={[
-            buildTitleColumnDef({ t_label: 'Title' }),
-            buildRetroRatioColumnDef({ t_label: 'Rarity', strings: { t_none: 'none' } }),
+            buildTitleColumnDef({ t_label: i18n.t('Title') }),
+            buildRetroRatioColumnDef({
+              t_label: i18n.t('Rarity'),
+              strings: { t_none: i18n.t('none') },
+            }),
           ]}
           data={[gameListEntry]}
         />,
@@ -125,8 +129,11 @@ describe('Component: GameListDataTable', () => {
       render(
         <TestHarness
           columns={[
-            buildTitleColumnDef({ t_label: 'Title' }),
-            buildRetroRatioColumnDef({ t_label: 'Rarity', strings: { t_none: 'none' } }),
+            buildTitleColumnDef({ t_label: i18n.t('Title') }),
+            buildRetroRatioColumnDef({
+              t_label: i18n.t('Rarity'),
+              strings: { t_none: i18n.t('none') },
+            }),
           ]}
           data={[gameListEntry]}
         />,
@@ -149,8 +156,11 @@ describe('Component: GameListDataTable', () => {
       render(
         <TestHarness
           columns={[
-            buildTitleColumnDef({ t_label: 'Title' }),
-            buildRetroRatioColumnDef({ t_label: 'Rarity', strings: { t_none: 'none' } }),
+            buildTitleColumnDef({ t_label: i18n.t('Title') }),
+            buildRetroRatioColumnDef({
+              t_label: i18n.t('Rarity'),
+              strings: { t_none: i18n.t('none') },
+            }),
           ]}
           data={[gameListEntry]}
         />,
@@ -172,8 +182,8 @@ describe('Component: GameListDataTable', () => {
       render(
         <TestHarness
           columns={[
-            buildTitleColumnDef({ t_label: 'Title' }),
-            buildPlayersTotalColumnDef({ t_label: 'Players' }),
+            buildTitleColumnDef({ t_label: i18n.t('Title') }),
+            buildPlayersTotalColumnDef({ t_label: i18n.t('Players') }),
           ]}
           data={[gameListEntry]}
         />,
@@ -195,8 +205,8 @@ describe('Component: GameListDataTable', () => {
       render(
         <TestHarness
           columns={[
-            buildTitleColumnDef({ t_label: 'Title' }),
-            buildPlayersTotalColumnDef({ t_label: 'Players' }),
+            buildTitleColumnDef({ t_label: i18n.t('Title') }),
+            buildPlayersTotalColumnDef({ t_label: i18n.t('Players') }),
           ]}
           data={[gameListEntry]}
         />,
@@ -218,8 +228,8 @@ describe('Component: GameListDataTable', () => {
       render(
         <TestHarness
           columns={[
-            buildTitleColumnDef({ t_label: 'Title' }),
-            buildNumVisibleLeaderboardsColumnDef({ t_label: 'Leaderboards' }),
+            buildTitleColumnDef({ t_label: i18n.t('Title') }),
+            buildNumVisibleLeaderboardsColumnDef({ t_label: i18n.t('Leaderboards') }),
           ]}
           data={[gameListEntry]}
         />,
@@ -241,8 +251,8 @@ describe('Component: GameListDataTable', () => {
       render(
         <TestHarness
           columns={[
-            buildTitleColumnDef({ t_label: 'Title' }),
-            buildNumVisibleLeaderboardsColumnDef({ t_label: 'Leaderboards' }),
+            buildTitleColumnDef({ t_label: i18n.t('Title') }),
+            buildNumVisibleLeaderboardsColumnDef({ t_label: i18n.t('Leaderboards') }),
           ]}
           data={[gameListEntry]}
         />,
@@ -263,8 +273,8 @@ describe('Component: GameListDataTable', () => {
       render(
         <TestHarness
           columns={[
-            buildTitleColumnDef({ t_label: 'Title' }),
-            buildNumUnresolvedTicketsColumnDef({ t_label: 'Tickets' }),
+            buildTitleColumnDef({ t_label: i18n.t('Title') }),
+            buildNumUnresolvedTicketsColumnDef({ t_label: i18n.t('Tickets') }),
           ]}
           data={[gameListEntry]}
         />,
@@ -286,8 +296,8 @@ describe('Component: GameListDataTable', () => {
       render(
         <TestHarness
           columns={[
-            buildTitleColumnDef({ t_label: 'Title' }),
-            buildNumUnresolvedTicketsColumnDef({ t_label: 'Tickets' }),
+            buildTitleColumnDef({ t_label: i18n.t('Title') }),
+            buildNumUnresolvedTicketsColumnDef({ t_label: i18n.t('Tickets') }),
           ]}
           data={[gameListEntry]}
         />,
@@ -312,8 +322,8 @@ describe('Component: GameListDataTable', () => {
       render(
         <TestHarness
           columns={[
-            buildTitleColumnDef({ t_label: 'Title' }),
-            buildLastUpdatedColumnDef({ t_label: 'Last Updated' }),
+            buildTitleColumnDef({ t_label: i18n.t('Title') }),
+            buildLastUpdatedColumnDef({ t_label: i18n.t('Last Updated') }),
           ]}
           data={[gameListEntry]}
         />,
@@ -335,10 +345,13 @@ describe('Component: GameListDataTable', () => {
       render(
         <TestHarness
           columns={[
-            buildTitleColumnDef({ t_label: 'Title' }),
+            buildTitleColumnDef({ t_label: i18n.t('Title') }),
             buildHasActiveOrInReviewClaimsColumnDef({
-              t_label: 'Claimed',
-              strings: { t_yes: 'yes', t_description: 'description' },
+              t_label: i18n.t('Claimed'),
+              strings: {
+                t_yes: i18n.t('Yes'),
+                t_description: i18n.t('One or more developers are currently working on this game.'),
+              },
             }),
           ]}
           data={[gameListEntry]}
@@ -349,7 +362,7 @@ describe('Component: GameListDataTable', () => {
       expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
 
       expect(screen.getByText('-')).toBeVisible();
-      expect(screen.queryByText('yes')).not.toBeInTheDocument();
+      expect(screen.queryByText(/yes/i)).not.toBeInTheDocument();
     });
 
     it("given the game list entry's game has active or in review claims, displays a label indicating this", () => {
@@ -363,10 +376,13 @@ describe('Component: GameListDataTable', () => {
       render(
         <TestHarness
           columns={[
-            buildTitleColumnDef({ t_label: 'Title' }),
+            buildTitleColumnDef({ t_label: i18n.t('Title') }),
             buildHasActiveOrInReviewClaimsColumnDef({
-              t_label: 'Claimed',
-              strings: { t_yes: 'yes', t_description: 'description' },
+              t_label: i18n.t('Claimed'),
+              strings: {
+                t_yes: i18n.t('Yes'),
+                t_description: i18n.t('One or more developers are currently working on this game.'),
+              },
             }),
           ]}
           data={[gameListEntry]}
@@ -377,7 +393,49 @@ describe('Component: GameListDataTable', () => {
       expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
 
       expect(screen.queryByText('-')).not.toBeInTheDocument();
-      expect(screen.getByText('yes')).toBeVisible();
+      expect(screen.getByText(/yes/i)).toBeVisible();
+    });
+
+    it('given there are 9 visible columns, applies the correct overflow scroll styles', () => {
+      // ARRANGE
+      const columns = Array(9)
+        .fill(null)
+        .map((_, i) => ({
+          id: `col${i}`,
+          header: `Column ${i}`,
+        }));
+
+      render(<TestHarness columns={columns} data={[]} />);
+
+      // ASSERT
+      const tableContainer = screen.getByRole('table').parentElement;
+      expect(tableContainer).toHaveClass('lg:!overflow-x-scroll');
+      expect(tableContainer).not.toHaveClass('xl:!overflow-x-scroll');
+
+      const headerRow = screen.getAllByRole('row')[0];
+      expect(headerRow).toHaveClass('lg:!top-0');
+      expect(headerRow).not.toHaveClass('xl:!top-0');
+    });
+
+    it('given there are 11 visible columns, applies the correct overflow scroll styles', () => {
+      // ARRANGE
+      const columns = Array(11)
+        .fill(null)
+        .map((_, i) => ({
+          id: `col${i}`,
+          header: `Column ${i}`,
+        }));
+
+      render(<TestHarness columns={columns} data={[]} />);
+
+      // ASSERT
+      const tableContainer = screen.getByRole('table').parentElement;
+      expect(tableContainer).toHaveClass('lg:!overflow-x-scroll');
+      expect(tableContainer).toHaveClass('xl:!overflow-x-scroll');
+
+      const headerRow = screen.getAllByRole('row')[0];
+      expect(headerRow).toHaveClass('lg:!top-0');
+      expect(headerRow).toHaveClass('xl:!top-0');
     });
   });
 });

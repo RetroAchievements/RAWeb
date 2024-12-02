@@ -1,7 +1,7 @@
 import type { FC, ReactNode } from 'react';
 
 import { GameAvatar } from '@/common/components/GameAvatar';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 interface GameHeadingProps {
   children: ReactNode;

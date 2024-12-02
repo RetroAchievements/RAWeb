@@ -11,7 +11,7 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 import { useSearchInputHotkey } from './useSearchInputHotkey';
 

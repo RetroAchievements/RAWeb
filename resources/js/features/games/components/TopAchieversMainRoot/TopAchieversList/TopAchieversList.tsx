@@ -14,9 +14,9 @@ import { PlayerBadgeLabel } from '@/common/components/PlayerBadgeLabel';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { cn } from '@/common/utils/cn';
 import { AwardType } from '@/common/utils/generatedAppConstants';
 import { formatDate } from '@/common/utils/l10n/formatDate';
-import { cn } from '@/utils/cn';
 
 export const TopAchieversList: FC = () => {
   const { paginatedUsers } = usePageProps<App.Platform.Data.GameTopAchieversPageProps>();

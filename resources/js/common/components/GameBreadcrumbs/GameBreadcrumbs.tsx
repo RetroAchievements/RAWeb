@@ -2,6 +2,8 @@ import { Link } from '@inertiajs/react';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import type { TranslatedString } from '@/types/i18next';
+
 import {
   BaseBreadcrumb,
   BaseBreadcrumbItem,
@@ -13,7 +15,7 @@ import {
 import { GameTitle } from '../GameTitle';
 
 interface GameBreadcrumbsProps {
-  t_currentPageLabel: string;
+  t_currentPageLabel: TranslatedString;
 
   game?: App.Platform.Data.Game;
   system?: App.Platform.Data.System;

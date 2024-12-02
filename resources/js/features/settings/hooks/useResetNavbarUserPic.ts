@@ -1,5 +1,5 @@
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { asset } from '@/utils/helpers';
+import { dangerouslyGetClientSideAssetUrl } from '@/common/utils/dangerouslyGetClientSideAssetUrl';
 
 export function useResetNavbarUserPic() {
   const { auth } = usePageProps();
@@ -13,7 +13,7 @@ export function useResetNavbarUserPic() {
 
     for (const element of document.querySelectorAll<HTMLImageElement>('.userpic')) {
       const now = new Date(); // use a query param to ignore the browser cache
-      element.src = `${asset(fileName)}` + '?' + now.getTime();
+      element.src = `${dangerouslyGetClientSideAssetUrl(fileName)}` + '?' + now.getTime();
     }
   };
 
