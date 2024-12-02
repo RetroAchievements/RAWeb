@@ -1,11 +1,13 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 
+import type { TranslatedString } from '@/types/i18next';
+
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildAchievementsPublishedColumnDefProps {
-  t_label: string;
+  t_label: TranslatedString;
 
   tableApiRouteName?: RouteName;
 }

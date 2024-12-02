@@ -22,7 +22,7 @@ import {
 } from '@/common/components/+vendor/BasePopover';
 import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 interface FacetedFilterOption {
   label: string;
@@ -218,7 +218,10 @@ function FacetedFilterContent<TData, TValue>({
                 </div>
 
                 {option.icon ? (
-                  <option.icon className="text-muted-foreground mr-2 h-4 w-4" />
+                  <option.icon
+                    className="text-muted-foreground mr-2 h-4 w-4"
+                    data-testid="option-icon"
+                  />
                 ) : null}
 
                 <span className="text-neutral-200 light:text-neutral-900">{option.label}</span>

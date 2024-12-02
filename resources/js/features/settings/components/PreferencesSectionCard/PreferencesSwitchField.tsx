@@ -9,6 +9,7 @@ import {
 } from '@/common/components/+vendor/BaseForm';
 import { BaseSwitch } from '@/common/components/+vendor/BaseSwitch';
 import type { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
+import type { TranslatedString } from '@/types/i18next';
 
 import type { FormValues as PreferencesSectionFormValues } from './usePreferencesSectionForm';
 
@@ -16,7 +17,7 @@ type UserPreferenceValue =
   (typeof StringifiedUserPreference)[keyof typeof StringifiedUserPreference];
 
 interface PreferencesTableRowProps {
-  t_label: string;
+  t_label: TranslatedString;
   fieldName: UserPreferenceValue;
   control: Control<PreferencesSectionFormValues>;
 

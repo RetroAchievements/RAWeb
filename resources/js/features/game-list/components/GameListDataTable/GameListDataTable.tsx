@@ -10,7 +10,7 @@ import {
   BaseTableHeader,
   BaseTableRow,
 } from '@/common/components/+vendor/BaseTable';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 interface GameListDataTableProps<TData> {
   table: Table<TData>;
@@ -58,7 +58,7 @@ export function GameListDataTable<TData>({ table }: GameListDataTableProps<TData
       <BaseTableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => (
-            <BaseTableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+            <BaseTableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
                 <BaseTableCell
                   key={cell.id}

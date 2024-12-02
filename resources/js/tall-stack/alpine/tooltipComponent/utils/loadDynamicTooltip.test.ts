@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import * as FetcherModule from '@/utils/fetcher';
+import * as FetcherModule from '@/tall-stack/utils/fetcher';
 
 import { tooltipStore as store } from '../state/tooltipStore';
 import { loadDynamicTooltip } from './loadDynamicTooltip';

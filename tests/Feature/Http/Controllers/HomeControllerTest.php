@@ -19,6 +19,7 @@ use App\Models\StaticData;
 use App\Models\System;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -166,6 +167,8 @@ class HomeControllerTest extends TestCase
         EventAchievement::create([
             'achievement_id' => $eventAchievement->id,
             'source_achievement_id' => $achievement->id,
+            'active_from' => Carbon::now()->subDays(3),
+            'active_until' => Carbon::now()->addDays(3),
         ]);
 
         // Act

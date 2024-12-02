@@ -2,14 +2,14 @@ import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 
 import { render } from '@/test';
 
-import { InfiniteScroll } from './InfiniteScroll';
+import { InfiniteScrollLoadMore } from './InfiniteScrollLoadMore';
 
-describe('Component: InfiniteScroll', () => {
+describe('Component: InfiniteScrollLoadMore', () => {
   it('renders without crashing', () => {
     // ARRANGE
     mockAllIsIntersecting(false);
 
-    const { container } = render(<InfiniteScroll loadMore={vi.fn()} />);
+    const { container } = render(<InfiniteScrollLoadMore onLoadMore={vi.fn()} />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -17,13 +17,13 @@ describe('Component: InfiniteScroll', () => {
 
   it('emits an event', () => {
     // ARRANGE
-    const loadMore = vi.fn();
+    const onLoadMore = vi.fn();
 
-    render(<InfiniteScroll loadMore={loadMore} />);
+    render(<InfiniteScrollLoadMore onLoadMore={onLoadMore} />);
 
     mockAllIsIntersecting(true);
 
     // ASSERT
-    expect(loadMore).toHaveBeenCalledTimes(1);
+    expect(onLoadMore).toHaveBeenCalledOnce();
   });
 });
