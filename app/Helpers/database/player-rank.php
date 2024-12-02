@@ -99,39 +99,21 @@ function getUserRank(string $username, int $type = RankType::Hardcore): ?int
             return null;
         }
 
-        switch ($type) {
-            default: // hardcore
-                $points = $user->RAPoints;
-                if ($points < Rank::MIN_POINTS) {
-                    return null;
-                }
+        $field = match ($type) {
+            RankType::Softcore => 'RASoftcorePoints',
+            RankType::TruePoints => 'TrueRAPoints',
+            default => 'RAPoints',
+        };
 
-                $field = 'RAPoints';
-                break;
+        $points = $user->$field;
+        $minPoints = $type === RankType::TruePoints ? Rank::MIN_TRUE_POINTS : Rank::MIN_POINTS;
 
-            case RankType::Softcore:
-                $points = $user->RASoftcorePoints;
-                if ($points < Rank::MIN_POINTS) {
-                    return null;
-                }
-
-                $field = 'RASoftcorePoints';
-                break;
-
-            case RankType::TruePoints:
-                $points = $user->TrueRAPoints;
-                if ($points < Rank::MIN_TRUE_POINTS) {
-                    return null;
-                }
-
-                $field = 'TrueRAPoints';
-                break;
+        if ($points < $minPoints) {
+            return null;
         }
 
-        $query = "SELECT ( COUNT(*) + 1 ) AS UserRank
-                  FROM UserAccounts AS ua
-                  WHERE ua.$field > $points AND NOT ua.Untracked";
-
-        return (int) legacyDbFetch($query)['UserRank'];
+        return User::where($field, '>', $points)
+            ->where('Untracked', false)
+            ->count() + 1;
     });
 }

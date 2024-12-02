@@ -21,9 +21,9 @@ export function DataTableAchievementsPublishedFilter<TData>({
       column={table.getColumn('achievementsPublished')}
       t_title={t('Has achievements')}
       options={[
-        { label: t('Yes'), value: 'has' },
-        { label: t('No'), value: 'none' },
-        { label: t('Both'), value: 'either' },
+        { t_label: t('Yes'), value: 'has' },
+        { t_label: t('No'), value: 'none' },
+        { t_label: t('Both'), value: 'either' },
       ]}
       isSearchable={false}
       isSingleSelect={true}

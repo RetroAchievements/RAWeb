@@ -6,9 +6,9 @@ import type { RouteName } from 'ziggy-js';
 import { BaseChip } from '@/common/components/+vendor/BaseChip';
 import { BaseSkeleton } from '@/common/components/+vendor/BaseSkeleton';
 
-import { useGameListInfiniteQuery } from '../../hooks/useGameListInfiniteQuery';
-import { DataTableSearchInput } from '../DataTableSearchInput';
-import { DataTableSuperFilter } from './DataTableSuperFilter';
+import { useGameListInfiniteQuery } from '../../../hooks/useGameListInfiniteQuery';
+import { DataTableSearchInput } from '../../DataTableSearchInput';
+import { DataTableSuperFilter } from '../DataTableSuperFilter';
 
 /**
  * 🔴 If you make layout updates to this component, you must

@@ -6,6 +6,7 @@ namespace App\Data;
 
 use App\Enums\Permissions;
 use App\Models\User;
+use App\Platform\Enums\PlayerPreferredMode;
 use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
@@ -30,6 +31,7 @@ class UserData extends Data
         public Lazy|string|null $locale = null,
         public Lazy|string $motto = '',
         public Lazy|Carbon|null $mutedUntil = null,
+        public Lazy|PlayerPreferredMode $playerPreferredMode = PlayerPreferredMode::Hardcore,
         public Lazy|int $points = 0,
         public Lazy|int $pointsSoftcore = 0,
         public Lazy|string|null $richPresenceMsg = null,
@@ -81,6 +83,7 @@ class UserData extends Data
                     'prefersAbsoluteDates' => $user->prefers_absolute_dates,
                 ]
             ),
+            playerPreferredMode: Lazy::create(fn () => $user->player_preferred_mode),
             points: Lazy::create(fn () => $user->points),
             pointsSoftcore: Lazy::create(fn () => $user->points_softcore),
             richPresenceMsg: Lazy::create(fn () => $user->RichPresenceMsg),

@@ -1,6 +1,8 @@
 import type { Table } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 
+import type { TranslatedString } from '@/types/i18next';
+
 import { DataTableFacetedFilter } from '../DataTableFacetedFilter';
 
 interface DataTableSystemFilterProps<TData> {
@@ -26,7 +28,7 @@ export function DataTableSystemFilter<TData>({
       options={filterableSystemOptions
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((system) => ({
-          label: system.name,
+          t_label: system.name as TranslatedString,
           selectedLabel: system.nameShort,
           value: String(system.id),
         }))}
