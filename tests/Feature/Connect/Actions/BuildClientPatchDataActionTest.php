@@ -310,15 +310,13 @@ class BuildClientPatchDataActionTest extends TestCase
         // Assert
         $this->assertTrue($result['Success']);
         $this->assertArrayHasKey('Sets', $result['PatchData']);
-        $this->assertCount(2, $result['PatchData']['Sets']);
+        $this->assertCount(1, $result['PatchData']['Sets']);
 
-        // ... verify the core set ...
-        $coreSet = $result['PatchData']['Sets'][0];
-        $this->assertEquals(AchievementSetType::Core->value, $coreSet['Type']);
-        $this->assertCount(2, $coreSet['Achievements']);
+        // ... verify the core set is at the root level ...
+        $this->assertCount(2, $result['PatchData']['Achievements']);
 
-        // ... verify the bonus set ...
-        $bonusSet = $result['PatchData']['Sets'][1];
+        // ... verify the bonus set is in the sets level ...
+        $bonusSet = $result['PatchData']['Sets'][0];
         $this->assertEquals(AchievementSetType::Bonus->value, $bonusSet['Type']);
         $this->assertCount(1, $bonusSet['Achievements']);
     }
@@ -450,13 +448,11 @@ class BuildClientPatchDataActionTest extends TestCase
 
         $this->assertEquals($baseGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
 
-        $this->assertCount(2, $result['PatchData']['Sets']);
+        $this->assertCount(1, $result['PatchData']['Sets']);
 
-        $this->assertEquals('core', $result['PatchData']['Sets'][0]['Type']);
-
-        $this->assertEquals('bonus', $result['PatchData']['Sets'][1]['Type']);
-        $this->assertEquals('Bonus 2', $result['PatchData']['Sets'][1]['SetTitle']);
-        $this->assertCount(3, $result['PatchData']['Sets'][1]['Achievements']);
+        $this->assertEquals('bonus', $result['PatchData']['Sets'][0]['Type']);
+        $this->assertEquals('Bonus 2', $result['PatchData']['Sets'][0]['SetTitle']);
+        $this->assertCount(3, $result['PatchData']['Sets'][0]['Achievements']);
     }
 
     public function testItPrioritizesSpecialtySetRichPresenceScript(): void
@@ -672,9 +668,8 @@ class BuildClientPatchDataActionTest extends TestCase
         // ... RP should be from the exclusive game ...
         $this->assertEquals($exclusiveGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
 
-        // ... sets should only contain the exclusive set ...
-        $this->assertCount(1, $result['PatchData']['Sets']);
-        $this->assertEquals('exclusive', $result['PatchData']['Sets'][0]['Type']);
+        // ... sets should not be present, as it is duplicative ...
+        $this->assertArrayNotHasKey('Sets', $result['PatchData']);
     }
 
     public function testItHandlesGameWithNoAchievementSets(): void
@@ -730,10 +725,14 @@ class BuildClientPatchDataActionTest extends TestCase
 
         // Assert
         $this->assertTrue($result['Success']);
+
         $this->assertEquals($subsetGame->id, $result['PatchData']['ID']);
         $this->assertEquals($subsetGame->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
+
         $this->assertCount(2, $result['PatchData']['Achievements']);
-        $this->assertCount(2, $result['PatchData']['Sets']);
+
+        // no achievements for the base game and user loaded a subset hash. therefore, no sets.
+        $this->assertArrayNotHasKey('Sets', $result['PatchData']);
     }
 
     public function testItBuildsPatchDataWithGameHashAndNullUser(): void
@@ -801,11 +800,14 @@ class BuildClientPatchDataActionTest extends TestCase
         // Assert
         $this->assertTrue($result['Success']);
         $this->assertArrayHasKey('Sets', $result['PatchData']);
-        $this->assertCount(3, $result['PatchData']['Sets']); // only core and bonus
+        $this->assertCount(2, $result['PatchData']['Sets']); // only bonus sets, core is at the root level
+
+        // ... verify core is at the root level ...
+        $this->assertCount(2, $result['PatchData']['Achievements']);
 
         $setTypes = array_column($result['PatchData']['Sets'], 'Type');
-        $this->assertContains(AchievementSetType::Core->value, $setTypes);
         $this->assertContains(AchievementSetType::Bonus->value, $setTypes);
+        $this->assertNotContains(AchievementSetType::Core->value, $setTypes);
         $this->assertNotContains(AchievementSetType::Specialty->value, $setTypes);
     }
 }

@@ -121,9 +121,61 @@ class BuildClientPatchDataAction
         $sets = [];
         if ($resolvedSets?->isNotEmpty()) {
             $coreGameIds = $resolvedSets->pluck('core_game_id')->unique();
+            $achievementSetIds = $resolvedSets->pluck('achievement_set_id')->unique();
+
+            // Preload all games.
             $games = Game::whereIn('ID', $coreGameIds)->get()->keyBy('ID');
 
+            // Preload all GameAchievementSet entities we'll need.
+            $gameAchievementSets = GameAchievementSet::where(function ($query) use ($game, $achievementSetIds) {
+                $query->where('game_id', $game->id)->whereIn('achievement_set_id', $achievementSetIds);
+            })->orWhere(function ($query) use ($resolvedSets) {
+                $query
+                    ->whereIn('game_id', $resolvedSets->pluck('game_id'))
+                    ->whereIn('achievement_set_id', $resolvedSets->pluck('achievement_set_id'));
+            })->get();
+
             foreach ($resolvedSets as $resolvedSet) {
+                // We don't want to include sets in the list that are duplicative
+                // with the root-level data in the response (for achievements & leaderboards).
+                if ($resolvedSet->game_id === $game->id && $resolvedSet->type === AchievementSetType::Core) {
+                    continue;
+                }
+
+                // For specialty/exclusive sets, instead of looking up how this game's
+                // achievement set is attached, look up how the resolved set's achievement
+                // set is attached to its parent.
+                $setAttachment = $gameAchievementSets->first(function ($attachment) use ($resolvedSet) {
+                    return
+                        $attachment->game_id === $resolvedSet->game_id
+                        && $attachment->achievement_set_id === $resolvedSet->achievement_set_id
+                    ;
+                });
+
+                // Get the achievement set for the current game.
+                $gameAchievementSet = $gameAchievementSets->first(function ($attachment) use ($game, $resolvedSet) {
+                    return
+                        $attachment->game_id === $game->id
+                        && $attachment->achievement_set_id === $resolvedSet->achievement_set_id
+                    ;
+                });
+
+                // Skip if this is a specialty/exclusive set that we're directly loading a hash for.
+                if (
+                    $setAttachment
+                    && in_array($setAttachment->type, [AchievementSetType::Specialty, AchievementSetType::Exclusive])
+                    && $gameAchievementSet !== null
+                ) {
+                    continue;
+                }
+
+                // Get the achievements for this set. If there are no published
+                // achievements, we won't bother sending the set to the client.
+                $achievements = $this->buildAchievementsData($resolvedSet, $gamePlayerCount, $flag);
+                if (empty($achievements)) {
+                    continue;
+                }
+
                 $setGame = $games[$resolvedSet->core_game_id];
                 $sets[] = [
                     'GameAchievementSetID' => $resolvedSet->id,
@@ -131,7 +183,7 @@ class BuildClientPatchDataAction
                     'Type' => $resolvedSet->type->value,
                     'ImageIcon' => $setGame->ImageIcon,
                     'ImageIconURL' => media_asset($setGame->ImageIcon),
-                    'Achievements' => $this->buildAchievementsData($resolvedSet, $gamePlayerCount, $flag),
+                    'Achievements' => $achievements,
                     'Leaderboards' => $this->buildLeaderboardsData($setGame),
                 ];
             }
