@@ -4,7 +4,7 @@ import * as React from 'react';
 import { RxCross2 } from 'react-icons/rx';
 import { Drawer as DrawerPrimitive } from 'vaul';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 const BaseDrawer = ({
   shouldScaleBackground = true,

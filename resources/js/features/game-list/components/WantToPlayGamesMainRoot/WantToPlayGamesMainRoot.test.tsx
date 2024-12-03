@@ -55,7 +55,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
     });
 
     // ASSERT
-    expect(await screen.findByRole('columnheader', { name: /title/i })); // The table uses React.lazy().
+    expect(await screen.findByRole('columnheader', { name: /title/i }));
     expect(screen.getByRole('columnheader', { name: /system/i }));
     expect(screen.getByRole('columnheader', { name: /achievements/i }));
     expect(screen.getByRole('columnheader', { name: /points/i }));
@@ -314,6 +314,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
           'filter[achievementsPublished]': 'has',
           'filter[title]': 'dragon quest',
           'page[number]': 1,
+          'page[size]': 25,
           sort: 'title',
         },
       ]);
@@ -368,6 +369,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
           'filter[achievementsPublished]': 'has',
           'filter[system]': '1',
           'page[number]': 1,
+          'page[size]': 25,
           sort: 'title',
         },
       ]);
@@ -461,6 +463,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         {
           'filter[achievementsPublished]': 'none',
           'page[number]': 1,
+          'page[size]': 25,
           sort: 'title',
         },
       ]);
@@ -492,6 +495,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         {
           'filter[achievementsPublished]': 'has',
           'page[number]': 1,
+          'page[size]': 25,
           sort: '-system',
         },
       ]);
@@ -524,6 +528,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         {
           'filter[achievementsPublished]': 'has',
           'page[number]': 1,
+          'page[size]': 25,
           sort: 'achievementsPublished',
         },
       ]);
@@ -556,6 +561,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         {
           'filter[achievementsPublished]': 'has',
           'page[number]': 1,
+          'page[size]': 25,
           sort: 'releasedAt',
         },
       ]);
@@ -591,6 +597,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         {
           'filter[achievementsPublished]': 'has',
           'page[number]': 1,
+          'page[size]': 25,
           sort: '-hasActiveOrInReviewClaims',
         },
       ]);
@@ -646,7 +653,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         paginatedGameListEntries: createPaginatedData([createGameListEntry()], {
           total: 300,
           currentPage: 1,
-          perPage: 1,
+          perPage: 50,
         }),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -663,6 +670,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         {
           'filter[achievementsPublished]': 'has',
           'page[number]': 2,
+          'page[size]': 50,
           sort: 'title',
         },
       ]);

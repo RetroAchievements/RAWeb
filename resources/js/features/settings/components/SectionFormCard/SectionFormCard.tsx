@@ -12,9 +12,10 @@ import {
   BaseCardTitle,
 } from '@/common/components/+vendor/BaseCard';
 import { BaseFormProvider } from '@/common/components/+vendor/BaseForm';
+import type { TranslatedString } from '@/types/i18next';
 
 export interface SectionFormCardProps {
-  t_headingLabel: string;
+  t_headingLabel: TranslatedString;
   children: ReactNode;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- any is valid
   formMethods: UseFormReturn<any>;

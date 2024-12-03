@@ -5,7 +5,7 @@ import { Command as CommandPrimitive } from 'cmdk';
 import * as React from 'react';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 import { BaseDialog, BaseDialogContent } from './BaseDialog';
 

@@ -54,7 +54,7 @@ if ($user) {
 
 $route = match((int) $articleType) {
     ArticleType::Game => route('game.comment.index', ['game' => $articleId]),
-    ArticleType::GameModification => route('game.modification-comments', ['game' => $articleId]),
+    ArticleType::GameModification => route('game.modification-comment.index', ['game' => $articleId]),
     ArticleType::GameHash => route('game.hashes.comment.index', ['game' => $articleId]),
     ArticleType::SetClaim => route('game.claims.comment.index', ['game' => $articleId]),
     ArticleType::Achievement => route('achievement.comment.index', ['achievement' => $articleId]),

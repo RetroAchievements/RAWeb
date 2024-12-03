@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 
 import { useGetAwardLabelFromPlayerBadge } from '@/common/hooks/useGetAwardLabelFromPlayerBadge';
+import { cn } from '@/common/utils/cn';
 import { AwardType } from '@/common/utils/generatedAppConstants';
-import { cn } from '@/utils/cn';
 
 interface PlayerBadgeIndicatorProps {
   playerBadge: App.Platform.Data.PlayerBadge;

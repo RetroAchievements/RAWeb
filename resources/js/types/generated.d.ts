@@ -38,6 +38,12 @@ declare namespace App.Community.Data {
     isSubscribed: boolean;
     canComment: boolean;
   };
+  export type GameModificationsCommentsPageProps<TItems = App.Community.Data.Comment> = {
+    game: App.Platform.Data.Game;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+    isSubscribed: boolean;
+    canComment: boolean;
+  };
   export type LeaderboardCommentsPageProps<TItems = App.Community.Data.Comment> = {
     leaderboard: App.Platform.Data.Leaderboard;
     paginatedComments: App.Data.PaginatedData<TItems>;
@@ -68,6 +74,7 @@ declare namespace App.Community.Data {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
     filterableSystemOptions: Array<App.Platform.Data.System>;
     can: App.Data.UserPermissions;
+    defaultDesktopPageSize: number;
   };
   export type UserRecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     targetUser: App.Data.User;
@@ -342,6 +349,7 @@ declare namespace App.Platform.Data {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
     filterableSystemOptions: Array<App.Platform.Data.System>;
     can: App.Data.UserPermissions;
+    defaultDesktopPageSize: number;
   };
   export type GameTopAchiever = {
     rank: number;

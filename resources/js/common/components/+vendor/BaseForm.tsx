@@ -7,7 +7,7 @@ import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
 import { Controller, FormProvider, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 import { BaseLabel } from './BaseLabel';
 
@@ -147,7 +147,8 @@ const BaseFormMessage = React.forwardRef<
       className={cn('text-sm font-medium text-red-500', className)}
       {...props}
     >
-      {children ?? t(body as string)}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any -- assume this is safe */}
+      {children ?? t(body as any)}
     </p>
   );
 });

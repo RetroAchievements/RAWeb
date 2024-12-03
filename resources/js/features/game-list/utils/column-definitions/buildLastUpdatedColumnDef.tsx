@@ -5,6 +5,7 @@ import utc from 'dayjs/plugin/utc';
 import type { RouteName } from 'ziggy-js';
 
 import { formatDate } from '@/common/utils/l10n/formatDate';
+import type { TranslatedString } from '@/types/i18next';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
@@ -13,7 +14,7 @@ dayjs.extend(utc);
 dayjs.extend(localizedFormat);
 
 interface BuildLastUpdatedColumnDefProps {
-  t_label: string;
+  t_label: TranslatedString;
 
   tableApiRouteName?: RouteName;
 }

@@ -137,13 +137,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.modification-comments": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.suggest": [
         {
             "name": "game",
@@ -267,6 +260,12 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.game.claims.comment.store": [
+        {
+            "name": "game",
+            "required": true
+        }
+    ],
     "api.game.comment.store": [
         {
             "name": "game",
@@ -274,13 +273,13 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "api.game.claims.comment.store": [
+    "api.game.hashes.comment.store": [
         {
             "name": "game",
             "required": true
         }
     ],
-    "api.game.hashes.comment.store": [
+    "api.game.modification-comment.store": [
         {
             "name": "game",
             "required": true
@@ -312,18 +311,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "api.game.comment.destroy": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        },
-        {
-            "name": "comment",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "api.game.claims.comment.destroy": [
         {
             "name": "game",
@@ -336,7 +323,31 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.game.comment.destroy": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "api.game.hashes.comment.destroy": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.game.modification-comment.destroy": [
         {
             "name": "game",
             "required": true,
@@ -414,6 +425,13 @@ declare module 'ziggy-js' {
         }
     ],
     "game.comment.index": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "game.modification-comment.index": [
         {
             "name": "game",
             "required": true,

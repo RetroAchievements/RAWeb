@@ -4,7 +4,7 @@ import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import * as React from 'react';
 import { HiOutlineCheck } from 'react-icons/hi';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 const BaseCheckbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
