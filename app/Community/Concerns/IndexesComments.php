@@ -33,6 +33,8 @@ trait IndexesComments
             $commentsQuery = $commentable->visibleHashesComments();
         } elseif ($commentable instanceof Game && $commentableType === 'claims') {
             $commentsQuery = $commentable->visibleClaimsComments();
+        } elseif ($commentable instanceof Game && $commentableType === 'modifications') {
+            $commentsQuery = $commentable->visibleModificationsComments();
         }
 
         // Get total comments to calculate the last page.
