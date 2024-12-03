@@ -1,0 +1,56 @@
+name: Create Automated Crowdin Translations PR
+
+on:
+  schedule:
+    - cron: '0 0 * * 3' # 00:00 UTC on Wednesday
+  workflow_dispatch: # Allow the workflow to be manually dispatched.
+
+jobs:
+  sync-translations:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Download translations
+        run: pnpm crowdin:download
+        env:
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+      
+      - name: Check for changes
+        id: git-check
+        run: |
+          git add -N .  # Stage all files to include untracked files in diff
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        if: steps.git-check.outputs.changes == 'true'
+        with:
+          commit-message: 'chore: sync translations from Crowdin'
+          title: 'chore: sync translations from Crowdin'
+          body: |
+            This PR was automatically created by _crowdin-download.yml_.
+            
+            It synchronizes our translations with the latest versions from Crowdin.
+          branch: chore/sync-translations
+          base: master
+          delete-branch: true
