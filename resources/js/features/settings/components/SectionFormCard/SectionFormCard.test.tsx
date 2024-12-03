@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import type { FC } from 'react';
 import { useForm } from 'react-hook-form';
 
+import i18n from '@/i18n-client';
 import { render, screen } from '@/test';
 
 import { SectionFormCard, type SectionFormCardProps } from './SectionFormCard';
@@ -19,7 +20,7 @@ describe('Component: SectionFormCard', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <TestHarness t_headingLabel="Heading" onSubmit={vi.fn()}>
+      <TestHarness t_headingLabel={i18n.t('Profile')} onSubmit={vi.fn()}>
         children
       </TestHarness>,
     );
@@ -31,13 +32,13 @@ describe('Component: SectionFormCard', () => {
   it('renders an accessible heading label', () => {
     // ARRANGE
     render(
-      <TestHarness t_headingLabel="Hello" onSubmit={vi.fn()}>
+      <TestHarness t_headingLabel={i18n.t('Profile')} onSubmit={vi.fn()}>
         children
       </TestHarness>,
     );
 
     // ASSERT
-    expect(screen.getByRole('heading', { name: /hello/i })).toBeVisible();
+    expect(screen.getByRole('heading', { name: /profile/i })).toBeVisible();
   });
 
   it('renders an interactive form', async () => {
@@ -45,7 +46,7 @@ describe('Component: SectionFormCard', () => {
     const mockOnSubmit = vi.fn();
 
     render(
-      <TestHarness t_headingLabel="Hello" onSubmit={mockOnSubmit}>
+      <TestHarness t_headingLabel={i18n.t('Profile')} onSubmit={mockOnSubmit}>
         children
       </TestHarness>,
     );
@@ -61,7 +62,7 @@ describe('Component: SectionFormCard', () => {
     // ARRANGE
     render(
       <TestHarness
-        t_headingLabel="Hello"
+        t_headingLabel={i18n.t('Profile')}
         onSubmit={vi.fn()}
         buttonProps={{ children: 'some different label' }}
       >

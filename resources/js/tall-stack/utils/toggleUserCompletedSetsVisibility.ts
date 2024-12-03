@@ -1,4 +1,4 @@
-import { setCookie } from '@/utils/cookie';
+import { setCookie } from './cookie';
 
 export const cookieName = 'prefers_hidden_user_completed_sets';
 

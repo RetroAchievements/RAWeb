@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { MdClose } from 'react-icons/md';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 import type { useGameBacklogState } from '../../useGameBacklogState';
 import { useDelayedButtonDisable } from './useDelayedButtonDisable';
