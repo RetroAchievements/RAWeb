@@ -81,7 +81,7 @@ function buildPostRoute({
 
     GameHash: route('api.game.hashes.comment.store', { game: commentableId }),
 
-    GameModification: 'TODO',
+    GameModification: route('api.game.modification-comment.store', { game: commentableId }),
 
     Leaderboard: route('api.leaderboard.comment.store', { leaderboard: commentableId }),
 
