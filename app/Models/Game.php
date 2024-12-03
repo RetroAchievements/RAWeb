@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Enums\ArticleType;
+use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\ReleasedAtGranularity;
@@ -133,6 +134,19 @@ class Game extends BaseModel implements HasMedia
     public static function boot()
     {
         parent::boot();
+
+        static::saved(function (Game $game) {
+            $originalTitle = $game->getOriginal('title');
+            $freshGame = $game->fresh(); // $game starts with stale values.
+
+            if ($originalTitle !== $freshGame->title) {
+                (new WriteGameSortTitleFromGameTitleAction())->execute(
+                    $freshGame,
+                    $freshGame->title,
+                    shouldRespectCustomSortTitle: false,
+                );
+            }
+        });
 
         static::pivotAttached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes) {
             if ($relationName === 'achievementSets') {
