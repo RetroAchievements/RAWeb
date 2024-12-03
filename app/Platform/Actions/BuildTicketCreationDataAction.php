@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Achievement;
+use App\Models\EmulatorUserAgent;
 use App\Models\PlayerAchievement;
 use App\Models\User;
 use App\Platform\Data\CreateAchievementTicketPagePropsData;
+use App\Platform\Data\EmulatorData;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\UserAgentService;
+use Illuminate\Support\Collection;
 
 class BuildTicketCreationDataAction
 {
@@ -42,10 +45,13 @@ class BuildTicketCreationDataAction
 
         if ($userAgent) {
             $decoded = $this->userAgentService->decode($userAgent);
-            $props->selectedEmulator = $decoded['client'];
+            $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $decoded['client']);
+            $props->selectedEmulator = $emulatorUserAgent?->emulator->name ?? $decoded['client'];
             $props->emulatorVersion = $decoded['clientVersion'];
             $props->emulatorCore = $decoded['clientVariation'] ?? null;
         }
+
+        $this->addInactiveEmulators($props->emulators, $achievement, $user);
 
         // Set the unlock mode based on hardcore unlock or session preference.
         if ($playerAchievement?->unlocked_hardcore_at) {
@@ -55,6 +61,37 @@ class BuildTicketCreationDataAction
         }
 
         return $props;
+    }
+
+    /**
+     * @param Collection<int, EmulatorData> $emulators
+     */
+    private function addInactiveEmulators(Collection &$emulators, Achievement $achievement, User $user): void
+    {
+        $userAgents = $user->playerSessions()
+            ->where('game_id', $achievement->game->id)
+            ->where('duration', '>=', 5)
+            ->select('user_agent')
+            ->distinct()
+            ->pluck('user_agent');
+
+        $needsOther = false;
+        foreach ($userAgents as $userAgent) {
+            $decoded = $this->userAgentService->decode($userAgent ?? '');
+
+            if (!$emulators->contains('name', $decoded['client'])) {
+                $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $decoded['client']);
+                if (!$emulatorUserAgent) {
+                    $needsOther = true;
+                } else {
+                    $emulators->add(EmulatorData::fromEmulator($emulatorUserAgent->emulator));
+                }
+            }
+        }
+
+        if ($needsOther) {
+            $emulators->add(new EmulatorData(0, 'Other (please specify in description)'));
+        }
     }
 
     /**
