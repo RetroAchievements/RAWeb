@@ -5,7 +5,8 @@ on:
     branches:
       - master
     paths:
-      - 'lang/en_US.json' # only trigger when this file changes
+      - 'lang/en_US.json' # trigger when this file changes
+  workflow_dispatch: # also allow manual triggering
 
 jobs:
   upload-translations:
