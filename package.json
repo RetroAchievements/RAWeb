@@ -15,7 +15,8 @@
         "test:watch": "TZ=UTC vitest",
         "tsc": "tsc --noEmit --skipLibCheck",
         "analyze": "cross-env ANALYZE=true pnpm prod",
-        "crowdin:sync": "tsx --env-file=.env resources/js/tools/crowdin-sync.ts"
+        "crowdin:sync": "tsx --env-file=.env resources/js/tools/crowdin-sync.ts",
+        "crowdin:upload": "tsx --env-file=.env resources/js/tools/crowdin-upload.ts"
     },
     "dependencies": {
         "@floating-ui/core": "^1.6.8",
