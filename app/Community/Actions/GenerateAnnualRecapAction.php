@@ -32,147 +32,249 @@ class GenerateAnnualRecapAction
         }
 
         $year = Carbon::now()->subMonths(6)->year;
-        $january = Carbon::create($year, 1, 1, 0, 0, 0);
+        $january = $startDate = Carbon::create($year, 1, 1, 0, 0, 0);
+        $endDate = Carbon::create($year + 1, 1, 1, 0, 0, 0);
 
-        $numAchievements = PlayerAchievement::where('player_achievements.user_id', $user->id)
-            ->where(function ($query) use ($january) {
-                $query->where('unlocked_at', '>=', $january)
-                      ->orWhere('unlocked_hardcore_at', '>=', $january);
-            })
-            ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-            ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
-            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
-            ->count();
+        $gameData = $this->getGameData($user, $startDate, $endDate);
 
-        $numLeaderboards = LeaderboardEntry::where('user_id', $user->id)
-            ->where('updated_at', '>=', $january)
-            ->count();
-
-        $hardcorePoints = PlayerAchievement::where('player_achievements.user_id', $user->id)
-            ->where('unlocked_hardcore_at', '>=', $january)
-            ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-            ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
-            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
-            ->sum('Achievements.Points');
-        $softcorePoints = PlayerAchievement::where('player_achievements.user_id', $user->id)
-            ->whereNull('unlocked_hardcore_at')
-            ->where('unlocked_at', '>=', $january)
-            ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-            ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
-            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
-            ->sum('Achievements.Points');
-
-        $games = PlayerSession::where('user_id', $user->id)
-            ->where('duration', '>=', 5)
-            ->where('created_at', '>=', $january)
-            ->join('GameData', 'GameData.ID', '=', 'game_id')
-            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems());
-        $numGames = $games->clone()->distinct('game_id')->count();
+        $subject = "RetroAchievements $year Year in Review for {$user->display_name}";
 
         $body = "<p>Congratulations {$user->display_name}!\n";
-        $body .= "<p>In $year, you've played $numGames games on " .
-                 "<a href=\"" . route('home') . "\">retroachievements.org</a>" .
-                 " and unlocked $numAchievements achievements, earning you ";
+        $body .= $this->generateSummary($user, $gameData, $startDate, $endDate);
+        $body .= $this->summarizePlayTime($gameData);
+        $body .= $this->summarizeAwards($user, $startDate, $endDate);
+        $body .= $this->mostPlayedGame($gameData);
+        $body .= $this->rarestAchievement($user, $startDate, $endDate);
+        $body .= $this->summarizePosts($user, $startDate, $endDate);
+        $body .= $this->summarizeDevelopment($user, $startDate, $endDate);
 
-        if ($hardcorePoints > 0) {
-            $body .= "$hardcorePoints hardcore points";
+        $body .= "\n";
+
+        // (new \Symfony\Component\Console\Output\ConsoleOutput())->writeln($body);
+        mail_utf8($user->EmailAddress, $subject, $body);
+    }
+
+    private function getGameData(User $user, Carbon $startDate, Carbon $endDate): array
+    {
+        $games = PlayerSession::where('user_id', $user->id)
+            ->where('duration', '>=', 5)
+            ->where('created_at', '>=', $startDate)
+            ->where('created_at', '<', $endDate)
+            ->join('GameData', 'GameData.ID', '=', 'game_id')
+            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
+            ->groupBy('game_id')
+            ->select([
+                'GameData.ID',
+                'GameData.ConsoleID',
+                DB::raw('sum(duration) as totalDuration'),
+            ]);
+
+        $gameData = [];
+        foreach ($games->get() as $game) {
+            $gameData[$game->ID] = [
+                'ConsoleID' => $game->ConsoleID,
+                'totalDuration' => $game->totalDuration,
+            ];
         }
-        if ($softcorePoints > 0) {
-            if ($hardcorePoints > 0) {
-                $body .= " and ";
+
+        return $gameData;
+    }
+
+    private function generateSummary(User $user, array $gameData, Carbon $startDate, Carbon $endDate): string
+    {
+        $gameIds = array_keys($gameData);
+
+        $hardcoreTally = PlayerAchievement::where('player_achievements.user_id', $user->id)
+            ->where('unlocked_hardcore_at', '>=', $startDate)
+            ->where('unlocked_hardcore_at', '<', $endDate)
+            ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
+            ->whereIn('Achievements.GameID', $gameIds)
+            ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+            ->select(
+                DB::raw('count(*) as count'),
+                DB::raw('sum(Achievements.Points) as points'),
+            )
+            ->first();
+
+        $softcoreTally = PlayerAchievement::where('player_achievements.user_id', $user->id)
+            ->whereNull('unlocked_hardcore_at')
+            ->where('unlocked_at', '>=', $startDate)
+            ->where('unlocked_at', '<', $endDate)
+            ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
+            ->whereIn('Achievements.GameID', $gameIds)
+            ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+            ->select(
+                DB::raw('count(*) as count'),
+                DB::raw('sum(Achievements.Points) as points'),
+            )
+            ->first();
+
+        $numLeaderboards = LeaderboardEntry::where('user_id', $user->id)
+            ->where('updated_at', '>=', $startDate)
+            ->where('updated_at', '<', $endDate)
+            ->count();
+
+        $numAchievements = $hardcoreTally->count + $softcoreTally->count;
+        $numGames = count($gameData);
+
+        $message = "<p>In {$startDate->year}, you've played $numGames games on " .
+                   "<a href=\"" . route('home') . "\">retroachievements.org</a>" .
+                   " and unlocked $numAchievements achievements, earning you ";
+
+        if ($hardcoreTally->points > 0) {
+            $message .= "{$hardcoreTally->points} hardcore points";
+        }
+        if ($softcoreTally->points > 0) {
+            if ($hardcoreTally->points > 0) {
+                $message .= " and ";
             }
-            $body .= "$softcorePoints softcore points";
+            $message .= "{$softcoreTally->points} softcore points";
         }
-        $body .= '.';
+        $message .= '.';
 
         if ($numLeaderboards > 0) {
-            $body .= " You submitted new scores for $numLeaderboards leaderboards.";
+            $message .= " You submitted new scores for $numLeaderboards leaderboards.";
         }
 
-        $body .= "\n";
+        $message .= "\n";
 
-        $totalTime = (int) $games->clone()->sum('duration');
-        $body .= "<p>You spent " . $this->hoursMinutes($totalTime) . " playing games ";
+        return $message;
+    }
 
-        $numSystems = $games->clone()->distinct('ConsoleID')->count();
+    private function summarizePlayTime(array $gameData): string
+    {
+        $totalTime = 0;
+        $systemTimes = [];
+        $mostPlayedSystem = 0;
+        foreach ($gameData as $id => $game) {
+            $updatedTime = ($systemTimes[$game['ConsoleID']] ?? 0) + $game['totalDuration'];
+            $systemTimes[$game['ConsoleID']] = $updatedTime;
+            $totalTime += $game['totalDuration'];
+
+            if ($mostPlayedSystem !== $game['ConsoleID']) {
+                if ($mostPlayedSystem === 0 || $updatedTime > $systemTimes[$mostPlayedSystem]) {
+                    $mostPlayedSystem = $game['ConsoleID'];
+                }
+            }
+        }
+
+        $message = "<p>You spent " . $this->hoursMinutes($totalTime) . " playing games ";
+
+        $numSystems = count($systemTimes);
         if ($numSystems === 1) {
-            $body .= "on 1 system.";
+            $message .= "on 1 system.";
         } else {
-            $body .= "across $numSystems systems.";
+            $message .= "across $numSystems systems.";
 
-            $mostPlayedSystem = $games->clone()
-                ->groupBy('ConsoleID')
-                ->select('ConsoleID', DB::raw('sum(duration) as totalDuration'))
-                ->orderByDesc('totalDuration')
-                ->first();
-
-            $system = System::find($mostPlayedSystem->ConsoleID);
+            $system = System::find($mostPlayedSystem);
             if ($system) {
-                $body .= ' ' . $this->hoursMinutes((int) $mostPlayedSystem->totalDuration) .
-                    " of that were playing {$system->Name} games.";
+                $message .= ' ' . $this->hoursMinutes($systemTimes[$mostPlayedSystem]) .
+                            " of that were playing {$system->Name} games.";
             }
         }
-        $body .= "\n";
+        $message .= "\n";
 
-        $numMasteries = PlayerBadge::where('user_id', $user->id)
-            ->where('AwardDate', '>=', $january)
-            ->where('AwardType', AwardType::Mastery)
-            ->where('AwardDataExtra', 1)
-            ->count();
-        $numBeatenHardcore = PlayerBadge::where('user_id', $user->id)
-            ->where('AwardDate', '>=', $january)
-            ->where('AwardType', AwardType::GameBeaten)
-            ->where('AwardDataExtra', 1)
-            ->count();
-        $numCompletions = PlayerBadge::where('user_id', $user->id)
-            ->where('AwardDate', '>=', $january)
-            ->where('AwardType', AwardType::Mastery)
-            ->where('AwardDataExtra', 0)
-            ->count();
-        $numBeaten = PlayerBadge::where('user_id', $user->id)
-            ->where('AwardDate', '>=', $january)
-            ->where('AwardType', AwardType::GameBeaten)
-            ->where('AwardDataExtra', 0)
-            ->count();
+        return $message;
+    }
 
-        if ($numMasteries > 0 || $numBeatenHardcore > 0 || $numCompletions > 0 || $numBeaten > 0) {
-            $body .= '<p>';
-            if ($numMasteries > 0) {
-                if ($numBeatenHardcore > 0) {
-                    $body .= "You mastered $numMasteries games, and beat $numBeatenHardcore games on hardcore. ";
-                } else {
-                    $body .= "You mastered $numMasteries games. ";
-                }
-            } elseif ($numBeatenHardcore > 0) {
-                $body .= "You beat $numBeatenHardcore games on hardcore. ";
+    private function summarizeAwards(User $user, Carbon $startDate, Carbon $endDate): string
+    {
+        $awards = PlayerBadge::where('user_id', $user->id)
+            ->where('AwardDate', '>=', $startDate)
+            ->where('AwardDate', '<', $endDate)
+            ->whereIn('AwardType', [
+                AwardType::Mastery,
+                AwardType::GameBeaten,
+            ])
+            ->get();
+
+        $MASTERED = 1;
+        $BEATEN = 2;
+        $COMPLETED = 3;
+        $BEATENSOFTCORE = 4;
+
+        // determine best award for each game
+        $bestAwards = [];
+        foreach ($awards as $award) {
+            if ($award->AwardDataExtra === 1) {
+                $awardType = ($award->AwardType === AwardType::Mastery) ? $MASTERED : $BEATEN;
+            } else {
+                $awardType = ($award->AwardType === AwardType::Mastery) ? $COMPLETED : $BEATENSOFTCORE;
             }
-            if ($numCompletions > 0) {
-                if ($numBeaten > 0) {
-                    $body .= "You completed $numCompletions games, and beat $numBeaten games on softcore.";
-                } else {
-                    $body .= "You completed $numCompletions games.";
-                }
-            } elseif ($numBeaten > 0) {
-                $body .= "You beat $numBeaten games on softcore.";
+
+            if (!array_key_exists($award->AwardData, $bestAwards) || $awardType < $bestAwards[$award->AwardData]) {
+                $bestAwards[$award->AwardData] = $awardType;
             }
-            $body .= "\n";
         }
 
-        $mostPlayedGame = $games->clone()->groupBy('game_id')
-            ->select('game_id', DB::raw('sum(duration) as totalDuration'))
-            ->orderByDesc('totalDuration')
-            ->first();
+        // count each type of award
+        $counts = [];
+        foreach ($bestAwards as $awardType) {
+            $counts[$awardType] = ($counts[$awardType] ?? 0) + 1;
+        }
+
+        if (empty($counts)) {
+            return "";
+        }
+
+        $numMasteries = $counts[$MASTERED] ?? 0;
+        $numBeatenHardcore = $counts[$BEATEN] ?? 0;
+        $numCompletions = $counts[$COMPLETED] ?? 0;
+        $numBeaten = $counts[$BEATENSOFTCORE] ?? 0;
+
+        $message = '<p>';
+        if ($numMasteries > 0) {
+            if ($numBeatenHardcore > 0) {
+                $message .= "You mastered $numMasteries games, and beat $numBeatenHardcore games on hardcore. ";
+            } else {
+                $message .= "You mastered $numMasteries games. ";
+            }
+        } elseif ($numBeatenHardcore > 0) {
+            $message .= "You beat $numBeatenHardcore games on hardcore. ";
+        }
+        if ($numCompletions > 0) {
+            if ($numBeaten > 0) {
+                $message .= "You completed $numCompletions games, and beat $numBeaten games on softcore.";
+            } else {
+                $message .= "You completed $numCompletions games.";
+            }
+        } elseif ($numBeaten > 0) {
+            $message .= "You beat $numBeaten games on softcore.";
+        }
+        $message .= "\n";
+
+        return $message;
+    }
+
+    private function mostPlayedGame(array $gameData): string
+    {
+        $mostPlayedGame = 0;
+        $mostPlayedGameTime = 0;
+
+        foreach ($gameData as $id => $game) {
+            if ($game['totalDuration'] > $mostPlayedGameTime) {
+                $mostPlayedGameTime = $game['totalDuration'];
+                $mostPlayedGame = $id;
+            }
+        }
+
         if ($mostPlayedGame) {
-            $game = Game::find($mostPlayedGame->game_id);
+            $game = Game::find($mostPlayedGame);
             if ($game) {
-                $body .= "<p>Your most played game was <a href=\"" .
+                return "<p>Your most played game was <a href=\"" .
                     route('game.show', $game) . "\">{$game->Title}</a> at " .
-                    $this->hoursMinutes((int) $mostPlayedGame->totalDuration) . ".\n";
+                    $this->hoursMinutes((int) $mostPlayedGameTime) . ".\n";
             }
         }
 
+        return "";
+    }
+
+    private function rarestAchievement(User $user, Carbon $startDate, Carbon $endDate): string
+    {
         $rarestHardcoreAchievement = PlayerAchievement::where('player_achievements.user_id', $user->id)
-            ->where('unlocked_hardcore_at', '>=', $january)
+            ->where('unlocked_hardcore_at', '>=', $startDate)
+            ->where('unlocked_hardcore_at', '<', $endDate)
             ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
             ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
             ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
@@ -183,78 +285,94 @@ class GenerateAnnualRecapAction
         if ($rarestHardcoreAchievement) {
             $achievement = Achievement::find($rarestHardcoreAchievement->ID);
             if ($achievement) {
-                $body .= "<p>Your rarest achievement earned was " .
+                return "<p>Your rarest achievement earned was " .
                     "<a href=\"" . route('achievement.show', $achievement) . "\">{$achievement->Title}</a>" .
                     " from {$achievement->game->Title}, which has only been earned in hardcore by " .
                     sprintf("%01.2f", $rarestHardcoreAchievement->EarnRate * 100) . "% of players.\n";
             }
-        } else {
-            $rarestSoftcoreAchievement = PlayerAchievement::where('player_achievements.user_id', $user->id)
-                ->where('unlocked_at', '>=', $january)
-                ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-                ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
-                ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
-                ->where('Achievements.Flags', AchievementFlag::OfficialCore)
-                ->select('Achievements.ID', DB::raw('Achievements.unlocks_total/GameData.players_total as EarnRate'))
-                ->orderBy('EarnRate')
-                ->first();
-            if ($rarestSoftcoreAchievement) {
-                $achievement = Achievement::find($rarestSoftcoreAchievement->ID);
-                if ($achievement) {
-                    $body .= "<p>Your rarest achievement earned was " .
-                        "<a href=\"" . route('achievement.show', $achievement) . "\">{$achievement->Title}</a>" .
-                        " from {$achievement->game->Title}, which has only been earned by " .
-                        sprintf("%01.2f", $rarestSoftcoreAchievement->EarnRate * 100) . "% of players.\n";
-                }
+        }
+
+        $rarestSoftcoreAchievement = PlayerAchievement::where('player_achievements.user_id', $user->id)
+            ->where('unlocked_at', '>=', $startDate)
+            ->where('unlocked_at', '<', $endDate)
+            ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
+            ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
+            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
+            ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+            ->select('Achievements.ID', DB::raw('Achievements.unlocks_total/GameData.players_total as EarnRate'))
+            ->orderBy('EarnRate')
+            ->first();
+        if ($rarestSoftcoreAchievement) {
+            $achievement = Achievement::find($rarestSoftcoreAchievement->ID);
+            if ($achievement) {
+                return "<p>Your rarest achievement earned was " .
+                    "<a href=\"" . route('achievement.show', $achievement) . "\">{$achievement->Title}</a>" .
+                    " from {$achievement->game->Title}, which has only been earned by " .
+                    sprintf("%01.2f", $rarestSoftcoreAchievement->EarnRate * 100) . "% of players.\n";
             }
         }
 
+        return "";
+    }
+
+    private function summarizePosts(User $user, Carbon $startDate, Carbon $endDate): string
+    {
         $numForumPosts = (!$user->forum_verified_at) ? 0 :
             ForumTopicComment::where('author_id', $user->id)
-            ->where('DateCreated', '>=', $january)
+            ->where('DateCreated', '>=', $startDate)
+            ->where('DateCreated', '<', $endDate)
             ->count();
         $numComments = Comment::where('user_id', $user->id)
             ->whereIn('ArticleType', [ArticleType::Game, ArticleType::Achievement, ArticleType::Leaderboard])
-            ->where('Submitted', '>=', $january)
+            ->where('Submitted', '>=', $startDate)
+            ->where('Submitted', '<', $endDate)
             ->count();
 
+        $message = '';
         if ($numForumPosts > 0) {
             if ($numComments > 0) {
-                $body .= "<p>You made $numForumPosts forum posts and $numComments game comments.\n";
+                $message = "<p>You made $numForumPosts forum posts and $numComments game comments.\n";
             } else {
-                $body .= "<p>You made $numForumPosts forum posts.\n";
+                $message = "<p>You made $numForumPosts forum posts.\n";
             }
         } elseif ($numComments > 0) {
-            $body .= "<p>You made $numComments game comments.\n";
+            $message = "<p>You made $numComments game comments.\n";
         }
 
-        if ($user->ContribCount > 0) {
-            $numAchievementsCreated = Achievement::where('user_id', $user->id)
-                ->where('Flags', AchievementFlag::OfficialCore)
-                ->where('DateCreated', '>=', $january)
-                ->count();
+        return $message;
+    }
 
-            $numCompletedClaims = AchievementSetClaim::where('user_id', $user->id)
-                ->where('SetType', ClaimSetType::NewSet)
-                ->where('Status', ClaimStatus::Complete)
-                ->where('Finished', '>=', $january)
-                ->count();
+    private function summarizeDevelopment(User $user, Carbon $startDate, Carbon $endDate): string
+    {
+        if (!$user->ContribCount) {
+            return "";
+        }
 
-            if ($numAchievementsCreated > 0) {
-                if ($numCompletedClaims > 0) {
-                    $body .= "<p>You published $numAchievementsCreated new achievements and $numCompletedClaims new sets.\n";
-                } else {
-                    $body .= "<p>You published $numAchievementsCreated new achievements.\n";
-                }
-            } elseif ($numCompletedClaims > 0) {
-                // this should never happen as new sets should have new achievements
+        $numAchievementsCreated = Achievement::where('user_id', $user->id)
+            ->where('Flags', AchievementFlag::OfficialCore)
+            ->where('DateCreated', '>=', $startDate)
+            ->where('DateCreated', '<', $endDate)
+            ->count();
+
+        $numCompletedClaims = AchievementSetClaim::where('user_id', $user->id)
+            ->where('SetType', ClaimSetType::NewSet)
+            ->where('Status', ClaimStatus::Complete)
+            ->where('Finished', '>=', $startDate)
+            ->where('Finished', '<', $endDate)
+            ->count();
+
+        $message = '';
+        if ($numAchievementsCreated > 0) {
+            if ($numCompletedClaims > 0) {
+                $message = "<p>You published $numAchievementsCreated new achievements and $numCompletedClaims new sets.\n";
+            } else {
+                $message = "<p>You published $numAchievementsCreated new achievements.\n";
             }
+        } elseif ($numCompletedClaims > 0) {
+            // this should never happen as new sets should have new achievements
         }
 
-        // (new \Symfony\Component\Console\Output\ConsoleOutput())->writeln($body);
-
-        $subject = "RetroAchievements $year Year in Review for {$user->display_name}";
-        mail_utf8($user->EmailAddress, $subject, $body);
+        return $message;
     }
 
     private function hoursMinutes(int $totalMinutes): string
