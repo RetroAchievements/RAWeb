@@ -17,12 +17,22 @@
 >
     <div data-vaul-drawer-wrapper="">
         @if (Route::is('home') || Route::is('demo.home'))
-            <x-brand-top />
+            <div
+                id="brand-top-wrapper"
+                class="{{ Route::is('home') || Route::is('demo.home') ? 'block' : 'hidden' }}"
+            >
+                <x-brand-top />
+            </div>
         @endif
 
         <x-navbar class="flex flex-col w-full justify-center bg-embedded lg:sticky lg:top-0">
             <x-slot name="brand">
-                <x-menu.brand />
+                <div 
+                    id="nav-brand-wrapper"
+                    class="{{ Route::is('home') || Route::is('demo.home') ? 'lg:hidden' : '' }}"
+                >
+                    <x-menu.brand />
+                </div>
             </x-slot>
 
             <x-menu.main />
@@ -79,6 +89,21 @@
             @endif--}}
             <x-footer-navigation />
         </footer>
+
+        <script>
+            document.addEventListener('inertia:navigate', (event) => {
+                const newRoute = event.detail.page.component.toLowerCase();
+                // TODO rename this Inertia.js route from 'index' to 'home'
+                const isHomeRoute = newRoute === 'index';
+                if (!isHomeRoute) return;
+
+                const brandTopWrapper = document.getElementById('brand-top-wrapper');
+                const navBrandWrapper = document.getElementById('nav-brand-wrapper');
+
+                brandTopWrapper.classList.toggle('hidden', !isHomeRoute);
+                navBrandWrapper.className = isHomeRoute ? 'lg:hidden' : '';
+            });
+        </script>
 
         <x-body-end />
     </div>
