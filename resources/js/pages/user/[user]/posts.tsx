@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
+import { PageMetaDescription } from '@/common/components/PageMetaDescription';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
@@ -14,8 +15,7 @@ const UserPosts: AppPage = () => {
   return (
     <>
       <Head title={t('Forum Posts - {{user}}', { user: targetUser.displayName })}>
-        <meta
-          name="description"
+        <PageMetaDescription
           content={`A list of ${targetUser.displayName}'s forum posts that have been made on the RetroAchievements forum.`}
         />
       </Head>

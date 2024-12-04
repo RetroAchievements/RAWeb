@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
+import { PageMetaDescription } from '@/common/components/PageMetaDescription';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { GameModificationCommentsMainRoot } from '@/features/comments/GameModificationCommentsMainRoot';
@@ -13,8 +14,7 @@ const GameModificationComments: AppPage<App.Community.Data.GameClaimsCommentsPag
   return (
     <>
       <Head title={t('Modification Comments - {{gameTitle}}', { gameTitle: game.title })}>
-        <meta
-          name="description"
+        <PageMetaDescription
           content={`Internal discussion about game metadata modifications for ${game.title}`}
         />
 

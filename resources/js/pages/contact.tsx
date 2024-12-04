@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { Trans, useTranslation } from 'react-i18next';
 
+import { PageMetaDescription } from '@/common/components/PageMetaDescription';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 
@@ -10,10 +11,7 @@ const Contact: AppPage = () => {
   return (
     <>
       <Head title={t('Contact Us')}>
-        <meta
-          name="description"
-          content="Get in touch with RetroAchievements teams for reporting issues, seeking assistance, or contributing to the community. Contact admins, developers, QA, and more."
-        />
+        <PageMetaDescription content="Get in touch with RetroAchievements teams for reporting issues, seeking assistance, or contributing to the community. Contact admins, developers, QA, and more." />
       </Head>
 
       <AppLayout.Main>

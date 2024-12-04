@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
+import { PageMetaDescription } from '@/common/components/PageMetaDescription';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { LeaderboardCommentsMainRoot } from '@/features/comments/LeaderboardCommentsMainRoot';
@@ -13,8 +14,7 @@ const LeaderboardComments: AppPage<App.Community.Data.LeaderboardCommentsPagePro
   return (
     <>
       <Head title={t('Comments - {{leaderboardTitle}}', { leaderboardTitle: leaderboard.title })}>
-        <meta
-          name="description"
+        <PageMetaDescription
           content={`General discussion about the leaderboard ${leaderboard.title}`}
         />
 

@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
+import { PageMetaDescription } from '@/common/components/PageMetaDescription';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { SettingsRoot } from '@/features/settings/components/+root';
@@ -12,7 +13,7 @@ const Settings: AppPage = () => {
   return (
     <>
       <Head title={t('Settings')}>
-        <meta name="description" content="Adjust your account's settings and preferences." />
+        <PageMetaDescription content="Adjust your account's settings and preferences." />
       </Head>
 
       <div className="container">

@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
+import { PageMetaDescription } from '@/common/components/PageMetaDescription';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { AchievementCommentsMainRoot } from '@/features/comments/AchievementCommentsMainRoot';
@@ -13,8 +14,7 @@ const AchievementComments: AppPage<App.Community.Data.AchievementCommentsPagePro
   return (
     <>
       <Head title={t('Comments - {{achievementTitle}}', { achievementTitle: achievement.title })}>
-        <meta
-          name="description"
+        <PageMetaDescription
           content={`General discussion about the achievement ${achievement.title}`}
         />
 

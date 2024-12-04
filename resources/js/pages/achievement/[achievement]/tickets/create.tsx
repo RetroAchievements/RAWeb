@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
+import { PageMetaDescription } from '@/common/components/PageMetaDescription';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
@@ -16,8 +17,7 @@ const CreateAchievementTicket: AppPage = () => {
       <Head
         title={t('Create Ticket - {{achievementTitle}}', { achievementTitle: achievement.title })}
       >
-        <meta
-          name="description"
+        <PageMetaDescription
           content={`Create a ticket for the achievement: ${achievement.title}`}
         />
       </Head>

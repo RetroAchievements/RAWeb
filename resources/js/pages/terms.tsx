@@ -2,6 +2,7 @@ import { Head } from '@inertiajs/react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { LegalNotice } from '@/common/components/LegalNotice';
+import { PageMetaDescription } from '@/common/components/PageMetaDescription';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 
@@ -11,10 +12,7 @@ const Terms: AppPage = () => {
   return (
     <>
       <Head title={t('Legal & Terms')}>
-        <meta
-          name="description"
-          content="Review RetroAchievements.org's terms of use, code of conduct, disclaimers, copyright policy, and privacy policy. Stay informed on how we handle content, links, and your personal data."
-        />
+        <PageMetaDescription content="Review RetroAchievements.org's terms of use, code of conduct, disclaimers, copyright policy, and privacy policy. Stay informed on how we handle content, links, and your personal data." />
       </Head>
 
       <AppLayout.Main>
