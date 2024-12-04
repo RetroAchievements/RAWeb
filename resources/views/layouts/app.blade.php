@@ -92,13 +92,12 @@
 
         <script>
             document.addEventListener('inertia:navigate', (event) => {
+                const brandTopWrapper = document.getElementById('brand-top-wrapper');
+                const navBrandWrapper = document.getElementById('nav-brand-wrapper');
+
                 const newRoute = event.detail.page.component.toLowerCase();
                 // TODO rename this Inertia.js route from 'index' to 'home'
                 const isHomeRoute = newRoute === 'index';
-                if (!isHomeRoute) return;
-
-                const brandTopWrapper = document.getElementById('brand-top-wrapper');
-                const navBrandWrapper = document.getElementById('nav-brand-wrapper');
 
                 brandTopWrapper.classList.toggle('hidden', !isHomeRoute);
                 navBrandWrapper.className = isHomeRoute ? 'lg:hidden' : '';
