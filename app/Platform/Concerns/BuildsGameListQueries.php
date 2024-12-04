@@ -15,9 +15,11 @@ use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\GameListProgressFilterValue;
 use App\Platform\Enums\GameListSortField;
 use App\Platform\Enums\GameListType;
 use App\Platform\Enums\UnlockMode;
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -96,41 +98,38 @@ trait BuildsGameListQueries
     private function applyFilters(Builder $query, array $filters, ?User $user = null): void
     {
         foreach ($filters as $filterKey => $filterValues) {
-            switch ($filterKey) {
-                /*
-                 * only show games matching a specific game title pattern
-                 */
-                case 'title':
-                    if (!empty($filterValues[0])) {
-                        $query->where('GameData.Title', 'LIKE', '%' . $filterValues[0] . '%');
-                    }
-                    break;
+            /*
+             * only show games matching a specific game title pattern
+             */
+            if ($filterKey === 'title' && !empty($filterValues[0])) {
+                $query->where('GameData.Title', 'LIKE', '%' . $filterValues[0] . '%');
+                continue;
+            }
 
-                /*
-                 * only show games matching a specific list of system IDs
-                 */
-                case 'system':
-                    $query->whereHas('system', function (Builder $query) use ($filterValues) {
-                        $query->whereIn('ID', $filterValues);
-                    });
-                    break;
+            /*
+             * only show games matching a specific list of system IDs
+             */
+            if ($filterKey === 'system') {
+                $query->whereHas('system', function (Builder $query) use ($filterValues) {
+                    $query->whereIn('ID', $filterValues);
+                });
+                continue;
+            }
 
-                /*
-                 * only show games matching a specific list of user earned awards
-                 */
-                case 'award':
-                    $this->applyAwardFilter($query, $filterValues, $user);
-                    break;
+            /*
+             * only show games matching a specific category of the current user's progress
+             */
+            if ($filterKey === 'progress') {
+                $this->applyProgressFilter($query, $filterValues[0], $user);
+                continue;
+            }
 
-                /*
-                 * only show games based on whether they have achievements published
-                 */
-                case 'achievementsPublished':
-                    $this->applyAchievementsPublishedFilter($query, $filterValues);
-                    break;
-
-                default:
-                    break;
+            /*
+             * only show games based on whether they have achievements published
+             */
+            if ($filterKey === 'achievementsPublished') {
+                $this->applyAchievementsPublishedFilter($query, $filterValues);
+                continue;
             }
         }
     }
@@ -374,18 +373,7 @@ trait BuildsGameListQueries
     }
 
     /**
-     * Filter games based on the player's award status.
-     * The player's awards can represent various levels of completion for each game.
-     * The supported awards are beaten (softcore), beaten, completed, and mastered.
-     *
-     * The filtering logic works as follows:
-     *
-     * 1. "unfinished": Filters games where the player has no award of any kind for the game.
-     * 2. "finished": Filters games where the player has any award for the game.
-     * 3. "beaten_softcore": Filters games where the player has a softcore beaten award.
-     * 4. "beaten_hardcore": Filters games where the player has a hardcore beaten award.
-     * 5. "completed": Filters games where the player has a softcore mastery award.
-     * 6. "mastered": Filters games where the player has a hardcore mastery award.
+     * Filter games based on the player's progress.
      *
      * The SiteAwards.AwardDataExtra field is used to differentiate between softcore (0) and hardcore (1).
      *
@@ -393,10 +381,10 @@ trait BuildsGameListQueries
      *
      * @param Builder<Game> $query
      */
-    private function applyAwardFilter(Builder $query, array $awardValues, ?User $user = null): void
+    private function applyProgressFilter(Builder $query, string $filterValue, ?User $user = null): void
     {
-        // If there's no user, then we have no awards to filter by. Bail.
-        if (!$user) {
+        // If there's no user or the filter value is invalid, then we can't filter. Bail.
+        if (!$user || !GameListProgressFilterValue::tryFrom($filterValue)) {
             return;
         }
 
@@ -407,117 +395,211 @@ trait BuildsGameListQueries
          * how we communicate the mastery awards UX to players, so we reach for
          * SiteAwards data instead.
          */
-        $query->where(function ($query) use ($awardValues, $user) {
-            foreach ($awardValues as $award) {
-                switch ($award) {
-                    /*
-                     * games where the player has no award of any kind for the game
-                     */
-                    case 'unfinished':
-                        $query->orWhereNotExists(function ($subQuery) use ($user) {
-                            $subQuery->select(DB::raw(1))
-                                ->from('SiteAwards')
-                                ->whereColumn('SiteAwards.AwardData', 'GameData.ID')
-                                ->where('SiteAwards.user_id', $user->id)
+        $query->where(function ($query) use ($filterValue, $user) {
+            switch ($filterValue) {
+                /*
+                 * games where the player has no achievements unlocked and no awards
+                 */
+                case GameListProgressFilterValue::Unstarted->value:
+                    $query->orWhere(function ($subQuery) use ($user) {
+                        $subQuery->whereNotExists(function ($q) use ($user) {
+                            $this->baseProgressQuery($user)($q)
+                                ->where('player_games.achievements_unlocked', '>', 0);
+                        })
+                        ->whereNotExists(function ($q) use ($user) {
+                            $this->baseAwardsQuery($user)($q)
                                 ->whereIn('SiteAwards.AwardType', [AwardType::GameBeaten, AwardType::Mastery]);
                         });
-                        break;
+                    });
+                    break;
 
-                    /*
-                     * games where the player has any award for the game
-                     */
-                    case 'finished':
-                        $query->orWhereExists(function ($subQuery) use ($user) {
-                            $subQuery->select(DB::raw(1))
-                                ->from('SiteAwards')
-                                ->whereColumn('SiteAwards.AwardData', 'GameData.ID')
-                                ->where('SiteAwards.user_id', $user->id)
+                /*
+                 * games where the player has no award of any kind for the game, but does have progress
+                 */
+                case GameListProgressFilterValue::Unfinished->value:
+                    $query->orWhere(function ($subQuery) use ($user) {
+                        // Must have at least one achievement unlocked...
+                        $subQuery->whereExists(function ($q) use ($user) {
+                            $this->baseProgressQuery($user)($q)
+                                ->where('player_games.achievements_unlocked', '>', 0);
+                        })
+                        // ... but no game award.
+                        ->whereNotExists(function ($q) use ($user) {
+                            $this->baseAwardsQuery($user)($q)
                                 ->whereIn('SiteAwards.AwardType', [AwardType::GameBeaten, AwardType::Mastery]);
                         });
-                        break;
+                    });
+                    break;
 
-                    /*
-                     * games where the player has a softcore beaten award
-                     */
-                    case 'beaten_softcore':
-                        $query->orWhereExists(function ($subQuery) use ($user) {
-                            $subQuery->select(DB::raw(1))
-                                ->from('SiteAwards')
-                                ->whereColumn('SiteAwards.AwardData', 'GameData.ID')
-                                ->where('SiteAwards.user_id', $user->id)
+                /*
+                 * games where the player has any award for the game
+                 */
+                case GameListProgressFilterValue::GteBeatenSoftcore->value:
+                    $query->orWhereExists(function ($subQuery) use ($user) {
+                        $this->baseAwardsQuery($user)($subQuery)
+                            ->whereIn('SiteAwards.AwardType', [AwardType::GameBeaten, AwardType::Mastery]);
+                    });
+                    break;
+
+                /*
+                 * games where the player has a hardcore beaten award or better
+                 * (includes beaten hardcore, mastered softcore, mastered hardcore)
+                 */
+                case GameListProgressFilterValue::GteBeatenHardcore->value:
+                    $query->orWhereExists(function ($subQuery) use ($user) {
+                        $this->baseAwardsQuery($user)($subQuery)
+                            ->where(function ($q) {
+                                $q->where(function ($q2) {
+                                    $q2->where('SiteAwards.AwardType', AwardType::GameBeaten)
+                                        ->where('SiteAwards.AwardDataExtra', UnlockMode::Hardcore);
+                                })
+                                ->orWhere('SiteAwards.AwardType', AwardType::Mastery);
+                            });
+                    });
+                    break;
+
+                /*
+                 * games where the player has a softcore beaten award
+                 */
+                case GameListProgressFilterValue::EqBeatenSoftcore->value:
+                    $query->orWhere(function ($subQuery) use ($user) {
+                        $subQuery->whereExists(function ($q) use ($user) {
+                            $this->baseAwardsQuery($user)($q)
                                 ->where('SiteAwards.AwardType', AwardType::GameBeaten)
-                                ->where('SiteAwards.AwardDataExtra', UnlockMode::Softcore)
-                                ->whereNotExists(function ($excludeSubQuery) use ($user) {
-                                    $excludeSubQuery->select(DB::raw(1))
-                                        ->from('SiteAwards as sa2')
-                                        ->whereColumn('sa2.AwardData', 'GameData.ID')
-                                        ->where('sa2.user_id', $user->id)
-                                        ->where('sa2.AwardType', AwardType::Mastery);
-                                });
+                                ->where('SiteAwards.AwardDataExtra', UnlockMode::Softcore);
+                        })
+                        ->whereNotExists(function ($q) use ($user) {
+                            $this->baseAwardsQuery($user)($q)
+                                ->where('SiteAwards.AwardType', AwardType::Mastery);
                         });
-                        break;
+                    });
+                    break;
 
-                    /*
-                     * games where the player has a softcore beaten award
-                     */
-                    case 'beaten_hardcore':
-                        $query->orWhereExists(function ($subQuery) use ($user) {
-                            $subQuery->select(DB::raw(1))
-                                ->from('SiteAwards')
-                                ->whereColumn('SiteAwards.AwardData', 'GameData.ID')
-                                ->where('SiteAwards.user_id', $user->id)
+                /*
+                 * games where the player has a hardcore beaten award
+                 */
+                case GameListProgressFilterValue::EqBeatenHardcore->value:
+                    $query->orWhere(function ($subQuery) use ($user) {
+                        $subQuery->whereExists(function ($q) use ($user) {
+                            $this->baseAwardsQuery($user)($q)
                                 ->where('SiteAwards.AwardType', AwardType::GameBeaten)
-                                ->where('SiteAwards.AwardDataExtra', UnlockMode::Hardcore)
-                                ->whereNotExists(function ($excludeSubQuery) use ($user) {
-                                    $excludeSubQuery->select(DB::raw(1))
-                                        ->from('SiteAwards as sa2')
-                                        ->whereColumn('sa2.AwardData', 'GameData.ID')
-                                        ->where('sa2.user_id', $user->id)
-                                        ->where('sa2.AwardType', AwardType::Mastery);
-                                });
-                        });
-                        break;
-
-                    /*
-                     * games where the player has a softcore mastery award
-                     */
-                    case 'completed':
-                        $query->orWhereExists(function ($subQuery) use ($user) {
-                            $subQuery->select(DB::raw(1))
-                                ->from('SiteAwards')
-                                ->whereColumn('SiteAwards.AwardData', 'GameData.ID')
-                                ->where('SiteAwards.user_id', $user->id)
-                                ->where('SiteAwards.AwardType', AwardType::Mastery)
-                                ->where('SiteAwards.AwardDataExtra', UnlockMode::Softcore)
-                                ->whereNotExists(function ($excludeSubQuery) use ($user) {
-                                    $excludeSubQuery->select(DB::raw(1))
-                                        ->from('SiteAwards as sa2')
-                                        ->whereColumn('sa2.AwardData', 'GameData.ID')
-                                        ->where('sa2.user_id', $user->id)
-                                        ->where('sa2.AwardType', AwardType::Mastery)
-                                        ->where('sa2.AwardDataExtra', UnlockMode::Hardcore);
-                                });
-                        });
-                        break;
-
-                    /*
-                     * games where the player has a hardcore mastery award
-                     */
-                    case 'mastered':
-                        $query->orWhereExists(function ($subQuery) use ($user) {
-                            $subQuery->select(DB::raw(1))
-                                ->from('SiteAwards')
-                                ->whereColumn('SiteAwards.AwardData', 'GameData.ID')
-                                ->where('SiteAwards.user_id', $user->id)
-                                ->where('SiteAwards.AwardType', AwardType::Mastery)
                                 ->where('SiteAwards.AwardDataExtra', UnlockMode::Hardcore);
+                        })
+                        ->whereNotExists(function ($q) use ($user) {
+                            $this->baseAwardsQuery($user)($q)
+                                ->where('SiteAwards.AwardType', AwardType::Mastery);
                         });
-                        break;
+                    });
+                    break;
 
-                    default:
-                        break;
-                }
+                /*
+                 * games where the player has any mastery award
+                 * (includes mastered softcore, mastered hardcore)
+                 */
+                case GameListProgressFilterValue::GteCompleted->value:
+                    $query->orWhereExists(function ($subQuery) use ($user) {
+                        $this->baseAwardsQuery($user)($subQuery)
+                            ->where('SiteAwards.AwardType', AwardType::Mastery);
+                    });
+                    break;
+
+                /*
+                 * games where the player has a softcore mastery (completion) award
+                 */
+                case GameListProgressFilterValue::EqCompleted->value:
+                    $query->orWhere(function ($subQuery) use ($user) {
+                        $subQuery->whereExists(function ($q) use ($user) {
+                            $this->baseAwardsQuery($user)($q)
+                                ->where('SiteAwards.AwardType', AwardType::Mastery)
+                                ->where('SiteAwards.AwardDataExtra', UnlockMode::Softcore);
+                        });
+                    });
+                    break;
+
+                /*
+                 * games where the player has a hardcore mastery award
+                 */
+                case GameListProgressFilterValue::EqMastered->value:
+                    $query->orWhereExists(function ($subQuery) use ($user) {
+                        $this->baseAwardsQuery($user)($subQuery)
+                            ->where('SiteAwards.AwardType', AwardType::Mastery)
+                            ->where('SiteAwards.AwardDataExtra', UnlockMode::Hardcore);
+                    });
+                    break;
+
+                /*
+                 * games where the player had mastered the game (in either mode)
+                 * but due to set revisions no longer has unlocked all the achievements
+                 */
+                case GameListProgressFilterValue::Revised->value:
+                    $query->orWhere(function ($query) use ($user) {
+                        $query->whereExists(function ($subQuery) use ($user) {
+                            // First, find games where they have the mastery award.
+                            $this->baseAwardsQuery($user)($subQuery)
+                                ->where(function ($q) use ($user) {
+                                    $q->where(function ($q2) use ($user) {
+                                        // Find games where the user has softcore mastery (completion),
+                                        // but softcore completion is <100%.
+                                        $q2->where('SiteAwards.AwardType', AwardType::Mastery)
+                                            ->where('SiteAwards.AwardDataExtra', UnlockMode::Softcore)
+                                            ->whereExists(function ($progress) use ($user) {
+                                                $this->baseProgressQuery($user)($progress)
+                                                    ->where('player_games.completion_percentage', '<', 1);
+                                            });
+                                    })
+                                    ->orWhere(function ($q2) use ($user) {
+                                        // Find games where the user has mastery, but completion is <100%.
+                                        $q2->where('SiteAwards.AwardType', AwardType::Mastery)
+                                            ->where('SiteAwards.AwardDataExtra', UnlockMode::Hardcore)
+                                            ->whereExists(function ($progress) use ($user) {
+                                                $this->baseProgressQuery($user)($progress)
+                                                    ->where('player_games.completion_percentage_hardcore', '<', 1);
+                                            });
+                                    });
+                                });
+                        });
+                    });
+                    break;
+
+                /*
+                 * exclude games where the user has a mastery award
+                 */
+                case GameListProgressFilterValue::NeqMastered->value:
+                    $query->orWhereNotExists(function ($subQuery) use ($user) {
+                        $this->baseAwardsQuery($user)($subQuery)
+                            ->where('SiteAwards.AwardType', AwardType::Mastery);
+                    });
+                    break;
+
+                default:
+                    break;
             }
         });
+    }
+
+    /**
+     * Create a base subquery for checking a user's SiteAwards data.
+     */
+    private function baseAwardsQuery(User $user): Closure
+    {
+        return function ($query) use ($user) {
+            return $query->select(DB::raw(1))
+                ->from('SiteAwards')
+                ->whereColumn('SiteAwards.AwardData', 'GameData.ID')
+                ->where('SiteAwards.user_id', $user->id);
+        };
+    }
+
+    /**
+     * Create a base subquery for checking a user's player_games data.
+     */
+    private function baseProgressQuery(User $user): Closure
+    {
+        return function ($query) use ($user) {
+            return $query->select(DB::raw(1))
+                ->from('player_games')
+                ->whereColumn('player_games.game_id', 'GameData.ID')
+                ->where('player_games.user_id', $user->id);
+        };
     }
 }

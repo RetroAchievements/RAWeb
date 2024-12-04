@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Requests;
 
+use App\Platform\Enums\GameListProgressFilterValue;
 use App\Platform\Enums\GameListSortField;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class GameListRequest extends FormRequest
 {
@@ -29,6 +31,11 @@ class GameListRequest extends FormRequest
             'page.size' => 'integer|in:' . implode(',', self::VALID_PAGE_SIZES),
             'sort' => 'string|in:' . implode(',', $sortValues),
             'filter.*' => 'string',
+            'filter.progress' => [
+                'nullable',
+                'string',
+                new Enum(GameListProgressFilterValue::class),
+            ],
         ];
     }
 

@@ -58,7 +58,7 @@ export const RandomGameButton: FC<RandomGameButtonProps> = ({
       variant={variant === 'mobile-drawer' ? 'secondary' : undefined}
     >
       <LuDices className="size-4 transition-transform duration-100 group-hover:rotate-12" />
-      <span className={cn(device === 'desktop' ? 'hidden sm:inline md:hidden xl:inline' : '')}>
+      <span className={cn(device === 'desktop' ? 'hidden sm:inline' : null)}>
         {t('Surprise me')}
       </span>
     </BaseButton>

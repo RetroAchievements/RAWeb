@@ -30,6 +30,7 @@ import type { SortConfigKind } from '../../../models';
 import { DataTableAchievementsPublishedFilter } from '../DataTableAchievementsPublishedFilter';
 import { DataTableSystemFilter } from '../DataTableSystemFilter';
 import { RandomGameButton } from '../RandomGameButton';
+import { MobileProgressFilterSelect } from './MobileProgressFilterSelect';
 import { useCurrentSuperFilterLabel } from './useCurrentSuperFilterLabel';
 
 interface DataTableSuperFilterProps<TData> {
@@ -42,7 +43,7 @@ export function DataTableSuperFilter<TData>({
   table,
   randomGameApiRouteName = 'api.game.random',
 }: DataTableSuperFilterProps<TData>) {
-  const { filterableSystemOptions } = usePageProps<{
+  const { auth, filterableSystemOptions } = usePageProps<{
     filterableSystemOptions: App.Platform.Data.System[];
   }>();
 
@@ -99,6 +100,8 @@ export function DataTableSuperFilter<TData>({
               variant="drawer"
             />
 
+            {auth?.user ? <MobileProgressFilterSelect table={table} /> : null}
+
             {/* If the sort order field isn't on the bottom of the drawer, the select content gets cut off the screen. */}
             <div className="flex flex-col gap-2">
               <BaseLabel htmlFor="supersort" className="text-neutral-100 light:text-neutral-950">
@@ -107,7 +110,7 @@ export function DataTableSuperFilter<TData>({
 
               <BaseSelect value={currentSort} onValueChange={handleSortOrderValueChange}>
                 <BaseSelectTrigger id="supersort" className="w-full">
-                  <BaseSelectValue placeholder={t('Sort order')}></BaseSelectValue>
+                  <BaseSelectValue placeholder={t('Sort order')} />
                 </BaseSelectTrigger>
 
                 <BaseSelectContent>

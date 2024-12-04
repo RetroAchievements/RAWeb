@@ -27,7 +27,9 @@ export const EmulatorSelectField: FC = () => {
 
   const form = useFormContext<CreateAchievementTicketFormValues>();
 
-  const sortedEmulators = emulators.sort((a, b) => a.name.localeCompare(b.name));
+  const sortedEmulators = emulators.sort((a, b) =>
+    a.name.startsWith('Other') ? 1 : b.name.startsWith('Other') ? -1 : a.name.localeCompare(b.name),
+  );
 
   return (
     <BaseFormField
