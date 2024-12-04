@@ -38,7 +38,8 @@ class GenerateAnnualRecap extends Command
             $september = Carbon::create($year, 9, 1, 0, 0, 0);
 
             $users = User::where('LastLogin', '>=', $december)
-                ->where('Created', '<', $september);
+                ->where('Created', '<', $september)
+                ->orderByDesc('LastLogin');
 
             foreach ($users->get() as $user) {
                 GenerateAnnualRecapJob::dispatch($user->id)->onQueue('player-metrics');
