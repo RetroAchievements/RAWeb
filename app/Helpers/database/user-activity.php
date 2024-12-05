@@ -46,7 +46,7 @@ function getIsCommentDoublePost(int $userID, array|int $articleID, string $comme
 
     return
         $lastComment->Payload === $commentPayload
-        && $lastComment->article_id === $articleID;
+        && $lastComment->ArticleID === $articleID;
 }
 
 function addArticleComment(
