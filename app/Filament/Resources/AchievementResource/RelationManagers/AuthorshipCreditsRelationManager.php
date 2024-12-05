@@ -70,8 +70,6 @@ class AuthorshipCreditsRelationManager extends RelationManager
                         if ($existingRecord) {
                             if ($existingRecord->trashed()) {
                                 $existingRecord->restore();
-
-                                return $existingRecord;
                             }
 
                             return $existingRecord;
@@ -134,6 +132,7 @@ class AuthorshipCreditsRelationManager extends RelationManager
                             'user_id' => (int) $data['user_id'],
                             'achievement_id' => $achievement->id,
                             'task' => $task,
+                            'created_at' => $data['created_at'] ?? now(),
                         ]);
                     }),
             ])
