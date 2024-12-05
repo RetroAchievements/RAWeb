@@ -58,6 +58,24 @@ class AuthorshipCreditsRelationManager extends RelationManager
                         $achievement = $this->ownerRecord;
 
                         $task = $data['task'];
+                        $userId = (int) $data['user_id'];
+
+                        // First, check for and restore any soft-deleted record.
+                        $existingRecord = AchievementAuthor::withTrashed()
+                            ->whereAchievementId($achievement->id)
+                            ->whereUserId($userId)
+                            ->whereTask($task)
+                            ->first();
+
+                        if ($existingRecord) {
+                            if ($existingRecord->trashed()) {
+                                $existingRecord->restore();
+
+                                return $existingRecord;
+                            }
+
+                            return $existingRecord;
+                        }
 
                         /**
                          * An achievement developer doing most tasks is implied. If someone
