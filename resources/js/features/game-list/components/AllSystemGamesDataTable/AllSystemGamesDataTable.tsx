@@ -51,6 +51,7 @@ export const AllSystemGamesDataTable: FC<AllSystemGamesDataTableProps> = ({
     columnFilters,
     pagination,
     sorting,
+    apiRouteParams: { systemId: system.id },
     apiRouteName: 'api.system.game.index',
     isEnabled: ziggy.device === 'desktop',
   });

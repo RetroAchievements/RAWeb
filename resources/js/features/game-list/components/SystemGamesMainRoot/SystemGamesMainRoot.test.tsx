@@ -370,6 +370,7 @@ describe('Component: SystemGamesMainRoot', () => {
           'page[number]': 1,
           'page[size]': 25,
           sort: 'title',
+          systemId: mockSystem.id,
         },
       ]);
     });

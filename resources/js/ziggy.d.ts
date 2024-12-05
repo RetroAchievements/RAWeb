@@ -151,13 +151,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "system.game.index": [
-        {
-            "name": "system",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "ticket.show": [
         {
             "name": "ticket",
@@ -208,6 +201,13 @@ declare module 'ziggy-js' {
         }
     ],
     "game.index": [],
+    "system.game.index": [
+        {
+            "name": "system",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.random": [],
     "api.user.game.destroy": [
         {
