@@ -13,10 +13,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class MemoryNote extends BaseModel
 {
     use SoftDeletes;
-
-    use LogsActivity {
-        LogsActivity::activities as auditLog;
-    }
+    use LogsActivity { LogsActivity::activities as auditLog; }
 
     // TODO drop game_id, migrate to game_hash_set_id
     protected $table = 'memory_notes';

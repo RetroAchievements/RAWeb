@@ -18,10 +18,7 @@ class EmulatorRelease extends BaseModel implements HasMedia
     use SoftDeletes;
     use InteractsWithMedia;
     use HasStabilityFlags;
-
-    use LogsActivity {
-        LogsActivity::activities as auditLog;
-    }
+    use LogsActivity { LogsActivity::activities as auditLog; }
 
     protected $table = 'emulator_releases';
 

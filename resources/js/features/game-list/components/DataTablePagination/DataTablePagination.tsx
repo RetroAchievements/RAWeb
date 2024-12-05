@@ -14,10 +14,12 @@ import { PageSizeSelect } from './PageSizeSelect';
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
   tableApiRouteName?: RouteName;
+  tableApiRouteParams?: Record<string, unknown>;
 }
 
 export function DataTablePagination<TData>({
   table,
+  tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
 }: DataTablePaginationProps<TData>): ReactNode {
   const { t } = useTranslation();
@@ -26,7 +28,11 @@ export function DataTablePagination<TData>({
 
   // Given the user hovers over a pagination button, it is very likely they will
   // wind up clicking the button. Queries are cheap, so prefetch the destination page.
-  const { prefetchPagination } = useDataTablePrefetchPagination(table, tableApiRouteName);
+  const { prefetchPagination } = useDataTablePrefetchPagination(
+    table,
+    tableApiRouteName,
+    tableApiRouteParams,
+  );
 
   const scrollToTopOfPage = () => {
     const scrollTarget = document.getElementById('pagination-scroll-target');

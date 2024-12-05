@@ -11,9 +11,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class EmulatorUserAgent extends BaseModel
 {
-    use LogsActivity {
-        LogsActivity::activities as auditLog;
-    }
+    use LogsActivity { LogsActivity::activities as auditLog; }
 
     protected $table = 'emulator_user_agents';
 

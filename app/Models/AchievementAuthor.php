@@ -13,10 +13,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class AchievementAuthor extends BaseModel
 {
     use SoftDeletes;
-
-    use LogsActivity {
-        LogsActivity::activities as auditLog;
-    }
+    use LogsActivity { LogsActivity::activities as auditLog; }
 
     protected $table = 'achievement_authors';
 

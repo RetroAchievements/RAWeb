@@ -37,10 +37,12 @@ interface DataTableSuperFilterProps<TData> {
   table: Table<TData>;
 
   randomGameApiRouteName?: RouteName;
+  randomGameApiRouteParams?: Record<string, unknown>;
 }
 
 export function DataTableSuperFilter<TData>({
   table,
+  randomGameApiRouteParams,
   randomGameApiRouteName = 'api.game.random',
 }: DataTableSuperFilterProps<TData>) {
   const { auth, filterableSystemOptions } = usePageProps<{
@@ -142,6 +144,7 @@ export function DataTableSuperFilter<TData>({
               <RandomGameButton
                 variant="mobile-drawer"
                 apiRouteName={randomGameApiRouteName}
+                apiRouteParams={randomGameApiRouteParams}
                 columnFilters={currentFilters}
               />
 

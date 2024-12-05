@@ -16,6 +16,7 @@ export function useDataTablePrefetchResetFilters<TData>(
   table: Table<TData>,
   defaultColumnFilters: ColumnFiltersState,
   tableApiRouteName: RouteName,
+  tableApiRouteParams?: Record<string, unknown>,
 ) {
   const { pagination, sorting } = table.getState();
 
@@ -29,6 +30,7 @@ export function useDataTablePrefetchResetFilters<TData>(
       queryFn: async () => {
         const response = await axios.get<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>(
           route(tableApiRouteName, {
+            ...tableApiRouteParams,
             sort: buildGameListQuerySortParam(sorting),
             ...buildGameListQueryPaginationParams(pagination),
             ...buildGameListQueryFilterParams(defaultColumnFilters),

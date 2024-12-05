@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
@@ -26,16 +27,33 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class System extends BaseModel implements HasMedia
 {
-    use CausesActivity;
+    /*
+     * Community Traits
+     */
+    use DiscussedInForum;
+
+    /*
+     * Persistence Traits
+     */
     /** @use HasFactory<SystemFactory> */
     use HasFactory;
-    use InteractsWithMedia;
-    use LogsActivity {
-        LogsActivity::activities as auditLog;
-    }
-    use Searchable;
     use SoftDeletes;
-    use DiscussedInForum;
+
+    /*
+     * Behavioral Traits
+     */
+    use LogsActivity { LogsActivity::activities as auditLog; }
+    use CausesActivity;
+
+    /*
+     * Media Management Traits
+     */
+    use InteractsWithMedia;
+
+    /*
+     * Search and Filtering Traits
+     */
+    use Searchable;
 
     // TODO rename Console table to systems
     // TODO rename ID column to id, remove getIdAttribute()
@@ -81,6 +99,32 @@ class System extends BaseModel implements HasMedia
     protected $casts = [
         'active' => 'boolean',
     ];
+
+    // == routing
+
+    // TODO extract setting getRouteKey and resolveRouteBinding for self-healing urls to a trait if used on another model
+
+    public function getRouteKey(): string
+    {
+        return Str::slug($this->name) . '-' . $this->id;
+    }
+
+    public function resolveRouteBinding(mixed $value, $field = null)
+    {
+        // Skip self-healing for internal-api routes.
+        if (str_starts_with(request()->path(), 'internal-api')) {
+            return parent::resolveRouteBinding($value, $field);
+        }
+
+        $id = last(explode('-', $value));
+        $model = parent::resolveRouteBinding($id, $field);
+
+        if (!$model || $model->getRouteKey() === $value) {
+            return $model;
+        }
+
+        throw new HttpResponseException(redirect()->route('system.game.index', $model));
+    }
 
     // == constants
 
@@ -175,29 +219,9 @@ class System extends BaseModel implements HasMedia
 
     // == accessors
 
-    public function getCanonicalUrlAttribute(): string
-    {
-        return route('system.show', [$this, $this->getSlugAttribute()]);
-    }
-
     public function getPermalinkAttribute(): string
     {
         return route('system.show', $this);
-    }
-
-    public function getSlugAttribute(): string
-    {
-        return ($this->name_full ?? $this->name) ? '-' . Str::slug($this->name_full ?? $this->name) : '';
-    }
-
-    public function getAchievementsLinkAttribute(): string
-    {
-        return route('system.achievements', [$this->id, $this->getSlugAttribute()]);
-    }
-
-    public function getGamesLinkAttribute(): string
-    {
-        return route('system.game.index', [$this->id, $this->getSlugAttribute()]);
     }
 
     public function getIconUrlAttribute(): string

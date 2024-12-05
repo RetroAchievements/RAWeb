@@ -25,7 +25,7 @@ window.plausible = vi.fn();
 describe('Component: AllGamesMainRoot', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    const { container } = render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         filterableSystemOptions: [],
         paginatedGameListEntries: createPaginatedData([]),
@@ -40,7 +40,7 @@ describe('Component: AllGamesMainRoot', () => {
 
   it('displays default columns', async () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -76,7 +76,7 @@ describe('Component: AllGamesMainRoot', () => {
       releasedAtGranularity: 'day',
     });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -116,7 +116,7 @@ describe('Component: AllGamesMainRoot', () => {
       releasedAtGranularity: 'day',
     });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -156,7 +156,7 @@ describe('Component: AllGamesMainRoot', () => {
       releasedAtGranularity: 'day',
     });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -199,7 +199,7 @@ describe('Component: AllGamesMainRoot', () => {
       releasedAtGranularity: 'day',
     });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -229,7 +229,7 @@ describe('Component: AllGamesMainRoot', () => {
 
   it('allows users to toggle column visibility', async () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -249,12 +249,12 @@ describe('Component: AllGamesMainRoot', () => {
 
   it('given the user cannot develop achievements, they cannot enable an Open Tickets column', async () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
         paginatedGameListEntries: createPaginatedData([]),
-        can: { develop: false },
+        can: { develop: false }, // !!
         ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
@@ -270,12 +270,12 @@ describe('Component: AllGamesMainRoot', () => {
 
   it('given the user can develop achievements, they can enable an Open Tickets column', async () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
         paginatedGameListEntries: createPaginatedData([]),
-        can: { develop: true },
+        can: { develop: true }, // !!
         ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
@@ -307,7 +307,7 @@ describe('Component: AllGamesMainRoot', () => {
       numUnresolvedTickets: 2,
     });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -329,7 +329,7 @@ describe('Component: AllGamesMainRoot', () => {
     // ARRANGE
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -359,7 +359,7 @@ describe('Component: AllGamesMainRoot', () => {
 
   it('by default, has the achievements published filter set to "Yes"', () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [],
@@ -378,7 +378,7 @@ describe('Component: AllGamesMainRoot', () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [
@@ -419,7 +419,7 @@ describe('Component: AllGamesMainRoot', () => {
       .mockResolvedValueOnce({ data: createPaginatedData([]) })
       .mockResolvedValueOnce({ data: createPaginatedData([]) }); // the GET will be called twice
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [
@@ -452,7 +452,7 @@ describe('Component: AllGamesMainRoot', () => {
       data: createPaginatedData([], { total: 3, unfilteredTotal: 587 }),
     });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -478,7 +478,7 @@ describe('Component: AllGamesMainRoot', () => {
 
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -511,7 +511,7 @@ describe('Component: AllGamesMainRoot', () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -544,7 +544,7 @@ describe('Component: AllGamesMainRoot', () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -577,7 +577,7 @@ describe('Component: AllGamesMainRoot', () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -610,7 +610,7 @@ describe('Component: AllGamesMainRoot', () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -643,7 +643,7 @@ describe('Component: AllGamesMainRoot', () => {
 
   it('allows the user to hide a column via the column header button', async () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -663,7 +663,7 @@ describe('Component: AllGamesMainRoot', () => {
 
   it('always displays the number of total games', () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -683,7 +683,7 @@ describe('Component: AllGamesMainRoot', () => {
     window.scrollTo = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -716,7 +716,7 @@ describe('Component: AllGamesMainRoot', () => {
 
   it("given the user presses the '/' hotkey, focuses the search input", async () => {
     // ARRANGE
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
@@ -749,7 +749,7 @@ describe('Component: AllGamesMainRoot', () => {
       numUnresolvedTickets: 2,
     });
 
-    render<App.Community.Data.UserGameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],

@@ -179,6 +179,20 @@ declare module 'ziggy-js' {
     "pulse": [],
     "api.game.index": [],
     "api.game.random": [],
+    "api.system.game.index": [
+        {
+            "name": "systemId",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.system.game.random": [
+        {
+            "name": "systemId",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.hashes.index": [
         {
             "name": "game",

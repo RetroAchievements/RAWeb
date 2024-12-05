@@ -43,18 +43,27 @@ class Game extends BaseModel implements HasMedia
     use HasGameCommunityFeatures;
 
     /*
-     * Shared Traits
+     * Persistence Traits
      */
-    use LogsActivity {
-        LogsActivity::activities as auditLog;
-    }
     /** @use HasFactory<GameFactory> */
     use HasFactory;
+    use SoftDeletes;
+
+    /*
+     * Media Management Traits
+     */
     use InteractsWithMedia;
 
-    use PivotEventTrait;
+    /*
+     * Search and Filtering Traits
+     */
     use Searchable;
-    use SoftDeletes;
+
+    /*
+     * Behavioral Traits
+     */
+    use LogsActivity { LogsActivity::activities as auditLog; }
+    use PivotEventTrait;
 
     // TODO rename GameData table to games
     // TODO rename ID column to id, remove getIdAttribute()

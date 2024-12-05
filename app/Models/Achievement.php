@@ -45,18 +45,22 @@ class Achievement extends BaseModel
     use HasAchievementCommunityFeatures;
 
     /*
-     * Shared Traits
+     * Persistence Traits
      */
     /** @use HasFactory<AchievementFactory> */
     use HasFactory;
-
-    use Searchable;
     use SoftDeletes;
 
+    /*
+     * Search and Filtering Traits
+     */
+    use Searchable;
+
+    /*
+     * Behavioral Traits
+     */
     use CausesActivity;
-    use LogsActivity {
-        LogsActivity::activities as auditLog;
-    }
+    use LogsActivity { LogsActivity::activities as auditLog; }
 
     // TODO rename ID to id, remove getIdAttribute()
     // TODO rename Achievements table to achievements

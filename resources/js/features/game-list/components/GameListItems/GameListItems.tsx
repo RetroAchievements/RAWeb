@@ -26,6 +26,7 @@ interface GameListItemsProps {
   columnFilters: ColumnFiltersState;
 
   apiRouteName?: RouteName;
+  apiRouteParams?: Record<string, unknown>;
 
   /**
    * If truthy, non-backlog items will be optimistically hidden from
@@ -37,6 +38,7 @@ interface GameListItemsProps {
 }
 
 const GameListItems: FC<GameListItemsProps> = ({
+  apiRouteParams,
   columnFilters,
   pagination,
   sorting,
@@ -52,6 +54,7 @@ const GameListItems: FC<GameListItemsProps> = ({
     pagination,
     sorting,
     apiRouteName,
+    apiRouteParams,
     isEnabled: ziggy.device === 'mobile',
   });
 

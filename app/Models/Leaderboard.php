@@ -31,10 +31,7 @@ class Leaderboard extends BaseModel
 
     use Searchable;
     use SoftDeletes;
-
-    use LogsActivity {
-        LogsActivity::activities as auditLog;
-    }
+    use LogsActivity { LogsActivity::activities as auditLog; }
 
     // TODO rename LeaderboardDef table to leaderboards
     // TODO rename ID column to id

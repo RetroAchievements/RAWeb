@@ -1,4 +1,4 @@
-import type { ColumnFiltersState, Table } from '@tanstack/react-table';
+import type { Column, ColumnFiltersState, Table } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import type { RouteName } from 'ziggy-js';
 
@@ -20,10 +20,12 @@ interface DataTableDesktopToolbarProps<TData> {
   defaultColumnFilters?: ColumnFiltersState;
   randomGameApiRouteName?: RouteName;
   tableApiRouteName?: RouteName;
+  tableApiRouteParams?: Record<string, unknown>;
 }
 
 export function DataTableDesktopToolbar<TData>({
   table,
+  tableApiRouteParams,
   unfilteredTotal,
   defaultColumnFilters = [],
   randomGameApiRouteName = 'api.game.random',
@@ -35,27 +37,30 @@ export function DataTableDesktopToolbar<TData>({
 
   const { t } = useTranslation();
 
+  const allColumns = table.getAllColumns();
+
   const currentFilters = table.getState().columnFilters;
   const isFiltered = getAreNonDefaultFiltersSet(currentFilters, defaultColumnFilters);
 
   return (
     <div className="flex w-full flex-col justify-between gap-2">
       <div className="flex flex-col gap-2 rounded bg-embed p-2 sm:flex-row sm:gap-2 md:gap-3">
-        {table.getColumn('system') && filterableSystemOptions ? (
+        {doesColumnExist(allColumns, 'system') && filterableSystemOptions ? (
           <DataTableSystemFilter table={table} filterableSystemOptions={filterableSystemOptions} />
         ) : null}
 
-        {table.getColumn('achievementsPublished') ? (
+        {doesColumnExist(allColumns, 'achievementsPublished') ? (
           <DataTableAchievementsPublishedFilter table={table} />
         ) : null}
 
-        {table.getColumn('progress') ? <DataTableProgressFilter table={table} /> : null}
+        {doesColumnExist(allColumns, 'progress') ? <DataTableProgressFilter table={table} /> : null}
 
         {isFiltered ? (
           <DataTableResetFiltersButton
             table={table}
             defaultColumnFilters={defaultColumnFilters}
             tableApiRouteName={tableApiRouteName}
+            tableApiRouteParams={tableApiRouteParams}
           />
         ) : null}
       </div>
@@ -89,6 +94,7 @@ export function DataTableDesktopToolbar<TData>({
             <RandomGameButton
               variant="toolbar"
               apiRouteName={randomGameApiRouteName}
+              apiRouteParams={tableApiRouteParams}
               columnFilters={currentFilters}
             />
 
@@ -98,4 +104,8 @@ export function DataTableDesktopToolbar<TData>({
       </div>
     </div>
   );
+}
+
+function doesColumnExist<TData>(allColumns: Column<TData, unknown>[], columnId: string): boolean {
+  return allColumns.some((column) => column.id === columnId);
 }
