@@ -106,7 +106,10 @@ class System extends BaseModel implements HasMedia
 
     public function getRouteKey(): string
     {
-        return Str::slug($this->name) . '-' . $this->id;
+        // Forward slashes also need to be dasherized.
+        $nameWithDashes = str_replace('/', '-', $this->name);
+
+        return Str::slug($nameWithDashes) . '-' . $this->id;
     }
 
     public function resolveRouteBinding(mixed $value, $field = null)

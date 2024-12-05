@@ -1,7 +1,6 @@
 import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
-import { PageMetaDescription } from '@/common/components/PageMetaDescription';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
@@ -18,7 +17,8 @@ const SystemGames: AppPage = () => {
   return (
     <>
       <Head title={t('All {{systemName}} Games', { systemName: system.name })}>
-        <PageMetaDescription content={metaDescription} />
+        <meta name="description" content={metaDescription} />
+        <meta name="og:description" content={metaDescription} />
       </Head>
 
       <div className="container">
