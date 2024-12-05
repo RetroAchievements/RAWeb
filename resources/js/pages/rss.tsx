@@ -2,17 +2,20 @@ import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 import { LuRss } from 'react-icons/lu';
 
-import { PageMetaDescription } from '@/common/components/PageMetaDescription';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 
 const Rss: AppPage = () => {
   const { t } = useTranslation();
 
+  const metaDescription =
+    'Stay updated with the latest news and achievements from RetroAchievements. Access our RSS feed for real-time updates on community events.';
+
   return (
     <>
       <Head title={t('RSS Feeds')}>
-        <PageMetaDescription content="Stay updated with the latest news and achievements from RetroAchievements. Access our RSS feed for real-time updates on community events." />
+        <meta name="description" content={metaDescription} />
+        <meta name="og:description" content={metaDescription} />
       </Head>
 
       <div className="container">

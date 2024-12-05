@@ -2,17 +2,20 @@ import { Head } from '@inertiajs/react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { LegalNotice } from '@/common/components/LegalNotice';
-import { PageMetaDescription } from '@/common/components/PageMetaDescription';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 
 const Terms: AppPage = () => {
   const { t } = useTranslation();
 
+  const metaDescription =
+    "Review RetroAchievements.org's terms of use, code of conduct, disclaimers, copyright policy, and privacy policy. Stay informed on how we handle content, links, and your personal data.";
+
   return (
     <>
       <Head title={t('Legal & Terms')}>
-        <PageMetaDescription content="Review RetroAchievements.org's terms of use, code of conduct, disclaimers, copyright policy, and privacy policy. Stay informed on how we handle content, links, and your personal data." />
+        <meta name="description" content={metaDescription} />
+        <meta name="og:description" content={metaDescription} />
       </Head>
 
       <AppLayout.Main>
