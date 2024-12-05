@@ -1,9 +1,10 @@
-import type { Column, ColumnFiltersState, Table } from '@tanstack/react-table';
+import type { ColumnFiltersState, Table } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import type { RouteName } from 'ziggy-js';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { doesColumnExist } from '../../utils/doesColumnExist';
 import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
 import { DataTableResetFiltersButton } from '../DataTableResetFiltersButton';
 import { DataTableSearchInput } from '../DataTableSearchInput';
@@ -104,8 +105,4 @@ export function DataTableDesktopToolbar<TData>({
       </div>
     </div>
   );
-}
-
-function doesColumnExist<TData>(allColumns: Column<TData, unknown>[], columnId: string): boolean {
-  return allColumns.some((column) => column.id === columnId);
 }
