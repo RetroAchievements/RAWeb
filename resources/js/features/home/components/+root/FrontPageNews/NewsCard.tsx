@@ -1,6 +1,7 @@
 import { type FC, type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 interface NewsCardProps {
@@ -24,14 +25,20 @@ export const NewsCard: FC<NewsCardProps> = ({
   title,
   className,
 }) => {
+  const { ziggy } = usePageProps();
+
   const { t } = useTranslation();
 
   return (
     <a
       href={href}
       className={cn(
-        'group -mx-2 cursor-pointer gap-6 rounded-xl bg-embed p-2 sm:flex',
+        'group -mx-2 cursor-pointer gap-6 rounded-xl p-2 sm:flex',
         'hover:bg-neutral-950/30 hover:light:bg-neutral-100',
+
+        ziggy.device === 'desktop' ? 'sm:bg-embed' : '',
+        ziggy.device === 'mobile' ? 'bg-embed' : '',
+
         className,
       )}
     >

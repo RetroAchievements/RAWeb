@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@/test';
-import { createHomePageProps, createNews } from '@/test/factories';
+import { createHomePageProps, createNews, createZiggyProps } from '@/test/factories';
 
 import { FrontPageNews } from './FrontPageNews';
 
@@ -15,7 +15,7 @@ describe('Component: FrontPageNews', () => {
   it('displays an accessible heading', () => {
     // ARRANGE
     render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
-      pageProps: createHomePageProps(),
+      pageProps: { ...createHomePageProps(), ziggy: createZiggyProps({ device: 'desktop' }) },
     });
 
     // ASSERT
@@ -33,6 +33,7 @@ describe('Component: FrontPageNews', () => {
     render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
       pageProps: {
         recentNews,
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -49,6 +50,7 @@ describe('Component: FrontPageNews', () => {
     render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
       pageProps: {
         recentNews,
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -67,6 +69,7 @@ describe('Component: FrontPageNews', () => {
     render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
       pageProps: {
         recentNews: [newsWithBrokenImage],
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -90,6 +93,7 @@ describe('Component: FrontPageNews', () => {
     render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
       pageProps: {
         recentNews: [newsWithValidImage],
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -109,6 +113,7 @@ describe('Component: FrontPageNews', () => {
     render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
       pageProps: {
         recentNews: [newsWithEmoji],
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -129,6 +134,7 @@ describe('Component: FrontPageNews', () => {
     render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
       pageProps: {
         recentNews: [newsWithHtml],
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -143,6 +149,7 @@ describe('Component: FrontPageNews', () => {
     render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
       pageProps: {
         recentNews: [news],
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -157,11 +164,33 @@ describe('Component: FrontPageNews', () => {
     render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
       pageProps: {
         recentNews: [news],
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
     // ASSERT
     expect(screen.getByText(news.title)).toBeVisible();
     expect(screen.getByTestId('fallback-image')).toBeVisible();
+  });
+
+  it('given the user is using a mobile device, still shows news', () => {
+    // ARRANGE
+    const recentNews = [
+      createNews({ title: 'Foo' }),
+      createNews({ title: 'Bar' }),
+      createNews({ title: 'Baz' }),
+    ];
+
+    render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
+      pageProps: {
+        recentNews,
+        ziggy: createZiggyProps({ device: 'mobile' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText('Foo')).toBeVisible();
+    expect(screen.getByText('Bar')).toBeVisible();
+    expect(screen.getByText('Baz')).toBeVisible();
   });
 });
