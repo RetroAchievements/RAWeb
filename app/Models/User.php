@@ -63,11 +63,10 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     use HasRoles;
     use InteractsWithMedia;
 
-    /*
-     * Behavioral Traits
-     */
     use CausesActivity;
-    use LogsActivity { LogsActivity::activities as auditLog; }
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
 
     /*
      * Shared Traits

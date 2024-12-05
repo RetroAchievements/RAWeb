@@ -22,7 +22,9 @@ class AchievementSet extends BaseModel
     /*
      * Shared Traits
      */
-    use LogsActivity { LogsActivity::activities as auditLog; }
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
     /** @use HasFactory<AchievementSetFactory> */
     use HasFactory;
 

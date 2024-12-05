@@ -42,7 +42,9 @@ class System extends BaseModel implements HasMedia
     /*
      * Behavioral Traits
      */
-    use LogsActivity { LogsActivity::activities as auditLog; }
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
     use CausesActivity;
 
     /*

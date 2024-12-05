@@ -40,7 +40,9 @@ class Emulator extends BaseModel implements HasMedia
     use PivotEventTrait;
     use InteractsWithMedia;
 
-    use LogsActivity { LogsActivity::activities as auditLog; }
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
 
     protected $fillable = [
         'name',
