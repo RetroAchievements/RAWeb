@@ -53,46 +53,40 @@ class Roles extends ManageRelatedRecords
 
                         $attachedRole = Role::findById((int) $data['recordId']);
 
-                        if (in_array($attachedRole->name, [
-                            Role::DEVELOPER_JUNIOR,
-                            Role::DEVELOPER,
-                            Role::DEVELOPER_STAFF,
-                            Role::DEVELOPER_RETIRED,
-                        ])) {
+                        if ($attachedRole->name === Role::DEVELOPER_JUNIOR) {
+                            $targetUser->removeRole(Role::DEVELOPER);
+                            $targetUser->removeRole(Role::DEVELOPER_STAFF);
+                            $targetUser->removeRole(Role::DEVELOPER_RETIRED);
+
+                            $newPermissions = Permissions::JuniorDeveloper;
+                        } elseif ($attachedRole->name === Role::DEVELOPER) {
+                            $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
+                            $targetUser->removeRole(Role::DEVELOPER_STAFF);
+                            $targetUser->removeRole(Role::DEVELOPER_RETIRED);
+
+                            $newPermissions = Permissions::Developer;
+                        } elseif ($attachedRole->name === Role::DEVELOPER_STAFF) {
+                            $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
+                            $targetUser->removeRole(Role::DEVELOPER);
+                            $targetUser->removeRole(Role::DEVELOPER_RETIRED);
+
+                            $newPermissions = Permissions::Developer;
+                        } elseif ($attachedRole->name === Role::DEVELOPER_RETIRED) {
+                            $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
+                            $targetUser->removeRole(Role::DEVELOPER);
+                            $targetUser->removeRole(Role::DEVELOPER_STAFF);
+
                             $newPermissions = Permissions::Registered;
-                            if ($attachedRole->name === Role::DEVELOPER_JUNIOR) {
-                                $targetUser->removeRole(Role::DEVELOPER);
-                                $targetUser->removeRole(Role::DEVELOPER_STAFF);
-                                $targetUser->removeRole(Role::DEVELOPER_RETIRED);
-
-                                $newPermissions = Permissions::JuniorDeveloper;
-                            } elseif ($attachedRole->name === Role::DEVELOPER) {
-                                $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
-                                $targetUser->removeRole(Role::DEVELOPER_STAFF);
-                                $targetUser->removeRole(Role::DEVELOPER_RETIRED);
-
-                                $newPermissions = Permissions::Developer;
-                            } elseif ($attachedRole->name === Role::DEVELOPER_STAFF) {
-                                $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
-                                $targetUser->removeRole(Role::DEVELOPER);
-                                $targetUser->removeRole(Role::DEVELOPER_RETIRED);
-
-                                $newPermissions = Permissions::Developer;
-                            } elseif ($attachedRole->name === Role::DEVELOPER_RETIRED) {
-                                $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
-                                $targetUser->removeRole(Role::DEVELOPER);
-                                $targetUser->removeRole(Role::DEVELOPER_STAFF);
-                            }
-
-                            $currentPermissions = (int) $targetUser->getAttribute('Permissions');
-                            // Don't strip moderation power away if the user already has it.
-                            if ($currentPermissions < Permissions::Moderator) {
-                                $targetUser->setAttribute('Permissions', $newPermissions);
-                                $targetUser->save();
-                            }
                         } else {
                             // There's nothing to synchronize for non-developer roles.
                             return;
+                        }
+
+                        // Only update permissions if the user isn't already a moderator.
+                        $currentPermissions = (int) $targetUser->getAttribute('Permissions');
+                        if ($currentPermissions < Permissions::Moderator) {
+                            $targetUser->setAttribute('Permissions', $newPermissions);
+                            $targetUser->save();
                         }
                     }),
             ])
