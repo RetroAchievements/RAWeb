@@ -12,11 +12,8 @@ use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
-use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class NotifyMessageThreadParticipants
 {
@@ -90,8 +87,6 @@ class NotifyMessageThreadParticipants
         }
 
         $color = hexdec('0x0066CC');
-        $mentionRoles = collect(Arr::wrap($inboxConfig['mention_role'] ?? []))
-            ->map(fn ($role) => '<@&' . $role . '>');
         $isForum = $inboxConfig['is_forum'] ?? false;
 
         if (mb_strpos(mb_strtolower($messageThread->title), 'verify') !== false
@@ -102,7 +97,6 @@ class NotifyMessageThreadParticipants
         ) {
             $webhookUrl = $inboxConfig['verify_url'];
             $color = hexdec('0x00CC66');
-            $mentionRoles = collect();
             $isForum = false;
         }
 
@@ -115,7 +109,6 @@ class NotifyMessageThreadParticipants
         if (mb_strpos(mb_strtolower($messageThread->title), 'manual') !== false) {
             $webhookUrl = $inboxConfig['manual_unlock_url'];
             $color = hexdec('0xCC0066');
-            $mentionRoles = collect();
             $isForum = false;
         }
 
@@ -129,7 +122,6 @@ class NotifyMessageThreadParticipants
         foreach ($structuredTitlePrefixes as $prefix => $configKey) {
             if (mb_strpos($messageThread->title, $prefix) !== false) {
                 $webhookUrl = $inboxConfig[$configKey];
-                $mentionRoles = collect();
                 $isForum = true;
 
                 // Extract the achievement ID from the message thread title.
@@ -159,7 +151,6 @@ class NotifyMessageThreadParticipants
                 [
                     'author' => [
                         'name' => $userFrom->username,
-                        // TODO 'url' => route('user.show', $userFrom),
                         'url' => url('user/' . $userFrom->username),
                         'icon_url' => $userFrom->avatar_url,
                     ],
@@ -171,40 +162,11 @@ class NotifyMessageThreadParticipants
             ],
         ];
 
-        if ($mentionRoles->isNotEmpty()) {
-            $payload['content'] = $mentionRoles->implode(' ');
-        }
-
         if ($isForum) {
             // Forum channels require an additional 'thread_name' JSON parameter to be successfully posted.
             $payload['thread_name'] = mb_substr($messageThread->title, 0, 100);
         }
 
-        try {
-            if ($isForum) {
-                Log::info("[{$messageThread->title}] Discord forward: Initiating request", [
-                    'payload' => $payload,
-                ]);
-            }
-
-            $client = new Client();
-            $response = $client->post($webhookUrl, ['json' => $payload]);
-
-            if ($isForum) {
-                Log::info("[{$messageThread->title}] Discord forward: Request successful", [
-                    'payload' => $payload,
-                    'response' => [
-                        'status' => $response->getStatusCode(),
-                        'body' => (string) $response->getBody(),
-                    ],
-                ]);
-            }
-        } catch (Exception $e) {
-            Log::error("[{$messageThread->title}] Discord forward: Unexpected error", [
-                'payload' => $payload,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
+        (new Client())->post($webhookUrl, ['json' => $payload]);
     }
 }
