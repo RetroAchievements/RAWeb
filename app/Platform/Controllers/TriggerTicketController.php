@@ -13,9 +13,9 @@ use App\Platform\Actions\BuildTicketCreationDataAction;
 use App\Support\Concerns\HandlesResources;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class TriggerTicketController extends Controller
 {
@@ -41,7 +41,7 @@ class TriggerTicketController extends Controller
         Request $request,
         Achievement $achievement,
         BuildTicketCreationDataAction $buildTicketCreationData,
-    ): InertiaResponse|Response {
+    ): InertiaResponse|HttpResponse {
         $this->authorize('create', [TriggerTicket::class, $achievement]);
 
         // A user can only have one ticket open at a time for a triggerable.
