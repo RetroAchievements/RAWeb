@@ -51,6 +51,7 @@ class TriggerTicketController extends Controller
             ->whereNotIn('ReportState', [TicketState::Closed, TicketState::Resolved])
             ->first();
         if ($existingTicket) {
+            // TODO stop using Inertia::location() after ticket.show is migrated to React
             return Inertia::location(route('ticket.show', ['ticket' => $existingTicket->id]));
         }
 
@@ -59,6 +60,7 @@ class TriggerTicketController extends Controller
         // If for some reason there are no hashes or emulators associated with a
         // game, then it isn't possible to create tickets for its triggerables.
         if (!count($props->gameHashes) || !count($props->emulators)) {
+            // TODO stop using Inertia::location() after achievement.show is migrated to React
             return Inertia::location(route('achievement.show', $achievement->id));
         }
 
