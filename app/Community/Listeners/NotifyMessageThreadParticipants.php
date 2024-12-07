@@ -12,11 +12,9 @@ use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
-use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class NotifyMessageThreadParticipants
 {
@@ -171,40 +169,18 @@ class NotifyMessageThreadParticipants
             ],
         ];
 
-        if ($mentionRoles->isNotEmpty()) {
-            $payload['content'] = $mentionRoles->implode(' ');
-        }
+        // TODO to re-enable role mentions, uncomment the conditional below
+        // this is temporarily disabled due to a regression in Discord's webhooks functionality.
+        // when role pings are enabled, webhook messages are randomly deleted.
+        // if ($mentionRoles->isNotEmpty()) {
+        //     $payload['content'] = $mentionRoles->implode(' ');
+        // }
 
         if ($isForum) {
             // Forum channels require an additional 'thread_name' JSON parameter to be successfully posted.
             $payload['thread_name'] = mb_substr($messageThread->title, 0, 100);
         }
 
-        try {
-            if ($isForum) {
-                Log::info("[{$messageThread->title}] Discord forward: Initiating request", [
-                    'payload' => $payload,
-                ]);
-            }
-
-            $client = new Client();
-            $response = $client->post($webhookUrl, ['json' => $payload]);
-
-            if ($isForum) {
-                Log::info("[{$messageThread->title}] Discord forward: Request successful", [
-                    'payload' => $payload,
-                    'response' => [
-                        'status' => $response->getStatusCode(),
-                        'body' => (string) $response->getBody(),
-                    ],
-                ]);
-            }
-        } catch (Exception $e) {
-            Log::error("[{$messageThread->title}] Discord forward: Unexpected error", [
-                'payload' => $payload,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
+        (new Client())->post($webhookUrl, ['json' => $payload]);
     }
 }
