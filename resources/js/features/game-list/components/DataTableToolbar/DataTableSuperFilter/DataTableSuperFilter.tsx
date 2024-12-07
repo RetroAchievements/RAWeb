@@ -151,6 +151,7 @@ export function DataTableSuperFilter<TData>({
                 apiRouteName={randomGameApiRouteName}
                 apiRouteParams={randomGameApiRouteParams}
                 columnFilters={currentFilters}
+                disabled={table.getRowCount() === 0}
               />
 
               <BaseDrawerClose asChild>

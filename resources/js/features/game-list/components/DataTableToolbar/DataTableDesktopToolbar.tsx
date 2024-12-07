@@ -97,6 +97,7 @@ export function DataTableDesktopToolbar<TData>({
               apiRouteName={randomGameApiRouteName}
               apiRouteParams={tableApiRouteParams}
               columnFilters={currentFilters}
+              disabled={table.getRowCount() === 0}
             />
 
             <DataTableViewOptions table={table} />

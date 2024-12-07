@@ -12,6 +12,7 @@ import { useRandomGameId } from './useRandomGameId';
 
 interface RandomGameButtonProps {
   columnFilters: ColumnFiltersState;
+  disabled: boolean;
   variant: 'mobile-drawer' | 'toolbar';
 
   apiRouteName?: RouteName;
@@ -21,6 +22,7 @@ interface RandomGameButtonProps {
 export const RandomGameButton: FC<RandomGameButtonProps> = ({
   apiRouteParams,
   columnFilters,
+  disabled,
   variant,
   apiRouteName = 'api.game.random',
 }) => {
@@ -56,6 +58,7 @@ export const RandomGameButton: FC<RandomGameButtonProps> = ({
     <BaseButton
       onClick={handleClick}
       onMouseEnter={() => prefetchRandomGameId()}
+      disabled={disabled}
       size={variant === 'toolbar' ? 'sm' : undefined}
       className={variant === 'mobile-drawer' ? 'gap-1.5' : 'group gap-1'}
       variant={variant === 'mobile-drawer' ? 'secondary' : undefined}

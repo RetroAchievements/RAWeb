@@ -30,7 +30,12 @@ describe('Component: RandomGameButton', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <RandomGameButton columnFilters={[]} variant="toolbar" apiRouteName="api.game.random" />,
+      <RandomGameButton
+        columnFilters={[]}
+        variant="toolbar"
+        apiRouteName="api.game.random"
+        disabled={false}
+      />,
       { pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) } },
     );
 
@@ -43,7 +48,12 @@ describe('Component: RandomGameButton', () => {
     vi.spyOn(axios, 'get').mockResolvedValue({ data: { gameId: 12345 } });
 
     render(
-      <RandomGameButton columnFilters={[]} variant="toolbar" apiRouteName="api.game.random" />,
+      <RandomGameButton
+        columnFilters={[]}
+        variant="toolbar"
+        apiRouteName="api.game.random"
+        disabled={false}
+      />,
       {
         pageProps: {
           ziggy: createZiggyProps({ device: 'desktop' }),
@@ -69,6 +79,7 @@ describe('Component: RandomGameButton', () => {
         columnFilters={[]}
         variant="mobile-drawer"
         apiRouteName="api.game.random"
+        disabled={false}
       />,
       {
         pageProps: {
@@ -84,5 +95,25 @@ describe('Component: RandomGameButton', () => {
     await waitFor(() => {
       expect(mockLocationAssign).toHaveBeenCalledWith(['game.show', 12345]);
     });
+  });
+
+  it('given the disabled prop is truthy, disables the button', () => {
+    // ARRANGE
+    render(
+      <RandomGameButton
+        columnFilters={[]}
+        variant="toolbar"
+        apiRouteName="api.game.random"
+        disabled={true}
+      />,
+      {
+        pageProps: {
+          ziggy: createZiggyProps({ device: 'desktop' }),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /surprise me/i })).toBeDisabled();
   });
 });

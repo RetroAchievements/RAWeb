@@ -26,6 +26,7 @@ describe('Component: DataTableMobileToolbar', () => {
       }),
       getColumn: vi.fn(),
       getAllColumns: () => [],
+      getRowCount: () => 0,
     };
 
     const { container } = render(
@@ -53,6 +54,7 @@ describe('Component: DataTableMobileToolbar', () => {
       }),
       getColumn: vi.fn(),
       getAllColumns: () => [],
+      getRowCount: () => 0,
     };
 
     vi.mocked(useGameListInfiniteQuery).mockReturnValue({
@@ -85,6 +87,7 @@ describe('Component: DataTableMobileToolbar', () => {
       }),
       getColumn: vi.fn(),
       getAllColumns: () => [],
+      getRowCount: () => 0,
     };
 
     vi.mocked(useGameListInfiniteQuery).mockReturnValue({

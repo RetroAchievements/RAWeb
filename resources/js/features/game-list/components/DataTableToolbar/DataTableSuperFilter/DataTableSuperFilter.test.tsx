@@ -45,6 +45,7 @@ const TestHarness: FC<TestHarnessProps> = ({
       buildAchievementsPublishedColumnDef({ t_label: i18n.t('Achievements') }),
     ],
     data: [],
+    rowCount: 0,
     getCoreRowModel: getCoreRowModel(),
     state: {
       columnFilters,
