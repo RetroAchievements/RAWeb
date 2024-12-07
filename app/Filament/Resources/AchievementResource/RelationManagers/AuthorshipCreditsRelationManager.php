@@ -7,12 +7,14 @@ namespace App\Filament\Resources\AchievementResource\RelationManagers;
 use App\Filament\Resources\AchievementAuthorshipCreditFormSchema;
 use App\Models\Achievement;
 use App\Models\AchievementAuthor;
+use App\Models\User;
 use App\Platform\Enums\AchievementAuthorTask;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class AuthorshipCreditsRelationManager extends RelationManager
 {
@@ -28,6 +30,17 @@ class AuthorshipCreditsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
+        /** @var User $user */
+        $user = Auth::user();
+
+        // Create a dummy model for generic permission checks.
+        $dummyModel = new AchievementAuthor();
+        $dummyModel->achievement_id = $this->ownerRecord->id;
+
+        $canCreate = $user->can('create', $dummyModel);
+        $canDelete = $user->can('delete', $dummyModel);
+        $canUpdate = $user->can('update', $dummyModel);
+
         $earliestLogicCredit = AchievementAuthor::where('achievement_id', $this->ownerRecord->id)
             ->where('task', AchievementAuthorTask::Logic->value)
             ->orderBy('created_at', 'asc')
@@ -134,19 +147,22 @@ class AuthorshipCreditsRelationManager extends RelationManager
                             'task' => $task,
                             'created_at' => $data['created_at'] ?? now(),
                         ]);
-                    }),
+                    })
+                    ->visible(fn () => $canCreate),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->modalHeading('Edit contribution credit'),
+                    ->modalHeading('Edit contribution credit')
+                    ->visible(fn () => $canUpdate),
 
                 Tables\Actions\DeleteAction::make()
                     ->modalHeading('Delete contribution credit')
-                    ->hidden(fn (AchievementAuthor $record) => $earliestLogicCredit && $earliestLogicCredit->id === $record->id),
+                    ->hidden(fn (AchievementAuthor $record) => !$canDelete || ($earliestLogicCredit && $earliestLogicCredit->id === $record->id)),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(fn () => $canDelete),
                 ]),
             ]);
     }
