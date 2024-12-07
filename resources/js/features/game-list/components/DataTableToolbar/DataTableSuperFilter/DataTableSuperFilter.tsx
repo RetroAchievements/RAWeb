@@ -24,6 +24,7 @@ import {
   BaseSelectValue,
 } from '@/common/components/+vendor/BaseSelect';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { doesColumnExist } from '@/features/game-list/utils/doesColumnExist';
 
 import { useSortConfigs } from '../../../hooks/useSortConfigs';
 import type { SortConfigKind } from '../../../models';
@@ -37,10 +38,12 @@ interface DataTableSuperFilterProps<TData> {
   table: Table<TData>;
 
   randomGameApiRouteName?: RouteName;
+  randomGameApiRouteParams?: Record<string, unknown>;
 }
 
 export function DataTableSuperFilter<TData>({
   table,
+  randomGameApiRouteParams,
   randomGameApiRouteName = 'api.game.random',
 }: DataTableSuperFilterProps<TData>) {
   const { auth, filterableSystemOptions } = usePageProps<{
@@ -55,7 +58,9 @@ export function DataTableSuperFilter<TData>({
 
   const { sortConfigs } = useSortConfigs();
 
-  const sortableColumns = table.getAllColumns().filter((c) => c.getCanSort());
+  const allColumns = table.getAllColumns();
+
+  const sortableColumns = allColumns.filter((c) => c.getCanSort());
   const sortingState = table.getState().sorting;
 
   const currentSort = sortingState.length
@@ -94,11 +99,13 @@ export function DataTableSuperFilter<TData>({
           <div className="flex flex-col gap-4 p-4">
             <DataTableAchievementsPublishedFilter table={table} variant="drawer" />
 
-            <DataTableSystemFilter
-              filterableSystemOptions={filterableSystemOptions}
-              table={table}
-              variant="drawer"
-            />
+            {doesColumnExist(allColumns, 'system') ? (
+              <DataTableSystemFilter
+                filterableSystemOptions={filterableSystemOptions}
+                table={table}
+                variant="drawer"
+              />
+            ) : null}
 
             {auth?.user ? <MobileProgressFilterSelect table={table} /> : null}
 
@@ -142,6 +149,7 @@ export function DataTableSuperFilter<TData>({
               <RandomGameButton
                 variant="mobile-drawer"
                 apiRouteName={randomGameApiRouteName}
+                apiRouteParams={randomGameApiRouteParams}
                 columnFilters={currentFilters}
               />
 

@@ -412,6 +412,12 @@ declare namespace App.Platform.Data {
     nameShort?: string;
     iconUrl?: string;
   };
+  export type SystemGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
+    system: App.Platform.Data.System;
+    paginatedGameListEntries: App.Data.PaginatedData<TItems>;
+    can: App.Data.UserPermissions;
+    defaultDesktopPageSize: number;
+  };
 }
 declare namespace App.Platform.Enums {
   export type UnlockMode = 0 | 1;

@@ -13,7 +13,7 @@ import {
   createZiggyProps,
 } from '@/test/factories';
 
-import { AllGamesMainRoot } from './AllGamesMainRoot';
+import { SystemGamesMainRoot } from './SystemGamesMainRoot';
 
 vi.mock('../DataTableToolbar/RandomGameButton');
 
@@ -22,17 +22,21 @@ console.error = vi.fn();
 
 window.plausible = vi.fn();
 
-describe('Component: AllGamesMainRoot', () => {
+describe('Component: SystemGamesMainRoot', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
-      pageProps: {
-        filterableSystemOptions: [],
-        paginatedGameListEntries: createPaginatedData([]),
-        can: { develop: false },
-        ziggy: createZiggyProps({ device: 'desktop' }),
+    const { container } = render<App.Platform.Data.SystemGameListPageProps>(
+      <SystemGamesMainRoot />,
+      {
+        pageProps: {
+          system: createSystem(),
+          defaultDesktopPageSize: 100,
+          paginatedGameListEntries: createPaginatedData([]),
+          can: { develop: false },
+          ziggy: createZiggyProps({ device: 'desktop' }),
+        },
       },
-    });
+    );
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -40,10 +44,10 @@ describe('Component: AllGamesMainRoot', () => {
 
   it('displays default columns', async () => {
     // ARRANGE
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [],
+        system: createSystem(),
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -52,11 +56,13 @@ describe('Component: AllGamesMainRoot', () => {
 
     // ASSERT
     expect(await screen.findByRole('columnheader', { name: /title/i }));
-    expect(screen.getByRole('columnheader', { name: /system/i }));
     expect(screen.getByRole('columnheader', { name: /achievements/i }));
     expect(screen.getByRole('columnheader', { name: /points/i }));
     expect(screen.getByRole('columnheader', { name: /rarity/i }));
     expect(screen.getByRole('columnheader', { name: /release date/i }));
+    expect(screen.getByRole('columnheader', { name: /players/i }));
+
+    expect(screen.queryByRole('columnheader', { name: /system/i })).not.toBeInTheDocument();
   });
 
   it('shows game rows', () => {
@@ -72,14 +78,15 @@ describe('Component: AllGamesMainRoot', () => {
       achievementsPublished: 42,
       pointsTotal: 500,
       pointsWeighted: 1000,
+      playersTotal: 10000,
       releasedAt: '2006-08-24T00:56:00+00:00',
       releasedAtGranularity: 'day',
     });
 
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [],
+        system: mockSystem,
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([
           createGameListEntry({ game: mockGame, playerGame: null }),
         ]),
@@ -90,11 +97,11 @@ describe('Component: AllGamesMainRoot', () => {
 
     // ASSERT
     expect(screen.getByRole('cell', { name: /sonic/i })).toBeVisible();
-    expect(screen.getByRole('cell', { name: /md/i })).toBeVisible();
     expect(screen.getByRole('cell', { name: '42' })).toBeVisible();
     expect(screen.getByRole('cell', { name: '500 (1,000)' })).toBeVisible();
     expect(screen.getByRole('cell', { name: '×2.00' })).toBeVisible();
     expect(screen.getByRole('cell', { name: 'Aug 24, 2006' })).toBeVisible();
+    expect(screen.getByRole('cell', { name: '10,000' })).toBeVisible();
   });
 
   it('allows users to add games to their backlog', async () => {
@@ -116,12 +123,13 @@ describe('Component: AllGamesMainRoot', () => {
       releasedAtGranularity: 'day',
     });
 
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [],
+        system: mockSystem,
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([
-          createGameListEntry({ game: mockGame, isInBacklog: false }),
+          createGameListEntry({ game: mockGame, isInBacklog: false, playerGame: null }),
         ]),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -156,10 +164,11 @@ describe('Component: AllGamesMainRoot', () => {
       releasedAtGranularity: 'day',
     });
 
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [],
+        system: mockSystem,
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([
           createGameListEntry({ game: mockGame, isInBacklog: true }),
         ]),
@@ -199,10 +208,11 @@ describe('Component: AllGamesMainRoot', () => {
       releasedAtGranularity: 'day',
     });
 
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [],
+        system: mockSystem,
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([
           createGameListEntry({ game: mockGame, isInBacklog: true }),
         ]),
@@ -229,10 +239,11 @@ describe('Component: AllGamesMainRoot', () => {
 
   it('allows users to toggle column visibility', async () => {
     // ARRANGE
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [],
+        system: createSystem(),
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -249,12 +260,13 @@ describe('Component: AllGamesMainRoot', () => {
 
   it('given the user cannot develop achievements, they cannot enable an Open Tickets column', async () => {
     // ARRANGE
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [],
+        system: createSystem(),
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([]),
-        can: { develop: false }, // !!
+        can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
@@ -270,10 +282,11 @@ describe('Component: AllGamesMainRoot', () => {
 
   it('given the user can develop achievements, they can enable an Open Tickets column', async () => {
     // ARRANGE
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [],
+        system: createSystem(),
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: true }, // !!
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -307,10 +320,11 @@ describe('Component: AllGamesMainRoot', () => {
       numUnresolvedTickets: 2,
     });
 
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [],
+        system: mockSystem,
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([createGameListEntry({ game: mockGame })]),
         can: { develop: true },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -329,10 +343,13 @@ describe('Component: AllGamesMainRoot', () => {
     // ARRANGE
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    const mockSystem = createSystem();
+
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [],
+        system: mockSystem,
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -345,13 +362,15 @@ describe('Component: AllGamesMainRoot', () => {
     // ASSERT
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
-        'api.game.index',
+        'api.system.game.index',
         {
+          'filter[system]': `${mockSystem.id}`,
           'filter[achievementsPublished]': 'has',
           'filter[title]': 'dragon quest',
           'page[number]': 1,
           'page[size]': 25,
           sort: 'title',
+          systemId: mockSystem.id,
         },
       ]);
     });
@@ -359,10 +378,11 @@ describe('Component: AllGamesMainRoot', () => {
 
   it('by default, has the achievements published filter set to "Yes"', () => {
     // ARRANGE
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [],
+        system: createSystem(),
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -373,43 +393,21 @@ describe('Component: AllGamesMainRoot', () => {
     expect(screen.getByRole('button', { name: /yes/i })).toBeVisible();
   });
 
-  it('allows the user to filter by system/console', async () => {
+  it('does not display a system/console filter', () => {
     // ARRANGE
-    window.HTMLElement.prototype.scrollIntoView = vi.fn();
-    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
-
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [
-          createSystem({ id: 1, name: 'Genesis/Mega Drive', nameShort: 'MD' }),
-        ],
+        system: createSystem(),
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
-    // ACT
-    await userEvent.click(screen.getByTestId('filter-system'));
-    await userEvent.click(screen.getByRole('option', { name: /genesis/i }));
-
     // ASSERT
-    const systemFilterButtonEl = screen.getByTestId('filter-system');
-    expect(systemFilterButtonEl).toHaveTextContent(/md/i);
-
-    await waitFor(() => {
-      expect(getSpy).toHaveBeenCalledWith([
-        'api.game.index',
-        {
-          'filter[achievementsPublished]': 'has',
-          'filter[system]': '1',
-          'page[number]': 1,
-          'page[size]': 25,
-          sort: 'title',
-        },
-      ]);
-    });
+    expect(screen.queryByTestId('filter-system')).not.toBeInTheDocument();
   });
 
   it('given a non-default filter is set, allows the user to click a button to reset their filters', async () => {
@@ -419,12 +417,11 @@ describe('Component: AllGamesMainRoot', () => {
       .mockResolvedValueOnce({ data: createPaginatedData([]) })
       .mockResolvedValueOnce({ data: createPaginatedData([]) }); // the GET will be called twice
 
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [
-          createSystem({ id: 1, name: 'Genesis/Mega Drive', nameShort: 'MD' }),
-        ],
+        system: createSystem(),
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -432,8 +429,8 @@ describe('Component: AllGamesMainRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByTestId('filter-system'));
-    await userEvent.click(screen.getByRole('option', { name: /genesis/i }));
+    await userEvent.click(screen.getByTestId('filter-achievementsPublished'));
+    await userEvent.click(screen.getByRole('option', { name: /no/i }));
 
     await userEvent.click(screen.getByRole('button', { name: /reset/i }));
 
@@ -441,8 +438,8 @@ describe('Component: AllGamesMainRoot', () => {
     const defaultFilterButtonEl = screen.getByTestId('filter-achievementsPublished');
     expect(defaultFilterButtonEl).toHaveTextContent(/yes/i);
 
-    const systemFilterButtonEl = screen.getByTestId('filter-system');
-    expect(systemFilterButtonEl).not.toHaveTextContent(/md/i);
+    const systemFilterButtonEl = screen.getByTestId('filter-achievementsPublished');
+    expect(systemFilterButtonEl).not.toHaveTextContent(/no/i);
   });
 
   it('given a filter is currently applied, shows both the filtered and unfiltered game totals', async () => {
@@ -452,36 +449,11 @@ describe('Component: AllGamesMainRoot', () => {
       data: createPaginatedData([], { total: 3, unfilteredTotal: 587 }),
     });
 
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
-        paginatedGameListEntries: createPaginatedData([]),
-        can: { develop: false },
-        ziggy: createZiggyProps({ device: 'desktop' }),
-      },
-    });
-
-    // ACT
-    await userEvent.click(screen.getByTestId('filter-system'));
-    await userEvent.click(screen.getByRole('option', { name: /genesis/i }));
-
-    // ASSERT
-    await waitFor(() => {
-      expect(screen.getByText(/3 of 587 games/i)).toBeVisible();
-    });
-  });
-
-  it('allows the user to change the "has achievements" filter, with only a single option being set', async () => {
-    // ARRANGE
-    window.HTMLElement.prototype.scrollIntoView = vi.fn();
-
-    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
-
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        system: createSystem(),
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -494,15 +466,7 @@ describe('Component: AllGamesMainRoot', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(getSpy).toHaveBeenCalledWith([
-        'api.game.index',
-        {
-          'filter[achievementsPublished]': 'none',
-          'page[number]': 1,
-          'page[size]': 25,
-          sort: 'title',
-        },
-      ]);
+      expect(screen.getByText(/3 of 587 games/i)).toBeVisible();
     });
   });
 
@@ -511,10 +475,13 @@ describe('Component: AllGamesMainRoot', () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    const mockSystem = createSystem();
+
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        system: mockSystem,
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -522,18 +489,20 @@ describe('Component: AllGamesMainRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByTestId('column-header-System'));
+    await userEvent.click(screen.getByTestId('column-header-Title'));
     await userEvent.click(screen.getByRole('menuitem', { name: /desc/i }));
 
     // ASSERT
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
-        'api.game.index',
+        'api.system.game.index',
         {
+          systemId: mockSystem.id,
+          'filter[system]': `${mockSystem.id}`,
           'filter[achievementsPublished]': 'has',
           'page[number]': 1,
           'page[size]': 25,
-          sort: '-system',
+          sort: '-title',
         },
       ]);
     });
@@ -544,10 +513,13 @@ describe('Component: AllGamesMainRoot', () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    const mockSystem = createSystem();
+
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        system: mockSystem,
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -561,8 +533,10 @@ describe('Component: AllGamesMainRoot', () => {
     // ASSERT
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
-        'api.game.index',
+        'api.system.game.index',
         {
+          systemId: mockSystem.id,
+          'filter[system]': `${mockSystem.id}`,
           'filter[achievementsPublished]': 'has',
           'page[number]': 1,
           'page[size]': 25,
@@ -577,10 +551,13 @@ describe('Component: AllGamesMainRoot', () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    const mockSystem = createSystem();
+
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        system: mockSystem,
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -594,8 +571,10 @@ describe('Component: AllGamesMainRoot', () => {
     // ASSERT
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
-        'api.game.index',
+        'api.system.game.index',
         {
+          systemId: mockSystem.id,
+          'filter[system]': `${mockSystem.id}`,
           'filter[achievementsPublished]': 'has',
           'page[number]': 1,
           'page[size]': 25,
@@ -610,13 +589,16 @@ describe('Component: AllGamesMainRoot', () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    const mockSystem = createSystem();
+
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        system: mockSystem,
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        ziggy: createZiggyProps(),
+        ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
@@ -630,8 +612,10 @@ describe('Component: AllGamesMainRoot', () => {
     // ASSERT
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
-        'api.game.index',
+        'api.system.game.index',
         {
+          systemId: mockSystem.id,
+          'filter[system]': `${mockSystem.id}`,
           'filter[achievementsPublished]': 'has',
           'page[number]': 1,
           'page[size]': 25,
@@ -643,10 +627,13 @@ describe('Component: AllGamesMainRoot', () => {
 
   it('allows the user to hide a column via the column header button', async () => {
     // ARRANGE
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    const mockSystem = createSystem();
+
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        system: mockSystem,
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -663,10 +650,13 @@ describe('Component: AllGamesMainRoot', () => {
 
   it('always displays the number of total games', () => {
     // ARRANGE
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    const mockSystem = createSystem();
+
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        system: mockSystem,
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([], { total: 300 }),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -683,14 +673,16 @@ describe('Component: AllGamesMainRoot', () => {
     window.scrollTo = vi.fn();
     const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: createPaginatedData([]) });
 
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    const mockSystem = createSystem();
+
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        system: mockSystem,
         paginatedGameListEntries: createPaginatedData([createGameListEntry()], {
           total: 300,
           currentPage: 1,
-          perPage: 50,
+          perPage: 100,
         }),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
@@ -703,11 +695,13 @@ describe('Component: AllGamesMainRoot', () => {
     // ASSERT
     await waitFor(() => {
       expect(getSpy).toHaveBeenCalledWith([
-        'api.game.index',
+        'api.system.game.index',
         {
+          systemId: mockSystem.id,
+          'filter[system]': `${mockSystem.id}`,
           'filter[achievementsPublished]': 'has',
           'page[number]': 2,
-          'page[size]': 50,
+          'page[size]': 100,
           sort: 'title',
         },
       ]);
@@ -716,11 +710,14 @@ describe('Component: AllGamesMainRoot', () => {
 
   it("given the user presses the '/' hotkey, focuses the search input", async () => {
     // ARRANGE
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    const mockSystem = createSystem();
+
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
-        paginatedGameListEntries: createPaginatedData([]),
+        system: mockSystem,
+        defaultDesktopPageSize: 100,
+        paginatedGameListEntries: createPaginatedData([], { total: 300 }),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
       },
@@ -737,10 +734,12 @@ describe('Component: AllGamesMainRoot', () => {
     // ARRANGE
     mockAllIsIntersecting(false);
 
+    const mockSystem = createSystem();
+
     const mockGame = createGame({
       id: 1,
       title: 'Sonic the Hedgehog',
-      system: createSystem({ id: 1 }),
+      system: mockSystem,
       achievementsPublished: 42,
       pointsTotal: 500,
       pointsWeighted: 1000,
@@ -749,10 +748,11 @@ describe('Component: AllGamesMainRoot', () => {
       numUnresolvedTickets: 2,
     });
 
-    render<App.Platform.Data.GameListPageProps>(<AllGamesMainRoot />, {
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        system: mockSystem,
+        defaultDesktopPageSize: 100,
         paginatedGameListEntries: createPaginatedData([createGameListEntry({ game: mockGame })]),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'mobile' }),
