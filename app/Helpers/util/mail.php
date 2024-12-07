@@ -285,7 +285,9 @@ function informAllSubscribersAboutActivity(
     foreach ($subscribers as $subscriber) {
         $isThirdParty = ($subscriber['User'] != $activityAuthor && ($subjectAuthor === null || $subscriber['User'] != $subjectAuthor));
 
-        sendActivityEmail($subscriber['User'], $subscriber['EmailAddress'], $articleID, $activityAuthor, $articleType, $articleTitle, $urlTarget, $isThirdParty, $payload);
+        if (isset($subscriber['EmailAddress'])) {
+            sendActivityEmail($subscriber['User'], $subscriber['EmailAddress'], $articleID, $activityAuthor, $articleType, $articleTitle, $urlTarget, $isThirdParty, $payload);
+        }
     }
 }
 
