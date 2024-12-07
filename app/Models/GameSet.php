@@ -26,7 +26,31 @@ class GameSet extends BaseModel
         'user_id',
     ];
 
+    // == constants
+
+    public const CentralHubId = 6591;
+
     // == accessors
+
+    public function getBadgeUrlAttribute(): string
+    {
+        return media_asset($this->image_asset_path);
+    }
+
+    public function getChildrenCountAttribute(): int
+    {
+        return $this->children()->count();
+    }
+
+    public function getGameCountAttribute(): int
+    {
+        return $this->games()->count();
+    }
+
+    public function getParentCountAttribute(): int
+    {
+        return $this->parents()->count();
+    }
 
     // == mutators
 
@@ -53,7 +77,17 @@ class GameSet extends BaseModel
     /**
      * @return BelongsToMany<GameSet>
      */
-    public function links(): BelongsToMany
+    public function parents(): BelongsToMany
+    {
+        return $this->belongsToMany(GameSet::class, 'game_set_links', 'child_game_set_id', 'parent_game_set_id')
+            ->withTimestamps()
+            ->withPivot('created_at', 'updated_at');
+    }
+
+    /**
+     * @return BelongsToMany<GameSet>
+     */
+    public function children(): BelongsToMany
     {
         return $this->belongsToMany(GameSet::class, 'game_set_links', 'parent_game_set_id', 'child_game_set_id')
             ->withTimestamps()
