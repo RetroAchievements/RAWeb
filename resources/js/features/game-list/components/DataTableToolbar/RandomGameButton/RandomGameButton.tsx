@@ -15,9 +15,11 @@ interface RandomGameButtonProps {
   variant: 'mobile-drawer' | 'toolbar';
 
   apiRouteName?: RouteName;
+  apiRouteParams?: Record<string, unknown>;
 }
 
 export const RandomGameButton: FC<RandomGameButtonProps> = ({
+  apiRouteParams,
   columnFilters,
   variant,
   apiRouteName = 'api.game.random',
@@ -30,6 +32,7 @@ export const RandomGameButton: FC<RandomGameButtonProps> = ({
 
   const { getRandomGameId, prefetchRandomGameId } = useRandomGameId({
     apiRouteName,
+    apiRouteParams,
     columnFilters,
   });
 

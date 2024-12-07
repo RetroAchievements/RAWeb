@@ -10,9 +10,15 @@ import { buildGameListQueryFilterParams } from '@/features/game-list/utils/build
 interface UseRandomGameIdProps {
   apiRouteName: RouteName;
   columnFilters: ColumnFiltersState;
+
+  apiRouteParams?: Record<string, unknown>;
 }
 
-export function useRandomGameId({ apiRouteName, columnFilters }: UseRandomGameIdProps) {
+export function useRandomGameId({
+  apiRouteName,
+  apiRouteParams,
+  columnFilters,
+}: UseRandomGameIdProps) {
   const {
     ziggy: { device },
   } = usePageProps();
@@ -24,7 +30,10 @@ export function useRandomGameId({ apiRouteName, columnFilters }: UseRandomGameId
   const mutation = useMutation({
     mutationFn: async () => {
       const response = await axios.get<{ gameId: number }>(
-        route(apiRouteName, buildGameListQueryFilterParams(columnFilters)),
+        route(apiRouteName, {
+          ...buildGameListQueryFilterParams(columnFilters),
+          ...apiRouteParams,
+        }),
       );
 
       return response.data;
