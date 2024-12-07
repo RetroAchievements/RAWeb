@@ -147,7 +147,7 @@ class GamePolicy
         ]);
     }
 
-    public function addContributionCredit(User $user, Game $game): bool
+    public function manageContributionCredit(User $user, Game $game): bool
     {
         return $user->hasAnyRole([
             Role::DEVELOPER_STAFF,

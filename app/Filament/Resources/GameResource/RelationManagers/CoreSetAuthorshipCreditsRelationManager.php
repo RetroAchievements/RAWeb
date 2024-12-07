@@ -70,6 +70,8 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
         /** @var User $user */
         $user = Auth::user();
 
+        $canManageContributionCredit = $user->can('manageContributionCredit', $this->ownerRecord);
+
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.display_name')
@@ -127,18 +129,21 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
                             date: Carbon::parse($data['created_at']),
                         );
                     })
-                    ->visible(fn () => $user->can('addContributionCredit', $this->ownerRecord)),
+                    ->visible(fn () => $canManageContributionCredit),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->modalHeading('Edit contribution credit'),
+                    ->modalHeading('Edit contribution credit')
+                    ->visible(fn () => $canManageContributionCredit),
 
                 Tables\Actions\DeleteAction::make()
-                    ->modalHeading('Delete contribution credit'),
+                    ->modalHeading('Delete contribution credit')
+                    ->visible(fn () => $canManageContributionCredit),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(fn () => $canManageContributionCredit),
                 ]),
             ])
             ->emptyStateHeading('No contribution credits')
