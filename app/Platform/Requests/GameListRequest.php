@@ -72,9 +72,10 @@ class GameListRequest extends FormRequest
     }
 
     /**
+     * @param int|null $targetSystemId used when changing the system is not available, ie: system game lists
      * @return array<string, array<string>>
      */
-    public function getFilters(): array
+    public function getFilters(?int $targetSystemId = null): array
     {
         $filters = [];
         foreach ($this->query('filter', []) as $key => $value) {
@@ -83,6 +84,10 @@ class GameListRequest extends FormRequest
 
         if (!isset($filters['achievementsPublished'])) {
             $filters['achievementsPublished'] = ['has'];
+        }
+
+        if (!is_null($targetSystemId)) {
+            $filters['system'] = [$targetSystemId];
         }
 
         return $filters;

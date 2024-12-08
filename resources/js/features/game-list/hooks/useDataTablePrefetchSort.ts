@@ -12,7 +12,11 @@ import { buildGameListQuerySortParam } from '../utils/buildGameListQuerySortPara
  * wind up clicking the option. Queries are cheap, so prefetch the destination.
  */
 
-export function useDataTablePrefetchSort<TData>(table: Table<TData>, tableApiRouteName: RouteName) {
+export function useDataTablePrefetchSort<TData>(
+  table: Table<TData>,
+  tableApiRouteName: RouteName,
+  tableApiRouteParams?: Record<string, unknown>,
+) {
   const { columnFilters, pagination } = table.getState();
 
   const queryClient = useQueryClient();
@@ -35,6 +39,7 @@ export function useDataTablePrefetchSort<TData>(table: Table<TData>, tableApiRou
       queryFn: async () => {
         const response = await axios.get<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>(
           route(tableApiRouteName, {
+            ...tableApiRouteParams,
             sort: buildGameListQuerySortParam([{ id: columnId, desc: direction === 'desc' }]),
             ...buildGameListQueryPaginationParams({ ...pagination, pageIndex: 0 }),
             ...buildGameListQueryFilterParams(columnFilters),

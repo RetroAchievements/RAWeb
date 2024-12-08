@@ -28,37 +28,37 @@ export function useColumnDefinitions(options: {
   const columnDefinitions = useMemo(() => {
     const columns: ColumnDef<App.Platform.Data.GameListEntry>[] = [
       buildTitleColumnDef({
+        tableApiRouteName,
         t_label: t('Title'),
         forUsername: options.forUsername,
-        tableApiRouteName,
       }),
-      buildSystemColumnDef({ t_label: t('System'), tableApiRouteName }),
-      buildAchievementsPublishedColumnDef({ t_label: t('Achievements'), tableApiRouteName }),
-      buildPointsTotalColumnDef({ t_label: t('Points'), tableApiRouteName }),
+      buildSystemColumnDef({ tableApiRouteName, t_label: t('System') }),
+      buildAchievementsPublishedColumnDef({ tableApiRouteName, t_label: t('Achievements') }),
+      buildPointsTotalColumnDef({ tableApiRouteName, t_label: t('Points') }),
       buildRetroRatioColumnDef({
+        tableApiRouteName,
         t_label: t('Rarity'),
         strings: { t_none: t('none') },
-        tableApiRouteName,
       }),
-      buildLastUpdatedColumnDef({ t_label: t('Last Updated'), tableApiRouteName }),
+      buildLastUpdatedColumnDef({ tableApiRouteName, t_label: t('Last Updated') }),
       buildReleasedAtColumnDef({
+        tableApiRouteName,
         t_label: t('Release Date'),
         strings: { t_unknown: t('unknown') },
-        tableApiRouteName,
       }),
-      buildPlayersTotalColumnDef({ t_label: t('Players'), tableApiRouteName }),
-      buildNumVisibleLeaderboardsColumnDef({ t_label: t('Leaderboards'), tableApiRouteName }),
+      buildPlayersTotalColumnDef({ tableApiRouteName, t_label: t('Players') }),
+      buildNumVisibleLeaderboardsColumnDef({ tableApiRouteName, t_label: t('Leaderboards') }),
     ];
 
     if (options.canSeeOpenTicketsColumn) {
       columns.push(
-        buildNumUnresolvedTicketsColumnDef({ t_label: t('Tickets'), tableApiRouteName }),
+        buildNumUnresolvedTicketsColumnDef({ tableApiRouteName, t_label: t('Tickets') }),
       );
     }
 
     columns.push(
       ...([
-        buildPlayerGameProgressColumnDef({ t_label: t('Progress'), tableApiRouteName }),
+        buildPlayerGameProgressColumnDef({ tableApiRouteName, t_label: t('Progress') }),
         buildHasActiveOrInReviewClaimsColumnDef({
           tableApiRouteName,
           t_label: t('Claimed'),

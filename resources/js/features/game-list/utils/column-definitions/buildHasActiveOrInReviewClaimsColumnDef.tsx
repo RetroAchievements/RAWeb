@@ -19,11 +19,13 @@ interface BuildHasActiveOrInReviewClaimsColumnDefProps {
   };
 
   tableApiRouteName?: RouteName;
+  tableApiRouteParams?: Record<string, unknown>;
 }
 
 export function buildHasActiveOrInReviewClaimsColumnDef({
-  t_label,
   strings,
+  t_label,
+  tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
 }: BuildHasActiveOrInReviewClaimsColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
@@ -32,7 +34,12 @@ export function buildHasActiveOrInReviewClaimsColumnDef({
     meta: { t_label, sortType: 'boolean', Icon: gameListFieldIconMap.hasActiveOrInReviewClaims },
 
     header: ({ column, table }) => (
-      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
+      <DataTableColumnHeader
+        column={column}
+        table={table}
+        tableApiRouteName={tableApiRouteName}
+        tableApiRouteParams={tableApiRouteParams}
+      />
     ),
 
     cell: ({ row }) => {

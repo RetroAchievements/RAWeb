@@ -29,8 +29,11 @@ trait BuildsGameListQueries
     /**
      * @return Builder<Game>
      */
-    private function buildBaseQuery(GameListType $listType, ?User $user = null): Builder
-    {
+    private function buildBaseQuery(
+        GameListType $listType,
+        ?User $user = null,
+        ?int $targetSystemId = null,
+    ): Builder {
         $query = Game::with(['system'])
             ->withLastAchievementUpdate()
             ->addSelect(['GameData.*'])
@@ -79,9 +82,14 @@ trait BuildsGameListQueries
                 });
                 break;
 
+            case GameListType::System:
+                $query
+                    ->where('GameData.ConsoleID', $targetSystemId);
+                    // ->where('GameData.Title', 'not like', "%[Subset -%");
+                break;
+
             // TODO implement these other use cases
             case GameListType::UserDevelop:
-            case GameListType::System:
             case GameListType::Hub:
             case GameListType::DeveloperSets:
                 throw new InvalidArgumentException("List type not implemented");
