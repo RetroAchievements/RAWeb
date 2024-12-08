@@ -2,8 +2,9 @@ import type { ColumnFiltersState, PaginationState, SortingState } from '@tanstac
 import { useUpdateEffect } from 'react-use';
 
 interface UseAutoUpdatingQueryParamsProps {
-  pagination: PaginationState;
   columnFilters: ColumnFiltersState;
+  defaultFilters: ColumnFiltersState;
+  pagination: PaginationState;
   sorting: SortingState;
 
   defaultPageSize?: number;
@@ -16,6 +17,7 @@ export function useAutoUpdatingQueryParams({
   columnFilters,
   pagination,
   sorting,
+  defaultFilters = [],
   defaultPageSize = 25,
 }: UseAutoUpdatingQueryParamsProps) {
   useUpdateEffect(() => {
@@ -23,7 +25,7 @@ export function useAutoUpdatingQueryParams({
 
     // Update individual components of the query params.
     updatePagination(searchParams, pagination, defaultPageSize);
-    updateFilters(searchParams, columnFilters);
+    updateFilters(searchParams, columnFilters, defaultFilters);
     updateSorting(searchParams, sorting);
 
     // `searchParams.size` is not supported in all envs, especially Node.js (Vitest).
@@ -69,19 +71,20 @@ function updateSorting(searchParams: URLSearchParams, sorting: SortingState): vo
   }
 }
 
-function updateFilters(searchParams: URLSearchParams, columnFilters: ColumnFiltersState) {
+function updateFilters(
+  searchParams: URLSearchParams,
+  columnFilters: ColumnFiltersState,
+  defaultFilters: ColumnFiltersState = [],
+): void {
   const activeFilterIds = new Set(columnFilters.map((filter) => `filter[${filter.id}]`));
+  const defaultFilterMap = new Map(defaultFilters.map((filter) => [filter.id, filter.value]));
 
   for (const columnFilter of columnFilters) {
     const filterKey = `filter[${columnFilter.id}]`;
+    const defaultValue = defaultFilterMap.get(columnFilter.id);
 
-    // "filter[achievementsPublished]=has" is an implicitly-set default filter value.
-    // Treat it as the default value and be sure to remove the query param.
-    if (
-      columnFilter.id === 'achievementsPublished' &&
-      Array.isArray(columnFilter.value) &&
-      columnFilter.value[0] === 'has'
-    ) {
+    // Skip if the current filter value matches the default.
+    if (defaultValue !== undefined && areFilterValuesEqual(columnFilter.value, defaultValue)) {
       searchParams.delete(filterKey);
       continue;
     }
@@ -101,4 +104,16 @@ function updateFilters(searchParams: URLSearchParams, columnFilters: ColumnFilte
       searchParams.delete(paramKey);
     }
   }
+}
+
+function areFilterValuesEqual(a: unknown, b: unknown): boolean {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) {
+      return false;
+    }
+
+    return a.every((value, index) => value === b[index]);
+  }
+
+  return a === b;
 }

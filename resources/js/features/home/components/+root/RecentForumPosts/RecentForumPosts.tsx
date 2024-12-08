@@ -26,8 +26,11 @@ export const RecentForumPosts: FC = () => {
       {recentForumPosts?.length ? (
         <>
           <div className="flex flex-col gap-y-1">
-            {recentForumPosts.map((recentForumPost) => (
-              <RecentForumPostItem key={`post-${recentForumPost.id}`} post={recentForumPost} />
+            {recentForumPosts.map((recentForumPost, index) => (
+              <RecentForumPostItem
+                key={`post-${recentForumPost.id}-${index}`}
+                post={recentForumPost}
+              />
             ))}
           </div>
 

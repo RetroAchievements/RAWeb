@@ -21,6 +21,7 @@ new class extends Component implements HasForms {
 
     public ?string $title = null;
     public int $numberOfAchievements = 6;
+    public int $user_id = EventAchievement::RAEVENTS_USER_ID;
 
     public function submit(): void
     {
@@ -42,7 +43,7 @@ new class extends Component implements HasForms {
                 'MemAddr' => '0=1',
                 'Flags' => AchievementFlag::OfficialCore->value,
                 'GameID' => $event->id,
-                'user_id' => EventAchievement::RAEVENTS_USER_ID,
+                'user_id' => $this->user_id,
                 'BadgeName' => '00000',
                 'DisplayOrder' => $i + 1,
             ]);
@@ -78,6 +79,15 @@ new class extends Component implements HasForms {
                     ->label('Number of achievements')
                     ->numeric()
                     ->default(6)
+                    ->required(),
+
+                Forms\Components\Select::make('user_id')
+                    ->label('Username to use as author of new achievements')
+                    ->options([
+                        EventAchievement::RAEVENTS_USER_ID => "RAEvents",
+                        EventAchievement::DEVQUEST_USER_ID => "DevQuest",
+                    ])
+                    ->default(EventAchievement::RAEVENTS_USER_ID)
                     ->required(),
         ]);
     }

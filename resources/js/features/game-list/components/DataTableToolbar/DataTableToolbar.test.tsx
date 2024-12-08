@@ -116,10 +116,10 @@ describe('Component: DataTableToolbar', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByTestId('filter-selected-label')).toBeVisible();
+      expect(screen.getAllByTestId('filter-selected-label')[0]).toBeVisible();
     });
 
-    expect(screen.getByTestId('filter-selected-label')).toHaveTextContent('GC');
+    expect(screen.getAllByTestId('filter-selected-label')[0]).toHaveTextContent('GC');
   });
 
   it(
