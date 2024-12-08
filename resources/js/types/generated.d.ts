@@ -273,7 +273,7 @@ declare namespace App.Models {
     | 'engineer'
     | 'team-account'
     | 'beta'
-    | 'developer-veteran';
+    | 'developer-retired';
 }
 declare namespace App.Platform.Data {
   export type Achievement = {
