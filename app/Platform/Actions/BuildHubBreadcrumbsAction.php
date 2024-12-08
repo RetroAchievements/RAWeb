@@ -26,8 +26,8 @@ class BuildHubBreadcrumbsAction
     /**
      * Cache configuration for breadcrumb data.
      */
-    private const FRESH_SECONDS = 1; // 10 minutes
-    private const STALE_SECONDS = 2; // 20 minutes
+    private const FRESH_SECONDS = 600; // 10 minutes
+    private const STALE_SECONDS = 1200; // 20 minutes
 
     /**
      * Common prefix for central hub entries.
