@@ -93,7 +93,7 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
     }
 
     if ($alreadyAwarded) {
-        if ($isHardcore && $achievement->eventAchievements()->active()->exists()) {
+        if ($isHardcore && $user->isRanked() && $achievement->eventAchievements()->active()->exists()) {
             // if event achievements are active, assume they still need to be unlocked and indicate
             // success. this allows dorequest to forward the unlocks for the event achievements.
             $retVal['Success'] = true;

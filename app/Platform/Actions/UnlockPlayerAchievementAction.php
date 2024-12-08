@@ -35,7 +35,7 @@ class UnlockPlayerAchievementAction
         }
 
         // also unlock active event achievements associated to the achievement being unlocked
-        if ($hardcore) {
+        if ($hardcore && $user->isRanked()) {
             foreach ($achievement->eventAchievements()->active($timestamp)->get() as $eventAchievement) {
                 dispatch(new UnlockPlayerAchievementJob($user->id, $eventAchievement->achievement_id, true, $timestamp, $unlockedBy?->id, $gameHash?->id))
                     ->onQueue('player-achievements');
