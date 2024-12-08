@@ -10,13 +10,13 @@ const AchievementComments: AppPage<App.Community.Data.AchievementCommentsPagePro
 }) => {
   const { t } = useTranslation();
 
+  const metaDescription = `General discussion about the achievement ${achievement.title}`;
+
   return (
     <>
       <Head title={t('Comments - {{achievementTitle}}', { achievementTitle: achievement.title })}>
-        <meta
-          name="description"
-          content={`General discussion about the achievement ${achievement.title}`}
-        />
+        <meta name="description" content={metaDescription} />
+        <meta name="og:description" content={metaDescription} />
 
         <meta property="og:image" content={achievement.badgeUnlockedUrl} />
         <meta property="og:type" content="retroachievements:comment-list" />

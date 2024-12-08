@@ -11,15 +11,15 @@ const ReportIssue: AppPage = () => {
 
   const { t } = useTranslation();
 
+  const metaDescription = `Report an issue with the achievement: ${achievement.title}`;
+
   return (
     <>
       <Head
         title={t('Report Issue - {{achievementTitle}}', { achievementTitle: achievement.title })}
       >
-        <meta
-          name="description"
-          content={`Report an issue with the achievement: ${achievement.title}`}
-        />
+        <meta name="description" content={metaDescription} />
+        <meta name="og:description" content={metaDescription} />
       </Head>
 
       <AppLayout.Main>

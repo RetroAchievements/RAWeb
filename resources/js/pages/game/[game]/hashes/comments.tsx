@@ -8,13 +8,13 @@ import { GameHashesCommentsMainRoot } from '@/features/comments/GameHashesCommen
 const GameHashesComments: AppPage<App.Community.Data.GameHashesCommentsPageProps> = ({ game }) => {
   const { t } = useTranslation();
 
+  const metaDescription = `Internal discussion about the hashes for ${game.title}`;
+
   return (
     <>
       <Head title={t('Hash Comments - {{gameTitle}}', { gameTitle: game.title })}>
-        <meta
-          name="description"
-          content={`Internal discussion about the hashes for ${game.title}`}
-        />
+        <meta name="description" content={metaDescription} />
+        <meta name="og:description" content={metaDescription} />
 
         <meta property="og:image" content={game.badgeUrl} />
         <meta property="og:type" content="retroachievements:comment-list" />

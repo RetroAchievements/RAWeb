@@ -10,13 +10,13 @@ const GameModificationComments: AppPage<App.Community.Data.GameClaimsCommentsPag
 }) => {
   const { t } = useTranslation();
 
+  const metaDescription = `Internal discussion about game metadata modifications for ${game.title}`;
+
   return (
     <>
       <Head title={t('Modification Comments - {{gameTitle}}', { gameTitle: game.title })}>
-        <meta
-          name="description"
-          content={`Internal discussion about game metadata modifications for ${game.title}`}
-        />
+        <meta name="description" content={metaDescription} />
+        <meta name="og:description" content={metaDescription} />
 
         <meta property="og:image" content={game.badgeUrl} />
         <meta property="og:type" content="retroachievements:comment-list" />

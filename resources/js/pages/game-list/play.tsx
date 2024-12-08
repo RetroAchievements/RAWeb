@@ -8,10 +8,13 @@ import { WantToPlayGamesMainRoot } from '@/features/game-list/components/WantToP
 const WantToPlayGames: AppPage = () => {
   const { t } = useTranslation();
 
+  const metaDescription = 'A list of your Want to Play Games';
+
   return (
     <>
       <Head title={t('Want to Play Games')}>
-        <meta name="description" content="A list of your Want to Play Games" />
+        <meta name="description" content={metaDescription} />
+        <meta name="og:description" content={metaDescription} />
       </Head>
 
       <div className="container">
