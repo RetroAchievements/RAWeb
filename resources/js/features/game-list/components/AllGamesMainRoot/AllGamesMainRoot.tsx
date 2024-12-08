@@ -42,6 +42,7 @@ export const AllGamesMainRoot: FC = () => {
     columnFilters,
     pagination,
     sorting,
+    defaultFilters: allGamesDefaultFilters,
     defaultPageSize: defaultDesktopPageSize,
   });
 

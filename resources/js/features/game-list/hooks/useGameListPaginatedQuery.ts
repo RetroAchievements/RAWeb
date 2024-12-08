@@ -22,9 +22,11 @@ interface UseGameListPaginatedQueryProps {
   isEnabled?: boolean;
 
   apiRouteName?: RouteName;
+  apiRouteParams?: Record<string, unknown>;
 }
 
 export function useGameListPaginatedQuery({
+  apiRouteParams,
   columnFilters,
   pagination,
   sorting,
@@ -38,6 +40,7 @@ export function useGameListPaginatedQuery({
     queryFn: async () => {
       const response = await axios.get<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>(
         route(apiRouteName, {
+          ...apiRouteParams,
           sort: buildGameListQuerySortParam(sorting),
           ...buildGameListQueryPaginationParams(pagination),
           ...buildGameListQueryFilterParams(columnFilters),

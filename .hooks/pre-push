@@ -6,7 +6,7 @@ printf "\n⏳ composer lint\n"
 vendor/bin/pint --test
 
 printf "\n⏳ composer analyse\n"
-vendor/bin/phpstan analyse --memory-limit 512M
+vendor/bin/phpstan analyse --memory-limit 768M
 
 printf "\n⏳ pnpm lint:eslint\n"
 pnpm lint:eslint
