@@ -16,10 +16,12 @@ interface DataTableToolbarProps<TData> {
   defaultColumnFilters?: ColumnFiltersState;
   randomGameApiRouteName?: RouteName;
   tableApiRouteName?: RouteName;
+  tableApiRouteParams?: Record<string, unknown>;
 }
 
 export function DataTableToolbar<TData>({
   table,
+  tableApiRouteParams,
   unfilteredTotal,
   defaultColumnFilters = [],
   randomGameApiRouteName = 'api.game.random',
@@ -36,6 +38,7 @@ export function DataTableToolbar<TData>({
           table={table as Table<unknown>}
           randomGameApiRouteName={randomGameApiRouteName}
           tableApiRouteName={tableApiRouteName}
+          tableApiRouteParams={tableApiRouteParams}
         />
       </Suspense>
     );
@@ -48,6 +51,7 @@ export function DataTableToolbar<TData>({
       defaultColumnFilters={defaultColumnFilters}
       randomGameApiRouteName={randomGameApiRouteName}
       tableApiRouteName={tableApiRouteName}
+      tableApiRouteParams={tableApiRouteParams}
     />
   );
 }

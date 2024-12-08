@@ -25,6 +25,7 @@ export function useGameListState<TData = unknown>(
      */
     canShowProgressColumn: boolean;
 
+    alwaysShowPlayersTotal?: boolean;
     defaultColumnFilters?: ColumnFiltersState;
   },
 ) {
@@ -43,7 +44,7 @@ export function useGameListState<TData = unknown>(
     lastUpdated: false,
     numUnresolvedTickets: false,
     numVisibleLeaderboards: false,
-    playersTotal: !options.canShowProgressColumn,
+    playersTotal: options?.alwaysShowPlayersTotal ?? !options.canShowProgressColumn,
     progress: options.canShowProgressColumn,
   });
 
