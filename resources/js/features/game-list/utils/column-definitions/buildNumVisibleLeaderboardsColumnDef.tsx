@@ -2,18 +2,21 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
+import type { TranslatedString } from '@/types/i18next';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildNumVisibleLeaderboardsColumnDefProps {
-  t_label: string;
+  t_label: TranslatedString;
 
   tableApiRouteName?: RouteName;
+  tableApiRouteParams?: Record<string, unknown>;
 }
 
 export function buildNumVisibleLeaderboardsColumnDef({
   t_label,
+  tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
 }: BuildNumVisibleLeaderboardsColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
@@ -27,7 +30,12 @@ export function buildNumVisibleLeaderboardsColumnDef({
     },
 
     header: ({ column, table }) => (
-      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
+      <DataTableColumnHeader
+        column={column}
+        table={table}
+        tableApiRouteName={tableApiRouteName}
+        tableApiRouteParams={tableApiRouteParams}
+      />
     ),
 
     cell: ({ row }) => {

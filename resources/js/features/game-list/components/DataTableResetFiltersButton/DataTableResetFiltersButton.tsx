@@ -13,10 +13,12 @@ interface DataTableResetFiltersButtonProps<TData> {
   defaultColumnFilters?: ColumnFiltersState;
   /** The controller route name where client-side calls for this datatable are made. */
   tableApiRouteName?: RouteName;
+  tableApiRouteParams?: Record<string, unknown>;
 }
 
 export function DataTableResetFiltersButton<TData>({
   table,
+  tableApiRouteParams,
   defaultColumnFilters = [],
   tableApiRouteName = 'api.game.index',
 }: DataTableResetFiltersButtonProps<TData>) {
@@ -26,6 +28,7 @@ export function DataTableResetFiltersButton<TData>({
     table,
     defaultColumnFilters,
     tableApiRouteName,
+    tableApiRouteParams,
   );
 
   const resetFiltersToDefault = () => {

@@ -3,10 +3,12 @@ import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import userEvent from '@testing-library/user-event';
 import type { FC } from 'react';
 
+import { createAuthenticatedUser } from '@/common/models';
 import { buildAchievementsPublishedColumnDef } from '@/features/game-list/utils/column-definitions/buildAchievementsPublishedColumnDef';
 import { buildSystemColumnDef } from '@/features/game-list/utils/column-definitions/buildSystemColumnDef';
 import { buildTitleColumnDef } from '@/features/game-list/utils/column-definitions/buildTitleColumnDef';
-import { render, screen } from '@/test';
+import i18n from '@/i18n-client';
+import { render, screen, waitFor } from '@/test';
 import { createSystem } from '@/test/factories';
 
 import { DataTableSuperFilter } from './DataTableSuperFilter';
@@ -16,6 +18,9 @@ vi.mock('../RandomGameButton', () => ({ RandomGameButton: () => null }));
 
 // Suppress vaul a11y warnings.
 console.warn = vi.fn();
+
+// Suppress "[Table] Column with id 'progress' does not exist".
+console.error = vi.fn();
 
 interface TestHarnessProps {
   columnFilters?: ColumnFiltersState;
@@ -35,9 +40,9 @@ const TestHarness: FC<TestHarnessProps> = ({
     onColumnFiltersChange: onColumnFiltersChange as any,
     onSortingChange: onSortingChange as any,
     columns: [
-      buildTitleColumnDef({ t_label: 'Title' }),
-      buildSystemColumnDef({ t_label: 'System' }),
-      buildAchievementsPublishedColumnDef({ t_label: 'Achievements' }),
+      buildTitleColumnDef({ t_label: i18n.t('Title') }),
+      buildSystemColumnDef({ t_label: i18n.t('System') }),
+      buildAchievementsPublishedColumnDef({ t_label: i18n.t('Achievements') }),
     ],
     data: [],
     getCoreRowModel: getCoreRowModel(),
@@ -288,6 +293,59 @@ describe('Component: DataTableSuperFilter', () => {
 
       // ASSERT
       expect(screen.getAllByText('Title, Ascending (A - Z)')[0]).toBeVisible();
+    });
+
+    it('given there is an active sort state with multiple sorts, shows the first sort as selected', async () => {
+      // ARRANGE
+      render(
+        <TestHarness
+          sorting={[
+            { id: 'title', desc: true },
+            { id: 'system', desc: false },
+          ]}
+        />,
+      );
+
+      // ACT
+      await userEvent.click(screen.getByRole('button'));
+      await userEvent.click(screen.getByRole('combobox', { name: /sort/i }));
+
+      // ASSERT
+      expect(screen.getByRole('option', { name: /title.*descending/i })).toBeVisible();
+    });
+
+    it('given the user is a guest, does not display the progress filter select', async () => {
+      // ARRANGE
+      render(<TestHarness />, {
+        pageProps: {
+          auth: null,
+        },
+      });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /all games/i }));
+
+      // ASSERT
+      expect(screen.queryByRole('combobox', { name: /progress/i })).not.toBeInTheDocument();
+    });
+
+    it('given the user is authenticated, displays the progress filter select', async () => {
+      // ARRANGE
+      render(<TestHarness />, {
+        pageProps: {
+          auth: {
+            user: createAuthenticatedUser(),
+          },
+        },
+      });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /all games/i }));
+
+      // ASSERT
+      await waitFor(() => {
+        expect(screen.getByRole('combobox', { name: /progress/i })).toBeVisible();
+      });
     });
   });
 });

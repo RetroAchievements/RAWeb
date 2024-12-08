@@ -2,20 +2,23 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 
 import { GameAvatar } from '@/common/components/GameAvatar';
+import type { TranslatedString } from '@/types/i18next';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildTitleColumnDefProps {
-  t_label: string;
+  t_label: TranslatedString;
 
   forUsername?: string;
   tableApiRouteName?: RouteName;
+  tableApiRouteParams?: Record<string, unknown>;
 }
 
 export function buildTitleColumnDef({
-  t_label,
   forUsername,
+  t_label,
+  tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
 }: BuildTitleColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
@@ -25,7 +28,12 @@ export function buildTitleColumnDef({
     enableHiding: false,
 
     header: ({ column, table }) => (
-      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
+      <DataTableColumnHeader
+        column={column}
+        table={table}
+        tableApiRouteName={tableApiRouteName}
+        tableApiRouteParams={tableApiRouteParams}
+      />
     ),
 
     cell: ({ row }) => {

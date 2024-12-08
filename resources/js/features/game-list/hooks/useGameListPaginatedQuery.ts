@@ -4,6 +4,7 @@ import axios from 'axios';
 import type { RouteName } from 'ziggy-js';
 
 import { buildGameListQueryFilterParams } from '../utils/buildGameListQueryFilterParams';
+import { buildGameListQueryPaginationParams } from '../utils/buildGameListQueryPaginationParams';
 import { buildGameListQuerySortParam } from '../utils/buildGameListQuerySortParam';
 
 const ONE_MINUTE = 1 * 60 * 1000;
@@ -21,9 +22,11 @@ interface UseGameListPaginatedQueryProps {
   isEnabled?: boolean;
 
   apiRouteName?: RouteName;
+  apiRouteParams?: Record<string, unknown>;
 }
 
 export function useGameListPaginatedQuery({
+  apiRouteParams,
   columnFilters,
   pagination,
   sorting,
@@ -37,8 +40,9 @@ export function useGameListPaginatedQuery({
     queryFn: async () => {
       const response = await axios.get<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>(
         route(apiRouteName, {
-          'page[number]': pagination.pageIndex + 1,
+          ...apiRouteParams,
           sort: buildGameListQuerySortParam(sorting),
+          ...buildGameListQueryPaginationParams(pagination),
           ...buildGameListQueryFilterParams(columnFilters),
         }),
       );

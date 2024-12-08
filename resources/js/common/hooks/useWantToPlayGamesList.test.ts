@@ -1,6 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
+import i18n from '@/i18n-client';
 import { renderHook, screen, waitFor } from '@/test';
 
 import { useWantToPlayGamesList } from './useWantToPlayGamesList';
@@ -83,11 +84,11 @@ describe('Hook: useWantToPlayGamesList', () => {
 
     // ACT
     await result.current.addToWantToPlayGamesList(1, 'Sonic the Hedgehog', {
-      t_successMessage: 'Added!',
+      t_successMessage: i18n.t('Added {{gameTitle}}!'),
     });
 
     // ASSERT
-    expect(await screen.findByText(/added!/i)).toBeVisible();
+    expect(await screen.findByText(/added/i)).toBeVisible();
   });
 
   it("allows the consumer to make a call to remove a game to the user's backlog", async () => {
@@ -136,12 +137,12 @@ describe('Hook: useWantToPlayGamesList', () => {
 
     // ACT
     await result.current.removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog', {
-      t_successMessage: 'Removed!',
+      t_successMessage: i18n.t('Removed {{gameTitle}}!'),
     });
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByText(/removed!/i)).toBeVisible();
+      expect(screen.getByText(/removed/i)).toBeVisible();
     });
   });
 

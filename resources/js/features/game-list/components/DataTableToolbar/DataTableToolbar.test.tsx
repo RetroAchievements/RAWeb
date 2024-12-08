@@ -4,10 +4,14 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import type { FC } from 'react';
 
+import i18n from '@/i18n-client';
 import { render, screen, waitFor } from '@/test';
 import { createPaginatedData, createSystem, createZiggyProps } from '@/test/factories';
 
 import { DataTableToolbar } from './DataTableToolbar';
+
+// Suppress "Column with id 'achievementsPublished' does not exist".
+console.error = vi.fn();
 
 vi.mock('./RandomGameButton');
 
@@ -21,15 +25,15 @@ interface Model {
 const mockColumns: ColumnDef<Model>[] = [
   {
     accessorKey: 'title',
-    meta: { t_label: 'Title' },
+    meta: { t_label: i18n.t('Title') },
   },
   {
     accessorKey: 'system',
-    meta: { t_label: 'System' },
+    meta: { t_label: i18n.t('System') },
   },
   {
     accessorKey: 'achievementsPublished',
-    meta: { t_label: 'Achievements Published' },
+    meta: { t_label: i18n.t('Achievements') },
   },
 ];
 
@@ -52,6 +56,9 @@ const DataTableToolbarHarness: FC<DataTableToolbarHarnessProps> = ({
   const table = useReactTable({
     data,
     columns,
+    state: {
+      pagination: { pageIndex: 0, pageSize: 25 },
+    },
     rowCount: data.length ?? 0,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -109,10 +116,10 @@ describe('Component: DataTableToolbar', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByTestId('filter-selected-label')).toBeVisible();
+      expect(screen.getAllByTestId('filter-selected-label')[0]).toBeVisible();
     });
 
-    expect(screen.getByTestId('filter-selected-label')).toHaveTextContent('GC');
+    expect(screen.getAllByTestId('filter-selected-label')[0]).toHaveTextContent('GC');
   });
 
   it(
@@ -255,8 +262,34 @@ describe('Component: DataTableToolbar', () => {
       'api.game.index',
       {
         'page[number]': 1,
+        'page[size]': 25,
         sort: null,
       },
     ]);
+  });
+
+  it('given the table has no achievements published column, does not show the "Has achievements" filter', () => {
+    // ARRANGE
+    const columnsWithoutAchievements: ColumnDef<Model>[] = [
+      {
+        accessorKey: 'title',
+        meta: { t_label: i18n.t('Title') },
+      },
+      {
+        accessorKey: 'system',
+        meta: { t_label: i18n.t('System') },
+      },
+      // !! no achievementsPublished column
+    ];
+
+    render(<DataTableToolbarHarness columns={columnsWithoutAchievements} />, {
+      pageProps: {
+        ziggy: createZiggyProps({ device: 'desktop' }),
+        filterableSystemOptions: [createSystem({ name: 'Nintendo 64', nameShort: 'N64' })],
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /has achievements/i })).not.toBeInTheDocument();
   });
 });

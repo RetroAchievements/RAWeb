@@ -6,12 +6,12 @@ import type { RouteName } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { EmptyState } from '@/common/components/EmptyState';
+import { InfiniteScrollLoadMore } from '@/common/components/InfiniteScrollLoadMore';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useGameListInfiniteQuery } from '../../hooks/useGameListInfiniteQuery';
 import { GameListItemElement } from './GameListItemElement';
 import { LoadingGameListItemContent } from './GameListItemElement/GameListItemContent/LoadingGameListItemContent';
-import { InfiniteScroll } from './InfiniteScroll';
 
 /**
  * 🔴 If you make layout updates to this component, you must
@@ -26,6 +26,7 @@ interface GameListItemsProps {
   columnFilters: ColumnFiltersState;
 
   apiRouteName?: RouteName;
+  apiRouteParams?: Record<string, unknown>;
 
   /**
    * If truthy, non-backlog items will be optimistically hidden from
@@ -37,6 +38,7 @@ interface GameListItemsProps {
 }
 
 const GameListItems: FC<GameListItemsProps> = ({
+  apiRouteParams,
   columnFilters,
   pagination,
   sorting,
@@ -52,6 +54,7 @@ const GameListItems: FC<GameListItemsProps> = ({
     pagination,
     sorting,
     apiRouteName,
+    apiRouteParams,
     isEnabled: ziggy.device === 'mobile',
   });
 
@@ -175,7 +178,7 @@ const GameListItems: FC<GameListItemsProps> = ({
           </div>
         ) : null}
 
-        <InfiniteScroll loadMore={handleLoadMore} />
+        <InfiniteScrollLoadMore onLoadMore={handleLoadMore} />
       </ol>
 
       {!dataInfiniteQuery.hasNextPage &&

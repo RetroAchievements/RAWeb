@@ -21,32 +21,55 @@ import {
   BasePopoverTrigger,
 } from '@/common/components/+vendor/BasePopover';
 import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
+import {
+  BaseTooltip,
+  BaseTooltipContent,
+  BaseTooltipTrigger,
+} from '@/common/components/+vendor/BaseTooltip';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
+import type { TranslatedString } from '@/types/i18next';
 
-interface FacetedFilterOption {
-  label: string;
-  value: string;
+interface FacetedFilterOption<TValue = string> {
+  t_label: TranslatedString;
+
   icon?: React.ComponentType<{ className?: string }>;
+  isDefaultOption?: boolean;
   selectedLabel?: string;
+  t_description?: TranslatedString;
+  value?: TValue;
 }
 
-interface DataTableFacetedFilterProps<TData, TValue> {
-  options: FacetedFilterOption[];
+interface FacetedFilterOptionGroup<TValue = string> {
+  options: FacetedFilterOption<TValue>[];
 
+  t_heading?: TranslatedString;
+}
+
+export type FilterOptions<TValue = string> =
+  | FacetedFilterOption<TValue>[]
+  | FacetedFilterOptionGroup<TValue>[];
+
+interface DataTableFacetedFilterProps<TData, TValue> {
+  options: FilterOptions;
+
+  baseCommandListClassName?: string;
   className?: string;
   column?: Column<TData, TValue>;
+  disabled?: boolean;
   isSearchable?: boolean;
   isSingleSelect?: boolean;
-  t_title?: string;
+  t_title?: TranslatedString;
   variant?: 'base' | 'drawer';
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
-  options,
-  column,
-  t_title,
+  baseCommandListClassName,
   className,
+  column,
+  disabled,
+  options,
+  t_title,
   isSearchable = true,
   isSingleSelect = false,
   variant = 'base',
@@ -56,6 +79,7 @@ export function DataTableFacetedFilter<TData, TValue>({
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
   const columnId = column!.id;
+  const allFlatOptions = getAllFlatOptions(options);
 
   if (variant === 'drawer') {
     return (
@@ -77,106 +101,129 @@ export function DataTableFacetedFilter<TData, TValue>({
   }
 
   return (
-    <BasePopover>
-      <BasePopoverTrigger asChild>
-        <BaseButton
-          size="sm"
-          className={cn(
-            'border-dashed',
-            buildTrackingClassNames(`Click ${columnId} Filter`),
-            className,
-          )}
-          data-testid={`filter-${columnId}`}
-        >
-          <RxPlusCircled className="mr-2 h-4 w-4" />
+    <BaseTooltip open={!disabled ? false : undefined}>
+      <BasePopover>
+        <BaseTooltipTrigger asChild>
+          <BasePopoverTrigger asChild>
+            <BaseButton
+              size="sm"
+              className={cn(
+                'border-dashed',
+                buildTrackingClassNames(`Click ${columnId} Filter`),
+                disabled ? '!pointer-events-auto' : null,
+                className,
+              )}
+              disabled={disabled}
+              data-testid={`filter-${columnId}`}
+            >
+              <RxPlusCircled className="mr-2 size-4" />
 
-          {t_title}
+              {t_title}
 
-          {selectedValues?.size > 0 ? (
-            <>
-              <BaseSeparator orientation="vertical" className="mx-2 h-4" />
+              {selectedValues?.size > 0 ? (
+                <>
+                  <BaseSeparator orientation="vertical" className="mx-2 h-4" />
 
-              <BaseBadge
-                variant="secondary"
-                className="rounded-sm px-1 font-normal leading-3 lg:hidden"
-              >
-                {selectedValues.size}
-              </BaseBadge>
-
-              <div className="hidden space-x-1 lg:flex">
-                {selectedValues.size > 2 ? (
-                  <BaseBadge variant="secondary" className="rounded-sm px-1 font-normal leading-3">
-                    {t('{{count, number}} selected', { count: selectedValues.size })}
+                  <BaseBadge
+                    variant="secondary"
+                    className="rounded-sm px-1 font-normal leading-3 lg:hidden"
+                  >
+                    {selectedValues.size}
                   </BaseBadge>
-                ) : (
-                  <>
-                    {options
-                      .filter((option) => selectedValues.has(option.value))
-                      .map((option) => (
-                        <BaseBadge
-                          variant="secondary"
-                          key={`label-${option.value}`}
-                          className="rounded-sm px-1 font-normal leading-3"
-                          data-testid="filter-selected-label"
-                        >
-                          {option.selectedLabel ?? option.label}
-                        </BaseBadge>
-                      ))}
-                  </>
-                )}
-              </div>
-            </>
-          ) : null}
-        </BaseButton>
-      </BasePopoverTrigger>
 
-      <BasePopoverContent className="min-w-[200px] p-0" align="start">
-        <FacetedFilterContent
-          facets={facets}
-          options={options}
-          selectedValues={selectedValues}
-          column={column}
-          isSearchable={isSearchable}
-          t_title={t_title}
-          isSingleSelect={isSingleSelect}
-          variant={variant}
-        />
-      </BasePopoverContent>
-    </BasePopover>
+                  <div className="hidden space-x-1 lg:flex">
+                    {selectedValues.size > 2 ? (
+                      <BaseBadge
+                        variant="secondary"
+                        className="rounded-sm px-1 font-normal leading-3"
+                      >
+                        {t('{{count, number}} selected', { count: selectedValues.size })}
+                      </BaseBadge>
+                    ) : (
+                      <>
+                        {allFlatOptions
+                          .filter((option) => option.value && selectedValues.has(option.value))
+                          .map((option) => (
+                            <BaseBadge
+                              variant="secondary"
+                              key={`label-${option.value}`}
+                              className="rounded-sm px-1 font-normal leading-3"
+                              data-testid="filter-selected-label"
+                            >
+                              {option.selectedLabel ?? option.t_label}
+                            </BaseBadge>
+                          ))}
+                      </>
+                    )}
+                  </div>
+                </>
+              ) : null}
+            </BaseButton>
+          </BasePopoverTrigger>
+        </BaseTooltipTrigger>
+
+        <BasePopoverContent className="min-w-[340px] p-0" align="start">
+          <FacetedFilterContent
+            baseCommandListClassName={baseCommandListClassName}
+            facets={facets}
+            options={options}
+            selectedValues={selectedValues}
+            column={column}
+            isSearchable={isSearchable}
+            t_title={t_title}
+            isSingleSelect={isSingleSelect}
+            variant={variant}
+          />
+        </BasePopoverContent>
+      </BasePopover>
+
+      <BaseTooltipContent>
+        <p className="text-sm">{t('Sign in to use this filter.')}</p>
+      </BaseTooltipContent>
+    </BaseTooltip>
   );
 }
 
 type FacetedFilterContentProps<TData, TValue> = DataTableFacetedFilterProps<TData, TValue> & {
   facets: Map<unknown, number> | undefined;
+  isSingleSelect: boolean;
   selectedValues: Set<string>;
 };
 
 function FacetedFilterContent<TData, TValue>({
-  facets,
-  options,
-  isSingleSelect,
+  baseCommandListClassName,
   column,
+  facets,
   isSearchable,
-  t_title,
+  isSingleSelect,
+  options,
   selectedValues,
+  t_title,
   variant = 'base',
 }: FacetedFilterContentProps<TData, TValue>) {
   const { t } = useTranslation();
 
-  const handleOptionToggle = (optionValue: string) => {
+  const handleOptionToggle = (option: FacetedFilterOption) => {
     if (isSingleSelect) {
-      // For radio button behavior, set the filter to the selected option directly.
-      column?.setFilterValue([optionValue]);
+      if (option.isDefaultOption) {
+        // Clear the filter when the default option is selected.
+        column?.setFilterValue(undefined);
+      } else {
+        // For radio button behavior, set the filter to the selected option directly.
+        column?.setFilterValue([option.value]);
+      }
     } else {
       // For checkbox behavior, toggle the selection in the set.
-      if (selectedValues.has(optionValue)) {
-        selectedValues.delete(optionValue);
-      } else {
-        selectedValues.add(optionValue);
-      }
+      if (option.value) {
+        if (selectedValues.has(option.value)) {
+          selectedValues.delete(option.value);
+        } else {
+          selectedValues.add(option.value);
+        }
 
-      const filterValues = Array.from(selectedValues);
-      column?.setFilterValue(filterValues.length ? filterValues : undefined);
+        const filterValues = Array.from(selectedValues);
+        column?.setFilterValue(filterValues.length ? filterValues : undefined);
+      }
     }
   };
 
@@ -190,48 +237,48 @@ function FacetedFilterContent<TData, TValue>({
     >
       {isSearchable && variant !== 'drawer' ? <BaseCommandInput placeholder={t_title} /> : null}
 
-      <BaseCommandList>
+      <BaseCommandList className={baseCommandListClassName}>
         <BaseCommandEmpty>
           <span className="text-muted">{t('No options found.')}</span>
         </BaseCommandEmpty>
 
-        <BaseCommandGroup>
-          {options.map((option) => {
-            const isSelected = selectedValues.has(option.value);
+        {isOptionGroupArray(options) ? (
+          options.map((group, index) => (
+            <BaseCommandGroup key={`${group.t_heading}-${index}`} heading={group.t_heading}>
+              {group.options.map((option, optionIndex) => (
+                <FilterOption
+                  key={`${option.value}-${optionIndex}`}
+                  option={option}
+                  isSelected={
+                    option.isDefaultOption
+                      ? !selectedValues.size
+                      : selectedValues.has(option.value!)
+                  }
+                  isSingleSelect={isSingleSelect}
+                  facets={facets}
+                  onToggle={() => handleOptionToggle(option)}
+                />
+              ))}
 
-            return (
-              <BaseCommandItem key={option.value} onSelect={() => handleOptionToggle(option.value)}>
-                <div
-                  className={cn(
-                    'mr-2 flex h-4 w-4 items-center justify-center rounded-sm',
-                    'border border-neutral-600 light:border-neutral-900',
-
-                    // If it's a single select, give the appearance of a radio button.
-                    isSingleSelect ? 'rounded-full' : 'rounded-sm',
-
-                    isSelected
-                      ? 'border-neutral-50 bg-neutral-700 text-neutral-50 light:bg-text'
-                      : 'opacity-50 [&_svg]:invisible',
-                  )}
-                >
-                  {isSelected ? <HiOutlineCheck className="h-4 w-4" /> : null}
-                </div>
-
-                {option.icon ? (
-                  <option.icon className="text-muted-foreground mr-2 h-4 w-4" />
-                ) : null}
-
-                <span className="text-neutral-200 light:text-neutral-900">{option.label}</span>
-
-                {facets?.get(option.value) && (
-                  <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                    {facets.get(option.value)}
-                  </span>
-                )}
-              </BaseCommandItem>
-            );
-          })}
-        </BaseCommandGroup>
+              {index < options.length - 1 ? <BaseCommandSeparator className="mt-2" /> : null}
+            </BaseCommandGroup>
+          ))
+        ) : (
+          <BaseCommandGroup>
+            {options.map((option) => (
+              <FilterOption
+                key={option.value}
+                option={option}
+                isSelected={
+                  option.isDefaultOption ? !selectedValues.size : selectedValues.has(option.value!)
+                }
+                isSingleSelect={isSingleSelect}
+                facets={facets}
+                onToggle={() => handleOptionToggle(option)}
+              />
+            ))}
+          </BaseCommandGroup>
+        )}
 
         {!isSingleSelect && selectedValues.size > 0 ? (
           <ClearFiltersButton onClear={() => column?.setFilterValue(undefined)} />
@@ -240,6 +287,70 @@ function FacetedFilterContent<TData, TValue>({
     </BaseCommand>
   );
 }
+
+interface FilterOptionProps {
+  option: FacetedFilterOption;
+  isSelected: boolean;
+  isSingleSelect: boolean;
+  facets: Map<unknown, number> | undefined;
+  onToggle: () => void;
+}
+
+const FilterOption: FC<FilterOptionProps> = ({
+  option,
+  isSelected,
+  isSingleSelect,
+  facets,
+  onToggle,
+}) => {
+  return (
+    <BaseCommandItem
+      key={option.value}
+      onSelect={onToggle}
+      className={isSingleSelect ? 'items-start' : undefined}
+    >
+      <div
+        className={cn(
+          'mr-2 flex size-4 min-w-4 items-center justify-center rounded-sm',
+          'border border-neutral-600 light:border-neutral-900',
+
+          // If it's a single select, give the appearance of a radio button.
+          isSingleSelect ? 'mt-[3px] rounded-full' : 'rounded-sm',
+
+          isSelected
+            ? 'border-neutral-50 bg-neutral-700 text-neutral-50 light:bg-text'
+            : 'opacity-50 [&_svg]:invisible',
+        )}
+        data-testid="filter-option-indicator"
+      >
+        {isSelected && <HiOutlineCheck role="img" aria-hidden={true} className="size-4" />}
+      </div>
+
+      {option.icon ? (
+        <option.icon
+          className={cn(
+            'mr-2 size-4 min-w-4 text-neutral-200 light:text-neutral-900',
+            isSingleSelect ? 'mt-[3px]' : null,
+          )}
+          data-testid="option-icon"
+        />
+      ) : null}
+
+      <span className="flex flex-col">
+        <span className="text-neutral-200 light:text-neutral-900">{option.t_label}</span>
+        {option.t_description ? (
+          <span className="text-2xs text-neutral-400">{option.t_description}</span>
+        ) : null}
+      </span>
+
+      {facets?.get(option.value) && (
+        <span className="ml-auto flex size-4 items-center justify-center font-mono text-xs">
+          {facets.get(option.value)}
+        </span>
+      )}
+    </BaseCommandItem>
+  );
+};
 
 interface ClearFiltersButtonProps {
   onClear: () => void;
@@ -262,3 +373,21 @@ const ClearFiltersButton: FC<ClearFiltersButtonProps> = ({ onClear }) => {
     </div>
   );
 };
+
+/**
+ * @returns `true` if filter options are organized using groups. `false` if it's a flat list of options.
+ */
+function isOptionGroupArray(options: FilterOptions): options is FacetedFilterOptionGroup[] {
+  return Array.isArray(options) && options.length > 0 && 'options' in options[0];
+}
+
+/**
+ * @returns All options as a flat array from either grouped or ungrouped options.
+ */
+function getAllFlatOptions(options: FilterOptions): FacetedFilterOption[] {
+  if (isOptionGroupArray(options)) {
+    return options.flatMap((group) => group.options);
+  }
+
+  return options;
+}

@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace App\Platform\Requests;
 
+use App\Platform\Enums\GameListProgressFilterValue;
 use App\Platform\Enums\GameListSortField;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class GameListRequest extends FormRequest
 {
+    // (!!) Be sure to do performance testing on any default higher than 100.
+    // Note that mobile _ALWAYS_ uses a page size of 100.
+    private const DEFAULT_PAGE_SIZE = 25;
+    private const VALID_PAGE_SIZES = [10, 25, 50, 100, 200];
+
     public function rules(): array
     {
         // Get all valid sort values with and without the "-" prefix.
@@ -21,14 +28,25 @@ class GameListRequest extends FormRequest
 
         return [
             'page.number' => 'integer|min:1',
+            'page.size' => 'integer|in:' . implode(',', self::VALID_PAGE_SIZES),
             'sort' => 'string|in:' . implode(',', $sortValues),
             'filter.*' => 'string',
+            'filter.progress' => [
+                'nullable',
+                'string',
+                new Enum(GameListProgressFilterValue::class),
+            ],
         ];
     }
 
     public function getPage(): int
     {
         return (int) $this->input('page.number', 1);
+    }
+
+    public function getPageSize(): int
+    {
+        return (int) $this->input('page.size', self::DEFAULT_PAGE_SIZE);
     }
 
     /**
@@ -54,9 +72,10 @@ class GameListRequest extends FormRequest
     }
 
     /**
+     * @param int|null $targetSystemId used when changing the system is not available, ie: system game lists
      * @return array<string, array<string>>
      */
-    public function getFilters(): array
+    public function getFilters(?int $targetSystemId = null): array
     {
         $filters = [];
         foreach ($this->query('filter', []) as $key => $value) {
@@ -65,6 +84,10 @@ class GameListRequest extends FormRequest
 
         if (!isset($filters['achievementsPublished'])) {
             $filters['achievementsPublished'] = ['has'];
+        }
+
+        if (!is_null($targetSystemId)) {
+            $filters['system'] = [$targetSystemId];
         }
 
         return $filters;

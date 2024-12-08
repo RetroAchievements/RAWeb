@@ -4,7 +4,7 @@ import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { type ButtonHTMLAttributes, forwardRef } from 'react';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 const baseButtonVariants = cva(
   [
@@ -12,16 +12,22 @@ const baseButtonVariants = cva(
     'focus-visible:outline-none focus-visible:ring-1 light:focus-visible:ring-neutral-950 focus-visible:ring-offset-2',
     'disabled:pointer-events-none disabled:opacity-50',
     'ring-offset-neutral-950 focus-visible:ring-neutral-300',
-    'lg:active:translate-y-[1px] lg:active:scale-[0.98] lg:transition-transform lg:duration-100',
+    'lg:active:translate-y-[1px] lg:active:scale-[0.98] lg:disabled:active:scale-100 lg:disabled:active:translate-y-0 lg:transition-transform lg:duration-100',
   ],
   {
     variants: {
       variant: {
-        default:
-          'bg-embed text-link border border-neutral-700 hover:bg-embed-highlight hover:text-link-hover hover:border-menu-link light:bg-white light:border-link light:text-link light:hover:bg-neutral-100',
+        default: cn(
+          'bg-embed text-link border border-neutral-700 hover:bg-embed-highlight hover:text-link-hover hover:border-menu-link',
+          'light:bg-white light:border-link light:text-link light:hover:bg-neutral-100',
+          'disabled:hover:bg-embed disabled:hover:text-link disabled:hover:border-neutral-700',
+          'disabled:light:hover:bg-white disabled:light:hover:text-link disabled:light:hover:border-link',
+        ),
         destructive: 'bg-embed border btn-danger hover:text-link-hover hover:border-menu-link',
-        outline:
-          'border light:border-neutral-200 light:bg-white light:hover:bg-neutral-100 light:hover:text-neutral-900 border-neutral-800 bg-neutral-950 hover:bg-neutral-800 hover:text-neutral-50',
+        outline: cn(
+          'border light:border-neutral-200 light:bg-white light:hover:bg-neutral-100 light:hover:text-neutral-900',
+          'border-neutral-800 bg-neutral-950 hover:bg-neutral-800 hover:text-neutral-50',
+        ),
         secondary:
           'light:bg-neutral-200 light:text-neutral-900 bg-neutral-800 text-neutral-50 hover:bg-neutral-800/80',
         ghost:

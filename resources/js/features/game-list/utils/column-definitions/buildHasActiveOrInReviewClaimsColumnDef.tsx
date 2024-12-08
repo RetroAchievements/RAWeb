@@ -6,23 +6,26 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
+import type { TranslatedString } from '@/types/i18next';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildHasActiveOrInReviewClaimsColumnDefProps {
-  t_label: string;
+  t_label: TranslatedString;
   strings: {
-    t_yes: string;
-    t_description: string;
+    t_yes: TranslatedString;
+    t_description: TranslatedString;
   };
 
   tableApiRouteName?: RouteName;
+  tableApiRouteParams?: Record<string, unknown>;
 }
 
 export function buildHasActiveOrInReviewClaimsColumnDef({
-  t_label,
   strings,
+  t_label,
+  tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
 }: BuildHasActiveOrInReviewClaimsColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
@@ -31,7 +34,12 @@ export function buildHasActiveOrInReviewClaimsColumnDef({
     meta: { t_label, sortType: 'boolean', Icon: gameListFieldIconMap.hasActiveOrInReviewClaims },
 
     header: ({ column, table }) => (
-      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
+      <DataTableColumnHeader
+        column={column}
+        table={table}
+        tableApiRouteName={tableApiRouteName}
+        tableApiRouteParams={tableApiRouteParams}
+      />
     ),
 
     cell: ({ row }) => {

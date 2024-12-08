@@ -11,7 +11,7 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 import { useSearchInputHotkey } from './useSearchInputHotkey';
 
@@ -100,7 +100,7 @@ export function DataTableSearchInput<TData>({
           value={rawInputValue}
           onChange={(event) => setRawInputValue(event.target.value)}
           className={cn(
-            'peer h-8 sm:w-[150px] lg:w-[250px]',
+            'peer h-8 w-full sm:w-[180px] md:w-[280px]',
             device === 'mobile' ? 'text-[16px]' : '',
           )}
           aria-describedby="search-shortcut"

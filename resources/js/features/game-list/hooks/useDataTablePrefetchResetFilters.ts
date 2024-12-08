@@ -4,6 +4,7 @@ import axios from 'axios';
 import type { RouteName } from 'ziggy-js';
 
 import { buildGameListQueryFilterParams } from '../utils/buildGameListQueryFilterParams';
+import { buildGameListQueryPaginationParams } from '../utils/buildGameListQueryPaginationParams';
 import { buildGameListQuerySortParam } from '../utils/buildGameListQuerySortParam';
 
 /**
@@ -15,6 +16,7 @@ export function useDataTablePrefetchResetFilters<TData>(
   table: Table<TData>,
   defaultColumnFilters: ColumnFiltersState,
   tableApiRouteName: RouteName,
+  tableApiRouteParams?: Record<string, unknown>,
 ) {
   const { pagination, sorting } = table.getState();
 
@@ -28,8 +30,9 @@ export function useDataTablePrefetchResetFilters<TData>(
       queryFn: async () => {
         const response = await axios.get<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>(
           route(tableApiRouteName, {
-            'page[number]': pagination.pageIndex + 1,
+            ...tableApiRouteParams,
             sort: buildGameListQuerySortParam(sorting),
+            ...buildGameListQueryPaginationParams(pagination),
             ...buildGameListQueryFilterParams(defaultColumnFilters),
           }),
         );

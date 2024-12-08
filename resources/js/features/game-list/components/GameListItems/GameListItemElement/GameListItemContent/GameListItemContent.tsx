@@ -7,7 +7,7 @@ import { BaseDrawerTrigger } from '@/common/components/+vendor/BaseDrawer';
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { GameTitle } from '@/common/components/GameTitle';
 import { SystemChip } from '@/common/components/SystemChip';
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 import type { useGameBacklogState } from '../../useGameBacklogState';
 import { ChipOfInterest } from './ChipOfInterest';

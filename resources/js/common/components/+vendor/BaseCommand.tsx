@@ -5,7 +5,7 @@ import { Command as CommandPrimitive } from 'cmdk';
 import * as React from 'react';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/common/utils/cn';
 
 import { BaseDialog, BaseDialogContent } from './BaseDialog';
 
@@ -85,7 +85,7 @@ const BaseCommandGroup = React.forwardRef<
   <CommandPrimitive.Group
     ref={ref}
     className={cn(
-      'text-foreground [&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1',
+      'text-foreground overflow-hidden p-1 [&_[cmdk-group-heading]]:text-neutral-400',
       '[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5',
       '[&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium',
       className,
@@ -101,7 +101,7 @@ const BaseCommandSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.Separator
     ref={ref}
-    className={cn('bg-border -mx-1 h-px', className)}
+    className={cn('-mx-1 h-px bg-zinc-800', className)}
     {...props}
   />
 ));

@@ -38,6 +38,12 @@ declare namespace App.Community.Data {
     isSubscribed: boolean;
     canComment: boolean;
   };
+  export type GameModificationsCommentsPageProps<TItems = App.Community.Data.Comment> = {
+    game: App.Platform.Data.Game;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+    isSubscribed: boolean;
+    canComment: boolean;
+  };
   export type LeaderboardCommentsPageProps<TItems = App.Community.Data.Comment> = {
     leaderboard: App.Platform.Data.Leaderboard;
     paginatedComments: App.Data.PaginatedData<TItems>;
@@ -68,6 +74,7 @@ declare namespace App.Community.Data {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
     filterableSystemOptions: Array<App.Platform.Data.System>;
     can: App.Data.UserPermissions;
+    defaultDesktopPageSize: number;
   };
   export type UserRecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     targetUser: App.Data.User;
@@ -183,6 +190,7 @@ declare namespace App.Data {
     locale?: string | null;
     motto?: string;
     mutedUntil?: string | null;
+    playerPreferredMode?: App.Platform.Enums.PlayerPreferredMode;
     points?: number;
     pointsSoftcore?: number;
     richPresenceMsg?: string | null;
@@ -342,6 +350,7 @@ declare namespace App.Platform.Data {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
     filterableSystemOptions: Array<App.Platform.Data.System>;
     can: App.Data.UserPermissions;
+    defaultDesktopPageSize: number;
   };
   export type GameTopAchiever = {
     rank: number;
@@ -403,12 +412,18 @@ declare namespace App.Platform.Data {
     nameShort?: string;
     iconUrl?: string;
   };
+  export type SystemGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
+    system: App.Platform.Data.System;
+    paginatedGameListEntries: App.Data.PaginatedData<TItems>;
+    can: App.Data.UserPermissions;
+    defaultDesktopPageSize: number;
+  };
 }
 declare namespace App.Platform.Enums {
-  export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
-  export type AchievementSetAuthorTask = 'artwork';
   export type UnlockMode = 0 | 1;
+  export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
   export type AchievementFlag = 3 | 5;
+  export type AchievementSetAuthorTask = 'artwork';
   export type AchievementSetType =
     | 'core'
     | 'bonus'
@@ -417,6 +432,18 @@ declare namespace App.Platform.Enums {
     | 'will_be_bonus'
     | 'will_be_specialty'
     | 'will_be_exclusive';
+  export type GameListProgressFilterValue =
+    | 'unstarted'
+    | 'unfinished'
+    | 'gte_beaten_softcore'
+    | 'gte_beaten_hardcore'
+    | 'eq_beaten_softcore'
+    | 'eq_beaten_hardcore'
+    | 'gte_completed'
+    | 'eq_completed'
+    | 'eq_mastered'
+    | 'revised'
+    | 'neq_mastered';
   export type GameListSortField =
     | 'title'
     | 'system'
@@ -431,5 +458,6 @@ declare namespace App.Platform.Enums {
     | 'numUnresolvedTickets'
     | 'progress';
   export type GameSetType = 'hub' | 'similar-games';
+  export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 }
