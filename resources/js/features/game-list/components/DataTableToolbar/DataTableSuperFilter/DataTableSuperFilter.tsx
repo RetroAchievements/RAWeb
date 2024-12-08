@@ -99,7 +99,7 @@ export function DataTableSuperFilter<TData>({
           <div className="flex flex-col gap-4 p-4">
             <DataTableAchievementsPublishedFilter table={table} variant="drawer" />
 
-            {doesColumnExist(allColumns, 'system') ? (
+            {doesColumnExist(allColumns, 'system') && filterableSystemOptions?.length > 1 ? (
               <DataTableSystemFilter
                 filterableSystemOptions={filterableSystemOptions}
                 table={table}
