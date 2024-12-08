@@ -201,6 +201,29 @@ describe('Component: DataTableSuperFilter', () => {
       ]);
     });
 
+    it('given there is only one filterable system option, does not show the system filter', async () => {
+      // ARRANGE
+      const onColumnFiltersChange = vi.fn();
+
+      render<{ filterableSystemOptions: App.Platform.Data.System[] }>(
+        <TestHarness
+          columnFilters={[{ id: 'achievementsPublished', value: 'has' }]}
+          onColumnFiltersChange={onColumnFiltersChange}
+        />,
+        {
+          pageProps: {
+            filterableSystemOptions: [createSystem({ id: 1, name: 'NES/Famicom' })],
+          },
+        },
+      );
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /playable/i }));
+
+      // ASSERT
+      expect(screen.queryByRole('option', { name: 'NES/Famicom' })).not.toBeInTheDocument();
+    });
+
     it('allows the user to change the current sort order to an ascending sort', async () => {
       // ARRANGE
       const onSortingChange = vi.fn();

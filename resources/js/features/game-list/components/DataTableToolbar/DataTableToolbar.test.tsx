@@ -122,6 +122,19 @@ describe('Component: DataTableToolbar', () => {
     expect(screen.getAllByTestId('filter-selected-label')[0]).toHaveTextContent('GC');
   });
 
+  it('given there is only one filterable system option, does not show the System filter', async () => {
+    // ARRANGE
+    render(<DataTableToolbarHarness />, {
+      pageProps: {
+        filterableSystemOptions: [createSystem({ name: 'Nintendo 64', nameShort: 'N64' })],
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /system/i })).not.toBeInTheDocument();
+  });
+
   it(
     'given more than three options are selected, shows the selected count',
     { retry: 2, timeout: 15000 },

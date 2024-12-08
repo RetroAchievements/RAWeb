@@ -46,7 +46,7 @@ export function DataTableDesktopToolbar<TData>({
   return (
     <div className="flex w-full flex-col justify-between gap-2">
       <div className="flex flex-col gap-2 rounded bg-embed p-2 sm:flex-row sm:gap-2 md:gap-3">
-        {doesColumnExist(allColumns, 'system') && filterableSystemOptions ? (
+        {doesColumnExist(allColumns, 'system') && filterableSystemOptions?.length > 1 ? (
           <DataTableSystemFilter table={table} filterableSystemOptions={filterableSystemOptions} />
         ) : null}
 
