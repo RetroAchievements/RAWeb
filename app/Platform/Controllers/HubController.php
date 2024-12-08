@@ -21,7 +21,6 @@ use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use Jenssegers\Agent\Agent;
 
-// TODO redirect hub games to the new page
 // TODO make sure the given game set id is actually for a hub, not similar games
 // TODO mature hub needs to be age gated
 // TODO on rename hub, make sure it's always wrapped in square brackets
@@ -29,7 +28,6 @@ use Jenssegers\Agent\Agent;
 
 class HubController extends Controller
 {
-    // TODO get list of hubs?
     public function index(): void
     {
     }

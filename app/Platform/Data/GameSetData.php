@@ -25,7 +25,7 @@ class GameSetData extends Data
     }
 
     /**
-     * Creates a DTO from a GameSet model with eager loaded counts
+     * Creates a DTO from a GameSet model with eager loaded counts.
      */
     public static function fromGameSetWithCounts(GameSet $gameSet): self
     {
