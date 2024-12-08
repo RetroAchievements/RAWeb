@@ -46,7 +46,6 @@ export const AllSystemGamesDataTable: FC<AllSystemGamesDataTableProps> = ({
 
   const { systemGamesDefaultFilters } = useSystemGamesDefaultFilters();
 
-  // TODO change apiRouteName
   const gameListQuery = useGameListPaginatedQuery({
     columnFilters,
     pagination,

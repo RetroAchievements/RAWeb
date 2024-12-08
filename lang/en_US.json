@@ -496,5 +496,12 @@
     "Awards - At Least": "Awards - At Least",
     "Awards - Exact": "Awards - Exact",
     "Special Filters": "Special Filters",
-    "All {{systemName}} Games": "All {{systemName}} Games"
+    "All {{systemName}} Games": "All {{systemName}} Games",
+    "{{hubTitle}} (Hub)": "{{hubTitle}} (Hub)",
+    "Related Hubs": "Related Hubs",
+    "Manage": "Manage",
+    "Hub": "Hub",
+    "Links": "Links",
+    "No related hubs.": "No related hubs.",
+    "All Hubs": "All Hubs"
 }
