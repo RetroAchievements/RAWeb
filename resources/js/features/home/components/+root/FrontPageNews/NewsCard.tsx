@@ -83,9 +83,8 @@ const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
 
       {isImageValid ? (
         <div
-          className="h-28 w-full rounded object-cover sm:w-[197px]"
+          className="h-28 w-full rounded bg-cover bg-center sm:w-[197px]"
           style={{
-            backgroundSize: 'cover',
             backgroundImage: `url(${src})`,
             // TODO reintroduce (and adjust) linear gradient when tagLabel is used
             // backgroundImage: `linear-gradient(297.68deg, rgba(0, 0, 0, 0.77) 3.95%, rgba(0, 0, 0, 0) 48.13%), url(${src})`,
