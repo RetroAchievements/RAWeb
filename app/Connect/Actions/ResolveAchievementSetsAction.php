@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Platform\Actions;
+namespace App\Connect\Actions;
 
 use App\Models\GameAchievementSet;
 use App\Models\GameHash;
