@@ -41,6 +41,6 @@ return [
 
         // vanity roles assigned by admins
 
-        Role::DEVELOPER_VETERAN => __('Veteran Developer'),
+        Role::DEVELOPER_RETIRED => __('Developer (retired)'),
     ],
 ];

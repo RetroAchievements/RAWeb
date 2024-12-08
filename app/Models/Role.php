@@ -75,7 +75,7 @@ class Role extends \Spatie\Permission\Models\Role
 
     // vanity roles assigned by admin
 
-    public const DEVELOPER_VETERAN = 'developer-veteran';
+    public const DEVELOPER_RETIRED = 'developer-retired';
 
     public static function toFilamentColor(string $role): string
     {
@@ -117,7 +117,7 @@ class Role extends \Spatie\Permission\Models\Role
 
             // vanity roles assigned by admin
 
-            Role::DEVELOPER_VETERAN => 'primary',
+            Role::DEVELOPER_RETIRED => 'primary',
             default => 'gray',
         };
     }
