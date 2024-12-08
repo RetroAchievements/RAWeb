@@ -35,15 +35,23 @@ export function DataTablePagination<TData>({
   );
 
   const scrollToTopOfPage = () => {
-    const scrollTarget = document.getElementById('pagination-scroll-target');
+    /**
+     * We use a `setTimeout()` without any time here to deliberately
+     * push the scroll event to the end of the browser's event queue.
+     * If we don't do this, scroll events for navigating to the first
+     * and last page may not occur on some browsers.
+     */
+    setTimeout(() => {
+      const scrollTarget = document.getElementById('pagination-scroll-target');
 
-    if (!scrollTarget) {
-      return;
-    }
+      if (!scrollTarget) {
+        return;
+      }
 
-    window.scrollTo({
-      top: scrollTarget.offsetTop,
-      behavior: 'smooth',
+      window.scrollTo({
+        top: scrollTarget.offsetTop,
+        behavior: 'smooth',
+      });
     });
   };
 
