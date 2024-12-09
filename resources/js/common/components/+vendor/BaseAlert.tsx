@@ -4,11 +4,17 @@ import * as React from 'react';
 import { cn } from '@/common/utils/cn';
 
 const baseAlertVariants = cva(
-  'relative w-full rounded border light:border-neutral-200 p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-3.5 [&>svg]:top-4 light:[&>svg]:text-neutral-950 border-neutral-800 [&>svg]:text-neutral-50',
+  cn(
+    'relative w-full rounded border light:border-neutral-200 p-4',
+    '[&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-3.5 [&>svg]:top-4 light:[&>svg]:text-neutral-950',
+    'border-neutral-800 [&>svg]:text-neutral-50',
+  ),
   {
     variants: {
       variant: {
         default: 'light:bg-white light:text-neutral-950 bg-neutral-950 text-neutral-50',
+        notice:
+          'rounded-l-none border-y-0 border-l-2 border-r-0 border-amber-500 text-text light:border-amber-600',
         destructive:
           'light:bg-red-50 bg-red-900/10 light:border-red-500/50 text-red-500 border-red-500 light:[&>svg]:text-red-500 text-red-500 [&>svg]:text-red-500',
       },

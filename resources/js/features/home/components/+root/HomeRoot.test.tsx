@@ -62,4 +62,32 @@ describe('Component: HomeRoot', () => {
     // ASSERT
     expect(screen.queryByRole('heading', { name: /welcome/i })).not.toBeInTheDocument();
   });
+
+  it('given the user is new, shows a new user call-to-action', () => {
+    // ARRANGE
+    render<App.Http.Data.HomePageProps>(<HomeRoot />, {
+      pageProps: {
+        ...createHomePageProps(),
+        auth: { user: createAuthenticatedUser({ isNew: true }) },
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('heading', { name: /getting started/i })).toBeVisible();
+  });
+
+  it('given the user is not new, does not show a new user call-to-action', () => {
+    // ARRANGE
+    render<App.Http.Data.HomePageProps>(<HomeRoot />, {
+      pageProps: {
+        ...createHomePageProps(),
+        auth: { user: createAuthenticatedUser({ isNew: false }) },
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('heading', { name: /getting started/i })).not.toBeInTheDocument();
+  });
 });

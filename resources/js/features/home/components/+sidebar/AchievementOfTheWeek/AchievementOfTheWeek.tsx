@@ -10,9 +10,6 @@ import type { AvatarSize } from '@/common/models';
 
 import { HomeHeading } from '../../HomeHeading';
 
-// TODO try different achievement description lengths
-// TODO try different game title length
-
 export const AchievementOfTheWeek: FC = () => {
   const { achievementOfTheWeek, auth } = usePageProps<App.Http.Data.HomePageProps>();
 

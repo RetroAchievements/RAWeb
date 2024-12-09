@@ -45,6 +45,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => UserData::fromUser($user)->include(
                     'id',
                     'isMuted',
+                    'isNew',
                     'legacyPermissions',
                     'locale',
                     'playerPreferredMode',

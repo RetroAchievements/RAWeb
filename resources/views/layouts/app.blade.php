@@ -16,10 +16,10 @@
     class="{{ config('app.debug') ? 'debug' : '' }} {{ !Route::is('news.index') ? 'with-news' : '' }} with-footer"
 >
     <div data-vaul-drawer-wrapper="">
-        @if (Route::is('home') || Route::is('demo.home'))
+        @if (Route::is('home'))
             <div
                 id="brand-top-wrapper"
-                class="{{ Route::is('home') || Route::is('demo.home') ? 'block' : 'hidden' }}"
+                class="{{ Route::is('home') ? 'block' : 'hidden' }}"
             >
                 <x-brand-top />
             </div>
@@ -29,7 +29,7 @@
             <x-slot name="brand">
                 <div 
                     id="nav-brand-wrapper"
-                    class="{{ Route::is('home') || Route::is('demo.home') ? 'lg:hidden' : '' }}"
+                    class="{{ Route::is('home') ? 'lg:hidden' : '' }}"
                 >
                     <x-menu.brand />
                 </div>
@@ -96,11 +96,14 @@
                 const navBrandWrapper = document.getElementById('nav-brand-wrapper');
 
                 const newRoute = event.detail.page.component.toLowerCase();
-                // TODO rename this Inertia.js route from 'index' to 'home'
-                const isHomeRoute = newRoute === 'index';
+                const isHomeRoute = newRoute === 'home';
 
-                brandTopWrapper.classList.toggle('hidden', !isHomeRoute);
-                navBrandWrapper.className = isHomeRoute ? 'lg:hidden' : '';
+                if (brandTopWrapper) {
+                    brandTopWrapper.classList.toggle('hidden', !isHomeRoute);
+                }
+                if (navBrandWrapper) {
+                    navBrandWrapper.className = isHomeRoute ? 'lg:hidden' : '';
+                }
             });
         </script>
 

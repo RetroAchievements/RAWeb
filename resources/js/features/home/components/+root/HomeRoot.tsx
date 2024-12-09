@@ -7,6 +7,7 @@ import { CurrentlyOnline } from './CurrentlyOnline';
 import { FrontPageNews } from './FrontPageNews';
 import { GuestWelcomeCta } from './GuestWelcomeCta';
 import { NewSetsList } from './NewSetsList';
+import { NewUserCta } from './NewUserCta';
 import { RecentForumPosts } from './RecentForumPosts';
 import { SetsInProgressList } from './SetsInProgressList';
 import { TrendingRightNow } from './TrendingRightNow';
@@ -16,7 +17,9 @@ export const HomeRoot: FC = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      {auth?.user ? null : <GuestWelcomeCta />}
+      {!auth?.user ? <GuestWelcomeCta /> : null}
+
+      {auth?.user?.isNew ? <NewUserCta /> : null}
 
       <FrontPageNews />
 

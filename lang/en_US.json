@@ -1,7 +1,5 @@
 {
     "(Hardcore)": "(Hardcore)",
-    ", you just need": ", you just need",
-    ". From Atari 2600 to PlayStation 2, and everything in between.": ". From Atari 2600 to PlayStation 2, and everything in between.",
     "<1>Be very descriptive</1> about what you were doing when the problem happened. Mention if you were using any <2>non-default settings, a non-English language, in-game cheats, glitches</2> or were otherwise playing in some unusual way. If possible, include a <3>link to a save state or save game</3> to help us reproduce the issue.": "<1>Be very descriptive</1> about what you were doing when the problem happened. Mention if you were using any <2>non-default settings, a non-English language, in-game cheats, glitches</2> or were otherwise playing in some unusual way. If possible, include a <3>link to a save state or save game</3> to help us reproduce the issue.",
     "<1>Send a message to DevCompliance</1> for:": "<1>Send a message to DevCompliance</1> for:",
     "<1>Send a message to DevQuest</1> for submissions, questions, ideas, or reporting issues related to <2>DevQuest</2>.": "<1>Send a message to DevQuest</1> for submissions, questions, ideas, or reporting issues related to <2>DevQuest</2>.",
@@ -374,7 +372,6 @@
     "Want to Play Games": "Want to Play Games",
     "We are not obliged to monitor the information transmitted or stored by third parties, nor to investigate circumstances that point to illegal activity. Our obligations to remove or block the use of information under generally applicable laws remain unaffected by this.": "We are not obliged to monitor the information transmitted or stored by third parties, nor to investigate circumstances that point to illegal activity. Our obligations to remove or block the use of information under generally applicable laws remain unaffected by this.",
     "We maintain API usage logs for a period deemed appropriate to ensure optimal service.": "We maintain API usage logs for a period deemed appropriate to ensure optimal service.",
-    "We provide": "We provide",
     "We will only retain personal information as long as necessary for the fulfillment of those purposes.": "We will only retain personal information as long as necessary for the fulfillment of those purposes.",
     "We will protect personal information by reasonable security safeguards against loss or theft, as well as unauthorized access, disclosure, copying, use or modification.": "We will protect personal information by reasonable security safeguards against loss or theft, as well as unauthorized access, disclosure, copying, use or modification.",
     "Web API Key": "Web API Key",
@@ -421,8 +418,6 @@
     "of {{pageNumber, number}}": "of {{pageNumber, number}}",
     "supportedGameFilesCountLabel_one": "There is currently <1>{{count, number}}</1> supported game file hash registered for this game.",
     "supportedGameFilesCountLabel_other": "There are currently <1>{{count, number}}</1> supported game file hashes registered for this game.",
-    "the emulators": "the emulators",
-    "the games": "the games",
     "unknown": "unknown",
     "userCount_one": "<1>{{userCount, number}}</1> user is currently online.",
     "userCount_other": "<1>{{userCount, number}}</1> users are currently online.",
@@ -499,5 +494,8 @@
     "Go to previous news page": "Go to previous news page",
     "Go to next news page": "Go to next news page",
     "Swipe to view more": "Swipe to view more",
-    "All {{systemName}} Games": "All {{systemName}} Games"
+    "All {{systemName}} Games": "All {{systemName}} Games",
+    "We provide <1>the emulators</1>, you just need <2>the games</2>. From Atari 2600 to PlayStation 2, and everything in between.": "We provide <1>the emulators</1>, you just need <2>the games</2>. From Atari 2600 to PlayStation 2, and everything in between.",
+    "We're excited to have you here! We know you might have some questions about hardcore mode, RetroPoints (white points), subsets, or which emulators to use. Don't worry, we've got you covered! Check out our <1>comprehensive FAQ</1> to get started. Happy gaming!": "We're excited to have you here! We know you might have some questions about hardcore mode, RetroPoints (white points), subsets, or which emulators to use. Don't worry, we've got you covered! Check out our <1>comprehensive FAQ</1> to get started. Happy gaming!",
+    "Getting Started": "Getting Started"
 }

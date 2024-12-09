@@ -11,7 +11,6 @@ import {
   linkifyDirective,
   modalComponent,
   navbarSearchComponent,
-  newsCarouselComponent,
   toggleAchievementRowsComponent,
   tooltipComponent,
 } from './alpine';
@@ -58,7 +57,6 @@ window.updateUrlParameter = updateUrlParameter;
 
 // Alpine.js Components
 window.modalComponent = modalComponent;
-window.newsCarouselComponent = newsCarouselComponent;
 window.toggleAchievementRowsComponent = toggleAchievementRowsComponent;
 window.tooltipComponent = tooltipComponent;
 window.navbarSearchComponent = navbarSearchComponent;

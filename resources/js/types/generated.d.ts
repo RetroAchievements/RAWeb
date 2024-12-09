@@ -186,6 +186,7 @@ declare namespace App.Data {
     emailAddress?: string | null;
     id?: number;
     isMuted?: boolean;
+    isNew?: boolean;
     legacyPermissions?: number | null;
     locale?: string | null;
     motto?: string;

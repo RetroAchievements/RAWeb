@@ -5,7 +5,6 @@ import type { route as routeFn } from 'ziggy-js';
 import type {
   modalComponent as ModalComponent,
   navbarSearchComponent as NavbarSearchComponent,
-  newsCarouselComponent as NewsCarouselComponent,
   toggleAchievementRowsComponent as ToggleAchievementRowsComponent,
   tooltipComponent as TooltipComponent,
 } from '@/tall-stack/alpine';
@@ -48,7 +47,6 @@ declare global {
   var injectShortcode: typeof InjectShortcode;
   var loadPostPreview: typeof LoadPostPreview;
   var modalComponent: typeof ModalComponent;
-  var newsCarouselComponent: typeof NewsCarouselComponent;
   var navbarSearchComponent: typeof NavbarSearchComponent;
   var setCookie: typeof SetCookie;
   var showStatusFailure: (message: string) => void;
