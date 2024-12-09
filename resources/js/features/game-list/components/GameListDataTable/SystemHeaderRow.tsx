@@ -5,7 +5,7 @@ import { BaseTableCell, BaseTableRow } from '@/common/components/+vendor/BaseTab
 
 interface SystemHeaderRowProps {
   /**
-   * Total numbers of columns currently visible on the table.
+   * Total number of columns currently visible on the table.
    * This is used to ensure the header spans the full width of the table via colspan.
    */
   columnCount: number;
