@@ -55,7 +55,7 @@ class SystemController extends Controller
 
         $paginatedData = (new BuildGameListAction())->execute(
             GameListType::System,
-            targetSystemId: $system->id,
+            targetId: $system->id,
             user: $user,
             filters: $request->getFilters(targetSystemId: $system->id),
             sort: $request->getSort(),

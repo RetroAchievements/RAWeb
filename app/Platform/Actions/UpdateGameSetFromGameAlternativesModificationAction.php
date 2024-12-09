@@ -46,13 +46,15 @@ class UpdateGameSetFromGameAlternativesModificationAction
 
         if ($isAttaching) {
             if (
-                !$parentGameSet->links()->where('child_game_set_id', $childGameSet->id)->exists()
+                !$parentGameSet->children()->where('child_game_set_id', $childGameSet->id)->exists()
                 && $isHubLink
             ) {
-                $parentGameSet->links()->attach($childGameSet->id, [
+                $parentGameSet->children()->attach($childGameSet->id, [
                     'created_at' => $createdAt,
                     'updated_at' => $updatedAt,
                 ]);
+                $parentGameSet->touch();
+                $childGameSet->touch();
             } else {
                 // Ensure bi-directionality for non-hub games.
                 if (!$parentGameSet->games()->where('game_id', $childGame->id)->exists()) {
@@ -60,6 +62,7 @@ class UpdateGameSetFromGameAlternativesModificationAction
                         'created_at' => $createdAt,
                         'updated_at' => $updatedAt,
                     ]);
+                    $parentGameSet->touch();
                 }
 
                 if (
@@ -70,16 +73,22 @@ class UpdateGameSetFromGameAlternativesModificationAction
                         'created_at' => $createdAt,
                         'updated_at' => $updatedAt,
                     ]);
+                    $childGameSet->touch();
                 }
             }
         } else {
             if ($isHubLink) {
-                $parentGameSet->links()->detach($childGameSet->id);
+                $parentGameSet->children()->detach($childGameSet->id);
+                $parentGameSet->touch();
+                $childGameSet->touch();
             } else {
                 // Ensure bi-directionality for non-hub games.
                 $parentGameSet->games()->detach($childGame->id);
+                $parentGameSet->touch();
+
                 if ($isSimilarGamesLink) {
                     $childGameSet->games()->detach($parentGame->id);
+                    $childGameSet->touch();
                 }
             }
         }

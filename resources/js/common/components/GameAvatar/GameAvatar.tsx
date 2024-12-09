@@ -31,6 +31,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
   shouldGlow = false,
   showImage = true,
   showLabel = true,
+  shouldLink = true,
   showSystemChip = false,
   size = 32,
   hasTooltip = true,
@@ -43,11 +44,13 @@ export const GameAvatar: FC<GameAvatarProps> = ({
     dynamicContext: showHoverCardProgressForUsername ?? auth?.user.displayName,
   });
 
+  const Wrapper = shouldLink ? 'a' : 'div';
+
   return (
-    <a
-      href={route('game.show', { game: id })}
+    <Wrapper
+      href={shouldLink ? route('game.show', { game: id }) : undefined}
       className="flex items-center gap-2"
-      {...(hasTooltip ? cardTooltipProps : undefined)}
+      {...(hasTooltip && shouldLink ? cardTooltipProps : undefined)}
     >
       {showImage ? (
         <>
@@ -74,7 +77,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
           <SystemChip {...system} className="text-text hover:text-text" />
         ) : null}
       </div>
-    </a>
+    </Wrapper>
   );
 };
 

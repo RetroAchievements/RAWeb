@@ -2,11 +2,21 @@
     'gameId' => 0,
     'gameTitle' => '',
     'gameImageIcon' => '',
+    'gameSetId' => null, // ?int
     'consoleName' => '',
     'isFullyFeaturedGame' => false,
     'totalPoints' => 0,
     'totalRetroPoints' => 0,
 ])
+
+<?php
+
+$href = route('game.show', $gameId);
+if (config('feature.enable_modern_hubs') && $gameSetId) {
+    $href = route('hub.show', ['gameSet' => $gameSetId]);
+}
+
+?>
 
 <tr>
     <td class="w-full py-2">
@@ -15,6 +25,7 @@
             :gameTitle="$gameTitle"
             :gameImageIcon="$gameImageIcon"
             :consoleName="$consoleName"
+            :href="$href"
         />
     </td>
 
