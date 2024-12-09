@@ -104,7 +104,10 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
 
       {ziggy.device === 'desktop' ? (
         <div className="flex flex-col gap-3">
-          <GameListDataTable table={table as Table<unknown>} />
+          <GameListDataTable
+            table={table}
+            isLoading={gameListQuery.isLoading || gameListQuery.isFetching}
+          />
 
           <DataTablePagination
             table={table as Table<unknown>}
