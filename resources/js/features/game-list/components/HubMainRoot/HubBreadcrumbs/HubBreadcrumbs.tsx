@@ -1,4 +1,3 @@
-import { Link } from '@inertiajs/react';
 import { type FC, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -34,9 +33,7 @@ export const HubBreadcrumbs: FC<HubBreadcrumbsProps> = ({ breadcrumbs }) => {
                   <>
                     <BaseBreadcrumbItem aria-label={breadcrumb.title!}>
                       <BaseBreadcrumbLink asChild>
-                        <Link href={route('hub.show', { gameSet: breadcrumb.id })}>
-                          {currentTitle}
-                        </Link>
+                        <a href={route('hub.show', { gameSet: breadcrumb.id })}>{currentTitle}</a>
                       </BaseBreadcrumbLink>
                     </BaseBreadcrumbItem>
 

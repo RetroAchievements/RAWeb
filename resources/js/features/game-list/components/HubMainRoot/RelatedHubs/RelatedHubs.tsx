@@ -1,4 +1,3 @@
-import { Link } from '@inertiajs/react';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -42,7 +41,7 @@ export const RelatedHubs: FC = () => {
             {relatedHubs.map((relatedHub) => (
               <BaseTableRow key={`related-${relatedHub.id}`}>
                 <BaseTableCell>
-                  <Link
+                  <a
                     href={route('hub.show', { gameSet: relatedHub.id })}
                     className="flex max-w-fit items-center gap-2"
                   >
@@ -57,7 +56,7 @@ export const RelatedHubs: FC = () => {
                     />
 
                     <GameTitle title={cleanHubTitle(relatedHub.title!)} />
-                  </Link>
+                  </a>
                 </BaseTableCell>
 
                 <BaseTableCell className="text-right">
