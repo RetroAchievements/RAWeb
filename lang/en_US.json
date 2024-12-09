@@ -499,5 +499,9 @@
     "Go to previous news page": "Go to previous news page",
     "Go to next news page": "Go to next news page",
     "Swipe to view more": "Swipe to view more",
-    "All {{systemName}} Games": "All {{systemName}} Games"
+    "All {{systemName}} Games": "All {{systemName}} Games",
+    "rowGroupAriaLabel_one": "{{systemName}} group wtih {{val, number}} game",
+    "rowGroupAriaLabel_other": "{{systemName}} group with {{val, number}} games",
+    "Games are now grouped by system": "Games are now grouped by system",
+    "Games are no longer grouped": "Games are no longer grouped"
 }
