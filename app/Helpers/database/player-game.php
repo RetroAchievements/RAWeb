@@ -237,6 +237,11 @@ function getUserAchievementUnlocksForGame(User|string $user, int $gameID, Achiev
 
 function reactivateUserEventAchievements(User $user, array $userUnlocks): array
 {
+    // unranked users can't participate in events
+    if (!$user->isRanked()) {
+        return $userUnlocks;
+    }
+
     // find any active event achievements for the set of achievements that the user has already unlocked
     $activeEventAchievementMap = EventAchievement::active()
         ->whereIn('source_achievement_id', array_keys($userUnlocks))
