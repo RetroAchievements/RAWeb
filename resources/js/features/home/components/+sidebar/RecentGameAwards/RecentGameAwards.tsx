@@ -19,9 +19,9 @@ export const RecentGameAwards: FC = () => {
       {mostRecentGameMastered ? (
         <div className="flex flex-col gap-1">
           <GameAwardHeadline>
-            <p>{t('Most recent game mastered')}</p>
+            <p className="text-text">{t('Most recent game mastered')}</p>
             <p>
-              <DiffTimestamp at={mostRecentGameMastered.awardedAt} className="uppercase" />
+              <DiffTimestamp at={mostRecentGameMastered.awardedAt} />
             </p>
           </GameAwardHeadline>
 
@@ -32,9 +32,9 @@ export const RecentGameAwards: FC = () => {
       {mostRecentGameBeaten ? (
         <div className="flex flex-col gap-1">
           <GameAwardHeadline>
-            <p>{t('Most recent game beaten')}</p>
+            <p className="text-text">{t('Most recent game beaten')}</p>
             <p>
-              <DiffTimestamp at={mostRecentGameBeaten.awardedAt} className="uppercase" />
+              <DiffTimestamp at={mostRecentGameBeaten.awardedAt} />
             </p>
           </GameAwardHeadline>
 
@@ -50,11 +50,7 @@ interface GameAwardHeadlineProps {
 }
 
 const GameAwardHeadline: FC<GameAwardHeadlineProps> = ({ children }) => {
-  return (
-    <div className="flex w-full justify-between text-2xs uppercase text-neutral-400/90">
-      {children}
-    </div>
-  );
+  return <div className="flex w-full justify-between text-2xs text-neutral-400/90">{children}</div>;
 };
 
 interface GameAwardCardProps {

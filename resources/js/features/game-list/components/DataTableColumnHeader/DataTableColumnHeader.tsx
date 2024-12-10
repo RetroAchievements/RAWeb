@@ -27,12 +27,14 @@ interface DataTableColumnHeaderProps<TData, TValue> extends HTMLAttributes<HTMLD
 
   /** The controller route name where client-side calls for this datatable are made. */
   tableApiRouteName?: RouteName;
+  tableApiRouteParams?: Record<string, unknown>;
 }
 
 export function DataTableColumnHeader<TData, TValue>({
   className,
   column,
   table,
+  tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
 }: DataTableColumnHeaderProps<TData, TValue>): ReactNode {
   const { t } = useTranslation();
@@ -40,7 +42,7 @@ export function DataTableColumnHeader<TData, TValue>({
   /**
    * On hovering over a sort menu item, prefetch the result.
    */
-  const { prefetchSort } = useDataTablePrefetchSort(table, tableApiRouteName);
+  const { prefetchSort } = useDataTablePrefetchSort(table, tableApiRouteName, tableApiRouteParams);
 
   /**
    * Used to determine what labels and icons should be shown in the header's sort menu.

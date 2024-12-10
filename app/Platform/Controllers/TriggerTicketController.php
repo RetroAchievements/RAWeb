@@ -12,10 +12,10 @@ use App\Models\TriggerTicket;
 use App\Platform\Actions\BuildTicketCreationDataAction;
 use App\Support\Concerns\HandlesResources;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class TriggerTicketController extends Controller
 {
@@ -41,7 +41,7 @@ class TriggerTicketController extends Controller
         Request $request,
         Achievement $achievement,
         BuildTicketCreationDataAction $buildTicketCreationData,
-    ): InertiaResponse|RedirectResponse {
+    ): InertiaResponse|HttpResponse {
         $this->authorize('create', [TriggerTicket::class, $achievement]);
 
         // A user can only have one ticket open at a time for a triggerable.
@@ -51,7 +51,8 @@ class TriggerTicketController extends Controller
             ->whereNotIn('ReportState', [TicketState::Closed, TicketState::Resolved])
             ->first();
         if ($existingTicket) {
-            return redirect()->route('ticket.show', ['ticket' => $existingTicket->id]);
+            // TODO stop using Inertia::location() after ticket.show is migrated to React
+            return Inertia::location(route('ticket.show', ['ticket' => $existingTicket->id]));
         }
 
         $props = $buildTicketCreationData->execute($achievement, $request->user());
@@ -59,7 +60,8 @@ class TriggerTicketController extends Controller
         // If for some reason there are no hashes or emulators associated with a
         // game, then it isn't possible to create tickets for its triggerables.
         if (!count($props->gameHashes) || !count($props->emulators)) {
-            return redirect()->route('achievement.show', $achievement->id);
+            // TODO stop using Inertia::location() after achievement.show is migrated to React
+            return Inertia::location(route('achievement.show', $achievement->id));
         }
 
         return Inertia::render('achievement/[achievement]/tickets/create', $props);
