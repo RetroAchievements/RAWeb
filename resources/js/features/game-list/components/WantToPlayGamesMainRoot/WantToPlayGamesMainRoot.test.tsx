@@ -347,6 +347,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [
           createSystem({ id: 1, name: 'Genesis/Mega Drive', nameShort: 'MD' }),
+          createSystem({ id: 2, name: 'NES/Famicom', nameShort: 'NES' }),
         ],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
@@ -388,6 +389,7 @@ describe('Component: WantToPlayGamesMainRoot', () => {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [
           createSystem({ id: 1, name: 'Genesis/Mega Drive', nameShort: 'MD' }),
+          createSystem({ id: 2, name: 'NES/Famicom', nameShort: 'NES' }),
         ],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
@@ -419,7 +421,10 @@ describe('Component: WantToPlayGamesMainRoot', () => {
     render<App.Community.Data.UserGameListPageProps>(<WantToPlayGamesMainRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        filterableSystemOptions: [
+          createSystem({ id: 1, name: 'Genesis/Mega Drive' }),
+          createSystem({ id: 2, name: 'NES/Famicom', nameShort: 'NES' }),
+        ],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
