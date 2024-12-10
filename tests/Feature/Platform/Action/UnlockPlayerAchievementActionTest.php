@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
-class UnlockPlayerAchievementActionTests extends TestCase
+class UnlockPlayerAchievementActionTest extends TestCase
 {
     use RefreshDatabase;
 
