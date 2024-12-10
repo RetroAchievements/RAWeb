@@ -13,7 +13,7 @@ class BuildNewsDataAction
     /**
      * @return Collection<int, NewsData>
      */
-    public function execute(int $limit = 3): Collection
+    public function execute(int $limit = 9): Collection
     {
         $news = News::orderByDesc('Timestamp')
             ->with('user')

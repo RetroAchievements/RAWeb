@@ -26,7 +26,8 @@ class AchievementAuthorshipCreditFormSchema
                 ->getSearchResultsUsing(function (string $search): array {
                     $lowercased = strtolower($search);
 
-                    return User::whereRaw('LOWER(User) = ?', [$lowercased])
+                    return User::withTrashed()
+                        ->whereRaw('LOWER(User) = ?', [$lowercased])
                         ->orWhere(function ($query) use ($lowercased) {
                             $query->whereRaw('LOWER(display_name) like ?', ["%{$lowercased}%"])
                                 ->orWhereRaw('LOWER(User) like ?', ["%{$lowercased}%"]);
@@ -37,7 +38,7 @@ class AchievementAuthorshipCreditFormSchema
                         ->pluck('display_name', 'id')
                         ->toArray();
                 })
-                ->getOptionLabelUsing(fn (int $value): string => User::find($value)?->display_name ?? 'Deleted User')
+                ->getOptionLabelUsing(fn (int $value): string => User::withTrashed()->find($value)?->display_name ?? 'Deleted User')
                 ->required(),
 
             Forms\Components\DateTimePicker::make('created_at')
