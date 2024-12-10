@@ -11,6 +11,7 @@
     @if (empty($page))
         <title>{{ (!empty($pageTitle) ? $pageTitle . ' · ' : '') . config('app.name') }}</title>
         <meta name="description" content="{{ $pageDescription ?? __('app.description') }}">
+        <meta property="og:description" content="{{ $pageDescription ?? $pageTitle ?? __('app.description') }}">
     @endif
 
     <link rel="icon" type="image/png" href="{{ asset(app()->environment('local', 'stage') ? 'assets/images/favicon-gray.webp' : 'assets/images/favicon.webp') }}">
@@ -27,7 +28,6 @@
         <meta name="robots" content="noindex,nofollow" />
     @endif
     <meta property="og:title" content="{{ $pageTitle ?? config('app.name') }}">
-    <meta property="og:description" content="{{ $pageDescription ?? $pageTitle ?? __('app.description') }}">
     <meta property="og:image" content="{{ $pageImage ?? asset('assets/images/favicon.webp') }}">
     <meta property="og:url" content="{{ $permalink ?? request()->url() }}">
     <meta property="og:type" content="{{ $pageType ?? 'website' }}">

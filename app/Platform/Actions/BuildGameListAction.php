@@ -30,6 +30,7 @@ class BuildGameListAction
         int $page = 1,
         array $sort = [],
         array $filters = [],
+        ?int $targetSystemId = null,
     ): PaginatedData {
         /**
          * 👉 Game lists, by design, have a lot of complexity and are tricky to maintain.
@@ -40,7 +41,7 @@ class BuildGameListAction
 
         // Regardless of the list context, we'll build a common base query which can use
         // the reusable sorts and filters and then be passed to a datatable component.
-        $query = $this->buildBaseQuery($listType, $user);
+        $query = $this->buildBaseQuery($listType, $user, $targetSystemId);
 
         // Clone the common base query to calculate the unfiltered total.
         // This lets us show something like "3 of 587 games" in the UI.

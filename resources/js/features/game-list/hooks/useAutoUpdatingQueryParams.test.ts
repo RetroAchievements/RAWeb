@@ -2,6 +2,7 @@ import type { ColumnFiltersState, PaginationState, SortingState } from '@tanstac
 
 import { renderHook } from '@/test';
 
+import { allGamesDefaultFilters } from '../utils/allGamesDefaultFilters';
 import { useAutoUpdatingQueryParams } from './useAutoUpdatingQueryParams';
 
 describe('Hook: useAutoUpdatingQueryParams', () => {
@@ -35,7 +36,12 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const sorting: SortingState = [{ id: 'title', desc: true }];
 
     const { result } = renderHook(() =>
-      useAutoUpdatingQueryParams({ columnFilters, pagination, sorting }),
+      useAutoUpdatingQueryParams({
+        columnFilters,
+        pagination,
+        sorting,
+        defaultFilters: allGamesDefaultFilters,
+      }),
     );
 
     // ASSERT
@@ -48,7 +54,14 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: true }];
 
-    renderHook(() => useAutoUpdatingQueryParams({ columnFilters, pagination, sorting }));
+    renderHook(() =>
+      useAutoUpdatingQueryParams({
+        columnFilters,
+        pagination,
+        sorting,
+        defaultFilters: allGamesDefaultFilters,
+      }),
+    );
 
     // ASSERT
     expect(replaceStateSpy).not.toHaveBeenCalled();
@@ -61,7 +74,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
-      initialProps: { columnFilters, pagination, sorting },
+      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
     // ACT
@@ -70,6 +83,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
       columnFilters,
       sorting,
       pagination: updatedPagination,
+      defaultFilters: allGamesDefaultFilters,
     });
 
     // ASSERT
@@ -83,7 +97,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
-      initialProps: { columnFilters, pagination, sorting },
+      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
     // ACT
@@ -92,6 +106,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
       columnFilters,
       sorting,
       pagination: updatedPagination,
+      defaultFilters: allGamesDefaultFilters,
     });
 
     // ASSERT
@@ -105,7 +120,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
-      initialProps: { columnFilters, pagination, sorting },
+      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
     // ACT
@@ -114,6 +129,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
       columnFilters,
       pagination,
       sorting: updatedSorting,
+      defaultFilters: allGamesDefaultFilters,
     });
 
     // ASSERT
@@ -127,7 +143,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const sorting = [{ id: 'system', desc: true }];
 
     const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
-      initialProps: { columnFilters, pagination, sorting },
+      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
     // ACT
@@ -136,6 +152,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
       columnFilters,
       pagination,
       sorting: updatedSorting,
+      defaultFilters: allGamesDefaultFilters,
     });
 
     // ASSERT
@@ -149,7 +166,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
-      initialProps: { columnFilters, pagination, sorting },
+      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
     // ACT
@@ -161,6 +178,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
       pagination,
       sorting,
       columnFilters: updatedFilters,
+      defaultFilters: allGamesDefaultFilters,
     });
 
     // ASSERT
@@ -174,7 +192,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
-      initialProps: { columnFilters, pagination, sorting },
+      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
     // ACT
@@ -186,6 +204,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
       pagination,
       sorting,
       columnFilters: updatedFilters,
+      defaultFilters: allGamesDefaultFilters,
     });
 
     // ASSERT
@@ -207,7 +226,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
-      initialProps: { columnFilters, pagination, sorting },
+      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
     // ACT
@@ -216,6 +235,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
       pagination,
       sorting,
       columnFilters: updatedFilters,
+      defaultFilters: allGamesDefaultFilters,
     });
 
     // ASSERT
@@ -255,7 +275,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
-      initialProps: { columnFilters, pagination, sorting },
+      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
     // ACT
@@ -264,6 +284,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
       pagination,
       sorting,
       columnFilters: updatedFilters,
+      defaultFilters: allGamesDefaultFilters,
     });
 
     // ASSERT
@@ -280,7 +301,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
-      initialProps: { columnFilters, pagination, sorting },
+      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
     // ACT
@@ -292,9 +313,116 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
       pagination,
       sorting,
       columnFilters: updatedFilters,
+      defaultFilters: allGamesDefaultFilters,
     });
 
     // ASSERT
     expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games'));
+  });
+
+  it('given a non-array filter value matches the default, removes it from query params', () => {
+    // ARRANGE
+    const columnFilters: ColumnFiltersState = [
+      { id: 'achievementsPublished', value: ['has'] },
+      { id: 'title', value: 'default-value' },
+    ];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: false }];
+    const defaultFilters: ColumnFiltersState = [{ id: 'title', value: 'default-value' }];
+
+    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+      initialProps: {
+        columnFilters,
+        pagination,
+        sorting,
+        defaultFilters,
+      },
+    });
+
+    // ACT
+    const updatedColumnFilters = [...columnFilters]; // trigger the effect
+    rerender({
+      columnFilters: updatedColumnFilters,
+      pagination,
+      sorting,
+      defaultFilters,
+    });
+
+    // ASSERT
+    expect(replaceStateSpy).toHaveBeenCalledWith(
+      null,
+      '',
+      encodeURI('/games?filter[achievementsPublished]=has'),
+    );
+  });
+
+  it('given a non-array filter value differs from default, includes it in query params', () => {
+    // ARRANGE
+    const columnFilters: ColumnFiltersState = [
+      { id: 'achievementsPublished', value: ['has'] },
+      { id: 'title', value: 'default-value' },
+    ];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: false }];
+    const defaultFilters: ColumnFiltersState = [{ id: 'title', value: 'default-value' }];
+
+    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+      initialProps: {
+        columnFilters,
+        pagination,
+        sorting,
+        defaultFilters,
+      },
+    });
+
+    // ACT
+    const updatedColumnFilters: ColumnFiltersState = [
+      { id: 'achievementsPublished', value: ['has'] },
+      { id: 'title', value: 'new-value' },
+    ];
+    rerender({
+      columnFilters: updatedColumnFilters,
+      pagination,
+      sorting,
+      defaultFilters,
+    });
+
+    // ASSERT
+    expect(replaceStateSpy).toHaveBeenCalledWith(
+      null,
+      '',
+      encodeURI('/games?filter[achievementsPublished]=has&filter[title]=new-value'),
+    );
+  });
+
+  it('given arrays of different lengths, treats them as non-matching filters', () => {
+    // ARRANGE
+    const columnFilters: ColumnFiltersState = [{ id: 'platform', value: ['1'] }];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: false }];
+    const defaultFilters: ColumnFiltersState = [{ id: 'platform', value: ['1'] }];
+
+    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+      initialProps: {
+        columnFilters,
+        pagination,
+        sorting,
+        defaultFilters,
+      },
+    });
+
+    // ACT
+    const updatedColumnFilters: ColumnFiltersState = [
+      { id: 'platform', value: ['1', '2'] }, // ... changed from ['1'] to ['1', '2'].
+    ];
+    rerender({
+      columnFilters: updatedColumnFilters,
+      pagination,
+      sorting,
+      defaultFilters,
+    });
+
+    // ASSERT
+    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', '/games?filter%5Bplatform%5D=1%2C2');
   });
 });

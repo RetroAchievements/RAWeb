@@ -273,7 +273,7 @@ declare namespace App.Models {
     | 'engineer'
     | 'team-account'
     | 'beta'
-    | 'developer-veteran';
+    | 'developer-retired';
 }
 declare namespace App.Platform.Data {
   export type Achievement = {
@@ -411,6 +411,12 @@ declare namespace App.Platform.Data {
     nameFull?: string;
     nameShort?: string;
     iconUrl?: string;
+  };
+  export type SystemGameListPageProps<TItems = App.Platform.Data.GameListEntry> = {
+    system: App.Platform.Data.System;
+    paginatedGameListEntries: App.Data.PaginatedData<TItems>;
+    can: App.Data.UserPermissions;
+    defaultDesktopPageSize: number;
   };
 }
 declare namespace App.Platform.Enums {

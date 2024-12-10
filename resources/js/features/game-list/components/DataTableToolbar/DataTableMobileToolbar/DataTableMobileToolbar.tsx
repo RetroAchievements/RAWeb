@@ -22,11 +22,13 @@ interface DataTableMobileToolbarProps<TData> {
 
   randomGameApiRouteName?: RouteName;
   tableApiRouteName?: RouteName;
+  tableApiRouteParams?: Record<string, unknown>;
 }
 
 // Lazy-loaded, so using a default export.
 export default function DataTableMobileToolbar<TData>({
   table,
+  tableApiRouteParams,
   randomGameApiRouteName = 'api.game.random',
   tableApiRouteName = 'api.game.index',
 }: DataTableMobileToolbarProps<TData>) {
@@ -40,6 +42,7 @@ export default function DataTableMobileToolbar<TData>({
     pagination: tableState.pagination,
     sorting: tableState.sorting,
     apiRouteName: tableApiRouteName,
+    apiRouteParams: tableApiRouteParams,
   });
 
   const totalGames = infiniteQuery.data?.pages[0]?.total ?? 0;
@@ -57,7 +60,11 @@ export default function DataTableMobileToolbar<TData>({
           )}
         </BaseChip>
 
-        <DataTableSuperFilter table={table} randomGameApiRouteName={randomGameApiRouteName} />
+        <DataTableSuperFilter
+          table={table}
+          randomGameApiRouteName={randomGameApiRouteName}
+          randomGameApiRouteParams={tableApiRouteParams}
+        />
       </div>
 
       <DataTableSearchInput table={table} hasClearButton={true} hasHotkey={false} />
