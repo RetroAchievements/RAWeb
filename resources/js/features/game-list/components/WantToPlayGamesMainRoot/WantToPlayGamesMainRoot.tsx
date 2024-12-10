@@ -43,6 +43,7 @@ export const WantToPlayGamesMainRoot: FC = () => {
     columnFilters,
     pagination,
     sorting,
+    defaultFilters: wantToPlayGamesDefaultFilters,
     defaultPageSize: defaultDesktopPageSize,
   });
 

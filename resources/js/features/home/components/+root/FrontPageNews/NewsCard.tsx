@@ -1,6 +1,7 @@
 import { type FC, type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 interface NewsCardProps {
@@ -24,14 +25,20 @@ export const NewsCard: FC<NewsCardProps> = ({
   title,
   className,
 }) => {
+  const { ziggy } = usePageProps();
+
   const { t } = useTranslation();
 
   return (
     <a
       href={href}
       className={cn(
-        'group -mx-2 cursor-pointer gap-6 rounded-xl bg-embed p-2 sm:flex',
+        'group -mx-2 cursor-pointer gap-6 rounded-xl p-2 sm:flex',
         'hover:bg-neutral-950/30 hover:light:bg-neutral-100',
+
+        ziggy.device === 'desktop' ? 'sm:bg-embed' : '',
+        ziggy.device === 'mobile' ? 'bg-embed' : '',
+
         className,
       )}
     >
@@ -83,9 +90,8 @@ const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
 
       {isImageValid ? (
         <div
-          className="h-28 w-full rounded object-cover sm:w-[197px]"
+          className="h-28 w-full rounded bg-cover bg-center sm:w-[197px]"
           style={{
-            backgroundSize: 'cover',
             backgroundImage: `url(${src})`,
             // TODO reintroduce (and adjust) linear gradient when tagLabel is used
             // backgroundImage: `linear-gradient(297.68deg, rgba(0, 0, 0, 0.77) 3.95%, rgba(0, 0, 0, 0) 48.13%), url(${src})`,

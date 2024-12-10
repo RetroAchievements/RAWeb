@@ -47,6 +47,7 @@ class HandleInertiaRequests extends Middleware
                     'isMuted',
                     'legacyPermissions',
                     'locale',
+                    'playerPreferredMode',
                     'points',
                     'pointsSoftcore',
                     'mutedUntil',

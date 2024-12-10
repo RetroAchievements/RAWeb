@@ -31,6 +31,7 @@ class EventAchievement extends BaseModel
     ];
 
     public const RAEVENTS_USER_ID = 279854;
+    public const DEVQUEST_USER_ID = 240336;
 
     // == accessors
 

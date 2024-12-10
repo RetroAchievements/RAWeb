@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Platform;
 
 use App\Models\GameHash;
+use App\Models\System;
 use App\Platform\Controllers\AchievementController;
 use App\Platform\Controllers\Api\GameApiController;
+use App\Platform\Controllers\Api\SystemApiController;
 use App\Platform\Controllers\Api\TriggerTicketApiController;
 use App\Platform\Controllers\GameController;
 use App\Platform\Controllers\GameHashController;
@@ -29,8 +31,8 @@ class RouteServiceProvider extends ServiceProvider
          */
         Route::pattern('achievement', '[0-9]{1,17}');
         Route::pattern('game', '[0-9]{1,17}');
-        Route::pattern('game_hash', '[a-zA-Z0-9]{1,32}');
-        Route::pattern('system', '[0-9]{1,17}');
+        Route::pattern('system', '[a-zA-Z0-9-]+'); // self-healing URLs
+        Route::pattern('systemId', '[0-9]{1,17}');
 
         /*
          * Don't reference hash identifiers by their raw ID
@@ -51,13 +53,18 @@ class RouteServiceProvider extends ServiceProvider
             Route::group(['prefix' => 'internal-api'], function () {
                 Route::get('games', [GameApiController::class, 'index'])->name('api.game.index');
                 Route::get('games/random', [GameApiController::class, 'random'])->name('api.game.random');
+
+                Route::get('system/{systemId}/games', [SystemApiController::class, 'games'])->name('api.system.game.index');
+                Route::get('system/{systemId}/games/random', [SystemApiController::class, 'random'])->name('api.system.game.random');
             });
 
-            Route::middleware(['inertia'])->group(function () {
+            Route::middleware(['web', 'inertia'])->group(function () {
                 Route::get('game/{game}/hashes', [GameHashController::class, 'index'])->name('game.hashes.index');
                 Route::get('game/{game}/top-achievers', [GameTopAchieversController::class, 'index'])->name('game.top-achievers.index');
 
                 Route::get('games', [GameController::class, 'index'])->name('game.index');
+
+                Route::get('system/{system}/games', [SystemController::class, 'games'])->name('system.game.index');
             });
 
             // Route::get('achievement/{achievement}{slug?}', [AchievementController::class, 'show'])->name('achievement.show');
