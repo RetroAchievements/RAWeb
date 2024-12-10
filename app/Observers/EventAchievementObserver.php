@@ -35,7 +35,11 @@ class EventAchievementObserver
 
                 // copy any unlocks during the active period from the source achievement to the event achievement
                 $winners = PlayerAchievement::where('achievement_id', '=', $sourceAchievement->id)
-                    ->whereNotNull('unlocked_hardcore_at');
+                    ->whereNotNull('unlocked_hardcore_at')
+                    ->whereHas('user', function ($query) {
+                        $query->where('Untracked', '!=', 1)
+                            ->whereNull('unranked_at');
+                    });
 
                 if ($eventAchievement->active_from) {
                     $winners->where('unlocked_hardcore_at', '>=', $eventAchievement->active_from);

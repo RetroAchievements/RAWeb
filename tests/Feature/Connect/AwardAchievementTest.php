@@ -855,9 +855,40 @@ class AwardAchievementTest extends TestCase
         $this->user->refresh();
         $this->assertEquals($scoreBefore + $achievement2->Points, $this->user->RAPoints);
         $this->assertEquals($softcoreScoreBefore - $achievement2->Points, $this->user->RASoftcorePoints);
+        $scoreBefore = $this->user->RAPoints;
+        $softcoreScoreBefore = $this->user->RASoftcorePoints;
 
         // achievement unlocked
         $this->assertHasHardcoreUnlock($this->user, $eventAchievement2);
+
+        /** @var Achievement $eventAchievement3 */
+        $eventAchievement3 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+        EventAchievement::create([
+            'achievement_id' => $eventAchievement3->ID,
+            'source_achievement_id' => $achievement3->ID,
+            'active_from' => $now->clone()->subDays(1),
+            'active_until' => $now->clone()->addDays(2),
+        ]);
+
+        // hardcore unlock while untracked doesn't unlock event achievement
+        $this->user->unranked_at = Carbon::now();
+        $this->user->save();
+
+        // do the hardcore unlock
+        $validationHash = $this->buildValidationHash($achievement3, $this->user, 1);
+
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->ID,
+                'AchievementsRemaining' => 1,
+                'Score' => $scoreBefore + $achievement3->Points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+
+        // achievement unlocked, but not event achievement
+        $this->assertHasHardcoreUnlock($this->user, $achievement3);
+        $this->assertDoesNotHaveAnyUnlock($this->user, $eventAchievement3);
     }
 
     public function testUserAgentHardcore(): void
