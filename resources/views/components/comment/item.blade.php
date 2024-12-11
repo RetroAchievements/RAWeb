@@ -8,6 +8,14 @@
     'allowDelete' => false,
 ])
 
+@php
+
+use App\Community\Enums\ArticleType;
+
+settype($articleType, 'integer');
+
+@endphp
+
 @if ($author && $author->User === 'Server')
     <tr class="comment system">
         <td class="align-top py-2">
@@ -27,7 +35,8 @@
             </div>
         </td>
     </tr>
-@elseif ($author && $author->banned_at && !request()->user()?->can('manage', $author))
+@elseif ($articleType !== ArticleType::AchievementTicket &&
+         $author && $author->banned_at && !request()->user()?->can('manage', $author))
     {{-- banned user comments are only visible to moderators --}}
 @else
     <tr class="comment" @if ($commentId > 0) id="comment_{{ $commentId }}_highlight" @endif>
