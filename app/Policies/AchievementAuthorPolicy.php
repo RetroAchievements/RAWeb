@@ -72,12 +72,22 @@ class AchievementAuthorPolicy
 
     public function canUpsertTask(User $user, AchievementAuthorTask $task): bool
     {
-        // Artists can only give artwork credit.
-        if ($user->roles->count() === 1 && $user->hasRole(Role::ARTIST)) {
-            return $task === AchievementAuthorTask::Artwork;
+        // These roles can assign any type of credit.
+        $alwaysAllowed = [
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::MODERATOR,
+            Role::TEAM_ACCOUNT,
+        ];
+        if ($user->hasAnyRole($alwaysAllowed)) {
+            return true;
         }
 
-        // Other authorized roles can assign any task.
-        return $this->manage($user);
+        // Artists can assign artwork credit.
+        if ($task === AchievementAuthorTask::Artwork && $user->hasRole(Role::ARTIST)) {
+            return true;
+        }
+
+        return false;
     }
 }
