@@ -27,7 +27,6 @@ export const HubMainRoot: FC = () => {
     setSorting,
     sorting,
   } = useGameListState(paginatedGameListEntries, {
-    alwaysShowPlayersTotal: true,
     canShowProgressColumn: !!auth?.user,
     defaultColumnFilters: hubGamesDefaultFilters,
   });

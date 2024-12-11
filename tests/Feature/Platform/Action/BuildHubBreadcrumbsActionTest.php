@@ -271,4 +271,137 @@ class BuildHubBreadcrumbsActionTest extends TestCase
         $this->assertBreadcrumb($breadcrumbs[1], $parent1->id, '[Genre - RPG]');
         $this->assertBreadcrumb($breadcrumbs[2], $childHub->id, '[Genre - Action RPG]');
     }
+
+    public function testItHandlesNestedMiscHubHierarchy(): void
+    {
+        // Arrange
+        $centralHub = $this->createHub('[Central]');
+        $centralHub->id = GameSet::CentralHubId;
+        $centralHub->save();
+
+        $centralMiscHub = $this->createHub('[Central - Miscellaneous]');
+        $parentHub = $this->createHub('[Misc. - Console Variants]');
+        $childHub = $this->createHub('[Misc. - Console Variants - Greatest Hits]');
+
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $centralMiscHub->id,
+            'child_game_set_id' => $parentHub->id,
+        ]);
+
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $parentHub->id,
+            'child_game_set_id' => $childHub->id,
+        ]);
+
+        // Act
+        $breadcrumbs = $this->action->execute($childHub);
+
+        // Assert
+        $this->assertCount(4, $breadcrumbs);
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[1], $centralMiscHub->id, '[Central - Miscellaneous]');
+        $this->assertBreadcrumb($breadcrumbs[2], $parentHub->id, '[Misc. - Console Variants]');
+        $this->assertBreadcrumb($breadcrumbs[3], $childHub->id, '[Misc. - Console Variants - Greatest Hits]');
+    }
+
+    public function testItIgnoresUnrelatedSubgenreLinks(): void
+    {
+        // Arrange
+        $centralHub = $this->createHub('[Central]');
+        $centralHub->id = GameSet::CentralHubId;
+        $centralHub->save();
+
+        $centralGenreHub = $this->createHub('[Central - Genre & Subgenre]');
+        $sudokuHub = $this->createHub('[Subgenre - Sudoku]');
+        $sokobanHub = $this->createHub('[Subgenre - Sokoban]');
+        $logicHub = $this->createHub('[Subgenre - Logic Puzzle]');
+
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $logicHub->id,
+            'child_game_set_id' => $sudokuHub->id,
+        ]);
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $sokobanHub->id,
+            'child_game_set_id' => $sudokuHub->id,
+        ]);
+
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $centralGenreHub->id,
+            'child_game_set_id' => $sudokuHub->id,
+        ]);
+
+        // Act
+        $breadcrumbs = $this->action->execute($sudokuHub);
+
+        // Assert
+        $this->assertCount(3, $breadcrumbs);
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[1], $centralGenreHub->id, '[Central - Genre & Subgenre]');
+        $this->assertBreadcrumb($breadcrumbs[2], $sudokuHub->id, '[Subgenre - Sudoku]');
+    }
+
+    public function testItHandlesSimpleMiscHubDirectly(): void
+    {
+        // Arrange
+        $centralHub = $this->createHub('[Central]');
+        $centralHub->id = GameSet::CentralHubId;
+        $centralHub->save();
+
+        $centralMiscHub = $this->createHub('[Central - Miscellaneous]');
+        $simpleHub = $this->createHub('[Misc. - Greatest Hits]');
+        $unrelatedHub = $this->createHub('[Misc. - Arcade]');
+
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $unrelatedHub->id,
+            'child_game_set_id' => $simpleHub->id,
+        ]);
+
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $centralMiscHub->id,
+            'child_game_set_id' => $simpleHub->id,
+        ]);
+
+        // Act
+        $breadcrumbs = $this->action->execute($simpleHub);
+
+        // Assert
+        $this->assertCount(3, $breadcrumbs);
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[1], $centralMiscHub->id, '[Central - Miscellaneous]');
+        $this->assertBreadcrumb($breadcrumbs[2], $simpleHub->id, '[Misc. - Greatest Hits]');
+    }
+
+    public function testItHandlesSimilarTitledMiscHubsIndependently(): void
+    {
+        // Arrange
+        $centralHub = $this->createHub('[Central]');
+        $centralHub->id = GameSet::CentralHubId;
+        $centralHub->save();
+
+        $centralMiscHub = $this->createHub('[Central - Miscellaneous]');
+
+        $ps2Hub = $this->createHub('[Misc. - PlayStation 2 - Greatest Hits]');
+        $psHub = $this->createHub('[Misc. - PlayStation - Greatest Hits]');
+
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $psHub->id,
+            'child_game_set_id' => $ps2Hub->id,
+        ]);
+
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $centralMiscHub->id,
+            'child_game_set_id' => $ps2Hub->id,
+        ]);
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $centralMiscHub->id,
+            'child_game_set_id' => $psHub->id,
+        ]);
+
+        // Test PS2 hub
+        $ps2Breadcrumbs = $this->action->execute($ps2Hub);
+        $this->assertCount(3, $ps2Breadcrumbs);
+        $this->assertBreadcrumb($ps2Breadcrumbs[0], GameSet::CentralHubId, '[Central]');
+        $this->assertBreadcrumb($ps2Breadcrumbs[1], $centralMiscHub->id, '[Central - Miscellaneous]');
+        $this->assertBreadcrumb($ps2Breadcrumbs[2], $ps2Hub->id, '[Misc. - PlayStation 2 - Greatest Hits]');
+    }
 }

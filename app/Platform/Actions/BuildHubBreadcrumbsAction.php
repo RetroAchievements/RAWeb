@@ -233,6 +233,21 @@ class BuildHubBreadcrumbsAction
 
     /**
      * Process custom hierarchies for types not defined in `HUB_HIERARCHY`.
+     *
+     * This method handles special cases in the hub hierarchy that don't follow the
+     * standard parent-child relationships defined in HUB_HIERARCHY. It has specific
+     * logic for:
+     *
+     * 1. Regular hubs: walk up the chain of same-type parents until reaching a central hub.
+     * 2. Subgenre hubs: skip parent chain and link directly to central hub for cleaner navigation.
+     * 3: Misc. hubs: there are two different behaviors--
+     *   - Simple Misc. hubs (eg: "[Misc. - Virtual Console]"): link directly to the central hub.
+     *   - Nested Misc. hubs (eg: "[Misc. - Virtual Console - Nintendo 3DS]"): try to include
+     *     intermediate parents to preserve the user's navigation context.
+     *
+     * The complexity here stems from balancing two competing needs:
+     * - Keeping breadcrumbs short and direct for simple cases.
+     * - Preserving important context in nested hierarchies.
      */
     private function processCustomHierarchy(
         GameSet $currentGameSet,
@@ -241,20 +256,38 @@ class BuildHubBreadcrumbsAction
         array &$visited,
         array &$remainingPath
     ): void {
-        // ... walk up same-type parents ...
-        while (true) {
-            $sameTypeParent = $this->findSameTypeParent($currentGameSet, $currentType, $visited);
-            if (!$sameTypeParent) {
-                break;
-            }
+        // Detect if this is a nested Misc. hub by counting title parts.
+        // eg: "[Misc. - Virtual Console - Nintendo 3DS]" --> 3 parts.
+        $titleParts = explode(' - ', trim($currentGameSet->title, '[]'));
+        $isNestedMisc = $currentType === 'Misc.' && count($titleParts) > 2;
 
-            $visited[] = $sameTypeParent->id;
-            array_unshift($remainingPath, $this->toPathArray($sameTypeParent));
-            $currentGameSet = $sameTypeParent;
+        /**
+         * We only want to skip the parent chain walk in two cases:
+         *  1. Subgenre hubs (always direct to central).
+         *  2. Non-nested Misc. hubs (simple cases that should go straight to central).
+         *
+         * For everything else, including nested Misc. hubs, we'll walk up the chain.
+         */
+        if ($currentType !== 'Subgenre' && !($currentType === 'Misc.' && !$isNestedMisc)) {
+            // Walk up the chain of same-type parents until we can't find any more.
+            while (true) {
+                $sameTypeParent = $this->findSameTypeParent($currentGameSet, $currentType, $visited);
+
+                if (!$sameTypeParent) {
+                    break;
+                }
+
+                $visited[] = $sameTypeParent->id;
+                array_unshift($remainingPath, $this->toPathArray($sameTypeParent));
+
+                $currentGameSet = $sameTypeParent;
+            }
         }
 
-        // Find and add the central parent.
+        // Always end by finding and adding the appropriate central hub.
+        // This ensures every breadcrumb path is anchored at the top level.
         $centralParent = $this->findCentralParent($currentGameSet, $currentType, $mappedType, $visited);
+
         if ($centralParent) {
             array_unshift($remainingPath, $this->toPathArray($centralParent));
         }
@@ -287,17 +320,45 @@ class BuildHubBreadcrumbsAction
     }
 
     /**
-     * Find a parent of the same type.
+     * Find a parent of the same type in the hub hierarchy.
      */
     private function findSameTypeParent(GameSet $gameSet, string $type, array $visited): ?GameSet
     {
-        return $gameSet->parents()
+        if ($type === 'Misc.') {
+            // For titles like "[Misc. - Virtual Console - Nintendo 3DS]", find the parent "[Misc. - Virtual Console]".
+            $titleParts = explode(' - ', trim($gameSet->title, '[]'));
+
+            if (count($titleParts) > 2) {
+                // Remove the last part to get the parent title pattern.
+                array_pop($titleParts);
+                $parentTitle = '[' . implode(' - ', $titleParts) . ']';
+
+                $query = $gameSet->parents()
+                    ->select('game_sets.*')
+                    ->where('game_sets.type', GameSetType::Hub)
+                    ->where('game_sets.title', $parentTitle)
+                    ->whereNotIn('game_sets.id', $visited)
+                    ->whereNull('game_sets.deleted_at');
+
+                $parent = $query->first();
+
+                return $parent;
+            }
+
+            return null;
+        }
+
+        // Standard behavior for other hub types.
+        $query = $gameSet->parents()
             ->select('game_sets.*')
             ->where('game_sets.type', GameSetType::Hub)
             ->where('game_sets.title', 'like', '[' . $type . ' - %')
             ->whereNotIn('game_sets.id', $visited)
-            ->whereNull('game_sets.deleted_at')
-            ->first();
+            ->whereNull('game_sets.deleted_at');
+
+        $parent = $query->first();
+
+        return $parent;
     }
 
     /**
