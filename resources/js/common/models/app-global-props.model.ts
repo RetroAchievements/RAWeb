@@ -34,6 +34,7 @@ export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) 
   displayName: faker.internet.displayName(),
   id: faker.number.int({ min: 1, max: 99999 }),
   isMuted: false,
+  isNew: false,
   mutedUntil: null,
   legacyPermissions: 8447,
   points: faker.number.int({ min: 0, max: 100000 }),
