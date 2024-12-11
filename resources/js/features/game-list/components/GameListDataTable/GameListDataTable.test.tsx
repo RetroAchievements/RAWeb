@@ -544,10 +544,7 @@ describe('Component: GameListDataTable', () => {
 
       // ASSERT
       expect(screen.getByText('NES/Famicom')).toBeVisible();
-      expect(screen.getByText(/2 games/i)).toBeVisible();
-
       expect(screen.getByText('SNES/Super Famicom')).toBeVisible();
-      expect(screen.getByText(/3 games/i)).toBeVisible();
     });
 
     it('given the table is loading and was previously showing groups, preserves the group headers', () => {

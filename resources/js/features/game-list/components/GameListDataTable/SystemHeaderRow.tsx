@@ -41,16 +41,6 @@ export const SystemHeaderRow: FC<SystemHeaderRowProps> = ({
       >
         <div className="flex items-center gap-1.5" role="group" aria-label={groupDescription}>
           <span>{systemName}</span>
-
-          {gameCount > 1 && (
-            <p className="text-neutral-400">
-              {'– '}
-              {t('{{val, number}} games', {
-                gameCount,
-                val: gameCount,
-              })}
-            </p>
-          )}
         </div>
       </BaseTableCell>
     </BaseTableRow>

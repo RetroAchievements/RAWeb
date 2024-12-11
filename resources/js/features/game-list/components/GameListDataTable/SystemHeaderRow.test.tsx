@@ -52,34 +52,6 @@ describe('Component: SystemHeaderRow', () => {
     expect(cellEl.getAttribute('aria-colspan')).toEqual('5');
   });
 
-  it('given multiple games are in the group, displays the game count', () => {
-    // ARRANGE
-    render(
-      <BaseTable>
-        <BaseTableBody>
-          <SystemHeaderRow columnCount={3} gameCount={5} systemName="PlayStation 2" />
-        </BaseTableBody>
-      </BaseTable>,
-    );
-
-    // ASSERT
-    expect(screen.getByText(/5 games/i)).toBeVisible();
-  });
-
-  it('given only one game, does not display the game count', () => {
-    // ARRANGE
-    render(
-      <BaseTable>
-        <BaseTableBody>
-          <SystemHeaderRow columnCount={3} gameCount={1} systemName="PlayStation 2" />
-        </BaseTableBody>
-      </BaseTable>,
-    );
-
-    // ASSERT
-    expect(screen.queryByText(/games/i)).not.toBeInTheDocument();
-  });
-
   it('assigns proper aria roles to the table elements', () => {
     // ARRANGE
     render(
