@@ -8,13 +8,14 @@ import { RecentPostsMainRoot } from '@/features/forums/components/RecentPostsMai
 const RecentPosts: AppPage = () => {
   const { t } = useTranslation();
 
+  const metaDescription =
+    'A list of recent posts that have been made on the RetroAchievements forum.';
+
   return (
     <>
       <Head title={t('Recent Posts')}>
-        <meta
-          name="description"
-          content="A list of recent posts that have been made on the RetroAchievements forum."
-        />
+        <meta name="description" content={metaDescription} />
+        <meta name="og:description" content={metaDescription} />
       </Head>
 
       <AppLayout.Main>
