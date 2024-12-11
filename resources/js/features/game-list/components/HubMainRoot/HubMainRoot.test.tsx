@@ -435,6 +435,7 @@ describe('Component: HubMainRoot', () => {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [
           createSystem({ id: 1, name: 'Genesis/Mega Drive', nameShort: 'MD' }),
+          createSystem({ id: 2, name: 'NES/Famicom', nameShort: 'NES' }),
         ],
         paginatedGameListEntries: createPaginatedData([createGameListEntry()], {
           unfilteredTotal: 1,
@@ -483,6 +484,7 @@ describe('Component: HubMainRoot', () => {
         auth: { user: createAuthenticatedUser() },
         filterableSystemOptions: [
           createSystem({ id: 1, name: 'Genesis/Mega Drive', nameShort: 'MD' }),
+          createSystem({ id: 2, name: 'NES/Famicom', nameShort: 'NES' }),
         ],
         paginatedGameListEntries: createPaginatedData([], { unfilteredTotal: 1 }),
         can: { develop: false },
@@ -516,7 +518,10 @@ describe('Component: HubMainRoot', () => {
         hub: createGameSet(),
         breadcrumbs: [],
         auth: { user: createAuthenticatedUser() },
-        filterableSystemOptions: [createSystem({ id: 1, name: 'Genesis/Mega Drive' })],
+        filterableSystemOptions: [
+          createSystem({ id: 1, name: 'Genesis/Mega Drive' }),
+          createSystem({ id: 2, name: 'NES/Famicom', nameShort: 'NES' }),
+        ],
         paginatedGameListEntries: createPaginatedData([], { unfilteredTotal: 1 }),
         can: { develop: false },
         ziggy: createZiggyProps({ device: 'desktop' }),
