@@ -214,6 +214,7 @@ declare module 'ziggy-js' {
         }
     ],
     "game.index": [],
+    "hubs.index": [],
     "hub.show": [
         {
             "name": "gameSet",
