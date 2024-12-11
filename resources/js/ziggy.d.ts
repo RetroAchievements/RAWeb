@@ -16,7 +16,6 @@ declare module 'ziggy-js' {
         }
     ],
     "demo": [],
-    "home": [],
     "tickets.index": [],
     "ranking.beaten-games": [],
     "message-thread.index": [],
@@ -151,13 +150,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "system.game.index": [
-        {
-            "name": "system",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "ticket.show": [
         {
             "name": "ticket",
@@ -179,6 +171,20 @@ declare module 'ziggy-js' {
     "pulse": [],
     "api.game.index": [],
     "api.game.random": [],
+    "api.system.game.index": [
+        {
+            "name": "systemId",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.system.game.random": [
+        {
+            "name": "systemId",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.hashes.index": [
         {
             "name": "game",
@@ -194,6 +200,13 @@ declare module 'ziggy-js' {
         }
     ],
     "game.index": [],
+    "system.game.index": [
+        {
+            "name": "system",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.random": [],
     "api.user.game.destroy": [
         {
@@ -560,6 +573,7 @@ declare module 'ziggy-js' {
             "required": false
         }
     ],
+    "home": [],
     "contact": [],
     "rss.index": [],
     "terms": [],

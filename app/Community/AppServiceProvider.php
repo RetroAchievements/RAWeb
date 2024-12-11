@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Commands\ConvertUserShortcodesToUseIds;
+use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\SyncComments;
 use App\Community\Commands\SyncForumCategories;
 use App\Community\Commands\SyncForums;
@@ -16,7 +17,6 @@ use App\Community\Commands\SyncVotes;
 use App\Community\Components\ActivePlayers;
 use App\Community\Components\DeveloperGameStatsTable;
 use App\Community\Components\ForumRecentActivity;
-use App\Community\Components\GlobalStatistics;
 use App\Community\Components\MessageIcon;
 use App\Community\Components\UserCard;
 use App\Community\Components\UserProfileMeta;
@@ -64,6 +64,8 @@ class AppServiceProvider extends ServiceProvider
                 SyncVotes::class,
 
                 ConvertUserShortcodesToUseIds::class,
+
+                GenerateAnnualRecap::class,
             ]);
         }
 
@@ -109,7 +111,6 @@ class AppServiceProvider extends ServiceProvider
 
         Blade::component('active-players', ActivePlayers::class);
         Blade::component('developer-game-stats-table', DeveloperGameStatsTable::class);
-        Blade::component('global-statistics', GlobalStatistics::class);
         Blade::component('forum-recent-activity', ForumRecentActivity::class);
         Blade::component('user-card', UserCard::class);
         Blade::component('user-profile-meta', UserProfileMeta::class);

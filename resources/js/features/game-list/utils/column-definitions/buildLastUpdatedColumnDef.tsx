@@ -17,10 +17,12 @@ interface BuildLastUpdatedColumnDefProps {
   t_label: TranslatedString;
 
   tableApiRouteName?: RouteName;
+  tableApiRouteParams?: Record<string, unknown>;
 }
 
 export function buildLastUpdatedColumnDef({
   t_label,
+  tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
 }: BuildLastUpdatedColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
@@ -29,7 +31,12 @@ export function buildLastUpdatedColumnDef({
     meta: { t_label, sortType: 'date', Icon: gameListFieldIconMap.lastUpdated },
 
     header: ({ column, table }) => (
-      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
+      <DataTableColumnHeader
+        column={column}
+        table={table}
+        tableApiRouteName={tableApiRouteName}
+        tableApiRouteParams={tableApiRouteParams}
+      />
     ),
 
     cell: ({ row }) => {

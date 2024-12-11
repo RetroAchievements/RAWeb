@@ -11,10 +11,12 @@ interface BuildPlayersTotalColumnDefProps {
   t_label: TranslatedString;
 
   tableApiRouteName?: RouteName;
+  tableApiRouteParams?: Record<string, unknown>;
 }
 
 export function buildPlayersTotalColumnDef({
   t_label,
+  tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
 }: BuildPlayersTotalColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
@@ -28,7 +30,12 @@ export function buildPlayersTotalColumnDef({
     },
 
     header: ({ column, table }) => (
-      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
+      <DataTableColumnHeader
+        column={column}
+        table={table}
+        tableApiRouteName={tableApiRouteName}
+        tableApiRouteParams={tableApiRouteParams}
+      />
     ),
 
     cell: ({ row }) => {

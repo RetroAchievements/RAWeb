@@ -18,6 +18,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Actions\BuildGameListAction;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\GameListProgressFilterValue;
 use App\Platform\Enums\GameListType;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -619,7 +620,7 @@ class BuildGameListActionTest extends TestCase
         $this->assertEquals(1, count($result->items));
     }
 
-    public function testItCanFilterByUnfinishedAwardCategory(): void
+    public function testItCanFilterByUnstartedProgress(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -636,16 +637,19 @@ class BuildGameListActionTest extends TestCase
         $result = (new BuildGameListAction())->execute(
             GameListType::UserPlay,
             $user,
-            filters: ['award' => ['unfinished']],
+            filters: ['progress' => [GameListProgressFilterValue::Unstarted->value]],
         );
 
         // Assert
         $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(4, $result->total);
         $this->assertEquals(4, count($result->items));
+
+        $resultGameIds = collect($result->items)->pluck('game.id')->sort()->values()->all();
+        $this->assertEquals([1002, 1003, 1004, 1005], $resultGameIds);
     }
 
-    public function testItCanFilterByFinishedAwardCategory(): void
+    public function testItCanFilterByGteBeatenSoftcoreProgress(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -653,26 +657,29 @@ class BuildGameListActionTest extends TestCase
         $this->seedGamesForLists();
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
-        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
-        $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore);
-        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);
-        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore);
-        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Softcore);
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore); // !! (1)
+        $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore); // !! (2)
+        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);    // !! (2)
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore);    // !! (3)
+        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Softcore); // !! (4)
 
         // Act
         $result = (new BuildGameListAction())->execute(
             GameListType::UserPlay,
             $user,
-            filters: ['award' => ['finished']],
+            filters: ['progress' => [GameListProgressFilterValue::GteBeatenSoftcore->value]],
         );
 
         // Assert
         $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(4, $result->total);
         $this->assertEquals(4, count($result->items)); // These values can differ unless we override ->total.
+
+        $resultGameIds = collect($result->items)->pluck('game.id')->sort()->values()->all();
+        $this->assertEquals([1000, 1001, 1002, 1003], $resultGameIds);
     }
 
-    public function testItCanFilterByBeatenSoftcoreAwardCategory(): void
+    public function testItCanFilterByGteBeatenHardcoreProgress(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -681,137 +688,250 @@ class BuildGameListActionTest extends TestCase
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
         $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
-        $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore);
-        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);
-        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore);
+        $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore); // !! (1)
+        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);    // !! (1) beat, then mastered the same game
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore);    // !! (2)
         $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Softcore);
+        $this->addGameBeatenAward($user, Game::find(1004), UnlockMode::Hardcore); // !! (3)
 
         // Act
         $result = (new BuildGameListAction())->execute(
             GameListType::UserPlay,
             $user,
-            filters: ['award' => ['beaten_softcore']],
-        );
-
-        // Assert
-        $this->assertEquals(6, $result->unfilteredTotal);
-        $this->assertEquals(2, $result->total);
-        $this->assertEquals(2, count($result->items)); // These values can differ unless we override ->total.
-    }
-
-    public function testItCanFilterByBeatenHardcoreAwardCategory(): void
-    {
-        // Arrange
-        $user = User::factory()->create();
-
-        $this->seedGamesForLists();
-        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
-
-        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
-        $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore);
-        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);      // note, because 1001 is also mastered, it'll be ignored.
-        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore);
-        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Softcore);
-        $this->addGameBeatenAward($user, Game::find(1004), UnlockMode::Hardcore);
-
-        // Act
-        $result = (new BuildGameListAction())->execute(
-            GameListType::UserPlay,
-            $user,
-            filters: ['award' => ['beaten_hardcore']],
-        );
-
-        // Assert
-        $this->assertEquals(6, $result->unfilteredTotal);
-        $this->assertEquals(1, $result->total);
-        $this->assertEquals(1, count($result->items)); // These values can differ unless we override ->total.
-    }
-
-    public function testItCanFilterByCompletedAwardCategory(): void
-    {
-        // Arrange
-        $user = User::factory()->create();
-
-        $this->seedGamesForLists();
-        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
-
-        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
-        $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore);
-        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);
-        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore);
-        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Softcore);
-        $this->addGameBeatenAward($user, Game::find(1004), UnlockMode::Hardcore);
-
-        // Act
-        $result = (new BuildGameListAction())->execute(
-            GameListType::UserPlay,
-            $user,
-            filters: ['award' => ['completed']],
-        );
-
-        // Assert
-        $this->assertEquals(6, $result->unfilteredTotal);
-        $this->assertEquals(1, $result->total);
-        $this->assertEquals(1, count($result->items)); // These values can differ unless we override ->total.
-    }
-
-    public function testItCanFilterByMasteredAwardCategory(): void
-    {
-        // Arrange
-        $user = User::factory()->create();
-
-        $this->seedGamesForLists();
-        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
-
-        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
-        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Softcore); // they completed it first...
-        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore); // then they mastered it later
-        $this->addGameBeatenAward($user, Game::find(1002), UnlockMode::Hardcore);
-        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Hardcore);
-        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Softcore);
-        $this->addGameBeatenAward($user, Game::find(1004), UnlockMode::Hardcore);
-
-        // Act
-        $result = (new BuildGameListAction())->execute(
-            GameListType::UserPlay,
-            $user,
-            filters: ['award' => ['mastered']],
-        );
-
-        // Assert
-        $this->assertEquals(6, $result->unfilteredTotal);
-        $this->assertEquals(2, $result->total);
-        $this->assertEquals(2, count($result->items)); // These values can differ unless we override ->total.
-    }
-
-    public function testItCanFilterByMultipleAwardCategories(): void
-    {
-        // Arrange
-        $user = User::factory()->create();
-
-        $this->seedGamesForLists();
-        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
-
-        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
-        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Softcore); // they completed it first...
-        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore); // then they mastered it later
-        $this->addGameBeatenAward($user, Game::find(1002), UnlockMode::Hardcore);
-        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Hardcore);
-        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Softcore);
-        $this->addGameBeatenAward($user, Game::find(1004), UnlockMode::Hardcore);
-        $this->addMasteryBadge($user, Game::find(1005), UnlockMode::Softcore);
-
-        // Act
-        $result = (new BuildGameListAction())->execute(
-            GameListType::UserPlay,
-            $user,
-            filters: ['award' => ['completed', 'mastered']],
+            filters: ['progress' => [GameListProgressFilterValue::GteBeatenHardcore->value]],
         );
 
         // Assert
         $this->assertEquals(6, $result->unfilteredTotal);
         $this->assertEquals(3, $result->total);
         $this->assertEquals(3, count($result->items)); // These values can differ unless we override ->total.
+
+        $resultGameIds = collect($result->items)->pluck('game.id')->sort()->values()->all();
+        $this->assertEquals([1001, 1002, 1004], $resultGameIds);
+    }
+
+    public function testItCanFilterByEqBeatenSoftcoreProgress(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore); // !! (1)
+        $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore);
+        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore);
+        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Softcore); // !! (2)
+        $this->addGameBeatenAward($user, Game::find(1004), UnlockMode::Softcore); // !! (3)
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            filters: ['progress' => [GameListProgressFilterValue::EqBeatenSoftcore->value]],
+        );
+
+        // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
+        $this->assertEquals(3, $result->total);
+        $this->assertEquals(3, count($result->items)); // These values can differ unless we override ->total.
+
+        $resultGameIds = collect($result->items)->pluck('game.id')->sort()->values()->all();
+        $this->assertEquals([1000, 1003, 1004], $resultGameIds);
+    }
+
+    public function testItCanFilterByEqBeatenHardcoreProgress(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
+        $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore); // doesn't count ...
+        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);    // ... because then they mastered it.
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Hardcore);
+        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Hardcore); // (1)
+        $this->addGameBeatenAward($user, Game::find(1004), UnlockMode::Hardcore); // (2)
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            filters: ['progress' => [GameListProgressFilterValue::EqBeatenHardcore->value]],
+        );
+
+        // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
+        $this->assertEquals(2, $result->total);
+        $this->assertEquals(2, count($result->items)); // These values can differ unless we override ->total.
+
+        $resultGameIds = collect($result->items)->pluck('game.id')->sort()->values()->all();
+        $this->assertEquals([1003, 1004], $resultGameIds);
+    }
+
+    public function testItCanFilterByGteCompletedProgress(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
+        $this->addGameBeatenAward($user, Game::find(1001), UnlockMode::Hardcore);
+        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore); // (1)
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore); // (2)
+        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Softcore);
+        $this->addGameBeatenAward($user, Game::find(1004), UnlockMode::Hardcore);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            filters: ['progress' => [GameListProgressFilterValue::GteCompleted->value]],
+        );
+
+        // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
+        $this->assertEquals(2, $result->total);
+        $this->assertEquals(2, count($result->items)); // These values can differ unless we override ->total.
+
+        $resultGameIds = collect($result->items)->pluck('game.id')->sort()->values()->all();
+        $this->assertEquals([1001, 1002], $resultGameIds);
+    }
+
+    public function testItCanFilterByEqCompletedProgress(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
+        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore); // (1)
+        $this->addMasteryBadge($user, Game::find(1003), UnlockMode::Softcore); // (2)
+        $this->addGameBeatenAward($user, Game::find(1004), UnlockMode::Hardcore);
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            filters: ['progress' => [GameListProgressFilterValue::EqCompleted->value]],
+        );
+
+        // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
+        $this->assertEquals(2, $result->total);
+        $this->assertEquals(2, count($result->items)); // These values can differ unless we override ->total.
+
+        $resultGameIds = collect($result->items)->pluck('game.id')->sort()->values()->all();
+        $this->assertEquals([1002, 1003], $resultGameIds);
+    }
+
+    public function testItCanFilterByMasteredProgress(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore);
+        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Softcore); // (1) they completed it first ...
+        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore); // (1) ... and then they mastered it later
+        $this->addGameBeatenAward($user, Game::find(1002), UnlockMode::Hardcore);
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Hardcore); // (2)
+        $this->addMasteryBadge($user, Game::find(1003), UnlockMode::Hardcore); // (3)
+        $this->addMasteryBadge($user, Game::find(1004), UnlockMode::Hardcore); // (4)
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            filters: ['progress' => [GameListProgressFilterValue::EqMastered->value]],
+        );
+
+        // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
+        $this->assertEquals(4, $result->total);
+        $this->assertEquals(4, count($result->items)); // These values can differ unless we override ->total.
+
+        $resultGameIds = collect($result->items)->pluck('game.id')->sort()->values()->all();
+        $this->assertEquals([1001, 1002, 1003, 1004], $resultGameIds);
+    }
+
+    public function testItCanFilterByRevisedProgress(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => 1001, 'completion_percentage_hardcore' => 1]);
+        PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => 1002, 'completion_percentage_hardcore' => 1]);
+        PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => 1003, 'completion_percentage_hardcore' => 1]);
+        $toUpdate = PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => 1004, 'completion_percentage_hardcore' => 1]);
+
+        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Hardcore);
+        $this->addMasteryBadge($user, Game::find(1003), UnlockMode::Hardcore);
+        $this->addMasteryBadge($user, Game::find(1004), UnlockMode::Hardcore);
+
+        // ... game 1004 gets some new achievements in a revision. in theory this updates player_games. ...
+        $toUpdate->completion_percentage_hardcore = 0.8;
+        $toUpdate->save();
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            filters: ['progress' => [GameListProgressFilterValue::Revised->value]],
+        );
+
+        // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
+        $this->assertEquals(1, $result->total);
+        $this->assertEquals(1, count($result->items)); // These values can differ unless we override ->total.
+
+        $resultGameIds = collect($result->items)->pluck('game.id')->sort()->values()->all();
+        $this->assertEquals([1004], $resultGameIds);
+    }
+
+    public function testItCanFilterByNeqMasteredProgress(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $this->seedGamesForLists();
+        $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
+
+        $this->addGameBeatenAward($user, Game::find(1000), UnlockMode::Softcore); // (-1) negated ...
+        $this->addMasteryBadge($user, Game::find(1000), UnlockMode::Hardcore);    // (-1) ... because they mastered it.
+        $this->addMasteryBadge($user, Game::find(1001), UnlockMode::Hardcore);    // (-2)
+        $this->addMasteryBadge($user, Game::find(1002), UnlockMode::Softcore);    // (-3)
+        $this->addGameBeatenAward($user, Game::find(1003), UnlockMode::Hardcore);
+        $this->addMasteryBadge($user, Game::find(1004), UnlockMode::Hardcore);    // (-4)
+
+        // Act
+        $result = (new BuildGameListAction())->execute(
+            GameListType::UserPlay,
+            $user,
+            filters: ['progress' => [GameListProgressFilterValue::NeqMastered->value]],
+        );
+
+        // Assert
+        $this->assertEquals(6, $result->unfilteredTotal);
+        $this->assertEquals(2, $result->total);
+        $this->assertEquals(2, count($result->items)); // These values can differ unless we override ->total.
+
+        $resultGameIds = collect($result->items)->pluck('game.id')->sort()->values()->all();
+        $this->assertEquals([1003, 1005], $resultGameIds);
     }
 
     public function testItReturnsCorrectGamesForAllGamesList(): void

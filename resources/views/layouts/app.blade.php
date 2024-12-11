@@ -16,13 +16,23 @@
     class="{{ config('app.debug') ? 'debug' : '' }} {{ !Route::is('news.index') ? 'with-news' : '' }} with-footer"
 >
     <div data-vaul-drawer-wrapper="">
-        @if (Route::is('home') || Route::is('demo.home'))
-            <x-brand-top />
+        @if (Route::is('home'))
+            <div
+                id="brand-top-wrapper"
+                class="{{ Route::is('home') ? 'block' : 'hidden' }}"
+            >
+                <x-brand-top />
+            </div>
         @endif
 
         <x-navbar class="flex flex-col w-full justify-center bg-embedded lg:sticky lg:top-0">
             <x-slot name="brand">
-                <x-menu.brand />
+                <div 
+                    id="nav-brand-wrapper"
+                    class="{{ Route::is('home') ? 'lg:hidden' : '' }}"
+                >
+                    <x-menu.brand />
+                </div>
             </x-slot>
 
             <x-menu.main />
@@ -79,6 +89,23 @@
             @endif--}}
             <x-footer-navigation />
         </footer>
+
+        <script>
+            document.addEventListener('inertia:navigate', (event) => {
+                const brandTopWrapper = document.getElementById('brand-top-wrapper');
+                const navBrandWrapper = document.getElementById('nav-brand-wrapper');
+
+                const newRoute = event.detail.page.component.toLowerCase();
+                const isHomeRoute = newRoute === 'home';
+
+                if (brandTopWrapper) {
+                    brandTopWrapper.classList.toggle('hidden', !isHomeRoute);
+                }
+                if (navBrandWrapper) {
+                    navBrandWrapper.className = isHomeRoute ? 'lg:hidden' : '';
+                }
+            });
+        </script>
 
         <x-body-end />
     </div>

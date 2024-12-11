@@ -103,6 +103,7 @@ rules:
       "tailwindAttributes":
         [
           "anchorClassName",
+          "baseCommandListClassName",
           "containerClassName",
           "gameTitleClassName",
           "wrapperClassName",

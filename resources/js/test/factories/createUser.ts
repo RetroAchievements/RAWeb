@@ -14,6 +14,7 @@ export const createUser = createFactory<App.Data.User>((faker) => {
     preferences: {
       prefersAbsoluteDates: faker.datatype.boolean(),
     },
+    playerPreferredMode: 'hardcore',
     roles: [],
     unreadMessageCount: faker.number.int({ min: 0, max: 3 }),
   };

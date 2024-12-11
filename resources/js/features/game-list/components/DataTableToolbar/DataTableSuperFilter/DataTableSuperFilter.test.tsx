@@ -3,11 +3,12 @@ import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import userEvent from '@testing-library/user-event';
 import type { FC } from 'react';
 
+import { createAuthenticatedUser } from '@/common/models';
 import { buildAchievementsPublishedColumnDef } from '@/features/game-list/utils/column-definitions/buildAchievementsPublishedColumnDef';
 import { buildSystemColumnDef } from '@/features/game-list/utils/column-definitions/buildSystemColumnDef';
 import { buildTitleColumnDef } from '@/features/game-list/utils/column-definitions/buildTitleColumnDef';
 import i18n from '@/i18n-client';
-import { render, screen } from '@/test';
+import { render, screen, waitFor } from '@/test';
 import { createSystem } from '@/test/factories';
 
 import { DataTableSuperFilter } from './DataTableSuperFilter';
@@ -17,6 +18,9 @@ vi.mock('../RandomGameButton', () => ({ RandomGameButton: () => null }));
 
 // Suppress vaul a11y warnings.
 console.warn = vi.fn();
+
+// Suppress "[Table] Column with id 'progress' does not exist".
+console.error = vi.fn();
 
 interface TestHarnessProps {
   columnFilters?: ColumnFiltersState;
@@ -41,6 +45,7 @@ const TestHarness: FC<TestHarnessProps> = ({
       buildAchievementsPublishedColumnDef({ t_label: i18n.t('Achievements') }),
     ],
     data: [],
+    rowCount: 0,
     getCoreRowModel: getCoreRowModel(),
     state: {
       columnFilters,
@@ -197,6 +202,29 @@ describe('Component: DataTableSuperFilter', () => {
       ]);
     });
 
+    it('given there is only one filterable system option, does not show the system filter', async () => {
+      // ARRANGE
+      const onColumnFiltersChange = vi.fn();
+
+      render<{ filterableSystemOptions: App.Platform.Data.System[] }>(
+        <TestHarness
+          columnFilters={[{ id: 'achievementsPublished', value: 'has' }]}
+          onColumnFiltersChange={onColumnFiltersChange}
+        />,
+        {
+          pageProps: {
+            filterableSystemOptions: [createSystem({ id: 1, name: 'NES/Famicom' })],
+          },
+        },
+      );
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /playable/i }));
+
+      // ASSERT
+      expect(screen.queryByRole('option', { name: 'NES/Famicom' })).not.toBeInTheDocument();
+    });
+
     it('allows the user to change the current sort order to an ascending sort', async () => {
       // ARRANGE
       const onSortingChange = vi.fn();
@@ -308,6 +336,40 @@ describe('Component: DataTableSuperFilter', () => {
 
       // ASSERT
       expect(screen.getByRole('option', { name: /title.*descending/i })).toBeVisible();
+    });
+
+    it('given the user is a guest, does not display the progress filter select', async () => {
+      // ARRANGE
+      render(<TestHarness />, {
+        pageProps: {
+          auth: null,
+        },
+      });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /all games/i }));
+
+      // ASSERT
+      expect(screen.queryByRole('combobox', { name: /progress/i })).not.toBeInTheDocument();
+    });
+
+    it('given the user is authenticated, displays the progress filter select', async () => {
+      // ARRANGE
+      render(<TestHarness />, {
+        pageProps: {
+          auth: {
+            user: createAuthenticatedUser(),
+          },
+        },
+      });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /all games/i }));
+
+      // ASSERT
+      await waitFor(() => {
+        expect(screen.getByRole('combobox', { name: /progress/i })).toBeVisible();
+      });
     });
   });
 });

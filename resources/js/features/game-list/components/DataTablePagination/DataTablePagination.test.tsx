@@ -203,4 +203,35 @@ describe('Component: DataTablePagination', () => {
     // ASSERT
     expect(setPagination).toHaveBeenCalledWith({ pageIndex: 0, pageSize: 50 });
   });
+
+  it('given the user changes page size while not on the first page, scrolls to the top of the page', async () => {
+    // ARRANGE
+    const mockScrollTo = vi.fn();
+    window.scrollTo = mockScrollTo;
+
+    const setPagination = vi.fn();
+    const mockTable = createMockTable({
+      setPagination,
+      getState: () => ({
+        pagination: { pageIndex: 2, pageSize: 25 }, // !! user is on page 3
+      }),
+    });
+
+    render(
+      <div>
+        <div id="pagination-scroll-target" />
+        <DataTablePagination table={mockTable as Table<any>} />
+      </div>,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByLabelText(/rows per page/i));
+    await userEvent.click(screen.getByRole('option', { name: '50' }));
+
+    // ASSERT
+    expect(mockScrollTo).toHaveBeenCalledWith({
+      top: expect.any(Number),
+      behavior: 'smooth',
+    });
+  });
 });

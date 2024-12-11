@@ -15,6 +15,7 @@ import { buildGameListQuerySortParam } from '../utils/buildGameListQuerySortPara
 export function useDataTablePrefetchPagination<TData>(
   table: Table<TData>,
   tableApiRouteName: RouteName,
+  tableApiRouteParams?: Record<string, unknown>,
 ) {
   const { columnFilters, sorting } = table.getState();
 
@@ -33,6 +34,8 @@ export function useDataTablePrefetchPagination<TData>(
       queryFn: async () => {
         const response = await axios.get<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>(
           route(tableApiRouteName, {
+            ...tableApiRouteParams,
+
             sort: buildGameListQuerySortParam(sorting),
 
             ...buildGameListQueryPaginationParams({
