@@ -221,6 +221,26 @@ class UserAgentServiceTest extends TestCase
         ], $this->parseUserAgent($userAgent));
     }
 
+    public function testPCSX2UnversionedUserAgent(): void
+    {
+        $userAgent = 'PCSX2  (Linux)';
+
+        $this->assertEquals([
+            'client' => 'PCSX2',
+            'clientVersion' => 'Unknown',
+            'os' => 'Linux',
+        ], $this->parseUserAgent($userAgent));
+
+        $userAgent = 'PCSX2/ (WindowsNT 10.0) Integration/1.3.1.0 PCSX2  (Microsoft Windows 10)';
+
+        $this->assertEquals([
+            'client' => 'PCSX2',
+            'clientVersion' => 'Unknown',
+            'os' => 'WindowsNT 10.0',
+            'integrationVersion' => '1.3.1.0',
+        ], $this->parseUserAgent($userAgent));
+    }
+
     public function testPCSX2NightlyUserAgent(): void
     {
         $userAgent = 'PCSX2 Nightly - v1.7.3366 (Microsoft Windows 10)';
