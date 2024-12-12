@@ -397,11 +397,56 @@ class BuildHubBreadcrumbsActionTest extends TestCase
             'child_game_set_id' => $psHub->id,
         ]);
 
-        // Test PS2 hub
+        // Act
         $ps2Breadcrumbs = $this->action->execute($ps2Hub);
+
+        // Assert
         $this->assertCount(3, $ps2Breadcrumbs);
         $this->assertBreadcrumb($ps2Breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($ps2Breadcrumbs[1], $centralMiscHub->id, '[Central - Miscellaneous]');
         $this->assertBreadcrumb($ps2Breadcrumbs[2], $ps2Hub->id, '[Misc. - PlayStation 2 - Greatest Hits]');
+    }
+
+    public function testItMaintainsEventHierarchyForSubHubs(): void
+    {
+        // Arrange
+        $centralHub = $this->createHub('[Central]');
+        $centralHub->id = GameSet::CentralHubId;
+        $centralHub->save();
+
+        $centralEventsHub = $this->createHub('[Central - Community Events]');
+        $eventHub = $this->createHub('[Events - The Unwanted]');
+        $pastHub = $this->createHub('[The Unwanted - Past Games]');
+
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $centralHub->id,
+            'child_game_set_id' => $centralEventsHub->id,
+        ]);
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $centralEventsHub->id,
+            'child_game_set_id' => $eventHub->id,
+        ]);
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $eventHub->id,
+            'child_game_set_id' => $pastHub->id,
+        ]);
+
+        // Act
+        $breadcrumbs = $this->action->execute($pastHub);
+
+        // Assert
+        $this->assertCount(4, $breadcrumbs);
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[1], $centralEventsHub->id, '[Central - Community Events]');
+        $this->assertBreadcrumb($breadcrumbs[2], $eventHub->id, '[Events - The Unwanted]');
+        $this->assertBreadcrumb($breadcrumbs[3], $pastHub->id, '[The Unwanted - Past Games]');
+
+        // ... also test navigation directly to the event hub ...
+        $eventBreadcrumbs = $this->action->execute($eventHub);
+
+        $this->assertCount(3, $eventBreadcrumbs);
+        $this->assertBreadcrumb($eventBreadcrumbs[0], GameSet::CentralHubId, '[Central]');
+        $this->assertBreadcrumb($eventBreadcrumbs[1], $centralEventsHub->id, '[Central - Community Events]');
+        $this->assertBreadcrumb($eventBreadcrumbs[2], $eventHub->id, '[Events - The Unwanted]');
     }
 }

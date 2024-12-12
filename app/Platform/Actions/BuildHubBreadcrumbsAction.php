@@ -348,7 +348,59 @@ class BuildHubBreadcrumbsAction
             return null;
         }
 
-        // Standard behavior for other hub types.
+        // Extract the prefix/base name from the current hub's title.
+        // eg: "The Unwanted" from "[The Unwanted - Past Games]"
+        $titleParts = explode(' - ', trim($gameSet->title, '[]'));
+        $basePrefix = $titleParts[0];
+
+        // If we're looking at a specific event's sub-hub (eg: "[The Unwanted - Past Games]"),
+        // first try to find its main event hub (eg: "[Events - The Unwanted]")
+        if (
+            !array_key_exists($basePrefix, self::HUB_HIERARCHY)
+            && !str_starts_with($gameSet->title, '[Events - ')
+        ) {
+            $eventParent = $gameSet->parents()
+                ->select('game_sets.*')
+                ->where('game_sets.type', GameSetType::Hub)
+                ->where('game_sets.title', 'like', '[Events - ' . $basePrefix . ']')
+                ->whereNotIn('game_sets.id', $visited)
+                ->whereNull('game_sets.deleted_at')
+                ->first();
+
+            if ($eventParent) {
+                return $eventParent;
+            }
+
+            // If no direct event parent found, look for other hubs in the same event.
+            $sameEventParent = $gameSet->parents()
+                ->select('game_sets.*')
+                ->where('game_sets.type', GameSetType::Hub)
+                ->where('game_sets.title', 'like', '[' . $basePrefix . ' - %')
+                ->whereNotIn('game_sets.id', $visited)
+                ->whereNull('game_sets.deleted_at')
+                ->first();
+
+            if ($sameEventParent) {
+                return $sameEventParent;
+            }
+        }
+
+        // For event hubs, ensure we connect to the central community events hub.
+        if (str_starts_with($gameSet->title, '[Events - ')) {
+            $communityEventsHub = $gameSet->parents()
+                ->select('game_sets.*')
+                ->where('game_sets.type', GameSetType::Hub)
+                ->where('game_sets.title', '[Central - Community Events]')
+                ->whereNotIn('game_sets.id', $visited)
+                ->whereNull('game_sets.deleted_at')
+                ->first();
+
+            if ($communityEventsHub) {
+                return $communityEventsHub;
+            }
+        }
+
+        // Fall back to standard type-based parent finding.
         $query = $gameSet->parents()
             ->select('game_sets.*')
             ->where('game_sets.type', GameSetType::Hub)
@@ -356,9 +408,7 @@ class BuildHubBreadcrumbsAction
             ->whereNotIn('game_sets.id', $visited)
             ->whereNull('game_sets.deleted_at');
 
-        $parent = $query->first();
-
-        return $parent;
+        return $query->first();
     }
 
     /**

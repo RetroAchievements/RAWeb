@@ -72,6 +72,7 @@ function useCleanBreadcrumbHubTitles() {
       'Events -',
       'Genre - ',
       'Meta - ',
+      'Meta|Art - ',
       'Meta|DevComp - ',
       'Meta|QA - ',
       'Misc. - ',
