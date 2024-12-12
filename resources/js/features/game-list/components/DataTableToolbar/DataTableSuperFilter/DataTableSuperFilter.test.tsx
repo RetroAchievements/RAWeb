@@ -45,6 +45,7 @@ const TestHarness: FC<TestHarnessProps> = ({
       buildAchievementsPublishedColumnDef({ t_label: i18n.t('Achievements') }),
     ],
     data: [],
+    rowCount: 0,
     getCoreRowModel: getCoreRowModel(),
     state: {
       columnFilters,
@@ -199,6 +200,29 @@ describe('Component: DataTableSuperFilter', () => {
         { id: 'achievementsPublished', value: 'has' },
         { id: 'system', value: ['1'] },
       ]);
+    });
+
+    it('given there is only one filterable system option, does not show the system filter', async () => {
+      // ARRANGE
+      const onColumnFiltersChange = vi.fn();
+
+      render<{ filterableSystemOptions: App.Platform.Data.System[] }>(
+        <TestHarness
+          columnFilters={[{ id: 'achievementsPublished', value: 'has' }]}
+          onColumnFiltersChange={onColumnFiltersChange}
+        />,
+        {
+          pageProps: {
+            filterableSystemOptions: [createSystem({ id: 1, name: 'NES/Famicom' })],
+          },
+        },
+      );
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /playable/i }));
+
+      // ASSERT
+      expect(screen.queryByRole('option', { name: 'NES/Famicom' })).not.toBeInTheDocument();
     });
 
     it('allows the user to change the current sort order to an ascending sort', async () => {

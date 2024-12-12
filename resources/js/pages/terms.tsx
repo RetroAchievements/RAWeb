@@ -8,13 +8,14 @@ import type { AppPage } from '@/common/models';
 const Terms: AppPage = () => {
   const { t } = useTranslation();
 
+  const metaDescription =
+    "Review RetroAchievements.org's terms of use, code of conduct, disclaimers, copyright policy, and privacy policy. Stay informed on how we handle content, links, and your personal data.";
+
   return (
     <>
       <Head title={t('Legal & Terms')}>
-        <meta
-          name="description"
-          content="Review RetroAchievements.org's terms of use, code of conduct, disclaimers, copyright policy, and privacy policy. Stay informed on how we handle content, links, and your personal data."
-        />
+        <meta name="description" content={metaDescription} />
+        <meta name="og:description" content={metaDescription} />
       </Head>
 
       <AppLayout.Main>
