@@ -56,7 +56,7 @@ class HomeControllerTest extends TestCase
     public function testItRendersWithEmptyDatabase(): void
     {
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertOk();
@@ -68,7 +68,7 @@ class HomeControllerTest extends TestCase
         $staticData = StaticData::factory()->create();
 
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -97,7 +97,7 @@ class HomeControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -128,7 +128,7 @@ class HomeControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -172,7 +172,7 @@ class HomeControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -203,7 +203,7 @@ class HomeControllerTest extends TestCase
         News::factory()->create(['user_id' => $authorThree->id]);
 
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -214,7 +214,7 @@ class HomeControllerTest extends TestCase
     public function testItReturnsAnEmptyCollectionForCompletedClaimsWhenThereAreNone(): void
     {
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -245,7 +245,7 @@ class HomeControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -297,7 +297,7 @@ class HomeControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -349,7 +349,7 @@ class HomeControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -373,7 +373,7 @@ class HomeControllerTest extends TestCase
     public function testItReturnsEmptyCurrentlyOnlineDataWhenLogFileDoesNotExist(): void
     {
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertOk();
@@ -399,7 +399,7 @@ class HomeControllerTest extends TestCase
         User::factory()->count(3)->create(['LastLogin' => now()->subMinutes(5)]);
 
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -413,7 +413,7 @@ class HomeControllerTest extends TestCase
     public function testItReturnsAnEmptyCollectionForNewClaimsWhenThereAreNone(): void
     {
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -444,7 +444,7 @@ class HomeControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -497,7 +497,7 @@ class HomeControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -549,7 +549,7 @@ class HomeControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -573,7 +573,7 @@ class HomeControllerTest extends TestCase
     public function testItReturnsAnEmptyCollectionForForumPostsWhenThereAreNone(): void
     {
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -599,7 +599,7 @@ class HomeControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -640,7 +640,7 @@ class HomeControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get(route('demo.home')); // we're currently an unregistered guest
+        $response = $this->get(route('home')); // we're currently an unregistered guest
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
@@ -664,7 +664,7 @@ class HomeControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get(route('demo.home'));
+        $response = $this->get(route('home'));
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page

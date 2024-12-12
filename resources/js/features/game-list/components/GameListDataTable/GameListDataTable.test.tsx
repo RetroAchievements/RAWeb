@@ -1,5 +1,5 @@
-import type { ColumnDef } from '@tanstack/react-table';
-import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import type { ColumnDef, SortingState } from '@tanstack/react-table';
+import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import type { FC } from 'react';
@@ -23,17 +23,33 @@ dayjs.extend(utc);
 interface TestHarnessProps {
   columns?: ColumnDef<App.Platform.Data.GameListEntry>[];
   data?: App.Platform.Data.GameListEntry[];
+  sorting?: SortingState;
+  isLoading?: boolean;
 }
 
 // We need to instantiate props with a hook, so a test harness is required.
-const TestHarness: FC<TestHarnessProps> = ({ columns = [], data = [] }) => {
+const TestHarness: FC<TestHarnessProps> = ({
+  data = [],
+  sorting = [],
+  columns = [],
+  isLoading = false,
+}) => {
+  if (!columns.length) {
+    columns = [
+      buildTitleColumnDef({ t_label: i18n.t('Title') }),
+      buildSystemColumnDef({ t_label: i18n.t('System') }),
+    ];
+  }
+
   const table = useReactTable({
     columns,
     data,
+    state: { sorting },
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
-  return <GameListDataTable table={table} />;
+  return <GameListDataTable table={table} isLoading={isLoading} />;
 };
 
 describe('Component: GameListDataTable', () => {
@@ -436,6 +452,229 @@ describe('Component: GameListDataTable', () => {
       const headerRow = screen.getAllByRole('row')[0];
       expect(headerRow).toHaveClass('lg:!top-0');
       expect(headerRow).toHaveClass('xl:!top-0');
+    });
+  });
+
+  describe('Grouping', () => {
+    it('given the table is not sorted by system, does not show system group headers', () => {
+      // ARRANGE
+      const nes = createSystem({ name: 'NES', nameShort: 'NES' });
+      const snes = createSystem({ name: 'SNES', nameShort: 'SNES' });
+
+      const game1 = createGame({ title: 'Super Mario Bros.', system: nes });
+      const game2 = createGame({ title: 'Super Mario World', system: snes });
+
+      const gameListEntries = [
+        createGameListEntry({ game: game1 }),
+        createGameListEntry({ game: game2 }),
+      ];
+
+      render(<TestHarness data={gameListEntries} />);
+
+      // ASSERT
+      expect(screen.queryByText(/nes \(\d+ games?\)/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/snes \(\d+ games?\)/i)).not.toBeInTheDocument();
+      expect(screen.getByText(/super mario bros/i)).toBeVisible();
+      expect(screen.getByText(/super mario world/i)).toBeVisible();
+    });
+
+    it('given the table is sorted by system and has multiple systems, shows system group headers', () => {
+      // ARRANGE
+      const nes = createSystem({ name: 'NES/Famicom', nameShort: 'NES' });
+      const snes = createSystem({ name: 'SNES/Super Famicom', nameShort: 'SNES' });
+
+      const game1 = createGame({ title: 'Super Mario Bros.', system: nes });
+      const game2 = createGame({ title: 'Super Mario World', system: snes });
+
+      const gameListEntries = [
+        createGameListEntry({ game: game1 }),
+        createGameListEntry({ game: game2 }),
+      ];
+
+      render(<TestHarness data={gameListEntries} sorting={[{ id: 'system', desc: false }]} />);
+
+      // ASSERT
+      expect(screen.getByText(/nes\/famicom/i)).toBeVisible();
+      expect(screen.getByText(/snes\/super famicom/i)).toBeVisible();
+      expect(screen.getByText(/super mario bros/i)).toBeVisible();
+      expect(screen.getByText(/super mario world/i)).toBeVisible();
+    });
+
+    it('given the table is sorted by system but only has one system, does not show system group headers', () => {
+      // ARRANGE
+      const nes = createSystem({ name: 'NES/Famicom', nameShort: 'NES' });
+
+      const game1 = createGame({ title: 'Super Mario Bros.', system: nes });
+      const game2 = createGame({ title: 'Legend of Zelda', system: nes });
+
+      const gameListEntries = [
+        createGameListEntry({ game: game1 }),
+        createGameListEntry({ game: game2 }),
+      ];
+
+      render(<TestHarness data={gameListEntries} sorting={[{ id: 'system', desc: false }]} />);
+
+      // ASSERT
+      expect(screen.queryByText(/nes\/famicom \(\d+ games?\)/i)).not.toBeInTheDocument();
+
+      expect(screen.getByText(/super mario bros/i)).toBeVisible();
+      expect(screen.getByText(/legend of zelda/i)).toBeVisible();
+    });
+
+    it('given the table is sorted by system but only has multiple systems with multiple games, shows system group headers', () => {
+      // ARRANGE
+      const nes = createSystem({ name: 'NES/Famicom', nameShort: 'NES' });
+      const snes = createSystem({ name: 'SNES/Super Famicom', nameShort: 'SNES' });
+
+      const game1 = createGame({ title: 'Super Mario Bros.', system: nes });
+      const game2 = createGame({ title: 'Legend of Zelda', system: nes });
+      const game3 = createGame({ title: 'Mega Man X', system: snes });
+      const game4 = createGame({ title: 'Donkey Kong Country', system: snes });
+      const game5 = createGame({ title: 'Donkey Kong Country 2', system: snes });
+
+      const gameListEntries = [
+        createGameListEntry({ game: game1 }),
+        createGameListEntry({ game: game2 }),
+        createGameListEntry({ game: game3 }),
+        createGameListEntry({ game: game4 }),
+        createGameListEntry({ game: game5 }),
+      ];
+
+      render(<TestHarness data={gameListEntries} sorting={[{ id: 'system', desc: false }]} />);
+
+      // ASSERT
+      expect(screen.getByText('NES/Famicom')).toBeVisible();
+      expect(screen.getByText('SNES/Super Famicom')).toBeVisible();
+    });
+
+    it('given the table is loading and was previously showing groups, preserves the group headers', () => {
+      // ARRANGE
+      const nes = createSystem({ name: 'NES/Famicom', nameShort: 'NES' });
+      const snes = createSystem({ name: 'SNES/Super Famicom', nameShort: 'SNES' });
+
+      const game1 = createGame({ title: 'Super Mario Bros.', system: nes });
+      const game2 = createGame({ title: 'Super Mario World', system: snes });
+
+      const gameListEntries = [
+        createGameListEntry({ game: game1 }),
+        createGameListEntry({ game: game2 }),
+      ];
+
+      const { rerender } = render(
+        <TestHarness data={gameListEntries} sorting={[{ id: 'system', desc: false }]} />,
+      );
+
+      // ACT
+      rerender(
+        <TestHarness
+          data={gameListEntries}
+          sorting={[{ id: 'system', desc: false }]}
+          isLoading={true}
+        />,
+      );
+
+      // ASSERT
+      expect(screen.getByText('NES/Famicom')).toBeVisible();
+      expect(screen.getByText('SNES/Super Famicom')).toBeVisible();
+    });
+
+    it('given the table is loading and was not previously showing groups, does not show group headers', () => {
+      // ARRANGE
+      const nes = createSystem({ name: 'NES/Famicom', nameShort: 'NES' });
+      const snes = createSystem({ name: 'SNES/Super Famicom', nameShort: 'SNES' });
+
+      const game1 = createGame({ title: 'Super Mario Bros.', system: nes });
+      const game2 = createGame({ title: 'Super Mario World', system: snes });
+
+      const gameListEntries = [
+        createGameListEntry({ game: game1 }),
+        createGameListEntry({ game: game2 }),
+      ];
+
+      render(
+        <TestHarness
+          data={gameListEntries}
+          sorting={[{ id: 'title', desc: false }]}
+          isLoading={true}
+        />,
+      );
+
+      // ASSERT
+      expect(screen.queryByText('NES/Famicom')).not.toBeInTheDocument();
+      expect(screen.queryByText('SNES/Super Famicom')).not.toBeInTheDocument();
+    });
+
+    it('given the table transitions to system sort while loading, does not show group headers', () => {
+      // ARRANGE
+      const nes = createSystem({ name: 'NES/Famicom', nameShort: 'NES' });
+      const snes = createSystem({ name: 'SNES/Super Famicom', nameShort: 'SNES' });
+
+      const game1 = createGame({ title: 'Super Mario Bros.', system: nes });
+      const game2 = createGame({ title: 'Super Mario World', system: snes });
+
+      const gameListEntries = [
+        createGameListEntry({ game: game1 }),
+        createGameListEntry({ game: game2 }),
+      ];
+
+      const { rerender } = render(
+        <TestHarness
+          data={gameListEntries}
+          sorting={[{ id: 'title', desc: false }]}
+          isLoading={true}
+        />,
+      );
+
+      // ACT
+      rerender(
+        <TestHarness
+          data={gameListEntries}
+          sorting={[{ id: 'system', desc: false }]}
+          isLoading={true}
+        />,
+      );
+
+      // ASSERT
+      expect(screen.queryByText('NES/Famicom')).not.toBeInTheDocument();
+      expect(screen.queryByText('SNES/Super Famicom')).not.toBeInTheDocument();
+    });
+
+    it('given system grouping is enabled, announces the change to screen readers', () => {
+      // ARRANGE
+      const nes = createSystem({ name: 'NES/Famicom', nameShort: 'NES' });
+      const snes = createSystem({ name: 'SNES/Super Famicom', nameShort: 'SNES' });
+
+      const game1 = createGame({ title: 'Super Mario Bros.', system: nes });
+      const game2 = createGame({ title: 'Super Mario World', system: snes });
+
+      const gameListEntries = [
+        createGameListEntry({ game: game1 }),
+        createGameListEntry({ game: game2 }),
+      ];
+
+      render(<TestHarness data={gameListEntries} sorting={[{ id: 'system', desc: false }]} />);
+
+      // ASSERT
+      expect(screen.getByText(/games are now grouped by system/i)).toBeInTheDocument();
+    });
+
+    it('given system grouping is disabled, announces the change to screen readers', () => {
+      // ARRANGE
+      const nes = createSystem({ name: 'NES/Famicom', nameShort: 'NES' });
+      const snes = createSystem({ name: 'SNES/Super Famicom', nameShort: 'SNES' });
+
+      const game1 = createGame({ title: 'Super Mario Bros.', system: nes });
+      const game2 = createGame({ title: 'Super Mario World', system: snes });
+
+      const gameListEntries = [
+        createGameListEntry({ game: game1 }),
+        createGameListEntry({ game: game2 }),
+      ];
+
+      render(<TestHarness data={gameListEntries} sorting={[{ id: 'title', desc: false }]} />);
+
+      // ASSERT
+      expect(screen.getByText(/games are no longer grouped/i)).toBeInTheDocument();
     });
   });
 });
