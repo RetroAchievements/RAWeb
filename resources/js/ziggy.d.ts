@@ -169,6 +169,20 @@ declare module 'ziggy-js' {
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],
+    "api.hub.game.index": [
+        {
+            "name": "gameSet",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "api.hub.game.random": [
+        {
+            "name": "gameSet",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "api.game.index": [],
     "api.game.random": [],
     "api.system.game.index": [
@@ -200,6 +214,14 @@ declare module 'ziggy-js' {
         }
     ],
     "game.index": [],
+    "hubs.index": [],
+    "hub.show": [
+        {
+            "name": "gameSet",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "system.game.index": [
         {
             "name": "system",
