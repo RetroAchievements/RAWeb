@@ -61,7 +61,9 @@ function getSubscribersOf(string $subjectType, int $subjectID, ?int $reqWebsiteP
         ->when($reqWebsitePrefs !== null, fn ($q) => $q->whereRaw('(websitePrefs & ?) != 0', [$reqWebsitePrefs]));
 
     if (!$implicitSubscriptionQry) {
-        return $explicitSubscribers->get()->toArray();
+        return $explicitSubscribers->get()
+            ->map(fn ($user) => ['User' => $user->User, 'EmailAddress' => $user->EmailAddress])
+            ->toArray();
     }
 
     return DB::table(DB::raw("($implicitSubscriptionQry) as ua"))

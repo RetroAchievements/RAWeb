@@ -8,13 +8,13 @@ import { TopAchieversMainRoot } from '@/features/games/components/TopAchieversMa
 const TopAchievers: AppPage<App.Platform.Data.GameTopAchieversPageProps> = ({ game }) => {
   const { t } = useTranslation();
 
+  const metaDescription = `Top achievers for the achievement set for ${game.title}`;
+
   return (
     <>
       <Head title={t('Top Achievers - {{gameTitle}}', { gameTitle: game.title })}>
-        <meta
-          name="description"
-          content={`Top achievers for the achievement set for ${game.title}`}
-        />
+        <meta name="description" content={metaDescription} />
+        <meta name="og:description" content={metaDescription} />
 
         <meta property="og:image" content={game.badgeUrl} />
         <meta property="og:type" content="retroachievements:user-list" />

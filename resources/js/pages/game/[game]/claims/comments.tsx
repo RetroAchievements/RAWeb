@@ -8,10 +8,13 @@ import { GameClaimsCommentsMainRoot } from '@/features/comments/GameClaimsCommen
 const GameClaimsComments: AppPage<App.Community.Data.GameClaimsCommentsPageProps> = ({ game }) => {
   const { t } = useTranslation();
 
+  const metaDescription = `Internal discussion about claims for ${game.title}`;
+
   return (
     <>
       <Head title={t('Claim Comments - {{gameTitle}}', { gameTitle: game.title })}>
-        <meta name="description" content={`Internal discussion about claims for ${game.title}`} />
+        <meta name="description" content={metaDescription} />
+        <meta name="og:description" content={metaDescription} />
 
         <meta property="og:image" content={game.badgeUrl} />
         <meta property="og:type" content="retroachievements:comment-list" />

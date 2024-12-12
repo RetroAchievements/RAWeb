@@ -243,6 +243,7 @@ $permissions = $user->getAttribute('Permissions');
             <table id="feed" class="table-highlight">
                 <tbody>
                     <x-comment.item
+                        articleType="{{ ArticleType::AchievementTicket }}"
                         :author="$ticket->reporter"
                         :when="$ticket->ReportedAt"
                         :payload="$ticketNotes"

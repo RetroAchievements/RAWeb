@@ -27,6 +27,7 @@ class UserData extends Data
         public Lazy|string|null $emailAddress = null,
         public Lazy|int $id = 0,
         public Lazy|bool $isMuted = false,
+        public Lazy|bool $isNew = false,
         public Lazy|int|null $legacyPermissions = null,
         public Lazy|string|null $locale = null,
         public Lazy|string $motto = '',
@@ -75,6 +76,7 @@ class UserData extends Data
             mutedUntil: Lazy::create(fn () => $user->muted_until),
             id: Lazy::create(fn () => $user->id),
             isMuted: Lazy::create(fn () => $user->isMuted()),
+            isNew: Lazy::create(fn () => $user->isNew()),
             legacyPermissions: Lazy::create(fn () => (int) $user->getAttribute('Permissions')),
             locale: Lazy::create(fn () => $user->locale === 'en' ? 'en_US' : $user->locale), // TODO remove conditional after renaming "en" to "en_US"
             motto: Lazy::create(fn () => $user->Motto),
