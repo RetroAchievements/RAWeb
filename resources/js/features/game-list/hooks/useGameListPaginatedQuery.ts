@@ -54,5 +54,8 @@ export function useGameListPaginatedQuery({
     placeholderData: keepPreviousData,
 
     enabled: isEnabled,
+
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 }

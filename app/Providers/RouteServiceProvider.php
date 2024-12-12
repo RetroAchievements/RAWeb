@@ -77,7 +77,7 @@ class RouteServiceProvider extends ServiceProvider
              * content
              */
             Route::middleware(['inertia'])->group(function () {
-                Route::get('demo/home', [HomeController::class, 'index'])->name('demo.home');
+                Route::get('/', [HomeController::class, 'index'])->name('home');
 
                 Route::get('contact', fn () => Inertia::render('contact'))->name('contact');
                 Route::get('rss', fn () => Inertia::render('rss'))->name('rss.index');
