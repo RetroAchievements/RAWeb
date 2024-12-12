@@ -1,22 +1,21 @@
+import { Link } from '@inertiajs/react';
 import { type FC, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { LuStar } from 'react-icons/lu';
+import { Trans, useTranslation } from 'react-i18next';
+import { LuAlertCircle } from 'react-icons/lu';
 
 import {
   BaseAlert,
   BaseAlertDescription,
   BaseAlertTitle,
 } from '@/common/components/+vendor/BaseAlert';
-
-// TODO tracking
-// TODO ensure no hydration issues
+import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 
 export const GuestWelcomeCta: FC = () => {
   const { t } = useTranslation();
 
   return (
-    <BaseAlert className="text-text">
-      <LuStar className="h-4 w-4" />
+    <BaseAlert variant="notice" className="bg-embed light:bg-neutral-50">
+      <LuAlertCircle className="size-5" />
       <BaseAlertTitle className="mb-3 text-xl font-semibold leading-4">
         {t('Welcome!')}
       </BaseAlertTitle>
@@ -29,10 +28,25 @@ export const GuestWelcomeCta: FC = () => {
                 'Build your profile, track your progress, and compete with friends on your favorite classic games.',
               )}
             </p>
+
             <p>
-              {t('We provide')} <a href={route('download.index')}>{t('the emulators')}</a>
-              {t(', you just need')} <a href={route('game.index')}>{t('the games')}</a>
-              {t('. From Atari 2600 to PlayStation 2, and everything in between.')}
+              <Trans
+                i18nKey="We provide <1>the emulators</1>, you just need <2>the games</2>. From Atari 2600 to PlayStation 2, and everything in between."
+                components={{
+                  1: (
+                    <a
+                      href={route('download.index')}
+                      className={buildTrackingClassNames('Click Guest Download Link')}
+                    />
+                  ),
+                  2: (
+                    <Link
+                      href={route('game.index')}
+                      className={buildTrackingClassNames('Click Guest All Games Link')}
+                    />
+                  ),
+                }}
+              />
             </p>
           </div>
 
@@ -70,7 +84,10 @@ const RandomGameLink: FC = () => {
   });
 
   return (
-    <a href={route('game.show', { game: randomGameId })}>
+    <a
+      href={route('game.show', { game: randomGameId })}
+      className={buildTrackingClassNames('Click Guest Random Game Page Link')}
+    >
       {t('Which of these achievements do you think you can get?')}
     </a>
   );

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community\Listeners;
 
 use App\Community\Enums\UserActivityType;
+use App\Models\System;
 use App\Models\User;
 use App\Models\UserActivity;
 use App\Platform\Events\AchievementSetBeaten;
@@ -29,6 +30,7 @@ class WriteUserActivity
         $subjectType = null;
         $subjectId = null;
         $context = null;
+        $updateLastLogin = true;
 
         /** @var User $user */
         $user = $event->user;
@@ -63,6 +65,11 @@ class WriteUserActivity
                 $subjectType = 'achievement';
                 $subjectId = $event->achievement->id;
                 $context = $event->hardcore ? 1 : null;
+
+                // Manual unlocks should not update the user's LastLogin.
+                $unlock = $user->playerAchievements()->firstWhere('achievement_id', $subjectId);
+                $updateLastLogin = ($unlock?->unlocker_id ?? 0) === 0;
+
                 break;
             case AchievementSetCompleted::class:
                 $userActivityType = UserActivityType::CompleteAchievementSet;
@@ -81,6 +88,9 @@ class WriteUserActivity
                 $subjectType = 'game';
                 $subjectId = $event->game->id ?? null;
                 $storeActivity = !empty($subjectId);
+
+                // don't update user's LastLogin when creating player_game entries for events
+                $updateLastLogin = System::isGameSystem($event->game->ConsoleId ?? 0);
                 break;
             default:
         }
@@ -94,10 +104,12 @@ class WriteUserActivity
             ]));
         }
 
-        /*
-         * update last activity timestamp regardless of whether an activity was stored as some might have been suppressed
-         */
-        $user->LastLogin = Carbon::now();
-        $user->save();
+        if ($updateLastLogin) {
+            /*
+            * update last activity timestamp regardless of whether an activity was stored as some might have been suppressed
+            */
+            $user->LastLogin = Carbon::now();
+            $user->save();
+        }
     }
 }
