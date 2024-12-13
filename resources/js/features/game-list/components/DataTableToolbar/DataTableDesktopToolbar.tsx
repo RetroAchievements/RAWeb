@@ -1,9 +1,13 @@
 import type { ColumnFiltersState, Table } from '@tanstack/react-table';
+import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import type { RouteName } from 'ziggy-js';
 
+import { BaseCheckbox } from '@/common/components/+vendor/BaseCheckbox';
+import { BaseLabel } from '@/common/components/+vendor/BaseLabel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
 import { doesColumnExist } from '../../utils/doesColumnExist';
 import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
 import { DataTableResetFiltersButton } from '../DataTableResetFiltersButton';
@@ -38,6 +42,10 @@ export function DataTableDesktopToolbar<TData>({
 
   const { t } = useTranslation();
 
+  const [isCurrentlyPersistingView, setIsCurrentlyPersistingView] = useAtom(
+    isCurrentlyPersistingViewAtom,
+  );
+
   const allColumns = table.getAllColumns();
 
   const currentFilters = table.getState().columnFilters;
@@ -45,25 +53,41 @@ export function DataTableDesktopToolbar<TData>({
 
   return (
     <div className="flex w-full flex-col justify-between gap-2">
-      <div className="flex flex-col gap-2 rounded bg-embed p-2 sm:flex-row sm:gap-2 md:gap-3">
-        {doesColumnExist(allColumns, 'system') && filterableSystemOptions?.length > 1 ? (
-          <DataTableSystemFilter table={table} filterableSystemOptions={filterableSystemOptions} />
-        ) : null}
+      <div className="flex w-full flex-col items-center justify-between gap-3 rounded bg-embed py-2 pl-2 pr-3 sm:flex-row">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row md:gap-3">
+          {doesColumnExist(allColumns, 'system') && filterableSystemOptions?.length > 1 ? (
+            <DataTableSystemFilter
+              table={table}
+              filterableSystemOptions={filterableSystemOptions}
+            />
+          ) : null}
 
-        {doesColumnExist(allColumns, 'achievementsPublished') ? (
-          <DataTableAchievementsPublishedFilter table={table} />
-        ) : null}
+          {doesColumnExist(allColumns, 'achievementsPublished') ? (
+            <DataTableAchievementsPublishedFilter table={table} />
+          ) : null}
 
-        {doesColumnExist(allColumns, 'progress') ? <DataTableProgressFilter table={table} /> : null}
+          {doesColumnExist(allColumns, 'progress') ? (
+            <DataTableProgressFilter table={table} />
+          ) : null}
 
-        {isFiltered ? (
-          <DataTableResetFiltersButton
-            table={table}
-            defaultColumnFilters={defaultColumnFilters}
-            tableApiRouteName={tableApiRouteName}
-            tableApiRouteParams={tableApiRouteParams}
+          {isFiltered ? (
+            <DataTableResetFiltersButton
+              table={table}
+              defaultColumnFilters={defaultColumnFilters}
+              tableApiRouteName={tableApiRouteName}
+              tableApiRouteParams={tableApiRouteParams}
+            />
+          ) : null}
+        </div>
+
+        <BaseLabel className="flex items-center gap-2 text-menu-link">
+          <BaseCheckbox
+            checked={isCurrentlyPersistingView}
+            onCheckedChange={(checked: boolean) => setIsCurrentlyPersistingView(checked)}
           />
-        ) : null}
+
+          {t('Remember my view')}
+        </BaseLabel>
       </div>
 
       <div className="flex w-full flex-col justify-between gap-2 sm:flex-row">

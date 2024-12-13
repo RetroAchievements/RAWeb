@@ -4,11 +4,15 @@
 import * as InertiajsReactModule from '@inertiajs/react';
 import type { RenderHookOptions as RTLRenderHookOptions } from '@testing-library/react';
 import { render as defaultRender, renderHook as defaultRenderHook } from '@testing-library/react';
+import type { WritableAtom } from 'jotai';
+import type { useHydrateAtoms } from 'jotai/utils';
 import type { ReactNode } from 'react';
 
 import { AppProviders } from '@/common/components/AppProviders';
 import type { AppGlobalProps } from '@/common/models';
 import i18n from '@/i18n-client';
+
+import { HydrateAtoms } from './HydrateAtoms';
 
 export * from '@testing-library/react';
 
@@ -44,9 +48,17 @@ export function __UNSAFE_VERY_DANGEROUS_SLEEP(milliseconds: number) {
 |
 */
 
+type UseHydrateAtomsValues = Parameters<typeof useHydrateAtoms>[0];
+
+// Convert simple tuples to readonly tuples that Jotai is happy with.
+function toHydrateValues(atoms: RenderOptions['jotaiAtoms'] = []): UseHydrateAtomsValues {
+  return atoms as unknown as UseHydrateAtomsValues;
+}
+
 type DefaultRenderParams = Parameters<typeof defaultRender>;
 type RenderUI = DefaultRenderParams[0];
 type RenderOptions<TPageProps = Record<string, unknown>> = DefaultRenderParams[1] & {
+  jotaiAtoms?: [WritableAtom<unknown, any[], unknown>, unknown][];
   pageProps?: Partial<TPageProps & AppGlobalProps>;
 };
 
@@ -57,6 +69,7 @@ interface WrapperProps {
 export function render<TPageProps = Record<string, unknown>>(
   ui: RenderUI,
   {
+    jotaiAtoms,
     wrapper,
     pageProps = {} as Partial<TPageProps & AppGlobalProps>,
     ...options
@@ -72,7 +85,11 @@ export function render<TPageProps = Record<string, unknown>>(
   }));
 
   if (!wrapper) {
-    wrapper = ({ children }: WrapperProps) => <AppProviders i18n={i18n}>{children}</AppProviders>;
+    wrapper = ({ children }: WrapperProps) => (
+      <AppProviders i18n={i18n}>
+        <HydrateAtoms initialValues={toHydrateValues(jotaiAtoms)}>{children}</HydrateAtoms>
+      </AppProviders>
+    );
   }
 
   return {

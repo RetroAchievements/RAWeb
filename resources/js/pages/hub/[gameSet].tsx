@@ -1,4 +1,5 @@
 import { Head } from '@inertiajs/react';
+import { useHydrateAtoms } from 'jotai/utils';
 import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -6,11 +7,18 @@ import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
 import { HubMainRoot } from '@/features/game-list/components/HubMainRoot';
+import { isCurrentlyPersistingViewAtom } from '@/features/game-list/state/game-list.atoms';
 
 const Hub: AppPage = () => {
-  const { hub, paginatedGameListEntries } = usePageProps<App.Platform.Data.HubPageProps>();
+  const { hub, paginatedGameListEntries, persistedViewPreferences } =
+    usePageProps<App.Platform.Data.HubPageProps>();
 
   const { t } = useTranslation();
+
+  useHydrateAtoms([
+    [isCurrentlyPersistingViewAtom, !!persistedViewPreferences],
+    //
+  ]);
 
   const metaDescription = `A collection of ${paginatedGameListEntries.total.toLocaleString()} ${paginatedGameListEntries.total === 1 ? 'game' : 'games'} on RetroAchievements.`;
 
