@@ -39,10 +39,13 @@ export function useTableSync({
 
   useUpdateEffect(() => {
     if (isUserPersistenceEnabled) {
+      // Don't persist filtering by title.
+      const persistedFilters = columnFilters.filter((filter) => filter.id !== 'title');
+
       const tableState: Partial<TableState> = {
-        columnFilters,
         columnVisibility,
         sorting,
+        columnFilters: persistedFilters,
         pagination: { ...pagination, pageIndex: 0 }, // don't persist the page index
       };
 
