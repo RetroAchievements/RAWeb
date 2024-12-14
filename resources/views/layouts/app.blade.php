@@ -96,7 +96,7 @@
                 const navBrandWrapper = document.getElementById('nav-brand-wrapper');
 
                 const newRoute = event.detail.page.component.toLowerCase();
-                const isHomeRoute = newRoute === 'home';
+                const isHomeRoute = @json(Route::is('home'));
 
                 if (brandTopWrapper) {
                     brandTopWrapper.classList.toggle('hidden', !isHomeRoute);
