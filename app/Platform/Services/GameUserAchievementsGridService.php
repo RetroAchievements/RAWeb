@@ -47,9 +47,9 @@ class GameUserAchievementsGridService
 
                 if (array_key_exists('DateEarnedHardcore', $userUnlock)) {
                     $entities[$achievementId]['HardcoreAchieved'] = $userUnlock['DateEarnedHardcore'];
+                    $entities[$achievementId]['DateAwarded'] = $userUnlock['DateEarnedHardcore'];
                     $entities[$achievementId]['BadgeClassNames'] = 'goldimage';
-                }
-                if (array_key_exists('DateEarned', $userUnlock)) {
+                } elseif (array_key_exists('DateEarned', $userUnlock)) {
                     $entities[$achievementId]['DateAwarded'] = $userUnlock['DateEarned'];
                 }
             }

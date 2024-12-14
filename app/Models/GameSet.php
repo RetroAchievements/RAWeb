@@ -7,10 +7,12 @@ namespace App\Models;
 use App\Platform\Enums\GameSetType;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameSetFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 
 // TODO drop image_asset_path, migrate to media
 class GameSet extends BaseModel
@@ -40,10 +42,6 @@ class GameSet extends BaseModel
     {
         return GameSetFactory::new();
     }
-
-    // == constants
-
-    public const CentralHubId = 6591;
 
     // == accessors
 
@@ -95,4 +93,22 @@ class GameSet extends BaseModel
     }
 
     // == scopes
+
+    /**
+     * @param Builder<GameSet> $query
+     * @return Builder<GameSet>
+     */
+    public function scopeCentralHub(Builder $query): Builder
+    {
+        $centralHubId = Cache::rememberForever('central_hub_id', function () {
+            return $this->whereType(GameSetType::Hub)
+                ->where(function ($query) {
+                    $query->where('title', '[Central]')
+                        ->orWhere('title', 'Central');
+                })
+                ->value('id');
+        });
+
+        return $query->whereId($centralHubId);
+    }
 }

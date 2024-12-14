@@ -65,34 +65,37 @@ describe('Component: HubBreadcrumbs', () => {
     expect(screen.getByText(/hub title/i)).toBeVisible();
   });
 
-  it('given breadcrumbs with organizational prefixes, maintains proper linking while stripping prefixes', () => {
+  it('strips duplicate prefixes between parent and child', () => {
     // ARRANGE
     const breadcrumbs = [
-      createGameSet({ id: 0, title: '[Central - Series]' }),
-      createGameSet({ id: 1, title: '[Series - Mega Man]' }),
-      createGameSet({ id: 2, title: '[Subseries - Mega Man (Classic)]' }),
+      createGameSet({ id: 1, title: 'Central - Credits' }),
+      createGameSet({ id: 2, title: 'Credits - Hideo Kojima' }),
     ];
 
     render(<HubBreadcrumbs breadcrumbs={breadcrumbs} />);
 
     // ASSERT
-    expect(screen.getByText('Series')).toBeVisible();
-    expect(screen.getByText('Mega Man')).toBeVisible();
-    expect(screen.getByText('Mega Man (Classic)')).toBeVisible();
+    expect(screen.getByText(/credits/i)).toBeVisible();
+    expect(screen.getByText(/hideo kojima/i)).toBeVisible();
+
+    expect(screen.queryByText('Credits - Hideo Kojima')).not.toBeInTheDocument();
   });
 
-  it('given breadcrumbs with meta prefixes, maintains proper linking while stripping prefixes', () => {
+  it('handles multiple levels of parent-child relationships correctly', () => {
     // ARRANGE
     const breadcrumbs = [
-      createGameSet({ id: 1, title: 'Meta - Testing' }),
-      createGameSet({ id: 2, title: 'Meta|DevComp - Projects' }),
+      createGameSet({ id: 1, title: 'Central - Games' }),
+      createGameSet({ id: 2, title: 'Games - RPG' }),
+      createGameSet({ id: 3, title: 'RPG - Final Fantasy' }),
     ];
 
     render(<HubBreadcrumbs breadcrumbs={breadcrumbs} />);
 
     // ASSERT
-    expect(screen.getByText('Testing')).toBeVisible();
-    expect(screen.getByText('Projects')).toBeVisible();
+    expect(screen.getByText(/games/i)).toBeVisible();
+
+    expect(screen.getByText('RPG')).toBeVisible();
+    expect(screen.getByText('Final Fantasy')).toBeVisible();
   });
 
   it('handles seen unknown prefixes correctly', () => {
@@ -107,5 +110,40 @@ describe('Component: HubBreadcrumbs', () => {
     // ASSERT
     expect(screen.getByText('Word - Foo - Bar')).toBeVisible();
     expect(screen.getByText('Foo - Baz')).toBeVisible();
+  });
+
+  it('handles multiple dash separators correctly', () => {
+    // ARRANGE
+    const breadcrumbs = [
+      createGameSet({ id: 1, title: 'Central - Series' }),
+      createGameSet({ id: 2, title: 'Central - Series - Nintendo' }),
+      createGameSet({ id: 3, title: 'Nintendo - Mario - Main Series' }),
+    ];
+
+    render(<HubBreadcrumbs breadcrumbs={breadcrumbs} />);
+
+    // ASSERT
+    expect(screen.getByText('Series - Nintendo')).toBeVisible();
+    expect(screen.getByText('Mario - Main Series')).toBeVisible();
+  });
+
+  it('strips known organizational prefixes', () => {
+    // ARRANGE
+    const breadcrumbs = [
+      createGameSet({ id: 1, title: 'ASB - Testing' }),
+      createGameSet({ id: 2, title: 'Meta|QA - Projects' }),
+      createGameSet({ id: 3, title: 'Subgenre - Action' }),
+    ];
+
+    render(<HubBreadcrumbs breadcrumbs={breadcrumbs} />);
+
+    // ASSERT
+    expect(screen.getByText('Testing')).toBeVisible();
+    expect(screen.getByText('Projects')).toBeVisible();
+    expect(screen.getByText('Action')).toBeVisible();
+
+    expect(screen.queryByText(/asb/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/meta\|qa/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/subgenre/i)).not.toBeInTheDocument();
   });
 });

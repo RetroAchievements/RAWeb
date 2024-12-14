@@ -214,7 +214,6 @@ declare module 'ziggy-js' {
         }
     ],
     "game.index": [],
-    "hubs.index": [],
     "hub.show": [
         {
             "name": "gameSet",
@@ -222,6 +221,7 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "hub.index": [],
     "system.game.index": [
         {
             "name": "system",
