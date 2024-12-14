@@ -25,7 +25,12 @@ export const HubBreadcrumbs: FC<HubBreadcrumbsProps> = ({ breadcrumbs }) => {
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
           {breadcrumbs.map((breadcrumb, index) => {
-            const currentTitle = cleanBreadcrumbHubTitles(breadcrumb.title!, seenPrefixes);
+            const parentTitle = index > 0 ? breadcrumbs[index - 1].title : null;
+            const currentTitle = cleanBreadcrumbHubTitles(
+              breadcrumb.title!,
+              seenPrefixes,
+              parentTitle,
+            );
 
             return (
               <Fragment key={`crumb-${breadcrumb.id}`}>
@@ -58,33 +63,37 @@ export const HubBreadcrumbs: FC<HubBreadcrumbsProps> = ({ breadcrumbs }) => {
 function useCleanBreadcrumbHubTitles() {
   const { t } = useTranslation();
 
-  const cleanBreadcrumbHubTitles = (title: string, seenPrefixes: Set<string>): string => {
-    if (title === '[Central]') {
+  const cleanBreadcrumbHubTitles = (
+    title: string,
+    seenPrefixes: Set<string>,
+    parentTitle: string | null,
+  ): string => {
+    // For the central hub, just retitle it as "All Hubs" and bail.
+    if (title === '[Central]' || title === 'Central') {
       return t('All Hubs');
     }
 
     const cleaned = cleanHubTitle(title);
 
-    // Always strip these organizational prefixes first.
+    // Always strip organizational prefixes first.
     const alwaysStripPrefixes = [
       'ASB -',
-      'Central - ',
+      'Dev Events -',
       'Events -',
       'Genre - ',
-      'Meta - ',
       'Meta|Art - ',
       'Meta|DevComp - ',
       'Meta|QA - ',
       'Misc. - ',
-      'Series - ',
-      'Series Hacks - ',
+      'Series Hacks -',
       'Subgenre - ',
       'Subseries -',
     ];
 
+    // Check explicit prefixes first.
     for (const prefix of alwaysStripPrefixes) {
       if (cleaned.startsWith(prefix)) {
-        const stripped = cleaned.slice(prefix.length);
+        const stripped = cleaned.slice(prefix.length).trim();
         const firstWord = stripped.split(' - ')[0];
         seenPrefixes.add(firstWord);
 
@@ -92,24 +101,35 @@ function useCleanBreadcrumbHubTitles() {
       }
     }
 
-    // For any other title, check if it matches a pattern like "Word" or "Word - Rest".
+    // Split the title into parts.
     const parts = cleaned.split(' - ');
-    const firstWord = parts[0];
 
+    // If we have a parent title, check if any part of our
+    // current title duplicates information from the parent.
+    if (parentTitle) {
+      const parentParts = cleanHubTitle(parentTitle).split(' - ');
+      const lastParentPart = parentParts[parentParts.length - 1];
+
+      // If the first part of our current title matches the
+      // last part of the parent, we can safely remove it. It's duplicative.
+      if (parts[0] === lastParentPart) {
+        return parts.slice(1).join(' - ');
+      }
+    }
+
+    // Handle single word case.
     if (parts.length === 1) {
-      // Single word - mark it as seen.
-      seenPrefixes.add(firstWord);
+      seenPrefixes.add(parts[0]);
 
       return cleaned;
     }
 
-    // Multi-part title (e.g., "Word - Rest").
+    // For multi-part titles, check if we've seen the prefix before.
+    const firstWord = parts[0];
     if (seenPrefixes.has(firstWord)) {
-      // We've seen this word before, strip the prefix
       return parts.slice(1).join(' - ');
     }
 
-    // First time seeing this word, mark it and keep the full title.
     seenPrefixes.add(firstWord);
 
     return cleaned;

@@ -17,6 +17,7 @@ use App\Platform\Data\HubPagePropsData;
 use App\Platform\Data\SystemData;
 use App\Platform\Enums\GameListType;
 use App\Platform\Requests\GameListRequest;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use Jenssegers\Agent\Agent;
@@ -40,8 +41,21 @@ class HubController extends Controller
     {
     }
 
-    public function show(GameListRequest $request, GameSet $gameSet): InertiaResponse
+    public function show(GameListRequest $request, ?GameSet $gameSet): InertiaResponse|RedirectResponse
     {
+        // On "/hubs", $gameSet will initially be null. We're trying to 
+        // go to the central hub - manually find it and set the value.
+        if (!$gameSet->exists) {
+            $gameSet = GameSet::centralHub()->firstOrFail();
+        } else {
+            // If the user navigates directly to the central hub ID,
+            // we should redirect them to "/hubs" instead.
+            $centralHub = GameSet::centralHub()->first();
+            if ($centralHub && $gameSet->id === $centralHub->id) {
+                return redirect()->route('hub.index');
+            }
+        }
+
         $this->authorize('view', $gameSet);
 
         /** @var ?User $user */

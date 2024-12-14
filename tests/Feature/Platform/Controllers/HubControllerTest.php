@@ -23,7 +23,7 @@ class HubControllerTest extends TestCase
 
         // Arrange
         GameSet::factory()->create([
-            'id' => GameSet::CentralHubId,
+            'id' => 6591,
             'title' => '[Central]',
             'type' => GameSetType::Hub,
         ]);

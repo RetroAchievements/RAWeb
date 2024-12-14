@@ -101,7 +101,7 @@ class BuildHubBreadcrumbsAction
         /** @var array[] $cachedData */
         $cachedData = Cache::flexible($cacheKey, [self::FRESH_SECONDS, self::STALE_SECONDS], function () use ($gameSet) {
             // If this is the central hub itself, we can return early.
-            if ($gameSet->id === GameSet::CentralHubId) {
+            if ($gameSet->id === GameSet::centralHub()->first()->id) {
                 return [$this->toPathArray($gameSet)];
             }
 
@@ -188,7 +188,7 @@ class BuildHubBreadcrumbsAction
     {
         $breadcrumbs = [];
 
-        $centralHub = GameSet::find(GameSet::CentralHubId);
+        $centralHub = GameSet::centralHub()->first();
         if ($centralHub) {
             $breadcrumbs[] = $this->toPathArray($centralHub);
         }
@@ -213,7 +213,7 @@ class BuildHubBreadcrumbsAction
     {
         $breadcrumbs = [];
 
-        $centralHub = GameSet::find(GameSet::CentralHubId);
+        $centralHub = GameSet::centralHub()->first();
         if ($centralHub) {
             $breadcrumbs[] = $this->toPathArray($centralHub);
         }
@@ -257,19 +257,15 @@ class BuildHubBreadcrumbsAction
         array &$remainingPath
     ): void {
         // Detect if this is a nested Misc. hub by counting title parts.
-        // eg: "[Misc. - Virtual Console - Nintendo 3DS]" --> 3 parts.
         $titleParts = explode(' - ', trim($currentGameSet->title, '[]'));
         $isNestedMisc = $currentType === 'Misc.' && count($titleParts) > 2;
+        $isEventSubHub = (
+            !str_starts_with($currentGameSet->title, '[Events - ')
+            && str_starts_with($titleParts[0], 'Events - ')
+        );
 
-        /**
-         * We only want to skip the parent chain walk in two cases:
-         *  1. Subgenre hubs (always direct to central).
-         *  2. Non-nested Misc. hubs (simple cases that should go straight to central).
-         *
-         * For everything else, including nested Misc. hubs, we'll walk up the chain.
-         */
         if ($currentType !== 'Subgenre' && !($currentType === 'Misc.' && !$isNestedMisc)) {
-            // Walk up the chain of same-type parents until we can't find any more.
+            // Walk up the chain of parents until we can't find any more.
             while (true) {
                 $sameTypeParent = $this->findSameTypeParent($currentGameSet, $currentType, $visited);
 
@@ -282,10 +278,24 @@ class BuildHubBreadcrumbsAction
 
                 $currentGameSet = $sameTypeParent;
             }
+
+            // For event sub-hubs, ensure we include the central community events hub.
+            if (($isEventSubHub || str_starts_with($currentGameSet->title, '[Events - '))
+                && !$this->hasCentralEventsHub($remainingPath)) {
+                // Find the Central - Community Events hub.
+                $centralEventsHub = GameSet::where('title', 'like', '%Central - Community Events%')
+                    ->whereType(GameSetType::Hub)
+                    ->whereNull('deleted_at')
+                    ->first();
+
+                if ($centralEventsHub && !in_array($centralEventsHub->id, $visited)) {
+                    array_unshift($remainingPath, $this->toPathArray($centralEventsHub));
+                    $visited[] = $centralEventsHub->id;
+                }
+            }
         }
 
-        // Always end by finding and adding the appropriate central hub.
-        // This ensures every breadcrumb path is anchored at the top level.
+        // Find and add the appropriate central hub.
         $centralParent = $this->findCentralParent($currentGameSet, $currentType, $mappedType, $visited);
 
         if ($centralParent) {
@@ -349,16 +359,17 @@ class BuildHubBreadcrumbsAction
         }
 
         // Extract the prefix/base name from the current hub's title.
-        // eg: "The Unwanted" from "[The Unwanted - Past Games]"
+        // eg: "RA Awards" from "[RA Awards - RA Awards 2021]"
         $titleParts = explode(' - ', trim($gameSet->title, '[]'));
         $basePrefix = $titleParts[0];
 
-        // If we're looking at a specific event's sub-hub (eg: "[The Unwanted - Past Games]"),
-        // first try to find its main event hub (eg: "[Events - The Unwanted]")
+        // If we're looking at a specific event's sub-hub (eg: "[RA Awards - RA Awards 2021]"),
+        // try to find its main event hub (eg: "[Events - RA Awards]").
         if (
             !array_key_exists($basePrefix, self::HUB_HIERARCHY)
             && !str_starts_with($gameSet->title, '[Events - ')
         ) {
+            // First look for a parent event hub.
             $eventParent = $gameSet->parents()
                 ->select('game_sets.*')
                 ->where('game_sets.type', GameSetType::Hub)
@@ -385,19 +396,9 @@ class BuildHubBreadcrumbsAction
             }
         }
 
-        // For event hubs, ensure we connect to the central community events hub.
+        // For event hubs, we'll connect to central community events through the standard hierarchy.
         if (str_starts_with($gameSet->title, '[Events - ')) {
-            $communityEventsHub = $gameSet->parents()
-                ->select('game_sets.*')
-                ->where('game_sets.type', GameSetType::Hub)
-                ->where('game_sets.title', '[Central - Community Events]')
-                ->whereNotIn('game_sets.id', $visited)
-                ->whereNull('game_sets.deleted_at')
-                ->first();
-
-            if ($communityEventsHub) {
-                return $communityEventsHub;
-            }
+            return null;
         }
 
         // Fall back to standard type-based parent finding.
@@ -496,9 +497,20 @@ class BuildHubBreadcrumbsAction
      */
     private function prependCentralHub(array &$remainingPath): void
     {
-        $centralHub = GameSet::find(GameSet::CentralHubId);
+        $centralHub = GameSet::centralHub()->first();
         if ($centralHub) {
             array_unshift($remainingPath, $this->toPathArray($centralHub));
         }
+    }
+
+    private function hasCentralEventsHub(array $path): bool
+    {
+        foreach ($path as $entry) {
+            if (trim($entry['title'], '[]') === 'Central - Community Events') {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
