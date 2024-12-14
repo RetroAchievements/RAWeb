@@ -16,13 +16,13 @@ use App\Platform\Data\GameSetData;
 use App\Platform\Data\HubPagePropsData;
 use App\Platform\Data\SystemData;
 use App\Platform\Enums\GameListType;
+use App\Platform\Enums\GameSetType;
 use App\Platform\Requests\GameListRequest;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use Jenssegers\Agent\Agent;
 
-// TODO make sure the given game set id is actually for a hub, not similar games
 // TODO mature hub needs to be age gated
 // TODO on rename hub, make sure it's always wrapped in square brackets
 // TODO play around on mobile
@@ -54,6 +54,11 @@ class HubController extends Controller
             if ($centralHub && $gameSet->id === $centralHub->id) {
                 return redirect()->route('hub.index');
             }
+        }
+
+        // Return a 404 if this game set isn't actually for a hub.
+        if ($gameSet->type !== GameSetType::Hub) {
+            abort(404);
         }
 
         $this->authorize('view', $gameSet);
