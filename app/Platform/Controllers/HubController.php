@@ -43,7 +43,7 @@ class HubController extends Controller
 
     public function show(GameListRequest $request, ?GameSet $gameSet): InertiaResponse|RedirectResponse
     {
-        // On "/hubs", $gameSet will initially be null. We're trying to 
+        // On "/hubs", $gameSet will initially be null. We're trying to
         // go to the central hub - manually find it and set the value.
         if (!$gameSet->exists) {
             $gameSet = GameSet::centralHub()->firstOrFail();
