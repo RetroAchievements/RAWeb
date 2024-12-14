@@ -95,7 +95,6 @@
                 const brandTopWrapper = document.getElementById('brand-top-wrapper');
                 const navBrandWrapper = document.getElementById('nav-brand-wrapper');
 
-                const newRoute = event.detail.page.component.toLowerCase();
                 const isHomeRoute = @json(Route::is('home'));
 
                 if (brandTopWrapper) {
