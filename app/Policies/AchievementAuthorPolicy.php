@@ -42,9 +42,7 @@ class AchievementAuthorPolicy
 
     public function update(User $user, AchievementAuthor $achievementAuthor): bool
     {
-        return
-            $this->manage($user)
-            && $this->canUpsertTask($user, AchievementAuthorTask::tryFrom($achievementAuthor->task));
+        return $this->canUpsertTask($user, AchievementAuthorTask::tryFrom($achievementAuthor->task));
     }
 
     public function delete(User $user, AchievementAuthor $achievementAuthor): bool
