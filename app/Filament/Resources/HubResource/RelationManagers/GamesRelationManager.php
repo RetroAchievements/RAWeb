@@ -106,7 +106,7 @@ class GamesRelationManager extends RelationManager
                         Forms\Components\TextInput::make('game_ids_csv')
                             ->label('Game IDs (CSV)')
                             ->placeholder('729,2204,3987,53')
-                            ->helperText('Paste a comma-separated list of game IDs.'),
+                            ->helperText('Use a comma-separated list of game IDs.'),
 
                         Forms\Components\Select::make('game_ids')
                             ->label('Games')
