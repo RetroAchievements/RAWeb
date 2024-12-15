@@ -47,7 +47,6 @@ class GameInfoAndUserProgressTest extends TestCase
             'Publisher' => 'WePublishStuff',
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
-            'Released' => 'Jan 1989',
             'released_at' => $releasedAt,
             'released_at_granularity' => 'day',
         ]);
@@ -172,7 +171,6 @@ class GameInfoAndUserProgressTest extends TestCase
             'Publisher' => 'WePublishStuff',
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
-            'Released' => 'Jan 1989',
             'released_at' => $releasedAt,
             'released_at_granularity' => 'day',
         ]);
@@ -228,7 +226,6 @@ class GameInfoAndUserProgressTest extends TestCase
             'Publisher' => 'WePublishStuff',
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
-            'Released' => 'Jan 1989',
             'released_at' => $releasedAt,
             'released_at_granularity' => 'day',
         ]);

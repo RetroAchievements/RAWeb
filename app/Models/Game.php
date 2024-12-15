@@ -63,7 +63,6 @@ class Game extends BaseModel implements HasMedia
     // TODO rename Publisher column to publisher
     // TODO rename Developer column to developer
     // TODO rename Genre column to genre
-    // TODO rename Released to release
     // TODO rename TotalTruePoints to points_weighted, remove getPointsWeightedAttribute()
     // TODO drop achievement_set_version_hash, migrate to achievement_sets
     // TODO drop ForumTopicID, migrate to forumable morph
@@ -113,7 +112,6 @@ class Game extends BaseModel implements HasMedia
         'Publisher',
         'Developer',
         'Genre',
-        'Released',
         'released_at',
         'released_at_granularity',
         'IsFinal',

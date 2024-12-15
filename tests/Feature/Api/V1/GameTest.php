@@ -40,7 +40,6 @@ class GameTest extends TestCase
             'Publisher' => 'WePublishStuff',
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
-            'Released' => 'Jan 1989',
             'released_at' => $releasedAt,
             'released_at_granularity' => 'day',
         ]);
@@ -57,7 +56,6 @@ class GameTest extends TestCase
             'Publisher' => 'WePublishStuff',
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
-            'Released' => 'Jan 1989',
             'released_at' => null,
             'released_at_granularity' => null,
         ]);

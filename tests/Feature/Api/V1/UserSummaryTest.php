@@ -80,7 +80,8 @@ class UserSummaryTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create([
             'ConsoleID' => $system->ID,
-            'Released' => 'Jan 2000',
+            'released_at' => '1992-05-06',
+            'released_at_granularity' => 'day',
             'ForumTopicID' => 222334,
             'Publisher' => 'WeSellGames',
             'Developer' => 'WeMakeGames',
@@ -105,7 +106,8 @@ class UserSummaryTest extends TestCase
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
             'ConsoleID' => $system->ID,
-            'Released' => '07 Jun 1994',
+            'released_at' => '1994-05-07',
+            'released_at_granularity' => 'day',
             'ForumTopicID' => 23543,
             'Publisher' => 'WeAlsoSellGames',
             'Developer' => 'WeAlsoMakeGames',
@@ -190,7 +192,7 @@ class UserSummaryTest extends TestCase
                 'Untracked' => $user->Untracked,
                 'UserPic' => '/UserPic/' . $user->User . '.png',
                 'Motto' => $user->Motto,
-                'UserWallActive' => $user->UserWallActive,
+                'UserWallActive' => 1,
                 'ContribCount' => $user->ContribCount,
                 'ContribYield' => $user->ContribYield,
                 'Rank' => 2,
@@ -210,7 +212,8 @@ class UserSummaryTest extends TestCase
                     'Publisher' => $game->Publisher,
                     'Developer' => $game->Developer,
                     'Genre' => $game->Genre,
-                    'Released' => $game->Released,
+                    'Released' => $game->released_at->format('Y-m-d'),
+                    'ReleasedAtGranularity' => $game->released_at_granularity->value,
                     'IsFinal' => 0,
                 ],
                 'RichPresenceMsg' => 'Playing ' . $game->title,
@@ -320,7 +323,8 @@ class UserSummaryTest extends TestCase
                     'Publisher' => $game->Publisher,
                     'Developer' => $game->Developer,
                     'Genre' => $game->Genre,
-                    'Released' => $game->Released,
+                    'Released' => $game->released_at->format('Y-m-d'),
+                    'ReleasedAtGranularity' => $game->released_at_granularity->value,
                     'IsFinal' => 0,
                 ],
                 'RichPresenceMsg' => 'Playing ' . $game->title,
