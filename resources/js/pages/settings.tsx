@@ -9,10 +9,13 @@ import { SettingsSidebar } from '@/features/settings/components/+sidebar';
 const Settings: AppPage = () => {
   const { t } = useTranslation();
 
+  const metaDescription = "Adjust your account's settings and preferences.";
+
   return (
     <>
       <Head title={t('Settings')}>
-        <meta name="description" content="Adjust your account's settings and preferences." />
+        <meta name="description" content={metaDescription} />
+        <meta name="og:description" content={metaDescription} />
       </Head>
 
       <div className="container">

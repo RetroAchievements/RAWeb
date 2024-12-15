@@ -6,18 +6,26 @@ namespace App\Filament\Resources;
 
 use App\Models\User;
 use App\Platform\Enums\AchievementAuthorTask;
+use App\Policies\AchievementAuthorPolicy;
 use Filament\Forms;
+use Illuminate\Support\Facades\Auth;
 
 class AchievementAuthorshipCreditFormSchema
 {
     public static function getSchema(): array
     {
+        /** @var User $user */
+        $user = Auth::user();
+
+        $allowedTasks = collect(AchievementAuthorTask::cases())
+            ->filter(function ($task) use ($user) {
+                return (new AchievementAuthorPolicy())->canUpsertTask($user, $task);
+            })
+            ->mapWithKeys(fn ($enum) => [$enum->value => $enum->label()]);
+
         return [
             Forms\Components\Select::make('task')
-                ->options(
-                    collect(AchievementAuthorTask::cases())
-                        ->mapWithKeys(fn ($enum) => [$enum->value => $enum->label()])
-                )
+                ->options($allowedTasks)
                 ->required(),
 
             Forms\Components\Select::make('user_id')
@@ -26,7 +34,8 @@ class AchievementAuthorshipCreditFormSchema
                 ->getSearchResultsUsing(function (string $search): array {
                     $lowercased = strtolower($search);
 
-                    return User::whereRaw('LOWER(User) = ?', [$lowercased])
+                    return User::withTrashed()
+                        ->whereRaw('LOWER(User) = ?', [$lowercased])
                         ->orWhere(function ($query) use ($lowercased) {
                             $query->whereRaw('LOWER(display_name) like ?', ["%{$lowercased}%"])
                                 ->orWhereRaw('LOWER(User) like ?', ["%{$lowercased}%"]);
@@ -37,7 +46,7 @@ class AchievementAuthorshipCreditFormSchema
                         ->pluck('display_name', 'id')
                         ->toArray();
                 })
-                ->getOptionLabelUsing(fn (int $value): string => User::find($value)?->display_name ?? 'Deleted User')
+                ->getOptionLabelUsing(fn (int $value): string => User::withTrashed()->find($value)?->display_name ?? 'Deleted User')
                 ->required(),
 
             Forms\Components\DateTimePicker::make('created_at')

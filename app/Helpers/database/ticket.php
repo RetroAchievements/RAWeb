@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketState;
+use App\Community\Enums\TicketType;
 use App\Community\ViewModels\Ticket as TicketViewModel;
 use App\Enums\UserPreference;
 use App\Models\Achievement;
@@ -95,7 +96,7 @@ function constructAchievementTicketBugReportDetails(
     Game $game,
     Achievement $achievement
 ): string {
-    $problemTypeStr = ($ticket->type === 1) ? "Triggers at wrong time" : "Doesn't trigger";
+    $problemTypeStr = TicketType::toString($ticket->ReportType);
     $ticketUrl = route('ticket.show', ['ticket' => $ticket]);
 
     $bugReportDetails = "

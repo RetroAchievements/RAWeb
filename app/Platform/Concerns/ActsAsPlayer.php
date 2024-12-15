@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Concerns;
 
+use App\Community\Enums\Rank;
 use App\Connect\Controllers\ConnectApiController;
 use App\Models\Achievement;
 use App\Models\Game;
@@ -15,6 +16,7 @@ use App\Models\PlayerSession;
 use App\Models\PlayerStat;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Enums\PlayerPreferredMode;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -59,6 +61,28 @@ trait ActsAsPlayer
     public function getPointsRatioAttribute(): float|string
     {
         return $this->points ? ($this->points_weighted / $this->points) : 0;
+    }
+
+    public function getPlayerPreferredModeAttribute(): PlayerPreferredMode
+    {
+        // This attribute doesn't care if the user is untracked.
+        $hasHardcoreRank = $this->points >= Rank::MIN_POINTS;
+        $hasSoftcoreRank = $this->points_softcore >= Rank::MIN_POINTS;
+
+        if ($hasHardcoreRank && $hasSoftcoreRank) {
+            return PlayerPreferredMode::Mixed;
+        }
+
+        if ($hasHardcoreRank) {
+            return PlayerPreferredMode::Hardcore;
+        }
+
+        if ($hasSoftcoreRank) {
+            return PlayerPreferredMode::Softcore;
+        }
+
+        // New players are defaulted to preferring hardcore.
+        return PlayerPreferredMode::Hardcore;
     }
 
     // == relations

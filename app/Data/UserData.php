@@ -6,6 +6,7 @@ namespace App\Data;
 
 use App\Enums\Permissions;
 use App\Models\User;
+use App\Platform\Enums\PlayerPreferredMode;
 use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
@@ -26,10 +27,12 @@ class UserData extends Data
         public Lazy|string|null $emailAddress = null,
         public Lazy|int $id = 0,
         public Lazy|bool $isMuted = false,
+        public Lazy|bool $isNew = false,
         public Lazy|int|null $legacyPermissions = null,
         public Lazy|string|null $locale = null,
         public Lazy|string $motto = '',
         public Lazy|Carbon|null $mutedUntil = null,
+        public Lazy|PlayerPreferredMode $playerPreferredMode = PlayerPreferredMode::Hardcore,
         public Lazy|int $points = 0,
         public Lazy|int $pointsSoftcore = 0,
         public Lazy|string|null $richPresenceMsg = null,
@@ -73,6 +76,7 @@ class UserData extends Data
             mutedUntil: Lazy::create(fn () => $user->muted_until),
             id: Lazy::create(fn () => $user->id),
             isMuted: Lazy::create(fn () => $user->isMuted()),
+            isNew: Lazy::create(fn () => $user->isNew()),
             legacyPermissions: Lazy::create(fn () => (int) $user->getAttribute('Permissions')),
             locale: Lazy::create(fn () => $user->locale === 'en' ? 'en_US' : $user->locale), // TODO remove conditional after renaming "en" to "en_US"
             motto: Lazy::create(fn () => $user->Motto),
@@ -81,6 +85,7 @@ class UserData extends Data
                     'prefersAbsoluteDates' => $user->prefers_absolute_dates,
                 ]
             ),
+            playerPreferredMode: Lazy::create(fn () => $user->player_preferred_mode),
             points: Lazy::create(fn () => $user->points),
             pointsSoftcore: Lazy::create(fn () => $user->points_softcore),
             richPresenceMsg: Lazy::create(fn () => $user->RichPresenceMsg),

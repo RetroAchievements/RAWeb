@@ -7,6 +7,7 @@ namespace App\Policies;
 use App\Models\AchievementAuthor;
 use App\Models\Role;
 use App\Models\User;
+use App\Platform\Enums\AchievementAuthorTask;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class AchievementAuthorPolicy
@@ -20,6 +21,7 @@ class AchievementAuthorPolicy
             Role::DEVELOPER,
             Role::MODERATOR,
             Role::TEAM_ACCOUNT,
+            Role::ARTIST,
         ]);
     }
 
@@ -40,7 +42,7 @@ class AchievementAuthorPolicy
 
     public function update(User $user, AchievementAuthor $achievementAuthor): bool
     {
-        return $this->manage($user);
+        return $this->canUpsertTask($user, AchievementAuthorTask::tryFrom($achievementAuthor->task));
     }
 
     public function delete(User $user, AchievementAuthor $achievementAuthor): bool
@@ -63,6 +65,27 @@ class AchievementAuthorPolicy
 
     public function forceDelete(User $user, AchievementAuthor $achievementAuthor): bool
     {
+        return false;
+    }
+
+    public function canUpsertTask(User $user, AchievementAuthorTask $task): bool
+    {
+        // These roles can assign any type of credit.
+        $alwaysAllowed = [
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::MODERATOR,
+            Role::TEAM_ACCOUNT,
+        ];
+        if ($user->hasAnyRole($alwaysAllowed)) {
+            return true;
+        }
+
+        // Artists can assign artwork credit.
+        if ($task === AchievementAuthorTask::Artwork && $user->hasRole(Role::ARTIST)) {
+            return true;
+        }
+
         return false;
     }
 }

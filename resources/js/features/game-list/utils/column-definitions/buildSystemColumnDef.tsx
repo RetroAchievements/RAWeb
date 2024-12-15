@@ -11,10 +11,12 @@ interface BuildSystemColumnDefProps {
   t_label: TranslatedString;
 
   tableApiRouteName?: RouteName;
+  tableApiRouteParams?: Record<string, unknown>;
 }
 
 export function buildSystemColumnDef({
   t_label,
+  tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
 }: BuildSystemColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
@@ -23,7 +25,12 @@ export function buildSystemColumnDef({
     meta: { t_label, Icon: gameListFieldIconMap.system },
 
     header: ({ column, table }) => (
-      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
+      <DataTableColumnHeader
+        column={column}
+        table={table}
+        tableApiRouteName={tableApiRouteName}
+        tableApiRouteParams={tableApiRouteParams}
+      />
     ),
 
     cell: ({ row }) => {

@@ -12,11 +12,13 @@ interface BuildReleasedAtColumnDefProps {
   strings: { t_unknown: TranslatedString };
 
   tableApiRouteName?: RouteName;
+  tableApiRouteParams?: Record<string, unknown>;
 }
 
 export function buildReleasedAtColumnDef({
-  t_label,
   strings,
+  t_label,
+  tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
 }: BuildReleasedAtColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
   return {
@@ -25,7 +27,12 @@ export function buildReleasedAtColumnDef({
     meta: { t_label, sortType: 'date', Icon: gameListFieldIconMap.releasedAt },
 
     header: ({ column, table }) => (
-      <DataTableColumnHeader column={column} table={table} tableApiRouteName={tableApiRouteName} />
+      <DataTableColumnHeader
+        column={column}
+        table={table}
+        tableApiRouteName={tableApiRouteName}
+        tableApiRouteParams={tableApiRouteParams}
+      />
     ),
 
     cell: ({ row }) => {

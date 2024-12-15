@@ -15,12 +15,15 @@ class GameFactory extends Factory
 {
     protected $model = Game::class;
 
+    private static int $sequence = 1;
+
     /**
      * @return array<string, mixed>
      */
     public function definition(): array
     {
-        $title = ucwords(fake()->words(2, true));
+        // Use a sequence to ensure unique titles and stave off test flake.
+        $title = ucwords(fake()->words(2, true) . ' ' . self::$sequence++);
 
         return [
             'Title' => $title,

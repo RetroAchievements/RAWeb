@@ -24,25 +24,29 @@ import {
   BaseSelectValue,
 } from '@/common/components/+vendor/BaseSelect';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { doesColumnExist } from '@/features/game-list/utils/doesColumnExist';
 
 import { useSortConfigs } from '../../../hooks/useSortConfigs';
 import type { SortConfigKind } from '../../../models';
 import { DataTableAchievementsPublishedFilter } from '../DataTableAchievementsPublishedFilter';
 import { DataTableSystemFilter } from '../DataTableSystemFilter';
 import { RandomGameButton } from '../RandomGameButton';
+import { MobileProgressFilterSelect } from './MobileProgressFilterSelect';
 import { useCurrentSuperFilterLabel } from './useCurrentSuperFilterLabel';
 
 interface DataTableSuperFilterProps<TData> {
   table: Table<TData>;
 
   randomGameApiRouteName?: RouteName;
+  randomGameApiRouteParams?: Record<string, unknown>;
 }
 
 export function DataTableSuperFilter<TData>({
   table,
+  randomGameApiRouteParams,
   randomGameApiRouteName = 'api.game.random',
 }: DataTableSuperFilterProps<TData>) {
-  const { filterableSystemOptions } = usePageProps<{
+  const { auth, filterableSystemOptions } = usePageProps<{
     filterableSystemOptions: App.Platform.Data.System[];
   }>();
 
@@ -54,7 +58,9 @@ export function DataTableSuperFilter<TData>({
 
   const { sortConfigs } = useSortConfigs();
 
-  const sortableColumns = table.getAllColumns().filter((c) => c.getCanSort());
+  const allColumns = table.getAllColumns();
+
+  const sortableColumns = allColumns.filter((c) => c.getCanSort());
   const sortingState = table.getState().sorting;
 
   const currentSort = sortingState.length
@@ -93,11 +99,15 @@ export function DataTableSuperFilter<TData>({
           <div className="flex flex-col gap-4 p-4">
             <DataTableAchievementsPublishedFilter table={table} variant="drawer" />
 
-            <DataTableSystemFilter
-              filterableSystemOptions={filterableSystemOptions}
-              table={table}
-              variant="drawer"
-            />
+            {doesColumnExist(allColumns, 'system') && filterableSystemOptions?.length > 1 ? (
+              <DataTableSystemFilter
+                filterableSystemOptions={filterableSystemOptions}
+                table={table}
+                variant="drawer"
+              />
+            ) : null}
+
+            {auth?.user ? <MobileProgressFilterSelect table={table} /> : null}
 
             {/* If the sort order field isn't on the bottom of the drawer, the select content gets cut off the screen. */}
             <div className="flex flex-col gap-2">
@@ -107,7 +117,7 @@ export function DataTableSuperFilter<TData>({
 
               <BaseSelect value={currentSort} onValueChange={handleSortOrderValueChange}>
                 <BaseSelectTrigger id="supersort" className="w-full">
-                  <BaseSelectValue placeholder={t('Sort order')}></BaseSelectValue>
+                  <BaseSelectValue placeholder={t('Sort order')} />
                 </BaseSelectTrigger>
 
                 <BaseSelectContent>
@@ -139,7 +149,9 @@ export function DataTableSuperFilter<TData>({
               <RandomGameButton
                 variant="mobile-drawer"
                 apiRouteName={randomGameApiRouteName}
+                apiRouteParams={randomGameApiRouteParams}
                 columnFilters={currentFilters}
+                disabled={table.getRowCount() === 0}
               />
 
               <BaseDrawerClose asChild>

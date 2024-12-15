@@ -81,7 +81,7 @@ export const UserRole = {
     ENGINEER: 'engineer',
     TEAM_ACCOUNT: 'team-account',
     BETA: 'beta',
-    DEVELOPER_VETERAN: 'developer-veteran',
+    DEVELOPER_RETIRED: 'developer-retired',
 } as const;
 
 

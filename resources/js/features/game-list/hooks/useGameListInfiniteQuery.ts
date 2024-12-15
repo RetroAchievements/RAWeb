@@ -21,12 +21,14 @@ interface UseGameListInfiniteQueryProps {
   isEnabled?: boolean;
 
   apiRouteName?: RouteName;
+  apiRouteParams?: Record<string, unknown>;
 }
 
 export function useGameListInfiniteQuery({
   columnFilters,
   pagination,
   sorting,
+  apiRouteParams,
   isEnabled = true,
   apiRouteName = 'api.game.index',
 }: UseGameListInfiniteQueryProps) {
@@ -37,6 +39,7 @@ export function useGameListInfiniteQuery({
     queryFn: async ({ pageParam }) => {
       const response = await axios.get<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>(
         route(apiRouteName, {
+          ...apiRouteParams,
           'page[number]': pageParam,
           sort: buildGameListQuerySortParam(sorting),
           ...buildGameListQueryFilterParams(columnFilters),

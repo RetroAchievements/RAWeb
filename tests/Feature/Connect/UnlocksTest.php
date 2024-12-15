@@ -138,6 +138,20 @@ class UnlocksTest extends TestCase
                 'UserUnlocks' => [$achievement1->ID, $achievement2->ID, $achievement3->ID],
             ]);
 
+        // hardcore ignores event achievement when untracked
+        $this->user->unranked_at = Carbon::now();
+        $this->user->save();
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 1]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameID' => $game->ID,
+                'HardcoreMode' => true,
+                'UserUnlocks' => [$achievement1->ID, $achievement2->ID],
+            ]);
+        $this->user->unranked_at = null;
+        $this->user->save();
+
         // hardcore excludes active event achievement
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 1]))
