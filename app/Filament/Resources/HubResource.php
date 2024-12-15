@@ -66,7 +66,8 @@ class HubResource extends Resource
                     ->icon('heroicon-c-chat-bubble-bottom-center-text')
                     ->schema([
                         Infolists\Components\TextEntry::make('internal_notes')
-                            ->hiddenLabel(),
+                            ->hiddenLabel()
+                            ->placeholder('none'),
                     ]),
             ]);
     }
@@ -188,8 +189,7 @@ class HubResource extends Resource
     {
         return [
             'index' => Pages\Index::route('/'),
-            // TODO enable after dropping GameAlternatives
-            // 'create' => Pages\Create::route('/create'),
+            'create' => Pages\Create::route('/create'),
             'view' => Pages\Details::route('/{record}'),
             'edit' => Pages\Edit::route('/{record}/edit'),
             'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),

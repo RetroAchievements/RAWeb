@@ -66,7 +66,7 @@ class BreadcrumbPreview extends Entry
         if ($isOrphaned) {
             $preview .= <<<HTML
                 <div class="text-sm mt-2" style="color: red;">
-                    <div>Orphaned! This hub will not be generally accessible to users.</div>
+                    <div>Orphaned! This hub will be difficult for users to find.</div>
                     <div style="margin-top:0.5rem;">To fix this:</div>
                     <ul class="list-disc mt-1" style="margin-left: 2rem;">
                         <li>Make sure the hub has a related parent hub attached, such as [Central - Series], [Central - Developer], or [Series - Sonic the Hedgehog].</li>

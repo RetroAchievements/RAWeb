@@ -37,7 +37,7 @@ export const HubHeading: FC = () => {
         {can.manageGameSets ? (
           // Filament named routes are excluded from the front-end type mappings for performance reasons.
           <a
-            href={`/manage/hubs/${hub.id}/edit`}
+            href={`/manage/hubs/${hub.id}`}
             className={baseButtonVariants({
               size: 'sm',
               className: 'gap-1',

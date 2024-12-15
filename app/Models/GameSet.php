@@ -150,6 +150,7 @@ class GameSet extends BaseModel
         return LogOptions::defaults()
             ->logOnly([
                 'title',
+                'internal_notes',
                 'image_asset_path',
             ])
             ->logOnlyDirty()
