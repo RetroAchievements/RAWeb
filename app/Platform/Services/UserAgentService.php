@@ -47,6 +47,9 @@ class UserAgentService
             $client = $lastClient = $version = null;
             for ($i = 0; $i < count($parts); $i++) {
                 $part = $parts[$i];
+                if (empty($part)) {
+                    continue;
+                }
 
                 // part is only punctuation, ignore it if not in the middle of client name
                 if (empty($client) && ctype_punct($part)) {
@@ -97,6 +100,7 @@ class UserAgentService
                     if (!$this->looksLikeVersion($version)) {
                         // only keep the first word of the client name
                         $client ??= $part;
+                        $version = null;
                         continue;
                     }
 
@@ -164,6 +168,8 @@ class UserAgentService
 
             $data['client'] = empty($client) ? 'Unknown' : $client;
             $data['clientVersion'] = empty($version) ? 'Unknown' : $version;
+        } elseif (empty($data['clientVersion'] ?? '')) {
+            $data['clientVersion'] = 'Unknown';
         }
 
         return $data;
