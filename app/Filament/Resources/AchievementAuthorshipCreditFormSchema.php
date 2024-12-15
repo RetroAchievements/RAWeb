@@ -6,18 +6,26 @@ namespace App\Filament\Resources;
 
 use App\Models\User;
 use App\Platform\Enums\AchievementAuthorTask;
+use App\Policies\AchievementAuthorPolicy;
 use Filament\Forms;
+use Illuminate\Support\Facades\Auth;
 
 class AchievementAuthorshipCreditFormSchema
 {
     public static function getSchema(): array
     {
+        /** @var User $user */
+        $user = Auth::user();
+
+        $allowedTasks = collect(AchievementAuthorTask::cases())
+            ->filter(function ($task) use ($user) {
+                return (new AchievementAuthorPolicy())->canUpsertTask($user, $task);
+            })
+            ->mapWithKeys(fn ($enum) => [$enum->value => $enum->label()]);
+
         return [
             Forms\Components\Select::make('task')
-                ->options(
-                    collect(AchievementAuthorTask::cases())
-                        ->mapWithKeys(fn ($enum) => [$enum->value => $enum->label()])
-                )
+                ->options($allowedTasks)
                 ->required(),
 
             Forms\Components\Select::make('user_id')
