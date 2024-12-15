@@ -140,6 +140,7 @@ abstract class ResourceAuditLog extends Page implements HasForms
     {
         return in_array($fieldName, [
             'BadgeName',
+            'image_asset_path',
             'ImageIcon',
         ]);
     }
