@@ -216,7 +216,6 @@ trait GameRequests
                 // 'leaderboards' => $game->leaderboards,
 
                 // 'flags' => $game->status_flag,
-                // 'isFinal' => $game->final,
 
                 // 'forumTopicId' => $game->forum_topic_id,
                 // 'imageTitle' => $game->image_title,

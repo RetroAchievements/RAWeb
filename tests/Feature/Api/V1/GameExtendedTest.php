@@ -102,7 +102,6 @@ class GameExtendedTest extends TestCase
                 'Genre' => $game->Genre,
                 'Released' => $releasedAt->format('Y-m-d'),
                 'ReleasedAtGranularity' => 'day',
-                'IsFinal' => 0,
                 'NumAchievements' => 3,
                 'NumDistinctPlayers' => 4,
                 'NumDistinctPlayersCasual' => 4,
@@ -219,7 +218,6 @@ class GameExtendedTest extends TestCase
                 'Genre' => $game->Genre,
                 'Released' => $releasedAt->format('Y-m-d'),
                 'ReleasedAtGranularity' => 'day',
-                'IsFinal' => 0,
                 'Achievements' => [],
                 'Claims' => [
                     [

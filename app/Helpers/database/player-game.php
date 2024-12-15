@@ -89,7 +89,6 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
                 'Genre' => $game->Genre,
                 'Released' => $game->released_at?->format('Y-m-d'),
                 'ReleasedAtGranularity' => $game->released_at_granularity,
-                'IsFinal' => (int) $game->IsFinal,
             ];
         }
 

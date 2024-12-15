@@ -784,7 +784,7 @@ function getGameListSearch(int $offset, int $count, int $method, ?int $consoleID
         }
 
         // By TA:
-        $query = "    SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, gd.Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.TotalTruePoints, gd.IsFinal, c.Name AS ConsoleName
+        $query = "    SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, gd.Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.TotalTruePoints, c.Name AS ConsoleName
                     FROM GameData AS gd
                     LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
                     $where
@@ -824,7 +824,6 @@ function createNewGame(string $title, int $systemId): ?array
         $game->Publisher = null;
         $game->Developer = null;
         $game->Genre = null;
-        $game->IsFinal = 0;
         $game->RichPresencePatch = null;
         $game->TotalTruePoints = 0;
 
