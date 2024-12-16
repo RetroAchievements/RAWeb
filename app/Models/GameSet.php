@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -156,7 +155,7 @@ class GameSet extends BaseModel
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
-    
+
     // == constants
 
     public const CentralHubId = 1;
