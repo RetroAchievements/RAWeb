@@ -156,6 +156,14 @@ class GameSet extends BaseModel
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
+    
+    // == constants
+
+    public const CentralHubId = 1;
+    public const GenreSubgenreHubId = 2;
+    public const SeriesHubId = 3;
+    public const CommunityEventsHubId = 4;
+    public const DeveloperEventsHubId = 5;
 
     // == accessors
 
@@ -219,15 +227,6 @@ class GameSet extends BaseModel
      */
     public function scopeCentralHub(Builder $query): Builder
     {
-        $centralHubId = Cache::rememberForever('central_hub_id', function () {
-            return $this->whereType(GameSetType::Hub)
-                ->where(function ($query) {
-                    $query->where('title', '[Central]')
-                        ->orWhere('title', 'Central');
-                })
-                ->value('id');
-        });
-
-        return $query->whereId($centralHubId);
+        return $query->whereId(self::CentralHubId);
     }
 }
