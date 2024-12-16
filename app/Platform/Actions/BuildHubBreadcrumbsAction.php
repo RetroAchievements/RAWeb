@@ -101,7 +101,7 @@ class BuildHubBreadcrumbsAction
         /** @var array[] $cachedData */
         $cachedData = Cache::flexible($cacheKey, [self::FRESH_SECONDS, self::STALE_SECONDS], function () use ($gameSet) {
             // If this is the central hub itself, we can return early.
-            if ($gameSet->id === GameSet::centralHub()->first()->id) {
+            if ($gameSet->id === GameSet::CentralHubId) {
                 return [$this->toPathArray($gameSet)];
             }
 
