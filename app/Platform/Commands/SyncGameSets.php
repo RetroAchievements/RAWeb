@@ -13,7 +13,6 @@ use App\Models\System;
 use App\Platform\Actions\UpdateGameSetFromGameAlternativesModificationAction;
 use App\Platform\Enums\GameSetType;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class SyncGameSets extends Command
@@ -37,8 +36,6 @@ class SyncGameSets extends Command
     public function handle(): void
     {
         $this->info('Running a full GameAlternatives -> game_sets sync...');
-
-        Cache::forget('central_hub_id');
 
         // This will be a full reset. Delete any existing game_sets data.
         // We'll use TRUNCATE to reset the auto-incrementing ID counter back to 1.

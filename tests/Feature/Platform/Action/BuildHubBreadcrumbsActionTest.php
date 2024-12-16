@@ -18,7 +18,6 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     use RefreshDatabase;
 
     private BuildHubBreadcrumbsAction $action;
-    private int $centralHubId = 6591;
 
     protected function setUp(): void
     {
@@ -47,7 +46,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         // Act
@@ -55,14 +54,14 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert
         $this->assertCount(1, $breadcrumbs);
-        $this->assertBreadcrumb($breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
     }
 
     public function testItHandlesThemeHubHierarchy(): void
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         $centralThemeHub = $this->createHub('[Central - Theme]');
@@ -78,7 +77,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert
         $this->assertCount(3, $breadcrumbs);
-        $this->assertBreadcrumb($breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($breadcrumbs[1], $centralThemeHub->id, '[Central - Theme]');
         $this->assertBreadcrumb($breadcrumbs[2], $themeHub->id, '[Theme - Horror]');
     }
@@ -87,7 +86,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         $centralDifficultyHub = $this->createHub('[Central - Difficulty]');
@@ -103,7 +102,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert
         $this->assertCount(3, $breadcrumbs);
-        $this->assertBreadcrumb($breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($breadcrumbs[1], $centralDifficultyHub->id, '[Central - Difficulty]');
         $this->assertBreadcrumb($breadcrumbs[2], $difficultyHub->id, '[Difficulty - Hard]');
     }
@@ -112,7 +111,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         $metaHub = $this->createHub('[Meta - Subcategory]');
@@ -133,7 +132,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert
         $this->assertCount(3, $breadcrumbs);
-        $this->assertBreadcrumb($breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($breadcrumbs[1], $metaHub->id, '[Meta - Subcategory]');
         $this->assertBreadcrumb($breadcrumbs[2], $devCompHub->id, '[Meta|DevComp - Testing]');
     }
@@ -142,7 +141,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         $genreHub = $this->createHub('[Genre - Action]');
@@ -163,7 +162,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert
         $this->assertCount(3, $breadcrumbs);
-        $this->assertBreadcrumb($breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($breadcrumbs[1], $genreHub->id, '[Genre - Action]');
         $this->assertBreadcrumb($breadcrumbs[2], $subgenreHub->id, '[Genre - Action Shooter]');
     }
@@ -172,7 +171,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         $miscHub = $this->createHub('[Misc. - Random]');
@@ -193,7 +192,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert
         $this->assertCount(3, $breadcrumbs);
-        $this->assertBreadcrumb($breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($breadcrumbs[1], $centralMiscHub->id, '[Central - Miscellaneous]');
         $this->assertBreadcrumb($breadcrumbs[2], $miscHub->id, '[Misc. - Random]');
     }
@@ -202,7 +201,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         $invalidHub = $this->createHub('Invalid Title Format');
@@ -212,7 +211,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert
         $this->assertCount(2, $breadcrumbs);
-        $this->assertBreadcrumb($breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($breadcrumbs[1], $invalidHub->id, 'Invalid Title Format');
     }
 
@@ -220,7 +219,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         $parentHub = $this->createHub('[Genre - RPG]');
@@ -239,7 +238,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert - Should still include Central hub
         $this->assertCount(2, $breadcrumbs);
-        $this->assertBreadcrumb($breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($breadcrumbs[1], $childHub->id, '[Genre - Action RPG]');
     }
 
@@ -247,7 +246,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         $parent1 = $this->createHub('[Genre - RPG]');
@@ -268,7 +267,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert
         $this->assertCount(3, $breadcrumbs);
-        $this->assertBreadcrumb($breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($breadcrumbs[1], $parent1->id, '[Genre - RPG]');
         $this->assertBreadcrumb($breadcrumbs[2], $childHub->id, '[Genre - Action RPG]');
     }
@@ -277,7 +276,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         $centralMiscHub = $this->createHub('[Central - Miscellaneous]');
@@ -299,7 +298,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert
         $this->assertCount(4, $breadcrumbs);
-        $this->assertBreadcrumb($breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($breadcrumbs[1], $centralMiscHub->id, '[Central - Miscellaneous]');
         $this->assertBreadcrumb($breadcrumbs[2], $parentHub->id, '[Misc. - Console Variants]');
         $this->assertBreadcrumb($breadcrumbs[3], $childHub->id, '[Misc. - Console Variants - Greatest Hits]');
@@ -309,7 +308,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         $centralGenreHub = $this->createHub('[Central - Genre & Subgenre]');
@@ -336,7 +335,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert
         $this->assertCount(3, $breadcrumbs);
-        $this->assertBreadcrumb($breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($breadcrumbs[1], $centralGenreHub->id, '[Central - Genre & Subgenre]');
         $this->assertBreadcrumb($breadcrumbs[2], $sudokuHub->id, '[Subgenre - Sudoku]');
     }
@@ -345,7 +344,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         $centralMiscHub = $this->createHub('[Central - Miscellaneous]');
@@ -367,7 +366,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert
         $this->assertCount(3, $breadcrumbs);
-        $this->assertBreadcrumb($breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($breadcrumbs[1], $centralMiscHub->id, '[Central - Miscellaneous]');
         $this->assertBreadcrumb($breadcrumbs[2], $simpleHub->id, '[Misc. - Greatest Hits]');
     }
@@ -376,7 +375,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         $centralMiscHub = $this->createHub('[Central - Miscellaneous]');
@@ -403,7 +402,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert
         $this->assertCount(3, $ps2Breadcrumbs);
-        $this->assertBreadcrumb($ps2Breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($ps2Breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($ps2Breadcrumbs[1], $centralMiscHub->id, '[Central - Miscellaneous]');
         $this->assertBreadcrumb($ps2Breadcrumbs[2], $ps2Hub->id, '[Misc. - PlayStation 2 - Greatest Hits]');
     }
@@ -412,7 +411,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         $centralEventsHub = $this->createHub('[Central - Community Events]');
@@ -437,7 +436,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert
         $this->assertCount(4, $breadcrumbs);
-        $this->assertBreadcrumb($breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($breadcrumbs[1], $centralEventsHub->id, '[Central - Community Events]');
         $this->assertBreadcrumb($breadcrumbs[2], $eventHub->id, '[Events - The Unwanted]');
         $this->assertBreadcrumb($breadcrumbs[3], $pastHub->id, '[The Unwanted - Past Games]');
@@ -446,7 +445,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
         $eventBreadcrumbs = $this->action->execute($eventHub);
 
         $this->assertCount(3, $eventBreadcrumbs);
-        $this->assertBreadcrumb($eventBreadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($eventBreadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($eventBreadcrumbs[1], $centralEventsHub->id, '[Central - Community Events]');
         $this->assertBreadcrumb($eventBreadcrumbs[2], $eventHub->id, '[Events - The Unwanted]');
     }
@@ -455,7 +454,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
     {
         // Arrange
         $centralHub = $this->createHub('[Central]');
-        $centralHub->id = $this->centralHubId;
+        $centralHub->id = GameSet::CentralHubId;
         $centralHub->save();
 
         $centralEventsHub = $this->createHub('[Central - Community Events]');
@@ -475,7 +474,7 @@ class BuildHubBreadcrumbsActionTest extends TestCase
 
         // Assert
         $this->assertCount(3, $breadcrumbs);
-        $this->assertBreadcrumb($breadcrumbs[0], $this->centralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
         $this->assertBreadcrumb($breadcrumbs[1], $centralEventsHub->id, '[Central - Community Events]');
         $this->assertBreadcrumb($breadcrumbs[2], $eventHub->id, '[Events - Achievement of the Week]');
 

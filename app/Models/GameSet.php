@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Cache;
 
 // TODO drop image_asset_path, migrate to media
 class GameSet extends BaseModel
@@ -42,6 +41,14 @@ class GameSet extends BaseModel
     {
         return GameSetFactory::new();
     }
+
+    // == constants
+
+    public const CentralHubId = 1;
+    public const GenreSubgenreHubId = 2;
+    public const SeriesHubId = 3;
+    public const CommunityEventsHubId = 4;
+    public const DeveloperEventsHubId = 5;
 
     // == accessors
 
@@ -100,15 +107,6 @@ class GameSet extends BaseModel
      */
     public function scopeCentralHub(Builder $query): Builder
     {
-        $centralHubId = Cache::rememberForever('central_hub_id', function () {
-            return $this->whereType(GameSetType::Hub)
-                ->where(function ($query) {
-                    $query->where('title', '[Central]')
-                        ->orWhere('title', 'Central');
-                })
-                ->value('id');
-        });
-
-        return $query->whereId($centralHubId);
+        return $query->whereId(self::CentralHubId);
     }
 }
