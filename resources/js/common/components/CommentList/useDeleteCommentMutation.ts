@@ -58,7 +58,10 @@ function buildDeleteRoute({
       comment: id,
     }),
 
-    [ArticleType.UserModeration]: 'TODO',
+    [ArticleType.UserModeration]: route('api.user.moderation-comment.destroy', {
+      user: targetUserDisplayName,
+      comment: id,
+    }),
   };
 
   return commentableTypeRouteMap[commentableType];

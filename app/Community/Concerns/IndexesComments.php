@@ -21,7 +21,7 @@ trait IndexesComments
         string $routeParam,
         string $view,
         callable $createPropsData,
-        ?string $commentableType = null, // 'hashes' | 'claims'
+        ?string $commentableType = null, // 'hashes' | 'claims' | 'modifications | 'moderation'
     ): InertiaResponse|RedirectResponse {
         $this->authorize('viewAny', [$policy, $commentable]);
 
@@ -35,6 +35,8 @@ trait IndexesComments
             $commentsQuery = $commentable->visibleClaimsComments();
         } elseif ($commentable instanceof Game && $commentableType === 'modifications') {
             $commentsQuery = $commentable->visibleModificationsComments();
+        } elseif ($commentable instanceof User && $commentableType === 'moderation') {
+            $commentsQuery = $commentable->moderationComments();
         }
 
         // Get total comments to calculate the last page.
