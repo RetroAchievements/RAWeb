@@ -7,13 +7,12 @@ namespace App\Platform\Commands;
 use App\Models\Game;
 use App\Models\GameAlternative;
 use App\Models\GameSet;
-use App\Models\GameSetGame;
-use App\Models\GameSetLink;
 use App\Models\System;
 use App\Platform\Actions\UpdateGameSetFromGameAlternativesModificationAction;
 use App\Platform\Enums\GameSetType;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class SyncGameSets extends Command
 {
@@ -32,10 +31,13 @@ class SyncGameSets extends Command
         Cache::forget('central_hub_id');
 
         // This will be a full reset. Delete any existing game_sets data.
+        // We'll use TRUNCATE to reset the auto-incrementing ID counter back to 1.
         $this->info("\nDeleting any existing game_sets data...");
-        GameSetLink::query()->forceDelete();
-        GameSetGame::query()->forceDelete();
-        GameSet::query()->forceDelete();
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::statement('TRUNCATE TABLE game_set_links;');
+        DB::statement('TRUNCATE TABLE game_set_games;');
+        DB::statement('TRUNCATE TABLE game_sets;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         $this->info("Deleted all existing game_sets data.");
 
         // Loop through all GameAlternatives and create game_sets.
