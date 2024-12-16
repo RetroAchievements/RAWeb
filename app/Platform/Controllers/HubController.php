@@ -57,9 +57,7 @@ class HubController extends Controller
         }
 
         // Return a 404 if this game set isn't actually for a hub.
-        if ($gameSet->type !== GameSetType::Hub) {
-            abort(404);
-        }
+        abort_if($gameSet->type !== GameSetType::Hub, 404);
 
         $this->authorize('view', $gameSet);
 
