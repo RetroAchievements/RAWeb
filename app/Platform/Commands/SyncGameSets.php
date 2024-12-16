@@ -7,6 +7,8 @@ namespace App\Platform\Commands;
 use App\Models\Game;
 use App\Models\GameAlternative;
 use App\Models\GameSet;
+use App\Models\GameSetGame;
+use App\Models\GameSetLink;
 use App\Models\System;
 use App\Platform\Actions\UpdateGameSetFromGameAlternativesModificationAction;
 use App\Platform\Enums\GameSetType;
@@ -18,6 +20,14 @@ class SyncGameSets extends Command
 {
     protected $signature = 'ra:sync:game-sets';
     protected $description = 'Sync hubs to game_sets';
+
+    private const STANDARD_HUBS = [
+        '[Central]' => 1,
+        '[Central - Genre & Subgenre]' => 2,
+        '[Central - Series]' => 3,
+        '[Central - Community Events]' => 4,
+        '[Central - Developer Events]' => 5,
+    ];
 
     public function __construct()
     {
@@ -33,15 +43,24 @@ class SyncGameSets extends Command
         // This will be a full reset. Delete any existing game_sets data.
         // We'll use TRUNCATE to reset the auto-incrementing ID counter back to 1.
         $this->info("\nDeleting any existing game_sets data...");
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        DB::statement('TRUNCATE TABLE game_set_links;');
-        DB::statement('TRUNCATE TABLE game_set_games;');
-        DB::statement('TRUNCATE TABLE game_sets;');
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        $this->wipeAllGameSetsData();
         $this->info("Deleted all existing game_sets data.");
 
+        $this->info("\nCreating standard hub game_sets...");
+        $this->createStandardHubs();
+        $this->info('Created ' . count(self::STANDARD_HUBS) . ' standard hubs.');
+
+        // Get all standard hub game IDs to exclude so we
+        // don't accidentally try to recreate them.
+        $standardHubGameIds = Game::where('ConsoleID', System::Hubs)
+            ->whereIn('Title', array_keys(self::STANDARD_HUBS))
+            ->pluck('id');
+
         // Loop through all GameAlternatives and create game_sets.
-        $distinctGameIds = GameAlternative::select('gameID')->distinct()->pluck('gameID');
+        $distinctGameIds = GameAlternative::select('gameID')
+            ->whereNotIn('gameID', $standardHubGameIds)
+            ->distinct()
+            ->pluck('gameID');
         $distinctGameIdsCount = $distinctGameIds->count();
 
         $this->info("\nUpserting {$distinctGameIdsCount} game_sets derived from legacy GameAlternatives.");
@@ -82,5 +101,34 @@ class SyncGameSets extends Command
         $progressBar->finish();
 
         $this->info("\nCompleted populating game_set_games and game_set_links.");
+    }
+
+    private function createStandardHubs(): void
+    {
+        foreach (self::STANDARD_HUBS as $title => $id) {
+            // Try to find the existing game.
+            // This will return a result if we're using a production DB snapshot.
+            $hubGame = Game::where('ConsoleID', System::Hubs)
+                ->where('Title', $title)
+                ->first();
+
+            GameSet::unguard(); // temporarily allow filling the "id" field
+            GameSet::create([
+                'id' => $id,
+                'title' => $title,
+                'type' => GameSetType::Hub,
+                'game_id' => $hubGame?->id,
+            ]);
+            GameSet::reguard();
+        }
+    }
+
+    private function wipeAllGameSetsData(): void
+    {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        GameSetGame::truncate();
+        GameSetLink::truncate();
+        GameSet::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
     }
 }
