@@ -207,7 +207,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
 
-        /** @var Leaderboard $leaderboard */
+        /** @var Leaderboard $leaderboardOne */
         $leaderboardOne = Leaderboard::factory()->create([
             'GameID' => $game->ID,
             'Title' => "Test leaderboard 1",
@@ -284,7 +284,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
 
-        /** @var Leaderboard $leaderboard */
+        /** @var Leaderboard $leaderboardOne */
         $leaderboardOne = Leaderboard::factory()->create([
             'GameID' => $game->ID,
             'Title' => "Test leaderboard 1",
