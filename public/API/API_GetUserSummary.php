@@ -37,8 +37,9 @@
  *   string     Publisher              publisher information for the game
  *   string     Developer              developer information for the game
  *   string     Genre                  genre information for the game
- *   string     Released               release date information for the game
- *   int        IsFinal
+ *   string?    Released               a YYYY-MM-DD date of the game's earliest release date, or null. also see ReleasedAtGranularity.
+ *   string?    ReleasedAtGranularity  how precise the Released value is. possible values are "day", "month", "year", and null.
+ *   int        IsFinal                deprecated, will always be 0
  *  string     RichPresenceMsg         activity information about the last game the user played
  *  int        RecentlyPlayedCount     number of items in the RecentlyPlayed array
  *  array      RecentlyPlayed
@@ -120,6 +121,8 @@ $retVal['TotalRanked'] = countRankedUsers();
 if (array_key_exists('LastGame', $retVal)) {
     unset($retVal['LastGame']['RichPresencePatch']);
     unset($retVal['LastGame']['system']);
+
+    $retVal['LastGame']['IsFinal'] = 0;
 } elseif ($recentGamesPlayed === 0) {
     // if no games were requested, initialize empty objects for Awarded and RecentAchievements
     $retVal['Awarded'] = new ArrayObject();

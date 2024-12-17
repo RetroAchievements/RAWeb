@@ -21,11 +21,11 @@ class SyncGameSets extends Command
     protected $description = 'Sync hubs to game_sets';
 
     private const STANDARD_HUBS = [
-        '[Central]' => 1,
-        '[Central - Genre & Subgenre]' => 2,
-        '[Central - Series]' => 3,
-        '[Central - Community Events]' => 4,
-        '[Central - Developer Events]' => 5,
+        '[Central]' => GameSet::CentralHubId,
+        '[Central - Genre & Subgenre]' => GameSet::GenreSubgenreHubId,
+        '[Central - Series]' => GameSet::SeriesHubId,
+        '[Central - Community Events]' => GameSet::CommunityEventsHubId,
+        '[Central - Developer Events]' => GameSet::DeveloperEventsHubId,
     ];
 
     public function __construct()
