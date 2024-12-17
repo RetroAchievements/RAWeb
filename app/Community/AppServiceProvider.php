@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Community;
 
-use App\Community\Commands\ConvertUserShortcodesToUseIds;
 use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\SyncComments;
 use App\Community\Commands\SyncForumCategories;
@@ -62,8 +61,6 @@ class AppServiceProvider extends ServiceProvider
                 SyncTickets::class,
                 SyncUserRelations::class,
                 SyncVotes::class,
-
-                ConvertUserShortcodesToUseIds::class,
 
                 GenerateAnnualRecap::class,
             ]);

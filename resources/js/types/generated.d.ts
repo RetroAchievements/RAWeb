@@ -130,7 +130,7 @@ declare namespace App.Data {
     createdAt: string;
     updatedAt: string | null;
     user: App.Data.User | null;
-    authorized: boolean;
+    isAuthorized: boolean;
     forumTopicId: number | null;
   };
   export type ForumTopic = {

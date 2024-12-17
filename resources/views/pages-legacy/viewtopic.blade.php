@@ -1,6 +1,6 @@
 <?php
 
-// TODO migrate to ForumTopicController::show() pages/forum/topic.blade.php
+// TODO migrate to ForumTopicController::show()
 
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
@@ -27,7 +27,7 @@ if (!$forumTopic) {
     abort(404);
 }
 
-if ($permissions < $forumTopic->RequiredPermissions) {
+if ($permissions < $forumTopic->required_permissions) {
     abort(403);
 }
 
@@ -49,8 +49,8 @@ if (!empty($gotoCommentID)) {
 $numTotalComments = $forumTopic->comments()->count();
 $allForumTopicCommentsForTopic = $forumTopic->comments()
     ->with(['user', 'forumTopic'])
-    ->where('ForumTopicID', $requestedTopicID)
-    ->orderBy('DateCreated', 'asc')
+    ->where('forum_topic_id', $requestedTopicID)
+    ->orderBy('created_at', 'asc')
     ->offset($offset)
     ->limit($count)
     ->get();
@@ -67,7 +67,7 @@ $thisTopicCategoryID = $forumTopic->forum->category->id;
 $thisTopicForum = $forumTopic->forum->title;
 $thisTopicForumID = $forumTopic->forum->id;
 $thisTopicTitle = $forumTopic->title;
-$thisTopicPermissions = $forumTopic->RequiredPermissions;
+$thisTopicPermissions = $forumTopic->required_permissions;
 
 $pageTitle = "Topic: {$thisTopicForum} - {$thisTopicTitle}";
 
