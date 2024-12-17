@@ -76,6 +76,12 @@ declare namespace App.Community.Data {
     can: App.Data.UserPermissions;
     defaultDesktopPageSize: number;
   };
+  export type UserModerationCommentsPageProps<TItems = App.Community.Data.Comment> = {
+    targetUser: App.Data.User;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+    isSubscribed: boolean;
+    canComment: boolean;
+  };
   export type UserRecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     targetUser: App.Data.User;
     paginatedTopics: App.Data.PaginatedData<TItems>;

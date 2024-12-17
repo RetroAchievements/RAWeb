@@ -41,7 +41,7 @@ export const GuestWelcomeCta: FC = () => {
                   ),
                   2: (
                     <Link
-                      href={route('game.index')}
+                      href={route('game.index', { sort: '-playersTotal' })}
                       className={buildTrackingClassNames('Click Guest All Games Link')}
                     />
                   ),
