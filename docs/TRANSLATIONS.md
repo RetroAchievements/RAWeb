@@ -1,6 +1,6 @@
 # Contributing Translations
 
-Thank you for your interest in contributing translations to the RetroAchievements website! By helping translate our platform, you make it more accessible to a wider audience. This guide will walk you through the steps to add or update translations in the RAWeb repository.
+Thank you for your interest in contributing translations to the RetroAchievements website! By helping translate our platform, you make it more accessible to a wider audience. We use Crowdin as our platform for managing website translations. This guide will walk you through the process of translating content using Crowdin.
 
 NOTE: The website does not support RTL (right-to-left) languages at this time.
 
@@ -8,166 +8,88 @@ NOTE: The website does not support RTL (right-to-left) languages at this time.
 
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
-- [Translation Guidelines](#translation-guidelines)
-  - [File Structure](#file-structure)
-  - [Maintaining Keys](#maintaining-keys)
-  - [Handling Placeholders](#handling-placeholders)
-- [Submitting Your Changes](#submitting-your-changes)
+- [Request a New Language](#request-a-new-language)
+- [Handling Special Elements](#handling-special-elements)
 - [Review Process](#review-process)
-- [Deleting Your Branch](#deleting-your-branch)
+- [Getting Help](#getting-help)
+- [Tips for New Translators](#tips-for-new-translators)
 
 ## Prerequisites
 
 Before you begin, ensure you have the following:
 
-- **GitHub Account:** You'll need to fork the RAWeb repository and submit pull requests.
-- **Basic Git Knowledge:** Familiarity with forking repositories, creating branches, committing changes, and opening pull requests.
-- **JSON Editing Skills:** Ability to read and edit JSON files without introducing syntax errors.
+- **CrowdIn Account:** Create a free account at [crowdin.com](https://accounts.crowdin.com/login?continue=%2Fproject%2Fretroachievements).
 - **Language Proficiency:** Proficiency in the target language to ensure accurate and meaningful translations.
 
 ## Getting Started
 
-1. **Fork the RAWeb Repository**
+1. [Create a Crowdin account](https://accounts.crowdin.com/login?continue=%2Fproject%2Fretroachievements) if you haven't already done so.
+2. While logged in to Crowdin, visit [the RetroAchievements Crowdin project page](https://crowdin.com/project/retroachievements).
+3. Click the green "Join" button at the top right of the page to join the project as a translator.
+4. Select the language you want to translate and click on the "en_US.json" link that appears.
 
-- Navigate to the [RAWeb GitHub repository](https://github.com/RetroAchievements/RAWeb).
-- Click the **Fork** button at the top-right corner to create a personal copy of the repository associated with your GitHub account.
+## Request a New Language
 
-2. **Clone Your Fork:**
+On the main RetroAchievements Crowdin project page, you will see a "Request New Language" button. You can click this button to select a language you believe we should support on the website. If approved, the language will be added to the project so you can begin your translation work.
 
-```shell
-git clone https://github.com/your-username/RAWeb.git
-cd RAWeb
-```
+## Handling Special Elements
 
-3. **Create a New Branch:**
+Some translation strings contain special elements that must be handled carefully:
 
-It's a best practice to create a separate branch for your translation work.
+1. **Variables**
 
-```shell
-git checkout -b translate/pt_BR
-```
+   - Examples: `{{count, number}}`, `{{total}}`, `{{gameTitle}}`
+   - Do not translate these placeholders
+   - Keep them exactly as they appear in the original text
 
-## Translation Guidelines
+   ```
+   Original: "Next {{count, number}}"
+   Translation: "Próximo {{count, number}}"
+   ```
 
-### File Structure
-
-All translations are stored in the _lang_ directory as JSON files. Each language has its own file, named using the [IETF language tag](https://en.wikipedia.org/wiki/IETF_language_tag) format, such as _en_US.json_ for American English or _pt_BR.json_ for Brazilian Portuguese.
-
-**Example Path:**
-
-```
-RAWeb/
-└── lang/
-    ├── en_US.json
-    └── pt_BR.json
-```
-
-### Maintaining Keys
-
-- **Do Not Alter Keys:** Each entry in the JSON file consists of a key-value pair. **Only translate the values.** The keys are used by the application to reference the correct text and must remain unchanged.
-
-```json
-{
-  "{{count, number}} posts in the last 24 hours": "{{count, number}} posts nas últimas 24 horas"
-}
-```
-
-- **Consistent Formatting:** Ensure that the structure and formatting (such as indentation) of the JSON file remains consistent with the original.
-
-### Handling Placeholders
-
-Some translation strings contain placeholders (eg: `{{count, number}}`, `{{total}}`, `{{gameTitle}}`) or special syntax used by libraries like React (eg: `<1>here</1>`). These placeholders are dynamically replaced by the application at runtime.
-
-- **Keep Placeholders Intact:** Do not translate or modify placeholders. Ensure they remain exactly as they are in the original key.
-* **For variables:** Strings like `{{count, number}}`, `{{total}}`, or `{{gameTitle}}` should be kept as-is.
-* **For HTML-like tags:** Tags like `<1>`, `</1>`, etc, must remain intact and should be placed appropriately in the translated sentence.
-
-**Examples:**
-
-* For variables:
-```json
-{
-  "Next {{count, number}}": "Próximo {{count, number}}"
-}
-```
-* For tags:
-```json
-{
-  "Click <1>here</1> to visit the page.": "Clique <1>aqui</1> para visitar a página."
-}
-```
-
-- **Proper Placement:** Ensure placeholders are positioned correctly within the translated string to maintain the intended meaning. You can move placeholders as appropriate for your target language.
-
-## Submitting Your Changes
-
-1. **Locate the Correct JSON File:**
-
-Navigate to the _lang_ directory and open the JSON file corresponding to your target language. If the file does not exist, you can create a new one following the existing naming convention.
-
-**Example:**
-
-```
-lang/
-└── pt_BR.json
-```
-
-2. **Translate the Values:**
-
-- Open the JSON file in a text editor or an IDE.
-- Translate each value while keeping the keys unchanged.
-- Ensure that the JSON syntax remains valid (commas, quotes, brackets).
-
-3. **Validate JSON Syntax:**
-
-Use a JSON validator to ensure there are no syntax errors. Tools like [JSONLint](https://jsonlint.com/) can be helpful.
-
-4. **Commit Your Changes:**
-
-```shell
-git add .
-git commit -m "chore: update translations for pt_BR"
-```
-
-5. **Push to Your Fork:**
-
-```shell
-git push --set-upstream origin translate/pt_BR
-```
-
-6. **Open a Pull Request:**
-
-- Navigate to the [RAWeb repository](https://github.com/RetroAchievements/RAWeb) repository on GitHub.
-- Click the **Compare & pull request** button.
-- Provide a clear title and description for your pull request.
-- Submit the pull request for review.
+2. **HTML-like Tags**
+   - Examples: `<1>text</1>`, `<2>link</2>`
+   - Keep tags intact and in the correct order
+   ```
+   Original: "Click <1>here</1> to visit the page"
+   Translation: "Clique <1>aqui</1> para visitar a página"
+   ```
 
 ## Review Process
 
-Once your pull request is submitted:
+1. **Proofreading**
 
-1. **Automated Checks:**
+- Other translators can review and vote on translations.
+- You can review and vote on other translators' translations.
+- Be open to constructive feedback you may receive on your translations.
 
-The repository's CI/CD pipeline will run automated tests to ensure there are no syntax errors in your JSON files.
+2. **Approval**
 
-2. **Manual Review:**
+- Approved translations will be synced to the RAWeb repository automatically every week.
+- Changes typically go live with the next site deployment.
 
-A maintainer will review your translations for adherence to these guidelines.
+## Getting Help
 
-3. **Feedback:**
+- Use the comments feature in Crowdin to discuss specific translations and text.
+- Join the [RetroAchievements Discord](https://discord.gg/invite/retroachievements) and use the [#localization](https://discord.com/channels/310192285306454017/1299083037908406402) channel to be automatically notified when there are new things to translate.
 
-You may receive feedback or requests for revisions. Address any feedback promptly to facilitate merging your changes.
+## Tips for New Translators
 
-4. **Merging:**
+1. **Start Small**
 
-Once approved, your translations will be merged into the `master` branch and deployed with the next site release.
+- Begin with shorter, simpler strings.
+- Gradually work up to more complex content.
+- Learn from existing translations.
 
-## Deleting Your Branch
+2. **Stay Active**
 
-After your pull request is merged, it's good practice to delete your working branch to keep your fork clean. GitHub makes this easy:
+- Regular small contributions are better than occasional large ones.
+- Keep an eye on new content that needs translation. Use the [#localization](https://discord.com/channels/310192285306454017/1299083037908406402) channel in our Discord to be notified of when there is new stuff to translate.
 
-1. Navigate to the merged pull request page, eg: `https://github.com/RetroAchievements/RAWeb/pull/1234`.
-2. Look for the "Delete Branch" button near the bottom of the page.
-3. Click the button to remove the branch from your fork.
+3. **Use Available Tools**
 
-For future contributions, always create a new branch for each set of changes. This helps keep your work organized and makes it easier for maintainers to review your contributions.
+- Familiarize yourself with Crowdin's features.
+- Use Crowdin's translation memory and glossary.
+- Take advantage of Crowdin's automated quality checks.
+
+Thank you for helping make RetroAchievements accessible to more people around the world! Your contributions help build a stronger, more inclusive community.

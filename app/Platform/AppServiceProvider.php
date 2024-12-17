@@ -24,7 +24,6 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
-use App\Platform\Commands\ConvertGameReleasedToTimestamp;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
 use App\Platform\Commands\EnqueueStaleGamePlayerGamesUpdates;
@@ -73,7 +72,6 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 // Games
-                ConvertGameReleasedToTimestamp::class,
                 EnqueueStaleGamePlayerGamesUpdates::class,
                 TrimGameMetadata::class,
                 UpdateGameMetrics::class,

@@ -101,13 +101,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "user.moderation-comments": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        }
-    ],
     "user.completion-progress": [
         {
             "name": "user",
@@ -334,6 +327,13 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
+    "api.user.moderation-comment.store": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
     "api.achievement.comment.destroy": [
         {
             "name": "achievement",
@@ -407,6 +407,18 @@ declare module 'ziggy-js' {
         }
     ],
     "api.user.comment.destroy": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.user.moderation-comment.destroy": [
         {
             "name": "user",
             "required": true,
@@ -495,6 +507,13 @@ declare module 'ziggy-js' {
         }
     ],
     "user.comment.index": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
+    "user.moderation-comment.index": [
         {
             "name": "user",
             "required": true,

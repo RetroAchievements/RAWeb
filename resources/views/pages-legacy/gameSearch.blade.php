@@ -80,7 +80,6 @@ $gameData = getGameListSearch($offset, $count, $method, $consoleID);
         $gamePublisher = $gameEntry['Publisher'];
         $gameDeveloper = $gameEntry['Developer'];
         $gameGenre = $gameEntry['Genre'];
-        $gameReleased = $gameEntry['Released'];
         $gameTA = $gameEntry['TotalTruePoints'];
         $consoleName = $gameEntry['ConsoleName'];
         // $numRecords = $gameEntry['NumRecords'];
