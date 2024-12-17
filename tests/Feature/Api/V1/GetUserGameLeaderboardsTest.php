@@ -126,7 +126,7 @@ class GetUserGameLeaderboardsTest extends TestCase
     public function testGetUserGameLeaderboardsUserIsUnRanked(): void
     {
        /** @var User $user */
-       $user = User::factory()->create();
+       $user = User::factory()->create(['unranked_at' => Carbon::now(), 'Untracked' => 1]);
 
        /** @var System $system */
        $system = System::factory()->create();
@@ -136,12 +136,11 @@ class GetUserGameLeaderboardsTest extends TestCase
 
        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->ID]);
 
-       $leaderboardEntry = LeaderboardEntry::factory()->create([
+       LeaderboardEntry::factory()->create([
            'leaderboard_id' => $leaderboard->ID,
            'user_id' => $user->ID,
            'score' => 1,
        ]);
-       $leaderboardEntry->delete();
 
        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
            ->assertUnprocessable()
@@ -563,6 +562,69 @@ class GetUserGameLeaderboardsTest extends TestCase
                             'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->Format),
                             'Rank' => 1,
                             'DateUpdated' => $leaderboardEntryTwo->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
+    public function testGetUserGameLeaderboardsRankCalculationWhenThereIsUnRankedUser(): void
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Test leaderboard",
+            'Description' => "I am a leaderboard",
+            'LowerIsBetter' => true,
+        ]);
+
+        $userOne = User::factory()->create(['User' => 'myUser1']);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $userOne->ID,
+            'score' => 100,
+        ]);
+
+        $userTwo = User::factory()->create(['User' => 'myUser2', 'unranked_at' => Carbon::now(), 'Untracked' => 1]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $userTwo->ID,
+            'score' => 200,
+        ]);
+
+        $userThree = User::factory()->create(['User' => 'myUser3']);
+        $leaderboardEntryThree = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $userThree->ID,
+            'score' => 300,
+        ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userThree->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1,
+                'Results' => [
+                    [
+                        'ID' => $leaderboard->ID,
+                        'RankAsc' => $leaderboard->LowerIsBetter,
+                        'Title' => $leaderboard->Title,
+                        'Description' => $leaderboard->Description,
+                        'Format' => $leaderboard->Format,
+                        'UserEntry' => [
+                            'User' => $userThree->User,
+                            'Score' => $leaderboardEntryThree->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryThree->score, $leaderboard->Format),
+                            'Rank' => 2,
+                            'DateUpdated' => $leaderboardEntryThree->created_at->toIso8601String(),
                         ],
                     ],
                 ],
