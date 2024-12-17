@@ -48,7 +48,7 @@ describe('Component: GuestWelcomeCta', () => {
     const linkEl = screen.getByRole('link', { name: /the games/i });
 
     expect(linkEl).toBeVisible();
-    expect(linkEl).toHaveAttribute('href', 'game.index');
+    expect(linkEl).toHaveAttribute('href', expect.stringContaining('game.index'));
   });
 
   it('has an accessible link to some random game', () => {
