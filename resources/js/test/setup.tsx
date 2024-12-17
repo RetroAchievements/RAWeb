@@ -69,6 +69,8 @@ export function render<TPageProps = Record<string, unknown>>(
     scrollRegions: vi.fn() as any,
     url: '',
     version: '',
+    clearHistory: false,
+    encryptHistory: false,
   }));
 
   if (!wrapper) {
@@ -111,6 +113,8 @@ export function renderHook<Result, Props = undefined>(
     scrollRegions: vi.fn() as any,
     url: '',
     version: '',
+    clearHistory: false,
+    encryptHistory: false,
   }));
 
   if (!wrapper) {

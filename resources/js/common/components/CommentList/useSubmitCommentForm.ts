@@ -91,7 +91,7 @@ function buildPostRoute({
 
     User: route('api.user.comment.store', { user: targetUserDisplayName }),
 
-    UserModeration: 'TODO',
+    UserModeration: route('api.user.moderation-comment.store', { user: targetUserDisplayName }),
   };
 
   return commentableTypeRouteMap[commentableType];
