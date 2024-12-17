@@ -425,7 +425,6 @@ if ($isFullyFeaturedGame) {
         $developer = $gameData['Developer'] ?? null;
         $publisher = $gameData['Publisher'] ?? null;
         $genre = $gameData['Genre'] ?? null;
-        $released = $gameData['Released'] ?? null;
         $imageIcon = media_asset($gameData['ImageIcon']);
         $imageTitle = media_asset($gameData['ImageTitle']);
         $imageIngame = media_asset($gameData['ImageIngame']);
@@ -458,7 +457,6 @@ if ($isFullyFeaturedGame) {
             'numMissableAchievements' => $numMissableAchievements,
             'permissions' => $permissions,
             'publisher' => $publisher,
-            'released' => $released,
             'totalPossible' => $totalPossible,
             'totalPossibleTrueRatio' => $totalPossibleTrueRatio,
             'user' => $user,
@@ -716,7 +714,6 @@ if ($isFullyFeaturedGame) {
                 echo "<input type='hidden' name='developer' value='" . attributeEscape($developer) . "'>";
                 echo "<input type='hidden' name='publisher' value='" . attributeEscape($publisher) . "'>";
                 echo "<input type='hidden' name='genre' value='" . attributeEscape($genre) . "'>";
-                echo "<input type='hidden' name='release' value='" . attributeEscape($released) . "'>";
                 echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
 
                 $guideUrlHelperContent = "Must be from https://github.com/RetroAchievements/guides";

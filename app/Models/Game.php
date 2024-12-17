@@ -63,7 +63,6 @@ class Game extends BaseModel implements HasMedia
     // TODO rename Publisher column to publisher
     // TODO rename Developer column to developer
     // TODO rename Genre column to genre
-    // TODO rename Released to release
     // TODO rename TotalTruePoints to points_weighted, remove getPointsWeightedAttribute()
     // TODO drop achievement_set_version_hash, migrate to achievement_sets
     // TODO drop ForumTopicID, migrate to forumable morph
@@ -71,7 +70,6 @@ class Game extends BaseModel implements HasMedia
     // TODO drop ImageIcon, ImageTitle, ImageInGame, ImageBoxArt, migrate to media
     // TODO drop GuideURL, migrate to forumable morph
     // TODO drop RichPresencePatch, migrate to triggerable morph
-    // TODO drop IsFinal
     protected $table = 'GameData';
 
     protected $primaryKey = 'ID';
@@ -113,10 +111,8 @@ class Game extends BaseModel implements HasMedia
         'Publisher',
         'Developer',
         'Genre',
-        'Released',
         'released_at',
         'released_at_granularity',
-        'IsFinal',
         'RichPresencePatch',
         'GuideURL',
         'Updated',
