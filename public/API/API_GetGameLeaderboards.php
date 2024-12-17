@@ -10,7 +10,7 @@
  *  array       Results
  *   object      [value]
  *    int        ID                         unique identifier of the leaderboard
- *    string     RankAsc                    string value of true or false for if the leaderboard views a lower score as better
+ *    boolean    RankAsc                    true if the leaderboard views a lower score as better, false otherwise
  *    string     Title                      the title of the leaderboard
  *    string     Description                the description of the leaderboard
  *    string     Format                     the format of the leaderboard (see: ValueFormat enum)

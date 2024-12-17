@@ -61,6 +61,25 @@ class GetUserGameLeaderboardsTest extends TestCase
             ->assertJson(['Game has no leaderboards']);
     }
 
+    public function testGetUserGameLeaderboardsGameHasLeaderboardsDeleted(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->ID]);
+        $leaderboard->delete();
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
+            ->assertUnprocessable()
+            ->assertJson(['Game has no leaderboards']);
+    }
+
     public function testGetUserGameLeaderboardsUserHasNoLeaderboardsOnGame(): void
     {
         /** @var User $user */
@@ -79,7 +98,57 @@ class GetUserGameLeaderboardsTest extends TestCase
             ->assertJson(['User has no leaderboards on this game']);
     }
 
-    public function testGetUserGameLeaderboards(): void
+    public function testGetUserGameLeaderboardsUserHasLeaderboardsOnGameDeleted(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->ID]);
+
+        $leaderboardEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $user->ID,
+            'score' => 1,
+        ]);
+        $leaderboardEntry->delete();
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
+            ->assertUnprocessable()
+            ->assertJson(['User has no leaderboards on this game']);
+    }
+
+    public function testGetUserGameLeaderboardsUserIsUnRanked(): void
+    {
+       /** @var User $user */
+       $user = User::factory()->create();
+
+       /** @var System $system */
+       $system = System::factory()->create();
+
+       /** @var Game $game */
+       $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+       $leaderboard = Leaderboard::factory()->create(['GameID' => $game->ID]);
+
+       $leaderboardEntry = LeaderboardEntry::factory()->create([
+           'leaderboard_id' => $leaderboard->ID,
+           'user_id' => $user->ID,
+           'score' => 1,
+       ]);
+       $leaderboardEntry->delete();
+
+       $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
+           ->assertUnprocessable()
+           ->assertJson(['User has no leaderboards on this game']);
+    }
+
+    public function testGetUserGameLeaderboardsHavingASingleLeaderboardEntryForGame(): void
     {
         Carbon::setTestNow(Carbon::now());
 
@@ -89,89 +158,62 @@ class GetUserGameLeaderboardsTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
 
-        /** @var Leaderboard $leaderboardOne */
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Test leaderboard",
+            'Description' => "I am a leaderboard",
+            'LowerIsBetter' => true,
+        ]);
+
+        $user = User::factory()->create(['User' => 'myUser1']);
+        $leaderboardEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $user->ID,
+            'score' => 1,
+        ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1,
+                'Results' => [
+                    [
+                        'ID' => $leaderboard->ID,
+                        'RankAsc' => $leaderboard->LowerIsBetter,
+                        'Title' => $leaderboard->Title,
+                        'Description' => $leaderboard->Description,
+                        'Format' => $leaderboard->Format,
+                        'UserEntry' => [
+                            'User' => $user->User,
+                            'Score' => $leaderboardEntry->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardEntry->score, $leaderboard->Format),
+                            'Rank' => 1,
+                            'DateUpdated' => $leaderboardEntry->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
+    public function testGetUserGameLeaderboardsHavingMultipleLeaderboardEntryForGame(): void
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var Leaderboard $leaderboard */
         $leaderboardOne = Leaderboard::factory()->create([
             'GameID' => $game->ID,
             'Title' => "Test leaderboard 1",
             'Description' => "I am the first leaderboard",
             'LowerIsBetter' => true,
         ]);
-
-        $userOne = User::factory()->create(['User' => 'myUser1']);
-        $leaderboardOneEntryOne = LeaderboardEntry::factory()->create([
-            'leaderboard_id' => $leaderboardOne->ID,
-            'user_id' => $userOne->ID,
-            'score' => 1,
-        ]);
-
-        $userTwo = User::factory()->create(['User' => 'myUser2']);
-        LeaderboardEntry::factory()->create([
-            'leaderboard_id' => $leaderboardOne->ID,
-            'user_id' => $userTwo->ID,
-            'score' => 1,
-        ]);
-
-        $userThree = User::factory()->create(['User' => 'myUser3']);
-        $leaderboardOneEntryThree = LeaderboardEntry::factory()->create([
-            'leaderboard_id' => $leaderboardOne->ID,
-            'user_id' => $userThree->ID,
-            'score' => 50,
-        ]);
-
-        $userFour = User::factory()->create(['User' => 'myUser4']);
-        $leaderboardOneEntryFour = LeaderboardEntry::factory()->create([
-            'leaderboard_id' => $leaderboardOne->ID,
-            'user_id' => $userFour->ID,
-            'score' => 300,
-        ]);
-
-        // User 1 has 1 leaderboard entry where he is ranked 1st
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userOne->User]))
-            ->assertSuccessful()
-            ->assertJson([
-                'Count' => 1,
-                'Total' => 1,
-                'Results' => [
-                    [
-                        'ID' => $leaderboardOne->ID,
-                        'RankAsc' => $leaderboardOne->LowerIsBetter ? 'false' : 'true',
-                        'Title' => $leaderboardOne->Title,
-                        'Description' => $leaderboardOne->Description,
-                        'Format' => $leaderboardOne->Format,
-                        'UserEntry' => [
-                            'User' => $userOne->User,
-                            'Score' => $leaderboardOneEntryOne->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardOneEntryOne->score, $leaderboardOne->Format),
-                            'Rank' => 1,
-                            'DateUpdated' => $leaderboardOneEntryOne->created_at->toIso8601String(),
-                        ],
-                    ],
-                ],
-            ]);
-
-        // User 4 has 1 leaderboard entry where he is ranked 4th
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userFour->User]))
-            ->assertSuccessful()
-            ->assertJson([
-                'Count' => 1,
-                'Total' => 1,
-                'Results' => [
-                    [
-                        'ID' => $leaderboardOne->ID,
-                        'RankAsc' => $leaderboardOne->LowerIsBetter ? 'false' : 'true',
-                        'Title' => $leaderboardOne->Title,
-                        'Description' => $leaderboardOne->Description,
-                        'Format' => $leaderboardOne->Format,
-                        'UserEntry' => [
-                            'User' => $userFour->User,
-                            'Score' => $leaderboardOneEntryFour->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardOneEntryFour->score, $leaderboardOne->Format),
-                            'Rank' => 4,
-                            'DateUpdated' => $leaderboardOneEntryFour->created_at->toIso8601String(),
-                        ],
-                    ],
-                ],
-            ]);
 
         /** @var Leaderboard $leaderboardTwo */
         $leaderboardTwo = Leaderboard::factory()->create([
@@ -181,26 +223,20 @@ class GetUserGameLeaderboardsTest extends TestCase
             'LowerIsBetter' => true,
         ]);
 
-        $leaderboardTwoEntryOne = LeaderboardEntry::factory()->create([
-            'leaderboard_id' => $leaderboardTwo->ID,
-            'user_id' => $userOne->ID,
-            'score' => 1000,
+        $user = User::factory()->create(['User' => 'myUser1']);
+        $leaderboardOneEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboardOne->ID,
+            'user_id' => $user->ID,
+            'score' => 1,
         ]);
 
-        LeaderboardEntry::factory()->create([
+        $leaderboardTwoEntry = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboardTwo->ID,
-            'user_id' => $userTwo->ID,
-            'score' => 100,
+            'user_id' => $user->ID,
+            'score' => 1,
         ]);
 
-        $leaderboardTwoEntryThree = LeaderboardEntry::factory()->create([
-            'leaderboard_id' => $leaderboardTwo->ID,
-            'user_id' => $userThree->ID,
-            'score' => 10,
-        ]);
-
-        // User 1 has 2 leaderboard entries where he is ranked 1st and 3rd
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userOne->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 2,
@@ -208,72 +244,61 @@ class GetUserGameLeaderboardsTest extends TestCase
                 'Results' => [
                     [
                         'ID' => $leaderboardOne->ID,
-                        'RankAsc' => $leaderboardOne->LowerIsBetter ? 'false' : 'true',
+                        'RankAsc' => $leaderboardOne->LowerIsBetter,
                         'Title' => $leaderboardOne->Title,
                         'Description' => $leaderboardOne->Description,
                         'Format' => $leaderboardOne->Format,
                         'UserEntry' => [
-                            'User' => $userOne->User,
-                            'Score' => $leaderboardOneEntryOne->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardOneEntryOne->score, $leaderboardOne->Format),
+                            'User' => $user->User,
+                            'Score' => $leaderboardOneEntry->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardOneEntry->score, $leaderboardOne->Format),
                             'Rank' => 1,
-                            'DateUpdated' => $leaderboardOneEntryOne->created_at->toIso8601String(),
+                            'DateUpdated' => $leaderboardOneEntry->created_at->toIso8601String(),
                         ],
                     ],
                     [
                         'ID' => $leaderboardTwo->ID,
-                        'RankAsc' => $leaderboardTwo->LowerIsBetter ? 'false' : 'true',
+                        'RankAsc' => $leaderboardTwo->LowerIsBetter,
                         'Title' => $leaderboardTwo->Title,
                         'Description' => $leaderboardTwo->Description,
                         'Format' => $leaderboardTwo->Format,
                         'UserEntry' => [
-                            'User' => $userOne->User,
-                            'Score' => $leaderboardTwoEntryOne->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardTwoEntryOne->score, $leaderboardTwo->Format),
-                            'Rank' => 3,
-                            'DateUpdated' => $leaderboardTwoEntryOne->created_at->toIso8601String(),
+                            'User' => $user->User,
+                            'Score' => $leaderboardTwoEntry->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardTwoEntry->score, $leaderboardTwo->Format),
+                            'Rank' => 1,
+                            'DateUpdated' => $leaderboardTwoEntry->created_at->toIso8601String(),
                         ],
                     ],
                 ],
             ]);
+    }
 
-        // User 3 has 2 leaderboard entries where he is ranked 3rd and 1st
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userThree->User]))
-            ->assertSuccessful()
-            ->assertJson([
-                'Count' => 2,
-                'Total' => 2,
-                'Results' => [
-                    [
-                        'ID' => $leaderboardOne->ID,
-                        'RankAsc' => $leaderboardOne->LowerIsBetter ? 'false' : 'true',
-                        'Title' => $leaderboardOne->Title,
-                        'Description' => $leaderboardOne->Description,
-                        'Format' => $leaderboardOne->Format,
-                        'UserEntry' => [
-                            'User' => $userThree->User,
-                            'Score' => $leaderboardOneEntryThree->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardOneEntryThree->score, $leaderboardOne->Format),
-                            'Rank' => 3,
-                            'DateUpdated' => $leaderboardOneEntryThree->created_at->toIso8601String(),
-                        ],
-                    ],
-                    [
-                        'ID' => $leaderboardTwo->ID,
-                        'RankAsc' => $leaderboardTwo->LowerIsBetter ? 'false' : 'true',
-                        'Title' => $leaderboardTwo->Title,
-                        'Description' => $leaderboardTwo->Description,
-                        'Format' => $leaderboardTwo->Format,
-                        'UserEntry' => [
-                            'User' => $userThree->User,
-                            'Score' => $leaderboardTwoEntryThree->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardTwoEntryThree->score, $leaderboardTwo->Format),
-                            'Rank' => 1,
-                            'DateUpdated' => $leaderboardTwoEntryThree->created_at->toIso8601String(),
-                        ],
-                    ],
-                ],
-            ]);
+    public function testGetUserGameLeaderboardPagination(): void
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var Leaderboard $leaderboard */
+        $leaderboardOne = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Test leaderboard 1",
+            'Description' => "I am the first leaderboard",
+            'LowerIsBetter' => true,
+        ]);
+
+        /** @var Leaderboard $leaderboardTwo */
+        $leaderboardTwo = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Test leaderboard 2",
+            'Description' => "I am the second leaderboard",
+            'LowerIsBetter' => true,
+        ]);
 
         /** @var Leaderboard $leaderboardThree */
         $leaderboardThree = Leaderboard::factory()->create([
@@ -283,66 +308,26 @@ class GetUserGameLeaderboardsTest extends TestCase
             'LowerIsBetter' => true,
         ]);
 
-        $leaderboardThreeEntryOne = LeaderboardEntry::factory()->create([
-            'leaderboard_id' => $leaderboardThree->ID,
-            'user_id' => $userOne->ID,
-            'score' => 1000,
+        $user = User::factory()->create(['User' => 'myUser1']);
+        $leaderboardOneEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboardOne->ID,
+            'user_id' => $user->ID,
+            'score' => 1,
         ]);
 
-        // User 1 has 3 leaderboard entries where he is ranked 1st, 3rd, and 1st
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userOne->User]))
-            ->assertSuccessful()
-            ->assertJson([
-                'Count' => 3,
-                'Total' => 3,
-                'Results' => [
-                    [
-                        'ID' => $leaderboardOne->ID,
-                        'RankAsc' => $leaderboardOne->LowerIsBetter ? 'false' : 'true',
-                        'Title' => $leaderboardOne->Title,
-                        'Description' => $leaderboardOne->Description,
-                        'Format' => $leaderboardOne->Format,
-                        'UserEntry' => [
-                            'User' => $userOne->User,
-                            'Score' => $leaderboardOneEntryOne->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardOneEntryOne->score, $leaderboardOne->Format),
-                            'Rank' => 1,
-                            'DateUpdated' => $leaderboardOneEntryOne->created_at->toIso8601String(),
-                        ],
-                    ],
-                    [
-                        'ID' => $leaderboardTwo->ID,
-                        'RankAsc' => $leaderboardTwo->LowerIsBetter ? 'false' : 'true',
-                        'Title' => $leaderboardTwo->Title,
-                        'Description' => $leaderboardTwo->Description,
-                        'Format' => $leaderboardTwo->Format,
-                        'UserEntry' => [
-                            'User' => $userOne->User,
-                            'Score' => $leaderboardTwoEntryOne->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardTwoEntryOne->score, $leaderboardTwo->Format),
-                            'Rank' => 3,
-                            'DateUpdated' => $leaderboardTwoEntryOne->created_at->toIso8601String(),
-                        ],
-                    ],
-                    [
-                        'ID' => $leaderboardThree->ID,
-                        'RankAsc' => $leaderboardThree->LowerIsBetter ? 'false' : 'true',
-                        'Title' => $leaderboardThree->Title,
-                        'Description' => $leaderboardThree->Description,
-                        'Format' => $leaderboardThree->Format,
-                        'UserEntry' => [
-                            'User' => $userOne->User,
-                            'Score' => $leaderboardThreeEntryOne->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardThreeEntryOne->score, $leaderboardThree->Format),
-                            'Rank' => 1,
-                            'DateUpdated' => $leaderboardThreeEntryOne->created_at->toIso8601String(),
-                        ],
-                    ],
-                ],
-            ]);
+        $leaderboardTwoEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboardTwo->ID,
+            'user_id' => $user->ID,
+            'score' => 1,
+        ]);
 
-        // User 1 has 3 leaderboard entries where he is ranked 1st, 3rd, and 1st, but we only want the first 2 results
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userOne->User, 'c' => 2, 'o' => 0]))
+        $leaderboardThreeEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboardThree->ID,
+            'user_id' => $user->ID,
+            'score' => 1,
+        ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User, 'o' => 0, 'c' => 2]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 2,
@@ -350,37 +335,59 @@ class GetUserGameLeaderboardsTest extends TestCase
                 'Results' => [
                     [
                         'ID' => $leaderboardOne->ID,
-                        'RankAsc' => $leaderboardOne->LowerIsBetter ? 'false' : 'true',
+                        'RankAsc' => $leaderboardOne->LowerIsBetter,
                         'Title' => $leaderboardOne->Title,
                         'Description' => $leaderboardOne->Description,
                         'Format' => $leaderboardOne->Format,
                         'UserEntry' => [
-                            'User' => $userOne->User,
-                            'Score' => $leaderboardOneEntryOne->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardOneEntryOne->score, $leaderboardOne->Format),
+                            'User' => $user->User,
+                            'Score' => $leaderboardOneEntry->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardOneEntry->score, $leaderboardOne->Format),
                             'Rank' => 1,
-                            'DateUpdated' => $leaderboardOneEntryOne->created_at->toIso8601String(),
+                            'DateUpdated' => $leaderboardOneEntry->created_at->toIso8601String(),
                         ],
                     ],
                     [
                         'ID' => $leaderboardTwo->ID,
-                        'RankAsc' => $leaderboardTwo->LowerIsBetter ? 'false' : 'true',
+                        'RankAsc' => $leaderboardTwo->LowerIsBetter,
                         'Title' => $leaderboardTwo->Title,
                         'Description' => $leaderboardTwo->Description,
                         'Format' => $leaderboardTwo->Format,
                         'UserEntry' => [
-                            'User' => $userOne->User,
-                            'Score' => $leaderboardTwoEntryOne->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardTwoEntryOne->score, $leaderboardTwo->Format),
-                            'Rank' => 3,
-                            'DateUpdated' => $leaderboardTwoEntryOne->created_at->toIso8601String(),
+                            'User' => $user->User,
+                            'Score' => $leaderboardTwoEntry->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardTwoEntry->score, $leaderboardTwo->Format),
+                            'Rank' => 1,
+                            'DateUpdated' => $leaderboardTwoEntry->created_at->toIso8601String(),
                         ],
                     ],
                 ],
             ]);
 
-        // User 1 has 3 leaderboard entries where he is ranked 1st, 3rd, and 1st, but we only expect the last result even though we're asking for 2 results
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userOne->User, 'o' => 2, 'c' => 2]))
+            $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User, 'o' => 1, 'c' => 1]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 3,
+                'Results' => [
+                    [
+                        'ID' => $leaderboardTwo->ID,
+                        'RankAsc' => $leaderboardTwo->LowerIsBetter,
+                        'Title' => $leaderboardTwo->Title,
+                        'Description' => $leaderboardTwo->Description,
+                        'Format' => $leaderboardTwo->Format,
+                        'UserEntry' => [
+                            'User' => $user->User,
+                            'Score' => $leaderboardTwoEntry->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardTwoEntry->score, $leaderboardTwo->Format),
+                            'Rank' => 1,
+                            'DateUpdated' => $leaderboardTwoEntry->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+
+            $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User, 'o' => 2, 'c' => 1]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,
@@ -388,16 +395,174 @@ class GetUserGameLeaderboardsTest extends TestCase
                 'Results' => [
                     [
                         'ID' => $leaderboardThree->ID,
-                        'RankAsc' => $leaderboardThree->LowerIsBetter ? 'false' : 'true',
+                        'RankAsc' => $leaderboardThree->LowerIsBetter,
                         'Title' => $leaderboardThree->Title,
                         'Description' => $leaderboardThree->Description,
                         'Format' => $leaderboardThree->Format,
                         'UserEntry' => [
-                            'User' => $userOne->User,
-                            'Score' => $leaderboardThreeEntryOne->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardThreeEntryOne->score, $leaderboardThree->Format),
+                            'User' => $user->User,
+                            'Score' => $leaderboardThreeEntry->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardThreeEntry->score, $leaderboardThree->Format),
                             'Rank' => 1,
-                            'DateUpdated' => $leaderboardThreeEntryOne->created_at->toIso8601String(),
+                            'DateUpdated' => $leaderboardThreeEntry->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
+    public function testGetUserGameLeaderboardsRankCalculationWhenLeaderboardIsLowerIsBetter(): void
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Test leaderboard",
+            'Description' => "I am a leaderboard",
+            'LowerIsBetter' => true,
+        ]);
+
+        $userOne = User::factory()->create(['User' => 'myUser1']);
+        $leaderboardEntryOne = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $userOne->ID,
+            'score' => 100,
+        ]);
+
+        $userTwo = User::factory()->create(['User' => 'myUser2']);
+        $leaderboardEntryTwo = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $userTwo->ID,
+            'score' => 200,
+        ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userOne->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1,
+                'Results' => [
+                    [
+                        'ID' => $leaderboard->ID,
+                        'RankAsc' => $leaderboard->LowerIsBetter,
+                        'Title' => $leaderboard->Title,
+                        'Description' => $leaderboard->Description,
+                        'Format' => $leaderboard->Format,
+                        'UserEntry' => [
+                            'User' => $userOne->User,
+                            'Score' => $leaderboardEntryOne->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryOne->score, $leaderboard->Format),
+                            'Rank' => 1,
+                            'DateUpdated' => $leaderboardEntryOne->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userTwo->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1,
+                'Results' => [
+                    [
+                        'ID' => $leaderboard->ID,
+                        'RankAsc' => $leaderboard->LowerIsBetter,
+                        'Title' => $leaderboard->Title,
+                        'Description' => $leaderboard->Description,
+                        'Format' => $leaderboard->Format,
+                        'UserEntry' => [
+                            'User' => $userTwo->User,
+                            'Score' => $leaderboardEntryTwo->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->Format),
+                            'Rank' => 2,
+                            'DateUpdated' => $leaderboardEntryTwo->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
+    public function testGetUserGameLeaderboardsRankCalculationWhenLeaderboardIsLowerIsNotBetter(): void
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Test leaderboard",
+            'Description' => "I am a leaderboard",
+            'LowerIsBetter' => false,
+        ]);
+
+        $userOne = User::factory()->create(['User' => 'myUser1']);
+        $leaderboardEntryOne = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $userOne->ID,
+            'score' => 100,
+        ]);
+
+        $userTwo = User::factory()->create(['User' => 'myUser2']);
+        $leaderboardEntryTwo = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $userTwo->ID,
+            'score' => 200,
+        ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userOne->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1,
+                'Results' => [
+                    [
+                        'ID' => $leaderboard->ID,
+                        'RankAsc' => $leaderboard->LowerIsBetter,
+                        'Title' => $leaderboard->Title,
+                        'Description' => $leaderboard->Description,
+                        'Format' => $leaderboard->Format,
+                        'UserEntry' => [
+                            'User' => $userOne->User,
+                            'Score' => $leaderboardEntryOne->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryOne->score, $leaderboard->Format),
+                            'Rank' => 2,
+                            'DateUpdated' => $leaderboardEntryOne->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userTwo->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1,
+                'Results' => [
+                    [
+                        'ID' => $leaderboard->ID,
+                        'RankAsc' => $leaderboard->LowerIsBetter,
+                        'Title' => $leaderboard->Title,
+                        'Description' => $leaderboard->Description,
+                        'Format' => $leaderboard->Format,
+                        'UserEntry' => [
+                            'User' => $userTwo->User,
+                            'Score' => $leaderboardEntryTwo->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->Format),
+                            'Rank' => 1,
+                            'DateUpdated' => $leaderboardEntryTwo->created_at->toIso8601String(),
                         ],
                     ],
                 ],

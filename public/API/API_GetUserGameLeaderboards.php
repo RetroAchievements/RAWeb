@@ -12,7 +12,7 @@
  *  array       Results
  *   object      [value]
  *    int        ID                         unique identifier of the leaderboard
- *    string     RankAsc                    string value of true or false for if the leaderboard views a lower score as better
+ *    boolean    RankAsc                    true if the leaderboard views a lower score as better, false otherwise
  *    string     Title                      the title of the leaderboard
  *    string     Description                the description of the leaderboard
  *    string     Format                     the format of the leaderboard (see: ValueFormat enum)
@@ -63,7 +63,6 @@ $userLeaderboardEntriesCount = LeaderboardEntry::where('user_id', $user->id)
               ->from('LeaderboardDef')
               ->where('GameID', $game->ID);
     })
-    ->whereNull('deleted_at')
     ->count();
 
 if ($userLeaderboardEntriesCount === 0) {
@@ -72,18 +71,16 @@ if ($userLeaderboardEntriesCount === 0) {
 
 $leaderboardEntries = LeaderboardEntry::select('leaderboard_entries.*')
     ->addSelect([
-        'calculated_rank' => LeaderboardEntry::from('leaderboard_entries as entries_bis')
-            ->join('LeaderboardDef as leaderboardDefBis', 'entries_bis.leaderboard_id', '=', 'leaderboardDefBis.ID')
-            ->whereColumn('entries_bis.leaderboard_id', 'leaderboard_entries.leaderboard_id')
-            ->whereNull('entries_bis.deleted_at')
-            ->whereNull('leaderboardDefBis.deleted_at')
+        'calculated_rank' => LeaderboardEntry::from('leaderboard_entries as entries_rank_calc')
+            ->join('LeaderboardDef as leaderboard_rank_calc', 'entries_rank_calc.leaderboard_id', '=', 'leaderboard_rank_calc.ID')
+            ->whereColumn('entries_rank_calc.leaderboard_id', 'leaderboard_entries.leaderboard_id')
             ->where(function ($query) {
                 $query->where(function ($q) {
-                    $q->where('leaderboardDefBis.LowerIsBetter', 1)
-                      ->whereColumn('entries_bis.score', '<', 'leaderboard_entries.score');
+                    $q->where('leaderboard_rank_calc.LowerIsBetter', 1)
+                      ->whereColumn('entries_rank_calc.score', '<', 'leaderboard_entries.score');
                 })->orWhere(function ($q) {
-                    $q->where('leaderboardDefBis.LowerIsBetter', 0)
-                      ->whereColumn('entries_bis.score', '>', 'leaderboard_entries.score');
+                    $q->where('leaderboard_rank_calc.LowerIsBetter', 0)
+                      ->whereColumn('entries_rank_calc.score', '>', 'leaderboard_entries.score');
                 });
             })
             ->selectRaw('COUNT(*) + 1'),
@@ -91,8 +88,6 @@ $leaderboardEntries = LeaderboardEntry::select('leaderboard_entries.*')
     ->join('LeaderboardDef', 'leaderboard_entries.leaderboard_id', '=', 'LeaderboardDef.ID')
     ->where('LeaderboardDef.GameID', $game->ID)
     ->where('leaderboard_entries.user_id', $user->id)
-    ->whereNull('leaderboard_entries.deleted_at')
-    ->whereNull('LeaderboardDef.deleted_at')
     ->with('leaderboard')
     ->orderBy('LeaderboardDef.ID', 'asc')
     ->skip($offset)
@@ -103,7 +98,7 @@ $results = [];
 foreach ($leaderboardEntries as $leaderboardEntry) {
     $results[] = [
         'ID' => $leaderboardEntry->leaderboard->ID,
-        'RankAsc' => $leaderboardEntry->leaderboard->LowerIsBetter ? 'false' : 'true',
+        'RankAsc' => boolval($leaderboardEntry->leaderboard->LowerIsBetter),
         'Title' => $leaderboardEntry->leaderboard->Title,
         'Description' => $leaderboardEntry->leaderboard->Description,
         'Format' => $leaderboardEntry->leaderboard->Format,
