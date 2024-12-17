@@ -13,11 +13,11 @@ class GameSetsSeeder extends Seeder
     // These hubs are always present in a database and,
     // at the time of writing, appear in the site navbar.
     private const STANDARD_HUBS = [
-        '[Central]' => 1,
-        '[Central - Genre & Subgenre]' => 2,
-        '[Central - Series]' => 3,
-        '[Central - Community Events]' => 4,
-        '[Central - Developer Events]' => 5,
+        '[Central]' => GameSet::CentralHubId,
+        '[Central - Genre & Subgenre]' => GameSet::GenreSubgenreHubId,
+        '[Central - Series]' => GameSet::SeriesHubId,
+        '[Central - Community Events]' => GameSet::CommunityEventsHubId,
+        '[Central - Developer Events]' => GameSet::DeveloperEventsHubId,
     ];
 
     public function run(): void
