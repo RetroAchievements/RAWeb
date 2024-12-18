@@ -4,13 +4,13 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::dropIfExists('Rating');
         Schema::dropIfExists('Votes');
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::create('Rating', function ($table) {
             $table->bigIncrements('id');
