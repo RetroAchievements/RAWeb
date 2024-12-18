@@ -9,6 +9,9 @@ use App\Models\User;
 use App\Models\UserGameListEntry;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends Factory<UserGameListEntry>
+ */
 class UserGameListEntryFactory extends Factory
 {
     protected $model = UserGameListEntry::class;
@@ -18,7 +21,7 @@ class UserGameListEntryFactory extends Factory
         return [
             'user_id' => User::factory(),
             'type' => '',
-            'GameID' => Game::factory(),
+            'GameID' => Game::factory()
         ];
     }
 }
