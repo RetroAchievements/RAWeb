@@ -29,19 +29,21 @@ $requestedSets = UserGameListEntry::where('user_id', $user->ID)
     ->pluck('GameID')
     ->toArray();
 
+$games = Game::with('system')
+    ->whereIn('ID', $requestedSets)
+    ->get();
+
 $userRequestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
-$requestList = [];
-foreach ($requestedSets as $gameId) {
-    $gameData = Game::with('system')->find($gameId);
-    $requestList[] = [
+$requestList = $games->map(function ($gameData) {
+    return [
         'GameID' => $gameData['ID'],
         'Title' => $gameData['Title'],
         'ConsoleID' => $gameData['ConsoleID'],
         'ConsoleName' => $gameData->system['Name'],
         'ImageIcon' => $gameData['ImageIcon'],
     ];
-}
+})->toArray();
 
 return response()->json([
     'RequestedSets' => $requestList,
