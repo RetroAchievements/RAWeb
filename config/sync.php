@@ -18,7 +18,6 @@ use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserRelation;
-use App\Models\Vote;
 use App\Support\Sync\SyncStrategy;
 
 return [

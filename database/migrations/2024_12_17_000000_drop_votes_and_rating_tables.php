@@ -3,8 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     public function up()
     {
         Schema::dropIfExists('Rating');
@@ -24,7 +23,7 @@ return new class extends Migration
             $table->smallInteger('RatingValue');
             $table->timestamp('Created')->nullable()->useCurrent();
             $table->timestamp('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
-            
+
             $table->unique(['User', 'RatingObjectType', 'RatingID']);
             $table->index(['ratable_model', 'ratable_id'], 'ratings_ratable_index');
             $table->foreign('user_id', 'ratings_user_id_foreign')->references('ID')->on('UserAccounts')->onDelete('cascade');
@@ -40,7 +39,7 @@ return new class extends Migration
             $table->tinyInteger('Vote');
             $table->timestamp('Created')->nullable()->useCurrent();
             $table->timestamp('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
-            
+
             $table->unique(['User', 'AchievementID']);
             $table->index(['votable_model', 'votable_id'], 'votes_votable_index');
             $table->foreign('user_id', 'votes_user_id_foreign')->references('ID')->on('UserAccounts')->onDelete('cascade');
