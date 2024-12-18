@@ -14,7 +14,6 @@ use App\Models\Message;
 use App\Models\News;
 use App\Models\PlayerBadge;
 use App\Models\PlayerSession;
-use App\Models\Rating;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
@@ -265,22 +264,6 @@ return [
         // ],
 
         /*
-         * Rating                 41k    incremental by Updated
-         */
-        // TODO
-        // 'ratings' => [
-        //     'model' => Rating::class,
-        //     'strategy' => SyncStrategy::UPSERT,
-        //     'reference_model' => Rating::class,
-        //     'reference_key' => 'Updated',
-        //     'unique_key' => 'id',
-        //     'require' => [
-        //     ],
-        //     'map' => [
-        //     ],
-        // ],
-
-        /*
          * GameHashLibrary        22k    incremental by Created
          */
         // TODO
@@ -400,22 +383,6 @@ return [
         //     'reference_table' => 'Friends',
         //     'reference_key' => 'Updated',
         //     'require' => [
-        //     ],
-        //     'map' => [
-        //     ],
-        // ],
-
-        /*
-         * Votes                   0k    incremental by Updated
-         */
-        // TODO
-        // 'votes' => [
-        //     'model' => Vote::class,
-        //     'strategy' => SyncStrategy::UPSERT,
-        //     'reference_table' => 'Votes',
-        //     'reference_key' => 'Updated',
-        //     'require' => [
-        //         'achievements',
         //     ],
         //     'map' => [
         //     ],
