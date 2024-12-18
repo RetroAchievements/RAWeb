@@ -21,7 +21,7 @@ class UserGameListEntryFactory extends Factory
         return [
             'user_id' => User::factory(),
             'type' => '',
-            'GameID' => Game::factory()
+            'GameID' => Game::factory(),
         ];
     }
 }
