@@ -7,10 +7,12 @@ namespace App\Models;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Carbon;
 
 class UserGameListEntry extends BaseModel
 {
+    use HasFactory;
     // TODO rename SetRequest to user_game_list_entry or integrate into player_games table
     // TODO rename GameID to game_id
     // TODO drop user_game_list_entry_username_game_id_type_unique
