@@ -6,8 +6,8 @@ namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 class UserGameListEntry extends BaseModel

@@ -8,8 +8,8 @@ use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
 use App\Models\UserGameListEntry;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class UserSetRequestsTest extends TestCase
 {
@@ -38,7 +38,7 @@ class UserSetRequestsTest extends TestCase
         ]);
 
         $user = User::factory()->create([
-            'RAPoints' => 1501 // enough points to set request total to 1
+            'RAPoints' => 1501, // enough points to set request total to 1
         ]);
 
         // Create a user game list entry for the set request
@@ -50,7 +50,7 @@ class UserSetRequestsTest extends TestCase
 
         $userRequestInfo = [
             'total' => 1,
-            'pointsForNext' => 999
+            'pointsForNext' => 999,
         ];
 
         $this->get($this->apiUrl('GetUserSetRequests', ['u' => $user->User]))
@@ -63,10 +63,10 @@ class UserSetRequestsTest extends TestCase
                         'ConsoleID' => $game->ConsoleID,
                         'ConsoleName' => $system->Name,
                         'ImageIcon' => $game->ImageIcon,
-                    ]
+                    ],
                 ],
                 'TotalRequests' => $userRequestInfo['total'],
-                'PointsForNext' => $userRequestInfo['pointsForNext']
+                'PointsForNext' => $userRequestInfo['pointsForNext'],
             ]);
     }
 }

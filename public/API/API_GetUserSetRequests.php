@@ -5,7 +5,7 @@
  *    u : username
  *
  *  array      RequestedSets
- *    object     [value]                    
+ *    object     [value]
  *      int        GameID                     unique identifier of the game
  *      string     Title                      set title
  *      int        ConsoleID                  the id of the console that the set is for
@@ -15,9 +15,9 @@
  *  int        PointsForNext              number of points remaining until maximum request increase
  */
 
+use App\Models\Game;
 use App\Models\User;
 use App\Models\UserGameListEntry;
-use App\Models\Game;
 
 $user = User::firstWhere('User', request()->query('u'));
 if (!$user) {
@@ -39,12 +39,12 @@ foreach ($requestedSets as $gameId) {
         'Title' => $gameData['Title'],
         'ConsoleID' => $gameData['ConsoleID'],
         'ConsoleName' => $gameData->system['Name'],
-        'ImageIcon' => $gameData['ImageIcon']
+        'ImageIcon' => $gameData['ImageIcon'],
     ];
-};
+}
 
 return response()->json([
     'RequestedSets' => $requestList,
     'TotalRequests' => $userRequestInfo['total'],
-    'PointsForNext' => $userRequestInfo['pointsForNext']
+    'PointsForNext' => $userRequestInfo['pointsForNext'],
 ]);
