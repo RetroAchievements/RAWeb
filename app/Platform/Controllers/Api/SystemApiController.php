@@ -29,7 +29,7 @@ class SystemApiController extends Controller
 
         $paginatedData = (new BuildGameListAction())->execute(
             GameListType::System,
-            targetSystemId: $system->id,
+            targetId: $system->id,
             user: $request->user(),
             page: $request->getPage(),
             filters: $request->getFilters(targetSystemId: $system->id),
@@ -60,7 +60,7 @@ class SystemApiController extends Controller
             GameListType::System,
             user: $request->user(),
             filters: $request->getFilters(targetSystemId: $system->id),
-            targetSystemId: $system->id,
+            targetId: $system->id,
         );
 
         return response()->json(['gameId' => $randomGame->id]);
