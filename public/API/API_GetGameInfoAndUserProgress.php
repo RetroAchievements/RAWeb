@@ -47,7 +47,7 @@
  *  string     Genre                      genre information for the game
  *  string?    Released                   a YYYY-MM-DD date of the game's earliest release date, or null. also see ReleasedAtGranularity.
  *  string?    ReleasedAtGranularity      how precise the Released value is. possible values are "day", "month", "year", and null.
- *  bool       IsFinal
+ *  bool       IsFinal                    deprecated, will always be false
  *  string     RichPresencePatch          md5 of the script for generating the rich presence for the game
  *  ?string    HighestAwardKind           "mastered", "completed", "beaten-hardcore", "beaten-softcore", or null. requires the 'a' query param to be 1.
  *  ?datetime  HighestAwardDate           an ISO8601 timestamp string, or null, for when the HighestAwardKind was granted. requires the 'a' query param to be 1.
@@ -130,5 +130,7 @@ if ($includeAwardMetadata == '1') {
         $gameData['HighestAwardDate'] = null;
     }
 }
+
+$gameData['IsFinal'] = false;
 
 return response()->json($gameData);

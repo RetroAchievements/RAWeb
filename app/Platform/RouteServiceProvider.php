@@ -8,11 +8,13 @@ use App\Models\GameHash;
 use App\Models\System;
 use App\Platform\Controllers\AchievementController;
 use App\Platform\Controllers\Api\GameApiController;
+use App\Platform\Controllers\Api\HubApiController;
 use App\Platform\Controllers\Api\SystemApiController;
 use App\Platform\Controllers\Api\TriggerTicketApiController;
 use App\Platform\Controllers\GameController;
 use App\Platform\Controllers\GameHashController;
 use App\Platform\Controllers\GameTopAchieversController;
+use App\Platform\Controllers\HubController;
 use App\Platform\Controllers\PlayerAchievementController;
 use App\Platform\Controllers\PlayerGameController;
 use App\Platform\Controllers\ReportAchievementIssueController;
@@ -51,6 +53,9 @@ class RouteServiceProvider extends ServiceProvider
     {
         Route::middleware(['web', 'csp'])->group(function () {
             Route::group(['prefix' => 'internal-api'], function () {
+                Route::get('hub/{gameSet}/games', [HubApiController::class, 'games'])->name('api.hub.game.index');
+                Route::get('hub/{gameSet}/games/random', [HubApiController::class, 'randomGame'])->name('api.hub.game.random');
+
                 Route::get('games', [GameApiController::class, 'index'])->name('api.game.index');
                 Route::get('games/random', [GameApiController::class, 'random'])->name('api.game.random');
 
@@ -63,6 +68,9 @@ class RouteServiceProvider extends ServiceProvider
                 Route::get('game/{game}/top-achievers', [GameTopAchieversController::class, 'index'])->name('game.top-achievers.index');
 
                 Route::get('games', [GameController::class, 'index'])->name('game.index');
+
+                Route::get('hub/{gameSet}', [HubController::class, 'show'])->name('hub.show');
+                Route::get('hubs', [HubController::class, 'show'])->name('hub.index');
 
                 Route::get('system/{system}/games', [SystemController::class, 'games'])->name('system.game.index');
             });

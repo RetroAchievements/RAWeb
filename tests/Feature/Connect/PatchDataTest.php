@@ -97,7 +97,8 @@ class PatchDataTest extends TestCase
             'Publisher' => 'WePublishStuff',
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
-            'Released' => 'Jan 1989',
+            'released_at' => Carbon::parse('1989-01-15'),
+            'released_at_granularity' => 'month',
             'RichPresencePatch' => 'Display:\nTest',
         ]);
 
@@ -141,7 +142,8 @@ class PatchDataTest extends TestCase
             'Publisher' => 'WePublishStuff',
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
-            'Released' => 'Jan 1989',
+            'released_at' => Carbon::parse('1989-01-15'),
+            'released_at_granularity' => 'month',
             'RichPresencePatch' => '',
         ]);
 
@@ -372,7 +374,8 @@ class PatchDataTest extends TestCase
             'Publisher' => 'WePublishStuff',
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
-            'Released' => 'Jan 1989',
+            'released_at' => Carbon::parse('1989-01-15'),
+            'released_at_granularity' => 'month',
             'RichPresencePatch' => 'Display:\nTest',
         ]);
 

@@ -14,7 +14,6 @@ class TrimGameMetadataAction
         $game->Publisher = $this->trimWhitespace($game->Publisher);
         $game->Developer = $this->trimWhitespace($game->Developer);
         $game->Genre = $this->trimWhitespace($game->Genre);
-        $game->Released = $this->trimWhitespace($game->Released);
         $game->save();
     }
 

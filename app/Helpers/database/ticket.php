@@ -4,7 +4,6 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
-use App\Community\ViewModels\Ticket as TicketViewModel;
 use App\Enums\UserPreference;
 use App\Models\Achievement;
 use App\Models\Comment;
@@ -553,15 +552,4 @@ function getNumberOfTicketsClosed(User $user): array
     }
 
     return $retVal;
-}
-
-function GetTicketModel(int $ticketId): ?TicketViewModel
-{
-    $ticketDbResult = getTicket($ticketId);
-
-    if ($ticketDbResult == null) {
-        return null;
-    }
-
-    return new TicketViewModel($ticketDbResult);
 }
