@@ -101,13 +101,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "user.moderation-comments": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        }
-    ],
     "user.completion-progress": [
         {
             "name": "user",
@@ -169,6 +162,20 @@ declare module 'ziggy-js' {
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],
+    "api.hub.game.index": [
+        {
+            "name": "gameSet",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "api.hub.game.random": [
+        {
+            "name": "gameSet",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "api.game.index": [],
     "api.game.random": [],
     "api.system.game.index": [
@@ -200,6 +207,14 @@ declare module 'ziggy-js' {
         }
     ],
     "game.index": [],
+    "hub.show": [
+        {
+            "name": "gameSet",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "hub.index": [],
     "system.game.index": [
         {
             "name": "system",
@@ -312,6 +327,13 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
+    "api.user.moderation-comment.store": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
     "api.achievement.comment.destroy": [
         {
             "name": "achievement",
@@ -385,6 +407,18 @@ declare module 'ziggy-js' {
         }
     ],
     "api.user.comment.destroy": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        },
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.user.moderation-comment.destroy": [
         {
             "name": "user",
             "required": true,
@@ -473,6 +507,13 @@ declare module 'ziggy-js' {
         }
     ],
     "user.comment.index": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
+    "user.moderation-comment.index": [
         {
             "name": "user",
             "required": true,

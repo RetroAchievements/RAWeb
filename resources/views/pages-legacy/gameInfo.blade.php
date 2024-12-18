@@ -10,11 +10,14 @@ use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Models\EventAchievement;
 use App\Models\Game;
+use App\Models\GameSet;
+use App\Models\System;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Platform\Controllers\RelatedGamesTableController;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\GameListService;
@@ -61,6 +64,19 @@ if (!$gameModel) {
     abort(404);
 }
 
+// Redirect hubs to the dedicated hub page (Inertia.js).
+if (config('feature.enable_modern_hubs') && $gameModel->ConsoleID === System::Hubs) {
+    $foundGameSet = GameSet::whereType(GameSetType::Hub)
+        ->whereGameId($gameModel->id)
+        ->first();
+
+    if ($foundGameSet) {
+        abort_with(redirect(route('hub.show', ['gameSet' => $foundGameSet])));
+    } else {
+        abort(404);
+    }
+}
+
 $gameTitle = $gameData['Title'];
 $consoleName = $gameData['ConsoleName'];
 $consoleID = $gameData['ConsoleID'];
@@ -99,6 +115,22 @@ foreach ($relatedGames as $gameAlt) {
             $gameAlts[] = $gameAlt;
         }
     }
+}
+
+if (config('feature.enable_modern_hubs')) {
+    $gameHubSets = GameSet::whereHas('games', function ($query) use ($gameModel) {
+        $query->whereGameId($gameModel->id);
+    })->get();
+
+    foreach ($gameHubs as &$hub) {
+        // Find matching game hub set by title.
+        $matchingGameSet = $gameHubSets->first(function ($gameSet) use ($hub) {
+            return $gameSet['title'] === $hub['Title'];
+        });
+
+        $hub['GameSetID'] = $matchingGameSet ? $matchingGameSet['id'] : null;
+    }
+    unset($hub);
 }
 
 $v = requestInputSanitized('v', 0, 'integer');
@@ -425,7 +457,6 @@ if ($isFullyFeaturedGame) {
         $developer = $gameData['Developer'] ?? null;
         $publisher = $gameData['Publisher'] ?? null;
         $genre = $gameData['Genre'] ?? null;
-        $released = $gameData['Released'] ?? null;
         $imageIcon = media_asset($gameData['ImageIcon']);
         $imageTitle = media_asset($gameData['ImageTitle']);
         $imageIngame = media_asset($gameData['ImageIngame']);
@@ -458,7 +489,6 @@ if ($isFullyFeaturedGame) {
             'numMissableAchievements' => $numMissableAchievements,
             'permissions' => $permissions,
             'publisher' => $publisher,
-            'released' => $released,
             'totalPossible' => $totalPossible,
             'totalPossibleTrueRatio' => $totalPossibleTrueRatio,
             'user' => $user,
@@ -716,7 +746,6 @@ if ($isFullyFeaturedGame) {
                 echo "<input type='hidden' name='developer' value='" . attributeEscape($developer) . "'>";
                 echo "<input type='hidden' name='publisher' value='" . attributeEscape($publisher) . "'>";
                 echo "<input type='hidden' name='genre' value='" . attributeEscape($genre) . "'>";
-                echo "<input type='hidden' name='release' value='" . attributeEscape($released) . "'>";
                 echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
 
                 $guideUrlHelperContent = "Must be from https://github.com/RetroAchievements/guides";

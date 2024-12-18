@@ -10,6 +10,7 @@ use App\Community\Enums\ArticleType;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ReleasedAtGranularity;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameFactory;
@@ -63,7 +64,6 @@ class Game extends BaseModel implements HasMedia
     // TODO rename Publisher column to publisher
     // TODO rename Developer column to developer
     // TODO rename Genre column to genre
-    // TODO rename Released to release
     // TODO rename TotalTruePoints to points_weighted, remove getPointsWeightedAttribute()
     // TODO drop achievement_set_version_hash, migrate to achievement_sets
     // TODO drop ForumTopicID, migrate to forumable morph
@@ -71,7 +71,6 @@ class Game extends BaseModel implements HasMedia
     // TODO drop ImageIcon, ImageTitle, ImageInGame, ImageBoxArt, migrate to media
     // TODO drop GuideURL, migrate to forumable morph
     // TODO drop RichPresencePatch, migrate to triggerable morph
-    // TODO drop IsFinal
     protected $table = 'GameData';
 
     protected $primaryKey = 'ID';
@@ -113,10 +112,8 @@ class Game extends BaseModel implements HasMedia
         'Publisher',
         'Developer',
         'Genre',
-        'Released',
         'released_at',
         'released_at_granularity',
-        'IsFinal',
         'RichPresencePatch',
         'GuideURL',
         'Updated',
@@ -139,12 +136,26 @@ class Game extends BaseModel implements HasMedia
             $originalTitle = $game->getOriginal('title');
             $freshGame = $game->fresh(); // $game starts with stale values.
 
+            // Handle game title changes.
             if ($originalTitle !== $freshGame->title) {
+                // Always refresh the sort title on a game title change.
                 (new WriteGameSortTitleFromGameTitleAction())->execute(
                     $freshGame,
                     $freshGame->title,
                     shouldRespectCustomSortTitle: false,
                 );
+
+                // Keep game_sets in sync.
+                if ($game->ConsoleID === System::Hubs) {
+                    $foundGameSet = GameSet::whereType(GameSetType::Hub)
+                        ->whereGameId($game->id)
+                        ->first();
+
+                    if ($foundGameSet) {
+                        $foundGameSet->title = $freshGame->title;
+                        $foundGameSet->save();
+                    }
+                }
             }
         });
 

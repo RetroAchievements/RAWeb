@@ -6,6 +6,7 @@ namespace App\Community\Concerns;
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\UserRelationship;
+use App\Models\Comment;
 use App\Models\EmailConfirmation;
 use App\Models\ForumTopicComment;
 use App\Models\MessageThreadParticipant;
@@ -181,6 +182,16 @@ trait ActsAsCommunityMember
         $currentUser = $user ?? Auth::user();
 
         return $this->comments()->visibleTo($currentUser);
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<Comment>
+     */
+    public function moderationComments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::UserModeration);
     }
 
     /**

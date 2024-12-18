@@ -16,6 +16,7 @@ use App\Community\Controllers\Api\LeaderboardCommentApiController;
 use App\Community\Controllers\Api\SubscriptionApiController;
 use App\Community\Controllers\Api\UserCommentApiController;
 use App\Community\Controllers\Api\UserGameListApiController;
+use App\Community\Controllers\Api\UserModerationCommentApiController;
 use App\Community\Controllers\ForumTopicCommentController;
 use App\Community\Controllers\ForumTopicController;
 use App\Community\Controllers\GameClaimsCommentController;
@@ -28,6 +29,7 @@ use App\Community\Controllers\MessageThreadController;
 use App\Community\Controllers\UserCommentController;
 use App\Community\Controllers\UserForumTopicCommentController;
 use App\Community\Controllers\UserGameListController;
+use App\Community\Controllers\UserModerationCommentController;
 use App\Community\Controllers\UserSettingsController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -69,6 +71,7 @@ class RouteServiceProvider extends ServiceProvider
                         Route::post('game/{game}/modification-comment', [GameModificationsCommentApiController::class, 'store'])->name('api.game.modification-comment.store');
                         Route::post('leaderboard/{leaderboard}/comment', [LeaderboardCommentApiController::class, 'store'])->name('api.leaderboard.comment.store');
                         Route::post('user/{user}/comment', [UserCommentApiController::class, 'store'])->name('api.user.comment.store');
+                        Route::post('user/{user}/moderation-comment', [UserModerationCommentApiController::class, 'store'])->name('api.user.moderation-comment.store');
                         Route::delete('achievement/{achievement}/comment/{comment}', [AchievementCommentApiController::class, 'destroy'])->name('api.achievement.comment.destroy');
                         Route::delete('game/{game}/claims/comment/{comment}', [GameClaimsCommentApiController::class, 'destroy'])->name('api.game.claims.comment.destroy');
                         Route::delete('game/{game}/comment/{comment}', [GameCommentApiController::class, 'destroy'])->name('api.game.comment.destroy');
@@ -76,6 +79,7 @@ class RouteServiceProvider extends ServiceProvider
                         Route::delete('game/{game}/modification-comment/{comment}', [GameModificationsCommentApiController::class, 'destroy'])->name('api.game.modification-comment.destroy');
                         Route::delete('leaderboard/{leaderboard}/comment/{comment}', [LeaderboardCommentApiController::class, 'destroy'])->name('api.leaderboard.comment.destroy');
                         Route::delete('user/{user}/comment/{comment}', [UserCommentApiController::class, 'destroy'])->name('api.user.comment.destroy');
+                        Route::delete('user/{user}/moderation-comment/{comment}', [UserModerationCommentApiController::class, 'destroy'])->name('api.user.moderation-comment.destroy');
 
                         Route::post('subscription/{subjectType}/{subjectId}', [SubscriptionApiController::class, 'store'])->name('api.subscription.store');
                         Route::delete('subscription/{subjectType}/{subjectId}', [SubscriptionApiController::class, 'destroy'])->name('api.subscription.destroy');
@@ -95,6 +99,7 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('game/{game}/hashes/comments', [GameHashesCommentController::class, 'index'])->name('game.hashes.comment.index');
                     Route::get('leaderboard/{leaderboard}/comments', [LeaderboardCommentController::class, 'index'])->name('leaderboard.comment.index');
                     Route::get('user/{user}/comments', [UserCommentController::class, 'index'])->name('user.comment.index');
+                    Route::get('user/{user}/moderation-comments', [UserModerationCommentController::class, 'index'])->name('user.moderation-comment.index');
 
                     Route::get('forums/recent-posts', [ForumTopicController::class, 'recentPosts'])->name('forum.recent-posts');
 
