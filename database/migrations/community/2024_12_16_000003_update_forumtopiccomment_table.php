@@ -45,7 +45,6 @@ return new class() extends Migration {
             $table->renameColumn('updated_at', 'DateModified');
             $table->renameColumn('is_authorized', 'Authorised');
 
-            $table->foreign('ForumTopicID')->references('id')->on('forum_topics')->onDelete('set null');
             $table->foreign('author_id', 'forumtopiccomment_author_id_foreign')->references('ID')->on('UserAccounts')->onDelete('set null');
         });
 
