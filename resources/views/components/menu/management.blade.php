@@ -62,7 +62,7 @@ $tools = $settings['tools'] ?? null;
 
                 @can('manage', App\Models\News::class)
                     {{--<x-dropdown-item :href="route('news.index')">{{ __res('news') }}</x-dropdown-item>--}}
-                    <x-dropdown-item :href="url('submitnews.php')">{{ __res('news') }}</x-dropdown-item>
+                    <x-dropdown-item :href="route('filament.admin.resources.news.index')">{{ __res('news') }}</x-dropdown-item>
                 @endcan
 
                 @if ($user->can('manage', User::class) || $user->Permissions === Permissions::Moderator)

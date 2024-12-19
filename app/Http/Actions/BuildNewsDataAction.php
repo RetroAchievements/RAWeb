@@ -15,7 +15,7 @@ class BuildNewsDataAction
      */
     public function execute(int $limit = 9): Collection
     {
-        $news = News::orderByDesc('Timestamp')
+        $news = News::orderByDesc('created_at')
             ->with('user')
             ->limit($limit)
             ->get();

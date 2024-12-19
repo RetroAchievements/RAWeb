@@ -6,7 +6,6 @@ namespace App\Filament\Resources\NewsResource\Pages;
 
 use App\Filament\Resources\NewsResource;
 use App\Filament\Resources\NewsResource\Actions\ProcessUploadedImageAction;
-use App\Models\News;
 use Filament\Resources\Pages\CreateRecord;
 
 class Create extends CreateRecord
@@ -19,11 +18,9 @@ class Create extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        if (isset($data['Image'])) {
-            $data['Image'] = (new ProcessUploadedImageAction())->execute($data['Image']);
+        if (isset($data['image_asset_path'])) {
+            $data['image_asset_path'] = (new ProcessUploadedImageAction())->execute($data['image_asset_path']);
         }
-
-        $data['Payload'] = News::sanitizeMaybeInvalidHtml($data['Payload']);
 
         return $data;
     }

@@ -24,7 +24,7 @@ class NewsResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    protected static ?string $recordTitleAttribute = 'Title';
+    protected static ?string $recordTitleAttribute = 'title';
 
     protected static int $globalSearchResultsLimit = 2;
 
@@ -36,12 +36,12 @@ class NewsResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2])
                     ->schema([
-                        Forms\Components\TextInput::make('Title')
+                        Forms\Components\TextInput::make('title')
                             ->required()
                             ->minLength(2)
                             ->maxLength(60),
 
-                        Forms\Components\TextInput::make('Link')
+                        Forms\Components\TextInput::make('link')
                             ->label('URL')
                             ->required()
                             ->activeUrl(),
@@ -55,15 +55,15 @@ class NewsResource extends Resource
                         users will only spend 5 seconds or less to read this, so be very concise!
                     ")
                     ->schema([
-                        Forms\Components\Textarea::make('Payload')
+                        Forms\Components\Textarea::make('body') // TODO use `lead` field instead
                             ->label('Lead')
-                            ->maxLength(238) // Have some guardrails so people don't go crazy with these.
+                            ->maxLength(238) // We have some guardrails so people don't go crazy with these.
                             ->helperText(function (?string $state, Forms\Components\Textarea $component) {
                                 $maxLength = $component->getMaxLength();
 
                                 return new HtmlString('
                                     <div class="flex w-full justify-between">' .
-                                        '<p>Try not to use BR tags. Summaries should be a single sentence/paragraph.</p>' .
+                                        '<p>Summaries should be a single sentence/paragraph.</p>' .
 
                                         '<p>' .
                                             strlen($state ?? '') . '/' . $maxLength .
@@ -80,7 +80,7 @@ class NewsResource extends Resource
                     ->schema([
                         // Store a temporary file on disk until the user submits.
                         // When the user submits, upload to S3.
-                        Forms\Components\FileUpload::make('Image')
+                        Forms\Components\FileUpload::make('image_asset_path')
                             ->label('Upload an image')
                             ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
                             ->image()
@@ -90,9 +90,9 @@ class NewsResource extends Resource
 
                         Forms\Components\Placeholder::make('ImagePreview')
                             ->content(function (News $news) {
-                                return new HtmlString("<img src='{$news->Image}' style='width:700px; height:270px;' class='rounded object-cover'>");
+                                return new HtmlString("<img src='{$news->image_asset_path}' style='width:700px; height:270px;' class='rounded object-cover'>");
                             })
-                            ->visible(fn (News $news) => !is_null($news->Image)),
+                            ->visible(fn (News $news) => !is_null($news->image_asset_path)),
                     ]),
             ]);
     }
@@ -101,23 +101,23 @@ class NewsResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('Title')
+                Tables\Columns\TextColumn::make('title')
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('Timestamp')
+                Tables\Columns\TextColumn::make('created_at')
                     ->label('Created at')
                     ->dateTime(),
 
-                Tables\Columns\TextColumn::make('Link')
+                Tables\Columns\TextColumn::make('link')
                     ->label('URL'),
 
                 Tables\Columns\TextColumn::make('user.display_name')
                     ->label('Author'),
             ])
             ->modifyQueryUsing(function (Builder $query) {
-                return $query->where('Timestamp', '>=', '2024-01-01');
+                return $query->where('created_at', '>=', '2024-01-01');
             })
-            ->defaultSort('Timestamp', 'desc')
+            ->defaultSort('created_at', 'desc')
             ->searchPlaceholder('Search (Title)')
             ->filters([
 

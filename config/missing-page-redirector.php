@@ -171,7 +171,7 @@ return [
 
         // '/feed.php' => '/',
         // '/reorderSiteAwards.php' => '',
-        // '/submitnews.php' => '',
+        '/submitnews.php' => '/manage/news',
         // '/validateEmail.php' => '',
     ],
 

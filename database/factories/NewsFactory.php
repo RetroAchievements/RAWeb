@@ -26,11 +26,11 @@ class NewsFactory extends Factory
         $author = User::inRandomOrder()->first();
 
         return [
-            'Title' => ucwords(fake()->words(2, true)),
+            'title' => ucwords(fake()->words(2, true)),
             'user_id' => $author->ID,
             'link' => fake()->url,
             'lead' => fake()->text(200),
-            'Payload' => fake()->text,
+            'body' => fake()->text,
         ];
     }
 }
