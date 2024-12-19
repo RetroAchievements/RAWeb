@@ -123,6 +123,64 @@ class GetUserGameLeaderboardsTest extends TestCase
             ->assertJson(['User has no leaderboards on this game']);
     }
 
+    public function testGetUserGameLeaderboardsNotComparedAgainstDeletedEntries(): void
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Test leaderboard",
+            'Description' => "I am a leaderboard",
+            'LowerIsBetter' => true,
+        ]);
+
+        $userOne = User::factory()->create(['User' => 'myUser1']);
+        $leaderboardEntryOne = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $userOne->ID,
+            'score' => 100,
+        ]);
+        $leaderboardEntryOne->delete();
+
+        $userTwo = User::factory()->create(['User' => 'myUser2']);
+        $leaderboardEntryTwo = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $userTwo->ID,
+            'score' => 200,
+        ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userTwo->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1,
+                'Results' => [
+                    [
+                        'ID' => $leaderboard->ID,
+                        'RankAsc' => $leaderboard->LowerIsBetter,
+                        'Title' => $leaderboard->Title,
+                        'Description' => $leaderboard->Description,
+                        'Format' => $leaderboard->Format,
+                        'UserEntry' => [
+                            'User' => $userTwo->User,
+                            'Score' => $leaderboardEntryTwo->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->Format),
+                            'Rank' => 1,
+                            'DateUpdated' => $leaderboardEntryTwo->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+
+    }
+
     public function testGetUserGameLeaderboardsUserIsUnRanked(): void
     {
        /** @var User $user */
@@ -625,6 +683,129 @@ class GetUserGameLeaderboardsTest extends TestCase
                             'FormattedScore' => ValueFormat::format($leaderboardEntryThree->score, $leaderboard->Format),
                             'Rank' => 2,
                             'DateUpdated' => $leaderboardEntryThree->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
+    public function testGetUserGameLeaderboardsRankCalculationWhenTie(): void
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Test leaderboard",
+            'Description' => "I am a leaderboard",
+            'LowerIsBetter' => true,
+        ]);
+
+        $userOne = User::factory()->create(['User' => 'myUser1']);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $userOne->ID,
+            'score' => 100,
+        ]);
+
+        $userTwo = User::factory()->create(['User' => 'myUser2']);
+        $leaderboardEntryTwo = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $userTwo->ID,
+            'score' => 200,
+        ]);
+
+        $userThree = User::factory()->create(['User' => 'myUser3']);
+        $leaderboardEntryThree = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $userThree->ID,
+            'score' => 200,
+        ]);
+
+        $userFour = User::factory()->create(['User' => 'myUser4']);
+        $leaderboardEntryFour = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $userFour->ID,
+            'score' => 300,
+        ]);
+
+        $userFive = User::factory()->create(['User' => 'myUser5']);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $userFive->ID,
+            'score' => 400,
+        ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userTwo->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1,
+                'Results' => [
+                    [
+                        'ID' => $leaderboard->ID,
+                        'RankAsc' => $leaderboard->LowerIsBetter,
+                        'Title' => $leaderboard->Title,
+                        'Description' => $leaderboard->Description,
+                        'Format' => $leaderboard->Format,
+                        'UserEntry' => [
+                            'User' => $userTwo->User,
+                            'Score' => $leaderboardEntryTwo->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->Format),
+                            'Rank' => 2,
+                            'DateUpdated' => $leaderboardEntryTwo->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userThree->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1,
+                'Results' => [
+                    [
+                        'ID' => $leaderboard->ID,
+                        'RankAsc' => $leaderboard->LowerIsBetter,
+                        'Title' => $leaderboard->Title,
+                        'Description' => $leaderboard->Description,
+                        'Format' => $leaderboard->Format,
+                        'UserEntry' => [
+                            'User' => $userThree->User,
+                            'Score' => $leaderboardEntryThree->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryThree->score, $leaderboard->Format),
+                            'Rank' => 2,
+                            'DateUpdated' => $leaderboardEntryThree->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userFour->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1,
+                'Results' => [
+                    [
+                        'ID' => $leaderboard->ID,
+                        'RankAsc' => $leaderboard->LowerIsBetter,
+                        'Title' => $leaderboard->Title,
+                        'Description' => $leaderboard->Description,
+                        'Format' => $leaderboard->Format,
+                        'UserEntry' => [
+                            'User' => $userFour->User,
+                            'Score' => $leaderboardEntryFour->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryFour->score, $leaderboard->Format),
+                            'Rank' => 4,
+                            'DateUpdated' => $leaderboardEntryFour->created_at->toIso8601String(),
                         ],
                     ],
                 ],

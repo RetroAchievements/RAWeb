@@ -80,6 +80,8 @@ $leaderboardEntries = LeaderboardEntry::select('leaderboard_entries.*')
             ->whereColumn('entries_rank_calc.leaderboard_id', 'leaderboard_entries.leaderboard_id')
             ->whereNull('UserAccounts.unranked_at')
             ->where('UserAccounts.Untracked', 0)
+            ->where('entries_rank_calc.deleted_at', null)
+            ->where('leaderboard_rank_calc.deleted_at', null)
             ->where(function ($query) {
                 $query->where(function ($q) {
                     $q->where('leaderboard_rank_calc.LowerIsBetter', 1)
