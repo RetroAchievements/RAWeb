@@ -148,4 +148,15 @@ describe('Component: GameAvatar', () => {
     // ASSERT
     expect(screen.getByRole('img', { name: /game/i })).toBeVisible();
   });
+
+  it('given the shouldLink prop is set to false, does not render as a link', () => {
+    // ARRANGE
+    const game = createGame({ id: 1, title: 'Sonic the Hedgehog' });
+
+    render(<GameAvatar {...game} shouldLink={false} />);
+
+    // ASSERT
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
+  });
 });

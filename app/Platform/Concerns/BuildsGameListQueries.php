@@ -32,7 +32,7 @@ trait BuildsGameListQueries
     private function buildBaseQuery(
         GameListType $listType,
         ?User $user = null,
-        ?int $targetSystemId = null,
+        ?int $targetId = null,
     ): Builder {
         $query = Game::with(['system'])
             ->withLastAchievementUpdate()
@@ -75,6 +75,22 @@ trait BuildsGameListQueries
                     ->where('GameData.Title', 'not like', "%[Subset -%");
                 break;
 
+            case GameListType::Hub:
+                $query
+                    ->join('game_set_games', 'GameData.ID', '=', 'game_set_games.game_id')
+                    ->join('game_sets', 'game_sets.id', 'game_set_games.game_set_id')
+                    ->whereNull('game_sets.deleted_at')
+                    ->where('game_sets.id', $targetId)
+                    ->where('GameData.ConsoleID', '!=', System::Hubs);
+                break;
+
+            case GameListType::System:
+                $query
+                    ->where('GameData.ConsoleID', $targetId);
+                    // TODO we need some kind of special visual treatment for subsets on the game lists
+                    // ->where('GameData.Title', 'not like', "%[Subset -%");
+                break;
+
             case GameListType::UserPlay:
                 $query->whereHas('gameListEntries', function ($query) use ($user) {
                     $query->where('user_id', $user->id)
@@ -82,15 +98,8 @@ trait BuildsGameListQueries
                 });
                 break;
 
-            case GameListType::System:
-                $query
-                    ->where('GameData.ConsoleID', $targetSystemId);
-                    // ->where('GameData.Title', 'not like', "%[Subset -%");
-                break;
-
             // TODO implement these other use cases
             case GameListType::UserDevelop:
-            case GameListType::Hub:
             case GameListType::DeveloperSets:
                 throw new InvalidArgumentException("List type not implemented");
             default:
