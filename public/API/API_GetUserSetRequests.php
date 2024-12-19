@@ -18,6 +18,12 @@
 use App\Models\Game;
 use App\Models\User;
 use App\Models\UserGameListEntry;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
+
+$input = Validator::validate(Arr::wrap(request()->query()), [
+    'u' => ['required', 'min:1'],
+]);
 
 $user = User::firstWhere('User', request()->query('u'));
 if (!$user) {
