@@ -12,11 +12,11 @@ import {
   BaseDropdownMenuTrigger,
 } from '@/common/components/+vendor/BaseDropdownMenu';
 
-interface DataTableViewOptionsProps<TData> {
+interface DataTableColumnsToggleProps<TData> {
   table: Table<TData>;
 }
 
-export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps<TData>) {
+export function DataTableColumnsToggle<TData>({ table }: DataTableColumnsToggleProps<TData>) {
   const { t } = useTranslation();
 
   return (
@@ -24,7 +24,7 @@ export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps
       <BaseDropdownMenuTrigger asChild>
         <BaseButton size="sm" className="gap-1.5">
           <RxMixerHorizontal className="h-4 w-4" />
-          {t('View')}
+          {t('Columns')}
         </BaseButton>
       </BaseDropdownMenuTrigger>
 
