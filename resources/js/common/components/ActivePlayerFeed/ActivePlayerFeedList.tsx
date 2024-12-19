@@ -16,7 +16,7 @@ export const ActivePlayerFeedList: FC<ActivePlayerFeedListProps> = ({ onLoadMore
       {players.map((player) => (
         <li
           key={`active-player-${player.user.displayName}`}
-          className="group flex gap-1 px-3 py-2 hover:bg-zinc-800"
+          className="group flex gap-1 px-3 py-2 hover:bg-zinc-800 light:hover:bg-white"
         >
           <div className="flex gap-4">
             <UserAvatar {...player.user} showLabel={false} />
