@@ -263,7 +263,7 @@ describe('Component: HubMainRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /view/i }));
+    await userEvent.click(screen.getByRole('button', { name: /columns/i }));
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /points/i }));
 
     // ASSERT
@@ -287,7 +287,7 @@ describe('Component: HubMainRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /view/i }));
+    await userEvent.click(screen.getByRole('button', { name: /columns/i }));
 
     // ASSERT
     expect(
@@ -312,7 +312,7 @@ describe('Component: HubMainRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /view/i }));
+    await userEvent.click(screen.getByRole('button', { name: /columns/i }));
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /tickets/i }));
 
     // ASSERT
@@ -353,7 +353,7 @@ describe('Component: HubMainRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /view/i }));
+    await userEvent.click(screen.getByRole('button', { name: /columns/i }));
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /tickets/i }));
 
     // ASSERT
@@ -710,7 +710,7 @@ describe('Component: HubMainRoot', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /view/i }));
+    await userEvent.click(screen.getByRole('button', { name: /columns/i }));
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /claimed/i }));
 
     await userEvent.click(screen.getByTestId('column-header-Claimed'));

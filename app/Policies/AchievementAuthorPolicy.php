@@ -42,6 +42,11 @@ class AchievementAuthorPolicy
 
     public function update(User $user, AchievementAuthor $achievementAuthor): bool
     {
+        // If no task is set, fall back to the manage permission check.
+        if (!$achievementAuthor->task) {
+            return $this->manage($user);
+        }
+
         return $this->canUpsertTask($user, AchievementAuthorTask::tryFrom($achievementAuthor->task));
     }
 

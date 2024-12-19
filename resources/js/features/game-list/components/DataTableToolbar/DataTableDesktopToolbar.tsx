@@ -10,9 +10,9 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
 import { doesColumnExist } from '../../utils/doesColumnExist';
 import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
+import { DataTableColumnsToggle } from '../DataTableColumnsToggle';
 import { DataTableResetFiltersButton } from '../DataTableResetFiltersButton';
 import { DataTableSearchInput } from '../DataTableSearchInput';
-import { DataTableViewOptions } from '../DataTableViewOptions';
 import { DataTableAchievementsPublishedFilter } from './DataTableAchievementsPublishedFilter';
 import { DataTableProgressFilter } from './DataTableProgressFilter';
 import { DataTableSystemFilter } from './DataTableSystemFilter';
@@ -124,7 +124,7 @@ export function DataTableDesktopToolbar<TData>({
               disabled={table.getRowCount() === 0}
             />
 
-            <DataTableViewOptions table={table} />
+            <DataTableColumnsToggle table={table} />
           </div>
         </div>
       </div>

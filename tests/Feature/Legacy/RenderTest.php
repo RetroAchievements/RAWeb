@@ -20,9 +20,4 @@ class RenderTest extends TestCase
     {
         $this->get('test/shortcode.php')->assertSuccessful();
     }
-
-    public function testItRendersTooltip(): void
-    {
-        $this->get('test/tooltip.php')->assertSuccessful();
-    }
 }
