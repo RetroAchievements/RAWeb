@@ -20,7 +20,8 @@ class ForumFactory extends Factory
     public function definition(): array
     {
         return [
-            'Title' => ucwords(fake()->words(2, true)),
+            'title' => ucwords(fake()->words(2, true)),
+            'description' => fake()->words(10, true),
         ];
     }
 }

@@ -12,7 +12,7 @@ class ExistsInForumTopics implements ValidationRule
 {
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $exists = ForumTopic::where('ID', $value)->exists();
+        $exists = ForumTopic::where('id', $value)->exists();
 
         if (!$exists) {
             $fail('This forum topic ID does not exist.');

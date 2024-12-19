@@ -26,10 +26,10 @@ class ForumTopicCommentFactory extends Factory
         $user = User::inRandomOrder()->first();
 
         return [
-            'Payload' => ucwords(fake()->words(2, true)),
+            'body' => ucwords(fake()->words(2, true)),
             'author_id' => $user->ID,
             'authorized_at' => Carbon::now(),
-            'Authorised' => 1,
+            'is_authorized' => 1,
         ];
     }
 

@@ -23,7 +23,7 @@ class ForumTopicFactory extends Factory
         $user = User::inRandomOrder()->first();
 
         return [
-            'Title' => ucwords(fake()->words(2, true)),
+            'title' => ucwords(fake()->words(2, true)),
             'author_id' => $user->id,
         ];
     }

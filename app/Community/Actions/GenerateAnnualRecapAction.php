@@ -319,8 +319,8 @@ class GenerateAnnualRecapAction
     {
         $numForumPosts = (!$user->forum_verified_at) ? 0 :
             ForumTopicComment::where('author_id', $user->id)
-            ->where('DateCreated', '>=', $startDate)
-            ->where('DateCreated', '<', $endDate)
+            ->where('created_at', '>=', $startDate)
+            ->where('created_at', '<', $endDate)
             ->count();
         $numComments = Comment::where('user_id', $user->id)
             ->whereIn('ArticleType', [ArticleType::Game, ArticleType::Achievement, ArticleType::Leaderboard])

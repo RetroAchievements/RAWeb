@@ -16,6 +16,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
+// TODO refactor: build page props using an action (see HomeController)
+
 class UserForumTopicCommentController extends Controller
 {
     public function index(Request $request, User $user): InertiaResponse
@@ -26,7 +28,7 @@ class UserForumTopicCommentController extends Controller
         $count = 25;
 
         /** @var User $me */
-        $me = auth()->user();
+        $me = $request->user();
         $permissions = Permissions::Unregistered;
         if ($me) {
             $permissions = (int) $me->getAttribute('Permissions');
@@ -71,26 +73,26 @@ class UserForumTopicCommentController extends Controller
 
         $query = "
             SELECT 
-                ft.ID AS ForumTopicID, 
-                ft.Title AS ForumTopicTitle,
-                f.ID AS ForumID, 
-                f.Title AS ForumTitle,
-                lftc.ID AS CommentID, 
-                lftc.DateCreated AS PostedAt, 
+                ft.id AS ForumTopicID, 
+                ft.title AS ForumTopicTitle,
+                f.id AS ForumID, 
+                f.title AS ForumTitle,
+                lftc.id AS CommentID, 
+                lftc.created_at AS PostedAt, 
                 lftc.author_id,
                 ua.User AS Author, 
                 ua.display_name AS AuthorDisplayName,
-                LEFT(lftc.Payload, 260) AS ShortMsg,
-                LENGTH(lftc.Payload) > 260 AS IsTruncated
-            FROM ForumTopicComment AS lftc
-            INNER JOIN ForumTopic AS ft ON ft.ID = lftc.ForumTopicID
-            INNER JOIN Forum AS f ON f.ID = ft.ForumID
+                LEFT(lftc.body, 260) AS ShortMsg,
+                LENGTH(lftc.body) > 260 AS IsTruncated
+            FROM forum_topic_comments AS lftc
+            INNER JOIN forum_topics AS ft ON ft.id = lftc.forum_topic_id
+            INNER JOIN forums AS f ON f.id = ft.forum_id
             LEFT JOIN UserAccounts AS ua ON ua.ID = lftc.author_id
             WHERE lftc.author_id = :author_id 
-              AND lftc.Authorised = 1
-              AND ft.RequiredPermissions <= :permissions 
+              AND lftc.is_authorized = 1
+              AND ft.required_permissions <= :permissions 
               AND ft.deleted_at IS NULL
-            ORDER BY lftc.DateCreated DESC
+            ORDER BY lftc.created_at DESC
             LIMIT :offset, :count";
 
         return legacyDbFetchAll($query, [
