@@ -22,7 +22,7 @@ class UserSetRequestsTest extends TestCase
     public function testGetUserSetRequestsUnknownUser(): void
     {
         $this->get($this->apiUrl('GetUserSetRequests', ['u' => 'nonExistant']))
-            ->assertSuccessful()
+            ->assertStatus(404)
             ->assertJson([]);
     }
 
