@@ -6,6 +6,7 @@ namespace App\Platform\Requests;
 
 use App\Platform\Enums\GameListProgressFilterValue;
 use App\Platform\Enums\GameListSortField;
+use Exception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
@@ -53,7 +54,23 @@ class GameListRequest extends FormRequest
     {
         if (!isset($this->cookiePreferences)) {
             $cookie = $this->cookie($this->persistenceCookieName);
-            $this->cookiePreferences = $cookie ? json_decode($cookie, true) : null;
+
+            if ($cookie) {
+                try {
+                    // The cookie value is written using `btoa()`, which
+                    // base64 encodes the stringified JSON value to save space.
+                    // We'll decode base64 first, then decode JSON.
+
+                    $decodedValue = base64_decode($cookie, true);
+                    if ($decodedValue === false) {
+                        return null;
+                    }
+
+                    $this->cookiePreferences = json_decode($decodedValue, true);
+                } catch (Exception $e) {
+                    $this->cookiePreferences = null;
+                }
+            }
         }
 
         return $this->cookiePreferences;

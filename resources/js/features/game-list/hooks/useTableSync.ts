@@ -49,7 +49,7 @@ export function useTableSync({
         pagination: { ...pagination, pageIndex: 0 }, // don't persist the page index
       };
 
-      setCookie(JSON.stringify(tableState), { expires: 180 }); // 180 day (6 month) expiry
+      setCookie(btoa(JSON.stringify(tableState)), { expires: 180 }); // 180 day (6 month) expiry
     } else if (cookie) {
       // Clean up the cookie if persistence is not enabled.
       deleteCookie();

@@ -74,7 +74,7 @@ function generateInitialColumnFilters(
   persistedViewPreferences: Partial<TableState> | null,
   defaultColumnFilters?: ColumnFiltersState,
 ): ColumnFiltersState {
-  if (query.filter) {
+  if (query.filter && typeof query.filter !== 'function') {
     return mapQueryParamsToColumnFilters(query, defaultColumnFilters);
   }
 
