@@ -16,10 +16,6 @@ class UserGameListEntry extends BaseModel
     /** @use HasFactory<UserGameListEntryFactory> */
     use HasFactory;
 
-    protected static function newFactory(): UserGameListEntryFactory
-    {
-        return UserGameListEntryFactory::new();
-    }
     // TODO rename SetRequest to user_game_list_entry or integrate into player_games table
     // TODO rename GameID to game_id
     // TODO drop user_game_list_entry_username_game_id_type_unique
@@ -37,6 +33,11 @@ class UserGameListEntry extends BaseModel
     protected $casts = [
         'GameID' => 'integer',
     ];
+
+    protected static function newFactory(): UserGameListEntryFactory
+    {
+        return UserGameListEntryFactory::new();
+    }
 
     // helpers
 
