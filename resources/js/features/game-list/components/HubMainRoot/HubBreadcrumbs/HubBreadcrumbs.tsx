@@ -75,6 +75,23 @@ function useCleanBreadcrumbHubTitles() {
 
     const cleaned = cleanHubTitle(title);
 
+    /**
+     * "[DevQuest 021 Sets]: Homebrew Heaven" -> "21: Homebrew Heaven"
+     * Extract the quest number and content after the bracket.
+     * Format as "N: Title".
+     */
+    if (cleaned.includes('DevQuest') && cleaned.includes('Sets]')) {
+      const match = cleaned.match(/DevQuest (\d+)/);
+      const number = match ? parseInt(match[1], 10) : null;
+
+      const parts = cleaned.split(']');
+      if (parts.length > 1) {
+        const content = parts[1].trim();
+
+        return number ? `${number}: ${content}` : content;
+      }
+    }
+
     // Always strip organizational prefixes first.
     const alwaysStripPrefixes = [
       'ASB -',

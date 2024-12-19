@@ -146,4 +146,38 @@ describe('Component: HubBreadcrumbs', () => {
     expect(screen.queryByText(/meta\|qa/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/subgenre/i)).not.toBeInTheDocument();
   });
+
+  it('formats DevQuest Sets titles correctly', () => {
+    // ARRANGE
+    const breadcrumbs = [
+      createGameSet({ title: '[Central]' }),
+      createGameSet({ title: '[Central - Developer Events]' }),
+      createGameSet({ title: '[Dev Events - DevQuest]' }),
+      createGameSet({ title: '[DevQuest 021 Sets] Homebrew Heaven' }),
+    ];
+
+    render(<HubBreadcrumbs breadcrumbs={breadcrumbs} />);
+
+    // ASSERT
+    expect(screen.getByText(/all hubs/i)).toBeVisible();
+    expect(screen.getByText(/developer events/i)).toBeVisible();
+    expect(screen.getByText(/devquest/i)).toBeVisible();
+    expect(screen.getByText('21: Homebrew Heaven')).toBeVisible();
+
+    expect(screen.queryByText(/devquest sets/i)).not.toBeInTheDocument();
+  });
+
+  it('given a malformed DevQuest title, handles it gracefully', () => {
+    // ARRANGE
+    const breadcrumbs = [
+      createGameSet({ title: '[DevQuest Sets]' }),
+      createGameSet({ title: '[DevQuest foo Sets] After Bracket' }),
+    ];
+
+    render(<HubBreadcrumbs breadcrumbs={breadcrumbs} />);
+
+    // ASSERT
+    expect(screen.getByText('DevQuest Sets')).toBeVisible();
+    expect(screen.getByText('After Bracket')).toBeVisible();
+  });
 });
