@@ -36,6 +36,7 @@ class GameSet extends BaseModel
         'game_id',
         'internal_notes',
         'image_asset_path',
+        'has_content_warning',
         'title',
         'type',
         'updated_at',
@@ -43,6 +44,7 @@ class GameSet extends BaseModel
     ];
 
     protected $casts = [
+        'has_content_warning' => 'boolean',
         'type' => GameSetType::class,
     ];
 
@@ -148,9 +150,10 @@ class GameSet extends BaseModel
     {
         return LogOptions::defaults()
             ->logOnly([
-                'title',
-                'internal_notes',
+                'has_content_warning',
                 'image_asset_path',
+                'internal_notes',
+                'title',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();

@@ -1,6 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { FC } from 'react';
 
+import { ContentWarningDialog } from '@/common/components/ContentWarningDialog';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useAutoUpdatingQueryParams } from '../../hooks/useAutoUpdatingQueryParams';
@@ -14,7 +15,7 @@ import { HubHeading } from './HubHeading';
 import { RelatedHubs } from './RelatedHubs';
 
 export const HubMainRoot: FC = () => {
-  const { auth, breadcrumbs, defaultDesktopPageSize, paginatedGameListEntries } =
+  const { auth, breadcrumbs, defaultDesktopPageSize, hub, paginatedGameListEntries } =
     usePageProps<App.Platform.Data.HubPageProps>();
 
   const {
@@ -48,6 +49,8 @@ export const HubMainRoot: FC = () => {
 
   return (
     <div>
+      {hub.hasContentWarning ? <ContentWarningDialog /> : null}
+
       <DataTablePaginationScrollTarget>
         <HubBreadcrumbs breadcrumbs={breadcrumbs} />
 

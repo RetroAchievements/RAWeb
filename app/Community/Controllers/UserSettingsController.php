@@ -21,9 +21,11 @@ use App\Community\Requests\UpdateWebsitePrefsRequest;
 use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use App\Enums\Permissions;
+use App\Enums\UserPreference;
 use App\Http\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
@@ -119,6 +121,21 @@ class UserSettingsController extends Controller
         $user = $request->user();
 
         $user->locale = $data->locale;
+        $user->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    // TODO migrate to $user->preferences blob
+    public function enableSuppressMatureContentWarning(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $currentPreferences = (int) $user->getAttribute('websitePrefs');
+        $newPreferences = $currentPreferences | (1 << UserPreference::Site_SuppressMatureContentWarning);
+
+        $user->websitePrefs = $newPreferences;
         $user->save();
 
         return response()->json(['success' => true]);

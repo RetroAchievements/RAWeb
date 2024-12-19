@@ -565,6 +565,7 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "api.settings.preferences.suppress-mature-content-warning": [],
     "api.settings.profile.update": [],
     "api.settings.locale.update": [],
     "api.settings.preferences.update": [],
