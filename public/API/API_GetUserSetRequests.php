@@ -21,7 +21,7 @@ use App\Models\UserGameListEntry;
 
 $user = User::firstWhere('User', request()->query('u'));
 if (!$user) {
-    return response()->json([]);
+    return response()->json([], 404);
 }
 
 $requestedSets = UserGameListEntry::where('user_id', $user->ID)
