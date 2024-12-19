@@ -1,13 +1,15 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { useAtom } from 'jotai';
 import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { UserHeading } from '@/common/components/UserHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { useAutoUpdatingQueryParams } from '../../hooks/useAutoUpdatingQueryParams';
 import { useGameListState } from '../../hooks/useGameListState';
 import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
+import { useTableSync } from '../../hooks/useTableSync';
+import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
 import { wantToPlayGamesDefaultFilters } from '../../utils/wantToPlayGamesDefaultFilters';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
 import { WantToPlayGamesDataTable } from '../WantToPlayGamesDataTable';
@@ -39,12 +41,16 @@ export const WantToPlayGamesMainRoot: FC = () => {
     paginatedData: paginatedGameListEntries,
   });
 
-  useAutoUpdatingQueryParams({
+  const [isCurrentlyPersistingView] = useAtom(isCurrentlyPersistingViewAtom);
+
+  useTableSync({
     columnFilters,
+    columnVisibility,
     pagination,
     sorting,
     defaultFilters: wantToPlayGamesDefaultFilters,
     defaultPageSize: defaultDesktopPageSize,
+    isUserPersistenceEnabled: isCurrentlyPersistingView,
   });
 
   if (!auth?.user) {
