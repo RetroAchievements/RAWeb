@@ -125,7 +125,11 @@ describe('Component: CommentList', () => {
       />,
       {
         pageProps: {
-          auth: { user: createAuthenticatedUser({ preferences: { prefersAbsoluteDates: true } }) },
+          auth: {
+            user: createAuthenticatedUser({
+              preferences: { prefersAbsoluteDates: true, shouldAlwaysBypassContentWarnings: false },
+            }),
+          },
         },
       },
     );

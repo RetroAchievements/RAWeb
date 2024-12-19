@@ -428,6 +428,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         return $this->attributes['Permissions'];
     }
 
+    public function getShouldAlwaysBypassContentWarningsAttribute(): bool
+    {
+        return BitSet($this->getAttribute('websitePrefs'), UserPreference::Site_SuppressMatureContentWarning);
+    }
+
     public function getPrefersAbsoluteDatesAttribute(): bool
     {
         return BitSet($this->getAttribute('websitePrefs'), UserPreference::Forum_ShowAbsoluteDates);

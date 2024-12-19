@@ -206,7 +206,7 @@ declare namespace App.Data {
     userWallActive?: boolean | null;
     visibleRole?: string | null;
     websitePrefs?: number | null;
-    preferences?: { prefersAbsoluteDates: boolean };
+    preferences?: { shouldAlwaysBypassContentWarnings: boolean; prefersAbsoluteDates: boolean };
     roles?: App.Models.UserRole[];
   };
   export type UserPermissions = {
@@ -368,6 +368,7 @@ declare namespace App.Platform.Data {
     gameCount: number;
     linkCount: number;
     updatedAt: string;
+    hasContentWarning?: boolean;
   };
   export type GameTopAchiever = {
     rank: number;

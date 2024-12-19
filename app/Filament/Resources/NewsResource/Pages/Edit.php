@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\NewsResource\Pages;
 
+use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\NewsResource;
 use App\Filament\Resources\NewsResource\Actions\ProcessUploadedImageAction;
 use App\Models\News;
@@ -29,7 +30,7 @@ class Edit extends EditRecord
         $existingImage = $record->Image;
 
         if (isset($data['Image'])) {
-            $data['Image'] = (new ProcessUploadedImageAction())->execute($data['Image']);
+            $data['Image'] = (new ProcessUploadedImageAction())->execute($data['Image'], ImageUploadType::News);
         } else {
             // If no new image was uploaded, retain the existing image.
             $data['Image'] = $existingImage;

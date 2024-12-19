@@ -339,6 +339,9 @@ class RouteServiceProvider extends ServiceProvider
                     'middleware' => ['auth'],
                     'prefix' => 'internal-api/settings',
                 ], function () {
+                    Route::patch('/preferences/content-warning', [UserSettingsController::class, 'enableSuppressMatureContentWarning'])
+                        ->name('api.settings.preferences.suppress-mature-content-warning');
+
                     Route::put('profile', [UserSettingsController::class, 'updateProfile'])->name('api.settings.profile.update');
                     Route::put('locale', [UserSettingsController::class, 'updateLocale'])->name('api.settings.locale.update');
                     Route::put('preferences', [UserSettingsController::class, 'updatePreferences'])->name('api.settings.preferences.update');

@@ -137,7 +137,11 @@ describe('Component: RecentPostsTable', () => {
 
     render(<RecentPostsTable paginatedTopics={createPaginatedData([recentActiveForumTopic])} />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser({ preferences: { prefersAbsoluteDates: true } }) },
+        auth: {
+          user: createAuthenticatedUser({
+            preferences: { prefersAbsoluteDates: true, shouldAlwaysBypassContentWarnings: false },
+          }),
+        },
       },
     });
 

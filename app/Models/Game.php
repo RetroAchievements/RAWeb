@@ -323,6 +323,11 @@ class Game extends BaseModel implements HasMedia
         return route('game.show', [$this, $this->getSlugAttribute()]);
     }
 
+    public function getHasContentWarningAttribute(): bool
+    {
+        return $this->gameSets()->where('has_content_warning', true)->exists();
+    }
+
     public function getLastUpdatedAttribute(): Carbon
     {
         return $this->last_achievement_update ?? $this->Updated;
