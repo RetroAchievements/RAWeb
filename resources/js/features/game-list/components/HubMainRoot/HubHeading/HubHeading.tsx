@@ -1,20 +1,16 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LuExternalLink } from 'react-icons/lu';
 
+import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
 
-// TODO keep in mind, probably have to double write back to the hub game for the time being
-// TODO audit log (fix audit log comments so they're actually being recorded)
-// TODO change hub title
-// TODO add,remove games
-// TODO add,remove hub links
-// TODO show,edit internal notes----------- drop internal notes & command
-// TODO comments --- maybe internal notes should just be a comment...
-// TODO badge image upload
-
 export const HubHeading: FC = () => {
-  const { hub } = usePageProps<App.Platform.Data.HubPageProps>();
+  const { can, hub } = usePageProps<App.Platform.Data.HubPageProps>();
+
+  const { t } = useTranslation();
 
   return (
     <div className="mb-3 flex w-full gap-x-3">
@@ -38,33 +34,20 @@ export const HubHeading: FC = () => {
           {cleanHubTitle(hub.title!)}
         </div>
 
-        {/* {can.manageGameSets ? (
-          <Drawer.Root direction="right" handleOnly={true}>
-            <Drawer.Trigger asChild>
-              <BaseButton size="sm">{t('Manage')}</BaseButton>
-            </Drawer.Trigger>
-            <Drawer.Portal>
-              <Drawer.Overlay className="fixed inset-0 z-20 bg-black/60" />
-              <Drawer.Content
-                className="fixed bottom-2 right-2 top-2 z-50 flex w-[310px] outline-none"
-                // The gap between the edge of the screen and the drawer is 8px in this case.
-                style={{ '--initial-transform': 'calc(100% + 8px)' } as React.CSSProperties}
-              >
-                <div className="flex h-full w-full grow select-text flex-col rounded-[16px] border border-embed-highlight bg-embed p-5">
-                  <div className="mx-auto max-w-md">
-                    <Drawer.Title className="mb-2 font-medium">
-                      It supports all directions.
-                    </Drawer.Title>
-                    <Drawer.Description className="mb-2">
-                      This one specifically is not touching the edge of the screen, but that&apos;s
-                      not required for a side drawer.
-                    </Drawer.Description>
-                  </div>
-                </div>
-              </Drawer.Content>
-            </Drawer.Portal>
-          </Drawer.Root>
-        ) : null} */}
+        {can.manageGameSets ? (
+          // Filament named routes are excluded from the front-end type mappings for performance reasons.
+          <a
+            href={`/manage/hubs/${hub.id}`}
+            className={baseButtonVariants({
+              size: 'sm',
+              className: 'gap-1',
+            })}
+            target="_blank"
+          >
+            {t('Manage')}
+            <LuExternalLink className="size-4" />
+          </a>
+        ) : null}
       </h1>
     </div>
   );
