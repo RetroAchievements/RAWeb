@@ -8,6 +8,7 @@ import i18n from '@/i18n-client';
 import { render, screen, waitFor } from '@/test';
 import { createPaginatedData, createSystem, createZiggyProps } from '@/test/factories';
 
+import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
 import { DataTableToolbar } from './DataTableToolbar';
 
 // Suppress "Column with id 'achievementsPublished' does not exist".
@@ -304,5 +305,56 @@ describe('Component: DataTableToolbar', () => {
 
     // ASSERT
     expect(screen.queryByRole('button', { name: /has achievements/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user does not have view persistence enabled, does not initially check the checkbox', () => {
+    // ARRANGE
+    render(<DataTableToolbarHarness />, {
+      pageProps: {
+        ziggy: createZiggyProps({ device: 'desktop' }),
+        filterableSystemOptions: [createSystem({ name: 'Nintendo 64', nameShort: 'N64' })],
+      },
+      jotaiAtoms: [[isCurrentlyPersistingViewAtom, false]], // !!
+    });
+
+    // ASSERT
+    const checkboxEl = screen.getByRole('checkbox', { name: /remember my view/i });
+
+    expect(checkboxEl).toBeVisible();
+    expect(checkboxEl).not.toBeChecked();
+  });
+
+  it('given the user does have view persistence enabled, initially checks the checkbox', () => {
+    // ARRANGE
+    render(<DataTableToolbarHarness />, {
+      pageProps: {
+        ziggy: createZiggyProps({ device: 'desktop' }),
+        filterableSystemOptions: [createSystem({ name: 'Nintendo 64', nameShort: 'N64' })],
+      },
+      jotaiAtoms: [[isCurrentlyPersistingViewAtom, true]], // !!
+    });
+
+    // ASSERT
+    const checkboxEl = screen.getByRole('checkbox', { name: /remember my view/i });
+
+    expect(checkboxEl).toBeVisible();
+    expect(checkboxEl).toBeChecked();
+  });
+
+  it('allows the user to tick the checkbox to toggle view persistence', async () => {
+    // ARRANGE
+    render(<DataTableToolbarHarness />, {
+      pageProps: {
+        ziggy: createZiggyProps({ device: 'desktop' }),
+        filterableSystemOptions: [createSystem({ name: 'Nintendo 64', nameShort: 'N64' })],
+      },
+      jotaiAtoms: [[isCurrentlyPersistingViewAtom, false]], // !!
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('checkbox', { name: /remember my view/i }));
+
+    // ASSERT
+    expect(screen.getByRole('checkbox', { name: /remember my view/i })).toBeChecked();
   });
 });

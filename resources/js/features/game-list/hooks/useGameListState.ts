@@ -2,6 +2,7 @@ import type {
   ColumnFiltersState,
   PaginationState,
   SortingState,
+  TableState,
   VisibilityState,
 } from '@tanstack/react-table';
 import { useState } from 'react';
@@ -30,14 +31,17 @@ export function useGameListState<TData = unknown>(
   },
 ) {
   const {
+    persistedViewPreferences,
     ziggy: { query },
-  } = usePageProps<App.Community.Data.UserGameListPageProps>();
+  } = usePageProps<{ persistedViewPreferences: Partial<TableState> | null }>();
 
   const [pagination, setPagination] = useState<PaginationState>(
-    mapPaginatedGamesToPaginationState(paginatedGames),
+    generateInitialPaginationState(paginatedGames, persistedViewPreferences),
   );
 
-  const [sorting, setSorting] = useState<SortingState>(mapQueryParamsToSorting(query));
+  const [sorting, setSorting] = useState<SortingState>(
+    generateInitialSortingState(query, persistedViewPreferences),
+  );
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     hasActiveOrInReviewClaims: false,
@@ -46,10 +50,11 @@ export function useGameListState<TData = unknown>(
     numVisibleLeaderboards: false,
     playersTotal: options?.alwaysShowPlayersTotal ?? !options.canShowProgressColumn,
     progress: options.canShowProgressColumn,
+    ...(persistedViewPreferences?.columnVisibility ?? null),
   });
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    mapQueryParamsToColumnFilters(query, options?.defaultColumnFilters),
+    generateInitialColumnFilters(query, persistedViewPreferences, options?.defaultColumnFilters),
   );
 
   return {
@@ -64,6 +69,50 @@ export function useGameListState<TData = unknown>(
   };
 }
 
+function generateInitialColumnFilters(
+  query: AppGlobalProps['ziggy']['query'],
+  persistedViewPreferences: Partial<TableState> | null,
+  defaultColumnFilters?: ColumnFiltersState,
+): ColumnFiltersState {
+  if (query.filter) {
+    return mapQueryParamsToColumnFilters(query, defaultColumnFilters);
+  }
+
+  if (persistedViewPreferences?.columnFilters) {
+    return persistedViewPreferences.columnFilters;
+  }
+
+  return defaultColumnFilters ?? [];
+}
+
+function generateInitialPaginationState<TData = unknown>(
+  paginatedGames: App.Data.PaginatedData<TData>,
+  persistedViewPreferences: Partial<TableState> | null,
+): PaginationState {
+  if (persistedViewPreferences?.pagination) {
+    return persistedViewPreferences.pagination;
+  }
+
+  return mapPaginatedGamesToPaginationState(paginatedGames);
+}
+
+function generateInitialSortingState(
+  query: AppGlobalProps['ziggy']['query'],
+  persistedViewPreferences: Partial<TableState> | null,
+): SortingState {
+  // `sort` is actually part of `query`'s prototype, so we have to be
+  // extra explicit in how we check for the presence of the param.
+  if (query.sort && typeof query.sort !== 'function') {
+    return mapQueryParamsToSorting(query);
+  }
+
+  if (persistedViewPreferences?.sorting) {
+    return persistedViewPreferences.sorting;
+  }
+
+  return [{ id: 'title', desc: false }];
+}
+
 function mapPaginatedGamesToPaginationState<TData = unknown>(
   paginatedGames: App.Data.PaginatedData<TData>,
 ): PaginationState {
@@ -75,14 +124,6 @@ function mapPaginatedGamesToPaginationState<TData = unknown>(
 
 function mapQueryParamsToSorting(query: AppGlobalProps['ziggy']['query']): SortingState {
   const sorting: SortingState = [];
-
-  // `sort` is actually part of `query`'s prototype, so we have to be
-  // extra explicit in how we check for the presence of the param.
-  if (typeof query.sort === 'function' || typeof query.sort === 'undefined') {
-    sorting.push({ id: 'title', desc: false });
-
-    return sorting;
-  }
 
   // If it's an array, we must have a sort query param. Process it.
   const sortValue = query.sort;
@@ -105,7 +146,7 @@ function mapQueryParamsToColumnFilters(
 ): ColumnFiltersState {
   const columnFilters: ColumnFiltersState = [];
 
-  for (const [filterKey, filterValue] of Object.entries(query.filter ?? {})) {
+  for (const [filterKey, filterValue] of Object.entries(query.filter)) {
     columnFilters.push({
       id: filterKey,
       value: filterValue.split(','),
@@ -116,6 +157,7 @@ function mapQueryParamsToColumnFilters(
   if (defaultColumnFilters) {
     for (const defaultColumnFilter of defaultColumnFilters) {
       const existingFilter = columnFilters.some((f) => f.id === defaultColumnFilter.id);
+
       if (!existingFilter) {
         columnFilters.push(defaultColumnFilter);
       }

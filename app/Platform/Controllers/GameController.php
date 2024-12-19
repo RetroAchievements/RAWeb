@@ -37,6 +37,9 @@ class GameController extends Controller
 
         $this->authorize('viewAny', [Game::class, $user]);
 
+        $persistenceCookieName = 'datatable_view_preference_all_games';
+        $request->setPersistenceCookieName($persistenceCookieName);
+
         $isMobile = (new Agent())->isMobile();
 
         $paginatedData = (new BuildGameListAction())->execute(
@@ -67,9 +70,11 @@ class GameController extends Controller
             paginatedGameListEntries: $paginatedData,
             filterableSystemOptions: $filterableSystemOptions,
             can: $can,
+            persistenceCookieName: $persistenceCookieName,
+            persistedViewPreferences: $request->getCookiePreferences(),
         );
 
-        return Inertia::render('game-list/index', $props);
+        return Inertia::render('games', $props);
     }
 
     public function popular(): void
