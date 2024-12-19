@@ -15,7 +15,6 @@
  *  int        PointsForNext              number of points remaining until maximum request increase
  */
 
-use App\Models\Game;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use Illuminate\Support\Arr;
@@ -30,29 +29,24 @@ if (!$user) {
     return response()->json([], 404);
 }
 
-$requestedSets = UserGameListEntry::where('user_id', $user->ID)
+$requestedSets = UserGameListEntry::with(['game.system'])
+    ->where('user_id', $user->ID)
     ->where('type', 'achievement_set_request')
-    ->pluck('GameID')
-    ->toArray();
-
-$games = Game::with('system')
-    ->whereIn('ID', $requestedSets)
-    ->get();
+    ->get()
+    ->map(function ($gameData) {
+        return [
+            'GameID' => $gameData->game->id,
+            'Title' => $gameData->game->title,
+            'ConsoleID' => $gameData->game->system->id,
+            'ConsoleName' => $gameData->game->system->name,
+            'ImageIcon' => $gameData->game->ImageIcon,
+        ];
+    });
 
 $userRequestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
-$requestList = $games->map(function ($gameData) {
-    return [
-        'GameID' => $gameData['ID'],
-        'Title' => $gameData['Title'],
-        'ConsoleID' => $gameData['ConsoleID'],
-        'ConsoleName' => $gameData->system['Name'],
-        'ImageIcon' => $gameData['ImageIcon'],
-    ];
-})->toArray();
-
 return response()->json([
-    'RequestedSets' => $requestList,
+    'RequestedSets' => $requestedSets,
     'TotalRequests' => $userRequestInfo['total'],
     'PointsForNext' => $userRequestInfo['pointsForNext'],
 ]);
