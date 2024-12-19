@@ -48,11 +48,6 @@ class UserSetRequestsTest extends TestCase
             'GameID' => $game->ID,
         ]);
 
-        $userRequestInfo = [
-            'total' => 1,
-            'pointsForNext' => 999,
-        ];
-
         $this->get($this->apiUrl('GetUserSetRequests', ['u' => $user->User]))
             ->assertSuccessful()
             ->assertJson([
@@ -65,8 +60,8 @@ class UserSetRequestsTest extends TestCase
                         'ImageIcon' => $game->ImageIcon,
                     ],
                 ],
-                'TotalRequests' => $userRequestInfo['total'],
-                'PointsForNext' => $userRequestInfo['pointsForNext'],
+                'TotalRequests' => 1,
+                'PointsForNext' => 999,
             ]);
     }
 }
