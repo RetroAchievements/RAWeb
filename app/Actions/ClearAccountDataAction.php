@@ -30,8 +30,6 @@ class ClearAccountDataAction
         $user->emailConfirmations()->delete();
         $user->relatedUsers()->detach();
         $user->inverseRelatedUsers()->detach();
-        // TODO $user->ratings()->delete();
-        DB::statement('DELETE FROM Rating WHERE User = :username', ['username' => $user->User]);
         $user->gameListEntries()->delete();
         $user->playerBadges()->delete();
         $user->playerStats()->delete();

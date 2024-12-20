@@ -9,10 +9,8 @@ use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\SyncComments;
 use App\Community\Commands\SyncForumCategories;
 use App\Community\Commands\SyncForums;
-use App\Community\Commands\SyncRatings;
 use App\Community\Commands\SyncTickets;
 use App\Community\Commands\SyncUserRelations;
-use App\Community\Commands\SyncVotes;
 use App\Community\Components\ActivePlayers;
 use App\Community\Components\DeveloperGameStatsTable;
 use App\Community\Components\ForumRecentActivity;
@@ -32,7 +30,6 @@ use App\Models\GameComment;
 use App\Models\Message;
 use App\Models\News;
 use App\Models\NewsComment;
-use App\Models\Rating;
 use App\Models\Subscription;
 use App\Models\Ticket;
 use App\Models\TriggerTicket;
@@ -41,7 +38,6 @@ use App\Models\UserActivity;
 use App\Models\UserComment;
 use App\Models\UserGameListEntry;
 use App\Models\UserRelation;
-use App\Models\Vote;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -56,10 +52,8 @@ class AppServiceProvider extends ServiceProvider
                 SyncComments::class,
                 SyncForumCategories::class,
                 SyncForums::class,
-                SyncRatings::class,
                 SyncTickets::class,
                 SyncUserRelations::class,
-                SyncVotes::class,
 
                 ConvertUserShortcodesToUseIds::class,
 
@@ -81,7 +75,6 @@ class AppServiceProvider extends ServiceProvider
             'message' => Message::class,
             'news' => News::class,
             'news.comment' => NewsComment::class,
-            'rating' => Rating::class,
             'subscription' => Subscription::class,
             'ticket' => Ticket::class,
             'trigger.ticket' => TriggerTicket::class,
@@ -90,7 +83,6 @@ class AppServiceProvider extends ServiceProvider
             'user-activity' => UserActivity::class,
             'user-game-list-entry' => UserGameListEntry::class,
             'user-relation' => UserRelation::class,
-            'vote' => Vote::class,
         ]);
 
         AchievementComment::disableSearchSyncing();
