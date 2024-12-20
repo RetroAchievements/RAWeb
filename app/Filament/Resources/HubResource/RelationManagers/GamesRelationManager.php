@@ -36,6 +36,7 @@ class GamesRelationManager extends RelationManager
     {
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->with('system'))
+            ->defaultSort('sort_title')
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
@@ -58,7 +59,9 @@ class GamesRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('title')
                     ->label('Title')
-                    ->sortable()
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy('sort_title', $direction);
+                    })
                     ->searchable()
                     ->url(function (Game $record) {
                         if (request()->user()->can('manage', Game::class)) {
