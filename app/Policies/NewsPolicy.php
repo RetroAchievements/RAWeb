@@ -105,7 +105,7 @@ class NewsPolicy
         return false;
     }
 
-    public function pin(User $user, ?News $news): bool
+    public function pin(User $user, News $news): bool
     {
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,

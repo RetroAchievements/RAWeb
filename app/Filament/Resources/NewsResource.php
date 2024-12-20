@@ -7,11 +7,13 @@ namespace App\Filament\Resources;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\NewsResource\Pages;
 use App\Models\News;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 
 class NewsResource extends Resource
@@ -30,6 +32,9 @@ class NewsResource extends Resource
 
     public static function form(Form $form): Form
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $form
             ->schema([
                 Forms\Components\Section::make('Primary Details')
@@ -54,7 +59,8 @@ class NewsResource extends Resource
                             ->afterStateUpdated(function (News $record, bool $state) {
                                 $record->pinned_at = $state ? now() : null;
                             })
-                            ->default(fn (News $record): bool => !is_null($record->pinned_at)),
+                            ->default(fn (News $record): bool => !is_null($record->pinned_at))
+                            ->disabled(fn (News $record) => !$user->can('pin', $record)),
                     ]),
 
                 Forms\Components\Section::make('Leading Text')
