@@ -48,7 +48,7 @@ class NewsResource extends Resource
 
                         Forms\Components\Toggle::make('is_pinned')
                             ->label('Pinned')
-                            ->helperText('If enabled, this will be the 1st news post until unpinned.')
+                            ->helperText('If enabled, this will be sorted to the top of the news until unpinned.')
                             ->columnSpanFull()
                             ->dehydrated(false) // Don't try to save is_pinned directly to the News model.
                             ->afterStateUpdated(function (News $record, bool $state) {
