@@ -45,6 +45,16 @@ class NewsResource extends Resource
                             ->label('URL')
                             ->required()
                             ->activeUrl(),
+
+                        Forms\Components\Toggle::make('is_pinned')
+                            ->label('Pinned')
+                            ->helperText('If enabled, this will be the 1st news post until unpinned.')
+                            ->columnSpanFull()
+                            ->dehydrated(false) // Don't try to save is_pinned directly to the News model.
+                            ->afterStateUpdated(function (News $record, bool $state) {
+                                $record->pinned_at = $state ? now() : null;
+                            })
+                            ->default(fn (News $record): bool => !is_null($record->pinned_at)),
                     ]),
 
                 Forms\Components\Section::make('Leading Text')
@@ -89,8 +99,9 @@ class NewsResource extends Resource
                             ->maxFiles(1),
 
                         Forms\Components\Placeholder::make('ImagePreview')
+                            ->label('Image preview')
                             ->content(function (News $news) {
-                                return new HtmlString("<img src='{$news->image_asset_path}' style='width:700px; height:270px;' class='rounded object-cover'>");
+                                return new HtmlString("<img src='{$news->image_asset_path}' style='width:197px; height:112px;' class='rounded object-cover'>");
                             })
                             ->visible(fn (News $news) => !is_null($news->image_asset_path)),
                     ]),

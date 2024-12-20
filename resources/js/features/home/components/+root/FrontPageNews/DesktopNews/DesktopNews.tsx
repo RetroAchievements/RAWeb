@@ -6,12 +6,11 @@ import { LuArrowLeft, LuArrowRight } from 'react-icons/lu';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { BasePagination, BasePaginationContent } from '@/common/components/+vendor/BasePagination';
-import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 import { cn } from '@/common/utils/cn';
 
-import { NewsCard } from './NewsCard';
+import { NewsCard } from '../NewsCard';
 
 export const DesktopNews: FC = () => {
   const { recentNews } = usePageProps<App.Http.Data.HomePageProps>();
@@ -60,12 +59,7 @@ export const DesktopNews: FC = () => {
                 }}
               >
                 <NewsCard
-                  authorDisplayName={news.user.displayName}
-                  href={news.link ?? undefined}
-                  imageSrc={news.imageAssetPath ?? undefined}
-                  PostedAt={<DiffTimestamp at={news.createdAt} enableTooltip={false} />}
-                  title={news.title}
-                  lead={news.body}
+                  news={news}
                   className={cn(
                     index === 2 ? 'hidden sm:flex' : '',
                     buildTrackingClassNames(`Click News Post ${index + 1}`),

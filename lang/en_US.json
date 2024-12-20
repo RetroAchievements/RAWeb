@@ -512,5 +512,8 @@
     "Getting Started": "Getting Started",
     "Moderation Comments - {{user}}": "Moderation Comments - {{user}}",
     "Moderation Comments": "Moderation Comments",
-    "Columns": "Columns"
+    "Columns": "Columns",
+    "Pinned {{pinnedAt}}": "Pinned {{pinnedAt}}",
+    "Pinned": "Pinned",
+    "new": "new"
 }
