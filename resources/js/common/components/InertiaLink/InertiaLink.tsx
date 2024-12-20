@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-imports -- this component wraps Inertia's <Link /> */
+
 import type { InertiaLinkProps as OriginalInertiaLinkProps } from '@inertiajs/react';
 import { Link, router } from '@inertiajs/react';
 import type { FC } from 'react';
