@@ -12,7 +12,7 @@ type InertiaLinkProps = Omit<OriginalInertiaLinkProps, 'prefetch'> & {
   /**
    * Controls prefetch behavior:
    * - never: Do not prefetch this link under any circumstance.
-   * - desktop-hover-only: Prefetch when the user hovers over the link on desktop.
+   * - desktop-hover-only: Default. Prefetch when the user hovers over the link on desktop.
    * - desktop-hover-and-mobile-intersect: Prefetch on hover for desktop, and on visible for mobile.
    */
   prefetch?: LinkPrefetchBehavior;
