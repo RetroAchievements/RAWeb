@@ -9,20 +9,30 @@ use Illuminate\Support\Facades\Schema;
 return new class() extends Migration {
     public function up(): void
     {
-        Schema::table('ForumTopic', function (Blueprint $table) {
-            if (DB::connection() instanceof SQLiteConnection) {
-                $table->dropForeign(['ForumID']);
-            } else {
-                $table->dropForeign('forum_topics_forumid_foreign');
-            }
-        });
-        Schema::table('ForumTopic', function (Blueprint $table) {
-            if (DB::connection() instanceof SQLiteConnection) {
-                // do nothing
-            } else {
+        if (DB::connection() instanceof SQLiteConnection) {
+            // do nothing
+        } else {
+            Schema::table('ForumTopic', function (Blueprint $table) {
+                // Check for both possible foreign key names since they could differ
+                // between production and local environments after migrations/rollbacks.
+                $foreignKeys = DB::select(<<<SQL
+                    SELECT CONSTRAINT_NAME
+                    FROM information_schema.TABLE_CONSTRAINTS
+                    WHERE TABLE_NAME = "ForumTopic"
+                    AND CONSTRAINT_TYPE = "FOREIGN KEY"
+                    AND CONSTRAINT_NAME IN ('forum_topics_forumid_foreign', 'forums_topics_forum_id_foreign')
+                SQL);
+
+                foreach ($foreignKeys as $fk) {
+                    $table->dropForeign($fk->CONSTRAINT_NAME);
+                }
+            });
+
+            Schema::table('ForumTopic', function (Blueprint $table) {
                 $table->dropIndex('forum_topics_forum_id_index');
-            }
-        });
+            });
+        }
+
         Schema::table('ForumTopic', function (Blueprint $table) {
             if (DB::connection() instanceof SQLiteConnection) {
                 $table->dropForeign(['author_id']);
@@ -48,9 +58,7 @@ return new class() extends Migration {
         });
 
         Schema::table('forum_topics', function (Blueprint $table) {
-            $table->index('forum_id', 'idx_forum_topics_forum_id'); // use a custom name to make SQLite happy
-        });
-        Schema::table('forum_topics', function (Blueprint $table) {
+            $table->index('forum_id', 'forum_topics_forum_id_index');
             $table->foreign('forum_id')->references('id')->on('forums')->onDelete('set null');
         });
         Schema::table('forum_topics', function (Blueprint $table) {
@@ -63,7 +71,6 @@ return new class() extends Migration {
         Schema::table('forum_topics', function (Blueprint $table) {
             $table->dropForeign(['forum_id']);
             $table->dropForeign(['author_id']);
-            $table->dropIndex(['forum_id']);
         });
 
         Schema::table('forum_topics', function (Blueprint $table) {
@@ -76,8 +83,9 @@ return new class() extends Migration {
             $table->renameColumn('required_permissions', 'RequiredPermissions');
 
             $table->dropColumn('body');
+        });
 
-            $table->index('ForumID', 'forum_topics_forum_id_index');
+        Schema::table('forum_topics', function (Blueprint $table) {
             $table->foreign('ForumID')->references('id')->on('forums')->onDelete('set null');
             $table->foreign('author_id', 'forumtopic_author_id_foreign')->references('ID')->on('UserAccounts')->onDelete('set null');
         });

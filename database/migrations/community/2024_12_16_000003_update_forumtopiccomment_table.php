@@ -2,13 +2,39 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\SQLiteConnection;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
     public function up(): void
     {
+        if (DB::connection() instanceof SQLiteConnection) {
+            // do nothing
+        } else {
+            Schema::table('ForumTopicComment', function (Blueprint $table) {
+                // Check for both possible foreign key names since they could differ
+                // between production and local environments after migrations/rollbacks.
+                $foreignKeys = DB::select(<<<SQL
+                    SELECT CONSTRAINT_NAME
+                    FROM information_schema.TABLE_CONSTRAINTS
+                    WHERE TABLE_NAME = "ForumTopicComment"
+                    AND CONSTRAINT_TYPE = "FOREIGN KEY"
+                SQL);
+
+                foreach ($foreignKeys as $fk) {
+                    $table->dropForeign($fk->CONSTRAINT_NAME);
+                }
+            });
+        }
+
         Schema::table('ForumTopicComment', function (Blueprint $table) {
-            $table->dropForeign(['author_id']);
+            $table->dropIndex('forum_topic_comments_forum_topic_id_index');
+        });
+        Schema::table('ForumTopicComment', function (Blueprint $table) {
+            $table->dropIndex('forum_topic_comments_created_at_index');
+        });
+        Schema::table('ForumTopicComment', function (Blueprint $table) {
+            $table->dropIndex('forum_topic_comments_author_id_created_at_index');
         });
 
         Schema::rename('ForumTopicComment', 'forum_topic_comments');
@@ -23,8 +49,29 @@ return new class() extends Migration {
         });
 
         Schema::table('forum_topic_comments', function (Blueprint $table) {
+            $table->index('forum_topic_id', 'forum_topic_comments_forum_topic_id_index');
+        });
+        Schema::table('forum_topic_comments', function (Blueprint $table) {
+            $table->index('created_at', 'forum_topic_comments_created_at_index');
+        });
+        Schema::table('forum_topic_comments', function (Blueprint $table) {
+            $table->index(['author_id', 'created_at'], 'forum_topic_comments_author_id_created_at_index');
+        });
+
+        Schema::table('forum_topic_comments', function (Blueprint $table) {
+            // Delete all orphaned comments before adding a foreign key.
+            DB::table('forum_topic_comments')
+                ->whereNotExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('forum_topics')
+                        ->whereColumn('forum_topics.id', 'forum_topic_comments.forum_topic_id');
+                })
+                ->delete();
+        });
+        Schema::table('forum_topic_comments', function (Blueprint $table) {
             $table->foreign('forum_topic_id')->references('id')->on('forum_topics')->onDelete('set null');
         });
+
         Schema::table('forum_topic_comments', function (Blueprint $table) {
             $table->foreign('author_id')->references('ID')->on('UserAccounts')->onDelete('set null');
         });
@@ -35,6 +82,9 @@ return new class() extends Migration {
         Schema::table('forum_topic_comments', function (Blueprint $table) {
             $table->dropForeign(['forum_topic_id']);
             $table->dropForeign(['author_id']);
+            $table->dropIndex('forum_topic_comments_forum_topic_id_index');
+            $table->dropIndex('forum_topic_comments_created_at_index');
+            $table->dropIndex('forum_topic_comments_author_id_created_at_index');
         });
 
         Schema::table('forum_topic_comments', function (Blueprint $table) {
@@ -49,5 +99,11 @@ return new class() extends Migration {
         });
 
         Schema::rename('forum_topic_comments', 'ForumTopicComment');
+
+        Schema::table('ForumTopicComment', function (Blueprint $table) {
+            $table->index('ForumTopicID', 'forum_topic_comments_forum_topic_id_index');
+            $table->index('DateCreated', 'forum_topic_comments_created_at_index');
+            $table->index(['author_id', 'DateCreated'], 'forum_topic_comments_author_id_created_at_index');
+        });
     }
 };
