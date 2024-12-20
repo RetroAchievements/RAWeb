@@ -110,6 +110,11 @@ class BuildHubBreadcrumbsAction
             $remainingPath = [];
             $currentGameSet = $gameSet;
 
+            // Handle "[DevQuest N Sets] Title".
+            if (preg_match('/^\[DevQuest \d+ Sets\]/', $currentGameSet->title)) {
+                return $this->handleDevQuestPath($gameSet);
+            }
+
             // Extract the type from the title if it matches the pattern "[Type - ...]".
             if (preg_match('/^\[(.*?) - /', $currentGameSet->title, $matches)) {
                 $currentType = $matches[1];
@@ -231,6 +236,47 @@ class BuildHubBreadcrumbsAction
         $breadcrumbs[] = $this->toPathArray($gameSet);
 
         return $breadcrumbs;
+    }
+
+    /**
+     * Handles the special case of DevQuest paths.
+     * These often have titles like "[DevQuest 021 Sets] Homebrew Heaven".
+     * Notice the square brackets are oddly-placed.
+     */
+    private function handleDevQuestPath(GameSet $gameSet): array
+    {
+        // Add items in reverse order. We want them to appear as:
+        // [Central] -> [Central - Developer Events] -> [Dev Events - DevQuest] -> [DevQuest Sets]
+
+        $remainingPath = [$this->toPathArray($gameSet)];
+
+        // Find and add the DevQuest hub.
+        $devQuestHub = GameSet::where('title', '[Dev Events - DevQuest]')
+            ->where('type', GameSetType::Hub)
+            ->whereNull('deleted_at')
+            ->first();
+
+        if ($devQuestHub) {
+            array_unshift($remainingPath, $this->toPathArray($devQuestHub));
+
+            // Find and add the Developer Events hub.
+            $devEventsHub = GameSet::where('title', '[Central - Developer Events]')
+                ->where('type', GameSetType::Hub)
+                ->whereNull('deleted_at')
+                ->first();
+
+            if ($devEventsHub) {
+                array_unshift($remainingPath, $this->toPathArray($devEventsHub));
+            }
+        }
+
+        // Add Central hub at the start of the path.
+        $centralHub = GameSet::centralHub()->first();
+        if ($centralHub) {
+            array_unshift($remainingPath, $this->toPathArray($centralHub));
+        }
+
+        return $remainingPath;
     }
 
     /**

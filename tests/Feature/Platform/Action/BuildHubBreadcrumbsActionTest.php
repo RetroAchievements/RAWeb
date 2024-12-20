@@ -485,4 +485,39 @@ class BuildHubBreadcrumbsActionTest extends TestCase
         ));
         $this->assertEquals(1, $centralEventsCount);
     }
+
+    public function testItHandlesDevQuestSetsFormat(): void
+    {
+        // Arrange
+        $centralHub = $this->createHub('[Central]');
+        $centralHub->id = GameSet::CentralHubId;
+        $centralHub->save();
+
+        $devEventsHub = $this->createHub('[Central - Developer Events]');
+        $devQuestHub = $this->createHub('[Dev Events - DevQuest]');
+        $devQuestSetHub = $this->createHub('[DevQuest 018 Sets] Subset Station');
+
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $centralHub->id,
+            'child_game_set_id' => $devEventsHub->id,
+        ]);
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $devEventsHub->id,
+            'child_game_set_id' => $devQuestHub->id,
+        ]);
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $devQuestHub->id,
+            'child_game_set_id' => $devQuestSetHub->id,
+        ]);
+
+        // Act
+        $breadcrumbs = $this->action->execute($devQuestSetHub);
+
+        // Assert
+        $this->assertCount(4, $breadcrumbs);
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[1], $devEventsHub->id, '[Central - Developer Events]');
+        $this->assertBreadcrumb($breadcrumbs[2], $devQuestHub->id, '[Dev Events - DevQuest]');
+        $this->assertBreadcrumb($breadcrumbs[3], $devQuestSetHub->id, '[DevQuest 018 Sets] Subset Station');
+    }
 }

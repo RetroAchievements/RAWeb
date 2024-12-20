@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Shortcode;
 
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -342,13 +343,13 @@ final class Shortcode
 
     private function embedTicket(int $id): string
     {
-        $ticketModel = GetTicketModel($id);
+        $ticket = Ticket::find($id);
 
-        if ($ticketModel == null) {
+        if (!$ticket) {
             return '';
         }
 
-        return ticketAvatar($ticketModel, iconSize: 24);
+        return ticketAvatar($ticket, iconSize: 24);
     }
 
     private function embedUser(?string $userId): string
