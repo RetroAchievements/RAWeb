@@ -1,6 +1,9 @@
 <?php
 
 use App\Community\Enums\ActivityType;
+use App\Connect\Actions\BuildClientPatchDataAction;
+use App\Connect\Actions\GetClientSupportLevelAction;
+use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
@@ -575,7 +578,38 @@ switch ($requestType) {
 
     case "patch":
         $flag = (int) request()->input('f', 0);
-        $response = GetPatchData($gameID, $user, $flag);
+        $gameHashMd5 = request()->input('m');
+
+        $clientSupportLevel = (new GetClientSupportLevelAction())->execute(request()->header('User-Agent'));
+
+        // TODO middleware?
+        if ($clientSupportLevel === ClientSupportLevel::Blocked) {
+            return DoRequestError('This client is not supported', 403, 'unsupported_client');
+        }
+
+        try {
+            $gameHash = $gameHashMd5 ? GameHash::whereMd5($gameHashMd5)->first() : null;
+            $game = $gameHashMd5 ? null : Game::find($gameID);
+
+            $response = (new BuildClientPatchDataAction())->execute(
+                gameHash: $gameHash,
+                game: $game,
+                user: $user,
+                flag: AchievementFlag::tryFrom($flag),
+            );
+
+            // Based on the user's current client support level, we may want to attach
+            // some metadata into the patch response. We'll do that as part of a separate
+            // action to keep the original data construction pure.
+            $response = (new InjectPatchClientSupportLevelDataAction())->execute(
+                $response,
+                $clientSupportLevel,
+                $gameHash,
+                $game,
+            );
+        } catch (InvalidArgumentException $e) {
+            return DoRequestError('Unknown game', 404, 'not_found');
+        }
         break;
 
     case "postactivity":
