@@ -10,7 +10,11 @@ return new class() extends Migration {
     public function up(): void
     {
         if (DB::connection() instanceof SQLiteConnection) {
-            // do nothing
+            Schema::table('ForumTopic', function (Blueprint $table) {
+                // SQLite requires different syntax for dropping indexes.
+                DB::statement('DROP INDEX IF EXISTS forum_topics_forum_id_index');
+                $table->dropForeign(['author_id']);
+            });
         } else {
             Schema::table('ForumTopic', function (Blueprint $table) {
                 // Check for both possible foreign key names since they could differ
