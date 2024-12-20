@@ -2,7 +2,7 @@
 
 import type { InertiaLinkProps as OriginalInertiaLinkProps } from '@inertiajs/react';
 import { Link, router } from '@inertiajs/react';
-import type { FC } from 'react';
+import { type FC, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -25,6 +25,8 @@ export const InertiaLink: FC<InertiaLinkProps> = ({
 }) => {
   const { ziggy } = usePageProps();
   const isMobile = ziggy?.device === 'mobile';
+
+  const hoverTimeoutRef = useRef<number>();
 
   /**
    * Use an intersection observer for mobile prefetching.
@@ -54,7 +56,12 @@ export const InertiaLink: FC<InertiaLinkProps> = ({
       prefetch={false}
       onMouseEnter={() => {
         if (!isMobile && prefetch !== 'never') {
-          handlePrefetch();
+          hoverTimeoutRef.current = window.setTimeout(handlePrefetch, 75);
+        }
+      }}
+      onMouseLeave={() => {
+        if (hoverTimeoutRef.current) {
+          clearTimeout(hoverTimeoutRef.current);
         }
       }}
       {...rest}

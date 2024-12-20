@@ -2,7 +2,7 @@ import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 
-import { render, screen } from '@/test';
+import { render, screen, waitFor } from '@/test';
 import { createZiggyProps } from '@/test/factories';
 
 import { InertiaLink } from './InertiaLink';
@@ -34,7 +34,9 @@ describe('Component: InertiaLink', () => {
     await userEvent.hover(screen.getByRole('link', { name: /link text/i }));
 
     // ASSERT
-    expect(prefetchSpy).toHaveBeenCalledWith('/test', { method: 'get' }, { cacheFor: '30s' });
+    await waitFor(() => {
+      expect(prefetchSpy).toHaveBeenCalledWith('/test', { method: 'get' }, { cacheFor: '30s' });
+    });
   });
 
   it('given the user is on mobile and hovers (taps) the link with default prefetch behavior, does not prefetch the route', async () => {
@@ -110,5 +112,25 @@ describe('Component: InertiaLink', () => {
 
     // ASSERT
     expect(prefetchSpy).toHaveBeenCalled();
+  });
+
+  it('given the user stops hovering over a link before the prefetch delay, cancels the prefetch', async () => {
+    // ARRANGE
+    const prefetchSpy = vi.spyOn(router, 'prefetch');
+
+    render(<InertiaLink href="/test">Link Text</InertiaLink>, {
+      pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+    });
+
+    // ACT
+    const linkEl = screen.getByRole('link', { name: /link text/i });
+
+    await userEvent.hover(linkEl);
+    await userEvent.unhover(linkEl, { delay: 10 });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(prefetchSpy).not.toHaveBeenCalled();
+    });
   });
 });
