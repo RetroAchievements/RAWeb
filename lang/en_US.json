@@ -491,6 +491,14 @@
     "Awards - At Least": "Awards - At Least",
     "Awards - Exact": "Awards - Exact",
     "Special Filters": "Special Filters",
+    "All {{systemName}} Games": "All {{systemName}} Games",
+    "{{hubTitle}} (Hub)": "{{hubTitle}} (Hub)",
+    "Related Hubs": "Related Hubs",
+    "Manage": "Manage",
+    "Hub": "Hub",
+    "Links": "Links",
+    "No related hubs.": "No related hubs.",
+    "All Hubs": "All Hubs",
     "Go to previous news page": "Go to previous news page",
     "Go to next news page": "Go to next news page",
     "Swipe to view more": "Swipe to view more",
@@ -503,5 +511,6 @@
     "We're excited to have you here! We know you might have some questions about hardcore mode, RetroPoints (white points), subsets, or which emulators to use. Don't worry, we've got you covered! Check out our <1>comprehensive FAQ</1> to get started. Happy gaming!": "We're excited to have you here! We know you might have some questions about hardcore mode, RetroPoints (white points), subsets, or which emulators to use. Don't worry, we've got you covered! Check out our <1>comprehensive FAQ</1> to get started. Happy gaming!",
     "Getting Started": "Getting Started",
     "Moderation Comments - {{user}}": "Moderation Comments - {{user}}",
-    "Moderation Comments": "Moderation Comments"
+    "Moderation Comments": "Moderation Comments",
+    "Columns": "Columns"
 }

@@ -8,6 +8,7 @@ use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ImageType;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -78,7 +79,7 @@ if ($field === 'ImageIcon') {
 
     // Double write to game_sets.
     if ($game->ConsoleID === System::Hubs) {
-        $hubGameSet = GameSet::firstWhere('game_id', $game->id);
+        $hubGameSet = GameSet::whereType(GameSetType::Hub)->whereGameId($game->id)->first();
         if ($hubGameSet) {
             $hubGameSet->image_asset_path = $imagePath;
             $hubGameSet->save();

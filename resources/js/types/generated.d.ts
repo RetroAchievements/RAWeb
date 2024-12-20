@@ -212,6 +212,7 @@ declare namespace App.Data {
   export type UserPermissions = {
     develop?: boolean;
     manageGameHashes?: boolean;
+    manageGameSets?: boolean;
     manipulateApiKeys?: boolean;
     updateAvatar?: boolean;
     updateMotto?: boolean;
@@ -359,6 +360,15 @@ declare namespace App.Platform.Data {
     can: App.Data.UserPermissions;
     defaultDesktopPageSize: number;
   };
+  export type GameSet = {
+    id: number;
+    type: App.Platform.Enums.GameSetType;
+    title: string | null;
+    badgeUrl: string | null;
+    gameCount: number;
+    linkCount: number;
+    updatedAt: string;
+  };
   export type GameTopAchiever = {
     rank: number;
     user: App.Data.User;
@@ -368,6 +378,15 @@ declare namespace App.Platform.Data {
   export type GameTopAchieversPageProps<TItems = App.Platform.Data.GameTopAchiever> = {
     game: App.Platform.Data.Game;
     paginatedUsers: App.Data.PaginatedData<TItems>;
+  };
+  export type HubPageProps<TItems = App.Platform.Data.GameListEntry> = {
+    hub: App.Platform.Data.GameSet;
+    paginatedGameListEntries: App.Data.PaginatedData<TItems>;
+    filterableSystemOptions: Array<App.Platform.Data.System>;
+    can: App.Data.UserPermissions;
+    breadcrumbs: Array<App.Platform.Data.GameSet>;
+    relatedHubs: Array<App.Platform.Data.GameSet>;
+    defaultDesktopPageSize: number;
   };
   export type Leaderboard = {
     id: number;
