@@ -46,15 +46,15 @@ class PatchDataTest extends TestCase
         ];
     }
 
-    /* TODO: uncomment when functionality is enabled
     private function getWarningAchievementPatchData(ClientSupportLevel $clientSupportLevel): array
     {
         return [
             'ID' => Achievement::CLIENT_WARNING_ID,
             'MemAddr' => '1=1.300.',
             'Title' => ($clientSupportLevel === ClientSupportLevel::Outdated) ?
-                'Warning: Outdated Client (please update)' : 'Warning: Unknown Client',
-            'Description' => 'Hardcore unlocks cannot be earned using this client.',
+                'Warning: Outdated Emulator (please update)' : 'Warning: Unknown Emulator',
+//            'Description' => 'Hardcore unlocks cannot be earned using this client.',
+            'Description' => 'Starting in April, all unlocks from this emulator version will be softcore',
             'Points' => 0,
             'Author' => '',
             'Modified' => Carbon::now()->unix(),
@@ -68,7 +68,6 @@ class PatchDataTest extends TestCase
             'BadgeLockedURL' => media_asset("Badge/00000_lock.png"),
         ];
     }
-    */
 
     private function getLeaderboardPatchData(Leaderboard $leaderboard): array
     {
@@ -405,7 +404,7 @@ class PatchDataTest extends TestCase
                     'ImageIconURL' => media_asset($game->ImageIcon),
                     'RichPresencePatch' => $game->RichPresencePatch,
                     'Achievements' => [
-                        // $this->getWarningAchievementPatchData(ClientSupportLevel::Unknown),
+                        $this->getWarningAchievementPatchData(ClientSupportLevel::Unknown),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
                         $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
@@ -430,7 +429,7 @@ class PatchDataTest extends TestCase
                     'ImageIconURL' => media_asset($game->ImageIcon),
                     'RichPresencePatch' => $game->RichPresencePatch,
                     'Achievements' => [
-                        // $this->getWarningAchievementPatchData(ClientSupportLevel::Unknown),
+                        $this->getWarningAchievementPatchData(ClientSupportLevel::Unknown),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
                         $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
@@ -455,7 +454,7 @@ class PatchDataTest extends TestCase
                     'ImageIconURL' => media_asset($game->ImageIcon),
                     'RichPresencePatch' => $game->RichPresencePatch,
                     'Achievements' => [
-                        // $this->getWarningAchievementPatchData(ClientSupportLevel::Outdated),
+                        $this->getWarningAchievementPatchData(ClientSupportLevel::Outdated),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
                         $this->getAchievementPatchData($achievement2), // DisplayOrder: 3

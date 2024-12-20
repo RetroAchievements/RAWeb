@@ -31,13 +31,13 @@ class InjectPatchClientSupportLevelDataAction
         }
 
         $coreGame = $gameHash->game ?? $game;
-        $canAddWarningAchievement = $coreGame->achievements_published < 0; // will never be true. change to > when ready
+        $canAddWarningAchievement = $coreGame->achievements_published > 0;
 
         if ($clientSupportLevel !== ClientSupportLevel::Full && $canAddWarningAchievement) {
             // We intentionally place the warning achievement at the top of the list.
-            $constructedPatchData['Achievements'] = [
+            $constructedPatchData['PatchData']['Achievements'] = [
                 $this->buildClientSupportWarningAchievement($clientSupportLevel),
-                ...$constructedPatchData['Achievements'],
+                ...$constructedPatchData['PatchData']['Achievements'],
             ];
         }
 
@@ -62,7 +62,8 @@ class InjectPatchClientSupportLevelDataAction
             'MemAddr' => '1=1.300.', // pop after 5 seconds
             'Title' => ($clientSupportLevel === ClientSupportLevel::Outdated) ?
                 'Warning: Outdated Emulator (please update)' : 'Warning: Unknown Emulator',
-            'Description' => 'Hardcore unlocks cannot be earned using this emulator.',
+//            'Description' => 'Hardcore unlocks cannot be earned using this emulator.',
+            'Description' => 'Starting in April, all unlocks from this emulator version will be softcore',
             'Points' => 0,
             'Author' => '',
             'Modified' => Carbon::now()->unix(),

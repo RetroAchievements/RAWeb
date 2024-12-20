@@ -82,40 +82,6 @@ if (!function_exists('DoRequestError')) {
     }
 }
 
-if (!function_exists('LogDeprecatedUserAgent')) {
-    function LogDeprecatedUserAgent(string $requestType, ClientSupportLevel $clientSupportLevel): void
-    {
-        $userAgentValue = request()->header('User-Agent');
-        if (!$userAgentValue) {
-            return;
-        }
-
-        $userAgentService = new UserAgentService();
-        $userAgent = $userAgentService->decode($userAgentValue);
-        $clientVersion = $userAgent['client'] . '-' . $userAgent['clientVersion'];
-        $user = request()->user('connect-token')->User ?? 'no-user';
-
-        $cacheKey = 'deprecated-user-agent-' . $clientVersion . '-' . $user;
-        if (Cache::get($cacheKey)) {
-            // recently logged
-            return;
-        }
-
-        Cache::put($cacheKey, 1, Carbon::now()->addHours(18));
-
-        $data = [
-            'User' => $user,
-            'User-Agent' => $userAgentValue,
-        ];
-
-        if ($clientSupportLevel === ClientSupportLevel::Outdated) {
-            Log::info("Detected deprecated client for $requestType: $clientVersion", $data);
-        } else {
-            Log::info("Detected unknown client for $requestType: $clientVersion", $data);
-        }
-    }
-}
-
 /**
  * RAIntegration implementation
  * https://github.com/RetroAchievements/RAIntegration/blob/master/src/api/impl/ConnectedServer.cpp
@@ -411,7 +377,6 @@ switch ($requestType) {
             break;
         } elseif ($clientSupportLevel !== ClientSupportLevel::Full && $hardcore) {
             // TODO: convert to softcore
-            LogDeprecatedUserAgent($requestType, $clientSupportLevel);
         }
 
         // ignore negative values and offsets greater than max. clamping offset will invalidate validationHash.
@@ -718,7 +683,6 @@ switch ($requestType) {
             break;
         } elseif ($clientSupportLevel !== ClientSupportLevel::Full) {
             // TODO: block submission
-            LogDeprecatedUserAgent($requestType, $clientSupportLevel);
         }
 
         // ignore negative values and offsets greater than max. clamping offset will invalidate validationHash.
