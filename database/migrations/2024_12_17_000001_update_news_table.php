@@ -10,6 +10,15 @@ use Illuminate\Support\Facades\Schema;
 return new class() extends Migration {
     public function up(): void
     {
+        Schema::table('News', function (Blueprint $table) {
+            // SQLite does not support dropping the real FK by name.
+            if (DB::getDriverName() === 'sqlite') {
+                $table->dropForeign(['user_id']);
+            } else {
+                $table->dropForeign('news_user_id_foreign');
+            }
+        });
+
         // "News" -> "news_temp" -> "news".
         // We have to do this because table names are case-insensitive in SQLite.
         // If we don't use a temp transition table, all of our tests that hit the DB fail.
@@ -24,22 +33,12 @@ return new class() extends Migration {
             $table->renameColumn('Payload', 'body');
             $table->renameColumn('Link', 'link');
             $table->renameColumn('Image', 'image_asset_path');
-
-            $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('set null');
         });
 
         Schema::table('news', function (Blueprint $table) {
             $table->timestamp('pinned_at')->nullable()->after('unpublish_at');
         });
 
-        Schema::table('news', function (Blueprint $table) {
-            // SQLite does not support dropping the real FK by name.
-            if (DB::getDriverName() === 'sqlite') {
-                $table->dropForeign(['user_id']);
-            } else {
-                $table->dropForeign('news_user_id_foreign');
-            }
-        });
         Schema::table('news', function (Blueprint $table) {
             $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('set null');
         });
