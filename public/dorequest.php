@@ -21,8 +21,6 @@ use App\Platform\Services\UserAgentService;
 use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 /**
  * @usage
@@ -633,7 +631,9 @@ switch ($requestType) {
 
         $userAgentService = new UserAgentService();
         $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
-        if ($clientSupportLevel === ClientSupportLevel::Unknown || $clientSupportLevel === ClientSupportLevel::Outdated) {
+        if ($clientSupportLevel === ClientSupportLevel::Unknown
+            || $clientSupportLevel === ClientSupportLevel::Outdated
+            || $clientSupportLevel === ClientSupportLevel::Unsupported) {
             // don't allow outdated client popup to appear in softcore mode
             $response['Unlocks'][] = [
                 'ID' => Achievement::CLIENT_WARNING_ID,

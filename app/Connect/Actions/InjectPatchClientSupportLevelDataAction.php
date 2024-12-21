@@ -60,10 +60,15 @@ class InjectPatchClientSupportLevelDataAction
         return [
             'ID' => Achievement::CLIENT_WARNING_ID,
             'MemAddr' => '1=1.300.', // pop after 5 seconds
-            'Title' => ($clientSupportLevel === ClientSupportLevel::Outdated) ?
-                'Warning: Outdated Emulator (please update)' : 'Warning: Unknown Emulator',
-//            'Description' => 'Hardcore unlocks cannot be earned using this emulator.',
-            'Description' => 'Starting in April, all unlocks from this emulator version will be softcore',
+            'Title' => match ($clientSupportLevel) {
+                ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
+                ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
+                default => 'Warning: Unknown Emulator',
+            },
+            //            'Description' => 'Hardcore unlocks cannot be earned using this emulator.',
+            'Description' => ($clientSupportLevel === ClientSupportLevel::Outdated) ?
+                'Starting in April, all unlocks from this emulator version will be softcore' :
+                'Starting in April, all unlocks from this emulator will be softcore',
             'Points' => 0,
             'Author' => '',
             'Modified' => Carbon::now()->unix(),
