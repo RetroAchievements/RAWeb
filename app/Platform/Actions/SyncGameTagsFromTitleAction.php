@@ -33,7 +33,7 @@ class SyncGameTagsFromTitleAction
             $currentTags = $this->extractLegacyTags($currentTitle);
 
             foreach ($currentTags as $legacyTagName) {
-                if (!$game->tags()->withType('game')->where('name->en', $legacyTagName)->exists()) {
+                if (!$game->tags()->whereType('game')->where('name->en', $legacyTagName)->exists()) {
                     $game->attachTag($legacyTagName, 'game');
                 }
             }
@@ -42,9 +42,7 @@ class SyncGameTagsFromTitleAction
         }
 
         $legacyTagsInOriginal = $this->extractLegacyTags($originalTitle);
-        $legacyTagsInNew = $newTitle !== null
-            ? $this->extractLegacyTags($newTitle)
-            : $legacyTagsInOriginal;
+        $legacyTagsInNew = $this->extractLegacyTags($newTitle);
 
         // When someone is changing the title of a game, we need to handle
         // the possibility that tags are either being attached or detached.
