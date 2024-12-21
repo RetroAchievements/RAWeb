@@ -27,16 +27,17 @@ class Edit extends EditRecord
         /** @var News $record */
         $record = $this->record;
 
-        $existingImage = $record->Image;
+        $existingImage = $record->image_asset_path;
 
-        if (isset($data['Image'])) {
-            $data['Image'] = (new ProcessUploadedImageAction())->execute($data['Image'], ImageUploadType::News);
+        if (isset($data['image_asset_path'])) {
+            $data['image_asset_path'] = (new ProcessUploadedImageAction())->execute(
+                $data['image_asset_path'],
+                ImageUploadType::News
+            );
         } else {
             // If no new image was uploaded, retain the existing image.
-            $data['Image'] = $existingImage;
+            $data['image_asset_path'] = $existingImage;
         }
-
-        $data['Payload'] = News::sanitizeMaybeInvalidHtml($data['Payload']);
 
         return $data;
     }
