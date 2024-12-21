@@ -38,6 +38,7 @@ use App\Platform\Commands\SyncGames;
 use App\Platform\Commands\SyncGameSets;
 use App\Platform\Commands\SyncLeaderboardEntries;
 use App\Platform\Commands\SyncLeaderboards;
+use App\Platform\Commands\SyncLegacyGameTags;
 use App\Platform\Commands\SyncMemoryNotes;
 use App\Platform\Commands\SyncPlayerBadges;
 use App\Platform\Commands\SyncPlayerRichPresence;
@@ -119,6 +120,7 @@ class AppServiceProvider extends ServiceProvider
                 SyncGameSets::class,
                 SyncLeaderboardEntries::class,
                 SyncLeaderboards::class,
+                SyncLegacyGameTags::class,
                 SyncMemoryNotes::class,
                 SyncPlayerBadges::class,
                 SyncPlayerRichPresence::class,

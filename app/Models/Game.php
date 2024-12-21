@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Enums\ArticleType;
+use App\Platform\Actions\SyncGameTagsFromTitleAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
@@ -33,6 +34,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Tags\HasTags;
 
 // TODO implements HasComments
 class Game extends BaseModel implements HasMedia
@@ -51,6 +53,7 @@ class Game extends BaseModel implements HasMedia
     }
     /** @use HasFactory<GameFactory> */
     use HasFactory;
+    use HasTags;
     use InteractsWithMedia;
 
     use PivotEventTrait;
@@ -156,6 +159,17 @@ class Game extends BaseModel implements HasMedia
                         $foundGameSet->save();
                     }
                 }
+            }
+
+            // Double write to taggables for both new and updated games.
+            if ($originalTitle !== $freshGame->title || $game->wasRecentlyCreated) {
+                // Double write to the taggables table to keep structured
+                // tags (ie: "~Hack~", "~Homebrew~", etc) in sync.
+                (new SyncGameTagsFromTitleAction())->execute(
+                    $freshGame,
+                    $originalTitle,
+                    $freshGame->title
+                );
             }
         });
 
