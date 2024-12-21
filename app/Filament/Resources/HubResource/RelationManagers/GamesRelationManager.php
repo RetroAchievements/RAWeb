@@ -36,6 +36,7 @@ class GamesRelationManager extends RelationManager
     {
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->with('system'))
+            ->defaultSort('sort_title')
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
@@ -48,7 +49,9 @@ class GamesRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
-                    ->sortable()
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy('GameData.ID', $direction);
+                    })
                     ->searchable()
                     ->url(function (Game $record) {
                         if (request()->user()->can('manage', Game::class)) {
@@ -58,7 +61,9 @@ class GamesRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('title')
                     ->label('Title')
-                    ->sortable()
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy('sort_title', $direction);
+                    })
                     ->searchable()
                     ->url(function (Game $record) {
                         if (request()->user()->can('manage', Game::class)) {
@@ -106,7 +111,10 @@ class GamesRelationManager extends RelationManager
                         Forms\Components\TextInput::make('game_ids_csv')
                             ->label('Game IDs (CSV)')
                             ->placeholder('729,2204,3987,53')
-                            ->helperText('Use a comma-separated list of game IDs.'),
+                            ->helperText('Use a comma-separated list of game IDs.')
+                            ->hidden(fn (Forms\Get $get): bool => filled($get('game_ids')))
+                            ->disabled(fn (Forms\Get $get): bool => filled($get('game_ids')))
+                            ->live(debounce: 200),
 
                         Forms\Components\Select::make('game_ids')
                             ->label('Games')
@@ -130,6 +138,9 @@ class GamesRelationManager extends RelationManager
                                     ->get()
                                     ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title}"]);
                             })
+                            ->hidden(fn (Forms\Get $get): bool => filled($get('game_ids_csv')))
+                            ->disabled(fn (Forms\Get $get): bool => filled($get('game_ids_csv')))
+                            ->live()
                             ->helperText('... or search and select games to add.'),
                     ])
                     ->modalHeading('Add games to hub')
@@ -137,34 +148,31 @@ class GamesRelationManager extends RelationManager
                         /** @var GameSet $gameSet */
                         $gameSet = $this->getOwnerRecord();
 
-                        $gameIds = collect();
-
-                        // Add IDs from the select field.
+                        // Handle select field input.
                         if (!empty($data['game_ids'])) {
-                            $gameIds = $gameIds->merge($data['game_ids']);
+                            (new AttachGamesToGameSetAction())->execute($gameSet, $data['game_ids']);
+
+                            return;
                         }
 
-                        // Add IDs from the CSV field.
+                        // Handle CSV input.
                         if (!empty($data['game_ids_csv'])) {
-                            $csvIds = collect(explode(',', $data['game_ids_csv']))
+                            $gameIds = collect(explode(',', $data['game_ids_csv']))
                                 ->map(fn ($id) => trim($id))
                                 ->filter()
                                 ->values();
 
                             // Validate that these games can be attached.
-                            $validCsvIds = Game::whereIn('ID', $csvIds)
+                            $validGameIds = Game::whereIn('ID', $gameIds)
                                 ->where('ConsoleID', '!=', System::Hubs)
                                 ->whereNotIn('ID', $this->getOwnerRecord()->games->pluck('ID'))
-                                ->pluck('ID');
+                                ->pluck('ID')
+                                ->toArray();
 
-                            $gameIds = $gameIds->merge($validCsvIds);
+                            if (!empty($validGameIds)) {
+                                (new AttachGamesToGameSetAction())->execute($gameSet, $validGameIds);
+                            }
                         }
-
-                        if ($gameIds->isEmpty()) {
-                            return;
-                        }
-
-                        (new AttachGamesToGameSetAction())->execute($gameSet, $gameIds->unique()->toArray());
                     }),
             ])
             ->actions([

@@ -11,7 +11,6 @@ use App\Models\GameSetGame;
 use App\Models\Leaderboard;
 use App\Models\MemoryNote;
 use App\Models\Message;
-use App\Models\News;
 use App\Models\PlayerBadge;
 use App\Models\PlayerSession;
 use App\Models\System;
@@ -218,29 +217,6 @@ return [
         //     'require' => [
         //     ],
         //     'map' => [
-        //     ],
-        // ],
-
-        /*
-         * News                    0k    incremental by Updated
-         */
-        // TODO
-        // 'news' => [
-        //     'model' => News::class,
-        //     'strategy' => SyncStrategy::UPSERT,
-        //     'reference_model' => News::class,
-        //     'reference_key' => 'Updated',
-        //     'unique_key' => 'id',
-        //     'require' => [
-        //     ],
-        //     'map' => [
-        //         'AuthorID' => [
-        //             'key' => 'user_id',
-        //         ],
-        //         'Payload' => [
-        //             'key' => 'lead',
-        //             'fixEncoding' => true,
-        //         ],
         //     ],
         // ],
 

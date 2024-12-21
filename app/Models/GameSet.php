@@ -89,7 +89,7 @@ class GameSet extends BaseModel
 
                 activity()->causedBy($user)->performedOn($model)
                     ->withProperty('old', [$relationName => null])
-                    ->withProperty('attributes', [$relationName = $attachedParents
+                    ->withProperty('attributes', [$relationName => $attachedParents
                         ->map(fn ($gameSet) => [
                             'id' => $gameSet->id,
                             'title' => $gameSet->title,

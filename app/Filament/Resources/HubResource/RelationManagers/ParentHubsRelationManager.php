@@ -20,7 +20,7 @@ class ParentHubsRelationManager extends RelationManager
 {
     protected static string $relationship = 'parents';
     protected static ?string $title = 'Related Hubs';
-    protected static ?string $icon = 'heroicon-m-link';
+    protected static ?string $icon = 'fas-sitemap';
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
     {

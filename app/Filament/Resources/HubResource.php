@@ -30,7 +30,7 @@ class HubResource extends Resource
     protected static ?string $modelLabel = 'Hub';
     protected static ?string $pluralModelLabel = 'Hubs';
     protected static ?string $breadcrumb = 'Hubs';
-    protected static ?string $navigationIcon = 'heroicon-m-link';
+    protected static ?string $navigationIcon = 'fas-sitemap';
     protected static ?string $navigationGroup = 'Platform';
     protected static ?string $navigationLabel = 'Hubs';
     protected static ?int $navigationSort = 51;

@@ -2,6 +2,7 @@
 
 namespace App\Platform\Controllers\Api;
 
+use App\Actions\GetUserDeviceKindAction;
 use App\Http\Controller;
 use App\Models\GameSet;
 use App\Platform\Actions\BuildGameListAction;
@@ -9,7 +10,6 @@ use App\Platform\Actions\GetRandomGameAction;
 use App\Platform\Enums\GameListType;
 use App\Platform\Requests\GameListRequest;
 use Illuminate\Http\JsonResponse;
-use Jenssegers\Agent\Agent;
 
 class HubApiController extends Controller
 {
@@ -37,6 +37,8 @@ class HubApiController extends Controller
     {
         $this->authorize('view', $gameSet);
 
+        $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
+
         $paginatedData = (new BuildGameListAction())->execute(
             GameListType::Hub,
             targetId: $gameSet->id,
@@ -44,7 +46,7 @@ class HubApiController extends Controller
             page: $request->getPage(),
             filters: $request->getFilters(defaultAchievementsPublishedFilter: 'either'),
             sort: $request->getSort(),
-            perPage: (new Agent())->isMobile() ? 100 : $request->getPageSize(),
+            perPage: $isMobile ? 100 : $request->getPageSize(),
         );
 
         return response()->json($paginatedData);
