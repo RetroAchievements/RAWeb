@@ -1,6 +1,6 @@
 <?php
 
-// TODO migrate to ForumController::show() pages/forum.blade.php
+// TODO migrate to ForumController::show()
 
 use App\Enums\Permissions;
 use App\Models\Forum;

@@ -22,32 +22,32 @@ class BuildThinRecentForumPostsDataAction
     ): Collection {
         $userClause = $this->buildUserClause($fromAuthorId, $permissions);
 
-        $subQuery = DB::table('ForumTopicComment as ftc')
+        $subQuery = DB::table('forum_topic_comments as ftc')
             ->select('*')
             ->whereRaw($userClause)
-            ->orderBy('ftc.DateCreated', 'desc')
+            ->orderBy('ftc.created_at', 'desc')
             ->limit($limit + 20); // cater for spam messages
 
         $latestComments = DB::table(DB::raw("({$subQuery->toSql()}) as LatestComments"))
             ->mergeBindings($subQuery)
-            ->join('ForumTopic as ft', 'ft.ID', '=', 'LatestComments.ForumTopicID')
-            ->leftJoin('Forum as f', 'f.ID', '=', 'ft.ForumID')
+            ->join('forum_topics as ft', 'ft.id', '=', 'LatestComments.forum_topic_id')
+            ->leftJoin('forums as f', 'f.id', '=', 'ft.forum_id')
             ->leftJoin('UserAccounts as ua', 'ua.ID', '=', 'LatestComments.author_id')
             ->select([
-                'LatestComments.DateCreated as PostedAt',
-                'LatestComments.Payload',
+                'LatestComments.created_at as PostedAt',
+                'LatestComments.body as Payload',
                 'ua.User as Author',
                 'ua.display_name as AuthorDisplayName',
                 'ua.RAPoints',
                 'ua.Motto',
-                'ft.ID as ForumTopicID',
-                'ft.Title as ForumTopicTitle',
+                'ft.id as ForumTopicID',
+                'ft.title as ForumTopicTitle',
                 'LatestComments.author_id as author_id',
                 'LatestComments.ID as CommentID',
             ])
-            ->where('ft.RequiredPermissions', '<=', $permissions ?? Permissions::Unregistered)
+            ->where('ft.required_permissions', '<=', $permissions ?? Permissions::Unregistered)
             ->whereNull('ft.deleted_at')
-            ->orderBy('LatestComments.DateCreated', 'desc')
+            ->orderBy('LatestComments.created_at', 'desc')
             ->limit($limit)
             ->get();
 
@@ -62,12 +62,12 @@ class BuildThinRecentForumPostsDataAction
     private function buildUserClause(?int $fromAuthorId, ?int $permissions): string
     {
         if (empty($fromAuthorId)) {
-            return 'ftc.Authorised = 1';
+            return 'ftc.is_authorized = 1';
         }
 
         $clause = 'ftc.author_id = ?';
         if ($permissions < Permissions::Moderator) {
-            $clause .= ' AND ftc.Authorised = 1';
+            $clause .= ' AND ftc.is_authorized = 1';
         }
 
         return $clause;

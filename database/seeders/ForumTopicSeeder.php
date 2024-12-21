@@ -32,23 +32,23 @@ class ForumTopicSeeder extends Seeder
                 $forum = Forum::inRandomOrder()->first();
 
                 $forumTopic = ForumTopic::factory()->create([
-                    'Title' => ucfirst($faker->words(random_int(2, 10), true)),
-                    'ForumID' => $forum->ID,
-                    'DateCreated' => $then,
-                    'Updated' => $then,
+                    'title' => ucfirst($faker->words(random_int(2, 10), true)),
+                    'forum_id' => $forum->id,
+                    'created_at' => $then,
+                    'updated_at' => $then,
                 ]);
                 $forumTopic->save();
 
                 $forumTopicComment = ForumTopicComment::factory()->create([
-                    'ForumTopicID' => $forumTopic->ID,
+                    'forum_topic_id' => $forumTopic->id,
                     'author_id' => $forumTopic->author_id,
-                    'Payload' => ForumTopicComment::factory()->randomBody(),
-                    'DateCreated' => $then,
-                    'DateModified' => $then,
+                    'body' => ForumTopicComment::factory()->randomBody(),
+                    'created_at' => $then,
+                    'updated_at' => $then,
                 ]);
                 $forumTopicComment->save();
 
-                $forumTopic->LatestCommentID = $forumTopicComment->ID;
+                $forumTopic->latest_comment_id = $forumTopicComment->ID;
                 $forumTopic->save();
 
                 $numTopics++;
@@ -56,8 +56,8 @@ class ForumTopicSeeder extends Seeder
             // roughly 20% chance to edit an existing comment (slightly less due to integer rounding)
             elseif (random_int(0, $numComments) > $numComments * 0.8) {
                 $forumTopicComment = ForumTopicComment::inRandomOrder()->first();
-                $forumTopicComment->Payload = ForumTopicComment::factory()->randomBody();
-                $forumTopicComment->DateModified = $then;
+                $forumTopicComment->body = ForumTopicComment::factory()->randomBody();
+                $forumTopicComment->updated_at = $then;
                 $forumTopicComment->save();
             }
             // otherwise, add a comment to an existing topic
@@ -65,14 +65,14 @@ class ForumTopicSeeder extends Seeder
                 $forumTopic = ForumTopic::inRandomOrder()->first();
 
                 $forumTopicComment = ForumTopicComment::factory()->create([
-                    'ForumTopicID' => $forumTopic->ID,
-                    'Payload' => ForumTopicComment::factory()->randomBody(),
-                    'DateCreated' => $then,
-                    'DateModified' => $then,
+                    'forum_topic_id' => $forumTopic->id,
+                    'body' => ForumTopicComment::factory()->randomBody(),
+                    'created_at' => $then,
+                    'updated_at' => $then,
                 ]);
                 $forumTopicComment->save();
 
-                $forumTopic->LatestCommentID = $forumTopicComment->ID;
+                $forumTopic->latest_comment_id = $forumTopicComment->ID;
                 $forumTopic->save();
 
                 $numComments++;

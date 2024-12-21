@@ -53,17 +53,17 @@ class BuildAggregateRecentForumPostsDataAction
 
     private function getTotalRecentForumTopics(int $permissions = Permissions::Unregistered): int
     {
-        return ForumTopic::where("RequiredPermissions", "<=", $permissions)
+        return ForumTopic::where("required_permissions", "<=", $permissions)
             ->whereNull("deleted_at")
             ->where(function ($query) {
                 $query
-                    ->whereNotNull("LatestCommentID")
-                    ->orWhereIn("ID", function ($subQuery) {
+                    ->whereNotNull("latest_comment_id")
+                    ->orWhereIn("id", function ($subQuery) {
                         $subQuery
-                            ->select("ForumTopicID")
+                            ->select("forum_topic_id")
                             ->distinct()
-                            ->from("ForumTopicComment")
-                            ->where("Authorised", 1);
+                            ->from("forum_topic_comments")
+                            ->where("is_authorized", 1);
                     });
             })
             ->count();
@@ -78,44 +78,44 @@ class BuildAggregateRecentForumPostsDataAction
         // Heredoc syntax with <<<SQL gives us proper SQL syntax highlighting.
         $results = DB::select(<<<SQL
             SELECT 
-                ft.ID AS ForumTopicID, 
-                ft.Title AS ForumTopicTitle,
-                f.ID AS ForumID, 
-                f.Title AS ForumTitle,
-                lftc.ID AS CommentID, 
-                lftc.DateCreated AS PostedAt, 
+                ft.id AS ForumTopicID, 
+                ft.title AS ForumTopicTitle,
+                f.id AS ForumID, 
+                f.title AS ForumTitle,
+                lftc.id AS CommentID, 
+                lftc.created_at AS PostedAt, 
                 lftc.author_id,
                 ua.User AS Author, 
                 ua.display_name AS AuthorDisplayName,
-                LEFT(lftc.Payload, 260) AS ShortMsg,
-                LENGTH(lftc.Payload) > 260 AS IsTruncated,
+                LEFT(lftc.body, 260) AS ShortMsg,
+                LENGTH(lftc.body) > 260 AS IsTruncated,
                 d1.CommentID AS CommentID_1d,
                 d1.Count AS Count_1d,
                 d7.CommentID AS CommentID_7d,
                 d7.Count AS Count_7d
             FROM (
-                SELECT ft.ID, ft.Title, ft.ForumID, ft.LatestCommentID
-                FROM ForumTopic ft
+                SELECT ft.id, ft.title, ft.forum_id, ft.latest_comment_id
+                FROM forum_topics ft
                 FORCE INDEX (idx_permissions_deleted_latest)
-                WHERE ft.RequiredPermissions <= ? AND ft.deleted_at IS NULL
-                ORDER BY ft.LatestCommentID DESC
+                WHERE ft.required_permissions <= ? AND ft.deleted_at IS NULL
+                ORDER BY ft.latest_comment_id DESC
             ) AS ft
-            INNER JOIN Forum AS f ON f.ID = ft.ForumID
-            INNER JOIN ForumTopicComment AS lftc ON lftc.ID = ft.LatestCommentID AND lftc.Authorised = 1
+            INNER JOIN forums AS f ON f.id = ft.forum_id
+            INNER JOIN forum_topic_comments AS lftc ON lftc.id = ft.latest_comment_id AND lftc.is_authorized = 1
             LEFT JOIN UserAccounts AS ua ON ua.ID = lftc.author_id
             LEFT JOIN (
-                SELECT ForumTopicId, MIN(ID) AS CommentID, COUNT(*) AS Count
-                FROM ForumTopicComment
-                WHERE Authorised = 1 AND DateCreated >= NOW() - INTERVAL 1 DAY
-                GROUP BY ForumTopicId
-            ) AS d1 ON d1.ForumTopicId = ft.ID
+                SELECT forum_topic_id, MIN(id) AS CommentID, COUNT(*) AS Count
+                FROM forum_topic_comments
+                WHERE is_authorized = 1 AND created_at >= NOW() - INTERVAL 1 DAY
+                GROUP BY forum_topic_id
+            ) AS d1 ON d1.forum_topic_id = ft.id
             LEFT JOIN (
-                SELECT ForumTopicId, MIN(ID) AS CommentID, COUNT(*) AS Count
-                FROM ForumTopicComment
-                WHERE Authorised = 1 AND DateCreated >= NOW() - INTERVAL 7 DAY
-                GROUP BY ForumTopicId
-            ) AS d7 ON d7.ForumTopicId = ft.ID
-            ORDER BY lftc.DateCreated DESC
+                SELECT forum_topic_id, MIN(id) AS CommentID, COUNT(*) AS Count
+                FROM forum_topic_comments
+                WHERE is_authorized = 1 AND created_at >= NOW() - INTERVAL 7 DAY
+                GROUP BY forum_topic_id
+            ) AS d7 ON d7.forum_topic_id = ft.id
+            ORDER BY lftc.created_at DESC
             LIMIT ?, ?
         SQL, [$permissions, $offset, $count]);
 

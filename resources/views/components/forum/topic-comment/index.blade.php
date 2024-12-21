@@ -16,7 +16,7 @@
         <div
             @class([
                 'w-full mb-4 lg:mb-3 gap-x-2 flex justify-between',
-                !$forumTopicComment?->Authorised && $canManage
+                !$forumTopicComment?->is_authorized && $canManage
                     ? 'flex-col items-start gap-y-2 sm:flex-row'
                     : 'items-center',
             ])
@@ -29,7 +29,7 @@
                 </div>
 
                 <div class="flex items-center gap-x-1 lg:-mx-4 lg:pl-4 lg:w-[calc(100% + 32px)]">
-                    @if (!$forumTopicComment->Authorised && $canManage)
+                    @if (!$forumTopicComment->is_authorized && $canManage)
                         <x-forum.topic-comment.manage :$forumTopicComment />
                     @endif
 

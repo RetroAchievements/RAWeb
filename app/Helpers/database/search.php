@@ -80,19 +80,19 @@ function performSearch(
     }
 
     if (in_array(SearchType::Forum, $searchType)) {
-        $counts[] = "SELECT COUNT(*) AS Count FROM ForumTopicComment WHERE Payload LIKE '%$searchQuery%'";
+        $counts[] = "SELECT COUNT(*) AS Count FROM forum_topic_comments WHERE body LIKE '%$searchQuery%'";
         $parts[] = "
         SELECT " . SearchType::Forum . " AS Type, ua.User AS ID,
-               CONCAT( '/viewtopic.php?t=', ftc.ForumTopicID, '&c=', ftc.ID, '#', ftc.ID ) AS Target,
-               CASE WHEN CHAR_LENGTH(ftc.Payload) <= 64 THEN ftc.Payload ELSE
-               CONCAT( '...', MID( ftc.Payload, GREATEST( LOCATE('$searchQuery', ftc.Payload)-25, 1), 60 ), '...' ) END AS Title
-        FROM ForumTopicComment AS ftc
+               CONCAT( '/viewtopic.php?t=', ftc.forum_topic_id, '&c=', ftc.id, '#', ftc.id ) AS Target,
+               CASE WHEN CHAR_LENGTH(ftc.body) <= 64 THEN ftc.body ELSE
+               CONCAT( '...', MID( ftc.body, GREATEST( LOCATE('$searchQuery', ftc.body)-25, 1), 60 ), '...' ) END AS Title
+        FROM forum_topic_comments AS ftc
         LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.author_id
-        LEFT JOIN ForumTopic AS ft ON ft.ID = ftc.ForumTopicID
-        WHERE ftc.Payload LIKE '%$searchQuery%' AND ft.deleted_at IS NULL
-        AND ft.RequiredPermissions <= '$permissions'
-        GROUP BY ID, ftc.ID
-        ORDER BY IFNULL(ftc.DateModified, ftc.DateCreated) DESC";
+        LEFT JOIN forum_topics AS ft ON ft.id = ftc.forum_topic_id
+        WHERE ftc.body LIKE '%$searchQuery%' AND ft.deleted_at IS NULL
+        AND ft.required_permissions <= '$permissions'
+        GROUP BY ID, ftc.id
+        ORDER BY IFNULL(ftc.updated_at, ftc.created_at) DESC";
     }
 
     $articleTypes = [];

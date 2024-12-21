@@ -587,15 +587,15 @@ class HomeControllerTest extends TestCase
         $user = User::factory()->create(['User' => 'Scott']);
 
         $topic = ForumTopic::factory()->create([
-            'Title' => 'Test Topic',
-            'RequiredPermissions' => Permissions::Unregistered,
+            'title' => 'Test Topic',
+            'required_permissions' => Permissions::Unregistered,
         ]);
 
         $comment = ForumTopicComment::factory()->create([
-            'ForumTopicID' => $topic->id,
+            'forum_topic_id' => $topic->id,
             'author_id' => $user->id,
-            'Authorised' => true,
-            'Payload' => 'This is a test forum post with enough content to test truncation This is a test forum post with enough content to test truncation This is a test forum post with enough content to test truncation This is a test forum post with enough content to test truncation.',
+            'is_authorized' => true,
+            'body' => 'This is a test forum post with enough content to test truncation This is a test forum post with enough content to test truncation This is a test forum post with enough content to test truncation This is a test forum post with enough content to test truncation.',
         ]);
 
         // Act
@@ -622,21 +622,21 @@ class HomeControllerTest extends TestCase
         $user = User::factory()->create(['User' => 'Scott']);
 
         $publicTopic = ForumTopic::factory()->create([
-            'RequiredPermissions' => Permissions::Unregistered,
+            'required_permissions' => Permissions::Unregistered,
         ]);
         ForumTopicComment::factory()->create([
-            'ForumTopicID' => $publicTopic->id,
+            'forum_topic_id' => $publicTopic->id,
             'author_id' => $user->id,
-            'Authorised' => true,
+            'is_authorized' => true,
         ]);
 
         $privateTopic = ForumTopic::factory()->create([
-            'RequiredPermissions' => Permissions::Moderator,
+            'required_permissions' => Permissions::Moderator,
         ]);
         ForumTopicComment::factory()->create([
-            'ForumTopicID' => $privateTopic->id,
+            'forum_topic_id' => $privateTopic->id,
             'author_id' => $user->id,
-            'Authorised' => true,
+            'is_authorized' => true,
         ]);
 
         // Act
@@ -655,12 +655,12 @@ class HomeControllerTest extends TestCase
         $user = User::factory()->create(['User' => 'Scott']);
 
         $topic = ForumTopic::factory()->create([
-            'RequiredPermissions' => Permissions::Unregistered,
+            'required_permissions' => Permissions::Unregistered,
         ]);
         ForumTopicComment::factory()->create([
-            'ForumTopicID' => $topic->id,
+            'forum_topic_id' => $topic->id,
             'author_id' => $user->id,
-            'Authorised' => false, // !!
+            'is_authorized' => false, // !!
         ]);
 
         // Act
