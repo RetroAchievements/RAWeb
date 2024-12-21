@@ -8,6 +8,7 @@ use App\Models\GameSet;
 use App\Platform\Enums\GameSetType;
 use Carbon\Carbon;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript('GameSet')]
@@ -21,6 +22,7 @@ class GameSetData extends Data
         public int $gameCount,
         public int $linkCount,
         public Carbon $updatedAt,
+        public Lazy|bool $hasContentWarning,
     ) {
     }
 
@@ -37,6 +39,7 @@ class GameSetData extends Data
             gameCount: $gameSet->games_count ?? 0,
             linkCount: $gameSet->link_count ?? 0,
             updatedAt: $gameSet->updated_at,
+            hasContentWarning: Lazy::create(fn () => $gameSet->has_content_warning),
         );
     }
 }

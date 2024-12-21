@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\NewsResource\Pages;
 
+use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\NewsResource;
 use App\Filament\Resources\NewsResource\Actions\ProcessUploadedImageAction;
 use App\Models\News;
@@ -20,7 +21,7 @@ class Create extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         if (isset($data['Image'])) {
-            $data['Image'] = (new ProcessUploadedImageAction())->execute($data['Image']);
+            $data['Image'] = (new ProcessUploadedImageAction())->execute($data['Image'], ImageUploadType::News);
         }
 
         $data['Payload'] = News::sanitizeMaybeInvalidHtml($data['Payload']);

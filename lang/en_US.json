@@ -502,7 +502,6 @@
     "Go to previous news page": "Go to previous news page",
     "Go to next news page": "Go to next news page",
     "Swipe to view more": "Swipe to view more",
-    "All {{systemName}} Games": "All {{systemName}} Games",
     "rowGroupAriaLabel_one": "{{systemName}} group with {{val, number}} game",
     "rowGroupAriaLabel_other": "{{systemName}} group with {{val, number}} games",
     "Games are now grouped by system": "Games are now grouped by system",
@@ -512,5 +511,9 @@
     "Getting Started": "Getting Started",
     "Moderation Comments - {{user}}": "Moderation Comments - {{user}}",
     "Moderation Comments": "Moderation Comments",
+    "Content Warning": "Content Warning",
+    "This page may contain content that is not appropriate for all ages.": "This page may contain content that is not appropriate for all ages.",
+    "Are you sure you want to view this page?": "Are you sure you want to view this page?",
+    "Yes, and don't ask again": "Yes, and don't ask again",
     "Columns": "Columns"
 }

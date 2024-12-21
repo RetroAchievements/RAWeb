@@ -41,6 +41,7 @@ export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) 
   pointsSoftcore: faker.number.int({ min: 0, max: 100000 }),
   preferences: {
     prefersAbsoluteDates: false,
+    shouldAlwaysBypassContentWarnings: false,
   },
   roles: [],
   unreadMessageCount: 0,

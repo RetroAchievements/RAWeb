@@ -183,7 +183,11 @@ describe('Component: AchievementOfTheWeek', () => {
 
     render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser({ preferences: { prefersAbsoluteDates: true } }) },
+        auth: {
+          user: createAuthenticatedUser({
+            preferences: { prefersAbsoluteDates: true, shouldAlwaysBypassContentWarnings: false },
+          }),
+        },
         ...createHomePageProps({ achievementOfTheWeek }),
       },
     });

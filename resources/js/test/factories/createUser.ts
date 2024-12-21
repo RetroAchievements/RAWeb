@@ -13,6 +13,7 @@ export const createUser = createFactory<App.Data.User>((faker) => {
     legacyPermissions: faker.number.int({ min: 0, max: 4 }),
     preferences: {
       prefersAbsoluteDates: faker.datatype.boolean(),
+      shouldAlwaysBypassContentWarnings: faker.datatype.boolean(),
     },
     playerPreferredMode: 'hardcore',
     roles: [],
