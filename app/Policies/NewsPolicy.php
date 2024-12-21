@@ -104,4 +104,12 @@ class NewsPolicy
         // TODO
         return false;
     }
+
+    public function pin(User $user, News $news): bool
+    {
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::NEWS_MANAGER,
+        ]);
+    }
 }

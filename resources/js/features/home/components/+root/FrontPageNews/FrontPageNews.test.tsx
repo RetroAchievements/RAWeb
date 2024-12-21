@@ -1,3 +1,6 @@
+import { faker } from '@faker-js/faker';
+import dayjs from 'dayjs';
+
 import { fireEvent, render, screen } from '@/test';
 import { createHomePageProps, createNews, createZiggyProps } from '@/test/factories';
 
@@ -192,5 +195,84 @@ describe('Component: FrontPageNews', () => {
     expect(screen.getByText('Foo')).toBeVisible();
     expect(screen.getByText('Bar')).toBeVisible();
     expect(screen.getByText('Baz')).toBeVisible();
+  });
+
+  it('given a news post is not pinned, does not show a pinned indicator', () => {
+    // ARRANGE
+    const recentNews = [createNews({ title: 'Foo', pinnedAt: null })];
+
+    render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
+      pageProps: {
+        recentNews,
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/pinned/i)).not.toBeInTheDocument();
+  });
+
+  it('given a news post is pinned, shows a pinned indicator', () => {
+    // ARRANGE
+    const recentNews = [createNews({ title: 'Foo', pinnedAt: faker.date.recent().toISOString() })];
+
+    render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
+      pageProps: {
+        recentNews,
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/pinned/i)).toBeVisible();
+  });
+
+  it('shows pinned indicators on mobile news posts', () => {
+    // ARRANGE
+    const recentNews = [createNews({ title: 'Foo', pinnedAt: faker.date.recent().toISOString() })];
+
+    render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
+      pageProps: {
+        recentNews,
+        ziggy: createZiggyProps({ device: 'mobile' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/pinned/i)).toBeVisible();
+  });
+
+  it('given a news post was made within the last 24 hours, shows a "new" label on desktop', () => {
+    // ARRANGE
+    const recentNews = [
+      createNews({ title: 'Foo', createdAt: dayjs.utc().subtract(1, 'hour').toISOString() }),
+    ];
+
+    render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
+      pageProps: {
+        recentNews,
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText('new')).toBeVisible();
+  });
+
+  it('given a news post was not made within the last 24 hours, does not show a "new" label on desktop', () => {
+    // ARRANGE
+    const recentNews = [
+      createNews({ title: 'Foo', createdAt: dayjs.utc().subtract(2, 'days').toISOString() }),
+    ];
+
+    render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
+      pageProps: {
+        recentNews,
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText('new')).not.toBeInTheDocument();
   });
 });
