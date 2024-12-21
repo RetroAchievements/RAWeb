@@ -17,6 +17,11 @@ class GameAlternative extends BaseModel
 
     // == accessors
 
+    protected $fillable = [
+        'gameID',
+        'gameIDAlt',
+    ];
+
     protected $visible = [
         'gameID',
         'gameIDAlt',
