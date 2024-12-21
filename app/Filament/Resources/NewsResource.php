@@ -51,16 +51,19 @@ class NewsResource extends Resource
                             ->required()
                             ->activeUrl(),
 
-                        Forms\Components\Toggle::make('is_pinned')
+                        Forms\Components\Toggle::make('pinned_at')
                             ->label('Pinned')
                             ->helperText('If enabled, this will be sorted to the top of the news until unpinned.')
                             ->columnSpanFull()
-                            ->dehydrated(false) // Don't try to save is_pinned directly to the News model.
-                            ->afterStateUpdated(function (News $record, bool $state) {
-                                $record->pinned_at = $state ? now() : null;
+                            ->disabled(fn (News $record) => !$user->can('pin', $record))
+                            ->dehydrated()
+                            ->afterStateHydrated(function (News $record, $component) {
+                                $component->state(!is_null($record->pinned_at));
                             })
-                            ->default(fn (News $record): bool => !is_null($record->pinned_at))
-                            ->disabled(fn (News $record) => !$user->can('pin', $record)),
+                            ->dehydrateStateUsing(function (News $record, bool $state) {
+                                return $state ? now()->toDateTimeString() : null;
+                            })
+                            ->live(),
                     ]),
 
                 Forms\Components\Section::make('Leading Text')
