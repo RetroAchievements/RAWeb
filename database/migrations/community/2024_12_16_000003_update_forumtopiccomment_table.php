@@ -15,14 +15,19 @@ return new class() extends Migration {
                 // Check for both possible foreign key names since they could differ
                 // between production and local environments after migrations/rollbacks.
                 $foreignKeys = DB::select(<<<SQL
-                    SELECT CONSTRAINT_NAME
+                    SELECT DISTINCT CONSTRAINT_NAME
                     FROM information_schema.TABLE_CONSTRAINTS
                     WHERE TABLE_NAME = "ForumTopicComment"
                     AND CONSTRAINT_TYPE = "FOREIGN KEY"
                 SQL);
 
                 foreach ($foreignKeys as $fk) {
-                    $table->dropForeign($fk->CONSTRAINT_NAME);
+                    try {
+                        $table->dropForeign($fk->CONSTRAINT_NAME);
+                    } catch (Exception $e) {
+                        // If dropping the constraint fails, just continue to the next one.
+                        continue;
+                    }
                 }
             });
         }
