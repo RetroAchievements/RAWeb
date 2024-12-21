@@ -34,7 +34,11 @@ export const RecentForumPosts: FC = () => {
             ))}
           </div>
 
-          <SeeMoreLink href={route('forum.recent-posts')} asClientSideRoute={true} />
+          <SeeMoreLink
+            href={route('forum.recent-posts')}
+            asClientSideRoute={true}
+            prefetch="desktop-hover-and-mobile-intersect"
+          />
         </>
       ) : null}
     </div>

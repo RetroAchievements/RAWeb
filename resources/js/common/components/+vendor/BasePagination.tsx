@@ -1,10 +1,10 @@
-import { Link } from '@inertiajs/react';
 import { type ComponentProps, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronLeft, LuChevronRight, LuMoreHorizontal } from 'react-icons/lu';
 
 import { cn } from '@/common/utils/cn';
 
+import { InertiaLink } from '../InertiaLink';
 import { type BaseButtonProps, baseButtonVariants } from './BaseButton';
 
 const BasePagination = ({ className, ...props }: ComponentProps<'nav'>) => (
@@ -42,7 +42,7 @@ const BasePaginationLink = ({
   href,
   ...props
 }: BasePaginationLinkProps) => (
-  <Link
+  <InertiaLink
     href={href}
     className={cn(
       baseButtonVariants({
@@ -54,7 +54,7 @@ const BasePaginationLink = ({
     )}
   >
     {props.children}
-  </Link>
+  </InertiaLink>
 );
 BasePaginationLink.displayName = 'BasePaginationLink';
 

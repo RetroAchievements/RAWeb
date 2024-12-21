@@ -10,6 +10,7 @@ import {
   BaseTableRow,
 } from '@/common/components/+vendor/BaseTable';
 import { GameTitle } from '@/common/components/GameTitle';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
@@ -41,7 +42,7 @@ export const RelatedHubs: FC = () => {
             {relatedHubs.map((relatedHub) => (
               <BaseTableRow key={`related-${relatedHub.id}`}>
                 <BaseTableCell>
-                  <a
+                  <InertiaLink
                     href={route('hub.show', { gameSet: relatedHub.id })}
                     className="flex max-w-fit items-center gap-2"
                   >
@@ -56,7 +57,7 @@ export const RelatedHubs: FC = () => {
                     />
 
                     <GameTitle title={cleanHubTitle(relatedHub.title!)} />
-                  </a>
+                  </InertiaLink>
                 </BaseTableCell>
 
                 <BaseTableCell className="text-right">

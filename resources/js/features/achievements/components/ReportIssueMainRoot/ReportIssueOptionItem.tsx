@@ -1,7 +1,7 @@
-import { Link } from '@inertiajs/react';
 import type { FC, ReactNode } from 'react';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
@@ -22,7 +22,7 @@ export const ReportIssueOptionItem: FC<ReportIssueOptionItemProps> = ({
   anchorClassName,
   shouldUseClientSideRoute = false,
 }) => {
-  const AnchorTag = shouldUseClientSideRoute ? Link : 'a';
+  const AnchorTag = shouldUseClientSideRoute ? InertiaLink : 'a';
 
   return (
     <li className="flex w-full flex-col items-center justify-between gap-2 rounded bg-embed px-3 py-2 sm:flex-row">
