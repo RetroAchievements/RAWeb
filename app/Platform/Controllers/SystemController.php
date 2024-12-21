@@ -51,6 +51,9 @@ class SystemController extends Controller
         /** @var ?User $user */
         $user = $request->user();
 
+        $persistenceCookieName = 'datatable_view_preference_system_games';
+        $request->setPersistenceCookieName($persistenceCookieName);
+
         $isMobile = (new Agent())->isMobile();
 
         $paginatedData = (new BuildGameListAction())->execute(
@@ -75,6 +78,8 @@ class SystemController extends Controller
             system: SystemData::from($system)->include('iconUrl'),
             paginatedGameListEntries: $paginatedData,
             can: $can,
+            persistenceCookieName: $persistenceCookieName,
+            persistedViewPreferences: $request->getCookiePreferences(),
         );
 
         return Inertia::render('system/games', $props);

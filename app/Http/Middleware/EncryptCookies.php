@@ -18,6 +18,11 @@ class EncryptCookies extends Middleware
         'theme', // color scheme
         'logo',
         'active_players_search',
+        'datatable_view_preference_all_games',
+        'datatable_view_preference_generic_games',
+        'datatable_view_preference_hub_games',
+        'datatable_view_preference_playlist',
+        'datatable_view_preference_system_games',
         'prefers_hidden_user_completed_sets',
         'prefers_hidden_user_profile_stats',
         'prefers_seeing_saved_hidden_rows_when_reordering',
