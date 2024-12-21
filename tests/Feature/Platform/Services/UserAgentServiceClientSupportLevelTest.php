@@ -19,8 +19,9 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
     {
         $userAgentService = new UserAgentService();
 
+        $genericClient = Emulator::create(['name' => 'Generic Client']);
         EmulatorUserAgent::create([
-            'emulator_id' => Emulator::create(['name' => 'Generic Client'])->id,
+            'emulator_id' => $genericClient->id,
             'client' => 'GenericClient',
         ]);
 
@@ -66,7 +67,23 @@ class UserAgentServiceClientSupportLevelTest extends TestCase
         $this->assertEquals(ClientSupportLevel::Unknown,
             $userAgentService->getSupportLevel('UnknownClient/1.0'));
 
-        // no restrictions = full
+        // no restrictions (inactive emulator) = unsupported
+        $this->assertEquals(ClientSupportLevel::Unsupported,
+            $userAgentService->getSupportLevel('GenericClient/0.0'));
+
+        $this->assertEquals(ClientSupportLevel::Unsupported,
+            $userAgentService->getSupportLevel('GenericClient/1.0'));
+
+        $this->assertEquals(ClientSupportLevel::Unsupported,
+            $userAgentService->getSupportLevel('GenericClient/16.5'));
+
+        $this->assertEquals(ClientSupportLevel::Unsupported,
+            $userAgentService->getSupportLevel('GenericClient/notaversion'));
+
+        // no restrictions (active emulator) = full
+        $genericClient->active = true;
+        $genericClient->save();
+
         $this->assertEquals(ClientSupportLevel::Full,
             $userAgentService->getSupportLevel('GenericClient/0.0'));
 

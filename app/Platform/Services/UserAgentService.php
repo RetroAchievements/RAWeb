@@ -324,10 +324,12 @@ class UserAgentService
             return ClientSupportLevel::Blocked;
         }
 
-        if ($emulatorUserAgent->minimum_hardcore_version
-            && UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_hardcore_version) < 0) {
-
-            return ClientSupportLevel::Outdated;
+        if ($emulatorUserAgent->minimum_hardcore_version) {
+            if (UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_hardcore_version) < 0) {
+                return ClientSupportLevel::Outdated;
+            }
+        } elseif (!$emulatorUserAgent->minimum_allowed_version && !$emulatorUserAgent->emulator->active) {
+            return ClientSupportLevel::Unsupported;
         }
 
         return ClientSupportLevel::Full;

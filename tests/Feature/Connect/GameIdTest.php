@@ -60,6 +60,15 @@ class GameIdTest extends TestCase
                 'GameID' => $game->id,
             ]);
 
+        // unsupported user agent
+        $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
+            ->get($this->apiUrl('gameid', ['m' => $game->hashes()->first()->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'GameID' => $game->id,
+            ]);
+
         // blocked user agent
         $this->withHeaders(['User-Agent' => $this->userAgentBlocked])
             ->get($this->apiUrl('gameid', ['m' => $game->hashes()->first()->md5]))

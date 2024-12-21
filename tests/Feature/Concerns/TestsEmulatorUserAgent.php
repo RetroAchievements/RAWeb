@@ -13,6 +13,7 @@ trait TestsEmulatorUserAgent
     protected string $userAgentOutdated = "MyClient/1.2";
     protected string $userAgentBlocked = "MyClient/1.0";
     protected string $userAgentUnknown = "OtherClient/1.0";
+    protected string $userAgentUnsupported = "TheirClient/1.0";
 
     protected function seedEmulatorUserAgents(): void
     {
@@ -21,6 +22,13 @@ trait TestsEmulatorUserAgent
             'client' => 'MyClient',
             'minimum_allowed_version' => '1.2',
             'minimum_hardcore_version' => '1.5',
+        ]);
+
+        EmulatorUserAgent::create([
+            'emulator_id' => Emulator::create(['name' => 'Their Client'])->id,
+            'client' => 'TheirClient',
+            'minimum_allowed_version' => null,
+            'minimum_hardcore_version' => null,
         ]);
     }
 }
