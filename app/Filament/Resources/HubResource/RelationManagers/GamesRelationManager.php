@@ -112,8 +112,9 @@ class GamesRelationManager extends RelationManager
                             ->label('Game IDs (CSV)')
                             ->placeholder('729,2204,3987,53')
                             ->helperText('Use a comma-separated list of game IDs.')
-                            ->live()
-                            ->disabled(fn (Forms\Get $get): bool => filled($get('game_ids'))),
+                            ->hidden(fn (Forms\Get $get): bool => filled($get('game_ids')))
+                            ->disabled(fn (Forms\Get $get): bool => filled($get('game_ids')))
+                            ->live(debounce: 200),
 
                         Forms\Components\Select::make('game_ids')
                             ->label('Games')
@@ -137,8 +138,9 @@ class GamesRelationManager extends RelationManager
                                     ->get()
                                     ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title}"]);
                             })
-                            ->live()
+                            ->hidden(fn (Forms\Get $get): bool => filled($get('game_ids_csv')))
                             ->disabled(fn (Forms\Get $get): bool => filled($get('game_ids_csv')))
+                            ->live()
                             ->helperText('... or search and select games to add.'),
                     ])
                     ->modalHeading('Add games to hub')
