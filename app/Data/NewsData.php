@@ -14,27 +14,33 @@ class NewsData extends Data
 {
     public function __construct(
         public int $id,
-        public Carbon $timestamp,
+        public Carbon $createdAt,
         public string $title,
         public ?string $lead,
-        public string $payload,
+        public string $body,
         public UserData $user,
         public ?string $link,
-        public ?string $image,
+        public ?string $imageAssetPath,
+        public ?Carbon $publishAt,
+        public ?Carbon $unpublishAt,
+        public ?Carbon $pinnedAt,
     ) {
     }
 
     public static function fromNews(News $news): self
     {
         return new self(
-            id: $news->ID,
-            timestamp: Carbon::parse($news->Timestamp),
-            title: $news->Title,
+            id: $news->id,
+            createdAt: $news->created_at,
+            title: $news->title,
             lead: $news->lead,
-            payload: $news->Payload,
+            body: $news->body,
             user: UserData::from($news->user),
-            link: $news->Link,
-            image: $news->Image,
+            link: $news->link,
+            imageAssetPath: $news->image_asset_path,
+            publishAt: $news->publish_at,
+            unpublishAt: $news->unpublish_at,
+            pinnedAt: $news->pinned_at,
         );
     }
 }

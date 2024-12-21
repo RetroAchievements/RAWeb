@@ -24,25 +24,25 @@ $xmlRoot->appendChild($dom->createElement('title', 'RetroAchievements.org news f
 $xmlRoot->appendChild($dom->createElement('description', 'RetroAchievements.org, your home for achievements in classic games'));
 $xmlRoot->appendChild($dom->createElement('link', config('app.url')));
 
-$newsData = News::orderByDesc('ID')->take(20)->get();
+$newsData = News::orderByDesc('id')->take(20)->get();
 
 foreach ($newsData as $news) {
     $article = $dom->createElement("item");
     $article = $xmlRoot->appendChild($article);
 
-    $newsID = $news['ID'];
-    $newsDate = date("D, d M Y H:i:s O", strtotime($news['Timestamp']));
-    $newsImage = $news['Image'];
+    $newsID = $news['id'];
+    $newsDate = date("D, d M Y H:i:s O", strtotime($news['created_at']));
+    $newsImage = $news['image_asset_path'];
     $newsLink = config('app.url');
-    if (str_starts_with($news['Link'], config('app.url'))) {
-        $newsLink = "<![CDATA[" . $news['Link'] . "]]>";
+    if (str_starts_with($news['link'], config('app.url'))) {
+        $newsLink = "<![CDATA[" . $news['link'] . "]]>";
     }
-    $newsTitle = "<![CDATA[" . strip_tags($news['Title']) . "]]>";
+    $newsTitle = "<![CDATA[" . strip_tags($news['title']) . "]]>";
 
     // Image first?
     $payload = "<a href='$newsLink'><img style='padding: 5px;' src='$newsImage' /></a>";
     $payload .= "<br>\r\n";
-    $payload .= $news['Payload'];
+    $payload .= $news['body'];
 
     $newsPayload = "<![CDATA[" . strip_tags($payload) . "]]>";
 

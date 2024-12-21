@@ -2,13 +2,14 @@
 
 // TODO migrate to AchievementController::index()
 
+use App\Actions\GetUserDeviceKindAction;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Models\System;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = (int) request()->input('z', 0);
-$mobileBrowser = IsMobileBrowser();
+$mobileBrowser = (new GetUserDeviceKindAction())->execute() === 'mobile';
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
