@@ -78,6 +78,7 @@ class Leaderboard extends BaseModel
                 'Description',
                 'Format',
                 'LowerIsBetter',
+                'DisplayOrder',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();

@@ -102,7 +102,9 @@ class AchievementsRelationManager extends RelationManager
                     ->date()
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('DisplayOrder')
+                Tables\Columns\TextInputColumn::make('DisplayOrder')
+                    ->label('Display Order')
+                    ->rules(['required', 'integer'])
                     ->toggleable(),
             ])
             ->filters([

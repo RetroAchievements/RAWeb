@@ -196,6 +196,7 @@ class Achievement extends BaseModel
                 'Points',
                 'Title',
                 'type',
+                'DisplayOrder',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();

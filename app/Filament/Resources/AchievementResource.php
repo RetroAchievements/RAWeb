@@ -383,10 +383,10 @@ class AchievementResource extends Resource
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('DisplayOrder')
-                    ->numeric()
+                Tables\Columns\TextInputColumn::make('DisplayOrder')
+                    ->label('Display Order')
                     ->sortable()
-                    ->alignEnd()
+                    ->rules(['required', 'integer'])
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('DateCreated')
