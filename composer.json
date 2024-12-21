@@ -58,7 +58,7 @@
         "spatie/laravel-query-builder": "^5.0",
         "spatie/laravel-responsecache": "^7.4",
         "spatie/laravel-robots-middleware": "^1.3",
-        "spatie/laravel-tags": "^4.3",
+        "spatie/laravel-tags": "^4.7",
         "spatie/laravel-typescript-transformer": "^2.4",
         "spatie/query-string": "^1.0",
         "spatie/valuestore": "^1.3",
