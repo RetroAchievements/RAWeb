@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
+use App\Actions\GetUserDeviceKindAction;
 use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Game;
@@ -21,7 +22,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
-use Jenssegers\Agent\Agent;
 
 class GameController extends Controller
 {
@@ -37,7 +37,7 @@ class GameController extends Controller
 
         $this->authorize('viewAny', [Game::class, $user]);
 
-        $isMobile = (new Agent())->isMobile();
+        $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
 
         $paginatedData = (new BuildGameListAction())->execute(
             GameListType::AllGames,

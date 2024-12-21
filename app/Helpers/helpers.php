@@ -48,7 +48,6 @@ require_once __DIR__ . '/util/database.php'; // TODO refactor
 require_once __DIR__ . '/util/date.php'; // TODO refactor
 require_once __DIR__ . '/util/mail.php'; // TODO refactor
 require_once __DIR__ . '/util/media.php'; // TODO refactor
-require_once __DIR__ . '/util/mobile-browser.php';
 require_once __DIR__ . '/util/recaptcha.php'; // TODO refactor
 require_once __DIR__ . '/util/request.php'; // TODO refactor
 require_once __DIR__ . '/util/string.php';
