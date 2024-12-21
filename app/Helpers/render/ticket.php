@@ -66,7 +66,7 @@ function renderTicketCard(int|Ticket $ticket): string
         "<div><b>" . $ticket->achievement->title . "</b> <i>(" . $ticket->achievement->game->title . ")</i></div>" .
         "<div>Reported by {$ticket->reporter->display_name}</div>" .
         "<div>Issue: " . TicketType::toString($ticket->ReportType) . "</div>" .
-        "<div class='tooltip-closer'>Closed by {$ticket->resolver->display_name}, " . getNiceDate(strtotime($ticket->ResolvedAt)) . "</div>" .
+        ($ticket->resolver ? "<div class='tooltip-closer'>Closed by {$ticket->resolver->display_name}, " . getNiceDate(strtotime($ticket->ResolvedAt)) . "</div>" : "") .
         "<div class='tooltip-opened-date'> Opened " . getNiceDate(strtotime($ticket->ReportedAt)) . "</div>" .
         "</div>" .
         "<div class='ticket-tooltip-state'>" . TicketState::toString($ticket->ReportState) . "</div>" .

@@ -41,7 +41,7 @@ describe('Component: MobileNews', () => {
 
   it('still allows news posts that dont have associated images', () => {
     // ARRANGE
-    const news = createNews({ image: null });
+    const news = createNews({ imageAssetPath: null });
 
     render<App.Http.Data.HomePageProps>(<MobileNews />, {
       pageProps: {

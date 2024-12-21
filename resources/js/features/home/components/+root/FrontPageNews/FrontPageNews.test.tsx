@@ -55,15 +55,15 @@ describe('Component: FrontPageNews', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(recentNews[0].payload)).toBeVisible();
-    expect(screen.getByText(recentNews[1].payload)).toBeVisible();
-    expect(screen.getByText(recentNews[2].payload)).toBeVisible();
+    expect(screen.getByText(recentNews[0].body)).toBeVisible();
+    expect(screen.getByText(recentNews[1].body)).toBeVisible();
+    expect(screen.getByText(recentNews[2].body)).toBeVisible();
   });
 
   it('given the news image fails to load, shows the fallback', () => {
     // ARRANGE
     const newsWithBrokenImage = createNews({
-      image: 'invalid-image-url.jpg',
+      imageAssetPath: 'invalid-image-url.jpg',
     });
 
     render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
@@ -87,7 +87,7 @@ describe('Component: FrontPageNews', () => {
     // ARRANGE
     const validImageUrl = 'valid-image.jpg';
     const newsWithValidImage = createNews({
-      image: validImageUrl,
+      imageAssetPath: validImageUrl,
     });
 
     render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
@@ -107,7 +107,7 @@ describe('Component: FrontPageNews', () => {
     // ARRANGE
     const newsWithEmoji = createNews({
       title: '🎮 Gaming News! 🎲',
-      payload: '🎯 Big tournament announced! 🏆',
+      body: '🎯 Big tournament announced! 🏆',
     });
 
     render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
@@ -128,7 +128,7 @@ describe('Component: FrontPageNews', () => {
   it('strips HTML tags from the lead text', () => {
     // ARRANGE
     const newsWithHtml = createNews({
-      payload: 'Click <a href="#">here</a> for more info!<br>New line content',
+      body: 'Click <a href="#">here</a> for more info!<br>New line content',
     });
 
     render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
@@ -159,7 +159,7 @@ describe('Component: FrontPageNews', () => {
 
   it('still allows news posts that dont have associated images', () => {
     // ARRANGE
-    const news = createNews({ image: null });
+    const news = createNews({ imageAssetPath: null });
 
     render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
       pageProps: {
