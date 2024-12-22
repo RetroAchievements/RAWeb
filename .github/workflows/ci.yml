@@ -128,7 +128,7 @@ jobs:
     name: Node.js Checks
     strategy:
       matrix:
-        check: ['tsc', 'lint', 'test']
+        check: ['tsc', 'lint', 'test:ci']
         include:
           - check: tsc
             command: pnpm tsc

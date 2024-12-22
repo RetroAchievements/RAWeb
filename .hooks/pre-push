@@ -14,8 +14,8 @@ pnpm lint:eslint
 printf "\n⏳ pnpm tsc\n"
 pnpm tsc
 
-printf "\n⏳ pnpm test\n"
-pnpm test
+printf "\n⏳ pnpm test:ci\n"
+pnpm test:ci
 
 # Check the OS. Windows does not support the --parallel flag.
 if [ "$(uname)" = "Linux" ] || [ "$(uname)" = "Darwin" ]; then
