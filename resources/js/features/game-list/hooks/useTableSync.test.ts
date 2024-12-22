@@ -471,7 +471,7 @@ describe('Hook: useTableSync', () => {
     // ASSERT
     const cookieValue = setCookieSpy.mock.calls[0][0];
     const cookieMatch = cookieValue.match(new RegExp(`${cookieName}=(.+?);`));
-    const parsedCookie = JSON.parse(atob(decodeURIComponent(cookieMatch![1])));
+    const parsedCookie = JSON.parse(decodeURIComponent(cookieMatch![1]));
 
     expect(parsedCookie).toEqual({
       columnFilters,
@@ -518,7 +518,7 @@ describe('Hook: useTableSync', () => {
     // ASSERT
     const lastCall = setCookieSpy.mock.calls[setCookieSpy.mock.calls.length - 1][0];
     const cookieMatch = lastCall.match(new RegExp(`${cookieName}=(.+?);`));
-    const parsedCookie = JSON.parse(atob(decodeURIComponent(cookieMatch![1])));
+    const parsedCookie = JSON.parse(decodeURIComponent(cookieMatch![1]));
 
     expect(parsedCookie.columnVisibility).toEqual(updatedVisibility);
   });
