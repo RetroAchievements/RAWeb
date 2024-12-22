@@ -64,16 +64,6 @@ return new class() extends Migration {
         });
 
         Schema::table('forum_topic_comments', function (Blueprint $table) {
-            // Delete all orphaned comments before adding a foreign key.
-            DB::table('forum_topic_comments')
-                ->whereNotExists(function ($query) {
-                    $query->select(DB::raw(1))
-                        ->from('forum_topics')
-                        ->whereColumn('forum_topics.id', 'forum_topic_comments.forum_topic_id');
-                })
-                ->delete();
-        });
-        Schema::table('forum_topic_comments', function (Blueprint $table) {
             $table->foreign('forum_topic_id')->references('id')->on('forum_topics')->onDelete('set null');
         });
 
