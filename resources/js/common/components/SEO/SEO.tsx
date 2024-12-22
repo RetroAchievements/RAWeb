@@ -156,7 +156,7 @@ export const SEO: FC<SEOProps> = ({
   // OG defaults to base metadata if not provided.
   ogTitle = title,
   ogDescription = description,
-  ogImage,
+  ogImage = '/assets/images/favicon.webp',
   ogSiteName = 'RetroAchievements',
 
   // Twitter defaults to OG if not provided.
