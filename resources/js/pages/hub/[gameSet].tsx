@@ -1,3 +1,4 @@
+import { useHydrateAtoms } from 'jotai/utils';
 import { useTranslation } from 'react-i18next';
 
 import { SEO } from '@/common/components/SEO';
@@ -7,11 +8,17 @@ import type { AppPage } from '@/common/models';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
 import { HubMainRoot } from '@/features/game-list/components/HubMainRoot';
 import { useHubPageMetaDescription } from '@/features/game-list/hooks/useHubPageMetaDescription';
+import { isCurrentlyPersistingViewAtom } from '@/features/game-list/state/game-list.atoms';
 
 const Hub: AppPage = () => {
-  const { hub } = usePageProps<App.Platform.Data.HubPageProps>();
+  const { hub, persistedViewPreferences } = usePageProps<App.Platform.Data.HubPageProps>();
 
   const { t } = useTranslation();
+
+  useHydrateAtoms([
+    [isCurrentlyPersistingViewAtom, !!persistedViewPreferences],
+    //
+  ]);
 
   let pageTitle = t('All Hubs');
   const hubTitle = cleanHubTitle(hub.title!);

@@ -64,6 +64,9 @@ class HubController extends Controller
         /** @var ?User $user */
         $user = $request->user();
 
+        $persistenceCookieName = 'datatable_view_preference_hub_games';
+        $request->setPersistenceCookieName($persistenceCookieName);
+
         $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
 
         $paginatedData = (new BuildGameListAction())->execute(
@@ -99,6 +102,8 @@ class HubController extends Controller
             paginatedGameListEntries: $paginatedData,
             filterableSystemOptions: $filterableSystemOptions,
             can: $can,
+            persistenceCookieName: $persistenceCookieName,
+            persistedViewPreferences: $request->getCookiePreferences(),
         );
 
         return Inertia::render('hub/[gameSet]', $props);
