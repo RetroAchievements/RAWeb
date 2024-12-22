@@ -83,4 +83,32 @@ describe('Component: HubHeading', () => {
     // ASSERT
     expect(screen.getByRole('link', { name: /manage/i })).toBeVisible();
   });
+
+  it('given the user can manage hubs and there is no associated forum topic, does not show a View Forum Topic button', () => {
+    // ARRANGE
+    const hub = createGameSet({ type: 'hub', title: '[Series - Sonic the Hedgehog]' });
+
+    render<App.Platform.Data.HubPageProps>(<HubHeading />, {
+      pageProps: { hub, can: { manageGameSets: true } },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /view forum topic/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user can manage hubs and there is an associated forum topic, shows the View Forum Topic button', () => {
+    // ARRANGE
+    const hub = createGameSet({
+      type: 'hub',
+      title: '[Series - Sonic the Hedgehog]',
+      forumTopicId: 12345, // !!
+    });
+
+    render<App.Platform.Data.HubPageProps>(<HubHeading />, {
+      pageProps: { hub, can: { manageGameSets: true } },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /view forum topic/i })).toBeVisible();
+  });
 });

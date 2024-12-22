@@ -164,6 +164,7 @@ class BuildHubBreadcrumbsAction
                 gameCount: 0,
                 linkCount: 0,
                 updatedAt: new \Carbon\Carbon($data['updated_at']),
+                forumTopicId: null,
             ),
             $cachedData ?? [],
         );

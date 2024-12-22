@@ -64,6 +64,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use App\Platform\Commands\SyncGameSetsHubForumTopicIds;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -117,6 +118,7 @@ class AppServiceProvider extends ServiceProvider
                 SyncGameHashes::class,
                 SyncGames::class,
                 SyncGameSets::class,
+                SyncGameSetsHubForumTopicIds::class,
                 SyncGameSetsInternalNotes::class,
                 SyncLeaderboardEntries::class,
                 SyncLeaderboards::class,

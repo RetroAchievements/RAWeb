@@ -34,6 +34,7 @@ class GameSet extends BaseModel
     protected $fillable = [
         'definition',
         'game_id',
+        'forum_topic_id',
         'internal_notes',
         'image_asset_path',
         'title',
@@ -216,6 +217,14 @@ class GameSet extends BaseModel
         return $this->belongsToMany(GameSet::class, 'game_set_links', 'parent_game_set_id', 'child_game_set_id')
             ->withTimestamps()
             ->withPivot('created_at', 'updated_at');
+    }
+
+    /**
+     * @return BelongsTo<ForumTopic, GameSet>
+     */
+    public function forumTopic(): BelongsTo
+    {
+        return $this->belongsTo(ForumTopic::class, 'forum_topic_id', 'ID'); // TODO 'id'
     }
 
     // == scopes
