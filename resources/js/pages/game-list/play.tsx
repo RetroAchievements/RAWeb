@@ -1,6 +1,6 @@
-import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
+import { SEO } from '@/common/components/SEO';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { WantToPlayGamesMainRoot } from '@/features/game-list/components/WantToPlayGamesMainRoot';
@@ -8,14 +8,9 @@ import { WantToPlayGamesMainRoot } from '@/features/game-list/components/WantToP
 const WantToPlayGames: AppPage = () => {
   const { t } = useTranslation();
 
-  const metaDescription = 'A list of your Want to Play Games';
-
   return (
     <>
-      <Head title={t('Want to Play Games')}>
-        <meta name="description" content={metaDescription} />
-        <meta name="og:description" content={metaDescription} />
-      </Head>
+      <SEO title={t('Want to Play Games')} description="A list of your Want to Play Games" />
 
       <div className="container">
         <AppLayout.Main>

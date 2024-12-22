@@ -1,6 +1,6 @@
-import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
+import { SEO } from '@/common/components/SEO';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
@@ -22,13 +22,7 @@ const Hub: AppPage = () => {
 
   return (
     <>
-      <Head title={pageTitle}>
-        <meta name="description" content={metaDescription} />
-        <meta name="og:description" content={metaDescription} />
-
-        <meta property="og:image" content={hub.badgeUrl!} />
-        <meta property="og:type" content="retroachievements:hub" />
-      </Head>
+      <SEO title={pageTitle} description={metaDescription} ogImage={hub.badgeUrl!} />
 
       <AppLayout.Main>
         <HubMainRoot />

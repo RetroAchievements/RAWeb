@@ -1,6 +1,6 @@
-import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
+import { SEO } from '@/common/components/SEO';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
@@ -12,14 +12,12 @@ const SystemGames: AppPage = () => {
 
   const { t } = useTranslation();
 
-  const metaDescription = `Explore ${(Math.floor(paginatedGameListEntries.total / 100) * 100).toLocaleString()}+ ${system.name} games on RetroAchievements. Our achievements bring a fresh perspective to classic games, letting you track your progress as you beat and master each title.`;
-
   return (
     <>
-      <Head title={t('All {{systemName}} Games', { systemName: system.name })}>
-        <meta name="description" content={metaDescription} />
-        <meta name="og:description" content={metaDescription} />
-      </Head>
+      <SEO
+        title={t('All {{systemName}} Games', { systemName: system.name })}
+        description={`Explore ${(Math.floor(paginatedGameListEntries.total / 100) * 100).toLocaleString()}+ ${system.name} games on RetroAchievements. Track your progress as you beat and master each title.`}
+      />
 
       <div className="container">
         <AppLayout.Main>

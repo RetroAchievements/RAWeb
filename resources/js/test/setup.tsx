@@ -18,6 +18,11 @@ vi.mock('@inertiajs/react', async (importOriginal) => {
   return {
     ...original,
     __esModule: true,
+
+    Head: ({ children }: { children: ReactNode }) => (
+      <div data-testid="head-content">{children}</div>
+    ),
+
     usePage: vi.fn(),
   };
 });
