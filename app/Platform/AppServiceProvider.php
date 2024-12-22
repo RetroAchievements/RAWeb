@@ -36,6 +36,7 @@ use App\Platform\Commands\SyncGameAchievementSets;
 use App\Platform\Commands\SyncGameHashes;
 use App\Platform\Commands\SyncGames;
 use App\Platform\Commands\SyncGameSets;
+use App\Platform\Commands\SyncGameSetsHubForumTopicIds;
 use App\Platform\Commands\SyncGameSetsInternalNotes;
 use App\Platform\Commands\SyncLeaderboardEntries;
 use App\Platform\Commands\SyncLeaderboards;
@@ -64,7 +65,6 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use App\Platform\Commands\SyncGameSetsHubForumTopicIds;
 
 class AppServiceProvider extends ServiceProvider
 {

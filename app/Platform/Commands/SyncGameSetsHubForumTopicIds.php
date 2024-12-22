@@ -23,7 +23,7 @@ class SyncGameSetsHubForumTopicIds extends Command
             ->get();
 
         $totalLegacyHubs = $legacyHubRecords->count();
-        $this->info("Syncing {$totalLegacyHubs} legacy hubs with forum topic ID values.");    
+        $this->info("Syncing {$totalLegacyHubs} legacy hubs with forum topic ID values.");
 
         $progressBar = $this->output->createProgressBar($totalLegacyHubs);
         $progressBar->start();
