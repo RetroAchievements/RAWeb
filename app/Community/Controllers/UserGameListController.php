@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
+use App\Actions\GetUserDeviceKindAction;
 use App\Community\Data\UserGameListPagePropsData;
 use App\Community\Enums\UserGameListType;
 use App\Community\Requests\UserGameListRequest;
@@ -18,7 +19,6 @@ use App\Platform\Enums\GameListType;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
-use Jenssegers\Agent\Agent;
 
 class UserGameListController extends Controller
 {
@@ -27,7 +27,7 @@ class UserGameListController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        $isMobile = (new Agent())->isMobile();
+        $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
 
         $persistenceCookieName = 'datatable_view_preference_playlist';
         $request->setPersistenceCookieName($persistenceCookieName);

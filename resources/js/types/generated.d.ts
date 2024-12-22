@@ -148,13 +148,16 @@ declare namespace App.Data {
   };
   export type News = {
     id: number;
-    timestamp: string;
+    createdAt: string;
     title: string;
     lead: string | null;
-    payload: string;
+    body: string;
     user: App.Data.User;
     link: string | null;
-    image: string | null;
+    imageAssetPath: string | null;
+    publishAt: string | null;
+    unpublishAt: string | null;
+    pinnedAt: string | null;
   };
   export type PaginatedData<TItems> = {
     currentPage: number;
