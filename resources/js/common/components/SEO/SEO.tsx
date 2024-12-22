@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports -- intentional in this file
 import { Head, usePage } from '@inertiajs/react';
 import type { FC } from 'react';
 

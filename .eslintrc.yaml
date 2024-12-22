@@ -134,13 +134,24 @@ rules:
   newline-before-return: error
 
   # prevent accidental imports from libraries that build the Base* components
-  no-restricted-imports:
-    - error
-    - patterns:
-      - '@testing-library/react'
-      - '@radix-ui/*'
-      - 'sonner'
-      - 'vaul'
+  no-restricted-imports: [
+    'error',
+    {
+      patterns: [
+        '@testing-library/react',
+        '@radix-ui/*',
+        'sonner',
+        'vaul',
+      ],
+      paths: [
+        {
+          name: '@inertiajs/react',
+          importNames: ['Head'],
+          message: 'Use @/common/components/SEO instead.'
+        }
+      ]
+    }
+  ]
 
 # don't enforce explicit-any rule in test files
 overrides:
