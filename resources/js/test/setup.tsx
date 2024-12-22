@@ -100,6 +100,7 @@ export function render<TPageProps = Record<string, unknown>>(
 
 type RenderHookOptions<Props> = RTLRenderHookOptions<Props> & {
   pageProps?: Partial<AppGlobalProps>;
+  url?: any;
 };
 
 export function renderHook<Result, Props = undefined>(
@@ -107,6 +108,7 @@ export function renderHook<Result, Props = undefined>(
   {
     wrapper,
     initialProps,
+    url,
     pageProps = {} as Partial<AppGlobalProps>,
     ...options
   }: RenderHookOptions<Props> = {},
@@ -116,7 +118,7 @@ export function renderHook<Result, Props = undefined>(
     props: pageProps as any,
     rememberedState: {},
     scrollRegions: vi.fn() as any,
-    url: '',
+    url: url ?? '',
     version: '',
     clearHistory: false,
     encryptHistory: false,

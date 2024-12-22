@@ -6,19 +6,20 @@ import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
 import { HubMainRoot } from '@/features/game-list/components/HubMainRoot';
+import { useHubPageMetaDescription } from '@/features/game-list/hooks/useHubPageMetaDescription';
 
 const Hub: AppPage = () => {
-  const { hub, paginatedGameListEntries } = usePageProps<App.Platform.Data.HubPageProps>();
+  const { hub } = usePageProps<App.Platform.Data.HubPageProps>();
 
   const { t } = useTranslation();
-
-  const metaDescription = `A collection of ${paginatedGameListEntries.total.toLocaleString()} ${paginatedGameListEntries.total === 1 ? 'game' : 'games'} on RetroAchievements.`;
 
   let pageTitle = t('All Hubs');
   const hubTitle = cleanHubTitle(hub.title!);
   if (hubTitle !== 'Central') {
     pageTitle = t('{{hubTitle}} (Hub)', { hubTitle });
   }
+
+  const metaDescription = useHubPageMetaDescription();
 
   return (
     <>

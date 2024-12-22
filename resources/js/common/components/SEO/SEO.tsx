@@ -193,7 +193,7 @@ export const SEO: FC<SEOProps> = ({
   const isArticle = type === 'article';
 
   return (
-    <Head>
+    <Head title={title}>
       {/* Base metadata */}
       <meta name="description" content={description} />
       <link rel="canonical" href={resolvedCanonicalUrl} />
@@ -204,13 +204,13 @@ export const SEO: FC<SEOProps> = ({
       <meta property="og:title" content={ogTitle} />
       <meta property="og:description" content={ogDescription} />
       <meta property="og:url" content={resolvedCanonicalUrl} />
-      {ogImage ? <meta property="og:image" content={ogImage} /> : null}
+      <meta property="og:image" content={ogImage} />
 
       {/* Twitter metadata */}
       <meta name="twitter:card" content={twitterCard} />
       <meta name="twitter:title" content={twitterTitle} />
       <meta name="twitter:description" content={twitterDescription} />
-      {twitterImage ? <meta name="twitter:image" content={twitterImage} /> : null}
+      <meta name="twitter:image" content={twitterImage} />
       <meta name="twitter:site" content={twitterSite} />
 
       {/* Article specific metadata */}
