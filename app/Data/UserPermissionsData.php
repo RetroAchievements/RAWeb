@@ -13,6 +13,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class UserPermissionsData extends Data
 {
     public function __construct(
+        public Lazy|bool $createTriggerTicket,
         public Lazy|bool $develop,
         public Lazy|bool $manageGameHashes,
         public Lazy|bool $manageGameSets,
@@ -25,6 +26,7 @@ class UserPermissionsData extends Data
     public static function fromUser(?User $user): self
     {
         return new self(
+            createTriggerTicket: Lazy::create(fn () => $user ? $user->can('create', \App\Models\TriggerTicket::class) : false),
             develop: Lazy::create(fn () => $user ? $user->can('develop') : false),
             manageGameHashes: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameHash::class) : false),
             manageGameSets: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameSet::class) : false),

@@ -32,11 +32,12 @@ class TriggerTicketPolicy
 
     public function create(User $user, Achievement|Leaderboard $triggerable): bool
     {
-        if (!$user->hasVerifiedEmail()) {
-            return false;
-        }
-
-        if ($user->isMuted()) {
+        if (
+            !$user->hasVerifiedEmail()
+            || $user->created_at->diffInDays() < 1
+            || $user->is_muted
+            || $user->banned_at
+        ) {
             return false;
         }
 
