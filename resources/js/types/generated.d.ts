@@ -268,7 +268,9 @@ declare namespace App.Models {
     | 'administrator'
     | 'release-manager'
     | 'game-hash-manager'
-    | 'developer-staff'
+    | 'dev-compliance'
+    | 'quality-assurance'
+    | 'code-reviewer'
     | 'developer'
     | 'developer-junior'
     | 'artist'
@@ -286,6 +288,7 @@ declare namespace App.Models {
     | 'engineer'
     | 'team-account'
     | 'beta'
+    | 'community-manager'
     | 'developer-retired';
 }
 declare namespace App.Platform.Data {

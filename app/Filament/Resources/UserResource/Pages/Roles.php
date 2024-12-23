@@ -16,6 +16,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role as SpatieRole;
 
+/**
+ * For JrDev / Dev promotions and demotions, generally those actions
+ * will occur on the UserResource infolist.
+ *
+ * Privileged users can promote/demote from this relation manager, and
+ * have elevated access when doing so.
+ */
 class Roles extends ManageRelatedRecords
 {
     protected static string $resource = UserResource::class;
@@ -55,26 +62,19 @@ class Roles extends ManageRelatedRecords
 
                         if ($attachedRole->name === Role::DEVELOPER_JUNIOR) {
                             $targetUser->removeRole(Role::DEVELOPER);
-                            $targetUser->removeRole(Role::DEVELOPER_STAFF);
                             $targetUser->removeRole(Role::DEVELOPER_RETIRED);
+                            $this->removeDeveloperStaffRoles($targetUser); // jr devs cannot be staff
 
                             $newPermissions = Permissions::JuniorDeveloper;
                         } elseif ($attachedRole->name === Role::DEVELOPER) {
                             $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
-                            $targetUser->removeRole(Role::DEVELOPER_STAFF);
-                            $targetUser->removeRole(Role::DEVELOPER_RETIRED);
-
-                            $newPermissions = Permissions::Developer;
-                        } elseif ($attachedRole->name === Role::DEVELOPER_STAFF) {
-                            $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
-                            $targetUser->removeRole(Role::DEVELOPER);
                             $targetUser->removeRole(Role::DEVELOPER_RETIRED);
 
                             $newPermissions = Permissions::Developer;
                         } elseif ($attachedRole->name === Role::DEVELOPER_RETIRED) {
                             $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
                             $targetUser->removeRole(Role::DEVELOPER);
-                            $targetUser->removeRole(Role::DEVELOPER_STAFF);
+                            $this->removeDeveloperStaffRoles($targetUser); // retired devs cannot be staff
 
                             $newPermissions = Permissions::Registered;
                         } else {
@@ -104,11 +104,13 @@ class Roles extends ManageRelatedRecords
                         if (!in_array($record->name, [
                             Role::DEVELOPER_JUNIOR,
                             Role::DEVELOPER,
-                            Role::DEVELOPER_STAFF,
                             Role::DEVELOPER_RETIRED,
                         ])) {
                             return;
                         }
+
+                        // When manually detaching any dev role, remove all staff dev roles.
+                        $this->removeDeveloperStaffRoles($targetUser);
 
                         // Keep legacy permissions in sync.
                         $currentPermissions = (int) $targetUser->getAttribute('Permissions');
@@ -122,5 +124,18 @@ class Roles extends ManageRelatedRecords
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([]),
             ]);
+    }
+
+    private function removeDeveloperStaffRoles(User $targetUser): void
+    {
+        if ($targetUser->hasRole(Role::QUALITY_ASSURANCE)) {
+            $targetUser->removeRole(Role::QUALITY_ASSURANCE);
+        }
+        if ($targetUser->hasRole(Role::DEV_COMPLIANCE)) {
+            $targetUser->removeRole(Role::DEV_COMPLIANCE);
+        }
+        if ($targetUser->hasRole(Role::CODE_REVIEWER)) {
+            $targetUser->removeRole(Role::CODE_REVIEWER);
+        }
     }
 }

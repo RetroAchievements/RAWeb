@@ -16,7 +16,19 @@ class UserPolicy
 
     public function manage(User $user): bool
     {
-        return $this->requireAdministrativePrivileges($user);
+        return $user->hasAnyRole([
+            // admins
+            Role::ROOT,
+            Role::ADMINISTRATOR,
+
+            // moderation
+            Role::MODERATOR,
+
+            // staff developers
+            Role::CODE_REVIEWER,
+            Role::DEV_COMPLIANCE,
+            Role::QUALITY_ASSURANCE,
+        ]);
     }
 
     public function viewAny(?User $user): bool
@@ -249,6 +261,86 @@ class UserPolicy
         }
 
         return $this->requireAdministrativePrivileges($user, $model);
+    }
+
+    public function issueDeveloperPromotions(User $user, User $model): bool
+    {
+        // users cannot promote themselves
+        if ($user->is($model)) {
+            return false;
+        }
+
+        // moderated users cannot be promoted
+        if ($model->isBanned() || $model->isMuted()) {
+            return false;
+        }
+
+        $canAlwaysPromote = [
+            Role::ROOT,
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+
+            Role::DEV_COMPLIANCE,
+        ];
+        if ($user->hasAnyRole($canAlwaysPromote)) {
+            return true;
+        }
+
+        // Code reviewers can promote standard users to Junior Developers.
+        if ($user->hasRole(Role::CODE_REVIEWER) && !$model->hasRole(Role::DEVELOPER_JUNIOR)) {
+            return true;
+        }
+    }
+
+    public function issueJuniorDeveloperDemotions(User $user, User $model): bool
+    {
+        // self-demotion is an awkward UX, just disallow it for now.
+        if ($user->is($model)) {
+            return false;
+        }
+
+        // If the target user isn't already a JrDev, return false.
+        if (!$model->hasRole(Role::DEVELOPER_JUNIOR)) {
+            return false;
+        }
+
+        return $user->hasAnyRole([
+            Role::ROOT,
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+
+            Role::DEV_COMPLIANCE,
+            Role::CODE_REVIEWER,
+        ]);
+    }
+
+    public function issueFullDeveloperDemotions(User $user, User $model): bool
+    {
+        // self-demotion is an awkward UX, just disallow it for now.
+        if ($user->is($model)) {
+            return false;
+        }
+
+        // You'll need to actually detach the role for these target users,
+        // and that requires elevated privileges in order to access the
+        // Roles relation manager. This is for safety.
+        if ($model->hasAnyRole([Role::ADMINISTRATOR, Role::MODERATOR, Role::DEV_COMPLIANCE])) {
+            return false;
+        }
+
+        // If the target user doesn't have any demotable roles, then just return false.
+        $demotableDevRoles = [Role::DEVELOPER, Role::DEVELOPER_JUNIOR];
+        if (!$model->hasAnyRole($demotableDevRoles)) {
+            return false;
+        }
+
+        return $user->hasAnyRole([
+            Role::ROOT,
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+
+            Role::DEV_COMPLIANCE,
+        ]);
     }
 
     private function requireAdministrativePrivileges(User $user, ?User $model = null): bool

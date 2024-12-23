@@ -21,7 +21,6 @@ class AchievementPolicy
             /*
              * developers may at least upload new achievements to the server, create code notes, etc
              */
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
 
@@ -76,7 +75,6 @@ class AchievementPolicy
             /*
              * developers may at least upload new achievements to the server, create code notes, etc
              */
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
 
             /*
@@ -119,7 +117,6 @@ class AchievementPolicy
         $roleFieldPermissions = [
             Role::DEVELOPER_JUNIOR => ['Title', 'Description', 'type', 'Points', 'DisplayOrder'],
             Role::DEVELOPER => ['Title', 'Description', 'Flags', 'type', 'Points', 'DisplayOrder'],
-            Role::DEVELOPER_STAFF => ['Title', 'Description', 'Flags', 'type', 'Points', 'DisplayOrder'],
             Role::WRITER => ['Title', 'Description'],
         ];
 
