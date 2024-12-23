@@ -290,6 +290,8 @@ class UserPolicy
         if ($user->hasRole(Role::CODE_REVIEWER) && !$model->hasRole(Role::DEVELOPER_JUNIOR)) {
             return true;
         }
+
+        return false;
     }
 
     public function issueJuniorDeveloperDemotions(User $user, User $model): bool
