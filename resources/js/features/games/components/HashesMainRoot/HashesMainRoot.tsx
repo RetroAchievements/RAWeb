@@ -27,6 +27,7 @@ export const HashesMainRoot: FC = () => {
       <div className="flex flex-col gap-5">
         {can.manageGameHashes ? (
           <a
+            // For performance reasons, Filament routes are not handled by Ziggy's `route()` function.
             href={`/manage/games/${game.id}/hashes`}
             className={baseButtonVariants({
               size: 'sm',
