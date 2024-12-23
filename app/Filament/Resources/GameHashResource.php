@@ -43,7 +43,7 @@ class GameHashResource extends Resource
                     ->label('MD5')
                     ->searchable()
                     ->fontFamily(FontFamily::Mono)
-                    ->url(fn (GameHash $record): string => route('game.hash.manage', ['game' => $record->game]))
+                    ->url(fn (GameHash $record): string => route('filament.admin.resources.games.hashes', ['record' => $record->game]))
                     ->toggleable(isToggledHiddenByDefault: false),
 
                 Tables\Columns\TextColumn::make('game.title')

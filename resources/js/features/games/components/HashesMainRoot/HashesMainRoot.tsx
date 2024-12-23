@@ -27,7 +27,7 @@ export const HashesMainRoot: FC = () => {
       <div className="flex flex-col gap-5">
         {can.manageGameHashes ? (
           <a
-            href={route('game.hash.manage', { game: game.id })}
+            href={`/manage/games/${game.id}/hashes`}
             className={baseButtonVariants({
               size: 'sm',
               className: 'flex items-center gap-1 sm:max-w-fit',
