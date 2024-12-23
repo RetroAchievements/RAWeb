@@ -16,13 +16,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role as SpatieRole;
 
-/**
- * For JrDev / Dev promotions and demotions, generally those actions
- * will occur on the UserResource infolist.
- *
- * Privileged users can promote/demote from this relation manager, and
- * have elevated access when doing so.
- */
 class Roles extends ManageRelatedRecords
 {
     protected static string $resource = UserResource::class;
