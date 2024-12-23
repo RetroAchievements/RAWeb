@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import type { FC } from 'react';
+import { type FC, memo } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -15,7 +15,7 @@ import { HubBreadcrumbs } from './HubBreadcrumbs';
 import { HubHeading } from './HubHeading';
 import { RelatedHubs } from './RelatedHubs';
 
-export const HubMainRoot: FC = () => {
+export const HubMainRoot: FC = memo(() => {
   const { auth, breadcrumbs, defaultDesktopPageSize, paginatedGameListEntries } =
     usePageProps<App.Platform.Data.HubPageProps>();
 
@@ -80,4 +80,4 @@ export const HubMainRoot: FC = () => {
       </HydrationBoundary>
     </div>
   );
-};
+});
