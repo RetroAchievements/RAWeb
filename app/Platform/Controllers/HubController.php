@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
+use App\Actions\GetUserDeviceKindAction;
 use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\GameSet;
@@ -21,7 +22,6 @@ use App\Platform\Requests\GameListRequest;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
-use Jenssegers\Agent\Agent;
 
 // TODO mature hub needs to be age gated
 // TODO on rename hub, make sure it's always wrapped in square brackets
@@ -64,7 +64,10 @@ class HubController extends Controller
         /** @var ?User $user */
         $user = $request->user();
 
-        $isMobile = (new Agent())->isMobile();
+        $persistenceCookieName = 'datatable_view_preference_hub_games';
+        $request->setPersistenceCookieName($persistenceCookieName);
+
+        $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
 
         $paginatedData = (new BuildGameListAction())->execute(
             GameListType::Hub,
@@ -99,6 +102,8 @@ class HubController extends Controller
             paginatedGameListEntries: $paginatedData,
             filterableSystemOptions: $filterableSystemOptions,
             can: $can,
+            persistenceCookieName: $persistenceCookieName,
+            persistedViewPreferences: $request->getCookiePreferences(),
         );
 
         return Inertia::render('hub/[gameSet]', $props);
