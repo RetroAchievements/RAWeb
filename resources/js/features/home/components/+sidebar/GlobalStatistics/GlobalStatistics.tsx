@@ -23,7 +23,7 @@ export const GlobalStatistics: FC = () => {
     <div>
       <HomeHeading>{t('Statistics')}</HomeHeading>
 
-      <div className="flex flex-col gap-1.5">
+      <div className="grid gap-1.5">
         <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-2">
           <StatBox
             t_label={t('Games')}
