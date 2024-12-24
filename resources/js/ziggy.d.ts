@@ -206,7 +206,15 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.suggestions.similar": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.index": [],
+    "game.suggestions.personalized": [],
     "hub.show": [
         {
             "name": "gameSet",
