@@ -239,7 +239,8 @@ switch ($requestType) {
      */
     case "allprogress":
         $consoleID = (int) request()->input('c');
-        $response['Response'] = GetAllUserProgress($username, $consoleID);
+        $userModel = User::firstWhere('User', $username);
+        $response['Response'] = GetAllUserProgress($userModel, $consoleID);
         break;
 
     case "badgeiter":
