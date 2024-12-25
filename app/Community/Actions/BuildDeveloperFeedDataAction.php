@@ -176,7 +176,7 @@ class BuildDeveloperFeedDataAction
         // We conditionally apply the hint only when using MySQL/MariaDB. It is not supported by SQLite.
         $query = LeaderboardEntry::query();
 
-        if (DB::connection()->getDriverName() === 'mysql') {
+        if (DB::connection()->getDriverName() === 'mariadb') {
             $query->from(DB::raw('leaderboard_entries FORCE INDEX (idx_recent_entries)'));
         }
 
