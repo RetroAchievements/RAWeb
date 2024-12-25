@@ -87,4 +87,26 @@ describe('Component: AchievementAvatar', () => {
     // ASSERT
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
+
+  it('adds hardcore unlock border styling when showHardcoreUnlockBorder is true', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    render(<AchievementAvatar {...achievement} showHardcoreUnlockBorder={true} />);
+
+    // ASSERT
+    const imgEl = screen.getByRole('img');
+    expect(imgEl).toHaveClass('outline outline-2 outline-offset-1 outline-[gold]');
+  });
+
+  it('does not add hardcore unlock border styling when showHardcoreUnlockBorder is false', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    render(<AchievementAvatar {...achievement} showHardcoreUnlockBorder={false} />);
+
+    // ASSERT
+    const imgEl = screen.getByRole('img');
+    expect(imgEl).not.toHaveClass('outline outline-2 outline-offset-1 outline-[gold]');
+  });
 });
