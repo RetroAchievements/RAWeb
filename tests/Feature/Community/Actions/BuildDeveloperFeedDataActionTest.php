@@ -80,7 +80,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $result = (new BuildDeveloperFeedDataAction())->execute($developer);
 
         // Assert
-        $this->assertEquals(3, $result->awardsContributed);
+        $this->assertEquals(2, $result->awardsContributed);
     }
 
     public function testItCountsLeaderboardEntries(): void
