@@ -32,13 +32,11 @@ class PingMultisetTest extends TestCase
     use TestsPlayerAchievements;
 
     protected User $user;
-    private $originalEnv;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->originalEnv = getenv('VITE_FEATURE_MULTISET');
         Config::set('feature.enable_multiset', true);
 
         /** @var User $user */
