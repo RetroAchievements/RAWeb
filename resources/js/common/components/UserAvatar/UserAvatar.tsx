@@ -9,6 +9,7 @@ type UserAvatarProps = BaseAvatarProps & App.Data.User;
 export const UserAvatar: FC<UserAvatarProps> = ({
   displayName,
   deletedAt,
+  imgClassName,
   hasTooltip = true,
   showImage = true,
   showLabel = true,
@@ -33,7 +34,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
           height={size}
           src={`http://media.retroachievements.org/UserPic/${displayName}.png`}
           alt={displayName ?? 'Deleted User'}
-          className="rounded-sm"
+          className={cn('rounded-sm', imgClassName)}
         />
       ) : null}
 
