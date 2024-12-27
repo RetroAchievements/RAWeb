@@ -61,9 +61,9 @@ settype($articleType, 'integer');
                 <span class="smalldate">{{ $when?->format('j M Y H:i') }}</span>
             </div>
 
-            {{-- Specially handle newlines in comments, strip everything else. --}}
+            {{-- Specially handle newlines in comments, render everything else as plain text. --}}
             <div style="word-break: break-word">
-                {!! preg_replace('/<br\s*\/?>\s*(<br\s*\/?>)+/', '<br>', preg_replace('/(\r\n|\r|\n)+/', '<br>', strip_tags($payload, '<br>'))) !!}
+                {!! preg_replace('/<br\s*\/?>(\s*<br\s*\/?>)+/', '<br /><br />', nl2br(htmlspecialchars(str_replace('<br />', "\n", $payload)))) !!}
             </div>
         </td>
     </tr>
