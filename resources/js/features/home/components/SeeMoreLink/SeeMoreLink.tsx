@@ -20,20 +20,14 @@ interface SeeMoreLinkProps {
   prefetch?: LinkPrefetchBehavior;
 }
 
-export const SeeMoreLink: FC<SeeMoreLinkProps> = ({
-  href,
-  asClientSideRoute,
-  prefetch = 'desktop-hover-only',
-}) => {
+export const SeeMoreLink: FC<SeeMoreLinkProps> = ({ href, asClientSideRoute }) => {
   const { t } = useTranslation();
 
   const Wrapper = asClientSideRoute ? InertiaLink : 'a';
 
   return (
     <div className="mt-1.5 flex w-full justify-end text-xs">
-      <Wrapper href={href} prefetch={asClientSideRoute ? prefetch : undefined}>
-        {t('See more')}
-      </Wrapper>
+      <Wrapper href={href}>{t('See more')}</Wrapper>
     </div>
   );
 };
