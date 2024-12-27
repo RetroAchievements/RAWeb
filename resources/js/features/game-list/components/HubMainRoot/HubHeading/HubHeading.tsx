@@ -34,7 +34,7 @@ export const HubHeading: FC = () => {
           {cleanHubTitle(hub.title!)}
         </div>
 
-        {can.manageGameSets ? (
+        {can.manageGameSets || hub.forumTopicId ? (
           <div className="flex gap-2">
             {hub.forumTopicId ? (
               <a
@@ -49,18 +49,20 @@ export const HubHeading: FC = () => {
               </a>
             ) : null}
 
-            <a
-              // Filament named routes are excluded from the front-end type mappings for performance reasons.
-              href={`/manage/hubs/${hub.id}`}
-              className={baseButtonVariants({
-                size: 'sm',
-                className: 'gap-1',
-              })}
-              target="_blank"
-            >
-              {t('Manage')}
-              <LuExternalLink className="size-4" />
-            </a>
+            {can.manageGameSets ? (
+              <a
+                // Filament named routes are excluded from the front-end type mappings for performance reasons.
+                href={`/manage/hubs/${hub.id}`}
+                className={baseButtonVariants({
+                  size: 'sm',
+                  className: 'gap-1',
+                })}
+                target="_blank"
+              >
+                {t('Manage')}
+                <LuExternalLink className="size-4" />
+              </a>
+            ) : null}
           </div>
         ) : null}
       </h1>

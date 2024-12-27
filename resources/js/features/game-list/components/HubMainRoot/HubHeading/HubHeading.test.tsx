@@ -60,9 +60,9 @@ describe('Component: HubHeading', () => {
     expect(screen.queryByText(/\]/i)).not.toBeInTheDocument();
   });
 
-  it('given the user cannot manage hubs, does not show a Manage button', () => {
+  it('given the user cannot manage game sets and there is no forum topic, does not show any action buttons', () => {
     // ARRANGE
-    const hub = createGameSet({ type: 'hub', title: '[Series - Sonic the Hedgehog]' });
+    const hub = createGameSet({ type: 'hub' });
 
     render<App.Platform.Data.HubPageProps>(<HubHeading />, {
       pageProps: { hub, can: { manageGameSets: false } },
@@ -70,6 +70,25 @@ describe('Component: HubHeading', () => {
 
     // ASSERT
     expect(screen.queryByRole('link', { name: /manage/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /view forum topic/i })).not.toBeInTheDocument();
+  });
+
+  it('given there is a forum topic ID, shows the View Forum Topic button regardless of permissions', () => {
+    // ARRANGE
+    const hub = createGameSet({
+      type: 'hub',
+      forumTopicId: 12345,
+    });
+
+    render<App.Platform.Data.HubPageProps>(<HubHeading />, {
+      pageProps: { hub, can: { manageGameSets: false } },
+    });
+
+    // ASSERT
+    const linkEl = screen.getByRole('link', { name: /view forum topic/i });
+
+    expect(linkEl).toBeVisible();
+    expect(linkEl).toHaveAttribute('href', '/viewtopic.php?t=12345');
   });
 
   it('given the user can manage hubs, shows a Manage button', () => {
