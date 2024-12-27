@@ -8,8 +8,10 @@ use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
 use App\Models\System;
+use App\Models\Trigger;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\TriggerableType;
 use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementPublished;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -1084,5 +1086,205 @@ class UploadAchievementTest extends TestCase
                 'AchievementID' => 0,
                 'Error' => 'Invalid achievement type',
             ]);
+    }
+
+    public function testWhenCreatingNewAchievementItsTriggerIsUnversioned(): void
+    {
+        // Arrange
+        $author = User::factory()->create([
+            'Permissions' => Permissions::Developer,
+            'appToken' => Str::random(16),
+        ]);
+        $game = $this->seedGame(withHash: false);
+
+        AchievementSetClaim::factory()->create([
+            'user_id' => $author->id,
+            'game_id' => $game->id,
+        ]);
+
+        // Act
+        $response = $this->get($this->apiUrl('uploadachievement', [
+            'u' => $author->username,
+            't' => $author->appToken,
+            'g' => $game->id,
+            'n' => 'Test Achievement',
+            'd' => 'Test Description',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => AchievementFlag::Unofficial->value,
+            'b' => 'test-badge',
+        ]));
+
+        // Assert
+        $this->assertArrayHasKey('Success', $response);
+        $this->assertTrue($response['Success']);
+        $this->assertArrayHasKey('AchievementID', $response);
+
+        $achievement = Achievement::find($response['AchievementID']);
+        $this->assertNotNull($achievement);
+
+        $trigger = $achievement->trigger;
+        $this->assertNotNull($trigger);
+        $this->assertEquals('0xH0000=1', $trigger->conditions);
+        $this->assertNull($trigger->version); // !! trigger should be unversioned
+    }
+
+    public function testWhenEditingUnversionedAchievementTriggerIsUpdatedInPlace(): void
+    {
+        // Arrange
+        $author = User::factory()->create([
+            'Permissions' => Permissions::Developer,
+            'appToken' => Str::random(16),
+        ]);
+        $game = $this->seedGame(withHash: false);
+
+        $achievement = Achievement::factory()->create([
+            'GameID' => $game->id,
+            'user_id' => $author->id,
+            'Flags' => AchievementFlag::Unofficial->value,
+            'MemAddr' => '0xH0000=1',
+        ]);
+        $trigger = Trigger::factory()->create([
+            'triggerable_id' => $achievement->id,
+            'triggerable_type' => TriggerableType::Achievement,
+            'conditions' => '0xH0000=1',
+            'version' => null, // !!
+            'user_id' => $author->id,
+        ]);
+
+        AchievementSetClaim::factory()->create([
+            'user_id' => $author->id,
+            'game_id' => $game->id,
+        ]);
+
+        // Act
+        $response = $this->get($this->apiUrl('uploadachievement', [
+            'u' => $author->username,
+            't' => $author->appToken,
+            'g' => $game->id,
+            'n' => 'Test Achievement',
+            'd' => 'Test Description',
+            'z' => 5,
+            'm' => '0xHaaaa=1', // !! the dev is updating the achievement's logic
+            'f' => AchievementFlag::Unofficial->value, // !! still unofficial, though.
+            'b' => 'test-badge',
+            'a' => $achievement->id,
+        ]));
+
+        // Assert
+        $this->assertArrayHasKey('Success', $response);
+        $this->assertTrue($response['Success']);
+
+        $achievement->refresh();
+        $this->assertEquals('0xHaaaa=1', $achievement->MemAddr);
+
+        $newTrigger = $achievement->trigger;
+        $this->assertNotNull($newTrigger);
+        $this->assertEquals($trigger->id, $newTrigger->id); // !! same trigger ID - it was updated in place.
+        $this->assertEquals('0xHaaaa=1', $newTrigger->conditions);
+        $this->assertNull($newTrigger->version); // the trigger is also still unversioned.
+    }
+
+    public function testWhenPromotingAchievementTheTriggerBecomesVersioned(): void
+    {
+        // Arrange
+        $author = User::factory()->create([
+            'Permissions' => Permissions::Developer,
+            'appToken' => Str::random(16),
+        ]);
+        $game = $this->seedGame(withHash: false);
+
+        $achievement = Achievement::factory()->create([
+            'GameID' => $game->id,
+            'user_id' => $author->id,
+            'Flags' => AchievementFlag::Unofficial->value, // !! currently sitting in unofficial.
+            'MemAddr' => '0xH0000=1',
+        ]);
+        $trigger = Trigger::factory()->create([
+            'triggerable_id' => $achievement->id,
+            'triggerable_type' => TriggerableType::Achievement,
+            'conditions' => '0xH0000=1',
+            'version' => null, // !! currently unversioned, never been published.
+            'user_id' => $author->id,
+        ]);
+
+        AchievementSetClaim::factory()->create([
+            'user_id' => $author->id,
+            'game_id' => $game->id,
+        ]);
+
+        // Act
+        $response = $this->get($this->apiUrl('uploadachievement', [
+            'u' => $author->username,
+            't' => $author->appToken,
+            'g' => $game->id,
+            'n' => 'Test Achievement',
+            'd' => 'Test Description',
+            'z' => 5,
+            'm' => '0xH0000=1', // the logic didn't change!
+            'f' => AchievementFlag::OfficialCore->value, // promoted to core!
+            'b' => 'test-badge',
+            'a' => $achievement->id,
+        ]));
+
+        // Assert
+        $this->assertArrayHasKey('Success', $response);
+        $this->assertTrue($response['Success']);
+
+        $achievement->refresh();
+        $trigger = $achievement->trigger;
+        $this->assertNotNull($trigger);
+        $this->assertEquals('0xH0000=1', $trigger->conditions);
+        $this->assertEquals(1, $trigger->version); // the trigger now is at version 1
+    }
+
+    public function testWhenEditingVersionedAchievementNewTriggerVersionIsCreated(): void
+    {
+        // Arrange
+        $author = User::factory()->create([
+            'Permissions' => Permissions::Developer,
+            'appToken' => Str::random(16),
+        ]);
+        $game = $this->seedGame(withHash: false);
+
+        $achievement = Achievement::factory()->create([
+            'GameID' => $game->id,
+            'user_id' => $author->id,
+            'Flags' => AchievementFlag::OfficialCore->value, // !!
+            'MemAddr' => '0xH0000=1',
+        ]);
+        $trigger = Trigger::factory()->create([
+            'triggerable_id' => $achievement->id,
+            'triggerable_type' => TriggerableType::Achievement,
+            'conditions' => '0xH0000=1',
+            'version' => 1, // !!
+            'user_id' => $author->id,
+        ]);
+
+        // Act
+        $response = $this->get($this->apiUrl('uploadachievement', [
+            'u' => $author->username,
+            't' => $author->appToken,
+            'g' => $game->id,
+            'n' => 'Test Achievement',
+            'd' => 'Test Description',
+            'z' => 5,
+            'm' => '0xHaaaa=1', // logic changed!
+            'f' => AchievementFlag::OfficialCore->value,
+            'b' => 'test-badge',
+            'a' => $achievement->id,
+        ]));
+
+        // Assert
+        $this->assertArrayHasKey('Success', $response);
+        $this->assertTrue($response['Success']);
+
+        $achievement->refresh();
+        $newTrigger = $achievement->trigger;
+        $this->assertNotNull($newTrigger);
+        $this->assertNotEquals($trigger->id, $newTrigger->id); // new version was created, so new ID
+        $this->assertEquals('0xHaaaa=1', $newTrigger->conditions);
+        $this->assertEquals(2, $newTrigger->version); // previous version was 1, so we're on 2 now.
+        $this->assertEquals($trigger->id, $newTrigger->parent_id); // we also have a stable link to the previous version.
     }
 }
