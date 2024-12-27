@@ -4,7 +4,7 @@ import axios from 'axios';
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
 
-import { ContentWarningDialog } from './ContentWarningDialog';
+import { MatureContentWarningDialog } from './MatureContentWarningDialog';
 
 describe('Component: ContentWarningDialog', () => {
   beforeEach(() => {
@@ -13,7 +13,7 @@ describe('Component: ContentWarningDialog', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<ContentWarningDialog />, {
+    const { container } = render(<MatureContentWarningDialog />, {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
@@ -29,7 +29,7 @@ describe('Component: ContentWarningDialog', () => {
 
   it('given the user has not opted to bypass content warnings, shows the dialog', () => {
     // ARRANGE
-    render(<ContentWarningDialog />, {
+    render(<MatureContentWarningDialog />, {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
@@ -51,7 +51,7 @@ describe('Component: ContentWarningDialog', () => {
 
   it('given the user has opted to bypass content warnings, does not show the dialog', () => {
     // ARRANGE
-    render(<ContentWarningDialog />, {
+    render(<MatureContentWarningDialog />, {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
@@ -68,11 +68,11 @@ describe('Component: ContentWarningDialog', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
-  it('given the user clicks "Yes", closes the dialog without making any API calls', async () => {
+  it('given the user clicks "Yes, I\'m an adult", closes the dialog without making any API calls', async () => {
     // ARRANGE
     const patchSpy = vi.spyOn(axios, 'patch');
 
-    render(<ContentWarningDialog />, {
+    render(<MatureContentWarningDialog />, {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
@@ -83,7 +83,7 @@ describe('Component: ContentWarningDialog', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: 'Yes' }));
+    await userEvent.click(screen.getByRole('button', { name: /yes, i'm an adult/i }));
 
     // ASSERT
     expect(patchSpy).not.toHaveBeenCalled();
@@ -94,7 +94,7 @@ describe('Component: ContentWarningDialog', () => {
     // ARRANGE
     const patchSpy = vi.spyOn(axios, 'patch').mockResolvedValueOnce({});
 
-    render(<ContentWarningDialog />, {
+    render(<MatureContentWarningDialog />, {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
@@ -127,7 +127,7 @@ describe('Component: ContentWarningDialog', () => {
 
     const customUrl = '/custom-url';
 
-    render(<ContentWarningDialog noHref={customUrl} />, {
+    render(<MatureContentWarningDialog noHref={customUrl} />, {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
@@ -152,7 +152,7 @@ describe('Component: ContentWarningDialog', () => {
       writable: true,
     });
 
-    render(<ContentWarningDialog />, {
+    render(<MatureContentWarningDialog />, {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
@@ -171,7 +171,7 @@ describe('Component: ContentWarningDialog', () => {
 
   it('given the user presses the escape key, still does not close the dialog', async () => {
     // ARRANGE
-    render(<ContentWarningDialog />, {
+    render(<MatureContentWarningDialog />, {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({

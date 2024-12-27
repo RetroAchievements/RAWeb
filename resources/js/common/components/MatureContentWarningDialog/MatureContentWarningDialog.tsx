@@ -13,14 +13,16 @@ import {
   BaseAlertDialogTitle,
 } from '../+vendor/BaseAlertDialog';
 import { BaseButton } from '../+vendor/BaseButton';
-import { useSuppressContentWarningMutation } from './useSuppressContentWarningMutation';
+import { useSuppressMatureContentWarningMutation } from './useSuppressMatureContentWarningMutation';
 
-interface ContentWarningDialogProps {
+interface MatureContentWarningDialogProps {
   /** On clicking "No", the user will be redirected to this URL. Defaults to the home page. */
   noHref?: string;
 }
 
-export const ContentWarningDialog: FC<ContentWarningDialogProps> = ({ noHref = route('home') }) => {
+export const MatureContentWarningDialog: FC<MatureContentWarningDialogProps> = ({
+  noHref = route('home'),
+}) => {
   const { auth } = usePageProps();
 
   const { t } = useTranslation();
@@ -29,7 +31,7 @@ export const ContentWarningDialog: FC<ContentWarningDialogProps> = ({ noHref = r
     auth?.user.preferences?.shouldAlwaysBypassContentWarnings ? false : true,
   );
 
-  const mutation = useSuppressContentWarningMutation();
+  const mutation = useSuppressMatureContentWarningMutation();
 
   const handlePermanentYesClick = () => {
     mutation.mutate(); // Fire and forget.
@@ -59,7 +61,7 @@ export const ContentWarningDialog: FC<ContentWarningDialogProps> = ({ noHref = r
           }}
         >
           <BaseAlertDialogHeader>
-            <BaseAlertDialogTitle>{t('Content Warning')}</BaseAlertDialogTitle>
+            <BaseAlertDialogTitle>{t('Mature Content Warning')}</BaseAlertDialogTitle>
 
             <BaseAlertDialogDescription className="flex flex-col gap-4">
               <span>

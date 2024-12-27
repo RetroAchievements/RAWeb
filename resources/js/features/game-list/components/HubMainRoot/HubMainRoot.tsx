@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { FC } from 'react';
 
-import { ContentWarningDialog } from '@/common/components/ContentWarningDialog';
+import { MatureContentWarningDialog } from '@/common/components/MatureContentWarningDialog';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useAutoUpdatingQueryParams } from '../../hooks/useAutoUpdatingQueryParams';
@@ -49,7 +49,7 @@ export const HubMainRoot: FC = () => {
 
   return (
     <div>
-      {hub.hasMatureContent ? <ContentWarningDialog /> : null}
+      {hub.hasMatureContent ? <MatureContentWarningDialog /> : null}
 
       <DataTablePaginationScrollTarget>
         <HubBreadcrumbs breadcrumbs={breadcrumbs} />
