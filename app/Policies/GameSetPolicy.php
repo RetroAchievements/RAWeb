@@ -68,7 +68,7 @@ class GameSetPolicy
         return false;
     }
 
-    public function toggleHasContentWarning(User $user, GameSet $gameSet): bool
+    public function toggleHasMatureContent(User $user, GameSet $gameSet): bool
     {
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,

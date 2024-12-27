@@ -10,14 +10,14 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('game_sets', function (Blueprint $table) {
-            $table->boolean('has_content_warning')->default(false)->after('definition');
+            $table->boolean('has_mature_content')->default(false)->after('definition');
         });
     }
 
     public function down(): void
     {
         Schema::table('game_sets', function (Blueprint $table) {
-            $table->dropColumn('has_content_warning');
+            $table->dropColumn('has_mature_content');
         });
     }
 };

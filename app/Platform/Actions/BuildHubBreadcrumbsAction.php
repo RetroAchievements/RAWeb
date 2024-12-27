@@ -165,7 +165,7 @@ class BuildHubBreadcrumbsAction
                 gameCount: 0,
                 linkCount: 0,
                 updatedAt: new Carbon($data['updated_at']),
-                hasContentWarning: false, // doesn't matter, this is just a breadcrumb
+                hasMatureContent: false, // doesn't matter, this is just a breadcrumb
             ),
             $cachedData ?? [],
         );

@@ -49,7 +49,7 @@ export const HubMainRoot: FC = () => {
 
   return (
     <div>
-      {hub.hasContentWarning ? <ContentWarningDialog /> : null}
+      {hub.hasMatureContent ? <ContentWarningDialog /> : null}
 
       <DataTablePaginationScrollTarget>
         <HubBreadcrumbs breadcrumbs={breadcrumbs} />

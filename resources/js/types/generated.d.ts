@@ -371,7 +371,7 @@ declare namespace App.Platform.Data {
     gameCount: number;
     linkCount: number;
     updatedAt: string;
-    hasContentWarning?: boolean;
+    hasMatureContent?: boolean;
   };
   export type GameTopAchiever = {
     rank: number;

@@ -879,7 +879,7 @@ describe('Component: HubMainRoot', () => {
         breadcrumbs: [],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        hub: createGameSet({ hasContentWarning: true }),
+        hub: createGameSet({ hasMatureContent: true }),
         ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
@@ -896,7 +896,7 @@ describe('Component: HubMainRoot', () => {
         breadcrumbs: [],
         paginatedGameListEntries: createPaginatedData([]),
         can: { develop: false },
-        hub: createGameSet({ hasContentWarning: false }),
+        hub: createGameSet({ hasMatureContent: false }),
         ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });

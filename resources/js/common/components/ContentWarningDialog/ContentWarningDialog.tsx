@@ -12,6 +12,7 @@ import {
   BaseAlertDialogHeader,
   BaseAlertDialogTitle,
 } from '../+vendor/BaseAlertDialog';
+import { BaseButton } from '../+vendor/BaseButton';
 import { useSuppressContentWarningMutation } from './useSuppressContentWarningMutation';
 
 interface ContentWarningDialogProps {
@@ -73,9 +74,11 @@ export const ContentWarningDialog: FC<ContentWarningDialogProps> = ({ noHref = r
               {t("Yes, and don't ask again")}
             </BaseAlertDialogAction>
 
-            <BaseAlertDialogAction onClick={handleYesClick}>{t('Yes')}</BaseAlertDialogAction>
+            <BaseAlertDialogAction onClick={handleYesClick}>
+              {t("Yes, I'm an adult.")}
+            </BaseAlertDialogAction>
 
-            <BaseAlertDialogAction onClick={handleNoClick}>{t('No')}</BaseAlertDialogAction>
+            <BaseButton onClick={handleNoClick}>{t('No')}</BaseButton>
           </BaseAlertDialogFooter>
         </BaseAlertDialogContent>
       </BaseAlertDialog>

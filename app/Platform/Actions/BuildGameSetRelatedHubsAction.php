@@ -25,7 +25,7 @@ class BuildGameSetRelatedHubsAction
                 'title',
                 'image_asset_path',
                 'type',
-                'has_content_warning',
+                'has_mature_content',
                 'updated_at',
             ])
             ->withCount([

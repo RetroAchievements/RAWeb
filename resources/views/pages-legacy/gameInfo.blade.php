@@ -138,7 +138,7 @@ $gate = false;
 if ($v != 1) {
     $canBypassGate = $userDetails && BitSet($userDetails['websitePrefs'], $matureContentPref);
     if (!$canBypassGate) {
-        $gate = $gameModel->has_content_warning;
+        $gate = $gameModel->has_mature_content;
     }
 }
 ?>

@@ -59,8 +59,8 @@ class HubResource extends Resource
                         Infolists\Components\TextEntry::make('title')
                             ->label('Title'),
 
-                        Infolists\Components\TextEntry::make('has_content_warning')
-                            ->label('Has Content Warning')
+                        Infolists\Components\TextEntry::make('has_mature_content')
+                            ->label('Has Mature Content')
                             ->formatStateUsing(fn (bool $state): string => $state ? 'Yes' : 'No')
                             ->color(fn (bool $state): string => $state ? 'danger' : ''),
 
@@ -96,11 +96,11 @@ class HubResource extends Resource
                             ->maxLength(80)
                             ->rules([new NoEmoji()]),
 
-                        Forms\Components\Toggle::make('has_content_warning')
-                            ->label('Has Content Warning')
+                        Forms\Components\Toggle::make('has_mature_content')
+                            ->label('Has Mature Content')
                             ->helperText('CAUTION: If this is enabled, players will get a warning when opening any game in the hub!')
                             ->default(false)
-                            ->visible(fn ($record) => $user->can('toggleHasContentWarning', $record)),
+                            ->visible(fn ($record) => $user->can('toggleHasMatureContent', $record)),
                     ]),
 
                 Forms\Components\Section::make('Internal Notes')

@@ -22,7 +22,7 @@ class GameSetData extends Data
         public int $gameCount,
         public int $linkCount,
         public Carbon $updatedAt,
-        public Lazy|bool $hasContentWarning,
+        public Lazy|bool $hasMatureContent,
     ) {
     }
 
@@ -39,7 +39,7 @@ class GameSetData extends Data
             gameCount: $gameSet->games_count ?? 0,
             linkCount: $gameSet->link_count ?? 0,
             updatedAt: $gameSet->updated_at,
-            hasContentWarning: Lazy::create(fn () => $gameSet->has_content_warning),
+            hasMatureContent: Lazy::create(fn () => $gameSet->has_mature_content),
         );
     }
 }
