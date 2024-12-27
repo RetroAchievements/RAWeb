@@ -42,7 +42,7 @@ class ReportAchievementIssueController extends Controller
             'game.system',
         );
 
-        $can = UserPermissionsData::fromUser($user)->include('createTriggerTicket');
+        $can = UserPermissionsData::fromUser($user, triggerable: $achievement)->include('createTriggerTicket');
 
         $props = new ReportAchievementIssuePagePropsData(
             achievement: $achievementData,

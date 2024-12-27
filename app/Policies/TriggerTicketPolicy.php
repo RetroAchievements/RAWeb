@@ -30,20 +30,28 @@ class TriggerTicketPolicy
         return false;
     }
 
-    public function create(User $user, Achievement|Leaderboard $triggerable): bool
+    public function create(User $user): bool
     {
-        if (
-            !$user->hasVerifiedEmail()
-            || $user->created_at->diffInDays() < 1
-            || $user->is_muted
-            || $user->banned_at
-        ) {
+        return
+            $user->hasVerifiedEmail()
+            && $user->created_at->diffInDays() >= 1
+            && !$user->is_muted
+            && !$user->banned_at
+        ;
+    }
+
+    // TODO `Model $triggerable` and check for `HasVersionedTrigger`
+    public function createFor(User $user, Achievement|Leaderboard $triggerable): bool
+    {
+        if (!$this->create($user)) {
             return false;
         }
 
         if ($triggerable instanceof Achievement) {
             return $this->createAchievementTicket($user, $triggerable);
-        } elseif ($triggerable instanceof Leaderboard) {
+        }
+
+        if ($triggerable instanceof Leaderboard) {
             return $this->createLeaderboardTicket($user, $triggerable);
         }
     }
