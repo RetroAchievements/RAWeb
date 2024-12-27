@@ -40,15 +40,15 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
         ziggy.device === 'desktop' ? 'sm:bg-embed' : '',
         ziggy.device === 'mobile' ? 'bg-embed' : '',
 
-        news.pinnedAt ? 'border-rose-600' : '',
+        news.pinnedAt ? 'border-amber-600' : '',
 
         className,
       )}
     >
       <div className="relative h-28 w-full sm:w-[197px]">
         {news.pinnedAt && ziggy.device === 'mobile' ? (
-          <div className="absolute -right-2 -top-2 flex size-8 items-center justify-center rounded-bl rounded-tr-lg bg-rose-600">
-            <LuPin className="size-5 text-white" />
+          <div className="absolute -right-2 -top-2 flex size-8 items-center justify-center rounded-bl rounded-tr-lg bg-amber-600">
+            <LuPin className="mr-[2px] size-5 text-white" />
             <p className="sr-only">{t('Pinned')}</p>
           </div>
         ) : null}
@@ -68,8 +68,8 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
         {news.pinnedAt && ziggy.device === 'desktop' ? (
           <BaseTooltip>
             <BaseTooltipTrigger className="absolute -right-2 -top-2">
-              <div className="flex size-8 items-center justify-center rounded-bl rounded-tr-lg bg-rose-600">
-                <LuPin className="-mt-1 size-5 text-white" />
+              <div className="flex size-8 items-center justify-center rounded-bl rounded-tr-lg bg-amber-600">
+                <LuPin className="mr-[2px] size-5 text-white" />
                 <p className="sr-only">{t('Pinned')}</p>
               </div>
             </BaseTooltipTrigger>
