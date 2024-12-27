@@ -62,7 +62,7 @@ settype($articleType, 'integer');
             </div>
 
             <div style="word-break: break-word">
-                {!! $payload !!}
+                {!! e($payload) !!}
             </div>
         </td>
     </tr>
