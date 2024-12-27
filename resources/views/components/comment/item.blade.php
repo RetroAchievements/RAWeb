@@ -10,6 +10,7 @@
 
 @php
 
+use App\Community\Actions\FormatLegacyCommentPayloadAction;
 use App\Community\Enums\ArticleType;
 
 settype($articleType, 'integer');
@@ -62,8 +63,14 @@ settype($articleType, 'integer');
             </div>
 
             {{-- Specially handle newlines in comments, render everything else as plain text. --}}
-            <div style="word-break: break-word">
-                {!! preg_replace('/<br\s*\/?>(\s*<br\s*\/?>)+/', '<br /><br />', nl2br(htmlspecialchars(str_replace('<br />', "\n", $payload)))) !!}
+            @php
+                $formattedPayload = (new FormatLegacyCommentPayloadAction())->execute(
+                    $payload,
+                    isTicketComment: (int) $articleType === ArticleType::AchievementTicket,
+                );
+            @endphp
+            <div style="word-break: break-word;">
+                {!! $formattedPayload !!}
             </div>
         </td>
     </tr>
