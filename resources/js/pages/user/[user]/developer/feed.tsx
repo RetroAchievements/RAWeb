@@ -1,6 +1,6 @@
-import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
+import { SEO } from '@/common/components/SEO';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
@@ -11,17 +11,13 @@ const DeveloperFeed: AppPage = () => {
 
   const { t } = useTranslation();
 
-  const metaDescription = `View recent activity for achievements contributed by ${developer.displayName} on RetroAchievements`;
-
   return (
     <>
-      {/* TODO SEO component */}
-      <Head title={t('Developer Feed - {{user}}', { user: developer.displayName })}>
-        <meta name="description" content={metaDescription} />
-        <meta name="og:description" content={metaDescription} />
-
-        <meta property="og:image" content={developer.avatarUrl} />
-      </Head>
+      <SEO
+        title={t('Developer Feed - {{user}}', { user: developer.displayName })}
+        description={`View recent activity for achievements contributed by ${developer.displayName} on RetroAchievements`}
+        ogImage={developer.avatarUrl}
+      />
 
       <AppLayout.Main>
         <DeveloperFeedMainRoot />
