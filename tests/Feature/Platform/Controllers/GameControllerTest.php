@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Controllers;
 
+use App\Community\Enums\ClaimStatus;
+use App\Models\AchievementSetClaim;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\System;
+use App\Models\User;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -40,6 +45,121 @@ class GameControllerTest extends TestCase
             ->where('defaultDesktopPageSize', 25)
             ->where('paginatedGameListEntries.items.0.game.title', $gameOne->title)
             ->where('paginatedGameListEntries.items.0.game.system.id', $gameOne->system->id)
+        );
+    }
+
+    public function testDevInterestDeniesAccessToRegularUsers(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+
+        $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+
+        /** @var User $user */
+        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $this->actingAs($user);
+
+        // Act
+        $response = $this->get(route('game.dev-interest', ['game' => $game]));
+
+        // Assert
+        $response->assertForbidden();
+    }
+
+    public function testDevInterestDeniesAccessToJuniorDevelopers(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+
+        $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+
+        /** @var User $user */
+        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user->assignRole(Role::DEVELOPER_JUNIOR);
+        $this->actingAs($user);
+
+        // Act
+        $response = $this->get(route('game.dev-interest', ['game' => $game]));
+
+        // Assert
+        $response->assertForbidden();
+    }
+
+    public function testDevInterestDeniesAccessToFullDevelopers(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+
+        $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+
+        /** @var User $user */
+        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user->assignRole(Role::DEVELOPER);
+        $this->actingAs($user);
+
+        // Act
+        $response = $this->get(route('game.dev-interest', ['game' => $game]));
+
+        // Assert
+        $response->assertForbidden();
+    }
+
+    public function testDevInterestIsAuthorizedForFullDevelopersWithAClaim(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+
+        $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+
+        /** @var User $user */
+        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user->assignRole(Role::DEVELOPER);
+        $this->actingAs($user);
+
+        AchievementSetClaim::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'Status' => ClaimStatus::Active,
+        ]);
+
+        // Act
+        $response = $this->get(route('game.dev-interest', ['game' => $game]));
+
+        // Assert
+        $response->assertOk();
+    }
+
+    public function testDevInterestReturnsCorrectInertiaResponse(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+
+        $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+
+        /** @var User $user */
+        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user->assignRole(Role::DEVELOPER);
+        $this->actingAs($user);
+
+        AchievementSetClaim::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'Status' => ClaimStatus::Active,
+        ]);
+
+        // Act
+        $response = $this->get(route('game.dev-interest', ['game' => $game]));
+
+        // Assert
+        $response->assertInertia(fn ($page) => $page
+            ->component('game/[game]/dev-interest')
+            ->has('game')
+            ->has('developers')
         );
     }
 }

@@ -512,5 +512,9 @@
     "Remember my view": "Remember my view",
     "Moderation Comments - {{user}}": "Moderation Comments - {{user}}",
     "Moderation Comments": "Moderation Comments",
-    "Columns": "Columns"
+    "Columns": "Columns",
+    "Developer Interest - {{gameTitle}}": "Developer Interest - {{gameTitle}}",
+    "Developer Interest": "Developer Interest",
+    "The following users have added this game to their Want to Develop list:": "The following users have added this game to their Want to Develop list:",
+    "No users have added this game to their Want to Develop list.": "No users have added this game to their Want to Develop list."
 }

@@ -156,6 +156,22 @@ class GamePolicy
         ]);
     }
 
+    public function viewDeveloperInterest(User $user, Game $game): bool
+    {
+        // Developers need to have a claim on the game in order to see
+        // who else might have expressed interest in working on it.
+        // This is mainly to facilitate them reaching out to collab.
+        if ($user->hasRole(Role::DEVELOPER) && $user->hasActiveClaimOnGameId($game->id)) {
+            return true;
+        }
+
+        // Mods and admins can see everything.
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+        ]);
+    }
+
     private function canDeveloperJuniorUpdateGame(User $user, Game $game): bool
     {
         // If the user has a DEVELOPER_JUNIOR role, they need to have a claim

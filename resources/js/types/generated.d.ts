@@ -311,6 +311,10 @@ declare namespace App.Platform.Data {
     emulatorCore: string | null;
     selectedMode: number | null;
   };
+  export type DeveloperInterestPageProps = {
+    game: App.Platform.Data.Game;
+    developers: Array<App.Data.User>;
+  };
   export type Emulator = {
     id: number;
     name: string;
