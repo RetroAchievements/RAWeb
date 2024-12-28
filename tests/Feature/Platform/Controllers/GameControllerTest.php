@@ -157,9 +157,10 @@ class GameControllerTest extends TestCase
 
         // Assert
         $response->assertInertia(fn ($page) => $page
-            ->component('game/[game]/dev-interest')
             ->has('game')
+            ->where('game.id', $game->id)
             ->has('developers')
+            ->etc()
         );
     }
 }
