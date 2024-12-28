@@ -82,6 +82,7 @@ const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
     <div className="overflow-hidden rounded">
       {/* Only img tags can detect if the image is invalid/broken (via onError). */}
       <img
+        data-testid="hidden-image"
         className="sr-only"
         aria-hidden={true}
         src={src}
@@ -90,6 +91,8 @@ const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
 
       {isImageValid ? (
         <div
+          role="img"
+          aria-label="news post photo"
           className="h-28 w-full rounded bg-cover bg-center sm:w-[197px]"
           style={{
             backgroundImage: `url(${src})`,
