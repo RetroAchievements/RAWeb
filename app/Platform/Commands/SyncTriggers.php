@@ -45,13 +45,36 @@ class SyncTriggers extends Command
 
         Achievement::query()
             ->whereNotNull('MemAddr')
+            ->with(['comments' => function ($query) {
+                $query->automated()
+                    ->whereRaw("LOWER(Payload) LIKE '% edited%logic%'")
+                    ->latest('Submitted')
+                    ->limit(1);
+            }])
             ->chunk(1000, function ($achievements) use ($progressBar) {
                 foreach ($achievements as $achievement) {
-                    (new UpsertTriggerVersionAction())->execute(
+                    $newTrigger = (new UpsertTriggerVersionAction())->execute(
                         $achievement,
                         $achievement->MemAddr,
                         versioned: $achievement->Flags === AchievementFlag::OfficialCore->value,
                     );
+
+                    // Try our best to backdate the new trigger's timestamps.
+                    if ($newTrigger) {
+                        // Use the latest logic edit comment's timestamp if it exists,
+                        // otherwise fall back to the achievement's creation date.
+                        // DateModified unfortunately could be all kinds of different things
+                        // other than logic.
+                        $updatedTimestamp = $achievement->comments->first()?->Submitted ?? $achievement->DateCreated ?? now();
+
+                        $createdTimestamp = $achievement->DateCreated ?? now();
+
+                        $newTrigger->timestamps = false;
+                        $newTrigger->update([
+                            'created_at' => $createdTimestamp,
+                            'updated_at' => $updatedTimestamp,
+                        ]);
+                    }
 
                     $progressBar->advance();
                 }
@@ -71,13 +94,42 @@ class SyncTriggers extends Command
 
         Leaderboard::query()
             ->whereNotNull('Mem')
+            ->with(['comments' => function ($query) {
+                $query->automated()
+                    ->whereRaw("LOWER(Payload) LIKE '% edited this leaderboard%'")
+                    ->latest('Submitted')
+                    ->limit(1);
+            }])
             ->chunk(1000, function ($leaderboards) use ($progressBar) {
                 foreach ($leaderboards as $leaderboard) {
-                    (new UpsertTriggerVersionAction())->execute(
+                    $newTrigger = (new UpsertTriggerVersionAction())->execute(
                         $leaderboard,
                         $leaderboard->Mem,
                         versioned: true,
                     );
+
+                    // Try our best to backdate the new trigger's timestamps.
+                    if ($newTrigger) {
+                        // First determine the creation date.
+                        $createdTimestamp =
+                            $leaderboard->Created
+                            ?? $leaderboard->Updated
+                            ?? now();
+
+                        // Then ensure updated is never before created.
+                        $updatedTimestamp = max(
+                            $createdTimestamp,
+                            $leaderboard->comments->first()?->Submitted
+                            ?? $leaderboard->Updated
+                            ?? $createdTimestamp
+                        );
+
+                        $newTrigger->timestamps = false;
+                        $newTrigger->update([
+                            'created_at' => $createdTimestamp,
+                            'updated_at' => $updatedTimestamp,
+                        ]);
+                    }
 
                     $progressBar->advance();
                 }
@@ -101,13 +153,32 @@ class SyncTriggers extends Command
        Game::query()
            ->whereNotNull('RichPresencePatch')
            ->where('RichPresencePatch', '!=', '')
+           ->with(['modificationsComments' => function ($query) {
+                $query->automated()
+                    ->whereRaw("LOWER(Payload) LIKE '%changed the rich presence%'")
+                    ->latest('Submitted')
+                    ->limit(1);
+            }])
            ->chunk(1000, function ($games) use ($progressBar) {
                foreach ($games as $game) {
-                   (new UpsertTriggerVersionAction())->execute(
+                   $newTrigger = (new UpsertTriggerVersionAction())->execute(
                        $game,
                        $game->RichPresencePatch,
                        versioned: true
                    );
+
+                    // Try our best to backdate the new trigger's timestamps.
+                    if ($newTrigger) {
+                        // When RP is edited, a comment is left. Use that comment's submitted
+                        // date, otherwise we just have to fall back to the current date.
+                        $timestamp = $game->modificationsComments->first()?->Submitted ?? now();
+
+                        $newTrigger->timestamps = false;
+                        $newTrigger->update([
+                            'created_at' => $timestamp,
+                            'updated_at' => $timestamp,
+                        ]);
+                    }
 
                    $progressBar->advance();
                }

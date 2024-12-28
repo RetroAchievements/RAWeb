@@ -30,6 +30,8 @@ class Trigger extends BaseModel
         'version',
         'parent_id',
         'type',
+        'created_at', // TODO remove after initial sync
+        'updated_at', // TODO remove after initial sync
     ];
 
     protected $casts = [
