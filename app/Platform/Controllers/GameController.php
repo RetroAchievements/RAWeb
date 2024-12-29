@@ -14,6 +14,7 @@ use App\Platform\Actions\BuildGameListAction;
 use App\Platform\Actions\GetRandomGameAction;
 use App\Platform\Data\GameListPagePropsData;
 use App\Platform\Data\SystemData;
+use App\Platform\Enums\GameListSortField;
 use App\Platform\Enums\GameListType;
 use App\Platform\Requests\GameListRequest;
 use App\Platform\Requests\GameRequest;
@@ -46,7 +47,10 @@ class GameController extends Controller
             GameListType::AllGames,
             user: $user,
             filters: $request->getFilters(),
-            sort: $request->getSort(),
+            sort: $request->getSort(
+                defaultSortField: GameListSortField::PlayersTotal,
+                isDefaultSortAsc: false,
+            ),
             perPage: $isMobile ? 100 : $request->getPageSize(),
 
             /**

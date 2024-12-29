@@ -7,11 +7,13 @@ import type {
 
 import { renderHook } from '@/test';
 
-import { allGamesDefaultFilters } from '../utils/allGamesDefaultFilters';
 import { useTableSync } from './useTableSync';
+
+const defaultColumnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
 
 describe('Hook: useTableSync', () => {
   let replaceStateSpy: ReturnType<typeof vi.spyOn>;
+  let cookieSpy: ReturnType<typeof vi.spyOn>;
   let originalLocation: Location;
 
   beforeEach(() => {
@@ -26,12 +28,15 @@ describe('Hook: useTableSync', () => {
 
     // Mock the history.replaceState function.
     replaceStateSpy = vi.spyOn(window.history, 'replaceState').mockImplementation(vi.fn()) as any;
+
+    // Mock document.cookie for persistence tests.
+    cookieSpy = vi.spyOn(document, 'cookie', 'set');
   });
 
   afterEach(() => {
-    // Restore the location and history values.
     window.location = originalLocation;
     replaceStateSpy.mockRestore();
+    cookieSpy.mockRestore();
   });
 
   it('renders without crashing', () => {
@@ -47,7 +52,7 @@ describe('Hook: useTableSync', () => {
         columnVisibility,
         pagination,
         sorting,
-        defaultFilters: allGamesDefaultFilters,
+        defaultColumnFilters,
       }),
     );
 
@@ -68,7 +73,7 @@ describe('Hook: useTableSync', () => {
         columnVisibility,
         pagination,
         sorting,
-        defaultFilters: allGamesDefaultFilters,
+        defaultColumnFilters,
       }),
     );
 
@@ -83,7 +88,7 @@ describe('Hook: useTableSync', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useTableSync(props), {
-      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
+      initialProps: { columnFilters, pagination, sorting, defaultColumnFilters },
     });
 
     // ACT
@@ -92,7 +97,7 @@ describe('Hook: useTableSync', () => {
       columnFilters,
       sorting,
       pagination: updatedPagination,
-      defaultFilters: allGamesDefaultFilters,
+      defaultColumnFilters,
     });
 
     // ASSERT
@@ -106,7 +111,7 @@ describe('Hook: useTableSync', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useTableSync(props), {
-      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
+      initialProps: { columnFilters, pagination, sorting, defaultColumnFilters },
     });
 
     // ACT
@@ -115,7 +120,7 @@ describe('Hook: useTableSync', () => {
       columnFilters,
       sorting,
       pagination: updatedPagination,
-      defaultFilters: allGamesDefaultFilters,
+      defaultColumnFilters,
     });
 
     // ASSERT
@@ -129,7 +134,7 @@ describe('Hook: useTableSync', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useTableSync(props), {
-      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
+      initialProps: { columnFilters, pagination, sorting, defaultColumnFilters },
     });
 
     // ACT
@@ -138,7 +143,7 @@ describe('Hook: useTableSync', () => {
       columnFilters,
       pagination,
       sorting: updatedSorting,
-      defaultFilters: allGamesDefaultFilters,
+      defaultColumnFilters,
     });
 
     // ASSERT
@@ -152,7 +157,7 @@ describe('Hook: useTableSync', () => {
     const sorting = [{ id: 'system', desc: true }];
 
     const { rerender } = renderHook((props: any) => useTableSync(props), {
-      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
+      initialProps: { columnFilters, pagination, sorting, defaultColumnFilters },
     });
 
     // ACT
@@ -161,7 +166,7 @@ describe('Hook: useTableSync', () => {
       columnFilters,
       pagination,
       sorting: updatedSorting,
-      defaultFilters: allGamesDefaultFilters,
+      defaultColumnFilters,
     });
 
     // ASSERT
@@ -175,7 +180,7 @@ describe('Hook: useTableSync', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useTableSync(props), {
-      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
+      initialProps: { columnFilters, pagination, sorting, defaultColumnFilters },
     });
 
     // ACT
@@ -187,7 +192,7 @@ describe('Hook: useTableSync', () => {
       pagination,
       sorting,
       columnFilters: updatedFilters,
-      defaultFilters: allGamesDefaultFilters,
+      defaultColumnFilters,
     });
 
     // ASSERT
@@ -201,7 +206,7 @@ describe('Hook: useTableSync', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useTableSync(props), {
-      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
+      initialProps: { columnFilters, pagination, sorting, defaultColumnFilters },
     });
 
     // ACT
@@ -213,7 +218,7 @@ describe('Hook: useTableSync', () => {
       pagination,
       sorting,
       columnFilters: updatedFilters,
-      defaultFilters: allGamesDefaultFilters,
+      defaultColumnFilters,
     });
 
     // ASSERT
@@ -235,7 +240,7 @@ describe('Hook: useTableSync', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useTableSync(props), {
-      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
+      initialProps: { columnFilters, pagination, sorting, defaultColumnFilters },
     });
 
     // ACT
@@ -244,7 +249,7 @@ describe('Hook: useTableSync', () => {
       pagination,
       sorting,
       columnFilters: updatedFilters,
-      defaultFilters: allGamesDefaultFilters,
+      defaultColumnFilters,
     });
 
     // ASSERT
@@ -284,7 +289,7 @@ describe('Hook: useTableSync', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useTableSync(props), {
-      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
+      initialProps: { columnFilters, pagination, sorting, defaultColumnFilters },
     });
 
     // ACT
@@ -293,7 +298,7 @@ describe('Hook: useTableSync', () => {
       pagination,
       sorting,
       columnFilters: updatedFilters,
-      defaultFilters: allGamesDefaultFilters,
+      defaultColumnFilters,
     });
 
     // ASSERT
@@ -310,7 +315,7 @@ describe('Hook: useTableSync', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
     const { rerender } = renderHook((props: any) => useTableSync(props), {
-      initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
+      initialProps: { columnFilters, pagination, sorting, defaultColumnFilters },
     });
 
     // ACT
@@ -322,7 +327,7 @@ describe('Hook: useTableSync', () => {
       pagination,
       sorting,
       columnFilters: updatedFilters,
-      defaultFilters: allGamesDefaultFilters,
+      defaultColumnFilters,
     });
 
     // ASSERT
@@ -337,14 +342,14 @@ describe('Hook: useTableSync', () => {
     ];
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
-    const defaultFilters: ColumnFiltersState = [{ id: 'title', value: 'default-value' }];
+    const defaultColumnFilters: ColumnFiltersState = [{ id: 'title', value: 'default-value' }];
 
     const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: {
         columnFilters,
         pagination,
         sorting,
-        defaultFilters,
+        defaultColumnFilters,
       },
     });
 
@@ -354,7 +359,7 @@ describe('Hook: useTableSync', () => {
       columnFilters: updatedColumnFilters,
       pagination,
       sorting,
-      defaultFilters,
+      defaultColumnFilters,
     });
 
     // ASSERT
@@ -558,5 +563,159 @@ describe('Hook: useTableSync', () => {
     // ASSERT
     const lastCall = setCookieSpy.mock.calls[setCookieSpy.mock.calls.length - 1][0];
     expect(lastCall).toContain(`${cookieName}=;`);
+  });
+
+  it('given user persistence is enabled and there is a title filter, excludes the title filter from cookie persistence', () => {
+    // ARRANGE
+    const cookieName = 'test_cookie_name';
+    const setCookieSpy = vi.spyOn(document, 'cookie', 'set');
+
+    const columnFilters: ColumnFiltersState = [
+      { id: 'system', value: '1' },
+      { id: 'title', value: 'mario' }, // !! this should be excluded
+    ];
+    const columnVisibility: VisibilityState = {};
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: false }];
+
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
+      initialProps: {
+        columnFilters,
+        columnVisibility,
+        pagination,
+        sorting,
+        isUserPersistenceEnabled: true,
+      },
+      pageProps: {
+        persistenceCookieName: cookieName,
+      },
+    });
+
+    // ACT
+    const updatedFilters = [...columnFilters];
+    rerender({
+      columnFilters: updatedFilters,
+      columnVisibility,
+      pagination,
+      sorting,
+      isUserPersistenceEnabled: true,
+    });
+
+    // ASSERT
+    const cookieValue = setCookieSpy.mock.calls[0][0];
+    const cookieMatch = cookieValue.match(new RegExp(`${cookieName}=(.+?);`));
+    const parsedCookie = JSON.parse(decodeURIComponent(cookieMatch![1]));
+
+    // ... only the system filter should be persisted in the cookie ...
+    expect(parsedCookie.columnFilters).toEqual([{ id: 'system', value: '1' }]);
+  });
+
+  it('given the user changes the page size, updates URL params correctly', () => {
+    // ARRANGE
+    const columnFilters: ColumnFiltersState = [];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: false }];
+
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
+      initialProps: { columnFilters, pagination, sorting },
+    });
+
+    // ACT
+    const updatedPagination = { pageIndex: 0, pageSize: 50 };
+    rerender({
+      columnFilters,
+      sorting,
+      pagination: updatedPagination,
+    });
+
+    // ASSERT
+    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games?page[size]=50'));
+  });
+
+  it('given the user changes the sort direction to ascending, updates URL params correctly', () => {
+    // ARRANGE
+    const columnFilters: ColumnFiltersState = [];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'system', desc: true }];
+
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
+      initialProps: { columnFilters, pagination, sorting },
+    });
+
+    // ACT
+    const updatedSorting: SortingState = [{ id: 'system', desc: false }];
+    rerender({
+      columnFilters,
+      pagination,
+      sorting: updatedSorting,
+    });
+
+    // ASSERT
+    expect(replaceStateSpy).toHaveBeenCalledWith(
+      null,
+      '',
+      encodeURI('/games?sort=system'), // !! no minus prefix on "system" when using ascending sort
+    );
+  });
+
+  it('given inactive filters are present in the URL, removes them when updating params', () => {
+    // ARRANGE
+    const columnFilters: ColumnFiltersState = [];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: false }];
+
+    // ... mock a URL with an inactive filter param ...
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: { search: '?filter[oldParam]=value', pathname: '/games' },
+    });
+
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
+      initialProps: { columnFilters, pagination, sorting },
+    });
+
+    // ACT
+    const updatedFilters: ColumnFiltersState = [{ id: 'system', value: '1' }];
+    rerender({
+      columnFilters: updatedFilters,
+      pagination,
+      sorting,
+    });
+
+    // ASSERT
+    expect(replaceStateSpy).toHaveBeenCalledWith(
+      null,
+      '',
+      encodeURI('/games?filter[system]=1'), // !! oldParam is removed
+    );
+  });
+
+  it('given a filter value has a different length than the default filter value, treats them as different values', () => {
+    // ARRANGE
+    const columnFilters: ColumnFiltersState = [];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: false }];
+    const defaultFilters: ColumnFiltersState = [{ id: 'system', value: ['1', '2'] }];
+
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
+      initialProps: {
+        columnFilters,
+        pagination,
+        sorting,
+        defaultColumnFilters: defaultFilters,
+      },
+    });
+
+    // ACT
+    const updatedFilters: ColumnFiltersState = [{ id: 'system', value: ['1'] }];
+    rerender({
+      columnFilters: updatedFilters,
+      pagination,
+      sorting,
+      defaultColumnFilters: defaultFilters,
+    });
+
+    // ASSERT
+    expect(replaceStateSpy).toHaveBeenCalledWith(null, '', encodeURI('/games?filter[system]=1'));
   });
 });
