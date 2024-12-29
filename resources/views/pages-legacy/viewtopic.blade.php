@@ -2,7 +2,6 @@
 
 // TODO migrate to ForumTopicController::show() pages/forum/topic.blade.php
 
-use App\Community\Actions\FormatLegacyCommentPayloadAction;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
