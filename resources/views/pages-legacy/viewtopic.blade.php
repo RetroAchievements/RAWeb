@@ -2,13 +2,14 @@
 
 // TODO migrate to ForumTopicController::show() pages/forum/topic.blade.php
 
+use App\Community\Actions\FormatLegacyCommentPayloadAction;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
+use App\Policies\ForumTopicCommentPolicy;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Facades\Auth;
-use App\Policies\ForumTopicCommentPolicy;
 
 authenticateFromCookie($username, $permissions);
 $user = Auth::user();
