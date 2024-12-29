@@ -140,7 +140,7 @@ class Game extends BaseModel implements HasMedia
             $freshGame = $game->fresh(); // $game starts with stale values.
 
             // Handle game title changes.
-            if ($originalTitle !== $freshGame->title) {
+            if ($originalTitle !== $freshGame->title || $game->wasRecentlyCreated) {
                 // Always refresh the sort title on a game title change.
                 (new WriteGameSortTitleFromGameTitleAction())->execute(
                     $freshGame,
@@ -148,21 +148,6 @@ class Game extends BaseModel implements HasMedia
                     shouldRespectCustomSortTitle: false,
                 );
 
-                // Keep game_sets in sync.
-                if ($game->ConsoleID === System::Hubs) {
-                    $foundGameSet = GameSet::whereType(GameSetType::Hub)
-                        ->whereGameId($game->id)
-                        ->first();
-
-                    if ($foundGameSet) {
-                        $foundGameSet->title = $freshGame->title;
-                        $foundGameSet->save();
-                    }
-                }
-            }
-
-            // Double write to taggables for both new and updated games.
-            if ($originalTitle !== $freshGame->title || $game->wasRecentlyCreated) {
                 // Double write to the taggables table to keep structured
                 // tags (ie: "~Hack~", "~Homebrew~", etc) in sync.
                 (new SyncGameTagsFromTitleAction())->execute(
@@ -170,6 +155,18 @@ class Game extends BaseModel implements HasMedia
                     $originalTitle,
                     $freshGame->title
                 );
+            }
+
+            // Keep game_sets in sync (only for title changes, not new "hub games").
+            if ($originalTitle !== $freshGame->title && $game->ConsoleID === System::Hubs) {
+                $foundGameSet = GameSet::whereType(GameSetType::Hub)
+                    ->whereGameId($game->id)
+                    ->first();
+
+                if ($foundGameSet) {
+                    $foundGameSet->title = $freshGame->title;
+                    $foundGameSet->save();
+                }
             }
         });
 

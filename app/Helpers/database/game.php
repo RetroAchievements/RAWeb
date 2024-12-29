@@ -9,7 +9,6 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\User;
-use App\Platform\Actions\ComputeGameSortTitleAction;
 use App\Platform\Actions\TrimGameMetadataAction;
 use App\Platform\Actions\UpdateGameSetFromGameAlternativesModificationAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
@@ -813,7 +812,6 @@ function createNewGame(string $title, int $systemId): ?array
     try {
         $game = new Game();
         $game->Title = $title;
-        $game->sort_title = (new ComputeGameSortTitleAction())->execute($title);
         $game->ConsoleID = $systemId;
         $game->ForumTopicID = null;
         $game->Flags = 0;
