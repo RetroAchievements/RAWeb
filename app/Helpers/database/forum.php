@@ -152,8 +152,6 @@ function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
 
 function editTopicComment(int $commentId, string $newPayload): void
 {
-    $newPayload = strip_tags($newPayload);
-
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $newPayload = normalize_shortcodes($newPayload);
@@ -172,8 +170,6 @@ function submitTopicComment(
     ?string $topicTitle,
     string $commentPayload,
 ): ForumTopicComment {
-    $commentPayload = strip_tags($commentPayload);
-
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $commentPayload = normalize_shortcodes($commentPayload);
