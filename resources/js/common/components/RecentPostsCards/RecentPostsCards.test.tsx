@@ -111,7 +111,11 @@ describe('Component: RecentPostsCards', () => {
 
     render(<RecentPostsCards paginatedTopics={createPaginatedData([recentActiveForumTopic])} />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser({ preferences: { prefersAbsoluteDates: true } }) },
+        auth: {
+          user: createAuthenticatedUser({
+            preferences: { prefersAbsoluteDates: true, shouldAlwaysBypassContentWarnings: false },
+          }),
+        },
       },
     });
 

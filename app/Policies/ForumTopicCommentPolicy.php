@@ -43,7 +43,7 @@ class ForumTopicCommentPolicy
         }
 
         // If the comment is authorized, then it's publicly viewable.
-        if ($comment->Authorised) {
+        if ($comment->is_authorized) {
             return true;
         }
 

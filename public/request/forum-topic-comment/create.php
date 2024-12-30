@@ -11,7 +11,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'topic' => 'required|integer|exists:ForumTopic,ID',
+    'topic' => 'required|integer|exists:forum_topics,id',
     'body' => [
         'required',
         'string',
