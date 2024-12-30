@@ -65,4 +65,12 @@ class GameSetPolicy
     {
         return false;
     }
+
+    public function toggleHasMatureContent(User $user, GameSet $gameSet): bool
+    {
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::DEVELOPER_STAFF,
+        ]);
+    }
 }
