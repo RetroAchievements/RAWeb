@@ -14,7 +14,7 @@ return new class() extends Migration {
         });
 
         Schema::table('game_sets', function (Blueprint $table) {
-            $table->foreign('forum_topic_id')->references('ID')->on('ForumTopic')->onDelete('set null');
+            $table->foreign('forum_topic_id')->references('id')->on('forum_topics')->onDelete('set null');
         });
         Schema::table('game_sets', function (Blueprint $table) {
             $table->index('forum_topic_id');

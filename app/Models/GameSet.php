@@ -37,6 +37,7 @@ class GameSet extends BaseModel
         'forum_topic_id',
         'internal_notes',
         'image_asset_path',
+        'has_mature_content',
         'title',
         'type',
         'updated_at',
@@ -44,6 +45,7 @@ class GameSet extends BaseModel
     ];
 
     protected $casts = [
+        'has_mature_content' => 'boolean',
         'type' => GameSetType::class,
     ];
 
@@ -149,9 +151,10 @@ class GameSet extends BaseModel
     {
         return LogOptions::defaults()
             ->logOnly([
-                'title',
-                'internal_notes',
+                'has_mature_content',
                 'image_asset_path',
+                'internal_notes',
+                'title',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
@@ -224,7 +227,7 @@ class GameSet extends BaseModel
      */
     public function forumTopic(): BelongsTo
     {
-        return $this->belongsTo(ForumTopic::class, 'forum_topic_id', 'ID'); // TODO 'id'
+        return $this->belongsTo(ForumTopic::class);
     }
 
     // == scopes
