@@ -10,6 +10,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Achievement;
+use App\Models\Forum;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
 use App\Models\Role;
@@ -33,6 +34,8 @@ class AchievementSetClaimControllerTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
         $user->assignRole(Role::DEVELOPER);
+
+        Forum::factory()->create(['id' => 10, 'title' => 'Default']);
 
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
@@ -72,7 +75,7 @@ class AchievementSetClaimControllerTest extends TestCase
         $game->refresh();
         $this->assertGreaterThan(0, $game->ForumTopicID);
 
-        $this->assertTrue(ForumTopicComment::where('ForumTopicID', $game->ForumTopicID)
+        $this->assertTrue(ForumTopicComment::where('forum_topic_id', $game->ForumTopicID)
             ->where('author_id', $user->ID)
             ->exists()
         );
@@ -141,6 +144,8 @@ class AchievementSetClaimControllerTest extends TestCase
 
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
+
+        Forum::factory()->create(['id' => 10, 'title' => 'Default']);
 
         // initial claim
         $claimDate = Carbon::now()->startOfSecond();
@@ -272,6 +277,8 @@ class AchievementSetClaimControllerTest extends TestCase
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
 
+        Forum::factory()->create(['id' => 10, 'title' => 'Default']);
+
         // initial claim
         $claimDate = Carbon::now()->startOfSecond();
         Carbon::setTestNow($claimDate);
@@ -360,6 +367,8 @@ class AchievementSetClaimControllerTest extends TestCase
 
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
+
+        Forum::factory()->create(['id' => 10, 'title' => 'Default']);
 
         // initial claim
         $claimDate = Carbon::now()->startOfSecond();
@@ -450,6 +459,8 @@ class AchievementSetClaimControllerTest extends TestCase
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
 
+        Forum::factory()->create(['id' => 10, 'title' => 'Default']);
+
         // initial claim
         $claimDate = Carbon::now()->startOfSecond();
         Carbon::setTestNow($claimDate);
@@ -538,6 +549,8 @@ class AchievementSetClaimControllerTest extends TestCase
 
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
+
+        Forum::factory()->create(['id' => 10, 'title' => 'Default']);
 
         // initial claim
         $claimDate = Carbon::now()->startOfSecond();
@@ -631,6 +644,8 @@ class AchievementSetClaimControllerTest extends TestCase
         $game->achievements_published = 40;
         $game->save();
 
+        Forum::factory()->create(['id' => 10, 'title' => 'Default']);
+
         generateGameForumTopic($user2, $game->ID);
 
         // initial claim
@@ -666,7 +681,7 @@ class AchievementSetClaimControllerTest extends TestCase
 
         // new forum topic should not have been created by the user
         $game->refresh();
-        $this->assertFalse(ForumTopicComment::where('ForumTopicID', $game->ForumTopicID)
+        $this->assertFalse(ForumTopicComment::where('forum_topic_id', $game->ForumTopicID)
             ->where('author_id', $user->ID)
             ->exists()
         );
@@ -739,6 +754,8 @@ class AchievementSetClaimControllerTest extends TestCase
         Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $user->id, 'Flags' => AchievementFlag::OfficialCore->value]);
         $game->achievements_published = 40;
         $game->save();
+
+        Forum::factory()->create(['id' => 10, 'title' => 'Default']);
 
         // initial claim
         $claimDate = Carbon::now()->startOfSecond();
@@ -820,6 +837,8 @@ class AchievementSetClaimControllerTest extends TestCase
 
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
+
+        Forum::factory()->create(['id' => 10, 'title' => 'Default']);
 
         // initial claim
         $claimDate = Carbon::now()->startOfSecond();

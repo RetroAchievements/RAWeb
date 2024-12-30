@@ -9,7 +9,9 @@ use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\HubResource\Pages;
 use App\Filament\Resources\HubResource\RelationManagers\GamesRelationManager;
 use App\Filament\Resources\HubResource\RelationManagers\ParentHubsRelationManager;
+use App\Filament\Rules\ExistsInForumTopics;
 use App\Models\GameSet;
+use App\Models\User;
 use App\Platform\Enums\GameSetType;
 use App\Support\Rules\NoEmoji;
 use Filament\Forms;
@@ -20,6 +22,7 @@ use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class HubResource extends Resource
 {
@@ -57,6 +60,17 @@ class HubResource extends Resource
                         Infolists\Components\TextEntry::make('title')
                             ->label('Title'),
 
+                        Infolists\Components\TextEntry::make('forumTopic.id')
+                            ->label('Forum Topic ID')
+                            ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
+                            ->placeholder('none')
+                            ->extraAttributes(fn (?int $state) => $state ? ['class' => 'underline'] : []),
+
+                        Infolists\Components\TextEntry::make('has_mature_content')
+                            ->label('Has Mature Content')
+                            ->formatStateUsing(fn (bool $state): string => $state ? 'Yes' : 'No')
+                            ->color(fn (bool $state): string => $state ? 'danger' : ''),
+
                         BreadcrumbPreview::make('breadcrumbs')
                             ->label('Breadcrumb Preview')
                             ->columnSpanFull(),
@@ -74,6 +88,9 @@ class HubResource extends Resource
 
     public static function form(Form $form): Form
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $form
             ->schema([
                 Forms\Components\Section::make('Primary Details')
@@ -85,6 +102,18 @@ class HubResource extends Resource
                             ->minLength(2)
                             ->maxLength(80)
                             ->rules([new NoEmoji()]),
+
+                        Forms\Components\TextInput::make('forum_topic_id')
+                            ->label('Forum Topic ID')
+                            ->numeric()
+                            ->rules([new ExistsInForumTopics()])
+                            ->helperText('Before connecting a topic, be ABSOLUTELY SURE the internal notes field below is not sufficient.'),
+
+                        Forms\Components\Toggle::make('has_mature_content')
+                            ->label('Has Mature Content')
+                            ->helperText('CAUTION: If this is enabled, players will get a warning when opening any game in the hub!')
+                            ->default(false)
+                            ->visible(fn ($record) => $user->can('toggleHasMatureContent', $record)),
                     ]),
 
                 Forms\Components\Section::make('Internal Notes')
