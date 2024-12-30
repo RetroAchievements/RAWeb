@@ -29,17 +29,26 @@ if (!$user) {
     return response()->json([], 404);
 }
 
-$requestedSets = UserGameListEntry::with(['game.system'])
-    ->where('user_id', $user->ID)
+$requestedSets = UserGameListEntry::select([
+    'GameData.id as GameID',
+    'GameData.Title',
+    'GameData.ImageIcon',
+    'GameData.ConsoleID',
+    'Console.Name as ConsoleName',
+])
+    ->join('GameData', 'SetRequest.GameID', '=', 'GameData.ID')
+    ->join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
+    ->where('SetRequest.user_id', $user->id)
     ->where('type', 'achievement_set_request')
+    ->orderBy('GameData.sort_title', 'asc')
     ->get()
     ->map(function ($gameData) {
         return [
-            'GameID' => $gameData->game->id,
-            'Title' => $gameData->game->title,
-            'ConsoleID' => $gameData->game->system->id,
-            'ConsoleName' => $gameData->game->system->name,
-            'ImageIcon' => $gameData->game->ImageIcon,
+            'GameID' => $gameData->GameID,
+            'Title' => $gameData->Title,
+            'ConsoleID' => $gameData->ConsoleID,
+            'ConsoleName' => $gameData->ConsoleName,
+            'ImageIcon' => $gameData->ImageIcon,
         ];
     });
 
