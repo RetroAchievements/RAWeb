@@ -29,6 +29,9 @@ class UserGameListController extends Controller
 
         $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
 
+        $persistenceCookieName = 'datatable_view_preference_playlist';
+        $request->setPersistenceCookieName($persistenceCookieName);
+
         $paginatedData = (new BuildGameListAction())->execute(
             GameListType::UserPlay,
             user: $user,
@@ -61,6 +64,8 @@ class UserGameListController extends Controller
             paginatedGameListEntries: $paginatedData,
             filterableSystemOptions: $filterableSystemOptions,
             can: $can,
+            persistenceCookieName: $persistenceCookieName,
+            persistedViewPreferences: $request->getCookiePreferences(),
         );
 
         return Inertia::render('game-list/play', $props);

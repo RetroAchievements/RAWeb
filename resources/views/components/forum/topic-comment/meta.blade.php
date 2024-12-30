@@ -9,11 +9,11 @@ use Illuminate\Support\Carbon;
 ])
 
 <?php
-$postCreatedTimestamp = $forumTopicComment->DateCreated;
+$postCreatedTimestamp = $forumTopicComment->created_at;
 $postEditedTimestamp =
-    ($forumTopicComment->DateModified
-    && $forumTopicComment->DateModified != $forumTopicComment->DateCreated)
-        ? $forumTopicComment->DateModified
+    ($forumTopicComment->updated_at
+    && $forumTopicComment->updated_at != $forumTopicComment->created_at)
+        ? $forumTopicComment->updated_at
         : null;
 
 /** @var ?User $user */
@@ -63,7 +63,7 @@ $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, fals
 $isOriginalPoster = $forumTopicComment->user?->is($forumTopicComment->forumTopic->user);
 ?>
 
-@if (!$forumTopicComment->Authorised && ($forumTopicComment->author_id === $user?->id || $user?->can('manage', App\Models\ForumTopicComment::class)))
+@if (!$forumTopicComment->is_authorized && ($forumTopicComment->author_id === $user?->id || $user?->can('manage', App\Models\ForumTopicComment::class)))
     <x-forum.topic-comment.title-chip
         tooltip="Not yet visible to the public. Please wait for a moderator to authorize this comment."
     >

@@ -751,7 +751,7 @@ function modifyGameForumTopic(string $username, int $gameId, int $newForumTopicI
         return false;
     }
 
-    if (!ForumTopic::where('ID', $newForumTopicId)->exists()) {
+    if (!ForumTopic::where('id', $newForumTopicId)->exists()) {
         return false;
     }
 
