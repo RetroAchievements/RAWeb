@@ -22,6 +22,7 @@ class GameSetData extends Data
         public int $gameCount,
         public int $linkCount,
         public Carbon $updatedAt,
+        public Lazy|int|null $forumTopicId,
         public Lazy|bool $hasMatureContent,
     ) {
     }
@@ -39,6 +40,7 @@ class GameSetData extends Data
             gameCount: $gameSet->games_count ?? 0,
             linkCount: $gameSet->link_count ?? 0,
             updatedAt: $gameSet->updated_at,
+            forumTopicId: Lazy::create(fn () => $gameSet->forum_topic_id),
             hasMatureContent: Lazy::create(fn () => $gameSet->has_mature_content),
         );
     }
