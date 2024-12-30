@@ -55,9 +55,15 @@ class NewsResource extends Resource
                             ->label('Pinned')
                             ->helperText('If enabled, this will be sorted to the top of the news until unpinned.')
                             ->columnSpanFull()
-                            ->disabled(fn (News $record) => !$user->can('pin', $record))
+                            ->disabled(fn (?News $record) => !$record || !$user->can('pin', $record))
                             ->dehydrated()
-                            ->afterStateHydrated(function (News $record, $component) {
+                            ->afterStateHydrated(function (?News $record, $component) {
+                                if (!$record) {
+                                    $component->state(false);
+
+                                    return;
+                                }
+
                                 $component->state(!is_null($record->pinned_at));
                             })
                             ->dehydrateStateUsing(function (News $record, bool $state) {
@@ -90,7 +96,7 @@ class NewsResource extends Resource
                                     '</div>'
                                 );
                             })
-                            ->reactive()
+                            ->live(debounce: 1000) // add debounce to mitigate users getting rate limited while typing
                             ->rows(4)
                             ->required(),
                     ]),
