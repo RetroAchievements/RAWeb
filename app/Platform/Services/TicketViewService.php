@@ -65,8 +65,10 @@ class TicketViewService
         $this->ticketNotes = nl2br($ticket->ReportNotes);
         foreach ($ticket->achievement->game->hashes as $hash) {
             if (stripos($this->ticketNotes, $hash->md5) !== false) {
-                $replacement = '<a href="/linkedhashes.php?g=' . $ticket->achievement->game->id . '" title="' .
-                    attributeEscape($hash->name) . '">' . $hash->md5 . '</a>';
+                $hashesRoute = route('game.hashes.index', ['game' => $ticket->achievement->game]);
+                $escapedHashName = attributeEscape($hash->name);
+                $replacement = "<a href='{$hashesRoute}' title='{$escapedHashName}'>{$hash->md5}</a>";
+
                 $this->ticketNotes = str_ireplace($hash->md5, $replacement, $this->ticketNotes);
             }
         }

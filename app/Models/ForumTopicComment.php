@@ -20,32 +20,20 @@ class ForumTopicComment extends BaseModel
     use Searchable;
     use SoftDeletes;
 
-    // TODO rename ForumTopicComment table to forum_topic_comments
-    // TODO rename ID column to id, remove getIdAttribute()
-    // TODO rename ForumTopicID to forum_topic_id, remove getForumTopicIdAttribute()
-    // TODO rename Payload column to body, remove getBodyAttribute()
-    // TODO rename DateCreated to created_at
-    // TODO rename DateModified to updated_at
-    // TODO drop Author -> derived
-    // TODO drop Authorised, migrate to authorized_at
-    protected $table = 'ForumTopicComment';
-
-    protected $primaryKey = 'ID';
-
-    public const CREATED_AT = 'DateCreated';
-    public const UPDATED_AT = 'DateModified';
+    // TODO drop is_authorized, migrate to authorized_at
+    protected $table = 'forum_topic_comments';
 
     protected $fillable = [
-        'ForumTopicID',
-        'Payload',
+        'forum_topic_id',
+        'body',
         'author_id',
-        'Authorised',
+        'is_authorized',
         'authorized_at',
     ];
 
     protected $casts = [
-        'Authorised' => 'boolean',
-        'ManuallyVerified' => 'boolean',
+        'authorized_at' => 'datetime',
+        'is_authorized' => 'boolean',
     ];
 
     protected static function newFactory(): ForumTopicCommentFactory
@@ -58,8 +46,8 @@ class ForumTopicComment extends BaseModel
     public function toSearchableArray(): array
     {
         return $this->only([
-            'ID',
-            'Payload',
+            'id',
+            'body',
         ]);
     }
 
@@ -71,11 +59,6 @@ class ForumTopicComment extends BaseModel
 
     // == accessors
 
-    public function getBodyAttribute(): string
-    {
-        return $this->attributes['Payload'];
-    }
-
     public function getEditLinkAttribute(): string
     {
         return route('forum-topic-comment.edit', $this);
@@ -83,24 +66,12 @@ class ForumTopicComment extends BaseModel
 
     public function getIsAuthorizedAttribute(): bool
     {
-        return $this->authorized_at?->isPast() || (bool) $this->attributes['Authorised'];
+        return $this->authorized_at?->isPast() || (bool) $this->attributes['is_authorized'];
     }
 
     public function getPermalinkAttribute(): string
     {
         return route('forum-topic-comment.show', $this);
-    }
-
-    // TODO remove after rename
-    public function getForumTopicIdAttribute(): int
-    {
-        return $this->attributes['ForumTopicID'];
-    }
-
-    // TODO remove after rename
-    public function getIdAttribute(): int
-    {
-        return $this->attributes['ID'];
     }
 
     // == relations
@@ -110,7 +81,7 @@ class ForumTopicComment extends BaseModel
      */
     public function forumTopic(): BelongsTo
     {
-        return $this->belongsTo(ForumTopic::class, 'ForumTopicID');
+        return $this->belongsTo(ForumTopic::class, 'forum_topic_id');
     }
 
     /**
@@ -130,7 +101,7 @@ class ForumTopicComment extends BaseModel
     public function scopeAuthorized(Builder $query): Builder
     {
         return $query->where(function ($query) {
-            $query->where('Authorised', 1)
+            $query->where('is_authorized', 1)
                 ->orWhereNotNull('authorized_at');
         });
     }
@@ -142,7 +113,7 @@ class ForumTopicComment extends BaseModel
     public function scopeUnauthorized(Builder $query): Builder
     {
         return $query->where(function ($query) {
-            $query->where('Authorised', 0)
+            $query->where('is_authorized', 0)
                 ->orWhereNull('authorized_at');
         });
     }
@@ -156,7 +127,7 @@ class ForumTopicComment extends BaseModel
         $userPermissions = $user ? (int) $user->getAttribute('Permissions') : Permissions::Unregistered;
 
         return $query->whereHas('forumTopic', function ($query) use ($userPermissions) {
-            $query->where('RequiredPermissions', '<=', $userPermissions);
+            $query->where('required_permissions', '<=', $userPermissions);
         });
     }
 }
