@@ -2,6 +2,7 @@
 
 namespace App\Community\Controllers\Api;
 
+use App\Actions\GetUserDeviceKindAction;
 use App\Community\Requests\UserGameListRequest;
 use App\Http\Controller;
 use App\Models\User;
@@ -11,19 +12,20 @@ use App\Platform\Actions\GetRandomGameAction;
 use App\Platform\Enums\GameListType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Jenssegers\Agent\Agent;
 
 class UserGameListApiController extends Controller
 {
     public function index(UserGameListRequest $request): JsonResponse
     {
+        $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
+
         $paginatedData = (new BuildGameListAction())->execute(
             GameListType::UserPlay,
             user: $request->user(),
             page: $request->getPage(),
             filters: $request->getFilters(),
             sort: $request->getSort(),
-            perPage: (new Agent())->isMobile() ? 100 : $request->getPageSize(),
+            perPage: $isMobile ? 100 : $request->getPageSize(),
         );
 
         return response()->json($paginatedData);

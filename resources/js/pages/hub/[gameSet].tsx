@@ -1,18 +1,24 @@
-import { Head } from '@inertiajs/react';
+import { useHydrateAtoms } from 'jotai/utils';
 import { useTranslation } from 'react-i18next';
 
+import { SEO } from '@/common/components/SEO';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
 import { HubMainRoot } from '@/features/game-list/components/HubMainRoot';
+import { useHubPageMetaDescription } from '@/features/game-list/hooks/useHubPageMetaDescription';
+import { isCurrentlyPersistingViewAtom } from '@/features/game-list/state/game-list.atoms';
 
 const Hub: AppPage = () => {
-  const { hub, paginatedGameListEntries } = usePageProps<App.Platform.Data.HubPageProps>();
+  const { hub, persistedViewPreferences } = usePageProps<App.Platform.Data.HubPageProps>();
 
   const { t } = useTranslation();
 
-  const metaDescription = `A collection of ${paginatedGameListEntries.total.toLocaleString()} ${paginatedGameListEntries.total === 1 ? 'game' : 'games'} on RetroAchievements.`;
+  useHydrateAtoms([
+    [isCurrentlyPersistingViewAtom, !!persistedViewPreferences],
+    //
+  ]);
 
   let pageTitle = t('All Hubs');
   const hubTitle = cleanHubTitle(hub.title!);
@@ -20,15 +26,11 @@ const Hub: AppPage = () => {
     pageTitle = t('{{hubTitle}} (Hub)', { hubTitle });
   }
 
+  const metaDescription = useHubPageMetaDescription();
+
   return (
     <>
-      <Head title={pageTitle}>
-        <meta name="description" content={metaDescription} />
-        <meta name="og:description" content={metaDescription} />
-
-        <meta property="og:image" content={hub.badgeUrl!} />
-        <meta property="og:type" content="retroachievements:hub" />
-      </Head>
+      <SEO title={pageTitle} description={metaDescription} ogImage={hub.badgeUrl!} />
 
       <AppLayout.Main>
         <HubMainRoot />
