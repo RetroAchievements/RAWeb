@@ -10,7 +10,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Mode
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'game' => 'required|integer|exists:GameData,ID',
-    'forum_topic' => 'required|integer|exists:ForumTopic,ID',
+    'forum_topic' => 'required|integer|exists:forum_topics,id',
 ]);
 
 if (modifyGameForumTopic($user, (int) $input['game'], (int) $input['forum_topic'])) {

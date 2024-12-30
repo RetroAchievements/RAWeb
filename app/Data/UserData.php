@@ -42,7 +42,10 @@ class UserData extends Data
         public Lazy|string|null $visibleRole = null,
         public Lazy|int|null $websitePrefs = null,
 
-        #[TypeScriptType(['prefersAbsoluteDates' => 'boolean'])]
+        #[TypeScriptType([
+            'shouldAlwaysBypassContentWarnings' => 'boolean',
+            'prefersAbsoluteDates' => 'boolean',
+        ])]
         public Lazy|array|null $preferences = [],
         #[LiteralTypeScriptType('App.Models.UserRole[]')]
         public Lazy|array|null $roles = [],
@@ -82,6 +85,7 @@ class UserData extends Data
             motto: Lazy::create(fn () => $user->Motto),
             preferences: Lazy::create(
                 fn () => [
+                    'shouldAlwaysBypassContentWarnings' => $user->should_always_bypass_content_warnings,
                     'prefersAbsoluteDates' => $user->prefers_absolute_dates,
                 ]
             ),
