@@ -61,6 +61,9 @@ class HandleInertiaRequests extends Middleware
             ] : null,
 
             'config' => [
+                'app' => [
+                    'url' => config('app.url'),
+                ],
                 'services' => [
                     'patreon' => ['userId' => config('services.patreon.user_id')],
                 ],
