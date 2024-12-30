@@ -15,7 +15,7 @@ interface SeeMoreLinkProps {
 
   /**
    * Optional. You can manually adjust the prefetch strategy of this link.
-   * Defaults to "desktop-hover-only".
+   * Defaults to "never".
    */
   prefetch?: LinkPrefetchBehavior;
 }
