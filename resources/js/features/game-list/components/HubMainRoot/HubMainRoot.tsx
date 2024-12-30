@@ -1,11 +1,13 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { useAtom } from 'jotai';
 import type { FC } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { useAutoUpdatingQueryParams } from '../../hooks/useAutoUpdatingQueryParams';
 import { useGameListState } from '../../hooks/useGameListState';
 import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
+import { useTableSync } from '../../hooks/useTableSync';
+import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
 import { hubGamesDefaultFilters } from '../../utils/hubGamesDefaultFilters';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
 import { HubGamesDataTable } from '../HubGamesDataTable';
@@ -38,12 +40,16 @@ export const HubMainRoot: FC = () => {
     paginatedData: paginatedGameListEntries,
   });
 
-  useAutoUpdatingQueryParams({
+  const [isCurrentlyPersistingView] = useAtom(isCurrentlyPersistingViewAtom);
+
+  useTableSync({
     columnFilters,
+    columnVisibility,
     pagination,
     sorting,
     defaultFilters: hubGamesDefaultFilters,
     defaultPageSize: defaultDesktopPageSize,
+    isUserPersistenceEnabled: isCurrentlyPersistingView,
   });
 
   return (
