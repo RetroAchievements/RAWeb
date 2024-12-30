@@ -587,7 +587,9 @@ switch ($requestType) {
         $flag = (int) request()->input('f', 0);
         $gameHashMd5 = request()->input('m');
 
-        $clientSupportLevel = (new GetClientSupportLevelAction())->execute(request()->header('User-Agent'));
+        $clientSupportLevel = (new GetClientSupportLevelAction())->execute(
+            request()->header('User-Agent') ?? '[not provided]'
+        );
 
         // TODO middleware?
         if ($clientSupportLevel === ClientSupportLevel::Blocked) {
