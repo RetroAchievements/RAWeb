@@ -1,4 +1,3 @@
-import { Link } from '@inertiajs/react';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -13,6 +12,7 @@ import {
   BaseBreadcrumbSeparator,
 } from '../+vendor/BaseBreadcrumb';
 import { GameTitle } from '../GameTitle';
+import { InertiaLink } from '../InertiaLink';
 
 /**
  * TODO this is intentionally quite duplicative with GameBreadcrumbs.
@@ -42,7 +42,7 @@ export const AchievementBreadcrumbs: FC<AchievementBreadcrumbsProps> = ({
         <BaseBreadcrumbList>
           <BaseBreadcrumbItem aria-label={t('All Games')}>
             <BaseBreadcrumbLink asChild>
-              <Link href={route('game.index')}>{t('All Games')}</Link>
+              <InertiaLink href={route('game.index')}>{t('All Games')}</InertiaLink>
             </BaseBreadcrumbLink>
           </BaseBreadcrumbItem>
 

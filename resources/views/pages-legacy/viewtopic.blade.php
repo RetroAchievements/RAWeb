@@ -1,14 +1,14 @@
 <?php
 
-// TODO migrate to ForumTopicController::show() pages/forum/topic.blade.php
+// TODO migrate to ForumTopicController::show()
 
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
+use App\Policies\ForumTopicCommentPolicy;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Facades\Auth;
-use App\Policies\ForumTopicCommentPolicy;
 
 authenticateFromCookie($username, $permissions);
 $user = Auth::user();
@@ -27,7 +27,7 @@ if (!$forumTopic) {
     abort(404);
 }
 
-if ($permissions < $forumTopic->RequiredPermissions) {
+if ($permissions < $forumTopic->required_permissions) {
     abort(403);
 }
 
@@ -49,8 +49,8 @@ if (!empty($gotoCommentID)) {
 $numTotalComments = $forumTopic->comments()->count();
 $allForumTopicCommentsForTopic = $forumTopic->comments()
     ->with(['user', 'forumTopic'])
-    ->where('ForumTopicID', $requestedTopicID)
-    ->orderBy('DateCreated', 'asc')
+    ->where('forum_topic_id', $requestedTopicID)
+    ->orderBy('created_at', 'asc')
     ->offset($offset)
     ->limit($count)
     ->get();
@@ -67,7 +67,7 @@ $thisTopicCategoryID = $forumTopic->forum->category->id;
 $thisTopicForum = $forumTopic->forum->title;
 $thisTopicForumID = $forumTopic->forum->id;
 $thisTopicTitle = $forumTopic->title;
-$thisTopicPermissions = $forumTopic->RequiredPermissions;
+$thisTopicPermissions = $forumTopic->required_permissions;
 
 $pageTitle = "Topic: {$thisTopicForum} - {$thisTopicTitle}";
 
@@ -166,6 +166,11 @@ $isSubscribed = $userID ? isUserSubscribedToForumTopic($thisTopicID, $userID) : 
     foreach ($allForumTopicCommentsForTopic as $index => $forumTopicComment) {
         $nextCommentID = $forumTopicComment->id;
         $isHighlighted = isset($gotoCommentID) && $nextCommentID == $gotoCommentID;
+
+        $mutatedBody = $forumTopicComment->body;
+        $mutatedBody = normalize_shortcodes($mutatedBody);
+        $mutatedBody = htmlspecialchars($mutatedBody, ENT_QUOTES, 'UTF-8');
+        $mutatedBody = Shortcode::render($mutatedBody);
         ?>
 
         @if ($policy->view(request()->user(), $forumTopicComment))
@@ -175,7 +180,7 @@ $isSubscribed = $userID ? isUserSubscribedToForumTopic($thisTopicID, $userID) : 
                 :threadPostNumber="($index + 1) + $offset" 
                 :variant="$isHighlighted ? 'highlight' : 'base'"
             >
-                {!! Shortcode::render($forumTopicComment->body) !!}
+                {!! $mutatedBody !!}
             </x-forum.topic-comment>
         @endif
         <?php

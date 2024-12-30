@@ -21,6 +21,9 @@ export interface AppGlobalProps extends PageProps {
   auth: { user: AuthenticatedUser } | null;
 
   config: {
+    app: {
+      url: string;
+    };
     services: {
       patreon: { userId?: string | number };
     };
@@ -41,6 +44,7 @@ export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) 
   pointsSoftcore: faker.number.int({ min: 0, max: 100000 }),
   preferences: {
     prefersAbsoluteDates: false,
+    shouldAlwaysBypassContentWarnings: false,
   },
   roles: [],
   unreadMessageCount: 0,
@@ -50,7 +54,12 @@ export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) 
 export const createAppGlobalProps = createFactory<AppGlobalProps>(() => ({
   auth: { user: createAuthenticatedUser() },
 
-  config: { services: { patreon: {} } },
+  config: {
+    app: {
+      url: 'https://retroachievements.org',
+    },
+    services: { patreon: {} },
+  },
 
   ziggy: { defaults: [], device: 'desktop', location: '', port: 8080, query: {}, url: '' },
 }));
