@@ -9,6 +9,7 @@ import {
   BaseBreadcrumbPage,
   BaseBreadcrumbSeparator,
 } from '@/common/components/+vendor/BaseBreadcrumb';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
 
 interface HubBreadcrumbsProps {
@@ -38,7 +39,9 @@ export const HubBreadcrumbs: FC<HubBreadcrumbsProps> = ({ breadcrumbs }) => {
                   <>
                     <BaseBreadcrumbItem aria-label={breadcrumb.title!}>
                       <BaseBreadcrumbLink asChild>
-                        <a href={route('hub.show', { gameSet: breadcrumb.id })}>{currentTitle}</a>
+                        <InertiaLink href={route('hub.show', { gameSet: breadcrumb.id })}>
+                          {currentTitle}
+                        </InertiaLink>
                       </BaseBreadcrumbLink>
                     </BaseBreadcrumbItem>
 
