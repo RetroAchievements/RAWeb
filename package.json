@@ -10,7 +10,7 @@
         "lint:eslint": "eslint public/js resources/js postcss.config.js tailwind.config.js vite.config.ts --cache",
         "fix": "pnpm fix:eslint",
         "fix:eslint": "eslint public/js resources/js postcss.config.js tailwind.config.js vite.config.ts --fix",
-        "test": "TZ=UTC vitest run --reporter=dot",
+        "test": "TZ=UTC vitest run --coverage --coverage.reporters=text --reporter=dot",
         "test:coverage": "TZ=UTC vitest --ui --coverage --reporter=dot",
         "test:watch": "TZ=UTC vitest",
         "tsc": "tsc --noEmit --skipLibCheck",
