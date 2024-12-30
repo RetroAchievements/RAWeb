@@ -10,6 +10,7 @@ use App\Filament\Resources\HubResource\Pages;
 use App\Filament\Resources\HubResource\RelationManagers\GamesRelationManager;
 use App\Filament\Resources\HubResource\RelationManagers\ParentHubsRelationManager;
 use App\Models\GameSet;
+use App\Models\User;
 use App\Platform\Enums\GameSetType;
 use App\Support\Rules\NoEmoji;
 use Filament\Forms;
@@ -20,6 +21,7 @@ use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class HubResource extends Resource
 {
@@ -57,6 +59,11 @@ class HubResource extends Resource
                         Infolists\Components\TextEntry::make('title')
                             ->label('Title'),
 
+                        Infolists\Components\TextEntry::make('has_mature_content')
+                            ->label('Has Mature Content')
+                            ->formatStateUsing(fn (bool $state): string => $state ? 'Yes' : 'No')
+                            ->color(fn (bool $state): string => $state ? 'danger' : ''),
+
                         BreadcrumbPreview::make('breadcrumbs')
                             ->label('Breadcrumb Preview')
                             ->columnSpanFull(),
@@ -74,6 +81,9 @@ class HubResource extends Resource
 
     public static function form(Form $form): Form
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $form
             ->schema([
                 Forms\Components\Section::make('Primary Details')
@@ -85,6 +95,12 @@ class HubResource extends Resource
                             ->minLength(2)
                             ->maxLength(80)
                             ->rules([new NoEmoji()]),
+
+                        Forms\Components\Toggle::make('has_mature_content')
+                            ->label('Has Mature Content')
+                            ->helperText('CAUTION: If this is enabled, players will get a warning when opening any game in the hub!')
+                            ->default(false)
+                            ->visible(fn ($record) => $user->can('toggleHasMatureContent', $record)),
                     ]),
 
                 Forms\Components\Section::make('Internal Notes')

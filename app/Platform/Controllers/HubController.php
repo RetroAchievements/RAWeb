@@ -96,7 +96,7 @@ class HubController extends Controller
         $can = UserPermissionsData::fromUser($user)->include('develop', 'manageGameSets');
 
         $props = new HubPagePropsData(
-            hub: GameSetData::from($gameSet)->include('title', 'badgeUrl', 'updatedAt'),
+            hub: GameSetData::from($gameSet)->include('title', 'badgeUrl', 'updatedAt', 'hasMatureContent'),
             relatedHubs: (new BuildGameSetRelatedHubsAction())->execute($gameSet),
             breadcrumbs: (new BuildHubBreadcrumbsAction())->execute($gameSet),
             paginatedGameListEntries: $paginatedData,

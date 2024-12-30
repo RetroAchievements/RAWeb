@@ -7,6 +7,7 @@ namespace App\Platform\Actions;
 use App\Models\GameSet;
 use App\Platform\Data\GameSetData;
 use App\Platform\Enums\GameSetType;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -163,7 +164,8 @@ class BuildHubBreadcrumbsAction
                 badgeUrl: media_asset($data['image_asset_path']),
                 gameCount: 0,
                 linkCount: 0,
-                updatedAt: new \Carbon\Carbon($data['updated_at']),
+                updatedAt: new Carbon($data['updated_at']),
+                hasMatureContent: false, // doesn't matter, this is just a breadcrumb
             ),
             $cachedData ?? [],
         );
