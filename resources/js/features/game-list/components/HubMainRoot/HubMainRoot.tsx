@@ -2,6 +2,7 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import type { FC } from 'react';
 
+import { MatureContentWarningDialog } from '@/common/components/MatureContentWarningDialog';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useGameListState } from '../../hooks/useGameListState';
@@ -16,7 +17,7 @@ import { RelatedHubs } from './RelatedHubs';
 import { useHubGamesDefaultColumnState } from './useHubGamesDefaultColumnState';
 
 export const HubMainRoot: FC = () => {
-  const { breadcrumbs, defaultDesktopPageSize, paginatedGameListEntries } =
+  const { breadcrumbs, defaultDesktopPageSize, hub, paginatedGameListEntries } =
     usePageProps<App.Platform.Data.HubPageProps>();
 
   const { defaultColumnFilters, defaultColumnSort, defaultColumnVisibility } =
@@ -59,6 +60,8 @@ export const HubMainRoot: FC = () => {
 
   return (
     <div>
+      {hub.hasMatureContent ? <MatureContentWarningDialog /> : null}
+
       <DataTablePaginationScrollTarget>
         <HubBreadcrumbs breadcrumbs={breadcrumbs} />
 

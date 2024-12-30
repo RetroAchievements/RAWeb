@@ -1,4 +1,3 @@
-import { Link } from '@inertiajs/react';
 import { type FC, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuAlertCircle } from 'react-icons/lu';
@@ -8,6 +7,7 @@ import {
   BaseAlertDescription,
   BaseAlertTitle,
 } from '@/common/components/+vendor/BaseAlert';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 
 export const GuestWelcomeCta: FC = () => {
@@ -40,7 +40,7 @@ export const GuestWelcomeCta: FC = () => {
                     />
                   ),
                   2: (
-                    <Link
+                    <InertiaLink
                       href={route('game.index')}
                       className={buildTrackingClassNames('Click Guest All Games Link')}
                     />
