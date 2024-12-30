@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Enums\ArticleType;
+use App\Platform\Actions\SyncGameTagsFromTitleAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
@@ -33,6 +34,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Tags\HasTags;
 
 // TODO implements HasComments
 class Game extends BaseModel implements HasMedia
@@ -51,6 +53,7 @@ class Game extends BaseModel implements HasMedia
     }
     /** @use HasFactory<GameFactory> */
     use HasFactory;
+    use HasTags;
     use InteractsWithMedia;
 
     use PivotEventTrait;
@@ -137,7 +140,7 @@ class Game extends BaseModel implements HasMedia
             $freshGame = $game->fresh(); // $game starts with stale values.
 
             // Handle game title changes.
-            if ($originalTitle !== $freshGame->title) {
+            if ($originalTitle !== $freshGame->title || $game->wasRecentlyCreated) {
                 // Always refresh the sort title on a game title change.
                 (new WriteGameSortTitleFromGameTitleAction())->execute(
                     $freshGame,
@@ -145,16 +148,24 @@ class Game extends BaseModel implements HasMedia
                     shouldRespectCustomSortTitle: false,
                 );
 
-                // Keep game_sets in sync.
-                if ($game->ConsoleID === System::Hubs) {
-                    $foundGameSet = GameSet::whereType(GameSetType::Hub)
-                        ->whereGameId($game->id)
-                        ->first();
+                // Double write to the taggables table to keep structured
+                // tags (ie: "~Hack~", "~Homebrew~", etc) in sync.
+                (new SyncGameTagsFromTitleAction())->execute(
+                    $freshGame,
+                    $originalTitle,
+                    $freshGame->title
+                );
+            }
 
-                    if ($foundGameSet) {
-                        $foundGameSet->title = $freshGame->title;
-                        $foundGameSet->save();
-                    }
+            // Keep game_sets in sync (only for title changes, not new "hub games").
+            if ($originalTitle !== $freshGame->title && $game->ConsoleID === System::Hubs) {
+                $foundGameSet = GameSet::whereType(GameSetType::Hub)
+                    ->whereGameId($game->id)
+                    ->first();
+
+                if ($foundGameSet) {
+                    $foundGameSet->title = $freshGame->title;
+                    $foundGameSet->save();
                 }
             }
         });
@@ -321,6 +332,11 @@ class Game extends BaseModel implements HasMedia
     public function getCanonicalUrlAttribute(): string
     {
         return route('game.show', [$this, $this->getSlugAttribute()]);
+    }
+
+    public function getHasMatureContentAttribute(): bool
+    {
+        return $this->gameSets()->where('has_mature_content', true)->exists();
     }
 
     public function getLastUpdatedAttribute(): Carbon
