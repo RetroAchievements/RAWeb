@@ -113,7 +113,7 @@ function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User 
         // Purge all of the spammer's unauthorized posts.
         $targetUser->forumPosts()->where(function ($query) {
             $query->whereNull('authorized_at')
-                ->orWhere('Authorised', 0);
+                ->orWhere('is_authorized', 0);
         })->delete();
 
         // Also ban the spammy user!
