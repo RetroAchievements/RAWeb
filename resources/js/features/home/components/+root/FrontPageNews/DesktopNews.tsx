@@ -62,10 +62,10 @@ export const DesktopNews: FC = () => {
                 <NewsCard
                   authorDisplayName={news.user.displayName}
                   href={news.link ?? undefined}
-                  imageSrc={news.image ?? undefined}
-                  PostedAt={<DiffTimestamp at={news.timestamp} enableTooltip={false} />}
+                  imageSrc={news.imageAssetPath ?? undefined}
+                  PostedAt={<DiffTimestamp at={news.createdAt} enableTooltip={false} />}
                   title={news.title}
-                  lead={news.payload}
+                  lead={news.body}
                   className={cn(
                     index === 2 ? 'hidden sm:flex' : '',
                     buildTrackingClassNames(`Click News Post ${index + 1}`),

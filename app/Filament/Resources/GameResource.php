@@ -85,7 +85,8 @@ class GameResource extends Resource
                     ->schema([
                         Infolists\Components\TextEntry::make('permalink')
                             ->url(fn (Game $record): string => $record->getPermalinkAttribute())
-                            ->extraAttributes(['class' => 'underline']),
+                            ->extraAttributes(['class' => 'underline'])
+                            ->openUrlInNewTab(),
 
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
@@ -483,7 +484,7 @@ class GameResource extends Resource
 
     public static function getRecordSubNavigation(Page $page): array
     {
-        return $page->generateNavigationitems([
+        return $page->generateNavigationItems([
             Pages\Details::class,
             Pages\AuditLog::class,
         ]);

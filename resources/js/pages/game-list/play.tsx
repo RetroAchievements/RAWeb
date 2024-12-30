@@ -1,21 +1,26 @@
-import { Head } from '@inertiajs/react';
+import { useHydrateAtoms } from 'jotai/utils';
 import { useTranslation } from 'react-i18next';
 
+import { SEO } from '@/common/components/SEO';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { WantToPlayGamesMainRoot } from '@/features/game-list/components/WantToPlayGamesMainRoot';
+import { isCurrentlyPersistingViewAtom } from '@/features/game-list/state/game-list.atoms';
 
 const WantToPlayGames: AppPage = () => {
+  const { persistedViewPreferences } = usePageProps<App.Community.Data.UserGameListPageProps>();
+
   const { t } = useTranslation();
 
-  const metaDescription = 'A list of your Want to Play Games';
+  useHydrateAtoms([
+    [isCurrentlyPersistingViewAtom, !!persistedViewPreferences],
+    //
+  ]);
 
   return (
     <>
-      <Head title={t('Want to Play Games')}>
-        <meta name="description" content={metaDescription} />
-        <meta name="og:description" content={metaDescription} />
-      </Head>
+      <SEO title={t('Want to Play Games')} description="A list of your Want to Play Games" />
 
       <div className="container">
         <AppLayout.Main>

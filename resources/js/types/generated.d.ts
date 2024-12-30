@@ -74,6 +74,8 @@ declare namespace App.Community.Data {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
     filterableSystemOptions: Array<App.Platform.Data.System>;
     can: App.Data.UserPermissions;
+    persistenceCookieName: string;
+    persistedViewPreferences: Record<string, any> | null;
     defaultDesktopPageSize: number;
   };
   export type UserModerationCommentsPageProps<TItems = App.Community.Data.Comment> = {
@@ -146,13 +148,16 @@ declare namespace App.Data {
   };
   export type News = {
     id: number;
-    timestamp: string;
+    createdAt: string;
     title: string;
     lead: string | null;
-    payload: string;
+    body: string;
     user: App.Data.User;
     link: string | null;
-    image: string | null;
+    imageAssetPath: string | null;
+    publishAt: string | null;
+    unpublishAt: string | null;
+    pinnedAt: string | null;
   };
   export type PaginatedData<TItems> = {
     currentPage: number;
@@ -358,6 +363,8 @@ declare namespace App.Platform.Data {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
     filterableSystemOptions: Array<App.Platform.Data.System>;
     can: App.Data.UserPermissions;
+    persistenceCookieName: string;
+    persistedViewPreferences: Record<string, any> | null;
     defaultDesktopPageSize: number;
   };
   export type GameSet = {
@@ -386,6 +393,8 @@ declare namespace App.Platform.Data {
     can: App.Data.UserPermissions;
     breadcrumbs: Array<App.Platform.Data.GameSet>;
     relatedHubs: Array<App.Platform.Data.GameSet>;
+    persistenceCookieName: string;
+    persistedViewPreferences: Record<string, any> | null;
     defaultDesktopPageSize: number;
   };
   export type Leaderboard = {
@@ -442,6 +451,8 @@ declare namespace App.Platform.Data {
     system: App.Platform.Data.System;
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
     can: App.Data.UserPermissions;
+    persistenceCookieName: string;
+    persistedViewPreferences: Record<string, any> | null;
     defaultDesktopPageSize: number;
   };
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\NewsResource\Actions;
 
+use App\Filament\Enums\ImageUploadType;
+use App\Platform\Enums\ImageType;
 use Exception;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Log;
@@ -11,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ProcessUploadedImageAction
 {
-    public function execute(string $tempImagePath): string
+    public function execute(string $tempImagePath, ImageUploadType $imageUploadType): string
     {
         try {
             /** @var Filesystem $disk */
@@ -29,7 +31,13 @@ class ProcessUploadedImageAction
             $dataUrl = "data:{$mimeType};base64,{$base64}";
 
             // Upload the image and get the final path.
-            $imagePath = UploadNewsImage($dataUrl);
+            $imagePath = null;
+            if ($imageUploadType === ImageUploadType::News) {
+                $imagePath = UploadNewsImage($dataUrl);
+            } elseif ($imageUploadType === ImageUploadType::HubBadge) {
+                $file = createFileArrayFromDataUrl($dataUrl);
+                $imagePath = UploadGameImage($file, ImageType::GameIcon);
+            }
 
             // Livewire auto-deletes these temp files after 24 hours, however
             // we're certain that we don't need it anymore. Optimistically delete.
