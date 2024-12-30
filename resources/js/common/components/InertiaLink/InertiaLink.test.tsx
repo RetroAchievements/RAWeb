@@ -138,9 +138,14 @@ describe('Component: InertiaLink', () => {
     // ARRANGE
     const prefetchSpy = vi.spyOn(router, 'prefetch');
 
-    render(<InertiaLink href="/test">Link Text</InertiaLink>, {
-      pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
-    });
+    render(
+      <InertiaLink href="/test" prefetch="desktop-hover-only">
+        Link Text
+      </InertiaLink>,
+      {
+        pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+      },
+    );
 
     // ACT
     const linkEl = screen.getByRole('link', { name: /link text/i });
