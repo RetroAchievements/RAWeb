@@ -6,9 +6,9 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
+use App\Policies\ForumTopicCommentPolicy;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Facades\Auth;
-use App\Policies\ForumTopicCommentPolicy;
 
 authenticateFromCookie($username, $permissions);
 $user = Auth::user();
@@ -166,6 +166,11 @@ $isSubscribed = $userID ? isUserSubscribedToForumTopic($thisTopicID, $userID) : 
     foreach ($allForumTopicCommentsForTopic as $index => $forumTopicComment) {
         $nextCommentID = $forumTopicComment->id;
         $isHighlighted = isset($gotoCommentID) && $nextCommentID == $gotoCommentID;
+
+        $mutatedBody = $forumTopicComment->body;
+        $mutatedBody = normalize_shortcodes($mutatedBody);
+        $mutatedBody = htmlspecialchars($mutatedBody, ENT_QUOTES, 'UTF-8');
+        $mutatedBody = Shortcode::render($mutatedBody);
         ?>
 
         @if ($policy->view(request()->user(), $forumTopicComment))
@@ -175,7 +180,7 @@ $isSubscribed = $userID ? isUserSubscribedToForumTopic($thisTopicID, $userID) : 
                 :threadPostNumber="($index + 1) + $offset" 
                 :variant="$isHighlighted ? 'highlight' : 'base'"
             >
-                {!! Shortcode::render($forumTopicComment->body) !!}
+                {!! $mutatedBody !!}
             </x-forum.topic-comment>
         @endif
         <?php

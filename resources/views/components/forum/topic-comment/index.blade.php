@@ -12,7 +12,10 @@
 <x-forum.topic-comment.container :$forumTopicComment :$variant>
     <x-forum.topic-comment.author-box :$forumTopicComment />
 
-    <div @class(['comment w-full lg:py-0, lg:px-6', $variant === 'preview' ? 'py-2' : 'pt-2 pb-4'])>
+    <div
+        @class(['comment w-full lg:py-0, lg:px-6', $variant === 'preview' ? 'py-2' : 'pt-2 pb-4'])
+        style="word-break: break-word;"
+    >
         <div
             @class([
                 'w-full mb-4 lg:mb-3 gap-x-2 flex justify-between',
