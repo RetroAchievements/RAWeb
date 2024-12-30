@@ -167,8 +167,10 @@ $isSubscribed = $userID ? isUserSubscribedToForumTopic($thisTopicID, $userID) : 
         $nextCommentID = $forumTopicComment->id;
         $isHighlighted = isset($gotoCommentID) && $nextCommentID == $gotoCommentID;
 
-        $asShortcodeRendered = Shortcode::render($forumTopicComment->body);
-        $asHtmlSanitized = htmlspecialchars($asShortcodeRendered, ENT_QUOTES, 'UTF-8')
+        $mutatedBody = $forumTopicComment->body;
+        $mutatedBody = normalize_shortcodes($mutatedBody);
+        $mutatedBody = htmlspecialchars($mutatedBody, ENT_QUOTES, 'UTF-8');
+        $mutatedBody = Shortcode::render($mutatedBody);
         ?>
 
         @if ($policy->view(request()->user(), $forumTopicComment))
@@ -178,7 +180,7 @@ $isSubscribed = $userID ? isUserSubscribedToForumTopic($thisTopicID, $userID) : 
                 :threadPostNumber="($index + 1) + $offset" 
                 :variant="$isHighlighted ? 'highlight' : 'base'"
             >
-                {!! $asHtmlSanitized !!}
+                {!! $mutatedBody !!}
             </x-forum.topic-comment>
         @endif
         <?php
