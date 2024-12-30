@@ -163,7 +163,7 @@ declare namespace App.Data {
     createdAt: string;
     updatedAt: string | null;
     user: App.Data.User | null;
-    authorized: boolean;
+    isAuthorized: boolean;
     forumTopicId: number | null;
   };
   export type ForumTopic = {
@@ -242,7 +242,7 @@ declare namespace App.Data {
     userWallActive?: boolean | null;
     visibleRole?: string | null;
     websitePrefs?: number | null;
-    preferences?: { prefersAbsoluteDates: boolean };
+    preferences?: { shouldAlwaysBypassContentWarnings: boolean; prefersAbsoluteDates: boolean };
     roles?: App.Models.UserRole[];
   };
   export type UserPermissions = {
@@ -406,6 +406,8 @@ declare namespace App.Platform.Data {
     gameCount: number;
     linkCount: number;
     updatedAt: string;
+    forumTopicId?: number | null;
+    hasMatureContent?: boolean;
   };
   export type GameTopAchiever = {
     rank: number;

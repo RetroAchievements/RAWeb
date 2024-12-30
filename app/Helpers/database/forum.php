@@ -15,35 +15,35 @@ use Illuminate\Support\Collection;
 function getForumList(int $categoryID = 0): array
 {
     $query = "  SELECT
-                    f.ID, f.CategoryID, f.Title, f.Description, f.DisplayOrder,
-                    fc.Name AS CategoryName, fc.Description AS CategoryDescription,
-                    COUNT(DISTINCT ft.ID) AS NumTopics, COUNT( ft.ID ) AS NumPosts,
-                    ftc2.ID AS LastPostID, ua.User AS LastPostAuthor, ftc2.DateCreated AS LastPostCreated,
-                    ft2.Title AS LastPostTopicName, ft2.ID AS LastPostTopicID
-                FROM Forum AS f
-                LEFT JOIN ForumCategory AS fc ON fc.ID = f.CategoryID
-                LEFT JOIN ForumTopic AS ft ON ft.ForumID = f.ID
-                LEFT JOIN ForumTopicComment AS ftc ON ftc.ForumTopicID = ft.ID
-                LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ID = f.LatestCommentID
+                    f.id AS ID, f.forum_category_id AS CategoryID, f.title AS Title, f.description AS Description, f.order_column AS DisplayOrder,
+                    fc.title AS CategoryName, fc.Description AS CategoryDescription,
+                    COUNT(DISTINCT ft.id) AS NumTopics, COUNT( ft.id ) AS NumPosts,
+                    ftc2.id AS LastPostID, ua.User AS LastPostAuthor, ftc2.created_at AS LastPostCreated,
+                    ft2.title AS LastPostTopicName, ft2.id AS LastPostTopicID
+                FROM forums AS f
+                LEFT JOIN forum_categories AS fc ON fc.id = f.forum_category_id
+                LEFT JOIN forum_topics AS ft ON ft.forum_id = f.id
+                LEFT JOIN forum_topic_comments AS ftc ON ftc.forum_topic_id = ft.id
+                LEFT JOIN forum_topic_comments AS ftc2 ON ftc2.id = f.latest_comment_id
                 LEFT JOIN UserAccounts AS ua ON ua.ID = ftc2.author_id
-                LEFT JOIN ForumTopic AS ft2 ON ft2.ID = ftc2.ForumTopicID ";
+                LEFT JOIN forum_topics AS ft2 ON ft2.id = ftc2.forum_topic_id ";
 
     if ($categoryID > 0) {
-        $query .= "WHERE fc.ID = '$categoryID' ";
+        $query .= "WHERE fc.id = '$categoryID' ";
     }
-    $query .= "GROUP BY f.ID ";
-    $query .= "ORDER BY fc.DisplayOrder, f.DisplayOrder, f.ID ";
+    $query .= "GROUP BY f.id ";
+    $query .= "ORDER BY fc.order_column, f.order_column, f.id ";
 
     return legacyDbFetchAll($query)->toArray();
 }
 
 function getForumTopics(int $forumID, int $offset, int $count, int $permissions, ?int &$maxCountOut): ?array
 {
-    $query = "  SELECT COUNT(*) FROM ForumTopic AS ft
-                LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
-                WHERE ft.ForumID = $forumID AND ftc.Authorised = 1
+    $query = "  SELECT COUNT(*) FROM forum_topics AS ft
+                LEFT JOIN forum_topic_comments AS ftc ON ftc.id = ft.latest_comment_id
+                WHERE ft.forum_id = $forumID AND ftc.is_authorized = 1
                 AND ft.deleted_at IS NULL
-                AND ft.RequiredPermissions <= $permissions";
+                AND ft.required_permissions <= $permissions";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -51,15 +51,15 @@ function getForumTopics(int $forumID, int $offset, int $count, int $permissions,
         $maxCountOut = (int) $data['COUNT(*)'];
     }
 
-    $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 54 ) AS TopicPreview, ft.author_id AS AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.author_id AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
-                FROM ForumTopic AS ft
-                LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
-                LEFT JOIN Forum AS f ON f.ID = ft.ForumID
-                LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID AND ftc2.Authorised = 1
-                WHERE ft.ForumID = $forumID
-                AND ft.RequiredPermissions <= $permissions
+    $query = "  SELECT f.title AS ForumTitle, ft.id AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.body, 54 ) AS TopicPreview, ft.author_id AS AuthorID, ft.created_at AS ForumTopicPostedDate, ftc.id AS LatestCommentID, ftc.author_id AS LatestCommentAuthorID, ftc.created_at AS LatestCommentPostedDate, (COUNT(ftc2.id)-1) AS NumTopicReplies
+                FROM forum_topics AS ft
+                LEFT JOIN forum_topic_comments AS ftc ON ftc.id = ft.latest_comment_id
+                LEFT JOIN forums AS f ON f.id = ft.forum_id
+                LEFT JOIN forum_topic_comments AS ftc2 ON ftc2.forum_topic_id = ft.id AND ftc2.is_authorized = 1
+                WHERE ft.forum_id = $forumID
+                AND ft.required_permissions <= $permissions
                 AND ft.deleted_at IS NULL
-                GROUP BY ft.ID, LatestCommentPostedDate
+                GROUP BY ft.id, LatestCommentPostedDate
                 HAVING NumTopicReplies >= 0
                 ORDER BY LatestCommentPostedDate DESC
                 LIMIT $offset, $count";
@@ -83,13 +83,13 @@ function getForumTopics(int $forumID, int $offset, int $count, int $permissions,
 
 function getUnauthorisedForumLinks(): ?array
 {
-    $query = "  SELECT ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 60 ) AS TopicPreview, ft.author_id AS AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.author_id AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
-                FROM ForumTopic AS ft
-                LEFT JOIN ForumTopicComment AS ftc ON ftc.ForumTopicID = ft.ID
-                LEFT JOIN Forum AS f ON f.ID = ft.ForumID
-                LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID
-                WHERE ftc.Authorised = 0 AND ftc.deleted_at IS NULL AND ft.deleted_at IS NULL
-                GROUP BY ft.ID, LatestCommentPostedDate
+    $query = "  SELECT ft.id AS ForumTopicID, ft.title AS TopicTitle, LEFT( ftc2.body, 60 ) AS TopicPreview, ft.author_id AS AuthorID, ft.created_at AS ForumTopicPostedDate, ftc.id AS LatestCommentID, ftc.author_id AS LatestCommentAuthorID, ftc.created_at AS LatestCommentPostedDate, (COUNT(ftc2.id)-1) AS NumTopicReplies
+                FROM forum_topics AS ft
+                LEFT JOIN forum_topic_comments AS ftc ON ftc.forum_topic_id = ft.id
+                LEFT JOIN forums AS f ON f.id = ft.forum_id
+                LEFT JOIN forum_topic_comments AS ftc2 ON ftc2.forum_topic_id = ft.id
+                WHERE ftc.is_authorized = 0 AND ftc.deleted_at IS NULL AND ft.deleted_at IS NULL
+                GROUP BY ft.id, LatestCommentPostedDate
                 ORDER BY LatestCommentPostedDate DESC ";
 
     $dbResult = s_mysql_query($query);
@@ -117,11 +117,11 @@ function submitNewTopic(
 ): ForumTopicComment {
     // First, create the topic.
     $newTopic = ForumTopic::create([
-        'ForumID' => $forumID,
-        'Title' => $topicTitle,
+        'forum_id' => $forumID,
+        'title' => $topicTitle,
         'author_id' => $user->id,
-        'LatestCommentID' => 0,
-        'RequiredPermissions' => 0,
+        'latest_comment_id' => 0,
+        'required_permissions' => 0,
     ]);
 
     // Finally, submit the first comment of the new topic.
@@ -136,13 +136,13 @@ function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
         return false;
     }
 
-    $forumTopic->LatestCommentID = $commentID;
+    $forumTopic->latest_comment_id = $commentID;
     $forumTopic->timestamps = false;
     $forumTopic->save();
 
-    $forum = Forum::find($forumTopic->ForumID);
+    $forum = Forum::find($forumTopic->forum_id);
     if ($forum) {
-        $forum->LatestCommentID = $commentID;
+        $forum->latest_comment_id = $commentID;
         $forum->timestamps = false;
         $forum->save();
     }
@@ -160,7 +160,7 @@ function editTopicComment(int $commentId, string $newPayload): void
     $newPayload = Shortcode::convertUserShortcodesToUseIds($newPayload);
 
     $comment = ForumTopicComment::findOrFail($commentId);
-    $comment->Payload = $newPayload;
+    $comment->body = $newPayload;
     $comment->save();
 }
 
@@ -179,17 +179,17 @@ function submitTopicComment(
 
     // if this exact message was just posted by this user, assume it's an
     // accidental double submission and ignore.
-    $latestPost = $user->forumPosts()->latest('DateCreated')->first();
+    $latestPost = $user->forumPosts()->latest('created_at')->first();
     if ($latestPost && $latestPost->forum_topic_id === $topicId
         && $latestPost->body === $commentPayload) {
         return $latestPost;
     }
 
     $newComment = new ForumTopicComment([
-        'ForumTopicID' => $topicId,
-        'Payload' => $commentPayload,
+        'forum_topic_id' => $topicId,
+        'body' => $commentPayload,
         'author_id' => $user->id,
-        'Authorised' => $user->ManuallyVerified ?? false,
+        'is_authorized' => $user->ManuallyVerified ?? false,
     ]);
     $newComment->save();
 
@@ -221,17 +221,17 @@ function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, User $a
         "
             SELECT DISTINCT ua.*
             FROM
-                ForumTopicComment as ftc
+                forum_topic_comments as ftc
                 INNER JOIN UserAccounts AS ua ON ua.ID = ftc.author_id
             WHERE
-                ftc.ForumTopicID = $topicID
+                ftc.forum_topic_id = $topicID
         "
     );
 
     $payload = null;
     $comment = ForumTopicComment::find($commentID);
     if ($comment) {
-        $payload = nl2br(Shortcode::stripAndClamp($comment->Payload, previewLength: 1000, preserveWhitespace: true));
+        $payload = nl2br(Shortcode::stripAndClamp($comment->body, previewLength: 1000, preserveWhitespace: true));
     }
 
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID#$commentID";
@@ -247,10 +247,10 @@ function getTopicCommentCommentOffset(int $forumTopicID, int $commentID, int $co
         $commentID = 99_999_999;
     }
 
-    $query = "SELECT COUNT(ID) AS CommentOffset
-              FROM ForumTopicComment
-              WHERE DateCreated < (SELECT DateCreated FROM ForumTopicComment WHERE ID = $commentID)
-              AND ForumTopicID = $forumTopicID";
+    $query = "SELECT COUNT(id) AS CommentOffset
+              FROM forum_topic_comments
+              WHERE created_at < (SELECT created_at FROM forum_topic_comments WHERE id = $commentID)
+              AND forum_topic_id = $forumTopicID";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -354,37 +354,37 @@ function getRecentForumPosts(
         $bindings['fromAuthorId'] = $fromAuthorId;
         $userClause = "ftc.author_id = :fromAuthorId";
         if ($permissions < Permissions::Moderator) {
-            $userClause .= " AND ftc.Authorised = 1";
+            $userClause .= " AND ftc.is_authorized = 1";
         }
     } else {
-        $userClause = "ftc.Authorised = 1";
+        $userClause = "ftc.is_authorized = 1";
     }
 
     // 02:08 21/02/2014 - cater for 20 spam messages
     $query = "
-        SELECT LatestComments.DateCreated AS PostedAt,
-            LatestComments.Payload,
+        SELECT LatestComments.created_at AS PostedAt,
+            LatestComments.body AS Payload,
             ua.User as Author,
             ua.display_name as AuthorDisplayName,
             ua.RAPoints,
             ua.Motto,
-            ft.ID AS ForumTopicID,
-            ft.Title AS ForumTopicTitle,
+            ft.id AS ForumTopicID,
+            ft.title AS ForumTopicTitle,
             LatestComments.author_id AS author_id,
-            LatestComments.ID AS CommentID
+            LatestComments.id AS CommentID
         FROM
         (
             SELECT *
-            FROM ForumTopicComment AS ftc
+            FROM forum_topic_comments AS ftc
             WHERE $userClause
-            ORDER BY ftc.DateCreated DESC
+            ORDER BY ftc.created_at DESC
             LIMIT :fromOffset, :fromLimit
         ) AS LatestComments
-        INNER JOIN ForumTopic AS ft ON ft.ID = LatestComments.ForumTopicID
-        LEFT JOIN Forum AS f ON f.ID = ft.ForumID
+        INNER JOIN forum_topics AS ft ON ft.id = LatestComments.forum_topic_id
+        LEFT JOIN forums AS f ON f.id = ft.forum_id
         LEFT JOIN UserAccounts AS ua ON ua.ID = LatestComments.author_id
-        WHERE ft.RequiredPermissions <= :permissions AND ft.deleted_at IS NULL
-        ORDER BY LatestComments.DateCreated DESC
+        WHERE ft.required_permissions <= :permissions AND ft.deleted_at IS NULL
+        ORDER BY LatestComments.created_at DESC
         LIMIT 0, :limit";
 
     /** @var Collection<int, non-empty-array> */
@@ -399,9 +399,9 @@ function getRecentForumPosts(
 
 function updateTopicPermissions(int $topicId, int $permissions): bool
 {
-    $query = "  UPDATE ForumTopic AS ft
-                SET RequiredPermissions='$permissions'
-                WHERE ID=$topicId";
+    $query = "  UPDATE forum_topics AS ft
+                SET required_permissions='$permissions'
+                WHERE id=$topicId";
 
     if (!s_mysql_query($query)) {
         log_sql_fail();
@@ -417,7 +417,7 @@ function authorizeAllForumPostsForUser(User $user): bool
     $userUnauthorizedPosts = $user->forumPosts()
         ->unauthorized()
         ->with(['forumTopic' => function ($query) {
-            $query->select('ID', 'Title');
+            $query->select('id', 'title');
         }])
         ->get();
 
@@ -434,7 +434,7 @@ function authorizeAllForumPostsForUser(User $user): bool
 
     // Set all unauthorized forum posts by the user to authorized.
     $user->forumPosts()->unauthorized()->update([
-        'Authorised' => 1,
+        'is_authorized' => 1,
         'authorized_at' => now(),
     ]);
 
@@ -453,7 +453,7 @@ function isUserSubscribedToForumTopic(int $topicID, int $userID): bool
     }
 
     // a user is implicitly subscribed if they've authored at least one post in the topic
-    return ForumTopicComment::where('ForumTopicID', $topicID)
+    return ForumTopicComment::where('forum_topic_id', $topicID)
         ->where('author_id', $userID)
         ->exists();
 }

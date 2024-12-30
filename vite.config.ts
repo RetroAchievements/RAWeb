@@ -84,6 +84,12 @@ export default defineConfig(({ mode, isSsrBuild }) => {
           '**/*.spec.ts',
           '**/*.spec.tsx',
         ],
+        thresholds: {
+          lines: 98.5,
+          functions: 100,
+          branches: 98.5,
+          statements: 98.5,
+        },
       },
     },
 

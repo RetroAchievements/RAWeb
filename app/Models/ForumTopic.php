@@ -22,27 +22,16 @@ class ForumTopic extends BaseModel
     use Searchable;
     use SoftDeletes;
 
-    // TODO rename ForumTopic table to forum_topics
-    // TODO rename ID column to id, remove getIdAttribute()
-    // TODO rename ForumID to forum_id
-    // TODO rename Title to title, remove getTitleAttribute()
-    // TODO rename DateCreated to created_at
-    // TODO rename Updated to updated_at
-    // TODO refactor RequiredPermissions to use RBAC
-    // TODO add body from first comment as that's the topic itself
-    protected $table = 'ForumTopic';
-
-    protected $primaryKey = 'ID';
-
-    public const CREATED_AT = 'DateCreated';
-    public const UPDATED_AT = 'Updated';
+    // TODO refactor required_permissions to use RBAC
+    // TODO populate body from the first forum topic comment
+    protected $table = 'forum_topics';
 
     protected $fillable = [
-        'ForumID',
-        'Title',
+        'forum_id',
+        'title',
         'author_id',
-        'LatestCommentID',
-        'RequiredPermissions',
+        'latest_comment_id',
+        'required_permissions',
     ];
 
     protected $dispatchesEvents = [
@@ -57,7 +46,7 @@ class ForumTopic extends BaseModel
     {
         return $this->only([
             'id',
-            'Title',
+            'title',
         ]);
     }
 
@@ -68,12 +57,6 @@ class ForumTopic extends BaseModel
     }
 
     // == accessors
-
-    // TODO remove after rename
-    public function getIdAttribute(): int
-    {
-        return $this->attributes['ID'];
-    }
 
     public function getCanonicalUrlAttribute(): string
     {
@@ -97,12 +80,6 @@ class ForumTopic extends BaseModel
             . ($this->title ? '-' . Str::slug($this->title) : '');
     }
 
-    // TODO remove after rename
-    public function getTitleAttribute(): string
-    {
-        return $this->attributes['Title'];
-    }
-
     // == mutators
 
     // == relations
@@ -112,7 +89,7 @@ class ForumTopic extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'author_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'author_id', 'id')->withTrashed();
     }
 
     /**
@@ -120,7 +97,7 @@ class ForumTopic extends BaseModel
      */
     public function forum(): BelongsTo
     {
-        return $this->belongsTo(Forum::class, 'ForumID');
+        return $this->belongsTo(Forum::class, 'forum_id');
     }
 
     /**
@@ -128,7 +105,7 @@ class ForumTopic extends BaseModel
      */
     public function comments(): HasMany
     {
-        return $this->hasMany(ForumTopicComment::class, 'ForumTopicID')->with('user');
+        return $this->hasMany(ForumTopicComment::class, 'forum_topic_id')->with('user');
     }
 
     /**
@@ -136,9 +113,9 @@ class ForumTopic extends BaseModel
      */
     public function latestComment(): HasOne
     {
-        return $this->hasOne(ForumTopicComment::class, 'ForumTopicID')
-            ->where('Authorised', 1)
-            ->orderByDesc('DateCreated');
+        return $this->hasOne(ForumTopicComment::class, 'forum_topic_id')
+            ->where('is_authorized', 1)
+            ->orderByDesc('created_at');
     }
 
     // == scopes
