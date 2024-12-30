@@ -9,6 +9,7 @@ use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\HubResource\Pages;
 use App\Filament\Resources\HubResource\RelationManagers\GamesRelationManager;
 use App\Filament\Resources\HubResource\RelationManagers\ParentHubsRelationManager;
+use App\Filament\Rules\ExistsInForumTopics;
 use App\Models\GameSet;
 use App\Models\User;
 use App\Platform\Enums\GameSetType;
@@ -59,6 +60,12 @@ class HubResource extends Resource
                         Infolists\Components\TextEntry::make('title')
                             ->label('Title'),
 
+                        Infolists\Components\TextEntry::make('forumTopic.id')
+                            ->label('Forum Topic ID')
+                            ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
+                            ->placeholder('none')
+                            ->extraAttributes(fn (?int $state) => $state ? ['class' => 'underline'] : []),
+
                         Infolists\Components\TextEntry::make('has_mature_content')
                             ->label('Has Mature Content')
                             ->formatStateUsing(fn (bool $state): string => $state ? 'Yes' : 'No')
@@ -95,6 +102,12 @@ class HubResource extends Resource
                             ->minLength(2)
                             ->maxLength(80)
                             ->rules([new NoEmoji()]),
+
+                        Forms\Components\TextInput::make('forum_topic_id')
+                            ->label('Forum Topic ID')
+                            ->numeric()
+                            ->rules([new ExistsInForumTopics()])
+                            ->helperText('Before connecting a topic, be ABSOLUTELY SURE the internal notes field below is not sufficient.'),
 
                         Forms\Components\Toggle::make('has_mature_content')
                             ->label('Has Mature Content')

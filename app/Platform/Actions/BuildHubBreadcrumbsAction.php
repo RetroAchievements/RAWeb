@@ -164,6 +164,7 @@ class BuildHubBreadcrumbsAction
                 badgeUrl: media_asset($data['image_asset_path']),
                 gameCount: 0,
                 linkCount: 0,
+                forumTopicId: null,
                 updatedAt: new Carbon($data['updated_at']),
                 hasMatureContent: false, // doesn't matter, this is just a breadcrumb
             ),

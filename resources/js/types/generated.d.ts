@@ -375,6 +375,7 @@ declare namespace App.Platform.Data {
     gameCount: number;
     linkCount: number;
     updatedAt: string;
+    forumTopicId?: number | null;
     hasMatureContent?: boolean;
   };
   export type GameTopAchiever = {
