@@ -17,11 +17,12 @@
 
 use App\Models\User;
 use App\Models\UserGameListEntry;
+use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required', 'min:1'],
+    'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
 ]);
 
 $user = User::firstWhere('User', request()->query('u'));
@@ -40,17 +41,9 @@ $requestedSets = UserGameListEntry::select([
     ->join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
     ->where('SetRequest.user_id', $user->id)
     ->where('type', 'achievement_set_request')
-    ->orderBy('GameData.sort_title', 'asc')
+    ->orderBy('GameData.sort_title')
     ->get()
-    ->map(function ($gameData) {
-        return [
-            'GameID' => $gameData->GameID,
-            'Title' => $gameData->Title,
-            'ConsoleID' => $gameData->ConsoleID,
-            'ConsoleName' => $gameData->ConsoleName,
-            'ImageIcon' => $gameData->ImageIcon,
-        ];
-    });
+    ->toArray();
 
 $userRequestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
