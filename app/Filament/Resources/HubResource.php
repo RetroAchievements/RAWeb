@@ -65,7 +65,7 @@ class HubResource extends Resource
                             ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
                             ->placeholder('none')
                             ->extraAttributes(fn (?int $state) => $state ? ['class' => 'underline'] : []),
-                            
+
                         Infolists\Components\TextEntry::make('has_mature_content')
                             ->label('Has Mature Content')
                             ->formatStateUsing(fn (bool $state): string => $state ? 'Yes' : 'No')
@@ -108,7 +108,7 @@ class HubResource extends Resource
                             ->numeric()
                             ->rules([new ExistsInForumTopics()])
                             ->helperText('Before connecting a topic, be ABSOLUTELY SURE the internal notes field below is not sufficient.'),
-                            
+
                         Forms\Components\Toggle::make('has_mature_content')
                             ->label('Has Mature Content')
                             ->helperText('CAUTION: If this is enabled, players will get a warning when opening any game in the hub!')
