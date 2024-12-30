@@ -70,6 +70,7 @@ describe('Component: RecentUnlocksTable', () => {
           user: createAuthenticatedUser({
             preferences: {
               prefersAbsoluteDates: true,
+              shouldAlwaysBypassContentWarnings: false,
             },
           }),
         },

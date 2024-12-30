@@ -51,6 +51,7 @@ describe('Component: RecentAwardsTable', () => {
           user: createAuthenticatedUser({
             preferences: {
               prefersAbsoluteDates: true,
+              shouldAlwaysBypassContentWarnings: false,
             },
           }),
         },

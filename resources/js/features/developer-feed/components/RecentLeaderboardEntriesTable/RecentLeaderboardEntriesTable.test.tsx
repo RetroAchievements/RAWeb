@@ -59,6 +59,7 @@ describe('Component: RecentLeaderboardEntriesTable', () => {
           user: createAuthenticatedUser({
             preferences: {
               prefersAbsoluteDates: true,
+              shouldAlwaysBypassContentWarnings: false,
             },
           }),
         },
