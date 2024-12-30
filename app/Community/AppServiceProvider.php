@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Community;
 
-use App\Community\Commands\ConvertUserShortcodesToUseIds;
 use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\SyncComments;
 use App\Community\Commands\SyncForumCategories;
 use App\Community\Commands\SyncForums;
-use App\Community\Commands\SyncNews;
 use App\Community\Commands\SyncTickets;
 use App\Community\Commands\SyncUserRelations;
 use App\Community\Components\ActivePlayers;
@@ -53,11 +51,8 @@ class AppServiceProvider extends ServiceProvider
                 SyncComments::class,
                 SyncForumCategories::class,
                 SyncForums::class,
-                SyncNews::class,
                 SyncTickets::class,
                 SyncUserRelations::class,
-
-                ConvertUserShortcodesToUseIds::class,
 
                 GenerateAnnualRecap::class,
             ]);

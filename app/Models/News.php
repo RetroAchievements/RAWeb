@@ -30,35 +30,25 @@ class News extends BaseModel implements HasComments, HasMedia
     use Searchable;
     use SoftDeletes;
 
-    // TODO rename News table to news
-    // TODO rename ID column to id
-    // TODO rename Timestamp column to created_at
-    // TODO rename Updated column to updated_at
-    // TODO rename Title column to title
-    // TODO rename Payload column to body
-    // TODO drop Link, include in body/Payload
-    // TODO drop Image, migrate to media
-    protected $table = 'News';
-
-    protected $primaryKey = 'ID';
-
-    public const CREATED_AT = 'Timestamp';
-    public const UPDATED_AT = 'Updated';
+    // TODO drop image_asset_path, migrate to media
+    protected $table = 'news';
 
     protected $fillable = [
-        'Title',
+        'title',
         'lead',
-        'Payload',
+        'body',
         'user_id',
-        'Link',
-        'Image',
+        'link',
+        'image_asset_path',
         'publish_at',
         'unpublish_at',
+        'pinned_at',
     ];
 
     protected $casts = [
         'publish_at' => 'datetime',
         'unpublish_at' => 'datetime',
+        'pinned_at' => 'datetime',
     ];
 
     // == search
@@ -66,10 +56,10 @@ class News extends BaseModel implements HasComments, HasMedia
     public function toSearchableArray(): array
     {
         return $this->only([
-            'ID',
-            'Title',
+            'id',
+            'title',
             'lead',
-            // 'Payload',
+            // 'body',
         ]);
     }
 
@@ -99,9 +89,14 @@ class News extends BaseModel implements HasComments, HasMedia
             });
     }
 
-    // == actions
+    // == accessors
 
-    public function isPublished(): bool
+    public function getCanonicalUrlAttribute(): string
+    {
+        return route('news.show', [$this, $this->getSlugAttribute()]);
+    }
+
+    public function getIsPublishedAttribute(): bool
     {
         if ($this->publish_at && $this->unpublish_at) {
             return Carbon::now()->between($this->publish_at, $this->unpublish_at);
@@ -111,13 +106,6 @@ class News extends BaseModel implements HasComments, HasMedia
         }
 
         return false;
-    }
-
-    // == accessors
-
-    public function getCanonicalUrlAttribute(): string
-    {
-        return route('news.show', [$this, $this->getSlugAttribute()]);
     }
 
     public function getPermalinkAttribute(): string
@@ -151,25 +139,4 @@ class News extends BaseModel implements HasComments, HasMedia
     }
 
     // == scopes
-
-    // == instance methods
-
-    /**
-     * TODO Migrate to Markdown. This is a temporary stopgap.
-     * Corrects missing quotes in `href` attributes of anchor
-     * tags so they don't break the site homepage.
-     */
-    public static function sanitizeMaybeInvalidHtml(string $maybeHtmlContent): string
-    {
-        // Fix missing quotes in href attributes
-        $pattern = '/<a\s+href=([^\'" >]+)(.*?)>(.*?)<\/a>/i';
-        $replacement = '<a href="$1"$2>$3</a>';
-        $fixedHtml = preg_replace($pattern, $replacement, $maybeHtmlContent);
-
-        // Allow only <a> and <br> tags
-        $allowedTags = '<a><br>';
-        $saferHtml = strip_tags($fixedHtml, $allowedTags);
-
-        return $saferHtml;
-    }
 }

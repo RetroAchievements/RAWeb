@@ -1,20 +1,14 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
-use App\Models\Achievement;
 use App\Models\ForumTopic;
 use App\Models\Game;
-use App\Models\GameAchievementSet;
-use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadataAction;
 use App\Platform\Actions\UpdateGameSetFromGameAlternativesModificationAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Services\UserAgentService;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Spatie\Activitylog\Facades\CauserResolver;
 
@@ -756,7 +750,7 @@ function modifyGameForumTopic(string $username, int $gameId, int $newForumTopicI
         return false;
     }
 
-    if (!ForumTopic::where('ID', $newForumTopicId)->exists()) {
+    if (!ForumTopic::where('id', $newForumTopicId)->exists()) {
         return false;
     }
 
@@ -973,150 +967,4 @@ function getRichPresencePatch(int $gameId, ?string &$dataOut): bool
     $dataOut = $game->RichPresencePatch;
 
     return true;
-}
-
-function GetPatchData(int $gameID, ?User $user, int $flag): array
-{
-    $userAgentService = new UserAgentService();
-    $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
-    if ($clientSupportLevel === ClientSupportLevel::Blocked) {
-        return [
-            'Status' => 403,
-            'Success' => false,
-            'Error' => 'This client is not supported',
-        ];
-    }
-
-    $game = Game::find($gameID);
-    if (!$game) {
-        return [
-            'Success' => false,
-            'Error' => 'Unknown game',
-            'Status' => 404,
-            'Code' => 'not_found',
-        ];
-    }
-
-    $gameData = [
-        'ID' => $game->ID,
-        'Title' => $game->Title,
-        'ImageIcon' => $game->ImageIcon,
-        'RichPresencePatch' => $game->RichPresencePatch,
-        'ConsoleID' => $game->ConsoleID,
-        'ImageIconURL' => media_asset($game->ImageIcon),
-        'Achievements' => [],
-        'Leaderboards' => [],
-    ];
-
-    if ($clientSupportLevel !== ClientSupportLevel::Full) {
-        if ($game->achievements_published < 0) { // will never be true. change to > when ready
-            $gameData['Achievements'][] = [
-                'ID' => Achievement::CLIENT_WARNING_ID,
-                'MemAddr' => '1=1.300.', // pop after 5 seconds
-                'Title' => ($clientSupportLevel === ClientSupportLevel::Outdated) ?
-                    'Warning: Outdated Emulator (please update)' : 'Warning: Unknown Emulator',
-                'Description' => 'Hardcore unlocks cannot be earned using this emulator.',
-                'Points' => 0,
-                'Author' => '',
-                'Modified' => Carbon::now()->unix(),
-                'Created' => Carbon::now()->unix(),
-                'BadgeName' => '00000',
-                'Flags' => AchievementFlag::OfficialCore->value,
-                'Type' => null,
-                'Rarity' => 0.0,
-                'RarityHardcore' => 0.0,
-                'BadgeURL' => media_asset("Badge/00000.png"),
-                'BadgeLockedURL' => media_asset("Badge/00000_lock.png"),
-            ];
-        }
-    }
-
-    $gamePlayers = $game->players_total;
-    if ($user) {
-        // if the user isn't already tallied in the players for the game,
-        // adjust the count now for the rarity calculations.
-        $hasPlayerGame = PlayerGame::where('user_id', $user->id)
-            ->where('game_id', $game->id)
-            ->exists();
-        if (!$hasPlayerGame) {
-            $gamePlayers++;
-        }
-    }
-    $gamePlayers = max(1, $gamePlayers); // Prevent divide by zero error if the game has never been played before.
-
-    // Attempt to retrieve the game's core achievement set.
-    $coreAchievementSet = GameAchievementSet::where('game_id', $game->id)
-        ->core()
-        ->with('achievementSet.achievements.developer')
-        ->first();
-
-    // If the core achievement set exists, process the achievements.
-    if ($coreAchievementSet?->achievementSet) {
-        $achievements = $coreAchievementSet->achievementSet
-            ->achievements()
-            ->with('developer')
-            ->orderBy('DisplayOrder')   // explicit display order
-            ->orderBy('ID')             // tiebreaker on creation sequence
-            ->get();
-
-        if ($flag != 0) {
-            $achievements = $achievements->where('Flags', '=', $flag);
-        }
-
-        foreach ($achievements as $achievement) {
-            if (!AchievementFlag::tryFrom($achievement->Flags)) {
-                continue;
-            }
-
-            // calculate rarity assuming it will be used when the player unlocks the achievement,
-            // which implies they haven't already unlocked it.
-            $rarity = min(100.0, round((float) ($achievement->unlocks_total + 1) * 100 / $gamePlayers, 2));
-            $rarityHardcore = min(100.0, round((float) ($achievement->unlocks_hardcore_total + 1) * 100 / $gamePlayers, 2));
-
-            $gameData['Achievements'][] = [
-                'ID' => $achievement->ID,
-                'MemAddr' => $achievement->MemAddr,
-                'Title' => $achievement->Title,
-                'Description' => $achievement->Description,
-                'Points' => $achievement->Points,
-                'Author' => $achievement->developer->User ?? '',
-                'Modified' => $achievement->DateModified->unix(),
-                'Created' => $achievement->DateCreated->unix(),
-                'BadgeName' => $achievement->BadgeName,
-                'Flags' => $achievement->Flags,
-                'Type' => $achievement->type,
-                'Rarity' => $rarity,
-                'RarityHardcore' => $rarityHardcore,
-                'BadgeURL' => media_asset("Badge/{$achievement->BadgeName}.png"),
-                'BadgeLockedURL' => media_asset("Badge/{$achievement->BadgeName}_lock.png"),
-            ];
-        }
-    }
-
-    $leaderboards = $game->leaderboards()
-        ->orderBy('DisplayOrder') // explicit display order
-        ->orderBy('ID');          // tiebreaker on creation sequence
-
-    foreach ($leaderboards->get() as $leaderboard) {
-        $gameData['Leaderboards'][] = [
-            'ID' => $leaderboard->ID,
-            'Mem' => $leaderboard->Mem,
-            'Format' => $leaderboard->Format,
-            'LowerIsBetter' => $leaderboard->LowerIsBetter,
-            'Title' => $leaderboard->Title,
-            'Description' => $leaderboard->Description,
-            'Hidden' => ($leaderboard->DisplayOrder < 0),
-        ];
-    }
-
-    $result = [
-        'Success' => true,
-        'PatchData' => $gameData,
-    ];
-
-    if ($clientSupportLevel === ClientSupportLevel::Unknown) {
-        $result['Warning'] = 'The server does not recognize this client and will not allow hardcore unlocks. Please send a message to RAdmin on the RetroAchievements website for information on how to submit your emulator for hardcore consideration.';
-    }
-
-    return $result;
 }

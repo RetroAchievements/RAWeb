@@ -26,10 +26,10 @@ export const MobileNews: FC = () => {
             key={`news-${news.id}`}
             authorDisplayName={news.user.displayName}
             href={news.link ?? undefined}
-            imageSrc={news.image ?? undefined}
-            PostedAt={<DiffTimestamp at={news.timestamp} enableTooltip={false} />}
+            imageSrc={news.imageAssetPath ?? undefined}
+            PostedAt={<DiffTimestamp at={news.createdAt} enableTooltip={false} />}
             title={news.title}
-            lead={news.payload}
+            lead={news.body}
             className={cn(
               'w-[200px] min-w-[200px] snap-start pl-2',
               buildTrackingClassNames(`Click News Post ${index + 1}`),

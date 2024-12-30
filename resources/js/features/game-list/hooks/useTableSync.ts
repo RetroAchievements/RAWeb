@@ -1,25 +1,61 @@
-import type { ColumnFiltersState, PaginationState, SortingState } from '@tanstack/react-table';
-import { useUpdateEffect } from 'react-use';
+import type {
+  ColumnFiltersState,
+  PaginationState,
+  SortingState,
+  TableState,
+  VisibilityState,
+} from '@tanstack/react-table';
+import { useCookie, useUpdateEffect } from 'react-use';
+
+import { usePageProps } from '@/common/hooks/usePageProps';
 
 interface UseAutoUpdatingQueryParamsProps {
   columnFilters: ColumnFiltersState;
+  columnVisibility: VisibilityState;
   defaultFilters: ColumnFiltersState;
   pagination: PaginationState;
   sorting: SortingState;
 
   defaultPageSize?: number;
+  isUserPersistenceEnabled?: boolean;
 }
 
 /**
- * This hook is designed to keep the URL query params in sync with the table state.
+ * This hook is designed to keep the URL query params and
+ * user's persistence cookie in sync with the table state.
  */
-export function useAutoUpdatingQueryParams({
+export function useTableSync({
   columnFilters,
+  columnVisibility,
   pagination,
   sorting,
   defaultFilters = [],
   defaultPageSize = 25,
+  isUserPersistenceEnabled = false,
 }: UseAutoUpdatingQueryParamsProps) {
+  const { persistenceCookieName } = usePageProps<{ persistenceCookieName: string }>();
+
+  const [cookie, setCookie, deleteCookie] = useCookie(persistenceCookieName);
+
+  useUpdateEffect(() => {
+    if (isUserPersistenceEnabled) {
+      // Don't persist filtering by title.
+      const persistedFilters = columnFilters.filter((filter) => filter.id !== 'title');
+
+      const tableState: Partial<TableState> = {
+        columnVisibility,
+        sorting,
+        columnFilters: persistedFilters,
+        pagination: { ...pagination, pageIndex: 0 }, // don't persist the page index
+      };
+
+      setCookie(JSON.stringify(tableState), { expires: 180 }); // 180 day (6 month) expiry
+    } else if (cookie) {
+      // Clean up the cookie if persistence is not enabled.
+      deleteCookie();
+    }
+  }, [isUserPersistenceEnabled, columnFilters, columnVisibility, pagination, sorting]);
+
   useUpdateEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
 

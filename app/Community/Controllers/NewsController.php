@@ -4,92 +4,37 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Requests\NewsRequest;
 use App\Http\Controller;
-use App\Models\News;
-use App\Support\MediaLibrary\Actions\AddMediaAction;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
 
 class NewsController extends Controller
 {
-    public function index(): View
+    public function index(): void
     {
-        $this->authorize('viewAny', News::class);
-
-        return view('news.index');
+        // TODO create Inertia.js/React news archive
     }
 
-    public function create(): View
+    // Handled in Filament.
+    public function create(): void
     {
-        $this->authorize('store', News::class);
-
-        return view('news.create');
     }
 
-    public function store(NewsRequest $request, AddMediaAction $addMediaAction): RedirectResponse
+    public function show(): void
     {
-        $this->authorize('store', News::class);
-
-        $data = $request->validated();
-        $data['sticky'] ??= false;
-
-        /** @var News $news */
-        $news = News::create($data);
-
-        $addMediaAction->execute($news, $request, 'image');
-
-        return redirect(route('news.show', $news))
-            ->with('success', $this->resourceActionSuccessMessage('news', 'create'));
+        // TODO Inertia.js/React Markdown-driven news article pages.
     }
 
-    public function show(News $news, ?string $slug = null): View|RedirectResponse
+    // Handled in Filament.
+    public function edit(): void
     {
-        $this->authorize('view', $news);
-
-        if (!$this->resolvesToSlug($news->slug, $slug)) {
-            return redirect(route('news.show', [$news, $news->slug]));
-        }
-
-        return view('news.show')
-            ->with('news', $news);
     }
 
-    public function edit(News $news): View
+    // Handled in Filament.
+    public function update(): void
     {
-        $this->authorize('update', $news);
-
-        return view('news.edit')
-            ->with('news', $news);
     }
 
-    public function update(
-        NewsRequest $request,
-        News $news,
-        AddMediaAction $addMediaAction
-    ): RedirectResponse {
-        $this->authorize('update', $news);
-
-        $addMediaAction->execute($news, $request, 'image');
-
-        $news->fill($request->validated())->save();
-
-        return redirect(route('news.edit', $news))
-            ->with('success', $this->resourceActionSuccessMessage('news', 'update'));
-    }
-
-    public function destroy(News $news): void
+    // Handled in Filament.
+    public function destroy(): void
     {
-        $this->authorize('delete', $news);
-    }
-
-    public function destroyImage(News $news): RedirectResponse
-    {
-        $this->authorize('deleteImage', $news);
-
-        $news->clearMediaCollection('image');
-
-        return redirect(route('news.edit', $news))
-            ->with('success', $this->resourceActionSuccessMessage('news.image', 'delete'));
     }
 }

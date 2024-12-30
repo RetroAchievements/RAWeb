@@ -9,12 +9,11 @@
 ])
 
 <?php
-use Jenssegers\Agent\Agent;
+use App\Actions\GetUserDeviceKindAction;
 
 $id = uniqid();
 
-$agent = new Agent();
-$canUseDesktopHref = !$agent->isMobile();
+$canUseDesktopHref = (new GetUserDeviceKindAction())->execute() === 'desktop';
 ?>
 
 <div class="dropdown {{ $class ?? '' }} {{ ($active ?? false) ? 'active' : '' }}">

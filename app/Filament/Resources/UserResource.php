@@ -98,9 +98,12 @@ class UserResource extends Resource
                                 ->schema([
                                     Infolists\Components\TextEntry::make('canonical_url')
                                         ->label('Canonical URL')
-                                        ->url(fn (User $record): string => $record->getCanonicalUrlAttribute()),
+                                        ->url(fn (User $record): string => $record->getCanonicalUrlAttribute())
+                                        ->openUrlInNewTab(),
+
                                     Infolists\Components\TextEntry::make('permalink')
-                                        ->url(fn (User $record): string => $record->getPermalinkAttribute()),
+                                        ->url(fn (User $record): string => $record->getPermalinkAttribute())
+                                        ->openUrlInNewTab(),
                                 ]),
                         ]),
                     Infolists\Components\Section::make()

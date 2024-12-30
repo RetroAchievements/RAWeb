@@ -9,7 +9,7 @@ use App\Models\ForumTopic;
 @php
     $doesGameHaveForumTopic = false;
     if ($game?->ForumTopicID) {
-        $doesGameHaveForumTopic = ForumTopic::where('ID', $game->ForumTopicID)->exists();
+        $doesGameHaveForumTopic = ForumTopic::where('id', $game->ForumTopicID)->exists();
     }
 @endphp
 
