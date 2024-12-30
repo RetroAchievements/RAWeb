@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\ForumFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -14,38 +16,33 @@ use Laravel\Scout\Searchable;
 
 class Forum extends BaseModel
 {
+    /** @use HasFactory<ForumFactory> */
+    use HasFactory;
     use Searchable;
     use SoftDeletes;
 
-    // TODO rename Forum table to forums
-    // TODO rename ID column to id, remove getIdAttribute()
-    // TODO rename CategoryID to forum_category_id
-    // TODO rename Title to title, remove getTitleAttribute()
-    // TODO rename Description to description, remove getDescriptionAttribute()
-    // TODO rename DisplayOrder to order_column
-    // TODO rename Created to created_at
-    // TODO rename Updated to updated_at
-    // TODO drop LatestCommentID -> derived
-    protected $table = 'Forum';
-
-    protected $primaryKey = 'ID';
-
-    public const CREATED_AT = 'Created';
-    public const UPDATED_AT = 'Updated';
+    // TODO drop latest_comment_id -> derived
+    protected $table = 'forums';
 
     protected $fillable = [
-        'Title',
-        'Description',
+        'title',
+        'description',
+        'order_column',
     ];
+
+    protected static function newFactory(): ForumFactory
+    {
+        return ForumFactory::new();
+    }
 
     // == search
 
     public function toSearchableArray(): array
     {
         return $this->only([
-            'ID',
-            'Title',
-            'Description',
+            'id',
+            'title',
+            'description',
         ]);
     }
 
@@ -62,18 +59,6 @@ class Forum extends BaseModel
         return route('forum.show', [$this, $this->getSlugAttribute()]);
     }
 
-    // TODO remove after rename
-    public function getDescriptionAttribute(): string
-    {
-        return $this->attributes['Description'];
-    }
-
-    // TODO remove after rename
-    public function getIdAttribute(): int
-    {
-        return $this->attributes['ID'];
-    }
-
     public function getPermalinkAttribute(): string
     {
         return route('forum.show', $this);
@@ -85,12 +70,6 @@ class Forum extends BaseModel
             . ($this->title ? '-' . Str::slug($this->title) : '');
     }
 
-    // TODO remove after rename
-    public function getTitleAttribute(): string
-    {
-        return $this->attributes['Title'];
-    }
-
     // == mutators
 
     // == relations
@@ -100,7 +79,7 @@ class Forum extends BaseModel
      */
     public function category(): BelongsTo
     {
-        return $this->belongsTo(ForumCategory::class, 'CategoryID', 'ID');
+        return $this->belongsTo(ForumCategory::class, 'forum_category_id');
     }
 
     /**
@@ -108,7 +87,7 @@ class Forum extends BaseModel
      */
     public function topics(): HasMany
     {
-        return $this->hasMany(ForumTopic::class, 'ForumID', 'ID');
+        return $this->hasMany(ForumTopic::class, 'forum_id', 'id');
     }
 
     /**
@@ -116,6 +95,6 @@ class Forum extends BaseModel
      */
     public function comments(): HasManyThrough
     {
-        return $this->hasManyThrough(ForumTopicComment::class, ForumTopic::class, 'ForumID', 'ForumTopicID');
+        return $this->hasManyThrough(ForumTopicComment::class, ForumTopic::class, 'forum_id', 'forum_topic_id');
     }
 }

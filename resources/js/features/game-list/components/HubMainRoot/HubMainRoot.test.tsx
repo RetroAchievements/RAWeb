@@ -873,4 +873,38 @@ describe('Component: HubMainRoot', () => {
 
     expect(await screen.findByText(/sonic the hedgehog/i)).toBeVisible();
   });
+
+  it('given the hub has a content warning, displays the content warning dialog', () => {
+    // ARRANGE
+    render<App.Platform.Data.HubPageProps>(<HubMainRoot />, {
+      pageProps: {
+        filterableSystemOptions: [],
+        breadcrumbs: [],
+        paginatedGameListEntries: createPaginatedData([]),
+        can: { develop: false },
+        hub: createGameSet({ hasMatureContent: true }),
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('alertdialog', { name: /content warning/i })).toBeVisible();
+  });
+
+  it('given the hub does not have a content warning, does not display the content warning dialog', () => {
+    // ARRANGE
+    render<App.Platform.Data.HubPageProps>(<HubMainRoot />, {
+      pageProps: {
+        filterableSystemOptions: [],
+        breadcrumbs: [],
+        paginatedGameListEntries: createPaginatedData([]),
+        can: { develop: false },
+        hub: createGameSet({ hasMatureContent: false }),
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('alertdialog', { name: /content warning/i })).not.toBeInTheDocument();
+  });
 });
