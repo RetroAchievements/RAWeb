@@ -70,7 +70,6 @@ class GameSetPolicy
     {
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
-            Role::DEVELOPER_STAFF,
         ]);
     }
 }
