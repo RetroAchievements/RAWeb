@@ -34,8 +34,10 @@ class GameSet extends BaseModel
     protected $fillable = [
         'definition',
         'game_id',
+        'forum_topic_id',
         'internal_notes',
         'image_asset_path',
+        'has_mature_content',
         'title',
         'type',
         'updated_at',
@@ -43,6 +45,7 @@ class GameSet extends BaseModel
     ];
 
     protected $casts = [
+        'has_mature_content' => 'boolean',
         'type' => GameSetType::class,
     ];
 
@@ -148,9 +151,10 @@ class GameSet extends BaseModel
     {
         return LogOptions::defaults()
             ->logOnly([
-                'title',
-                'internal_notes',
+                'has_mature_content',
                 'image_asset_path',
+                'internal_notes',
+                'title',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
@@ -216,6 +220,14 @@ class GameSet extends BaseModel
         return $this->belongsToMany(GameSet::class, 'game_set_links', 'parent_game_set_id', 'child_game_set_id')
             ->withTimestamps()
             ->withPivot('created_at', 'updated_at');
+    }
+
+    /**
+     * @return BelongsTo<ForumTopic, GameSet>
+     */
+    public function forumTopic(): BelongsTo
+    {
+        return $this->belongsTo(ForumTopic::class);
     }
 
     // == scopes

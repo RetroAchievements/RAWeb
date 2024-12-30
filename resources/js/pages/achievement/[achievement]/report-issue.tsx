@@ -1,6 +1,6 @@
-import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
+import { SEO } from '@/common/components/SEO';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
@@ -11,16 +11,12 @@ const ReportIssue: AppPage = () => {
 
   const { t } = useTranslation();
 
-  const metaDescription = `Report an issue with the achievement: ${achievement.title}`;
-
   return (
     <>
-      <Head
+      <SEO
         title={t('Report Issue - {{achievementTitle}}', { achievementTitle: achievement.title })}
-      >
-        <meta name="description" content={metaDescription} />
-        <meta name="og:description" content={metaDescription} />
-      </Head>
+        description={`Report an issue with the achievement: ${achievement.title}`}
+      />
 
       <AppLayout.Main>
         <ReportIssueMainRoot />
