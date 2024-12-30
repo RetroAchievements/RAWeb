@@ -1,6 +1,8 @@
-import { Link } from '@inertiajs/react';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import { InertiaLink } from '@/common/components/InertiaLink';
+import type { LinkPrefetchBehavior } from '@/common/models';
 
 interface SeeMoreLinkProps {
   href: string;
@@ -10,12 +12,18 @@ interface SeeMoreLinkProps {
    * route to improve the performance of loading that page.
    */
   asClientSideRoute?: boolean;
+
+  /**
+   * Optional. You can manually adjust the prefetch strategy of this link.
+   * Defaults to "never".
+   */
+  prefetch?: LinkPrefetchBehavior;
 }
 
 export const SeeMoreLink: FC<SeeMoreLinkProps> = ({ href, asClientSideRoute }) => {
   const { t } = useTranslation();
 
-  const Wrapper = asClientSideRoute ? Link : 'a';
+  const Wrapper = asClientSideRoute ? InertiaLink : 'a';
 
   return (
     <div className="mt-1.5 flex w-full justify-end text-xs">

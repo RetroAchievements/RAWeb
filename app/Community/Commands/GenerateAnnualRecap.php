@@ -39,10 +39,11 @@ class GenerateAnnualRecap extends Command
 
             $users = User::where('LastLogin', '>=', $december)
                 ->where('Created', '<', $september)
-                ->orderByDesc('LastLogin');
+                ->orderByDesc('LastLogin')
+                ->pluck('ID');
 
-            foreach ($users->get() as $user) {
-                GenerateAnnualRecapJob::dispatch($user->id)->onQueue('player-metrics');
+            foreach ($users as $userId) {
+                GenerateAnnualRecapJob::dispatch($userId)->onQueue('player-metrics');
             }
         }
     }
