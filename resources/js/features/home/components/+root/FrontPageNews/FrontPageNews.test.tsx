@@ -77,7 +77,7 @@ describe('Component: FrontPageNews', () => {
     });
 
     // ACT
-    const hiddenImage = screen.getByRole('img', { hidden: true });
+    const hiddenImage = screen.getByTestId('hidden-image');
     fireEvent.error(hiddenImage);
 
     // ASSERT
@@ -101,9 +101,9 @@ describe('Component: FrontPageNews', () => {
     });
 
     // ASSERT
-    const imageEl = screen.getByRole('img', { hidden: true });
+    const imageEl = screen.getByRole('img', { hidden: true, name: 'news post photo' });
 
-    expect(imageEl).toHaveAttribute('src', validImageUrl);
+    expect(imageEl).toBeVisible();
   });
 
   it('strips emoji from title and lead text', () => {

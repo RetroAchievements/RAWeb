@@ -502,7 +502,6 @@
     "Go to previous news page": "Go to previous news page",
     "Go to next news page": "Go to next news page",
     "Swipe to view more": "Swipe to view more",
-    "All {{systemName}} Games": "All {{systemName}} Games",
     "rowGroupAriaLabel_one": "{{systemName}} group with {{val, number}} game",
     "rowGroupAriaLabel_other": "{{systemName}} group with {{val, number}} games",
     "Games are now grouped by system": "Games are now grouped by system",
@@ -510,10 +509,17 @@
     "We provide <1>the emulators</1>, you just need <2>the games</2>. From Atari 2600 to PlayStation 2, and everything in between.": "We provide <1>the emulators</1>, you just need <2>the games</2>. From Atari 2600 to PlayStation 2, and everything in between.",
     "We're excited to have you here! We know you might have some questions about hardcore mode, RetroPoints (white points), subsets, or which emulators to use. Don't worry, we've got you covered! Check out our <1>comprehensive FAQ</1> to get started. Happy gaming!": "We're excited to have you here! We know you might have some questions about hardcore mode, RetroPoints (white points), subsets, or which emulators to use. Don't worry, we've got you covered! Check out our <1>comprehensive FAQ</1> to get started. Happy gaming!",
     "Getting Started": "Getting Started",
+    "Remember my view": "Remember my view",
     "Moderation Comments - {{user}}": "Moderation Comments - {{user}}",
     "Moderation Comments": "Moderation Comments",
     "Columns": "Columns",
     "Pinned {{pinnedAt}}": "Pinned {{pinnedAt}}",
     "Pinned": "Pinned",
-    "new": "new"
+    "new": "new",
+    "Mature Content Warning": "Mature Content Warning",
+    "This page may contain content that is not appropriate for all ages.": "This page may contain content that is not appropriate for all ages.",
+    "Are you sure you want to view this page?": "Are you sure you want to view this page?",
+    "Yes, and don't ask again": "Yes, and don't ask again",
+    "Columns": "Columns",
+    "Yes, I'm an adult": "Yes, I'm an adult"
 }

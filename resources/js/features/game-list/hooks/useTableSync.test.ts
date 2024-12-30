@@ -1,11 +1,16 @@
-import type { ColumnFiltersState, PaginationState, SortingState } from '@tanstack/react-table';
+import type {
+  ColumnFiltersState,
+  PaginationState,
+  SortingState,
+  VisibilityState,
+} from '@tanstack/react-table';
 
 import { renderHook } from '@/test';
 
 import { allGamesDefaultFilters } from '../utils/allGamesDefaultFilters';
-import { useAutoUpdatingQueryParams } from './useAutoUpdatingQueryParams';
+import { useTableSync } from './useTableSync';
 
-describe('Hook: useAutoUpdatingQueryParams', () => {
+describe('Hook: useTableSync', () => {
   let replaceStateSpy: ReturnType<typeof vi.spyOn>;
   let originalLocation: Location;
 
@@ -32,12 +37,14 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
+    const columnVisibility: VisibilityState = {};
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: true }];
 
     const { result } = renderHook(() =>
-      useAutoUpdatingQueryParams({
+      useTableSync({
         columnFilters,
+        columnVisibility,
         pagination,
         sorting,
         defaultFilters: allGamesDefaultFilters,
@@ -51,12 +58,14 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
   it('given it is the first render cycle, does not update URL params', () => {
     // ARRANGE
     const columnFilters: ColumnFiltersState = [{ id: 'achievementsPublished', value: ['has'] }];
+    const columnVisibility: VisibilityState = {};
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: true }];
 
     renderHook(() =>
-      useAutoUpdatingQueryParams({
+      useTableSync({
         columnFilters,
+        columnVisibility,
         pagination,
         sorting,
         defaultFilters: allGamesDefaultFilters,
@@ -73,7 +82,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
-    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
@@ -96,7 +105,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const pagination: PaginationState = { pageIndex: 1, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
-    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
@@ -119,7 +128,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
-    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
@@ -142,7 +151,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting = [{ id: 'system', desc: true }];
 
-    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
@@ -165,7 +174,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
-    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
@@ -191,7 +200,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
-    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
@@ -225,7 +234,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
-    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
@@ -248,7 +257,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
-    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: { columnFilters, pagination, sorting },
     });
 
@@ -274,7 +283,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
-    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
@@ -300,7 +309,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
     const sorting: SortingState = [{ id: 'title', desc: false }];
 
-    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: { columnFilters, pagination, sorting, defaultFilters: allGamesDefaultFilters },
     });
 
@@ -330,7 +339,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
     const defaultFilters: ColumnFiltersState = [{ id: 'title', value: 'default-value' }];
 
-    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: {
         columnFilters,
         pagination,
@@ -366,7 +375,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
     const defaultFilters: ColumnFiltersState = [{ id: 'title', value: 'default-value' }];
 
-    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: {
         columnFilters,
         pagination,
@@ -402,7 +411,7 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
     const sorting: SortingState = [{ id: 'title', desc: false }];
     const defaultFilters: ColumnFiltersState = [{ id: 'platform', value: ['1'] }];
 
-    const { rerender } = renderHook((props: any) => useAutoUpdatingQueryParams(props), {
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
       initialProps: {
         columnFilters,
         pagination,
@@ -424,5 +433,130 @@ describe('Hook: useAutoUpdatingQueryParams', () => {
 
     // ASSERT
     expect(replaceStateSpy).toHaveBeenCalledWith(null, '', '/games?filter%5Bplatform%5D=1%2C2');
+  });
+
+  it('given user persistence is enabled, saves table state to the cookie', () => {
+    // ARRANGE
+    const cookieName = 'test_cookie_name';
+    const setCookieSpy = vi.spyOn(document, 'cookie', 'set');
+
+    const columnFilters: ColumnFiltersState = [{ id: 'system', value: '1' }];
+    const columnVisibility: VisibilityState = { system: false };
+    const pagination: PaginationState = { pageIndex: 2, pageSize: 50 };
+    const sorting: SortingState = [{ id: 'title', desc: true }];
+
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
+      initialProps: {
+        columnFilters,
+        columnVisibility,
+        pagination,
+        sorting,
+        isUserPersistenceEnabled: true,
+      },
+      pageProps: {
+        persistenceCookieName: cookieName,
+      },
+    });
+
+    // ACT
+    const updatedFilters = [...columnFilters];
+    rerender({
+      columnFilters: updatedFilters,
+      columnVisibility,
+      pagination,
+      sorting,
+      isUserPersistenceEnabled: true,
+    });
+
+    // ASSERT
+    const cookieValue = setCookieSpy.mock.calls[0][0];
+    const cookieMatch = cookieValue.match(new RegExp(`${cookieName}=(.+?);`));
+    const parsedCookie = JSON.parse(decodeURIComponent(cookieMatch![1]));
+
+    expect(parsedCookie).toEqual({
+      columnFilters,
+      columnVisibility,
+      sorting,
+      pagination: { ...pagination, pageIndex: 0 },
+    });
+  });
+
+  it('given user persistence is enabled and table state changes, saves new state to the cookie', () => {
+    // ARRANGE
+    const cookieName = 'test_cookie_name';
+    const setCookieSpy = vi.spyOn(document, 'cookie', 'set');
+
+    const initialVisibility: VisibilityState = { system: false };
+    const updatedVisibility: VisibilityState = { system: true };
+
+    const columnFilters: ColumnFiltersState = [{ id: 'system', value: '1' }];
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: false }];
+
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
+      initialProps: {
+        columnFilters,
+        columnVisibility: initialVisibility,
+        pagination,
+        sorting,
+        isUserPersistenceEnabled: true,
+      },
+      pageProps: {
+        persistenceCookieName: cookieName,
+      },
+    });
+
+    // ACT
+    rerender({
+      columnFilters,
+      columnVisibility: updatedVisibility,
+      pagination,
+      sorting,
+      isUserPersistenceEnabled: true,
+    });
+
+    // ASSERT
+    const lastCall = setCookieSpy.mock.calls[setCookieSpy.mock.calls.length - 1][0];
+    const cookieMatch = lastCall.match(new RegExp(`${cookieName}=(.+?);`));
+    const parsedCookie = JSON.parse(decodeURIComponent(cookieMatch![1]));
+
+    expect(parsedCookie.columnVisibility).toEqual(updatedVisibility);
+  });
+
+  it('given persistence is enabled but then disabled, cleans up the cookie', () => {
+    // ARRANGE
+    const cookieName = 'test_cookie_name';
+    const setCookieSpy = vi.spyOn(document, 'cookie', 'set');
+
+    const columnFilters: ColumnFiltersState = [{ id: 'system', value: '1' }];
+    const columnVisibility: VisibilityState = { system: false };
+    const pagination: PaginationState = { pageIndex: 0, pageSize: 25 };
+    const sorting: SortingState = [{ id: 'title', desc: false }];
+
+    const { rerender } = renderHook((props: any) => useTableSync(props), {
+      initialProps: {
+        columnFilters,
+        columnVisibility,
+        pagination,
+        sorting,
+        isUserPersistenceEnabled: true,
+      },
+      pageProps: {
+        persistenceCookieName: cookieName,
+      },
+    });
+
+    // ACT
+    rerender({
+      columnFilters,
+      columnVisibility,
+      pagination,
+      sorting,
+      isUserPersistenceEnabled: false,
+    });
+
+    // ASSERT
+    const lastCall = setCookieSpy.mock.calls[setCookieSpy.mock.calls.length - 1][0];
+    expect(lastCall).toContain(`${cookieName}=;`);
   });
 });

@@ -46,7 +46,7 @@ class ForumTopicData extends Data
                 createdAt: Carbon::parse($comment['PostedAt']),
                 updatedAt: null,
                 user: UserData::fromRecentForumTopic($comment),
-                authorized: true
+                isAuthorized: true
             )),
         );
     }
@@ -73,7 +73,7 @@ class ForumTopicData extends Data
                     createdAt: Carbon::parse($topic['PostedAt']),
                     updatedAt: null, // If no updated date is available, you can set it to null or handle accordingly
                     user: UserData::fromRecentForumTopic($topic),
-                    authorized: true // Assuming it's authorized
+                    isAuthorized: true // Assuming it's authorized
                 )
             ),
 
@@ -100,7 +100,7 @@ class ForumTopicData extends Data
                 createdAt: Carbon::parse($userPost['PostedAt']),
                 updatedAt: null,
                 user: null,
-                authorized: true
+                isAuthorized: true
             )),
         );
     }
