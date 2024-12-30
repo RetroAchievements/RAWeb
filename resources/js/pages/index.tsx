@@ -1,19 +1,17 @@
-import { Head } from '@inertiajs/react';
-
+import { SEO } from '@/common/components/SEO';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { HomeRoot } from '@/features/home/components/+root';
 import { HomeSidebar } from '@/features/home/components/+sidebar';
+import type { TranslatedString } from '@/types/i18next';
 
 const Home: AppPage = () => {
   return (
     <>
-      <Head>
-        <meta
-          name="description"
-          content="Earn and track achievements in classic games. RetroAchievements adds custom challenges to retro titles, letting you compete with others and revisit old favorites in new ways."
-        />
-      </Head>
+      <SEO
+        title={'RetroAchievements' as TranslatedString}
+        description="Earn and track achievements in classic games. We add custom challenges to retro titles, letting you revisit old favorites in new ways."
+      />
 
       <div className="container">
         <AppLayout.Main>

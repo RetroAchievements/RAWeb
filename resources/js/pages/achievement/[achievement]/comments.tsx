@@ -1,6 +1,6 @@
-import { Head } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
+import { SEO } from '@/common/components/SEO';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { AchievementCommentsMainRoot } from '@/features/comments/AchievementCommentsMainRoot';
@@ -10,17 +10,13 @@ const AchievementComments: AppPage<App.Community.Data.AchievementCommentsPagePro
 }) => {
   const { t } = useTranslation();
 
-  const metaDescription = `General discussion about the achievement ${achievement.title}`;
-
   return (
     <>
-      <Head title={t('Comments - {{achievementTitle}}', { achievementTitle: achievement.title })}>
-        <meta name="description" content={metaDescription} />
-        <meta name="og:description" content={metaDescription} />
-
-        <meta property="og:image" content={achievement.badgeUnlockedUrl} />
-        <meta property="og:type" content="retroachievements:comment-list" />
-      </Head>
+      <SEO
+        title={t('Comments - {{achievementTitle}}', { achievementTitle: achievement.title })}
+        description={`General discussion about the achievement ${achievement.title}`}
+        ogImage={achievement.badgeUnlockedUrl}
+      />
 
       <AppLayout.Main>
         <AchievementCommentsMainRoot />
