@@ -46,7 +46,21 @@ class Roles extends ManageRelatedRecords
                     ->authorize(fn () => $user->can('updateRoles', $this->getRecord()))
                     ->recordTitle(fn (Model $record) => __('permission.role.' . $record->name))
                     ->preloadRecordSelect()
-                    ->recordSelectOptionsQuery(fn (Builder $query) => $query->whereIn('name', $user->assignableRoles))
+                    ->recordSelectOptionsQuery(function (Builder $query) {
+                        /** @var User $targetUser */
+                        $targetUser = $this->getRecord();
+
+                        // Start with basic role filtering based on user permissions.
+                        $query->whereIn('name', Auth::user()->assignableRoles);
+
+                        // If trying to assign staff developer roles, ensure the user has Role::DEVELOPER.
+                        $staffRoles = [Role::QUALITY_ASSURANCE, Role::DEV_COMPLIANCE, Role::CODE_REVIEWER];
+                        if (!$targetUser->hasRole(Role::DEVELOPER)) {
+                            $query->whereNotIn('name', $staffRoles);
+                        }
+
+                        return $query;
+                    })
                     ->after(function ($data) {
                         /** @var User $targetUser */
                         $targetUser = $this->getRecord();

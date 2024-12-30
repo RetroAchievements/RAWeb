@@ -16,19 +16,7 @@ class UserPolicy
 
     public function manage(User $user): bool
     {
-        return $user->hasAnyRole([
-            // admins
-            Role::ROOT,
-            Role::ADMINISTRATOR,
-
-            // moderation
-            Role::MODERATOR,
-
-            // staff developers
-            Role::CODE_REVIEWER,
-            Role::DEV_COMPLIANCE,
-            Role::QUALITY_ASSURANCE,
-        ]);
+        return $this->requireAdministrativePrivileges($user);
     }
 
     public function viewAny(?User $user): bool
