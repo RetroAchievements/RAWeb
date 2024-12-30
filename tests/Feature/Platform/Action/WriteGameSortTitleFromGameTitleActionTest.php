@@ -30,6 +30,7 @@ class WriteGameSortTitleFromGameTitleActionTest extends TestCase
     {
         // Arrange
         $game = Game::factory()->create(['Title' => 'Final Fantasy IV', 'sort_title' => 'final fantasy 00004']);
+        $game = $game->fresh();
 
         $game->sort_title = 'ff4';
         $game->save();
