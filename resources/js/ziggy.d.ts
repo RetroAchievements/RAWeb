@@ -5,14 +5,14 @@ declare module 'ziggy-js' {
         {
             "name": "forumTopicComment",
             "required": true,
-            "binding": "ID"
+            "binding": "id"
         }
     ],
     "forum-topic.create": [
         {
             "name": "forum",
             "required": true,
-            "binding": "ID"
+            "binding": "id"
         }
     ],
     "demo": [],
