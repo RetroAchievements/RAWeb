@@ -36,16 +36,27 @@ class UserSetRequestsTest extends TestCase
             'ConsoleID' => $system->ID,
             'ImageIcon' => '/Images/001234.png',
         ]);
+        $game2 = Game::factory()->create([
+            'Title' => '~Hack~ Test Case',
+            'ConsoleID' => $system->ID,
+            'ImageIcon' => '/Images/001235.png',
+        ]);
 
         $user = User::factory()->create([
             'RAPoints' => 1501, // enough points to set request total to 1
         ]);
 
-        // Create a user game list entry for the set request
+        // Create the first user game list entry for the set request
         UserGameListEntry::factory()->create([
             'user_id' => $user->ID,
             'type' => 'achievement_set_request',
             'GameID' => $game->ID,
+        ]);
+        // Create the second user game list entry for the set request
+        UserGameListEntry::factory()->create([
+            'user_id' => $user->ID,
+            'type' => 'achievement_set_request',
+            'GameID' => $game2->ID,
         ]);
 
         $this->get($this->apiUrl('GetUserSetRequests', ['u' => $user->User]))
@@ -58,6 +69,13 @@ class UserSetRequestsTest extends TestCase
                         'ConsoleID' => $game->ConsoleID,
                         'ConsoleName' => $system->Name,
                         'ImageIcon' => $game->ImageIcon,
+                    ],
+                    [
+                        'GameID' => $game2->ID,
+                        'Title' => $game2->Title,
+                        'ConsoleID' => $game2->ConsoleID,
+                        'ConsoleName' => $system->Name,
+                        'ImageIcon' => $game2->ImageIcon,
                     ],
                 ],
                 'TotalRequests' => 1,
