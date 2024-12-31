@@ -65,6 +65,16 @@ function diffMinutesPassedStatement(string $column, string $alias): string
     };
 }
 
+function dateCompareStatement(string $column1, string $column2, string $comparison): string
+{
+    // column1 - column2
+    return match (DB::getDriverName()) {
+        'sqlite' => "ROUND(JULIANDAY($column1) - JULIANDAY($column2)) $comparison",
+        // mysql
+        default => "DATEDIFF($column1, $column2) $comparison",
+    };
+}
+
 function floatDivisionStatement(string $dividend, string $divisor): string
 {
     return match (DB::getDriverName()) {
