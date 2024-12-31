@@ -33,14 +33,14 @@ export const ActivityStatCard: FC<ActivityStatCardProps> = ({ children, t_label,
             </BaseTooltipTrigger>
 
             <BaseTooltipContent sideOffset={12}>
-              <p className="max-w-[280px] text-xs">{t_tooltip}</p>
+              <span className="max-w-[280px] text-xs">{t_tooltip}</span>
             </BaseTooltipContent>
           </BaseTooltip>
         ) : null}
       </BaseCardHeader>
 
       <BaseCardContent className="px-4 pb-4">
-        <p className="text-xl">{children}</p>
+        <div className="text-xl">{children}</div>
       </BaseCardContent>
     </BaseCard>
   );
