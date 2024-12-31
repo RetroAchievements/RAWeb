@@ -35,7 +35,7 @@ export const UserGameSummarizedActivity: FC = () => {
   const { formatDuration } = useFormatDuration();
 
   return (
-    <div className="grid gap-1 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4">
+    <div className="grid gap-1 sm:grid-cols-2 xl:grid-cols-4 xl:gap-3">
       <ActivityStatCard
         t_label={t('Total Playtime')}
         t_tooltip={t(
