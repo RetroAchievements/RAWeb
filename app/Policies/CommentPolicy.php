@@ -47,19 +47,6 @@ class CommentPolicy
     public function create(?User $user, ?Model $commentable = null, ?int $articleType = null): bool
     {
         if ($user?->isMuted()) {
-            // Even when muted, developers may still comment on tickets for their own achievements.
-            // TODO this is silly. delete all of this.
-            if ($commentable !== null && $commentable instanceof \App\Models\Ticket) {
-                $commentable->loadMissing(['achievement.developer']);
-
-                $didAuthorAchievement = $commentable->achievement->developer->id === $user->id;
-
-                return
-                    $didAuthorAchievement
-                    && $commentable->is_open
-                    && $user->hasAnyRole([Role::DEVELOPER_STAFF, Role::DEVELOPER]);
-            }
-
             return false;
         }
 
