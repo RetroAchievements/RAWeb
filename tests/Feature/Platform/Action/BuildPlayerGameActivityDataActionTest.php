@@ -6,7 +6,6 @@ namespace Tests\Feature\Platform\Action;
 
 use App\Models\Achievement;
 use App\Models\Game;
-use App\Models\PlayerGame;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\BuildPlayerGameActivityDataAction;
@@ -23,7 +22,6 @@ class BuildPlayerGameActivityDataActionTest extends TestCase
     private System $system;
     private Game $game;
     private User $user;
-    private PlayerGame $playerGame;
     private BuildPlayerGameActivityDataAction $action;
 
     protected function setUp(): void
@@ -33,10 +31,6 @@ class BuildPlayerGameActivityDataActionTest extends TestCase
         $this->system = System::factory()->create();
         $this->game = Game::factory()->create(['ConsoleID' => $this->system->id]);
         $this->user = User::factory()->create();
-        $this->playerGame = PlayerGame::factory()->create([
-            'user_id' => $this->user->id,
-            'game_id' => $this->game->id,
-        ]);
 
         $this->action = new BuildPlayerGameActivityDataAction(
             new PlayerGameActivityService(),
