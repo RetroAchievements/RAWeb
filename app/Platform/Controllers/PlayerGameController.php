@@ -4,17 +4,24 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
+use App\Data\UserData;
 use App\Http\Controller;
 use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Actions\BuildPlayerGameActivityDataAction;
 use App\Platform\Actions\ResetPlayerProgressAction;
+use App\Platform\Data\GameData;
+use App\Platform\Data\PlayerGameActivityPagePropsData;
+use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerResettableGameAchievementData;
 use App\Platform\Data\PlayerResettableGameData;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class PlayerGameController extends Controller
 {
@@ -99,6 +106,26 @@ class PlayerGameController extends Controller
         return response()->json(['message' => __('legacy.success.reset')]);
     }
 
+    public function activity(
+        User $user,
+        Game $game,
+        BuildPlayerGameActivityDataAction $buildPlayerGameActivityData
+    ): InertiaResponse {
+        $playerGame = $user->playerGames()->whereGameId($game->id)->firstOrFail();
+        // TODO rename to viewSessionHistory
+        $this->authorize('viewSessionHistory2', $playerGame);
+
+        $props = new PlayerGameActivityPagePropsData(
+            player: UserData::fromUser($user),
+            game: GameData::from($game)->include('achievementsPublished', 'badgeUrl'),
+            playerGame: PlayerGameData::fromPlayerGame($playerGame),
+            activity: $buildPlayerGameActivityData->execute($user, $game),
+        );
+
+        return Inertia::render('user/[user]/game/[game]/activity', $props);
+    }
+
+    // TODO move to an api controller
     public function resettableGames(Request $request): JsonResponse
     {
         /** @var User $user */
@@ -125,6 +152,7 @@ class PlayerGameController extends Controller
         return response()->json(['results' => $resettableGames]);
     }
 
+    // TODO move to an api controller
     public function resettableGameAchievements(Request $request, Game $game): JsonResponse
     {
         /** @var User $user */

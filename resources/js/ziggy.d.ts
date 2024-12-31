@@ -222,6 +222,18 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "user.game.activity.show": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        },
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.random": [],
     "api.user.game.destroy": [
         {

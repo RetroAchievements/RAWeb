@@ -87,4 +87,78 @@ describe('Component: AchievementAvatar', () => {
     // ASSERT
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
+
+  it('adds hardcore unlock border styling when showHardcoreUnlockBorder is true', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    render(<AchievementAvatar {...achievement} showHardcoreUnlockBorder={true} />);
+
+    // ASSERT
+    const imgEl = screen.getByRole('img');
+    expect(imgEl).toHaveClass('outline outline-2 outline-offset-1 outline-[gold]');
+  });
+
+  it('does not add hardcore unlock border styling when showHardcoreUnlockBorder is false', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    render(<AchievementAvatar {...achievement} showHardcoreUnlockBorder={false} />);
+
+    // ASSERT
+    const imgEl = screen.getByRole('img');
+    expect(imgEl).not.toHaveClass('outline outline-2 outline-offset-1 outline-[gold]');
+  });
+
+  it('given showPointsInTitle is true, includes points in the title text', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: 'Test Achievement',
+      points: 10,
+    });
+
+    render(<AchievementAvatar {...achievement} showPointsInTitle={true} />);
+
+    // ASSERT
+    expect(screen.getByText('Test Achievement (10)')).toBeVisible();
+  });
+
+  it('given showPointsInTitle is true but points are undefined, shows zero points', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: 'Test Achievement',
+      points: undefined,
+    });
+
+    render(<AchievementAvatar {...achievement} showPointsInTitle={true} />);
+
+    // ASSERT
+    expect(screen.getByText('Test Achievement (0)')).toBeVisible();
+  });
+
+  it('given a sublabelSlot, wraps the content in a flex column container', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    render(<AchievementAvatar {...achievement} sublabelSlot={<span>Sublabel content</span>} />);
+
+    // ASSERT
+    const containerEl = screen.getByText(achievement.title).parentElement;
+
+    expect(containerEl).toHaveClass('flex flex-col');
+    expect(screen.getByText(/sublabel content/i)).toBeVisible();
+  });
+
+  it('given showLabel is false with sublabelSlot, does not show the title text', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    render(
+      <AchievementAvatar {...achievement} showLabel={false} sublabelSlot={<span>Sublabel</span>} />,
+    );
+
+    // ASSERT
+    expect(screen.queryByText(achievement.title)).not.toBeInTheDocument();
+    expect(screen.getByText(/sublabel/i)).toBeVisible();
+  });
 });
