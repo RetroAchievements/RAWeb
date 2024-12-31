@@ -66,7 +66,7 @@ class NewsResource extends Resource
 
                                 $component->state(!is_null($record->pinned_at));
                             })
-                            ->dehydrateStateUsing(function (News $record, bool $state) {
+                            ->dehydrateStateUsing(function (?News $record, bool $state) {
                                 return $state ? now()->toDateTimeString() : null;
                             })
                             ->live(),
