@@ -106,6 +106,7 @@ rules:
           "baseCommandListClassName",
           "containerClassName",
           "gameTitleClassName",
+          "imgClassName",
           "wrapperClassName",
         ],
       "plugins": ["prettier-plugin-tailwindcss"]

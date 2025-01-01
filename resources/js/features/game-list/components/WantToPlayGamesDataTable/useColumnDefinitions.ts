@@ -63,7 +63,7 @@ export function useColumnDefinitions(options: {
           tableApiRouteName,
           t_label: t('Claimed'),
           strings: {
-            t_description: t('One or more developers are currently working on this game.'),
+            t_no: t('No'),
             t_yes: t('Yes'),
           },
         }),

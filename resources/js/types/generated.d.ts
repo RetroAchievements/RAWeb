@@ -325,6 +325,10 @@ declare namespace App.Platform.Data {
     activeUntil?: string;
     forumTopicId?: number;
   };
+  export type GameClaimant = {
+    user: App.Data.User;
+    claimType: string;
+  };
   export type Game = {
     id: number;
     title: string;
@@ -341,6 +345,7 @@ declare namespace App.Platform.Data {
     numVisibleLeaderboards?: number;
     numUnresolvedTickets?: number;
     hasActiveOrInReviewClaims?: boolean;
+    claimants?: Array<App.Platform.Data.GameClaimant>;
   };
   export type GameHash = {
     id: number;
