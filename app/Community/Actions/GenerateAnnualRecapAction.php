@@ -36,7 +36,13 @@ class GenerateAnnualRecapAction
         $endDate = Carbon::create($year + 1, 1, 1, 0, 0, 0);
 
         $gameData = $this->getGameData($user, $startDate, $endDate);
-        if (count($gameData) === 0) {
+
+        // don't bother generating recap if the player has less than 10 hours of playtime for the year
+        $totalDuration = 0;
+        foreach ($gameData as $game) {
+            $totalDuration += $game['totalDuration'];
+        }
+        if ($totalDuration < 600) {
             return;
         }
 
