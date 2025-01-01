@@ -13,7 +13,17 @@
 @use('App\Actions\ProcessPlausibleUrlAction')
 
 @php
-    $result = (new ProcessPlausibleUrlAction())->execute(request()->path());
+    $defaultProps = [
+        'isAuthenticated' => auth()->check(),
+        'scheme' => request()->cookie('scheme') ?: 'dark',
+        'theme' => request()->cookie('theme') ?: 'default',
+    ];
+
+    $result = (new ProcessPlausibleUrlAction())->execute(
+        request()->path(),
+        request()->query(),
+        $defaultProps,
+    );
 
     $redactedUrl = $result['redactedUrl'];
     $props = $result['props'];

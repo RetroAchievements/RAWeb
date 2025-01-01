@@ -19,6 +19,7 @@ use App\Models\System;
  * - 'string': Routes that use a string parameter (eg: /user/username)
  * - 'model': Routes that can be accessed by ID or slug (eg: /game/sonic-3-123)
  * - 'nested': Routes with multiple ID-slug segments (eg: /forums/1-community/16-chit-chat/create-topic)
+ * - 'legacy': Legacy routes that need special handling (eg: viewtopic.php?t=123)
  */
 class ProcessPlausibleUrlAction
 {
@@ -42,35 +43,48 @@ class ProcessPlausibleUrlAction
         // Routes that just use an ID.
         $this->addIdRoute('ticket');
 
+        // Legacy routes that need special handling.
+        $this->addLegacyRoute('leaderboardinfo.php', ['i' => 'id']);
+        $this->addLegacyRoute('viewtopic.php', ['t' => 'topicId']);
+        $this->addLegacyRoute('viewforum.php', ['f' => 'forumId']);
+        $this->addLegacyRoute('forum.php', ['c' => 'categoryId']);
+
         // Routes with nested ID-slug segments.
         // TODO $this->addNestedRoute('forums', ['category', 'forum']);
     }
 
-    public function execute(string $url): array
+    public function execute(string $url, array $queryParams = [], array $defaultProps = []): array
     {
-        $url = trim($url, '/');
-        $segments = explode('/', $url);
-        if (count($segments) < 2) {
-            return ['redactedUrl' => "/{$url}", 'props' => []];
+        // Split the URL into path components.
+        $path = trim($url, '/');
+        $segments = explode('/', $path);
+        if (count($segments) < 1) {
+            return [
+                'redactedUrl' => "/{$path}",
+                'props' => $defaultProps,
+            ];
         }
 
-        $path = $segments[0];
-        $param = $segments[1];
+        $routePath = $segments[0];
+        $param = $segments[1] ?? null;
         $suffix = count($segments) > 2 ? '/' . implode('/', array_slice($segments, 2)) : '';
 
-        if (!isset($this->routes[$path])) {
+        if (!isset($this->routes[$routePath])) {
             // Handle unknown paths that might have numeric IDs.
-            if (is_numeric($param)) {
+            if ($param && is_numeric($param)) {
                 return [
-                    'redactedUrl' => "/{$path}/_PARAM_{$suffix}",
-                    'props' => ['id' => (int) $param],
+                    'redactedUrl' => "/{$routePath}/_PARAM_{$suffix}",
+                    'props' => ['id' => (int) $param] + $defaultProps,
                 ];
             }
 
-            return ['redactedUrl' => "/{$url}", 'props' => []];
+            return [
+                'redactedUrl' => "/{$path}",
+                'props' => $defaultProps,
+            ];
         }
 
-        $route = $this->routes[$path];
+        $route = $this->routes[$routePath];
         $props = [];
 
         switch ($route['type']) {
@@ -91,9 +105,22 @@ class ProcessPlausibleUrlAction
                 break;
 
             case 'id':
-                if (is_numeric($param)) {
+                if ($param && is_numeric($param)) {
                     $props = ['id' => (int) $param];
                 }
+                break;
+
+            case 'legacy':
+                foreach ($route['queryMap'] as $queryParam => $propName) {
+                    if (isset($queryParams[$queryParam])) {
+                        $props[$propName] = (int) $queryParams[$queryParam];
+                    }
+                }
+
+                return [
+                    'redactedUrl' => "/{$routePath}",
+                    'props' => $props + $defaultProps,
+                ];
                 break;
 
             case 'nested':
@@ -101,8 +128,8 @@ class ProcessPlausibleUrlAction
         }
 
         return [
-            'redactedUrl' => "/{$path}/_PARAM_{$suffix}",
-            'props' => $props,
+            'redactedUrl' => "/{$routePath}/_PARAM_{$suffix}",
+            'props' => $props + $defaultProps,
         ];
     }
 
@@ -136,6 +163,17 @@ class ProcessPlausibleUrlAction
     {
         $this->routes[$path] = [
             'type' => 'id',
+        ];
+    }
+
+    /**
+     * Adds a legacy route that needs special query parameter handling.
+     */
+    private function addLegacyRoute(string $path, array $queryMap): void
+    {
+        $this->routes[$path] = [
+            'type' => 'legacy',
+            'queryMap' => $queryMap,
         ];
     }
 
