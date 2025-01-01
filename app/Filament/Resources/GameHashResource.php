@@ -10,6 +10,8 @@ use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\System;
 use Filament\Forms\Form;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Pages\Page;
 use Filament\Support\Enums\FontFamily;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -25,6 +27,14 @@ class GameHashResource extends Resource
     protected static ?string $navigationGroup = 'Platform';
 
     protected static ?int $navigationSort = 40;
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                // TODO
+            ]);
+    }
 
     public static function form(Form $form): Form
     {
@@ -108,13 +118,22 @@ class GameHashResource extends Resource
         ];
     }
 
+    public static function getRecordSubNavigation(Page $page): array
+    {
+        return $page->generateNavigationItems([
+            Pages\AuditLog::class,
+        ]);
+    }
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\Index::route('/'),
+            'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),
             // TODO
             // 'create' => Pages\Create::route('/create'),
             // 'edit' => Pages\Edit::route('/{record}/edit'),
+            // 'view' => Pages\Details::route('/{record}'),
         ];
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\GameResource\Pages;
 
 use App\Community\Enums\ArticleType;
+use App\Filament\Resources\GameHashResource;
 use App\Filament\Resources\GameResource;
 use App\Models\Comment;
 use App\Models\Game;
@@ -77,6 +78,10 @@ class Hashes extends ManageRelatedRecords
                     ->url(route('game.hashes.comment.index', ['game' => $this->getOwnerRecord()->id])),
             ])
             ->actions([
+                Tables\Actions\Action::make('audit-log')
+                    ->url(fn ($record) => GameHashResource::getUrl('audit-log', ['record' => $record]))
+                    ->icon('fas-clock-rotate-left'),
+
                 Tables\Actions\EditAction::make()
                     ->modalHeading(fn (GameHash $record) => "Edit game hash {$record->md5}")
                     ->form([
@@ -106,7 +111,26 @@ class Hashes extends ManageRelatedRecords
                                     ->label('Resource Page URL')
                                     ->helperText('Do not link to a commercially-sold ROM. Link to a specific No Intro, Redump, RHDN, SMWCentral, itch.io, etc. page.')
                                     ->activeUrl(),
-                            ]),
+                            ])
+                            ->afterStateUpdated(function ($state, $old, $record) {
+                                $changedAttributes = [];
+                                foreach ($state as $key => $value) {
+                                    if (!isset($old[$key]) || $old[$key] !== $value) {
+                                        $key = match ($key) {
+                                            'name' => 'Name',
+                                            'labels' => 'Labels',
+                                            default => $key,
+                                        };
+                                        $changedAttributes[$key] = $value;
+                                    }
+                                }
+
+                                $this->logGameHashUpdate(
+                                    $record,
+                                    $changedAttributes,
+                                    Auth::user()
+                                );
+                            }),
                     ]),
 
                 Tables\Actions\Action::make('unlink')
@@ -169,5 +193,35 @@ class Hashes extends ManageRelatedRecords
 
             ])
             ->paginated(false);
+    }
+
+    /**
+     * @deprecated migrate everything to the activitylog
+     */
+    private function logGameHashUpdate(GameHash $gameHash, array $changedAttributes, User $user): void
+    {
+        $commentParts = ["{$gameHash->md5} updated by {$user->User}."];
+
+        foreach ($changedAttributes as $attribute => $newValue) {
+            $newValueDisplay = $newValue ?? 'None';
+
+            switch ($attribute) {
+                case 'Name':
+                    $commentParts[] = "File Name: \"{$newValueDisplay}\".";
+                    break;
+                case 'Labels':
+                    $commentParts[] = "Label: \"{$newValueDisplay}\".";
+                    break;
+                case 'patch_url':
+                    $commentParts[] = $newValue ? "RAPatches URL updated to: {$newValue}." : "RAPatches URL removed.";
+                    break;
+                case 'source':
+                    $commentParts[] = $newValue ? "Resource Page URL updated to: {$newValue}." : "Resource Page URL removed.";
+                    break;
+            }
+        }
+
+        $comment = implode(' ', $commentParts);
+        addArticleComment("Server", ArticleType::GameHash, $gameHash->game_id, $comment);
     }
 }
