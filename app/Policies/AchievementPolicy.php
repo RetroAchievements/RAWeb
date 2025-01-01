@@ -97,7 +97,6 @@ class AchievementPolicy
 
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
     }
@@ -106,7 +105,6 @@ class AchievementPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
     }
