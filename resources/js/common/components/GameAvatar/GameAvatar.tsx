@@ -49,7 +49,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
   return (
     <Wrapper
       href={shouldLink ? route('game.show', { game: id }) : undefined}
-      className="flex items-center gap-2"
+      className="flex max-w-fit items-center gap-2"
       {...(hasTooltip && shouldLink ? cardTooltipProps : undefined)}
     >
       {showImage ? (

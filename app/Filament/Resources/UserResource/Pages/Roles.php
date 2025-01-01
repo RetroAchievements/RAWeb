@@ -46,7 +46,21 @@ class Roles extends ManageRelatedRecords
                     ->authorize(fn () => $user->can('updateRoles', $this->getRecord()))
                     ->recordTitle(fn (Model $record) => __('permission.role.' . $record->name))
                     ->preloadRecordSelect()
-                    ->recordSelectOptionsQuery(fn (Builder $query) => $query->whereIn('name', $user->assignableRoles))
+                    ->recordSelectOptionsQuery(function (Builder $query) {
+                        /** @var User $targetUser */
+                        $targetUser = $this->getRecord();
+
+                        // Start with basic role filtering based on user permissions.
+                        $query->whereIn('name', Auth::user()->assignableRoles);
+
+                        // If trying to assign staff developer roles, ensure the user has Role::DEVELOPER.
+                        $staffRoles = [Role::QUALITY_ASSURANCE, Role::DEV_COMPLIANCE, Role::CODE_REVIEWER];
+                        if (!$targetUser->hasRole(Role::DEVELOPER)) {
+                            $query->whereNotIn('name', $staffRoles);
+                        }
+
+                        return $query;
+                    })
                     ->after(function ($data) {
                         /** @var User $targetUser */
                         $targetUser = $this->getRecord();
@@ -55,26 +69,19 @@ class Roles extends ManageRelatedRecords
 
                         if ($attachedRole->name === Role::DEVELOPER_JUNIOR) {
                             $targetUser->removeRole(Role::DEVELOPER);
-                            $targetUser->removeRole(Role::DEVELOPER_STAFF);
                             $targetUser->removeRole(Role::DEVELOPER_RETIRED);
+                            $this->removeDeveloperStaffRoles($targetUser); // jr devs cannot be staff
 
                             $newPermissions = Permissions::JuniorDeveloper;
                         } elseif ($attachedRole->name === Role::DEVELOPER) {
                             $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
-                            $targetUser->removeRole(Role::DEVELOPER_STAFF);
-                            $targetUser->removeRole(Role::DEVELOPER_RETIRED);
-
-                            $newPermissions = Permissions::Developer;
-                        } elseif ($attachedRole->name === Role::DEVELOPER_STAFF) {
-                            $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
-                            $targetUser->removeRole(Role::DEVELOPER);
                             $targetUser->removeRole(Role::DEVELOPER_RETIRED);
 
                             $newPermissions = Permissions::Developer;
                         } elseif ($attachedRole->name === Role::DEVELOPER_RETIRED) {
                             $targetUser->removeRole(Role::DEVELOPER_JUNIOR);
                             $targetUser->removeRole(Role::DEVELOPER);
-                            $targetUser->removeRole(Role::DEVELOPER_STAFF);
+                            $this->removeDeveloperStaffRoles($targetUser); // retired devs cannot be staff
 
                             $newPermissions = Permissions::Registered;
                         } else {
@@ -104,11 +111,13 @@ class Roles extends ManageRelatedRecords
                         if (!in_array($record->name, [
                             Role::DEVELOPER_JUNIOR,
                             Role::DEVELOPER,
-                            Role::DEVELOPER_STAFF,
                             Role::DEVELOPER_RETIRED,
                         ])) {
                             return;
                         }
+
+                        // When manually detaching any dev role, remove all staff dev roles.
+                        $this->removeDeveloperStaffRoles($targetUser);
 
                         // Keep legacy permissions in sync.
                         $currentPermissions = (int) $targetUser->getAttribute('Permissions');
@@ -122,5 +131,18 @@ class Roles extends ManageRelatedRecords
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([]),
             ]);
+    }
+
+    private function removeDeveloperStaffRoles(User $targetUser): void
+    {
+        if ($targetUser->hasRole(Role::QUALITY_ASSURANCE)) {
+            $targetUser->removeRole(Role::QUALITY_ASSURANCE);
+        }
+        if ($targetUser->hasRole(Role::DEV_COMPLIANCE)) {
+            $targetUser->removeRole(Role::DEV_COMPLIANCE);
+        }
+        if ($targetUser->hasRole(Role::CODE_REVIEWER)) {
+            $targetUser->removeRole(Role::CODE_REVIEWER);
+        }
     }
 }

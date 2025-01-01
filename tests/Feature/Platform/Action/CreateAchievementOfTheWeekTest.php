@@ -30,7 +30,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
 
         $this->assertEquals('Achievement of the Week 2023', $event->title);
         $this->assertEquals(System::Events, $event->system->id);
-        $this->assertEquals(52, $event->achievements()->count());
+        $this->assertEquals(64, $event->achievements()->count());
 
         $achievement = $event->achievements()->first();
         $this->assertEquals('Week 1', $achievement->Title);
@@ -56,11 +56,35 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals(Carbon::parse('2023-12-25'), $achievement->eventData->active_from);
         $this->assertEquals(Carbon::parse('2024-01-01'), $achievement->eventData->active_until);
 
+        $achievement = $event->achievements()->firstWhere('DisplayOrder', 53);
+        $this->assertEquals('January Achievement of the Month', $achievement->Title);
+        $this->assertEquals('TBD', $achievement->Description);
+        $this->assertEquals('0=1', $achievement->MemAddr);
+        $this->assertEquals(AchievementFlag::OfficialCore->value, $achievement->Flags);
+        $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
+        $this->assertEquals('00000', $achievement->BadgeName);
+        $this->assertEquals(53, $achievement->DisplayOrder);
+        $this->assertEquals(null, $achievement->eventData->sourceAchievement);
+        $this->assertEquals(Carbon::parse('2023-01-02'), $achievement->eventData->active_from);
+        $this->assertEquals(Carbon::parse('2023-02-06'), $achievement->eventData->active_until);
+
+        $achievement = $event->achievements()->firstWhere('DisplayOrder', 64);
+        $this->assertEquals('December Achievement of the Month', $achievement->Title);
+        $this->assertEquals('TBD', $achievement->Description);
+        $this->assertEquals('0=1', $achievement->MemAddr);
+        $this->assertEquals(AchievementFlag::OfficialCore->value, $achievement->Flags);
+        $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
+        $this->assertEquals('00000', $achievement->BadgeName);
+        $this->assertEquals(64, $achievement->DisplayOrder);
+        $this->assertEquals(null, $achievement->eventData->sourceAchievement);
+        $this->assertEquals(Carbon::parse('2023-12-04'), $achievement->eventData->active_from);
+        $this->assertEquals(Carbon::parse('2024-01-01'), $achievement->eventData->active_until);
+
         // existing event should be returned if trying to recreate
         $event2 = (new CreateAchievementOfTheWeek())->execute(Carbon::parse('2023-01-02'));
 
         $this->assertEquals($event->id, $event2->id);
-        $this->assertEquals(52, $event2->achievements()->count());
+        $this->assertEquals(64, $event2->achievements()->count());
     }
 
     public function testCreateFromAchievementList(): void
@@ -99,7 +123,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
 
         $this->assertEquals('Achievement of the Week 2024', $event->title);
         $this->assertEquals(System::Events, $event->system->id);
-        $this->assertEquals(52, $event->achievements()->count());
+        $this->assertEquals(64, $event->achievements()->count());
 
         $achievement = $event->achievements()->first();
         $this->assertEquals($sourceAchievement1->Title, $achievement->Title);
@@ -139,7 +163,19 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals(52, $achievement->DisplayOrder);
         $this->assertEquals(null, $achievement->eventData->sourceAchievement);
         $this->assertEquals(Carbon::parse('2024-12-23'), $achievement->eventData->active_from);
-        $this->assertEquals(Carbon::parse('2025-01-01'), $achievement->eventData->active_until);
+        $this->assertEquals(Carbon::parse('2025-01-06'), $achievement->eventData->active_until);
+
+        $achievement = $event->achievements()->firstWhere('DisplayOrder', 53);
+        $this->assertEquals('January Achievement of the Month', $achievement->Title);
+        $this->assertEquals('TBD', $achievement->Description);
+        $this->assertEquals('0=1', $achievement->MemAddr);
+        $this->assertEquals(AchievementFlag::OfficialCore->value, $achievement->Flags);
+        $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
+        $this->assertEquals('00000', $achievement->BadgeName);
+        $this->assertEquals(53, $achievement->DisplayOrder);
+        $this->assertEquals(null, $achievement->eventData->sourceAchievement);
+        $this->assertEquals(Carbon::parse('2024-01-01'), $achievement->eventData->active_from);
+        $this->assertEquals(Carbon::parse('2024-02-05'), $achievement->eventData->active_until);
 
         $game->refresh();
         $this->assertEquals(3, $game->players_hardcore);
@@ -149,6 +185,6 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $event2 = (new CreateAchievementOfTheWeek())->execute(Carbon::parse('2024-01-01'), [$sourceAchievement1->id, $sourceAchievement2->id]);
 
         $this->assertEquals($event->id, $event2->id);
-        $this->assertEquals(52, $event2->achievements()->count());
+        $this->assertEquals(64, $event2->achievements()->count());
     }
 }

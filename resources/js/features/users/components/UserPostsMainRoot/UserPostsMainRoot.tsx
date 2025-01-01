@@ -1,16 +1,15 @@
-import type { FC } from 'react';
+import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/common/components/EmptyState';
 import { RecentPostsCards } from '@/common/components/RecentPostsCards';
 import { RecentPostsTable } from '@/common/components/RecentPostsTable';
 import { SimplePaginator } from '@/common/components/SimplePaginator';
+import { UserBreadcrumbs } from '@/common/components/UserBreadcrumbs';
 import { UserHeading } from '@/common/components/UserHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { UserBreadcrumbs } from '../../../../common/components/UserBreadcrumbs';
-
-export const UserPostsMainRoot: FC = () => {
+export const UserPostsMainRoot: FC = memo(() => {
   const { targetUser, paginatedTopics } =
     usePageProps<App.Community.Data.UserRecentPostsPageProps>();
 
@@ -48,4 +47,4 @@ export const UserPostsMainRoot: FC = () => {
       </div>
     </div>
   );
-};
+});

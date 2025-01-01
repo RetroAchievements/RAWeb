@@ -384,9 +384,9 @@ class StartSessionTest extends TestCase
         $this->assertEquals($this->userAgentOutdated, $playerSession3->user_agent);
 
         // ----------------------------
-        // new session from unknown emulator
+        // new session from unsupported emulator
         Carbon::setTestNow($now->addHours(24));
-        $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
+        $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
             ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash2->md5]))
             ->assertExactJson([
                 'Success' => true,
@@ -422,7 +422,48 @@ class StartSessionTest extends TestCase
         $this->assertNotEquals($playerSession->id, $playerSession4->id);
         $this->assertEquals(1, $playerSession4->duration);
         $this->assertEquals('Playing ' . $game->title, $playerSession4->rich_presence);
-        $this->assertEquals($this->userAgentUnknown, $playerSession4->user_agent);
+        $this->assertEquals($this->userAgentUnsupported, $playerSession4->user_agent);
+
+        // ----------------------------
+        // new session from unknown emulator
+        Carbon::setTestNow($now->addHours(32));
+        $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
+            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash2->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'HardcoreUnlocks' => [
+                    [
+                        'ID' => $achievement1->ID,
+                        'When' => $unlock1Date->timestamp,
+                    ],
+                    [
+                        'ID' => $achievement2->ID,
+                        'When' => $unlock2Date->timestamp,
+                    ],
+                ],
+                'Unlocks' => [
+                    [
+                        'ID' => $achievement3->ID,
+                        'When' => $unlock3Date->timestamp,
+                    ],
+                    [
+                        'ID' => Achievement::CLIENT_WARNING_ID,
+                        'When' => Carbon::now()->unix(),
+                    ],
+                ],
+                'ServerNow' => Carbon::now()->timestamp,
+            ]);
+
+        // player session created
+        $playerSession5 = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => $game->id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession5);
+        $this->assertNotEquals($playerSession->id, $playerSession5->id);
+        $this->assertEquals(1, $playerSession5->duration);
+        $this->assertEquals('Playing ' . $game->title, $playerSession5->rich_presence);
+        $this->assertEquals($this->userAgentUnknown, $playerSession5->user_agent);
     }
 
     public function testStartSessionDelegated(): void

@@ -37,6 +37,7 @@ import { useCurrentSuperFilterLabel } from './useCurrentSuperFilterLabel';
 interface DataTableSuperFilterProps<TData> {
   table: Table<TData>;
 
+  hasResults?: boolean;
   randomGameApiRouteName?: RouteName;
   randomGameApiRouteParams?: Record<string, unknown>;
 }
@@ -44,6 +45,7 @@ interface DataTableSuperFilterProps<TData> {
 export function DataTableSuperFilter<TData>({
   table,
   randomGameApiRouteParams,
+  hasResults = false,
   randomGameApiRouteName = 'api.game.random',
 }: DataTableSuperFilterProps<TData>) {
   const { auth, filterableSystemOptions } = usePageProps<{
@@ -151,7 +153,7 @@ export function DataTableSuperFilter<TData>({
                 apiRouteName={randomGameApiRouteName}
                 apiRouteParams={randomGameApiRouteParams}
                 columnFilters={currentFilters}
-                disabled={table.getRowCount() === 0}
+                disabled={!hasResults}
               />
 
               <BaseDrawerClose asChild>

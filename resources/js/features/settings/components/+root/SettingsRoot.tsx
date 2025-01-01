@@ -1,4 +1,4 @@
-import { type FC, useState } from 'react';
+import { type FC, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -13,7 +13,7 @@ import { PreferencesSectionCard } from '../PreferencesSectionCard';
 import { ProfileSectionCard } from '../ProfileSectionCard';
 import { ResetGameProgressSectionCard } from '../ResetGameProgressSectionCard';
 
-export const SettingsRoot: FC = () => {
+export const SettingsRoot: FC = memo(() => {
   const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   const { t } = useTranslation();
@@ -54,4 +54,4 @@ export const SettingsRoot: FC = () => {
       </div>
     </div>
   );
-};
+});
