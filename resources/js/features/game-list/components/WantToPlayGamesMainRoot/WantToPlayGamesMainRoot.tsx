@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import { type FC } from 'react';
+import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { UserHeading } from '@/common/components/UserHeading';
@@ -14,7 +14,7 @@ import { wantToPlayGamesDefaultFilters } from '../../utils/wantToPlayGamesDefaul
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
 import { WantToPlayGamesDataTable } from '../WantToPlayGamesDataTable';
 
-export const WantToPlayGamesMainRoot: FC = () => {
+export const WantToPlayGamesMainRoot: FC = memo(() => {
   const { auth, defaultDesktopPageSize, paginatedGameListEntries } =
     usePageProps<App.Community.Data.UserGameListPageProps>();
 
@@ -77,4 +77,4 @@ export const WantToPlayGamesMainRoot: FC = () => {
       </HydrationBoundary>
     </div>
   );
-};
+});

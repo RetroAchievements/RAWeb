@@ -6,7 +6,12 @@ import type { FC } from 'react';
 
 import i18n from '@/i18n-client';
 import { render, screen } from '@/test';
-import { createGame, createGameListEntry, createSystem } from '@/test/factories';
+import {
+  createGame,
+  createGameClaimant,
+  createGameListEntry,
+  createSystem,
+} from '@/test/factories';
 
 import { buildHasActiveOrInReviewClaimsColumnDef } from '../../utils/column-definitions/buildHasActiveOrInReviewClaimsColumnDef';
 import { buildLastUpdatedColumnDef } from '../../utils/column-definitions/buildLastUpdatedColumnDef';
@@ -355,6 +360,7 @@ describe('Component: GameListDataTable', () => {
       const game = createGame({
         title: 'Sonic the Hedgehog',
         hasActiveOrInReviewClaims: undefined, // !!
+        claimants: [],
       });
       const gameListEntry = createGameListEntry({ game });
 
@@ -365,8 +371,8 @@ describe('Component: GameListDataTable', () => {
             buildHasActiveOrInReviewClaimsColumnDef({
               t_label: i18n.t('Claimed'),
               strings: {
+                t_no: i18n.t('No'),
                 t_yes: i18n.t('Yes'),
-                t_description: i18n.t('One or more developers are currently working on this game.'),
               },
             }),
           ]}
@@ -377,7 +383,7 @@ describe('Component: GameListDataTable', () => {
       // ASSERT
       expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
 
-      expect(screen.getByText('-')).toBeVisible();
+      expect(screen.getByText('No')).toBeVisible();
       expect(screen.queryByText(/yes/i)).not.toBeInTheDocument();
     });
 
@@ -386,6 +392,7 @@ describe('Component: GameListDataTable', () => {
       const game = createGame({
         title: 'Sonic the Hedgehog',
         hasActiveOrInReviewClaims: true, // !!
+        claimants: [createGameClaimant()],
       });
       const gameListEntry = createGameListEntry({ game });
 
@@ -396,8 +403,8 @@ describe('Component: GameListDataTable', () => {
             buildHasActiveOrInReviewClaimsColumnDef({
               t_label: i18n.t('Claimed'),
               strings: {
+                t_no: i18n.t('No'),
                 t_yes: i18n.t('Yes'),
-                t_description: i18n.t('One or more developers are currently working on this game.'),
               },
             }),
           ]}
@@ -408,8 +415,8 @@ describe('Component: GameListDataTable', () => {
       // ASSERT
       expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
 
-      expect(screen.queryByText('-')).not.toBeInTheDocument();
-      expect(screen.getByText(/yes/i)).toBeVisible();
+      expect(screen.queryByText('No')).not.toBeInTheDocument();
+      expect(screen.getByText('Yes')).toBeVisible();
     });
 
     it('given there are 9 visible columns, applies the correct overflow scroll styles', () => {

@@ -74,7 +74,7 @@ const BaseTableHead = React.forwardRef<
 ));
 BaseTableHead.displayName = 'BaseTableHead';
 
-const BaseTableCell = React.forwardRef<
+const BaseTableCellComponent = React.forwardRef<
   HTMLTableCellElement,
   React.TdHTMLAttributes<HTMLTableCellElement>
 >(({ className, ...props }, ref) => (
@@ -87,6 +87,7 @@ const BaseTableCell = React.forwardRef<
     {...props}
   />
 ));
+const BaseTableCell = React.memo(BaseTableCellComponent);
 BaseTableCell.displayName = 'BaseTableCell';
 
 const BaseTableCaption = React.forwardRef<

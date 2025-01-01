@@ -33,7 +33,6 @@ class AuthServiceProvider extends ServiceProvider
             Role::ROOT,
             Role::ADMINISTRATOR,
             Role::MODERATOR,
-            // Role::COMMUNITY_MANAGER, // rather a mix of moderator and specialized management role?
             Role::EVENT_MANAGER,
             Role::FORUM_MANAGER,
             Role::GAME_HASH_MANAGER,
@@ -44,9 +43,7 @@ class AuthServiceProvider extends ServiceProvider
             Role::ARTIST,
             Role::WRITER,
             Role::GAME_EDITOR,
-        ])
-            // TODO remove as soon as permission matrix is in place
-            || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper);
+        ]));
 
         /*
          * can "create". meant for creator tools opt-in
@@ -55,9 +52,7 @@ class AuthServiceProvider extends ServiceProvider
             Role::DEVELOPER,
             Role::ARTIST,
             Role::WRITER,
-        ])
-            // TODO remove as soon as permission matrix is in place
-            || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper);
+        ]));
 
         /*
          * settings
