@@ -112,7 +112,8 @@ const SessionEvents: FC<SessionEventsProps> = ({ session, sessionIndex }) => {
           // Check if the previous event was grouped with the current event. If it was and we're
           // rendering a bunch of stuff in a group, then we'll only show a timestamp on the row
           // for when the group starts.
-          const isPreviousGrouped = previousEventTimestamp === currentEventTimestamp;
+          const isPreviousGrouped =
+            eventIndex !== 0 && previousEventTimestamp === currentEventTimestamp;
 
           return (
             <li
