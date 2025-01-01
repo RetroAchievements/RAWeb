@@ -64,7 +64,7 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
           ) : null} */}
       </div>
 
-      <div className="relative">
+      <div className="relative w-full">
         {news.pinnedAt && ziggy.device === 'desktop' ? (
           <BaseTooltip>
             <BaseTooltipTrigger className="absolute -right-2 -top-2">
