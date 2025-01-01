@@ -36,6 +36,9 @@ class GenerateAnnualRecapAction
         $endDate = Carbon::create($year + 1, 1, 1, 0, 0, 0);
 
         $gameData = $this->getGameData($user, $startDate, $endDate);
+        if (count($gameData) === 0) {
+            return;
+        }
 
         $subject = "RetroAchievements $year Year in Review for {$user->display_name}";
 
