@@ -17,7 +17,6 @@ class AchievementAuthorPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::MODERATOR,
             Role::TEAM_ACCOUNT,
@@ -53,7 +52,6 @@ class AchievementAuthorPolicy
     public function delete(User $user, AchievementAuthor $achievementAuthor): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::MODERATOR,
             Role::TEAM_ACCOUNT,
         ]);
@@ -62,7 +60,6 @@ class AchievementAuthorPolicy
     public function restore(User $user, AchievementAuthor $achievementAuthor): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::MODERATOR,
             Role::TEAM_ACCOUNT,
         ]);
@@ -77,7 +74,6 @@ class AchievementAuthorPolicy
     {
         // These roles can assign any type of credit.
         $alwaysAllowed = [
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::MODERATOR,
             Role::TEAM_ACCOUNT,

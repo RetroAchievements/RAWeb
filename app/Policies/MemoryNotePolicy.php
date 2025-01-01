@@ -17,7 +17,6 @@ class MemoryNotePolicy
     {
         return $user->hasAnyRole([
             Role::DEVELOPER_JUNIOR,
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
     }
@@ -36,7 +35,6 @@ class MemoryNotePolicy
     {
         return $user->hasAnyRole([
             Role::DEVELOPER_JUNIOR,
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
     }
@@ -49,7 +47,6 @@ class MemoryNotePolicy
         }
 
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
     }
@@ -62,7 +59,6 @@ class MemoryNotePolicy
         }
 
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
     }

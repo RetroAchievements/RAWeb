@@ -38,7 +38,7 @@ export function buildTitleColumnDef({
 
     cell: ({ row }) => {
       return (
-        <div className="min-w-[180px] max-w-fit">
+        <div className="min-w-[180px]">
           <div className="max-w-[400px]">
             <GameAvatar
               {...row.original.game}
