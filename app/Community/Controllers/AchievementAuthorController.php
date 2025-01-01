@@ -41,6 +41,8 @@ class AchievementAuthorController extends Controller
 
     public function feed(Request $request, User $user): InertiaResponse
     {
+        abort_if($user->ContribCount === 0, 404);
+
         $this->authorize('viewDeveloperFeed', $user);
 
         $props = (new BuildDeveloperFeedDataAction())->execute($user);
