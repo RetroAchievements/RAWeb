@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import { type FC } from 'react';
+import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -13,7 +13,7 @@ import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
 import { AllSystemGamesDataTable } from '../AllSystemGamesDataTable';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
 
-export const SystemGamesMainRoot: FC = () => {
+export const SystemGamesMainRoot: FC = memo(() => {
   const { auth, defaultDesktopPageSize, system, paginatedGameListEntries } =
     usePageProps<App.Platform.Data.SystemGameListPageProps>();
 
@@ -80,4 +80,4 @@ export const SystemGamesMainRoot: FC = () => {
       </HydrationBoundary>
     </div>
   );
-};
+});

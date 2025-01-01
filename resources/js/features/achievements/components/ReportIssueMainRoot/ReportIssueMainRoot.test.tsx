@@ -12,7 +12,12 @@ describe('Component: ReportIssueMainRoot', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.ReportAchievementIssuePageProps>(
       <ReportIssueMainRoot />,
-      { pageProps: { achievement: createAchievement() } },
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          can: { createTriggerTicket: true },
+        },
+      },
     );
 
     // ASSERT
@@ -24,7 +29,10 @@ describe('Component: ReportIssueMainRoot', () => {
     const achievement = createAchievement();
 
     render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
-      pageProps: { achievement },
+      pageProps: {
+        achievement,
+        can: { createTriggerTicket: true },
+      },
     });
 
     // ASSERT
@@ -38,7 +46,10 @@ describe('Component: ReportIssueMainRoot', () => {
     const achievement = createAchievement();
 
     render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
-      pageProps: { achievement },
+      pageProps: {
+        achievement,
+        can: { createTriggerTicket: true },
+      },
     });
 
     // ASSERT
@@ -50,7 +61,11 @@ describe('Component: ReportIssueMainRoot', () => {
     const achievement = createAchievement();
 
     render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
-      pageProps: { achievement, hasSession: false },
+      pageProps: {
+        achievement,
+        hasSession: false,
+        can: { createTriggerTicket: true },
+      },
     });
 
     // ASSERT
@@ -63,7 +78,11 @@ describe('Component: ReportIssueMainRoot', () => {
     const achievement = createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined });
 
     render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
-      pageProps: { achievement, hasSession: true },
+      pageProps: {
+        achievement,
+        hasSession: true,
+        can: { createTriggerTicket: true },
+      },
     });
 
     // ASSERT
@@ -81,7 +100,11 @@ describe('Component: ReportIssueMainRoot', () => {
     });
 
     render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
-      pageProps: { achievement, hasSession: true },
+      pageProps: {
+        achievement,
+        hasSession: true,
+        can: { createTriggerTicket: true },
+      },
     });
 
     // ASSERT
@@ -99,7 +122,11 @@ describe('Component: ReportIssueMainRoot', () => {
     });
 
     render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
-      pageProps: { achievement, hasSession: true },
+      pageProps: {
+        achievement,
+        hasSession: true,
+        can: { createTriggerTicket: true },
+      },
     });
 
     // ASSERT
@@ -118,7 +145,11 @@ describe('Component: ReportIssueMainRoot', () => {
     });
 
     render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
-      pageProps: { achievement, hasSession: false },
+      pageProps: {
+        achievement,
+        hasSession: false,
+        can: { createTriggerTicket: true },
+      },
     });
 
     // ASSERT
@@ -140,7 +171,11 @@ describe('Component: ReportIssueMainRoot', () => {
     });
 
     render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
-      pageProps: { achievement, hasSession: true },
+      pageProps: {
+        achievement,
+        hasSession: true,
+        can: { createTriggerTicket: true },
+      },
     });
 
     // ASSERT
@@ -160,7 +195,12 @@ describe('Component: ReportIssueMainRoot', () => {
     });
 
     render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
-      pageProps: { achievement, hasSession: true, ticketType: TicketType.DidNotTrigger },
+      pageProps: {
+        achievement,
+        hasSession: true,
+        ticketType: TicketType.DidNotTrigger,
+        can: { createTriggerTicket: true },
+      },
     });
 
     // ASSERT
@@ -183,7 +223,12 @@ describe('Component: ReportIssueMainRoot', () => {
     });
 
     render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
-      pageProps: { achievement, hasSession: true, ticketType: TicketType.TriggeredAtWrongTime },
+      pageProps: {
+        achievement,
+        hasSession: true,
+        ticketType: TicketType.TriggeredAtWrongTime,
+        can: { createTriggerTicket: true },
+      },
     });
 
     // ASSERT
@@ -217,6 +262,7 @@ describe('Component: ReportIssueMainRoot', () => {
         extra,
         hasSession: true,
         ticketType: TicketType.TriggeredAtWrongTime,
+        can: { createTriggerTicket: true },
       },
     });
 
@@ -237,6 +283,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
+        can: { createTriggerTicket: true },
       },
     });
 
@@ -250,5 +297,61 @@ describe('Component: ReportIssueMainRoot', () => {
 
     expect(screen.getByText(/unwelcome concept/i)).toBeVisible();
     expect(screen.getByRole('link', { name: /report to devcompliance/i })).toBeVisible();
+  });
+
+  it('given the user does not have permission to create tickets, does not show a create ticket button', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: undefined,
+      unlockedHardcoreAt: undefined,
+    });
+
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement,
+        hasSession: true,
+        ticketType: TicketType.DidNotTrigger,
+        can: {
+          createTriggerTicket: false, // !!
+        },
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.queryByText(/met the requirements, but the achievement did not trigger/i),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByText(/unlocked this achievement without meeting the requirements/i),
+    ).not.toBeInTheDocument();
+
+    expect(screen.getByText(/achievement triggered, but the unlock didn't appear/i)).toBeVisible();
+  });
+
+  it('given the back-end determines the ticket type should be of `TriggeredAtWrongTime` but the user does not have permission to create tickets, does not show a single Create Ticket link', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: undefined,
+      unlockedHardcoreAt: undefined,
+    });
+
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement,
+        hasSession: true,
+        ticketType: TicketType.TriggeredAtWrongTime,
+        can: {
+          createTriggerTicket: false, // !!
+        },
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.queryByText(/unlocked this achievement without meeting the requirements/i),
+    ).not.toBeInTheDocument();
+
+    expect(screen.queryAllByText(/create ticket/i).length).toEqual(0);
   });
 });
