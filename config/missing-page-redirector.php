@@ -136,6 +136,7 @@ return [
         ],
         '/expiringclaims.php' => '/claims/expiring',
         '/claims' => '/manage/achievement-set-claims',
+        '/claims/expiring' => '/manage/achievement-set-claims?tableSortColumn=Finished&tableSortDirection=asc',
 
         /*
          * redirects (external)

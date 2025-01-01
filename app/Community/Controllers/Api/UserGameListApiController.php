@@ -36,7 +36,7 @@ class UserGameListApiController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        $userGameListEntry = UserGameListEntry::create([
+        $userGameListEntry = UserGameListEntry::firstOrCreate([
             'user_id' => $user->id,
             'GameID' => $gameId,
             'type' => $request->input('userGameListType'),

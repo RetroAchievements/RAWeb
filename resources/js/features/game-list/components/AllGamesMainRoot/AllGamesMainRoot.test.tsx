@@ -283,6 +283,7 @@ describe('Component: AllGamesMainRoot', () => {
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /columns/i }));
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /tickets/i }));
+    await userEvent.keyboard('{escape}');
 
     // ASSERT
     expect(screen.getByRole('columnheader', { name: /tickets/i })).toBeVisible();
@@ -320,6 +321,7 @@ describe('Component: AllGamesMainRoot', () => {
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /columns/i }));
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /tickets/i }));
+    await userEvent.keyboard('{escape}');
 
     // ASSERT
     expect(screen.getByRole('link', { name: '2' }));
@@ -351,7 +353,7 @@ describe('Component: AllGamesMainRoot', () => {
           'filter[title]': 'dragon quest',
           'page[number]': 1,
           'page[size]': 25,
-          sort: 'title',
+          sort: '-playersTotal',
         },
       ]);
     });
@@ -407,7 +409,7 @@ describe('Component: AllGamesMainRoot', () => {
           'filter[system]': '1',
           'page[number]': 1,
           'page[size]': 25,
-          sort: 'title',
+          sort: '-playersTotal',
         },
       ]);
     });
@@ -505,7 +507,7 @@ describe('Component: AllGamesMainRoot', () => {
           'filter[achievementsPublished]': 'none',
           'page[number]': 1,
           'page[size]': 25,
-          sort: 'title',
+          sort: '-playersTotal',
         },
       ]);
     });
@@ -628,6 +630,7 @@ describe('Component: AllGamesMainRoot', () => {
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /columns/i }));
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /claimed/i }));
+    await userEvent.keyboard('{escape}');
 
     await userEvent.click(screen.getByTestId('column-header-Claimed'));
     await userEvent.click(screen.getByRole('menuitem', { name: /yes first/i }));
@@ -713,7 +716,7 @@ describe('Component: AllGamesMainRoot', () => {
           'filter[achievementsPublished]': 'has',
           'page[number]': 2,
           'page[size]': 50,
-          sort: 'title',
+          sort: '-playersTotal',
         },
       ]);
     });

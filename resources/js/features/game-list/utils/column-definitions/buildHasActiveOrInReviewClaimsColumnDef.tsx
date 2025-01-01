@@ -1,22 +1,18 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 
-import {
-  BaseTooltip,
-  BaseTooltipContent,
-  BaseTooltipTrigger,
-} from '@/common/components/+vendor/BaseTooltip';
+import { UserAvatarStack } from '@/common/components/UserAvatarStack';
 import type { TranslatedString } from '@/types/i18next';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildHasActiveOrInReviewClaimsColumnDefProps {
-  t_label: TranslatedString;
   strings: {
+    t_no: TranslatedString;
     t_yes: TranslatedString;
-    t_description: TranslatedString;
   };
+  t_label: TranslatedString;
 
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
@@ -47,18 +43,21 @@ export function buildHasActiveOrInReviewClaimsColumnDef({
 
       return (
         <div>
-          {hasActiveOrInReviewClaims ? (
-            <BaseTooltip>
-              <BaseTooltipTrigger asChild>
-                <p>{strings.t_yes}</p>
-              </BaseTooltipTrigger>
+          {hasActiveOrInReviewClaims && row.original.game.claimants ? (
+            <div className="flex items-center gap-1.5">
+              <span className="sr-only">{strings.t_yes}</span>
 
-              <BaseTooltipContent>
-                <p className="text-xs">{strings.t_description}</p>
-              </BaseTooltipContent>
-            </BaseTooltip>
+              <UserAvatarStack
+                users={row.original.game.claimants.map((c) => c.user)}
+                maxVisible={3}
+                size={28}
+              />
+            </div>
           ) : (
-            <p className="text-muted">{'-'}</p>
+            <>
+              <span className="text-muted">{'-'}</span>
+              <span className="sr-only">{strings.t_no}</span>
+            </>
           )}
         </div>
       );

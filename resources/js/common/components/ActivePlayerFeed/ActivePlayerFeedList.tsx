@@ -24,9 +24,7 @@ export const ActivePlayerFeedList: FC<ActivePlayerFeedListProps> = ({ onLoadMore
           </div>
 
           <div className="flex flex-col">
-            <div className="max-w-fit">
-              <GameAvatar {...player.game} showImage={false} />
-            </div>
+            <GameAvatar {...player.game} showImage={false} />
 
             <p className="line-clamp-1 text-2xs" style={{ wordBreak: 'break-word' }}>
               <RichPresenceMessage

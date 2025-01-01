@@ -17,7 +17,6 @@ class LeaderboardPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
         ]);
@@ -40,7 +39,6 @@ class LeaderboardPolicy
         }
 
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
     }
@@ -52,7 +50,6 @@ class LeaderboardPolicy
         }
 
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
     }
@@ -60,7 +57,6 @@ class LeaderboardPolicy
     public function delete(User $user, Leaderboard $leaderboard): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
     }
@@ -73,7 +69,6 @@ class LeaderboardPolicy
     public function forceDelete(User $user, Leaderboard $leaderboard): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
     }
@@ -81,7 +76,6 @@ class LeaderboardPolicy
     public function resetAllEntries(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
     }

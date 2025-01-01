@@ -2,7 +2,7 @@
 
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { type ButtonHTMLAttributes, forwardRef } from 'react';
+import { type ButtonHTMLAttributes, forwardRef, useMemo } from 'react';
 
 import { cn } from '@/common/utils/cn';
 
@@ -58,9 +58,12 @@ const BaseButton = forwardRef<HTMLButtonElement, BaseButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';
 
-    return (
-      <Comp className={cn(baseButtonVariants({ variant, size, className }))} ref={ref} {...props} />
+    const computedClassName = useMemo(
+      () => cn(baseButtonVariants({ variant, size, className })),
+      [variant, size, className],
     );
+
+    return <Comp className={computedClassName} ref={ref} {...props} />;
   },
 );
 BaseButton.displayName = 'BaseButton';

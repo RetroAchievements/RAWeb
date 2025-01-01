@@ -49,7 +49,11 @@ $tools = $settings['tools'] ?? null;
                 @endcan
 
                 @can('manage', App\Models\AchievementSetClaim::class)
-                    <x-dropdown-item :href="route('claims.expiring')">Expiring Claims</x-dropdown-item>
+                    <x-dropdown-item
+                        :href="route('filament.admin.resources.achievement-set-claims.index', ['tableSortColumn' => 'Finished', 'tableSortDirection' => 'asc'])"
+                    >
+                        Expiring Claims
+                    </x-dropdown-item>
                 @endcan
 
                 @can('manage', App\Models\GameHash::class)
