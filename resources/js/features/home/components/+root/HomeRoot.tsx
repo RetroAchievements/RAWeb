@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { type FC, memo } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -12,7 +12,7 @@ import { RecentForumPosts } from './RecentForumPosts';
 import { SetsInProgressList } from './SetsInProgressList';
 import { TrendingRightNow } from './TrendingRightNow';
 
-export const HomeRoot: FC = () => {
+export const HomeRoot: FC = memo(() => {
   const { auth } = usePageProps<App.Http.Data.HomePageProps>();
 
   return (
@@ -38,4 +38,4 @@ export const HomeRoot: FC = () => {
       <RecentForumPosts />
     </div>
   );
-};
+});

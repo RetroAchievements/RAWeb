@@ -48,6 +48,7 @@ class UserFactory extends Factory
             // nullable
             'APIKey' => 'apiKey',
             'remember_token' => Str::random(10),
+            'banned_at' => null,
         ];
     }
 

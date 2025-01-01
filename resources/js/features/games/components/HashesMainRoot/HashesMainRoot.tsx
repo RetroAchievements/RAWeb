@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { type FC, memo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuSave } from 'react-icons/lu';
 
@@ -10,7 +10,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { HashesList } from './HashesList';
 
-export const HashesMainRoot: FC = () => {
+export const HashesMainRoot: FC = memo(() => {
   const { can, game, hashes } = usePageProps<App.Platform.Data.GameHashesPageProps>();
 
   const { t } = useTranslation();
@@ -79,4 +79,4 @@ export const HashesMainRoot: FC = () => {
       </div>
     </div>
   );
-};
+});
