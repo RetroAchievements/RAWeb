@@ -1,5 +1,4 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { LuCheck, LuX } from 'react-icons/lu';
 import type { RouteName } from 'ziggy-js';
 
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
@@ -46,7 +45,6 @@ export function buildHasActiveOrInReviewClaimsColumnDef({
         <div>
           {hasActiveOrInReviewClaims && row.original.game.claimants ? (
             <div className="flex items-center gap-1.5">
-              <LuCheck className="size-4" />
               <span className="sr-only">{strings.t_yes}</span>
 
               <UserAvatarStack
@@ -57,7 +55,7 @@ export function buildHasActiveOrInReviewClaimsColumnDef({
             </div>
           ) : (
             <>
-              <LuX className="text-muted size-4" />
+              <span className="text-muted">{'-'}</span>
               <span className="sr-only">{strings.t_no}</span>
             </>
           )}
