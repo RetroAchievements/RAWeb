@@ -35,14 +35,14 @@ class UserSetRequestsTest extends TestCase
         $game = Game::factory()->create([
             'ConsoleID' => $system->ID,
             'ImageIcon' => '/Images/001234.png',
-            'achievements_published' => 0
-            
+            'achievements_published' => 0,
+
         ]);
         $game2 = Game::factory()->create([
             'Title' => '~Hack~ Test Case',
             'ConsoleID' => $system->ID,
             'ImageIcon' => '/Images/001235.png',
-            'achievements_published' => 12
+            'achievements_published' => 12,
         ]);
 
         $user = User::factory()->create([
@@ -86,7 +86,6 @@ class UserSetRequestsTest extends TestCase
             ]);
     }
 
-
     /**
      * Test that the API returns only set requests with no published achievements for an existing user.
      */
@@ -96,13 +95,13 @@ class UserSetRequestsTest extends TestCase
         $game = Game::factory()->create([
             'ConsoleID' => $system->ID,
             'ImageIcon' => '/Images/001234.png',
-            'achievements_published' => 4
+            'achievements_published' => 4,
         ]);
         $game2 = Game::factory()->create([
             'Title' => '~Hack~ Test Case',
             'ConsoleID' => $system->ID,
             'ImageIcon' => '/Images/001235.png',
-            'achievements_published' => 0
+            'achievements_published' => 0,
         ]);
 
         $user = User::factory()->create([

@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
-    't' => ['nullable', 'min:1', 'max:1', new CtypeAlnum()]
+    't' => ['nullable', 'min:1', 'max:1', new CtypeAlnum()],
 ]);
 
 $user = User::firstWhere('User', request()->query('u'));
@@ -33,7 +33,6 @@ if (!$user) {
 }
 
 $type = (int) request()->query('t');
-
 
 if ($type === 1) {
     $requestedSets = UserGameListEntry::select([
