@@ -49,9 +49,7 @@ export const TopAchieversList: FC = () => {
             <BaseTableCell>{formatNumber(achiever.rank)}</BaseTableCell>
 
             <BaseTableCell>
-              <div className="max-w-fit">
-                <UserAvatar {...achiever.user} size={32} />
-              </div>
+              <UserAvatar {...achiever.user} size={32} />
             </BaseTableCell>
 
             <BaseTableCell>
