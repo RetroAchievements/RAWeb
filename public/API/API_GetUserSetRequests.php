@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
-    't' => ['nullable', 'min:1', 'max:1', new CtypeAlnum()],
+    't' => ['nullable', 'in:0,1'],
 ]);
 
 $user = User::firstWhere('User', request()->query('u'));
