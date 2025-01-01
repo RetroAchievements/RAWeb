@@ -121,7 +121,6 @@ class ProcessPlausibleUrlAction
                     'redactedUrl' => "/{$routePath}",
                     'props' => $props + $defaultProps,
                 ];
-                break;
 
             case 'nested':
                 // TODO return $this->handleNestedRoute($route, $segments);
