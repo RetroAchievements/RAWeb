@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import type { FC } from 'react';
+import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { FullPaginator } from '@/common/components/FullPaginator';
@@ -9,7 +9,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { TopAchieversList } from './TopAchieversList';
 
-export const TopAchieversMainRoot: FC = () => {
+export const TopAchieversMainRoot: FC = memo(() => {
   const { game, paginatedUsers } = usePageProps<App.Platform.Data.GameTopAchieversPageProps>();
 
   const { t } = useTranslation();
@@ -45,4 +45,4 @@ export const TopAchieversMainRoot: FC = () => {
       </div>
     </div>
   );
-};
+});
