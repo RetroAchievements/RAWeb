@@ -78,6 +78,7 @@ class Hashes extends ManageRelatedRecords
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
+                    ->modalHeading(fn (GameHash $record) => "Edit game hash {$record->md5}")
                     ->form([
                         Forms\Components\Section::make()
                             ->description("
