@@ -132,7 +132,7 @@ declare namespace App.Data {
     createdAt: string;
     updatedAt: string | null;
     user: App.Data.User | null;
-    authorized: boolean;
+    isAuthorized: boolean;
     forumTopicId: number | null;
   };
   export type ForumTopic = {
@@ -211,10 +211,11 @@ declare namespace App.Data {
     userWallActive?: boolean | null;
     visibleRole?: string | null;
     websitePrefs?: number | null;
-    preferences?: { prefersAbsoluteDates: boolean };
+    preferences?: { shouldAlwaysBypassContentWarnings: boolean; prefersAbsoluteDates: boolean };
     roles?: App.Models.UserRole[];
   };
   export type UserPermissions = {
+    createTriggerTicket?: boolean;
     develop?: boolean;
     manageGameHashes?: boolean;
     manageGameSets?: boolean;
@@ -375,6 +376,8 @@ declare namespace App.Platform.Data {
     gameCount: number;
     linkCount: number;
     updatedAt: string;
+    forumTopicId?: number | null;
+    hasMatureContent?: boolean;
   };
   export type GameTopAchiever = {
     rank: number;
@@ -439,6 +442,7 @@ declare namespace App.Platform.Data {
     hasSession: boolean;
     ticketType: number;
     extra: string | null;
+    can: App.Data.UserPermissions;
   };
   export type System = {
     id: number;

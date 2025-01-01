@@ -9,7 +9,7 @@ import { buildStructuredMessage } from './buildStructuredMessage';
 import { ReportIssueOptionItem } from './ReportIssueOptionItem';
 
 export const SessionDrivenIssueListItems: FC = () => {
-  const { achievement, hasSession, ticketType, extra } =
+  const { achievement, can, hasSession, ticketType, extra } =
     usePageProps<App.Platform.Data.ReportAchievementIssuePageProps>();
 
   const { t } = useTranslation();
@@ -22,30 +22,35 @@ export const SessionDrivenIssueListItems: FC = () => {
   if (ticketType === TicketType.DidNotTrigger) {
     return (
       <>
-        <ReportIssueOptionItem
-          t_buttonText={t('Create Ticket')}
-          href={route('achievement.tickets.create', {
-            achievement: achievement.id,
-            type: TicketType.DidNotTrigger,
-          })}
-          anchorClassName={buildTrackingClassNames('Click Create Ticket')}
-          shouldUseClientSideRoute={true}
-        >
-          {t('I met the requirements, but the achievement did not trigger.')}
-        </ReportIssueOptionItem>
-
-        <ReportIssueOptionItem
-          t_buttonText={t('Create Ticket')}
-          href={route('achievement.tickets.create', {
-            achievement: achievement.id,
-            type: TicketType.TriggeredAtWrongTime,
-            extra,
-          })}
-          anchorClassName={buildTrackingClassNames('Click Create Ticket')}
-          shouldUseClientSideRoute={true}
-        >
-          {t('I unlocked this achievement without meeting the requirements, and then I reset it.')}
-        </ReportIssueOptionItem>
+        {can.createTriggerTicket ? (
+          <>
+            <ReportIssueOptionItem
+              t_buttonText={t('Create Ticket')}
+              href={route('achievement.tickets.create', {
+                achievement: achievement.id,
+                type: TicketType.DidNotTrigger,
+              })}
+              anchorClassName={buildTrackingClassNames('Click Create Ticket')}
+              shouldUseClientSideRoute={true}
+            >
+              {t('I met the requirements, but the achievement did not trigger.')}
+            </ReportIssueOptionItem>
+            <ReportIssueOptionItem
+              t_buttonText={t('Create Ticket')}
+              href={route('achievement.tickets.create', {
+                achievement: achievement.id,
+                type: TicketType.TriggeredAtWrongTime,
+                extra,
+              })}
+              anchorClassName={buildTrackingClassNames('Click Create Ticket')}
+              shouldUseClientSideRoute={true}
+            >
+              {t(
+                'I unlocked this achievement without meeting the requirements, and then I reset it.',
+              )}
+            </ReportIssueOptionItem>
+          </>
+        ) : null}
 
         <ReportIssueOptionItem
           t_buttonText={t('Request Manual Unlock')}
@@ -59,6 +64,12 @@ export const SessionDrivenIssueListItems: FC = () => {
         </ReportIssueOptionItem>
       </>
     );
+  }
+
+  // Ticket creation is the only option left.
+  // It's the happy path, so it'll be the final return.
+  if (!can.createTriggerTicket) {
+    return null;
   }
 
   return (

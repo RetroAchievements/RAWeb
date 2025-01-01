@@ -854,6 +854,15 @@ class SubmitLeaderboardEntryTest extends TestCase
                 'Response' => $validResponse,
             ]);
 
+        // unsupported user agent (TODO: will return failure in the future)
+        $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => $validResponse,
+            ]);
+
         // valid user agent
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $md5]))
