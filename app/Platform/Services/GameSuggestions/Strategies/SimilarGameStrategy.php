@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Services\GameSuggestions\Strategies;
 
 use App\Models\Game;
+use App\Models\GameSet;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSuggestionContextData;
 use App\Platform\Enums\GameSetType;
@@ -16,15 +17,16 @@ class SimilarGameStrategy implements GameSuggestionStrategy
 
     public function __construct(
         private readonly Game $sourceGame,
+        private readonly bool $attachContext = true,
     ) {
     }
 
     public function select(): ?Game
     {
         // Get game set IDs for similar games that contain our source game.
-        $gameSetIds = $this->sourceGame->gameSets()
-            ->whereType(GameSetType::SimilarGames)
-            ->pluck('game_sets.id');
+        $gameSetIds = GameSet::whereType(GameSetType::SimilarGames)
+            ->whereGameId($this->sourceGame->id)
+            ->pluck('id');
 
         if ($gameSetIds->isEmpty()) {
             return null;
@@ -49,7 +51,7 @@ class SimilarGameStrategy implements GameSuggestionStrategy
 
     public function reasonContext(): ?GameSuggestionContextData
     {
-        if (!$this->selectedGame) {
+        if (!$this->attachContext || !$this->selectedGame) {
             return null;
         }
 

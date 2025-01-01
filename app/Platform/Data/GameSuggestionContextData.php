@@ -18,6 +18,11 @@ class GameSuggestionContextData extends Data
     ) {
     }
 
+    public static function forCommonPlayersGame(GameData $game): self
+    {
+        return new self(relatedGame: $game);
+    }
+
     public static function forSimilarGame(GameData $game): self
     {
         return new self(relatedGame: $game);

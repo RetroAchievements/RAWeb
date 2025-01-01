@@ -7,6 +7,7 @@ namespace App\Platform\Services\GameSuggestions\Strategies;
 use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\User;
+use App\Platform\Data\GameData;
 use App\Platform\Data\GameSuggestionContextData;
 use App\Platform\Enums\GameSuggestionReason;
 use Illuminate\Support\Collection;
@@ -17,6 +18,7 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
     public function __construct(
         private readonly User $user,
         private readonly Game $sourceGame,
+        private readonly bool $attachContext = true,
     ) {
     }
 
@@ -52,7 +54,13 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
 
     public function reasonContext(): ?GameSuggestionContextData
     {
-        return null;
+        if (!$this->attachContext) {
+            return null;
+        }
+
+        return GameSuggestionContextData::forCommonPlayersGame(
+            GameData::from($this->sourceGame)
+        );
     }
 
     /**

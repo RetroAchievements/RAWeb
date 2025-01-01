@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Services\GameSuggestions;
 
 use App\Models\Game;
+use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Data\GameSuggestionData;
 
@@ -27,9 +28,9 @@ class GameSuggestionEngine
 
         if ($this->sourceGame) {
             $this->strategies = [
-                [new Strategies\SimilarGameStrategy($this->sourceGame), 50],
+                [new Strategies\SimilarGameStrategy($this->sourceGame, attachContext: false), 50],
                 [new Strategies\SharedHubStrategy($this->sourceGame), 20],
-                [new Strategies\CommonPlayersStrategy($this->user, $this->sourceGame), 20],
+                [new Strategies\CommonPlayersStrategy($this->user, $this->sourceGame, attachContext: false), 20],
                 [new Strategies\SharedAuthorStrategy($this->sourceGame), 10],
             ];
         } else {
@@ -80,6 +81,12 @@ class GameSuggestionEngine
      */
     public function selectSuggestions(int $limit = 10): array
     {
+        // We won't show the user games they already have 100% completion for.
+        $masteredGameIds = PlayerGame::whereUserId($this->user->id)
+            ->whereAllAchievementsUnlocked()
+            ->pluck('game_id')
+            ->toArray();
+
         $suggestions = [];
         $selectedIds = [];
         $attempts = 0;
@@ -90,7 +97,7 @@ class GameSuggestionEngine
 
             if ($game = $strategy->select()) {
                 $gameId = $game->id;
-                if (!in_array($gameId, $selectedIds)) {
+                if (!in_array($gameId, $selectedIds) && !in_array($gameId, $masteredGameIds)) {
                     $suggestions[] = new GameSuggestionData(
                         gameId: $gameId,
                         reason: $strategy->reason(),
