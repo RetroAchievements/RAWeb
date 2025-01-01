@@ -19,7 +19,7 @@ class CreateAchievementOfTheWeek
     {
         $achievementIds ??= [];
 
-        $date = $startDate;
+        $date = $startDate->clone();
         $year = $date->clone()->addWeeks(1)->year;
 
         $eventTitle = "Achievement of the Week $year";
@@ -65,6 +65,37 @@ class CreateAchievementOfTheWeek
             $date->addDays(7);
         }
 
+        $date = $startDate;
+        while ($achievementCount < 64) {
+            $achievementCount++;
+            $achievement = Achievement::create([
+                'Title' => $date->format('F') . ' Achievement of the Month',
+                'Description' => 'TBD',
+                'MemAddr' => '0=1',
+                'Flags' => AchievementFlag::OfficialCore->value,
+                'GameID' => $event->id,
+                'user_id' => EventAchievement::RAEVENTS_USER_ID,
+                'BadgeName' => '00000',
+                'DisplayOrder' => $achievementCount,
+            ]);
+
+            $nextDate = $date->clone();
+            do {
+                $nextDate = $nextDate->addDays(7);
+            } while ($nextDate->month === $date->month);
+
+            EventAchievement::create(
+                [
+                    'achievement_id' => $achievement->id,
+                    'source_achievement_id' => null,
+                    'active_from' => $date,
+                    'active_until' => $nextDate,
+                ],
+            );
+
+            $date = $nextDate;
+        }
+
         // update metrics and sync to game_achievement_set
         dispatch(new UpdateGameMetricsJob($event->id))->onQueue('game-metrics');
 
@@ -76,10 +107,11 @@ class CreateAchievementOfTheWeek
      */
     private function createEventAchievement(int $week, Carbon $date, Collection $achievements, ?Achievement $sourceAchievement): void
     {
-        if ($week === $achievements->count() - 1) {
-            $nextDate = Carbon::create($date->year + 1, 1, 1, 0, 0, 0);
-        } else {
-            $nextDate = $date->clone()->addDays(7);
+        $nextDate = $date->clone()->addDays(7);
+        if ($week === 51) {
+            while ($nextDate->year === $date->year) {
+                $nextDate = $nextDate->addDays(7);
+            }
         }
 
         $achievement = $achievements->slice($week, 1)->first();
