@@ -6,6 +6,7 @@ import { cn } from '@/common/utils/cn';
 interface ActivityBasicLabelProps {
   Icon: IconType;
   label: string;
+
   className?: string;
 }
 

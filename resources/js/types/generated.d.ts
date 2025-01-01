@@ -225,7 +225,7 @@ declare namespace App.Data {
   };
 }
 declare namespace App.Enums {
-  export type ClientSupportLevel = 0 | 1 | 2 | 3;
+  export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4;
   export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'custom';
   export type PlayerGameActivitySessionType =
     | 'player-session'
@@ -455,7 +455,7 @@ declare namespace App.Platform.Data {
   export type PlayerGameActivityPageProps = {
     player: App.Data.User;
     game: App.Platform.Data.Game;
-    playerGame: App.Platform.Data.PlayerGame;
+    playerGame: App.Platform.Data.PlayerGame | null;
     activity: App.Platform.Data.PlayerGameActivity;
   };
   export type PlayerGameActivitySession = {

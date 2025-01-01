@@ -65,7 +65,7 @@ export const UserGameSummarizedActivity: FC = () => {
 
       <ActivityStatCard t_label={t('Achievements Unlocked')}>
         {t('{{earned, number}} of {{total, number}}', {
-          earned: playerGame.achievementsUnlocked,
+          earned: playerGame!.achievementsUnlocked,
           total: game.achievementsPublished,
         })}
       </ActivityStatCard>

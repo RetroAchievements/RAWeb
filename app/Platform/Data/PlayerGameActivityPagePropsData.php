@@ -14,7 +14,7 @@ class PlayerGameActivityPagePropsData extends Data
     public function __construct(
         public UserData $player,
         public GameData $game,
-        public PlayerGameData $playerGame,
+        public ?PlayerGameData $playerGame,
         public PlayerGameActivityData $activity,
     ) {
     }

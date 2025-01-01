@@ -97,28 +97,46 @@ const SessionEvents: FC<SessionEventsProps> = ({ session, sessionIndex }) => {
   return (
     <div>
       <ol className="flex flex-col">
-        {session.events.map((event, eventIndex) => (
-          <li
-            key={`sessionEvent-${sessionIndex}-${eventIndex}`}
-            className={cn(
-              'px-3 pb-3 pt-3.5',
+        {session.events.map((event, eventIndex) => {
+          const currentEventTimestamp = event.when;
 
-              eventIndex !== session.events.length - 1
-                ? 'border-b border-neutral-700 light:border-neutral-200'
-                : null,
-            )}
-          >
-            <SessionTimelineEvent
-              sessionEvent={event}
-              previousEventTimestamp={
-                eventIndex === 0 ? session.startTime : session.events[eventIndex - 1].when
-              }
-              previousEventKind={
-                eventIndex === 0 ? 'start-session' : session.events[eventIndex - 1].type
-              }
-            />
-          </li>
-        ))}
+          const previousEventTimestamp =
+            eventIndex === 0 ? session.startTime : session.events[eventIndex - 1].when;
+
+          const nextEventTimestamp =
+            eventIndex === session.events.length - 1 ? null : session.events[eventIndex + 1].when;
+
+          // Grouped events won't have any borders between them and will only show a single timestamp.
+          const isGrouped = currentEventTimestamp === nextEventTimestamp;
+
+          // Check if the previous event was grouped with the current event. If it was and we're
+          // rendering a bunch of stuff in a group, then we'll only show a timestamp on the row
+          // for when the group starts.
+          const isPreviousGrouped = previousEventTimestamp === currentEventTimestamp;
+
+          return (
+            <li
+              key={`sessionEvent-${sessionIndex}-${eventIndex}`}
+              className={cn(
+                isGrouped ? 'px-3 pt-3' : 'px-3 pb-2.5 pt-3',
+
+                eventIndex !== session.events.length - 1 && !isGrouped
+                  ? 'border-b border-neutral-700 light:border-neutral-200'
+                  : null,
+              )}
+            >
+              <SessionTimelineEvent
+                isPreviousGrouped={isPreviousGrouped}
+                sessionEvent={event}
+                sessionType={session.type}
+                previousEventTimestamp={previousEventTimestamp}
+                previousEventKind={
+                  eventIndex === 0 ? 'start-session' : session.events[eventIndex - 1].type
+                }
+              />
+            </li>
+          );
+        })}
       </ol>
     </div>
   );

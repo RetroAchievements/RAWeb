@@ -80,6 +80,26 @@ describe('Component: UserGameActivityMainRoot', () => {
     expect(screen.getByRole('heading', { name: /activity/i })).toBeVisible();
   });
 
+  it('given the user has never played the game, shows an empty state', () => {
+    // ARRANGE
+    render<App.Platform.Data.PlayerGameActivityPageProps>(<UserGameActivityMainRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        player: createUser({ displayName: 'Scott' }),
+        game: createGame({ title: 'Sonic the Hedgehog' }),
+        playerGame: null, // !!
+        activity: {
+          clientBreakdown: [],
+          sessions: [],
+          summarizedActivity: createPlayerGameActivitySummary(),
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/scott has not played/i)).toBeVisible();
+  });
+
   it('given the user toggles to see achievement only sessions, shows just achievement only sessions', async () => {
     // ARRANGE
     render<App.Platform.Data.PlayerGameActivityPageProps>(<UserGameActivityMainRoot />, {

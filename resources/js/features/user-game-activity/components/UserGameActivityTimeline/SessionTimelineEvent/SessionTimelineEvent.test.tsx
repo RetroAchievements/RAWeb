@@ -8,8 +8,10 @@ describe('Component: SessionTimelineEvent', () => {
     // ARRANGE
     const { container } = render(
       <SessionTimelineEvent
+        isPreviousGrouped={false}
         previousEventKind="start-session"
         previousEventTimestamp={null}
+        sessionType="player-session"
         sessionEvent={createPlayerGameActivityEvent({
           type: 'rich-presence',
           when: '2024-01-01T12:34:56Z',
@@ -26,8 +28,10 @@ describe('Component: SessionTimelineEvent', () => {
     // ARRANGE
     render(
       <SessionTimelineEvent
+        isPreviousGrouped={false}
         previousEventKind="start-session"
         previousEventTimestamp={null}
+        sessionType="player-session"
         sessionEvent={createPlayerGameActivityEvent({
           type: 'rich-presence',
           when: '2024-01-01T12:34:56Z',
@@ -45,8 +49,10 @@ describe('Component: SessionTimelineEvent', () => {
     // ARRANGE
     render(
       <SessionTimelineEvent
+        isPreviousGrouped={false}
         previousEventKind="start-session"
         previousEventTimestamp={null}
+        sessionType="player-session"
         sessionEvent={createPlayerGameActivityEvent({
           type: 'unlock',
           when: '2024-01-01T12:34:56Z',
@@ -66,8 +72,10 @@ describe('Component: SessionTimelineEvent', () => {
     // ARRANGE
     render(
       <SessionTimelineEvent
+        isPreviousGrouped={false}
         previousEventKind="start-session"
         previousEventTimestamp={null}
+        sessionType="player-session"
         sessionEvent={createPlayerGameActivityEvent({
           type: 'unlock',
           when: '2024-01-01T12:34:56Z',
@@ -86,8 +94,10 @@ describe('Component: SessionTimelineEvent', () => {
     // ARRANGE
     render(
       <SessionTimelineEvent
+        isPreviousGrouped={false}
         previousEventKind="start-session"
         previousEventTimestamp={null}
+        sessionType="player-session"
         sessionEvent={createPlayerGameActivityEvent({
           type: 'rich-presence',
           when: '2024-01-01T12:34:56Z',
@@ -98,5 +108,25 @@ describe('Component: SessionTimelineEvent', () => {
 
     // ASSERT
     expect(screen.getByText(/12:34:56/i)).toBeVisible();
+  });
+
+  it('given the event is part of an event group, does not show a timestamp', () => {
+    // ARRANGE
+    render(
+      <SessionTimelineEvent
+        isPreviousGrouped={true} // !!
+        previousEventKind="start-session"
+        previousEventTimestamp={null}
+        sessionType="player-session"
+        sessionEvent={createPlayerGameActivityEvent({
+          type: 'rich-presence',
+          when: '2024-01-01T12:34:56Z',
+          description: null,
+        })}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/12:34:56/i)).not.toBeInTheDocument();
   });
 });

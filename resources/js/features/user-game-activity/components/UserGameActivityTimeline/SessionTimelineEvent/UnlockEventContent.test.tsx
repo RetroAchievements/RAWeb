@@ -21,6 +21,7 @@ describe('Component: UnlockEventContent', () => {
         hardcore={false}
         hardcoreLater={false}
         previousEventKind="start-session"
+        sessionType="player-session"
         when={null}
         whenPrevious={null}
       />,
@@ -47,6 +48,7 @@ describe('Component: UnlockEventContent', () => {
         hardcore={false}
         hardcoreLater={false}
         previousEventKind="unlock"
+        sessionType="player-session"
         when={null}
         whenPrevious={null}
       />,
@@ -74,6 +76,7 @@ describe('Component: UnlockEventContent', () => {
         hardcore={false}
         hardcoreLater={false}
         previousEventKind="unlock"
+        sessionType="player-session"
         when={null}
         whenPrevious={null}
       />,
@@ -100,6 +103,7 @@ describe('Component: UnlockEventContent', () => {
         hardcore={true}
         hardcoreLater={false}
         previousEventKind="unlock"
+        sessionType="player-session"
         when={null}
         whenPrevious={null}
       />,
@@ -126,6 +130,7 @@ describe('Component: UnlockEventContent', () => {
         hardcore={false}
         hardcoreLater={true} // !!
         previousEventKind="unlock"
+        sessionType="player-session"
         when={null}
         whenPrevious={null}
       />,
@@ -135,7 +140,7 @@ describe('Component: UnlockEventContent', () => {
     expect(screen.getByText(/unlocked later in hardcore/i)).toBeVisible();
   });
 
-  it('given an immediate unlock after the previous unlock, shows the proper timing label', () => {
+  it('given an immediate unlock after the previous unlock, does not show sublabel content', () => {
     // ARRANGE
     const achievement = createAchievement({
       id: 1,
@@ -152,13 +157,14 @@ describe('Component: UnlockEventContent', () => {
         hardcore={true}
         hardcoreLater={false}
         previousEventKind="unlock"
+        sessionType="player-session"
         when="2024-01-01T00:00:00Z" // !!
         whenPrevious="2024-01-01T00:00:00Z" // !!
       />,
     );
 
     // ASSERT
-    expect(screen.getByText(/immediately after previous/i)).toBeVisible();
+    expect(screen.queryByTestId('arrow-icon')).not.toBeInTheDocument();
   });
 
   it('given a unlock that was some time after the previous unlock, shows the proper timing label', () => {
@@ -178,6 +184,7 @@ describe('Component: UnlockEventContent', () => {
         hardcore={true}
         hardcoreLater={false}
         previousEventKind="unlock"
+        sessionType="player-session"
         when="2024-01-01T00:01:00Z" // !!
         whenPrevious="2024-01-01T00:00:00Z" // !!
       />,
@@ -204,6 +211,7 @@ describe('Component: UnlockEventContent', () => {
         hardcore={true}
         hardcoreLater={false}
         previousEventKind="start-session" // !!
+        sessionType="player-session"
         when="2024-01-01T00:01:00Z" // !!
         whenPrevious="2024-01-01T00:00:00Z" // !!
       />,
@@ -230,6 +238,7 @@ describe('Component: UnlockEventContent', () => {
         hardcore={true}
         hardcoreLater={false}
         previousEventKind="start-session" // !!
+        sessionType="player-session"
         when="2024-01-01T00:00:00Z" // !!
         whenPrevious="2024-01-01T00:00:00Z" // !!
       />,
@@ -241,5 +250,32 @@ describe('Component: UnlockEventContent', () => {
     for (const label of timingLabels) {
       expect(screen.queryByText(label)).not.toBeInTheDocument();
     }
+  });
+
+  it('given the event is the first in a reconstructed session, displays the correct info label', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      id: 1,
+      title: 'Test Achievement',
+      description: 'Test Description',
+      points: 10,
+      badgeUnlockedUrl: '/Images/1234.png',
+      flags: 3,
+    });
+
+    render(
+      <UnlockEventContent
+        achievement={achievement}
+        hardcore={true}
+        hardcoreLater={false}
+        previousEventKind="start-session" // !!
+        sessionType="reconstructed"
+        when="2024-01-01T00:00:00Z" // !!
+        whenPrevious="2024-01-01T00:00:00Z" // !!
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/start of reconstructed timeline/i)).toBeVisible();
   });
 });

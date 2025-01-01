@@ -42,7 +42,7 @@ export const HashLabel: FC<HashLabelProps> = ({ session }) => {
       {session.gameHash.isMultiDisc ? (
         <BaseTooltip>
           <BaseTooltipTrigger>
-            <LuDisc3 className="size-4 text-cyan-300" />
+            <LuDisc3 className="size-4 min-w-5" />
             <span className="sr-only">
               {t(
                 'This is a game with multiple discs. The hash shown here will only reflect the first disc loaded in the session.',

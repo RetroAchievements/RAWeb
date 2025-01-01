@@ -2,6 +2,11 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuMonitor } from 'react-icons/lu';
 
+import {
+  BaseTooltip,
+  BaseTooltipContent,
+  BaseTooltipTrigger,
+} from '@/common/components/+vendor/BaseTooltip';
 import { cn } from '@/common/utils/cn';
 import { buildEmulatorClientLabel } from '@/features/user-game-activity/utils/buildEmulatorClientLabel';
 
@@ -47,13 +52,21 @@ export const ClientLabel: FC<ClientLabelProps> = ({ session }) => {
   const isUnknown = emulatorClientLabel.includes('Unknown Unknown');
 
   return (
-    <ActivityBasicLabel
-      Icon={LuMonitor}
-      label={isUnknown ? t('Unknown Emulator') : emulatorClientLabel}
-      className={cn(
-        'light:text-neutral-900',
-        isUnknown ? 'text-neutral-500 light:text-neutral-400' : null,
-      )}
-    />
+    <BaseTooltip>
+      <BaseTooltipTrigger>
+        <ActivityBasicLabel
+          Icon={LuMonitor}
+          label={isUnknown ? t('Unknown Emulator') : emulatorClientLabel}
+          className={cn(
+            'light:text-neutral-900',
+            isUnknown ? 'text-neutral-500 light:text-neutral-400' : null,
+          )}
+        />
+      </BaseTooltipTrigger>
+
+      <BaseTooltipContent>
+        <p className="text-xs">{session.userAgent}</p>
+      </BaseTooltipContent>
+    </BaseTooltip>
   );
 };

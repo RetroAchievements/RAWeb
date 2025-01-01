@@ -111,14 +111,14 @@ class PlayerGameController extends Controller
         Game $game,
         BuildPlayerGameActivityDataAction $buildPlayerGameActivityData
     ): InertiaResponse {
-        $playerGame = $user->playerGames()->whereGameId($game->id)->firstOrFail();
+        $playerGame = $user->playerGames()->whereGameId($game->id)->first();
         // TODO rename to viewSessionHistory
-        $this->authorize('viewSessionHistory2', $playerGame);
+        $this->authorize('viewSessionHistory2', [PlayerGame::class, $playerGame]);
 
         $props = new PlayerGameActivityPagePropsData(
             player: UserData::fromUser($user),
             game: GameData::from($game)->include('achievementsPublished', 'badgeUrl'),
-            playerGame: PlayerGameData::fromPlayerGame($playerGame),
+            playerGame: $playerGame ? PlayerGameData::fromPlayerGame($playerGame) : null,
             activity: $buildPlayerGameActivityData->execute($user, $game),
         );
 

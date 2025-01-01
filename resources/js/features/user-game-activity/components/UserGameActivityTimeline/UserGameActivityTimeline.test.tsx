@@ -163,4 +163,78 @@ describe('Component: UserGameActivityTimeline', () => {
     // ASSERT
     expect(screen.queryByTestId('rom-info')).not.toBeInTheDocument();
   });
+
+  it('given events occur at the same time, groups them without bottom padding', () => {
+    // ARRANGE
+    const timestamp = '2024-01-01T12:00:00Z';
+
+    render<App.Platform.Data.PlayerGameActivityPageProps>(
+      <UserGameActivityTimeline isOnlyShowingAchievementSessions={false} />,
+      {
+        pageProps: {
+          activity: {
+            sessions: [
+              createPlayerGameActivitySession({
+                type: 'player-session',
+                events: [
+                  createPlayerGameActivityEvent({
+                    type: 'unlock',
+                    when: timestamp, // !!
+                  }),
+                  createPlayerGameActivityEvent({
+                    type: 'unlock',
+                    when: timestamp, // !!
+                  }),
+                ],
+              }),
+            ],
+            clientBreakdown: [],
+            summarizedActivity: createPlayerGameActivitySummary(),
+          },
+        },
+      },
+    );
+
+    // ASSERT
+    const events = screen.getAllByRole('listitem');
+
+    expect(events[0]).not.toHaveClass('pb-2.5');
+    expect(events[0]).toHaveClass('px-3 pt-3');
+  });
+
+  it('given events occur at different times, includes bottom padding between them', () => {
+    // ARRANGE
+    render<App.Platform.Data.PlayerGameActivityPageProps>(
+      <UserGameActivityTimeline isOnlyShowingAchievementSessions={false} />,
+      {
+        pageProps: {
+          activity: {
+            sessions: [
+              createPlayerGameActivitySession({
+                type: 'player-session',
+                events: [
+                  createPlayerGameActivityEvent({
+                    type: 'unlock',
+                    when: '2024-01-01T12:00:00Z',
+                  }),
+                  createPlayerGameActivityEvent({
+                    type: 'unlock',
+                    when: '2024-01-01T12:01:00Z', // !! different timestamp
+                  }),
+                ],
+              }),
+            ],
+            clientBreakdown: [],
+            summarizedActivity: createPlayerGameActivitySummary(),
+          },
+        },
+      },
+    );
+
+    // ASSERT
+    const events = screen.getAllByRole('listitem');
+
+    expect(events[0]).toHaveClass('pb-2.5');
+    expect(events[0]).toHaveClass('px-3 pt-3');
+  });
 });
