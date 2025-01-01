@@ -7,6 +7,7 @@ namespace App\Filament\Pages;
 use App\Models\Role;
 use App\Models\User;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Auth;
 
 class MostReportedGames extends Page
 {
@@ -21,13 +22,16 @@ class MostReportedGames extends Page
     public static function canAccess(): bool
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
 
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
-            Role::DEVELOPER_STAFF,
         ]);
     }
 }

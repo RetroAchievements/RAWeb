@@ -9,6 +9,7 @@ type UserAvatarProps = BaseAvatarProps & App.Data.User;
 export const UserAvatar: FC<UserAvatarProps> = ({
   displayName,
   deletedAt,
+  imgClassName,
   hasTooltip = true,
   showImage = true,
   showLabel = true,
@@ -22,7 +23,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
   return (
     <Wrapper
       href={canLinkToUser ? route('user.show', [displayName]) : undefined}
-      className="flex items-center gap-2"
+      className="flex max-w-fit items-center gap-2"
       {...(hasTooltip && canLinkToUser ? cardTooltipProps : undefined)}
     >
       {showImage ? (
@@ -33,7 +34,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
           height={size}
           src={`http://media.retroachievements.org/UserPic/${displayName}.png`}
           alt={displayName ?? 'Deleted User'}
-          className="rounded-sm"
+          className={cn('rounded-sm', imgClassName)}
         />
       ) : null}
 
