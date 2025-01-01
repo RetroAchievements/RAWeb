@@ -21,7 +21,7 @@ class Ticket extends BaseModel
     use Searchable;
     use SoftDeletes;
 
-    // TODO rename Ticket table to tickets
+    // TODO rename Ticket table to trigger_tickets
     // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename ReportType column to type
     // TODO rename ReportNotes column to body, remove getBodyAttribute()
