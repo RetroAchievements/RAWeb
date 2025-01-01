@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { type FC, memo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { AchievementBreadcrumbs } from '@/common/components/AchievementBreadcrumbs';
@@ -11,7 +11,7 @@ import { ReportIssueOptionItem } from './ReportIssueOptionItem';
 import { SessionDrivenIssueListItems } from './SessionDrivenIssueListItems';
 import { UnlockStatusLabel } from './UnlockStatusLabel';
 
-export const ReportIssueMainRoot: FC = () => {
+export const ReportIssueMainRoot: FC = memo(() => {
   const { achievement } = usePageProps<App.Platform.Data.ReportAchievementIssuePageProps>();
 
   const { t } = useTranslation();
@@ -92,4 +92,4 @@ export const ReportIssueMainRoot: FC = () => {
       </ul>
     </div>
   );
-};
+});
