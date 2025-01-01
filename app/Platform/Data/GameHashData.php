@@ -20,6 +20,8 @@ class GameHashData extends Data
         #[TypeScriptType('App\\Platform\\Data\\GameHashLabelData[]')]
         public array $labels,
         public ?string $patchUrl,
+        /** "Resource Page URL" */
+        public ?string $source,
     ) {
     }
 
@@ -31,6 +33,7 @@ class GameHashData extends Data
             name: $gameHash->name,
             labels: GameHashLabelData::fromLabelsString($gameHash->labels),
             patchUrl: $gameHash->patch_url,
+            source: $gameHash->source,
         );
     }
 

@@ -225,7 +225,7 @@ declare namespace App.Data {
   };
 }
 declare namespace App.Enums {
-  export type ClientSupportLevel = 0 | 1 | 2 | 3;
+  export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4;
   export type UserPreference =
     | 0
     | 1
@@ -353,6 +353,7 @@ declare namespace App.Platform.Data {
     name: string | null;
     labels: Array<App.Platform.Data.GameHashLabel>;
     patchUrl: string | null;
+    source: string | null;
   };
   export type GameHashLabel = {
     label: string;
