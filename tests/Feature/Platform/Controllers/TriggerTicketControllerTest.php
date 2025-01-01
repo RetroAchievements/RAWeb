@@ -24,7 +24,7 @@ class TriggerTicketControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testIndexDoesNotAllowUnverifiedUsers(): void
+    public function testCreateDoesNotAllowUnverifiedUsers(): void
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
@@ -35,6 +35,7 @@ class TriggerTicketControllerTest extends TestCase
         $user = User::factory()->create([
             'websitePrefs' => 63,
             'UnreadMessageCount' => 0,
+            'Created' => Carbon::now()->subWeeks(2),
             'email_verified_at' => null, // !!
         ]);
         $this->actingAs($user);
@@ -46,7 +47,7 @@ class TriggerTicketControllerTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function testIndexDoesNotAllowMutedUsers(): void
+    public function testCreateDoesNotAllowMutedUsers(): void
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
@@ -57,6 +58,7 @@ class TriggerTicketControllerTest extends TestCase
         $user = User::factory()->create([
             'websitePrefs' => 63,
             'UnreadMessageCount' => 0,
+            'Created' => Carbon::now()->subWeeks(2),
             'muted_until' => Carbon::parse('2035-01-01'), // !!
         ]);
         $this->actingAs($user);
@@ -68,7 +70,7 @@ class TriggerTicketControllerTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function testIndexDoesNotAllowUsersWhoHaveNeverPlayedTheGame(): void
+    public function testCreateDoesNotAllowNewUsers(): void
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
@@ -78,6 +80,29 @@ class TriggerTicketControllerTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'websitePrefs' => 63,
+            'UnreadMessageCount' => 0,
+            'Created' => Carbon::now(), // !!
+        ]);
+        $this->actingAs($user);
+
+        // Act
+        $response = $this->get(route('achievement.tickets.create', ['achievement' => $achievement]));
+
+        // Assert
+        $response->assertStatus(403);
+    }
+
+    public function testCreateDoesNotAllowUsersWhoHaveNeverPlayedTheGame(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'websitePrefs' => 63,
+            'Created' => Carbon::now()->subWeeks(2),
             'UnreadMessageCount' => 0,
         ]);
         $this->actingAs($user);
@@ -91,7 +116,7 @@ class TriggerTicketControllerTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function testIndexRedirectsIfTheUserAlreadyHasAnOpenedTicket(): void
+    public function testCreateRedirectsIfTheUserAlreadyHasAnOpenedTicket(): void
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
@@ -102,6 +127,7 @@ class TriggerTicketControllerTest extends TestCase
         $user = User::factory()->create([
             'websitePrefs' => 63,
             'UnreadMessageCount' => 0,
+            'Created' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -122,7 +148,7 @@ class TriggerTicketControllerTest extends TestCase
         $response->assertRedirect(route('ticket.show', ['ticket' => $existingTicket->id]));
     }
 
-    public function testIndexGivenThereAreNoHashesItRedirects(): void
+    public function testCreateGivenThereAreNoHashesItRedirects(): void
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
@@ -136,6 +162,7 @@ class TriggerTicketControllerTest extends TestCase
         $user = User::factory()->create([
             'websitePrefs' => 63,
             'UnreadMessageCount' => 0,
+            'Created' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -149,7 +176,7 @@ class TriggerTicketControllerTest extends TestCase
         $response->assertRedirect(route('achievement.show', $achievement->id));
     }
 
-    public function testIndexGivenThereAreNoEmulatorsItRedirects(): void
+    public function testCreateGivenThereAreNoEmulatorsItRedirects(): void
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
@@ -161,6 +188,7 @@ class TriggerTicketControllerTest extends TestCase
         $user = User::factory()->create([
             'websitePrefs' => 63,
             'UnreadMessageCount' => 0,
+            'Created' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -174,7 +202,7 @@ class TriggerTicketControllerTest extends TestCase
         $response->assertRedirect(route('achievement.show', $achievement->id));
     }
 
-    public function testIndexGivenUserHasNoPlayerSessionReturnsCorrectProps(): void
+    public function testCreateGivenUserHasNoPlayerSessionReturnsCorrectProps(): void
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
@@ -191,6 +219,7 @@ class TriggerTicketControllerTest extends TestCase
         $user = User::factory()->create([
             'websitePrefs' => 63,
             'UnreadMessageCount' => 0,
+            'Created' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -217,7 +246,7 @@ class TriggerTicketControllerTest extends TestCase
         );
     }
 
-    public function testIndexGivenUserHasPlayerSessionReturnsCorrectProps(): void
+    public function testCreateGivenUserHasPlayerSessionReturnsCorrectProps(): void
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
@@ -236,6 +265,7 @@ class TriggerTicketControllerTest extends TestCase
         $user = User::factory()->create([
             'websitePrefs' => 63,
             'UnreadMessageCount' => 0,
+            'Created' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -283,7 +313,7 @@ class TriggerTicketControllerTest extends TestCase
         );
     }
 
-    public function testIndexGivenRecentHardcoreSessionButNoUnlockSetsHardcoreMode(): void
+    public function testCreateGivenRecentHardcoreSessionButNoUnlockSetsHardcoreMode(): void
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
@@ -298,6 +328,7 @@ class TriggerTicketControllerTest extends TestCase
         $user = User::factory()->create([
             'websitePrefs' => 63,
             'UnreadMessageCount' => 0,
+            'Created' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -321,7 +352,7 @@ class TriggerTicketControllerTest extends TestCase
         );
     }
 
-    public function testIndexGivenShortSessionDoesNotUseItForEmulatorInfo(): void
+    public function testCreateGivenShortSessionDoesNotUseItForEmulatorInfo(): void
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
@@ -336,6 +367,7 @@ class TriggerTicketControllerTest extends TestCase
         $user = User::factory()->create([
             'websitePrefs' => 63,
             'UnreadMessageCount' => 0,
+            'Created' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -362,7 +394,7 @@ class TriggerTicketControllerTest extends TestCase
         );
     }
 
-    public function testIndexPrefersUnlockSessionOverMoreRecentSession(): void
+    public function testCreatePrefersUnlockSessionOverMoreRecentSession(): void
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
@@ -377,6 +409,7 @@ class TriggerTicketControllerTest extends TestCase
         $user = User::factory()->create([
             'websitePrefs' => 63,
             'UnreadMessageCount' => 0,
+            'Created' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
