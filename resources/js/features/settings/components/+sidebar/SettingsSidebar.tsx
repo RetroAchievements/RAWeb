@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { type FC, memo } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 import type { AuthenticatedUser } from '@/common/models';
@@ -6,7 +6,7 @@ import type { AuthenticatedUser } from '@/common/models';
 import { AvatarSection } from '../AvatarSection';
 import { SiteAwardsSection } from '../SiteAwardsSection';
 
-export const SettingsSidebar: FC = () => {
+export const SettingsSidebar: FC = memo(() => {
   const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   return (
@@ -22,4 +22,4 @@ export const SettingsSidebar: FC = () => {
       )}
     </div>
   );
-};
+});

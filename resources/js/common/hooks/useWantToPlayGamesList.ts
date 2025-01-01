@@ -23,15 +23,18 @@ export function useWantToPlayGamesList() {
     options?: Partial<{
       isUndo: boolean;
       shouldEnableToast: boolean;
+      shouldInvalidateCachedQueries?: boolean;
       t_successMessage?: TranslatedString;
     }>,
   ) => {
     const mutationPromise = addToBacklogMutation.mutateAsync(gameId);
 
-    mutationPromise.then(() => {
-      // Trigger a refetch of the current table page data and bust the entire cache.
-      queryClient.invalidateQueries({ queryKey: ['data'] });
-    });
+    if (options?.shouldInvalidateCachedQueries) {
+      mutationPromise.then(() => {
+        // Trigger a refetch of the current table page data and bust the entire cache.
+        queryClient.invalidateQueries({ queryKey: ['data'] });
+      });
+    }
 
     if (options?.shouldEnableToast !== false) {
       toastMessage.promise(mutationPromise, {
@@ -55,16 +58,19 @@ export function useWantToPlayGamesList() {
     gameTitle: string,
     options?: Partial<{
       shouldEnableToast: boolean;
+      shouldInvalidateCachedQueries?: boolean;
       t_successMessage?: TranslatedString;
       onUndo?: () => void;
     }>,
   ) => {
     const mutationPromise = removeFromBacklogMutation.mutateAsync(gameId);
 
-    mutationPromise.then(() => {
-      // Trigger a refetch of the current table page data and bust the entire cache.
-      queryClient.invalidateQueries({ queryKey: ['data'] });
-    });
+    if (options?.shouldInvalidateCachedQueries) {
+      mutationPromise.then(() => {
+        // Trigger a refetch of the current table page data and bust the entire cache.
+        queryClient.invalidateQueries({ queryKey: ['data'] });
+      });
+    }
 
     if (options?.shouldEnableToast !== false) {
       toastMessage.promise(mutationPromise, {
@@ -73,7 +79,10 @@ export function useWantToPlayGamesList() {
           onClick: () => {
             options?.onUndo?.();
 
-            return addToWantToPlayGamesList(gameId, gameTitle, { isUndo: true });
+            return addToWantToPlayGamesList(gameId, gameTitle, {
+              isUndo: true,
+              shouldInvalidateCachedQueries: options?.shouldInvalidateCachedQueries,
+            });
           },
         },
         loading: t('Removing...'),

@@ -16,7 +16,6 @@ class AchievementSetClaimPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
         ]);
@@ -35,7 +34,6 @@ class AchievementSetClaimPolicy
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
         ]);

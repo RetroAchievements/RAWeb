@@ -57,6 +57,7 @@ export function useGameBacklogState({
 
       const mutationOptions: Parameters<typeof removeFromWantToPlayGamesList>[2] = {
         shouldEnableToast: shouldShowToasts,
+        shouldInvalidateCachedQueries: !shouldUpdateOptimistically,
       };
 
       if (shouldShowToasts) {

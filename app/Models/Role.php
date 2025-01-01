@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role as SpatieRole;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript('UserRole')]
-class Role extends \Spatie\Permission\Models\Role
+class Role extends SpatieRole
 {
     /*
      * Providers Traits
@@ -29,7 +31,11 @@ class Role extends \Spatie\Permission\Models\Role
 
     public const GAME_HASH_MANAGER = 'game-hash-manager';
 
-    public const DEVELOPER_STAFF = 'developer-staff'; // staff
+    public const DEV_COMPLIANCE = 'dev-compliance';
+
+    public const QUALITY_ASSURANCE = 'quality-assurance';
+
+    public const CODE_REVIEWER = 'code-reviewer';
 
     public const DEVELOPER = 'developer';
 
@@ -75,6 +81,8 @@ class Role extends \Spatie\Permission\Models\Role
 
     // vanity roles assigned by admin
 
+    public const COMMUNITY_MANAGER = 'community-manager'; // effectively a moderator
+
     public const DEVELOPER_RETIRED = 'developer-retired';
 
     public static function toFilamentColor(string $role): string
@@ -90,7 +98,9 @@ class Role extends \Spatie\Permission\Models\Role
             // creator roles assigned by admin
 
             Role::GAME_HASH_MANAGER => 'warning',
-            Role::DEVELOPER_STAFF => 'success',
+            Role::DEV_COMPLIANCE => 'success',
+            Role::QUALITY_ASSURANCE => 'success',
+            Role::CODE_REVIEWER => 'success',
             Role::DEVELOPER => 'success',
             Role::DEVELOPER_JUNIOR => 'success',
             Role::ARTIST => 'success',
@@ -117,7 +127,9 @@ class Role extends \Spatie\Permission\Models\Role
 
             // vanity roles assigned by admin
 
+            Role::COMMUNITY_MANAGER => 'info', // effectively a moderator
             Role::DEVELOPER_RETIRED => 'primary',
+
             default => 'gray',
         };
     }
@@ -132,7 +144,7 @@ class Role extends \Spatie\Permission\Models\Role
             if ($relationName === 'users') {
                 foreach ($pivotIds as $pivotId) {
                     $user = User::find($pivotId);
-                    activity()->causedBy(auth()->user())->performedOn($user)
+                    activity()->causedBy(Auth::user())->performedOn($user)
                         ->withProperty('relationships', ['roles' => [$model->id]])
                         ->withProperty('attributes', ['roles' => [$model->id => []]])
                         ->event('pivotAttached')
@@ -145,7 +157,7 @@ class Role extends \Spatie\Permission\Models\Role
             if ($relationName === 'users') {
                 foreach ($pivotIds as $pivotId) {
                     $user = User::find($pivotId);
-                    activity()->causedBy(auth()->user())->performedOn($user)
+                    activity()->causedBy(Auth::user())->performedOn($user)
                         ->withProperty('relationships', ['roles' => [$model->id]])
                         ->event('pivotDetached')
                         ->log('pivotDetached');
