@@ -1,49 +1,59 @@
-import { type FC, type ReactNode, useState } from 'react';
+import dayjs from 'dayjs';
+import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuPin } from 'react-icons/lu';
 
+import { BaseBadge } from '@/common/components/+vendor/BaseBadge';
+import {
+  BaseTooltip,
+  BaseTooltipContent,
+  BaseTooltipPortal,
+  BaseTooltipTrigger,
+} from '@/common/components/+vendor/BaseTooltip';
+import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
+import { formatDate } from '@/common/utils/l10n/formatDate';
 
 interface NewsCardProps {
-  authorDisplayName: string;
-  lead: string;
-  PostedAt: ReactNode;
-  title: string;
+  news: App.Data.News;
 
   className?: string;
-  href?: string;
-  imageSrc?: string;
   tagLabel?: string;
 }
 
-export const NewsCard: FC<NewsCardProps> = ({
-  authorDisplayName,
-  href,
-  imageSrc,
-  lead,
-  PostedAt,
-  title,
-  className,
-}) => {
+export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
   const { ziggy } = usePageProps();
 
   const { t } = useTranslation();
 
+  const isRecentPost = dayjs.utc().diff(dayjs.utc(news.createdAt), 'hour') < 24;
+
   return (
     <a
-      href={href}
+      href={news.link ?? '#'}
       className={cn(
-        'group -mx-2 cursor-pointer gap-6 rounded-xl p-2 sm:flex',
+        'group -mx-2 cursor-pointer gap-6 rounded-xl p-1.5 sm:flex',
         'hover:bg-neutral-950/30 hover:light:bg-neutral-100',
+        'border-2 border-transparent',
 
         ziggy.device === 'desktop' ? 'sm:bg-embed' : '',
         ziggy.device === 'mobile' ? 'bg-embed' : '',
+
+        news.pinnedAt ? 'border-amber-600' : '',
 
         className,
       )}
     >
       <div className="relative h-28 w-full sm:w-[197px]">
-        <NewsCardImage src={imageSrc} />
+        {news.pinnedAt && ziggy.device === 'mobile' ? (
+          <div className="absolute -right-2 -top-2 flex size-8 items-center justify-center rounded-bl rounded-tr-lg bg-amber-600">
+            <LuPin className="mr-[2px] size-5 text-white" />
+            <p className="sr-only">{t('Pinned')}</p>
+          </div>
+        ) : null}
+
+        <NewsCardImage src={news.imageAssetPath} />
 
         {/* {tagLabel ? (
             <div className="absolute bottom-2 right-2">
@@ -54,25 +64,51 @@ export const NewsCard: FC<NewsCardProps> = ({
           ) : null} */}
       </div>
 
-      <div>
-        <p className="mb-1 hidden text-2xs text-neutral-400/90 sm:block">
-          {PostedAt}{' '}
-          <span className="normal-case italic">
-            {'·'} {t('by {{authorDisplayName}}', { authorDisplayName })}
+      <div className="relative w-full">
+        {news.pinnedAt && ziggy.device === 'desktop' ? (
+          <BaseTooltip>
+            <BaseTooltipTrigger className="absolute -right-2 -top-2">
+              <div className="flex size-8 items-center justify-center rounded-bl rounded-tr-lg bg-amber-600">
+                <LuPin className="mr-[2px] size-5 text-white" />
+                <p className="sr-only">{t('Pinned')}</p>
+              </div>
+            </BaseTooltipTrigger>
+
+            <BaseTooltipPortal>
+              <BaseTooltipContent>
+                <p className="text-xs">
+                  {t('Pinned {{pinnedAt}}', { pinnedAt: formatDate(news.pinnedAt, 'll') })}
+                </p>
+              </BaseTooltipContent>
+            </BaseTooltipPortal>
+          </BaseTooltip>
+        ) : null}
+
+        <div className="mb-1 hidden text-2xs text-neutral-400/90 sm:block">
+          {isRecentPost ? (
+            <BaseBadge className="mr-2 bg-stone-700 px-1 py-0 text-xs font-normal text-white light:bg-white light:text-neutral-700">
+              {t('new')}
+            </BaseBadge>
+          ) : null}
+
+          <DiffTimestamp at={news?.createdAt} enableTooltip={false} />
+
+          <span className="ml-1 normal-case italic">
+            {'·'} {t('by {{authorDisplayName}}', { authorDisplayName: news?.user.displayName })}
           </span>
-        </p>
+        </div>
 
         <p className="mb-2 mt-2 text-balance text-base sm:mt-0 md:text-wrap">
-          {stripEmojis(title)}
+          {stripEmojis(news.title)}
         </p>
-        <p className="line-clamp-3 text-text">{stripEmojis(stripHtml(lead))}</p>
+        <p className="line-clamp-3 text-text">{stripEmojis(stripHtml(news.body))}</p>
       </div>
     </a>
   );
 };
 
 interface NewsCardImageProps {
-  src?: string;
+  src: string | null;
 }
 
 const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
@@ -85,7 +121,7 @@ const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
         data-testid="hidden-image"
         className="sr-only"
         aria-hidden={true}
-        src={src}
+        src={src ?? undefined}
         onError={() => setIsImageValid(false)}
       />
 

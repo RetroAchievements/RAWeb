@@ -17,7 +17,6 @@ class NewsPolicy
     {
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::EVENT_MANAGER,
             Role::MODERATOR,
@@ -40,7 +39,6 @@ class NewsPolicy
     {
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::EVENT_MANAGER,
             Role::MODERATOR,
@@ -53,7 +51,6 @@ class NewsPolicy
     {
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::EVENT_MANAGER,
             Role::MODERATOR,
@@ -103,5 +100,13 @@ class NewsPolicy
     {
         // TODO
         return false;
+    }
+
+    public function pin(User $user, News $news): bool
+    {
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::NEWS_MANAGER,
+        ]);
     }
 }

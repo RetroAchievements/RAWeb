@@ -16,7 +16,6 @@ class AchievementSetAuthorPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
             Role::ARTIST,
@@ -36,7 +35,6 @@ class AchievementSetAuthorPolicy
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::ARTIST,
         ]);
@@ -45,7 +43,6 @@ class AchievementSetAuthorPolicy
     public function update(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::ARTIST,
         ]);
@@ -54,7 +51,6 @@ class AchievementSetAuthorPolicy
     public function delete(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::ARTIST,
         ]);
@@ -63,7 +59,6 @@ class AchievementSetAuthorPolicy
     public function restore(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::ARTIST,
         ]);

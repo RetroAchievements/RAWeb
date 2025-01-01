@@ -17,9 +17,10 @@ class BuildAchievementOfTheWeekDataAction
         $achievementOfTheWeek = EventAchievement::active()
             ->whereNotNull('active_from')
             ->whereNotNull('active_until')
-            ->whereHas('achievement.game', function ($query) {
+            ->whereHas('achievement.game', function ($query) { // only from the current AotW event
                 $query->where('Title', 'like', '%of the week%');
             })
+            ->whereRaw(dateCompareStatement('active_until', 'active_from', '< 20')) // ignore AotM achievements - don't specifically look for 7 days because of the extended duration of the week 52 event
             ->with(['achievement.game', 'sourceAchievement.game'])
             ->first();
 

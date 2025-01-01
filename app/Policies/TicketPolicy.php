@@ -18,7 +18,6 @@ class TicketPolicy
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
             Role::TICKET_MANAGER,
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
         ]);
@@ -46,7 +45,6 @@ class TicketPolicy
     public function updateState(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::TICKET_MANAGER,
         ]);
