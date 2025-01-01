@@ -57,7 +57,8 @@ class AchievementSetClaimResource extends Resource
                         return route('game.show', ['game' => $record->game]);
                     })
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->wrap(),
 
                 Tables\Columns\TextColumn::make('user.display_name')
                     ->url(function (AchievementSetClaim $record) {

@@ -313,7 +313,7 @@ function UploadNewLeaderboard(
         $foundLeaderboard = Leaderboard::find($idInOut);
         if ($foundLeaderboard) {
             $displayOrder = $foundLeaderboard->order_column;
-            $originalAuthor = $foundLeaderboard->authorUser;
+            $originalAuthor = $foundLeaderboard->developer;
 
             $data['DisplayOrder'] = $displayOrder;
             $data['Author'] = $originalAuthor?->display_name ?? "Unknown";

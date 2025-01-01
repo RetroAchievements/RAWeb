@@ -296,6 +296,7 @@ describe('Component: SystemGamesMainRoot', () => {
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /columns/i }));
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /tickets/i }));
+    await userEvent.keyboard('{escape}');
 
     // ASSERT
     expect(screen.getByRole('columnheader', { name: /tickets/i })).toBeVisible();
@@ -334,6 +335,7 @@ describe('Component: SystemGamesMainRoot', () => {
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /columns/i }));
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /tickets/i }));
+    await userEvent.keyboard('{escape}');
 
     // ASSERT
     expect(screen.getByRole('link', { name: '2' }));
@@ -605,6 +607,7 @@ describe('Component: SystemGamesMainRoot', () => {
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /columns/i }));
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /claimed/i }));
+    await userEvent.keyboard('{escape}');
 
     await userEvent.click(screen.getByTestId('column-header-Claimed'));
     await userEvent.click(screen.getByRole('menuitem', { name: /yes first/i }));

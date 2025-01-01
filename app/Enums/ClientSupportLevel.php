@@ -17,4 +17,7 @@ enum ClientSupportLevel: int
 
     // client is not recognized.
     case Unknown = 3;
+
+    // client is recognized, but not officially supported.
+    case Unsupported = 4;
 }

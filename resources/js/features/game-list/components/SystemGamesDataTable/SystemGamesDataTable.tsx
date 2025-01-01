@@ -11,17 +11,17 @@ import { type Dispatch, type FC, lazy, type SetStateAction, Suspense } from 'rea
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useGameListPaginatedQuery } from '@/features/game-list/hooks/useGameListPaginatedQuery';
 
-import { useSystemGamesDefaultFilters } from '../../hooks/useSystemGamesDefaultFilters';
 import { DataTablePagination } from '../DataTablePagination';
 import { DataTableToolbar } from '../DataTableToolbar';
 import { GameListDataTable } from '../GameListDataTable';
 import { GameListItemsSuspenseFallback } from '../GameListItems/GameListItemsSuspenseFallback';
+import { useSystemGamesDefaultColumnState } from '../SystemGamesMainRoot/useSystemGamesDefaultColumnState';
 import { useColumnDefinitions } from './useColumnDefinitions';
 
 const GameListItems = lazy(() => import('../GameListItems'));
 
 // These values are all generated from `useGameListState`.
-interface AllSystemGamesDataTableProps {
+interface SystemGamesDataTableProps {
   columnFilters: ColumnFiltersState;
   columnVisibility: VisibilityState;
   pagination: PaginationState;
@@ -32,7 +32,7 @@ interface AllSystemGamesDataTableProps {
   sorting: SortingState;
 }
 
-export const AllSystemGamesDataTable: FC<AllSystemGamesDataTableProps> = ({
+export const SystemGamesDataTable: FC<SystemGamesDataTableProps> = ({
   columnFilters,
   columnVisibility,
   pagination,
@@ -44,7 +44,7 @@ export const AllSystemGamesDataTable: FC<AllSystemGamesDataTableProps> = ({
 }) => {
   const { can, system, ziggy } = usePageProps<App.Platform.Data.SystemGameListPageProps>();
 
-  const { systemGamesDefaultFilters } = useSystemGamesDefaultFilters();
+  const { defaultColumnFilters } = useSystemGamesDefaultColumnState();
 
   const gameListQuery = useGameListPaginatedQuery({
     columnFilters,
@@ -86,7 +86,7 @@ export const AllSystemGamesDataTable: FC<AllSystemGamesDataTableProps> = ({
       <DataTableToolbar
         table={table}
         unfilteredTotal={gameListQuery.data?.unfilteredTotal ?? null}
-        defaultColumnFilters={systemGamesDefaultFilters}
+        defaultColumnFilters={defaultColumnFilters}
         randomGameApiRouteName="api.system.game.random"
         tableApiRouteName="api.system.game.index"
         tableApiRouteParams={{ systemId: system.id }}

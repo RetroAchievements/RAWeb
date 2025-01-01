@@ -125,8 +125,7 @@ class AchievementsRelationManager extends RelationManager
 
             ])
             ->actions([
-                // TODO Let developers delete achievements if they're in Unofficial and have 0 unlocks.
-                // Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
