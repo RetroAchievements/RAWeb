@@ -151,7 +151,6 @@ declare module 'ziggy-js' {
         }
     ],
     "games.suggest": [],
-    "claims.expiring": [],
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],
