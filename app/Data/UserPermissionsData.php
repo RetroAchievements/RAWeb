@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use App\Models\Achievement;
+use App\Models\Leaderboard;
 use App\Models\User;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
@@ -13,6 +15,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class UserPermissionsData extends Data
 {
     public function __construct(
+        public Lazy|bool $createTriggerTicket,
         public Lazy|bool $develop,
         public Lazy|bool $manageGameHashes,
         public Lazy|bool $manageGameSets,
@@ -22,9 +25,16 @@ class UserPermissionsData extends Data
     ) {
     }
 
-    public static function fromUser(?User $user): self
-    {
+    public static function fromUser(
+        ?User $user,
+        // TODO `?Model $triggerable`
+        Achievement|Leaderboard|null $triggerable = null
+    ): self {
         return new self(
+            createTriggerTicket: Lazy::create(fn () => $user && $triggerable
+                ? $user->can('createFor', [\App\Models\TriggerTicket::class, $triggerable])
+                : $user?->can('create', \App\Models\TriggerTicket::class) ?? false
+            ),
             develop: Lazy::create(fn () => $user ? $user->can('develop') : false),
             manageGameHashes: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameHash::class) : false),
             manageGameSets: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameSet::class) : false),
