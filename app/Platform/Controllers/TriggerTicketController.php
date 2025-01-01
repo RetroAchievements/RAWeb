@@ -42,7 +42,7 @@ class TriggerTicketController extends Controller
         Achievement $achievement,
         BuildTicketCreationDataAction $buildTicketCreationData,
     ): InertiaResponse|HttpResponse {
-        $this->authorize('create', [TriggerTicket::class, $achievement]);
+        $this->authorize('createFor', [TriggerTicket::class, $achievement]);
 
         // A user can only have one ticket open at a time for a triggerable.
         // If they already have a ticket open, redirect them to the ticket's page.

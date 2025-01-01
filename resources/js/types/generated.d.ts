@@ -215,6 +215,7 @@ declare namespace App.Data {
     roles?: App.Models.UserRole[];
   };
   export type UserPermissions = {
+    createTriggerTicket?: boolean;
     develop?: boolean;
     manageGameHashes?: boolean;
     manageGameSets?: boolean;
@@ -268,7 +269,9 @@ declare namespace App.Models {
     | 'administrator'
     | 'release-manager'
     | 'game-hash-manager'
-    | 'developer-staff'
+    | 'dev-compliance'
+    | 'quality-assurance'
+    | 'code-reviewer'
     | 'developer'
     | 'developer-junior'
     | 'artist'
@@ -286,6 +289,7 @@ declare namespace App.Models {
     | 'engineer'
     | 'team-account'
     | 'beta'
+    | 'community-manager'
     | 'developer-retired';
 }
 declare namespace App.Platform.Data {
@@ -446,6 +450,7 @@ declare namespace App.Platform.Data {
     hasSession: boolean;
     ticketType: number;
     extra: string | null;
+    can: App.Data.UserPermissions;
   };
   export type System = {
     id: number;

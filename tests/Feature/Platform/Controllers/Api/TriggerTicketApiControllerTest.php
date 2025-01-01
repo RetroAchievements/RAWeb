@@ -32,7 +32,42 @@ class TriggerTicketApiControllerTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'email_verified_at' => Carbon::parse('2013-01-01'),
+            'Created' => Carbon::now()->subWeeks(2),
             'muted_until' => Carbon::parse('2035-01-01'), // !!
+        ]);
+        $this->actingAs($user);
+
+        PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $game->id]);
+
+        // Act
+        $response = $this->postJson(route('api.ticket.store'), [
+            'ticketableModel' => 'achievement',
+            'ticketableId' => $achievement->id,
+            'mode' => 'hardcore',
+            'issue' => TicketType::TriggeredAtWrongTime,
+            'description' => 'Test description',
+            'emulator' => 'RetroArch',
+            'emulatorVersion' => '1.16.0',
+            'core' => 'mupen64plus',
+            'gameHashId' => $gameHash->id,
+        ]);
+
+        // Assert
+        $response->assertForbidden();
+    }
+
+    public function testStoreAbortsIfUserIsNew(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'email_verified_at' => Carbon::parse('2013-01-01'),
+            'Created' => Carbon::now(), // !!
         ]);
         $this->actingAs($user);
 
@@ -65,7 +100,10 @@ class TriggerTicketApiControllerTest extends TestCase
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $developer->id]);
 
         /** @var User $user */
-        $user = User::factory()->create(['email_verified_at' => Carbon::parse('2013-01-01')]);
+        $user = User::factory()->create([
+            'email_verified_at' => Carbon::parse('2013-01-01'),
+            'Created' => Carbon::now()->subWeeks(2),
+        ]);
         $this->actingAs($user);
 
         PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $game->id]);
@@ -105,7 +143,10 @@ class TriggerTicketApiControllerTest extends TestCase
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $developer->id]);
 
         /** @var User $user */
-        $user = User::factory()->create(['email_verified_at' => Carbon::parse('2013-01-01')]);
+        $user = User::factory()->create([
+            'email_verified_at' => Carbon::parse('2013-01-01'),
+            'Created' => Carbon::now()->subWeeks(2),
+        ]);
         $this->actingAs($user);
 
         PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $game->id]);
@@ -147,7 +188,10 @@ class TriggerTicketApiControllerTest extends TestCase
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $developer->id]);
 
         /** @var User $user */
-        $user = User::factory()->create(['email_verified_at' => Carbon::parse('2013-01-01')]);
+        $user = User::factory()->create([
+            'email_verified_at' => Carbon::parse('2013-01-01'),
+            'Created' => Carbon::now()->subWeeks(2),
+        ]);
         $this->actingAs($user);
 
         PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $game->id]);
@@ -191,7 +235,10 @@ class TriggerTicketApiControllerTest extends TestCase
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $developer->id]);
 
         /** @var User $user */
-        $user = User::factory()->create(['email_verified_at' => Carbon::parse('2013-01-01')]);
+        $user = User::factory()->create([
+            'email_verified_at' => Carbon::parse('2013-01-01'),
+            'Created' => Carbon::now()->subWeeks(2),
+        ]);
         $this->actingAs($user);
 
         PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $game->id]);

@@ -19,7 +19,6 @@ class GameSetPolicy
             Role::GAME_HASH_MANAGER,
             Role::GAME_EDITOR,
 
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
     }
@@ -43,7 +42,6 @@ class GameSetPolicy
         // TODO enable after dropping GameAlternatives
         // return $user->hasAnyRole([
         //     Role::ADMINISTRATOR,
-        //     Role::DEVELOPER_STAFF,
         //     Role::GAME_EDITOR,
         // ]);
     }
@@ -72,7 +70,6 @@ class GameSetPolicy
     {
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
-            Role::DEVELOPER_STAFF,
         ]);
     }
 }

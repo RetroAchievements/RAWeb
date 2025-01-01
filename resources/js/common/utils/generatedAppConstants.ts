@@ -63,7 +63,9 @@ export const UserRole = {
     ADMINISTRATOR: 'administrator',
     RELEASE_MANAGER: 'release-manager',
     GAME_HASH_MANAGER: 'game-hash-manager',
-    DEVELOPER_STAFF: 'developer-staff',
+    DEV_COMPLIANCE: 'dev-compliance',
+    QUALITY_ASSURANCE: 'quality-assurance',
+    CODE_REVIEWER: 'code-reviewer',
     DEVELOPER: 'developer',
     DEVELOPER_JUNIOR: 'developer-junior',
     ARTIST: 'artist',
@@ -81,6 +83,7 @@ export const UserRole = {
     ENGINEER: 'engineer',
     TEAM_ACCOUNT: 'team-account',
     BETA: 'beta',
+    COMMUNITY_MANAGER: 'community-manager',
     DEVELOPER_RETIRED: 'developer-retired',
 } as const;
 
