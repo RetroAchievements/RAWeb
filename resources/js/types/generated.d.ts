@@ -269,7 +269,9 @@ declare namespace App.Models {
     | 'administrator'
     | 'release-manager'
     | 'game-hash-manager'
-    | 'developer-staff'
+    | 'dev-compliance'
+    | 'quality-assurance'
+    | 'code-reviewer'
     | 'developer'
     | 'developer-junior'
     | 'artist'
@@ -287,6 +289,7 @@ declare namespace App.Models {
     | 'engineer'
     | 'team-account'
     | 'beta'
+    | 'community-manager'
     | 'developer-retired';
 }
 declare namespace App.Platform.Data {
@@ -322,6 +325,10 @@ declare namespace App.Platform.Data {
     activeUntil?: string;
     forumTopicId?: number;
   };
+  export type GameClaimant = {
+    user: App.Data.User;
+    claimType: string;
+  };
   export type Game = {
     id: number;
     title: string;
@@ -338,6 +345,7 @@ declare namespace App.Platform.Data {
     numVisibleLeaderboards?: number;
     numUnresolvedTickets?: number;
     hasActiveOrInReviewClaims?: boolean;
+    claimants?: Array<App.Platform.Data.GameClaimant>;
   };
   export type GameHash = {
     id: number;

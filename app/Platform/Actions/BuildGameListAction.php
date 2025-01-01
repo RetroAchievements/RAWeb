@@ -93,6 +93,7 @@ class BuildGameListAction
                 game: GameData::from($game)->include(
                     'achievementsPublished',
                     'badgeUrl',
+                    'claimants',
                     'hasActiveOrInReviewClaims',
                     'lastUpdated',
                     'numVisibleLeaderboards',

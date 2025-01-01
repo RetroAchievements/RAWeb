@@ -7,11 +7,13 @@ namespace App\Filament\Resources;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\NewsResource\Pages;
 use App\Models\News;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 
 class NewsResource extends Resource
@@ -30,6 +32,9 @@ class NewsResource extends Resource
 
     public static function form(Form $form): Form
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $form
             ->schema([
                 Forms\Components\Section::make('Primary Details')
@@ -45,6 +50,26 @@ class NewsResource extends Resource
                             ->label('URL')
                             ->required()
                             ->activeUrl(),
+
+                        Forms\Components\Toggle::make('pinned_at')
+                            ->label('Pinned')
+                            ->helperText('If enabled, this will be sorted to the top of the news until unpinned.')
+                            ->columnSpanFull()
+                            ->disabled(fn (?News $record) => !$record || !$user->can('pin', $record))
+                            ->dehydrated()
+                            ->afterStateHydrated(function (?News $record, $component) {
+                                if (!$record) {
+                                    $component->state(false);
+
+                                    return;
+                                }
+
+                                $component->state(!is_null($record->pinned_at));
+                            })
+                            ->dehydrateStateUsing(function (?News $record, bool $state) {
+                                return $state ? now()->toDateTimeString() : null;
+                            })
+                            ->live(),
                     ]),
 
                 Forms\Components\Section::make('Leading Text')
@@ -71,7 +96,7 @@ class NewsResource extends Resource
                                     '</div>'
                                 );
                             })
-                            ->reactive()
+                            ->live(debounce: 1000) // add debounce to mitigate users getting rate limited while typing
                             ->rows(4)
                             ->required(),
                     ]),
@@ -89,8 +114,9 @@ class NewsResource extends Resource
                             ->maxFiles(1),
 
                         Forms\Components\Placeholder::make('ImagePreview')
+                            ->label('Image preview')
                             ->content(function (News $news) {
-                                return new HtmlString("<img src='{$news->image_asset_path}' style='width:700px; height:270px;' class='rounded object-cover'>");
+                                return new HtmlString("<img src='{$news->image_asset_path}' style='width:197px; height:112px;' class='rounded object-cover'>");
                             })
                             ->visible(fn (News $news) => !is_null($news->image_asset_path)),
                     ]),

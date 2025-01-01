@@ -7,6 +7,7 @@ namespace App\Filament\Pages;
 use App\Models\Role;
 use App\Models\User;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Auth;
 
 class AdminTools extends Page
 {
@@ -23,7 +24,11 @@ class AdminTools extends Page
     public static function canAccess(): bool
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
 
         return $user->hasAnyRole([Role::MODERATOR, Role::ADMINISTRATOR]);
     }
