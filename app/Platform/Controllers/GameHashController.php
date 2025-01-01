@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
-use App\Community\Enums\ArticleType;
 use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Game;
 use App\Models\GameHash;
-use App\Models\User;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameHashData;
 use App\Platform\Data\GameHashesPagePropsData;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
