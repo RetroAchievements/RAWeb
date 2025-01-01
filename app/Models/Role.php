@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role as SpatieRole;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -143,12 +144,7 @@ class Role extends SpatieRole
             if ($relationName === 'users') {
                 foreach ($pivotIds as $pivotId) {
                     $user = User::find($pivotId);
-                    if (!$user) {
-                        // can potentially happen if done by a side effect
-                        return;
-                    }
-
-                    activity()->causedBy($user)->performedOn($user)
+                    activity()->causedBy(Auth::user())->performedOn($user)
                         ->withProperty('relationships', ['roles' => [$model->id]])
                         ->withProperty('attributes', ['roles' => [$model->id => []]])
                         ->event('pivotAttached')
@@ -161,12 +157,7 @@ class Role extends SpatieRole
             if ($relationName === 'users') {
                 foreach ($pivotIds as $pivotId) {
                     $user = User::find($pivotId);
-                    if (!$user) {
-                        // can potentially happen if done by a side effect
-                        return;
-                    }
-
-                    activity()->causedBy($user)->performedOn($user)
+                    activity()->causedBy(Auth::user())->performedOn($user)
                         ->withProperty('relationships', ['roles' => [$model->id]])
                         ->event('pivotDetached')
                         ->log('pivotDetached');
