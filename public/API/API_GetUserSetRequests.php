@@ -3,6 +3,7 @@
 /*
  *  API_GetUserSetRequests - gets user's set request list
  *    u : username
+ *    t : type. 0 = only active, 1 = all requests including completed ones (default: 0)
  *
  *  array      RequestedSets
  *    object     [value]
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
+    't' => ['nullable', 'min:1', 'max:1', new CtypeAlnum()]
 ]);
 
 $user = User::firstWhere('User', request()->query('u'));
@@ -30,20 +32,41 @@ if (!$user) {
     return response()->json([], 404);
 }
 
-$requestedSets = UserGameListEntry::select([
-    'GameData.id as GameID',
-    'GameData.Title',
-    'GameData.ImageIcon',
-    'GameData.ConsoleID',
-    'Console.Name as ConsoleName',
-])
-    ->join('GameData', 'SetRequest.GameID', '=', 'GameData.ID')
-    ->join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
-    ->where('SetRequest.user_id', $user->id)
-    ->where('type', 'achievement_set_request')
-    ->orderBy('GameData.sort_title')
-    ->get()
-    ->toArray();
+$type = (int) request()->query('t');
+
+
+if ($type === 1) {
+    $requestedSets = UserGameListEntry::select([
+        'GameData.id as GameID',
+        'GameData.Title',
+        'GameData.ImageIcon',
+        'GameData.ConsoleID',
+        'Console.Name as ConsoleName',
+    ])
+        ->join('GameData', 'SetRequest.GameID', '=', 'GameData.ID')
+        ->join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
+        ->where('SetRequest.user_id', $user->id)
+        ->where('type', 'achievement_set_request')
+        ->orderBy('GameData.sort_title')
+        ->get()
+        ->toArray();
+} else {
+    $requestedSets = UserGameListEntry::select([
+        'GameData.id as GameID',
+        'GameData.Title',
+        'GameData.ImageIcon',
+        'GameData.ConsoleID',
+        'Console.Name as ConsoleName',
+    ])
+        ->join('GameData', 'SetRequest.GameID', '=', 'GameData.ID')
+        ->join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
+        ->where('SetRequest.user_id', $user->id)
+        ->where('type', 'achievement_set_request')
+        ->where('GameData.achievements_published', '=', '0')
+        ->orderBy('GameData.sort_title')
+        ->get()
+        ->toArray();
+}
 
 $userRequestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
