@@ -353,7 +353,7 @@ describe('Component: AllGamesMainRoot', () => {
           'filter[title]': 'dragon quest',
           'page[number]': 1,
           'page[size]': 25,
-          sort: 'title',
+          sort: '-playersTotal',
         },
       ]);
     });
@@ -409,7 +409,7 @@ describe('Component: AllGamesMainRoot', () => {
           'filter[system]': '1',
           'page[number]': 1,
           'page[size]': 25,
-          sort: 'title',
+          sort: '-playersTotal',
         },
       ]);
     });
@@ -507,7 +507,7 @@ describe('Component: AllGamesMainRoot', () => {
           'filter[achievementsPublished]': 'none',
           'page[number]': 1,
           'page[size]': 25,
-          sort: 'title',
+          sort: '-playersTotal',
         },
       ]);
     });
@@ -716,7 +716,7 @@ describe('Component: AllGamesMainRoot', () => {
           'filter[achievementsPublished]': 'has',
           'page[number]': 2,
           'page[size]': 50,
-          sort: 'title',
+          sort: '-playersTotal',
         },
       ]);
     });

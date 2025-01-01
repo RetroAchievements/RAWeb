@@ -1,5 +1,6 @@
 import type {
   ColumnFiltersState,
+  ColumnSort,
   PaginationState,
   SortingState,
   TableState,
@@ -19,15 +20,9 @@ import type { AppGlobalProps } from '@/common/models';
 export function useGameListState<TData = unknown>(
   paginatedGames: App.Data.PaginatedData<TData>,
   options: {
-    /**
-     * Should be set to truthy if the user is authenticated.
-     * If the user is not authenticated, the player count column will
-     * be shown instead.
-     */
-    canShowProgressColumn: boolean;
-
-    alwaysShowPlayersTotal?: boolean;
     defaultColumnFilters?: ColumnFiltersState;
+    defaultColumnSort?: ColumnSort;
+    defaultColumnVisibility?: Partial<Record<App.Platform.Enums.GameListSortField, boolean>>;
   },
 ) {
   const {
@@ -40,16 +35,11 @@ export function useGameListState<TData = unknown>(
   );
 
   const [sorting, setSorting] = useState<SortingState>(
-    generateInitialSortingState(query, persistedViewPreferences),
+    generateInitialSortingState(query, persistedViewPreferences, options?.defaultColumnSort),
   );
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    hasActiveOrInReviewClaims: false,
-    lastUpdated: false,
-    numUnresolvedTickets: false,
-    numVisibleLeaderboards: false,
-    playersTotal: options?.alwaysShowPlayersTotal ?? !options.canShowProgressColumn,
-    progress: options.canShowProgressColumn,
+    ...options.defaultColumnVisibility,
     ...(persistedViewPreferences?.columnVisibility ?? null),
   });
 
@@ -99,6 +89,7 @@ function generateInitialPaginationState<TData = unknown>(
 function generateInitialSortingState(
   query: AppGlobalProps['ziggy']['query'],
   persistedViewPreferences: Partial<TableState> | null,
+  defaultColumnSort?: ColumnSort,
 ): SortingState {
   // `sort` is actually part of `query`'s prototype, so we have to be
   // extra explicit in how we check for the presence of the param.
@@ -110,7 +101,7 @@ function generateInitialSortingState(
     return persistedViewPreferences.sorting;
   }
 
-  return [{ id: 'title', desc: false }];
+  return defaultColumnSort ? [defaultColumnSort] : [{ id: 'title', desc: false }];
 }
 
 function mapPaginatedGamesToPaginationState<TData = unknown>(
