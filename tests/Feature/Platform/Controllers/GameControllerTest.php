@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Controllers;
 
 use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\ClaimType;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\Role;
@@ -107,7 +108,7 @@ class GameControllerTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function testDevInterestIsAuthorizedForFullDevelopersWithAClaim(): void
+    public function testDevInterestIsAuthorizedForFullDevelopersWithPrimaryActiveClaims(): void
     {
         // Arrange
         $this->seed(RolesTableSeeder::class);
@@ -123,6 +124,7 @@ class GameControllerTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
+            'ClaimType' => ClaimType::Primary,
             'Status' => ClaimStatus::Active,
         ]);
 
@@ -131,6 +133,33 @@ class GameControllerTest extends TestCase
 
         // Assert
         $response->assertOk();
+    }
+
+    public function testDevInterestDeniesAccessForDevelopersWithCollaborationClaims(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+
+        $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+
+        /** @var User $user */
+        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user->assignRole(Role::DEVELOPER);
+        $this->actingAs($user);
+
+        AchievementSetClaim::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'ClaimType' => ClaimType::Collaboration,
+            'Status' => ClaimStatus::Active,
+        ]);
+
+        // Act
+        $response = $this->get(route('game.dev-interest', ['game' => $game]));
+
+        // Assert
+        $response->assertForbidden();
     }
 
     public function testDevInterestReturnsCorrectInertiaResponse(): void

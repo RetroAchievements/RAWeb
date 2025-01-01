@@ -158,10 +158,17 @@ class GamePolicy
 
     public function viewDeveloperInterest(User $user, Game $game): bool
     {
-        // Developers need to have a claim on the game in order to see
-        // who else might have expressed interest in working on it.
-        // This is mainly to facilitate them reaching out to collab.
-        if ($user->hasRole(Role::DEVELOPER) && $user->hasActiveClaimOnGameId($game->id)) {
+        $hasActivePrimaryClaim = $user->loadMissing('achievementSetClaims')
+            ->achievementSetClaims()
+            ->whereGameId($game->id)
+            ->primaryClaim()
+            ->active()
+            ->exists();
+
+        // Devs and JrDevs can see the page, but they need to have an
+        // active primary claim first. Collaborators for the game
+        // cannot open the page.
+        if ($hasActivePrimaryClaim) {
             return true;
         }
 
