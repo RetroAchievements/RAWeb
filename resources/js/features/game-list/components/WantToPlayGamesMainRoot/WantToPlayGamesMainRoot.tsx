@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import { type FC } from 'react';
+import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { UserHeading } from '@/common/components/UserHeading';
@@ -10,15 +10,18 @@ import { useGameListState } from '../../hooks/useGameListState';
 import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
 import { useTableSync } from '../../hooks/useTableSync';
 import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
-import { wantToPlayGamesDefaultFilters } from '../../utils/wantToPlayGamesDefaultFilters';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
 import { WantToPlayGamesDataTable } from '../WantToPlayGamesDataTable';
+import { useWantToPlayGamesDefaultColumnState } from './useWantToPlayGamesDefaultColumnState';
 
-export const WantToPlayGamesMainRoot: FC = () => {
+export const WantToPlayGamesMainRoot: FC = memo(() => {
   const { auth, defaultDesktopPageSize, paginatedGameListEntries } =
     usePageProps<App.Community.Data.UserGameListPageProps>();
 
   const { t } = useTranslation();
+
+  const { defaultColumnFilters, defaultColumnSort, defaultColumnVisibility } =
+    useWantToPlayGamesDefaultColumnState();
 
   const {
     columnFilters,
@@ -30,8 +33,9 @@ export const WantToPlayGamesMainRoot: FC = () => {
     setSorting,
     sorting,
   } = useGameListState(paginatedGameListEntries, {
-    canShowProgressColumn: true,
-    defaultColumnFilters: wantToPlayGamesDefaultFilters,
+    defaultColumnSort,
+    defaultColumnFilters,
+    defaultColumnVisibility,
   });
 
   const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
@@ -46,9 +50,10 @@ export const WantToPlayGamesMainRoot: FC = () => {
   useTableSync({
     columnFilters,
     columnVisibility,
+    defaultColumnFilters,
+    defaultColumnSort,
     pagination,
     sorting,
-    defaultFilters: wantToPlayGamesDefaultFilters,
     defaultPageSize: defaultDesktopPageSize,
     isUserPersistenceEnabled: isCurrentlyPersistingView,
   });
@@ -77,4 +82,4 @@ export const WantToPlayGamesMainRoot: FC = () => {
       </HydrationBoundary>
     </div>
   );
-};
+});

@@ -6,6 +6,7 @@ export * from './createEmulator';
 export * from './createEventAchievement';
 export * from './createForumTopicComment';
 export * from './createGame';
+export * from './createGameClaimant';
 export * from './createGameHash';
 export * from './createGameHashLabel';
 export * from './createGameListEntry';

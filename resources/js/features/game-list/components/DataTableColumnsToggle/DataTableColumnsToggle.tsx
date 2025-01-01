@@ -42,6 +42,11 @@ export function DataTableColumnsToggle<TData>({ table }: DataTableColumnsToggleP
                 key={`column-toggle-${column.id}`}
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                onSelect={
+                  // The user may want to toggle more than one column at a time.
+                  // Don't auto-close the dropdown.
+                  (event) => event.preventDefault()
+                }
               >
                 {column.columnDef.meta?.t_label}
               </BaseDropdownMenuCheckboxItem>

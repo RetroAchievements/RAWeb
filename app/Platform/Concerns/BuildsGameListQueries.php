@@ -34,7 +34,16 @@ trait BuildsGameListQueries
         ?User $user = null,
         ?int $targetId = null,
     ): Builder {
-        $query = Game::with(['system'])
+        $query = Game::query()
+            ->with([
+                'system',
+                'achievementSetClaims' => function ($query) {
+                    $query->activeOrInReview()->with(['user' => function ($query) {
+                        // Only select the fields we need for the UserData DTO.
+                        $query->select(['ID', 'User', 'display_name', 'Permissions']);
+                    }]);
+                },
+            ])
             ->withLastAchievementUpdate()
             ->addSelect(['GameData.*'])
             ->addSelect([
