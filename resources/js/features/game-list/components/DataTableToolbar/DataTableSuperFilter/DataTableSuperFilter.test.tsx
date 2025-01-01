@@ -9,12 +9,11 @@ import { buildSystemColumnDef } from '@/features/game-list/utils/column-definiti
 import { buildTitleColumnDef } from '@/features/game-list/utils/column-definitions/buildTitleColumnDef';
 import i18n from '@/i18n-client';
 import { render, screen, waitFor } from '@/test';
-import { createSystem } from '@/test/factories';
+import { createSystem, createZiggyProps } from '@/test/factories';
 
 import { DataTableSuperFilter } from './DataTableSuperFilter';
 
 vi.mock('@/common/components/GameAvatar', () => ({ GameAvatar: () => null }));
-vi.mock('../RandomGameButton', () => ({ RandomGameButton: () => null }));
 
 // Suppress vaul a11y warnings.
 console.warn = vi.fn();
@@ -24,6 +23,7 @@ console.error = vi.fn();
 
 interface TestHarnessProps {
   columnFilters?: ColumnFiltersState;
+  hasResults?: boolean;
   onColumnFiltersChange?: (filters: ColumnFiltersState) => void;
   onSortingChange?: (sorting: SortingState) => void;
   sorting?: SortingState;
@@ -32,6 +32,7 @@ interface TestHarnessProps {
 // We need to instantiate props with a hook, so a test harness is required.
 const TestHarness: FC<TestHarnessProps> = ({
   columnFilters = [],
+  hasResults = false,
   onColumnFiltersChange = () => {},
   onSortingChange = () => {},
   sorting = [],
@@ -53,7 +54,7 @@ const TestHarness: FC<TestHarnessProps> = ({
     },
   });
 
-  return <DataTableSuperFilter table={table} />;
+  return <DataTableSuperFilter table={table} hasResults={hasResults} />;
 };
 
 describe('Component: DataTableSuperFilter', () => {
@@ -136,7 +137,9 @@ describe('Component: DataTableSuperFilter', () => {
   describe('Drawer', () => {
     it('given the user taps the super filter button, the drawer appears', async () => {
       // ARRANGE
-      render(<TestHarness columnFilters={[{ id: 'achievementsPublished', value: 'has' }]} />);
+      render(<TestHarness columnFilters={[{ id: 'achievementsPublished', value: 'has' }]} />, {
+        pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },
+      });
 
       // ACT
       await userEvent.click(screen.getByRole('button', { name: /playable/i }));
@@ -154,6 +157,9 @@ describe('Component: DataTableSuperFilter', () => {
           columnFilters={[{ id: 'achievementsPublished', value: 'has' }]}
           onColumnFiltersChange={onColumnFiltersChange}
         />,
+        {
+          pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },
+        },
       );
 
       // ACT
@@ -179,6 +185,7 @@ describe('Component: DataTableSuperFilter', () => {
         />,
         {
           pageProps: {
+            ziggy: createZiggyProps({ device: 'mobile' }),
             filterableSystemOptions: [
               createSystem({ id: 1, name: 'NES/Famicom' }),
               createSystem({ id: 2, name: 'Nintendo 64' }),
@@ -213,6 +220,7 @@ describe('Component: DataTableSuperFilter', () => {
         />,
         {
           pageProps: {
+            ziggy: createZiggyProps({ device: 'mobile' }),
             filterableSystemOptions: [createSystem({ id: 1, name: 'NES/Famicom' })],
           },
         },
@@ -234,6 +242,9 @@ describe('Component: DataTableSuperFilter', () => {
           columnFilters={[{ id: 'achievementsPublished', value: 'has' }]}
           onSortingChange={onSortingChange}
         />,
+        {
+          pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },
+        },
       );
 
       // ACT
@@ -258,6 +269,9 @@ describe('Component: DataTableSuperFilter', () => {
           columnFilters={[{ id: 'achievementsPublished', value: 'has' }]}
           onSortingChange={onSortingChange}
         />,
+        {
+          pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },
+        },
       );
 
       // ACT
@@ -289,6 +303,9 @@ describe('Component: DataTableSuperFilter', () => {
           columnFilters={[{ id: 'achievementsPublished', value: 'has' }]}
           onSortingChange={onSortingChange}
         />,
+        {
+          pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },
+        },
       );
 
       // ACT
@@ -303,12 +320,52 @@ describe('Component: DataTableSuperFilter', () => {
         props: { order: '-achievementsPublished' },
       });
     });
+
+    it('given there are no game results, disables the random game button', async () => {
+      // ARRANGE
+      render(
+        <TestHarness
+          columnFilters={[{ id: 'achievementsPublished', value: 'has' }]}
+          hasResults={false}
+        />,
+        {
+          pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },
+        },
+      );
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /playable/i }));
+
+      // ASSERT
+      expect(screen.getByRole('button', { name: /surprise me/i })).toBeDisabled();
+    });
+
+    it('given there are game results, enables the random game button', async () => {
+      // ARRANGE
+      render(
+        <TestHarness
+          columnFilters={[{ id: 'achievementsPublished', value: 'has' }]}
+          hasResults={true}
+        />,
+        {
+          pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },
+        },
+      );
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /playable/i }));
+
+      // ASSERT
+      expect(screen.getByRole('button', { name: /surprise me/i })).toBeEnabled();
+    });
   });
 
   describe('Sort State Handling', () => {
     it('given no sorting state exists, uses a fallback "title" sort', async () => {
       // ARRANGE
-      render(<TestHarness sorting={[]} />, { pageProps: { filterableSystemOptions: [] } });
+      render(<TestHarness sorting={[]} />, {
+        pageProps: { ziggy: createZiggyProps({ device: 'mobile' }), filterableSystemOptions: [] },
+      });
 
       // ACT
       await userEvent.click(screen.getByRole('button'));
@@ -328,6 +385,9 @@ describe('Component: DataTableSuperFilter', () => {
             { id: 'system', desc: false },
           ]}
         />,
+        {
+          pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },
+        },
       );
 
       // ACT
@@ -343,6 +403,7 @@ describe('Component: DataTableSuperFilter', () => {
       render(<TestHarness />, {
         pageProps: {
           auth: null,
+          ziggy: createZiggyProps({ device: 'mobile' }),
         },
       });
 
@@ -360,6 +421,7 @@ describe('Component: DataTableSuperFilter', () => {
           auth: {
             user: createAuthenticatedUser(),
           },
+          ziggy: createZiggyProps({ device: 'mobile' }),
         },
       });
 

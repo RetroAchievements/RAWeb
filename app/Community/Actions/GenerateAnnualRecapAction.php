@@ -37,6 +37,15 @@ class GenerateAnnualRecapAction
 
         $gameData = $this->getGameData($user, $startDate, $endDate);
 
+        // don't bother generating recap if the player has less than 10 hours of playtime for the year
+        $totalDuration = 0;
+        foreach ($gameData as $game) {
+            $totalDuration += $game['totalDuration'];
+        }
+        if ($totalDuration < 600) {
+            return;
+        }
+
         $subject = "RetroAchievements $year Year in Review for {$user->display_name}";
 
         $body = "<p>Congratulations {$user->display_name}!\n";
@@ -114,22 +123,26 @@ class GenerateAnnualRecapAction
             ->where('updated_at', '<', $endDate)
             ->count();
 
-        $numAchievements = $hardcoreTally->count + $softcoreTally->count;
         $numGames = count($gameData);
 
-        $message = "<p>In {$startDate->year}, you've played $numGames games on " .
-                   "<a href=\"" . route('home') . "\">retroachievements.org</a>" .
-                   " and unlocked $numAchievements achievements, earning you ";
+        $message = "<p>In {$startDate->year}, you played $numGames games on " .
+                   "<a href=\"" . route('home') . "\">retroachievements.org</a>";
 
-        if ($hardcoreTally->points > 0) {
-            $message .= "{$hardcoreTally->points} hardcore points";
-        }
-        if ($softcoreTally->points > 0) {
+        $numAchievements = (int) ($hardcoreTally->count + $softcoreTally->count);
+        if ($numAchievements > 0) {
+            $message .= " and unlocked $numAchievements achievements, earning you ";
+
             if ($hardcoreTally->points > 0) {
-                $message .= " and ";
+                $message .= "{$hardcoreTally->points} hardcore points";
             }
-            $message .= "{$softcoreTally->points} softcore points";
+            if ($softcoreTally->points > 0) {
+                if ($hardcoreTally->points > 0) {
+                    $message .= " and ";
+                }
+                $message .= "{$softcoreTally->points} softcore points";
+            }
         }
+
         $message .= '.';
 
         if ($numLeaderboards > 0) {
