@@ -50,9 +50,9 @@ use Illuminate\Support\Facades\DB;
  */
 
 $staticData = StaticData::first();
-$data = (new BuildAchievementOfTheWeekDataAction())->execute($staticData);
+$aotwData = (new BuildAchievementOfTheWeekDataAction())->execute($staticData);
 
-$achievementId = $data->achievement->id ?? 0;
+$achievementId = $aotwData->achievement->id ?? 0;
 $eventAchievement = EventAchievement::active()->where('achievement_id', $achievementId)->first();
 
 $sourceAchievement = $eventAchievement ? $eventAchievement->sourceAchievement : Achievement::find($achievementId);
@@ -88,7 +88,7 @@ $console = [
 ];
 
 $forumTopic = [
-    'ID' => $data->forumTopicId->resolve() ?? null,
+    'ID' => $aotwData->forumTopicId->resolve() ?? null,
 ];
 
 if ($eventAchievement) {
