@@ -48,89 +48,11 @@ class GameHashController extends Controller
     {
     }
 
-    public function update(Request $request, GameHash $gameHash): JsonResponse
+    public function update(Request $request, GameHash $gameHash): void
     {
-        $this->authorize('update', $this->resourceClass());
-
-        $input = $request->validate([
-            'name' => 'required|string',
-            'labels' => 'required|string',
-            'patch_url' => [
-                'nullable',
-                'url',
-                'regex:/^https:\/\/github\.com\/RetroAchievements\/RAPatches\/raw\/(?:refs\/heads\/)?main\/.*\.(zip|7z)$/i',
-            ],
-            'source' => 'nullable|url',
-        ]);
-
-        $originalAttributes = $gameHash->getOriginal();
-        $updatedAttributes = [
-            'name' => $input['name'],
-            'labels' => $input['labels'],
-            'patch_url' => $input['patch_url'] ?? null,
-            'source' => $input['source'] ?? null,
-        ];
-
-        $changedAttributes = array_filter($updatedAttributes, function ($value, $key) use ($originalAttributes) {
-            return $originalAttributes[$key] != $value;
-        }, ARRAY_FILTER_USE_BOTH);
-        $isChanging = !empty($changedAttributes);
-
-        if (!$isChanging) {
-            return response()->json(['message' => 'No changes were made.'], 200);
-        }
-
-        $gameHash->update($updatedAttributes);
-
-        /** @var User $user */
-        $user = Auth::user();
-        $this->logGameHashUpdate($gameHash, $changedAttributes, $user);
-
-        return response()->json(['message' => __('legacy.success.update')]);
     }
 
-    public function destroy(GameHash $gameHash): JsonResponse
+    public function destroy(GameHash $gameHash): void
     {
-        $gameId = $gameHash->game_id;
-        $hash = $gameHash->md5;
-        $user = Auth::user()->User;
-
-        $wasDeleted = $gameHash->forceDelete();
-
-        if (!$wasDeleted) {
-            return response()->json(['message' => 'Failed to delete the game hash.'], 500);
-        }
-
-        // Log the hash deletion.
-        addArticleComment("Server", ArticleType::GameHash, $gameId, "$hash unlinked by $user");
-
-        return response()->json(['message' => __('legacy.success.delete')]);
-    }
-
-    private function logGameHashUpdate(GameHash $gameHash, array $changedAttributes, User $user): void
-    {
-        $commentParts = ["{$gameHash->md5} updated by {$user->User}."];
-
-        foreach ($changedAttributes as $attribute => $newValue) {
-            $newValueDisplay = $newValue ?? 'None';
-
-            switch ($attribute) {
-                case 'Name':
-                    $commentParts[] = "File Name: \"{$newValueDisplay}\".";
-                    break;
-                case 'Labels':
-                    $commentParts[] = "Label: \"{$newValueDisplay}\".";
-                    break;
-                case 'patch_url':
-                    $commentParts[] = $newValue ? "RAPatches URL updated to: {$newValue}." : "RAPatches URL removed.";
-                    break;
-                case 'source':
-                    $commentParts[] = $newValue ? "Resource Page URL updated to: {$newValue}." : "Resource Page URL removed.";
-                    break;
-            }
-        }
-
-        $comment = implode(' ', $commentParts);
-        addArticleComment("Server", ArticleType::GameHash, $gameHash->game_id, $comment);
     }
 }
