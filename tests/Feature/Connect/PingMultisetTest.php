@@ -143,4 +143,43 @@ class PingMultisetTest extends TestCase
         $this->assertEquals($specialtyGame->id, $this->user->fresh()->LastGameID);
         $this->assertEquals('Playing specialty content', $this->user->fresh()->RichPresenceMsg);
     }
+
+    public function testPingWithMultiDiscGameUsesGameIdDirectly(): void
+    {
+        // Arrange
+        Carbon::setTestNow(Carbon::now());
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $gameHash = GameHash::factory()->create([
+            'game_id' => $game->id,
+            'name' => 'Game Title (Disc 2)', // !! will be detected as multi-disc
+        ]);
+
+        $this->user->LastGameID = $game->id;
+        $this->user->save();
+
+        // Act
+        $response = $this->post('dorequest.php', $this->apiParams('ping', [
+            'g' => $game->id,
+            'm' => 'Playing disc 2',
+            'x' => $gameHash->md5,
+        ]));
+
+        // Assert
+        $response
+            ->assertStatus(200)
+            ->assertExactJson(['Success' => true]);
+
+        $playerSession = PlayerSession::latest()->first();
+
+        $this->assertNotNull($playerSession);
+        $this->assertEquals($this->user->id, $playerSession->user_id);
+        $this->assertEquals($game->id, $playerSession->game_id);
+        $this->assertNull($playerSession->game_hash_id);
+        $this->assertEquals('Playing disc 2', $playerSession->rich_presence);
+
+        $this->assertEquals($game->id, $this->user->fresh()->LastGameID);
+        $this->assertEquals('Playing disc 2', $this->user->fresh()->RichPresenceMsg);
+    }
 }

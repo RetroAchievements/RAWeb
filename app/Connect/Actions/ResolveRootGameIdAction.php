@@ -33,7 +33,7 @@ class ResolveRootGameIdAction
             throw new InvalidArgumentException('Either gameHash or game must be provided to resolve the root game ID.');
         }
 
-        // For legacy clients, just use the game ID directly.
+        // For legacy clients or multi-disc games (where the hash isn't provided), just use the game ID directly.
         if (!$gameHash) {
             return $game->id;
         }
