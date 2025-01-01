@@ -27,9 +27,9 @@ class SimilarGameStrategyTest extends TestCase
         // ... create a similar games set for the source game ...
         $similarGamesSet = GameSet::factory()->create([
             'type' => GameSetType::SimilarGames,
+            'game_id' => $sourceGame->id,
         ]);
         $similarGamesSet->games()->attach([
-            $sourceGame->id,
             $similarGame1->id,
             $similarGame2->id,
         ]);

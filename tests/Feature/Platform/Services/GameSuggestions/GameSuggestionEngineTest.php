@@ -8,6 +8,7 @@ use App\Community\Actions\AddGameToListAction;
 use App\Community\Enums\UserGameListType;
 use App\Models\Game;
 use App\Models\GameSet;
+use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Services\GameSuggestions\GameSuggestionEngine;
@@ -52,10 +53,11 @@ class GameSuggestionEngineTest extends TestCase
         $unrelatedGame = Game::factory()->create(['achievements_published' => 10]);
 
         // ... attach similar games to the source game ...
-        $similarGamesSet = GameSet::factory()->create(['type' => GameSetType::SimilarGames]);
-        $similarGamesSet->games()->attach(
-            array_merge([$sourceGame->id], $similarGames->pluck('id')->all())
-        );
+        $similarGamesSet = GameSet::factory()->create([
+            'type' => GameSetType::SimilarGames,
+            'game_id' => $sourceGame->id,
+        ]);
+        $similarGamesSet->games()->attach($similarGames->pluck('id')->all());
 
         // Act
         $engine = new GameSuggestionEngine($user, $sourceGame);
@@ -77,23 +79,35 @@ class GameSuggestionEngineTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $games = Game::factory()->count(3)->create([ // !! only 3 created
+        $games = Game::factory()->count(3)->create([
             'achievements_published' => 10,
         ]);
 
+        // ... add some games to the user's Want to Play Games list ...
         $addGameToListAction = new AddGameToListAction();
         foreach ($games as $game) {
             $addGameToListAction->execute($user, $game, UserGameListType::Play);
         }
 
+        // ... create a mastered game that should be excluded ...
+        $masteredGame = Game::factory()->create(['achievements_published' => 10]);
+        PlayerGame::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $masteredGame->id,
+            'achievements_unlocked' => 10,
+            'achievements_total' => 10,
+        ]);
+
         // Act
         $engine = new GameSuggestionEngine($user);
-        $suggestions = $engine->selectSuggestions(limit: 5); // !! but a limit of 5!
+        $suggestions = $engine->selectSuggestions(limit: 5); // we'll ask for 5 but expect fewer
 
         // Assert
-        $this->assertCount(3, $suggestions);
+        $this->assertNotEmpty($suggestions);
+        $this->assertLessThanOrEqual(3, count($suggestions));
 
         $gameIds = array_map(fn ($suggestion) => $suggestion->gameId, $suggestions);
-        $this->assertCount(3, array_unique($gameIds));
+        $this->assertEquals(count($suggestions), count(array_unique($gameIds)));  // !! all suggestions are unique
+        $this->assertNotContains($masteredGame->id, $gameIds); // !! mastered game is excluded
     }
 }

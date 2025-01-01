@@ -56,10 +56,12 @@ class CommonPlayersStrategyTest extends TestCase
 
         // Assert
         $this->assertNotNull($result);
-
         $this->assertEquals($commonGame->id, $result->id);
         $this->assertEquals(GameSuggestionReason::CommonPlayers, $strategy->reason());
-        $this->assertNull($strategy->reasonContext());
+
+        $context = $strategy->reasonContext();
+        $this->assertNotNull($context);
+        $this->assertEquals($sourceGame->id, $context->relatedGame->id);
     }
 
     public function testItReturnsNullWhenNoCommonPlayersExist(): void
