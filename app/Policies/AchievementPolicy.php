@@ -91,12 +91,14 @@ class AchievementPolicy
 
     public function delete(User $user, Achievement $achievement): bool
     {
-        if ($achievement->is_published) {
+        if ($achievement->is_published || $achievement->unlocks_total) {
             return false;
         }
 
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
         ]);
     }
 
@@ -104,11 +106,14 @@ class AchievementPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
         ]);
     }
 
     public function forceDelete(User $user, Achievement $achievement): bool
     {
+        // TODO allow GAME_HASH_MANAGER to force delete any achievement
         return false;
     }
 
