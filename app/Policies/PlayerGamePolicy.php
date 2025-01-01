@@ -78,6 +78,7 @@ class PlayerGamePolicy
         // TODO also visible on tickets
 
         return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
             Role::MODERATOR,
             Role::CHEAT_INVESTIGATOR,
         ]);
