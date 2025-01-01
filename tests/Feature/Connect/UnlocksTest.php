@@ -93,6 +93,16 @@ class UnlocksTest extends TestCase
                 'UserUnlocks' => [$achievement1->ID, $achievement2->ID],
             ]);
 
+        // hardcore unlocks for the game (unsupported client)
+        $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
+            ->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 1]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameID' => $game->ID,
+                'HardcoreMode' => true,
+                'UserUnlocks' => [$achievement1->ID, $achievement2->ID],
+            ]);
+
         // unknown game ID
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('unlocks', ['g' => 9999]))

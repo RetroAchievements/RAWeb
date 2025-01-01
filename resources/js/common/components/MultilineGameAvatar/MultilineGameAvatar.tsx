@@ -33,7 +33,7 @@ export const MultilineGameAvatar: FC<MultilineGameAvatarProps> = ({
   });
 
   return (
-    <div className="relative flex items-center gap-x-2">
+    <div className="relative flex max-w-fit items-center gap-x-2">
       {/* Keep the image and game title in a single tooltipped container. Do not tooltip the system name. */}
       <a href={route('game.show', { game: id })} {...(hasTooltip ? cardTooltipProps : undefined)}>
         <img

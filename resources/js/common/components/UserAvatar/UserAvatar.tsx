@@ -22,7 +22,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
   return (
     <Wrapper
       href={canLinkToUser ? route('user.show', [displayName]) : undefined}
-      className="flex items-center gap-2"
+      className="flex max-w-fit items-center gap-2"
       {...(hasTooltip && canLinkToUser ? cardTooltipProps : undefined)}
     >
       {showImage ? (
