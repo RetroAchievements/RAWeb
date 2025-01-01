@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Community\Enums\TicketType;
+use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
@@ -41,11 +42,14 @@ class ReportAchievementIssueController extends Controller
             'game.system',
         );
 
+        $can = UserPermissionsData::fromUser($user, triggerable: $achievement)->include('createTriggerTicket');
+
         $props = new ReportAchievementIssuePagePropsData(
             achievement: $achievementData,
             hasSession: $foundPlayerAchievement ? true : $user->hasPlayed($achievement->game),
             ticketType: $this->determineTicketType($foundPlayerAchievement, $allPlayerAchievements),
             extra: $request->input('extra'),
+            can: $can,
         );
 
         return Inertia::render('achievement/[achievement]/report-issue', $props);

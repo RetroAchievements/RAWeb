@@ -904,6 +904,7 @@ class AwardAchievementTest extends TestCase
         $achievement4 = $this->seedAchievement($game);
         $achievement5 = $this->seedAchievement($game);
         $achievement6 = $this->seedAchievement($game);
+        $achievement7 = $this->seedAchievement($game);
 
         $this->seedEmulatorUserAgents();
 
@@ -919,7 +920,7 @@ class AwardAchievementTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement1->ID,
-                'AchievementsRemaining' => 4,
+                'AchievementsRemaining' => 5,
                 'Score' => $scoreBefore + $achievement1->Points,
                 'SoftcoreScore' => $this->user->RASoftcorePoints,
             ]);
@@ -933,7 +934,7 @@ class AwardAchievementTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement2->ID,
-                'AchievementsRemaining' => 3,
+                'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore + $achievement2->Points,
                 'SoftcoreScore' => $this->user->RASoftcorePoints,
             ]);
@@ -947,11 +948,25 @@ class AwardAchievementTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement3->ID,
-                'AchievementsRemaining' => 2,
+                'AchievementsRemaining' => 3,
                 'Score' => $scoreBefore + $achievement3->Points,
                 'SoftcoreScore' => $this->user->RASoftcorePoints,
             ]);
         $scoreBefore += $achievement3->Points;
+
+        // unsupported user agent (TODO: will return failure in the future)
+        $validationHash = $this->buildValidationHash($achievement7, $this->user, 1);
+        $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement7->ID, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement7->ID,
+                'AchievementsRemaining' => 2,
+                'Score' => $scoreBefore + $achievement7->Points,
+                'SoftcoreScore' => $this->user->RASoftcorePoints,
+            ]);
+        $scoreBefore += $achievement7->Points;
 
         // valid user agent
         $validationHash = $this->buildValidationHash($achievement4, $this->user, 1);
@@ -992,6 +1007,7 @@ class AwardAchievementTest extends TestCase
         $achievement4 = $this->seedAchievement($game);
         $achievement5 = $this->seedAchievement($game);
         $achievement6 = $this->seedAchievement($game);
+        $achievement7 = $this->seedAchievement($game);
 
         $this->seedEmulatorUserAgents();
 
@@ -1007,7 +1023,7 @@ class AwardAchievementTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement1->ID,
-                'AchievementsRemaining' => 4,
+                'AchievementsRemaining' => 5,
                 'Score' => $this->user->RAPoints,
                 'SoftcoreScore' => $scoreBefore + $achievement1->Points,
             ]);
@@ -1021,7 +1037,7 @@ class AwardAchievementTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement2->ID,
-                'AchievementsRemaining' => 3,
+                'AchievementsRemaining' => 4,
                 'Score' => $this->user->RAPoints,
                 'SoftcoreScore' => $scoreBefore + $achievement2->Points,
             ]);
@@ -1035,11 +1051,25 @@ class AwardAchievementTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement3->ID,
-                'AchievementsRemaining' => 2,
+                'AchievementsRemaining' => 3,
                 'Score' => $this->user->RAPoints,
                 'SoftcoreScore' => $scoreBefore + $achievement3->Points,
             ]);
         $scoreBefore += $achievement3->Points;
+
+        // unsupported user agent
+        $validationHash = $this->buildValidationHash($achievement7, $this->user, 1);
+        $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement7->ID, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement7->ID,
+                'AchievementsRemaining' => 2,
+                'Score' => $this->user->RAPoints,
+                'SoftcoreScore' => $scoreBefore + $achievement7->Points,
+            ]);
+        $scoreBefore += $achievement7->Points;
 
         // valid user agent
         $validationHash = $this->buildValidationHash($achievement4, $this->user, 0);

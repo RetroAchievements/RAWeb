@@ -23,7 +23,7 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
   return (
     <a
       href={route('achievement.show', { achievement: id })}
-      className="flex items-center gap-2"
+      className="flex max-w-fit items-center gap-2"
       {...(hasTooltip ? cardTooltipProps : undefined)}
     >
       {showImage ? (

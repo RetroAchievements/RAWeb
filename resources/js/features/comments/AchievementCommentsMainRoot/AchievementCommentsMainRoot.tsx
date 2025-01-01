@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AchievementBreadcrumbs } from '@/common/components/AchievementBreadcrumbs';
@@ -10,7 +10,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useCommentPagination } from '../hooks/useCommentPagination';
 
-export const AchievementCommentsMainRoot: FC = () => {
+export const AchievementCommentsMainRoot: FC = memo(() => {
   const { achievement, auth, canComment, isSubscribed, paginatedComments } =
     usePageProps<App.Community.Data.AchievementCommentsPageProps>();
 
@@ -68,4 +68,4 @@ export const AchievementCommentsMainRoot: FC = () => {
       </div>
     </div>
   );
-};
+});
