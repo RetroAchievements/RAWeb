@@ -43,54 +43,42 @@ class BuildClientPatchDataAction
             throw new InvalidArgumentException('Either gameHash or game must be provided to build patch data.');
         }
 
-        // For legacy clients, just use the game directly.
+        // For legacy clients that don't provide a hash, just use the game directly.
         if (!$gameHash) {
             return $this->buildPatchData($game, null, $user, $flag);
         }
 
-        $hashGame = $gameHash->game;
+        $rootGameId = (new ResolveRootGameIdAction())->execute($gameHash, $game, $user);
+        $rootGame = Game::find($rootGameId);
 
-        // If there's no user or the current user has multiset globally disabled, use the hash game.
+        // If multiset is disabled or there's no user, just use the game directly.
         if (!$user || $user->is_globally_opted_out_of_subsets) {
-            return $this->buildPatchData($hashGame, null, $user, $flag);
+            return $this->buildPatchData($rootGame, null, $user, $flag);
         }
 
         // Resolve sets once - we'll use this for building the full patch data.
         $resolvedSets = (new ResolveAchievementSetsAction())->execute($gameHash, $user);
         if ($resolvedSets->isEmpty()) {
-            return $this->buildPatchData($hashGame, null, $user, $flag);
+            return $this->buildPatchData($rootGame, null, $user, $flag);
         }
 
         // Get the core game from the first resolved set.
         $coreSet = $resolvedSets->first();
-        $coreGame = Game::find($coreSet->game_id) ?? $hashGame;
+        $coreGame = Game::find($coreSet->game_id) ?? $rootGame;
 
         $richPresencePatch = $coreGame->RichPresencePatch;
 
-        // Look up if this hash game's achievement set is attached as a subset to the core game
-        $hashGameSubsetAttachment = GameAchievementSet::where('game_id', $coreGame->id)
-            ->where('achievement_set_id', $hashGame->gameAchievementSets()->core()->first()?->achievement_set_id)
-            ->first();
+        // For specialty/exclusive sets, we use:
+        // - The root game's ID and achievements (already determined by ResolveRootGameIdAction).
+        // - The core game's title and image.
+        // - The root game's RP if present, otherwise fall back to core game's RP.
+        if ($rootGameId === $gameHash->game->id) {
+            $richPresencePatch = $gameHash->game->RichPresencePatch ?: $richPresencePatch;
 
-        if ($hashGameSubsetAttachment && in_array($hashGameSubsetAttachment->type, [AchievementSetType::Specialty, AchievementSetType::Exclusive])) {
-            /**
-             * At the root level:
-             * - Use the subset game's ID and achievements.
-             * - Use the core game's title and image.
-             * - Use the subset game's RP, if present.
-             */
-            $richPresencePatch = $hashGame->RichPresencePatch ?: $richPresencePatch;
-
-            return $this->buildPatchData(
-                $hashGame, // ... use the subset game for ID and achievements ...
-                $resolvedSets,
-                $user,
-                $flag,
-                $richPresencePatch,
-                $coreGame // ... use the core game for title and image ...
-            );
+            return $this->buildPatchData($rootGame, $resolvedSets, $user, $flag, $richPresencePatch, $coreGame);
         }
 
+        // For all other cases (including bonus sets), we use the core game's data.
         return $this->buildPatchData($coreGame, $resolvedSets, $user, $flag, $richPresencePatch);
     }
 
