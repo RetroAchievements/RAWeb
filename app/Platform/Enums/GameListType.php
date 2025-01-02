@@ -6,10 +6,12 @@ namespace App\Platform\Enums;
 
 enum GameListType
 {
-    case UserPlay;
-    case UserDevelop;
     case AllGames;
-    case System;
-    case Hub;
     case DeveloperSets;
+    case GameSpecificSuggestions;
+    case Hub;
+    case System;
+    case UserDevelop;
+    case UserPlay;
+    case UserSpecificSuggestions;
 }

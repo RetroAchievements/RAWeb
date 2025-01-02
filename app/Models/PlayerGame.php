@@ -111,4 +111,22 @@ class PlayerGame extends BasePivot
     {
         return $query->where('user_id', $user->id);
     }
+
+    /**
+     * @param Builder<PlayerGame> $query
+     * @return Builder<PlayerGame>
+     */
+    public function scopeWhereNotAllAchievementsUnlocked(Builder $query): Builder
+    {
+        return $query->whereColumn('achievements_unlocked', '<', 'achievements_total');
+    }
+
+    /**
+     * @param Builder<PlayerGame> $query
+     * @return Builder<PlayerGame>
+     */
+    public function scopeWhereAllAchievementsUnlocked(Builder $query): Builder
+    {
+        return $query->whereColumn('achievements_unlocked', '=', 'achievements_total');
+    }
 }
