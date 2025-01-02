@@ -85,8 +85,10 @@ class GameListRequest extends FormRequest
     /**
      * @return array{field: string, direction: 'asc'|'desc'}
      */
-    public function getSort(): array
-    {
+    public function getSort(
+        GameListSortField $defaultSortField = GameListSortField::Title,
+        bool $isDefaultSortAsc = true,
+    ): array {
         // URL params take precedence over cookie preferences.
         $sortParam = $this->input('sort');
 
@@ -102,9 +104,9 @@ class GameListRequest extends FormRequest
         }
 
         // If we still don't have a sort param, fall back to sorting by title.
-        $sortParam ??= GameListSortField::Title->value;
+        $sortParam ??= $defaultSortField->value;
 
-        $sortDirection = 'asc';
+        $sortDirection = $isDefaultSortAsc ? 'asc' : 'desc';
         if (str_starts_with($sortParam, '-')) {
             $sortDirection = 'desc';
             $sortParam = ltrim($sortParam, '-');

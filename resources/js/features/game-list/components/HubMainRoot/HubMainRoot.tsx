@@ -9,16 +9,19 @@ import { useGameListState } from '../../hooks/useGameListState';
 import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
 import { useTableSync } from '../../hooks/useTableSync';
 import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
-import { hubGamesDefaultFilters } from '../../utils/hubGamesDefaultFilters';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
 import { HubGamesDataTable } from '../HubGamesDataTable';
 import { HubBreadcrumbs } from './HubBreadcrumbs';
 import { HubHeading } from './HubHeading';
 import { RelatedHubs } from './RelatedHubs';
+import { useHubGamesDefaultColumnState } from './useHubGamesDefaultColumnState';
 
 export const HubMainRoot: FC = memo(() => {
-  const { auth, breadcrumbs, defaultDesktopPageSize, hub, paginatedGameListEntries } =
+  const { breadcrumbs, defaultDesktopPageSize, hub, paginatedGameListEntries } =
     usePageProps<App.Platform.Data.HubPageProps>();
+
+  const { defaultColumnFilters, defaultColumnSort, defaultColumnVisibility } =
+    useHubGamesDefaultColumnState();
 
   const {
     columnFilters,
@@ -30,8 +33,9 @@ export const HubMainRoot: FC = memo(() => {
     setSorting,
     sorting,
   } = useGameListState(paginatedGameListEntries, {
-    canShowProgressColumn: !!auth?.user,
-    defaultColumnFilters: hubGamesDefaultFilters,
+    defaultColumnSort,
+    defaultColumnFilters,
+    defaultColumnVisibility,
   });
 
   const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
@@ -46,9 +50,10 @@ export const HubMainRoot: FC = memo(() => {
   useTableSync({
     columnFilters,
     columnVisibility,
+    defaultColumnFilters,
+    defaultColumnSort,
     pagination,
     sorting,
-    defaultFilters: hubGamesDefaultFilters,
     defaultPageSize: defaultDesktopPageSize,
     isUserPersistenceEnabled: isCurrentlyPersistingView,
   });

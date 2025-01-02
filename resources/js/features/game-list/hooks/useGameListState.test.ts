@@ -1,3 +1,5 @@
+import type { VisibilityState } from '@tanstack/react-table';
+
 import { renderHook } from '@/test';
 import { createPaginatedData, createZiggyProps } from '@/test/factories';
 
@@ -6,14 +8,11 @@ import { useGameListState } from './useGameListState';
 describe('Hook: useGameListState', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        pageProps: {
-          ziggy: createZiggyProps(),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      pageProps: {
+        ziggy: createZiggyProps(),
       },
-    );
+    });
 
     // ASSERT
     expect(result).toBeDefined();
@@ -23,15 +22,12 @@ describe('Hook: useGameListState', () => {
     // ARRANGE
     const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
 
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        initialProps: paginatedGames,
-        pageProps: {
-          ziggy: createZiggyProps(),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      initialProps: paginatedGames,
+      pageProps: {
+        ziggy: createZiggyProps(),
       },
-    );
+    });
 
     // ASSERT
     expect(result.current.pagination).toEqual({ pageIndex: 0, pageSize: 25 });
@@ -41,15 +37,12 @@ describe('Hook: useGameListState', () => {
     // ARRANGE
     const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
 
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        initialProps: paginatedGames,
-        pageProps: {
-          ziggy: createZiggyProps(),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      initialProps: paginatedGames,
+      pageProps: {
+        ziggy: createZiggyProps(),
       },
-    );
+    });
 
     // ASSERT
     expect(result.current.sorting).toEqual([{ id: 'title', desc: false }]);
@@ -59,15 +52,12 @@ describe('Hook: useGameListState', () => {
     // ARRANGE
     const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
 
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        initialProps: paginatedGames,
-        pageProps: {
-          ziggy: createZiggyProps({ query: { sort: 'system' } }),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      initialProps: paginatedGames,
+      pageProps: {
+        ziggy: createZiggyProps({ query: { sort: 'system' } }),
       },
-    );
+    });
 
     // ASSERT
     expect(result.current.sorting).toEqual([{ id: 'system', desc: false }]);
@@ -77,15 +67,12 @@ describe('Hook: useGameListState', () => {
     // ARRANGE
     const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
 
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        initialProps: paginatedGames,
-        pageProps: {
-          ziggy: createZiggyProps({ query: [] as any }),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      initialProps: paginatedGames,
+      pageProps: {
+        ziggy: createZiggyProps({ query: [] as any }),
       },
-    );
+    });
 
     // ASSERT
     expect(result.current.sorting).toEqual([{ id: 'title', desc: false }]);
@@ -95,15 +82,12 @@ describe('Hook: useGameListState', () => {
     // ARRANGE
     const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
 
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        initialProps: paginatedGames,
-        pageProps: {
-          ziggy: createZiggyProps({ query: { sort: '-title' } }),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      initialProps: paginatedGames,
+      pageProps: {
+        ziggy: createZiggyProps({ query: { sort: '-title' } }),
       },
-    );
+    });
 
     // ASSERT
     expect(result.current.sorting).toEqual([{ id: 'title', desc: true }]);
@@ -113,15 +97,12 @@ describe('Hook: useGameListState', () => {
     // ARRANGE
     const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
 
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        initialProps: paginatedGames,
-        pageProps: {
-          ziggy: createZiggyProps(),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      initialProps: paginatedGames,
+      pageProps: {
+        ziggy: createZiggyProps(),
       },
-    );
+    });
 
     // ASSERT
     expect(result.current.columnFilters).toEqual([]);
@@ -131,19 +112,16 @@ describe('Hook: useGameListState', () => {
     // ARRANGE
     const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
 
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        initialProps: paginatedGames,
-        pageProps: {
-          ziggy: createZiggyProps({
-            query: {
-              filter: { system: '1,5' },
-            },
-          }),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      initialProps: paginatedGames,
+      pageProps: {
+        ziggy: createZiggyProps({
+          query: {
+            filter: { system: '1,5' },
+          },
+        }),
       },
-    );
+    });
 
     // ASSERT
     expect(result.current.columnFilters).toEqual([{ id: 'system', value: ['1', '5'] }]);
@@ -153,19 +131,16 @@ describe('Hook: useGameListState', () => {
     // ARRANGE
     const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
 
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        initialProps: paginatedGames,
-        pageProps: {
-          ziggy: createZiggyProps({
-            query: {
-              filter: { system: '1', achievementsPublished: 'has' },
-            },
-          }),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      initialProps: paginatedGames,
+      pageProps: {
+        ziggy: createZiggyProps({
+          query: {
+            filter: { system: '1', achievementsPublished: 'has' },
+          },
+        }),
       },
-    );
+    });
 
     // ASSERT
     expect(result.current.columnFilters).toEqual([
@@ -181,7 +156,6 @@ describe('Hook: useGameListState', () => {
     const { result } = renderHook(
       () =>
         useGameListState(createPaginatedData([]), {
-          canShowProgressColumn: true,
           defaultColumnFilters: [{ id: 'system', value: ['10'] }],
         }),
       {
@@ -203,7 +177,6 @@ describe('Hook: useGameListState', () => {
     const { result } = renderHook(
       () =>
         useGameListState(createPaginatedData([]), {
-          canShowProgressColumn: true,
           defaultColumnFilters: [{ id: 'system', value: ['10'] }],
         }),
       {
@@ -222,10 +195,13 @@ describe('Hook: useGameListState', () => {
     expect(result.current.columnFilters).toEqual([{ id: 'system', value: ['1'] }]);
   });
 
-  it('given the canShowProgressColumn option is truthy, enables progress column visibility by default', () => {
+  it('given the progress column should be visible by default, enables progress column visibility by default', () => {
     // ARRANGE
     const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
+      () =>
+        useGameListState(createPaginatedData([]), {
+          defaultColumnVisibility: { progress: true },
+        }),
       {
         pageProps: {
           ziggy: createZiggyProps(),
@@ -238,22 +214,6 @@ describe('Hook: useGameListState', () => {
     expect(result.current.columnVisibility.playersTotal).toBeFalsy();
   });
 
-  it('given the canShowProgressColumn option is not truthy, enables players total column visibility by default', () => {
-    // ARRANGE
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: false }),
-      {
-        pageProps: {
-          ziggy: createZiggyProps(),
-        },
-      },
-    );
-
-    // ASSERT
-    expect(result.current.columnVisibility.progress).toBeFalsy();
-    expect(result.current.columnVisibility.playersTotal).toBeTruthy();
-  });
-
   it('given persisted view preferences exist, uses those for initial pagination state', () => {
     // ARRANGE
     const paginatedGames = createPaginatedData([], { currentPage: 1, perPage: 25 });
@@ -261,16 +221,13 @@ describe('Hook: useGameListState', () => {
       pagination: { pageIndex: 2, pageSize: 50 },
     };
 
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        initialProps: paginatedGames,
-        pageProps: {
-          persistedViewPreferences,
-          ziggy: createZiggyProps(),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      initialProps: paginatedGames,
+      pageProps: {
+        persistedViewPreferences,
+        ziggy: createZiggyProps(),
       },
-    );
+    });
 
     // ASSERT
     expect(result.current.pagination).toEqual({ pageIndex: 2, pageSize: 50 });
@@ -282,17 +239,14 @@ describe('Hook: useGameListState', () => {
       sorting: [{ id: 'lastUpdated', desc: true }],
     };
 
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        pageProps: {
-          persistedViewPreferences,
-          ziggy: createZiggyProps({
-            query: {}, // !!
-          }),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      pageProps: {
+        persistedViewPreferences,
+        ziggy: createZiggyProps({
+          query: {}, // !!
+        }),
       },
-    );
+    });
 
     // ASSERT
     expect(result.current.sorting).toEqual([{ id: 'lastUpdated', desc: true }]);
@@ -304,19 +258,16 @@ describe('Hook: useGameListState', () => {
       sorting: [{ id: 'lastUpdated', desc: true }],
     };
 
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        pageProps: {
-          persistedViewPreferences,
-          ziggy: createZiggyProps({
-            query: {
-              sort: '-system', // !!
-            },
-          }),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      pageProps: {
+        persistedViewPreferences,
+        ziggy: createZiggyProps({
+          query: {
+            sort: '-system', // !!
+          },
+        }),
       },
-    );
+    });
 
     // ASSERT
     expect(result.current.sorting).toEqual([{ id: 'system', desc: true }]);
@@ -335,15 +286,12 @@ describe('Hook: useGameListState', () => {
       },
     };
 
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        pageProps: {
-          persistedViewPreferences,
-          ziggy: createZiggyProps(),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      pageProps: {
+        persistedViewPreferences,
+        ziggy: createZiggyProps(),
       },
-    );
+    });
 
     // ASSERT
     expect(result.current.columnVisibility).toEqual(persistedViewPreferences.columnVisibility);
@@ -358,17 +306,14 @@ describe('Hook: useGameListState', () => {
       ],
     };
 
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        pageProps: {
-          persistedViewPreferences,
-          ziggy: createZiggyProps({
-            query: {},
-          }),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      pageProps: {
+        persistedViewPreferences,
+        ziggy: createZiggyProps({
+          query: {},
+        }),
       },
-    );
+    });
 
     // ASSERT
     expect(result.current.columnFilters).toEqual([
@@ -380,7 +325,12 @@ describe('Hook: useGameListState', () => {
   it('given persisted view preferences exist but are null, falls back to defaults', () => {
     // ARRANGE
     const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
+      () =>
+        useGameListState(createPaginatedData([]), {
+          defaultColumnSort: { id: 'title', desc: false },
+          defaultColumnFilters: [{ id: 'achievementsPublished', value: ['has'] }],
+          defaultColumnVisibility: { playersTotal: true },
+        }),
       {
         pageProps: {
           persistedViewPreferences: null,
@@ -391,15 +341,8 @@ describe('Hook: useGameListState', () => {
 
     // ASSERT
     expect(result.current.sorting).toEqual([{ id: 'title', desc: false }]);
-    expect(result.current.columnFilters).toEqual([]);
-    expect(result.current.columnVisibility).toEqual({
-      hasActiveOrInReviewClaims: false,
-      lastUpdated: false,
-      numUnresolvedTickets: false,
-      numVisibleLeaderboards: false,
-      playersTotal: false,
-      progress: true,
-    });
+    expect(result.current.columnFilters).toEqual([{ id: 'achievementsPublished', value: ['has'] }]);
+    expect(result.current.columnVisibility).toEqual({ playersTotal: true });
   });
 
   it('given both query params and persisted preferences exist, query params should take precedence for all state', () => {
@@ -410,21 +353,18 @@ describe('Hook: useGameListState', () => {
       columnFilters: [{ id: 'system', value: ['3', '4'] }],
     };
 
-    const { result } = renderHook(
-      () => useGameListState(createPaginatedData([]), { canShowProgressColumn: true }),
-      {
-        pageProps: {
-          persistedViewPreferences,
-          ziggy: createZiggyProps({
-            query: {
-              page: '1', // !!
-              sort: '-title', // !!
-              filter: { system: '1,2' }, // !!
-            },
-          }),
-        },
+    const { result } = renderHook(() => useGameListState(createPaginatedData([]), {}), {
+      pageProps: {
+        persistedViewPreferences,
+        ziggy: createZiggyProps({
+          query: {
+            page: '1', // !!
+            sort: '-title', // !!
+            filter: { system: '1,2' }, // !!
+          },
+        }),
       },
-    );
+    });
 
     // ASSERT - these values come from query params!!
     expect(result.current.sorting).toEqual([{ id: 'title', desc: true }]);
@@ -438,7 +378,6 @@ describe('Hook: useGameListState', () => {
     const { result } = renderHook(
       () =>
         useGameListState(createPaginatedData([]), {
-          canShowProgressColumn: true,
           defaultColumnFilters: [
             { id: 'status', value: ['active'] }, // !! different id than URL param
           ],
@@ -460,5 +399,105 @@ describe('Hook: useGameListState', () => {
       { id: 'system', value: ['1'] },
       { id: 'status', value: ['active'] },
     ]);
+  });
+
+  it('given a defaultColumnSort option, uses it when no other sort preferences exist', () => {
+    // ARRANGE
+    const defaultSort = { id: 'lastUpdated', desc: true };
+
+    const { result } = renderHook(
+      () =>
+        useGameListState(createPaginatedData([]), {
+          defaultColumnSort: defaultSort,
+        }),
+      {
+        pageProps: {
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(result.current.sorting).toEqual([defaultSort]);
+  });
+
+  it('given both defaultColumnSort and query params, query params take precedence', () => {
+    // ARRANGE
+    const defaultSort = { id: 'lastUpdated', desc: true };
+
+    const { result } = renderHook(
+      () =>
+        useGameListState(createPaginatedData([]), {
+          defaultColumnSort: defaultSort,
+        }),
+      {
+        pageProps: {
+          ziggy: createZiggyProps({
+            query: { sort: 'title' },
+          }),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(result.current.sorting).toEqual([{ id: 'title', desc: false }]);
+  });
+
+  it('given multiple defaultColumnVisibility values, correctly initializes all visibility states', () => {
+    // ARRANGE
+    const defaultVisibility: VisibilityState = {
+      lastUpdated: true,
+      numUnresolvedTickets: true,
+      progress: false,
+    };
+
+    const { result } = renderHook(
+      () =>
+        useGameListState(createPaginatedData([]), {
+          defaultColumnVisibility: defaultVisibility,
+        }),
+      {
+        pageProps: {
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(result.current.columnVisibility).toEqual(defaultVisibility);
+  });
+
+  it('given persisted preferences override only some defaultColumnVisibility values, maintains non-overridden defaults', () => {
+    // ARRANGE
+    const defaultVisibility = {
+      lastUpdated: true,
+      numUnresolvedTickets: true,
+      progress: false,
+    };
+
+    const persistedPreferences = {
+      columnVisibility: {
+        lastUpdated: false, // !! only override one value.
+      },
+    };
+
+    const { result } = renderHook(
+      () =>
+        useGameListState(createPaginatedData([]), {
+          defaultColumnVisibility: defaultVisibility,
+        }),
+      {
+        pageProps: {
+          persistedViewPreferences: persistedPreferences,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(result.current.columnVisibility).toEqual({
+      ...defaultVisibility,
+      ...persistedPreferences.columnVisibility,
+    });
   });
 });

@@ -41,7 +41,7 @@ export const GuestWelcomeCta: FC = () => {
                   ),
                   2: (
                     <InertiaLink
-                      href={route('game.index', { sort: '-playersTotal' })}
+                      href={route('game.index')}
                       className={buildTrackingClassNames('Click Guest All Games Link')}
                     />
                   ),

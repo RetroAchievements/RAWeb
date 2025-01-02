@@ -56,13 +56,6 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "developer.feed": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        }
-    ],
     "developer.claims": [
         {
             "name": "user",
@@ -506,6 +499,13 @@ declare module 'ziggy-js' {
         }
     ],
     "user.comment.index": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
+    "user.achievement-author.feed": [
         {
             "name": "user",
             "required": true,
