@@ -16,6 +16,7 @@
  *  int        PointsForNext              number of points remaining until maximum request increase
  */
 
+use App\Community\Enums\UserGameListType;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Support\Rules\CtypeAlnum;
@@ -44,7 +45,7 @@ $query = UserGameListEntry::select([
     ->join('GameData', 'SetRequest.GameID', '=', 'GameData.ID')
     ->join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
     ->where('SetRequest.user_id', $user->id)
-    ->where('type', 'achievement_set_request');
+    ->where('type', UserGameListType::AchievementSetRequest);
 
 if ($type !== 1) {
     $query->where('GameData.achievements_published', '=', '0');
