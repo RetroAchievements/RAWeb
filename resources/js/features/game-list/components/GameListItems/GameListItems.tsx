@@ -59,7 +59,7 @@ const GameListItems: FC<GameListItemsProps> = ({
   });
 
   const [visiblePageNumbers, setVisiblePageNumbers] = useState([1]);
-
+  const [prefetchedPageNumbers, setPrefetchedPageNumbers] = useState([1]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const isEmpty = dataInfiniteQuery.data?.pages?.[0].total === 0;
@@ -74,9 +74,17 @@ const GameListItems: FC<GameListItemsProps> = ({
   const isLastPageResultsVisible =
     visiblePageNumbers[visiblePageNumbers.length - 1] === lastPageNumber;
 
-  const handleLoadMore = () => {
+  const handleLoadMore = async () => {
     if (dataInfiniteQuery.hasNextPage && !dataInfiniteQuery.isFetchingNextPage) {
-      dataInfiniteQuery.fetchNextPage();
+      const nextPageNumber = Math.max(...visiblePageNumbers) + 1;
+
+      // Don't prefetch the next page if it has already been prefetched.
+      if (prefetchedPageNumbers.includes(nextPageNumber)) {
+        return;
+      }
+
+      await dataInfiniteQuery.fetchNextPage();
+      setPrefetchedPageNumbers([...prefetchedPageNumbers, nextPageNumber]);
     }
   };
 
