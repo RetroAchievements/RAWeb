@@ -22,6 +22,7 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class UserResource extends Resource
 {
@@ -60,6 +61,9 @@ class UserResource extends Resource
 
     public static function infolist(Infolist $infolist): Infolist
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $infolist
             ->columns(1)
             ->schema([
@@ -72,6 +76,7 @@ class UserResource extends Resource
                                     Infolists\Components\ImageEntry::make('avatar_url')
                                         ->label('Avatar')
                                         ->size(config('media.icon.lg.width')),
+
                                     Infolists\Components\TextEntry::make('Motto'),
                                 ]),
                             Infolists\Components\Group::make()
@@ -81,6 +86,7 @@ class UserResource extends Resource
                                         ->formatStateUsing(fn (string $state): string => __('permission.role.' . $state))
                                         ->color(fn (string $state): string => Role::toFilamentColor($state))
                                         ->hidden(fn ($record) => $record->roles->isEmpty()),
+
                                     Infolists\Components\TextEntry::make('Permissions')
                                         ->label('Permissions (legacy)')
                                         ->badge()
@@ -111,22 +117,27 @@ class UserResource extends Resource
                         ->schema([
                             Infolists\Components\TextEntry::make('id')
                                 ->label('ID'),
+
                             Infolists\Components\TextEntry::make('Created')
                                 ->label('Joined')
                                 ->dateTime(),
+
                             Infolists\Components\TextEntry::make('LastLogin')
                                 ->label('Last login at')
                                 ->dateTime(),
+
                             Infolists\Components\TextEntry::make('DeleteRequested')
                                 ->label('Deleted requested at')
                                 ->dateTime()
                                 ->hidden(fn ($state) => !$state)
                                 ->color('warning'),
+
                             Infolists\Components\TextEntry::make('Deleted')
                                 ->label('Deleted at')
                                 ->dateTime()
                                 ->hidden(fn ($state) => !$state)
                                 ->color('danger'),
+
                             Infolists\Components\IconEntry::make('Untracked')
                                 ->label('Ranked')
                                 ->boolean()
@@ -134,9 +145,11 @@ class UserResource extends Resource
                                 ->trueIcon('heroicon-o-x-circle')
                                 ->falseColor('success')
                                 ->falseIcon('heroicon-o-check-circle'),
+
                             Infolists\Components\IconEntry::make('ManuallyVerified')
                                 ->label('Forum verified')
                                 ->boolean(),
+
                             Infolists\Components\TextEntry::make('muted_until')
                                 ->hidden(function ($state) {
                                     if (!$state) {
@@ -165,6 +178,7 @@ class UserResource extends Resource
                             Forms\Components\TextInput::make('Motto')
                                 ->maxLength(50),
                         ]),
+
                     Forms\Components\Section::make()
                         ->grow(false)
                         ->schema([
@@ -185,8 +199,10 @@ class UserResource extends Resource
                                         $component->state($formattedDate);
                                     }
                                 }),
+
                             Forms\Components\Toggle::make('ManuallyVerified')
                                 ->label('Forum verified'),
+
                             Forms\Components\Toggle::make('Untracked'),
                         ]),
                 ])->from('md'),
@@ -200,25 +216,31 @@ class UserResource extends Resource
                 Tables\Columns\ImageColumn::make('avatar_url')
                     ->label('')
                     ->size(config('media.icon.sm.width')),
+
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('User')
                     ->description(fn (User $record): string => $record->display_name)
                     ->label('Username')
                     ->searchable(),
+
                 Tables\Columns\TextColumn::make('display_name')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 // Tables\Columns\TextColumn::make('email_verified_at')
                 //     ->dateTime()
                 //     ->sortable()
                 //     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('roles.name')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => __('permission.role.' . $state))
                     ->color(fn (string $state): string => Role::toFilamentColor($state)),
+
                 Tables\Columns\TextColumn::make('Permissions')
                     ->label('Legacy permissions')
                     ->badge()
@@ -231,17 +253,21 @@ class UserResource extends Resource
                         Permissions::Moderator => 'warning',
                         default => 'gray',
                     }),
+
                 // Tables\Columns\TextColumn::make('country'),
                 // Tables\Columns\TextColumn::make('timezone'),
                 // Tables\Columns\TextColumn::make('locale'),
+
                 Tables\Columns\IconColumn::make('ManuallyVerified')
                     ->label('Forum verified')
                     ->boolean()
                     ->alignCenter(),
+
                 // Tables\Columns\TextColumn::make('forum_verified_at')
                 //     ->dateTime()
                 //     ->sortable()
                 //     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\IconColumn::make('Untracked')
                     ->label('Ranked')
                     ->boolean()
@@ -250,38 +276,47 @@ class UserResource extends Resource
                     ->falseColor('success')
                     ->falseIcon('heroicon-o-check-circle')
                     ->alignCenter(),
+
                 // Tables\Columns\TextColumn::make('unranked_at')
                 //     ->dateTime()
                 //     ->sortable(),
+
                 // Tables\Columns\TextColumn::make('banned_at')
                 //     ->dateTime()
                 //     ->sortable(),
+
                 // Tables\Columns\TextColumn::make('muted_until')
                 //     ->dateTime()
                 //     ->sortable(),
+
                 Tables\Columns\IconColumn::make('UserWallActive')
                     ->label('Wall active')
                     ->boolean()
                     ->alignCenter(),
+
                 Tables\Columns\TextColumn::make('Created')
                     ->label('Created at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('LastLogin')
                     ->label('Last login at')
                     ->dateTime()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('Updated')
                     ->label('Updated at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('DeleteRequested')
                     ->label('Deleted requested at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('Deleted')
                     ->label('Deleted at')
                     ->dateTime()
@@ -296,6 +331,7 @@ class UserResource extends Resource
                         collect(Permissions::cases())
                             ->mapWithKeys(fn ($value) => [$value => __(Permissions::toString($value))])
                     ),
+
                 Filters\TrashedFilter::make(),
             ])
             ->deferFilters()
@@ -305,9 +341,11 @@ class UserResource extends Resource
                         Tables\Actions\ViewAction::make(),
                         Tables\Actions\EditAction::make(),
                     ])->dropdown(false),
+
                     Tables\Actions\Action::make('roles')
                         ->url(fn ($record) => UserResource::getUrl('roles', ['record' => $record]))
                         ->icon('fas-lock'),
+
                     Tables\Actions\Action::make('audit-log')
                         ->url(fn ($record) => UserResource::getUrl('audit-log', ['record' => $record]))
                         ->icon('fas-clock-rotate-left'),

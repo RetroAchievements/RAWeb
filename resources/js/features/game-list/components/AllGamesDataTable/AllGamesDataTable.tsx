@@ -11,7 +11,7 @@ import { type Dispatch, type FC, lazy, type SetStateAction, Suspense } from 'rea
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useGameListPaginatedQuery } from '@/features/game-list/hooks/useGameListPaginatedQuery';
 
-import { allGamesDefaultFilters } from '../../utils/allGamesDefaultFilters';
+import { useAllGamesDefaultColumnState } from '../AllGamesMainRoot/useAllGamesDefaultColumnState';
 import { DataTablePagination } from '../DataTablePagination';
 import { DataTableToolbar } from '../DataTableToolbar';
 import { GameListDataTable } from '../GameListDataTable';
@@ -43,6 +43,8 @@ export const AllGamesDataTable: FC<AllGamesDataTableProps> = ({
   sorting,
 }) => {
   const { can, ziggy } = usePageProps<App.Community.Data.UserGameListPageProps>();
+
+  const { defaultColumnFilters } = useAllGamesDefaultColumnState();
 
   const gameListQuery = useGameListPaginatedQuery({
     columnFilters,
@@ -82,7 +84,7 @@ export const AllGamesDataTable: FC<AllGamesDataTableProps> = ({
       <DataTableToolbar
         table={table}
         unfilteredTotal={gameListQuery.data?.unfilteredTotal ?? null}
-        defaultColumnFilters={allGamesDefaultFilters}
+        defaultColumnFilters={defaultColumnFilters}
       />
 
       {ziggy.device === 'mobile' ? (

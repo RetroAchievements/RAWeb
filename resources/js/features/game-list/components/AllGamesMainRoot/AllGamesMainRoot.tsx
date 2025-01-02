@@ -9,15 +9,18 @@ import { useGameListState } from '../../hooks/useGameListState';
 import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
 import { useTableSync } from '../../hooks/useTableSync';
 import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
-import { allGamesDefaultFilters } from '../../utils/allGamesDefaultFilters';
 import { AllGamesDataTable } from '../AllGamesDataTable';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
+import { useAllGamesDefaultColumnState } from './useAllGamesDefaultColumnState';
 
 export const AllGamesMainRoot: FC = memo(() => {
-  const { auth, defaultDesktopPageSize, paginatedGameListEntries } =
+  const { defaultDesktopPageSize, paginatedGameListEntries } =
     usePageProps<App.Platform.Data.GameListPageProps>();
 
   const { t } = useTranslation();
+
+  const { defaultColumnFilters, defaultColumnSort, defaultColumnVisibility } =
+    useAllGamesDefaultColumnState();
 
   const {
     columnFilters,
@@ -29,8 +32,9 @@ export const AllGamesMainRoot: FC = memo(() => {
     setSorting,
     sorting,
   } = useGameListState(paginatedGameListEntries, {
-    canShowProgressColumn: !!auth?.user,
-    defaultColumnFilters: allGamesDefaultFilters,
+    defaultColumnSort,
+    defaultColumnFilters,
+    defaultColumnVisibility,
   });
 
   const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
@@ -45,9 +49,10 @@ export const AllGamesMainRoot: FC = memo(() => {
   useTableSync({
     columnFilters,
     columnVisibility,
+    defaultColumnFilters,
+    defaultColumnSort,
     pagination,
     sorting,
-    defaultFilters: allGamesDefaultFilters,
     defaultPageSize: defaultDesktopPageSize,
     isUserPersistenceEnabled: isCurrentlyPersistingView,
   });

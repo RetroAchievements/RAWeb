@@ -7,19 +7,20 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useGameListState } from '../../hooks/useGameListState';
 import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
-import { useSystemGamesDefaultFilters } from '../../hooks/useSystemGamesDefaultFilters';
 import { useTableSync } from '../../hooks/useTableSync';
 import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
-import { AllSystemGamesDataTable } from '../AllSystemGamesDataTable';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
+import { SystemGamesDataTable } from '../SystemGamesDataTable';
+import { useSystemGamesDefaultColumnState } from './useSystemGamesDefaultColumnState';
 
 export const SystemGamesMainRoot: FC = memo(() => {
-  const { auth, defaultDesktopPageSize, system, paginatedGameListEntries } =
+  const { defaultDesktopPageSize, system, paginatedGameListEntries } =
     usePageProps<App.Platform.Data.SystemGameListPageProps>();
 
   const { t } = useTranslation();
 
-  const { systemGamesDefaultFilters } = useSystemGamesDefaultFilters();
+  const { defaultColumnFilters, defaultColumnSort, defaultColumnVisibility } =
+    useSystemGamesDefaultColumnState();
 
   const {
     columnFilters,
@@ -31,9 +32,9 @@ export const SystemGamesMainRoot: FC = memo(() => {
     setSorting,
     sorting,
   } = useGameListState(paginatedGameListEntries, {
-    alwaysShowPlayersTotal: true,
-    canShowProgressColumn: !!auth?.user,
-    defaultColumnFilters: systemGamesDefaultFilters,
+    defaultColumnSort,
+    defaultColumnFilters,
+    defaultColumnVisibility,
   });
 
   const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
@@ -48,9 +49,10 @@ export const SystemGamesMainRoot: FC = memo(() => {
   useTableSync({
     columnFilters,
     columnVisibility,
+    defaultColumnFilters,
+    defaultColumnSort,
     pagination,
     sorting,
-    defaultFilters: systemGamesDefaultFilters,
     defaultPageSize: defaultDesktopPageSize,
     isUserPersistenceEnabled: isCurrentlyPersistingView,
   });
@@ -67,7 +69,7 @@ export const SystemGamesMainRoot: FC = memo(() => {
       </DataTablePaginationScrollTarget>
 
       <HydrationBoundary state={dehydrate(queryClientWithInitialData)}>
-        <AllSystemGamesDataTable
+        <SystemGamesDataTable
           columnFilters={columnFilters}
           columnVisibility={columnVisibility}
           pagination={pagination}

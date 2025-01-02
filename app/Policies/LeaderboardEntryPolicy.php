@@ -17,7 +17,6 @@ class LeaderboardEntryPolicy
     {
         return $user->hasAnyRole([
             Role::CHEAT_INVESTIGATOR,
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
         ]);
@@ -50,7 +49,7 @@ class LeaderboardEntryPolicy
             Role::ROOT,
             Role::ADMINISTRATOR,
             Role::MODERATOR,
-            Role::DEVELOPER_STAFF,
+
             Role::DEVELOPER,
         ];
 
