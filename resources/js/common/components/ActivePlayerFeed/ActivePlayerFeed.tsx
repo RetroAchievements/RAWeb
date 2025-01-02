@@ -34,7 +34,7 @@ export const ActivePlayerFeed: FC<ActivePlayerFeedProps> = ({
   const { canShowSearchBar, handleSearch, hasSearched, searchValue, setCanShowSearchBar } =
     useActivePlayerSearch({ persistedSearchValue });
 
-  const isInfiniteQueryEnabled = hasSearched || hasScrolled;
+  const isInfiniteQueryEnabled = hasSearchBar && (hasSearched || hasScrolled);
 
   const { loadMore, players } = useActivePlayerData({
     initialActivePlayers,

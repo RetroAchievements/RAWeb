@@ -251,6 +251,20 @@ class UserPolicy
         return $this->requireAdministrativePrivileges($user, $model);
     }
 
+    public function viewDeveloperFeed(User $user, User $model): bool
+    {
+        if ($user->ContribCount === 0) {
+            return false;
+        }
+
+        // If the target user is blocking you, you can't view their feed.
+        if ($model->isBlocking($user)) {
+            return false;
+        }
+
+        return true;
+    }
+
     private function requireAdministrativePrivileges(User $user, ?User $model = null): bool
     {
         if (!$model) {
