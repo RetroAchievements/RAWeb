@@ -11,11 +11,11 @@ import { type Dispatch, type FC, lazy, type SetStateAction, Suspense } from 'rea
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useGameListPaginatedQuery } from '@/features/game-list/hooks/useGameListPaginatedQuery';
 
-import { hubGamesDefaultFilters } from '../../utils/hubGamesDefaultFilters';
 import { DataTablePagination } from '../DataTablePagination';
 import { DataTableToolbar } from '../DataTableToolbar';
 import { GameListDataTable } from '../GameListDataTable';
 import { GameListItemsSuspenseFallback } from '../GameListItems/GameListItemsSuspenseFallback';
+import { useHubGamesDefaultColumnState } from '../HubMainRoot/useHubGamesDefaultColumnState';
 import { useColumnDefinitions } from './useColumnDefinitions';
 
 const GameListItems = lazy(() => import('../GameListItems'));
@@ -43,6 +43,8 @@ export const HubGamesDataTable: FC<HubGamesDataTableProps> = ({
   sorting,
 }) => {
   const { can, hub, ziggy } = usePageProps<App.Platform.Data.HubPageProps>();
+
+  const { defaultColumnFilters } = useHubGamesDefaultColumnState();
 
   const gameListQuery = useGameListPaginatedQuery({
     columnFilters,
@@ -84,7 +86,7 @@ export const HubGamesDataTable: FC<HubGamesDataTableProps> = ({
       <DataTableToolbar
         table={table}
         unfilteredTotal={gameListQuery.data?.unfilteredTotal ?? null}
-        defaultColumnFilters={hubGamesDefaultFilters}
+        defaultColumnFilters={defaultColumnFilters}
         randomGameApiRouteName="api.hub.game.random"
         tableApiRouteName="api.hub.game.index"
         tableApiRouteParams={{ gameSet: hub.id }}

@@ -1,5 +1,6 @@
 import type {
   ColumnFiltersState,
+  ColumnSort,
   PaginationState,
   SortingState,
   TableState,
@@ -12,10 +13,11 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 interface UseAutoUpdatingQueryParamsProps {
   columnFilters: ColumnFiltersState;
   columnVisibility: VisibilityState;
-  defaultFilters: ColumnFiltersState;
+  defaultColumnFilters: ColumnFiltersState;
   pagination: PaginationState;
   sorting: SortingState;
 
+  defaultColumnSort?: ColumnSort;
   defaultPageSize?: number;
   isUserPersistenceEnabled?: boolean;
 }
@@ -29,7 +31,8 @@ export function useTableSync({
   columnVisibility,
   pagination,
   sorting,
-  defaultFilters = [],
+  defaultColumnSort = { id: 'title', desc: false },
+  defaultColumnFilters = [],
   defaultPageSize = 25,
   isUserPersistenceEnabled = false,
 }: UseAutoUpdatingQueryParamsProps) {
@@ -61,8 +64,8 @@ export function useTableSync({
 
     // Update individual components of the query params.
     updatePagination(searchParams, pagination, defaultPageSize);
-    updateFilters(searchParams, columnFilters, defaultFilters);
-    updateSorting(searchParams, sorting);
+    updateFilters(searchParams, columnFilters, defaultColumnFilters);
+    updateSorting(searchParams, sorting, defaultColumnSort);
 
     // `searchParams.size` is not supported in all envs, especially Node.js (Vitest).
     const searchParamsSize = Array.from(searchParams).length;
@@ -93,13 +96,17 @@ function updatePagination(
   }
 }
 
-function updateSorting(searchParams: URLSearchParams, sorting: SortingState): void {
+function updateSorting(
+  searchParams: URLSearchParams,
+  sorting: SortingState,
+  defaultColumnSort: ColumnSort,
+): void {
   // We only support a single active sort. The table is always sorted,
   // so it's fine to assume index 0 (activeSort) is always present.
   const [activeSort] = sorting;
 
   if (activeSort) {
-    if (activeSort.id === 'title' && !activeSort.desc) {
+    if (activeSort.id === defaultColumnSort.id && activeSort.desc === defaultColumnSort.desc) {
       searchParams.delete('sort');
     } else {
       searchParams.set('sort', `${activeSort.desc ? '-' : ''}${activeSort.id}`);
@@ -110,7 +117,7 @@ function updateSorting(searchParams: URLSearchParams, sorting: SortingState): vo
 function updateFilters(
   searchParams: URLSearchParams,
   columnFilters: ColumnFiltersState,
-  defaultFilters: ColumnFiltersState = [],
+  defaultFilters: ColumnFiltersState,
 ): void {
   const activeFilterIds = new Set(columnFilters.map((filter) => `filter[${filter.id}]`));
   const defaultFilterMap = new Map(defaultFilters.map((filter) => [filter.id, filter.value]));
