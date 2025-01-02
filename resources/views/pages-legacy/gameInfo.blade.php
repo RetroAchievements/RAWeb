@@ -574,7 +574,8 @@ if ($isFullyFeaturedGame) {
                 }
 
                 if ($permissions >= Permissions::Developer) {
-                    echo "<div><a class='btn btn-link' href='/game/$gameID/hashes/manage'>Manage Hashes</a></div>";
+                    $manageHashesHref = route('filament.admin.resources.games.hashes', ['record' => $gameID]);
+                    echo "<div><a class='btn btn-link' href='{$manageHashesHref}'>Manage Hashes</a></div>";
                 }
 
                 $primaryClaimUser = null;

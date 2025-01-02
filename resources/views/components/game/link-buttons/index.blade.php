@@ -4,7 +4,6 @@
         'forum-topic',
         'game-files',
         'guide',
-        // 'manage-hashes', // supported, but is not a default
         'set-requestors',
         'suggested-games',
         'tickets',
@@ -69,17 +68,6 @@ if ($canSeeOpenTickets) {
                 :href="route('game.hashes.index', ['game' => $game])"
             >
                 Supported Game Files
-            </x-game.link-buttons.game-link-button>
-        @endcan
-    @endif
-
-    @if (in_array('manage-hashes', $allowedLinks))
-        @can('manage', App\Models\GameHash::class)
-            <x-game.link-buttons.game-link-button
-                icon="💾"
-                :href="route('game.hash.manage', ['game' => $game])"
-            >
-                Manage Hashes
             </x-game.link-buttons.game-link-button>
         @endcan
     @endif
