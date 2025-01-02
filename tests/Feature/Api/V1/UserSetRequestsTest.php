@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Community\Enums\UserGameListType;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
@@ -52,13 +53,13 @@ class UserSetRequestsTest extends TestCase
         // Create the first user game list entry for the set request
         UserGameListEntry::factory()->create([
             'user_id' => $user->ID,
-            'type' => 'achievement_set_request',
+            'type' => UserGameListType::AchievementSetRequest,
             'GameID' => $game->ID,
         ]);
         // Create the second user game list entry for the set request
         UserGameListEntry::factory()->create([
             'user_id' => $user->ID,
-            'type' => 'achievement_set_request',
+            'type' => UserGameListType::AchievementSetRequest,
             'GameID' => $game2->ID,
         ]);
 
@@ -89,7 +90,7 @@ class UserSetRequestsTest extends TestCase
     /**
      * Test that the API returns only set requests with no published achievements for an existing user.
      */
-    public function testGetUserSetRequests(): void
+    public function testGetUnpublishedUserSetRequests(): void
     {
         $system = System::factory()->create();
         $game = Game::factory()->create([
@@ -111,13 +112,13 @@ class UserSetRequestsTest extends TestCase
         // Create the first user game list entry for the set request
         UserGameListEntry::factory()->create([
             'user_id' => $user->ID,
-            'type' => 'achievement_set_request',
+            'type' => UserGameListType::AchievementSetRequest,
             'GameID' => $game->ID,
         ]);
         // Create the second user game list entry for the set request
         UserGameListEntry::factory()->create([
             'user_id' => $user->ID,
-            'type' => 'achievement_set_request',
+            'type' => UserGameListType::AchievementSetRequest,
             'GameID' => $game2->ID,
         ]);
 
