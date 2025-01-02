@@ -22,7 +22,7 @@ export const RecentForumPostItem: FC<RecentForumPostItemProps> = ({ post }) => {
   }
 
   return (
-    <div className="rounded bg-embed px-2.5 py-1.5">
+    <div className="max-w-[840px] rounded bg-embed px-2.5 py-1.5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <UserAvatar {...post.latestComment.user} size={16} />
