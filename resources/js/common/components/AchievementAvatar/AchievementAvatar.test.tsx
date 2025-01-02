@@ -22,14 +22,26 @@ describe('Component: AchievementAvatar', () => {
     expect(screen.getByText(achievement.title)).toBeVisible();
   });
 
-  it('given there is no title, still renders successfully', () => {
+  it('given there is no title, shows a generic alt text on the image', () => {
     // ARRANGE
     const achievement = createAchievement({ title: undefined });
 
     render(<AchievementAvatar {...achievement} />);
 
     // ASSERT
-    expect(screen.getByRole('img', { name: /achievement/i })).toBeVisible();
+    expect(screen.getByRole('img')).toHaveAttribute('alt', 'Achievement');
+  });
+
+  it('configures the image with correct loading attributes', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    render(<AchievementAvatar {...achievement} />);
+
+    // ASSERT
+    const imgEl = screen.getByRole('img');
+    expect(imgEl).toHaveAttribute('loading', 'lazy');
+    expect(imgEl).toHaveAttribute('decoding', 'async');
   });
 
   it('applies the correct size to the image', () => {
@@ -40,7 +52,6 @@ describe('Component: AchievementAvatar', () => {
 
     // ASSERT
     const imgEl = screen.getByRole('img');
-
     expect(imgEl).toHaveAttribute('width', '8');
     expect(imgEl).toHaveAttribute('height', '8');
   });
@@ -52,7 +63,7 @@ describe('Component: AchievementAvatar', () => {
     render(<AchievementAvatar {...achievement} />);
 
     // ASSERT
-    const anchorEl = screen.getByRole('link');
+    const anchorEl = screen.getAllByRole('link')[0];
 
     expect(anchorEl).toHaveAttribute(
       'x-data',
@@ -70,12 +81,12 @@ describe('Component: AchievementAvatar', () => {
     render(<AchievementAvatar {...achievement} hasTooltip={false} />);
 
     // ASSERT
-    const anchorEl = screen.getByRole('link');
+    const anchorEl = screen.getAllByRole('link')[0];
 
     expect(anchorEl).not.toHaveAttribute('x-data');
     expect(anchorEl).not.toHaveAttribute('x-on:mouseover');
     expect(anchorEl).not.toHaveAttribute('x-on:mouseleave');
-    expect(anchorEl).not.toHaveAccessibleDescription('x-on:mousemove');
+    expect(anchorEl).not.toHaveAttribute('x-on:mousemove');
   });
 
   it('can be configured to not show an image', () => {
@@ -96,18 +107,9 @@ describe('Component: AchievementAvatar', () => {
 
     // ASSERT
     const imgEl = screen.getByRole('img');
-    expect(imgEl).toHaveClass('outline outline-2 outline-offset-1 outline-[gold]');
-  });
-
-  it('does not add hardcore unlock border styling when showHardcoreUnlockBorder is false', () => {
-    // ARRANGE
-    const achievement = createAchievement();
-
-    render(<AchievementAvatar {...achievement} showHardcoreUnlockBorder={false} />);
-
-    // ASSERT
-    const imgEl = screen.getByRole('img');
-    expect(imgEl).not.toHaveClass('outline outline-2 outline-offset-1 outline-[gold]');
+    expect(imgEl).toHaveClass(
+      'rounded-[1px] outline outline-2 outline-offset-1 outline-[gold] light:outline-amber-500',
+    );
   });
 
   it('given showPointsInTitle is true, includes points in the title text', () => {
@@ -136,7 +138,7 @@ describe('Component: AchievementAvatar', () => {
     expect(screen.getByText('Test Achievement (0)')).toBeVisible();
   });
 
-  it('given a sublabelSlot, wraps the content in a flex column container', () => {
+  it('given a sublabelSlot, styles the content correctly', () => {
     // ARRANGE
     const achievement = createAchievement();
 
@@ -144,8 +146,7 @@ describe('Component: AchievementAvatar', () => {
 
     // ASSERT
     const containerEl = screen.getByText(achievement.title).parentElement;
-
-    expect(containerEl).toHaveClass('flex flex-col');
+    expect(containerEl).toHaveClass('max-w-fit');
     expect(screen.getByText(/sublabel content/i)).toBeVisible();
   });
 
@@ -160,5 +161,30 @@ describe('Component: AchievementAvatar', () => {
     // ASSERT
     expect(screen.queryByText(achievement.title)).not.toBeInTheDocument();
     expect(screen.getByText(/sublabel/i)).toBeVisible();
+  });
+
+  it('given showHardcoreUnlockBorder is false, applies the correct gap spacing', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    // ACT
+    render(<AchievementAvatar {...achievement} showHardcoreUnlockBorder={false} />);
+
+    // ASSERT
+    const containerEl = screen.getByText(achievement.title).parentElement?.parentElement;
+    expect(containerEl).toHaveClass('gap-2');
+    expect(containerEl).not.toHaveClass('gap-2.5');
+  });
+
+  it('given showHardcoreUnlockBorder is false, does not apply border styling to the image', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    // ACT
+    render(<AchievementAvatar {...achievement} showHardcoreUnlockBorder={false} />);
+
+    // ASSERT
+    const imgEl = screen.getByRole('img');
+    expect(imgEl).not.toHaveClass('outline-2');
   });
 });

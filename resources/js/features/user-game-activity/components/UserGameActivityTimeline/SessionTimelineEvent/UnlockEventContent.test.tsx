@@ -1,5 +1,5 @@
 import { render, screen } from '@/test';
-import { createAchievement } from '@/test/factories';
+import { createAchievement, createPlayerGameActivityEvent, createUser } from '@/test/factories';
 
 import { UnlockEventContent } from './UnlockEventContent';
 
@@ -17,12 +17,14 @@ describe('Component: UnlockEventContent', () => {
 
     const { container } = render(
       <UnlockEventContent
-        achievement={achievement}
-        hardcore={false}
-        hardcoreLater={false}
         previousEventKind="start-session"
+        sessionEvent={createPlayerGameActivityEvent({
+          achievement,
+          hardcore: false,
+          hardcoreLater: false,
+          when: null,
+        })}
         sessionType="player-session"
-        when={null}
         whenPrevious={null}
       />,
     );
@@ -44,12 +46,14 @@ describe('Component: UnlockEventContent', () => {
 
     render(
       <UnlockEventContent
-        achievement={achievement}
-        hardcore={false}
-        hardcoreLater={false}
         previousEventKind="unlock"
+        sessionEvent={createPlayerGameActivityEvent({
+          achievement,
+          hardcore: false,
+          hardcoreLater: false,
+          when: null,
+        })}
         sessionType="player-session"
-        when={null}
         whenPrevious={null}
       />,
     );
@@ -72,12 +76,14 @@ describe('Component: UnlockEventContent', () => {
 
     render(
       <UnlockEventContent
-        achievement={achievement}
-        hardcore={false}
-        hardcoreLater={false}
         previousEventKind="unlock"
+        sessionEvent={createPlayerGameActivityEvent({
+          achievement,
+          hardcore: false,
+          hardcoreLater: false,
+          when: null,
+        })}
         sessionType="player-session"
-        when={null}
         whenPrevious={null}
       />,
     );
@@ -99,12 +105,14 @@ describe('Component: UnlockEventContent', () => {
 
     render(
       <UnlockEventContent
-        achievement={achievement}
-        hardcore={true}
-        hardcoreLater={false}
         previousEventKind="unlock"
+        sessionEvent={createPlayerGameActivityEvent({
+          achievement,
+          hardcore: true,
+          hardcoreLater: false,
+          when: null,
+        })}
         sessionType="player-session"
-        when={null}
         whenPrevious={null}
       />,
     );
@@ -126,12 +134,14 @@ describe('Component: UnlockEventContent', () => {
 
     render(
       <UnlockEventContent
-        achievement={achievement}
-        hardcore={false}
-        hardcoreLater={true} // !!
         previousEventKind="unlock"
+        sessionEvent={createPlayerGameActivityEvent({
+          achievement,
+          hardcore: false,
+          hardcoreLater: true, // !!
+          when: null,
+        })}
         sessionType="player-session"
-        when={null}
         whenPrevious={null}
       />,
     );
@@ -153,12 +163,14 @@ describe('Component: UnlockEventContent', () => {
 
     render(
       <UnlockEventContent
-        achievement={achievement}
-        hardcore={true}
-        hardcoreLater={false}
         previousEventKind="unlock"
+        sessionEvent={createPlayerGameActivityEvent({
+          achievement,
+          hardcore: true,
+          hardcoreLater: false,
+          when: '2024-01-01T00:00:00Z', // !!
+        })}
         sessionType="player-session"
-        when="2024-01-01T00:00:00Z" // !!
         whenPrevious="2024-01-01T00:00:00Z" // !!
       />,
     );
@@ -180,12 +192,14 @@ describe('Component: UnlockEventContent', () => {
 
     render(
       <UnlockEventContent
-        achievement={achievement}
-        hardcore={true}
-        hardcoreLater={false}
         previousEventKind="unlock"
+        sessionEvent={createPlayerGameActivityEvent({
+          achievement,
+          hardcore: true,
+          hardcoreLater: false,
+          when: '2024-01-01T00:01:00Z', // !!
+        })}
         sessionType="player-session"
-        when="2024-01-01T00:01:00Z" // !!
         whenPrevious="2024-01-01T00:00:00Z" // !!
       />,
     );
@@ -207,12 +221,14 @@ describe('Component: UnlockEventContent', () => {
 
     render(
       <UnlockEventContent
-        achievement={achievement}
-        hardcore={true}
-        hardcoreLater={false}
         previousEventKind="start-session" // !!
+        sessionEvent={createPlayerGameActivityEvent({
+          achievement,
+          hardcore: true,
+          hardcoreLater: false,
+          when: '2024-01-01T00:01:00Z', // !!
+        })}
         sessionType="player-session"
-        when="2024-01-01T00:01:00Z" // !!
         whenPrevious="2024-01-01T00:00:00Z" // !!
       />,
     );
@@ -234,12 +250,14 @@ describe('Component: UnlockEventContent', () => {
 
     render(
       <UnlockEventContent
-        achievement={achievement}
-        hardcore={true}
-        hardcoreLater={false}
         previousEventKind="start-session" // !!
+        sessionEvent={createPlayerGameActivityEvent({
+          achievement,
+          hardcore: true,
+          hardcoreLater: false,
+          when: '2024-01-01T00:00:00Z',
+        })}
         sessionType="player-session"
-        when="2024-01-01T00:00:00Z" // !!
         whenPrevious="2024-01-01T00:00:00Z" // !!
       />,
     );
@@ -265,17 +283,50 @@ describe('Component: UnlockEventContent', () => {
 
     render(
       <UnlockEventContent
-        achievement={achievement}
-        hardcore={true}
-        hardcoreLater={false}
         previousEventKind="start-session" // !!
+        sessionEvent={createPlayerGameActivityEvent({
+          achievement,
+          hardcore: true,
+          hardcoreLater: false,
+          when: '2024-01-01T00:00:00Z', // !!
+        })}
         sessionType="reconstructed"
-        when="2024-01-01T00:00:00Z" // !!
         whenPrevious="2024-01-01T00:00:00Z" // !!
       />,
     );
 
     // ASSERT
     expect(screen.getByText(/start of reconstructed timeline/i)).toBeVisible();
+  });
+
+  it('given a manually unlocked achievement, shows the unlocker avatar and label', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      id: 1,
+      title: 'Test Achievement',
+      description: 'Test Description',
+      points: 10,
+      badgeUnlockedUrl: '/Images/1234.png',
+      flags: 3,
+    });
+
+    render(
+      <UnlockEventContent
+        previousEventKind="unlock"
+        sessionEvent={createPlayerGameActivityEvent({
+          achievement,
+          hardcore: true,
+          hardcoreLater: false,
+          when: null,
+          unlocker: createUser({ displayName: 'Snow' }), // !!
+        })}
+        sessionType="player-session"
+        whenPrevious={null}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/manually unlocked by/i)).toBeVisible();
+    expect(screen.getByRole('img', { name: /snow/i })).toBeVisible();
   });
 });

@@ -32,12 +32,9 @@ export const SessionTimelineEvent: FC<SessionTimelineEventProps> = ({
 
       {sessionEvent.type === 'unlock' && sessionEvent.achievement ? (
         <UnlockEventContent
-          achievement={sessionEvent.achievement}
-          hardcore={!!sessionEvent.hardcore}
-          hardcoreLater={!!sessionEvent.hardcoreLater}
           previousEventKind={previousEventKind}
+          sessionEvent={sessionEvent}
           sessionType={sessionType}
-          when={sessionEvent.when}
           whenPrevious={previousEventTimestamp}
         />
       ) : null}

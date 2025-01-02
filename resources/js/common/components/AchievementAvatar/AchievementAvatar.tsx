@@ -7,7 +7,7 @@ import { cn } from '@/common/utils/cn';
 // TODO come up with some way to determine if the locked or unlocked badge should be shown
 // this can be driven off `unlockedAt` or `unlockedHardcoreAt` from the `Achievement` model,
 // but there may be cases we want to always show locked or always show unlocked.
-// maybe an enum prop like `displayLockedStatus: 'always-locked' | 'always-unlocked' | 'auto'`
+// maybe an enum prop like `displayLockedStatus: 'always-locked' | 'always-unlocked' | 'auto'.
 type AchievementAvatarProps = BaseAvatarProps &
   App.Platform.Data.Achievement & {
     showHardcoreUnlockBorder?: boolean;
@@ -16,7 +16,7 @@ type AchievementAvatarProps = BaseAvatarProps &
   };
 
 export const AchievementAvatar: FC<AchievementAvatarProps> = ({
-  badgeUnlockedUrl, // see TODO above
+  badgeUnlockedUrl,
   id,
   imgClassName,
   points,
@@ -36,40 +36,48 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
     titleLabel = `${title} (${points ?? 0})`;
   }
 
-  return (
+  const achievementLink = (label: React.ReactNode) => (
     <a
       href={route('achievement.show', { achievement: id })}
-      className={cn('flex max-w-fit items-center', showHardcoreUnlockBorder ? 'gap-2.5' : 'gap-2')}
+      className="max-w-fit"
       {...(hasTooltip ? cardTooltipProps : undefined)}
     >
-      {showImage ? (
-        <img
-          loading="lazy"
-          decoding="async"
-          width={size}
-          height={size}
-          src={badgeUnlockedUrl}
-          alt={title ?? 'Achievement'}
-          className={cn(
-            'rounded-sm',
+      {label}
+    </a>
+  );
 
-            showHardcoreUnlockBorder
-              ? 'rounded-[1px] outline outline-2 outline-offset-1 outline-[gold] light:outline-amber-500'
-              : null,
-
-            imgClassName,
-          )}
-        />
-      ) : null}
+  return (
+    <div
+      className={cn('flex max-w-fit items-center', showHardcoreUnlockBorder ? 'gap-2.5' : 'gap-2')}
+    >
+      {showImage
+        ? achievementLink(
+            <img
+              loading="lazy"
+              decoding="async"
+              width={size}
+              height={size}
+              src={badgeUnlockedUrl}
+              alt={title ?? 'Achievement'}
+              className={cn(
+                'rounded-sm',
+                showHardcoreUnlockBorder
+                  ? 'rounded-[1px] outline outline-2 outline-offset-1 outline-[gold] light:outline-amber-500'
+                  : null,
+                imgClassName,
+              )}
+            />,
+          )
+        : null}
 
       {sublabelSlot ? (
         <div className="flex flex-col">
-          {title && showLabel ? <span>{titleLabel}</span> : null}
+          {title && showLabel ? achievementLink(<span>{titleLabel}</span>) : null}
           {sublabelSlot}
         </div>
       ) : (
-        <>{title && showLabel ? <span>{titleLabel}</span> : null}</>
+        <>{title && showLabel ? achievementLink(<span>{titleLabel}</span>) : null}</>
       )}
-    </a>
+    </div>
   );
 };

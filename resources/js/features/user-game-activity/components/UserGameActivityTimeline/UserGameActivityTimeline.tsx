@@ -27,10 +27,20 @@ export const UserGameActivityTimeline: FC<UserGameActivityTimelineProps> = ({
 
   const { sessions } = activity;
 
+  // If it's a manual unlock session but there are no events in the session,
+  // then there's nothing we can show.
+  const filteredSessions = sessions.filter((s) => {
+    if (s.type === 'manual-unlock' && !s.events.length) {
+      return false;
+    }
+
+    return true;
+  });
+
   return (
     <div className="rounded-lg border border-embed-highlight bg-embed p-4 text-gray-200">
       <Timeline>
-        {sessions.map((session, index) => {
+        {filteredSessions.map((session, index) => {
           const isVisible = getShouldAchievementSessionBeVisible(
             session,
             isOnlyShowingAchievementSessions,

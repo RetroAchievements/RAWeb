@@ -237,4 +237,32 @@ describe('Component: UserGameActivityTimeline', () => {
     expect(events[0]).toHaveClass('pb-2.5');
     expect(events[0]).toHaveClass('px-3 pt-3');
   });
+
+  it('given a manual unlock session has no events, filters it out', () => {
+    // ARRANGE
+    render<App.Platform.Data.PlayerGameActivityPageProps>(
+      <UserGameActivityTimeline isOnlyShowingAchievementSessions={false} />,
+      {
+        pageProps: {
+          activity: {
+            sessions: [
+              createPlayerGameActivitySession({
+                type: 'manual-unlock',
+                events: [], // !! empty events array
+              }),
+              createPlayerGameActivitySession({
+                type: 'manual-unlock',
+                events: [createPlayerGameActivityEvent()], // !! has events
+              }),
+            ],
+            clientBreakdown: [],
+            summarizedActivity: createPlayerGameActivitySummary(),
+          },
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getAllByTestId('session-header')).toHaveLength(2); // 1 session * 2 (desktop/mobile)
+  });
 });
