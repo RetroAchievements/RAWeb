@@ -121,7 +121,7 @@ class UserSetRequestsTest extends TestCase
             'GameID' => $game2->ID,
         ]);
 
-        // Note that only the second game is present in the assert. The  code will find the first game as well but only return the game with no published achievements.
+        // Note that only the second game is present in the assert. The code will find the first game as well but only return the game with no published achievements.
         $this->get($this->apiUrl('GetUserSetRequests', ['u' => $user->User, 't' => 0]))
             ->assertSuccessful()
             ->assertJson([
