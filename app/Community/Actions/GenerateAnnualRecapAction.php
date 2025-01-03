@@ -199,6 +199,8 @@ class GenerateAnnualRecapAction
                 AwardType::Mastery,
                 AwardType::GameBeaten,
             ])
+            ->join('GameData', 'GameData.ID', '=', 'AwardData')
+            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
             ->get();
 
         $MASTERED = 1;
