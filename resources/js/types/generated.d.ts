@@ -20,6 +20,17 @@ declare namespace App.Community.Data {
     canDelete: boolean;
     isAutomated: boolean;
   };
+  export type DeveloperFeedPageProps<TItems = App.Community.Data.ActivePlayer> = {
+    developer: App.Data.User;
+    unlocksContributed: number;
+    pointsContributed: number;
+    awardsContributed: number;
+    leaderboardEntriesContributed: number;
+    activePlayers: App.Data.PaginatedData<TItems>;
+    recentUnlocks: Array<App.Community.Data.RecentUnlock>;
+    recentPlayerBadges: Array<App.Community.Data.RecentPlayerBadge>;
+    recentLeaderboardEntries: Array<App.Community.Data.RecentLeaderboardEntry>;
+  };
   export type GameClaimsCommentsPageProps<TItems = App.Community.Data.Comment> = {
     game: App.Platform.Data.Game;
     paginatedComments: App.Data.PaginatedData<TItems>;
@@ -50,8 +61,28 @@ declare namespace App.Community.Data {
     isSubscribed: boolean;
     canComment: boolean;
   };
+  export type RecentLeaderboardEntry = {
+    leaderboard: App.Platform.Data.Leaderboard;
+    leaderboardEntry: App.Platform.Data.LeaderboardEntry;
+    game: App.Platform.Data.Game;
+    user: App.Data.User;
+    submittedAt: string;
+  };
+  export type RecentPlayerBadge = {
+    game: App.Platform.Data.Game;
+    awardType: string;
+    user: App.Data.User;
+    earnedAt: string;
+  };
   export type RecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     paginatedTopics: App.Data.PaginatedData<TItems>;
+  };
+  export type RecentUnlock = {
+    achievement: App.Platform.Data.Achievement;
+    game: App.Platform.Data.Game;
+    user: App.Data.User;
+    unlockedAt: string;
+    isHardcore: boolean;
   };
   export type Subscription = {
     id: number;
@@ -315,6 +346,10 @@ declare namespace App.Platform.Data {
     emulatorCore: string | null;
     selectedMode: number | null;
   };
+  export type DeveloperInterestPageProps = {
+    game: App.Platform.Data.Game;
+    developers: Array<App.Data.User>;
+  };
   export type Emulator = {
     id: number;
     name: string;
@@ -413,6 +448,12 @@ declare namespace App.Platform.Data {
     title: string;
     description?: string;
     game?: App.Platform.Data.Game;
+  };
+  export type LeaderboardEntry = {
+    id: number;
+    score?: number;
+    formattedScore?: string;
+    createdAt?: string;
   };
   export type PlayerBadge = {
     awardType: number;
