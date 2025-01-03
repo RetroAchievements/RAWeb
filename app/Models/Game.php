@@ -9,6 +9,7 @@ use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Enums\ArticleType;
 use App\Platform\Actions\SyncGameTagsFromTitleAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
+use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameSetType;
@@ -23,6 +24,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -37,7 +40,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Tags\HasTags;
 
 // TODO implements HasComments
-class Game extends BaseModel implements HasMedia
+class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 {
     /*
      * Community Traits
@@ -669,6 +672,18 @@ class Game extends BaseModel implements HasMedia
     public function unresolvedTickets(): HasManyThrough
     {
         return $this->tickets()->unresolved();
+    }
+
+    public function trigger(): MorphOne
+    {
+        return $this->morphOne(Trigger::class, 'triggerable')
+            ->latest('version');
+    }
+
+    public function triggers(): MorphMany
+    {
+        return $this->morphMany(Trigger::class, 'triggerable')
+            ->orderBy('version');
     }
 
     // == scopes

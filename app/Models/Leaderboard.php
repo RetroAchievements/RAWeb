@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Community\Enums\ArticleType;
+use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\ValueFormat;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\LeaderboardFactory;
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +24,7 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 // TODO implements HasComments
-class Leaderboard extends BaseModel
+class Leaderboard extends BaseModel implements HasVersionedTrigger
 {
     /*
      * Shared Traits
@@ -248,6 +251,18 @@ class Leaderboard extends BaseModel
         $currentUser = $user ?? Auth::user();
 
         return $this->comments()->visibleTo($currentUser);
+    }
+
+    public function trigger(): MorphOne
+    {
+        return $this->morphOne(Trigger::class, 'triggerable')
+            ->latest('version');
+    }
+
+    public function triggers(): MorphMany
+    {
+        return $this->morphMany(Trigger::class, 'triggerable')
+            ->orderBy('version');
     }
 
     // == scopes
