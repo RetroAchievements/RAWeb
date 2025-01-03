@@ -10,7 +10,6 @@ use App\Community\Commands\SyncForumCategories;
 use App\Community\Commands\SyncForums;
 use App\Community\Commands\SyncTickets;
 use App\Community\Commands\SyncUserRelations;
-use App\Community\Components\ActivePlayers;
 use App\Community\Components\DeveloperGameStatsTable;
 use App\Community\Components\ForumRecentActivity;
 use App\Community\Components\MessageIcon;
@@ -96,7 +95,6 @@ class AppServiceProvider extends ServiceProvider
         TriggerTicketComment::disableSearchSyncing();
         UserComment::disableSearchSyncing();
 
-        Blade::component('active-players', ActivePlayers::class);
         Blade::component('developer-game-stats-table', DeveloperGameStatsTable::class);
         Blade::component('forum-recent-activity', ForumRecentActivity::class);
         Blade::component('user-card', UserCard::class);

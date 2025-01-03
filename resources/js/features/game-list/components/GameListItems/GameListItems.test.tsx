@@ -294,4 +294,107 @@ describe('Component: GameListItems', () => {
 
     expect(screen.getByText(/game 4/i)).toBeVisible();
   });
+
+  it(
+    'given the user scrolls to the bottom multiple times, only prefetches each page once',
+    { timeout: 10_000 },
+    async () => {
+      // ARRANGE
+      mockAllIsIntersecting(false);
+
+      const firstPageGames = [
+        createGameListEntry({ game: createGame({ title: 'Game 1' }) }),
+        createGameListEntry({ game: createGame({ title: 'Game 2' }) }),
+      ];
+      const secondPageGames = [
+        createGameListEntry({ game: createGame({ title: 'Game 3' }) }),
+        createGameListEntry({ game: createGame({ title: 'Game 4' }) }),
+      ];
+      const thirdPageGames = [
+        createGameListEntry({ game: createGame({ title: 'Game 5' }) }),
+        createGameListEntry({ game: createGame({ title: 'Game 6' }) }),
+      ];
+
+      const firstPageData: App.Data.PaginatedData<App.Platform.Data.GameListEntry> = {
+        currentPage: 1,
+        lastPage: 3,
+        perPage: 2,
+        total: 6,
+        unfilteredTotal: 6,
+        items: firstPageGames,
+        links: { firstPageUrl: '#', lastPageUrl: '#', nextPageUrl: '#', previousPageUrl: '#' },
+      };
+
+      const secondPageData: App.Data.PaginatedData<App.Platform.Data.GameListEntry> = {
+        currentPage: 2,
+        lastPage: 3,
+        perPage: 2,
+        total: 6,
+        unfilteredTotal: 6,
+        items: secondPageGames,
+        links: { firstPageUrl: '#', lastPageUrl: '#', nextPageUrl: '#', previousPageUrl: '#' },
+      };
+
+      const thirdPageData: App.Data.PaginatedData<App.Platform.Data.GameListEntry> = {
+        currentPage: 3,
+        lastPage: 3,
+        perPage: 2,
+        total: 6,
+        unfilteredTotal: 6,
+        items: thirdPageGames,
+        links: { firstPageUrl: '#', lastPageUrl: '#', nextPageUrl: '#', previousPageUrl: '#' },
+      };
+
+      const getSpy = vi
+        .spyOn(axios, 'get')
+        .mockResolvedValueOnce({ data: firstPageData })
+        .mockResolvedValueOnce({ data: secondPageData })
+        .mockResolvedValueOnce({ data: thirdPageData });
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <GameListItems
+            sorting={[{ id: 'title', desc: false }]}
+            pagination={{ pageIndex: 0, pageSize: 100 }}
+            columnFilters={[]}
+          />
+        </QueryClientProvider>,
+        {
+          pageProps: {
+            ziggy: createZiggyProps({ device: 'mobile' }),
+          },
+        },
+      );
+
+      // ... wait for the initial load ...
+      await waitFor(() => {
+        screen.getByText(/game 1/i);
+      });
+
+      // ACT
+      // ... simulate scrolling to the bottom the first time ...
+      mockAllIsIntersecting(true);
+
+      // ... wait for the prefetch to complete ...
+      await waitFor(() => {
+        expect(getSpy).toHaveBeenCalledTimes(2);
+      });
+
+      // ... simulate scrolling back up ...
+      mockAllIsIntersecting(false);
+
+      // ... simulate scrolling to the bottom again ...
+      mockAllIsIntersecting(true);
+
+      // ASSERT
+      /**
+       * The spy should still only have been called twice - once for the initial load
+       * and once for the prefetch. Scrolling to the bottom again shouldn't trigger
+       * another prefetch of the same page or the Nth+1 page.
+       */
+      await waitFor(() => {
+        expect(getSpy).toHaveBeenCalledTimes(2);
+      });
+    },
+  );
 });
