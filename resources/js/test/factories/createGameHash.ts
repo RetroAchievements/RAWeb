@@ -15,5 +15,6 @@ export const createGameHash = createFactory<App.Platform.Data.GameHash>((faker) 
     md5: faker.string.alphanumeric(32),
     name: faker.word.words(3),
     patchUrl: faker.internet.url(),
+    source: null,
   };
 });

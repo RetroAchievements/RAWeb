@@ -68,20 +68,6 @@ describe('Component: HashesList', () => {
     expect(screen.getByText(hash.md5)).toBeVisible();
   });
 
-  it('given the hash has a patch URL, adds a link to it', () => {
-    // ARRANGE
-    const hash = createGameHash({ patchUrl: faker.internet.url() });
-
-    render<App.Platform.Data.GameHashesPageProps>(<HashesList />, {
-      pageProps: { hashes: [hash] },
-    });
-
-    // ASSERT
-    const linkEl = screen.getByRole('link', { name: /download patch file/i });
-    expect(linkEl).toBeVisible();
-    expect(linkEl).toHaveAttribute('href', hash.patchUrl);
-  });
-
   it('given the hash has no patch URL, does not display a download link', () => {
     // ARRANGE
     const hash = createGameHash({ patchUrl: null });
@@ -185,5 +171,80 @@ describe('Component: HashesList', () => {
     expect(renderedMd5s[0]).toContain('48e2e4493149fb481852f9ca9e70315f');
     expect(renderedMd5s[1]).toContain('77057d9d14b99e465ea9e29783af0ae3');
     expect(renderedMd5s[2]).toContain('a78d58b97eddb7c70647d939e20bef4f');
+  });
+
+  it('given the hash has both source and patch URLs, displays links to both', () => {
+    // ARRANGE
+    const hash = createGameHash({
+      source: faker.internet.url(),
+      patchUrl: faker.internet.url(),
+    });
+
+    render<App.Platform.Data.GameHashesPageProps>(<HashesList />, {
+      pageProps: { hashes: [hash] },
+    });
+
+    // ASSERT
+    const links = screen.getAllByRole('link');
+    expect(links[0]).toHaveAttribute('href', hash.source);
+    expect(links[1]).toHaveAttribute('href', hash.patchUrl);
+
+    expect(screen.getByText(/download from original source/i)).toBeVisible();
+    expect(screen.getByText(/mirror/i)).toBeVisible();
+  });
+
+  it('given the hash only has a patch URL, displays a single download link', () => {
+    // ARRANGE
+    const hash = createGameHash({
+      source: null,
+      patchUrl: faker.internet.url(),
+    });
+
+    render<App.Platform.Data.GameHashesPageProps>(<HashesList />, {
+      pageProps: { hashes: [hash] },
+    });
+
+    // ASSERT
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', hash.patchUrl);
+    expect(screen.getByText(/download patch file/i)).toBeVisible();
+
+    expect(screen.queryByText(/mirror/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/download from original source/i)).not.toBeInTheDocument();
+  });
+
+  it('given the hash only has a source URL, does not display any links', () => {
+    // ARRANGE
+    const hash = createGameHash({
+      source: faker.internet.url(),
+      patchUrl: null,
+    });
+
+    render<App.Platform.Data.GameHashesPageProps>(<HashesList />, {
+      pageProps: { hashes: [hash] },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('given the hash only has a patch URL, displays a single download link', () => {
+    // ARRANGE
+    const hash = createGameHash({
+      source: null,
+      patchUrl: faker.internet.url(),
+    });
+
+    render<App.Platform.Data.GameHashesPageProps>(<HashesList />, {
+      pageProps: { hashes: [hash] },
+    });
+
+    // ASSERT
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', hash.patchUrl);
+    expect(screen.getByText(/download patch file/i)).toBeVisible();
+
+    expect(screen.queryByText(/mirror/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/download from original source/i)).not.toBeInTheDocument();
   });
 });
