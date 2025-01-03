@@ -115,13 +115,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.dev-interest": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.suggest": [
         {
             "name": "game",
@@ -180,6 +173,13 @@ declare module 'ziggy-js' {
     "api.system.game.random": [
         {
             "name": "systemId",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "game.dev-interest": [
+        {
+            "name": "game",
             "required": true,
             "binding": "ID"
         }
