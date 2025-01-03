@@ -170,23 +170,12 @@ class BuildDeveloperFeedDataAction
      */
     private function getRecentLeaderboardEntries(User $targetUser): array
     {
-        $thirtyDaysAgo = Carbon::now()->subDays(30);
-
-        // Using FORCE INDEX in MySQL/MariaDB dramatically improves performance (from ~550ms to ~20ms).
-        // We conditionally apply the hint only when using MySQL/MariaDB. It is not supported by SQLite.
-        $query = LeaderboardEntry::query();
-
-        if (DB::connection()->getDriverName() === 'mariadb') {
-            $query->from(DB::raw('leaderboard_entries FORCE INDEX (idx_recent_entries)'));
-        }
-
-        return $query
-            ->with(['leaderboard', 'leaderboard.game', 'leaderboard.game.system', 'user'])
-            ->join('LeaderboardDef', 'LeaderboardDef.ID', '=', 'leaderboard_entries.leaderboard_id')
-            ->where('LeaderboardDef.author_id', $targetUser->id)
+        return LeaderboardEntry::select('leaderboard_entries.*')
+            ->with(['leaderboard.game.system', 'user'])
+            ->join('LeaderboardDef as ld', 'ld.ID', '=', 'leaderboard_entries.leaderboard_id')
+            ->where('ld.author_id', $targetUser->id)
             ->whereNull('leaderboard_entries.deleted_at')
-            ->where('leaderboard_entries.updated_at', '>=', $thirtyDaysAgo)
-            ->select('leaderboard_entries.*')
+            ->where('leaderboard_entries.updated_at', '>=', now()->subDays(30))
             ->orderBy('leaderboard_entries.updated_at', 'desc')
             ->take(200)
             ->get()
