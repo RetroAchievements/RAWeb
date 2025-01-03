@@ -4,12 +4,16 @@ import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 import type { BaseAvatarProps } from '@/common/models';
 import { cn } from '@/common/utils/cn';
 
-type UserAvatarProps = BaseAvatarProps & App.Data.User;
+type UserAvatarProps = BaseAvatarProps &
+  App.Data.User & {
+    wrapperClassName?: string;
+  };
 
 export const UserAvatar: FC<UserAvatarProps> = ({
   displayName,
   deletedAt,
   imgClassName,
+  wrapperClassName,
   hasTooltip = true,
   showImage = true,
   showLabel = true,
@@ -23,7 +27,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
   return (
     <Wrapper
       href={canLinkToUser ? route('user.show', [displayName]) : undefined}
-      className="flex max-w-fit items-center gap-2"
+      className={cn('flex max-w-fit items-center gap-2', wrapperClassName)}
       {...(hasTooltip && canLinkToUser ? cardTooltipProps : undefined)}
     >
       {showImage ? (

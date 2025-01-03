@@ -4,24 +4,23 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-abstract class PlayerGameActivitySessionType
+enum PlayerGameActivitySessionType: string
 {
-    public const Player = 'player-session';
+    case Player = 'player-session';
 
-    public const Reconstructed = 'reconstructed';
+    case Reconstructed = 'reconstructed';
 
-    public const ManualUnlock = 'manual-unlock';
+    case ManualUnlock = 'manual-unlock';
 
-    public const TicketCreated = 'ticket-created';
+    case TicketCreated = 'ticket-created';
 
-    public static function toString(string $type): string
+    public function label(): string
     {
-        return match ($type) {
-            PlayerGameActivitySessionType::Player => "Player Session",
-            PlayerGameActivitySessionType::Reconstructed => "Reconstructed Session",
-            PlayerGameActivitySessionType::ManualUnlock => "Manual Unlock",
-            PlayerGameActivitySessionType::TicketCreated => "Ticket Created",
-            default => $type,
+        return match ($this) {
+            self::Player => 'Player Session',
+            self::Reconstructed => 'Reconstructed Session',
+            self::ManualUnlock => 'Manual Unlock',
+            self::TicketCreated => 'Ticket Created',
         };
     }
 }

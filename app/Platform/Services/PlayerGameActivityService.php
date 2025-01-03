@@ -124,8 +124,12 @@ class PlayerGameActivityService
         $this->sessions[$existingSessionIndex]['events'][] = $event;
     }
 
-    public function addCustomEvent(Carbon $when, string $sessionType, string $description, string $header = ''): void
-    {
+    public function addCustomEvent(
+        Carbon $when,
+        PlayerGameActivitySessionType $sessionType,
+        string $description,
+        string $header = ''
+    ): void {
         $event = [
             'type' => PlayerGameActivityEventType::Custom,
             'header' => $header,
@@ -164,7 +168,7 @@ class PlayerGameActivityService
         });
     }
 
-    private function findSession(string $type, Carbon $when): int
+    private function findSession(PlayerGameActivitySessionType $type, Carbon $when): int
     {
         $index = 0;
         foreach ($this->sessions as &$session) {
@@ -180,7 +184,7 @@ class PlayerGameActivityService
         return -1;
     }
 
-    private function generateSession(string $type, Carbon $when): int
+    private function generateSession(PlayerGameActivitySessionType $type, Carbon $when): int
     {
         $mergeHours = ($type === PlayerGameActivitySessionType::ManualUnlock) ? 1 : 4;
         $whenBefore = $when->clone()->subHours($mergeHours);
