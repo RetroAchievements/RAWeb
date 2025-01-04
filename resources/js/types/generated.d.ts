@@ -1,9 +1,17 @@
 declare namespace App.Community.Data {
+  export type AchievementChecklistPageProps = {
+    player: App.Data.User;
+    groups: Array<App.Community.Data.AchievementGroup>;
+  };
   export type AchievementCommentsPageProps<TItems = App.Community.Data.Comment> = {
     achievement: App.Platform.Data.Achievement;
     paginatedComments: App.Data.PaginatedData<TItems>;
     isSubscribed: boolean;
     canComment: boolean;
+  };
+  export type AchievementGroup = {
+    header: string;
+    achievements: Array<App.Platform.Data.Achievement>;
   };
   export type ActivePlayer = {
     user: App.Data.User;
@@ -256,7 +264,7 @@ declare namespace App.Data {
   };
 }
 declare namespace App.Enums {
-  export type ClientSupportLevel = 0 | 1 | 2 | 3;
+  export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4;
   export type UserPreference =
     | 0
     | 1
@@ -510,7 +518,6 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
-  export type UnlockMode = 0 | 1;
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
   export type AchievementFlag = 3 | 5;
   export type AchievementSetAuthorTask = 'artwork';
@@ -547,7 +554,8 @@ declare namespace App.Platform.Enums {
     | 'numVisibleLeaderboards'
     | 'numUnresolvedTickets'
     | 'progress';
-  export type GameSetType = 'hub' | 'similar-games';
   export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
+  export type UnlockMode = 0 | 1;
+  export type GameSetType = 'hub' | 'similar-games';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 }
