@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -37,6 +38,14 @@ if (!$achievement->save()) {
     return back()->withErrors(__('legacy.error.image_upload'));
 }
 
-addArticleComment('Server', ArticleType::Achievement, $achievementId, "$user edited this achievement's badge.", $user);
+$userModel = User::whereName($user)->first();
+
+addArticleComment(
+    'Server',
+    ArticleType::Achievement,
+    $achievementId,
+    "{$userModel->display_name} edited this achievement's badge.",
+    $userModel->display_name
+);
 
 return back()->with('success', __('legacy.success.image_upload'));

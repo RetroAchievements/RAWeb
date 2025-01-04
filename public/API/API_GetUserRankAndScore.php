@@ -10,6 +10,7 @@
  *  int        TotalRanked     total number of ranked users
  */
 
+use App\Models\User;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -18,18 +19,21 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
 ]);
 
-$user = request()->query('u');
+$username = request()->query('u');
 
 $points = 0;
 $softcorePoints = 0;
-if (getPlayerPoints($user, $playerPoints)) {
-    $points = $playerPoints['RAPoints'];
-    $softcorePoints = $playerPoints['RASoftcorePoints'];
+
+$foundUser = User::whereName($username)->first();
+
+if ($foundUser) {
+    $points = $foundUser?->points ?? 0;
+    $softcorePoints = $foundUser?->points_softcore ?? 0;
 }
 
 return response()->json([
     'Score' => $points,
     'SoftcoreScore' => $softcorePoints,
-    'Rank' => getUserRank($user),
+    'Rank' => $foundUser ? getUserRank($foundUser->display_name) : null,
     'TotalRanked' => countRankedUsers(),
 ]);

@@ -8,7 +8,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'username' => 'required',
 ]);
 
-$targetUser = User::firstWhere('User', $input['username']);
+$targetUser = User::whereName($input['username'])->first();
 
 if ($targetUser && !$targetUser->isBanned()) {
     RequestPasswordReset($targetUser);

@@ -30,7 +30,7 @@ function userAvatar(
             CacheKey::buildUserCardDataCacheKey($username),
             Carbon::now()->addMonths(3),
             function () use ($username): ?array {
-                $foundUser = User::firstWhere('User', $username);
+                $foundUser = User::whereName($username)->first();
 
                 return $foundUser ? $foundUser->toArray() : null;
             }
@@ -42,6 +42,7 @@ function userAvatar(
     }
 
     $username = $user['User'] ?? null;
+    $displayName = $user['display_name'] ?? $user['User'] ?? null;
 
     if ($user['Deleted'] ?? false) {
         $userSanitized = $username;
@@ -63,8 +64,8 @@ function userAvatar(
     return avatar(
         resource: 'user',
         id: $username,
-        label: $label !== false && ($label || !$icon) ? $username : null,
-        link: $link ?: route('user.show', $username),
+        label: $label !== false && ($label || !$icon) ? $displayName : null,
+        link: $link ?: route('user.show', $displayName),
         tooltip: is_array($tooltip) ? renderUserCard($tooltip) : $tooltip,
         class: 'inline whitespace-nowrap',
         iconUrl: $icon !== false && ($icon || !$label) ? media_asset('/UserPic/' . $username . '.png') : null,

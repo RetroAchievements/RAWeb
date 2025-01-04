@@ -40,7 +40,7 @@ render(function (View $view, User $user, PlayerCompletionProgressPageService $pa
     :pageDescription="$seo['pageDescription']"
 >
     <div>
-        <x-user.breadcrumbs :targetUsername="$targetUsername" currentPage="Completion Progress" />
+        <x-user.breadcrumbs :targetDisplayName="$user->display_name" currentPage="Completion Progress" />
 
         <div class="mt-3 -mb-3 w-full flex gap-x-3">
             {!! userAvatar($targetUsername, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
@@ -93,7 +93,7 @@ render(function (View $view, User $user, PlayerCompletionProgressPageService $pa
             <div class="w-full flex flex-col gap-y-2 items-center justify-center bg-embed rounded py-8">
                 <img src="/assets/images/cheevo/confused.webp" alt="No sets in progress">
                 <p>
-                    {{ $isMe ? "You don't" : $targetUsername . " doesn't" }}
+                    {{ $isMe ? "You don't" : $user->display_name . " doesn't" }}
                     have any
                     {{ $isFiltering ? "games matching your current filter criteria." : "games with achievement unlocks yet." }}
                 </p>

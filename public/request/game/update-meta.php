@@ -26,7 +26,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 
 $gameId = (int) $input['game'];
 
-$userModel = User::firstWhere('User', $user);
+$userModel = User::whereName($user)->first();
 
 // Only allow jr. devs if they are the sole author of the set or have the primary claim
 if (
@@ -36,7 +36,7 @@ if (
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if (modifyGameData($user, $gameId, $input['developer'], $input['publisher'], $input['genre'], $input['guide_url'])) {
+if (modifyGameData($userModel, $gameId, $input['developer'], $input['publisher'], $input['genre'], $input['guide_url'])) {
     return back()->with('success', __('legacy.success.update'));
 }
 

@@ -24,7 +24,7 @@ class UpdateDeveloperContributionYield extends Command
         $username = $this->argument('username');
 
         if (!empty($username)) {
-            $users = User::where('User', $username)->get();
+            $users = User::whereName($username)->get();
         } else {
             $users = User::where('ContribCount', '>', 0)->get();
         }

@@ -12,7 +12,7 @@ use \Illuminate\Support\Js;
                                 <x-filament-panels::avatar.user :user="$auditLogItem->causer" />
                             @endif
                             <div class="flex flex-col text-left">
-                                <span class="font-bold">{{ $auditLogItem->causer?->User }}</span>
+                                <span class="font-bold">{{ $auditLogItem->causer?->display_name }}</span>
                                 <span class="text-xs text-gray-500">
                                     <div class="inline-block">
                                         <x-filament::badge

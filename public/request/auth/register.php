@@ -63,7 +63,7 @@ if (!$dbResult) {
 // Registered::dispatch($user);
 
 // Create an email validation token and send an email
-$userModel = User::firstWhere('User', $username);
+$userModel = User::whereName($username)->first();
 sendValidationEmail($userModel, $email);
 
 return back()->with('message', __('legacy.email_validate'));

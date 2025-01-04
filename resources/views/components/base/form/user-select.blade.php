@@ -34,18 +34,23 @@ $imageSource = media_asset("/UserPic/$username.png");
 ?>
 
 <script>
-function onUserChange(fieldId, imageId) {
+let selectedUsername = null;
+
+function onUserChange(fieldId, imageId, selectedUsername) {
     const fieldValue = $('#' + fieldId).val();
-    if (fieldValue.length > 2) {
+    if (fieldValue.length > 2 && selectedUsername) {
         const fieldIcon = $('#' + imageId);
         if (fieldIcon) {
-            fieldIcon.attr('src', mediaAsset('/UserPic/' + fieldValue + '.png'));
+            fieldIcon.attr('src', mediaAsset('/UserPic/' + selectedUsername + '.png'));
         }
     }
 }
 
 $(function () {
     const $searchUser = $('#{{ $id }}');
+
+    const fieldId = '{{ $id }}';
+    const imageId = 'select-user-avatar-{{ $id }}';
 
     $searchUser.autocomplete({
         source: function (request, response) {
@@ -62,14 +67,17 @@ $(function () {
         select: function (event, ui) {
           var TABKEY = 9;
           if (event.keyCode === TABKEY) {
-            $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.label + '.png'));
+            selectedUsername = ui.item.username;
+            onUserChange(fieldId, imageId, selectedUsername);
           }
         },
     });
 
     $searchUser.on('autocompleteselect', function (event, ui) {
-        $searchUser.val(ui.item.label);
-        $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.label + '.png'));
+        $searchUser.val(ui.item.username);
+
+        selectedUsername = ui.item.username;
+        onUserChange(fieldId, imageId, selectedUsername);
     });
 });
 </script>

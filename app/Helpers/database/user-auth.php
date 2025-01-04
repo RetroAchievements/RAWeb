@@ -25,13 +25,13 @@ function authenticateForConnect(?string $username, ?string $pass = null, ?string
     if ($passwordProvided) {
         // Password provided, validate it
         if (authenticateFromPassword($username, $pass)) {
-            $user = User::firstWhere('User', $username);
+            $user = User::whereName($username)->first();
         }
 
         $tokenProvided = false; // ignore token if provided
     } elseif ($tokenProvided) {
         // Token provided, look for match
-        $user = User::where('User', $username)->where('appToken', $token)->first();
+        $user = User::whereName($username)->where('appToken', $token)->first();
     }
 
     if (!$user) {
@@ -82,7 +82,7 @@ function authenticateForConnect(?string $username, ?string $pass = null, ?string
 
     return [
         'Success' => true,
-        'User' => $user->User,
+        'User' => $user->display_name,
         'Token' => $user->appToken,
         'Score' => $user->RAPoints,
         'SoftcoreScore' => $user->RASoftcorePoints,
@@ -99,8 +99,11 @@ function authenticateFromPassword(string &$username, string $password): bool
     }
 
     // use raw query to access non-visible fields
-    $query = "SELECT ID, User, Password, SaltedPass, Permissions FROM UserAccounts WHERE User=:user AND Deleted IS NULL";
-    $row = legacyDbFetch($query, ['user' => $username]);
+    $query = "SELECT ID, User, Password, SaltedPass, Permissions 
+        FROM UserAccounts 
+        WHERE (User = :user OR display_name = :user2) 
+        AND Deleted IS NULL";
+    $row = legacyDbFetch($query, ['user' => $username, 'user2' => $username]);
     if (!$row) {
         return false;
     }
@@ -144,7 +147,7 @@ function changePassword(string $username, string $password): string
 {
     $hashedPassword = Hash::make($password);
 
-    $user = User::firstWhere('User', $username);
+    $user = User::whereName($username)->first();
 
     $user->Password = $hashedPassword;
     $user->SaltedPass = '';
@@ -231,7 +234,7 @@ function authenticateFromAppToken(
 
 function generateAppToken(string $username, ?string &$tokenOut): bool
 {
-    $user = User::firstWhere('User', $username);
+    $user = User::whereName($username)->first();
     if (!$user) {
         return false;
     }
@@ -255,7 +258,7 @@ function newAppToken(): string
 
 function generateAPIKey(string $username): string
 {
-    $user = User::firstWhere('User', $username);
+    $user = User::whereName($username)->first();
     if (!$user || !$user->isEmailVerified()) {
         return '';
     }

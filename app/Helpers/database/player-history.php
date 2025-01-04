@@ -61,7 +61,8 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, User $
     $query = "SELECT COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS Date,
                      CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode,
                      ach.ID AS AchievementID, ach.Title, ach.Description,
-                     ach.BadgeName, ach.Points, ach.TrueRatio, ach.type as Type, ua.User AS Author,
+                     ach.BadgeName, ach.Points, ach.TrueRatio, ach.type as Type,
+                     COALESCE(ua.display_name, ua.User) AS Author,
                      gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, ach.GameID,
                      c.Name AS ConsoleName
               FROM player_achievements pa

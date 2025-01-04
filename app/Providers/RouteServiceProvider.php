@@ -8,6 +8,7 @@ use App\Http\Concerns\HandlesPublicFileRequests;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\UserController;
+use App\Models\User;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -31,21 +32,6 @@ class RouteServiceProvider extends ServiceProvider
          */
         Route::pattern('slug', '-[a-zA-Z0-9_-]+');
         Route::pattern('user', '[a-zA-Z0-9_]{1,20}');
-
-        // TODO v2
-        // Route::bind('user', function ($value) {
-        //     /**
-        //      * TODO: resolve user by username, hashId, or both
-        //      */
-        //     $query = User::where('username', Str::lower($value));
-        //
-        //     /*
-        //      * add last activity
-        //      */
-        //     $query->withLastActivity();
-        //
-        //     return $query->firstOrFail();
-        // });
     }
 
     public function map(): void

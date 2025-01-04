@@ -324,7 +324,7 @@ function UploadNewLeaderboard(
         }
     }
 
-    $authorModel = User::firstWhere('User', $authorUsername);
+    $authorModel = User::whereName($authorUsername)->first();
 
     // Prevent non-developers from uploading or modifying leaderboards
     $userPermissions = (int) $authorModel->getAttribute('Permissions');

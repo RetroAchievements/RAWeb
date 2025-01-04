@@ -28,7 +28,7 @@ class GameCard extends Component
     public function __construct(int $gameId, ?string $targetUsername = null)
     {
         $this->gameId = $gameId;
-        $this->userContext = User::firstWhere('User', $targetUsername) ?? Auth::user() ?? null;
+        $this->userContext = User::whereName($targetUsername)->first() ?? Auth::user() ?? null;
     }
 
     public function render(): ?View

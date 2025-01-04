@@ -26,14 +26,14 @@ render(function (View $view, SuggestGamesService $pageService) {
 ])
 
 <x-app-layout
-    pageTitle="{{ $user->User }} - Game Suggestions"
-    pageDescription="A list of random games that {{ $user->User }} might want to play"
+    pageTitle="{{ $user->display_name }} - Game Suggestions"
+    pageDescription="A list of random games that {{ $user->display_name }} might want to play"
 >
-    <x-user.breadcrumbs :targetUsername="$user->User" currentPage="Game Suggestions" />
+    <x-user.breadcrumbs :targetDisplayName="$user->display_name" currentPage="Game Suggestions" />
 
     <div class="mt-3 w-full flex gap-x-3">
-        {!! userAvatar($user->User, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
-        <h1 class="mt-[10px] w-full">{{ $user->User }}'s Game Suggestions</h1>
+        {!! userAvatar($user, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        <h1 class="mt-[10px] w-full">{{ $user->display_name }}'s Game Suggestions</h1>
     </div>
 
     <x-game.game-list

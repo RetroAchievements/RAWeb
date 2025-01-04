@@ -12,11 +12,11 @@ if (empty($dev)) {
 }
 
 /** @var ?User $devUser */
-$devUser = User::firstWhere('User', $dev);
+$devUser = User::whereName($dev)->first();
 if (!$devUser) {
     abort(404);
 }
-$dev = $devUser->User; // get case-corrected username
+$dev = $devUser->display_name; // get case-corrected username
 
 $userArchInfo = getUserAchievementInformation($devUser);
 
@@ -215,7 +215,7 @@ foreach ($obtainers as $obtainer) {
 $userCodeNoteCount = 0;
 
 // Get code note information for user
-$codeNotes = collect(getCodeNoteCounts($dev));
+$codeNotes = collect(getCodeNoteCounts($devUser));
 $userCodeNoteCount = $codeNotes->sum('NoteCount');
 
 // Initialize ticket information variables
@@ -648,7 +648,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
         echo "</tbody></table>";
 
         // Recently Obtained achievements
-        $feedRoute = route('user.achievement-author.feed', ['user' => $devUser]);
+        $feedRoute = route('user.achievement-author.feed', ['user' => $devUser->display_name]);
         echo <<<HTML
             <p class="text-center text-lg font-semibold my-8">
                 View Recently Obtained Achievements in the

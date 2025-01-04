@@ -20,7 +20,7 @@ $achievementId = (int) $input['achievement'];
 $gameId = (int) $input['game'];
 $number = (int) $input['number'];
 
-$userModel = User::firstWhere('User', $user);
+$userModel = User::whereName($user)->first();
 
 // Only allow jr. devs to update the display order if they are the sole author of the set or have the primary claim
 if (

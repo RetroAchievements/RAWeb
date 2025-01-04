@@ -141,7 +141,7 @@ class AwardAchievementsTest extends TestCase
         $this->assertEquals($playerAchievement3->player_session_id, $playerSession2->id);
 
         // player score should have increased
-        $user1 = User::firstWhere('User', $delegatedUser->User);
+        $user1 = User::whereName($delegatedUser->User)->first();
         $this->assertEquals(
             $scoreBefore + $achievement2->Points + $achievement3->Points + $achievement4->Points,
             $user1->RAPoints

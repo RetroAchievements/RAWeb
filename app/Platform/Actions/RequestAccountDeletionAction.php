@@ -33,11 +33,11 @@ class RequestAccountDeletionAction
         $user->save();
 
         addArticleComment('Server', ArticleType::UserModeration, $user->ID,
-            $user->User . ' requested account deletion'
+            $user->display_name . ' requested account deletion'
         );
 
         mail_utf8($user->EmailAddress, "Account Deletion Request",
-            "Hello {$user->User},<br><br>" .
+            "Hello {$user->display_name},<br><br>" .
             "Your account has been marked for deletion.<br>" .
             "If you do not cancel this request before " . getDeleteDate($user->DeleteRequested) . ", " .
             "you will no longer be able to access your account.<br><br>" .

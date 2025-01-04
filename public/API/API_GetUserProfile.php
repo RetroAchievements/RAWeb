@@ -30,15 +30,15 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
 ]);
 
-$user = User::firstWhere('User', request()->query('u'));
+$user = User::whereName(request()->query('u'))->first();
 
 if (!$user) {
     return response()->json([], 404);
 }
 
 return response()->json([
-    'User' => $user->User,
-    'UserPic' => sprintf("/UserPic/%s.png", $user->User),
+    'User' => $user->display_name,
+    'UserPic' => sprintf("/UserPic/%s.png", $user->username),
     'MemberSince' => $user->created_at->toDateTimeString(),
     'RichPresenceMsg' => empty($user->RichPresenceMsg) || $user->RichPresenceMsg === 'Unknown' ? null : $user->RichPresenceMsg,
     'LastGameID' => $user->LastGameID,

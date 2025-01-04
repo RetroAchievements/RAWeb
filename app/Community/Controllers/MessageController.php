@@ -53,7 +53,7 @@ class MessageController extends Controller
 
             (new AddToMessageThreadAction())->execute($thread, $user, $body);
         } else {
-            $recipient = User::firstWhere('User', $input['recipient']);
+            $recipient = User::whereName($input['recipient'])->first();
 
             if (!$user->can('sendToRecipient', [Message::class, $recipient])) {
                 return back()->withErrors($user->isMuted() ?

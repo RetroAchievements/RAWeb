@@ -20,7 +20,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 ]);
 
 $leaderboardId = (int) $input['leaderboard'];
-$targetUser = User::firstWhere('User', $input['user']);
+$targetUser = User::whereName($input['user'])->first();
 $reason = $input['reason'];
 
 if (!$targetUser) {

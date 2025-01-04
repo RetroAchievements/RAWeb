@@ -12,7 +12,8 @@ function isValidPasswordResetToken(string $usernameIn, string $passwordResetToke
 
     if (mb_strlen($passwordResetToken) == 20) {
         $query = "SELECT * FROM UserAccounts AS ua "
-            . "WHERE ua.User='$usernameIn' AND ua.PasswordResetToken='$passwordResetToken'";
+            . "WHERE (ua.User='$usernameIn' OR ua.display_name='$usernameIn') "
+            . "AND ua.PasswordResetToken='$passwordResetToken'";
 
         $dbResult = s_mysql_query($query);
 
@@ -29,14 +30,14 @@ function isValidPasswordResetToken(string $usernameIn, string $passwordResetToke
  */
 function RequestPasswordReset(User $user): bool
 {
-    $username = $user->username;
+    $username = $user->display_name;
     $emailAddress = $user->EmailAddress;
 
     $newToken = Str::random(20);
 
     s_mysql_query("UPDATE UserAccounts AS ua
               SET ua.PasswordResetToken = '$newToken', Updated=NOW()
-              WHERE ua.User='$username'");
+              WHERE ua.User='$username' OR ua.display_name='$username'");
 
     SendPasswordResetEmail($username, $emailAddress, $newToken);
 

@@ -542,7 +542,7 @@ trait SyncTrait
         $userId = $this->userIds[$username] ?? null;
         if ($userId === null) {
             /** @var ?User $user */
-            $user = User::where('User', Str::lower($username))->first();
+            $user = User::whereName(Str::lower($username))->first();
             if (!$user) {
                 $this->userIds[$username] = 0;
 

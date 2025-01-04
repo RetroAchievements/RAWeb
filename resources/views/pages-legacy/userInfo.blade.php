@@ -11,7 +11,8 @@ use App\Models\User;
 use App\Platform\Services\PlayerProgressionService;
 
 $userPage = request('user');
-if (empty($userPage) || !isValidUsername($userPage)) {
+$userPageModel = User::whereName($userPage)->first();
+if (empty($userPage) || !$userPageModel) {
     abort(404);
 }
 
@@ -21,11 +22,6 @@ $maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 
 if ($maxNumGamesToFetch < 1 || $maxNumGamesToFetch > 100) {
     abort(400);
-}
-
-$userPageModel = User::firstWhere('User', $userPage);
-if (!$userPageModel) {
-    abort(404);
 }
 
 $userMassData = getUserPageInfo($userPage, numGames: $maxNumGamesToFetch);

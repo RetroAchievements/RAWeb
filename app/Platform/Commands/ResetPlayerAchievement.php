@@ -34,7 +34,7 @@ class ResetPlayerAchievement extends Command
 
         $user = is_numeric($userId)
             ? User::findOrFail($userId)
-            : User::where('User', $userId)->firstOrFail();
+            : User::whereName($userId)->firstOrFail();
 
         $achievements = PlayerAchievement::where('user_id', $user->id)
             ->whereIn('achievement_id', $achievementIds);

@@ -11,6 +11,7 @@ use App\Actions\UpdateUserProfileInformation;
 use App\Enums\Permissions;
 use App\Http\Responses\LoginResponse;
 use App\Models\User;
+use Hash;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -56,12 +57,48 @@ class FortifyServiceProvider extends ServiceProvider
         $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
         $this->app->singleton(TwoFactorLoginResponse::class, LoginResponse::class);
 
+        Fortify::authenticateUsing(function (Request $request) {
+            $user = User::where('User', $request->input(Fortify::username()))
+                ->orWhere('display_name', $request->input(Fortify::username()))
+                ->first();
+
+            if (!$user) {
+                return null;
+            }
+
+            // banned users should not have a password anymore. make sure they cannot get back in when a password still exists
+            if ($user->getAttribute('Permissions') < Permissions::Unregistered) {
+                return null;
+            }
+
+            // if the user hasn't logged in for a while, they may still have a salted password, upgrade it
+            if (mb_strlen($user->SaltedPass) === 32) {
+                $pepperedPassword = md5($request->input('password') . config('app.legacy_password_salt'));
+                if ($user->SaltedPass === $pepperedPassword) {
+                    changePassword($user->User, $request->input('password'));
+
+                    return $user;
+                }
+
+                return null;
+            }
+
+            // Standard password check
+            if (Hash::check($request->input('password'), $user->Password)) {
+                return $user;
+            }
+
+            return null;
+        });
+
         Fortify::authenticateThrough(function (Request $request) {
             return array_filter([
                 config('fortify.limiters.login') ? null : EnsureLoginIsNotThrottled::class,
                 Features::enabled(Features::twoFactorAuthentication()) ? RedirectIfTwoFactorAuthenticatable::class : null,
                 function ($request, $next) {
-                    $user = User::firstWhere(Fortify::username(), $request->input(Fortify::username()));
+                    $user = User::where('User', $request->input(Fortify::username()))
+                        ->orWhere('display_name', $request->input(Fortify::username()))
+                        ->first();
 
                     // banned users should not have a password anymore. make sure they cannot get back in when a password still exists
                     if ($user && $user->getAttribute('Permissions') < Permissions::Unregistered) {

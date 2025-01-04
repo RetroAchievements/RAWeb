@@ -47,7 +47,7 @@ class LoginTest extends TestCase
             ]);
 
         /** @var User $user1 */
-        $user1 = User::firstWhere('User', $user->User);
+        $user1 = User::whereName($user->User)->first();
         $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $user1->appTokenExpiry);
 
         // === with token ===

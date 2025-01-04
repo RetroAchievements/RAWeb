@@ -86,6 +86,7 @@
  *  int        ContribYield            points awarded to others
  */
 
+use App\Models\User;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -96,7 +97,7 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
     'a' => 'nullable|integer|min:0',
 ]);
 
-$user = request()->query('u');
+$username = request()->query('u');
 $recentGamesPlayed = (int) request()->query('g', '0');
 $recentAchievementsEarned = (int) request()->query('a', '10');
 
@@ -105,16 +106,17 @@ if ($recentGamesPlayed > 100) {
     $recentGamesPlayed = 100;
 }
 
-$retVal = getUserPageInfo($user, $recentGamesPlayed, $recentAchievementsEarned);
+$userModel = User::whereName($username)->first();
+$retVal = getUserPageInfo($username, $recentGamesPlayed, $recentAchievementsEarned);
 
 if (empty($retVal)) {
     return response()->json([
         'ID' => null,
-        'User' => $user,
+        'User' => $username,
     ], 404);
 }
 
-$retVal['UserPic'] = "/UserPic/" . $retVal['User'] . ".png";
+$retVal['UserPic'] = "/UserPic/" . $userModel->username . ".png";
 $retVal['TotalRanked'] = countRankedUsers();
 
 // assume caller doesn't care about the rich presence script for the last game played

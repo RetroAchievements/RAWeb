@@ -28,7 +28,7 @@ function submitNewTicketsJSON(
     $returnMsg = [];
 
     /** @var User $user */
-    $user = User::firstWhere('User', $userSubmitter);
+    $user = User::whereName($userSubmitter)->first();
 
     if (!$user->exists() || !$user->can('create', Ticket::class)) {
         $returnMsg['Success'] = false;
@@ -192,8 +192,8 @@ function getExistingTicketID(User $user, int $achievementID): int
 function getTicket(int $ticketID): ?array
 {
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.type AS AchievementType, ach.Points, ach.BadgeName,
-                ua3.User AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
-                tick.ReportedAt, tick.ReportType, tick.ReportState, tick.Hardcore, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy
+                COALESCE(ua3.display_name, ua3.User) AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
+                tick.ReportedAt, tick.ReportType, tick.ReportState, tick.Hardcore, tick.ReportNotes, COALESCE(ua.display_name, ua.User) AS ReportedBy, tick.ResolvedAt, COALESCE(ua2.display_name, ua2.User) AS ResolvedBy
               FROM Ticket AS tick
               LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
@@ -209,14 +209,14 @@ function getTicket(int $ticketID): ?array
 
 function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reason = null): bool
 {
-    $userID = getUserIDFromUser($user);
+    $userModel = User::whereName($user)->first();
 
     // get the ticket data before updating so we know what the previous state was
     $ticketData = getTicket($ticketID);
 
     $resolvedFields = "";
     if ($ticketVal == TicketState::Resolved || $ticketVal == TicketState::Closed) {
-        $resolvedFields = ", ResolvedAt=NOW(), resolver_id=$userID ";
+        $resolvedFields = ", ResolvedAt=NOW(), resolver_id={$userModel->id} ";
     } elseif ($ticketData['ReportState'] == TicketState::Resolved || $ticketData['ReportState'] == TicketState::Closed) {
         $resolvedFields = ", ResolvedAt=NULL, resolver_id=NULL ";
     }
@@ -245,25 +245,25 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
         case TicketState::Closed:
             if ($reason == TicketState::REASON_DEMOTED) {
                 updateAchievementFlag($achID, AchievementFlag::Unofficial);
-                addArticleComment("Server", ArticleType::Achievement, $achID, "$user demoted this achievement to Unofficial.", $user);
+                addArticleComment("Server", ArticleType::Achievement, $achID, "{$userModel->display_name} demoted this achievement to Unofficial.", $userModel->display_name);
             }
-            $comment = "Ticket closed by $user. Reason: \"$reason\".";
+            $comment = "Ticket closed by {$userModel->display_name}. Reason: \"$reason\".";
             break;
 
         case TicketState::Open:
             if ($ticketData['ReportState'] == TicketState::Request) {
-                $comment = "Ticket reassigned to author by $user.";
+                $comment = "Ticket reassigned to author by {$userModel->display_name}.";
             } else {
-                $comment = "Ticket reopened by $user.";
+                $comment = "Ticket reopened by {$userModel->display_name}.";
             }
             break;
 
         case TicketState::Resolved:
-            $comment = "Ticket resolved as fixed by $user.";
+            $comment = "Ticket resolved as fixed by {$userModel->display_name}.";
             break;
 
         case TicketState::Request:
-            $comment = "Ticket reassigned to reporter by $user.";
+            $comment = "Ticket reassigned to reporter by {$userModel->display_name}.";
             break;
     }
 
@@ -295,7 +295,7 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
         "<br>" .
         "$achTitle - $gameTitle ($consoleName)<br>" .
         "<br>" .
-        "The ticket you opened for the above achievement had its status changed to \"$status\" by \"$user\".<br>" .
+        "The ticket you opened for the above achievement had its status changed to \"$status\" by \"{$userModel->display_name}\".<br>" .
         "<br>Comment: $comment" .
         "<br>" .
         "Click <a href='" . route('ticket.show', ['ticket' => $ticketID]) . "'>here</a> to view the ticket" .

@@ -110,7 +110,7 @@ function GetExtendedFriendsList(User $user): array
 
 function GetFriendsSubquery(string $user, bool $includeUser = true, bool $returnUserIds = false): string
 {
-    $userModel = User::firstWhere('User', $user);
+    $userModel = User::whereName($user)->first();
     $userId = $userModel->id;
 
     $selectColumn = $returnUserIds ? 'ua.ID' : 'ua.User';

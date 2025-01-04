@@ -29,7 +29,7 @@ use Illuminate\Support\Carbon;
  *    string     GameURL                  site-relative path to the game page
  */
 
-$user = User::firstWhere('User', request()->query('u'));
+$user = User::whereName(request()->query('u'))->first();
 if (!$user) {
     return response()->json([]);
 }

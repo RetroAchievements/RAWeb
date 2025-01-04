@@ -76,7 +76,7 @@ foreach ($awards as $award) {
     }
 }
 
-$userModel = User::firstWhere('User', $user);
+$userModel = User::whereName($user)->first();
 $userAwards = getUsersSiteAwards($userModel);
 $updatedAwardsHTML = '';
 ob_start();

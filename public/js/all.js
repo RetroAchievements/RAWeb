@@ -59,15 +59,15 @@ jQuery(document).ready(function onReady($) {
     select: function (event, ui) {
       var TABKEY = 9;
       if (event.keyCode === TABKEY) {
-        $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.label + '.png'));
+        $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.username + '.png'));
       }
 
       return false;
     },
   });
   $searchUser.on('autocompleteselect', function (event, ui) {
-    $searchUser.val(ui.item.label);
-    $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.label + '.png'));
+    $searchUser.val(ui.item.username);
+    $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.username + '.png'));
 
     return false;
   });

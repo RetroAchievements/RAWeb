@@ -125,7 +125,7 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($playerAchievement->player_session_id, $playerSession2->id);
 
         // player score should have increased
-        $user1 = User::firstWhere('User', $this->user->User);
+        $user1 = User::whereName($this->user->User)->first();
         $this->assertEquals($scoreBefore + $achievement3->Points, $user1->RAPoints);
         $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
 
@@ -156,7 +156,7 @@ class AwardAchievementTest extends TestCase
             ]);
 
         // player score should not have increased
-        $user2 = User::firstWhere('User', $this->user->User);
+        $user2 = User::whereName($this->user->User)->first();
         $this->assertEquals($scoreBefore, $user2->RAPoints);
         $this->assertEquals($softcoreScoreBefore, $user2->RASoftcorePoints);
         $this->assertEquals($truePointsBefore, $user2->TrueRAPoints);
@@ -279,7 +279,7 @@ class AwardAchievementTest extends TestCase
             ]);
 
         // player score should not have increased
-        $user2 = User::firstWhere('User', $this->user->User);
+        $user2 = User::whereName($this->user->User)->first();
         $this->assertEquals($scoreBefore, $user2->RAPoints);
         $this->assertEquals($softcoreScoreBefore, $user2->RASoftcorePoints);
         $this->assertEquals($truePointsBefore, $user2->TrueRAPoints);
@@ -452,7 +452,7 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($playerAchievement->player_session_id, $playerSession2->id);
 
         // player score should have increased
-        $user1 = User::firstWhere('User', $delegatedUser->User);
+        $user1 = User::whereName($delegatedUser->User)->first();
         $this->assertEquals($scoreBefore + $achievement3->Points, $user1->RAPoints);
         $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
 
@@ -727,7 +727,7 @@ class AwardAchievementTest extends TestCase
             ]);
 
        // player score should not have adjusted
-       $user1 = User::firstWhere('User', $this->user->User);
+       $user1 = User::whereName($this->user->User)->first();
        $this->assertEquals($scoreBefore, $user1->RAPoints);
        $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
     }
@@ -802,7 +802,7 @@ class AwardAchievementTest extends TestCase
         $this->assertHasHardcoreUnlock($this->user, $eventAchievement1);
 
         // player score should not have increased
-        $user1 = User::firstWhere('User', $this->user->User);
+        $user1 = User::whereName($this->user->User)->first();
         $this->assertEquals($scoreBefore, $user1->RAPoints);
         $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
 

@@ -74,7 +74,7 @@ render(function (View $view, User $user) {
 ])
 
 <x-app-layout pageTitle="{{ $user->display_name }}'s Claims">
-    <x-user.breadcrumbs :targetUsername="$user->User" currentPage="Claims" />
+    <x-user.breadcrumbs :targetDisplayName="$user->display_name" currentPage="Claims" />
 
     <div class="mt-3 mb-6 w-full flex gap-x-3">
         {!! userAvatar($user, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}

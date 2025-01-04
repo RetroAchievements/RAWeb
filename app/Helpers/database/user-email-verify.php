@@ -40,7 +40,7 @@ function validateEmailVerificationToken(string $emailCookie, ?string &$user): bo
     $user = User::find($emailConfirmation->user_id);
     // TODO delete after dropping User from EmailConfirmations
     if (!$user) {
-        $user = User::firstWhere('User', $emailConfirmation->User);
+        $user = User::whereName($emailConfirmation->User)->first();
     }
     // ENDTODO delete after dropping User from EmailConfirmations
 
