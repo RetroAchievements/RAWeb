@@ -1,13 +1,12 @@
 import { useTranslation } from 'react-i18next';
 
-import { AppLayout } from '@/common/layouts/AppLayout';
-import type { AppPage } from '@/common/models';
-import { usePageProps } from '@/common/hooks/usePageProps';
-
-import { AchievementGroup } from '@/features/achievements/components/AchievementGroup';
 import { EmptyState } from '@/common/components/EmptyState';
 import { UserBreadcrumbs } from '@/common/components/UserBreadcrumbs';
 import { UserHeading } from '@/common/components/UserHeading';
+import { usePageProps } from '@/common/hooks/usePageProps';
+import { AppLayout } from '@/common/layouts/AppLayout';
+import type { AppPage } from '@/common/models';
+import { AchievementGroup } from '@/features/achievements/components/AchievementGroup';
 
 const UserAchievementChecklist: AppPage = () => {
   const { player, groups } = usePageProps<App.Community.Data.AchievementChecklistPageProps>();
@@ -19,20 +18,16 @@ const UserAchievementChecklist: AppPage = () => {
       <AppLayout.Main>
         <div>
           <UserBreadcrumbs t_currentPageLabel={t('Achievement Checklist')} user={player} />
-          <UserHeading user={player}>
-            {t('Achievement Checklist')}
-          </UserHeading>
+          <UserHeading user={player}>{t('Achievement Checklist')}</UserHeading>
 
           {groups.length > 0 ? (
             <div>
-              {groups.map((group) => (
-                <AchievementGroup group={group} showGame={true} />
+              {groups.map((group, index) => (
+                <AchievementGroup group={group} showGame={true} key={`ach-group-${index}`} />
               ))}
             </div>
           ) : (
-            <EmptyState>
-              {t('Invalid list')}
-            </EmptyState>
+            <EmptyState>{t('Invalid list')}</EmptyState>
           )}
         </div>
       </AppLayout.Main>

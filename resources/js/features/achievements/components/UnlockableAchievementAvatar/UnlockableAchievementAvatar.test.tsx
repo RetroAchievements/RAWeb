@@ -4,133 +4,132 @@ import { createAchievement, createGame } from '@/test/factories';
 import { UnlockableAchievementAvatar } from './UnlockableAchievementAvatar';
 
 describe('Component: UnlockableAchievementAvatar', () => {
-    it('renders without crashing', () => {
-        // ARRANGE
-        const achievement = createAchievement();
-        const { container } = render(<UnlockableAchievementAvatar achievement={achievement} />);
+  it('renders without crashing', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+    const { container } = render(<UnlockableAchievementAvatar achievement={achievement} />);
 
-        // ASSERT
-        expect(container).toBeTruthy();
-    })
+    // ASSERT
+    expect(container).toBeTruthy();
+  });
 
-    it('displays a locked achievement correctly', () => {
-        // ARRANGE
-        const achievement = createAchievement({
-            title: 'Creative Name',
-            description: 'Do the thing',
-        });
-
-        render(<UnlockableAchievementAvatar achievement={achievement} />);
-
-        // ASSERT
-        const img = screen.getByRole('img') as HTMLImageElement;
-        expect(img).toBeVisible();
-        expect(img.src).toContain(achievement.badgeLockedUrl);
-
-        expect(screen.getByText(/Creative Name/)).toBeVisible();
-        expect(screen.getByText(/Do the thing/)).toBeVisible();
-        expect(screen.queryByText(/unlocked/i)).toBeNull();
+  it('displays a locked achievement correctly', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: 'Creative Name',
+      description: 'Do the thing',
     });
 
-    it('displays a softcore unlock correctly', () => {
-        // ARRANGE
-        const achievement = createAchievement({
-            title: 'Creative Name',
-            description: 'Do the thing',
-            unlockedAt: '2024-08-12 16:24:36',
-        });
+    render(<UnlockableAchievementAvatar achievement={achievement} />);
 
-        render(<UnlockableAchievementAvatar achievement={achievement} />);
+    // ASSERT
+    const img = screen.getByRole('img') as HTMLImageElement;
+    expect(img).toBeVisible();
+    expect(img.src).toContain(achievement.badgeLockedUrl);
 
-        // ASSERT
-        const img = screen.getByRole('img') as HTMLImageElement;
-        expect(img).toBeVisible();
-        expect(img.src).toContain(achievement.badgeUnlockedUrl);
+    expect(screen.getByText(/Creative Name/)).toBeVisible();
+    expect(screen.getByText(/Do the thing/)).toBeVisible();
+    expect(screen.queryByText(/unlocked/i)).toBeNull();
+  });
 
-        expect(screen.getByText(/Creative Name/)).toBeVisible();
-        expect(screen.getByText(/Unlocked Aug 12, 2024 4:24 PM/)).toBeVisible();
+  it('displays a softcore unlock correctly', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: 'Creative Name',
+      description: 'Do the thing',
+      unlockedAt: '2024-08-12 16:24:36',
     });
 
-    it('displays a hardcore unlock correctly', () => {
-        // ARRANGE
-        const achievement = createAchievement({
-            title: 'Creative Name',
-            description: 'Do the thing',
-            unlockedAt: '2024-08-12 16:24:36',
-            unlockedHardcoreAt: '2024-09-05 08:11:42',
-        });
+    render(<UnlockableAchievementAvatar achievement={achievement} />);
 
-        render(<UnlockableAchievementAvatar achievement={achievement} />);
+    // ASSERT
+    const img = screen.getByRole('img') as HTMLImageElement;
+    expect(img).toBeVisible();
+    expect(img.src).toContain(achievement.badgeUnlockedUrl);
 
-        // ASSERT
-        const img = screen.getByRole('img') as HTMLImageElement;
-        expect(img).toBeVisible();
-        expect(img.src).toContain(achievement.badgeUnlockedUrl);
+    expect(screen.getByText(/Creative Name/)).toBeVisible();
+    expect(screen.getByText(/Unlocked Aug 12, 2024 4:24 PM/)).toBeVisible();
+  });
 
-        expect(screen.getByText(/Creative Name/)).toBeVisible();
-        expect(screen.getByText(/Unlocked Sep 5, 2024 8:11 AM/)).toBeVisible();
+  it('displays a hardcore unlock correctly', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: 'Creative Name',
+      description: 'Do the thing',
+      unlockedAt: '2024-08-12 16:24:36',
+      unlockedHardcoreAt: '2024-09-05 08:11:42',
     });
 
-    it('displays a hardcore unlock correctly', () => {
-        // ARRANGE
-        const achievement = createAchievement({
-            title: 'Creative Name',
-            description: 'Do the thing',
-            unlockedAt: '2024-08-12 16:24:36',
-            unlockedHardcoreAt: '2024-09-05 08:11:42',
-        });
+    render(<UnlockableAchievementAvatar achievement={achievement} />);
 
-        render(<UnlockableAchievementAvatar achievement={achievement} />);
+    // ASSERT
+    const img = screen.getByRole('img') as HTMLImageElement;
+    expect(img).toBeVisible();
+    expect(img.src).toContain(achievement.badgeUnlockedUrl);
 
-        // ASSERT
-        const img = screen.getByRole('img') as HTMLImageElement;
-        expect(img).toBeVisible();
-        expect(img.src).toContain(achievement.badgeUnlockedUrl);
+    expect(screen.getByText(/Creative Name/)).toBeVisible();
+    expect(screen.getByText(/Unlocked Sep 5, 2024 8:11 AM/)).toBeVisible();
+  });
 
-        expect(screen.getByText(/Creative Name/)).toBeVisible();
-        expect(screen.getByText(/Unlocked Sep 5, 2024 8:11 AM/)).toBeVisible();
+  it('displays a hardcore unlock correctly', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: 'Creative Name',
+      description: 'Do the thing',
+      unlockedAt: '2024-08-12 16:24:36',
+      unlockedHardcoreAt: '2024-09-05 08:11:42',
     });
 
-    it('displays the game correctly', () => {
-        // ARRANGE
-        const achievement = createAchievement({
-            title: 'Creative Name',
-            description: 'Do the thing',
-            game: createGame({ 'title': 'Container Set' }),
-        });
+    render(<UnlockableAchievementAvatar achievement={achievement} />);
 
-        render(<UnlockableAchievementAvatar achievement={achievement} showGame={true} />);
+    // ASSERT
+    const img = screen.getByRole('img') as HTMLImageElement;
+    expect(img).toBeVisible();
+    expect(img.src).toContain(achievement.badgeUnlockedUrl);
 
-        // ASSERT
-        const img = screen.getByRole('img') as HTMLImageElement;
-        expect(img).toBeVisible();
-        expect(img.src).toContain(achievement.badgeLockedUrl);
+    expect(screen.getByText(/Creative Name/)).toBeVisible();
+    expect(screen.getByText(/Unlocked Sep 5, 2024 8:11 AM/)).toBeVisible();
+  });
 
-        expect(screen.getByText(/Creative Name/)).toBeVisible();
-        expect(screen.getByText(/Container Set/)).toBeVisible();
-        expect(screen.getByText(/Do the thing/)).toBeVisible();
-        expect(screen.queryByText(/unlocked/i)).toBeNull();
+  it('displays the game correctly', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: 'Creative Name',
+      description: 'Do the thing',
+      game: createGame({ title: 'Container Set' }),
     });
 
-    it('hides the game correctly', () => {
-        // ARRANGE
-        const achievement = createAchievement({
-            title: 'Creative Name',
-            description: 'Do the thing',
-            game: createGame({ 'title': 'Container Set' }),
-        });
+    render(<UnlockableAchievementAvatar achievement={achievement} showGame={true} />);
 
-        render(<UnlockableAchievementAvatar achievement={achievement} showGame={false} />);
+    // ASSERT
+    const img = screen.getByRole('img') as HTMLImageElement;
+    expect(img).toBeVisible();
+    expect(img.src).toContain(achievement.badgeLockedUrl);
 
-        // ASSERT
-        const img = screen.getByRole('img') as HTMLImageElement;
-        expect(img).toBeVisible();
-        expect(img.src).toContain(achievement.badgeLockedUrl);
+    expect(screen.getByText(/Creative Name/)).toBeVisible();
+    expect(screen.getByText(/Container Set/)).toBeVisible();
+    expect(screen.getByText(/Do the thing/)).toBeVisible();
+    expect(screen.queryByText(/unlocked/i)).toBeNull();
+  });
 
-        expect(screen.getByText(/Creative Name/)).toBeVisible();
-        expect(screen.queryByText(/Container Set/)).toBeNull();
-        expect(screen.getByText(/Do the thing/)).toBeVisible();
-        expect(screen.queryByText(/unlocked/i)).toBeNull();
+  it('hides the game correctly', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: 'Creative Name',
+      description: 'Do the thing',
+      game: createGame({ title: 'Container Set' }),
     });
+
+    render(<UnlockableAchievementAvatar achievement={achievement} showGame={false} />);
+
+    // ASSERT
+    const img = screen.getByRole('img') as HTMLImageElement;
+    expect(img).toBeVisible();
+    expect(img.src).toContain(achievement.badgeLockedUrl);
+
+    expect(screen.getByText(/Creative Name/)).toBeVisible();
+    expect(screen.queryByText(/Container Set/)).toBeNull();
+    expect(screen.getByText(/Do the thing/)).toBeVisible();
+    expect(screen.queryByText(/unlocked/i)).toBeNull();
+  });
 });
-
