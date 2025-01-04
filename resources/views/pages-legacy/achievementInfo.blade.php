@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$userModel = User::firstWhere('User', $user);
+$userModel = User::whereName($user)->first();
 
 $achievementID = (int) request('achievement');
 if (empty($achievementID)) {

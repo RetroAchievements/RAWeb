@@ -16,7 +16,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 ]);
 
 $senderUser = auth()->user();
-$targetUser = User::firstWhere('User', $input['user']);
+$targetUser = User::whereName($input['user'])->first();
 
 if (!$targetUser) {
     return back()->withErrors(__('legacy.error.error'));

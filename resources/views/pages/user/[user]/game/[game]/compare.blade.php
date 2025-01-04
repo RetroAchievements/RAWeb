@@ -31,10 +31,10 @@ render(function (View $view, User $user, Game $game, CompareUnlocksPageService $
 
 <x-app-layout
     pageTitle="Compare Unlocks - {{ $game->Title }}"
-    pageDescription="Compares unlocks between {{ $user->User }} and {{ $otherUser->User }} for {{ $game->Title }}"
+    pageDescription="Compares unlocks between {{ $user->display_name }} and {{ $otherUser->display_name }} for {{ $game->Title }}"
 >
     <x-user.breadcrumbs
-        :targetUsername="$otherUser->User"
+        :targetDisplayName="$otherUser->display_name"
         :parentPage="$game->Title"
         :parentPageUrl="$game->permalink"
         currentPage="Compare Unlocks"
@@ -91,10 +91,10 @@ render(function (View $view, User $user, Game $game, CompareUnlocksPageService $
                     <tr class="do-not-highlight lg:sticky lg:top-[42px] z-[1] bg-box">
                         <th style="width:40%">Achievement</th>
                         <th style="width:30%">
-                        {!! userAvatar($otherUser->User, label: true, icon: true, iconSize: 24, iconClass: 'rounded-sm') !!}
+                        {!! userAvatar($otherUser, label: true, icon: true, iconSize: 24, iconClass: 'rounded-sm') !!}
                         </th>
                         <th style="width:30%">
-                        {!! userAvatar($user->User, label: true, icon: true, iconSize: 24, iconClass: 'rounded-sm') !!}
+                        {!! userAvatar($user, label: true, icon: true, iconSize: 24, iconClass: 'rounded-sm') !!}
                         </th>
                     </tr>
                 </thead>

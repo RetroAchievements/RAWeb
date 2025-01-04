@@ -69,14 +69,23 @@ function performSearch(
     }
 
     if (in_array(SearchType::User, $searchType)) {
-        $counts[] = "SELECT COUNT(*) AS Count FROM UserAccounts WHERE User LIKE '%$searchQuery%'";
+        $counts[] = "SELECT COUNT(*) AS Count FROM UserAccounts 
+                     WHERE (User LIKE '%$searchQuery%' OR display_name LIKE '%$searchQuery%')";
         $parts[] = "
-        SELECT " . SearchType::User . " AS Type, ua.User AS ID,
-               CONCAT( '/user/', ua.User ) AS Target, ua.User AS Title,
-               CASE WHEN ua.User LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
-        FROM UserAccounts AS ua
-        WHERE ua.User LIKE '%$searchQuery%' AND ua.Permissions >= 0 AND ua.Deleted IS NULL
-        ORDER BY SecondarySort, ua.User";
+            SELECT " . SearchType::User . " AS Type, ua.User AS ID,
+                   CONCAT('/user/', ua.User) AS Target, 
+                   COALESCE(ua.display_name, ua.User) AS Title,
+                   CASE 
+                       WHEN ua.User LIKE '$searchQuery%' THEN 0 
+                       WHEN ua.display_name LIKE '$searchQuery%' THEN 0
+                       WHEN ua.User LIKE '%$searchQuery%' THEN 1
+                       ELSE 1 
+                   END AS SecondarySort
+            FROM UserAccounts AS ua
+            WHERE (ua.User LIKE '%$searchQuery%' OR ua.display_name LIKE '%$searchQuery%')
+              AND ua.Permissions >= 0 
+              AND ua.Deleted IS NULL
+            ORDER BY SecondarySort, COALESCE(ua.display_name, ua.User)";
     }
 
     if (in_array(SearchType::Forum, $searchType)) {

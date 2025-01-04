@@ -148,7 +148,7 @@ if (
         return DoRequestError('Access denied.', 405, 'access_denied');
     }
 
-    $foundDelegateToUser = User::firstWhere('User', $delegateTo);
+    $foundDelegateToUser = User::whereName($delegateTo)->first();
     if (!$foundDelegateToUser) {
         return DoRequestError("The target user couldn't be found.", 404, 'not_found');
     }
@@ -447,7 +447,7 @@ switch ($requestType) {
             return DoRequestError('Access denied.', 403, 'access_denied');
         }
 
-        $targetUser = User::firstWhere('User', $delegateTo);
+        $targetUser = User::whereName($delegateTo)->first();
         if (!$targetUser) {
             return DoRequestError("The target user couldn't be found.", 404, 'not_found');
         }
@@ -536,7 +536,7 @@ switch ($requestType) {
         // TBD: friendsOnly
         $leaderboard = Leaderboard::find($lbID);
         $response['LeaderboardData'] = $leaderboard ?
-            GetLeaderboardData($leaderboard, User::firstWhere('User', $username), $count, $offset, nearby: true) : [];
+            GetLeaderboardData($leaderboard, User::whereName($username)->first(), $count, $offset, nearby: true) : [];
         break;
 
     case "patch":
@@ -614,7 +614,7 @@ switch ($requestType) {
         PlayerSessionHeartbeat::dispatch($user, $game, null, $gameHash);
 
         $response['Success'] = true;
-        $userModel = User::firstWhere('User', $username);
+        $userModel = User::whereName($username)->first();
         $userUnlocks = getUserAchievementUnlocksForGame($userModel, $gameID);
         $userUnlocks = reactivateUserEventAchievements($userModel, $userUnlocks);
         foreach ($userUnlocks as $achId => $unlock) {
@@ -737,7 +737,7 @@ switch ($requestType) {
 
     case "unlocks":
         $hardcoreMode = (int) request()->input('h', 0) === UnlockMode::Hardcore;
-        $userModel = User::firstWhere('User', $username);
+        $userModel = User::whereName($username)->first();
         $userUnlocks = getUserAchievementUnlocksForGame($userModel, $gameID);
         if ($hardcoreMode) {
             $userUnlocks = reactivateUserEventAchievements($userModel, $userUnlocks);

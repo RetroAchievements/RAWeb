@@ -12,7 +12,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $gameId = (int) $input['game'];
 $user = $input['user'];
 
-$userModel = User::firstWhere('User', $user);
+$userModel = User::whereName($user)->first();
 
 $totalRequests = getUserRequestsInformation($userModel, $gameId);
 $totalRequests['gameRequests'] = getSetRequestCount($gameId);

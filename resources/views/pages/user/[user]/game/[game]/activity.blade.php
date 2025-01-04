@@ -32,9 +32,9 @@ render(function (View $view, User $user, Game $game, PlayerGameActivityPageServi
     'userProgress' => 'n/a',
 ])
 
-<x-app-layout pageTitle="{{ $user->User }}'s activity for {{ $game->Title }}">
+<x-app-layout pageTitle="{{ $user->display_name }}'s activity for {{ $game->Title }}">
     <x-user.breadcrumbs
-        :targetUsername="$user->User"
+        :targetDisplayName="$user->display_name"
         :parentPage="$game->Title"
         :parentPageUrl="$game->permalink"
         currentPage="Activity"
@@ -42,7 +42,7 @@ render(function (View $view, User $user, Game $game, PlayerGameActivityPageServi
 
     <div class="mt-3 w-full relative flex gap-x-3">
         {!! gameAvatar($game->toArray(), label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
-        <h1 class="mt-[10px] w-full">Game Activity: {{ $user->User }}</h1>
+        <h1 class="mt-[10px] w-full">Game Activity: {{ $user->display_name }}</h1>
     </div>
 @if (!empty($activity->sessions))
     <div>

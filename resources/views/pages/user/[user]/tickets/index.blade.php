@@ -43,14 +43,14 @@ render(function (View $view, User $user, TicketListService $ticketListService) {
     'totalPages' => 1,
 ])
 
-<x-app-layout pageTitle="Tickets - {{ $user->User }}">
+<x-app-layout pageTitle="Tickets - {{ $user->display_name }}">
     <x-user.breadcrumbs
-        :targetUsername="$user->User"
+        :targetDisplayName="$user->display_name"
         currentPage="Tickets"
     />
 
     <div class="mt-3 mb-1 w-full flex gap-x-3">
-        {!! userAvatar($user->User, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        {!! userAvatar($user, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
         <h1 class="mt-[10px] w-full">Tickets</h1>
     </div>
 

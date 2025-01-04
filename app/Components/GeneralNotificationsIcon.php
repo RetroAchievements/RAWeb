@@ -33,7 +33,7 @@ class GeneralNotificationsIcon extends Component
             $ticketFeedback = countRequestTicketsByUser($user);
             if ($ticketFeedback) {
                 $notifications->push([
-                    'link' => route('reporter.tickets', ['user' => $user]),
+                    'link' => route('reporter.tickets', ['user' => $user->display_name]),
                     'title' => $ticketFeedback . ' ' . __res('ticket', $ticketFeedback) . ' awaiting your feedback',
                 ]);
             }
@@ -44,13 +44,13 @@ class GeneralNotificationsIcon extends Component
             $expiringClaims = getExpiringClaim($user);
             if ($expiringClaims['Expired'] ?? 0) {
                 $notifications->push([
-                    'link' => route('developer.claims', ['user' => $user]),
+                    'link' => route('developer.claims', ['user' => $user->display_name]),
                     'title' => 'Claim Expired',
                     'class' => 'text-danger',
                 ]);
             } elseif ($expiringClaims['Expiring'] ?? 0) {
                 $notifications->push([
-                    'link' => route('developer.claims', ['user' => $user]),
+                    'link' => route('developer.claims', ['user' => $user->display_name]),
                     'title' => 'Claim Expiring Soon',
                     'class' => 'text-danger',
                 ]);

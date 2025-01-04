@@ -32,18 +32,21 @@ class UserResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    protected static ?string $recordRouteKeyName = 'User';
-
-    protected static ?string $recordTitleAttribute = 'username';
+    protected static ?string $recordTitleAttribute = 'display_name';
 
     protected static int $globalSearchResultsLimit = 5;
+
+    public static function resolveRecordRouteBinding(int|string $key): ?Model
+    {
+        return User::whereName($key)->first();
+    }
 
     /**
      * @param User $record
      */
     public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
     {
-        return $record->User;
+        return $record->display_name;
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array

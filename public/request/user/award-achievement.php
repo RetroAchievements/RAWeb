@@ -22,7 +22,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'hardcore' => 'required|integer|min:0|max:1',
 ]);
 
-$player = User::firstWhere('User', $input['user']);
+$player = User::whereName($input['user'])->first();
 
 $achievementId = $input['achievement'];
 $awardHardcore = (bool) $input['hardcore'];

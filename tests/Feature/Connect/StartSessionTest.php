@@ -95,7 +95,7 @@ class StartSessionTest extends TestCase
         $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
 
         /** @var User $user1 */
-        $user1 = User::firstWhere('User', $this->user->User);
+        $user1 = User::whereName($this->user->User)->first();
         $this->assertEquals($game->ID, $user1->LastGameID);
         $this->assertEquals("Playing " . $game->Title, $user1->RichPresenceMsg);
 
@@ -140,7 +140,7 @@ class StartSessionTest extends TestCase
         $this->assertEquals('Playing ' . $game2->title, $playerSession->rich_presence);
         $this->assertEquals($gameHash2->id, $playerSession->game_hash_id);
 
-        $user1 = User::firstWhere('User', $this->user->User);
+        $user1 = User::whereName($this->user->User)->first();
         $this->assertEquals($game2->ID, $user1->LastGameID);
         $this->assertEquals("Playing " . $game2->Title, $user1->RichPresenceMsg);
 

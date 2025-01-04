@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -31,11 +32,13 @@ if (
     abort(403);
 }
 
+$userModel = User::whereName($user)->first();
+
 $achievement->AssocVideo = strip_tags($embedUrl);
 $achievement->save();
 
-$auditLog = "$user set this achievement's embed URL.";
+$auditLog = "{$userModel->display_name} set this achievement's embed URL.";
 
-addArticleComment('Server', ArticleType::Achievement, $achievementId, $auditLog, $user);
+addArticleComment('Server', ArticleType::Achievement, $achievementId, $auditLog, $userModel->display_name);
 
 return response()->json(['message' => __('legacy.success.ok')]);
