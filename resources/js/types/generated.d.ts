@@ -265,6 +265,12 @@ declare namespace App.Data {
 }
 declare namespace App.Enums {
   export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4;
+  export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'custom';
+  export type PlayerGameActivitySessionType =
+    | 'player-session'
+    | 'reconstructed'
+    | 'manual-unlock'
+    | 'ticket-created';
   export type UserPreference =
     | 0
     | 1
@@ -338,6 +344,7 @@ declare namespace App.Platform.Data {
     description?: string;
     badgeUnlockedUrl?: string;
     badgeLockedUrl?: string;
+    flags?: App.Platform.Enums.AchievementFlag;
     game?: App.Platform.Data.Game;
     unlockedAt?: string;
     unlockedHardcoreAt?: string;
@@ -396,6 +403,7 @@ declare namespace App.Platform.Data {
     name: string | null;
     labels: Array<App.Platform.Data.GameHashLabel>;
     patchUrl: string | null;
+    isMultiDisc?: boolean;
   };
   export type GameHashLabel = {
     label: string;
@@ -463,11 +471,64 @@ declare namespace App.Platform.Data {
     formattedScore?: string;
     createdAt?: string;
   };
+  export type ParsedUserAgent = {
+    client: string;
+    clientVersion: string;
+    os: string | null;
+    integrationVersion: string | null;
+    extra: Array<any> | null;
+    clientVariation: string | null;
+  };
   export type PlayerBadge = {
     awardType: number;
     awardData: number;
     awardDataExtra: number;
     awardDate: string;
+  };
+  export type PlayerGameActivity = {
+    summarizedActivity: App.Platform.Data.PlayerGameActivitySummary;
+    sessions: Array<App.Platform.Data.PlayerGameActivitySession>;
+    clientBreakdown: Array<App.Platform.Data.PlayerGameClientBreakdown>;
+  };
+  export type PlayerGameActivityEvent = {
+    type: App.Enums.PlayerGameActivityEventType;
+    description: string | null;
+    header: string | null;
+    when: string | null;
+    id: number | null;
+    hardcore: boolean | null;
+    achievement: App.Platform.Data.Achievement | null;
+    unlocker: App.Data.User | null;
+    hardcoreLater: boolean | null;
+  };
+  export type PlayerGameActivityPageProps = {
+    player: App.Data.User;
+    game: App.Platform.Data.Game;
+    playerGame: App.Platform.Data.PlayerGame | null;
+    activity: App.Platform.Data.PlayerGameActivity;
+  };
+  export type PlayerGameActivitySession = {
+    type: App.Enums.PlayerGameActivitySessionType;
+    startTime: string;
+    endTime: string;
+    duration: number;
+    userAgent: string | null;
+    parsedUserAgent: App.Platform.Data.ParsedUserAgent | null;
+    gameHash: App.Platform.Data.GameHash | null;
+    events: Array<App.Platform.Data.PlayerGameActivityEvent>;
+  };
+  export type PlayerGameActivitySummary = {
+    achievementPlaytime: number;
+    achievementSessionCount: number;
+    generatedSessionAdjustment: number;
+    totalUnlockTime: number;
+    totalPlaytime: number;
+  };
+  export type PlayerGameClientBreakdown = {
+    clientIdentifier: string;
+    agents: Array<any>;
+    duration: number;
+    durationPercentage: number;
   };
   export type PlayerGame = {
     achievementsUnlocked: number | null;

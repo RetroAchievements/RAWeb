@@ -71,4 +71,16 @@ class PlayerGamePolicy
         ])
             || $user->getAttribute('Permissions') >= Permissions::Moderator;
     }
+
+    // TODO when deleting the Blade UI player game activity page, replace viewSessionHistory with this implementation
+    public function viewSessionHistory2(User $user, ?PlayerGame $playerGame = null): bool
+    {
+        // TODO also visible on tickets
+
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+            Role::CHEAT_INVESTIGATOR,
+        ]);
+    }
 }

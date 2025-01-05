@@ -115,13 +115,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.dev-interest": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.suggest": [
         {
             "name": "game",
@@ -184,6 +177,13 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.dev-interest": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.hashes.index": [
         {
             "name": "game",
@@ -210,6 +210,18 @@ declare module 'ziggy-js' {
     "system.game.index": [
         {
             "name": "system",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "user.game.activity.show": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        },
+        {
+            "name": "game",
             "required": true,
             "binding": "ID"
         }
