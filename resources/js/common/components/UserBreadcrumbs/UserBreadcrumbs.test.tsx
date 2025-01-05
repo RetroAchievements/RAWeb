@@ -1,6 +1,6 @@
 import i18n from '@/i18n-client';
 import { render, screen } from '@/test';
-import { createUser } from '@/test/factories';
+import { createGame, createSystem, createUser } from '@/test/factories';
 
 import { UserBreadcrumbs } from './UserBreadcrumbs';
 
@@ -33,5 +33,19 @@ describe('Component: UserBreadcrumbs', () => {
     const systemGamesLinkEl = screen.getByRole('link', { name: /scott/i });
     expect(systemGamesLinkEl).toBeVisible();
     expect(systemGamesLinkEl).toHaveAttribute('href', `user.show,${{ user: user.displayName }}`);
+  });
+
+  it('given a game, has a link to the game page', () => {
+    // ARRANGE
+    const system = createSystem({ name: 'Nintendo 64' });
+    const game = createGame({ system });
+    const user = createUser({ displayName: 'Scott' });
+
+    render(<UserBreadcrumbs t_currentPageLabel={i18n.t('Comments')} game={game} user={user} />);
+
+    // ASSERT
+    const gameLinkEl = screen.getByRole('link', { name: game.title });
+    expect(gameLinkEl).toBeVisible();
+    expect(gameLinkEl).toHaveAttribute('href', `game.show,${{ game: game.id }}`);
   });
 });

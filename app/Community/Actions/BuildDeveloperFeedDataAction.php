@@ -18,6 +18,7 @@ use App\Platform\Data\AchievementData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\LeaderboardData;
 use App\Platform\Data\LeaderboardEntryData;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -31,6 +32,7 @@ class BuildDeveloperFeedDataAction
         $achievementInfo = DB::table('Achievements')
             ->select(['ID', 'GameID'])
             ->where('user_id', $targetUser->id)
+            ->where('Flags', AchievementFlag::OfficialCore->value)
             ->get();
 
         $allUserAchievementIds = $achievementInfo->pluck('ID');
