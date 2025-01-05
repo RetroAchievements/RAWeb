@@ -9,6 +9,9 @@ import {
 import * as UseForumPostPreviewModule from '../../hooks/useForumPostPreview';
 import { EditPostMainRoot } from './EditPostMainRoot';
 
+// Prevent the autosize textarea from flooding the console with errors.
+window.scrollTo = vi.fn();
+
 describe('Component: EditPostMainRoot', () => {
   it('renders without crashing', () => {
     // ARRANGE

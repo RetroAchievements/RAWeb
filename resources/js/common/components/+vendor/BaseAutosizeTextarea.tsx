@@ -49,7 +49,9 @@ export const useBaseAutosizeTextArea = ({
       }
 
       // Restore the scroll position to prevent page jumps.
-      window.scrollTo(0, scrollPos);
+      if (typeof window !== 'undefined') {
+        window.scrollTo(0, scrollPos);
+      }
     }
   }, [textAreaRef.current, triggerAutoSize, init, maxHeight, minHeight]);
 };

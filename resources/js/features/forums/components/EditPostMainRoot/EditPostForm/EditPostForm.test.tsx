@@ -6,6 +6,9 @@ import { createForumTopic, createForumTopicComment } from '@/test/factories';
 
 import { EditPostForm } from './EditPostForm';
 
+// Prevent the autosize textarea from flooding the console with errors.
+window.scrollTo = vi.fn();
+
 describe('Component: EditPostForm', () => {
   it('renders without crashing', () => {
     // ARRANGE
