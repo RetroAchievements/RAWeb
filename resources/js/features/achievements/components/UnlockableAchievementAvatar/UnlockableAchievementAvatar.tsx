@@ -19,34 +19,21 @@ export const UnlockableAchievementAvatar: FC<UnlockableAchievementAvatarProps> =
 }) => {
   const { t } = useTranslation();
 
+  const badgeUrl =
+    !achievement.unlockedAt && !achievement.unlockedHardcoreAt
+      ? achievement.badgeLockedUrl
+      : achievement.badgeUnlockedUrl;
+
   return (
     <div className="mb-2 flex items-center gap-2">
-      {achievement.unlockedHardcoreAt ? (
-        <AchievementAvatar
-          {...achievement}
-          showHardcoreUnlockBorder={true}
-          // TODO: showPointsInTitle={true}
-          showLabel={false}
-          size={imageSize}
-        />
-      ) : achievement.unlockedAt ? (
-        <AchievementAvatar
-          {...achievement}
-          showHardcoreUnlockBorder={false}
-          // TODO: showPointsInTitle={true}
-          showLabel={false}
-          size={imageSize}
-        />
-      ) : (
-        <AchievementAvatar
-          {...achievement}
-          showHardcoreUnlockBorder={false}
-          badgeUnlockedUrl={achievement.badgeLockedUrl}
-          // TODO: showPointsInTitle={true}
-          showLabel={false}
-          size={imageSize}
-        />
-      )}
+      <AchievementAvatar
+        {...achievement}
+        showHardcoreUnlockBorder={!!achievement.unlockedHardcoreAt}
+        badgeUnlockedUrl={badgeUrl}
+        // TODO: showPointsInTitle={true}
+        showLabel={false}
+        size={imageSize}
+      />
 
       <div>
         <div className="flex items-center gap-2">
@@ -57,9 +44,7 @@ export const UnlockableAchievementAvatar: FC<UnlockableAchievementAvatarProps> =
               <span>{t('from')}</span>
               <GameAvatar {...achievement.game} showImage={false} />
             </>
-          ) : (
-            <></>
-          )}
+          ) : null}
         </div>
 
         <span>{achievement.description}</span>
@@ -68,9 +53,7 @@ export const UnlockableAchievementAvatar: FC<UnlockableAchievementAvatarProps> =
           <UnlockedAtLabel when={achievement.unlockedHardcoreAt} />
         ) : achievement.unlockedAt ? (
           <UnlockedAtLabel when={achievement.unlockedAt} />
-        ) : (
-          <></>
-        )}
+        ) : null}
       </div>
     </div>
   );

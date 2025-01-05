@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 
-import { UnlockableAchievementAvatar } from '@/features/achievements/components/UnlockableAchievementAvatar/UnlockableAchievementAvatar';
+import { UnlockableAchievementAvatar } from '@/features/achievements/components/UnlockableAchievementAvatar';
 
 interface AchievementGroupProps {
   group: App.Community.Data.AchievementGroup;
@@ -9,7 +9,7 @@ interface AchievementGroupProps {
 
 export const AchievementGroup: FC<AchievementGroupProps> = ({ group, showGame = false }) => {
   return (
-    <div className="mb-0 mt-4">
+    <div>
       <h4>{group.header}</h4>
       {group.achievements.map((achievement) => (
         <UnlockableAchievementAvatar

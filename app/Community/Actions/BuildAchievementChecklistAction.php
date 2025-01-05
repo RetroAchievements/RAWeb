@@ -37,22 +37,25 @@ class BuildAchievementChecklistAction
             $ids = substr($group, $index + 1);
         }
 
-        $achievements = [];
+        $achievementIds = [];
         foreach (explode(',', $ids) as $id) {
-            $achievements[] = (int) $id;
+            $achievementIds[] = (int) $id;
         }
 
         return [
             'header' => $header,
-            'achievements' => $achievements,
+            'achievementIds' => $achievementIds,
         ];
     }
 
+    /**
+     * @return AchievementGroupData[]
+     */
     private function fillData(array $groups, User $user): array
     {
         $ids = [];
         foreach ($groups as $group) {
-            $ids = array_merge($ids, $group['achievements']);
+            $ids = array_merge($ids, $group['achievementIds']);
         }
         $ids = array_unique($ids);
 
@@ -62,7 +65,7 @@ class BuildAchievementChecklistAction
         $result = [];
         foreach ($groups as $group) {
             $achievementList = [];
-            foreach ($group['achievements'] as $achievementId) {
+            foreach ($group['achievementIds'] as $achievementId) {
                 $achievement = $achievements->filter(fn ($a) => $a->ID === $achievementId)->first();
                 if ($achievement) {
                     $unlock = $unlocks->filter(fn ($u) => $u->achievement_id === $achievementId)->first();

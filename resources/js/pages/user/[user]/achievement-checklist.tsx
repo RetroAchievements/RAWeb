@@ -21,7 +21,7 @@ const UserAchievementChecklist: AppPage = () => {
           <UserHeading user={player}>{t('Achievement Checklist')}</UserHeading>
 
           {groups.length > 0 ? (
-            <div>
+            <div className="flex flex-col gap-4">
               {groups.map((group, index) => (
                 <AchievementGroup group={group} showGame={true} key={`ach-group-${index}`} />
               ))}
