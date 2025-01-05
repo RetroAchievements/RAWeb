@@ -1,0 +1,77 @@
+diff --git a/es/index.js b/es/index.js
+index ae798e7be9727d886cb248ce6eb08cb9bb4a80f4..d58beb5a14f775f98cf376fdeef8338fb454e900 100644
+--- a/es/index.js
++++ b/es/index.js
+@@ -1,34 +1,38 @@
+-import presetHTML5 from '@bbob/preset-html5';
+-const tagAttr = (style)=>({
+-        attrs: {
+-            style
+-        }
+-    });
+-const presetReact = presetHTML5.extend((tags)=>({
+-        ...tags,
+-        b: (...args)=>({
+-                ...tags.b(...args),
+-                ...tagAttr({
+-                    fontWeight: 'bold'
+-                })
+-            }),
+-        i: (...args)=>({
+-                ...tags.i(...args),
+-                ...tagAttr({
+-                    fontStyle: 'italic'
+-                })
+-            }),
+-        u: (...args)=>({
+-                ...tags.u(...args),
+-                ...tagAttr({
+-                    textDecoration: 'underline'
+-                })
+-            }),
+-        s: (...args)=>({
+-                ...tags.s(...args),
+-                ...tagAttr({
+-                    textDecoration: 'line-through'
+-                })
+-            })
+-    }));
+-export default presetReact;
++const presetHTML5 = require('@bbob/preset-html5').default;
++
++const tagAttr = (style) => ({
++    attrs: {
++        style
++    }
++});
++
++const presetReact = presetHTML5.extend((tags) => ({
++    ...tags,
++    b: (...args) => ({
++        ...tags.b(...args),
++        ...tagAttr({
++            fontWeight: 'bold'
++        })
++    }),
++    i: (...args) => ({
++        ...tags.i(...args),
++        ...tagAttr({
++            fontStyle: 'italic'
++        })
++    }),
++    u: (...args) => ({
++        ...tags.u(...args),
++        ...tagAttr({
++            textDecoration: 'underline'
++        })
++    }),
++    s: (...args) => ({
++        ...tags.s(...args),
++        ...tagAttr({
++            textDecoration: 'line-through'
++        })
++    })
++}));
++
++module.exports = presetReact;
++module.exports.default = presetReact;

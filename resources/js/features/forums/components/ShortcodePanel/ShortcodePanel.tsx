@@ -17,16 +17,11 @@ export const ShortcodePanel: FC = () => {
 
   return (
     <div className="w-full rounded bg-embed p-2">
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {shortcodesList.map((shortcode) => (
           <BaseTooltip key={shortcode.t_label}>
             <BaseTooltipTrigger asChild>
-              <BaseButton
-                size="sm"
-                type="button"
-                onClick={() => injectShortcode(shortcode)}
-                className="cursor-pointer"
-              >
+              <BaseButton size="sm" type="button" onClick={() => injectShortcode(shortcode)}>
                 <span className="sr-only">{shortcode.t_label}</span>
                 <shortcode.icon className="size-4" />
               </BaseButton>

@@ -9,7 +9,8 @@
  * Multiple consecutive newlines will be folded down to maximum of 2.
  * After spoiler tags, only one br tag is allowed.
  */
-import { isEOL } from '@bbob/plugin-helper';
+
+const isEOL = (el: string) => el === '\n';
 
 /**
  * Checks if input is an object.

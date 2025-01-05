@@ -135,5 +135,11 @@
     "engines": {
         "node": "20.x",
         "pnpm": ">=9"
+    },
+    "pnpm": {
+        "patchedDependencies": {
+            "@bbob/react": "patches/@bbob__react.patch",
+            "@bbob/preset-react": "patches/@bbob__preset-react.patch"
+        }
     }
 }
