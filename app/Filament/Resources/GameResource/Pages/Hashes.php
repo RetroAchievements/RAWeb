@@ -124,12 +124,6 @@ class Hashes extends ManageRelatedRecords
                                         $changedAttributes[$key] = $value;
                                     }
                                 }
-
-                                $this->logGameHashUpdate(
-                                    $record,
-                                    $changedAttributes,
-                                    Auth::user()
-                                );
                             }),
                     ]),
 
@@ -193,35 +187,5 @@ class Hashes extends ManageRelatedRecords
 
             ])
             ->paginated(false);
-    }
-
-    /**
-     * @deprecated migrate everything to the activitylog
-     */
-    private function logGameHashUpdate(GameHash $gameHash, array $changedAttributes, User $user): void
-    {
-        $commentParts = ["{$gameHash->md5} updated by {$user->User}."];
-
-        foreach ($changedAttributes as $attribute => $newValue) {
-            $newValueDisplay = $newValue ?? 'None';
-
-            switch ($attribute) {
-                case 'Name':
-                    $commentParts[] = "File Name: \"{$newValueDisplay}\".";
-                    break;
-                case 'Labels':
-                    $commentParts[] = "Label: \"{$newValueDisplay}\".";
-                    break;
-                case 'patch_url':
-                    $commentParts[] = $newValue ? "RAPatches URL updated to: {$newValue}." : "RAPatches URL removed.";
-                    break;
-                case 'source':
-                    $commentParts[] = $newValue ? "Resource Page URL updated to: {$newValue}." : "Resource Page URL removed.";
-                    break;
-            }
-        }
-
-        $comment = implode(' ', $commentParts);
-        addArticleComment("Server", ArticleType::GameHash, $gameHash->game_id, $comment);
     }
 }
