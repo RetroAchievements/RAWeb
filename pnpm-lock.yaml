@@ -8,6 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@bbob/plugin-helper':
+        specifier: ^4.2.0
+        version: 4.2.0
+      '@bbob/preset-react':
+        specifier: ^4.2.0
+        version: 4.2.0(react@18.3.1)
+      '@bbob/react':
+        specifier: ^4.2.0
+        version: 4.2.0(react@18.3.1)
       '@floating-ui/core':
         specifier: ^1.6.8
         version: 1.6.8
@@ -25,6 +34,9 @@ importers:
         version: 1.1.4(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-checkbox':
         specifier: ^1.1.1
+        version: 1.1.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-collapsible':
+        specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-dialog':
         specifier: ^1.1.2
@@ -423,6 +435,37 @@ packages:
   '@babel/types@7.26.0':
     resolution: {integrity: sha512-Z/yiTPj+lDVnF7lWeKCIJzaIkI0vYO87dMpZ4bg4TDrFe4XXLFWL1TbXU27gBP3QccxV9mZICCrnjnYlJjXHOA==}
     engines: {node: '>=6.9.0'}
+
+  '@bbob/core@4.2.0':
+    resolution: {integrity: sha512-i5VUIO6xx+TCrBE8plQF9KpW1z+0QcCh9GawCCWYG9KcZrEsyRy57my5/kem0a2lFxXjh0o+tgjQY9sCP5b3bw==}
+
+  '@bbob/html@4.2.0':
+    resolution: {integrity: sha512-mZG7MmE/YluH1/FNCr2Jv/Vz3Mq5stZ5tFAjBmYpVVN6Ndus4+FA84vKoHFdUHDiuU1p/e2/o/VUrwsWwLdoIA==}
+
+  '@bbob/parser@4.2.0':
+    resolution: {integrity: sha512-l8BppXjdQClrUiv+qIN0Oe6aS/vlH7CEduMreDaxYDadUPC0RMzxj9lXVjO0xTbFEVEIUJCGc53qnpiApLbx2g==}
+
+  '@bbob/plugin-helper@4.2.0':
+    resolution: {integrity: sha512-Uxs/UJROnkpcq5EJfz/8NCEYAcme8l6oAgMeWLX1nxWeieUhRgpY8BWQ9eQwUOXEKa0tsKVPnlmbUAjFhppVPw==}
+
+  '@bbob/preset-html5@4.2.0':
+    resolution: {integrity: sha512-X2EIeb2vqTz/n34KWQXEL5IC0SuB6i2/ltRpEaMTyK7IoDEs0XGIWcqVpenb7Z2d4eNA3gTWhkoUUkKlZmfQRQ==}
+
+  '@bbob/preset-react@4.2.0':
+    resolution: {integrity: sha512-f6VoTaFVxtx4dVWCYjbSkeK2roYgjj/mMc7TJtPOReSjLZqxk0sV0LUcNfbEeNdCcygASjKZAX5FOhDZ4qADng==}
+    peerDependencies:
+      react: '> 15.0'
+
+  '@bbob/preset@4.2.0':
+    resolution: {integrity: sha512-IA+kxlrRcYBXE634B8W6uU2DO7VvrxeOqWUzIDKV2CgzTMpmCG875ihGp+Q3T+QxGwzG5S0L4GdmCIULTbzC4A==}
+
+  '@bbob/react@4.2.0':
+    resolution: {integrity: sha512-gmcTg3vrN5Qc6Epp91f4pU4rf8GCb9AO8CGaTgdvmLMYH4LWoAyZdTGn4J0m3QKAhTdUWvnZjG9YOkI4zXw94A==}
+    peerDependencies:
+      react: '> 15.0'
+
+  '@bbob/types@4.2.0':
+    resolution: {integrity: sha512-bSCZnNg0VrPosBBUVkjBDYVKNEqwT0jTNuzvAuNrZkuILgUKtLYI9GHuT8rY4lZecCb7UqGDsHsYt0YJO36eJg==}
 
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
@@ -1041,6 +1084,19 @@ packages:
 
   '@radix-ui/react-checkbox@1.1.2':
     resolution: {integrity: sha512-/i0fl686zaJbDQLNKrkCbMyDm6FQMt4jg323k7HuqitoANm9sE23Ql8yOK3Wusk34HSLKDChhMux05FnP6KUkw==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-collapsible@1.1.2':
+    resolution: {integrity: sha512-PliMB63vxz7vggcyq0IxNYk8vGDrLXVWw4+W4B8YnwI1s18x7YZYqlG9PLX7XxAJUi0g2DxP4XKJMFHh/iVh9A==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -4936,6 +4992,54 @@ snapshots:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
 
+  '@bbob/core@4.2.0':
+    dependencies:
+      '@bbob/parser': 4.2.0
+      '@bbob/plugin-helper': 4.2.0
+      '@bbob/types': 4.2.0
+
+  '@bbob/html@4.2.0':
+    dependencies:
+      '@bbob/core': 4.2.0
+      '@bbob/plugin-helper': 4.2.0
+      '@bbob/types': 4.2.0
+
+  '@bbob/parser@4.2.0':
+    dependencies:
+      '@bbob/plugin-helper': 4.2.0
+      '@bbob/types': 4.2.0
+
+  '@bbob/plugin-helper@4.2.0':
+    dependencies:
+      '@bbob/types': 4.2.0
+
+  '@bbob/preset-html5@4.2.0':
+    dependencies:
+      '@bbob/plugin-helper': 4.2.0
+      '@bbob/preset': 4.2.0
+      '@bbob/types': 4.2.0
+
+  '@bbob/preset-react@4.2.0(react@18.3.1)':
+    dependencies:
+      '@bbob/preset-html5': 4.2.0
+      '@bbob/types': 4.2.0
+      react: 18.3.1
+
+  '@bbob/preset@4.2.0':
+    dependencies:
+      '@bbob/plugin-helper': 4.2.0
+      '@bbob/types': 4.2.0
+
+  '@bbob/react@4.2.0(react@18.3.1)':
+    dependencies:
+      '@bbob/core': 4.2.0
+      '@bbob/html': 4.2.0
+      '@bbob/plugin-helper': 4.2.0
+      '@bbob/types': 4.2.0
+      react: 18.3.1
+
+  '@bbob/types@4.2.0': {}
+
   '@bcoe/v8-coverage@0.2.3': {}
 
   '@crowdin/crowdin-api-client@1.39.1':
@@ -5358,6 +5462,22 @@ snapshots:
       '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@18.3.12)(react@18.3.1)
       '@radix-ui/react-use-previous': 1.1.0(@types/react@18.3.12)(react@18.3.1)
       '@radix-ui/react-use-size': 1.1.0(@types/react@18.3.12)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.12
+      '@types/react-dom': 18.3.1
+
+  '@radix-ui/react-collapsible@1.1.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@18.3.12)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@18.3.12)(react@18.3.1)
+      '@radix-ui/react-id': 1.1.0(@types/react@18.3.12)(react@18.3.1)
+      '@radix-ui/react-presence': 1.1.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.1(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@18.3.12)(react@18.3.1)
+      '@radix-ui/react-use-layout-effect': 1.1.0(@types/react@18.3.12)(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
     optionalDependencies:

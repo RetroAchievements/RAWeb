@@ -150,19 +150,6 @@ describe('Component: AchievementAvatar', () => {
     expect(screen.getByText(/sublabel content/i)).toBeVisible();
   });
 
-  it('given showLabel is false with sublabelSlot, does not show the title text', () => {
-    // ARRANGE
-    const achievement = createAchievement();
-
-    render(
-      <AchievementAvatar {...achievement} showLabel={false} sublabelSlot={<span>Sublabel</span>} />,
-    );
-
-    // ASSERT
-    expect(screen.queryByText(achievement.title)).not.toBeInTheDocument();
-    expect(screen.getByText(/sublabel/i)).toBeVisible();
-  });
-
   it('given showHardcoreUnlockBorder is false, applies the correct gap spacing', () => {
     // ARRANGE
     const achievement = createAchievement();
@@ -186,5 +173,91 @@ describe('Component: AchievementAvatar', () => {
     // ASSERT
     const imgEl = screen.getByRole('img');
     expect(imgEl).not.toHaveClass('outline-2');
+  });
+
+  it('given the variant is base, applies the correct classes', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    // ACT
+    render(<AchievementAvatar {...achievement} variant="base" />);
+
+    // ASSERT
+    const containerEl = screen.getByTestId('ach-avatar-root');
+    expect(containerEl).toHaveClass('flex max-w-fit items-center');
+    expect(containerEl).not.toHaveClass('inline-block min-h-[26px]');
+  });
+
+  it('given the variant is inline, applies the correct classes', () => {
+    // ARRANGE
+    const achievement = createAchievement();
+
+    // ACT
+    render(<AchievementAvatar {...achievement} variant="inline" />);
+
+    // ASSERT
+    const containerEl = screen.getByTestId('ach-avatar-root');
+    expect(containerEl).toHaveClass('inline-block min-h-[26px]');
+    expect(containerEl).not.toHaveClass('flex max-w-fit items-center');
+  });
+
+  it('given showLabel is false but the image should be shown, only renders the badge image with a link', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      badgeUnlockedUrl: 'https://example.com/badge.png',
+    });
+
+    // ACT
+    render(<AchievementAvatar {...achievement} showLabel={false} showImage={true} />);
+
+    // ASSERT
+    const anchorEl = screen.getByRole('link');
+    const imgEl = screen.getByRole('img');
+
+    expect(screen.queryByText(achievement.title)).not.toBeInTheDocument();
+    expect(anchorEl).toBeVisible();
+    expect(imgEl).toBeVisible();
+    expect(anchorEl).toContainElement(imgEl);
+  });
+
+  it('given title is undefined but showLabel is true, does not render a title link', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: undefined,
+    });
+
+    // ACT
+    render(<AchievementAvatar {...achievement} showLabel={true} />);
+
+    // ASSERT
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('given badgeUnlockedUrl is undefined, does not render an image even if showImage is true', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      badgeUnlockedUrl: undefined,
+    });
+
+    // ACT
+    render(<AchievementAvatar {...achievement} showImage={true} />);
+
+    // ASSERT
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+
+  it('given sublabelSlot exists but title is undefined, only renders the sublabel content with a flex column wrapper', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: undefined,
+    });
+
+    // ACT
+    render(<AchievementAvatar {...achievement} sublabelSlot={<span>Sublabel content</span>} />);
+
+    // ASSERT
+    const sublabelEl = screen.getByText(/sublabel content/i);
+    expect(sublabelEl.parentElement).toHaveClass('flex flex-col');
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 });

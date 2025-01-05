@@ -137,6 +137,7 @@ declare namespace App.Community.Enums {
     | 'Achievement'
     | 'GameTickets'
     | 'GameAchievements';
+  export type TicketState = 0 | 1 | 2 | 3 | 'Demoted';
   export type TicketType = 1 | 2;
   export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
 }
@@ -157,6 +158,22 @@ declare namespace App.Data {
     allTimeHighPlayers: number;
     allTimeHighDate: string | null;
   };
+  export type EditForumTopicCommentPageProps = {
+    forumTopicComment: App.Data.ForumTopicComment;
+  };
+  export type ForumCategory = {
+    id: number;
+    title: string;
+    description?: string;
+    orderColumn?: number;
+  };
+  export type Forum = {
+    id: number;
+    title: string;
+    description?: string;
+    orderColumn?: number;
+    category?: App.Data.ForumCategory;
+  };
   export type ForumTopicComment = {
     id: number;
     body: string;
@@ -165,12 +182,14 @@ declare namespace App.Data {
     user: App.Data.User | null;
     isAuthorized: boolean;
     forumTopicId: number | null;
+    forumTopic?: App.Data.ForumTopic | null;
   };
   export type ForumTopic = {
     id: number;
     title: string;
     createdAt: string;
-    latestComment?: App.Data.ForumTopicComment;
+    forum?: App.Data.Forum | null;
+    latestComment?: App.Data.ForumTopicComment | null;
     commentCount24h?: number | null;
     oldestComment24hId?: number | null;
     commentCount7d?: number | null;
@@ -569,6 +588,15 @@ declare namespace App.Platform.Data {
     persistedViewPreferences: Record<string, any> | null;
     defaultDesktopPageSize: number;
   };
+  export type Ticket = {
+    id: number;
+    ticketableType: App.Platform.Enums.TicketableType;
+    state?: number;
+    ticketable?:
+      | App.Platform.Data.Achievement
+      | App.Platform.Data.Leaderboard
+      | App.Platform.Data.Game;
+  };
 }
 declare namespace App.Platform.Enums {
   export type UnlockMode = 0 | 1;
@@ -611,4 +639,5 @@ declare namespace App.Platform.Enums {
   export type GameSetType = 'hub' | 'similar-games';
   export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
+  export type TicketableType = 'achievement' | 'leaderboard' | 'rich-presence';
 }

@@ -9,6 +9,7 @@ use App\Community\Controllers\AchievementCommentController;
 use App\Community\Controllers\AchievementSetClaimController;
 use App\Community\Controllers\Api\AchievementCommentApiController;
 use App\Community\Controllers\Api\ActivePlayersApiController;
+use App\Community\Controllers\Api\ForumTopicCommentApiController;
 use App\Community\Controllers\Api\GameClaimsCommentApiController;
 use App\Community\Controllers\Api\GameCommentApiController;
 use App\Community\Controllers\Api\GameHashesCommentApiController;
@@ -67,6 +68,9 @@ class RouteServiceProvider extends ServiceProvider
                     Route::group(['prefix' => 'internal-api'], function () {
                         Route::post('achievement/{achievement}/comment', [AchievementCommentApiController::class, 'store'])->name('api.achievement.comment.store');
 
+                        Route::post('forums/post/preview', [ForumTopicCommentApiController::class, 'preview'])->name('api.forum-topic-comment.preview');
+                        Route::patch('forums/post/{comment}', [ForumTopicCommentApiController::class, 'update'])->name('api.forum-topic-comment.update');
+
                         Route::post('game/{game}/claims/comment', [GameClaimsCommentApiController::class, 'store'])->name('api.game.claims.comment.store');
                         Route::post('game/{game}/comment', [GameCommentApiController::class, 'store'])->name('api.game.comment.store');
                         Route::post('game/{game}/hashes/comment', [GameHashesCommentApiController::class, 'store'])->name('api.game.hashes.comment.store');
@@ -113,6 +117,7 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('user/{user}/moderation-comments', [UserModerationCommentController::class, 'index'])->name('user.moderation-comment.index');
 
                     Route::get('forums/recent-posts', [ForumTopicController::class, 'recentPosts'])->name('forum.recent-posts');
+                    Route::get('forums/post/{comment}/edit2', [ForumTopicCommentController::class, 'edit'])->name('forum-topic-comment.edit');
 
                     Route::get('user/{user}/posts', [UserForumTopicCommentController::class, 'index'])->name('user.posts.index');
 

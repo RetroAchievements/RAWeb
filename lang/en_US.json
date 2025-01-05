@@ -590,5 +590,18 @@
     "See more info": "See more info",
     "{{user}} has not played <1>{{game}}</1>.": "{{user}} has not played <1>{{game}}</1>.",
     "Start of reconstructed timeline.": "Start of reconstructed timeline.",
-    "Manually unlocked by <1>{{user}}</1>.": "Manually unlocked by <1>{{user}}</1>."
+    "Manually unlocked by <1>{{user}}</1>.": "Manually unlocked by <1>{{user}}</1>.",
+    "Edit Post": "Edit Post",
+    "Bold": "Bold",
+    "Italic": "Italic",
+    "Underline": "Underline",
+    "Strikethrough": "Strikethrough",
+    "Code": "Code",
+    "Spoiler": "Spoiler",
+    "Image": "Image",
+    "Link": "Link",
+    "Ticket": "Ticket",
+    "Ticket #{{ticketId}}": "Ticket #{{ticketId}}",
+    "Body": "Body",
+    "Preview": "Preview"
 }
