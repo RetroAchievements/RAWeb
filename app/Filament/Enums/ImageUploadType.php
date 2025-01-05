@@ -8,4 +8,5 @@ enum ImageUploadType
 {
     case News;
     case HubBadge;
+    case EventAward;
 }

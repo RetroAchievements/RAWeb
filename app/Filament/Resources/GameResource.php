@@ -9,6 +9,7 @@ use App\Filament\Resources\GameResource\Pages;
 use App\Filament\Resources\GameResource\RelationManagers\AchievementSetsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\AchievementsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\CoreSetAuthorshipCreditsRelationManager;
+use App\Filament\Resources\GameResource\RelationManagers\EventAwardsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\GameHashesRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\LeaderboardsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\MemoryNotesRelationManager;
@@ -475,6 +476,7 @@ class GameResource extends Resource
         return [
             AchievementsRelationManager::class,
             AchievementSetsRelationManager::class,
+            EventAwardsRelationManager::class,
             LeaderboardsRelationManager::class,
             GameHashesRelationManager::class,
             MemoryNotesRelationManager::class,
