@@ -10,6 +10,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'username' => [
         'required',
         'unique:mysql.UserAccounts,User',
+        'unique:mysql.UserAccounts,display_name',
         'min:4',
         'max:20',
         new CtypeAlnum(),
@@ -49,8 +50,8 @@ if (config('services.google.recaptcha_secret')) {
 
 $hashedPassword = Hash::make($pass);
 
-$query = "INSERT INTO UserAccounts (User, Password, SaltedPass, EmailAddress, Permissions, RAPoints, fbUser, fbPrefs, cookie, appToken, appTokenExpiry, websitePrefs, LastLogin, LastActivityID, Motto, ContribCount, ContribYield, APIKey, APIUses, LastGameID, RichPresenceMsg, RichPresenceMsgDate, ManuallyVerified, UnreadMessageCount, TrueRAPoints, UserWallActive, PasswordResetToken, Untracked, email_backup)
-VALUES ( '$username', '$hashedPassword', '', '$email', 0, 0, 0, 0, '', '', NULL, 127, null, 0, '', 0, 0, '', 0, 0, '', NULL, 0, 0, 0, 1, NULL, false, '$email')";
+$query = "INSERT INTO UserAccounts (User, display_name, Password, SaltedPass, EmailAddress, Permissions, RAPoints, fbUser, fbPrefs, cookie, appToken, appTokenExpiry, websitePrefs, LastLogin, LastActivityID, Motto, ContribCount, ContribYield, APIKey, APIUses, LastGameID, RichPresenceMsg, RichPresenceMsgDate, ManuallyVerified, UnreadMessageCount, TrueRAPoints, UserWallActive, PasswordResetToken, Untracked, email_backup)
+VALUES ( '$username', '$username', '$hashedPassword', '', '$email', 0, 0, 0, 0, '', '', NULL, 127, null, 0, '', 0, 0, '', 0, 0, '', NULL, 0, 0, 0, 1, NULL, false, '$email')";
 $dbResult = s_mysql_query($query);
 
 if (!$dbResult) {
