@@ -13,7 +13,7 @@ const BaseTooltipTrigger = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger>
 >(({ className, ...props }, ref) => (
-  <TooltipPrimitive.Trigger ref={ref} className={cn(className)} {...props} />
+  <TooltipPrimitive.Trigger ref={ref} className={cn('cursor-help', className)} {...props} />
 ));
 BaseTooltipTrigger.displayName = 'BaseTooltipTrigger';
 
