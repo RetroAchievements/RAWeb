@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-abstract class PlayerGameActivityEventType
+enum PlayerGameActivityEventType: string
 {
-    public const Unlock = 'unlock';
+    case Unlock = 'unlock';
 
-    public const RichPresence = 'rich-presence';
+    case RichPresence = 'rich-presence';
 
-    public const Custom = 'custom';
+    case Custom = 'custom';
 }

@@ -11,14 +11,16 @@ import {
   BaseBreadcrumbPage,
   BaseBreadcrumbSeparator,
 } from '../+vendor/BaseBreadcrumb';
+import { GameTitle } from '../GameTitle';
 
 interface UserBreadcrumbsProps {
   t_currentPageLabel: TranslatedString;
 
+  game?: App.Platform.Data.Game;
   user?: App.Data.User;
 }
 
-export const UserBreadcrumbs: FC<UserBreadcrumbsProps> = ({ t_currentPageLabel, user }) => {
+export const UserBreadcrumbs: FC<UserBreadcrumbsProps> = ({ t_currentPageLabel, game, user }) => {
   const { t } = useTranslation();
 
   return (
@@ -36,6 +38,18 @@ export const UserBreadcrumbs: FC<UserBreadcrumbsProps> = ({ t_currentPageLabel, 
               <BaseBreadcrumbItem aria-label={user.displayName}>
                 <BaseBreadcrumbLink href={route('user.show', { user: user.displayName })}>
                   {user.displayName}
+                </BaseBreadcrumbLink>
+              </BaseBreadcrumbItem>
+            </>
+          ) : null}
+
+          {game ? (
+            <>
+              <BaseBreadcrumbSeparator />
+
+              <BaseBreadcrumbItem aria-label={game.title}>
+                <BaseBreadcrumbLink href={route('game.show', { game: game.id })}>
+                  <GameTitle title={game.title} />
                 </BaseBreadcrumbLink>
               </BaseBreadcrumbItem>
             </>
