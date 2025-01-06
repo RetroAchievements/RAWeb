@@ -105,6 +105,10 @@ class UserResource extends Resource
                                 ]),
                             Infolists\Components\Group::make()
                                 ->schema([
+                                    Infolists\Components\TextEntry::make('username')
+                                        ->label('Original Username')
+                                        ->hidden(fn (User $record) => $record->display_name === $record->username),
+
                                     Infolists\Components\TextEntry::make('canonical_url')
                                         ->label('Canonical URL')
                                         ->url(fn (User $record): string => $record->getCanonicalUrlAttribute())
@@ -225,14 +229,10 @@ class UserResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('User')
-                    ->description(fn (User $record): string => $record->display_name)
+                Tables\Columns\TextColumn::make('display_name')
+                    ->description(fn (User $record): string => $record->username !== $record->display_name ? $record->username : '')
                     ->label('Username')
                     ->searchable(),
-
-                Tables\Columns\TextColumn::make('display_name')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
 
                 // Tables\Columns\TextColumn::make('email_verified_at')
                 //     ->dateTime()

@@ -60,9 +60,12 @@ final class Shortcode
 
         // Fetch all users by username in a single query.
         $users = User::withTrashed()
-            ->whereIn(DB::raw('LOWER(User)'), $normalizedUsernames)
-            ->get(['ID', 'User'])
-            ->keyBy(fn ($user) => strtolower($user->User));
+            ->where(function ($query) use ($normalizedUsernames) {
+                $query->whereIn(DB::raw('LOWER(User)'), $normalizedUsernames)
+                    ->orWhereIn(DB::raw('LOWER(display_name)'), $normalizedUsernames);
+            })
+            ->get(['ID', 'User', 'display_name'])
+            ->keyBy(fn ($user) => strtolower($user->display_name ?? $user->User));
 
         // Replace each username with the corresponding user ID.
         return preg_replace_callback('/\[user=(.*?)\]/', function ($matches) use ($users) {

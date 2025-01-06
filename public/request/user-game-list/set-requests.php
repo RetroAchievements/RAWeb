@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'game' => 'required|integer|exists:GameData,ID',
-    'user' => 'required|string|exists:UserAccounts,User',
+    'user' => 'required|string|exists:UserAccounts,display_name',
 ]);
 
 $gameId = (int) $input['game'];

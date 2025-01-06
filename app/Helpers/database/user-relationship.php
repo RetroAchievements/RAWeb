@@ -97,7 +97,7 @@ function GetExtendedFriendsList(User $user): array
         ->get()
         ->map(function ($friend) {
             return [
-                'User' => $friend->User,
+                'User' => $friend->display_name,
                 'Friendship' => (int) $friend->pivot->Friendship,
                 'LastGameID' => (int) $friend->LastGameID,
                 'LastSeen' => empty($friend->RichPresenceMsg) ? 'Unknown' : strip_tags($friend->RichPresenceMsg),

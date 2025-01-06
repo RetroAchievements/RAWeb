@@ -14,7 +14,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Mode
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'target' => 'required|string|exists:UserAccounts,User',
+    'target' => 'required|string|exists:UserAccounts,display_name',
     'property' => ['required', 'integer', Rule::in(UserAction::cases())],
     'value' => 'required|integer',
 ]);

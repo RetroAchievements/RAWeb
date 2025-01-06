@@ -235,7 +235,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
         $populateDevs = empty($devs);
         foreach (legacyDbFetchAll($query) as $row) {
             $data[$row['ID']] = [
-                'Author' => $row['User'],
+                'Author' => $row['display_name'],
                 'Permissions' => $row['Permissions'],
                 'ContribCount' => $row['ContribCount'],
                 'ContribYield' => $row['ContribYield'],
@@ -264,7 +264,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
         $devList = implode(',', $devs);
 
         // user data (this must be a LEFT JOIN to pick up users with 0 published achievements)
-        $query = "SELECT ua.ID, ua.User, ua.Permissions, ua.ContribCount, ua.ContribYield,
+        $query = "SELECT ua.ID, ua.display_name, ua.Permissions, ua.ContribCount, ua.ContribYield,
                          ua.LastLogin, SUM(!ISNULL(ach.ID)) AS NumAchievements
                   FROM UserAccounts ua
                   LEFT JOIN Achievements ach ON ach.user_id = ua.ID AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
@@ -282,7 +282,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
                   LEFT JOIN Ticket tick ON tick.AchievementID=ach.ID AND tick.ReportState IN (1,3)
                   WHERE $stateCond
                   GROUP BY ua.ID
-                  ORDER BY OpenTickets DESC, ua.User";
+                  ORDER BY OpenTickets DESC, ua.display_name";
         $buildDevList($query);
     } elseif ($sortBy == 4) { // TicketsResolvedForOthers DESC
         $query = "SELECT ua.ID, SUM(!ISNULL(ach.ID)) as total
@@ -291,7 +291,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
                   LEFT JOIN Achievements as ach ON ach.ID = tick.AchievementID AND ach.flags = 3 AND ach.user_id != ua.ID
                   WHERE $stateCond
                   GROUP BY ua.ID
-                  ORDER BY total DESC, ua.User";
+                  ORDER BY total DESC, ua.display_name";
         $buildDevList($query);
     } elseif ($sortBy == 7) { // ActiveClaims DESC
         $query = "SELECT ua.ID, SUM(!ISNULL(sc.ID)) AS ActiveClaims
@@ -299,22 +299,22 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
                   LEFT JOIN SetClaim sc ON sc.user_id=ua.ID AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
                   WHERE $stateCond
                   GROUP BY ua.ID
-                  ORDER BY ActiveClaims DESC, ua.User";
+                  ORDER BY ActiveClaims DESC, ua.display_name";
         $buildDevList($query);
     } else {
         $order = match ($sortBy) {
-            1 => "ua.ContribYield DESC, ua.User",
-            2 => "ua.ContribCount DESC, ua.User",
-            5 => "ua.LastLogin DESC, ua.User",
-            6 => "ua.User ASC",
-            default => "NumAchievements DESC, ua.User",
+            1 => "ua.ContribYield DESC, ua.display_name",
+            2 => "ua.ContribCount DESC, ua.display_name",
+            5 => "ua.LastLogin DESC, ua.display_name",
+            6 => "ua.display_name ASC",
+            default => "NumAchievements DESC, ua.display_name",
         };
 
         // ASSERT: ContribYield cannot be > 0 unless NumAchievements > 0, so use
         //         INNER JOIN and COUNT for maximum performance.
         // also, build the $dev list directly from these results instead of using
         // one query to build the list and a second query to fetch the user details
-        $query = "SELECT ua.ID, ua.User, ua.Permissions, ua.ContribCount, ua.ContribYield,
+        $query = "SELECT ua.ID, ua.display_name, ua.Permissions, ua.ContribCount, ua.ContribYield,
                          ua.LastLogin, COUNT(*) AS NumAchievements
                   FROM UserAccounts ua
                   INNER JOIN Achievements ach ON ach.user_id = ua.ID AND ach.Flags = 3

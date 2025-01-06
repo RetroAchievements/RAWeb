@@ -339,7 +339,7 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
         ->join('UserAccounts', 'UserAccounts.ID', '=', 'player_sessions.user_id')
         ->where('UserAccounts.Permissions', '>=', Permissions::Unregistered)
         ->orderBy('rich_presence_updated_at', 'DESC')
-        ->select(['player_sessions.user_id', 'User', 'player_sessions.rich_presence', 'player_sessions.rich_presence_updated_at']);
+        ->select(['player_sessions.user_id', 'display_name', 'player_sessions.rich_presence', 'player_sessions.rich_presence_updated_at']);
 
     if ($maximum_results) {
         $sessions = $sessions->limit($maximum_results);
@@ -348,7 +348,7 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
     foreach ($sessions->get() as $session) {
         $retval[] = [
             'UserID' => $session->user_id,
-            'User' => $session->User,
+            'User' => $session->display_name,
             'Date' => $session->rich_presence_updated_at->__toString(),
             'Activity' => $session->rich_presence,
             'NumAwarded' => 0,

@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
     'fullWidth' => false,
     'help' => null,
     'id' => null,
+    'initialStableUsername' => null, // ?string
     'inline' => false,
     'isLabelVisible' => true,
     'label' => null,
@@ -29,7 +30,7 @@ if ($model && !$model instanceof Model) {
 $id = $id ?: 'input_' . Str::random();
 
 $value = $name ? old($name, $model?->getAttribute($name) ?? $value) : $value;
-$username = $value ?: '_User';
+$username = $initialStableUsername ?? $value ?: '_User';
 $imageSource = media_asset("/UserPic/$username.png");
 ?>
 
