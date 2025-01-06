@@ -5,9 +5,7 @@ use App\Models\Ticket;
 use App\Platform\Services\TicketListService;
 use Illuminate\View\View;
 
-use function Laravel\Folio\{middleware, name, render, withTrashed};
-
-withTrashed();
+use function Laravel\Folio\{middleware, name, render};
 
 middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
 name('developer.tickets');

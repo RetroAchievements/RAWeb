@@ -6,8 +6,6 @@ use Illuminate\View\View;
 
 use function Laravel\Folio\{name, render, withTrashed};
 
-withTrashed();
-
 name('developer.sets');
 
 render(function (View $view, User $user, DeveloperSetsService $pageService) {
