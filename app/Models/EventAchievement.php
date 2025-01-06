@@ -35,6 +35,11 @@ class EventAchievement extends BaseModel
 
     // == accessors
 
+    public function getTitleAttribute(): string
+    {
+        return $this->achievement->title;
+    }
+
     public function getActiveThroughAttribute(): ?Carbon
     {
         return $this->active_until ? $this->active_until->clone()->subDays(1) : null;

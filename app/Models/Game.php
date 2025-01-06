@@ -671,6 +671,14 @@ class Game extends BaseModel implements HasMedia
         return $this->tickets()->unresolved();
     }
 
+    /**
+     * @return HasOne<Event>
+     */
+    public function event(): HasOne
+    {
+        return $this->hasOne(Event::class, 'legacy_game_id');
+    }
+
     // == scopes
 
     /**
