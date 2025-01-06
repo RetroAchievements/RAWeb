@@ -40,9 +40,12 @@ class AchievementOfTheWeekTest extends TestCase
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
         $now = Carbon::now();
-        $this->addSoftcoreUnlock($this->user, $achievement1, $now);
-        $this->addSoftcoreUnlock($user2, $achievement1, $now->copy()->subMinutes(5));
-        $this->addHardcoreUnlock($user3, $achievement1, $now->copy()->addMinutes(5));
+        $time1 = $now->copy()->startOfSecond();
+        $this->addSoftcoreUnlock($this->user, $achievement1, $time1);
+        $time2 = $time1->copy()->subMinutes(5);
+        $this->addSoftcoreUnlock($user2, $achievement1, $time2);
+        $time3 = $time2->copy()->addMinutes(5);
+        $this->addHardcoreUnlock($user3, $achievement1, $time3);
 
         $staticData = StaticData::factory()->create([
             'Event_AOTW_AchievementID' => $achievement2->ID,
@@ -90,6 +93,7 @@ class AchievementOfTheWeekTest extends TestCase
                         'RAPoints' => $user3->RAPoints,
                         'RASoftcorePoints' => $user3->RASoftcorePoints,
                         'HardcoreMode' => 1,
+                        'DateAwarded' => $time3->jsonSerialize(),
                     ],
                 ],
                 'UnlocksCount' => 1,
@@ -107,9 +111,12 @@ class AchievementOfTheWeekTest extends TestCase
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
         $now = Carbon::now();
-        $this->addSoftcoreUnlock($this->user, $achievement, $now);
-        $this->addSoftcoreUnlock($user2, $achievement, $now->copy()->subMinutes(5));
-        $this->addHardcoreUnlock($user3, $achievement, $now->copy()->addMinutes(5));
+        $time1 = $now->startOfSecond();
+        $this->addSoftcoreUnlock($this->user, $achievement, $time1);
+        $time2 = $time1->copy()->subMinutes(5);
+        $this->addSoftcoreUnlock($user2, $achievement, $time2);
+        $time3 = $time2->copy()->addMinutes(10);
+        $this->addHardcoreUnlock($user3, $achievement, $time3);
 
         // fallback to static data until AotW data is populated
         $staticData = StaticData::factory()->create([
@@ -140,18 +147,21 @@ class AchievementOfTheWeekTest extends TestCase
                         'RAPoints' => $user3->RAPoints,
                         'RASoftcorePoints' => $user3->RASoftcorePoints,
                         'HardcoreMode' => 1,
+                        'DateAwarded' => $time3->jsonSerialize(),
                     ],
                     [
                         'User' => $this->user->User,
                         'RAPoints' => $this->user->RAPoints,
                         'RASoftcorePoints' => $this->user->RASoftcorePoints,
                         'HardcoreMode' => 0,
+                        'DateAwarded' => $time1->jsonSerialize(),
                     ],
                     [
                         'User' => $user2->User,
                         'RAPoints' => $user2->RAPoints,
                         'RASoftcorePoints' => $user2->RASoftcorePoints,
                         'HardcoreMode' => 0,
+                        'DateAwarded' => $time2->jsonSerialize(),
                     ],
                 ],
                 'UnlocksCount' => 3,

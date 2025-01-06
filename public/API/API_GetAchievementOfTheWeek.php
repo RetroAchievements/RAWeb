@@ -108,6 +108,7 @@ if ($eventAchievement) {
             'RAPoints' => $playerAchievement->user->RAPoints,
             'RASoftcorePoints' => $playerAchievement->user->RASoftcorePoints,
             'HardcoreMode' => $playerAchievement->unlocked_hardcore_at !== null ? 1 : 0,
+            'DateAwarded' => $playerAchievement->unlocked_hardcore_at ?? $playerAchievement->unlocked_at,
         ];
 
         if ($playerAchievement->unlocked_hardcore_at !== null) {
