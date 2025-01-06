@@ -85,8 +85,8 @@ $richPresenceData = $gameData['RichPresencePatch'];
 $guideURL = $gameData['GuideURL'];
 
 // Entries that aren't actual game only have alternatives exposed, e.g. hubs.
-$isFullyFeaturedGame = $consoleName !== 'Hubs';
-$isEventGame = $consoleName == 'Events';
+$isFullyFeaturedGame = System::isGameSystem($gameData['ConsoleID']);
+$isEventGame = $gameData['ConsoleID'] == System::Events;
 
 $pageTitle = "$gameTitle ($consoleName)";
 
@@ -532,12 +532,18 @@ if ($isFullyFeaturedGame) {
             @elseif ($userModel && $userModel->can('manage', $gameModel))
                 <a class="btn mb-1" href="{{ route('filament.admin.resources.games.view', ['record' => $gameModel->id]) }}">Manage</a>
             @endif
+        @elseif ($isEventGame)
+            @if ($userModel && $userModel->can('update', $gameModel->event))
+                <a class="btn mb-1" href="{{ route('filament.admin.resources.events.edit', ['record' => $gameModel->event->id]) }}">Manage</a>
+            @elseif ($userModel && $userModel->can('manage', $gameModel->event))
+                <a class="btn mb-1" href="{{ route('filament.admin.resources.events.view', ['record' => $gameModel->event->id]) }}">Manage</a>
+            @endif
         @endif
 
         <?php
         // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
         // TODO migrate devbox entirely to filament
-        if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper))) {
+        if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper)) && !$isEventGame) {
             // TODO use a policy
             $hasMinimumDeveloperPermissions = (
                 $permissions >= Permissions::Developer
@@ -904,7 +910,9 @@ if ($isFullyFeaturedGame) {
                 RenderGameSort($isFullyFeaturedGame, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
                 echo "</div>";
             }
+        }
 
+        if ($isFullyFeaturedGame || $isEventGame) {
             if (isset($achievementData)) {
                 ?>
                     <x-game.achievements-list.root
@@ -1000,21 +1008,34 @@ if ($isFullyFeaturedGame) {
         }
         ?>
     </div>
-@if ($isFullyFeaturedGame)
+@if ($isFullyFeaturedGame || $isEventGame)
     <x-slot name="sidebar">
         <?php
-        echo "<div class='component text-center mb-6'>";
-        echo "<img class='max-w-full rounded-sm' src='" . media_asset($gameData['ImageBoxArt']) . "' alt='Boxart'>";
-        echo "</div>";
+        if ($isEventGame) {
+            echo "<div class='component'>";
+            $allowedLinks = ['forum-topic'];
+            ?>
+                <x-game.link-buttons
+                    :game="$gameModel"
+                    :isViewingOfficial="$flagParam !== $unofficialFlag"
+                    :allowedLinks="$allowedLinks"
+                />
+            <?php
+            echo "</div>";
+        } elseif ($isFullyFeaturedGame) {
+            echo "<div class='component text-center mb-6'>";
+            echo "<img class='max-w-full rounded-sm' src='" . media_asset($gameData['ImageBoxArt']) . "' alt='Boxart'>";
+            echo "</div>";
 
-        echo "<div class='component'>";
-        ?>
-            <x-game.link-buttons
-                :game="$gameModel"
-                :isViewingOfficial="$flagParam !== $unofficialFlag"
-            />
-        <?php
-        echo "</div>";
+            echo "<div class='component'>";
+            ?>
+                <x-game.link-buttons
+                    :game="$gameModel"
+                    :isViewingOfficial="$flagParam !== $unofficialFlag"
+                />
+            <?php
+            echo "</div>";
+        }
 
         // Progression component (mobile only)
         if ($user !== null && $numAchievements > 0 && $isOfficial) {
@@ -1072,7 +1093,7 @@ if ($isFullyFeaturedGame) {
             <x-game.top-achievers :game="$gameModel" />
         @endif
 
-        @if ($gameModel->system->active)
+        @if ($gameModel->system->active && !$isEventGame)
             <x-game.leaderboards-listing :game="$gameModel" />
         @endif
     </x-slot>
