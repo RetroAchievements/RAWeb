@@ -55,7 +55,7 @@ render(function (View $view, User $user, Game $game, CompareUnlocksPageService $
             <ul class="flex flex-col gap-2">
                 <x-game.link-buttons.game-link-button
                     icon="🔬"
-                    href="{{ route('user.game.activity', ['user' => $otherUser, 'game' => $game]) }}"
+                    href="{{ route('user.game.activity.show', ['user' => $otherUser, 'game' => $game]) }}"
                 >
                     View User Game Activity
                 </x-game.link-buttons.game-link-button>
