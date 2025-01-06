@@ -17,6 +17,7 @@ class Event extends BaseModel
 
     protected $fillable = [
         'legacy_game_id',
+        'image_asset_path',
         'slug'
     ];
 
@@ -25,6 +26,11 @@ class Event extends BaseModel
     public function getTitleAttribute(): string
     {
         return $this->game->title;
+    }
+
+    public function getBadgeUrlAttribute(): string
+    {
+        return media_asset($this->image_asset_path);
     }
 
     public function getPermalinkAttribute(): string

@@ -46,7 +46,7 @@ class EventResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\ImageEntry::make('game.badge_url')
+                Infolists\Components\ImageEntry::make('badge_url')
                     ->label('')
                     ->size(config('media.icon.lg.width')),
 
@@ -62,7 +62,11 @@ class EventResource extends Resource
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
 
-                        Infolists\Components\TextEntry::make('game.title'),
+                        Infolists\Components\TextEntry::make('slug')
+                            ->label('Slug'),
+
+                        Infolists\Components\TextEntry::make('game.title')
+                            ->label('Title'),
 
                         Infolists\Components\TextEntry::make('game.sort_title')
                             ->label('Sort Title'),
@@ -128,9 +132,30 @@ class EventResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('slug')
                             ->label('URL alias')
+                            ->rules(['alpha_dash'])
                             ->minLength(4)
                             ->maxLength(20),
                     ]),
+
+                Forms\Components\Section::make('Media')
+                    ->icon('heroicon-s-photo')
+                    ->schema([
+                        // Store a temporary file on disk until the user submits.
+                        // When the user submits, put in storage.
+                        Forms\Components\FileUpload::make('image_asset_path')
+                            ->label('Badge')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->image()
+                            ->rules([
+                                'dimensions:width=96,height=96',
+                            ])
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif'])
+                            ->maxSize(1024)
+                            ->maxFiles(1)
+                            ->previewable(true),
+                    ])
+                    ->columns(2),
+
             ]);
     }
 
@@ -138,7 +163,7 @@ class EventResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('game.badge_url')
+                Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
                     ->size(config('media.icon.sm.width')),
 
@@ -183,6 +208,7 @@ class EventResource extends Resource
 
             ]);
     }
+
 
     public static function getRelations(): array
     {

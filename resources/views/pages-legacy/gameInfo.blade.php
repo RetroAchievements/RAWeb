@@ -181,6 +181,8 @@ if ($isEventGame) {
         $achievementData[$eventAchievement->achievement_id]['ActiveFrom'] = $eventAchievement->active_from ?? null;
         $achievementData[$eventAchievement->achievement_id]['ActiveUntil'] = $eventAchievement->active_until?->subSeconds(1);
     }
+
+    $gameData['ImageIcon'] = $gameModel->event->image_asset_path;
 }
 
 if ($isFullyFeaturedGame || $isEventGame) {

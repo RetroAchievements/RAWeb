@@ -12,6 +12,7 @@ return new class() extends Migration {
         Schema::create('events', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('legacy_game_id');
+            $table->string('image_asset_path', 50);
             $table->string('slug', 20)->nullable();
             $table->timestamps();
         });
