@@ -8,9 +8,15 @@ use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class EventAchievement extends BaseModel
 {
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
+    
     protected $table = 'event_achievements';
 
     protected $fillable = [
@@ -32,6 +38,20 @@ class EventAchievement extends BaseModel
 
     public const RAEVENTS_USER_ID = 279854;
     public const DEVQUEST_USER_ID = 240336;
+    
+    // == logging
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'source_achievement_id',
+                'active_from',
+                'active_until',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     // == accessors
 

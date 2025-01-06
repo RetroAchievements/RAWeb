@@ -24,17 +24,10 @@ class Edit extends EditRecord
         $event = $game->event;
 
         return [
-            route('filament.admin.resources.events.index') => 'Achievements',
+            route('filament.admin.resources.events.index') => 'Events',
             route('filament.admin.resources.events.view', $event) => $game->title,
             route('filament.admin.resources.event-achievements.view', $eventAchievement) => $eventAchievement->achievement->title,
             'Edit',
         ];
-    }
-
-    protected function mutateFormDataBeforeSave(array $data): array
-    {
-        $this->authorizeFields($this->record, $data);
-
-        return $data;
     }
 }

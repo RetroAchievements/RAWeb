@@ -15,7 +15,10 @@ class EventPolicy
 
     public function manage(User $user): bool
     {
-        return $user->hasRole(Role::EVENT_MANAGER);
+        return $user->hasAnyRole([
+            Role::EVENT_MANAGER,
+            Role::ADMINISTRATOR,
+        ]);
     }
 
     public function viewAny(?User $user): bool
@@ -23,23 +26,32 @@ class EventPolicy
         return true;
     }
 
-    public function view(?User $user, Event $event): bool
+    public function view(?User $user): bool
     {
         return true;
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole(Role::EVENT_MANAGER);
+        return $user->hasAnyRole([
+            Role::EVENT_MANAGER,
+            Role::ADMINISTRATOR,
+        ]);
     }
 
-    public function update(User $user, Event $event): bool
+    public function update(User $user): bool
     {
-        return $user->hasRole(Role::EVENT_MANAGER);
+        return $user->hasAnyRole([
+            Role::EVENT_MANAGER,
+            Role::ADMINISTRATOR,
+        ]);
     }
 
-    public function delete(User $user, Event $event): bool
+    public function delete(User $user): bool
     {
-        return $user->hasRole(Role::EVENT_MANAGER);
+        return $user->hasAnyRole([
+            Role::EVENT_MANAGER,
+            Role::ADMINISTRATOR,
+        ]);
     }
 }

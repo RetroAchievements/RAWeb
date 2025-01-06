@@ -151,6 +151,16 @@ class AchievementPolicy
 
         // If any of the user's roles allow updating the specified field, return true.
         // Otherwise, they can't edit the field.
-        return in_array($fieldName, $allowedFieldsForUser, true);
+        if (in_array($fieldName, $allowedFieldsForUser, true)) {
+            return true;
+        }
+
+        if ($user->hasRole(Role::EVENT_MANAGER)) {
+            if ($achievement->game->ConsoleID === System::Events) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

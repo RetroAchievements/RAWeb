@@ -15,7 +15,7 @@ class AuditLog extends ResourceAuditLog
     {
         $fieldLabelMap = parent::createFieldLabelMap();
 
-        $fieldLabelMap['BadgeName'] = 'Badge';
+        $fieldLabelMap['active_until'] = 'Active Until';
 
         return $fieldLabelMap;
     }
@@ -28,10 +28,10 @@ class AuditLog extends ResourceAuditLog
         $event = $game->event;
 
         return [
-            route('filament.admin.resources.events.index') => 'Achievements',
+            route('filament.admin.resources.events.index') => 'Events',
             route('filament.admin.resources.events.view', $event) => $game->title,
             route('filament.admin.resources.event-achievements.view', $eventAchievement) => $eventAchievement->achievement->title,
-            'Edit',
+            'Audit Log',
         ];
     }
 }

@@ -183,7 +183,7 @@ if ($isEventGame) {
     }
 }
 
-if ($isFullyFeaturedGame) {
+if ($isFullyFeaturedGame || $isEventGame) {
     $numDistinctPlayers = $gameData['NumDistinctPlayers'];
 
     $softcoreUnlocks = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
@@ -345,7 +345,7 @@ if ($isFullyFeaturedGame) {
     :pageImage="$pageImage ?? null"
     :pageType="$pageType ?? null"
 >
-<?php if ($isFullyFeaturedGame): ?>
+<?php if ($isFullyFeaturedGame || $isEventGame): ?>
     <?php if ($numDistinctPlayers): ?>
         <script defer src="https://www.gstatic.com/charts/loader.js"></script>
         <script>
