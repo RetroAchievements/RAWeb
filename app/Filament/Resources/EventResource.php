@@ -51,7 +51,7 @@ class EventResource extends Resource
                             ->label('Sort Title'),
 
                         Infolists\Components\TextEntry::make('slug')
-                            ->label('Slug'),
+                            ->label('URL alias'),
 
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
@@ -70,9 +70,9 @@ class EventResource extends Resource
                             ->label('Active From')
                             ->date(),
 
-                            Infolists\Components\TextEntry::make('active_through')
-                            ->label('Active Through')
-                            ->date(),
+                        Infolists\Components\TextEntry::make('active_through')
+                        ->label('Active Through')
+                        ->date(),
                     ]),
 
                 Infolists\Components\Section::make('Metrics')

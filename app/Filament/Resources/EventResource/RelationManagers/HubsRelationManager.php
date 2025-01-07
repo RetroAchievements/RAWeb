@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\EventResource\RelationManagers;
 
 use App\Filament\Resources\HubResource;
+use App\Models\Event;
 use App\Models\GameSet;
 use App\Platform\Actions\AttachGamesToGameSetAction;
 use App\Platform\Actions\DetachGamesFromGameSetAction;

@@ -486,7 +486,9 @@ if ($game->system->id === System::Events) {
     }
     ?>
     </div>
+    @if (!$isEventGame)
     <x-slot name="sidebar">
         <x-game.leaderboards-listing :game="$game" />
     </x-slot>
+    @endif
 </x-app-layout>
