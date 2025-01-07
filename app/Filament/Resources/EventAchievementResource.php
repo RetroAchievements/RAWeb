@@ -83,7 +83,8 @@ class EventAchievementResource extends Resource
                                 Infolists\Components\TextEntry::make('permalink')
                                     ->url(fn (EventAchievement $record): string => $record->sourceAchievement->getPermalinkAttribute()),
                             ]),
-                    ]),
+                    ])
+                    ->hidden(fn ($record) => !$record->sourceAchievement),
             ]);
     }
 

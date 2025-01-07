@@ -182,7 +182,9 @@ if ($isEventGame) {
         $achievementData[$eventAchievement->achievement_id]['ActiveUntil'] = $eventAchievement->active_until?->subSeconds(1);
     }
 
-    $gameData['ImageIcon'] = $gameModel->event->image_asset_path;
+    if ($gameModel->event) {
+        $gameData['ImageIcon'] = $gameModel->event->image_asset_path;
+    }
 }
 
 if ($isFullyFeaturedGame || $isEventGame) {
@@ -534,11 +536,11 @@ if ($isFullyFeaturedGame) {
                 <x-game.primary-meta-row-item label="Released" :metadataValue="$releasedAtDisplay" />
             </x-game.primary-meta>
 
-        @if ($isFullyFeaturedGame)
+        @if ($isFullyFeaturedGame || ($isEventGame && !$gameModel->event))
             <x-game.screenshots :titleImageSrc="$imageTitle" :ingameImageSrc="$imageIngame" />
         @endif
 
-        @if ($isFullyFeaturedGame)
+        @if ($isFullyFeaturedGame || ($isEventGame && !$gameModel->event))
             @if ($userModel && $userModel->can('update', $gameModel))
                 <a class="btn mb-1" href="{{ route('filament.admin.resources.games.edit', ['record' => $gameModel->id]) }}">Manage</a>
             @elseif ($userModel && $userModel->can('manage', $gameModel))
@@ -555,7 +557,7 @@ if ($isFullyFeaturedGame) {
         <?php
         // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
         // TODO migrate devbox entirely to filament
-        if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper)) && !$isEventGame) {
+        if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper)) && (!$isEventGame || !$gameModel->event)) {
             // TODO use a policy
             $hasMinimumDeveloperPermissions = (
                 $permissions >= Permissions::Developer
@@ -1024,6 +1026,12 @@ if ($isFullyFeaturedGame) {
     <x-slot name="sidebar">
         <?php
         if ($isEventGame) {
+            if (!$gameModel->event) {
+                echo "<div class='component text-center mb-6'>";
+                echo "<img class='max-w-full rounded-sm' src='" . media_asset($gameData['ImageBoxArt']) . "' alt='Boxart'>";
+                echo "</div>";
+            }
+
             echo "<div class='component'>";
             $allowedLinks = ['forum-topic'];
             ?>
