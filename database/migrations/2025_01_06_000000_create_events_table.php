@@ -14,6 +14,8 @@ return new class() extends Migration {
             $table->unsignedBigInteger('legacy_game_id');
             $table->string('image_asset_path', 50);
             $table->string('slug', 20)->nullable();
+            $table->date('active_from')->nullable();
+            $table->date('active_until')->nullable();
             $table->timestamps();
         });
 

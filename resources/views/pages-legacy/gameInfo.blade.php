@@ -508,6 +508,16 @@ if ($isFullyFeaturedGame) {
                     <x-game.primary-meta-row-item label="Developer" :metadataValue="$developer" />
                     <x-game.primary-meta-row-item label="Publisher" :metadataValue="$publisher" />
                     <x-game.primary-meta-row-item label="Genre" :metadataValue="$genre" />
+
+                    @if ($isEventGame && $gameModel->event?->active_from && $gameModel->event?->active_until)
+                        <div>
+                            <p class='inline smalldate mb-2'>Active from 
+                                <x-date :value="$gameModel->event->active_from" />
+                                    - 
+                                <x-date :value="$gameModel->event->active_through" />
+                            </p>
+                        </div>
+                    @endif
                 @endif
 
                 @php

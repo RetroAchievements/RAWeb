@@ -43,27 +43,35 @@ class EventResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('permalink')
-                            ->url(fn (Event $record): string => $record->getPermalinkAttribute())
-                            ->extraAttributes(['class' => 'underline'])
-                            ->openUrlInNewTab(),
-
-                        Infolists\Components\TextEntry::make('id')
-                            ->label('ID'),
-
-                        Infolists\Components\TextEntry::make('slug')
-                            ->label('Slug'),
-
                         Infolists\Components\TextEntry::make('game.title')
                             ->label('Title'),
 
                         Infolists\Components\TextEntry::make('game.sort_title')
                             ->label('Sort Title'),
 
+                        Infolists\Components\TextEntry::make('slug')
+                            ->label('Slug'),
+
+                        Infolists\Components\TextEntry::make('id')
+                            ->label('ID'),
+
+                        Infolists\Components\TextEntry::make('permalink')
+                            ->url(fn (Event $record): string => $record->getPermalinkAttribute())
+                            ->extraAttributes(['class' => 'underline'])
+                            ->openUrlInNewTab(),
+
                         Infolists\Components\TextEntry::make('game.forumTopic.id')
                             ->label('Forum Topic ID')
                             ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
                             ->extraAttributes(['class' => 'underline']),
+
+                        Infolists\Components\TextEntry::make('active_from')
+                            ->label('Active From')
+                            ->date(),
+
+                            Infolists\Components\TextEntry::make('active_through')
+                            ->label('Active Through')
+                            ->date(),
                     ]),
 
                 Infolists\Components\Section::make('Metrics')
@@ -114,17 +122,27 @@ class EventResource extends Resource
                             ->rules([new ExistsInForumTopics()]),
                     ]),
 
-                // Forms\Components\Section::make()
-                //     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
-                //     ->schema([
-                //         Forms\Components\TextInput::make('slug')
-                //             ->label('URL alias')
-                //             ->helperText('Provides an alias for accessing the event via a URL: /events/[URL alias]')
-                //             ->rules(['alpha_dash'])
-                //             ->minLength(4)
-                //             ->maxLength(20)
-                //             ->columnSpan(2),
-                //     ]),
+                Forms\Components\Section::make()
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Forms\Components\TextInput::make('slug')
+                            ->label('URL alias')
+                            ->helperText('Provides an alias for accessing the event via a URL: /events/[URL alias]')
+                            ->rules(['alpha_dash'])
+                            ->minLength(4)
+                            ->maxLength(20)
+                            ->columnSpan(2),
+
+                        Forms\Components\DatePicker::make('active_from')
+                            ->label('Active From')
+                            ->native(false)
+                            ->date(),
+
+                        Forms\Components\DatePicker::make('active_through')
+                            ->label('Active Through')
+                            ->native(false)
+                            ->date(),
+                    ]),
 
                 Forms\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
@@ -151,6 +169,7 @@ class EventResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('active_until', 'desc')
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
@@ -162,7 +181,18 @@ class EventResource extends Resource
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('game.title')
+                    ->sortable()
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('active_from')
+                    ->date()
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('active_through')
+                    ->date()
+                    ->sortable(['active_until'])
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('game.forumTopic.id')
                     ->label('Forum Topic')

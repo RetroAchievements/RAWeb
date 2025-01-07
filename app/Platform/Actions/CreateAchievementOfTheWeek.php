@@ -34,7 +34,17 @@ class CreateAchievementOfTheWeek
                 'ConsoleID' => System::Events,
             ]);
 
-            Event::create(['legacy_game_id' => $eventGame->ID]);
+            $nextDate = $startDate->clone()->addWeeks(52);
+            while ($nextDate->year === $date->year) {
+                $nextDate = $nextDate->addDays(7);
+            }
+
+            Event::create([
+                'legacy_game_id' => $eventGame->ID,
+                'slug' => "aotw-$year",
+                'active_from' => $startDate,
+                'active_until' => $nextDate,
+            ]);
         }
 
         $achievementCount = $eventGame->achievements()->count();

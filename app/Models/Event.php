@@ -5,24 +5,63 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Event extends BaseModel
 {
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
+
     protected $table = 'events';
 
     protected $fillable = [
         'legacy_game_id',
         'image_asset_path',
         'slug',
+        'active_from',
+        'active_until',
+        'active_through',
     ];
+
+    protected $casts = [
+        'active_from' => 'date',
+        'active_until' => 'date',
+    ];
+
+    protected $appends = [
+        'active_through',
+    ];
+
+        // == logging
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'image_asset_path',
+                'slug',
+                'active_from',
+                'active_until',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     // == accessors
 
     public function getTitleAttribute(): string
     {
         return $this->game->title;
+    }
+
+    public function getActiveThroughAttribute(): ?Carbon
+    {
+        return $this->active_until ? $this->active_until->clone()->subDays(1) : null;
     }
 
     public function getBadgeUrlAttribute(): string
@@ -41,6 +80,15 @@ class Event extends BaseModel
     public function setTitleAttribute(string $value): void
     {
         $this->game->title = $value;
+    }
+
+    public function setActiveThroughAttribute(Carbon|string|null $value): void
+    {
+        if (is_string($value)) {
+            $value = Carbon::parse($value);
+        }
+
+        $this->active_until = $value ? $value->clone()->addDays(1) : null;
     }
 
     // == relations
