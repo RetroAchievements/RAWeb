@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EventResource\Pages;
 use App\Filament\Resources\EventResource\RelationManagers\AchievementsRelationManager;
+use App\Filament\Resources\EventResource\RelationManagers\HubsRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
 use App\Models\Event;
 use App\Models\User;
@@ -232,6 +233,7 @@ class EventResource extends Resource
     {
         return [
             AchievementsRelationManager::class,
+            HubsRelationManager::class,
         ];
     }
 

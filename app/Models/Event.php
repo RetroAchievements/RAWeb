@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -114,6 +115,14 @@ class Event extends BaseModel
             'ID',             // Game.ID
             'ID',             // Achievement.ID
         )->with('achievement.game');
+    }
+
+    /**
+     * @return BelongsToMany<GameSet>
+     */
+    public function hubs(): BelongsToMany
+    {
+        return $this->game->gameSets();
     }
 
     // == scopes

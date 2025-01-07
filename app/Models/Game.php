@@ -619,7 +619,6 @@ class Game extends BaseModel implements HasMedia
     public function gameSets(): BelongsToMany
     {
         return $this->belongsToMany(GameSet::class, 'game_set_games', 'game_id', 'game_set_id')
-            ->withTimestamps()
             ->withPivot('created_at', 'updated_at', 'deleted_at');
     }
 
