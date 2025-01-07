@@ -40,11 +40,11 @@ class AchievementOfTheWeekTest extends TestCase
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
         $now = Carbon::now();
-        $time1 = $now->copy()->startOfSecond();
-        $this->addSoftcoreUnlock($this->user, $achievement1, $time1);
-        $time2 = $time1->copy()->subMinutes(5);
+        $time1 = $now->clone()->startOfSecond();
+        $this->addHardcoreUnlock($this->user, $achievement1, $time1);
+        $time2 = $time1->clone()->subMinutes(5);
         $this->addSoftcoreUnlock($user2, $achievement1, $time2);
-        $time3 = $time2->copy()->addMinutes(5);
+        $time3 = $time2->clone()->addMinutes(10);
         $this->addHardcoreUnlock($user3, $achievement1, $time3);
 
         $staticData = StaticData::factory()->create([
@@ -86,7 +86,7 @@ class AchievementOfTheWeekTest extends TestCase
                     'ID' => $game->ID, // source achievement game
                 ],
                 'StartAt' => $ev->active_from->jsonSerialize(),
-                'TotalPlayers' => 1, // only the hardcore unlock applies (would normally include people who have unlocked any AotW)
+                'TotalPlayers' => 2, // only the hardcore unlock applies (event achievements can't technically be unlocked in softcore)
                 'Unlocks' => [
                     [
                         'User' => $user3->User,
@@ -95,9 +95,16 @@ class AchievementOfTheWeekTest extends TestCase
                         'HardcoreMode' => 1,
                         'DateAwarded' => $time3->jsonSerialize(),
                     ],
+                    [
+                        'User' => $this->user->User,
+                        'RAPoints' => $this->user->RAPoints,
+                        'RASoftcorePoints' => $this->user->RASoftcorePoints,
+                        'HardcoreMode' => 1,
+                        'DateAwarded' => $time1->jsonSerialize(),
+                    ],
                 ],
-                'UnlocksCount' => 1,
-                'UnlocksHardcoreCount' => 1,
+                'UnlocksCount' => 2,
+                'UnlocksHardcoreCount' => 2,
             ]);
     }
 
@@ -113,9 +120,9 @@ class AchievementOfTheWeekTest extends TestCase
         $now = Carbon::now();
         $time1 = $now->startOfSecond();
         $this->addSoftcoreUnlock($this->user, $achievement, $time1);
-        $time2 = $time1->copy()->subMinutes(5);
+        $time2 = $time1->clone()->subMinutes(5);
         $this->addSoftcoreUnlock($user2, $achievement, $time2);
-        $time3 = $time2->copy()->addMinutes(10);
+        $time3 = $time2->clone()->addMinutes(10);
         $this->addHardcoreUnlock($user3, $achievement, $time3);
 
         // fallback to static data until AotW data is populated
