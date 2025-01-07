@@ -24,6 +24,10 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 // TODO implements HasComments
+
+/**
+ * @implements HasVersionedTrigger<Leaderboard>
+ */
 class Leaderboard extends BaseModel implements HasVersionedTrigger
 {
     /*
@@ -64,6 +68,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
         'Format',
         'LowerIsBetter',
         'DisplayOrder',
+        'trigger_id',
     ];
 
     protected static function newFactory(): LeaderboardFactory
@@ -251,6 +256,14 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
         $currentUser = $user ?? Auth::user();
 
         return $this->comments()->visibleTo($currentUser);
+    }
+
+    /**
+     * @return BelongsTo<Trigger, Leaderboard>
+     */
+    public function currentTrigger(): BelongsTo
+    {
+        return $this->belongsTo(Trigger::class, 'trigger_id', 'ID');
     }
 
     public function trigger(): MorphOne

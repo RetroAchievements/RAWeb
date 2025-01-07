@@ -40,6 +40,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 // TODO implements HasComments
 
+/**
+ * @implements HasVersionedTrigger<Achievement>
+ */
 class Achievement extends BaseModel implements HasVersionedTrigger
 {
     /*
@@ -97,6 +100,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         'type',
         'MemAddr',
         'user_id',
+        'trigger_id',
     ];
 
     // TODO cast Flags to AchievementFlag if it isn't dropped from the table
@@ -430,6 +434,14 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         $currentUser = $user ?? Auth::user();
 
         return $this->comments()->visibleTo($currentUser);
+    }
+
+    /**
+     * @return BelongsTo<Trigger, Achievement>
+     */
+    public function currentTrigger(): BelongsTo
+    {
+        return $this->belongsTo(Trigger::class, 'trigger_id', 'ID');
     }
 
     public function trigger(): MorphOne

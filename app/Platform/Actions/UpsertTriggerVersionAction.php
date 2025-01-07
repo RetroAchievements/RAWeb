@@ -48,16 +48,20 @@ class UpsertTriggerVersionAction
                     'conditions' => $conditions,
                     'user_id' => $userId,
                 ]);
+                $triggerable->update(['trigger_id' => $currentTrigger->id]);
 
                 return $currentTrigger;
             }
 
             // Otherwise, create a new unversioned trigger. It'll get its first version on publish.
-            return $triggerable->trigger()->save(new Trigger([
+            $trigger = $triggerable->trigger()->save(new Trigger([
                 'conditions' => $conditions,
                 'version' => null,
                 'user_id' => $userId,
             ]));
+            $triggerable->update(['trigger_id' => $trigger->id]);
+
+            return $trigger;
         }
 
         /**
@@ -71,27 +75,29 @@ class UpsertTriggerVersionAction
 
         // If conditions haven't changed and we're converting unversioned -> versioned,
         // just update the trigger's version in-place.
-        if ($currentTrigger && $currentTrigger->conditions === $conditions && $currentTrigger->version === null) {
-            $currentTrigger->update([
-                'version' => 1,
-                'user_id' => $userId,
-            ]);
-
-            return $currentTrigger;
-        }
-
-        // If nothing changed at all, bail.
         if ($currentTrigger && $currentTrigger->conditions === $conditions) {
+            // If conditiosn match and it's unversioned, convert to version 1.
+            if ($currentTrigger->version === null) {
+                $currentTrigger->update([
+                    'version' => 1,
+                    'user_id' => $userId,
+                ]);
+                $triggerable->update(['trigger_id' => $currentTrigger->id]);
+            }
+
             return $currentTrigger;
         }
 
         // If we ultimately made it here, create a new versioned trigger.
-        return $triggerable->trigger()->save(new Trigger([
+        $trigger = $triggerable->trigger()->save(new Trigger([
             'conditions' => $conditions,
             'version' => ($currentTrigger->version ?? 0) + 1,
             'parent_id' => $currentTrigger?->id,
             'user_id' => $userId,
         ]));
+        $triggerable->update(['trigger_id' => $trigger->id]);
+
+        return $trigger;
     }
 
     private function findLastEditor(Model $triggerable): ?User

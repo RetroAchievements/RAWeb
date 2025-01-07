@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Actions;
 
 use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\Leaderboard;
 use App\Models\Trigger;
 use App\Models\User;
 use App\Platform\Actions\UpsertTriggerVersionAction;
@@ -171,5 +173,27 @@ class UpsertTriggerVersionActionTest extends TestCase
         $this->assertEquals('0xHaaaa=0', $trigger->conditions);
         $this->assertEquals(1, $trigger->version); // !! versioned now
         $this->assertEquals($user->id, $trigger->user_id);
+    }
+
+    public function testItUpdatesTheDenormalizedTriggerIdOnModels(): void
+    {
+        // Arrange
+        $achievement = Achievement::factory()->create(['trigger_id' => null]);
+        $leaderboard = Leaderboard::factory()->create(['trigger_id' => null]);
+        $game = Game::factory()->create(['trigger_id' => null]);
+
+        // Act
+        $achievementTrigger = $this->action->execute($achievement, '0xH1234=1');
+        $leaderboardTrigger = $this->action->execute($leaderboard, '0xH5678=1');
+        $gameTrigger = $this->action->execute($game, '0xH1234=1');
+
+        // Assert
+        $achievement->refresh();
+        $leaderboard->refresh();
+        $game->refresh();
+
+        $this->assertEquals($achievementTrigger->id, $achievement->trigger_id);
+        $this->assertEquals($leaderboardTrigger->id, $leaderboard->trigger_id);
+        $this->assertEquals($gameTrigger->id, $game->trigger_id);
     }
 }

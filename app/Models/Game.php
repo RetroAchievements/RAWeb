@@ -40,6 +40,10 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Tags\HasTags;
 
 // TODO implements HasComments
+
+/**
+ * @implements HasVersionedTrigger<Game>
+ */
 class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 {
     /*
@@ -95,6 +99,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         'Genre',
         'released_at',
         'released_at_granularity',
+        'trigger_id',
         'GuideURL',
     ];
 
@@ -672,6 +677,14 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     public function unresolvedTickets(): HasManyThrough
     {
         return $this->tickets()->unresolved();
+    }
+
+    /**
+     * @return BelongsTo<Trigger, Game>
+     */
+    public function currentTrigger(): BelongsTo
+    {
+        return $this->belongsTo(Trigger::class, 'trigger_id', 'ID');
     }
 
     public function trigger(): MorphOne

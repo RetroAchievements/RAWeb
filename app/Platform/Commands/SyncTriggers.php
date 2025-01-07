@@ -44,7 +44,7 @@ class SyncTriggers extends Command
         $progressBar = $this->output->createProgressBar($achievementCount);
 
         Achievement::query()
-            ->whereNotNull('MemAddr')
+            ->where('MemAddr', '!=', '')
             ->with(['comments' => function ($query) {
                 $query->automated()
                     ->whereRaw("LOWER(Payload) LIKE '% edited%logic%'")
@@ -61,13 +61,11 @@ class SyncTriggers extends Command
 
                     // Try our best to backdate the new trigger's timestamps.
                     if ($newTrigger) {
-                        // Use the latest logic edit comment's timestamp if it exists,
-                        // otherwise fall back to the achievement's creation date.
-                        // DateModified unfortunately could be all kinds of different things
-                        // other than logic.
-                        $updatedTimestamp = $achievement->comments->first()?->Submitted ?? $achievement->DateCreated ?? now();
-
+                        // Get the achievement's creation date for both timestamps.
+                        // For the updated timestamp, prefer the latest logic edit comment's timestamp if it exists.
+                        // DateModified unfortunately could be all kinds of different things other than logic.
                         $createdTimestamp = $achievement->DateCreated ?? now();
+                        $updatedTimestamp = $achievement->comments->first()?->Submitted ?? $createdTimestamp;
 
                         $newTrigger->timestamps = false;
                         $newTrigger->update([
@@ -87,13 +85,12 @@ class SyncTriggers extends Command
 
     private function syncLeaderboardTriggers(): void
     {
-        $leaderboardCount = Leaderboard::whereNotNull('Mem')->count();
+        $leaderboardCount = Leaderboard::count();
         $this->info("Syncing triggers for {$leaderboardCount} leaderboards...");
 
         $progressBar = $this->output->createProgressBar($leaderboardCount);
 
         Leaderboard::query()
-            ->whereNotNull('Mem')
             ->with(['comments' => function ($query) {
                 $query->automated()
                     ->whereRaw("LOWER(Payload) LIKE '% edited this leaderboard%'")
