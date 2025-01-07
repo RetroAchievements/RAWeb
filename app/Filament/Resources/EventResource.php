@@ -90,7 +90,6 @@ class EventResource extends Resource
             ->schema([
                 Forms\Components\Section::make()
                     ->relationship('game')
-                    ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
                         Forms\Components\TextInput::make('Title')
@@ -115,16 +114,17 @@ class EventResource extends Resource
                             ->rules([new ExistsInForumTopics()]),
                     ]),
 
-                Forms\Components\Section::make()
-                    ->icon('fas-calendar-days')
-                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
-                    ->schema([
-                        Forms\Components\TextInput::make('slug')
-                            ->label('URL alias')
-                            ->rules(['alpha_dash'])
-                            ->minLength(4)
-                            ->maxLength(20),
-                    ]),
+                // Forms\Components\Section::make()
+                //     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                //     ->schema([
+                //         Forms\Components\TextInput::make('slug')
+                //             ->label('URL alias')
+                //             ->helperText('Provides an alias for accessing the event via a URL: /events/[URL alias]')
+                //             ->rules(['alpha_dash'])
+                //             ->minLength(4)
+                //             ->maxLength(20)
+                //             ->columnSpan(2),
+                //     ]),
 
                 Forms\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
