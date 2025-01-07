@@ -48,7 +48,7 @@ export const RecentForumPostItem: FC<RecentForumPostItemProps> = ({ post }) => {
         />
       </p>
 
-      <p className="line-clamp-1">{post.latestComment.body}</p>
+      <p className="line-clamp-1 lg:max-w-[580px] xl:max-w-[816px]">{post.latestComment.body}</p>
     </div>
   );
 };
