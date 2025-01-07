@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Event extends BaseModel
@@ -18,7 +15,7 @@ class Event extends BaseModel
     protected $fillable = [
         'legacy_game_id',
         'image_asset_path',
-        'slug'
+        'slug',
     ];
 
     // == accessors

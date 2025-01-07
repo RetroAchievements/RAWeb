@@ -4,30 +4,16 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\EventResource\RelationManagers;
 
-use App\Filament\Resources\AchievementAuthorshipCreditFormSchema;
-use App\Models\Achievement;
 use App\Models\EventAchievement;
-use App\Models\Game;
-use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
-use App\Platform\Enums\AchievementAuthorTask;
-use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\AchievementType;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Filters;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class AchievementsRelationManager extends RelationManager
 {

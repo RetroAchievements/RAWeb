@@ -6,27 +6,15 @@ namespace App\Filament\Resources;
 
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EventAchievementResource\Pages;
-use App\Filament\Resources\EventAchievementResource\RelationManagers\AuthorshipCreditsRelationManager;
 use App\Models\Achievement;
 use App\Models\EventAchievement;
 use App\Models\Game;
-use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\AchievementPoints;
-use App\Platform\Enums\AchievementType;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Auth;
 
 class EventAchievementResource extends Resource
 {
@@ -136,7 +124,7 @@ class EventAchievementResource extends Resource
                             ->label('Active Through')
                             ->native(false)
                             ->date(),
-                    ])
+                    ]),
             ]);
     }
 

@@ -8,26 +8,15 @@ use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EventResource\Pages;
 use App\Filament\Resources\EventResource\RelationManagers\AchievementsRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
-use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Event;
-use App\Models\Game;
-use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\ReleasedAtGranularity;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 
 class EventResource extends Resource
 {
@@ -208,7 +197,6 @@ class EventResource extends Resource
 
             ]);
     }
-
 
     public static function getRelations(): array
     {
