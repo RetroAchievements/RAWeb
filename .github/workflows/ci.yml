@@ -73,7 +73,7 @@ jobs:
 
       - name: Install
         if: steps.node-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile --prefer-offline
+        run: pnpm install --frozen-lockfile
 
       - name: Cache node_modules
         id: node-cache
