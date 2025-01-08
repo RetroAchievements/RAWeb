@@ -22,6 +22,8 @@ export const AchievementOfTheWeek: FC = () => {
     return null;
   }
 
+  const activeUntil = new Date('2025-01-13').toISOString();
+
   return (
     <div>
       <HomeHeading>{t('Achievement of the Week')}</HomeHeading>
@@ -58,15 +60,15 @@ export const AchievementOfTheWeek: FC = () => {
                 <div className="flex w-full items-center justify-between">
                   <SystemChip {...system} className="bg-zinc-800" />
 
-                  {achievementOfTheWeek.activeUntil ? (
-                    <span className="smalldate">
+                  {activeUntil ? (
+                    <span className="smalldate !min-w-fit">
                       <Trans
                         i18nKey="Ends <1>{{when}}</1>"
-                        values={{ when: achievementOfTheWeek.activeUntil }}
+                        values={{ when: activeUntil }}
                         components={{
                           1: (
                             <DiffTimestamp
-                              at={achievementOfTheWeek.activeUntil}
+                              at={activeUntil}
                               asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates}
                             />
                           ),
