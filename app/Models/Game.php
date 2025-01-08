@@ -639,20 +639,17 @@ class Game extends BaseModel implements HasMedia
         return $this->gameSets()->whereType(GameSetType::SimilarGames);
     }
 
+    /**
+     * @return BelongsToMany<Game>
+     */
     public function similarGamesList(): BelongsToMany
     {
+        // This should always be truthy.
         $gameSet = GameSet::query()
-            ->where('game_id', $this->id)
-            ->where('type', GameSetType::SimilarGames)
-            ->firstOrCreate([
-                'game_id' => $this->id,
-                'type' => GameSetType::SimilarGames,
-            ], [
-                'title' => $this->Title . ' - Similar Games',
-                'user_id' => auth()->id(),
-            ]);
+            ->whereGameId($this->id)
+            ->whereType(GameSetType::SimilarGames)
+            ->first();
 
-        // Now return the games that are in that set
         return $gameSet->games()->withTimestamps(['created_at', 'updated_at']);
     }
 

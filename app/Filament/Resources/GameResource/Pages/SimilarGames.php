@@ -195,6 +195,10 @@ class SimilarGames extends ManageRelatedRecords
             ]);
     }
 
+    /**
+     * @param Builder<Game> $query
+     * @return Builder<Game>
+     */
     protected function modifyQueryWithActiveTab(Builder $query): Builder
     {
         return $query->with(['system']);
