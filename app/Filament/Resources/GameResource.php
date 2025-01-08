@@ -486,6 +486,8 @@ class GameResource extends Resource
     {
         return $page->generateNavigationItems([
             Pages\Details::class,
+            Pages\Hubs::class,
+            Pages\SimilarGames::class,
             Pages\AuditLog::class,
         ]);
     }
@@ -497,6 +499,8 @@ class GameResource extends Resource
             'create' => Pages\Create::route('/create'),
             'view' => Pages\Details::route('/{record}'),
             'edit' => Pages\Edit::route('/{record}/edit'),
+            'hubs' => Pages\Hubs::route('/{record}/hubs'),
+            'similar-games' => Pages\SimilarGames::route('/{record}/similar-games'),
             'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),
         ];
     }
