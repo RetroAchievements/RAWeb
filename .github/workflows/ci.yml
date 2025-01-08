@@ -73,7 +73,7 @@ jobs:
 
       - name: Install
         if: steps.node-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --network-concurrency 4
 
       - name: Cache node_modules
         id: node-cache
