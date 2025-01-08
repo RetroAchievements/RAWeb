@@ -15,7 +15,9 @@ return [
 
         // creator roles
 
-        Role::DEVELOPER_STAFF => __('Staff Developer'),
+        Role::DEV_COMPLIANCE => __('Developer Compliance'),
+        Role::QUALITY_ASSURANCE => __('Quality Assurance'),
+        Role::CODE_REVIEWER => __('Code Reviewer'),
         Role::DEVELOPER => __('Developer'),
         Role::DEVELOPER_JUNIOR => __('Junior Developer'),
         Role::ARTIST => __('Artist'),
@@ -41,6 +43,7 @@ return [
 
         // vanity roles assigned by admins
 
+        Role::COMMUNITY_MANAGER => __('Community Manager'),
         Role::DEVELOPER_RETIRED => __('Developer (retired)'),
     ],
 ];

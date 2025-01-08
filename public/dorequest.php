@@ -22,8 +22,6 @@ use App\Platform\Services\UserAgentService;
 use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 /**
  * @usage
@@ -80,40 +78,6 @@ if (!function_exists('DoRequestError')) {
         }
 
         return response()->json($response);
-    }
-}
-
-if (!function_exists('LogDeprecatedUserAgent')) {
-    function LogDeprecatedUserAgent(string $requestType, ClientSupportLevel $clientSupportLevel): void
-    {
-        $userAgentValue = request()->header('User-Agent');
-        if (!$userAgentValue) {
-            return;
-        }
-
-        $userAgentService = new UserAgentService();
-        $userAgent = $userAgentService->decode($userAgentValue);
-        $clientVersion = $userAgent['client'] . '-' . $userAgent['clientVersion'];
-        $user = request()->user('connect-token')->User ?? 'no-user';
-
-        $cacheKey = 'deprecated-user-agent-' . $clientVersion . '-' . $user;
-        if (Cache::get($cacheKey)) {
-            // recently logged
-            return;
-        }
-
-        Cache::put($cacheKey, 1, Carbon::now()->addHours(18));
-
-        $data = [
-            'User' => $user,
-            'User-Agent' => $userAgentValue,
-        ];
-
-        if ($clientSupportLevel === ClientSupportLevel::Outdated) {
-            Log::info("Detected deprecated client for $requestType: $clientVersion", $data);
-        } else {
-            Log::info("Detected unknown client for $requestType: $clientVersion", $data);
-        }
     }
 }
 
@@ -418,7 +382,6 @@ switch ($requestType) {
             break;
         } elseif ($clientSupportLevel !== ClientSupportLevel::Full && $hardcore) {
             // TODO: convert to softcore
-            LogDeprecatedUserAgent($requestType, $clientSupportLevel);
         }
 
         // ignore negative values and offsets greater than max. clamping offset will invalidate validationHash.
@@ -677,7 +640,9 @@ switch ($requestType) {
 
         $userAgentService = new UserAgentService();
         $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
-        if ($clientSupportLevel === ClientSupportLevel::Unknown || $clientSupportLevel === ClientSupportLevel::Outdated) {
+        if ($clientSupportLevel === ClientSupportLevel::Unknown
+            || $clientSupportLevel === ClientSupportLevel::Outdated
+            || $clientSupportLevel === ClientSupportLevel::Unsupported) {
             // don't allow outdated client popup to appear in softcore mode
             $response['Unlocks'][] = [
                 'ID' => Achievement::CLIENT_WARNING_ID,
@@ -727,7 +692,6 @@ switch ($requestType) {
             break;
         } elseif ($clientSupportLevel !== ClientSupportLevel::Full) {
             // TODO: block submission
-            LogDeprecatedUserAgent($requestType, $clientSupportLevel);
         }
 
         // ignore negative values and offsets greater than max. clamping offset will invalidate validationHash.

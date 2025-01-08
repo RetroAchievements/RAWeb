@@ -56,13 +56,6 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "developer.feed": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        }
-    ],
     "developer.claims": [
         {
             "name": "user",
@@ -75,18 +68,6 @@ declare module 'ziggy-js' {
             "name": "user",
             "required": true,
             "binding": "User"
-        }
-    ],
-    "user.game.activity": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        },
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
         }
     ],
     "game.compare-unlocks": [
@@ -122,13 +103,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.dev-interest": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.suggest": [
         {
             "name": "game",
@@ -158,7 +132,6 @@ declare module 'ziggy-js' {
         }
     ],
     "games.suggest": [],
-    "claims.expiring": [],
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],
@@ -192,6 +165,13 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.dev-interest": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.hashes.index": [
         {
             "name": "game",
@@ -218,6 +198,18 @@ declare module 'ziggy-js' {
     "system.game.index": [
         {
             "name": "system",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "user.game.activity.show": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        },
+        {
+            "name": "game",
             "required": true,
             "binding": "ID"
         }
@@ -507,6 +499,13 @@ declare module 'ziggy-js' {
         }
     ],
     "user.comment.index": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
+    "user.achievement-author.feed": [
         {
             "name": "user",
             "required": true,

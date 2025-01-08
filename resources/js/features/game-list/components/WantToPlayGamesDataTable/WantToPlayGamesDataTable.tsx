@@ -11,11 +11,11 @@ import { type Dispatch, type FC, lazy, type SetStateAction, Suspense } from 'rea
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useGameListPaginatedQuery } from '@/features/game-list/hooks/useGameListPaginatedQuery';
 
-import { wantToPlayGamesDefaultFilters } from '../../utils/wantToPlayGamesDefaultFilters';
 import { DataTablePagination } from '../DataTablePagination';
 import { DataTableToolbar } from '../DataTableToolbar';
 import { GameListDataTable } from '../GameListDataTable';
 import { GameListItemsSuspenseFallback } from '../GameListItems/GameListItemsSuspenseFallback';
+import { useWantToPlayGamesDefaultColumnState } from '../WantToPlayGamesMainRoot/useWantToPlayGamesDefaultColumnState';
 import { useColumnDefinitions } from './useColumnDefinitions';
 
 const GameListItems = lazy(() => import('../GameListItems'));
@@ -43,6 +43,8 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
   sorting,
 }) => {
   const { can, ziggy } = usePageProps<App.Community.Data.UserGameListPageProps>();
+
+  const { defaultColumnFilters } = useWantToPlayGamesDefaultColumnState();
 
   const gameListQuery = useGameListPaginatedQuery({
     columnFilters,
@@ -83,7 +85,7 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
       <DataTableToolbar
         table={table}
         unfilteredTotal={gameListQuery.data?.unfilteredTotal ?? null}
-        defaultColumnFilters={wantToPlayGamesDefaultFilters}
+        defaultColumnFilters={defaultColumnFilters}
         randomGameApiRouteName="api.user-game-list.random"
         tableApiRouteName="api.user-game-list.index"
       />

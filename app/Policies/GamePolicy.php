@@ -18,7 +18,6 @@ class GamePolicy
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
 
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
 
@@ -33,9 +32,7 @@ class GamePolicy
 
     public function view(?User $user, Game $game): bool
     {
-        /*
-         * TODO: check age gate
-         */
+        // Age gates are handled at the UI level.
 
         return true;
     }
@@ -44,7 +41,6 @@ class GamePolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
-            // Role::DEVELOPER_STAFF,
             // Role::DEVELOPER,
         ]);
     }
@@ -53,7 +49,6 @@ class GamePolicy
     {
         $canAlwaysUpdate = $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
 
@@ -98,7 +93,6 @@ class GamePolicy
             Role::DEVELOPER_JUNIOR => ['GuideURL', 'Developer', 'Publisher', 'Genre', 'released_at', 'released_at_granularity'],
 
             Role::DEVELOPER => ['Title', 'GuideURL', 'Developer', 'Publisher', 'Genre', 'released_at', 'released_at_granularity'],
-            Role::DEVELOPER_STAFF => ['Title', 'sort_title', 'GuideURL', 'Developer', 'Publisher', 'Genre', 'released_at', 'released_at_granularity'],
         ];
 
         $userRoles = $user->getRoleNames();
@@ -129,30 +123,45 @@ class GamePolicy
         }
 
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::FORUM_MANAGER,
             Role::MODERATOR,
         ]);
     }
 
-    // TODO rename to viewActivitylog or use manage() ?
     public function viewModifications(User $user): bool
     {
-        return $user->hasAnyRole([
-            Role::GAME_HASH_MANAGER,
-            Role::DEVELOPER_STAFF,
-            Role::DEVELOPER,
-            Role::DEVELOPER_JUNIOR,
-        ]);
+        return $this->manage($user);
     }
 
     public function manageContributionCredit(User $user, Game $game): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::ARTIST,
+        ]);
+    }
+
+    public function viewDeveloperInterest(User $user, Game $game): bool
+    {
+        $hasActivePrimaryClaim = $user->loadMissing('achievementSetClaims')
+            ->achievementSetClaims()
+            ->whereGameId($game->id)
+            ->primaryClaim()
+            ->active()
+            ->exists();
+
+        // Devs and JrDevs can see the page, but they need to have an
+        // active primary claim first. Collaborators for the game
+        // cannot open the page.
+        if ($hasActivePrimaryClaim) {
+            return true;
+        }
+
+        // Mods and admins can see everything.
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
         ]);
     }
 

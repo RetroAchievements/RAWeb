@@ -648,7 +648,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
         echo "</tbody></table>";
 
         // Recently Obtained achievements
-        $feedRoute = route('developer.feed', ['user' => $devUser]);
+        $feedRoute = route('user.achievement-author.feed', ['user' => $devUser]);
         echo <<<HTML
             <p class="text-center text-lg font-semibold my-8">
                 View Recently Obtained Achievements in the

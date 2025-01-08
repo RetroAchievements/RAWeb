@@ -21,7 +21,6 @@ class AchievementPolicy
             /*
              * developers may at least upload new achievements to the server, create code notes, etc
              */
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
 
@@ -76,7 +75,6 @@ class AchievementPolicy
             /*
              * developers may at least upload new achievements to the server, create code notes, etc
              */
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
 
             /*
@@ -93,12 +91,13 @@ class AchievementPolicy
 
     public function delete(User $user, Achievement $achievement): bool
     {
-        if ($achievement->is_published) {
+        if ($achievement->is_published || $achievement->unlocks_total) {
             return false;
         }
 
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
+            Role::DEVELOPER,
         ]);
     }
 
@@ -106,11 +105,13 @@ class AchievementPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
+            Role::DEVELOPER,
         ]);
     }
 
     public function forceDelete(User $user, Achievement $achievement): bool
     {
+        // TODO allow GAME_HASH_MANAGER to force delete any achievement
         return false;
     }
 
@@ -119,7 +120,6 @@ class AchievementPolicy
         $roleFieldPermissions = [
             Role::DEVELOPER_JUNIOR => ['Title', 'Description', 'type', 'Points', 'DisplayOrder'],
             Role::DEVELOPER => ['Title', 'Description', 'Flags', 'type', 'Points', 'DisplayOrder'],
-            Role::DEVELOPER_STAFF => ['Title', 'Description', 'Flags', 'type', 'Points', 'DisplayOrder'],
             Role::WRITER => ['Title', 'Description'],
         ];
 
