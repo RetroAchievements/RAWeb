@@ -73,7 +73,7 @@ jobs:
 
       - name: Install
         if: steps.node-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile --network-concurrency 2 --network-timeout 100000
+        run: pnpm install --frozen-lockfile --network-concurrency 2 --retry-count 5
 
       - name: Cache node_modules
         id: node-cache
