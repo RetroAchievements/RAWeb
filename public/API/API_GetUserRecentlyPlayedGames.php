@@ -45,7 +45,7 @@ $count = min((int) request()->query('c', '10'), 50);
 $offset = (int) request()->query('o');
 
 $recentlyPlayedData = [];
-$numRecentlyPlayed = getRecentlyPlayedGames($user->User, $offset, $count, $recentlyPlayedData);
+$numRecentlyPlayed = getRecentlyPlayedGames($user, $offset, $count, $recentlyPlayedData);
 
 if (!empty($recentlyPlayedData)) {
     $gameIDs = [];
