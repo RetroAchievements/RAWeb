@@ -94,7 +94,7 @@ class HubsRelationManager extends RelationManager
                             })
                             ->required(),
                     ])
-                    ->modalHeading('Add game to related hub')
+                    ->modalHeading('Add event to related hub')
                     ->action(function (array $data): void {
                         /** @var Event $event */
                         $event = $this->getOwnerRecord();
@@ -111,7 +111,7 @@ class HubsRelationManager extends RelationManager
                     ->iconButton()
                     ->requiresConfirmation()
                     ->color('danger')
-                    ->modalHeading('Remove related game from related hub')
+                    ->modalHeading('Remove event from related hub')
                     ->action(function (GameSet $gameSetToDetach): void {
                         /** @var Event $event */
                         $event = $this->getOwnerRecord();
@@ -129,7 +129,7 @@ class HubsRelationManager extends RelationManager
             ->bulkActions([
                 Tables\Actions\BulkAction::make('remove')
                     ->label('Remove selected')
-                    ->modalHeading('Remove selected related hub links from hub')
+                    ->modalHeading('Remove selected events from hub')
                     ->modalDescription('Are you sure you would like to do this?')
                     ->requiresConfirmation()
                     ->color('danger')

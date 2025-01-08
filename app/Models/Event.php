@@ -38,7 +38,7 @@ class Event extends BaseModel
         'active_through',
     ];
 
-        // == logging
+    // == logging
 
     public function getActivitylogOptions(): LogOptions
     {

@@ -13,7 +13,7 @@ return new class() extends Migration {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('legacy_game_id');
             $table->string('image_asset_path', 50)->default('/Images/000001.png');
-            $table->string('slug', 20)->nullable();
+            $table->string('slug', 20)->unique();
             $table->date('active_from')->nullable();
             $table->date('active_until')->nullable();
             $table->timestamps();
