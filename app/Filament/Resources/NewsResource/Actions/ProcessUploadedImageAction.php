@@ -32,11 +32,17 @@ class ProcessUploadedImageAction
 
             // Upload the image and get the final path.
             $imagePath = null;
-            if ($imageUploadType === ImageUploadType::News) {
-                $imagePath = UploadNewsImage($dataUrl);
-            } elseif ($imageUploadType === ImageUploadType::HubBadge) {
-                $file = createFileArrayFromDataUrl($dataUrl);
-                $imagePath = UploadGameImage($file, ImageType::GameIcon);
+            switch ($imageUploadType) {
+                case ImageUploadType::News:
+                    $imagePath = UploadNewsImage($dataUrl);
+                    break;
+                case ImageUploadType::HubBadge:
+                case ImageUploadType::GameBadge:
+                    $file = createFileArrayFromDataUrl($dataUrl);
+                    $imagePath = UploadGameImage($file, ImageType::GameIcon);
+                    break;
+                default:
+                    throw new Exception("Unknown ImageUploadType: {$imageUploadType->name}");
             }
 
             // Livewire auto-deletes these temp files after 24 hours, however

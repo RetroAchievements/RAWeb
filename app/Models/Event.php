@@ -6,22 +6,24 @@ namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class EventAchievement extends BaseModel
+class Event extends BaseModel
 {
     use LogsActivity {
         LogsActivity::activities as auditLog;
     }
 
-    protected $table = 'event_achievements';
+    protected $table = 'events';
 
     protected $fillable = [
-        'achievement_id',
-        'source_achievement_id',
+        'legacy_game_id',
+        'image_asset_path',
+        'slug',
         'active_from',
         'active_until',
         'active_through',
@@ -36,16 +38,14 @@ class EventAchievement extends BaseModel
         'active_through',
     ];
 
-    public const RAEVENTS_USER_ID = 279854;
-    public const DEVQUEST_USER_ID = 240336;
-
     // == logging
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logOnly([
-                'source_achievement_id',
+                'image_asset_path',
+                'slug',
                 'active_from',
                 'active_until',
             ])
@@ -57,7 +57,7 @@ class EventAchievement extends BaseModel
 
     public function getTitleAttribute(): string
     {
-        return $this->achievement->title;
+        return $this->game->title;
     }
 
     public function getActiveThroughAttribute(): ?Carbon
@@ -65,7 +65,23 @@ class EventAchievement extends BaseModel
         return $this->active_until ? $this->active_until->clone()->subDays(1) : null;
     }
 
+    public function getBadgeUrlAttribute(): string
+    {
+        return media_asset($this->image_asset_path);
+    }
+
+    public function getPermalinkAttribute(): string
+    {
+        // TODO: use slug (implies slug is immutable)
+        return $this->game->getPermalinkAttribute();
+    }
+
     // == mutators
+
+    public function setTitleAttribute(string $value): void
+    {
+        $this->game->title = $value;
+    }
 
     public function setActiveThroughAttribute(Carbon|string|null $value): void
     {
@@ -79,36 +95,35 @@ class EventAchievement extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<Achievement, EventAchievement>
+     * @return BelongsTo<Game, Event>
      */
-    public function achievement(): BelongsTo
+    public function game(): BelongsTo
     {
-        return $this->belongsTo(Achievement::class, 'achievement_id', 'ID');
+        return $this->belongsTo(Game::class, 'legacy_game_id', 'ID');
     }
 
     /**
-     * @return BelongsTo<Achievement, EventAchievement>
+     * @return HasManyThrough<EventAchievement>
      */
-    public function sourceAchievement(): BelongsTo
+    public function achievements(): HasManyThrough
     {
-        return $this->belongsTo(Achievement::class, 'source_achievement_id', 'ID');
+        return $this->game->hasManyThrough(
+            EventAchievement::class,
+            Achievement::class,
+            'GameID',         // Achievements.GameID
+            'achievement_id', // event_achievements.achievement_id
+            'ID',             // Game.ID
+            'ID',             // Achievement.ID
+        )->with('achievement.game');
+    }
+
+    /**
+     * @return BelongsToMany<GameSet>
+     */
+    public function hubs(): BelongsToMany
+    {
+        return $this->game->gameSets();
     }
 
     // == scopes
-
-    /**
-     * @param Builder<EventAchievement> $query
-     * @return Builder<EventAchievement>
-     */
-    public function scopeActive(Builder $query, ?Carbon $timestamp = null): Builder
-    {
-        $timestamp ??= Carbon::now();
-
-        return $query->where(function ($q) use ($timestamp) {
-                $q->where('active_from', '<=', $timestamp)->orWhereNull('active_from');
-            })
-            ->where(function ($q) use ($timestamp) {
-                $q->where('active_until', '>', $timestamp)->orWhereNull('active_until');
-            });
-    }
 }
