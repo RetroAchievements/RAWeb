@@ -160,7 +160,7 @@ export const SEO: FC<SEOProps> = ({
   ogSiteName = 'RetroAchievements',
 
   // Twitter defaults to OG if not provided.
-  twitterCard = 'summary_large_image',
+  twitterCard = 'summary',
   twitterTitle = ogTitle,
   twitterDescription = ogDescription,
   twitterImage = ogImage,
