@@ -536,7 +536,7 @@ if ($isFullyFeaturedGame) {
                 <x-game.primary-meta-row-item label="Released" :metadataValue="$releasedAtDisplay" />
             </x-game.primary-meta>
 
-        @if ($isFullyFeaturedGame || ($isEventGame && !$gameModel->event))
+        @if ($isFullyFeaturedGame || $isEventGame)
             <x-game.screenshots :titleImageSrc="$imageTitle" :ingameImageSrc="$imageIngame" />
         @endif
 
@@ -1025,13 +1025,11 @@ if ($isFullyFeaturedGame) {
 @if ($isFullyFeaturedGame || $isEventGame)
     <x-slot name="sidebar">
         <?php
-        if ($isEventGame) {
-            if (!$gameModel->event) {
-                echo "<div class='component text-center mb-6'>";
-                echo "<img class='max-w-full rounded-sm' src='" . media_asset($gameData['ImageBoxArt']) . "' alt='Boxart'>";
-                echo "</div>";
-            }
+        echo "<div class='component text-center mb-6'>";
+        echo "<img class='max-w-full rounded-sm' src='" . media_asset($gameData['ImageBoxArt']) . "' alt='Boxart'>";
+        echo "</div>";
 
+        if ($isEventGame) {
             echo "<div class='component'>";
             $allowedLinks = ['forum-topic'];
             ?>
@@ -1043,10 +1041,6 @@ if ($isFullyFeaturedGame) {
             <?php
             echo "</div>";
         } elseif ($isFullyFeaturedGame) {
-            echo "<div class='component text-center mb-6'>";
-            echo "<img class='max-w-full rounded-sm' src='" . media_asset($gameData['ImageBoxArt']) . "' alt='Boxart'>";
-            echo "</div>";
-
             echo "<div class='component'>";
             ?>
                 <x-game.link-buttons
