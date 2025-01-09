@@ -58,6 +58,22 @@ class FormatLegacyCommentPayloadActionTest extends TestCase
         $this->assertEquals($expected, $this->action->execute($input, isTicketComment: false));
     }
 
+    public function testItPreservesSingleLineBreaksBetweenListItems(): void
+    {
+        $input = "Line 1\n- Item 1\n- Item 2\n- Item 3";
+        $expected = "Line 1<br />- Item 1<br />- Item 2<br />- Item 3";
+
+        $this->assertEquals($expected, $this->action->execute($input, isTicketComment: false));
+    }
+
+    public function testItPreservesSingleLineBreaksBetweenListItems2(): void
+    {
+        $input = "Line 1<br />- Item 1<br />- Item 2<br />- Item 3";
+        $expected = "Line 1<br />- Item 1<br />- Item 2<br />- Item 3";
+
+        $this->assertEquals($expected, $this->action->execute($input, isTicketComment: false));
+    }
+
     public function testItHandlesAttemptedMaliciousInput(): void
     {
         $cases = [
