@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
+use App\Community\Enums\ClaimType;
 use App\Models\Game;
 use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Data;
@@ -29,6 +30,8 @@ class GameData extends Data
         public Lazy|int $numVisibleLeaderboards,
         public Lazy|int $numUnresolvedTickets,
         public Lazy|bool $hasActiveOrInReviewClaims,
+        /** @var Lazy|array<GameClaimantData> */
+        public Lazy|array $claimants,
     ) {
     }
 
@@ -50,6 +53,12 @@ class GameData extends Data
             numVisibleLeaderboards: Lazy::create(fn () => $game->num_visible_leaderboards ?? 0),
             numUnresolvedTickets: Lazy::create(fn () => $game->num_unresolved_tickets ?? 0),
             hasActiveOrInReviewClaims: Lazy::create(fn () => $game->has_active_or_in_review_claims ?? false),
+            claimants: Lazy::create(fn () => $game->achievementSetClaims->map(
+                fn ($claim) => GameClaimantData::fromUser(
+                    $claim->user,
+                    $claim->ClaimType === ClaimType::Primary ? 'primary' : 'collaboration'
+                )
+            )->all()),
         );
     }
 }

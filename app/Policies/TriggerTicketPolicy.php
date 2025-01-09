@@ -19,7 +19,6 @@ class TriggerTicketPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
-            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
         ]);

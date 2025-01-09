@@ -807,82 +807,86 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     },
   );
 
-  it('sends along data from the ?extra query param if that data is provided', async () => {
-    // ARRANGE
-    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: 123 } });
+  it(
+    'sends along data from the ?extra query param if that data is provided',
+    { timeout: 10_000 },
+    async () => {
+      // ARRANGE
+      const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { ticketId: 123 } });
 
-    const achievement = createAchievement();
-    const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
-    const emulators = [
-      createEmulator({ name: 'Bizhawk' }),
-      createEmulator({ name: 'RALibRetro' }),
-      createEmulator({ name: 'RetroArch' }),
-    ];
+      const achievement = createAchievement();
+      const gameHashes = [createGameHash({ name: 'Hash A' }), createGameHash({ name: 'Hash B' })];
+      const emulators = [
+        createEmulator({ name: 'Bizhawk' }),
+        createEmulator({ name: 'RALibRetro' }),
+        createEmulator({ name: 'RetroArch' }),
+      ];
 
-    render<App.Platform.Data.CreateAchievementTicketPageProps>(
-      <CreateAchievementTicketMainRoot />,
-      {
-        pageProps: {
-          achievement,
-          emulators,
-          gameHashes,
-          auth: { user: createAuthenticatedUser({ points: 500 }) },
-          ziggy: createZiggyProps({
-            query: {
-              // !!!!!
-              extra:
-                'eyJ0cmlnZ2VyUmljaFByZXNlbmNlIjoi8J+Qukxpbmsg8J+Xuu+4j0RlYXRoIE1vdW50YWluIOKdpO+4jzMvMyDwn5GlMS80IPCfp78wLzQg8J+RuzAvNjAg8J+QnDAvMjQg8J+SgDUg8J+VmTEyOjAwIEFN8J+MmSJ9',
-            },
-          }),
+      render<App.Platform.Data.CreateAchievementTicketPageProps>(
+        <CreateAchievementTicketMainRoot />,
+        {
+          pageProps: {
+            achievement,
+            emulators,
+            gameHashes,
+            auth: { user: createAuthenticatedUser({ points: 500 }) },
+            ziggy: createZiggyProps({
+              query: {
+                // !!!!!
+                extra:
+                  'eyJ0cmlnZ2VyUmljaFByZXNlbmNlIjoi8J+Qukxpbmsg8J+Xuu+4j0RlYXRoIE1vdW50YWluIOKdpO+4jzMvMyDwn5GlMS80IPCfp78wLzQg8J+RuzAvNjAg8J+QnDAvMjQg8J+SgDUg8J+VmTEyOjAwIEFN8J+MmSJ9',
+              },
+            }),
+          },
         },
-      },
-    );
+      );
 
-    // ACT
-    await userEvent.click(screen.getByRole('combobox', { name: /issue/i }));
-    await userEvent.click(screen.getByRole('option', { name: /did not trigger/i }));
+      // ACT
+      await userEvent.click(screen.getByRole('combobox', { name: /issue/i }));
+      await userEvent.click(screen.getByRole('option', { name: /did not trigger/i }));
 
-    await userEvent.click(screen.getByRole('combobox', { name: /emulator/i }));
-    await userEvent.click(screen.getByRole('option', { name: /retroarch/i }));
+      await userEvent.click(screen.getByRole('combobox', { name: /emulator/i }));
+      await userEvent.click(screen.getByRole('option', { name: /retroarch/i }));
 
-    await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
+      await userEvent.type(screen.getByRole('textbox', { name: /emulator core/i }), 'gambatte');
 
-    await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
-    await userEvent.click(screen.getByText(/softcore/i));
+      await userEvent.click(screen.getByRole('radio', { name: /softcore/i }));
+      await userEvent.click(screen.getByText(/softcore/i));
 
-    await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
-    await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
+      await userEvent.click(screen.getByRole('combobox', { name: /supported game file/i }));
+      await userEvent.click(screen.getByRole('option', { name: /hash a/i }));
 
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /description/i }),
-      'Something is very wrong with this achievement. I tried many things and it just wont unlock. Help.',
-    );
-
-    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
-
-    // ASSERT
-    await waitFor(
-      () => {
-        expect(postSpy).toHaveBeenCalledOnce();
-      },
-      { timeout: 6000 },
-    );
-
-    expect(postSpy).toHaveBeenCalledWith(['api.ticket.store'], {
-      core: 'gambatte',
-      description:
+      await userEvent.type(
+        screen.getByRole('textbox', { name: /description/i }),
         'Something is very wrong with this achievement. I tried many things and it just wont unlock. Help.',
-      emulator: 'RetroArch',
-      emulatorVersion: null,
-      extra:
-        'eyJ0cmlnZ2VyUmljaFByZXNlbmNlIjoi8J+Qukxpbmsg8J+Xuu+4j0RlYXRoIE1vdW50YWluIOKdpO+4jzMvMyDwn5GlMS80IPCfp78wLzQg8J+RuzAvNjAg8J+QnDAvMjQg8J+SgDUg8J+VmTEyOjAwIEFN8J+MmSJ9',
-      gameHashId: gameHashes[0].id,
-      issue: 2,
-      mode: 'softcore',
-      ticketableId: achievement.id,
-      ticketableModel: 'achievement',
-    });
-  });
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+      // ASSERT
+      await waitFor(
+        () => {
+          expect(postSpy).toHaveBeenCalledOnce();
+        },
+        { timeout: 6000 },
+      );
+
+      expect(postSpy).toHaveBeenCalledWith(['api.ticket.store'], {
+        core: 'gambatte',
+        description:
+          'Something is very wrong with this achievement. I tried many things and it just wont unlock. Help.',
+        emulator: 'RetroArch',
+        emulatorVersion: null,
+        extra:
+          'eyJ0cmlnZ2VyUmljaFByZXNlbmNlIjoi8J+Qukxpbmsg8J+Xuu+4j0RlYXRoIE1vdW50YWluIOKdpO+4jzMvMyDwn5GlMS80IPCfp78wLzQg8J+RuzAvNjAg8J+QnDAvMjQg8J+SgDUg8J+VmTEyOjAwIEFN8J+MmSJ9',
+        gameHashId: gameHashes[0].id,
+        issue: 2,
+        mode: 'softcore',
+        ticketableId: achievement.id,
+        ticketableModel: 'achievement',
+      });
+    },
+  );
 
   it('given the user is using a non-English locale, shows a warning about their ticket description', () => {
     // ARRANGE

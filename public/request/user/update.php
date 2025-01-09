@@ -41,9 +41,15 @@ if ($propertyType === UserAction::UpdatePermissions) {
         } elseif ($value === Permissions::Registered) {
             $foundTargetUser->removeRole(Role::DEVELOPER_JUNIOR);
             $foundTargetUser->removeRole(Role::DEVELOPER);
+            $foundTargetUser->removeRole(Role::DEV_COMPLIANCE);
+            $foundTargetUser->removeRole(Role::QUALITY_ASSURANCE);
+            $foundTargetUser->removeRole(Role::CODE_REVIEWER);
             $foundTargetUser->removeRole(Role::MODERATOR);
         } elseif ($value === Permissions::JuniorDeveloper) {
             $foundTargetUser->removeRole(Role::DEVELOPER);
+            $foundTargetUser->removeRole(Role::DEV_COMPLIANCE);
+            $foundTargetUser->removeRole(Role::QUALITY_ASSURANCE);
+            $foundTargetUser->removeRole(Role::CODE_REVIEWER);
             $foundTargetUser->removeRole(Role::MODERATOR);
 
             $foundTargetUser->assignRole(Role::DEVELOPER_JUNIOR);

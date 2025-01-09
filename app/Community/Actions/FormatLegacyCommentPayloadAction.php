@@ -11,11 +11,8 @@ class FormatLegacyCommentPayloadAction
 
     public function execute(string $payload, bool $isTicketComment): string
     {
-        // Replace all <br /> tags with newlines for consistent processing.
-        $text = str_replace('<br />', "\n", $payload);
-
         if (!$isTicketComment) {
-            return $this->formatText($text);
+            return $this->formatText($payload);
         }
 
         // Store original link tags with angle brackets in markers.
@@ -27,7 +24,7 @@ class FormatLegacyCommentPayloadAction
             $links[] = $match[0];
 
             return $marker . (count($links) - 1) . $marker;
-        }, $text);
+        }, $payload);
 
         // Process the text and restore links.
         $text = $this->formatText($text);
@@ -40,14 +37,19 @@ class FormatLegacyCommentPayloadAction
 
     private function formatText(string $text): string
     {
+        // First, normalize all existing <br /> tags to \n for consistent processing.
+        $text = preg_replace('/<br\s*\/?>\s*/', "\n", $text);
+
         // Convert special characters to HTML entities.
         $text = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
 
-        // Convert newlines to <br /> tags and normalize multiple line breaks.
-        return preg_replace(
-            '/<br\s*\/?>(\s*<br\s*\/?>)+/',
-            '<br /><br />',
-            nl2br($text)
-        );
+        // Convert newlines to <br /> tags without adding additional \n.
+        $text = str_replace("\n", '<br />', $text);
+
+        // Collapse multiple consecutive line breaks into exactly two.
+        $text = preg_replace('/(<br\s*\/?>\s*){2,}/', '<br /><br />', $text);
+
+        // Add required \n after double breaks while preserving single breaks.
+        return preg_replace('/<br \/><br \/>/', "<br /><br />\n", $text);
     }
 }

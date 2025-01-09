@@ -7,6 +7,7 @@ namespace App\Platform\Data;
 use App\Models\GameHash;
 use Illuminate\Database\Eloquent\Collection;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 use Spatie\TypeScriptTransformer\Attributes\TypeScriptType;
 
@@ -20,6 +21,7 @@ class GameHashData extends Data
         #[TypeScriptType('App\\Platform\\Data\\GameHashLabelData[]')]
         public array $labels,
         public ?string $patchUrl,
+        public Lazy|bool $isMultiDisc,
     ) {
     }
 
@@ -31,6 +33,7 @@ class GameHashData extends Data
             name: $gameHash->name,
             labels: GameHashLabelData::fromLabelsString($gameHash->labels),
             patchUrl: $gameHash->patch_url,
+            isMultiDisc: Lazy::create(fn () => $gameHash->isMultiDiscGameHash()),
         );
     }
 

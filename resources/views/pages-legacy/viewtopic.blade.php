@@ -169,6 +169,8 @@ $isSubscribed = $userID ? isUserSubscribedToForumTopic($thisTopicID, $userID) : 
 
         $mutatedBody = $forumTopicComment->body;
         $mutatedBody = normalize_shortcodes($mutatedBody);
+        $mutatedBody = str_replace(["\r\n", "\r"], "\n", $mutatedBody); // Convert to Unix newlines.
+        $mutatedBody = preg_replace('/\n{3,}|(<br\s*\/?>\s*){3,}/i', "\n\n", $mutatedBody); // Handle both \n and <br>.
         $mutatedBody = htmlspecialchars($mutatedBody, ENT_QUOTES, 'UTF-8');
         $mutatedBody = Shortcode::render($mutatedBody);
         ?>

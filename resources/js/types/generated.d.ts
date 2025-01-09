@@ -20,6 +20,17 @@ declare namespace App.Community.Data {
     canDelete: boolean;
     isAutomated: boolean;
   };
+  export type DeveloperFeedPageProps<TItems = App.Community.Data.ActivePlayer> = {
+    developer: App.Data.User;
+    unlocksContributed: number;
+    pointsContributed: number;
+    awardsContributed: number;
+    leaderboardEntriesContributed: number;
+    activePlayers: App.Data.PaginatedData<TItems>;
+    recentUnlocks: Array<App.Community.Data.RecentUnlock>;
+    recentPlayerBadges: Array<App.Community.Data.RecentPlayerBadge>;
+    recentLeaderboardEntries: Array<App.Community.Data.RecentLeaderboardEntry>;
+  };
   export type GameClaimsCommentsPageProps<TItems = App.Community.Data.Comment> = {
     game: App.Platform.Data.Game;
     paginatedComments: App.Data.PaginatedData<TItems>;
@@ -50,8 +61,28 @@ declare namespace App.Community.Data {
     isSubscribed: boolean;
     canComment: boolean;
   };
+  export type RecentLeaderboardEntry = {
+    leaderboard: App.Platform.Data.Leaderboard;
+    leaderboardEntry: App.Platform.Data.LeaderboardEntry;
+    game: App.Platform.Data.Game;
+    user: App.Data.User;
+    submittedAt: string;
+  };
+  export type RecentPlayerBadge = {
+    game: App.Platform.Data.Game;
+    awardType: string;
+    user: App.Data.User;
+    earnedAt: string;
+  };
   export type RecentPostsPageProps<TItems = App.Data.ForumTopic> = {
     paginatedTopics: App.Data.PaginatedData<TItems>;
+  };
+  export type RecentUnlock = {
+    achievement: App.Platform.Data.Achievement;
+    game: App.Platform.Data.Game;
+    user: App.Data.User;
+    unlockedAt: string;
+    isHardcore: boolean;
   };
   export type Subscription = {
     id: number;
@@ -225,7 +256,13 @@ declare namespace App.Data {
   };
 }
 declare namespace App.Enums {
-  export type ClientSupportLevel = 0 | 1 | 2 | 3;
+  export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4;
+  export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'custom';
+  export type PlayerGameActivitySessionType =
+    | 'player-session'
+    | 'reconstructed'
+    | 'manual-unlock'
+    | 'ticket-created';
   export type UserPreference =
     | 0
     | 1
@@ -269,7 +306,9 @@ declare namespace App.Models {
     | 'administrator'
     | 'release-manager'
     | 'game-hash-manager'
-    | 'developer-staff'
+    | 'dev-compliance'
+    | 'quality-assurance'
+    | 'code-reviewer'
     | 'developer'
     | 'developer-junior'
     | 'artist'
@@ -287,6 +326,7 @@ declare namespace App.Models {
     | 'engineer'
     | 'team-account'
     | 'beta'
+    | 'community-manager'
     | 'developer-retired';
 }
 declare namespace App.Platform.Data {
@@ -296,6 +336,7 @@ declare namespace App.Platform.Data {
     description?: string;
     badgeUnlockedUrl?: string;
     badgeLockedUrl?: string;
+    flags?: App.Platform.Enums.AchievementFlag;
     game?: App.Platform.Data.Game;
     unlockedAt?: string;
     unlockedHardcoreAt?: string;
@@ -312,6 +353,10 @@ declare namespace App.Platform.Data {
     emulatorCore: string | null;
     selectedMode: number | null;
   };
+  export type DeveloperInterestPageProps = {
+    game: App.Platform.Data.Game;
+    developers: Array<App.Data.User>;
+  };
   export type Emulator = {
     id: number;
     name: string;
@@ -321,6 +366,10 @@ declare namespace App.Platform.Data {
     sourceAchievement?: App.Platform.Data.Achievement;
     activeUntil?: string;
     forumTopicId?: number;
+  };
+  export type GameClaimant = {
+    user: App.Data.User;
+    claimType: string;
   };
   export type Game = {
     id: number;
@@ -338,6 +387,7 @@ declare namespace App.Platform.Data {
     numVisibleLeaderboards?: number;
     numUnresolvedTickets?: number;
     hasActiveOrInReviewClaims?: boolean;
+    claimants?: Array<App.Platform.Data.GameClaimant>;
   };
   export type GameHash = {
     id: number;
@@ -345,6 +395,7 @@ declare namespace App.Platform.Data {
     name: string | null;
     labels: Array<App.Platform.Data.GameHashLabel>;
     patchUrl: string | null;
+    isMultiDisc?: boolean;
   };
   export type GameHashLabel = {
     label: string;
@@ -406,11 +457,70 @@ declare namespace App.Platform.Data {
     description?: string;
     game?: App.Platform.Data.Game;
   };
+  export type LeaderboardEntry = {
+    id: number;
+    score?: number;
+    formattedScore?: string;
+    createdAt?: string;
+  };
+  export type ParsedUserAgent = {
+    client: string;
+    clientVersion: string;
+    os: string | null;
+    integrationVersion: string | null;
+    extra: Array<any> | null;
+    clientVariation: string | null;
+  };
   export type PlayerBadge = {
     awardType: number;
     awardData: number;
     awardDataExtra: number;
     awardDate: string;
+  };
+  export type PlayerGameActivity = {
+    summarizedActivity: App.Platform.Data.PlayerGameActivitySummary;
+    sessions: Array<App.Platform.Data.PlayerGameActivitySession>;
+    clientBreakdown: Array<App.Platform.Data.PlayerGameClientBreakdown>;
+  };
+  export type PlayerGameActivityEvent = {
+    type: App.Enums.PlayerGameActivityEventType;
+    description: string | null;
+    header: string | null;
+    when: string | null;
+    id: number | null;
+    hardcore: boolean | null;
+    achievement: App.Platform.Data.Achievement | null;
+    unlocker: App.Data.User | null;
+    hardcoreLater: boolean | null;
+  };
+  export type PlayerGameActivityPageProps = {
+    player: App.Data.User;
+    game: App.Platform.Data.Game;
+    playerGame: App.Platform.Data.PlayerGame | null;
+    activity: App.Platform.Data.PlayerGameActivity;
+  };
+  export type PlayerGameActivitySession = {
+    type: App.Enums.PlayerGameActivitySessionType;
+    startTime: string;
+    endTime: string;
+    duration: number;
+    userAgent: string | null;
+    parsedUserAgent: App.Platform.Data.ParsedUserAgent | null;
+    gameHash: App.Platform.Data.GameHash | null;
+    events: Array<App.Platform.Data.PlayerGameActivityEvent>;
+  };
+  export type PlayerGameActivitySummary = {
+    achievementPlaytime: number;
+    achievementSessionCount: number;
+    generatedSessionAdjustment: number;
+    totalUnlockTime: number;
+    totalPlaytime: number;
+  };
+  export type PlayerGameClientBreakdown = {
+    clientIdentifier: string;
+    agents: Array<any>;
+    duration: number;
+    durationPercentage: number;
   };
   export type PlayerGame = {
     achievementsUnlocked: number | null;

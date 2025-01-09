@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\UserGameListEntryFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 class UserGameListEntry extends BaseModel
 {
+    /** @use HasFactory<UserGameListEntryFactory> */
+    use HasFactory;
+
     // TODO rename SetRequest to user_game_list_entry or integrate into player_games table
     // TODO rename GameID to game_id
     // TODO drop user_game_list_entry_username_game_id_type_unique
@@ -28,6 +33,11 @@ class UserGameListEntry extends BaseModel
     protected $casts = [
         'GameID' => 'integer',
     ];
+
+    protected static function newFactory(): UserGameListEntryFactory
+    {
+        return UserGameListEntryFactory::new();
+    }
 
     // helpers
 

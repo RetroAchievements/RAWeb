@@ -66,7 +66,7 @@ $user = request()->user();
                 <x-dropdown-item :href="url('gameList.php?t=develop&f=2')">Want to Develop Games</x-dropdown-item>
             @endif
             @if($user->ContribCount > 0)
-                <x-dropdown-item :href="route('developer.feed', ['user' => $user])">Feed</x-dropdown-item>
+                <x-dropdown-item :href="route('user.achievement-author.feed', ['user' => $user])">Feed</x-dropdown-item>
             @endif
             @if($user->ContribCount > 0)
                 <x-dropdown-item :href="route('developer.tickets', ['user' => $user])">Tickets</x-dropdown-item>

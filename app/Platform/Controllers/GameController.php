@@ -10,10 +10,14 @@ use App\Http\Controller;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Actions\BuildGameInterestedDevelopersDataAction;
 use App\Platform\Actions\BuildGameListAction;
 use App\Platform\Actions\GetRandomGameAction;
+use App\Platform\Data\DeveloperInterestPagePropsData;
+use App\Platform\Data\GameData;
 use App\Platform\Data\GameListPagePropsData;
 use App\Platform\Data\SystemData;
+use App\Platform\Enums\GameListSortField;
 use App\Platform\Enums\GameListType;
 use App\Platform\Requests\GameListRequest;
 use App\Platform\Requests\GameRequest;
@@ -46,7 +50,10 @@ class GameController extends Controller
             GameListType::AllGames,
             user: $user,
             filters: $request->getFilters(),
-            sort: $request->getSort(),
+            sort: $request->getSort(
+                defaultSortField: GameListSortField::PlayersTotal,
+                isDefaultSortAsc: false,
+            ),
             perPage: $isMobile ? 100 : $request->getPageSize(),
 
             /**
@@ -152,6 +159,18 @@ class GameController extends Controller
     public function destroy(Game $game): void
     {
         $this->authorize('delete', $game);
+    }
+
+    public function devInterest(Game $game): InertiaResponse
+    {
+        $this->authorize('viewDeveloperInterest', $game);
+
+        $props = new DeveloperInterestPagePropsData(
+            game: GameData::fromGame($game)->include('badgeUrl', 'system'),
+            developers: (new BuildGameInterestedDevelopersDataAction())->execute($game)
+        );
+
+        return Inertia::render('game/[game]/dev-interest', $props);
     }
 
     public function random(GameListRequest $request): RedirectResponse
