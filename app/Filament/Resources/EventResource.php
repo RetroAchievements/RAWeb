@@ -265,7 +265,7 @@ class EventResource extends Resource
     }
 
     /**
-     * @return Builder<Game>
+     * @return Builder<Event>
      */
     public static function getEloquentQuery(): Builder
     {
