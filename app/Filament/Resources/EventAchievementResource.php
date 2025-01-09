@@ -24,6 +24,8 @@ class EventAchievementResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
+    protected static bool $isGloballySearchable = false;
+
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
