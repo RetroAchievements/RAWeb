@@ -41,6 +41,18 @@ class ProcessUploadedImageAction
                     $file = createFileArrayFromDataUrl($dataUrl);
                     $imagePath = UploadGameImage($file, ImageType::GameIcon);
                     break;
+                case ImageUploadType::GameBoxArt:
+                    $file = createFileArrayFromDataUrl($dataUrl);
+                    $imagePath = UploadGameImage($file, ImageType::GameBoxArt);
+                    break;
+                case ImageUploadType::GameTitle:
+                    $file = createFileArrayFromDataUrl($dataUrl);
+                    $imagePath = UploadGameImage($file, ImageType::GameTitle);
+                    break;
+                case ImageUploadType::GameInGame:
+                    $file = createFileArrayFromDataUrl($dataUrl);
+                    $imagePath = UploadGameImage($file, ImageType::GameInGame);
+                    break;
                 default:
                     throw new Exception("Unknown ImageUploadType: {$imageUploadType->name}");
             }

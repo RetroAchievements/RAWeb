@@ -346,6 +346,52 @@ class GameResource extends Resource
                             ->reactive()
                             ->required(fn (callable $get) => !empty($get('released_at'))),
                     ]),
+
+                Forms\Components\Section::make('Media')
+                    ->icon('heroicon-s-photo')
+                    ->schema([
+                        // Store a temporary file on disk until the user submits.
+                        // When the user submits, put in storage.
+                        Forms\Components\FileUpload::make('ImageIcon')
+                            ->label('Badge')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->image()
+                            ->rules([
+                                'dimensions:width=96,height=96',
+                            ])
+                            ->acceptedFileTypes(['image/png'])
+                            ->maxSize(1024)
+                            ->maxFiles(1)
+                            ->previewable(true),
+
+                        Forms\Components\FileUpload::make('ImageBoxArt')
+                            ->label('Box Art')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->image()
+                            ->acceptedFileTypes(['image/png'])
+                            ->maxSize(1024)
+                            ->maxFiles(1)
+                            ->previewable(true),
+
+                        Forms\Components\FileUpload::make('ImageTitle')
+                            ->label('Title')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->image()
+                            ->acceptedFileTypes(['image/png'])
+                            ->maxSize(1024)
+                            ->maxFiles(1)
+                            ->previewable(true),
+
+                        Forms\Components\FileUpload::make('ImageIngame')
+                            ->label('In Game')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->image()
+                            ->acceptedFileTypes(['image/png'])
+                            ->maxSize(1024)
+                            ->maxFiles(1)
+                            ->previewable(true),
+                    ])
+                    ->columns(2),
             ]);
     }
 
