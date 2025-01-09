@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Platform\Enums\TriggerableType;
-use App\Platform\Enums\TriggerType;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\TriggerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -29,14 +28,12 @@ class Trigger extends BaseModel
         'conditions',
         'version',
         'parent_id',
-        'type',
         'created_at', // TODO remove after initial sync
         'updated_at', // TODO remove after initial sync
     ];
 
     protected $casts = [
         'triggerable_type' => TriggerableType::class,
-        'type' => TriggerType::class,
         'version' => 'integer',
     ];
 
@@ -54,7 +51,7 @@ class Trigger extends BaseModel
 
     public function getIsLatestVersionAttribute(): bool
     {
-        return !$this->children()->exists();
+        return !$this->nextVersion()->exists();
     }
 
     // == mutators
@@ -62,17 +59,17 @@ class Trigger extends BaseModel
     // == relations
 
     /**
-     * @return HasMany<Trigger>
+     * @return HasOne<Trigger>
      */
-    public function children(): HasMany
+    public function nextVersion(): HasOne
     {
-        return $this->hasMany(Trigger::class, 'parent_id');
+        return $this->hasOne(Trigger::class, 'parent_id');
     }
 
     /**
      * @return BelongsTo<Trigger, Trigger>
      */
-    public function parent(): BelongsTo
+    public function previousVersion(): BelongsTo
     {
         return $this->belongsTo(Trigger::class, 'parent_id');
     }

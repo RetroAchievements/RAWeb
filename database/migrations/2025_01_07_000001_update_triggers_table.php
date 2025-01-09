@@ -17,6 +17,10 @@ return new class() extends Migration {
 
             $table->index('parent_id');
         });
+
+        Schema::table('triggers', function (Blueprint $table) {
+            $table->dropColumn(['type', 'stat', 'stat_goal', 'stat_format']);
+        });
     }
 
     public function down(): void
@@ -24,6 +28,11 @@ return new class() extends Migration {
         Schema::table('triggers', function (Blueprint $table) {
             $table->dropForeign(['parent_id']);
             $table->dropIndex(['parent_id']);
+
+            $table->text('type')->nullable();
+            $table->string('stat')->nullable();
+            $table->string('stat_goal')->nullable();
+            $table->string('stat_format', 50)->nullable();
         });
     }
 };

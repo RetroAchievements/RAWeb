@@ -178,14 +178,16 @@ class UpsertTriggerVersionActionTest extends TestCase
     public function testItUpdatesTheDenormalizedTriggerIdOnModels(): void
     {
         // Arrange
+        $user = User::factory()->create();
+
         $achievement = Achievement::factory()->create(['trigger_id' => null]);
         $leaderboard = Leaderboard::factory()->create(['trigger_id' => null]);
         $game = Game::factory()->create(['trigger_id' => null]);
 
         // Act
-        $achievementTrigger = $this->action->execute($achievement, '0xH1234=1');
-        $leaderboardTrigger = $this->action->execute($leaderboard, '0xH5678=1');
-        $gameTrigger = $this->action->execute($game, '0xH1234=1');
+        $achievementTrigger = $this->action->execute($achievement, '0xH1234=1', user: $user);
+        $leaderboardTrigger = $this->action->execute($leaderboard, '0xH5678=1', user: $user);
+        $gameTrigger = $this->action->execute($game, '0xH1234=1', user: $user);
 
         // Assert
         $achievement->refresh();

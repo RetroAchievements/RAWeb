@@ -406,12 +406,12 @@ function UploadNewAchievement(
                     versioned: $achievement->Flags === AchievementFlag::OfficialCore->value,
                     user: $author
                 );
-            } elseif ($changingAchSet && $achievement->trigger) {
+            } elseif ($changingAchSet && $achievement->trigger && $achievement->Flags === AchievementFlag::OfficialCore->value) {
                 // If only flags changed, re-version the existing trigger (if it exists).
                 (new UpsertTriggerVersionAction())->execute(
                     $achievement,
                     $achievement->trigger->conditions,
-                    versioned: $achievement->Flags === AchievementFlag::OfficialCore->value,
+                    versioned: true,
                     user: $author
                 );
             }

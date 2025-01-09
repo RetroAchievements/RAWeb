@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Achievement;
-use App\Models\Game;
-use App\Models\Leaderboard;
 use App\Models\Trigger;
 use App\Models\User;
 use App\Platform\Contracts\HasVersionedTrigger;
@@ -25,17 +23,17 @@ class UpsertTriggerVersionAction
             return null;
         }
 
-        // If no user is given, then find the model's last editor/developer from system comments.
-        // Fall back to the model's user foreign key if one exists.
-        $userId = $user?->id ?? $this->findLastEditor($triggerable)?->id;
-
         $triggerable->loadMissing('trigger');
+
+        // Check if this triggerable has version history (for maintaining versions when demoted).
+        $hasVersionHistory = $triggerable->triggers()->whereNotNull('version')->exists();
+        $shouldKeepVersion = $versioned || $hasVersionHistory;
 
         // For unversioned triggers, explicitly check if one already exists.
         // MySQL/MariaDB ignore uniqueness constraints on NULL column values (version),
         // so if we're not careful, we can wind up with lots of unversioned triggers
         // for the same triggerable asset (achievement).
-        if (!$versioned) {
+        if (!$shouldKeepVersion) {
             $currentTrigger = $triggerable->triggers()->unversioned()->first();
 
             if (!$currentTrigger && $triggerable->triggers()->unversioned()->exists()) {
@@ -46,7 +44,7 @@ class UpsertTriggerVersionAction
             if ($currentTrigger) {
                 $currentTrigger->update([
                     'conditions' => $conditions,
-                    'user_id' => $userId,
+                    'user_id' => $user->id,
                 ]);
                 $triggerable->update(['trigger_id' => $currentTrigger->id]);
 
@@ -57,7 +55,7 @@ class UpsertTriggerVersionAction
             $trigger = $triggerable->trigger()->save(new Trigger([
                 'conditions' => $conditions,
                 'version' => null,
-                'user_id' => $userId,
+                'user_id' => $user->id,
             ]));
             $triggerable->update(['trigger_id' => $trigger->id]);
 
@@ -76,11 +74,11 @@ class UpsertTriggerVersionAction
         // If conditions haven't changed and we're converting unversioned -> versioned,
         // just update the trigger's version in-place.
         if ($currentTrigger && $currentTrigger->conditions === $conditions) {
-            // If conditiosn match and it's unversioned, convert to version 1.
+            // If conditions match and it's unversioned, convert to version 1.
             if ($currentTrigger->version === null) {
                 $currentTrigger->update([
                     'version' => 1,
-                    'user_id' => $userId,
+                    'user_id' => $user->id,
                 ]);
                 $triggerable->update(['trigger_id' => $currentTrigger->id]);
             }
@@ -88,76 +86,17 @@ class UpsertTriggerVersionAction
             return $currentTrigger;
         }
 
+        $latestVersion = $triggerable->triggers()->whereNotNull('version')->max('version') ?? 0;
+
         // If we ultimately made it here, create a new versioned trigger.
         $trigger = $triggerable->trigger()->save(new Trigger([
             'conditions' => $conditions,
-            'version' => ($currentTrigger->version ?? 0) + 1,
+            'version' => $latestVersion + 1,
             'parent_id' => $currentTrigger?->id,
-            'user_id' => $userId,
+            'user_id' => $user->id,
         ]));
         $triggerable->update(['trigger_id' => $trigger->id]);
 
         return $trigger;
-    }
-
-    private function findLastEditor(Model $triggerable): ?User
-    {
-        if ($triggerable instanceof Game) {
-            $lastRichPresenceEdit = $triggerable->modificationsComments()
-                ->automated()
-                ->whereRaw("LOWER(Payload) LIKE '%changed the rich presence%'")
-                ->latest('Submitted')
-                ->first();
-
-            if ($lastRichPresenceEdit) {
-                $username = explode(' ', $lastRichPresenceEdit->Payload)[0];
-
-                return $this->findUserByName($username);
-            }
-
-            return null;
-        }
-
-        if ($triggerable instanceof Leaderboard) {
-            $lastLeaderboardEdit = $triggerable->comments()
-                ->automated()
-                ->whereRaw("LOWER(Payload) LIKE '% edited this leaderboard%'")
-                ->latest('Submitted')
-                ->first();
-
-            if ($lastLeaderboardEdit) {
-                $username = explode(' ', $lastLeaderboardEdit->Payload)[0];
-
-                return $this->findUserByName($username);
-            }
-
-            return User::find($triggerable->author_id);
-        }
-
-        if ($triggerable instanceof Achievement) {
-            $lastLogicEdit = $triggerable->comments()
-                ->automated()
-                ->whereRaw("LOWER(Payload) LIKE '% edited%logic%'")
-                ->latest('Submitted')
-                ->first();
-
-            if ($lastLogicEdit) {
-                $username = explode(' ', $lastLogicEdit->Payload)[0];
-
-                return $this->findUserByName($username);
-            }
-
-            return User::find($triggerable->user_id) ?? null;
-        }
-
-        return null;
-    }
-
-    private function findUserByName(string $name): ?User
-    {
-        return User::withTrashed()
-            ->where('display_name', $name)
-            ->orWhere('User', $name)
-            ->first();
     }
 }

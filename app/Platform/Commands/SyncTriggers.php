@@ -8,9 +8,11 @@ use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\Trigger;
+use App\Models\User;
 use App\Platform\Actions\UpsertTriggerVersionAction;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class SyncTriggers extends Command
@@ -38,13 +40,12 @@ class SyncTriggers extends Command
 
     private function syncAchievementTriggers(): void
     {
-        $achievementCount = Achievement::whereNotNull('MemAddr')->count();
+        $achievementCount = Achievement::count();
         $this->info("Syncing triggers for {$achievementCount} achievements...");
 
         $progressBar = $this->output->createProgressBar($achievementCount);
 
         Achievement::query()
-            ->where('MemAddr', '!=', '')
             ->with(['comments' => function ($query) {
                 $query->automated()
                     ->whereRaw("LOWER(Payload) LIKE '% edited%logic%'")
@@ -53,10 +54,13 @@ class SyncTriggers extends Command
             }])
             ->chunk(1000, function ($achievements) use ($progressBar) {
                 foreach ($achievements as $achievement) {
+                    $lastEditor = $this->findLastEditor($achievement);
+
                     $newTrigger = (new UpsertTriggerVersionAction())->execute(
                         $achievement,
                         $achievement->MemAddr,
                         versioned: $achievement->Flags === AchievementFlag::OfficialCore->value,
+                        user: $lastEditor,
                     );
 
                     // Try our best to backdate the new trigger's timestamps.
@@ -99,10 +103,13 @@ class SyncTriggers extends Command
             }])
             ->chunk(1000, function ($leaderboards) use ($progressBar) {
                 foreach ($leaderboards as $leaderboard) {
+                    $lastEditor = $this->findLastEditor($leaderboard);
+
                     $newTrigger = (new UpsertTriggerVersionAction())->execute(
                         $leaderboard,
                         $leaderboard->Mem,
                         versioned: true,
+                        user: $lastEditor,
                     );
 
                     // Try our best to backdate the new trigger's timestamps.
@@ -156,19 +163,26 @@ class SyncTriggers extends Command
                     ->latest('Submitted')
                     ->limit(1);
             }])
-           ->chunk(1000, function ($games) use ($progressBar) {
-               foreach ($games as $game) {
-                   $newTrigger = (new UpsertTriggerVersionAction())->execute(
-                       $game,
-                       $game->RichPresencePatch,
-                       versioned: true
-                   );
+            ->chunk(1000, function ($games) use ($progressBar) {
+                foreach ($games as $game) {
+                    $lastEditor = $this->findLastEditor($game);
+
+                    $newTrigger = (new UpsertTriggerVersionAction())->execute(
+                        $game,
+                        $game->RichPresencePatch,
+                        versioned: true,
+                        user: $lastEditor,
+                    );
 
                     // Try our best to backdate the new trigger's timestamps.
                     if ($newTrigger) {
                         // When RP is edited, a comment is left. Use that comment's submitted
-                        // date, otherwise we just have to fall back to the current date.
-                        $timestamp = $game->modificationsComments->first()?->Submitted ?? now();
+                        // date, otherwise fall back to various dates of increasingly lesser precision.
+                        $timestamp =
+                            $game->modificationsComments->first()?->Submitted
+                            ?? $game->achievements()->min('DateCreated')
+                            ?? $game->Created
+                            ?? $game->Updated;
 
                         $newTrigger->timestamps = false;
                         $newTrigger->update([
@@ -178,12 +192,73 @@ class SyncTriggers extends Command
                     }
 
                    $progressBar->advance();
-               }
-           });
+                }
+            });
 
-       $progressBar->finish();
-       $this->newLine();
-       $this->info('Done syncing triggers for rich presence scripts.');
+        $progressBar->finish();
+        $this->newLine();
+        $this->info('Done syncing triggers for rich presence scripts.');
+    }
+
+    private function findLastEditor(Model $triggerable): ?User
+    {
+        if ($triggerable instanceof Game) {
+            $lastRichPresenceEdit = $triggerable->modificationsComments()
+                ->automated()
+                ->whereRaw("LOWER(Payload) LIKE '%changed the rich presence%'")
+                ->latest('Submitted')
+                ->first();
+
+            if ($lastRichPresenceEdit) {
+                $username = explode(' ', $lastRichPresenceEdit->Payload)[0];
+
+                return $this->findUserByName($username);
+            }
+
+            return null;
+        }
+
+        if ($triggerable instanceof Leaderboard) {
+            $lastLeaderboardEdit = $triggerable->comments()
+                ->automated()
+                ->whereRaw("LOWER(Payload) LIKE '% edited this leaderboard%'")
+                ->latest('Submitted')
+                ->first();
+
+            if ($lastLeaderboardEdit) {
+                $username = explode(' ', $lastLeaderboardEdit->Payload)[0];
+
+                return $this->findUserByName($username);
+            }
+
+            return User::find($triggerable->author_id);
+        }
+
+        if ($triggerable instanceof Achievement) {
+            $lastLogicEdit = $triggerable->comments()
+                ->automated()
+                ->whereRaw("LOWER(Payload) LIKE '% edited%logic%'")
+                ->latest('Submitted')
+                ->first();
+
+            if ($lastLogicEdit) {
+                $username = explode(' ', $lastLogicEdit->Payload)[0];
+
+                return $this->findUserByName($username);
+            }
+
+            return User::find($triggerable->user_id) ?? null;
+        }
+
+        return null;
+    }
+
+    private function findUserByName(string $name): ?User
+    {
+        return User::withTrashed()
+            ->where('display_name', $name)
+            ->orWhere('User', $name)
+            ->first();
     }
 
     private function wipeAllTriggersData(): void
