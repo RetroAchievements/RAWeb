@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\EventResource\Pages;
 
+use App\Filament\Actions\ProcessUploadedImageAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\EventResource;
-use App\Filament\Resources\NewsResource\Actions\ProcessUploadedImageAction;
 use Filament\Resources\Pages\EditRecord;
 
 class Edit extends EditRecord
