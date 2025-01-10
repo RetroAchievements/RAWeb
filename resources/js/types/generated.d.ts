@@ -438,6 +438,24 @@ declare namespace App.Platform.Data {
     forumTopicId?: number | null;
     hasMatureContent?: boolean;
   };
+  export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
+    paginatedGameListEntries: App.Data.PaginatedData<TItems>;
+    persistenceCookieName: string;
+    persistedViewPreferences: Record<string, any> | null;
+    defaultDesktopPageSize: number;
+  };
+  export type GameSuggestionContext = {
+    relatedGame: App.Platform.Data.Game | null;
+    relatedGameSet: App.Platform.Data.GameSet | null;
+    relatedAuthor: App.Data.User | null;
+  };
+  export type GameSuggestionEntry = {
+    suggestionReason: App.Platform.Enums.GameSuggestionReason;
+    relatedGameContext: App.Platform.Data.GameSuggestionContext | null;
+    game: App.Platform.Data.Game;
+    playerGame: App.Platform.Data.PlayerGame | null;
+    isInBacklog: boolean | null;
+  };
   export type GameTopAchiever = {
     rank: number;
     user: App.Data.User;
@@ -579,6 +597,7 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
+  export type UnlockMode = 0 | 1;
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
   export type AchievementFlag = 3 | 5;
   export type AchievementSetAuthorTask = 'artwork';
@@ -615,8 +634,15 @@ declare namespace App.Platform.Enums {
     | 'numVisibleLeaderboards'
     | 'numUnresolvedTickets'
     | 'progress';
-  export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
-  export type UnlockMode = 0 | 1;
   export type GameSetType = 'hub' | 'similar-games';
+  export type GameSuggestionReason =
+    | 'common-players'
+    | 'random'
+    | 'revised'
+    | 'shared-author'
+    | 'shared-hub'
+    | 'similar-game'
+    | 'want-to-play';
+  export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 }
