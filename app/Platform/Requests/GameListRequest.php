@@ -103,13 +103,18 @@ class GameListRequest extends FormRequest
             }
         }
 
-        // If we still don't have a sort param, fall back to sorting by title.
-        $sortParam ??= $defaultSortField->value;
-
-        $sortDirection = $isDefaultSortAsc ? 'asc' : 'desc';
-        if (str_starts_with($sortParam, '-')) {
-            $sortDirection = 'desc';
-            $sortParam = ltrim($sortParam, '-');
+        // If we still don't have a sort param, fall back to sorting by the default sort column.
+        $sortDirection = 'asc';
+        if ($sortParam === null) {
+            $sortParam = $defaultSortField->value;
+            $sortDirection = $isDefaultSortAsc ? 'asc' : 'desc';
+        } else {
+            // For explicit sort params, default to ascending unless prefixed with '-'.
+            $sortDirection = 'asc';
+            if (str_starts_with($sortParam, '-')) {
+                $sortDirection = 'desc';
+                $sortParam = ltrim($sortParam, '-');
+            }
         }
 
         /** @var GameListSortField $sortField */
