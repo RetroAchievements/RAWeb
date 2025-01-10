@@ -123,7 +123,9 @@ function getRecentlyPlayedGames(User $user, int $offset, int $count, ?array &$da
             'ImageTitle' => $playerGame->game->ImageTitle,
             'ImageIngame' => $playerGame->game->ImageIngame,
             'ImageBoxArt' => $playerGame->game->ImageBoxArt,
-            'LastPlayed' => $playerGame->last_played_at->format("Y-m-d H:i:s"),
+            'LastPlayed' => $playerGame->last_played_at
+                ? $playerGame->last_played_at->format("Y-m-d H:i:s")
+                : null,
             'AchievementsTotal' => $playerGame->game->achievements_published,
         ];
     }
