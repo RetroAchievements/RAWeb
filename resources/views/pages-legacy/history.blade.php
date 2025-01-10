@@ -8,7 +8,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 $userPage = requestInputSanitized('u', $user);
 $userDetails = User::whereName($userPage)->first();
 
-$userPage = $userDetails->display_name;
+$userPage = $userDetails?->display_name ?? $userDetails->username;
 
 if (!isset($userPage) || !$userDetails) {
     abort(404);

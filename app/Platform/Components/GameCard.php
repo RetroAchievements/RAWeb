@@ -92,7 +92,7 @@ class GameCard extends Component
             $processedClaims = [];
             foreach ($foundClaims as $foundClaim) {
                 $processedClaim = $foundClaim->toArray();
-                $processedClaim['User'] = $foundClaim->user->username;
+                $processedClaim['User'] = $foundClaim->user->display_name;
 
                 $processedClaims[] = $processedClaim;
             }
