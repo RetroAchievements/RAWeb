@@ -138,8 +138,6 @@ class RouteServiceProvider extends ServiceProvider
                     Route::post('ticket', [TriggerTicketApiController::class, 'store'])->name('api.ticket.store');
                 });
 
-                Route::resource('game-hash', GameHashController::class)->parameters(['game-hash' => 'gameHash'])->only(['update', 'destroy']);
-
                 Route::get('games/resettable', [PlayerGameController::class, 'resettableGames'])->name('player.games.resettable');
                 Route::get('game/{game}/achievements/resettable', [PlayerGameController::class, 'resettableGameAchievements'])->name('player.game.achievements.resettable');
 
