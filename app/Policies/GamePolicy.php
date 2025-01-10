@@ -142,6 +142,29 @@ class GamePolicy
         ]);
     }
 
+    public function viewDeveloperInterest(User $user, Game $game): bool
+    {
+        $hasActivePrimaryClaim = $user->loadMissing('achievementSetClaims')
+            ->achievementSetClaims()
+            ->whereGameId($game->id)
+            ->primaryClaim()
+            ->active()
+            ->exists();
+
+        // Devs and JrDevs can see the page, but they need to have an
+        // active primary claim first. Collaborators for the game
+        // cannot open the page.
+        if ($hasActivePrimaryClaim) {
+            return true;
+        }
+
+        // Mods and admins can see everything.
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+        ]);
+    }
+
     private function canDeveloperJuniorUpdateGame(User $user, Game $game): bool
     {
         // If the user has a DEVELOPER_JUNIOR role, they need to have a claim

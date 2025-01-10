@@ -61,7 +61,7 @@ use App\Platform\Enums\AchievementFlag;
                                 @endif
                             </td>
                         @else
-                            <td class='text-muted'>{{ PlayerGameActivitySessionType::toString($session['type']) }}</td>
+                            <td class='text-muted'>{{ $session['type']->label() }}</td>
                         @endif
                     </tr>
 

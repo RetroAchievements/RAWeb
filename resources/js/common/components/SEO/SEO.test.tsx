@@ -42,7 +42,7 @@ describe('Component: SEO', () => {
 
     expect(ogTitle?.getAttribute('content')).toEqual('Test Title');
     expect(ogType?.getAttribute('content')).toEqual('website');
-    expect(twitterCard?.getAttribute('content')).toEqual('summary_large_image');
+    expect(twitterCard?.getAttribute('content')).toEqual('summary');
   });
 
   it('given a custom canonical URL, uses it instead of the constructed one', () => {

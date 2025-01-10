@@ -56,13 +56,6 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "developer.feed": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        }
-    ],
     "developer.claims": [
         {
             "name": "user",
@@ -75,18 +68,6 @@ declare module 'ziggy-js' {
             "name": "user",
             "required": true,
             "binding": "User"
-        }
-    ],
-    "user.game.activity": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        },
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
         }
     ],
     "game.compare-unlocks": [
@@ -116,13 +97,6 @@ declare module 'ziggy-js' {
         }
     ],
     "game.tickets": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
-    "game.dev-interest": [
         {
             "name": "game",
             "required": true,
@@ -191,6 +165,13 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.dev-interest": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.hashes.index": [
         {
             "name": "game",
@@ -205,7 +186,15 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.suggestions.similar": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.index": [],
+    "game.suggestions.personalized": [],
     "hub.show": [
         {
             "name": "gameSet",
@@ -217,6 +206,18 @@ declare module 'ziggy-js' {
     "system.game.index": [
         {
             "name": "system",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "user.game.activity.show": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        },
+        {
+            "name": "game",
             "required": true,
             "binding": "ID"
         }
@@ -506,6 +507,13 @@ declare module 'ziggy-js' {
         }
     ],
     "user.comment.index": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
+    "user.achievement-author.feed": [
         {
             "name": "user",
             "required": true,

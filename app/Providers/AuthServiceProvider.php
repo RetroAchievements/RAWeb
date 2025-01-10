@@ -40,6 +40,7 @@ class AuthServiceProvider extends ServiceProvider
             Role::RELEASE_MANAGER,
             Role::TICKET_MANAGER,
             Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
             Role::ARTIST,
             Role::WRITER,
             Role::GAME_EDITOR,
