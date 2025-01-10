@@ -26,6 +26,7 @@ class LoginTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
+            'display_name' => 'MyDisplayName',
             'appToken' => Str::random(16),
             'Password' => Hash::make($password),
             'Permissions' => Permissions::JuniorDeveloper,

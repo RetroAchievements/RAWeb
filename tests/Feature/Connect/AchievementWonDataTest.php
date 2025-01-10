@@ -61,6 +61,9 @@ class AchievementWonDataTest extends TestCase
                 $this->addSoftcoreUnlock($user, $achievement2, $now);
             }
 
+            $user->display_name = $user->username;
+            $user->save();
+
             // 1 and 13 will have only unlocked achievement2
             // 5,9,17 will not have unlocked either
         }
@@ -78,11 +81,11 @@ class AchievementWonDataTest extends TestCase
                     'GameID' => $game->ID,
                     'TotalPlayers' => 16,
                     'RecentWinner' => [
-                        ['User' => $users[19]->User, 'RAPoints' => $users[19]->RAPoints, 'DateAwarded' => $unlocks[19]],
-                        ['User' => $users[18]->User, 'RAPoints' => $users[18]->RAPoints, 'DateAwarded' => $unlocks[18]],
-                        ['User' => $users[16]->User, 'RAPoints' => $users[16]->RAPoints, 'DateAwarded' => $unlocks[16]],
-                        ['User' => $users[15]->User, 'RAPoints' => $users[15]->RAPoints, 'DateAwarded' => $unlocks[15]],
-                        ['User' => $users[14]->User, 'RAPoints' => $users[14]->RAPoints, 'DateAwarded' => $unlocks[14]],
+                        ['User' => $users[19]->User, 'DisplayName' => $users[19]->display_name, 'RAPoints' => $users[19]->RAPoints, 'DateAwarded' => $unlocks[19]],
+                        ['User' => $users[18]->User, 'DisplayName' => $users[18]->display_name, 'RAPoints' => $users[18]->RAPoints, 'DateAwarded' => $unlocks[18]],
+                        ['User' => $users[16]->User, 'DisplayName' => $users[16]->display_name, 'RAPoints' => $users[16]->RAPoints, 'DateAwarded' => $unlocks[16]],
+                        ['User' => $users[15]->User, 'DisplayName' => $users[15]->display_name, 'RAPoints' => $users[15]->RAPoints, 'DateAwarded' => $unlocks[15]],
+                        ['User' => $users[14]->User, 'DisplayName' => $users[14]->display_name, 'RAPoints' => $users[14]->RAPoints, 'DateAwarded' => $unlocks[14]],
                     ],
                 ],
             ]);
@@ -100,8 +103,8 @@ class AchievementWonDataTest extends TestCase
                     'GameID' => $game->ID,
                     'TotalPlayers' => 16,
                     'RecentWinner' => [
-                        ['User' => $users[3]->User, 'RAPoints' => $users[3]->RAPoints, 'DateAwarded' => $unlocks[3]],
-                        ['User' => $users[2]->User, 'RAPoints' => $users[2]->RAPoints, 'DateAwarded' => $unlocks[2]],
+                        ['User' => $users[3]->User, 'DisplayName' => $users[3]->display_name, 'RAPoints' => $users[3]->RAPoints, 'DateAwarded' => $unlocks[3]],
+                        ['User' => $users[2]->User, 'DisplayName' => $users[2]->display_name, 'RAPoints' => $users[2]->RAPoints, 'DateAwarded' => $unlocks[2]],
                     ],
                 ],
             ]);
@@ -119,10 +122,10 @@ class AchievementWonDataTest extends TestCase
                     'GameID' => $game->ID,
                     'TotalPlayers' => 16,
                     'RecentWinner' => [
-                        ['User' => $users[10]->User, 'RAPoints' => $users[10]->RAPoints, 'DateAwarded' => $unlocks[10]],
-                        ['User' => $users[7]->User, 'RAPoints' => $users[7]->RAPoints, 'DateAwarded' => $unlocks[7]],
-                        ['User' => $users[4]->User, 'RAPoints' => $users[4]->RAPoints, 'DateAwarded' => $unlocks[4]],
-                        ['User' => $users[1]->User, 'RAPoints' => $users[1]->RAPoints, 'DateAwarded' => $unlocks[1]],
+                        ['User' => $users[10]->User, 'DisplayName' => $users[10]->display_name, 'RAPoints' => $users[10]->RAPoints, 'DateAwarded' => $unlocks[10]],
+                        ['User' => $users[7]->User, 'DisplayName' => $users[7]->display_name, 'RAPoints' => $users[7]->RAPoints, 'DateAwarded' => $unlocks[7]],
+                        ['User' => $users[4]->User, 'DisplayName' => $users[4]->display_name, 'RAPoints' => $users[4]->RAPoints, 'DateAwarded' => $unlocks[4]],
+                        ['User' => $users[1]->User, 'DisplayName' => $users[1]->display_name, 'RAPoints' => $users[1]->RAPoints, 'DateAwarded' => $unlocks[1]],
                     ],
                 ],
             ]);
@@ -185,8 +188,8 @@ class AchievementWonDataTest extends TestCase
                     'GameID' => $game->ID,
                     'TotalPlayers' => 16,
                     'RecentWinner' => [
-                        ['User' => $users[10]->User, 'RAPoints' => $users[10]->RAPoints, 'DateAwarded' => $unlocks[10]],
-                        ['User' => $users[4]->User, 'RAPoints' => $users[4]->RAPoints, 'DateAwarded' => $unlocks[4]],
+                        ['User' => $users[10]->User, 'DisplayName' => $users[10]->display_name, 'RAPoints' => $users[10]->RAPoints, 'DateAwarded' => $unlocks[10]],
+                        ['User' => $users[4]->User, 'DisplayName' => $users[4]->display_name, 'RAPoints' => $users[4]->RAPoints, 'DateAwarded' => $unlocks[4]],
                         // $users[1] is not their own friend, so won't be in the list
                     ],
                 ],

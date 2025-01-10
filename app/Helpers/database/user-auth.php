@@ -223,12 +223,12 @@ function authenticateFromAppToken(
     /** @var ?User $user */
     $user = auth('connect-token')->user();
 
-    $doesUsernameMatch = (
+    $doesUsernameMatch = $user && (
         strcasecmp($user->User, $userOut) == 0
         || strcasecmp($user->display_name, $userOut) == 0
     );
 
-    if (!$user || !$doesUsernameMatch) {
+    if (!$doesUsernameMatch) {
         return false;
     }
 
