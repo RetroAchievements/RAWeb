@@ -59,6 +59,7 @@ $gameTitleRaw = $dataOut['GameTitle'];
 
 $game = Game::find($dataOut['GameID']);
 $parentGame = $game->getParentGame() ?? null;
+$isEventGame = $game->ConsoleID === System::Events;
 
 sanitize_outputs(
     $achievementTitle,
@@ -209,7 +210,7 @@ if ($game->system->id === System::Events) {
     </script>
 <?php endif ?>
 
-<?php if ($achievedLocal): ?>
+<?php if ($achievedLocal && !$isEventGame): ?>
     <script>
     function ResetProgress() {
         if (confirm('Are you sure you want to reset this progress?')) {
@@ -287,7 +288,7 @@ if ($game->system->id === System::Events) {
         echo "</p>";
     }
 
-    if ($achievedLocal) {
+    if ($achievedLocal && !$isEventGame) {
         echo "<div class='devbox mb-3'>";
         echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress ▼</span>";
         echo "<div id='resetboxcontent' style='display: none'>";
@@ -296,7 +297,7 @@ if ($game->system->id === System::Events) {
     }
     echo "<br>";
 
-    if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
+    if (isset($user) && $permissions >= Permissions::JuniorDeveloper && !$isEventGame) {
         echo "<div class='devbox mb-3'>";
         echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
         echo "<div id='devboxcontent' style='display: none'>";
@@ -441,11 +442,13 @@ if ($game->system->id === System::Events) {
         echo "</div>";
     }
 
-    echo "<div class='mb-4'>";
-        echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
-            ['articleType' => ArticleType::Achievement, 'articleId' => $achievementID]
-        );
-    echo "</div>";
+    if (!$isEventGame) {
+        echo "<div class='mb-4'>";
+            echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
+                ['articleType' => ArticleType::Achievement, 'articleId' => $achievementID]
+            );
+        echo "</div>";
+    }
 
     echo "</div>"; // achievement
 
@@ -483,7 +486,9 @@ if ($game->system->id === System::Events) {
     }
     ?>
     </div>
+    @if (!$isEventGame)
     <x-slot name="sidebar">
         <x-game.leaderboards-listing :game="$game" />
     </x-slot>
+    @endif
 </x-app-layout>

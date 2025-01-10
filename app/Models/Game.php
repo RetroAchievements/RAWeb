@@ -627,7 +627,6 @@ class Game extends BaseModel implements HasMedia
     public function gameSets(): BelongsToMany
     {
         return $this->belongsToMany(GameSet::class, 'game_set_games', 'game_id', 'game_set_id')
-            ->withTimestamps()
             ->withPivot('created_at', 'updated_at', 'deleted_at');
     }
 
@@ -677,6 +676,14 @@ class Game extends BaseModel implements HasMedia
     public function unresolvedTickets(): HasManyThrough
     {
         return $this->tickets()->unresolved();
+    }
+
+    /**
+     * @return HasOne<Event>
+     */
+    public function event(): HasOne
+    {
+        return $this->hasOne(Event::class, 'legacy_game_id');
     }
 
     // == scopes

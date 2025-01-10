@@ -1,9 +1,17 @@
 declare namespace App.Community.Data {
+  export type AchievementChecklistPageProps = {
+    player: App.Data.User;
+    groups: Array<App.Community.Data.AchievementGroup>;
+  };
   export type AchievementCommentsPageProps<TItems = App.Community.Data.Comment> = {
     achievement: App.Platform.Data.Achievement;
     paginatedComments: App.Data.PaginatedData<TItems>;
     isSubscribed: boolean;
     canComment: boolean;
+  };
+  export type AchievementGroup = {
+    header: string;
+    achievements: Array<App.Platform.Data.Achievement>;
   };
   export type ActivePlayer = {
     user: App.Data.User;
