@@ -18,6 +18,9 @@ use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class EventResource extends Resource
 {
@@ -30,7 +33,12 @@ class EventResource extends Resource
     protected static ?string $navigationGroup = 'Platform';
     protected static ?string $navigationLabel = 'Events';
     protected static ?int $navigationSort = 55;
-    protected static ?string $recordTitleAttribute = 'title';
+    protected static ?string $recordTitleAttribute = 'game.title';
+
+    public static function getRecordTitle(?Model $record): string|Htmlable|null
+    {
+        return $record->game->title ?? '';
+    }
 
     public static function infolist(Infolist $infolist): Infolist
     {
@@ -254,5 +262,14 @@ class EventResource extends Resource
             'edit' => Pages\Edit::route('/{record}/edit'),
             'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),
         ];
+    }
+
+    /**
+     * @return Builder<Event>
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with(['game']);
     }
 }
