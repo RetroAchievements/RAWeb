@@ -223,11 +223,16 @@ function authenticateFromAppToken(
     /** @var ?User $user */
     $user = auth('connect-token')->user();
 
-    if (!$user || strcasecmp($user->User, $userOut) != 0) {
+    $doesUsernameMatch = (
+        strcasecmp($user->User, $userOut) == 0
+        || strcasecmp($user->display_name, $userOut) == 0
+    );
+
+    if (!$user || !$doesUsernameMatch) {
         return false;
     }
 
-    $userOut = $user->User;
+    $userOut = $user->User; // always normalize to the username field
     $permissionOut = $user->Permissions;
 
     return true;

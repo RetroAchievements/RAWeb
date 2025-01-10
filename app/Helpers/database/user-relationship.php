@@ -78,7 +78,8 @@ function GetFriendList(User $user): array
         ->get()
         ->map(function ($friend) {
             return [
-                'Friend' => $friend->User,
+                'Friend' => $friend->username,
+                'DisplayName' => $friend->display_name,
                 'RAPoints' => $friend->points,
                 'LastSeen' => empty($friend->RichPresenceMsg) ? 'Unknown' : strip_tags($friend->RichPresenceMsg),
                 'ID' => $friend->id,
