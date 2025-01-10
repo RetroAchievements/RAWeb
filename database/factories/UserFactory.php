@@ -30,7 +30,6 @@ class UserFactory extends Factory
         return [
             // required
             'User' => $this->fakeUsername(),
-            'display_name' => $this->fakeUsername(),
             'EmailAddress' => fake()->unique()->safeEmail,
             'email_verified_at' => now(),
             'Permissions' => Permissions::Registered,
