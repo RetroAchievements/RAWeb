@@ -177,7 +177,7 @@ class SyncTriggers extends Command
                     // Try our best to backdate the new trigger's timestamps.
                     if ($newTrigger) {
                         // When RP is edited, a comment is left. Use that comment's submitted
-                        // date, otherwise fall back to various dates of increasingly lesser precision.
+                        // date, otherwise fall back to various dates of decreasing precision.
                         $timestamp =
                             $game->modificationsComments->first()?->Submitted
                             ?? $game->achievements()->min('DateCreated')
