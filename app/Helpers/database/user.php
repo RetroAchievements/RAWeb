@@ -105,7 +105,7 @@ function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchi
     $libraryOut['Rank'] = getUserRank($user->User);
 
     $recentlyPlayedData = [];
-    $libraryOut['RecentlyPlayedCount'] = getRecentlyPlayedGames($user->User, 0, $numGames, $recentlyPlayedData);
+    $libraryOut['RecentlyPlayedCount'] = getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData);
     $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
 
     if ($libraryOut['RecentlyPlayedCount'] > 0) {

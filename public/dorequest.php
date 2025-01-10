@@ -4,6 +4,7 @@ use App\Community\Enums\ActivityType;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
+use App\Connect\Actions\ResolveRootGameIdAction;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
@@ -330,6 +331,12 @@ switch ($requestType) {
                 if ($gameHash?->isMultiDiscGameHash()) {
                     $gameHash = null;
                 }
+            }
+
+            // If multiset is enabled, resolve the root game ID.
+            if (config('feature.enable_multiset')) {
+                $rootGameId = (new ResolveRootGameIdAction())->execute($gameHash, $game, $user);
+                $game = Game::find($rootGameId);
             }
 
             PlayerSessionHeartbeat::dispatch($user, $game, $activityMessage, $gameHash);

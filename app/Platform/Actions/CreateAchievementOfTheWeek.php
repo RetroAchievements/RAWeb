@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Achievement;
+use App\Models\Event;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\System;
@@ -24,17 +25,29 @@ class CreateAchievementOfTheWeek
 
         $eventTitle = "Achievement of the Week $year";
 
-        $event = Game::firstWhere('Title', '=', $eventTitle);
-        if (!$event) {
-            $event = Game::create([
+        $eventGame = Game::firstWhere('Title', '=', $eventTitle);
+        if (!$eventGame) {
+            $eventGame = Game::create([
                 'Title' => $eventTitle,
                 'sort_title' => (new ComputeGameSortTitleAction())->execute($eventTitle),
                 'Publisher' => 'RetroAchievements',
                 'ConsoleID' => System::Events,
             ]);
+
+            $nextDate = $startDate->clone()->addWeeks(52);
+            while ($nextDate->year === $date->year) {
+                $nextDate = $nextDate->addDays(7);
+            }
+
+            Event::create([
+                'legacy_game_id' => $eventGame->ID,
+                'slug' => "aotw-$year",
+                'active_from' => $startDate,
+                'active_until' => $nextDate,
+            ]);
         }
 
-        $achievementCount = $event->achievements()->count();
+        $achievementCount = $eventGame->achievements()->count();
         while ($achievementCount < 52) {
             $achievementCount++;
             $achievement = Achievement::create([
@@ -42,14 +55,14 @@ class CreateAchievementOfTheWeek
                 'Description' => 'TBD',
                 'MemAddr' => '0=1',
                 'Flags' => AchievementFlag::OfficialCore->value,
-                'GameID' => $event->id,
+                'GameID' => $eventGame->id,
                 'user_id' => EventAchievement::RAEVENTS_USER_ID,
                 'BadgeName' => '00000',
                 'DisplayOrder' => $achievementCount,
             ]);
         }
 
-        $achievements = $event->achievements()->orderBy('DisplayOrder')->get();
+        $achievements = $eventGame->achievements()->orderBy('DisplayOrder')->get();
 
         $index = 0;
         foreach ($achievementIds as $achievementId) {
@@ -73,7 +86,7 @@ class CreateAchievementOfTheWeek
                 'Description' => 'TBD',
                 'MemAddr' => '0=1',
                 'Flags' => AchievementFlag::OfficialCore->value,
-                'GameID' => $event->id,
+                'GameID' => $eventGame->id,
                 'user_id' => EventAchievement::RAEVENTS_USER_ID,
                 'BadgeName' => '00000',
                 'DisplayOrder' => $achievementCount,
@@ -97,9 +110,9 @@ class CreateAchievementOfTheWeek
         }
 
         // update metrics and sync to game_achievement_set
-        dispatch(new UpdateGameMetricsJob($event->id))->onQueue('game-metrics');
+        dispatch(new UpdateGameMetricsJob($eventGame->id))->onQueue('game-metrics');
 
-        return $event;
+        return $eventGame;
     }
 
     /**
