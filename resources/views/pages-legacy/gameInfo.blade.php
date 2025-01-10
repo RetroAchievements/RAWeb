@@ -594,7 +594,8 @@ if ($isFullyFeaturedGame) {
                 }
 
                 if ($permissions >= Permissions::Developer) {
-                    echo "<div><a class='btn btn-link' href='/game/$gameID/hashes/manage'>Manage Hashes</a></div>";
+                    $manageHashesHref = route('filament.admin.resources.games.hashes', ['record' => $gameID]);
+                    echo "<div><a class='btn btn-link' href='{$manageHashesHref}'>Manage Hashes</a></div>";
                 }
 
                 $primaryClaimUser = null;
@@ -921,9 +922,13 @@ if ($isFullyFeaturedGame) {
                         :numMissableAchievements="$gameMetaBindings['numMissableAchievements']"
                     />
                 <?php
-                RenderGameSort($isFullyFeaturedGame, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
+                RenderGameSort($gameModel->ConsoleID, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
                 echo "</div>";
             }
+        } elseif ($isEventGame) {
+            echo "<div class='justify-between w-full py-3'>";
+            RenderGameSort(System::Events, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
+            echo "</div>";
         }
 
         if ($isFullyFeaturedGame || $isEventGame) {

@@ -9,7 +9,6 @@ use App\Filament\Resources\GameResource\Pages;
 use App\Filament\Resources\GameResource\RelationManagers\AchievementSetsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\AchievementsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\CoreSetAuthorshipCreditsRelationManager;
-use App\Filament\Resources\GameResource\RelationManagers\GameHashesRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\LeaderboardsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\MemoryNotesRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
@@ -522,7 +521,6 @@ class GameResource extends Resource
             AchievementsRelationManager::class,
             AchievementSetsRelationManager::class,
             LeaderboardsRelationManager::class,
-            GameHashesRelationManager::class,
             MemoryNotesRelationManager::class,
             CoreSetAuthorshipCreditsRelationManager::class,
         ];
@@ -532,6 +530,7 @@ class GameResource extends Resource
     {
         return $page->generateNavigationItems([
             Pages\Details::class,
+            Pages\Hashes::class,
             Pages\AuditLog::class,
         ]);
     }
@@ -543,6 +542,7 @@ class GameResource extends Resource
             'create' => Pages\Create::route('/create'),
             'view' => Pages\Details::route('/{record}'),
             'edit' => Pages\Edit::route('/{record}/edit'),
+            'hashes' => Pages\Hashes::route('/{record}/hashes'),
             'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),
         ];
     }

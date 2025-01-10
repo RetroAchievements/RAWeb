@@ -16,6 +16,7 @@ use App\Platform\Actions\GetRandomGameAction;
 use App\Platform\Data\DeveloperInterestPagePropsData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameListPagePropsData;
+use App\Platform\Data\GameSuggestPagePropsData;
 use App\Platform\Data\SystemData;
 use App\Platform\Enums\GameListSortField;
 use App\Platform\Enums\GameListType;
@@ -187,5 +188,60 @@ class GameController extends Controller
         }
 
         return redirect()->route('game.show', ['game' => $randomGame]);
+    }
+
+    public function suggestPersonalized(GameListRequest $request): InertiaResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        abort_if(!$user, 404);
+
+        $persistenceCookieName = 'data_table_view_preference_suggest';
+        $request->setPersistenceCookieName($persistenceCookieName);
+
+        $paginatedData = (new BuildGameListAction())->execute(
+            GameListType::UserSpecificSuggestions,
+            user: $user,
+            perPage: 10,
+            page: 1,
+        );
+
+        $props = new GameSuggestPagePropsData(
+            paginatedGameListEntries: $paginatedData,
+            persistenceCookieName: $persistenceCookieName,
+            persistedViewPreferences: $request->getCookiePreferences(),
+        );
+
+        dump(json_encode($props, JSON_PRETTY_PRINT));
+
+        return Inertia::render('games/suggestions', $props);
+    }
+
+    public function suggestSimilar(GameListRequest $request, Game $game): InertiaResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        abort_if(!$user, 404);
+
+        $persistenceCookieName = 'data_table_view_preference_suggest';
+        $request->setPersistenceCookieName($persistenceCookieName);
+
+        $paginatedData = (new BuildGameListAction())->execute(
+            GameListType::GameSpecificSuggestions,
+            user: $user,
+            targetId: $game->id,
+            perPage: 10,
+            page: 1,
+        );
+
+        $props = new GameSuggestPagePropsData(
+            paginatedGameListEntries: $paginatedData,
+            persistenceCookieName: $persistenceCookieName,
+            persistedViewPreferences: $request->getCookiePreferences(),
+        );
+
+        dump(json_encode($props, JSON_PRETTY_PRINT));
+
+        return Inertia::render('game/[game]/suggestions', $props);
     }
 }
