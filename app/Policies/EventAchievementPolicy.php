@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\EventAchievement;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -15,7 +14,10 @@ class EventAchievementPolicy
 
     public function manage(User $user): bool
     {
-        return $user->hasRole(Role::EVENT_MANAGER);
+        return $user->hasAnyRole([
+            Role::EVENT_MANAGER,
+            Role::ADMINISTRATOR,
+        ]);
     }
 
     public function viewAny(?User $user): bool
@@ -23,23 +25,32 @@ class EventAchievementPolicy
         return true;
     }
 
-    public function view(?User $user, EventAchievement $eventAchievement): bool
+    public function view(?User $user): bool
     {
         return true;
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole(Role::EVENT_MANAGER);
+        return $user->hasAnyRole([
+            Role::EVENT_MANAGER,
+            Role::ADMINISTRATOR,
+        ]);
     }
 
-    public function update(User $user, EventAchievement $eventAchievement): bool
+    public function update(User $user): bool
     {
-        return $user->hasRole(Role::EVENT_MANAGER);
+        return $user->hasAnyRole([
+            Role::EVENT_MANAGER,
+            Role::ADMINISTRATOR,
+        ]);
     }
 
-    public function delete(User $user, EventAchievement $eventAchievement): bool
+    public function delete(User $user): bool
     {
-        return $user->hasRole(Role::EVENT_MANAGER);
+        return $user->hasAnyRole([
+            Role::EVENT_MANAGER,
+            Role::ADMINISTRATOR,
+        ]);
     }
 }

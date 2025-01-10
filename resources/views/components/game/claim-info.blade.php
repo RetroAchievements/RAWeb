@@ -21,12 +21,7 @@ use Illuminate\Support\Facades\DB;
 $expirationText = '';
 
 if (!$achievementSetClaims->isEmpty()) {
-    // TODO use a policy
-    if ($userPermissions >= Permissions::Moderator) {
-        $achievementSetClaims->load(['user', 'game', 'game.playerSessions', 'game.achievements', 'game.memoryNotes']);
-    } else {
-        $achievementSetClaims->load(['user', 'game']);
-    }
+    $achievementSetClaims->load(['user', 'game']);
 
     $firstClaim = $achievementSetClaims->first();
     $claimFormattedDate = $firstClaim->finished_at->format('d M Y, g:ia');
@@ -62,11 +57,10 @@ if ($userPermissions >= Permissions::Moderator) {
             continue;
         }
 
-        $playerGame = $achievementSetClaim->game
-            ->playerSessions
+        $playerGame = PlayerSession::where('game_id', $achievementSetClaim->game->id)
             ->where('user_id', $achievementSetClaim->user->id)
-            ->sortByDesc('updated_at')
-            ->first();
+            ->orderByDesc('updated_at')
+            ->first(['updated_at']);
 
         $activity = '';
         $lastPlayed = null;
@@ -76,20 +70,20 @@ if ($userPermissions >= Permissions::Moderator) {
             $activity = 'played this game';
         } else {
             // player_sessions only exist after 14 Oct 2023
-            $achievement = $achievementSetClaim->game->achievements
+            $achievement = Achievement::where('GameID', $achievementSetClaim->game->id)
                 ->where('user_id', $achievementSetClaim->user->id)
-                ->sortByDesc('Updated')
-                ->first();
+                ->orderByDesc('Updated')
+                ->first(['Updated as updated_at']);
 
             if ($achievement?->updated_at) {
                 $lastPlayed = $achievement->updated_at;
                 $activity = 'edited an achievement';
             }
 
-            $note = $achievementSetClaim->game->memoryNotes
+            $note = MemoryNote::where('game_id', $achievementSetClaim->game->id)
                 ->where('user_id', $achievementSetClaim->user->id)
-                ->sortByDesc('Updated')
-                ->first();
+                ->orderByDesc('updated_at')
+                ->first('updated_at');
 
             if ($note?->updated_at && (!$lastPlayed || $note->updated_at > $lastPlayed)) {
                 $lastPlayed = $note->updated_at;
