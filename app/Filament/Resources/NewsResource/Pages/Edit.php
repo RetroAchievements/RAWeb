@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\NewsResource\Pages;
 
+use App\Filament\Actions\ProcessUploadedImageAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\NewsResource;
-use App\Filament\Resources\NewsResource\Actions\ProcessUploadedImageAction;
 use App\Models\News;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
