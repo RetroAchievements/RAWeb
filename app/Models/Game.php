@@ -93,6 +93,10 @@ class Game extends BaseModel implements HasMedia
         'released_at',
         'released_at_granularity',
         'GuideURL',
+        'ImageIcon',
+        'ImageTitle',
+        'ImageIngame',
+        'ImageBoxArt',
     ];
 
     protected $casts = [
@@ -222,6 +226,9 @@ class Game extends BaseModel implements HasMedia
                 'Developer',
                 'Genre',
                 'ImageIcon',
+                'ImageBoxArt',
+                'ImageTitle',
+                'ImageIngame',
                 'released_at',
                 'released_at_granularity',
             ])

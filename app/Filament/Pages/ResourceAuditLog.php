@@ -142,6 +142,9 @@ abstract class ResourceAuditLog extends Page implements HasForms
             'BadgeName',
             'image_asset_path',
             'ImageIcon',
+            'ImageBoxArt',
+            'ImageTitle',
+            'ImageIngame',
         ]);
     }
 
