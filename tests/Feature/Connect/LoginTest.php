@@ -38,6 +38,7 @@ class LoginTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'User' => $user->User,
+                'DisplayName' => $user->display_name,
                 'Token' => $user->appToken,
                 'Score' => 12345,
                 'SoftcoreScore' => 4321,
@@ -57,6 +58,7 @@ class LoginTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'User' => $user->User,
+                'DisplayName' => $user->display_name,
                 'Token' => $user->appToken,
                 'Score' => 12345,
                 'SoftcoreScore' => 4321,
@@ -87,6 +89,7 @@ class LoginTest extends TestCase
         $response->assertStatus(200)->assertExactJson([
             'Success' => true,
             'User' => $user2->User,
+            'DisplayName' => $user2->display_name,
             'Token' => $data['appToken'],
             'Score' => 99999,
             'SoftcoreScore' => 99,
