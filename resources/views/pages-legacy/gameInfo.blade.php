@@ -21,6 +21,7 @@ use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\GameListService;
+use Carbon\Carbon;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {
@@ -926,7 +927,19 @@ if ($isFullyFeaturedGame) {
                 echo "</div>";
             }
         } elseif ($isEventGame) {
-            echo "<div class='justify-between w-full py-3'>";
+            $now = Carbon::now();
+            $hasActiveAchievements = $gameModel->event && $gameModel->event->achievements->contains(function ($value) use ($now) {
+                return $value->active_from <= $now && $value->active_until > $now;
+            });
+            if ($hasActiveAchievements) {
+                echo "<div class='flex flex-col sm:flex-row-reverse sm:items-end justify-between w-full py-3'>";
+                ?>
+                    <x-game.achievements-list-filters canShowHideInactiveAchievements="True" />
+                <?php
+            } else {
+                echo "<div class='justify-between w-full py-3'>";
+            }
+
             RenderGameSort(System::Events, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
             echo "</div>";
         }
