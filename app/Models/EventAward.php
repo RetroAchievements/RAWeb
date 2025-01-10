@@ -12,7 +12,7 @@ class EventAward extends BaseModel
     protected $table = 'event_awards';
 
     protected $fillable = [
-        'game_id',
+        'event_id',
         'tier_index',
         'label',
         'achievements_required',
@@ -31,11 +31,11 @@ class EventAward extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<Game, EventAward>
+     * @return BelongsTo<Event, EventAward>
      */
-    public function game(): BelongsTo
+    public function event(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'game_id', 'ID');
+        return $this->belongsTo(Event::class, 'event_id', 'id');
     }
 
     // == scopes
