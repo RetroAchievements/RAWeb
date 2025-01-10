@@ -627,7 +627,6 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     public function gameSets(): BelongsToMany
     {
         return $this->belongsToMany(GameSet::class, 'game_set_games', 'game_id', 'game_set_id')
-            ->withTimestamps()
             ->withPivot('created_at', 'updated_at', 'deleted_at');
     }
 
@@ -697,6 +696,14 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     {
         return $this->morphMany(Trigger::class, 'triggerable')
             ->orderBy('version');
+    }
+
+    /**
+     * @return HasOne<Event>
+     */
+    public function event(): HasOne
+    {
+        return $this->hasOne(Event::class, 'legacy_game_id');
     }
 
     // == scopes
