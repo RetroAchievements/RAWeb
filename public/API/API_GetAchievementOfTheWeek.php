@@ -96,7 +96,7 @@ if ($eventAchievement) {
 
     $playerAchievements = $eventAchievement->achievement->playerAchievements()
         ->with('user')
-        ->orderBy(DB::raw('IFNULL(unlocked_hardcore_at, unlocked_at)'))
+        ->orderByDesc(DB::raw('IFNULL(unlocked_hardcore_at, unlocked_at)')) // newest winners first
         ->limit(500)
         ->get();
     $numWinners = $playerAchievements->count();
@@ -108,6 +108,7 @@ if ($eventAchievement) {
             'RAPoints' => $playerAchievement->user->RAPoints,
             'RASoftcorePoints' => $playerAchievement->user->RASoftcorePoints,
             'HardcoreMode' => $playerAchievement->unlocked_hardcore_at !== null ? 1 : 0,
+            'DateAwarded' => $playerAchievement->unlocked_hardcore_at ?? $playerAchievement->unlocked_at,
         ];
 
         if ($playerAchievement->unlocked_hardcore_at !== null) {
@@ -134,7 +135,7 @@ if ($eventAchievement) {
         $unlocks = $unlocks->filter(fn ($unlock) => Carbon::parse($unlock['DateAwarded'])->gte($startAt));
     }
 
-    // reverse order so newest winners are last
+    // sort so newest winners are first
     $unlocks->sortByDesc('DateAwarded');
 }
 

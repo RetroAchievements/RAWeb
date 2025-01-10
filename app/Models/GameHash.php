@@ -50,11 +50,6 @@ class GameHash extends BaseModel
         'regions' => 'json',
     ];
 
-    public function getRouteKeyName(): string
-    {
-        return 'hash';
-    }
-
     // == logging
 
     public function getActivitylogOptions(): LogOptions

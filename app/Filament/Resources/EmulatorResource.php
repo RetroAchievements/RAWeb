@@ -48,7 +48,7 @@ class EmulatorResource extends Resource
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
-            'id' => $record->ID,
+            'id' => $record->id,
             'name' => $record->name,
         ];
     }

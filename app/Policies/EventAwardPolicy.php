@@ -15,7 +15,10 @@ class EventAwardPolicy
 
     public function manage(User $user): bool
     {
-        return $user->hasRole(Role::EVENT_MANAGER);
+        return $user->hasAnyRole([
+            Role::EVENT_MANAGER,
+            Role::ADMINISTRATOR,
+        ]);
     }
 
     public function viewAny(?User $user): bool
@@ -30,16 +33,25 @@ class EventAwardPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole(Role::EVENT_MANAGER);
+        return $user->hasAnyRole([
+            Role::EVENT_MANAGER,
+            Role::ADMINISTRATOR,
+        ]);
     }
 
     public function update(User $user, EventAward $eventAward): bool
     {
-        return $user->hasRole(Role::EVENT_MANAGER);
+        return $user->hasAnyRole([
+            Role::EVENT_MANAGER,
+            Role::ADMINISTRATOR,
+        ]);
     }
 
     public function delete(User $user, EventAward $eventAward): bool
     {
-        return $user->hasRole(Role::EVENT_MANAGER);
+        return $user->hasAnyRole([
+            Role::EVENT_MANAGER,
+            Role::ADMINISTRATOR,
+        ]);
     }
 }

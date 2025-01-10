@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\GameResource\RelationManagers;
+namespace App\Filament\Resources\EventResource\RelationManagers;
 
+use App\Filament\Actions\ProcessUploadedImageAction;
 use App\Filament\Enums\ImageUploadType;
-use App\Filament\Resources\NewsResource\Actions\ProcessUploadedImageAction;
+use App\Models\Event;
 use App\Models\EventAward;
-use App\Models\Game;
-use App\Models\System;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -20,14 +19,10 @@ use Illuminate\Support\Facades\Auth;
 
 class EventAwardsRelationManager extends RelationManager
 {
-    protected static string $relationship = 'eventAwards';
+    protected static string $relationship = 'awards';
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
-        if ($ownerRecord->ConsoleID != System::Events) {
-            return false;
-        }
-
         /** @var User $user */
         $user = Auth::user();
 
@@ -36,9 +31,9 @@ class EventAwardsRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        /** @var Game $game */
-        $game = $this->getOwnerRecord();
-        $nextTier = ($game->eventAwards()->max('tier_index') ?? 0) + 1;
+        /** @var Event $event */
+        $event = $this->getOwnerRecord();
+        $nextTier = ($event->awards()->max('tier_index') ?? 0) + 1;
 
         return $form
             ->schema([
@@ -103,7 +98,8 @@ class EventAwardsRelationManager extends RelationManager
                         $this->processUploadedImage($data, null);
 
                         return $data;
-                    }),
+                    })
+                    ->createAnother(false), // Create Another doesn't update tier_index, which causes a unique constraint error
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
@@ -121,8 +117,6 @@ class EventAwardsRelationManager extends RelationManager
 
     protected function processUploadedImage(array &$data, ?EventAward $record): void
     {
-        $existingImage = $record->image_asset_path ?? '/Images/000001.png';
-
         if (isset($data['image_asset_path'])) {
             $data['image_asset_path'] = (new ProcessUploadedImageAction())->execute(
                 $data['image_asset_path'],
@@ -130,7 +124,7 @@ class EventAwardsRelationManager extends RelationManager
             );
         } else {
             // If no new image was uploaded, retain the existing image.
-            $data['image_asset_path'] = $existingImage;
+            unset($data['image_asset_path']);
         }
     }
 }

@@ -9,8 +9,6 @@ use App\Filament\Resources\GameResource\Pages;
 use App\Filament\Resources\GameResource\RelationManagers\AchievementSetsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\AchievementsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\CoreSetAuthorshipCreditsRelationManager;
-use App\Filament\Resources\GameResource\RelationManagers\EventAwardsRelationManager;
-use App\Filament\Resources\GameResource\RelationManagers\GameHashesRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\LeaderboardsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\MemoryNotesRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
@@ -347,6 +345,52 @@ class GameResource extends Resource
                             ->reactive()
                             ->required(fn (callable $get) => !empty($get('released_at'))),
                     ]),
+
+                Forms\Components\Section::make('Media')
+                    ->icon('heroicon-s-photo')
+                    ->schema([
+                        // Store a temporary file on disk until the user submits.
+                        // When the user submits, put in storage.
+                        Forms\Components\FileUpload::make('ImageIcon')
+                            ->label('Badge')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->image()
+                            ->rules([
+                                'dimensions:width=96,height=96',
+                            ])
+                            ->acceptedFileTypes(['image/png'])
+                            ->maxSize(1024)
+                            ->maxFiles(1)
+                            ->previewable(true),
+
+                        Forms\Components\FileUpload::make('ImageBoxArt')
+                            ->label('Box Art')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->image()
+                            ->acceptedFileTypes(['image/png'])
+                            ->maxSize(1024)
+                            ->maxFiles(1)
+                            ->previewable(true),
+
+                        Forms\Components\FileUpload::make('ImageTitle')
+                            ->label('Title')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->image()
+                            ->acceptedFileTypes(['image/png'])
+                            ->maxSize(1024)
+                            ->maxFiles(1)
+                            ->previewable(true),
+
+                        Forms\Components\FileUpload::make('ImageIngame')
+                            ->label('In Game')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->image()
+                            ->acceptedFileTypes(['image/png'])
+                            ->maxSize(1024)
+                            ->maxFiles(1)
+                            ->previewable(true),
+                    ])
+                    ->columns(2),
             ]);
     }
 
@@ -476,9 +520,7 @@ class GameResource extends Resource
         return [
             AchievementsRelationManager::class,
             AchievementSetsRelationManager::class,
-            EventAwardsRelationManager::class,
             LeaderboardsRelationManager::class,
-            GameHashesRelationManager::class,
             MemoryNotesRelationManager::class,
             CoreSetAuthorshipCreditsRelationManager::class,
         ];
@@ -488,6 +530,7 @@ class GameResource extends Resource
     {
         return $page->generateNavigationItems([
             Pages\Details::class,
+            Pages\Hashes::class,
             Pages\AuditLog::class,
         ]);
     }
@@ -499,6 +542,7 @@ class GameResource extends Resource
             'create' => Pages\Create::route('/create'),
             'view' => Pages\Details::route('/{record}'),
             'edit' => Pages\Edit::route('/{record}/edit'),
+            'hashes' => Pages\Hashes::route('/{record}/hashes'),
             'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),
         ];
     }

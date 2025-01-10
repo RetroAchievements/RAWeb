@@ -70,18 +70,6 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "user.game.activity": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        },
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.compare-unlocks": [
         {
             "name": "user",
@@ -198,7 +186,15 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.suggestions.similar": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.index": [],
+    "game.suggestions.personalized": [],
     "hub.show": [
         {
             "name": "gameSet",

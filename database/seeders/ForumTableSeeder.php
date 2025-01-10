@@ -183,8 +183,8 @@ class ForumTableSeeder extends Seeder
             $forumCategory = ForumCategory::create(Arr::except($forumCategoryData, ['forums']));
             $forumCategoryData['forums']->each(function ($forum, $index) use ($forumCategory) {
                 $forum = Forum::create($forum);
-                $forum->CategoryID = $forumCategory->id;
-                $forum->DisplayOrder = $index + 1;
+                $forum->forum_category_id = $forumCategory->id;
+                $forum->order_column = $index + 1;
                 $forum->save();
             });
         });

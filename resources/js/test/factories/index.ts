@@ -1,4 +1,5 @@
 export * from './createAchievement';
+export * from './createAchievementGroup';
 export * from './createAchievementSetClaim';
 export * from './createActivePlayer';
 export * from './createComment';

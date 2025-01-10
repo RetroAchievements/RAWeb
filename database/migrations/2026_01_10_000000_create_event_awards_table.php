@@ -11,7 +11,7 @@ return new class() extends Migration {
     {
         Schema::create('event_awards', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('game_id');
+            $table->unsignedBigInteger('event_id');
             $table->integer('tier_index');
             $table->string('label', 40);
             $table->integer('achievements_required');
@@ -20,12 +20,12 @@ return new class() extends Migration {
         });
 
         Schema::table('event_awards', function (Blueprint $table) {
-            $table->foreign('game_id')
-                ->references('ID')
-                ->on('GameData')
+            $table->foreign('event_id')
+                ->references('id')
+                ->on('events')
                 ->onDelete('cascade');
 
-            $table->unique(['game_id', 'tier_index']);
+            $table->unique(['event_id', 'tier_index']);
         });
     }
 

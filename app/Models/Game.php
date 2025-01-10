@@ -93,6 +93,10 @@ class Game extends BaseModel implements HasMedia
         'released_at',
         'released_at_granularity',
         'GuideURL',
+        'ImageIcon',
+        'ImageTitle',
+        'ImageIngame',
+        'ImageBoxArt',
     ];
 
     protected $casts = [
@@ -222,6 +226,9 @@ class Game extends BaseModel implements HasMedia
                 'Developer',
                 'Genre',
                 'ImageIcon',
+                'ImageBoxArt',
+                'ImageTitle',
+                'ImageIngame',
                 'released_at',
                 'released_at_granularity',
             ])
@@ -581,6 +588,14 @@ class Game extends BaseModel implements HasMedia
     }
 
     /**
+     * @return HasMany<PlayerBadge>
+     */
+    public function playerBadges(): HasMany
+    {
+        return $this->hasMany(PlayerBadge::class, 'AwardData', 'ID');
+    }
+
+    /**
      * @return BelongsToMany<User>
      */
     public function playerUsers(): BelongsToMany
@@ -619,7 +634,6 @@ class Game extends BaseModel implements HasMedia
     public function gameSets(): BelongsToMany
     {
         return $this->belongsToMany(GameSet::class, 'game_set_games', 'game_id', 'game_set_id')
-            ->withTimestamps()
             ->withPivot('created_at', 'updated_at', 'deleted_at');
     }
 
@@ -672,14 +686,23 @@ class Game extends BaseModel implements HasMedia
     }
 
     /**
-     * @return HasMany<EventAward>
+     * @return HasOne<Event>
      */
-    public function eventAwards(): HasMany
+    public function event(): HasOne
     {
-        return $this->hasMany(EventAward::class, 'game_id');
+        return $this->hasOne(Event::class, 'legacy_game_id');
     }
 
     // == scopes
+
+    /**
+     * @param Builder<Game> $query
+     * @return Builder<Game>
+     */
+    public function scopeWhereHasPublishedAchievements($query): Builder
+    {
+        return $query->where('achievements_published', '>', 0);
+    }
 
     /**
      * @param Builder<Game> $query
