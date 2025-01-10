@@ -155,7 +155,7 @@ function renderGameCard(int|array $game, ?string $targetUsername): string
 }
 
 function RenderGameSort(
-    bool $isFullyFeaturedGame,
+    int $systemId,
     ?int $flag,
     int $officialFlag,
     int $gameID,
@@ -192,7 +192,13 @@ function RenderGameSort(
     $reverseMark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortReverseType" : "";
     $reverseMark6 = ($sortBy % 10 == 6) ? "&nbsp;$sortReverseType" : "";
 
-    if ($isFullyFeaturedGame) {
+    if ($systemId === System::Events) {
+        echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Default$mark1</a> - ";
+        echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Won By$mark2</a>";
+    } elseif ($systemId === System::Hubs) {
+        echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Default$mark1</a> - ";
+        echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Retro Points$reverseMark2</a>";
+    } else {
         echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Normal$mark1</a> - ";
         echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Won By$mark2</a> - ";
         // TODO sorting by "date won" isn't implemented yet.
@@ -205,9 +211,6 @@ function RenderGameSort(
             echo " - ";
             echo "<a href='/game/$gameID?$flagParam&s=$sort6'>Type$mark6</a>";
         }
-    } else {
-        echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Default$mark1</a> - ";
-        echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Retro Points$reverseMark2</a>";
     }
 
     echo "<sup>&nbsp;</sup></span></div>";
