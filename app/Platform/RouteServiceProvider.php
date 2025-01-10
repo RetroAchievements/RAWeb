@@ -67,8 +67,10 @@ class RouteServiceProvider extends ServiceProvider
                 Route::get('game/{game}/dev-interest', [GameController::class, 'devInterest'])->name('game.dev-interest');
                 Route::get('game/{game}/hashes', [GameHashController::class, 'index'])->name('game.hashes.index');
                 Route::get('game/{game}/top-achievers', [GameTopAchieversController::class, 'index'])->name('game.top-achievers.index');
+                Route::get('game/{game}/suggestions', [GameController::class, 'suggestSimilar'])->name('game.suggestions.similar');
 
                 Route::get('games', [GameController::class, 'index'])->name('game.index');
+                Route::get('games/suggestions', [GameController::class, 'suggestPersonalized'])->name('game.suggestions.personalized');
 
                 Route::get('hub/{gameSet}', [HubController::class, 'show'])->name('hub.show');
                 Route::get('hubs', [HubController::class, 'show'])->name('hub.index');

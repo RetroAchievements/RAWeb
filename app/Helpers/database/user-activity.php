@@ -3,6 +3,9 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Comment;
+use App\Models\PlayerGame;
+use App\Models\System;
+use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Facades\Cache;
 
@@ -93,72 +96,41 @@ function expireRecentlyPlayedGames(string $user): void
     Cache::forget($userRecentGamesCacheKey);
 }
 
-function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$dataOut): int
+function getRecentlyPlayedGames(User $user, int $offset, int $count, ?array &$dataOut): int
 {
-    if ($count < 1) {
-        $dataOut = [];
+    $dataOut = [];
 
+    if ($count < 1) {
         return 0;
     }
 
-    $query = "SELECT pg.last_played_at AS LastPlayed, pg.game_id AS GameID, pg.achievements_total
-              FROM player_games pg
-              INNER JOIN UserAccounts ua ON ua.ID = pg.user_id
-              WHERE ua.User = :username
-              ORDER BY pg.last_played_at desc
-              LIMIT $offset, $count";
+    $playerGames = PlayerGame::where('user_id', $user->id)
+        ->whereHas('game', function ($query) {
+            $query->whereNotIn('ConsoleId', System::getNonGameSystems());
+        })
+        ->with('game.system')
+        ->orderByDesc('last_played_at')
+        ->offset($offset)
+        ->limit($count);
 
-    $recentlyPlayedGames = legacyDbFetchAll($query, ['username' => $user])->toArray();
-
-    $numFound = 0;
-    $dataOut = [];
-
-    if (!empty($recentlyPlayedGames)) {
-        $recentlyPlayedGameIDs = [];
-        foreach ($recentlyPlayedGames as $recentlyPlayedGame) {
-            $recentlyPlayedGameIDs[] = $recentlyPlayedGame['GameID'];
-        }
-
-        // cache may remember more than was asked for
-        if ($count < count($recentlyPlayedGameIDs)) {
-            $recentlyPlayedGameIDs = array_slice($recentlyPlayedGameIDs, 0, $count);
-        }
-
-        // discard anything that's not numeric or the query will fail
-        $recentlyPlayedGameIDs = collect($recentlyPlayedGameIDs)
-            ->filter(fn ($id) => is_int($id) || is_numeric($id))
-            ->implode(',');
-        if (empty($recentlyPlayedGameIDs)) {
-            return 0;
-        }
-
-        $query = "SELECT gd.ID AS GameID, gd.ConsoleID, c.Name AS ConsoleName, gd.Title, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt
-                  FROM GameData AS gd LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                  WHERE gd.ID IN ($recentlyPlayedGameIDs)";
-
-        $gameData = [];
-        $dbResult = legacyDbFetchAll($query);
-        foreach ($dbResult as $data) {
-            settype($data['GameID'], 'integer');
-            settype($data['ConsoleID'], 'integer');
-            $gameData[$data['GameID']] = $data;
-        }
-
-        foreach ($recentlyPlayedGames as $recentlyPlayedGame) {
-            $gameID = $recentlyPlayedGame['GameID'];
-            if (array_key_exists($gameID, $gameData)) {
-                // Exclude games belonging to the "Events" console.
-                if ($gameData[$gameID]['ConsoleID'] !== 101) {
-                    $gameData[$gameID]['LastPlayed'] = $recentlyPlayedGame['LastPlayed'];
-                    $gameData[$gameID]['AchievementsTotal'] = $recentlyPlayedGame['achievements_total'];
-                    $dataOut[] = $gameData[$gameID];
-                    $numFound++;
-                }
-            }
-        }
+    foreach ($playerGames->get() as $playerGame) {
+        $dataOut[] = [
+            'GameID' => $playerGame->game->ID,
+            'ConsoleID' => $playerGame->game->system->id,
+            'ConsoleName' => $playerGame->game->system->name,
+            'Title' => $playerGame->game->Title,
+            'ImageIcon' => $playerGame->game->ImageIcon,
+            'ImageTitle' => $playerGame->game->ImageTitle,
+            'ImageIngame' => $playerGame->game->ImageIngame,
+            'ImageBoxArt' => $playerGame->game->ImageBoxArt,
+            'LastPlayed' => $playerGame->last_played_at
+                ? $playerGame->last_played_at->format("Y-m-d H:i:s")
+                : null,
+            'AchievementsTotal' => $playerGame->game->achievements_published,
+        ];
     }
 
-    return $numFound;
+    return count($dataOut);
 }
 
 function getArticleComments(

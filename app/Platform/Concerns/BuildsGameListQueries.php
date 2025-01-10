@@ -107,6 +107,16 @@ trait BuildsGameListQueries
                 });
                 break;
 
+            case GameListType::UserSpecificSuggestions:
+            case GameListType::GameSpecificSuggestions:
+                if (!isset($this->suggestions)) {
+                    throw new InvalidArgumentException("Suggestions must be generated before building the base query.");
+                }
+
+                $gameIds = array_map(fn ($suggestion) => $suggestion->gameId, $this->suggestions);
+                $query->whereIn('GameData.ID', $gameIds);
+                break;
+
             // TODO implement these other use cases
             case GameListType::UserDevelop:
             case GameListType::DeveloperSets:
