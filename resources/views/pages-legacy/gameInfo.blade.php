@@ -886,7 +886,7 @@ if ($isFullyFeaturedGame) {
             <?php
             echo "</div>";
 
-            // Progression component (desktop only)
+            // Progression component (mobile only)
             if ($user !== null && $numAchievements > 0) {
                 echo "<div class='mt-4 mb-4 lg:hidden'>";
                 ?>
@@ -926,6 +926,31 @@ if ($isFullyFeaturedGame) {
                 echo "</div>";
             }
         } elseif ($isEventGame) {
+            // Progression component (mobile only)
+            if ($user !== null && $numAchievements > 0) {
+                echo "<div class='mt-4 mb-4 lg:hidden'>";
+                ?>
+                <x-game.current-progress.root
+                    :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                    :gameId="$gameID"
+                    :isBeatable="$isGameBeatable"
+                    :isBeatenHardcore="$isBeatenHardcore"
+                    :isBeatenSoftcore="$isBeatenSoftcore"
+                    :isCompleted="!is_null($userGameProgressionAwards['completed'])"
+                    :isMastered="!is_null($userGameProgressionAwards['mastered'])"
+                    :isEvent="$isEventGame"
+                    :numEarnedHardcoreAchievements="$numEarnedHardcore"
+                    :numEarnedHardcorePoints="$totalEarnedHardcore"
+                    :numEarnedSoftcoreAchievements="$numEarnedCasual"
+                    :numEarnedSoftcorePoints="$totalEarnedCasual"
+                    :numEarnedWeightedPoints="$totalEarnedTrueRatio"
+                    :totalAchievementsCount="$numAchievements"
+                    :totalPointsCount="$totalPossible"
+                />
+                <?php
+                echo "</div>";
+            }
+
             echo "<div class='justify-between w-full py-3'>";
             RenderGameSort(System::Events, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
             echo "</div>";
@@ -1056,7 +1081,7 @@ if ($isFullyFeaturedGame) {
             echo "</div>";
         }
 
-        // Progression component (mobile only)
+        // Progression component (desktop only)
         if ($user !== null && $numAchievements > 0 && $isOfficial) {
             echo "<div class='mb-5 hidden lg:block'>";
             ?>
