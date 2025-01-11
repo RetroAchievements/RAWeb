@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import type { FC } from 'react';
+import { type FC, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import { LuTrophy } from 'react-icons/lu';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 import {
@@ -11,6 +12,7 @@ import {
   BaseChartTooltipContent,
 } from '@/common/components/+vendor/BaseChart';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { cn } from '@/common/utils/cn';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { HomeHeading } from '../../HomeHeading';
@@ -33,6 +35,17 @@ export const CurrentlyOnline: FC = () => {
     },
   } satisfies BaseChartConfig;
 
+  const isNewAllTimeHigh = useMemo(() => {
+    if (!currentlyOnline?.allTimeHighPlayers || !currentlyOnline?.logEntries.length) {
+      return false;
+    }
+
+    return (
+      currentlyOnline.logEntries[currentlyOnline.logEntries.length - 1] >=
+      currentlyOnline.allTimeHighPlayers
+    );
+  }, [currentlyOnline]);
+
   return (
     <div className="flex flex-col gap-2.5">
       <HomeHeading>{t('Currently Online')}</HomeHeading>
@@ -51,7 +64,15 @@ export const CurrentlyOnline: FC = () => {
         </div>
 
         {currentlyOnline?.allTimeHighDate && currentlyOnline?.allTimeHighPlayers ? (
-          <p className="text-muted cursor-default italic transition hover:text-neutral-300 hover:light:text-neutral-950">
+          <p
+            className={cn(
+              isNewAllTimeHigh
+                ? 'flex items-center gap-1 text-yellow-500 light:text-yellow-700'
+                : 'text-muted cursor-default italic transition hover:text-neutral-300 hover:light:text-neutral-950',
+            )}
+          >
+            <LuTrophy className="size-4" />
+
             {t('All-time High: {{val, number}} ({{date}})', {
               val: currentlyOnline.allTimeHighPlayers,
               date: formatDate(dayjs.utc(currentlyOnline.allTimeHighDate), 'll'),
