@@ -47,7 +47,7 @@ export function buildTitleColumnDef<TEntry extends App.Platform.Data.GameListEnt
         <div
           className={cn(
             isSpaceConstrained
-              ? 'xl:min-w-[286px] xl:max-w-[286px]'
+              ? 'min-w-[180px] max-w-[286px] xl:min-w-[286px]'
               : 'min-w-[180px] max-w-[400px] xl:min-w-[370px]',
           )}
         >
