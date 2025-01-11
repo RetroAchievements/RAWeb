@@ -82,8 +82,8 @@ function authenticateForConnect(?string $username, ?string $pass = null, ?string
 
     return [
         'Success' => true,
-        'User' => $user->username,
-        'DisplayName' => $user->display_name,
+        'User' => $user->display_name,
+        'AvatarUrl' => $user->avatar_url,
         'Token' => $user->appToken,
         'Score' => $user->RAPoints,
         'SoftcoreScore' => $user->RASoftcorePoints,

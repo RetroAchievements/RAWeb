@@ -362,11 +362,8 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
         return static::query()
             ->where(function ($query) use ($displayNameOrUsername) {
-                $query->where(function ($q) use ($displayNameOrUsername) {
-                    $q->whereNotNull('display_name')
-                        ->where('display_name', $displayNameOrUsername);
-                })
-                ->orWhere('User', $displayNameOrUsername);
+                $query->where('display_name', $displayNameOrUsername)
+                    ->orWhere('User', $displayNameOrUsername);
             });
     }
 

@@ -189,8 +189,8 @@ function GetLeaderboardData(
         }
 
         $retVal['Entries'][] = [
-            'User' => $entry->user->username,
-            'DisplayName' => $entry->user->display_name,
+            'User' => $entry->user->display_name,
+            'AvatarUrl' => $entry->user->avatar_url,
             'DateSubmitted' => $entry->updated_at->unix(),
             'Score' => $entry->score,
             'Rank' => $rank,

@@ -205,6 +205,10 @@ function getRecentUnlocksPlayersData(
               LIMIT $offset, $count";
 
     foreach (legacyDbFetchAll($query) as $db_entry) {
+        $db_entry['AvatarUrl'] = media_asset('UserPic/' . $db_entry['User'] . '.png');
+        $db_entry['User'] = $db_entry['DisplayName'];
+        unset($db_entry['DisplayName']);
+
         $db_entry['RAPoints'] = (int) $db_entry['RAPoints'];
         $db_entry['DateAwarded'] = (int) $db_entry['DateAwarded'];
         $retVal['RecentWinner'][] = $db_entry;
