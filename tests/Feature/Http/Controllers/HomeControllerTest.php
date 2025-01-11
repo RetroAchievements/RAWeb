@@ -10,6 +10,7 @@ use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
+use App\Models\Event;
 use App\Models\EventAchievement;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
@@ -170,6 +171,12 @@ class HomeControllerTest extends TestCase
             'active_from' => Carbon::now()->subDays(3),
             'active_until' => Carbon::now()->addDays(3),
         ]);
+        $event = Event::create([
+            'legacy_game_id' => $eventGame->id,
+            'slug' => 'foo',
+            'active_from' => Carbon::now()->subDays(3),
+            'active_until' => Carbon::now()->addDays(3),
+        ]);
 
         // Act
         $response = $this->get(route('home'));
@@ -187,7 +194,8 @@ class HomeControllerTest extends TestCase
             ->where('achievementOfTheWeek.sourceAchievement.game.system.name', $system->name)
             ->where('achievementOfTheWeek.sourceAchievement.game.system.iconUrl', $system->iconUrl)
 
-            ->where('achievementOfTheWeek.forumTopicId', 14029)
+            ->where('achievementOfTheWeek.event.id', $event->id)
+            ->where('achievementOfTheWeek.event.legacyGame.id', $eventGame->id)
         );
     }
 

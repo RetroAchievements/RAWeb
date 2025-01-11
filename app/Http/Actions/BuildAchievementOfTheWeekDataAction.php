@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Actions;
 
-use App\Models\Achievement;
 use App\Models\EventAchievement;
-use App\Models\StaticData;
 use App\Platform\Data\EventAchievementData;
 
 class BuildAchievementOfTheWeekDataAction

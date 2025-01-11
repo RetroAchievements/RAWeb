@@ -96,7 +96,7 @@ class Event extends BaseModel
 
     /**
      * TODO rename to legacyGame
-     * 
+     *
      * @return BelongsTo<Game, Event>
      */
     public function game(): BelongsTo

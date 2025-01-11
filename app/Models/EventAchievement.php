@@ -80,7 +80,7 @@ class EventAchievement extends BaseModel
     // == relations
 
     /**
-     * @return HasOneThrough<Event, Achievement>
+     * @return HasOneThrough<Event>
      */
     public function event(): HasOneThrough
     {
