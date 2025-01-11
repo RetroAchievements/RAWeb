@@ -7,9 +7,10 @@ import { GameAvatar } from '@/common/components/GameAvatar';
 
 interface SimilarGameReasonProps {
   relatedGame: App.Platform.Data.Game;
+  sourceGameKind: App.Platform.Services.GameSuggestions.Enums.SourceGameKind;
 }
 
-export const SimilarGameReason: FC<SimilarGameReasonProps> = ({ relatedGame }) => {
+export const SimilarGameReason: FC<SimilarGameReasonProps> = ({ relatedGame, sourceGameKind }) => {
   const { t } = useTranslation();
 
   return (
@@ -19,7 +20,9 @@ export const SimilarGameReason: FC<SimilarGameReasonProps> = ({ relatedGame }) =
     >
       <LuGamepad2 className="size-[18px] lg:hidden xl:block" />
 
-      {t('Similar to')}
+      {sourceGameKind === 'beaten' ? t('Similar to beaten') : null}
+      {sourceGameKind === 'mastered' ? t('Similar to mastered') : null}
+      {sourceGameKind === 'want-to-play' ? t('Similar to backlog') : null}
       <GameAvatar {...relatedGame} showLabel={false} size={24} wrapperClassName="inline-block" />
     </BaseChip>
   );

@@ -38,13 +38,23 @@ class RandomGameStrategy implements GameSuggestionStrategy
 
     private function selectFastRandomGameMariaDB(): ?int
     {
-        // Optimize the random selection using a COUNT-based weight rather than
-        // ORDER BY. This performs better than using RAND() alone since it helps
-        // MariaDB optimize the random selection.
-        return Game::whereHasPublishedAchievements()
+        // ->inRandomOrder() is very slow.
+        // Instead, we'll get the total count of eligible games
+        // and randomly pick one of the values.
+
+        $totalCount = Game::whereHasPublishedAchievements()
             ->whereNotIn('ConsoleID', System::getNonGameSystems())
+            ->count();
+
+        if ($totalCount === 0) {
+            return null;
+        }
+
+        $randomOffset = random_int(0, $totalCount - 1);
+
+        return Game::whereHasPublishedAchievements()
             ->select('ID')
-            ->orderByRaw('RAND() * (SELECT COUNT(*) FROM GameData WHERE achievements_published > 0)')
+            ->skip($randomOffset)
             ->value('ID');
     }
 

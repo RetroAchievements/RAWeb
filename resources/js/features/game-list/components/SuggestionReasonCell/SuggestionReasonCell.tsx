@@ -26,7 +26,7 @@ export const SuggestionReasonCell: FC<SuggestionReasonCellProps> = ({ originalRo
       return <SharedHubReason relatedGame={relatedGame} relatedGameSet={relatedGameSet} />;
 
     case 'similar-game':
-      return <SimilarGameReason relatedGame={relatedGame} />;
+      return <SimilarGameReason relatedGame={relatedGame} sourceGameKind={sourceGameKind} />;
 
     case 'random':
       return <RandomReason />;

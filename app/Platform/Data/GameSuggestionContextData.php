@@ -25,9 +25,12 @@ class GameSuggestionContextData extends Data
         return new self(relatedGame: $game);
     }
 
-    public static function forSimilarGame(GameData $game): self
+    public static function forSimilarGame(GameData $game, ?SourceGameKind $sourceGameKind): self
     {
-        return new self(relatedGame: $game);
+        return new self(
+            relatedGame: $game,
+            sourceGameKind: $sourceGameKind,
+        );
     }
 
     public static function forSharedHub(

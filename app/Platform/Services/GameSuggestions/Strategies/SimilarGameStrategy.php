@@ -11,6 +11,7 @@ use App\Platform\Data\GameData;
 use App\Platform\Data\GameSuggestionContextData;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\GameSuggestionReason;
+use App\Platform\Services\GameSuggestions\Enums\SourceGameKind;
 
 class SimilarGameStrategy implements GameSuggestionStrategy
 {
@@ -18,6 +19,7 @@ class SimilarGameStrategy implements GameSuggestionStrategy
 
     public function __construct(
         private readonly Game $sourceGame,
+        private readonly ?SourceGameKind $sourceGameKind = null,
         private readonly bool $attachContext = true,
     ) {
     }
@@ -58,7 +60,8 @@ class SimilarGameStrategy implements GameSuggestionStrategy
         }
 
         return GameSuggestionContextData::forSimilarGame(
-            GameData::from($this->sourceGame)->include('badgeUrl')
+            GameData::from($this->sourceGame)->include('badgeUrl'),
+            sourceGameKind: $this->sourceGameKind,
         );
     }
 }

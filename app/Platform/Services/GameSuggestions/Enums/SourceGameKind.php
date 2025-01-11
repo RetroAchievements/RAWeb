@@ -10,6 +10,6 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 enum SourceGameKind: string
 {
     case Beaten = 'beaten';
-
     case Mastered = 'mastered';
+    case WantToPlay = 'want-to-play';
 }

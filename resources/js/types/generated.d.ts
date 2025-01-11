@@ -649,5 +649,5 @@ declare namespace App.Platform.Enums {
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 }
 declare namespace App.Platform.Services.GameSuggestions.Enums {
-  export type SourceGameKind = 'beaten' | 'mastered';
+  export type SourceGameKind = 'beaten' | 'mastered' | 'want-to-play';
 }
