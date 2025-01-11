@@ -59,7 +59,7 @@ export const AchievementOfTheWeek: FC = () => {
                   <SystemChip {...system} className="bg-zinc-800" />
 
                   {achievementOfTheWeek.activeUntil ? (
-                    <span className="smalldate">
+                    <span className="smalldate !min-w-fit self-end">
                       <Trans
                         i18nKey="Ends <1>{{when}}</1>"
                         values={{ when: achievementOfTheWeek.activeUntil }}
