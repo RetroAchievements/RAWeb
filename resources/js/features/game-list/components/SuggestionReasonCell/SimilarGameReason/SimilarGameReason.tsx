@@ -13,7 +13,10 @@ export const SimilarGameReason: FC<SimilarGameReasonProps> = ({ relatedGame }) =
   const { t } = useTranslation();
 
   return (
-    <BaseChip data-testid="similar-game-reason" className="flex gap-1.5 py-1 text-neutral-300">
+    <BaseChip
+      data-testid="similar-game-reason"
+      className="flex gap-1.5 py-1 text-neutral-300 light:text-neutral-900"
+    >
       <LuGamepad2 className="size-[18px] lg:hidden xl:block" />
 
       {t('Similar to')}

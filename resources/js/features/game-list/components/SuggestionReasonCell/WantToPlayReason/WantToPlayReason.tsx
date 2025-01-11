@@ -8,7 +8,10 @@ export const WantToPlayReason: FC = () => {
   const { t } = useTranslation();
 
   return (
-    <BaseChip data-testid="want-to-play-reason" className="flex gap-1.5 py-1 text-neutral-300">
+    <BaseChip
+      data-testid="want-to-play-reason"
+      className="flex gap-1.5 py-1 text-neutral-300 light:text-neutral-900"
+    >
       <LuBookMarked className="size-[18px] lg:hidden xl:block" />
       {t('In your backlog')}
     </BaseChip>

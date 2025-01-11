@@ -41,7 +41,7 @@ export function buildTitleColumnDef<TEntry extends App.Platform.Data.GameListEnt
 
     cell: ({ row }) => {
       return (
-        <div className="min-w-[180px]">
+        <div className="min-w-[180px] xl:min-w-[370px]">
           <div className="max-w-[400px]">
             <GameAvatar
               {...row.original.game}

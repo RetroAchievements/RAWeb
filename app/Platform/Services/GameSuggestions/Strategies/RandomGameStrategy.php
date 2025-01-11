@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Services\GameSuggestions\Strategies;
 
 use App\Models\Game;
+use App\Models\System;
 use App\Platform\Data\GameSuggestionContextData;
 use App\Platform\Enums\GameSuggestionReason;
 use Illuminate\Support\Facades\DB;
@@ -41,6 +42,7 @@ class RandomGameStrategy implements GameSuggestionStrategy
         // ORDER BY. This performs better than using RAND() alone since it helps
         // MariaDB optimize the random selection.
         return Game::whereHasPublishedAchievements()
+            ->whereNotIn('ConsoleID', System::getNonGameSystems())
             ->select('ID')
             ->orderByRaw('RAND() * (SELECT COUNT(*) FROM GameData WHERE achievements_published > 0)')
             ->value('ID');

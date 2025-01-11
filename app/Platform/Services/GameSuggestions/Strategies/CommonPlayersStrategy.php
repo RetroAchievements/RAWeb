@@ -6,6 +6,7 @@ namespace App\Platform\Services\GameSuggestions\Strategies;
 
 use App\Models\Game;
 use App\Models\PlayerGame;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSuggestionContextData;
@@ -43,6 +44,16 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
             ->orderByRaw('COUNT(*) DESC')
             ->limit(10)
             ->value('game_id');
+
+        // If we found a game, make sure it's not from a non-game system before returning it.
+        // Otherwise, return null.
+        if ($gameId) {
+            $game = Game::find($gameId);
+
+            return $game && !in_array($game->ConsoleID, System::getNonGameSystems()) ? $game : null;
+        }
+
+        return null;
 
         return $gameId ? Game::find($gameId) : null;
     }
