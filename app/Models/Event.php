@@ -95,6 +95,8 @@ class Event extends BaseModel
     // == relations
 
     /**
+     * TODO rename to legacyGame
+     * 
      * @return BelongsTo<Game, Event>
      */
     public function game(): BelongsTo
@@ -113,7 +115,7 @@ class Event extends BaseModel
             'GameID',         // Achievements.GameID
             'achievement_id', // event_achievements.achievement_id
             'ID',             // Game.ID
-            'ID',             // Achievement.ID
+            'ID',             // Achievements.ID
         )->with('achievement.game');
     }
 

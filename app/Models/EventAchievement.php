@@ -8,6 +8,7 @@ use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -77,6 +78,21 @@ class EventAchievement extends BaseModel
     }
 
     // == relations
+
+    /**
+     * @return HasOneThrough<Event, Achievement>
+     */
+    public function event(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Event::class,
+            Achievement::class,
+            'ID',             // Achievements.ID
+            'legacy_game_id', // events.legacy_game_id
+            'achievement_id', // event_achievements.achievement_id
+            'GameID'          // Achievements.GameID
+        );
+    }
 
     /**
      * @return BelongsTo<Achievement, EventAchievement>

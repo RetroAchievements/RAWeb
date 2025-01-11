@@ -12,7 +12,7 @@ use App\Platform\Data\EventAchievementData;
 class BuildAchievementOfTheWeekDataAction
 {
     // TODO remove $staticData arg once event is actually run using EventAchievements
-    public function execute(?StaticData $staticData): ?EventAchievementData
+    public function execute(): ?EventAchievementData
     {
         $achievementOfTheWeek = EventAchievement::active()
             ->whereNotNull('active_from')
@@ -24,25 +24,8 @@ class BuildAchievementOfTheWeekDataAction
             ->with(['achievement.game', 'sourceAchievement.game'])
             ->first();
 
-        if (!$achievementOfTheWeek || !$achievementOfTheWeek->source_achievement_id) {
-            if (!$staticData?->Event_AOTW_AchievementID) {
-                return null;
-            }
-
-            $targetAchievementId = $staticData->Event_AOTW_AchievementID;
-
-            $achievement = Achievement::find($targetAchievementId);
-            if (!$achievement) {
-                return null;
-            }
-
-            // make a new EventAchievment object (and modify the related records) to
-            // mimic the behavior of a valid EventAchievement. DO NOT SAVE THESE!
-            $achievement->game->ForumTopicID = $staticData->Event_AOTW_ForumID;
-
-            $achievementOfTheWeek = new EventAchievement();
-            $achievementOfTheWeek->setRelation('achievement', $achievement);
-            $achievementOfTheWeek->setRelation('sourceAchievement', $achievement);
+        if (!$achievementOfTheWeek) {
+            return null;
         }
 
         $data = EventAchievementData::from($achievementOfTheWeek)->include(
@@ -53,7 +36,8 @@ class BuildAchievementOfTheWeekDataAction
             'sourceAchievement.game.badgeUrl',
             'sourceAchievement.game.system.iconUrl',
             'sourceAchievement.game.system.nameShort',
-            'forumTopicId',
+            'event',
+            'event.legacyGame',
             'activeUntil',
         );
 

@@ -594,5 +594,6 @@
     "See more info": "See more info",
     "{{user}} has not played <1>{{game}}</1>.": "{{user}} has not played <1>{{game}}</1>.",
     "Start of reconstructed timeline.": "Start of reconstructed timeline.",
-    "Manually unlocked by <1>{{user}}</1>.": "Manually unlocked by <1>{{user}}</1>."
+    "Manually unlocked by <1>{{user}}</1>.": "Manually unlocked by <1>{{user}}</1>.",
+    "View this year's event": "View this year's event"
 }

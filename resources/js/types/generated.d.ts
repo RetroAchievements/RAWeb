@@ -372,8 +372,13 @@ declare namespace App.Platform.Data {
   export type EventAchievement = {
     achievement?: App.Platform.Data.Achievement;
     sourceAchievement?: App.Platform.Data.Achievement;
+    event?: App.Platform.Data.Event;
     activeUntil?: string;
     forumTopicId?: number;
+  };
+  export type Event = {
+    id: number;
+    legacyGame?: App.Platform.Data.Game;
   };
   export type GameClaimant = {
     user: App.Data.User;
