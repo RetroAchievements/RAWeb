@@ -71,7 +71,7 @@ export const CurrentlyOnline: FC = () => {
                 : 'text-muted cursor-default italic transition hover:text-neutral-300 hover:light:text-neutral-950',
             )}
           >
-            <LuTrophy className="size-4" />
+            {isNewAllTimeHigh ? <LuTrophy className="size-4" /> : null}
 
             {t('All-time High: {{val, number}} ({{date}})', {
               val: currentlyOnline.allTimeHighPlayers,
