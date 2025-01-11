@@ -54,8 +54,6 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
         }
 
         return null;
-
-        return $gameId ? Game::find($gameId) : null;
     }
 
     public function reason(): GameSuggestionReason
