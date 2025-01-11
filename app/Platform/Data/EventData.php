@@ -22,7 +22,7 @@ class EventData extends Data
     {
         return new self(
             id: $event->id,
-            legacyGame: Lazy::create(fn () => GameData::fromGame($event->game)),
+            legacyGame: Lazy::create(fn () => GameData::fromGame($event->legacyGame)),
         );
     }
 }
