@@ -40,12 +40,13 @@ class SyncTriggers extends Command
 
     private function syncAchievementTriggers(): void
     {
-        $achievementCount = Achievement::count();
+        $achievementCount = Achievement::where('MemAddr', '!=', '')->count();
         $this->info("Syncing triggers for {$achievementCount} achievements...");
 
         $progressBar = $this->output->createProgressBar($achievementCount);
 
         Achievement::query()
+            ->where('MemAddr', '!=', '')
             ->with(['comments' => function ($query) {
                 $query->automated()
                     ->whereRaw("LOWER(Payload) LIKE '% edited%logic%'")
@@ -231,7 +232,7 @@ class SyncTriggers extends Command
                 return $this->findUserByName($username);
             }
 
-            return User::find($triggerable->author_id);
+            return User::withTrashed()->find($triggerable->author_id);
         }
 
         if ($triggerable instanceof Achievement) {
@@ -247,7 +248,7 @@ class SyncTriggers extends Command
                 return $this->findUserByName($username);
             }
 
-            return User::find($triggerable->user_id) ?? null;
+            return User::withTrashed()->find($triggerable->user_id) ?? null;
         }
 
         return null;

@@ -44,7 +44,7 @@ class UpsertTriggerVersionAction
             if ($currentTrigger) {
                 $currentTrigger->update([
                     'conditions' => $conditions,
-                    'user_id' => $user->id,
+                    'user_id' => $user?->id,
                 ]);
                 $triggerable->update(['trigger_id' => $currentTrigger->id]);
 
@@ -55,7 +55,7 @@ class UpsertTriggerVersionAction
             $trigger = $triggerable->trigger()->save(new Trigger([
                 'conditions' => $conditions,
                 'version' => null,
-                'user_id' => $user->id,
+                'user_id' => $user?->id,
             ]));
             $triggerable->update(['trigger_id' => $trigger->id]);
 
@@ -78,7 +78,7 @@ class UpsertTriggerVersionAction
             if ($currentTrigger->version === null) {
                 $currentTrigger->update([
                     'version' => 1,
-                    'user_id' => $user->id,
+                    'user_id' => $user?->id,
                 ]);
                 $triggerable->update(['trigger_id' => $currentTrigger->id]);
             }
@@ -93,7 +93,7 @@ class UpsertTriggerVersionAction
             'conditions' => $conditions,
             'version' => $latestVersion + 1,
             'parent_id' => $currentTrigger?->id,
-            'user_id' => $user->id,
+            'user_id' => $user?->id,
         ]));
         $triggerable->update(['trigger_id' => $trigger->id]);
 
