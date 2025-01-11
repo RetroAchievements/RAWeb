@@ -29,7 +29,7 @@ export const CommonPlayersReason: FC<CommonPlayersReasonProps> = ({
         {sourceGameKind === 'beaten' ? t('Similar beats') : t('Similar masteries')}
       </span>
       <span className="hidden xl:inline">
-        {sourceGameKind === 'beaten' ? t('Often beaten with') : t('Often mastered with')}
+        {sourceGameKind === 'beaten' ? t('Beaten by players of') : t('Mastered by players of')}
       </span>
       <GameAvatar {...relatedGame} showLabel={false} size={24} wrapperClassName="inline-block" />
     </BaseChip>

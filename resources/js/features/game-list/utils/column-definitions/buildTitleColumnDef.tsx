@@ -2,6 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 
 import { GameAvatar } from '@/common/components/GameAvatar';
+import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
@@ -11,18 +12,20 @@ interface BuildTitleColumnDefProps<TEntry> {
   t_label: TranslatedString;
 
   forUsername?: string;
-  options?: Partial<ColumnDef<TEntry>>;
+  options?: Partial<ColumnDef<TEntry>> & { isSpaceConstrained?: boolean };
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
 }
 
 export function buildTitleColumnDef<TEntry extends App.Platform.Data.GameListEntry>({
   forUsername,
-  options,
   t_label,
   tableApiRouteParams,
+  options = {},
   tableApiRouteName = 'api.game.index',
 }: BuildTitleColumnDefProps<TEntry>): ColumnDef<TEntry> {
+  const { isSpaceConstrained, ...restOptions } = options;
+
   return {
     id: 'title',
     accessorKey: 'game',
@@ -41,18 +44,22 @@ export function buildTitleColumnDef<TEntry extends App.Platform.Data.GameListEnt
 
     cell: ({ row }) => {
       return (
-        <div className="min-w-[180px] xl:min-w-[370px]">
-          <div className="max-w-[400px]">
-            <GameAvatar
-              {...row.original.game}
-              size={32}
-              showHoverCardProgressForUsername={forUsername}
-            />
-          </div>
+        <div
+          className={cn(
+            isSpaceConstrained
+              ? 'xl:min-w-[286px] xl:max-w-[286px]'
+              : 'min-w-[180px] max-w-[400px] xl:min-w-[370px]',
+          )}
+        >
+          <GameAvatar
+            {...row.original.game}
+            size={32}
+            showHoverCardProgressForUsername={forUsername}
+          />
         </div>
       );
     },
 
-    ...options,
+    ...restOptions,
   };
 }

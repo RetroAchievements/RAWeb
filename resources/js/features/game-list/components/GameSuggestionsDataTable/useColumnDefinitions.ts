@@ -21,7 +21,7 @@ export function useColumnDefinitions(options: {
       buildTitleColumnDef({
         t_label: t('Title'),
         forUsername: options.forUsername,
-        options: { enableSorting: false },
+        options: { enableSorting: false, isSpaceConstrained: true },
       }),
       buildSystemColumnDef({ t_label: t('System'), options: { enableSorting: false } }),
       buildAchievementsPublishedColumnDef({
