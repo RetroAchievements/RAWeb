@@ -177,7 +177,9 @@ class GamePolicy
 
         $game->loadMissing('achievements.developer');
 
-        return $game->achievements->every(function ($achievement) use ($user) {
+        $hasAchievements = $game->achievements->isNotEmpty();
+
+        return $hasAchievements && $game->achievements->every(function ($achievement) use ($user) {
             return $achievement->developer->is($user);
         });
     }
