@@ -59,7 +59,7 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
         }
 
         return GameSuggestionContextData::forCommonPlayersGame(
-            GameData::from($this->sourceGame)
+            GameData::from($this->sourceGame)->include('badgeUrl')
         );
     }
 

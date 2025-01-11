@@ -7,20 +7,22 @@ import type { TranslatedString } from '@/types/i18next';
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
-interface BuildRetroRatioColumnDefProps {
+interface BuildRetroRatioColumnDefProps<TEntry> {
   t_label: TranslatedString;
   strings: { t_none: TranslatedString };
 
+  options?: Partial<ColumnDef<TEntry>>;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
 }
 
-export function buildRetroRatioColumnDef({
+export function buildRetroRatioColumnDef<TEntry extends App.Platform.Data.GameListEntry>({
+  options,
   strings,
   t_label,
   tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
-}: BuildRetroRatioColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
+}: BuildRetroRatioColumnDefProps<TEntry>): ColumnDef<TEntry> {
   return {
     id: 'retroRatio',
     accessorKey: 'game',
@@ -46,5 +48,7 @@ export function buildRetroRatioColumnDef({
 
       return <p>{buildGameRarityLabel(pointsTotal, pointsWeighted)}</p>;
     },
+
+    ...options,
   };
 }

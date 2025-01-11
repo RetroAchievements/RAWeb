@@ -8,6 +8,7 @@ use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Data\GameSuggestionData;
+use App\Platform\Services\GameSuggestions\Enums\SourceGameKind;
 
 class GameSuggestionEngine
 {
@@ -31,7 +32,7 @@ class GameSuggestionEngine
                 [new Strategies\SimilarGameStrategy($this->sourceGame, attachContext: false), 50],
                 [new Strategies\SharedHubStrategy($this->sourceGame), 20],
                 [new Strategies\CommonPlayersStrategy($this->user, $this->sourceGame, attachContext: false), 20],
-                [new Strategies\SharedAuthorStrategy($this->sourceGame), 10],
+                [new Strategies\SharedAuthorStrategy($this->sourceGame, null, attachSourceGame: false), 10],
             ];
         } else {
             // Get the user's mastered and beaten games.
@@ -60,8 +61,18 @@ class GameSuggestionEngine
             foreach ($masteredGames as $masteredGame) {
                 $weight = 50 / max(1, count($masteredGames));
                 $this->strategies[] = [new Strategies\SimilarGameStrategy($masteredGame), $weight];
-                $this->strategies[] = [new Strategies\SharedHubStrategy($masteredGame), $weight * 0.4];
-                $this->strategies[] = [new Strategies\SharedAuthorStrategy($masteredGame), $weight * 0.2];
+                $this->strategies[] = [
+                    new Strategies\SharedHubStrategy(
+                        $masteredGame,
+                        sourceGameKind: SourceGameKind::Mastered,
+                        attachSourceGame: true,
+                    ),
+                    $weight * 0.4,
+                ];
+                $this->strategies[] = [
+                    new Strategies\SharedAuthorStrategy($masteredGame, SourceGameKind::Mastered),
+                    $weight * 0.2,
+                ];
                 $this->strategies[] = [new Strategies\CommonPlayersStrategy($this->user, $masteredGame), $weight * 0.4];
             }
 
@@ -69,8 +80,18 @@ class GameSuggestionEngine
             foreach ($beatenGames as $beatenGame) {
                 $weight = 25 / max(1, count($beatenGames));
                 $this->strategies[] = [new Strategies\SimilarGameStrategy($beatenGame), $weight];
-                $this->strategies[] = [new Strategies\SharedHubStrategy($beatenGame), $weight * 0.4];
-                $this->strategies[] = [new Strategies\SharedAuthorStrategy($beatenGame), $weight * 0.2];
+                $this->strategies[] = [
+                    new Strategies\SharedHubStrategy(
+                        $beatenGame,
+                        sourceGameKind: SourceGameKind::Beaten,
+                        attachSourceGame: true,
+                    ),
+                    $weight * 0.4,
+                ];
+                $this->strategies[] = [
+                    new Strategies\SharedAuthorStrategy($beatenGame, SourceGameKind::Beaten),
+                    $weight * 0.2,
+                ];
                 $this->strategies[] = [new Strategies\CommonPlayersStrategy($this->user, $beatenGame), $weight * 0.4];
             }
         }

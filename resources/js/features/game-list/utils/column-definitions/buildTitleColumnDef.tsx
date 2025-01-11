@@ -7,25 +7,28 @@ import type { TranslatedString } from '@/types/i18next';
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
-interface BuildTitleColumnDefProps {
+interface BuildTitleColumnDefProps<TEntry> {
   t_label: TranslatedString;
 
   forUsername?: string;
+  options?: Partial<ColumnDef<TEntry>>;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
 }
 
-export function buildTitleColumnDef({
+export function buildTitleColumnDef<TEntry extends App.Platform.Data.GameListEntry>({
   forUsername,
+  options,
   t_label,
   tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
-}: BuildTitleColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
+}: BuildTitleColumnDefProps<TEntry>): ColumnDef<TEntry> {
   return {
     id: 'title',
     accessorKey: 'game',
     meta: { t_label, Icon: gameListFieldIconMap.title },
     enableHiding: false,
+    enableSorting: true,
 
     header: ({ column, table }) => (
       <DataTableColumnHeader
@@ -49,5 +52,7 @@ export function buildTitleColumnDef({
         </div>
       );
     },
+
+    ...options,
   };
 }
