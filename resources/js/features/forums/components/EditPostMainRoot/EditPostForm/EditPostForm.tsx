@@ -12,6 +12,7 @@ import {
   BaseFormProvider,
 } from '@/common/components/+vendor/BaseForm';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { getStringByteCount } from '@/common/utils/getStringByteCount';
 
 import { ShortcodePanel } from '../../ShortcodePanel';
 import { useEditPostForm } from './useEditPostForm';
@@ -60,7 +61,10 @@ export const EditPostForm: FC<EditPostFormProps> = ({ onPreview }) => {
 
           <div className="flex w-full justify-between gap-3">
             <span className="text-neutral-400">
-              {t('{{current, number}} / {{max, number}}', { current: body.length, max: 60_000 })}
+              {t('{{current, number}} / {{max, number}}', {
+                current: getStringByteCount(body),
+                max: 60_000,
+              })}
             </span>
 
             <div className="flex gap-3">

@@ -6,6 +6,7 @@ import { bbobLineBreakPlugin } from '@/common/utils/+vendor/bbobLineBreakPlugin'
 
 import { postProcessShortcodesInBody } from '../../utils/postProcessShortcodesInBody';
 import { ShortcodeAch } from './ShortcodeAch';
+import { ShortcodeCode } from './ShortcodeCode';
 import { ShortcodeGame } from './ShortcodeGame';
 import { ShortcodeImg } from './ShortcodeImg';
 import { ShortcodeSpoiler } from './ShortcodeSpoiler';
@@ -36,11 +37,8 @@ const retroachievementsPreset = presetReact.extend((tags) => ({
   },
 
   code: (node) => ({
-    tag: 'pre',
-    attrs: {
-      className: 'codetags',
-    },
-    content: node.content,
+    ...node,
+    tag: ShortcodeCode,
   }),
 
   spoiler: (node) => ({

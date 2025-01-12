@@ -54,7 +54,7 @@ describe('Component: ShortcodeRenderer', () => {
     const textEl = screen.getByText(/this is some stuff/i);
 
     expect(textEl).toBeVisible();
-    expect(textEl.nodeName).toEqual('PRE');
+    expect(textEl.nodeName).toEqual('SPAN');
     expect(textEl).toHaveClass('codetags');
   });
 

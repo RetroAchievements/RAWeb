@@ -180,4 +180,15 @@ describe('Util: postProcessShortcodesInBody', () => {
     // ASSERT
     expect(result).toEqual('');
   });
+
+  it('strips body content from img tags', () => {
+    // ARRANGE
+    const body = '[img=https://i.imgur.com/ov30jeD.jpeg]body[/img]';
+
+    // ACT
+    const result = postProcessShortcodesInBody(body);
+
+    // ASSERT
+    expect(result).toEqual('[img=https://i.imgur.com/ov30jeD.jpeg][/img]');
+  });
 });
