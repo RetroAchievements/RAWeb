@@ -87,6 +87,13 @@ class ProcessPlausibleUrlAction
         $route = $this->routes[$routePath];
         $props = [];
 
+        if ($param === null) {
+            return [
+                'redactedUrl' => "/{$routePath}",
+                'props' => $defaultProps,
+            ];
+        }
+
         switch ($route['type']) {
             case 'model':
                 $id = $this->extractId($param);
@@ -197,8 +204,12 @@ class ProcessPlausibleUrlAction
     /**
      * Extracts an ID from either a direct ID or a slug-with-ID route.
      */
-    private function extractId(string $param): ?int
+    private function extractId(?string $param): ?int
     {
+        if (!$param) {
+            return null;
+        }
+
         // Check for slug format first (eg: "sonic-3-123").
         if (preg_match('/-(\d+)$/', $param, $matches)) {
             return (int) $matches[1];
