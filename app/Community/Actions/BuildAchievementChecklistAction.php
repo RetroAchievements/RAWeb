@@ -13,11 +13,11 @@ use App\Platform\Data\AchievementData;
 class BuildAchievementChecklistAction
 {
     public function execute(
-        string $encoded,
+        ?string $encoded,
         User $user,
     ): array {
         $groups = [];
-        foreach (explode('|', $encoded) as $group) {
+        foreach (explode('|', $encoded ?? '') as $group) {
             if (!empty($group)) {
                 $groups[] = $this->parseGroup($group);
             }
