@@ -183,19 +183,19 @@ class HomeControllerTest extends TestCase
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
-            ->where('achievementOfTheWeek.achievement.id', $eventAchievement->id)
-            ->where('achievementOfTheWeek.achievement.title', $achievement->title)
-            ->where('achievementOfTheWeek.achievement.description', $achievement->description)
+            ->where('achievementOfTheWeek.currentEventAchievement.achievement.id', $eventAchievement->id)
+            ->where('achievementOfTheWeek.currentEventAchievement.achievement.title', $achievement->title)
+            ->where('achievementOfTheWeek.currentEventAchievement.achievement.description', $achievement->description)
 
-            ->where('achievementOfTheWeek.sourceAchievement.game.id', $game->id)
-            ->where('achievementOfTheWeek.sourceAchievement.game.title', $game->title)
-            ->where('achievementOfTheWeek.sourceAchievement.game.badgeUrl', $game->badgeUrl)
+            ->where('achievementOfTheWeek.currentEventAchievement.sourceAchievement.game.id', $game->id)
+            ->where('achievementOfTheWeek.currentEventAchievement.sourceAchievement.game.title', $game->title)
+            ->where('achievementOfTheWeek.currentEventAchievement.sourceAchievement.game.badgeUrl', $game->badgeUrl)
 
-            ->where('achievementOfTheWeek.sourceAchievement.game.system.name', $system->name)
-            ->where('achievementOfTheWeek.sourceAchievement.game.system.iconUrl', $system->iconUrl)
+            ->where('achievementOfTheWeek.currentEventAchievement.sourceAchievement.game.system.name', $system->name)
+            ->where('achievementOfTheWeek.currentEventAchievement.sourceAchievement.game.system.iconUrl', $system->iconUrl)
 
-            ->where('achievementOfTheWeek.event.id', $event->id)
-            ->where('achievementOfTheWeek.event.legacyGame.id', $eventGame->id)
+            ->where('achievementOfTheWeek.currentEventAchievement.event.id', $event->id)
+            ->where('achievementOfTheWeek.currentEventAchievement.event.legacyGame.id', $eventGame->id)
         );
     }
 

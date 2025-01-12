@@ -293,9 +293,18 @@ declare namespace App.Enums {
     | 18;
 }
 declare namespace App.Http.Data {
+  export type AchievementOfTheWeekProgress = {
+    streakLength: number;
+    hasCurrentWeek: boolean;
+    hasActiveStreak: boolean;
+  };
+  export type AchievementOfTheWeekProps = {
+    currentEventAchievement: App.Platform.Data.EventAchievement;
+    achievementOfTheWeekProgress: App.Http.Data.AchievementOfTheWeekProgress | null;
+  };
   export type HomePageProps<TItems = App.Community.Data.ActivePlayer> = {
     staticData: App.Data.StaticData;
-    achievementOfTheWeek: App.Platform.Data.EventAchievement | null;
+    achievementOfTheWeek: App.Http.Data.AchievementOfTheWeekProps | null;
     mostRecentGameMastered: App.Data.StaticGameAward | null;
     mostRecentGameBeaten: App.Data.StaticGameAward | null;
     recentNews: Array<App.Data.News>;
