@@ -9,7 +9,6 @@ use App\Platform\Data\EventAchievementData;
 
 class BuildAchievementOfTheWeekDataAction
 {
-    // TODO remove $staticData arg once event is actually run using EventAchievements
     public function execute(): ?EventAchievementData
     {
         $achievementOfTheWeek = EventAchievement::active()
