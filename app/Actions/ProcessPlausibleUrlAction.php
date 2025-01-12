@@ -87,15 +87,15 @@ class ProcessPlausibleUrlAction
         $route = $this->routes[$routePath];
         $props = [];
 
-        if ($param === null) {
-            return [
-                'redactedUrl' => "/{$routePath}",
-                'props' => $defaultProps,
-            ];
-        }
-
         switch ($route['type']) {
             case 'model':
+                if ($param === null) {
+                    return [
+                        'redactedUrl' => "/{$routePath}",
+                        'props' => $defaultProps,
+                    ];
+                }
+
                 $id = $this->extractId($param);
                 if ($id && $model = $route['model']::find($id)) {
                     $props = [
@@ -108,10 +108,24 @@ class ProcessPlausibleUrlAction
                 break;
 
             case 'string':
+                if ($param === null) {
+                    return [
+                        'redactedUrl' => "/{$routePath}",
+                        'props' => $defaultProps,
+                    ];
+                }
+
                 $props = [$route['propName'] => $param];
                 break;
 
             case 'id':
+                if ($param === null) {
+                    return [
+                        'redactedUrl' => "/{$routePath}",
+                        'props' => $defaultProps,
+                    ];
+                }
+
                 if ($param && is_numeric($param)) {
                     $props = ['id' => (int) $param];
                 }
