@@ -7,23 +7,27 @@ import type { TranslatedString } from '@/types/i18next';
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
-interface BuildHasActiveOrInReviewClaimsColumnDefProps {
+interface BuildHasActiveOrInReviewClaimsColumnDefProps<TEntry> {
   strings: {
     t_no: TranslatedString;
     t_yes: TranslatedString;
   };
   t_label: TranslatedString;
 
+  options?: Partial<ColumnDef<TEntry>>;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
 }
 
-export function buildHasActiveOrInReviewClaimsColumnDef({
+export function buildHasActiveOrInReviewClaimsColumnDef<
+  TEntry extends App.Platform.Data.GameListEntry,
+>({
+  options,
   strings,
   t_label,
   tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
-}: BuildHasActiveOrInReviewClaimsColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
+}: BuildHasActiveOrInReviewClaimsColumnDefProps<TEntry>): ColumnDef<TEntry> {
   return {
     id: 'hasActiveOrInReviewClaims',
     accessorKey: 'game',
@@ -62,5 +66,7 @@ export function buildHasActiveOrInReviewClaimsColumnDef({
         </div>
       );
     },
+
+    ...options,
   };
 }

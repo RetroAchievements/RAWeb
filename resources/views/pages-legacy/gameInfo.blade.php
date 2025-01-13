@@ -21,6 +21,7 @@ use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\GameListService;
+use Carbon\Carbon;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {
@@ -85,8 +86,8 @@ $richPresenceData = $gameData['RichPresencePatch'];
 $guideURL = $gameData['GuideURL'];
 
 // Entries that aren't actual game only have alternatives exposed, e.g. hubs.
-$isFullyFeaturedGame = $consoleName !== 'Hubs';
-$isEventGame = $consoleName == 'Events';
+$isFullyFeaturedGame = System::isGameSystem($gameData['ConsoleID']);
+$isEventGame = $gameData['ConsoleID'] == System::Events;
 
 $pageTitle = "$gameTitle ($consoleName)";
 
@@ -181,9 +182,13 @@ if ($isEventGame) {
         $achievementData[$eventAchievement->achievement_id]['ActiveFrom'] = $eventAchievement->active_from ?? null;
         $achievementData[$eventAchievement->achievement_id]['ActiveUntil'] = $eventAchievement->active_until?->subSeconds(1);
     }
+
+    if ($gameModel->event) {
+        $gameData['ImageIcon'] = $gameModel->event->image_asset_path;
+    }
 }
 
-if ($isFullyFeaturedGame) {
+if ($isFullyFeaturedGame || $isEventGame) {
     $numDistinctPlayers = $gameData['NumDistinctPlayers'];
 
     $softcoreUnlocks = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
@@ -345,7 +350,7 @@ if ($isFullyFeaturedGame) {
     :pageImage="$pageImage ?? null"
     :pageType="$pageType ?? null"
 >
-<?php if ($isFullyFeaturedGame): ?>
+<?php if ($isFullyFeaturedGame || $isEventGame): ?>
     <?php if ($numDistinctPlayers): ?>
         <script defer src="https://www.gstatic.com/charts/loader.js"></script>
         <script>
@@ -506,6 +511,16 @@ if ($isFullyFeaturedGame) {
                     <x-game.primary-meta-row-item label="Developer" :metadataValue="$developer" />
                     <x-game.primary-meta-row-item label="Publisher" :metadataValue="$publisher" />
                     <x-game.primary-meta-row-item label="Genre" :metadataValue="$genre" />
+
+                    @if ($isEventGame && $gameModel->event?->active_from && $gameModel->event?->active_until)
+                        <div>
+                            <p class='inline smalldate mb-2'>Active from 
+                                <x-date :value="$gameModel->event->active_from" />
+                                    - 
+                                <x-date :value="$gameModel->event->active_through" />
+                            </p>
+                        </div>
+                    @endif
                 @endif
 
                 @php
@@ -522,22 +537,28 @@ if ($isFullyFeaturedGame) {
                 <x-game.primary-meta-row-item label="Released" :metadataValue="$releasedAtDisplay" />
             </x-game.primary-meta>
 
-        @if ($isFullyFeaturedGame)
+        @if ($isFullyFeaturedGame || $isEventGame)
             <x-game.screenshots :titleImageSrc="$imageTitle" :ingameImageSrc="$imageIngame" />
         @endif
 
-        @if ($isFullyFeaturedGame)
+        @if ($isFullyFeaturedGame || ($isEventGame && !$gameModel->event))
             @if ($userModel && $userModel->can('update', $gameModel))
                 <a class="btn mb-1" href="{{ route('filament.admin.resources.games.edit', ['record' => $gameModel->id]) }}">Manage</a>
             @elseif ($userModel && $userModel->can('manage', $gameModel))
                 <a class="btn mb-1" href="{{ route('filament.admin.resources.games.view', ['record' => $gameModel->id]) }}">Manage</a>
+            @endif
+        @elseif ($isEventGame)
+            @if ($userModel && $userModel->can('update', $gameModel->event))
+                <a class="btn mb-1" href="{{ route('filament.admin.resources.events.edit', ['record' => $gameModel->event->id]) }}">Manage</a>
+            @elseif ($userModel && $userModel->can('manage', $gameModel->event))
+                <a class="btn mb-1" href="{{ route('filament.admin.resources.events.view', ['record' => $gameModel->event->id]) }}">Manage</a>
             @endif
         @endif
 
         <?php
         // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
         // TODO migrate devbox entirely to filament
-        if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper))) {
+        if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper)) && (!$isEventGame || !$gameModel->event)) {
             // TODO use a policy
             $hasMinimumDeveloperPermissions = (
                 $permissions >= Permissions::Developer
@@ -574,7 +595,8 @@ if ($isFullyFeaturedGame) {
                 }
 
                 if ($permissions >= Permissions::Developer) {
-                    echo "<div><a class='btn btn-link' href='/game/$gameID/hashes/manage'>Manage Hashes</a></div>";
+                    $manageHashesHref = route('filament.admin.resources.games.hashes', ['record' => $gameID]);
+                    echo "<div><a class='btn btn-link' href='{$manageHashesHref}'>Manage Hashes</a></div>";
                 }
 
                 $primaryClaimUser = null;
@@ -843,33 +865,35 @@ if ($isFullyFeaturedGame) {
                 />
             <?php
             echo "</div>";
+        }
 
-            // Progression component (desktop only)
-            if ($user !== null && $numAchievements > 0) {
-                echo "<div class='mt-4 mb-4 lg:hidden'>";
-                ?>
-                <x-game.current-progress.root
-                    :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
-                    :gameId="$gameID"
-                    :isBeatable="$isGameBeatable"
-                    :isBeatenHardcore="$isBeatenHardcore"
-                    :isBeatenSoftcore="$isBeatenSoftcore"
-                    :isCompleted="!is_null($userGameProgressionAwards['completed'])"
-                    :isMastered="!is_null($userGameProgressionAwards['mastered'])"
-                    :isEvent="$isEventGame"
-                    :numEarnedHardcoreAchievements="$numEarnedHardcore"
-                    :numEarnedHardcorePoints="$totalEarnedHardcore"
-                    :numEarnedSoftcoreAchievements="$numEarnedCasual"
-                    :numEarnedSoftcorePoints="$totalEarnedCasual"
-                    :numEarnedWeightedPoints="$totalEarnedTrueRatio"
-                    :totalAchievementsCount="$numAchievements"
-                    :totalPointsCount="$totalPossible"
-                />
-                <?php
-                echo "</div>";
-            }
+        // Progression component (mobile only)
+        if ($user !== null && $numAchievements > 0) {
+            echo "<div class='mt-4 mb-4 lg:hidden'>";
+            ?>
+            <x-game.current-progress.root
+                :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                :gameId="$gameID"
+                :isBeatable="$isGameBeatable"
+                :isBeatenHardcore="$isBeatenHardcore"
+                :isBeatenSoftcore="$isBeatenSoftcore"
+                :isCompleted="!is_null($userGameProgressionAwards['completed'])"
+                :isMastered="!is_null($userGameProgressionAwards['mastered'])"
+                :isEvent="$isEventGame"
+                :numEarnedHardcoreAchievements="$numEarnedHardcore"
+                :numEarnedHardcorePoints="$totalEarnedHardcore"
+                :numEarnedSoftcoreAchievements="$numEarnedCasual"
+                :numEarnedSoftcorePoints="$totalEarnedCasual"
+                :numEarnedWeightedPoints="$totalEarnedTrueRatio"
+                :totalAchievementsCount="$numAchievements"
+                :totalPointsCount="$totalPossible"
+            />
+            <?php
+            echo "</div>";
+        }
 
-            if ($numAchievements > 1) {
+        if ($numAchievements > 1) {
+            if ($isFullyFeaturedGame) {
                 echo "<div class='flex flex-col sm:flex-row-reverse sm:items-end justify-between w-full py-3'>";
 
                 $hasCompletionOrMastery = ($numEarnedCasual === $numAchievements) || ($numEarnedHardcore === $numAchievements);
@@ -880,10 +904,28 @@ if ($isFullyFeaturedGame) {
                         :numMissableAchievements="$gameMetaBindings['numMissableAchievements']"
                     />
                 <?php
-                RenderGameSort($isFullyFeaturedGame, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
+                RenderGameSort($gameModel->ConsoleID, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
+                echo "</div>";
+            } elseif ($isEventGame) {
+                $now = Carbon::now();
+                $hasActiveAchievements = $gameModel->event && $gameModel->event->achievements->contains(function ($value) use ($now) {
+                    return $value->active_from <= $now && $value->active_until > $now;
+                });
+                if ($hasActiveAchievements) {
+                    echo "<div class='flex flex-col sm:flex-row-reverse sm:items-end justify-between w-full py-3'>";
+                    ?>
+                        <x-game.achievements-list-filters canShowHideInactiveAchievements="True" />
+                    <?php
+                } else {
+                    echo "<div class='justify-between w-full py-3'>";
+                }
+
+                RenderGameSort(System::Events, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
                 echo "</div>";
             }
+        }
 
+        if ($isFullyFeaturedGame || $isEventGame) {
             if (isset($achievementData)) {
                 ?>
                     <x-game.achievements-list.root
@@ -979,23 +1021,36 @@ if ($isFullyFeaturedGame) {
         }
         ?>
     </div>
-@if ($isFullyFeaturedGame)
+@if ($isFullyFeaturedGame || $isEventGame)
     <x-slot name="sidebar">
         <?php
         echo "<div class='component text-center mb-6'>";
         echo "<img class='max-w-full rounded-sm' src='" . media_asset($gameData['ImageBoxArt']) . "' alt='Boxart'>";
         echo "</div>";
 
-        echo "<div class='component'>";
-        ?>
-            <x-game.link-buttons
-                :game="$gameModel"
-                :isViewingOfficial="$flagParam !== $unofficialFlag"
-            />
-        <?php
-        echo "</div>";
+        if ($isEventGame) {
+            echo "<div class='component'>";
+            $allowedLinks = ['forum-topic'];
+            ?>
+                <x-game.link-buttons
+                    :game="$gameModel"
+                    :isViewingOfficial="$flagParam !== $unofficialFlag"
+                    :allowedLinks="$allowedLinks"
+                />
+            <?php
+            echo "</div>";
+        } elseif ($isFullyFeaturedGame) {
+            echo "<div class='component'>";
+            ?>
+                <x-game.link-buttons
+                    :game="$gameModel"
+                    :isViewingOfficial="$flagParam !== $unofficialFlag"
+                />
+            <?php
+            echo "</div>";
+        }
 
-        // Progression component (mobile only)
+        // Progression component (desktop only)
         if ($user !== null && $numAchievements > 0 && $isOfficial) {
             echo "<div class='mb-5 hidden lg:block'>";
             ?>
@@ -1051,7 +1106,7 @@ if ($isFullyFeaturedGame) {
             <x-game.top-achievers :game="$gameModel" />
         @endif
 
-        @if ($gameModel->system->active)
+        @if ($gameModel->system->active && !$isEventGame)
             <x-game.leaderboards-listing :game="$gameModel" />
         @endif
     </x-slot>

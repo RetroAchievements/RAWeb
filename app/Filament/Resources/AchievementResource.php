@@ -147,6 +147,7 @@ class AchievementResource extends Resource
                         Infolists\Components\TextEntry::make('DisplayOrder'),
                     ])->grow(false),
                 ])->from('md'),
+
                 Infolists\Components\Section::make('Event Association')
                     ->schema([
                         Infolists\Components\TextEntry::make('eventData.source_achievement_id')
@@ -246,42 +247,6 @@ class AchievementResource extends Resource
                                 ->disabled(!$user->can('updateField', [$form->model, 'DisplayOrder'])),
                         ]),
                 ])->from('md'),
-
-                Forms\Components\Section::make('Event Association')
-                    ->relationship('eventData')
-                    ->columns(['xl' => 4, 'md' => 2])
-                    ->schema([
-                        Forms\Components\Select::make('source_achievement_id')
-                            ->label('Source Achievement')
-                            ->columnSpan(2)
-                            ->searchable()
-                            ->getSearchResultsUsing(function (string $search): array {
-                                return Achievement::where('Title', 'like', "%{$search}%")
-                                    ->orWhere('ID', 'like', "%{$search}%")
-                                    ->limit(50)
-                                    ->get()
-                                    ->mapWithKeys(function ($achievement) {
-                                        return [$achievement->id => "[{$achievement->id}] {$achievement->title}"];
-                                    })
-                                    ->toArray();
-                            })
-                            ->getOptionLabelUsing(function (int $value): string {
-                                $achievement = Achievement::find($value);
-
-                                return "[{$achievement->id}] {$achievement->title}";
-                            }),
-
-                        Forms\Components\DatePicker::make('active_from')
-                            ->label('Active From')
-                            ->native(false)
-                            ->date(),
-
-                        Forms\Components\DatePicker::make('active_through')
-                            ->label('Active Through')
-                            ->native(false)
-                            ->date(),
-                    ])
-                    ->hidden(fn ($record) => $record && $record->game->system->id !== System::Events),
             ]);
     }
 

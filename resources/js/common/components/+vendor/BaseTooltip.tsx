@@ -9,12 +9,54 @@ const BaseTooltipProvider = TooltipPrimitive.Provider;
 
 const BaseTooltip = TooltipPrimitive.Root;
 
+const isInteractiveElement = (children: React.ReactNode): boolean => {
+  if (!React.isValidElement(children)) return false;
+
+  // Check if the element type matches interactive elements.
+  const isInteractiveType = (type: string): boolean =>
+    ['button', 'a', 'input', 'select', 'textarea'].includes(type.toLowerCase());
+
+  // For native elements, just check the HTML tag.
+  if (typeof children.type === 'string') {
+    return isInteractiveType(children.type);
+  }
+
+  // For custom components, check if they render to an interactive element.
+  // Look for common props that indicate interactive elements.
+  const props = children.props as {
+    role?: string;
+    onClick?: unknown;
+    href?: string;
+    as?: string | React.ComponentType;
+  };
+
+  return !!(
+    props.onClick ||
+    props.href ||
+    props.role === 'button' ||
+    (props.as && typeof props.as === 'string' && isInteractiveType(props.as))
+  );
+};
+
 const BaseTooltipTrigger = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger>
->(({ className, ...props }, ref) => (
-  <TooltipPrimitive.Trigger ref={ref} className={cn('cursor-help', className)} {...props} />
-));
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger> & {
+    /** Explicit override. When undefined, it'll be auto-detected. */
+    hasHelpCursor?: boolean;
+  }
+>(({ className, hasHelpCursor, children, ...props }, ref) => {
+  const shouldShowHelpCursor = hasHelpCursor ?? !isInteractiveElement(children);
+
+  return (
+    <TooltipPrimitive.Trigger
+      ref={ref}
+      className={cn(shouldShowHelpCursor ? 'cursor-help' : null, className)}
+      {...props}
+    >
+      {children}
+    </TooltipPrimitive.Trigger>
+  );
+});
 BaseTooltipTrigger.displayName = 'BaseTooltipTrigger';
 
 const BaseTooltipPortal = TooltipPrimitive.Portal;
