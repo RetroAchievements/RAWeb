@@ -13,12 +13,21 @@ class GameSuggestionEngine
 {
     /** @var array<array{0: Strategies\GameSuggestionStrategy, 1: int}> */
     private array $strategies;
+    private bool $unsafe_useFixedStrategyForTesting = false;
 
     public function __construct(
         private readonly User $user,
         private readonly ?Game $sourceGame = null,
     ) {
         $this->initializeStrategies();
+    }
+
+    /**
+     * For testing purposes only.
+     */
+    public function dangerouslyEnableFixedStrategyForTesting(): void
+    {
+        $this->unsafe_useFixedStrategyForTesting = true;
     }
 
     private function initializeStrategies(): void
@@ -116,6 +125,11 @@ class GameSuggestionEngine
 
     private function selectWeightedStrategy(): Strategies\GameSuggestionStrategy
     {
+        // In test mode, always return the first strategy.
+        if ($this->unsafe_useFixedStrategyForTesting) {
+            return $this->strategies[0][0];
+        }
+
         $total = array_sum(array_column($this->strategies, 1));
         $random = random_int(1, (int) $total);
         $current = 0;

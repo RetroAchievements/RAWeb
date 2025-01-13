@@ -34,6 +34,7 @@ class GameSuggestionEngineTest extends TestCase
 
         // Act
         $engine = new GameSuggestionEngine($user);
+        $engine->dangerouslyEnableFixedStrategyForTesting();
         $suggestions = $engine->selectSuggestions(limit: 3);
 
         // Assert
@@ -61,6 +62,7 @@ class GameSuggestionEngineTest extends TestCase
 
         // Act
         $engine = new GameSuggestionEngine($user, $sourceGame);
+        $engine->dangerouslyEnableFixedStrategyForTesting();
         $suggestions = $engine->selectSuggestions(limit: 2);
 
         // Assert
