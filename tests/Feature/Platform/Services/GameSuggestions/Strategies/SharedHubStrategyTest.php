@@ -75,26 +75,22 @@ class SharedHubStrategyTest extends TestCase
         // Arrange
         $sourceGame = Game::factory()->create(['achievements_published' => 10]);
 
-        // ... create two different hubs ...
-        $sonicHub = GameSet::factory()->create([
-            'type' => GameSetType::Hub,
-            'title' => '[Series - Sonic the Hedgehog]',
-        ]);
-        $platformerHub = GameSet::factory()->create([
-            'type' => GameSetType::Hub,
-            'title' => '[Genre - 2D Platformer]',
-        ]);
+        $hubCount = 10;
+        $games = [];
+        $hubs = [];
+        for ($i = 0; $i < $hubCount; $i++) {
+            $hubs[$i] = GameSet::factory()->create([
+                'type' => GameSetType::Hub,
+                'title' => $i === 0 ? '[Series - Sonic the Hedgehog]' : "[Hub {$i}]",
+            ]);
 
-        $sonicGame = Game::factory()->create(['achievements_published' => 10]);
-        $platformerGame = Game::factory()->create(['achievements_published' => 10]);
+            $games[$i] = Game::factory()->create(['achievements_published' => 10]);
+            $hubs[$i]->games()->attach([$sourceGame->id, $games[$i]->id]);
+        }
 
-        $sonicHub->games()->attach([$sourceGame->id, $sonicGame->id]);
-        $platformerHub->games()->attach([$sourceGame->id, $platformerGame->id]);
-
-        // Act - we'll sample multiple times to ensure we get games from both hubs
         $seenGames = [];
         $seenHubs = [];
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 20; $i++) {
             $strategy = new SharedHubStrategy($sourceGame);
             $result = $strategy->select();
 
@@ -108,11 +104,8 @@ class SharedHubStrategyTest extends TestCase
         }
 
         // Assert
-        $this->assertTrue(in_array($sonicGame->id, $seenGames));
-        $this->assertTrue(in_array($platformerGame->id, $seenGames));
-
-        $this->assertTrue(in_array($sonicHub->id, $seenHubs));
-        $this->assertTrue(in_array($platformerHub->id, $seenHubs));
+        $this->assertGreaterThan(5, count(array_unique($seenGames)));
+        $this->assertGreaterThan(5, count(array_unique($seenHubs)));
     }
 
     public function testItIgnoresHubsWithOnlyOneGame(): void

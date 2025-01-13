@@ -12,6 +12,8 @@ use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Services\GameSuggestions\GameSuggestionEngine;
+use App\Platform\Services\GameSuggestions\Strategies\SimilarGameStrategy;
+use App\Platform\Services\GameSuggestions\Strategies\WantToPlayStrategy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -34,6 +36,9 @@ class GameSuggestionEngineTest extends TestCase
 
         // Act
         $engine = new GameSuggestionEngine($user);
+        $engine->dangerouslySetFixedStrategyForTesting(
+            new WantToPlayStrategy($user)
+        );
         $suggestions = $engine->selectSuggestions(limit: 3);
 
         // Assert
@@ -61,6 +66,9 @@ class GameSuggestionEngineTest extends TestCase
 
         // Act
         $engine = new GameSuggestionEngine($user, $sourceGame);
+        $engine->dangerouslySetFixedStrategyForTesting(
+            new SimilarGameStrategy($sourceGame, attachContext: false)
+        );
         $suggestions = $engine->selectSuggestions(limit: 2);
 
         // Assert
