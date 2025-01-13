@@ -80,7 +80,14 @@ function generateInitialPaginationState<TData = unknown>(
   persistedViewPreferences: Partial<TableState> | null,
 ): PaginationState {
   if (persistedViewPreferences?.pagination) {
-    return persistedViewPreferences.pagination;
+    return {
+      // The page index is persisted to keep types fully in sync between
+      // the cookie store and the data table library. However, we'll always
+      // use whatever the server says the page should be.
+      pageIndex: paginatedGames.currentPage - 1,
+
+      pageSize: persistedViewPreferences.pagination.pageSize,
+    };
   }
 
   return mapPaginatedGamesToPaginationState(paginatedGames);
