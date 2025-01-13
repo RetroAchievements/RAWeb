@@ -7,20 +7,22 @@ import type { TranslatedString } from '@/types/i18next';
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
-interface BuildReleasedAtColumnDefProps {
+interface BuildReleasedAtColumnDefProps<TEntry> {
   t_label: TranslatedString;
   strings: { t_unknown: TranslatedString };
 
+  options?: Partial<ColumnDef<TEntry>>;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
 }
 
-export function buildReleasedAtColumnDef({
+export function buildReleasedAtColumnDef<TEntry extends App.Platform.Data.GameListEntry>({
+  options,
   strings,
   t_label,
   tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
-}: BuildReleasedAtColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
+}: BuildReleasedAtColumnDefProps<TEntry>): ColumnDef<TEntry> {
   return {
     id: 'releasedAt',
     accessorKey: 'game',
@@ -45,5 +47,7 @@ export function buildReleasedAtColumnDef({
 
       return <p>{formatGameReleasedAt(date, granularity)}</p>;
     },
+
+    ...options,
   };
 }

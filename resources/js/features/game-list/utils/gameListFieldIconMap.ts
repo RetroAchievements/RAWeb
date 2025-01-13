@@ -2,12 +2,20 @@ import { FaCalendarDay, FaTicketAlt } from 'react-icons/fa';
 import { ImTrophy } from 'react-icons/im';
 import { IoLogoGameControllerA } from 'react-icons/io';
 import type { IconType } from 'react-icons/lib';
-import { LuBox, LuCalendarPlus, LuCircleDot, LuGem, LuUser, LuWrench } from 'react-icons/lu';
+import {
+  LuBox,
+  LuCalendarPlus,
+  LuCircleDot,
+  LuGem,
+  LuSparkles,
+  LuUser,
+  LuWrench,
+} from 'react-icons/lu';
 import { MdOutlineLeaderboard } from 'react-icons/md';
 import { PiMedalFill } from 'react-icons/pi';
 
-// These fields don't exist on. App.Platform.Data.Game.
-type ExtraKeys = 'progress' | 'retroRatio';
+// These fields don't exist on App.Platform.Data.Game.
+type ExtraKeys = 'progress' | 'retroRatio' | 'suggestionReason';
 
 // Combine the Game keys and ExtraKeys.
 type GameListFieldKeys = keyof App.Platform.Data.Game | ExtraKeys;
@@ -28,6 +36,7 @@ export const gameListFieldIconMap = createIconMap({
   progress: LuCircleDot,
   releasedAt: FaCalendarDay,
   retroRatio: LuGem,
+  suggestionReason: LuSparkles,
   system: LuBox,
   title: IoLogoGameControllerA,
 });

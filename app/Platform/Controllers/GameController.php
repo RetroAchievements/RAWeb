@@ -212,8 +212,6 @@ class GameController extends Controller
             persistedViewPreferences: $request->getCookiePreferences(),
         );
 
-        dump(json_encode($props, JSON_PRETTY_PRINT));
-
         return Inertia::render('games/suggestions', $props);
     }
 
