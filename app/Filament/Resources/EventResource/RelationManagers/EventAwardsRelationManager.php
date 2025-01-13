@@ -33,7 +33,33 @@ class EventAwardsRelationManager extends RelationManager
     {
         /** @var Event $event */
         $event = $this->getOwnerRecord();
-        $nextTier = ($event->awards()->max('tier_index') ?? 0) + 1;
+        $minAchievements = 1;
+        $maxAchievements = $event->achievements()->count();
+        $isNew = true;
+
+        if (!$event->awards()->exists()) {
+            $tierIndex = 1;
+        } else {
+            /** @var EventAward $award */
+            $award = $form->model;
+            if (is_a($award, EventAward::class)) {
+                $tierIndex = $award->tier_index;
+                $isNew = false;
+            } else { // new record just passes the class name as $form->model
+                $maxTier = $event->awards()->max('tier_index');
+                $tierIndex = $maxTier + 1;
+            }
+
+            $previousTier = $event->awards()->where('tier_index', $tierIndex - 1)->first();
+            if ($previousTier) {
+                $minAchievements = $previousTier->achievements_required + 1;
+            }
+
+            $nextTier = $event->awards()->where('tier_index', $tierIndex + 1)->first();
+            if ($nextTier) {
+                $maxAchievements = $nextTier->achievements_required - 1;
+            }
+        }
 
         return $form
             ->schema([
@@ -43,11 +69,14 @@ class EventAwardsRelationManager extends RelationManager
                     ->required(),
 
                 Forms\Components\TextInput::make('achievements_required')
+                    ->default($maxAchievements)
                     ->numeric()
+                    ->minValue($minAchievements)
+                    ->maxValue($maxAchievements)
                     ->required(),
 
                 Forms\Components\TextInput::make('tier_index')
-                    ->default($nextTier)
+                    ->default($tierIndex)
                     ->numeric()
                     ->readOnly()
                     ->required(),
@@ -67,6 +96,7 @@ class EventAwardsRelationManager extends RelationManager
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif'])
                             ->maxSize(1024)
                             ->maxFiles(1)
+                            ->required($isNew)
                             ->previewable(true),
                     ])
                     ->columns(2),
@@ -110,7 +140,6 @@ class EventAwardsRelationManager extends RelationManager
 
                             return $data;
                         }),
-                    Tables\Actions\DeleteAction::make(),
                 ]),
             ]);
     }
