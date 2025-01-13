@@ -40,7 +40,7 @@ $canShowGlow = $hasUnlockedAnyAchievements && $hasAnyProgressionAward;
                 <p class="sr-only">Your Progress</p>
 
                 @if (!$hasUnlockedAnyAchievements)
-                    <p class="leading-4 mt-2">You haven't unlocked any achievements for this game.</p>
+                    <p class="leading-4 mt-2">You haven't unlocked any achievements for this {{ $isEvent ? 'event' : 'game'}}.</p>
                 @else
                     <x-game.current-progress.big-status-label
                         :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
