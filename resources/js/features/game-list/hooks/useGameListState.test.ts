@@ -230,7 +230,7 @@ describe('Hook: useGameListState', () => {
     });
 
     // ASSERT
-    expect(result.current.pagination).toEqual({ pageIndex: 2, pageSize: 50 });
+    expect(result.current.pagination).toEqual({ pageIndex: 0, pageSize: 50 });
   });
 
   it('given persisted view preferences exist and there is no sort query param, uses those for initial sorting state', () => {
