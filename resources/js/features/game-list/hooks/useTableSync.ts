@@ -49,7 +49,7 @@ export function useTableSync({
         columnVisibility,
         sorting,
         columnFilters: persistedFilters,
-        pagination: { ...pagination, pageIndex: 0 }, // don't persist the page index
+        pagination: { ...pagination, pageIndex: 0 }, // we won't respect the persisted page index
       };
 
       setCookie(JSON.stringify(tableState), { expires: 180 }); // 180 day (6 month) expiry
