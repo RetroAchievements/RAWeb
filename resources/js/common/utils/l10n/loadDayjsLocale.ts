@@ -47,6 +47,11 @@ export async function loadDayjsLocale(userLocale: string) {
         dayjs.locale('pt-br');
         break;
 
+      case 'vi_VN':
+        await import('dayjs/locale/vi.js');
+        dayjs.locale('vi');
+        break;
+
       default:
         console.warn(`Locale ${userLocale} is not supported.`);
     }

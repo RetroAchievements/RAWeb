@@ -34,6 +34,20 @@ class ProcessPlausibleUrlActionTest extends TestCase
         ];
     }
 
+    public function testItCorrectlyHandlesBaseUrls(): void
+    {
+        // Act
+        $result = $this->action->execute('game', [], $this->defaultProps);
+
+        // Assert
+        $this->assertEquals('/game', $result['redactedUrl']);
+        $this->assertEquals([
+            'isAuthenticated' => true,
+            'scheme' => 'dark',
+            'theme' => 'default',
+        ], $result['props']);
+    }
+
     public function testItCorrectlyHandlesLegacyGameUrls(): void
     {
         // Arrange
