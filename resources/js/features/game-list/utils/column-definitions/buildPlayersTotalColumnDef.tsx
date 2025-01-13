@@ -7,18 +7,20 @@ import type { TranslatedString } from '@/types/i18next';
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
-interface BuildPlayersTotalColumnDefProps {
+interface BuildPlayersTotalColumnDefProps<TEntry> {
   t_label: TranslatedString;
 
+  options?: Partial<ColumnDef<TEntry>>;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
 }
 
-export function buildPlayersTotalColumnDef({
+export function buildPlayersTotalColumnDef<TEntry extends App.Platform.Data.GameListEntry>({
+  options,
   t_label,
   tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
-}: BuildPlayersTotalColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
+}: BuildPlayersTotalColumnDefProps<TEntry>): ColumnDef<TEntry> {
   return {
     id: 'playersTotal',
     accessorKey: 'game',
@@ -46,5 +48,7 @@ export function buildPlayersTotalColumnDef({
 
       return <p className={playersTotal === 0 ? 'text-muted' : ''}>{formatNumber(playersTotal)}</p>;
     },
+
+    ...options,
   };
 }

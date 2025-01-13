@@ -7,18 +7,20 @@ import type { TranslatedString } from '@/types/i18next';
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
-interface BuildNumUnresolvedTicketsColumnDefProps {
+interface BuildNumUnresolvedTicketsColumnDefProps<TEntry> {
   t_label: TranslatedString;
 
+  options?: Partial<ColumnDef<TEntry>>;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
 }
 
-export function buildNumUnresolvedTicketsColumnDef({
+export function buildNumUnresolvedTicketsColumnDef<TEntry extends App.Platform.Data.GameListEntry>({
+  options,
   t_label,
   tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
-}: BuildNumUnresolvedTicketsColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
+}: BuildNumUnresolvedTicketsColumnDefProps<TEntry>): ColumnDef<TEntry> {
   return {
     id: 'numUnresolvedTickets',
     accessorKey: 'game',
@@ -54,5 +56,7 @@ export function buildNumUnresolvedTicketsColumnDef({
         </a>
       );
     },
+
+    ...options,
   };
 }

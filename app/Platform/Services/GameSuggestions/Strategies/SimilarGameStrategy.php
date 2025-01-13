@@ -6,10 +6,12 @@ namespace App\Platform\Services\GameSuggestions\Strategies;
 
 use App\Models\Game;
 use App\Models\GameSet;
+use App\Models\System;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSuggestionContextData;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\GameSuggestionReason;
+use App\Platform\Services\GameSuggestions\Enums\SourceGameKind;
 
 class SimilarGameStrategy implements GameSuggestionStrategy
 {
@@ -17,6 +19,7 @@ class SimilarGameStrategy implements GameSuggestionStrategy
 
     public function __construct(
         private readonly Game $sourceGame,
+        private readonly ?SourceGameKind $sourceGameKind = null,
         private readonly bool $attachContext = true,
     ) {
     }
@@ -33,6 +36,7 @@ class SimilarGameStrategy implements GameSuggestionStrategy
         }
 
         $this->selectedGame = Game::query()
+            ->whereNotIn('ConsoleID', System::getNonGameSystems())
             ->whereHas('gameSets', function ($query) use ($gameSetIds) {
                 $query->whereIn('game_sets.id', $gameSetIds);
             })
@@ -56,7 +60,8 @@ class SimilarGameStrategy implements GameSuggestionStrategy
         }
 
         return GameSuggestionContextData::forSimilarGame(
-            GameData::from($this->sourceGame)
+            GameData::from($this->sourceGame)->include('badgeUrl'),
+            sourceGameKind: $this->sourceGameKind,
         );
     }
 }

@@ -166,6 +166,7 @@ class BuildHubBreadcrumbsAction
                 linkCount: 0,
                 forumTopicId: null,
                 updatedAt: new Carbon($data['updated_at']),
+                gameId: 0,
                 hasMatureContent: false, // doesn't matter, this is just a breadcrumb
             ),
             $cachedData ?? [],

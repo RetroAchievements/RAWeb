@@ -13,18 +13,20 @@ import { gameListFieldIconMap } from '../gameListFieldIconMap';
 dayjs.extend(utc);
 dayjs.extend(localizedFormat);
 
-interface BuildLastUpdatedColumnDefProps {
+interface BuildLastUpdatedColumnDefProps<TEntry> {
   t_label: TranslatedString;
 
+  options?: Partial<ColumnDef<TEntry>>;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
 }
 
-export function buildLastUpdatedColumnDef({
+export function buildLastUpdatedColumnDef<TEntry extends App.Platform.Data.GameListEntry>({
+  options,
   t_label,
   tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
-}: BuildLastUpdatedColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
+}: BuildLastUpdatedColumnDefProps<TEntry>): ColumnDef<TEntry> {
   return {
     id: 'lastUpdated',
     accessorKey: 'game',
@@ -44,5 +46,7 @@ export function buildLastUpdatedColumnDef({
 
       return <p>{formatDate(dayjs.utc(date), 'll')}</p>;
     },
+
+    ...options,
   };
 }
