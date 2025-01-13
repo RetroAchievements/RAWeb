@@ -886,33 +886,35 @@ if ($isFullyFeaturedGame) {
                 />
             <?php
             echo "</div>";
+        }
 
-            // Progression component (mobile only)
-            if ($user !== null && $numAchievements > 0) {
-                echo "<div class='mt-4 mb-4 lg:hidden'>";
-                ?>
-                <x-game.current-progress.root
-                    :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
-                    :gameId="$gameID"
-                    :isBeatable="$isGameBeatable"
-                    :isBeatenHardcore="$isBeatenHardcore"
-                    :isBeatenSoftcore="$isBeatenSoftcore"
-                    :isCompleted="!is_null($userGameProgressionAwards['completed'])"
-                    :isMastered="!is_null($userGameProgressionAwards['mastered'])"
-                    :isEvent="$isEventGame"
-                    :numEarnedHardcoreAchievements="$numEarnedHardcore"
-                    :numEarnedHardcorePoints="$totalEarnedHardcore"
-                    :numEarnedSoftcoreAchievements="$numEarnedCasual"
-                    :numEarnedSoftcorePoints="$totalEarnedCasual"
-                    :numEarnedWeightedPoints="$totalEarnedTrueRatio"
-                    :totalAchievementsCount="$numAchievements"
-                    :totalPointsCount="$totalPossible"
-                />
-                <?php
-                echo "</div>";
-            }
+        // Progression component (mobile only)
+        if ($user !== null && $numAchievements > 0) {
+            echo "<div class='mt-4 mb-4 lg:hidden'>";
+            ?>
+            <x-game.current-progress.root
+                :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                :gameId="$gameID"
+                :isBeatable="$isGameBeatable"
+                :isBeatenHardcore="$isBeatenHardcore"
+                :isBeatenSoftcore="$isBeatenSoftcore"
+                :isCompleted="!is_null($userGameProgressionAwards['completed'])"
+                :isMastered="!is_null($userGameProgressionAwards['mastered'])"
+                :isEvent="$isEventGame"
+                :numEarnedHardcoreAchievements="$numEarnedHardcore"
+                :numEarnedHardcorePoints="$totalEarnedHardcore"
+                :numEarnedSoftcoreAchievements="$numEarnedCasual"
+                :numEarnedSoftcorePoints="$totalEarnedCasual"
+                :numEarnedWeightedPoints="$totalEarnedTrueRatio"
+                :totalAchievementsCount="$numAchievements"
+                :totalPointsCount="$totalPossible"
+            />
+            <?php
+            echo "</div>";
+        }
 
-            if ($numAchievements > 1) {
+        if ($numAchievements > 1) {
+            if ($isFullyFeaturedGame) {
                 echo "<div class='flex flex-col sm:flex-row-reverse sm:items-end justify-between w-full py-3'>";
 
                 $hasCompletionOrMastery = ($numEarnedCasual === $numAchievements) || ($numEarnedHardcore === $numAchievements);
@@ -925,48 +927,23 @@ if ($isFullyFeaturedGame) {
                 <?php
                 RenderGameSort($gameModel->ConsoleID, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
                 echo "</div>";
-            }
-        } elseif ($isEventGame) {
-            // Progression component (mobile only)
-            if ($user !== null && $numAchievements > 0) {
-                echo "<div class='mt-4 mb-4 lg:hidden'>";
-                ?>
-                <x-game.current-progress.root
-                    :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
-                    :gameId="$gameID"
-                    :isBeatable="$isGameBeatable"
-                    :isBeatenHardcore="$isBeatenHardcore"
-                    :isBeatenSoftcore="$isBeatenSoftcore"
-                    :isCompleted="!is_null($userGameProgressionAwards['completed'])"
-                    :isMastered="!is_null($userGameProgressionAwards['mastered'])"
-                    :isEvent="$isEventGame"
-                    :numEarnedHardcoreAchievements="$numEarnedHardcore"
-                    :numEarnedHardcorePoints="$totalEarnedHardcore"
-                    :numEarnedSoftcoreAchievements="$numEarnedCasual"
-                    :numEarnedSoftcorePoints="$totalEarnedCasual"
-                    :numEarnedWeightedPoints="$totalEarnedTrueRatio"
-                    :totalAchievementsCount="$numAchievements"
-                    :totalPointsCount="$totalPossible"
-                />
-                <?php
+            } elseif ($isEventGame) {
+                $now = Carbon::now();
+                $hasActiveAchievements = $gameModel->event && $gameModel->event->achievements->contains(function ($value) use ($now) {
+                    return $value->active_from <= $now && $value->active_until > $now;
+                });
+                if ($hasActiveAchievements) {
+                    echo "<div class='flex flex-col sm:flex-row-reverse sm:items-end justify-between w-full py-3'>";
+                    ?>
+                        <x-game.achievements-list-filters canShowHideInactiveAchievements="True" />
+                    <?php
+                } else {
+                    echo "<div class='justify-between w-full py-3'>";
+                }
+
+                RenderGameSort(System::Events, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
                 echo "</div>";
             }
-
-            $now = Carbon::now();
-            $hasActiveAchievements = $gameModel->event && $gameModel->event->achievements->contains(function ($value) use ($now) {
-                return $value->active_from <= $now && $value->active_until > $now;
-            });
-            if ($hasActiveAchievements) {
-                echo "<div class='flex flex-col sm:flex-row-reverse sm:items-end justify-between w-full py-3'>";
-                ?>
-                    <x-game.achievements-list-filters canShowHideInactiveAchievements="True" />
-                <?php
-            } else {
-                echo "<div class='justify-between w-full py-3'>";
-            }
-
-            RenderGameSort(System::Events, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
-            echo "</div>";
         }
 
         if ($isFullyFeaturedGame || $isEventGame) {
