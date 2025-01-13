@@ -1,6 +1,6 @@
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
-import { createGame } from '@/test/factories';
+import { createGame, createSystem } from '@/test/factories';
 
 import { GameAvatar } from './GameAvatar';
 
@@ -158,5 +158,39 @@ describe('Component: GameAvatar', () => {
     // ASSERT
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
     expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
+  });
+
+  it('given showSystemInTitle is true, includes the system name in the game title', () => {
+    // ARRANGE
+    const system = createSystem({ id: 1, name: 'Sega Genesis', nameShort: 'MD' });
+    const game = createGame({ system, title: 'Sonic the Hedgehog' });
+
+    render(<GameAvatar {...game} showSystemInTitle={true} />);
+
+    // ASSERT
+    expect(screen.getByText('Sonic the Hedgehog (Sega Genesis)')).toBeVisible();
+  });
+
+  it('given the variant is base, applies correct classes', () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<GameAvatar {...game} variant="base" />);
+
+    // ASSERT
+    const wrapperEl = screen.getByRole('link');
+    expect(wrapperEl).toHaveClass('flex', 'max-w-fit', 'items-center', 'gap-2');
+  });
+
+  it('given the variant is inline, applies correct classes', () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<GameAvatar {...game} variant="inline" />);
+
+    // ASSERT
+    const wrapperEl = screen.getByRole('link');
+    expect(wrapperEl).toHaveClass('ml-0.5', 'mt-0.5', 'inline-block', 'min-h-7', 'gap-2');
+    expect(screen.getByRole('img')).toHaveClass('mr-1.5');
   });
 });

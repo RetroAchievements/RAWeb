@@ -6,11 +6,15 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\AddCommentAction;
 use App\Community\Actions\GetUrlToCommentDestinationAction;
+use App\Community\Actions\ReplaceUserShortcodesWithUsernamesAction;
 use App\Community\Requests\ForumTopicCommentRequest;
+use App\Data\EditForumTopicCommentPagePropsData;
+use App\Data\ForumTopicCommentData;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class ForumTopicCommentController extends CommentController
 {
@@ -44,12 +48,22 @@ class ForumTopicCommentController extends CommentController
         //     ->with('success', $this->resourceActionSuccessMessage('comment', 'create'));
     }
 
-    public function edit(ForumTopicComment $comment): View
+    public function edit(ForumTopicComment $comment): InertiaResponse
     {
         $this->authorize('update', $comment);
 
-        return view('forum-topic-comment.edit')
-            ->with('comment', $comment);
+        // "[user=1]" -> "[user=Scott]"
+        $comment->body = (new ReplaceUserShortcodesWithUsernamesAction())->execute($comment->body);
+
+        $props = new EditForumTopicCommentPagePropsData(
+            forumTopicComment: ForumTopicCommentData::from($comment)->include(
+                'forumTopic',
+                'forumTopic.forum',
+                'forumTopic.forum.category',
+            ),
+        );
+
+        return Inertia::render('forums/post/[comment]/edit', $props);
     }
 
     protected function update(

@@ -1,6 +1,5 @@
-import { getStringByteCount } from './getStringByteCount';
+import { getStringByteCount } from '@/common/utils/getStringByteCount';
 
-// TODO: Refactor to use Alpine.js instead.
 export function initializeTextareaCounter() {
   const textareaCounterEls = document.getElementsByClassName(
     'textarea-counter',

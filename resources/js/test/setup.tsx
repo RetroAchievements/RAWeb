@@ -116,6 +116,7 @@ export function render<TPageProps = Record<string, unknown>>(
 */
 
 type RenderHookOptions<Props> = RTLRenderHookOptions<Props> & {
+  jotaiAtoms?: [WritableAtom<unknown, any[], unknown>, unknown][];
   pageProps?: Partial<AppGlobalProps>;
   url?: any;
 };
@@ -123,9 +124,10 @@ type RenderHookOptions<Props> = RTLRenderHookOptions<Props> & {
 export function renderHook<Result, Props = undefined>(
   callback: (props: Props) => Result,
   {
-    wrapper,
     initialProps,
+    jotaiAtoms,
     url,
+    wrapper,
     pageProps = {} as Partial<AppGlobalProps>,
     ...options
   }: RenderHookOptions<Props> = {},
@@ -142,7 +144,11 @@ export function renderHook<Result, Props = undefined>(
   }));
 
   if (!wrapper) {
-    wrapper = ({ children }: WrapperProps) => <AppProviders i18n={i18n}>{children}</AppProviders>;
+    wrapper = ({ children }: WrapperProps) => (
+      <AppProviders i18n={i18n}>
+        <HydrateAtoms initialValues={toHydrateValues(jotaiAtoms)}>{children}</HydrateAtoms>
+      </AppProviders>
+    );
   }
 
   return defaultRenderHook(callback, { wrapper, initialProps, ...options });

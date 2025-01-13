@@ -2,6 +2,7 @@ import type { Alpine } from 'alpinejs';
 import type { IconType } from 'react-icons/lib';
 import type { route as routeFn } from 'ziggy-js';
 
+import type { getStringByteCount as GetStringByteCount } from '@/common/utils/getStringByteCount';
 import type {
   modalComponent as ModalComponent,
   navbarSearchComponent as NavbarSearchComponent,
@@ -15,7 +16,6 @@ import type {
   setCookie as SetCookie,
 } from '@/tall-stack/utils/cookie';
 import type { fetcher as Fetcher } from '@/tall-stack/utils/fetcher';
-import type { getStringByteCount as GetStringByteCount } from '@/tall-stack/utils/getStringByteCount';
 import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/tall-stack/utils/handleLeaderboardTabClick';
 import type { initializeTextareaCounter as InitializeTextareaCounter } from '@/tall-stack/utils/initializeTextareaCounter';
 import type { injectShortcode as InjectShortcode } from '@/tall-stack/utils/injectShortcode';

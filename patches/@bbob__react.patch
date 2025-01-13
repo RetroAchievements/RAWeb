@@ -1,0 +1,113 @@
+diff --git a/es/Component.js b/es/Component.js
+index a4ab307b0c48628dedec0431845f972f2bde005c..a349964c49382b691ae1477fab6fae3ea3949f69 100644
+--- a/es/Component.js
++++ b/es/Component.js
+@@ -1,10 +1,15 @@
+-import React from 'react';
+-import { render } from './render';
+-const content = (children, plugins, options)=>React.Children.map(children, (child)=>{
+-        if (typeof child === 'string') {
+-            return render(child, plugins, options);
+-        }
+-        return child;
+-    });
+-const Component = ({ container = 'span', componentProps = {}, children, plugins = [], options = {} })=>React.createElement(container, componentProps, content(children, plugins, options));
+-export default Component;
++const React = require('react');
++const render = require('./render').render;
++
++const content = (children, plugins, options) => React.Children.map(children, (child) => {
++    if (typeof child === 'string') {
++        return render(child, plugins, options);
++    }
++    return child;
++});
++
++const Component = ({ container = 'span', componentProps = {}, children, plugins = [], options = {} }) => 
++    React.createElement(container, componentProps, content(children, plugins, options));
++
++module.exports = Component;
++module.exports.default = Component;
+diff --git a/es/index.js b/es/index.js
+index 5a4aadb175e5607a6e0128292ebb6101197dff5a..ac4ea782b745bb5b30a86ccd676cd7bc9a9f1f54 100644
+--- a/es/index.js
++++ b/es/index.js
+@@ -1,2 +1,6 @@
+-export { default } from './Component';
+-export { render } from './render';
++const Component = require('./Component');
++const render = require('./render').render;
++
++module.exports = Component;
++module.exports.default = Component;
++module.exports.render = render;
+diff --git a/es/render.js b/es/render.js
+index 4d996dc9821c8b2beb58465fd28d7bc12b4104a7..78ad60ef4064b685a14376b024bc0f20cfc7161e 100644
+--- a/es/render.js
++++ b/es/render.js
+@@ -1,16 +1,19 @@
+-/* eslint-disable no-use-before-define */ import React from "react";
+-import { render as htmlrender } from "@bbob/html";
+-import core from "@bbob/core";
+-import { isTagNode, isStringNode, isEOL } from "@bbob/plugin-helper";
+-const toAST = (source, plugins, options)=>core(plugins).process(source, {
+-        ...options,
+-        render: (input)=>{
+-            return htmlrender(input, {
+-                stripTags: true
+-            });
+-        }
+-    }).tree;
+-const isContentEmpty = (content)=>{
++/* eslint-disable no-use-before-define */ 
++const React = require("react");
++const htmlrender = require("@bbob/html").render;
++const core = require("@bbob/core").default;
++const { isTagNode, isStringNode, isEOL } = require("@bbob/plugin-helper");
++
++const toAST = (source, plugins, options) => core(plugins).process(source, {
++    ...options,
++    render: (input) => {
++        return htmlrender(input, {
++            stripTags: true
++        });
++    }
++}).tree;
++
++const isContentEmpty = (content) => {
+     if (!content) {
+         return true;
+     }
+@@ -19,15 +22,17 @@ const isContentEmpty = (content)=>{
+     }
+     return Array.isArray(content) ? content.length === 0 : !content;
+ };
++
+ function tagToReactElement(node, index) {
+     return React.createElement(node.tag, {
+         ...node.attrs,
+         key: index
+     }, isContentEmpty(node.content) ? null : renderToReactNodes(node.content));
+ }
++
+ function renderToReactNodes(nodes) {
+     if (nodes && Array.isArray(nodes) && nodes.length) {
+-        return nodes.reduce((arr, node, index)=>{
++        return nodes.reduce((arr, node, index) => {
+             if (isTagNode(node)) {
+                 arr.push(tagToReactElement(node, index));
+                 return arr;
+@@ -51,8 +56,11 @@ function renderToReactNodes(nodes) {
+     }
+     return [];
+ }
++
+ function render(source, plugins, options) {
+     return renderToReactNodes(toAST(source, plugins, options));
+ }
+-export { render };
+-export default render;
++
++module.exports = render;
++module.exports.render = render;
++module.exports.default = render;

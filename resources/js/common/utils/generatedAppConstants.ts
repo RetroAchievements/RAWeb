@@ -195,6 +195,15 @@ export const UserGameListType = {
 } as const;
 
 
+export const TicketState = {
+    Closed: 0,
+    Open: 1,
+    Resolved: 2,
+    Request: 3,
+    REASON_DEMOTED: 'Demoted',
+} as const;
+
+
 export const ClaimSetType = {
     NewSet: 0,
     Revision: 1,

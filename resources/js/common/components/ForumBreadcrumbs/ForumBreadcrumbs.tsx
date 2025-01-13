@@ -12,12 +12,20 @@ import {
   BaseBreadcrumbSeparator,
 } from '../+vendor/BaseBreadcrumb';
 
-// TODO support ForumCategory and Forum
 interface ForumBreadcrumbsProps {
   t_currentPageLabel: TranslatedString;
+
+  forum?: App.Data.Forum | null;
+  forumCategory?: App.Data.ForumCategory | null;
+  forumTopic?: App.Data.ForumTopic | null;
 }
 
-export const ForumBreadcrumbs: FC<ForumBreadcrumbsProps> = ({ t_currentPageLabel }) => {
+export const ForumBreadcrumbs: FC<ForumBreadcrumbsProps> = ({
+  forum,
+  forumCategory,
+  forumTopic,
+  t_currentPageLabel,
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -27,6 +35,39 @@ export const ForumBreadcrumbs: FC<ForumBreadcrumbsProps> = ({ t_currentPageLabel
           <BaseBreadcrumbItem aria-label={t('Forum Index')}>
             <BaseBreadcrumbLink href="/forum.php">{t('Forum Index')}</BaseBreadcrumbLink>
           </BaseBreadcrumbItem>
+
+          {forumCategory ? (
+            <>
+              <BaseBreadcrumbSeparator />
+              <BaseBreadcrumbItem aria-label={forumCategory.title}>
+                <BaseBreadcrumbLink href={`/forum.php?c=${forumCategory.id}`}>
+                  {forumCategory.title}
+                </BaseBreadcrumbLink>
+              </BaseBreadcrumbItem>
+            </>
+          ) : null}
+
+          {forum ? (
+            <>
+              <BaseBreadcrumbSeparator />
+              <BaseBreadcrumbItem aria-label={forum.title}>
+                <BaseBreadcrumbLink href={`/viewforum.php?f=${forum.id}`}>
+                  {forum.title}
+                </BaseBreadcrumbLink>
+              </BaseBreadcrumbItem>
+            </>
+          ) : null}
+
+          {forumTopic ? (
+            <>
+              <BaseBreadcrumbSeparator />
+              <BaseBreadcrumbItem aria-label={forumTopic.title}>
+                <BaseBreadcrumbLink href={`/viewtopic.php?t=${forumTopic.id}`}>
+                  {forumTopic.title}
+                </BaseBreadcrumbLink>
+              </BaseBreadcrumbItem>
+            </>
+          ) : null}
 
           <BaseBreadcrumbSeparator />
 

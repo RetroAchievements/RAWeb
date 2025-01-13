@@ -13,10 +13,11 @@ type AchievementAvatarProps = BaseAvatarProps &
     showHardcoreUnlockBorder?: boolean;
     showPointsInTitle?: boolean;
     sublabelSlot?: ReactNode;
+    variant?: 'base' | 'inline';
   };
 
 export const AchievementAvatar: FC<AchievementAvatarProps> = ({
-  badgeUnlockedUrl,
+  badgeUnlockedUrl, // see TODO above
   id,
   imgClassName,
   points,
@@ -24,10 +25,11 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
   title,
   hasTooltip = true,
   showHardcoreUnlockBorder = true,
-  showPointsInTitle = false,
   showImage = true,
   showLabel = true,
+  showPointsInTitle = false,
   size = 32,
+  variant = 'base',
 }) => {
   const { cardTooltipProps } = useCardTooltip({ dynamicType: 'achievement', dynamicId: id });
 
@@ -36,39 +38,49 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
     titleLabel = `${title} (${points ?? 0})`;
   }
 
-  const achievementLink = (label: React.ReactNode) => (
+  const achievementLink = (children: React.ReactNode) => (
     <a
       href={route('achievement.show', { achievement: id })}
       className="max-w-fit"
       {...(hasTooltip ? cardTooltipProps : undefined)}
     >
-      {label}
+      {children}
     </a>
   );
 
+  if (!showLabel && showImage && badgeUnlockedUrl) {
+    return achievementLink(
+      <AchievementBadge
+        badgeUrl={badgeUnlockedUrl}
+        title={title}
+        size={size}
+        showHardcoreUnlockBorder={showHardcoreUnlockBorder}
+        variant={variant}
+        imgClassName={imgClassName}
+      />,
+    );
+  }
+
   return (
     <div
-      className={cn('flex max-w-fit items-center', showHardcoreUnlockBorder ? 'gap-2.5' : 'gap-2')}
+      data-testid="ach-avatar-root"
+      className={cn(
+        variant === 'base' ? 'flex max-w-fit items-center' : null,
+        variant === 'inline' ? 'inline-block min-h-[26px]' : null,
+
+        showHardcoreUnlockBorder ? 'gap-2.5' : 'gap-2',
+      )}
     >
-      {showImage
-        ? achievementLink(
-            <img
-              loading="lazy"
-              decoding="async"
-              width={size}
-              height={size}
-              src={badgeUnlockedUrl}
-              alt={title ?? 'Achievement'}
-              className={cn(
-                'rounded-sm',
-                showHardcoreUnlockBorder
-                  ? 'rounded-[1px] outline outline-2 outline-offset-1 outline-[gold] light:outline-amber-500'
-                  : null,
-                imgClassName,
-              )}
-            />,
-          )
-        : null}
+      {showImage && badgeUnlockedUrl ? (
+        <AchievementBadge
+          badgeUrl={badgeUnlockedUrl}
+          title={title}
+          size={size}
+          showHardcoreUnlockBorder={showHardcoreUnlockBorder}
+          variant={variant}
+          imgClassName={imgClassName}
+        />
+      ) : null}
 
       {sublabelSlot ? (
         <div className="flex flex-col">
@@ -79,5 +91,40 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
         <>{title && showLabel ? achievementLink(<span>{titleLabel}</span>) : null}</>
       )}
     </div>
+  );
+};
+
+type AchievementBadgeProps = Partial<AchievementAvatarProps> & {
+  badgeUrl: string;
+};
+
+const AchievementBadge: FC<AchievementBadgeProps> = ({
+  badgeUrl,
+  title,
+  size,
+  showHardcoreUnlockBorder,
+  variant,
+  imgClassName,
+}) => {
+  return (
+    <img
+      loading="lazy"
+      decoding="async"
+      width={size}
+      height={size}
+      src={badgeUrl}
+      alt={title ?? 'Achievement'}
+      className={cn(
+        'rounded-sm',
+
+        showHardcoreUnlockBorder
+          ? 'rounded-[1px] outline outline-2 outline-offset-1 outline-[gold] light:outline-amber-500'
+          : null,
+
+        variant === 'inline' ? 'mr-1.5' : null,
+
+        imgClassName,
+      )}
+    />
   );
 };
