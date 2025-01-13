@@ -50,7 +50,17 @@ export function DataTableColumnHeader<TData, TValue>({
   const { sortConfigs } = useSortConfigs();
 
   if (!column.getCanSort()) {
-    return <div className={cn(className)}>{column.columnDef.meta?.t_label}</div>;
+    return (
+      <div
+        className={cn(
+          'flex text-[13px]',
+          column.columnDef.meta?.align === 'right' ? 'mr-4 justify-end' : '',
+          className,
+        )}
+      >
+        {column.columnDef.meta?.t_label}
+      </div>
+    );
   }
 
   const sortType = (column.columnDef.meta?.sortType ?? 'default') as SortConfigKind;
