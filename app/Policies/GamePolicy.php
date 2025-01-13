@@ -90,9 +90,9 @@ class GamePolicy
 
         $roleFieldPermissions = [
             // Junior Developers cannot edit the game title.
-            Role::DEVELOPER_JUNIOR => ['GuideURL', 'Developer', 'Publisher', 'Genre', 'released_at', 'released_at_granularity'],
+            Role::DEVELOPER_JUNIOR => ['GuideURL', 'Developer', 'Publisher', 'Genre', 'ImageIcon', 'ImageBoxArt', 'ImageTitle', 'ImageIngame', 'released_at', 'released_at_granularity'],
 
-            Role::DEVELOPER => ['Title', 'GuideURL', 'Developer', 'Publisher', 'Genre', 'released_at', 'released_at_granularity'],
+            Role::DEVELOPER => ['Title', 'GuideURL', 'Developer', 'Publisher', 'Genre', 'ImageIcon', 'ImageBoxArt', 'ImageTitle', 'ImageIngame', 'released_at', 'released_at_granularity'],
         ];
 
         $userRoles = $user->getRoleNames();
@@ -177,7 +177,9 @@ class GamePolicy
 
         $game->loadMissing('achievements.developer');
 
-        return $game->achievements->every(function ($achievement) use ($user) {
+        $hasAchievements = $game->achievements->isNotEmpty();
+
+        return $hasAchievements && $game->achievements->every(function ($achievement) use ($user) {
             return $achievement->developer->is($user);
         });
     }
