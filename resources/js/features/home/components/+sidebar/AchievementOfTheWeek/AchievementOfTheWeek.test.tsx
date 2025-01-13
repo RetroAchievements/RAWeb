@@ -2,9 +2,11 @@ import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import {
   createAchievement,
+  createAchievementOfTheWeekProps,
   createEventAchievement,
   createGame,
   createHomePageProps,
+  createRaEvent,
   createSystem,
 } from '@/test/factories';
 
@@ -29,7 +31,7 @@ describe('Component: AchievementOfTheWeek', () => {
     expect(screen.getByRole('heading', { name: /achievement of the week/i })).toBeVisible();
   });
 
-  it('given there is no achievement of the week, does not crash', () => {
+  it('given there is no achievement of the week data, does not crash', () => {
     // ARRANGE
     const { container } = render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
       pageProps: createHomePageProps({ achievementOfTheWeek: null }),
@@ -39,39 +41,60 @@ describe('Component: AchievementOfTheWeek', () => {
     expect(container).toBeTruthy();
   });
 
-  it('displays an accessible link to the event page', () => {
+  it('given there is no current event achievement, does not crash', () => {
     // ARRANGE
-    render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
+    const { container } = render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
       pageProps: createHomePageProps({
-        achievementOfTheWeek: createEventAchievement({ forumTopicId: 100 }),
+        achievementOfTheWeek: { currentEventAchievement: null } as any,
       }),
     });
 
     // ASSERT
-    const linkEl = screen.getByRole('link', { name: /learn more about this event/i });
+    expect(container).toBeTruthy();
+  });
+
+  it('displays an accessible link to the event page', () => {
+    // ARRANGE
+    const legacyGame = createGame();
+    const event = createRaEvent({ legacyGame });
+
+    render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
+      pageProps: createHomePageProps({
+        achievementOfTheWeek: createAchievementOfTheWeekProps({
+          currentEventAchievement: createEventAchievement({ event }),
+        }),
+      }),
+    });
+
+    // ASSERT
+    const linkEl = screen.getByRole('link', { name: /view this year's event/i });
 
     expect(linkEl).toBeVisible();
-    expect(linkEl).toHaveAttribute('href', '/viewtopic.php?t=100');
+    expect(linkEl).toHaveAttribute('href', expect.stringContaining('game.show'));
   });
 
   it('given there is no accessible link to the event page, does not render a link', () => {
     // ARRANGE
+    const event = createRaEvent({ legacyGame: undefined });
+
     render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
       pageProps: createHomePageProps({
-        achievementOfTheWeek: createEventAchievement({ forumTopicId: undefined }),
+        achievementOfTheWeek: createAchievementOfTheWeekProps({
+          currentEventAchievement: createEventAchievement({ event }),
+        }),
       }),
     });
 
     // ASSERT
-    expect(
-      screen.queryByRole('link', { name: /learn more about this event/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /view this year's event/i })).not.toBeInTheDocument();
   });
 
   it('has a link to the achievement', () => {
     // ARRANGE
-    const achievementOfTheWeek = createEventAchievement({
-      achievement: createAchievement({ id: 9, title: 'That Was Easy' }),
+    const achievementOfTheWeek = createAchievementOfTheWeekProps({
+      currentEventAchievement: createEventAchievement({
+        achievement: createAchievement({ id: 9, title: 'That Was Easy' }),
+      }),
     });
 
     render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
@@ -90,9 +113,11 @@ describe('Component: AchievementOfTheWeek', () => {
     const system = createSystem({ name: 'Sega Genesis/Mega Drive', nameShort: 'MD' });
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
     const sourceAchievement = createAchievement({ game, id: 9, title: 'That Was Easy' });
-    const achievementOfTheWeek = createEventAchievement({
-      achievement: sourceAchievement,
-      sourceAchievement,
+    const achievementOfTheWeek = createAchievementOfTheWeekProps({
+      currentEventAchievement: createEventAchievement({
+        achievement: sourceAchievement,
+        sourceAchievement,
+      }),
     });
 
     render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
@@ -111,9 +136,11 @@ describe('Component: AchievementOfTheWeek', () => {
     const system = createSystem({ name: 'Sega Genesis/Mega Drive', nameShort: 'MD' });
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
     const sourceAchievement = createAchievement({ game, id: 9, title: 'That Was Easy' });
-    const achievementOfTheWeek = createEventAchievement({
-      achievement: sourceAchievement,
-      sourceAchievement,
+    const achievementOfTheWeek = createAchievementOfTheWeekProps({
+      currentEventAchievement: createEventAchievement({
+        achievement: sourceAchievement,
+        sourceAchievement,
+      }),
     });
 
     render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
@@ -130,9 +157,11 @@ describe('Component: AchievementOfTheWeek', () => {
     const system = createSystem({ name: 'Sega Genesis/Mega Drive', nameShort: 'MD' });
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
     const sourceAchievement = createAchievement({ game, id: 9, title: 'That Was Easy' });
-    const achievementOfTheWeek = createEventAchievement({
-      achievement: sourceAchievement,
-      sourceAchievement,
+    const achievementOfTheWeek = createAchievementOfTheWeekProps({
+      currentEventAchievement: createEventAchievement({
+        achievement: sourceAchievement,
+        sourceAchievement,
+      }),
     });
 
     render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
@@ -153,10 +182,12 @@ describe('Component: AchievementOfTheWeek', () => {
       title: 'That Was Easy',
       description: 'foo',
     });
-    const achievementOfTheWeek = createEventAchievement({
-      achievement: sourceAchievement,
-      sourceAchievement,
-      activeUntil: tomorrow.toISOString(),
+    const achievementOfTheWeek = createAchievementOfTheWeekProps({
+      currentEventAchievement: createEventAchievement({
+        achievement: sourceAchievement,
+        sourceAchievement,
+        activeUntil: tomorrow.toISOString(),
+      }),
     });
 
     render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
@@ -175,10 +206,12 @@ describe('Component: AchievementOfTheWeek', () => {
       title: 'That Was Easy',
       description: 'foo',
     });
-    const achievementOfTheWeek = createEventAchievement({
-      achievement: sourceAchievement,
-      sourceAchievement,
-      activeUntil: new Date('2030-04-08').toISOString(),
+    const achievementOfTheWeek = createAchievementOfTheWeekProps({
+      currentEventAchievement: createEventAchievement({
+        achievement: sourceAchievement,
+        sourceAchievement,
+        activeUntil: new Date('2030-04-08').toISOString(),
+      }),
     });
 
     render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
@@ -204,10 +237,12 @@ describe('Component: AchievementOfTheWeek', () => {
       title: 'That Was Easy',
       description: 'foo',
     });
-    const achievementOfTheWeek = createEventAchievement({
-      achievement: sourceAchievement,
-      sourceAchievement,
-      activeUntil: undefined,
+    const achievementOfTheWeek = createAchievementOfTheWeekProps({
+      currentEventAchievement: createEventAchievement({
+        achievement: sourceAchievement,
+        sourceAchievement,
+        activeUntil: undefined,
+      }),
     });
 
     render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {

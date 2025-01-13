@@ -89,13 +89,6 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "game.hash.manage": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.tickets": [
         {
             "name": "game",
@@ -245,20 +238,6 @@ declare module 'ziggy-js' {
         }
     ],
     "api.ticket.store": [],
-    "game-hash.update": [
-        {
-            "name": "gameHash",
-            "required": true,
-            "binding": "hash"
-        }
-    ],
-    "game-hash.destroy": [
-        {
-            "name": "gameHash",
-            "required": true,
-            "binding": "hash"
-        }
-    ],
     "player.games.resettable": [],
     "player.game.achievements.resettable": [
         {
@@ -529,6 +508,13 @@ declare module 'ziggy-js' {
     ],
     "forum.recent-posts": [],
     "user.posts.index": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
+    "user.achievement-checklist": [
         {
             "name": "user",
             "required": true,

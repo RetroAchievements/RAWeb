@@ -3,17 +3,17 @@ import { createFactory } from '@/test/createFactory';
 
 import { createAchievementSetClaim } from '../createAchievementSetClaim';
 import { createActivePlayer } from '../createActivePlayer';
-import { createEventAchievement } from '../createEventAchievement';
 import { createNews } from '../createNews';
 import { createPaginatedData } from '../createPaginatedData';
 import { createRecentActiveForumTopic } from '../createRecentActiveForumTopic';
 import { createTrendingGame } from '../createTrendingGame';
+import { createAchievementOfTheWeekProps } from './createAchievementOfTheWeekProps';
 import { createStaticData } from './createStaticData';
 import { createStaticGameAward } from './createStaticGameAward';
 
 export const createHomePageProps = createFactory<App.Http.Data.HomePageProps>((faker) => {
   return {
-    achievementOfTheWeek: createEventAchievement(),
+    achievementOfTheWeek: createAchievementOfTheWeekProps(),
     staticData: createStaticData(),
     mostRecentGameBeaten: createStaticGameAward(),
     mostRecentGameMastered: createStaticGameAward(),

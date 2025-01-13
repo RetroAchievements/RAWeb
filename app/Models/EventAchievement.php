@@ -6,13 +6,19 @@ namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
+use Database\Factories\EventAchievementFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class EventAchievement extends BaseModel
 {
+    /** @use HasFactory<EventAchievementFactory> */
+    use HasFactory;
+
     use LogsActivity {
         LogsActivity::activities as auditLog;
     }
@@ -35,6 +41,11 @@ class EventAchievement extends BaseModel
     protected $appends = [
         'active_through',
     ];
+
+    protected static function newFactory(): EventAchievementFactory
+    {
+        return EventAchievementFactory::new();
+    }
 
     public const RAEVENTS_USER_ID = 279854;
     public const DEVQUEST_USER_ID = 240336;
@@ -79,6 +90,21 @@ class EventAchievement extends BaseModel
     // == relations
 
     /**
+     * @return HasOneThrough<Event>
+     */
+    public function event(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Event::class,
+            Achievement::class,
+            'ID',             // Achievements.ID
+            'legacy_game_id', // events.legacy_game_id
+            'achievement_id', // event_achievements.achievement_id
+            'GameID'          // Achievements.GameID
+        );
+    }
+
+    /**
      * @return BelongsTo<Achievement, EventAchievement>
      */
     public function achievement(): BelongsTo
@@ -95,6 +121,21 @@ class EventAchievement extends BaseModel
     }
 
     // == scopes
+
+    /**
+     * @param Builder<EventAchievement> $query
+     * @return Builder<EventAchievement>
+     */
+    public function scopeCurrentAchievementOfTheWeek(Builder $query): Builder
+    {
+        return $query->active()
+            ->whereHas('achievement.game', function ($query) { // only from the current AotW event
+                $query->where('Title', 'like', '%of the week%');
+            })
+            ->whereNotNull('active_from')
+            ->whereNotNull('active_until')
+            ->whereRaw(dateCompareStatement('active_until', 'active_from', '< 20')); // ignore AotM achievements.
+    }
 
     /**
      * @param Builder<EventAchievement> $query

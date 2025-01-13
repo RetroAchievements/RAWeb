@@ -27,6 +27,7 @@ export * from './createPlayerGameActivitySummary';
 export * from './createPlayerGameClientBreakdown';
 export * from './createPlayerResettableGame';
 export * from './createPlayerResettableGameAchievement';
+export * from './createRaEvent';
 export * from './createRecentActiveForumTopic';
 export * from './createRecentLeaderboardEntry';
 export * from './createRecentPlayerBadge';
