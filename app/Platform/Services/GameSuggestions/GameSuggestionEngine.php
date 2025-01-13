@@ -12,13 +12,13 @@ use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Platform\Data\GameSuggestionData;
 use App\Platform\Services\GameSuggestions\Enums\SourceGameKind;
+use App\Platform\Services\GameSuggestions\Strategies\GameSuggestionStrategy;
 use Illuminate\Support\Collection;
 
 class GameSuggestionEngine
 {
     /** @var array<array{0: Strategies\GameSuggestionStrategy, 1: int}> */
     private array $strategies;
-    private bool $unsafe_useFixedStrategyForTesting = false;
 
     public function __construct(
         private readonly User $user,
@@ -30,9 +30,9 @@ class GameSuggestionEngine
     /**
      * For testing purposes only.
      */
-    public function dangerouslyEnableFixedStrategyForTesting(): void
+    public function dangerouslySetFixedStrategyForTesting(GameSuggestionStrategy $strategy, int $weight = 1): void
     {
-        $this->unsafe_useFixedStrategyForTesting = true;
+        $this->strategies = [[$strategy, $weight]];
     }
 
     private function initializeStrategies(User $user): void
@@ -207,13 +207,8 @@ class GameSuggestionEngine
 
     }
 
-    private function selectWeightedStrategy(): Strategies\GameSuggestionStrategy
+    private function selectWeightedStrategy(): GameSuggestionStrategy
     {
-        // In test mode, always return the first strategy.
-        if ($this->unsafe_useFixedStrategyForTesting) {
-            return $this->strategies[0][0];
-        }
-
         $total = array_sum(array_column($this->strategies, 1));
         $random = random_int(1, (int) $total);
         $current = 0;
