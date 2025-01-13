@@ -68,7 +68,7 @@ class UserAgentService
                             $os .= ' ';
 
                             $part = $parts[$i];
-                            if ($part[-1] === ')') {
+                            if (!empty($part) && $part[-1] === ')') {
                                 $os .= substr($part, 0, -1);
                                 break;
                             }
