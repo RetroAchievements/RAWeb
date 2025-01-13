@@ -21,7 +21,7 @@ class BuildAchievementOfTheWeekDataAction
             ->with(['achievement.game', 'sourceAchievement.game'])
             ->first();
 
-        if (!$achievementOfTheWeek) {
+        if (!$achievementOfTheWeek?->source_achievement_id) {
             return null;
         }
 
