@@ -12,6 +12,7 @@ use App\Filament\Resources\EventResource\RelationManagers\AchievementsRelationMa
 use App\Filament\Resources\EventResource\RelationManagers\HubsRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
 use App\Models\Event;
+use App\Models\EventAchievement;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -105,6 +106,8 @@ class EventResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $isNew = !is_a($form->model, Event::class);
+
         return $form
             ->schema([
                 Forms\Components\Section::make()
@@ -142,6 +145,7 @@ class EventResource extends Resource
                             ->rules(['alpha_dash'])
                             ->minLength(4)
                             ->maxLength(20)
+                            ->required()
                             ->columnSpan(2),
 
                         Forms\Components\DatePicker::make('active_from')
@@ -154,6 +158,26 @@ class EventResource extends Resource
                             ->native(false)
                             ->date(),
                     ]),
+
+                Forms\Components\Section::make('Achievements')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Forms\Components\TextInput::make('numberOfAchievements')
+                            ->label('Number of achievements')
+                            ->numeric()
+                            ->default(6)
+                            ->required(),
+
+                        Forms\Components\Select::make('user_id')
+                            ->label('Username to use as author of new achievements')
+                            ->options([
+                                EventAchievement::RAEVENTS_USER_ID => "RAEvents",
+                                EventAchievement::DEVQUEST_USER_ID => "DevQuest",
+                            ])
+                            ->default(EventAchievement::RAEVENTS_USER_ID)
+                            ->required(),
+                    ])
+                    ->visible($isNew),
 
                 Forms\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
@@ -170,6 +194,7 @@ class EventResource extends Resource
                             ->acceptedFileTypes(['image/png'])
                             ->maxSize(1024)
                             ->maxFiles(1)
+                            ->required($isNew)
                             ->previewable(true),
                     ])
                     ->columns(2),
