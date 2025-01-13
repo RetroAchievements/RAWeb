@@ -950,6 +950,9 @@ function modifyGameRichPresence(string $username, int $gameId, string $dataIn): 
         return false;
     }
 
+    $game->RichPresencePatch = $dataIn;
+    $game->save();
+
     (new UpsertTriggerVersionAction())->execute(
         $game,
         $dataIn,
