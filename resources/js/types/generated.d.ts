@@ -441,8 +441,7 @@ declare namespace App.Platform.Data {
   };
   export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
-    persistenceCookieName: string;
-    persistedViewPreferences: Record<string, any> | null;
+    sourceGame: App.Platform.Data.Game | null;
     defaultDesktopPageSize: number;
   };
   export type GameSuggestionContext = {

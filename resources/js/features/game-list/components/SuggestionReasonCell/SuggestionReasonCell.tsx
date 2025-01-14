@@ -10,13 +10,17 @@ import { WantToPlayReason } from './WantToPlayReason';
 
 interface SuggestionReasonCellProps {
   originalRow: App.Platform.Data.GameSuggestionEntry;
+  sourceGame: App.Platform.Data.Game | null;
 }
 
-export const SuggestionReasonCell: FC<SuggestionReasonCellProps> = ({ originalRow }) => {
+export const SuggestionReasonCell: FC<SuggestionReasonCellProps> = ({
+  originalRow,
+  sourceGame,
+}) => {
   const { suggestionContext, suggestionReason } = originalRow;
 
   const relatedAuthor = suggestionContext?.relatedAuthor as App.Data.User;
-  const relatedGame = suggestionContext?.relatedGame as App.Platform.Data.Game;
+  const relatedGame = sourceGame ?? (suggestionContext?.relatedGame as App.Platform.Data.Game);
   const relatedGameSet = suggestionContext?.relatedGameSet as App.Platform.Data.GameSet;
   const sourceGameKind =
     suggestionContext?.sourceGameKind as App.Platform.Services.GameSuggestions.Enums.SourceGameKind;
