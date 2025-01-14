@@ -82,23 +82,3 @@ if ($action === 'copy-unlocks') {
 
     return back()->with('success', __('legacy.success.ok'));
 }
-
-if ($action === 'aotw') {
-    $aotwAchID = requestInputSanitized('a', 0, 'integer');
-    $aotwForumID = requestInputSanitized('f', 0, 'integer');
-    $aotwStartAt = requestInputSanitized('s', null, 'string');
-
-    $query = "UPDATE StaticData SET
-        Event_AOTW_AchievementID='$aotwAchID',
-        Event_AOTW_ForumID='$aotwForumID',
-        Event_AOTW_StartAt='$aotwStartAt'";
-
-    $db = getMysqliConnection();
-    $result = s_mysql_query($query);
-
-    if ($result) {
-        return back()->with('success', __('legacy.success.ok'));
-    }
-
-    return back()->withErrors(__('legacy.error.error'));
-}

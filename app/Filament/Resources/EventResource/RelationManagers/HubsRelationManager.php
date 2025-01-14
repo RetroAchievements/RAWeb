@@ -100,7 +100,7 @@ class HubsRelationManager extends RelationManager
                         $event = $this->getOwnerRecord();
                         foreach ($data['hub_ids'] as $hubId) {
                             $gameSet = GameSet::find($hubId);
-                            (new AttachGamesToGameSetAction())->execute($gameSet, [$event->game->id]);
+                            (new AttachGamesToGameSetAction())->execute($gameSet, [$event->legacyGame->id]);
                         }
                     }),
             ])
@@ -116,7 +116,7 @@ class HubsRelationManager extends RelationManager
                         /** @var Event $event */
                         $event = $this->getOwnerRecord();
 
-                        (new DetachGamesFromGameSetAction())->execute($gameSetToDetach, [$event->game->id]);
+                        (new DetachGamesFromGameSetAction())->execute($gameSetToDetach, [$event->legacyGame->id]);
                     }),
 
                 Tables\Actions\Action::make('visit')
@@ -138,7 +138,7 @@ class HubsRelationManager extends RelationManager
                         $event = $this->getOwnerRecord();
 
                         foreach ($gameSets as $gameSet) {
-                            (new DetachGamesFromGameSetAction())->execute($gameSet, [$event->game->id]);
+                            (new DetachGamesFromGameSetAction())->execute($gameSet, [$event->legacyGame->id]);
                         }
 
                         $this->deselectAllTableRecords();
