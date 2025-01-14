@@ -41,6 +41,7 @@ class ProcessUploadedImageAction
                     ImageUploadType::GameBoxArt => ImageType::GameBoxArt,
                     ImageUploadType::GameTitle => ImageType::GameTitle,
                     ImageUploadType::GameInGame => ImageType::GameInGame,
+                    ImageUploadType::EventAward => ImageType::GameIcon,
                 };
 
                 $file = createFileArrayFromDataUrl($dataUrl);
