@@ -8,10 +8,10 @@ import { GameListDataTable } from '../GameListDataTable';
 import { useColumnDefinitions } from './useColumnDefinitions';
 
 export const GameSuggestionsDataTable: FC = () => {
-  const { auth, paginatedGameListEntries } = usePageProps<App.Platform.Data.GameSuggestPageProps>();
+  const { paginatedGameListEntries } = usePageProps<App.Platform.Data.GameSuggestPageProps>();
 
   const table = useReactTable({
-    columns: useColumnDefinitions({ forUsername: auth!.user.displayName }),
+    columns: useColumnDefinitions(),
     data: paginatedGameListEntries.items,
 
     getCoreRowModel: getCoreRowModel(),
