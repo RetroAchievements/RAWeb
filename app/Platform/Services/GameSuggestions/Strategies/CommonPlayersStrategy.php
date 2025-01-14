@@ -6,6 +6,7 @@ namespace App\Platform\Services\GameSuggestions\Strategies;
 
 use App\Models\Game;
 use App\Models\PlayerGame;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSuggestionContextData;
@@ -44,7 +45,15 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
             ->limit(10)
             ->value('game_id');
 
-        return $gameId ? Game::find($gameId) : null;
+        // If we found a game, make sure it's not from a non-game system before returning it.
+        // Otherwise, return null.
+        if ($gameId) {
+            $game = Game::find($gameId);
+
+            return $game && !in_array($game->ConsoleID, System::getNonGameSystems()) ? $game : null;
+        }
+
+        return null;
     }
 
     public function reason(): GameSuggestionReason
@@ -59,7 +68,7 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
         }
 
         return GameSuggestionContextData::forCommonPlayersGame(
-            GameData::from($this->sourceGame)
+            GameData::from($this->sourceGame)->include('badgeUrl')
         );
     }
 

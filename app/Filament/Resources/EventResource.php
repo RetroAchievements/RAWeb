@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Filament\Actions\ProcessUploadedImageAction;
+use App\Filament\Enums\ImageUploadType;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EventResource\Pages;
 use App\Filament\Resources\EventResource\RelationManagers\AchievementsRelationManager;
@@ -165,13 +167,71 @@ class EventResource extends Resource
                             ->rules([
                                 'dimensions:width=96,height=96',
                             ])
-                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif'])
+                            ->acceptedFileTypes(['image/png'])
                             ->maxSize(1024)
                             ->maxFiles(1)
                             ->previewable(true),
                     ])
                     ->columns(2),
 
+                // TODO: move these to events table with better names
+                //       apparently, some events actually desire to have them:
+                //       https://discord.com/channels/310192285306454017/758865736072167474/1326712584623099927
+                Forms\Components\Section::make('Media from Game Record')
+                    ->icon('heroicon-s-photo')
+                    ->relationship('game')
+                    ->schema([
+                        // Store a temporary file on disk until the user submits.
+                        // When the user submits, put in storage.
+                        Forms\Components\FileUpload::make('ImageTitle')
+                            ->label('Title')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->image()
+                            ->acceptedFileTypes(['image/png'])
+                            ->maxSize(1024)
+                            ->maxFiles(1)
+                            ->previewable(true),
+
+                        Forms\Components\FileUpload::make('ImageIngame')
+                            ->label('In Game')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->image()
+                            ->acceptedFileTypes(['image/png'])
+                            ->maxSize(1024)
+                            ->maxFiles(1)
+                            ->previewable(true),
+
+                        Forms\Components\FileUpload::make('ImageBoxArt')
+                            ->label('Box Art')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->image()
+                            ->acceptedFileTypes(['image/png'])
+                            ->maxSize(1024)
+                            ->maxFiles(1)
+                            ->previewable(true),
+                    ])
+                    ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
+                        if (isset($data['ImageBoxArt'])) {
+                            $data['ImageBoxArt'] = (new ProcessUploadedImageAction())->execute($data['ImageBoxArt'], ImageUploadType::GameBoxArt);
+                        } else {
+                            unset($data['ImageBoxArt']); // prevent clearing out existing value
+                        }
+
+                        if (isset($data['ImageTitle'])) {
+                            $data['ImageTitle'] = (new ProcessUploadedImageAction())->execute($data['ImageTitle'], ImageUploadType::GameTitle);
+                        } else {
+                            unset($data['ImageTitle']); // prevent clearing out existing value
+                        }
+
+                        if (isset($data['ImageIngame'])) {
+                            $data['ImageIngame'] = (new ProcessUploadedImageAction())->execute($data['ImageIngame'], ImageUploadType::GameInGame);
+                        } else {
+                            unset($data['ImageIngame']); // prevent clearing out existing value
+                        }
+
+                        return $data;
+                    })
+                    ->columns(2),
             ]);
     }
 

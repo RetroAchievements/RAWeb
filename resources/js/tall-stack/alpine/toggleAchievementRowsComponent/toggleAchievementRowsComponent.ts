@@ -1,6 +1,7 @@
 export function toggleAchievementRowsComponent() {
   return {
     isUsingHideUnlockedAchievements: false,
+    isUsingHideInactiveAchievements: false,
     isUsingOnlyShowMissables: false,
 
     updateRowsVisibility(): void {
@@ -17,6 +18,10 @@ export function toggleAchievementRowsComponent() {
           shouldBeHidden = true;
         }
 
+        if (this.isUsingHideInactiveAchievements && !row.classList.contains('active-row')) {
+          shouldBeHidden = true;
+        }
+
         row.classList.toggle('hidden', shouldBeHidden);
       }
     },
@@ -28,6 +33,11 @@ export function toggleAchievementRowsComponent() {
 
     toggleNonMissableRows(): void {
       this.isUsingOnlyShowMissables = !this.isUsingOnlyShowMissables;
+      this.updateRowsVisibility();
+    },
+
+    toggleInactiveRows(): void {
+      this.isUsingHideInactiveAchievements = !this.isUsingHideInactiveAchievements;
       this.updateRowsVisibility();
     },
   };

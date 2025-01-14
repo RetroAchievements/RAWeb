@@ -55,7 +55,7 @@ $user = request()->user();
 
         @if($user->Permissions >= Permissions::Registered)
             <x-dropdown-item :href="route('game-list.play.index')">Want to Play Games</x-dropdown-item>
-            <x-dropdown-item :href="route('games.suggest')">Game Suggestions</x-dropdown-item>
+            <x-dropdown-item :href="route('game.suggestions.personalized')">Game Suggestions</x-dropdown-item>
         @endif
         @if($user->ContribCount > 0 || $user->Permissions >= Permissions::JuniorDeveloper)
             <div class="dropdown-divider"></div>

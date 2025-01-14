@@ -26,6 +26,17 @@ class UserAgentServiceTest extends TestCase
         ], $this->parseUserAgent($userAgent));
     }
 
+    public function testDashUserAgent(): void
+    {
+        // I think "-" in the logs is actually a blank User-Agent, but test it anyway
+        $userAgent = '-';
+
+        $this->assertEquals([
+            'client' => '-',
+            'clientVersion' => 'Unknown',
+        ], $this->parseUserAgent($userAgent));
+    }
+
     public function testNotProvidedUserAgent(): void
     {
         $userAgent = '[not provided]';
@@ -94,6 +105,21 @@ class UserAgentServiceTest extends TestCase
             'clientVariation' => 'quicknes',
             'extra' => [
                 'quicknes_libretro' => '1.0-WIP_7c0796d',
+            ],
+        ], $this->parseUserAgent($userAgent));
+    }
+
+    public function testRetroArchUserAgentWithCoreVersionContainingParentheses(): void
+    {
+        $userAgent = 'RetroArch/1.19.1 (Windows 8 x64 Build 9200 6.2) parallel_n64_next_libretro/2.21.0_(Parallel_Launcher_Edition)';
+
+        $this->assertEquals([
+            'client' => 'RetroArch',
+            'clientVersion' => '1.19.1',
+            'os' => 'Windows 8 x64 Build 9200 6.2',
+            'clientVariation' => 'parallel_n64_next',
+            'extra' => [
+                'parallel_n64_next_libretro' => '2.21.0_(Parallel_Launcher_Edition)',
             ],
         ], $this->parseUserAgent($userAgent));
     }
@@ -249,6 +275,28 @@ class UserAgentServiceTest extends TestCase
             'client' => 'PCSX2',
             'clientVersion' => '1.7.3366',
             'os' => 'Microsoft Windows 10',
+        ], $this->parseUserAgent($userAgent));
+    }
+
+    public function testPCSX2Unversioned(): void
+    {
+        $userAgent = 'PCSX2  (Microsoft Windows 10+)';
+
+        $this->assertEquals([
+            'client' => 'PCSX2',
+            'clientVersion' => 'Unknown',
+            'os' => 'Microsoft Windows 10+',
+        ], $this->parseUserAgent($userAgent));
+    }
+
+    public function testPCSX2ParenthesesInOS(): void
+    {
+        $userAgent = 'PCSX2 v2.3.100 (Bazzite Stable (F41.20250106))';
+
+        $this->assertEquals([
+            'client' => 'PCSX2',
+            'clientVersion' => '2.3.100',
+            'os' => 'Bazzite Stable (F41.20250106)',
         ], $this->parseUserAgent($userAgent));
     }
 
@@ -476,6 +524,17 @@ class UserAgentServiceTest extends TestCase
                 'picodrive_libretro' => '1.92_600894e',
             ],
             'clientVariation' => 'picodrive',
+        ], $this->parseUserAgent($userAgent));
+    }
+
+    public function testXbsx2UserAgent(): void
+    {
+        $userAgent = 'XBSX2 v2.0.8.3 (Microsoft Windows 10+,  Xbox One X)';
+
+        $this->assertEquals([
+            'client' => 'XBSX2',
+            'clientVersion' => '2.0.8.3',
+            'os' => 'Microsoft Windows 10+,  Xbox One X',
         ], $this->parseUserAgent($userAgent));
     }
 }

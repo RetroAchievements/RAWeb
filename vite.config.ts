@@ -60,6 +60,9 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       include: ['resources/js/**/*.{test,spec}.{ts,tsx}'],
       globals: true,
 
+      /** @see https://vitest.dev/guide/improving-performance.html#pool */
+      pool: 'threads',
+
       coverage: {
         provider: 'v8',
         reporter: ['text', 'html'],

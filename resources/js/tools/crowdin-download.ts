@@ -39,11 +39,10 @@ const LANGUAGES = {
   en_GB: 'en-GB',
   es_ES: 'es-ES',
   fr_FR: 'fr',
-
   pl_PL: 'pl',
   ru_RU: 'ru',
-
   pt_BR: 'pt-BR',
+  vi_VN: 'vi-VN',
 } as const;
 
 // ============================================================================

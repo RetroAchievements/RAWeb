@@ -16,7 +16,9 @@ describe('Component: CurrentlyOnline', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render<App.Http.Data.HomePageProps>(<CurrentlyOnline />, {
-      pageProps: { ziggy: createZiggyProps() },
+      pageProps: {
+        ziggy: createZiggyProps(),
+      },
     });
 
     // ASSERT
@@ -26,7 +28,17 @@ describe('Component: CurrentlyOnline', () => {
   it('displays an accessible heading', () => {
     // ARRANGE
     render<App.Http.Data.HomePageProps>(<CurrentlyOnline />, {
-      pageProps: { ziggy: createZiggyProps() },
+      pageProps: {
+        ziggy: createZiggyProps(),
+        ...createHomePageProps({
+          currentlyOnline: {
+            logEntries,
+            allTimeHighDate: null,
+            allTimeHighPlayers: 1000,
+            numCurrentPlayers: 1,
+          },
+        }),
+      },
     });
 
     // ASSERT
@@ -117,5 +129,55 @@ describe('Component: CurrentlyOnline', () => {
 
     // ASSERT
     expect(screen.queryByText(/all-time high/i)).not.toBeInTheDocument();
+  });
+
+  it('given the current log value is not a new all-time high, shows muted text styling', () => {
+    // ARRANGE
+    const logEntries = [100, 200, 300]; // the last value (300) is less than the all-time high
+
+    render<App.Http.Data.HomePageProps>(<CurrentlyOnline />, {
+      pageProps: {
+        ziggy: createZiggyProps(),
+        ...createHomePageProps({
+          currentlyOnline: {
+            logEntries,
+            allTimeHighDate: new Date('2024-01-01').toISOString(),
+            allTimeHighPlayers: 400, // !! higher than 300
+            numCurrentPlayers: 100,
+          },
+        }),
+      },
+    });
+
+    // ASSERT
+    const allTimeHighText = screen.getByText(/all-time high/i);
+
+    expect(allTimeHighText).toHaveClass('text-muted');
+    expect(allTimeHighText).not.toHaveClass('text-yellow-500');
+  });
+
+  it('given the current value matches the all-time high, shows highlighted text styling', () => {
+    // ARRANGE
+    const logEntries = [100, 200, 400]; // Last value (400) is the current all-time high
+
+    render<App.Http.Data.HomePageProps>(<CurrentlyOnline />, {
+      pageProps: {
+        ziggy: createZiggyProps(),
+        ...createHomePageProps({
+          currentlyOnline: {
+            logEntries,
+            allTimeHighDate: new Date('2024-01-01').toISOString(),
+            allTimeHighPlayers: 400, // !!
+            numCurrentPlayers: 100,
+          },
+        }),
+      },
+    });
+
+    // ASSERT
+    const allTimeHighText = screen.getByText(/all-time high/i);
+
+    expect(allTimeHighText).toHaveClass('text-yellow-500');
+    expect(allTimeHighText).not.toHaveClass('text-muted');
   });
 });

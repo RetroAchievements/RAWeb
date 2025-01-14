@@ -265,7 +265,7 @@ class BuildGameListAction
 
                 $suggestionEntryData = $baseData + [
                     'suggestionReason' => $suggestionData->reason,
-                    'relatedGameContext' => $suggestionData->context,
+                    'suggestionContext' => $suggestionData->context,
                 ];
 
                 return new GameSuggestionEntryData(...$suggestionEntryData);
