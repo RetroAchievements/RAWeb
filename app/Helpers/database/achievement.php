@@ -5,6 +5,7 @@ use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\User;
 use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
+use App\Platform\Actions\UpsertTriggerVersionAction;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
@@ -299,6 +300,14 @@ function UploadNewAchievement(
         $achievement->save();
         $idInOut = $achievement->ID;
 
+        // It's a new achievement, so create the initial trigger version.
+        (new UpsertTriggerVersionAction())->execute(
+            $achievement,
+            $mem,
+            versioned: $flag === AchievementFlag::OfficialCore->value,
+            user: $author
+        );
+
         $achievement->ensureAuthorshipCredit($author, AchievementAuthorTask::Logic);
 
         static_addnewachievement($idInOut);
@@ -390,6 +399,21 @@ function UploadNewAchievement(
 
             if ($changingLogic) {
                 $achievement->ensureAuthorshipCredit($author, AchievementAuthorTask::Logic);
+
+                (new UpsertTriggerVersionAction())->execute(
+                    $achievement,
+                    $achievement->MemAddr,
+                    versioned: $achievement->Flags === AchievementFlag::OfficialCore->value,
+                    user: $author
+                );
+            } elseif ($changingAchSet && $achievement->trigger && $achievement->Flags === AchievementFlag::OfficialCore->value) {
+                // If only flags changed, re-version the existing trigger (if it exists).
+                (new UpsertTriggerVersionAction())->execute(
+                    $achievement,
+                    $achievement->trigger->conditions,
+                    versioned: true,
+                    user: $author
+                );
             }
 
             if ($changingAchSet) {
