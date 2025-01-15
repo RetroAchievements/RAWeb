@@ -204,7 +204,7 @@ switch ($requestType) {
      */
     case "allprogress":
         $consoleID = (int) request()->input('c');
-        $response['Response'] = GetAllUserProgress($username, $consoleID);
+        $response['Response'] = GetAllUserProgress($user, $consoleID);
         break;
 
     case "badgeiter":
