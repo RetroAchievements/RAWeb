@@ -45,7 +45,6 @@ class AllProgressTest extends TestCase
 
     public function testItIgnoresGamesWithNoPublishedAchievements(): void
     {
-        // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create([
             'ConsoleID' => $system->id,
