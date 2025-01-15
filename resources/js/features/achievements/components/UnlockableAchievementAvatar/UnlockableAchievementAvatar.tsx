@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans } from 'react-i18next';
 
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { GameAvatar } from '@/common/components/GameAvatar';
@@ -17,8 +17,6 @@ export const UnlockableAchievementAvatar: FC<UnlockableAchievementAvatarProps> =
   showGame = false,
   imageSize = 48,
 }) => {
-  const { t } = useTranslation();
-
   const badgeUrl =
     !achievement.unlockedAt && !achievement.unlockedHardcoreAt
       ? achievement.badgeLockedUrl
@@ -30,7 +28,7 @@ export const UnlockableAchievementAvatar: FC<UnlockableAchievementAvatarProps> =
         {...achievement}
         showHardcoreUnlockBorder={!!achievement.unlockedHardcoreAt}
         badgeUnlockedUrl={badgeUrl}
-        // TODO: showPointsInTitle={true}
+        showPointsInTitle={true}
         showLabel={false}
         size={imageSize}
       />
@@ -41,7 +39,15 @@ export const UnlockableAchievementAvatar: FC<UnlockableAchievementAvatarProps> =
 
           {showGame && achievement.game ? (
             <>
-              <span>{t('from')}</span>
+              <Trans
+                i18nKey="<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>"
+                components={{
+                  1: <span className="sr-only" />,
+                  2: <span className="sr-only" />,
+                }}
+                values={{ achievementTitle: achievement.title, gameTitle: achievement.game.title }}
+              />
+
               <GameAvatar {...achievement.game} showImage={false} />
             </>
           ) : null}
