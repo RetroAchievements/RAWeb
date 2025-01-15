@@ -23,16 +23,6 @@
         <x-filament::section>
             <div class="flex flex-col gap-y-4">
                 <x-filament::section.heading>
-                    Create Event
-                </x-filament::section.heading>
-
-                <livewire:administrative-tools.create-event />
-            </div>
-        </x-filament::section>
-
-        <x-filament::section>
-            <div class="flex flex-col gap-y-4">
-                <x-filament::section.heading>
                     Migrate Achievements
                 </x-filament::section.heading>
 
