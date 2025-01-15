@@ -28,14 +28,13 @@ export const UnlockableAchievementAvatar: FC<UnlockableAchievementAvatarProps> =
         {...achievement}
         showHardcoreUnlockBorder={!!achievement.unlockedHardcoreAt}
         badgeUnlockedUrl={badgeUrl}
-        showPointsInTitle={true}
         showLabel={false}
         size={imageSize}
       />
 
       <div>
         <div className="flex items-center gap-2">
-          <AchievementAvatar {...achievement} showImage={false} />
+          <AchievementAvatar {...achievement} showImage={false} showPointsInTitle={true} />
 
           {showGame && achievement.game ? (
             <>
