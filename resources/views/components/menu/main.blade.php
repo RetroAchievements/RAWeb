@@ -83,7 +83,7 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
             <x-dropdown-item :href="route('claims.active')">Sets in Progress</x-dropdown-item>
             <x-dropdown-item :href="route('game.random')">Random Set</x-dropdown-item>
             <x-dropdown-header>Hubs</x-dropdown-header>
-            <x-dropdown-item :href="route('hub.show', ['gameSet' => 1])">Central Hub</x-dropdown-item>
+            <x-dropdown-item :href="route('hub.index')">Central Hub</x-dropdown-item>
             <x-dropdown-item :href="route('hub.show', ['gameSet' => 2])">Genre & Subgenre Hub</x-dropdown-item>
             <x-dropdown-item :href="route('hub.show', ['gameSet' => 3])">Series Hub</x-dropdown-item>
             <x-dropdown-item :href="route('hub.show', ['gameSet' => 4])">Community Events Hub</x-dropdown-item>
