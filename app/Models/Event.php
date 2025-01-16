@@ -8,6 +8,7 @@ use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -93,6 +94,14 @@ class Event extends BaseModel
     }
 
     // == relations
+
+    /**
+     * @return HasMany<EventAward>
+     */
+    public function awards(): HasMany
+    {
+        return $this->hasMany(EventAward::class, 'event_id');
+    }
 
     /**
      * @return BelongsTo<Game, Event>
