@@ -230,7 +230,7 @@ function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
         $points = (int) $points;
         $totalTP = (int) $totalTP;
 
-        $isFullyFeaturedGame = $consoleName != 'Hubs';
+        $isFullyFeaturedGame = $consoleName !== 'Hubs' && $consoleName !== 'Events';
         if (!$isFullyFeaturedGame) {
             $consoleName = null;
         }

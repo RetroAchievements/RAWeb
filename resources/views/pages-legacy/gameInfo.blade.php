@@ -14,13 +14,11 @@ use App\Models\GameSet;
 use App\Models\System;
 use App\Models\User;
 use App\Models\UserGameListEntry;
-use App\Platform\Controllers\RelatedGamesTableController;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
-use App\Platform\Services\GameListService;
 use Carbon\Carbon;
 
 $gameID = (int) request('game');
@@ -65,8 +63,29 @@ if (!$gameModel) {
     abort(404);
 }
 
-// Redirect hubs to the dedicated hub page (Inertia.js).
-if (config('feature.enable_modern_hubs') && $gameModel->ConsoleID === System::Hubs) {
+$mapGameToAlt = fn (Game $game) => [
+    'gameIDAlt' => $game->id,
+    'Title' => $game->title,
+    'ImageIcon' => $game->ImageIcon,
+    'ConsoleName' => $game->system->name,
+    'Points' => $game->points_total,
+    'TotalTruePoints' => $game->points_weighted,
+    'isFullyFeaturedGame' => true,
+];
+
+$mapGameHubToAlt = fn (GameSet $gameSet) => [
+    'gameIDAlt' => $gameSet->game_id,
+    'GameSetID' => $gameSet->id,
+    'Title' => $gameSet->title,
+    'ImageIcon' => $gameSet->image_asset_path,
+    'ConsoleName' => 'Hubs',
+    'Points' => 0,
+    'TotalTruePoints' => 0,
+    'isFullyFeaturedGame' => false,
+];
+
+// Redirect legacy hubs to the dedicated Inertia.js hub page.
+if ($gameModel->ConsoleID === System::Hubs) {
     $foundGameSet = GameSet::whereType(GameSetType::Hub)
         ->whereGameId($gameModel->id)
         ->first();
@@ -96,43 +115,9 @@ $unlockedAchievements = array_filter($achievementData, function ($achievement) {
 });
 $beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAchievements);
 
-$relatedGames = $isFullyFeaturedGame ? getGameAlternatives($gameID) : getGameAlternatives($gameID, $sortBy);
-$gameAlts = [];
-$gameHubs = [];
-$gameEvents = [];
-$gameSubsets = [];
-$subsetPrefix = $gameData['Title'] . " [Subset - ";
-foreach ($relatedGames as $gameAlt) {
-    if ($gameAlt['ConsoleName'] == 'Hubs') {
-        $gameHubs[] = $gameAlt;
-    } else {
-        if ($gameAlt['ConsoleName'] == 'Events') {
-            $gameEvents[] = $gameAlt;
-        }
-
-        if (str_starts_with($gameAlt['Title'], $subsetPrefix)) {
-            $gameSubsets[] = $gameAlt;
-        } else {
-            $gameAlts[] = $gameAlt;
-        }
-    }
-}
-
-if (config('feature.enable_modern_hubs')) {
-    $gameHubSets = GameSet::whereHas('games', function ($query) use ($gameModel) {
-        $query->whereGameId($gameModel->id);
-    })->get();
-
-    foreach ($gameHubs as &$hub) {
-        // Find matching game hub set by title.
-        $matchingGameSet = $gameHubSets->first(function ($gameSet) use ($hub) {
-            return $gameSet['title'] === $hub['Title'];
-        });
-
-        $hub['GameSetID'] = $matchingGameSet ? $matchingGameSet['id'] : null;
-    }
-    unset($hub);
-}
+$allSimilarGames = $gameModel->similarGamesList;
+$allGameHubSets = $gameModel->hubs;
+$gameHubs = $allGameHubSets->map($mapGameHubToAlt)->values()->all();
 
 $v = requestInputSanitized('v', 0, 'integer');
 $gate = false;
@@ -940,58 +925,6 @@ if ($isFullyFeaturedGame) {
             }
         }
 
-        if (!$isFullyFeaturedGame) {
-            if (!empty($relatedGames)) {
-                $controller = new RelatedGamesTableController(new GameListService());
-                $view = $controller(request());
-                echo $view->render();
-
-                if (count($gameEvents) > 0) {
-                    $icon = getSystemIconUrl(101);
-                    echo '<h2 class="flex gap-x-2 items-center text-h3">';
-                    echo "<img src=\"$icon\" alt=\"Console icon\" width=\"24\" height=\"24\">";
-                    echo '<span>Related Events</span>';
-                    echo '</h2>';
-
-                    echo '<div><table class="table-highlight mb-4"><tbody>';
-                    foreach ($gameEvents as $game) {
-                        echo '<tr><td>';
-                        ?>
-                            <x-game.multiline-avatar
-                                :gameId="$game['gameIDAlt']"
-                                :gameTitle="$game['Title']"
-                                :gameImageIcon="$game['ImageIcon']"
-                            />
-                        <?php
-                        echo '</td></tr>';
-                    }
-                    echo '</tbody></table></div>';
-                }
-
-                if (count($gameHubs) > 0) {
-                    $icon = getSystemIconUrl(100);
-                    echo '<h2 class="flex gap-x-2 items-center text-h3">';
-                    echo "<img src=\"$icon\" alt=\"Console icon\" width=\"24\" height=\"24\">";
-                    echo '<span>Related Hubs</span>';
-                    echo '</h2>';
-
-                    echo '<div><table class="table-highlight mb-4"><tbody>';
-                    foreach ($gameHubs as $game) {
-                        echo '<tr><td>';
-                        ?>
-                            <x-game.multiline-avatar
-                                :gameId="$game['gameIDAlt']"
-                                :gameTitle="$game['Title']"
-                                :gameImageIcon="$game['ImageIcon']"
-                            />
-                        <?php
-                        echo '</td></tr>';
-                    }
-                    echo '</tbody></table></div>';
-                }
-            }
-        }
-
         echo "<div class='my-5'>";
         ?>
             <x-game.link-buttons
@@ -1075,12 +1008,39 @@ if ($isFullyFeaturedGame) {
             echo "</div>";
         }
 
-        if (!empty($gameSubsets)) {
-            RenderGameAlts($gameSubsets, 'Subsets');
+        $mappedSimilarGames = $allSimilarGames->map($mapGameToAlt);
+
+        $onlySimilarGameSubsets = $mappedSimilarGames
+            ->filter(fn (array $game) => str_contains($game['Title'], '[Subset -') && $game['ConsoleName'] !== 'Events')
+            ->values()
+            ->all();
+
+        $onlySimilarGameEvents = $mappedSimilarGames
+            ->filter(fn (array $game) => $game['ConsoleName'] === 'Events')
+            ->values()
+            ->all();
+
+        $similarGamesWithoutSubsets = $mappedSimilarGames
+            ->reject(fn (array $game) => str_contains($game['Title'], '[Subset -') || $game['ConsoleName'] === 'Events')
+            ->values()
+            ->all();
+
+        if (!empty($onlySimilarGameSubsets)) {
+            RenderGameAlts($onlySimilarGameSubsets, 'Subsets');
         }
 
-        if (!empty($gameAlts)) {
-            RenderGameAlts($gameAlts, 'Similar Games');
+        if (!empty($onlySimilarGameEvents)) {
+            RenderGameAlts(
+                $onlySimilarGameEvents,
+                'Related Events'
+            );
+        }
+
+        if (!empty($similarGamesWithoutSubsets)) {
+            RenderGameAlts(
+                $similarGamesWithoutSubsets,
+                'Similar Games'
+            );
         }
 
         if (!empty($gameHubs)) {

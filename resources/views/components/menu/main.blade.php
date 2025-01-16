@@ -83,11 +83,11 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
             <x-dropdown-item :href="route('claims.active')">Sets in Progress</x-dropdown-item>
             <x-dropdown-item :href="route('game.random')">Random Set</x-dropdown-item>
             <x-dropdown-header>Hubs</x-dropdown-header>
-            <x-dropdown-item :href="url('game/6914')">Central Hub</x-dropdown-item>
-            <x-dropdown-item :href="url('game/9553')">Genre & Subgenre Hub</x-dropdown-item>
-            <x-dropdown-item :href="url('game/5771')">Series Hub</x-dropdown-item>
-            <x-dropdown-item :href="url('game/3105')">Community Events Hub</x-dropdown-item>
-            <x-dropdown-item :href="url('game/3273')">Developer Events Hub</x-dropdown-item>
+            <x-dropdown-item :href="route('hub.show', ['gameSet' => 1])">Central Hub</x-dropdown-item>
+            <x-dropdown-item :href="route('hub.show', ['gameSet' => 2])">Genre & Subgenre Hub</x-dropdown-item>
+            <x-dropdown-item :href="route('hub.show', ['gameSet' => 3])">Series Hub</x-dropdown-item>
+            <x-dropdown-item :href="route('hub.show', ['gameSet' => 4])">Community Events Hub</x-dropdown-item>
+            <x-dropdown-item :href="route('hub.show', ['gameSet' => 5])">Developer Events Hub</x-dropdown-item>
         </div>
     </div>
 </x-nav-dropdown>
