@@ -42,9 +42,22 @@ if (isset($achievement['DateEarned'])) {
 if (isset($achievement['DateEarnedHardcore'])) {
     $unlockDate = Carbon::parse($achievement['DateEarnedHardcore'])->format('F j Y, g:ia');
 }
+
+$hasActiveRange = false;
+$isActive = false;
+if ($achievement['ActiveFrom'] ?? null && $achievement['ActiveUntil'] ?? null) {
+    $hasActiveRange = true;
+    $activeFrom = Carbon::parse($achievement['ActiveFrom']);
+    if ($activeFrom <= Carbon::now()) {
+        $activeUntil = Carbon::parse($achievement['ActiveUntil']);
+        if ($activeUntil > Carbon::now()) {
+            $isActive = true;
+        }
+    }
+}
 ?>
 
-<li class="flex gap-x-3 odd:bg-[rgba(50,50,50,0.4)] light:odd:bg-neutral-200  px-2 py-3 md:py-1 w-full {{ $isUnlocked ? 'unlocked-row' : '' }} {{ $achievement['type'] === 'missable' ? 'missable-row' : '' }}">
+<li class="flex gap-x-3 odd:bg-[rgba(50,50,50,0.4)] light:odd:bg-neutral-200  px-2 py-3 md:py-1 w-full {{ $isUnlocked ? 'unlocked-row' : '' }} {{ $achievement['type'] === 'missable' ? 'missable-row' : '' }} {{ $isActive ? 'active-row' : '' }}">
     <div class="flex flex-col gap-y-1">
         {!! $renderedAchievementAvatar !!}
     </div>
@@ -75,7 +88,7 @@ if (isset($achievement['DateEarnedHardcore'])) {
                         </p>
                     @endif
 
-                    @if ($achievement['ActiveFrom'] ?? null && $achievement['ActiveUntil'] ?? null)
+                    @if ($hasActiveRange)
                         <p class="inline smalldate whitespace-nowrap">
                             <x-date :value="$achievement['ActiveFrom']" />
                             <span>-</span>

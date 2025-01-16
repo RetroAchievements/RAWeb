@@ -8,18 +8,20 @@ import type { TranslatedString } from '@/types/i18next';
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
-interface BuildPointsTotalColumnDefProps {
+interface BuildPointsTotalColumnDefProps<TEntry> {
   t_label: TranslatedString;
 
+  options?: Partial<ColumnDef<TEntry>>;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
 }
 
-export function buildPointsTotalColumnDef({
+export function buildPointsTotalColumnDef<TEntry extends App.Platform.Data.GameListEntry>({
+  options,
   t_label,
   tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
-}: BuildPointsTotalColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
+}: BuildPointsTotalColumnDefProps<TEntry>): ColumnDef<TEntry> {
   return {
     id: 'pointsTotal',
     accessorKey: 'game',
@@ -53,5 +55,7 @@ export function buildPointsTotalColumnDef({
         </div>
       );
     },
+
+    ...options,
   };
 }

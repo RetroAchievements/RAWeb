@@ -15,7 +15,7 @@ class GameSuggestionEntryData extends GameListEntryData
         ?PlayerGameData $playerGame,
         ?bool $isInBacklog,
         public GameSuggestionReason $suggestionReason,
-        public ?GameSuggestionContextData $relatedGameContext = null,
+        public ?GameSuggestionContextData $suggestionContext = null,
     ) {
         parent::__construct($game, $playerGame, $isInBacklog);
     }

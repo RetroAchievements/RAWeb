@@ -9,6 +9,7 @@ use App\Models\Game;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\GameSuggestionReason;
+use App\Platform\Services\GameSuggestions\Enums\SourceGameKind;
 use App\Platform\Services\GameSuggestions\Strategies\SharedAuthorStrategy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -44,7 +45,10 @@ class SharedAuthorStrategyTest extends TestCase
         ]);
 
         // Act
-        $strategy = new SharedAuthorStrategy($sourceGame);
+        $strategy = new SharedAuthorStrategy(
+            $sourceGame,
+            sourceGameKind: SourceGameKind::Mastered,
+        );
         $result = $strategy->select();
 
         // Assert

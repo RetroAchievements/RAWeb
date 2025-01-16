@@ -6,10 +6,13 @@ namespace App\Platform\Services\GameSuggestions\Strategies;
 
 use App\Models\Game;
 use App\Models\GameSet;
+use App\Models\System;
+use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
 use App\Platform\Data\GameSuggestionContextData;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\GameSuggestionReason;
+use App\Platform\Services\GameSuggestions\Enums\SourceGameKind;
 
 class SharedHubStrategy implements GameSuggestionStrategy
 {
@@ -18,6 +21,8 @@ class SharedHubStrategy implements GameSuggestionStrategy
 
     public function __construct(
         private readonly Game $sourceGame,
+        private readonly ?SourceGameKind $sourceGameKind = null,
+        private readonly bool $attachSourceGame = false,
     ) {
     }
 
@@ -40,6 +45,7 @@ class SharedHubStrategy implements GameSuggestionStrategy
 
         // Then, get a random game from the hub that isn't our source game.
         $this->selectedGame = Game::query()
+            ->whereNotIn('ConsoleID', System::getNonGameSystems())
             ->whereHas('gameSets', function ($query) {
                 $query->whereGameSetId($this->selectedHub->id);
             })
@@ -63,7 +69,11 @@ class SharedHubStrategy implements GameSuggestionStrategy
         }
 
         return GameSuggestionContextData::forSharedHub(
-            GameSetData::fromGameSetWithCounts($this->selectedHub)
+            GameSetData::fromGameSetWithCounts($this->selectedHub)->include('gameId'),
+            sourceGame: $this->attachSourceGame
+                ? GameData::fromGame($this->sourceGame)->include('badgeUrl')
+                : null,
+            sourceGameKind: $this->attachSourceGame ? $this->sourceGameKind : null,
         );
     }
 }

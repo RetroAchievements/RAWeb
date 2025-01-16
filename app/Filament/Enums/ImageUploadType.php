@@ -12,4 +12,5 @@ enum ImageUploadType
     case GameBoxArt;
     case GameTitle;
     case GameInGame;
+    case EventAward;
 }

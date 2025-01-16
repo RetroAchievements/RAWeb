@@ -7,18 +7,22 @@ import type { TranslatedString } from '@/types/i18next';
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
-interface BuildNumVisibleLeaderboardsColumnDefProps {
+interface BuildNumVisibleLeaderboardsColumnDefProps<TEntry> {
   t_label: TranslatedString;
 
+  options?: Partial<ColumnDef<TEntry>>;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
 }
 
-export function buildNumVisibleLeaderboardsColumnDef({
+export function buildNumVisibleLeaderboardsColumnDef<
+  TEntry extends App.Platform.Data.GameListEntry,
+>({
+  options,
   t_label,
   tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
-}: BuildNumVisibleLeaderboardsColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
+}: BuildNumVisibleLeaderboardsColumnDefProps<TEntry>): ColumnDef<TEntry> {
   return {
     id: 'numVisibleLeaderboards',
     accessorKey: 'game',
@@ -50,5 +54,7 @@ export function buildNumVisibleLeaderboardsColumnDef({
         </p>
       );
     },
+
+    ...options,
   };
 }

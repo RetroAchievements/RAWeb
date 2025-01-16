@@ -124,7 +124,6 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "games.suggest": [],
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],

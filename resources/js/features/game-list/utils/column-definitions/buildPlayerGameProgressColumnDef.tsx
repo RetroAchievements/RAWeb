@@ -7,18 +7,20 @@ import type { TranslatedString } from '@/types/i18next';
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
-interface BuildPlayerGameProgressColumnDefProps {
+interface BuildPlayerGameProgressColumnDefProps<TEntry> {
   t_label: TranslatedString;
 
+  options?: Partial<ColumnDef<TEntry>>;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
 }
 
-export function buildPlayerGameProgressColumnDef({
+export function buildPlayerGameProgressColumnDef<TEntry extends App.Platform.Data.GameListEntry>({
+  options,
   t_label,
   tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
-}: BuildPlayerGameProgressColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
+}: BuildPlayerGameProgressColumnDefProps<TEntry>): ColumnDef<TEntry> {
   return {
     id: 'progress',
     accessorKey: 'game',
@@ -38,5 +40,7 @@ export function buildPlayerGameProgressColumnDef({
 
       return <PlayerGameProgressBar game={game} playerGame={playerGame} />;
     },
+
+    ...options,
   };
 }
