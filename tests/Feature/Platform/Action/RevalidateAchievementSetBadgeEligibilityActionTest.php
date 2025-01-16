@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Action;
 
 use App\Community\Enums\AwardType;
-use App\Models\Game;
 use App\Models\Event;
 use App\Models\EventAward;
+use App\Models\Game;
 use App\Models\PlayerBadge;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\RequestAccountDeletionAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;

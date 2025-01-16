@@ -220,7 +220,6 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
             }
 
             echo avatar('event', $event->id,
-                label: false,
                 link: route('game.show', $event->game->id),
                 tooltip: "<div class='px-2 py-2'><span>$tooltip</span><p><span>{$awardDate}</span></div>",
                 iconUrl: media_asset($image),
