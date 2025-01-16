@@ -634,7 +634,38 @@ class Game extends BaseModel implements HasMedia
     public function gameSets(): BelongsToMany
     {
         return $this->belongsToMany(GameSet::class, 'game_set_games', 'game_id', 'game_set_id')
-            ->withPivot('created_at', 'updated_at', 'deleted_at');
+            ->withPivot(['created_at', 'updated_at', 'deleted_at'])
+            ->withTimestamps('created_at', 'updated_at');
+    }
+
+    /**
+     * @return BelongsToMany<GameSet>
+     */
+    public function hubs(): BelongsToMany
+    {
+        return $this->gameSets()->whereType(GameSetType::Hub);
+    }
+
+    /**
+     * @return BelongsToMany<GameSet>
+     */
+    public function similarGames(): BelongsToMany
+    {
+        return $this->gameSets()->whereType(GameSetType::SimilarGames);
+    }
+
+    /**
+     * @return BelongsToMany<Game>
+     */
+    public function similarGamesList(): BelongsToMany
+    {
+        // This should always be truthy.
+        $gameSet = GameSet::query()
+            ->whereGameId($this->id)
+            ->whereType(GameSetType::SimilarGames)
+            ->first();
+
+        return $gameSet->games()->withTimestamps(['created_at', 'updated_at']);
     }
 
     /**
