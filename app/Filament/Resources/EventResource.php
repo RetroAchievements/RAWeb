@@ -9,6 +9,7 @@ use App\Filament\Enums\ImageUploadType;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EventResource\Pages;
 use App\Filament\Resources\EventResource\RelationManagers\AchievementsRelationManager;
+use App\Filament\Resources\EventResource\RelationManagers\EventAwardsRelationManager;
 use App\Filament\Resources\EventResource\RelationManagers\HubsRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
 use App\Models\Event;
@@ -326,6 +327,7 @@ class EventResource extends Resource
     {
         return [
             AchievementsRelationManager::class,
+            EventAwardsRelationManager::class,
             HubsRelationManager::class,
         ];
     }
