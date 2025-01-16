@@ -60,16 +60,29 @@ final class Shortcode
 
         // Fetch all users by username in a single query.
         $users = User::withTrashed()
-            ->whereIn(DB::raw('LOWER(User)'), $normalizedUsernames)
-            ->get(['ID', 'User'])
-            ->keyBy(fn ($user) => strtolower($user->User));
+            ->where(function ($query) use ($normalizedUsernames) {
+                $query->whereIn(DB::raw('LOWER(User)'), $normalizedUsernames)
+                    ->orWhereIn(DB::raw('LOWER(display_name)'), $normalizedUsernames);
+            })
+            ->get(['ID', 'User', 'display_name']);
+
+        // Create a lookup map that includes both username and display name as keys.
+        $userMap = collect();
+        foreach ($users as $user) {
+            if ($user->User) {
+                $userMap[strtolower($user->username)] = $user;
+            }
+            if ($user->display_name) {
+                $userMap[strtolower($user->display_name)] = $user;
+            }
+        }
 
         // Replace each username with the corresponding user ID.
-        return preg_replace_callback('/\[user=(.*?)\]/', function ($matches) use ($users) {
+        return preg_replace_callback('/\[user=(.*?)\]/', function ($matches) use ($userMap) {
             $username = strtolower($matches[1]);
-            $user = $users->get($username);
+            $user = $userMap->get($username);
 
-            return $user ? "[user={$user->id}]" : $matches[0];
+            return $user ? "[user={$user->ID}]" : $matches[0];
         }, $input);
     }
 

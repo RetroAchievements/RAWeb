@@ -26,6 +26,7 @@ class LoginTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
+            'display_name' => 'MyDisplayName',
             'appToken' => Str::random(16),
             'Password' => Hash::make($password),
             'Permissions' => Permissions::JuniorDeveloper,
@@ -37,7 +38,8 @@ class LoginTest extends TestCase
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
-                'User' => $user->User,
+                'User' => $user->display_name,
+                'AvatarUrl' => $user->avatar_url,
                 'Token' => $user->appToken,
                 'Score' => 12345,
                 'SoftcoreScore' => 4321,
@@ -47,7 +49,7 @@ class LoginTest extends TestCase
             ]);
 
         /** @var User $user1 */
-        $user1 = User::firstWhere('User', $user->User);
+        $user1 = User::whereName($user->User)->first();
         $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $user1->appTokenExpiry);
 
         // === with token ===
@@ -56,7 +58,8 @@ class LoginTest extends TestCase
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
-                'User' => $user->User,
+                'User' => $user->display_name,
+                'AvatarUrl' => $user->avatar_url,
                 'Token' => $user->appToken,
                 'Score' => 12345,
                 'SoftcoreScore' => 4321,
@@ -86,7 +89,8 @@ class LoginTest extends TestCase
 
         $response->assertStatus(200)->assertExactJson([
             'Success' => true,
-            'User' => $user2->User,
+            'User' => $user2->display_name,
+            'AvatarUrl' => $user2->avatar_url,
             'Token' => $data['appToken'],
             'Score' => 99999,
             'SoftcoreScore' => 99,

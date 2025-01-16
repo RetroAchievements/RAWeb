@@ -45,7 +45,7 @@ class PostActivityTest extends TestCase
         $this->assertEquals('Playing ' . $game->title, $playerSession->rich_presence);
 
         /** @var User $user1 */
-        $user1 = User::firstWhere('User', $this->user->User);
+        $user1 = User::whereName($this->user->User)->first();
         $this->assertEquals($game->ID, $user1->LastGameID);
         $this->assertEquals("Playing " . $game->Title, $user1->RichPresenceMsg);
 

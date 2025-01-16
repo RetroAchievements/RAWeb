@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Message;
+use App\Models\User;
 use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
@@ -9,11 +10,18 @@ middleware(['auth', 'can:create,' . Message::class]); // TODO add 'verified' mid
 name('message.create');
 
 render(function (View $view) {
+    $to = request()->input('to') ?? '';
+    $toUser = null;
+    if ($to) {
+        $toUser = User::whereName($to)->first();
+    }
+
     return $view->with([
         'message' => request()->input('message') ?? '',
         'subject' => request()->input('subject') ?? '',
         'templateKind' => request()->input('templateKind') ?? null,
-        'toUser' => request()->input('to') ?? '',
+        'toUsername' => $to,
+        'toUser' => $toUser,
     ]);
 });
 
@@ -23,7 +31,8 @@ render(function (View $view) {
     'message' => '',
     'subject' => '',
     'templateKind' => null, // 'manual-unlock' | 'writing-error' | 'misclassification' | 'unwelcome-concept' | 'achievement-issue' | null
-    'toUser' => '',
+    'toUsername' => '',
+    'toUser' => null, // ?User
 ])
 
 <x-app-layout
@@ -45,13 +54,14 @@ render(function (View $view) {
             <div class="flex flex-col gap-y-3">
                 <x-base.form.user-select
                     :disabled="!!$templateKind"
+                    initialStableUsername="{{ $toUser?->username }}"
                     name="recipient"
-                    value="{{ $toUser }}"
+                    value="{{ $toUsername }}"
                     requiredSilent
                     inline
                 />
                 @if ($templateKind)
-                    <input type="hidden" name="recipient" value="{{ $toUser }}">
+                    <input type="hidden" name="recipient" value="{{ $toUsername }}">
                 @endif
 
                 <x-base.form.input

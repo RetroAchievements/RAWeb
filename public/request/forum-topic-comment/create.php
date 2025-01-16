@@ -20,7 +20,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     ],
 ]);
 
-$userModel = User::firstWhere('User', $user);
+$userModel = User::whereName($user)->first();
 $forumTopic = ForumTopic::find((int) $input['topic']);
 
 if (!$forumTopic || !$userModel->can('create', [App\Models\ForumTopicComment::class, $forumTopic])) {

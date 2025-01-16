@@ -177,6 +177,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         "ContribYield",
         "Created",
         "Deleted",
+        'display_name',
         "ID",
         "isMuted",
         "LastLogin",
@@ -280,7 +281,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     public function getFilamentName(): string
     {
-        return $this->username;
+        return $this->getDisplayNameAttribute();
     }
 
     // search
@@ -348,6 +349,24 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         $this->registerAvatarMediaCollection();
     }
 
+    // == actions
+
+    /**
+     * @return Builder<User>
+     */
+    public static function whereName(?string $displayNameOrUsername): Builder
+    {
+        if ($displayNameOrUsername === null) {
+            return static::query();
+        }
+
+        return static::query()
+            ->where(function ($query) use ($displayNameOrUsername) {
+                $query->where('display_name', $displayNameOrUsername)
+                    ->orWhere('User', $displayNameOrUsername);
+            });
+    }
+
     // == accessors
 
     public function preferredLocale()
@@ -355,12 +374,16 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         return $this->locale;
     }
 
-    public function getRouteKeyName(): string
+    public function getRouteKey(): string
     {
-        /*
-         * TODO: this might not hold up for changeable usernames -> find a better solution
-         */
-        return 'User';
+        return !empty($this->display_name) ? $this->display_name : 'User';
+    }
+
+    public function resolveRouteBinding($value, $field = null): ?self
+    {
+        return $this->where('display_name', $value)
+            ->orWhere('User', $value)
+            ->firstOrFail();
     }
 
     public function isModerated(): bool
@@ -414,8 +437,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     public function getDisplayNameAttribute(): ?string
     {
-        // return $this->attributes['display_name'] ?? $this->attributes['username'] ?? null;
-        return $this->getAttribute('User');
+       if (!empty($this->attributes['display_name'])) {
+           return $this->attributes['display_name'];
+       }
+
+       return $this->username ?? null;
     }
 
     public function getUsernameAttribute(): string
@@ -546,18 +572,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     // }
 
     // == scopes
-
-    /**
-     * To make the transition to customizable usernames a little easier
-     * once `display_name` is populated in the database.
-     *
-     * @param Builder<User> $query
-     * @return Builder<User>
-     */
-    public function scopeByDisplayName(Builder $query, string $username): Builder
-    {
-        return $query->where('User', $username);
-    }
 
     /**
      * @param Builder<User> $query

@@ -256,7 +256,7 @@ $permissions = $user->getAttribute('Permissions');
                             $commentUser = 
                                 ($comment['User'] === $ticket->reporter?->User) ? $ticket->reporter :
                                 (($comment['User'] === $user->User) ? $user :
-                                    User::firstWhere('User', $comment['User']));
+                                    User::whereName($comment['User'])->first());
                         @endphp
                         <x-comment.item
                             :author="$commentUser"

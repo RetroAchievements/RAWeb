@@ -58,7 +58,7 @@ class UserCard extends Component
         return Cache::store('array')->rememberForever(
             CacheKey::buildUserCardDataCacheKey($username),
             function () use ($username): ?array {
-                $foundUser = User::firstWhere('User', $username);
+                $foundUser = User::whereName($username)->first();
 
                 return $foundUser ? [
                     ...$foundUser->toArray(),
@@ -79,7 +79,7 @@ class UserCard extends Component
 
     private function buildCardBioData(array $rawUserData): array
     {
-        $username = $rawUserData['User'] ?? "";
+        $username = $rawUserData['display_name'] ?? $rawUserData['User'] ?? "";
         $motto = $rawUserData['Motto'] && !$rawUserData['isMuted'] ? $rawUserData['Motto'] : null;
         $avatarUrl = $rawUserData['avatarUrl'] ?? null;
         $hardcorePoints = $rawUserData['RAPoints'] ?? 0;

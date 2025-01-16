@@ -13,7 +13,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'game' => 'required|integer|exists:GameData,ID',
 ]);
 
-$userModel = User::firstWhere('User', $user);
+$userModel = User::whereName($user)->first();
 
 $forumTopicComment = generateGameForumTopic($userModel, (int) $input['game']);
 if ($forumTopicComment) {

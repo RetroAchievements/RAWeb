@@ -25,7 +25,7 @@ function SetAccountPermissionsJSON(
 ): array {
     $retVal = [];
 
-    $targetUser = User::firstWhere('User', $targetUsername);
+    $targetUser = User::whereName($targetUsername)->first();
     if (!$targetUser) {
         $retVal['Success'] = false;
         $retVal['Error'] = "$targetUsername not found";
@@ -131,7 +131,7 @@ function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User 
     authorizeAllForumPostsForUser($targetUser);
 
     addArticleComment('Server', ArticleType::UserModeration, $targetUser->id,
-        $sourceUser->User . ' authorized user\'s forum posts'
+        $sourceUser->display_name . ' authorized user\'s forum posts'
     );
 
     // SUCCESS! Upgraded $user to allow forum posts, authorised by $sourceUser ($sourcePermissions)
@@ -145,7 +145,7 @@ function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User 
  */
 function banAccountByUsername(string $username, int $permissions): void
 {
-    $user = User::firstWhere('User', $username);
+    $user = User::whereName($username)->first();
 
     if (!$user) {
         return;

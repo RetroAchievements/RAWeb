@@ -179,12 +179,12 @@ if ($gamesTableFlag == 1) {
 // getting ticket info for a specific user
 $assignedToUser = request()->query('u');
 if (!empty($assignedToUser)) {
-    $foundUser = User::firstWhere('User', $assignedToUser);
+    $foundUser = User::whereName($assignedToUser)->first();
     if (!$foundUser) {
         return response()->json(['error' => "User $assignedToUser not found"], 404);
     }
 
-    $ticketData['User'] = $assignedToUser;
+    $ticketData['User'] = $foundUser->display_name;
     $ticketData['Open'] = 0;
     $ticketData['Closed'] = 0;
     $ticketData['Resolved'] = 0;
@@ -211,7 +211,7 @@ if (!empty($assignedToUser)) {
             $prevID = $ticket['AchievementID'];
         }
     }
-    $ticketData['URL'] = route('developer.tickets', ['user' => $assignedToUser]);
+    $ticketData['URL'] = route('developer.tickets', ['user' => $foundUser->display_name]);
 
     return response()->json($ticketData);
 }
@@ -246,9 +246,9 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
             'ReportType' => $ticket->ReportType,
             'ReportTypeDescription' => TicketType::toString($ticket->ReportType),
             'ReportNotes' => $ticket->ReportNotes,
-            'ReportedBy' => $ticket->reporter?->User,
+            'ReportedBy' => $ticket->reporter?->display_name,
             'ResolvedAt' => $ticket->ResolvedAt?->__toString(),
-            'ResolvedBy' => $ticket->resolver?->User,
+            'ResolvedBy' => $ticket->resolver?->display_name,
             'ReportState' => $ticket->ReportState,
             'ReportStateDescription' => TicketState::toString($ticket->ReportState),
             'Hardcore' => $ticket->Hardcore,

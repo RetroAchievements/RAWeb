@@ -16,7 +16,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 /** @var ForumTopic $topic */
 $topic = ForumTopic::find($input['topic']);
 
-$userModel = User::firstWhere('User', $username);
+$userModel = User::whereName($username)->first();
 
 if (!$userModel->can('delete', $topic)) {
     return back()->withErrors(__('legacy.error.permissions'));

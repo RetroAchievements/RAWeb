@@ -14,13 +14,13 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 $currentUser = User::find($userDetails['ID']);
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'user' => 'required|string|exists:UserAccounts,User',
+    'user' => 'required|string|exists:UserAccounts,display_name',
     'leaderboard' => 'required|integer|exists:LeaderboardDef,ID',
     'reason' => 'nullable|string|max:200',
 ]);
 
 $leaderboardId = (int) $input['leaderboard'];
-$targetUser = User::firstWhere('User', $input['user']);
+$targetUser = User::whereName($input['user'])->first();
 $reason = $input['reason'];
 
 if (!$targetUser) {

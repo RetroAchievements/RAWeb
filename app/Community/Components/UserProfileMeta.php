@@ -75,7 +75,7 @@ class UserProfileMeta extends Component
         $setsWorkedOnStat = [
             'label' => 'Achievement sets worked on',
             'value' => localized_number($gameAuthoredAchievementsCount),
-            'href' => $gameAuthoredAchievementsCount ? route('developer.sets', ['user' => $user]) : null,
+            'href' => $gameAuthoredAchievementsCount ? route('developer.sets', ['user' => $user->display_name]) : null,
             'isMuted' => !$gameAuthoredAchievementsCount,
         ];
 
@@ -83,7 +83,7 @@ class UserProfileMeta extends Component
         $achievementsUnlockedByPlayersStat = [
             'label' => 'Achievements unlocked by players',
             'value' => localized_number($userMassData['ContribCount']),
-            'href' => $userMassData['ContribCount'] > 0 ? route('user.achievement-author.feed', ['user' => $user]) : null,
+            'href' => $userMassData['ContribCount'] > 0 ? route('user.achievement-author.feed', ['user' => $user->display_name]) : null,
             'isMuted' => !$userMassData['ContribCount'],
         ];
 
@@ -91,7 +91,7 @@ class UserProfileMeta extends Component
         $pointsAwardedToPlayersStat = [
             'label' => 'Points awarded to players',
             'value' => localized_number($userMassData['ContribYield']),
-            'href' => $userMassData['ContribYield'] > 0 ? route('user.achievement-author.feed', ['user' => $user]) : null,
+            'href' => $userMassData['ContribYield'] > 0 ? route('user.achievement-author.feed', ['user' => $user->display_name]) : null,
             'isMuted' => !$userMassData['ContribYield'],
         ];
 
@@ -100,7 +100,7 @@ class UserProfileMeta extends Component
         $codeNotesCreatedStat = [
             'label' => 'Code notes created',
             'value' => localized_number($totalAuthoredCodeNotes),
-            'href' => $totalAuthoredCodeNotes ? '/individualdevstats.php?u=' . $user->User . '#code-notes' : null,
+            'href' => $totalAuthoredCodeNotes ? '/individualdevstats.php?u=' . $user->display_name . '#code-notes' : null,
             'isMuted' => !$totalAuthoredCodeNotes,
         ];
 
@@ -111,7 +111,7 @@ class UserProfileMeta extends Component
         $leaderboardsCreatedStat = [
             'label' => 'Leaderboards created',
             'value' => localized_number($totalAuthoredLeaderboards),
-            'href' => $totalAuthoredLeaderboards ? '/individualdevstats.php?u=' . $user->User : null,
+            'href' => $totalAuthoredLeaderboards ? '/individualdevstats.php?u=' . $user->display_name : null,
             'isMuted' => !$totalAuthoredLeaderboards,
         ];
 
@@ -122,8 +122,8 @@ class UserProfileMeta extends Component
         }
         $openTicketsStat = [
             'label' => 'Open tickets',
-            'value' => $openTickets === null ? "Tickets can't be assigned to {$user->User}." : localized_number($openTickets),
-            'href' => $openTickets ? route('developer.tickets', ['user' => $user]) : null,
+            'value' => $openTickets === null ? "Tickets can't be assigned to {$user->display_name}." : localized_number($openTickets),
+            'href' => $openTickets ? route('developer.tickets', ['user' => $user->display_name]) : null,
             'isMuted' => !$openTickets,
         ];
 
@@ -242,7 +242,7 @@ class UserProfileMeta extends Component
             'value' => localized_number($totalGamesBeaten),
             'isHrefLabelBeforeLabel' => false,
             'isMuted' => !$totalGamesBeaten,
-            'href' => $retailGamesBeaten ? route('ranking.beaten-games', ['filter[user]' => $user->username]) : null,
+            'href' => $retailGamesBeaten ? route('ranking.beaten-games', ['filter[user]' => $user->display_name]) : null,
         ];
 
         // Started games beaten
@@ -329,7 +329,7 @@ class UserProfileMeta extends Component
         $forumPostsStat = [
             'label' => 'Forum posts',
             'value' => localized_number($numForumPosts),
-            'href' => $numForumPosts ? route('user.posts.index', ['user' => $user]) : null,
+            'href' => $numForumPosts ? route('user.posts.index', ['user' => $user->display_name]) : null,
             'isMuted' => $numForumPosts === 0,
         ];
 

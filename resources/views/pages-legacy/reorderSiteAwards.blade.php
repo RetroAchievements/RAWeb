@@ -10,7 +10,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
 
 $prefersSeeingSavedHiddenRows = request()->cookie('prefers_seeing_saved_hidden_rows_when_reordering') === 'true';
 
-$targetUser = User::firstWhere('User', $user);
+$targetUser = User::whereName($user)->first();
 
 $userAwards = getUsersSiteAwards($targetUser, true);
 [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);

@@ -1,6 +1,6 @@
 @props([
     'userJoinedGamesAndAwards' => [],
-    'username' => '',
+    'username' => '', // this is display_name
 ])
 
 <?php

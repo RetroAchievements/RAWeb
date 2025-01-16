@@ -40,7 +40,7 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
 
 $user = request()->query('u');
 
-$userModel = User::firstWhere('User', $user);
+$userModel = User::whereName($user)->first();
 $userAwards = getUsersSiteAwards($userModel);
 [$gameMasteryAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
 

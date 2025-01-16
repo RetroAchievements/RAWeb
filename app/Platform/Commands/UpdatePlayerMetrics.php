@@ -26,7 +26,7 @@ class UpdatePlayerMetrics extends Command
 
         $user = is_numeric($userId)
             ? User::findOrFail($userId)
-            : User::where('User', $userId)->firstOrFail();
+            : User::whereName($userId)->firstOrFail();
 
         $this->info('Updating metrics for player [' . $user->id . ':' . $user->username . ']');
 

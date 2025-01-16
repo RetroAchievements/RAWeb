@@ -62,7 +62,7 @@ foreach ($leaderboards as $leaderboard) {
 
     if ($leaderboard->topEntry) {
         $topEntry = [
-            'User' => $leaderboard->topEntry->user->User,
+            'User' => $leaderboard->topEntry->user->display_name,
             'Score' => $leaderboard->topEntry->score,
             'FormattedScore' => ValueFormat::format($leaderboard->topEntry->score, $leaderboard->Format),
         ];

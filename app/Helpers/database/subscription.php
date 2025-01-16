@@ -52,7 +52,11 @@ function isUserSubscribedTo(string $subjectType, int $topicID, int $userID): boo
  */
 function getSubscribersOf(string $subjectType, int $subjectID, ?int $reqWebsitePrefs = null, ?string $implicitSubscriptionQry = null): array
 {
-    $explicitSubscribers = User::select('User', 'EmailAddress')
+    $explicitSubscribers = User::query()
+        ->select(
+            DB::raw('COALESCE(display_name, User) as User'),
+            'EmailAddress'
+        )
         ->whereHas('subscriptions', fn ($q) => $q
             ->where('subject_type', $subjectType)
             ->where('subject_id', $subjectID)
@@ -67,7 +71,10 @@ function getSubscribersOf(string $subjectType, int $subjectID, ?int $reqWebsiteP
     }
 
     return DB::table(DB::raw("($implicitSubscriptionQry) as ua"))
-        ->select('User', 'EmailAddress')
+        ->select([
+            DB::raw('COALESCE(ua.display_name, ua.User) as User'),
+            'ua.EmailAddress',
+        ])
         ->leftJoin('subscriptions as sub', fn ($join) => $join
             ->on('sub.user_id', '=', 'ua.ID')
             ->where('sub.subject_type', '=', $subjectType)
@@ -146,13 +153,13 @@ function getSubscribersOfArticle(
     ?string $subjectAuthor = null,
     bool $noExplicitSubscriptions = false
 ): array {
-    $websitePrefsFilter = $noExplicitSubscriptions ? "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0" : "";
+    $websitePrefsFilter = $noExplicitSubscriptions ? "AND (_ua.websitePrefs & :websitePrefs) != 0" : "";
 
     $authorQry = ($subjectAuthor === null ? "" : "
         UNION
         SELECT _ua.*
         FROM UserAccounts as _ua
-        WHERE _ua.User = '$subjectAuthor'
+        WHERE (_ua.User = :subjectAuthor OR _ua.display_name = :subjectAuthor)
               $websitePrefsFilter
     ");
 
@@ -160,11 +167,20 @@ function getSubscribersOfArticle(
         SELECT DISTINCT _ua.*
         FROM Comment AS _c
         INNER JOIN UserAccounts as _ua ON _ua.ID = _c.user_id
-        WHERE _c.ArticleType = $articleType
-              AND _c.ArticleID = $articleID
+        WHERE _c.ArticleType = :articleType
+              AND _c.ArticleID = :articleID
               $websitePrefsFilter
         $authorQry
     ";
+
+    $bindings = [
+        'articleType' => $articleType,
+        'articleID' => $articleID,
+        'websitePrefs' => $reqWebsitePrefs,
+    ];
+    if ($subjectAuthor !== null) {
+        $bindings['subjectAuthor'] = $subjectAuthor;
+    }
 
     if ($noExplicitSubscriptions) {
         $dbResult = s_mysql_query($qry);
@@ -182,11 +198,17 @@ function getSubscribersOfArticle(
         return [];
     }
 
+    // getSubscribersOf doesn't accept bindings, so just bind them here.
+    $preparedQry = $qry;
+    foreach ($bindings as $key => $value) {
+        $preparedQry = str_replace(":$key", DB::getPdo()->quote($value), $preparedQry);
+    }
+
     return getSubscribersOf(
         $subjectType,
         $articleID,
         1 << UserPreference::EmailOn_ActivityComment,  // code suggests the value of $reqWebsitePrefs should be used, but the feature is disabled for now
-        $qry
+        $preparedQry,
     );
 }
 

@@ -36,7 +36,7 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
     'o' => 'nullable|integer|min:0',
 ]);
 
-$user = User::firstWhere('User', request()->query('u'));
+$user = User::whereName(request()->query('u'))->first();
 if (!$user) {
     return response()->json([]);
 }

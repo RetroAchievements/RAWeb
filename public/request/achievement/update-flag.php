@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -26,6 +27,8 @@ if ($flag === AchievementFlag::OfficialCore && !isValidConsoleId($achievement['C
 
 updateAchievementFlag($achievementIds, $flag);
 
+$userModel = User::whereName($user)->first();
+
 $commentText = '';
 if ($flag === AchievementFlag::OfficialCore) {
     $commentText = 'promoted this achievement to the Core set';
@@ -33,7 +36,7 @@ if ($flag === AchievementFlag::OfficialCore) {
 if ($flag === AchievementFlag::Unofficial) {
     $commentText = 'demoted this achievement to Unofficial';
 }
-addArticleComment("Server", ArticleType::Achievement, $achievementIds, "$user $commentText.", $user);
+addArticleComment("Server", ArticleType::Achievement, $achievementIds, "{$userModel->display_name} $commentText.", $userModel->display_name);
 expireGameTopAchievers($achievement['GameID']);
 
 return response()->json(['message' => __('legacy.success.ok')]);

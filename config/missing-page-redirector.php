@@ -98,7 +98,7 @@ return [
         '/userList.php' => '/users',
         '/history.php' => '/user/{u}/history',
         '/historyexamine.php' => '/user/{u}/history/{d}',
-        '/usergameactivity.php' => '/user/{f}/game/{ID}',
+        // '/usergameactivity.php' => '/user/{f}/game/{ID}',
         '/gamecompare.php' => '/user/{f}/game/{ID}/compare',
 
         /*

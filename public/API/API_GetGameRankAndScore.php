@@ -41,7 +41,7 @@ if (($type === 1 && $numMasteries >= 10) || ($type !== 1 && $numMasteries < 10))
     // or the top earners if there are less than 10 masteries.
     foreach ($topAchievers as $playerGame) {
         $gameTopAchievers[] = [
-            'User' => User::find($playerGame['user_id'])->User,
+            'User' => User::find($playerGame['user_id'])->display_name, // FIXME: N+1 query problem
             'NumAchievements' => $playerGame['achievements_unlocked_hardcore'],
             'TotalScore' => $playerGame['points_hardcore'],
             'LastAward' => Carbon::createFromTimestamp($playerGame['last_unlock_hardcore_at'])->format('Y-m-d H:i:s'),

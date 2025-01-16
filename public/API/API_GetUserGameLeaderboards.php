@@ -43,7 +43,7 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
 $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 200;
 
-$user = User::firstWhere('User', request()->query('u'));
+$user = User::whereName(request()->query('u'))->first();
 if (!$user) {
     return response()->json(['User not found'], 404);
 }

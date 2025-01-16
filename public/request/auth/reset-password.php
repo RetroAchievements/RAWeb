@@ -1,12 +1,13 @@
 <?php
 
 use App\Models\User;
+use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'username' => 'required|string|exists:UserAccounts,User|alpha_num|max:20',
+    'username' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
     'token' => 'required',
     'password' => 'required|confirmed|min:8|different:username',
 ]);
@@ -14,7 +15,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $passResetToken = $input['token'];
 $newPass = $input['password'];
 
-$targetUser = User::firstWhere('User', $input['username']);
+$targetUser = User::whereName($input['username'])->first();
 
 if (!$targetUser || $targetUser->isBanned() || !isValidPasswordResetToken($targetUser->username, $passResetToken)) {
     return back()->withErrors(__('legacy.error.token'));

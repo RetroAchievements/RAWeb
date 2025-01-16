@@ -29,7 +29,7 @@ class GenerateAnnualRecap extends Command
         if ($userId) {
             $user = is_numeric($userId)
                 ? User::findOrFail($userId)
-                : User::where('User', $userId)->firstOrFail();
+                : User::whereName($userId)->firstOrFail();
 
             $this->generateAnnualRecapAction->execute($user);
         } else {

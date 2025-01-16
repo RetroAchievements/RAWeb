@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\User;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -9,6 +10,8 @@ $gameData = getGameData($gameID);
 if (empty($gameData)) {
     abort(404);
 }
+
+$userModel = User::find($userDetails['ID']);
 
 getCodeNotes($gameID, $codeNotes);
 $codeNoteCount = count(array_filter($codeNotes, function ($x) { return $x['Note'] !== "" && $x['Note'] !== "''"; }));

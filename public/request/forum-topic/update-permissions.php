@@ -10,7 +10,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$userModel = User::firstWhere('User', $user);
+$userModel = User::whereName($user)->first();
 
 if (!$userModel->can('manage', App\Models\ForumTopic::class)) {
     return back()->withErrors(__('legacy.error.permissions'));

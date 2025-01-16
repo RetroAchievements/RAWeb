@@ -15,7 +15,7 @@ $message = null;
 if ($action === 'alt_identifier') {
     $altsForUser = request()->input('u');
 
-    $forUser = User::where('User', $altsForUser)->first();
+    $forUser = User::whereName($altsForUser)->first();
     if ($forUser == null) {
         $message = "Unknown user: $altsForUser";
     } else {

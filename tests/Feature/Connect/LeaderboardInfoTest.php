@@ -77,6 +77,7 @@ class LeaderboardInfoTest extends TestCase
                             'Rank' => 1,
                             'Score' => 500,
                             'User' => $playerTwo->display_name,
+                            'AvatarUrl' => $playerTwo->avatar_url,
                         ],
                         [
                             'DateSubmitted' => $now->getTimestamp(),
@@ -84,6 +85,7 @@ class LeaderboardInfoTest extends TestCase
                             'Rank' => 2,
                             'Score' => 300,
                             'User' => $playerOne->display_name,
+                            'AvatarUrl' => $playerOne->avatar_url,
                         ],
                         [
                             'DateSubmitted' => $now->getTimestamp(),
@@ -91,6 +93,7 @@ class LeaderboardInfoTest extends TestCase
                             'Rank' => 3,
                             'Score' => 100,
                             'User' => $playerThree->display_name,
+                            'AvatarUrl' => $playerThree->avatar_url,
                         ],
                     ],
                     'GameID' => $game->id,

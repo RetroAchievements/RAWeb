@@ -66,7 +66,7 @@ $user = null;
 $userPolicy = new UserCommentPolicy();
 
 if ($username) {
-    $user = User::firstWhere('User', $username);
+    $user = User::whereName($username)->first();
 
     if (!$user || !$userPolicy->viewAny(null, $user)) {
         return response()->json([], 404);
@@ -104,7 +104,7 @@ $results = $comments->filter(function ($nextComment) use ($commentPolicy) {
     return $commentPolicy->view($user, $nextComment);
 })->map(function ($nextComment) {
     return [
-        'User' => $nextComment->user->username,
+        'User' => $nextComment->user->display_name,
         'Submitted' => $nextComment->Submitted,
         'CommentText' => $nextComment->Payload,
     ];

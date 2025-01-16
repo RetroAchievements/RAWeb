@@ -190,6 +190,7 @@ function GetLeaderboardData(
 
         $retVal['Entries'][] = [
             'User' => $entry->user->display_name,
+            'AvatarUrl' => $entry->user->avatar_url,
             'DateSubmitted' => $entry->updated_at->unix(),
             'Score' => $entry->score,
             'Rank' => $rank,
@@ -324,7 +325,7 @@ function UploadNewLeaderboard(
         }
     }
 
-    $authorModel = User::firstWhere('User', $authorUsername);
+    $authorModel = User::whereName($authorUsername)->first();
 
     // Prevent non-developers from uploading or modifying leaderboards
     $userPermissions = (int) $authorModel->getAttribute('Permissions');

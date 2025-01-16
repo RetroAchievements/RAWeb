@@ -25,9 +25,12 @@ class Users extends RelationManager
                     ->label('')
                     ->size(config('media.icon.sm.width'))
                     ->url(fn (User $record) => UserResource::getUrl('view', ['record' => $record])),
-                Tables\Columns\TextColumn::make('User')
+
+                Tables\Columns\TextColumn::make('display_name')
+                    ->label('User')
                     ->url(fn (User $record) => UserResource::getUrl('view', ['record' => $record]))
                     ->grow(true),
+
             ])
             ->defaultSort('User', 'asc')
             ->headerActions([

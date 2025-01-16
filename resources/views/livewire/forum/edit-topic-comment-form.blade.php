@@ -34,7 +34,6 @@ mount(function() {
 
             <x-base.form.textarea
                 wire:model="form.body"
-                :value="$forumTopicComment->body"
                 id="input_compose"
                 maxlength="60000"
                 name="form.body"

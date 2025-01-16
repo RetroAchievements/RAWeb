@@ -14,7 +14,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Mode
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'target' => 'required|string|exists:UserAccounts,User',
+    'target' => 'required|string|exists:UserAccounts,display_name',
     'property' => ['required', 'integer', Rule::in(UserAction::cases())],
     'value' => 'required|integer',
 ]);
@@ -23,11 +23,11 @@ $targetUsername = $input['target'];
 $propertyType = (int) $input['property'];
 $value = (int) $input['value'];
 
-$foundSourceUser = User::firstWhere('User', $user);
-$foundTargetUser = User::firstWhere('User', $targetUsername);
+$foundSourceUser = User::whereName($user)->first();
+$foundTargetUser = User::whereName($targetUsername)->first();
 
 if ($propertyType === UserAction::UpdatePermissions) {
-    $response = SetAccountPermissionsJSON($foundSourceUser->User, $permissions, $targetUsername, $value);
+    $response = SetAccountPermissionsJSON($foundSourceUser->display_name, $permissions, $targetUsername, $value);
 
     if ($response['Success']) {
         // Auto-apply forums permissions.
@@ -79,7 +79,7 @@ if ($propertyType === UserAction::PatreonBadge) {
             'Server',
             ArticleType::UserModeration,
             $foundTargetUser->id,
-            $foundSourceUser->User . ($hasBadge ? ' revoked' : ' awarded') . ' Patreon badge'
+            $foundSourceUser->display_name . ($hasBadge ? ' revoked' : ' awarded') . ' Patreon badge'
         );
     }
 
@@ -95,7 +95,7 @@ if ($propertyType === UserAction::LegendBadge) {
             'Server',
             ArticleType::UserModeration,
             $foundTargetUser->id,
-            $foundSourceUser->User . ($hasBadge ? ' revoked' : ' awarded') . ' Certified Legend badge'
+            $foundSourceUser->display_name . ($hasBadge ? ' revoked' : ' awarded') . ' Certified Legend badge'
         );
     }
 
@@ -110,7 +110,7 @@ if ($propertyType === UserAction::TrackedStatus) {
             'Server',
             ArticleType::UserModeration,
             $foundTargetUser->id,
-            $foundSourceUser->User . ' set status to ' . ($value ? 'Untracked' : 'Tracked')
+            $foundSourceUser->display_name . ' set status to ' . ($value ? 'Untracked' : 'Tracked')
         );
     }
 

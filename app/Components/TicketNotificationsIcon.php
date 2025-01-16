@@ -24,14 +24,14 @@ class TicketNotificationsIcon extends Component
         $openTicketsData = countOpenTicketsByDev($user);
         if ($openTicketsData[TicketState::Open]) {
             $notifications->push([
-                'link' => route('developer.tickets', ['user' => $user]),
+                'link' => route('developer.tickets', ['user' => $user->display_name]),
                 'title' => $openTicketsData[TicketState::Open] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Open]) . ' for you to resolve',
                 'class' => 'text-danger',
             ]);
         }
         if ($openTicketsData[TicketState::Request]) {
             $notifications->push([
-                'link' => route('developer.tickets', ['user' => $user]),
+                'link' => route('developer.tickets', ['user' => $user->display_name]),
                 'title' => $openTicketsData[TicketState::Request] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Request]) . ' pending feedback',
                 'read' => true,
             ]);
@@ -40,7 +40,7 @@ class TicketNotificationsIcon extends Component
         $ticketFeedback = countRequestTicketsByUser($user);
         if ($ticketFeedback) {
             $notifications->push([
-                'link' => route('reporter.tickets', ['user' => $user]),
+                'link' => route('reporter.tickets', ['user' => $user->display_name]),
                 'title' => $ticketFeedback . ' ' . __res('ticket', $ticketFeedback) . ' awaiting your feedback',
             ]);
         }
