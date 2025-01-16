@@ -8,9 +8,11 @@ use App\Data\UserData;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\User;
+use App\Platform\Data\GameData;
 use App\Platform\Data\GameSuggestionContextData;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\GameSuggestionReason;
+use App\Platform\Services\GameSuggestions\Enums\SourceGameKind;
 
 class SharedAuthorStrategy implements GameSuggestionStrategy
 {
@@ -19,7 +21,9 @@ class SharedAuthorStrategy implements GameSuggestionStrategy
 
     public function __construct(
         private readonly Game $sourceGame,
-    ) {
+        private readonly ?SourceGameKind $sourceGameKind = null,
+        private readonly bool $attachSourceGame = true,
+        ) {
     }
 
     public function select(): ?Game
@@ -66,7 +70,11 @@ class SharedAuthorStrategy implements GameSuggestionStrategy
         }
 
         return GameSuggestionContextData::forSharedAuthor(
-            UserData::from($this->selectedAuthor)
+            UserData::from($this->selectedAuthor),
+            sourceGame: $this->attachSourceGame
+                ? GameData::fromGame($this->sourceGame)->include('badgeUrl')
+                : null,
+            sourceGameKind: $this->attachSourceGame ? $this->sourceGameKind : null,
         );
     }
 }

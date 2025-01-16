@@ -89,6 +89,13 @@ class ProcessPlausibleUrlAction
 
         switch ($route['type']) {
             case 'model':
+                if ($param === null) {
+                    return [
+                        'redactedUrl' => "/{$routePath}",
+                        'props' => $defaultProps,
+                    ];
+                }
+
                 $id = $this->extractId($param);
                 if ($id && $model = $route['model']::find($id)) {
                     $props = [
@@ -101,10 +108,24 @@ class ProcessPlausibleUrlAction
                 break;
 
             case 'string':
+                if ($param === null) {
+                    return [
+                        'redactedUrl' => "/{$routePath}",
+                        'props' => $defaultProps,
+                    ];
+                }
+
                 $props = [$route['propName'] => $param];
                 break;
 
             case 'id':
+                if ($param === null) {
+                    return [
+                        'redactedUrl' => "/{$routePath}",
+                        'props' => $defaultProps,
+                    ];
+                }
+
                 if ($param && is_numeric($param)) {
                     $props = ['id' => (int) $param];
                 }
@@ -197,8 +218,12 @@ class ProcessPlausibleUrlAction
     /**
      * Extracts an ID from either a direct ID or a slug-with-ID route.
      */
-    private function extractId(string $param): ?int
+    private function extractId(?string $param): ?int
     {
+        if (!$param) {
+            return null;
+        }
+
         // Check for slug format first (eg: "sonic-3-123").
         if (preg_match('/-(\d+)$/', $param, $matches)) {
             return (int) $matches[1];
