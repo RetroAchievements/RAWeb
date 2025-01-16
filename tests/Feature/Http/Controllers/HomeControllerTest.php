@@ -196,8 +196,6 @@ class HomeControllerTest extends TestCase
 
             ->where('achievementOfTheWeek.currentEventAchievement.event.id', $event->id)
             ->where('achievementOfTheWeek.currentEventAchievement.event.legacyGame.id', $eventGame->id)
-            ->where('achievementOfTheWeek.event.id', $event->id)
-            ->where('achievementOfTheWeek.event.legacyGame.id', $eventGame->id)
         );
     }
 
