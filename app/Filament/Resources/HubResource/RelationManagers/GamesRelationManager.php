@@ -12,6 +12,7 @@ use App\Models\System;
 use App\Platform\Actions\AttachGamesToGameSetAction;
 use App\Platform\Actions\DetachGamesFromGameSetAction;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -189,6 +190,12 @@ class GamesRelationManager extends RelationManager
                         $gameSet = $this->getOwnerRecord();
 
                         (new DetachGamesFromGameSetAction())->execute($gameSet, [$game->id]);
+
+                        Notification::make()
+                            ->success()
+                            ->title('Success')
+                            ->body('Removed game from the hub.')
+                            ->send();
                     }),
 
                 Tables\Actions\Action::make('visit')
@@ -213,6 +220,12 @@ class GamesRelationManager extends RelationManager
                         (new DetachGamesFromGameSetAction())->execute($gameSet, $games->pluck('id')->toArray());
 
                         $this->deselectAllTableRecords();
+
+                        Notification::make()
+                            ->success()
+                            ->title('Success')
+                            ->body('Removed selected games from the hub.')
+                            ->send();
                     }),
             ])
             ->paginated([50, 100, 150]);
