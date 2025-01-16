@@ -1,13 +1,15 @@
 <?php
 
 use App\Community\Enums\AwardType;
+use App\Models\Event;
+use App\Models\EventAward;
 use App\Models\PlayerBadge;
 
 function SeparateAwards(array $userAwards): array
 {
     $gameAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] != 'Events'));
 
-    $eventAwards = array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] == 'Events');
+    $eventAwards = array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Event || ($award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] == 'Events'));
 
     $devEventsPrefix = "[Dev Events - ";
     $devEventsHub = "[Central - Developer Events]";
@@ -193,6 +195,40 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
         $dataAttrGameId = $award['GameID'];
         // NOTE: If these data-* attributes are removed, userscripts will begin breaking.
         echo "<div data-gameid='$dataAttrGameId' data-date='$awardDate'>" . gameAvatar($award, label: false, iconSize: $imageSize, context: $ownerUsername, iconClass: $imgclass) . "</div>";
+
+        return;
+    }
+
+    if ($awardType == AwardType::Event) {
+        $event = Event::find($awardData);
+        if ($event) {
+            $tooltip = "Awarded for completing the {$event->title} event";
+            $image = $event->image_asset_path;
+
+            if ($awardDataExtra !== 0) {
+                $eventAward = EventAward::where('event_id', $awardData)
+                    ->where('tier_index', $awardDataExtra)
+                    ->first();
+
+                if ($eventAward) {
+                    $image = $eventAward->image_asset_path;
+
+                    if ($eventAward->achievements_required < $event->game->achievements_published) {
+                        $tooltip = "Awarded for earning at least {$eventAward->achievements_required} achievements in the {$event->title} event";
+                    }
+                }
+            }
+
+            echo avatar('event', $event->id,
+                label: false,
+                link: route('game.show', $event->game->id),
+                tooltip: "<div class='px-2 py-2'><span>$tooltip</span><p><span>{$awardDate}</span></div>",
+                iconUrl: media_asset($image),
+                iconSize: $imageSize,
+                iconClass: 'goldimage',
+                context: $ownerUsername,
+            );
+        }
 
         return;
     }
