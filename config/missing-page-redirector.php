@@ -79,6 +79,7 @@ return [
         '/popularGames.php' => '/games/popular',
         '/random.php' => '/game/random',
         '/game/{game}/masters' => '/game/{game}/top-achievers',
+        '/games/suggest' => '/games/suggestions',
 
         /*
          * hashes

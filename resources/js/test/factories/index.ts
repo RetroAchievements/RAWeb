@@ -12,6 +12,7 @@ export * from './createGameHash';
 export * from './createGameHashLabel';
 export * from './createGameListEntry';
 export * from './createGameSet';
+export * from './createGameSuggestionEntry';
 export * from './createGameTopAchiever';
 export * from './createHomePageProps';
 export * from './createLeaderboard';

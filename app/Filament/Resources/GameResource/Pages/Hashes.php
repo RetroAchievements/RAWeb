@@ -2,27 +2,32 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\GameResource\RelationManagers;
+namespace App\Filament\Resources\GameResource\Pages;
 
 use App\Community\Enums\ArticleType;
+use App\Filament\Resources\GameHashResource;
+use App\Filament\Resources\GameResource;
 use App\Models\Comment;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Support\Enums\FontFamily;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Livewire;
 
-class GameHashesRelationManager extends RelationManager
+class Hashes extends ManageRelatedRecords
 {
+    protected static string $resource = GameResource::class;
+
     protected static string $relationship = 'hashes';
 
-    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    protected static ?string $navigationIcon = 'fas-file-archive';
+
+    public static function canAccess(array $arguments = []): bool
     {
         /** @var User $user */
         $user = Auth::user();
@@ -30,21 +35,20 @@ class GameHashesRelationManager extends RelationManager
         return $user->can('manage', GameHash::class);
     }
 
-    public function form(Form $form): Form
+    public static function getNavigationBadge(): ?string
     {
-        return $form
-            ->schema([]);
+        return (string) Livewire::current()->getRecord()->hashes->count();
     }
 
     public function table(Table $table): Table
     {
+        // TODO migrate to filament-comments
         $nonAutomatedCommentsCount = Comment::where('ArticleType', ArticleType::GameHash)
-            ->where('ArticleID', $this->ownerRecord->id)
+            ->where('ArticleID', $this->getOwnerRecord()->id)
             ->notAutomated()
             ->count();
 
         return $table
-            ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('File Name'),
@@ -71,10 +75,15 @@ class GameHashesRelationManager extends RelationManager
                 Tables\Actions\Action::make('view-comments')
                     ->color($nonAutomatedCommentsCount > 0 ? 'info' : 'gray')
                     ->label("View Comments ({$nonAutomatedCommentsCount})")
-                    ->url(route('game.hashes.comment.index', ['game' => $this->ownerRecord->id])),
+                    ->url(route('game.hashes.comment.index', ['game' => $this->getOwnerRecord()->id])),
             ])
             ->actions([
+                Tables\Actions\Action::make('audit-log')
+                    ->url(fn ($record) => GameHashResource::getUrl('audit-log', ['record' => $record]))
+                    ->icon('fas-clock-rotate-left'),
+
                 Tables\Actions\EditAction::make()
+                    ->modalHeading(fn (GameHash $record) => "Edit game hash {$record->md5}")
                     ->form([
                         Forms\Components\Section::make()
                             ->description("
@@ -102,7 +111,20 @@ class GameHashesRelationManager extends RelationManager
                                     ->label('Resource Page URL')
                                     ->helperText('Do not link to a commercially-sold ROM. Link to a specific No Intro, Redump, RHDN, SMWCentral, itch.io, etc. page.')
                                     ->activeUrl(),
-                            ]),
+                            ])
+                            ->afterStateUpdated(function ($state, $old, $record) {
+                                $changedAttributes = [];
+                                foreach ($state as $key => $value) {
+                                    if (!isset($old[$key]) || $old[$key] !== $value) {
+                                        $key = match ($key) {
+                                            'name' => 'Name',
+                                            'labels' => 'Labels',
+                                            default => $key,
+                                        };
+                                        $changedAttributes[$key] = $value;
+                                    }
+                                }
+                            }),
                     ]),
 
                 Tables\Actions\Action::make('unlink')
@@ -147,7 +169,6 @@ class GameHashesRelationManager extends RelationManager
                             ->event('unlinkedHash')
                             ->log('Unlinked hash');
 
-                        // TODO remove this after deleting 'game.hash.manage' route
                         addArticleComment(
                             "Server",
                             ArticleType::GameHash,
@@ -161,6 +182,10 @@ class GameHashesRelationManager extends RelationManager
 
                         return $user->can('forceDelete', $gameHash);
                     }),
-            ]);
+            ])
+            ->bulkActions([
+
+            ])
+            ->paginated(false);
     }
 }

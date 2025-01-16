@@ -5,6 +5,7 @@ import type { ComponentPropsWithoutRef, CSSProperties, FC, ImgHTMLAttributes } f
 import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import type { BaseAvatarProps } from '@/common/models';
+import { cn } from '@/common/utils/cn';
 
 import { GameTitle } from '../GameTitle';
 import { SystemChip } from '../SystemChip';
@@ -17,6 +18,7 @@ type GameAvatarProps = BaseAvatarProps &
     shouldGlow?: boolean;
     showHoverCardProgressForUsername?: string;
     showSystemChip?: boolean;
+    wrapperClassName?: string;
   };
 
 export const GameAvatar: FC<GameAvatarProps> = ({
@@ -26,6 +28,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
   showHoverCardProgressForUsername,
   system,
   title,
+  wrapperClassName,
   decoding = 'async',
   loading = 'lazy',
   shouldGlow = false,
@@ -49,7 +52,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
   return (
     <Wrapper
       href={shouldLink ? route('game.show', { game: id }) : undefined}
-      className="flex max-w-fit items-center gap-2"
+      className={cn('flex max-w-fit items-center gap-2', wrapperClassName)}
       {...(hasTooltip && shouldLink ? cardTooltipProps : undefined)}
     >
       {showImage ? (

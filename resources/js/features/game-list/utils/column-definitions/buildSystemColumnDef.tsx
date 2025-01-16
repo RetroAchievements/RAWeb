@@ -7,18 +7,20 @@ import type { TranslatedString } from '@/types/i18next';
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
-interface BuildSystemColumnDefProps {
+interface BuildSystemColumnDefProps<TEntry> {
   t_label: TranslatedString;
 
+  options?: Partial<ColumnDef<TEntry>>;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
 }
 
-export function buildSystemColumnDef({
+export function buildSystemColumnDef<TEntry extends App.Platform.Data.GameListEntry>({
+  options,
   t_label,
   tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
-}: BuildSystemColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
+}: BuildSystemColumnDefProps<TEntry>): ColumnDef<TEntry> {
   return {
     id: 'system',
     accessorKey: 'game',
@@ -40,5 +42,7 @@ export function buildSystemColumnDef({
 
       return <SystemChip {...row.original.game.system} />;
     },
+
+    ...options,
   };
 }

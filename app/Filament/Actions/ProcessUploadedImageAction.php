@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\NewsResource\Actions;
+namespace App\Filament\Actions;
 
 use App\Filament\Enums\ImageUploadType;
 use App\Platform\Enums\ImageType;
@@ -32,17 +32,20 @@ class ProcessUploadedImageAction
 
             // Upload the image and get the final path.
             $imagePath = null;
-            switch ($imageUploadType) {
-                case ImageUploadType::News:
-                    $imagePath = UploadNewsImage($dataUrl);
-                    break;
-                case ImageUploadType::HubBadge:
-                case ImageUploadType::GameBadge:
-                    $file = createFileArrayFromDataUrl($dataUrl);
-                    $imagePath = UploadGameImage($file, ImageType::GameIcon);
-                    break;
-                default:
-                    throw new Exception("Unknown ImageUploadType: {$imageUploadType->name}");
+            if ($imageUploadType === ImageUploadType::News) {
+                $imagePath = UploadNewsImage($dataUrl);
+            } else {
+                $imageType = match ($imageUploadType) {
+                    ImageUploadType::HubBadge => ImageType::GameIcon,
+                    ImageUploadType::GameBadge => ImageType::GameIcon,
+                    ImageUploadType::GameBoxArt => ImageType::GameBoxArt,
+                    ImageUploadType::GameTitle => ImageType::GameTitle,
+                    ImageUploadType::GameInGame => ImageType::GameInGame,
+                    ImageUploadType::EventAward => ImageType::GameIcon,
+                };
+
+                $file = createFileArrayFromDataUrl($dataUrl);
+                $imagePath = UploadGameImage($file, $imageType);
             }
 
             // Livewire auto-deletes these temp files after 24 hours, however

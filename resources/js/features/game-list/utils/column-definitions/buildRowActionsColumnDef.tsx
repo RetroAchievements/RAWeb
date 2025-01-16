@@ -2,9 +2,9 @@ import type { ColumnDef } from '@tanstack/react-table';
 
 import { DataTableRowActions } from '../../components/DataTableRowActions';
 
-export function buildRowActionsColumnDef(options: {
+export function buildRowActionsColumnDef<TEntry extends App.Platform.Data.GameListEntry>(options: {
   shouldAnimateBacklogIconOnChange: boolean;
-}): ColumnDef<App.Platform.Data.GameListEntry> {
+}): ColumnDef<TEntry> {
   return {
     id: 'actions',
     enableSorting: false,

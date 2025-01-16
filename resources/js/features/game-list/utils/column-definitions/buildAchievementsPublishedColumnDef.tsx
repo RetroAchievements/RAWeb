@@ -6,18 +6,22 @@ import type { TranslatedString } from '@/types/i18next';
 import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
-interface BuildAchievementsPublishedColumnDefProps {
+interface BuildAchievementsPublishedColumnDefProps<TEntry> {
   t_label: TranslatedString;
 
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
+  options?: Partial<ColumnDef<TEntry>>;
 }
 
-export function buildAchievementsPublishedColumnDef({
+export function buildAchievementsPublishedColumnDef<
+  TEntry extends App.Platform.Data.GameListEntry,
+>({
+  options,
   t_label,
   tableApiRouteParams,
   tableApiRouteName = 'api.game.index',
-}: BuildAchievementsPublishedColumnDefProps): ColumnDef<App.Platform.Data.GameListEntry> {
+}: BuildAchievementsPublishedColumnDefProps<TEntry>): ColumnDef<TEntry> {
   return {
     id: 'achievementsPublished',
     accessorKey: 'game',
@@ -44,5 +48,7 @@ export function buildAchievementsPublishedColumnDef({
         <p className={achievementsPublished === 0 ? 'text-muted' : ''}>{achievementsPublished}</p>
       );
     },
+
+    ...options,
   };
 }

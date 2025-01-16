@@ -21,6 +21,7 @@ use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\GameListService;
+use Carbon\Carbon;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {
@@ -594,7 +595,8 @@ if ($isFullyFeaturedGame) {
                 }
 
                 if ($permissions >= Permissions::Developer) {
-                    echo "<div><a class='btn btn-link' href='/game/$gameID/hashes/manage'>Manage Hashes</a></div>";
+                    $manageHashesHref = route('filament.admin.resources.games.hashes', ['record' => $gameID]);
+                    echo "<div><a class='btn btn-link' href='{$manageHashesHref}'>Manage Hashes</a></div>";
                 }
 
                 $primaryClaimUser = null;
@@ -884,33 +886,35 @@ if ($isFullyFeaturedGame) {
                 />
             <?php
             echo "</div>";
+        }
 
-            // Progression component (desktop only)
-            if ($user !== null && $numAchievements > 0) {
-                echo "<div class='mt-4 mb-4 lg:hidden'>";
-                ?>
-                <x-game.current-progress.root
-                    :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
-                    :gameId="$gameID"
-                    :isBeatable="$isGameBeatable"
-                    :isBeatenHardcore="$isBeatenHardcore"
-                    :isBeatenSoftcore="$isBeatenSoftcore"
-                    :isCompleted="!is_null($userGameProgressionAwards['completed'])"
-                    :isMastered="!is_null($userGameProgressionAwards['mastered'])"
-                    :isEvent="$isEventGame"
-                    :numEarnedHardcoreAchievements="$numEarnedHardcore"
-                    :numEarnedHardcorePoints="$totalEarnedHardcore"
-                    :numEarnedSoftcoreAchievements="$numEarnedCasual"
-                    :numEarnedSoftcorePoints="$totalEarnedCasual"
-                    :numEarnedWeightedPoints="$totalEarnedTrueRatio"
-                    :totalAchievementsCount="$numAchievements"
-                    :totalPointsCount="$totalPossible"
-                />
-                <?php
-                echo "</div>";
-            }
+        // Progression component (mobile only)
+        if ($user !== null && $numAchievements > 0) {
+            echo "<div class='mt-4 mb-4 lg:hidden'>";
+            ?>
+            <x-game.current-progress.root
+                :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                :gameId="$gameID"
+                :isBeatable="$isGameBeatable"
+                :isBeatenHardcore="$isBeatenHardcore"
+                :isBeatenSoftcore="$isBeatenSoftcore"
+                :isCompleted="!is_null($userGameProgressionAwards['completed'])"
+                :isMastered="!is_null($userGameProgressionAwards['mastered'])"
+                :isEvent="$isEventGame"
+                :numEarnedHardcoreAchievements="$numEarnedHardcore"
+                :numEarnedHardcorePoints="$totalEarnedHardcore"
+                :numEarnedSoftcoreAchievements="$numEarnedCasual"
+                :numEarnedSoftcorePoints="$totalEarnedCasual"
+                :numEarnedWeightedPoints="$totalEarnedTrueRatio"
+                :totalAchievementsCount="$numAchievements"
+                :totalPointsCount="$totalPossible"
+            />
+            <?php
+            echo "</div>";
+        }
 
-            if ($numAchievements > 1) {
+        if ($numAchievements > 1) {
+            if ($isFullyFeaturedGame) {
                 echo "<div class='flex flex-col sm:flex-row-reverse sm:items-end justify-between w-full py-3'>";
 
                 $hasCompletionOrMastery = ($numEarnedCasual === $numAchievements) || ($numEarnedHardcore === $numAchievements);
@@ -921,7 +925,23 @@ if ($isFullyFeaturedGame) {
                         :numMissableAchievements="$gameMetaBindings['numMissableAchievements']"
                     />
                 <?php
-                RenderGameSort($isFullyFeaturedGame, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
+                RenderGameSort($gameModel->ConsoleID, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
+                echo "</div>";
+            } elseif ($isEventGame) {
+                $now = Carbon::now();
+                $hasActiveAchievements = $gameModel->event && $gameModel->event->achievements->contains(function ($value) use ($now) {
+                    return $value->active_from <= $now && $value->active_until > $now;
+                });
+                if ($hasActiveAchievements) {
+                    echo "<div class='flex flex-col sm:flex-row-reverse sm:items-end justify-between w-full py-3'>";
+                    ?>
+                        <x-game.achievements-list-filters canShowHideInactiveAchievements="True" />
+                    <?php
+                } else {
+                    echo "<div class='justify-between w-full py-3'>";
+                }
+
+                RenderGameSort(System::Events, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
                 echo "</div>";
             }
         }
@@ -1051,7 +1071,7 @@ if ($isFullyFeaturedGame) {
             echo "</div>";
         }
 
-        // Progression component (mobile only)
+        // Progression component (desktop only)
         if ($user !== null && $numAchievements > 0 && $isOfficial) {
             echo "<div class='mb-5 hidden lg:block'>";
             ?>

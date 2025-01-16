@@ -101,6 +101,10 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         'released_at_granularity',
         'trigger_id',
         'GuideURL',
+        'ImageIcon',
+        'ImageTitle',
+        'ImageIngame',
+        'ImageBoxArt',
     ];
 
     protected $casts = [
@@ -230,6 +234,9 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
                 'Developer',
                 'Genre',
                 'ImageIcon',
+                'ImageBoxArt',
+                'ImageTitle',
+                'ImageIngame',
                 'released_at',
                 'released_at_granularity',
             ])
@@ -589,6 +596,14 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
+     * @return HasMany<PlayerBadge>
+     */
+    public function playerBadges(): HasMany
+    {
+        return $this->hasMany(PlayerBadge::class, 'AwardData', 'ID');
+    }
+
+    /**
      * @return BelongsToMany<User>
      */
     public function playerUsers(): BelongsToMany
@@ -707,6 +722,15 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     // == scopes
+
+    /**
+     * @param Builder<Game> $query
+     * @return Builder<Game>
+     */
+    public function scopeWhereHasPublishedAchievements($query): Builder
+    {
+        return $query->where('achievements_published', '>', 0);
+    }
 
     /**
      * @param Builder<Game> $query
