@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Platform\Data\GameSuggestionData;
 use App\Platform\Services\GameSuggestions\Enums\SourceGameKind;
+use App\Platform\Services\GameSuggestions\Strategies\GameSuggestionStrategy;
 use Illuminate\Support\Collection;
 
 class GameSuggestionEngine
@@ -24,6 +25,14 @@ class GameSuggestionEngine
         private readonly ?Game $sourceGame = null,
     ) {
         $this->initializeStrategies($user);
+    }
+
+    /**
+     * For testing purposes only.
+     */
+    public function dangerouslySetFixedStrategyForTesting(GameSuggestionStrategy $strategy, int $weight = 1): void
+    {
+        $this->strategies = [[$strategy, $weight]];
     }
 
     private function initializeStrategies(User $user): void
@@ -198,7 +207,7 @@ class GameSuggestionEngine
 
     }
 
-    private function selectWeightedStrategy(): Strategies\GameSuggestionStrategy
+    private function selectWeightedStrategy(): GameSuggestionStrategy
     {
         $total = array_sum(array_column($this->strategies, 1));
         $random = random_int(1, (int) $total);
