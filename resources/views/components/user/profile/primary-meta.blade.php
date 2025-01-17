@@ -30,15 +30,15 @@ $shouldMoveRoleToNextLine =
 
 <div class="relative flex border-x border-embed-highlight flex-row-reverse sm:flex-row gap-x-4 pb-5 bg-embed -mx-5 px-5 mt-[-15px] pt-5">
     <img
-        src="{{ media_asset('/UserPic/' . $user->User . '.png') }}"
-        alt="{{ $user->User }}'s avatar"
+        src="{{ $user->avatar_url }}"
+        alt="{{ $user->display_name }}'s avatar"
         class="rounded-sm h-[64px] w-[64px] sm:max-h-[128px] sm:max-w-[128px] sm:min-w-[128px] sm:min-h-[128px]"
     >
 
     <div class="w-full">
         <div class="flex sm:-mt-1 sm:flex-row sm:justify-start sm:items-center gap-x-2 {{ $hasVisibleRole ? 'mb-2 sm:mb-0' : '' }} {{ $shouldMoveRoleToNextLine ? 'flex-col' : 'items-center' }}">
             {{-- Username --}}
-            <h1 class='border-0 text-lg sm:text-2xl font-semibold mb-0'>{{ $user->User }}</h1>
+            <h1 class='border-0 text-lg sm:text-2xl font-semibold mb-0'>{{ $user->display_name }}</h1>
 
             {{-- Legacy Role --}}
             {{-- TODO: Support N roles. --}}

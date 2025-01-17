@@ -65,12 +65,12 @@ function addArticleComment(
 
     // Note: $user is the person who just made a comment.
 
-    $userID = getUserIDFromUser($user);
-    if ($userID === 0) {
+    $user = User::whereName($user)->first();
+    if (!$user) {
         return false;
     }
 
-    if ($user !== "Server" && getIsCommentDoublePost($userID, $articleID, $commentPayload)) {
+    if ($user !== "Server" && getIsCommentDoublePost($user->id, $articleID, $commentPayload)) {
         // Fail silently.
         return true;
     }
@@ -80,11 +80,11 @@ function addArticleComment(
         $comment = Comment::create([
             'ArticleType' => $articleType,
             'ArticleID' => $id,
-            'user_id' => $userID,
+            'user_id' => $user->id,
             'Payload' => $commentPayload,
         ]);
 
-        informAllSubscribersAboutActivity($articleType, $id, $user, $comment->ID, $onBehalfOfUser);
+        informAllSubscribersAboutActivity($articleType, $id, $user->display_name, $comment->ID, $onBehalfOfUser);
     }
 
     return true;

@@ -36,7 +36,7 @@ class UnlockPlayerAchievement extends Command
 
         $user = is_numeric($userId)
             ? User::findOrFail($userId)
-            : User::where('User', $userId)->firstOrFail();
+            : User::whereName($userId)->firstOrFail();
 
         $achievements = Achievement::whereIn('id', $achievementIds)->get();
 

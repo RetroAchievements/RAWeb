@@ -49,9 +49,9 @@ $user = request()->user();
         <x-slot name="trigger">
             <x-user.avatar :user="$user" display="icon" :hasHref="false" iconSize="sm" :tooltip="false" class="rounded-sm userpic" />
         </x-slot>
-        <x-dropdown-header>{{ $user->username }}</x-dropdown-header>
-        <x-dropdown-item :href="route('user.show', $user)">{{ __res('profile', 1) }}</x-dropdown-item>
-        <x-dropdown-item :href="route('user.completion-progress', ['user' => $user])">Completion Progress</x-dropdown-item>
+        <x-dropdown-header>{{ $user->display_name }}</x-dropdown-header>
+        <x-dropdown-item :href="route('user.show', $user->display_name)">{{ __res('profile', 1) }}</x-dropdown-item>
+        <x-dropdown-item :href="route('user.completion-progress', ['user' => $user->display_name])">Completion Progress</x-dropdown-item>
 
         @if($user->Permissions >= Permissions::Registered)
             <x-dropdown-item :href="route('game-list.play.index')">Want to Play Games</x-dropdown-item>
@@ -60,26 +60,26 @@ $user = request()->user();
         @if($user->ContribCount > 0 || $user->Permissions >= Permissions::JuniorDeveloper)
             <div class="dropdown-divider"></div>
             @if($user->ContribCount > 0)
-                <x-dropdown-item :href="url('individualdevstats.php?u=' . $user->username)">Developer Profile</x-dropdown-item>
+                <x-dropdown-item :href="url('individualdevstats.php?u=' . $user->display_name)">Developer Profile</x-dropdown-item>
             @endif
             @if($user->Permissions >= Permissions::Developer)
                 <x-dropdown-item :href="url('gameList.php?t=develop&f=2')">Want to Develop Games</x-dropdown-item>
             @endif
             @if($user->ContribCount > 0)
-                <x-dropdown-item :href="route('user.achievement-author.feed', ['user' => $user])">Feed</x-dropdown-item>
+                <x-dropdown-item :href="route('user.achievement-author.feed', ['user' => $user->display_name])">Feed</x-dropdown-item>
             @endif
             @if($user->ContribCount > 0)
-                <x-dropdown-item :href="route('developer.tickets', ['user' => $user])">Tickets</x-dropdown-item>
-                <x-dropdown-item :href="route('developer.sets', ['user' => $user])">Sets</x-dropdown-item>
+                <x-dropdown-item :href="route('developer.tickets', ['user' => $user->display_name])">Tickets</x-dropdown-item>
+                <x-dropdown-item :href="route('developer.sets', ['user' => $user->display_name])">Sets</x-dropdown-item>
             @endif
             @if($user->Permissions >= Permissions::JuniorDeveloper)
-                <x-dropdown-item :href="route('developer.claims', ['user' => $user])">Claims</x-dropdown-item>
+                <x-dropdown-item :href="route('developer.claims', ['user' => $user->display_name])">Claims</x-dropdown-item>
             @endif
         @endif
         <div class="dropdown-divider"></div>
         <x-dropdown-item :href="url('achievementList.php?s=19&p=1')">Unlocked Achievements</x-dropdown-item>
-        <x-dropdown-item :href="url('setRequestList.php?u=' . $user->username)">Requested Sets</x-dropdown-item>
-        <x-dropdown-item :href="route('user.tickets.created', ['user' => $user])">Created Tickets</x-dropdown-item>
+        <x-dropdown-item :href="url('setRequestList.php?u=' . $user->display_name)">Requested Sets</x-dropdown-item>
+        <x-dropdown-item :href="route('user.tickets.created', ['user' => $user->display_name])">Created Tickets</x-dropdown-item>
         {{--<a class="dropdown-item" href="{{ route('history.index') }}">History</a>--}}
         <x-dropdown-item :href="url('history.php')">History</x-dropdown-item>
         {{--<x-dropdown-item :href="route('follower.index')">{{ __res('follower') }}</x-dropdown-item>--}}

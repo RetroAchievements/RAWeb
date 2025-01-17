@@ -6,7 +6,7 @@ use App\Models\User;
 
 function loadCodeNotes(int $gameId): ?array
 {
-    $query = "SELECT ua.User, mn.address AS Address, mn.body AS Note
+    $query = "SELECT ua.display_name AS User, mn.address AS Address, mn.body AS Note
               FROM memory_notes AS mn
               LEFT JOIN UserAccounts AS ua ON ua.ID = mn.user_id
               WHERE mn.game_id = '$gameId'
@@ -47,7 +47,7 @@ function getCodeNotes(int $gameId, ?array &$codeNotesOut): bool
 function submitCodeNote2(string $username, int $gameID, int $address, string $note): bool
 {
     /** @var ?User $user */
-    $user = User::firstWhere('User', $username);
+    $user = User::whereName($username)->first();
 
     if (!$user?->can('create', MemoryNote::class)) {
         return false;
@@ -87,10 +87,8 @@ function submitCodeNote2(string $username, int $gameID, int $address, string $no
 /**
  * Gets the number of code notes created for each game the user has created any notes for.
  */
-function getCodeNoteCounts(string $username): array
+function getCodeNoteCounts(User $user): array
 {
-    /** @var ?User $user */
-    $user = User::firstWhere('User', $username);
     $userId = $user->ID;
 
     $retVal = [];

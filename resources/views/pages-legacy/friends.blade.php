@@ -25,7 +25,7 @@ foreach (GetExtendedFriendsList($userModel) as $entry) {
 // GetExtendedFriendsList() returns most recent users first. sort by name for block list
 asort($blockedUsersList);
 
-$followersList = $userModel->followerUsers()->pluck('UserAccounts.User')->toArray();
+$followersList = $userModel->followerUsers()->pluck('UserAccounts.display_name')->toArray();
 ?>
 
 <x-app-layout pageTitle="Following">
