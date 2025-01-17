@@ -1,25 +1,29 @@
-import { useHydrateAtoms } from 'jotai/utils';
+import { useTranslation } from 'react-i18next';
 
+import { SEO } from '@/common/components/SEO';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
-import { isCurrentlyPersistingViewAtom } from '@/features/game-list/state/game-list.atoms';
+import { SimilarGameSuggestionsMainRoot } from '@/features/game-list/components/SimilarGameSuggestionsMainRoot';
 
 const SimilarGameSuggestions: AppPage = () => {
-  const { persistedViewPreferences } = usePageProps<App.Platform.Data.GameSuggestPageProps>();
+  const { sourceGame } = usePageProps<App.Platform.Data.GameSuggestPageProps>();
 
-  useHydrateAtoms([
-    [isCurrentlyPersistingViewAtom, !!persistedViewPreferences],
-    //
-  ]);
+  const { t } = useTranslation();
+
+  const gameTitle = sourceGame!.title;
 
   return (
     <>
-      {/* TODO SEO */}
+      <SEO
+        title={t('Game Suggestions - {{gameTitle}}', { gameTitle })}
+        description={`A list of random games that a user might want to play if they enjoyed ${gameTitle}`}
+        ogImage={sourceGame?.badgeUrl}
+      />
 
       <div className="container">
         <AppLayout.Main>
-          <p>{'SimilarGameSuggestions'}</p>
+          <SimilarGameSuggestionsMainRoot />
         </AppLayout.Main>
       </div>
     </>
