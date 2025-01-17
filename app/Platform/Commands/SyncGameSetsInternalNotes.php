@@ -14,9 +14,6 @@ class SyncGameSetsInternalNotes extends Command
     protected $signature = 'ra:sync:game-sets:internal-notes';
     protected $description = 'Sync internal notes for hub-type game sets from their legacy games.';
 
-    /**
-     * Execute the console command.
-     */
     public function handle(): void
     {
         $this->info('Starting internal notes sync for hub game sets...');

@@ -206,7 +206,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
 
 function getUserAchievementUnlocksForGame(User|string $user, int $gameID, AchievementFlag $flag = AchievementFlag::OfficialCore): array
 {
-    $user = is_string($user) ? User::firstWhere('User', $user) : $user;
+    $user = is_string($user) ? User::whereName($user)->first() : $user;
 
     $playerAchievements = $user
         ->playerAchievements()
@@ -327,11 +327,11 @@ function getUsersCompletedGamesAndMax(string $user): array
         LEFT JOIN GameData AS gd ON gd.ID = pg.game_id
         LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
         LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
-        WHERE ua.User = :user
+        WHERE (ua.User = :user OR ua.display_name = :user2)
         AND gd.achievements_published > $minAchievementsForCompletion
         ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.Title";
 
-    return legacyDbFetchAll($query, ['user' => $user])->toArray();
+    return legacyDbFetchAll($query, ['user' => $user, 'user2' => $user])->toArray();
 }
 
 function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
@@ -353,7 +353,7 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
         ->join('UserAccounts', 'UserAccounts.ID', '=', 'player_sessions.user_id')
         ->where('UserAccounts.Permissions', '>=', Permissions::Unregistered)
         ->orderBy('rich_presence_updated_at', 'DESC')
-        ->select(['player_sessions.user_id', 'User', 'player_sessions.rich_presence', 'player_sessions.rich_presence_updated_at']);
+        ->select(['player_sessions.user_id', 'display_name', 'player_sessions.rich_presence', 'player_sessions.rich_presence_updated_at']);
 
     if ($maximum_results) {
         $sessions = $sessions->limit($maximum_results);
@@ -362,7 +362,7 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
     foreach ($sessions->get() as $session) {
         $retval[] = [
             'UserID' => $session->user_id,
-            'User' => $session->User,
+            'User' => $session->display_name,
             'Date' => $session->rich_presence_updated_at->__toString(),
             'Activity' => $session->rich_presence,
             'NumAwarded' => 0,

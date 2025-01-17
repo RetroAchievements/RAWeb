@@ -1,5 +1,5 @@
 @props([
-    'targetUsername' => '',
+    'targetDisplayName' => '',
     'parentPage' => '',
     'parentPageUrl' => '',
     'currentPage' => '',
@@ -9,9 +9,9 @@
     <a href='/userList.php'>All Users</a>
     &raquo;
     @if (empty($currentPage))
-        <span class="font-bold"><a href="{{ route('user.show', $targetUsername) }}">{{ $targetUsername }}</a></span>
+        <span class="font-bold"><a href="{{ route('user.show', $targetDisplayName) }}">{{ $targetDisplayName }}</a></span>
     @else
-        <a href="{{ route('user.show', $targetUsername) }}">{{ $targetUsername }}</a>
+        <a href="{{ route('user.show', $targetDisplayName) }}">{{ $targetDisplayName }}</a>
         &raquo;
         @if (!empty($parentPage))
             <a href="{!! $parentPageUrl !!}">{{ $parentPage }}</a>

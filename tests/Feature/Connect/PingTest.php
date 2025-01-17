@@ -55,7 +55,7 @@ class PingTest extends TestCase
         $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
 
         /** @var User $user1 */
-        $user1 = User::firstWhere('User', $this->user->User);
+        $user1 = User::whereName($this->user->User)->first();
         $this->assertEquals($game->ID, $user1->LastGameID);
         $this->assertEquals('Doing good', $user1->RichPresenceMsg);
 
@@ -75,7 +75,7 @@ class PingTest extends TestCase
         $this->assertEquals(1, $playerSession2->duration);
         $this->assertEquals('Doing good', $playerSession2->rich_presence);
 
-        $user1 = User::firstWhere('User', $this->user->User);
+        $user1 = User::whereName($this->user->User)->first();
         $this->assertEquals($game->ID, $user1->LastGameID);
         $this->assertEquals('Doing good', $user1->RichPresenceMsg);
 
@@ -96,7 +96,7 @@ class PingTest extends TestCase
         $this->assertEquals('Tést t?st', $playerSession2->rich_presence);
         $this->assertEquals($gameHash->id, $playerSession2->game_hash_id);
 
-        $user1 = User::firstWhere('User', $this->user->User);
+        $user1 = User::whereName($this->user->User)->first();
         $this->assertEquals($game->ID, $user1->LastGameID);
         $this->assertEquals('Tést t?st', $user1->RichPresenceMsg);
     }

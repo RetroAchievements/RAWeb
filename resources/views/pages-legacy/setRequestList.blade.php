@@ -51,7 +51,7 @@ if (empty($username)) {
         $totalRequestedGames = getGamesWithRequests($selectedConsoleId, $selectedRequestStatus);
     }
 } else {
-    $userModel = User::firstWhere('User', $username);
+    $userModel = User::whereName($username)->first();
     if (!$userModel) {
         abort(404);
     }

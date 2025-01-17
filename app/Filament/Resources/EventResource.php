@@ -9,6 +9,7 @@ use App\Filament\Enums\ImageUploadType;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EventResource\Pages;
 use App\Filament\Resources\EventResource\RelationManagers\AchievementsRelationManager;
+use App\Filament\Resources\EventResource\RelationManagers\EventAwardsRelationManager;
 use App\Filament\Resources\EventResource\RelationManagers\HubsRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
 use App\Models\Event;
@@ -54,10 +55,10 @@ class EventResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('game.title')
+                        Infolists\Components\TextEntry::make('legacyGame.title')
                             ->label('Title'),
 
-                        Infolists\Components\TextEntry::make('game.sort_title')
+                        Infolists\Components\TextEntry::make('legacyGame.sort_title')
                             ->label('Sort Title'),
 
                         Infolists\Components\TextEntry::make('slug')
@@ -71,7 +72,7 @@ class EventResource extends Resource
                             ->extraAttributes(['class' => 'underline'])
                             ->openUrlInNewTab(),
 
-                        Infolists\Components\TextEntry::make('game.forumTopic.id')
+                        Infolists\Components\TextEntry::make('legacyGame.forumTopic.id')
                             ->label('Forum Topic ID')
                             ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
                             ->extraAttributes(['class' => 'underline']),
@@ -92,11 +93,11 @@ class EventResource extends Resource
                     ")
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('game.players_total')
+                        Infolists\Components\TextEntry::make('legacyGame.players_total')
                             ->label('Players')
                             ->numeric(),
 
-                        Infolists\Components\TextEntry::make('game.achievements_published')
+                        Infolists\Components\TextEntry::make('legacyGame.achievements_published')
                             ->label('Achievements')
                             ->numeric(),
                     ]),
@@ -108,7 +109,7 @@ class EventResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make()
-                    ->relationship('game')
+                    ->relationship('legacyGame')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
                         Forms\Components\TextInput::make('Title')
@@ -179,7 +180,7 @@ class EventResource extends Resource
                 //       https://discord.com/channels/310192285306454017/758865736072167474/1326712584623099927
                 Forms\Components\Section::make('Media from Game Record')
                     ->icon('heroicon-s-photo')
-                    ->relationship('game')
+                    ->relationship('legacyGame')
                     ->schema([
                         // Store a temporary file on disk until the user submits.
                         // When the user submits, put in storage.
@@ -249,7 +250,7 @@ class EventResource extends Resource
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('game.title')
+                Tables\Columns\TextColumn::make('legacyGame.title')
                     ->sortable()
                     ->searchable(),
 
@@ -263,19 +264,19 @@ class EventResource extends Resource
                     ->sortable(['active_until'])
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('game.forumTopic.id')
+                Tables\Columns\TextColumn::make('legacyGame.forumTopic.id')
                     ->label('Forum Topic')
                     ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('game.players_hardcore')
+                Tables\Columns\TextColumn::make('legacyGame.players_hardcore')
                     ->label('Players')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('game.achievements_published')
+                Tables\Columns\TextColumn::make('legacyGame.achievements_published')
                     ->label('Achievements')
                     ->numeric()
                     ->sortable()
@@ -301,6 +302,7 @@ class EventResource extends Resource
     {
         return [
             AchievementsRelationManager::class,
+            EventAwardsRelationManager::class,
             HubsRelationManager::class,
         ];
     }
@@ -330,6 +332,6 @@ class EventResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['game']);
+            ->with(['legacyGame']);
     }
 }

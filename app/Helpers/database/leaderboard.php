@@ -7,6 +7,7 @@ use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
+use App\Platform\Actions\UpsertTriggerVersionAction;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -190,6 +191,7 @@ function GetLeaderboardData(
 
         $retVal['Entries'][] = [
             'User' => $entry->user->display_name,
+            'AvatarUrl' => $entry->user->avatar_url,
             'DateSubmitted' => $entry->updated_at->unix(),
             'Score' => $entry->score,
             'Rank' => $rank,
@@ -309,14 +311,14 @@ function UploadNewLeaderboard(
     $displayOrder = 0;
     $originalAuthor = null;
 
+    /** @var ?Leaderboard $foundLeaderboard */
+    $foundLeaderboard = null;
+
     if ($idInOut > 0) {
         $foundLeaderboard = Leaderboard::find($idInOut);
         if ($foundLeaderboard) {
             $displayOrder = $foundLeaderboard->order_column;
             $originalAuthor = $foundLeaderboard->developer;
-
-            $data['DisplayOrder'] = $displayOrder;
-            $data['Author'] = $originalAuthor?->display_name ?? "Unknown";
         } else {
             $errorOut = "Unknown leaderboard";
 
@@ -324,7 +326,7 @@ function UploadNewLeaderboard(
         }
     }
 
-    $authorModel = User::firstWhere('User', $authorUsername);
+    $authorModel = User::whereName($authorUsername)->first();
 
     // Prevent non-developers from uploading or modifying leaderboards
     $userPermissions = (int) $authorModel->getAttribute('Permissions');
@@ -361,7 +363,6 @@ function UploadNewLeaderboard(
         $foundLeaderboard = Leaderboard::find($idInOut);
         if ($foundLeaderboard) {
             $displayOrder = $foundLeaderboard->order_column;
-            $data['DisplayOrder'] = $displayOrder;
         }
     }
 
@@ -376,6 +377,13 @@ function UploadNewLeaderboard(
             "{$authorModel->display_name} edited this leaderboard.", $authorModel->username
         );
     }
+
+    (new UpsertTriggerVersionAction())->execute(
+        $foundLeaderboard,
+        $mem,
+        versioned: true, // we don't currently support unpublished leaderboards
+        user: $authorModel,
+    );
 
     return true;
 }
