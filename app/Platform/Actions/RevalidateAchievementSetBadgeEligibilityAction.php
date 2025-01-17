@@ -185,27 +185,14 @@ class RevalidateAchievementSetBadgeEligibilityAction
             ->where('AwardData', $event->id)
             ->first();
         if ($existingAward) {
-            if ($existingAward->AwardDataExtra === $expectedTier) {
-                // player already has the appropriate award
+            if ($existingAward->AwardDataExtra >= $expectedTier) {
+                // player already has the appropriate award (or better - never downgrade an award due to resetting)
                 return;
             }
 
-            if ($expectedTier === -1) {
-                // player no longer deserves any badge. did they do a full reset?
-                $this->dispatchBadgeLostEvent($existingAward);
-                $existingAward->delete();
-
-                return;
-            }
-
-            if ($expectedTier > $existingAward->AwardDataExtra) {
-                // badge is being upgraded. update the AwardDate.
-                // don't upgade the AwardDate if badge is being downgraded.
-                $existingAward->AwardDate = Carbon::now();
-            }
-
-            // update the tier
+            // upgraded the badge and update the AwardDate.
             $existingAward->AwardDataExtra = $expectedTier;
+            $existingAward->AwardDate = Carbon::now();
             $existingAward->save();
         } else {
             if ($expectedTier === -1) {
