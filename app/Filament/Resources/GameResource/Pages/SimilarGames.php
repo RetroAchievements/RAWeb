@@ -10,9 +10,8 @@ use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\AttachGamesToGameSetAction;
-use App\Platform\Actions\DetachGamesFromGameSetAction;
-use App\Platform\Enums\GameSetType;
+use App\Platform\Actions\LinkSimilarGamesAction;
+use App\Platform\Actions\UnlinkSimilarGamesAction;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ManageRelatedRecords;
@@ -41,7 +40,7 @@ class SimilarGames extends ManageRelatedRecords
 
     public static function getNavigationBadge(): ?string
     {
-        return (string) Livewire::current()->getRecord()->similarGames->count();
+        return (string) Livewire::current()->getRecord()->similarGamesList->count();
     }
 
     public function table(Table $table): Table
@@ -130,12 +129,13 @@ class SimilarGames extends ManageRelatedRecords
                         /** @var Game $game */
                         $game = $this->getOwnerRecord();
 
-                        // This assumes there will only ever be one similar games set.
-                        $similarGamesSet = GameSet::whereType(GameSetType::SimilarGames)
-                            ->whereGameId($game->id)
-                            ->first();
+                        (new LinkSimilarGamesAction())->execute($game, $data['game_ids']);
 
-                        (new AttachGamesToGameSetAction())->execute($similarGamesSet, $data['game_ids']);
+                        Notification::make()
+                            ->success()
+                            ->title('Success')
+                            ->body('Added similar game.')
+                            ->send();
                     }),
             ])
             ->actions([
@@ -147,15 +147,10 @@ class SimilarGames extends ManageRelatedRecords
                     ->color('danger')
                     ->modalHeading('Remove similar game')
                     ->action(function (Game $similarGame): void {
-                        /** @var Game $rootGame */
-                        $rootGame = $this->getOwnerRecord();
+                        /** @var Game $game */
+                        $game = $this->getOwnerRecord();
 
-                        // This assumes there will only ever be one similar games set.
-                        $similarGamesSet = GameSet::whereType(GameSetType::SimilarGames)
-                            ->whereGameId($rootGame->id)
-                            ->first();
-
-                        (new DetachGamesFromGameSetAction())->execute($similarGamesSet, [$similarGame->id]);
+                        (new UnlinkSimilarGamesAction())->execute($game, [$similarGame->id]);
 
                         Notification::make()
                             ->success()
@@ -172,17 +167,13 @@ class SimilarGames extends ManageRelatedRecords
                     ->requiresConfirmation()
                     ->color('danger')
                     ->action(function (Collection $similarGames): void {
-                        /** @var Game $rootGame */
-                        $rootGame = $this->getOwnerRecord();
+                        /** @var Game $game */
+                        $game = $this->getOwnerRecord();
 
-                        // This assumes there will only ever be one similar games set.
-                        $similarGamesSet = GameSet::whereType(GameSetType::SimilarGames)
-                            ->whereGameId($rootGame->id)
-                            ->first();
-
-                        foreach ($similarGames as $similarGame) {
-                            (new DetachGamesFromGameSetAction())->execute($similarGamesSet, [$similarGame->id]);
-                        }
+                        (new UnlinkSimilarGamesAction())->execute(
+                            $game,
+                            $similarGames->pluck('id')->toArray()
+                        );
 
                         $this->deselectAllTableRecords();
 
