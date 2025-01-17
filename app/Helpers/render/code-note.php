@@ -60,7 +60,7 @@ function RenderCodeNotes(array $codeNotes, ?string $editingUser = null, ?int $ed
         HTML;
 
         echo "<td class='note-author-avatar' data-current-author='" . $nextCodeNote['User'] . "'>";
-        echo userAvatar($nextCodeNote['User'], label: false, iconSize: 24);
+        echo userAvatar($nextCodeNote['DisplayName'], label: false, iconSize: 24);
         echo "</td>";
 
         if ($canEditNote) {

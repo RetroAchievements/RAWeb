@@ -119,7 +119,7 @@ function getGameMetadata(
         ach.Description,
         ach.Points,
         ach.TrueRatio,
-        ua.User AS Author,
+        COALESCE(ua.display_name, ua.User) AS Author,
         ach.DateModified,
         ach.DateCreated,
         ach.BadgeName,
@@ -586,7 +586,7 @@ function getGameIDFromTitle(string $gameTitle, int $consoleID): int
 }
 
 function modifyGameData(
-    string $username,
+    User $user,
     int $gameId,
     ?string $developer,
     ?string $publisher,
@@ -631,7 +631,7 @@ function modifyGameData(
         "Server",
         ArticleType::GameModification,
         $gameId,
-        "{$username} changed the " .
+        "{$user->display_name} changed the " .
             implode(", ", $modifications) .
             (count($modifications) == 1 ? " field" : " fields"),
     );
@@ -645,6 +645,7 @@ function modifyGameTitle(string $username, int $gameId, string $value): bool
         return false;
     }
 
+    $user = User::whereName($username)->first();
     $game = Game::find($gameId);
     if (!$game) {
         return false;
@@ -665,7 +666,7 @@ function modifyGameTitle(string $username, int $gameId, string $value): bool
 
     if ($game->isDirty()) {
         $game->save();
-        addArticleComment('Server', ArticleType::GameModification, $gameId, "{$username} changed the game name");
+        addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the game name");
     }
 
     return true;
@@ -673,6 +674,8 @@ function modifyGameTitle(string $username, int $gameId, string $value): bool
 
 function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAdd = null, int|string|array|null $toRemove = null): void
 {
+    $userModel = User::whereName($user)->first();
+
     $arrayFromParameter = function ($parameter): array {
         $ids = [];
         if (is_int($parameter)) {
@@ -694,13 +697,13 @@ function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAd
         return $ids;
     };
 
-    $createAuditLogEntries = function (string $action, array $ids) use ($user, $gameID) {
-        $message = (count($ids) == 1) ? "$user $action related game id " . $ids[0] :
-            "$user $action related game ids: " . implode(', ', $ids);
+    $createAuditLogEntries = function (string $action, array $ids) use ($userModel, $gameID) {
+        $message = (count($ids) == 1) ? "{$userModel->display_name} $action related game id " . $ids[0] :
+            "{$userModel->display_name} $action related game ids: " . implode(', ', $ids);
 
         addArticleComment('Server', ArticleType::GameModification, $gameID, $message);
 
-        $message = "$user $action related game id $gameID";
+        $message = "{$userModel->display_name} $action related game id $gameID";
         foreach ($ids as $id) {
             addArticleComment('Server', ArticleType::GameModification, $id, $message);
         }
@@ -755,6 +758,7 @@ function modifyGameForumTopic(string $username, int $gameId, int $newForumTopicI
         return false;
     }
 
+    $user = User::whereName($username)->first();
     $game = Game::find($gameId);
     if (!$game) {
         return false;
@@ -763,7 +767,7 @@ function modifyGameForumTopic(string $username, int $gameId, int $newForumTopicI
     $game->ForumTopicID = $newForumTopicId;
     $game->save();
 
-    addArticleComment('Server', ArticleType::GameModification, $gameId, "{$username} changed the forum topic");
+    addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the forum topic");
 
     return true;
 }
@@ -851,7 +855,7 @@ function submitNewGameTitleJSON(
     $retVal['GameTitle'] = $titleIn;
     $retVal['Success'] = true;
 
-    $userModel = User::where('User', $username)->first();
+    $userModel = User::whereName($username)->first();
     $permissions = (int) $userModel->getAttribute('Permissions');
     $userId = $userModel->id;
     CauserResolver::setCauser($userModel);
@@ -921,9 +925,9 @@ function submitNewGameTitleJSON(
 
                 // Log hash linked
                 if (!empty($unsanitizedDescription)) {
-                    addArticleComment("Server", ArticleType::GameHash, $gameID, $md5 . " linked by " . $username . ". Description: \"" . $unsanitizedDescription . "\"");
+                    addArticleComment("Server", ArticleType::GameHash, $gameID, $md5 . " linked by " . $userModel->display_name . ". Description: \"" . $unsanitizedDescription . "\"");
                 } else {
-                    addArticleComment("Server", ArticleType::GameHash, $gameID, $md5 . " linked by " . $username);
+                    addArticleComment("Server", ArticleType::GameHash, $gameID, $md5 . " linked by " . $userModel->display_name);
                 }
             } else {
                 /*
@@ -938,7 +942,7 @@ function submitNewGameTitleJSON(
     return $retVal;
 }
 
-function modifyGameRichPresence(string $username, int $gameId, string $dataIn): bool
+function modifyGameRichPresence(User $user, int $gameId, string $dataIn): bool
 {
     getRichPresencePatch($gameId, $existingData);
     if ($existingData == $dataIn) {
@@ -957,10 +961,10 @@ function modifyGameRichPresence(string $username, int $gameId, string $dataIn): 
         $game,
         $dataIn,
         versioned: true, // rich presence is always published
-        user: User::firstWhere('User', $username),
+        user: $user
     );
 
-    addArticleComment('Server', ArticleType::GameModification, $gameId, "{$username} changed the rich presence script");
+    addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the rich presence script");
 
     return true;
 }

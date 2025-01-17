@@ -21,7 +21,7 @@ if ($action === 'manual-unlock') {
     if (isset($awardAchievementID) && isset($awardAchievementUser)) {
         $usersToAward = preg_split('/\W+/', $awardAchievementUser);
         foreach ($usersToAward as $nextUser) {
-            $player = User::firstWhere('User', $nextUser);
+            $player = User::whereName($nextUser)->first();
             if (!$player) {
                 continue;
             }

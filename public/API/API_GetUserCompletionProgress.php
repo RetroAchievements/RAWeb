@@ -42,7 +42,7 @@ $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 100;
 $user = request()->query('u');
 
-$userModel = User::firstWhere('User', $user);
+$userModel = User::whereName($user)->first();
 
 $playerProgressionService = new PlayerProgressionService();
 

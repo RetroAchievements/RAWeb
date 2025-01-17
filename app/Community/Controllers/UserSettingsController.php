@@ -95,7 +95,7 @@ class UserSettingsController extends Controller
             'Server',
             ArticleType::UserModeration,
             $user->id,
-            "{$user->username} changed their email address"
+            "{$user->display_name} changed their email address"
         );
 
         return response()->json(['success' => true]);

@@ -78,7 +78,8 @@ function GetFriendList(User $user): array
         ->get()
         ->map(function ($friend) {
             return [
-                'Friend' => $friend->User,
+                'Friend' => $friend->display_name,
+                'AvatarUrl' => $friend->avatar_url,
                 'RAPoints' => $friend->points,
                 'LastSeen' => empty($friend->RichPresenceMsg) ? 'Unknown' : strip_tags($friend->RichPresenceMsg),
                 'ID' => $friend->id,
@@ -97,7 +98,7 @@ function GetExtendedFriendsList(User $user): array
         ->get()
         ->map(function ($friend) {
             return [
-                'User' => $friend->User,
+                'User' => $friend->display_name,
                 'Friendship' => (int) $friend->pivot->Friendship,
                 'LastGameID' => (int) $friend->LastGameID,
                 'LastSeen' => empty($friend->RichPresenceMsg) ? 'Unknown' : strip_tags($friend->RichPresenceMsg),
@@ -110,7 +111,7 @@ function GetExtendedFriendsList(User $user): array
 
 function GetFriendsSubquery(string $user, bool $includeUser = true, bool $returnUserIds = false): string
 {
-    $userModel = User::firstWhere('User', $user);
+    $userModel = User::whereName($user)->first();
     $userId = $userModel->id;
 
     $selectColumn = $returnUserIds ? 'ua.ID' : 'ua.User';

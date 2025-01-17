@@ -32,10 +32,16 @@ performSearch($order, $searchTerm, 0, $maxResults, $permissions, $results, wantT
 
 $dataOut = [];
 foreach ($results as $nextRow) {
-    $dataOut[] = [
+    $result = [
         'label' => $nextRow['Title'] ?? null,
         'mylink' => $nextRow['Target'] ?? null,
     ];
+
+    if ($source === 'user' || $source === 'game-compare') {
+        $result['username'] = $nextRow['ID'] ?? null;
+    }
+
+    $dataOut[] = $result;
 }
 
 return response()->json($dataOut);
