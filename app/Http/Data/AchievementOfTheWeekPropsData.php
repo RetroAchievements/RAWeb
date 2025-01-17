@@ -13,7 +13,7 @@ class AchievementOfTheWeekPropsData extends Data
 {
     public function __construct(
         public EventAchievementData $currentEventAchievement,
-        public ?AchievementOfTheWeekProgressData $achievementOfTheWeekProgress,
+        public bool $doesUserHaveUnlock,
     ) {
     }
 }

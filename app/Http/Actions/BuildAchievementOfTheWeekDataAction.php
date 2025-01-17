@@ -36,9 +36,18 @@ class BuildAchievementOfTheWeekDataAction
 
         return new AchievementOfTheWeekPropsData(
             currentEventAchievement: $currentEventAchievementData,
-            achievementOfTheWeekProgress: $user
-                ? (new CalculateAchievementOfTheWeekUserProgressAction())->execute($user, $achievementOfTheWeek->event)
-                : null,
+            doesUserHaveUnlock: $this->getDoesUserHaveUnlock($user, $achievementOfTheWeek),
         );
+    }
+
+    private function getDoesUserHaveUnlock(?User $user, EventAchievement $achievementOfTheWeek): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        return $user->playerAchievements()
+            ->whereAchievementId($achievementOfTheWeek->achievement_id)
+            ->exists();
     }
 }

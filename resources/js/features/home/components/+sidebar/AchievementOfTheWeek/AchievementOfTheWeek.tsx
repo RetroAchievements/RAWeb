@@ -11,7 +11,7 @@ import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames'
 import { cn } from '@/common/utils/cn';
 
 import { HomeHeading } from '../../HomeHeading';
-import { AotwStreak } from './AotwStreak';
+import { AotwUnlockedIndicator } from './AotwUnlockedIndicator';
 
 export const AchievementOfTheWeek: FC = () => {
   const { achievementOfTheWeek, auth } = usePageProps<App.Http.Data.HomePageProps>();
@@ -89,7 +89,7 @@ export const AchievementOfTheWeek: FC = () => {
           </div>
 
           <div className="-mx-2 mt-2">
-            <AotwStreak />
+            <AotwUnlockedIndicator />
           </div>
         </div>
 
