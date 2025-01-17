@@ -6,7 +6,7 @@ use App\Models\User;
 
 function loadCodeNotes(int $gameId): ?array
 {
-    $query = "SELECT ua.User, ua.display_name AS DisplayName, mn.address AS Address, mn.body AS Note
+    $query = "SELECT ua.display_name AS User, mn.address AS Address, mn.body AS Note
               FROM memory_notes AS mn
               LEFT JOIN UserAccounts AS ua ON ua.ID = mn.user_id
               WHERE mn.game_id = '$gameId'
