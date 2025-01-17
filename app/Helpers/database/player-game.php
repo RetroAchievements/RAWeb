@@ -277,7 +277,7 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
 
 function GetAllUserProgress(User $user, int $consoleID): array
 {
-    /** @var Collection<int, Game> $games */
+    /** @var Collection<int, PlayerGame> $playerGames */
     $playerGames = $user->playerGames()
         ->whereHas('game', function ($query) use ($consoleID) {
             $query->where('ConsoleID', $consoleID)
@@ -289,10 +289,9 @@ function GetAllUserProgress(User $user, int $consoleID): array
         }])
         ->get();
 
-    /** @var array<int, array{NumAch: int, Earned: int, HCEarned: int}> $retVal */
+    /** @var array<int, array{Achievements: int, Unlocked: int, UnlockedHardcore: int}> $retVal */
     $retVal = [];
     foreach ($playerGames as $playerGame) {
-        /** @var ?PlayerGame $playerGame */
         $retVal[$playerGame->game_id] = [
             'Achievements' => $playerGame->game->achievements_published,
             'Unlocked' => $playerGame->achievements_unlocked,
