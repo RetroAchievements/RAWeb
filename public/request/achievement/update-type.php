@@ -13,7 +13,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
     abort(401);
 }
 
-$userModel = User::firstWhere('User', $user);
+$userModel = User::whereName($user)->first();
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'achievements' => 'required',
@@ -56,6 +56,6 @@ if ($value === AchievementType::Missable) {
 if (!$value) {
     $commentText = "removed this achievement's type";
 }
-addArticleComment("Server", ArticleType::Achievement, $achievementIds, "$user $commentText.", $user);
+addArticleComment("Server", ArticleType::Achievement, $achievementIds, "{$userModel->display_name} $commentText.", $userModel->display_name);
 
 return response()->json(['message' => __('legacy.success.ok')]);

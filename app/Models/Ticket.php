@@ -31,6 +31,7 @@ class Ticket extends BaseModel
     // TODO rename Updated column to updated_at
     // TODO drop AchievementID, use ticketable morph instead
     // TODO drop Hardcore, derived from player_session
+    // TODO rename ticketable_model to ticketable_type
     protected $table = 'Ticket';
 
     protected $primaryKey = 'ID';

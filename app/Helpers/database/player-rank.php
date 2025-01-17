@@ -12,33 +12,9 @@ function SetUserUntrackedStatus(string $usernameIn, int $isUntracked): void
 {
     legacyDbStatement("UPDATE UserAccounts SET Untracked = $isUntracked, Updated=NOW() WHERE User = '$usernameIn'");
 
-    PlayerRankedStatusChanged::dispatch(User::firstWhere('User', $usernameIn), (bool) $isUntracked);
+    PlayerRankedStatusChanged::dispatch(User::whereName($usernameIn)->first(), (bool) $isUntracked);
 
     // TODO update games that are affected by this user's library
-}
-
-/**
- * @deprecated take from authenticated user directly
- */
-function getPlayerPoints(?string $user, ?array &$dataOut): bool
-{
-    if (empty($user) || !isValidUsername($user)) {
-        return false;
-    }
-
-    $query = "SELECT ua.RAPoints, ua.RASoftcorePoints
-              FROM UserAccounts AS ua
-              WHERE ua.User=:username";
-
-    $dataOut = legacyDbFetch($query, ['username' => $user]);
-    if ($dataOut) {
-        $dataOut['RAPoints'] = (int) $dataOut['RAPoints'];
-        $dataOut['RASoftcorePoints'] = (int) $dataOut['RASoftcorePoints'];
-
-        return true;
-    }
-
-    return false;
 }
 
 function countRankedUsers(int $type = RankType::Hardcore): int
@@ -69,21 +45,18 @@ function countRankedUsers(int $type = RankType::Hardcore): int
 
 function getTopUsersByScore(int $count): array
 {
-    if ($count > 10) {
-        $count = 10;
-    }
-
-    $query = "SELECT User, RAPoints, TrueRAPoints
-              FROM UserAccounts AS ua
-              WHERE NOT ua.Untracked
-              ORDER BY RAPoints DESC, TrueRAPoints DESC
-              LIMIT 0, $count ";
-
-    return legacyDbFetchAll($query)->map(fn ($row) => [
-        1 => $row['User'],
-        2 => $row['RAPoints'],
-        3 => $row['TrueRAPoints'],
-    ])->toArray();
+    return User::select(['display_name', 'User', 'RAPoints', 'TrueRAPoints'])
+        ->where('Untracked', false)
+        ->orderBy('RAPoints', 'desc')
+        ->orderBy('TrueRAPoints', 'desc')
+        ->take(min($count, 10))
+        ->get()
+        ->map(fn ($user) => [
+            1 => $user->display_name ?? $user->User,
+            2 => $user->RAPoints,
+            3 => $user->TrueRAPoints,
+        ])
+        ->toArray();
 }
 
 /**
@@ -94,7 +67,7 @@ function getUserRank(string $username, int $type = RankType::Hardcore): ?int
     $key = CacheKey::buildUserRankCacheKey($username, $type);
 
     return Cache::remember($key, Carbon::now()->addMinutes(15), function () use ($username, $type) {
-        $user = User::firstWhere('User', $username);
+        $user = User::whereName($username)->first();
         if (!$user || $user->Untracked) {
             return null;
         }

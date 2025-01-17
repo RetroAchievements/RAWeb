@@ -147,13 +147,13 @@ function getAchievementUnlocksData(
     return PlayerAchievement::where('achievement_id', $achievementId)
         ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_id')
         ->orderByRaw('COALESCE(unlocked_hardcore_at, unlocked_at) DESC')
-        ->select(['UserAccounts.User', 'UserAccounts.RAPoints', 'UserAccounts.RASoftcorePoints', 'unlocked_at', 'unlocked_hardcore_at'])
+        ->select(['UserAccounts.User', 'UserAccounts.display_name', 'UserAccounts.RAPoints', 'UserAccounts.RASoftcorePoints', 'unlocked_at', 'unlocked_hardcore_at'])
         ->offset($offset)
         ->limit($limit)
         ->get()
         ->map(function ($row) {
             return [
-                'User' => $row->User,
+                'User' => !empty($row->display_name) ? $row->display_name : $row->User,
                 'RAPoints' => $row->RAPoints,
                 'RASoftcorePoints' => $row->RASoftcorePoints,
                 'DateAwarded' => $row->unlocked_hardcore_at ?? $row->unlocked_at,
@@ -197,7 +197,7 @@ function getRecentUnlocksPlayersData(
     }
 
     // Get recent winners, and their most recent activity:
-    $query = "SELECT u.User, u.RAPoints, " . unixTimestampStatement('pa.unlocked_at', 'DateAwarded') . "
+    $query = "SELECT u.User, u.display_name AS DisplayName, u.RAPoints, " . unixTimestampStatement('pa.unlocked_at', 'DateAwarded') . "
               FROM player_achievements AS pa
               LEFT JOIN UserAccounts AS u ON u.ID = pa.user_id
               WHERE pa.achievement_id = $achID $extraWhere
@@ -205,6 +205,10 @@ function getRecentUnlocksPlayersData(
               LIMIT $offset, $count";
 
     foreach (legacyDbFetchAll($query) as $db_entry) {
+        $db_entry['AvatarUrl'] = media_asset('UserPic/' . $db_entry['User'] . '.png');
+        $db_entry['User'] = $db_entry['DisplayName'];
+        unset($db_entry['DisplayName']);
+
         $db_entry['RAPoints'] = (int) $db_entry['RAPoints'];
         $db_entry['DateAwarded'] = (int) $db_entry['DateAwarded'];
         $retVal['RecentWinner'][] = $db_entry;

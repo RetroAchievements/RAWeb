@@ -36,7 +36,7 @@ class RemoveLeaderboardEntryAction
                 ArticleType::Leaderboard,
                 $entry->leaderboard->id,
                 "{$currentUser->display_name} {$commentText}",
-                $currentUser->username
+                $currentUser->display_name
             );
         }
     }

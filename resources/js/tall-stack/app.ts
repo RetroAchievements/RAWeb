@@ -6,6 +6,8 @@
 // eslint-disable-next-line camelcase
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
+import { getStringByteCount } from '@/common/utils/getStringByteCount';
+
 import { Alpine, Livewire } from '../../../vendor/livewire/livewire/dist/livewire.esm';
 import {
   linkifyDirective,
@@ -21,7 +23,6 @@ import {
   deleteCookie,
   fetcher,
   getCookie,
-  getStringByteCount,
   handleLeaderboardTabClick,
   initializeTextareaCounter,
   injectShortcode,
