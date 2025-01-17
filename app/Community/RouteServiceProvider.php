@@ -118,7 +118,7 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('user/{user}/moderation-comments', [UserModerationCommentController::class, 'index'])->name('user.moderation-comment.index');
 
                     Route::get('forums/recent-posts', [ForumTopicController::class, 'recentPosts'])->name('forum.recent-posts');
-                    Route::get('forums/post/{comment}/edit2', [ForumTopicCommentController::class, 'edit'])->name('forum-topic-comment.edit');
+                    Route::get('forums/post/{comment}/edit', [ForumTopicCommentController::class, 'edit'])->name('forum-topic-comment.edit');
 
                     Route::get('user/{user}/posts', [UserForumTopicCommentController::class, 'index'])->name('user.posts.index');
                     Route::get('user/{user}/achievement-checklist', [UserAchievementChecklistController::class, 'index'])->name('user.achievement-checklist');
