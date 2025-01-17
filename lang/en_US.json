@@ -136,7 +136,6 @@
     "Forum Index": "Forum Index",
     "Forum Posts": "Forum Posts",
     "Forum Posts - {{user}}": "Forum Posts - {{user}}",
-    "from": "from",
     "Game": "Game",
     "Game Details": "Game Details",
     "Games": "Games",
@@ -631,5 +630,6 @@
     "Similar": "Similar",
     "See your full recommendation feed": "See your full recommendation feed",
     "Also beaten by same players": "Also beaten by same players",
-    "Also mastered by same players": "Also mastered by same players"
+    "Also mastered by same players": "Also mastered by same players",
+    "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>": "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>"
 }

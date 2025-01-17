@@ -8,6 +8,7 @@ use App\Models\PlayerSession;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\GameTopAchieversService;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 function getGameRankAndScore(int $gameID, User $user): array
@@ -276,23 +277,36 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
 
 function GetAllUserProgress(User $user, int $consoleID): array
 {
-    $retVal = [];
+    /** @var Collection<int, Game> $games */
+    $games = Game::where('ConsoleID', $consoleID)
+        ->where('achievements_published', '>', 0)
+        ->get();
 
-    $query = "SELECT gd.ID, gd.achievements_published AS NumAch,
-                     COALESCE(pg.achievements_unlocked, 0) AS Earned,
-                     COALESCE(pg.achievements_unlocked_hardcore, 0) AS HCEarned
-            FROM GameData AS gd
-            LEFT JOIN player_games pg ON pg.game_id = gd.ID AND pg.user_id={$user->id}
-            WHERE gd.achievements_published > 0 AND gd.ConsoleID = $consoleID";
+    /** @var Collection<int, PlayerGame> $playerGames */
+    $playerGames = $user->playerGames()
+        ->whereIn('game_id', $games->pluck('id'))
+        ->get()
+        ->keyBy('game_id');
 
-    foreach (legacyDbFetchAll($query) as $row) {
-        $id = $row['ID'];
-        unset($row['ID']);
+    $result = [];
+    foreach ($games as $game) {
+        /** @var ?PlayerGame $playerGame */
+        $playerGame = $playerGames->get($game->id);
 
-        $retVal[$id] = $row;
+        $gameDetails = ['Achievements' => $game->achievements_published];
+
+        if ($unlocked = $playerGame?->achievements_unlocked) {
+            $gameDetails['Unlocked'] = $unlocked;
+
+            if ($hardcore = $playerGame->achievements_unlocked_hardcore) {
+                $gameDetails['UnlockedHardcore'] = $hardcore;
+            }
+        }
+
+        $result[$game->id] = $gameDetails;
     }
 
-    return $retVal;
+    return $result;
 }
 
 function getUsersCompletedGamesAndMax(string $user): array
