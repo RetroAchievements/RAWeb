@@ -34,22 +34,20 @@ export const UnlockableAchievementAvatar: FC<UnlockableAchievementAvatarProps> =
 
       <div>
         <div className="flex items-center gap-2">
-          <AchievementAvatar {...achievement} showImage={false} showPointsInTitle={true} />
-
           {showGame && achievement.game ? (
-            <>
-              <Trans
-                i18nKey="<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>"
-                components={{
-                  1: <span className="sr-only" />,
-                  2: <span className="sr-only" />,
-                }}
-                values={{ achievementTitle: achievement.title, gameTitle: achievement.game.title }}
-              />
-
-              <GameAvatar {...achievement.game} showImage={false} />
-            </>
-          ) : null}
+            <Trans
+              i18nKey="<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>"
+              components={{
+                1: (
+                  <AchievementAvatar {...achievement} showImage={false} showPointsInTitle={true} />
+                ),
+                2: <GameAvatar {...achievement.game} showImage={false} />,
+              }}
+              values={{ achievementTitle: achievement.title, gameTitle: achievement.game.title }}
+            />
+          ) : (
+            <AchievementAvatar {...achievement} showImage={false} showPointsInTitle={true} />
+          )}
         </div>
 
         <span>{achievement.description}</span>
