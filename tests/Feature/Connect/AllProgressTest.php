@@ -65,7 +65,7 @@ class AllProgressTest extends TestCase
             ]);
     }
 
-    public function testItIgnoresGamesWithNoProgress(): void
+    public function testItIncludesAchievementCountEvenWithNoProgress(): void
     {
         $system = System::factory()->create();
         $game = Game::factory()->create([
@@ -83,7 +83,11 @@ class AllProgressTest extends TestCase
         $this->get($this->apiUrl('allprogress', ['c' => $system->id]))
             ->assertExactJson([
                 'Success' => true,
-                'Response' => [],
+                'Response' => [
+                    $game->id => [
+                        'Achievements' => 12,
+                    ],
+                ],
             ]);
     }
 

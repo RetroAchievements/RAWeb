@@ -277,29 +277,36 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
 
 function GetAllUserProgress(User $user, int $consoleID): array
 {
-    /** @var Collection<int, PlayerGame> $playerGames */
-    $playerGames = $user->playerGames()
-        ->whereHas('game', function ($query) use ($consoleID) {
-            $query->where('ConsoleID', $consoleID)
-                ->where('achievements_published', '>', 0);
-        })
-        ->where('achievements_unlocked', '>', 0)
-        ->with(['game' => function ($query) {
-            $query->select('ID', 'achievements_published');
-        }])
+    /** @var Collection<int, Game> $games */
+    $games = Game::where('ConsoleID', $consoleID)
+        ->where('achievements_published', '>', 0)
         ->get();
 
-    /** @var array<int, array{Achievements: int, Unlocked: int, UnlockedHardcore: int}> $retVal */
-    $retVal = [];
-    foreach ($playerGames as $playerGame) {
-        $retVal[$playerGame->game_id] = [
-            'Achievements' => $playerGame->game->achievements_published,
-            'Unlocked' => $playerGame->achievements_unlocked,
-            'UnlockedHardcore' => $playerGame->achievements_unlocked_hardcore,
-        ];
+    /** @var Collection<int, PlayerGame> $playerGames */
+    $playerGames = $user->playerGames()
+        ->whereIn('game_id', $games->pluck('id'))
+        ->get()
+        ->keyBy('game_id');
+
+    $result = [];
+    foreach ($games as $game) {
+        /** @var ?PlayerGame $playerGame */
+        $playerGame = $playerGames->get($game->id);
+
+        $gameDetails = ['Achievements' => $game->achievements_published];
+
+        if ($unlocked = $playerGame?->achievements_unlocked) {
+            $gameDetails['Unlocked'] = $unlocked;
+
+            if ($hardcore = $playerGame->achievements_unlocked_hardcore) {
+                $gameDetails['UnlockedHardcore'] = $hardcore;
+            }
+        }
+
+        $result[$game->id] = $gameDetails;
     }
 
-    return $retVal;
+    return $result;
 }
 
 function getUsersCompletedGamesAndMax(string $user): array
