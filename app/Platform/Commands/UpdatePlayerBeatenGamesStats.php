@@ -30,7 +30,7 @@ class UpdatePlayerBeatenGamesStats extends Command
         if ($userId !== null) {
             $user = is_numeric($userId)
                 ? User::findOrFail($userId)
-                : User::where('User', $userId)->firstOrFail();
+                : User::whereName($userId)->firstOrFail();
 
             $this->info('Updating beaten games stats for player [' . $user->id . ':' . $user->username . ']');
 

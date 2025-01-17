@@ -3,7 +3,9 @@ import { useAtom } from 'jotai';
 import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import type { TranslatedString } from '@/types/i18next';
 
 import { useGameListState } from '../../hooks/useGameListState';
 import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
@@ -59,6 +61,8 @@ export const SystemGamesMainRoot: FC = memo(() => {
 
   return (
     <div>
+      <GameBreadcrumbs t_currentPageLabel={system.name as TranslatedString} />
+
       <DataTablePaginationScrollTarget>
         <div className="mb-3 flex w-full items-center">
           <h1 className="text-h3 w-full sm:!text-[2.0em]">

@@ -16,6 +16,7 @@ class EventAchievementData extends Data
     public function __construct(
         public Lazy|AchievementData $achievement,
         public Lazy|AchievementData $sourceAchievement,
+        public Lazy|EventData $event,
         public Lazy|Carbon $activeUntil,
         public Lazy|int $forumTopicId,
     ) {
@@ -27,6 +28,7 @@ class EventAchievementData extends Data
         return new self(
             achievement: Lazy::create(fn () => AchievementData::fromAchievement($eventAchievement->achievement)),
             sourceAchievement: Lazy::create(fn () => AchievementData::fromAchievement($eventAchievement->sourceAchievement)),
+            event: Lazy::create(fn () => EventData::fromEvent($eventAchievement->event)),
             activeUntil: Lazy::create(fn () => $eventAchievement->active_until),
             forumTopicId: Lazy::create(fn () => $eventAchievement->achievement->game->ForumTopicID),
         );

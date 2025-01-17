@@ -58,7 +58,7 @@
  use Illuminate\Support\Carbon;
 
 $gameID = (int) request()->query('g');
-$targetUser = User::firstWhere('User', request()->query('u'));
+$targetUser = User::whereName(request()->query('u'))->first();
 if (!$targetUser) {
     return response()->json([]);
 }

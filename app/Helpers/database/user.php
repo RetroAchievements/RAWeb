@@ -9,7 +9,7 @@ use App\Platform\Enums\AchievementFlag;
 
 function GetUserData(string $username): ?array
 {
-    return User::firstWhere('User', $username)?->toArray();
+    return User::whereName($username)->first()?->toArray();
 }
 
 function getAccountDetails(?string &$username = null, ?array &$dataOut = []): bool
@@ -46,7 +46,7 @@ function getUserIDFromUser(?string $user): int
         return 0;
     }
 
-    $userModel = User::firstWhere('User', $user);
+    $userModel = User::whereName($user)->first();
     if (!$userModel) {
         return 0;
     }
@@ -68,21 +68,24 @@ function getUserMetadataFromID(int $userID): ?array
 
 function validateUsername(string $userIn): ?string
 {
-    $user = User::firstWhere('User', $userIn);
+    $user = User::whereName($userIn)->first();
 
     return ($user !== null) ? $user->User : null;
 }
 
+/**
+ * @deprecated use Eloquent ORM
+ */
 function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchievements = 0): array
 {
-    $user = User::firstWhere('User', $username);
+    $user = User::whereName($username)->first();
     if (!$user) {
         return [];
     }
 
     $libraryOut = [];
 
-    $libraryOut['User'] = $user->User;
+    $libraryOut['User'] = $user->display_name;
     $libraryOut['MemberSince'] = $user->created_at->__toString();
     $libraryOut['LastActivity'] = $user->LastLogin?->__toString();
     $libraryOut['LastActivityID'] = $user->LastActivityID;
@@ -147,22 +150,22 @@ function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataO
             $whereQuery = "WHERE $permsFilter ";
         }
     } else {
-        $whereQuery = "WHERE ( NOT ua.Untracked || ua.User = \"$requestedBy\" ) AND $permsFilter";
+        $whereQuery = "WHERE ( NOT ua.Untracked || ua.User = \"$requestedBy\" OR ua.display_name = \"$requestedBy\" ) AND $permsFilter";
     }
 
     $orderBy = match ($sortBy) {
-        1 => "ua.User ASC ",
-        11 => "ua.User DESC ",
+        1 => "COALESCE(ua.display_name, ua.User) ASC ",
+        11 => "COALESCE(ua.display_name, ua.User) DESC ",
         2 => "ua.RAPoints DESC ",
         12 => "ua.RAPoints ASC ",
         3 => "NumAwarded DESC ",
         13 => "NumAwarded ASC ",
         4 => "ua.LastLogin DESC ",
         14 => "ua.LastLogin ASC ",
-        default => "ua.User ASC ",
+        default => "COALESCE(ua.display_name, ua.User) ASC ",
     };
 
-    $query = "SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, ua.LastLogin,
+   $query = "SELECT ua.ID, COALESCE(ua.display_name, ua.User) AS User, ua.RAPoints, ua.TrueRAPoints, ua.LastLogin,
                 ua.achievements_unlocked NumAwarded
                 FROM UserAccounts AS ua
                 $whereQuery
@@ -232,7 +235,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
         $populateDevs = empty($devs);
         foreach (legacyDbFetchAll($query) as $row) {
             $data[$row['ID']] = [
-                'Author' => $row['User'],
+                'Author' => $row['display_name'],
                 'Permissions' => $row['Permissions'],
                 'ContribCount' => $row['ContribCount'],
                 'ContribYield' => $row['ContribYield'],
@@ -261,7 +264,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
         $devList = implode(',', $devs);
 
         // user data (this must be a LEFT JOIN to pick up users with 0 published achievements)
-        $query = "SELECT ua.ID, ua.User, ua.Permissions, ua.ContribCount, ua.ContribYield,
+        $query = "SELECT ua.ID, ua.display_name, ua.Permissions, ua.ContribCount, ua.ContribYield,
                          ua.LastLogin, SUM(!ISNULL(ach.ID)) AS NumAchievements
                   FROM UserAccounts ua
                   LEFT JOIN Achievements ach ON ach.user_id = ua.ID AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
@@ -279,7 +282,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
                   LEFT JOIN Ticket tick ON tick.AchievementID=ach.ID AND tick.ReportState IN (1,3)
                   WHERE $stateCond
                   GROUP BY ua.ID
-                  ORDER BY OpenTickets DESC, ua.User";
+                  ORDER BY OpenTickets DESC, ua.display_name";
         $buildDevList($query);
     } elseif ($sortBy == 4) { // TicketsResolvedForOthers DESC
         $query = "SELECT ua.ID, SUM(!ISNULL(ach.ID)) as total
@@ -288,7 +291,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
                   LEFT JOIN Achievements as ach ON ach.ID = tick.AchievementID AND ach.flags = 3 AND ach.user_id != ua.ID
                   WHERE $stateCond
                   GROUP BY ua.ID
-                  ORDER BY total DESC, ua.User";
+                  ORDER BY total DESC, ua.display_name";
         $buildDevList($query);
     } elseif ($sortBy == 7) { // ActiveClaims DESC
         $query = "SELECT ua.ID, SUM(!ISNULL(sc.ID)) AS ActiveClaims
@@ -296,22 +299,22 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
                   LEFT JOIN SetClaim sc ON sc.user_id=ua.ID AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
                   WHERE $stateCond
                   GROUP BY ua.ID
-                  ORDER BY ActiveClaims DESC, ua.User";
+                  ORDER BY ActiveClaims DESC, ua.display_name";
         $buildDevList($query);
     } else {
         $order = match ($sortBy) {
-            1 => "ua.ContribYield DESC, ua.User",
-            2 => "ua.ContribCount DESC, ua.User",
-            5 => "ua.LastLogin DESC, ua.User",
-            6 => "ua.User ASC",
-            default => "NumAchievements DESC, ua.User",
+            1 => "ua.ContribYield DESC, ua.display_name",
+            2 => "ua.ContribCount DESC, ua.display_name",
+            5 => "ua.LastLogin DESC, ua.display_name",
+            6 => "ua.display_name ASC",
+            default => "NumAchievements DESC, ua.display_name",
         };
 
         // ASSERT: ContribYield cannot be > 0 unless NumAchievements > 0, so use
         //         INNER JOIN and COUNT for maximum performance.
         // also, build the $dev list directly from these results instead of using
         // one query to build the list and a second query to fetch the user details
-        $query = "SELECT ua.ID, ua.User, ua.Permissions, ua.ContribCount, ua.ContribYield,
+        $query = "SELECT ua.ID, ua.display_name, ua.Permissions, ua.ContribCount, ua.ContribYield,
                          ua.LastLogin, COUNT(*) AS NumAchievements
                   FROM UserAccounts ua
                   INNER JOIN Achievements ach ON ach.user_id = ua.ID AND ach.Flags = 3
