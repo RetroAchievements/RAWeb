@@ -70,18 +70,6 @@ declare module 'ziggy-js' {
             "binding": "User"
         }
     ],
-    "user.game.activity": [
-        {
-            "name": "user",
-            "required": true,
-            "binding": "User"
-        },
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.compare-unlocks": [
         {
             "name": "user",
@@ -99,13 +87,6 @@ declare module 'ziggy-js' {
             "name": "user",
             "required": true,
             "binding": "User"
-        }
-    ],
-    "game.hash.manage": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
         }
     ],
     "game.tickets": [
@@ -143,7 +124,6 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "games.suggest": [],
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],
@@ -198,7 +178,15 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.suggestions.similar": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.index": [],
+    "game.suggestions.personalized": [],
     "hub.show": [
         {
             "name": "gameSet",
@@ -249,20 +237,6 @@ declare module 'ziggy-js' {
         }
     ],
     "api.ticket.store": [],
-    "game-hash.update": [
-        {
-            "name": "gameHash",
-            "required": true,
-            "binding": "hash"
-        }
-    ],
-    "game-hash.destroy": [
-        {
-            "name": "gameHash",
-            "required": true,
-            "binding": "hash"
-        }
-    ],
     "player.games.resettable": [],
     "player.game.achievements.resettable": [
         {
@@ -548,6 +522,13 @@ declare module 'ziggy-js' {
         }
     ],
     "user.posts.index": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "User"
+        }
+    ],
+    "user.achievement-checklist": [
         {
             "name": "user",
             "required": true,

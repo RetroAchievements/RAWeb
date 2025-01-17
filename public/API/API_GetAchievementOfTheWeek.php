@@ -3,8 +3,6 @@
 use App\Http\Actions\BuildAchievementOfTheWeekDataAction;
 use App\Models\Achievement;
 use App\Models\EventAchievement;
-use App\Models\StaticData;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /*
@@ -49,19 +47,19 @@ use Illuminate\Support\Facades\DB;
  *       filters the Unlocks to just those entries after StartAt.
  */
 
-$staticData = StaticData::first();
-$aotwData = (new BuildAchievementOfTheWeekDataAction())->execute($staticData);
+$aotwData = (new BuildAchievementOfTheWeekDataAction())->execute();
 
 $achievementId = $aotwData->achievement->id ?? 0;
 $eventAchievement = EventAchievement::active()->where('achievement_id', $achievementId)->first();
 
-$sourceAchievement = $eventAchievement ? $eventAchievement->sourceAchievement : Achievement::find($achievementId);
-if (!$sourceAchievement) {
+if (!$eventAchievement?->sourceAchievement) {
     return response()->json([
         'Achievement' => ['ID' => null],
         'StartAt' => null,
     ]);
 }
+
+$sourceAchievement = $eventAchievement->sourceAchievement;
 
 $achievement = [
     'ID' => $sourceAchievement->ID ?? null,
@@ -91,52 +89,32 @@ $forumTopic = [
     'ID' => $aotwData->forumTopicId->resolve() ?? null,
 ];
 
-if ($eventAchievement) {
-    $unlocks = collect();
+$unlocks = collect();
 
-    $playerAchievements = $eventAchievement->achievement->playerAchievements()
-        ->with('user')
-        ->orderBy(DB::raw('IFNULL(unlocked_hardcore_at, unlocked_at)'))
-        ->limit(500)
-        ->get();
-    $numWinners = $playerAchievements->count();
-    $numWinnersHardcore = 0;
+$playerAchievements = $eventAchievement->achievement->playerAchievements()
+    ->with('user')
+    ->orderByDesc(DB::raw('IFNULL(unlocked_hardcore_at, unlocked_at)')) // newest winners first
+    ->limit(500)
+    ->get();
+$numWinners = $playerAchievements->count();
+$numWinnersHardcore = 0;
 
-    foreach ($playerAchievements as $playerAchievement) {
-        $unlocks[] = [
-            'User' => $playerAchievement->user->display_name,
-            'RAPoints' => $playerAchievement->user->RAPoints,
-            'RASoftcorePoints' => $playerAchievement->user->RASoftcorePoints,
-            'HardcoreMode' => $playerAchievement->unlocked_hardcore_at !== null ? 1 : 0,
-        ];
+foreach ($playerAchievements as $playerAchievement) {
+    $unlocks[] = [
+        'User' => $playerAchievement->user->display_name,
+        'RAPoints' => $playerAchievement->user->RAPoints,
+        'RASoftcorePoints' => $playerAchievement->user->RASoftcorePoints,
+        'HardcoreMode' => $playerAchievement->unlocked_hardcore_at !== null ? 1 : 0,
+        'DateAwarded' => $playerAchievement->unlocked_hardcore_at ?? $playerAchievement->unlocked_at,
+    ];
 
-        if ($playerAchievement->unlocked_hardcore_at !== null) {
-            $numWinnersHardcore++;
-        }
+    if ($playerAchievement->unlocked_hardcore_at !== null) {
+        $numWinnersHardcore++;
     }
-
-    $numPossibleWinners = $eventAchievement->achievement->game->players_total;
-    $startAt = $eventAchievement->active_from;
-
-} else {
-    $parentGame = getParentGameFromGameTitle($game['Title'], $console['ID']);
-    $unlocks = getAchievementUnlocksData($achievementId, null, $numWinners, $numWinnersHardcore, $numPossibleWinners, $parentGame?->id, 0, 500);
-
-    /*
-    * reset unlocks if there is no start date to prevent listing invalid entries
-    */
-    $startAt = $staticData->Event_AOTW_StartAt;
-    if (empty($startAt)) {
-        $unlocks = collect();
-    }
-
-    if (!empty($startAt)) {
-        $unlocks = $unlocks->filter(fn ($unlock) => Carbon::parse($unlock['DateAwarded'])->gte($startAt));
-    }
-
-    // reverse order so newest winners are last
-    $unlocks->sortByDesc('DateAwarded');
 }
+
+$numPossibleWinners = $eventAchievement->achievement->game->players_total;
+$startAt = $eventAchievement->active_from;
 
 return response()->json([
     'Achievement' => $achievement,
@@ -147,5 +125,5 @@ return response()->json([
     'TotalPlayers' => $numPossibleWinners ?? 0,
     'Unlocks' => $unlocks->values(),
     'UnlocksCount' => $numWinners ?? 0,
-    'UnlocksHardcoreCount' => $numWinnersHardcore ?? 0,
+    'UnlocksHardcoreCount' => $numWinnersHardcore,
 ]);

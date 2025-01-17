@@ -43,6 +43,7 @@ describe('Util: loadDayjsLocale', () => {
     ${'ru_RU'} | ${'ru'}
     ${'pl_PL'} | ${'pl'}
     ${'pt_BR'} | ${'pt-br'}
+    ${'vi_VN'} | ${'vi'}
   `('loads and sets the $userLocale locale successfully', async ({ userLocale, dayjsLocale }) => {
     // ARRANGE
     vi.spyOn(console, 'warn').mockImplementation(() => {});

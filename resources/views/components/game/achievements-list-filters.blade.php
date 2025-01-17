@@ -5,6 +5,7 @@ use App\Enums\UserPreference;
 
 @props([
     'canShowHideUnlockedAchievements' => false,
+    'canShowHideInactiveAchievements' => false,
     'numMissableAchievements' => 0,
 ])
 
@@ -41,6 +42,19 @@ if ($isMissableFilterAllowed) {
                 @change="toggleUnlockedRows"
             >
                 Hide unlocked achievements
+            </input>
+        </label>
+    @endif
+
+    @if ($canShowHideInactiveAchievements)
+        <label class="flex items-center gap-x-1 select-none transition lg:active:scale-95 cursor-pointer">
+            <input
+                type="checkbox"
+                autocomplete="off"
+                class="cursor-pointer"
+                @change="toggleInactiveRows"
+            >
+                Hide inactive achievements
             </input>
         </label>
     @endif

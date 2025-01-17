@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Platform\Contracts\HasVersionedTrigger;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class GameHashSet extends BaseModel implements HasVersionedTrigger
+// currently unused
+// TODO HasVersionedTrigger (?)
+class GameHashSet extends BaseModel
 {
     use SoftDeletes;
 
@@ -55,22 +54,6 @@ class GameHashSet extends BaseModel implements HasVersionedTrigger
     public function memoryNotes(): HasMany
     {
         return $this->hasMany(MemoryNote::class);
-    }
-
-    public function trigger(): MorphOne
-    {
-        return $this->morphOne(Trigger::class, 'triggerable')
-            ->whereNotNull('version')
-            ->orderByDesc('version');
-    }
-
-    /**
-     * @return MorphToMany<Trigger>
-     */
-    public function triggers(): MorphToMany
-    {
-        return $this->morphToMany(Trigger::class, 'triggerable')
-            ->orderByDesc('version');
     }
 
     // == scopes

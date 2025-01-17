@@ -1,9 +1,17 @@
 declare namespace App.Community.Data {
+  export type AchievementChecklistPageProps = {
+    player: App.Data.User;
+    groups: Array<App.Community.Data.AchievementGroup>;
+  };
   export type AchievementCommentsPageProps<TItems = App.Community.Data.Comment> = {
     achievement: App.Platform.Data.Achievement;
     paginatedComments: App.Data.PaginatedData<TItems>;
     isSubscribed: boolean;
     canComment: boolean;
+  };
+  export type AchievementGroup = {
+    header: string;
+    achievements: Array<App.Platform.Data.Achievement>;
   };
   export type ActivePlayer = {
     user: App.Data.User;
@@ -383,8 +391,13 @@ declare namespace App.Platform.Data {
   export type EventAchievement = {
     achievement?: App.Platform.Data.Achievement;
     sourceAchievement?: App.Platform.Data.Achievement;
+    event?: App.Platform.Data.Event;
     activeUntil?: string;
     forumTopicId?: number;
+  };
+  export type Event = {
+    id: number;
+    legacyGame?: App.Platform.Data.Game;
   };
   export type GameClaimant = {
     user: App.Data.User;
@@ -447,7 +460,27 @@ declare namespace App.Platform.Data {
     linkCount: number;
     updatedAt: string;
     forumTopicId?: number | null;
+    gameId?: number | null;
     hasMatureContent?: boolean;
+  };
+  export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
+    paginatedGameListEntries: App.Data.PaginatedData<TItems>;
+    persistenceCookieName: string;
+    persistedViewPreferences: Record<string, any> | null;
+    defaultDesktopPageSize: number;
+  };
+  export type GameSuggestionContext = {
+    relatedGame: App.Platform.Data.Game | null;
+    relatedGameSet: App.Platform.Data.GameSet | null;
+    sourceGameKind: App.Platform.Services.GameSuggestions.Enums.SourceGameKind | null;
+    relatedAuthor: App.Data.User | null;
+  };
+  export type GameSuggestionEntry = {
+    suggestionReason: App.Platform.Enums.GameSuggestionReason;
+    suggestionContext: App.Platform.Data.GameSuggestionContext | null;
+    game: App.Platform.Data.Game;
+    playerGame: App.Platform.Data.PlayerGame | null;
+    isInBacklog: boolean | null;
   };
   export type GameTopAchiever = {
     rank: number;
@@ -637,7 +670,18 @@ declare namespace App.Platform.Enums {
     | 'numUnresolvedTickets'
     | 'progress';
   export type GameSetType = 'hub' | 'similar-games';
+  export type GameSuggestionReason =
+    | 'common-players'
+    | 'random'
+    | 'revised'
+    | 'shared-author'
+    | 'shared-hub'
+    | 'similar-game'
+    | 'want-to-play';
   export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
   export type TicketableType = 'achievement' | 'leaderboard' | 'rich-presence';
+}
+declare namespace App.Platform.Services.GameSuggestions.Enums {
+  export type SourceGameKind = 'beaten' | 'mastered' | 'want-to-play';
 }

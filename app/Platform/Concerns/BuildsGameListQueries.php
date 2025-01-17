@@ -107,6 +107,16 @@ trait BuildsGameListQueries
                 });
                 break;
 
+            case GameListType::UserSpecificSuggestions:
+            case GameListType::GameSpecificSuggestions:
+                if (!isset($this->suggestions)) {
+                    throw new InvalidArgumentException("Suggestions must be generated before building the base query.");
+                }
+
+                $gameIds = array_map(fn ($suggestion) => $suggestion->gameId, $this->suggestions);
+                $query->whereIn('GameData.ID', $gameIds);
+                break;
+
             // TODO implement these other use cases
             case GameListType::UserDevelop:
             case GameListType::DeveloperSets:
@@ -313,8 +323,8 @@ trait BuildsGameListQueries
         // and SQLite. This is preferable to altering the query specifically for
         // SQLite, because if we do so then we can't actually trust any test results.
         $query
-            ->selectRaw(
-                "GameData.*,
+            ->selectRaw(<<<SQL
+                GameData.*,
                 CASE
                     WHEN GameData.released_at_granularity = 'year' THEN
                         DATE(CONCAT(SUBSTR(GameData.released_at, 1, 4), '-01-01'))
@@ -322,9 +332,16 @@ trait BuildsGameListQueries
                         DATE(CONCAT(SUBSTR(GameData.released_at, 1, 7), '-01'))
                     ELSE
                         COALESCE(GameData.released_at, '9999-12-31')
-                END AS normalized_released_at"
-            )
-            ->orderBy('normalized_released_at', $sortDirection);
+                END AS normalized_released_at,
+                CASE GameData.released_at_granularity
+                    WHEN 'year' THEN 1
+                    WHEN 'month' THEN 2
+                    WHEN 'day' THEN 3
+                    ELSE 4
+                END AS granularity_order
+            SQL)
+            ->orderBy('normalized_released_at', $sortDirection)
+            ->orderBy('granularity_order', $sortDirection);
     }
 
     /**

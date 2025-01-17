@@ -20,6 +20,7 @@ type GameAvatarProps = BaseAvatarProps &
     showSystemChip?: boolean;
     showSystemInTitle?: boolean;
     variant?: 'base' | 'inline';
+    wrapperClassName?: string;
   };
 
 export const GameAvatar: FC<GameAvatarProps> = ({
@@ -29,6 +30,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
   showHoverCardProgressForUsername,
   system,
   title,
+  wrapperClassName,
   decoding = 'async',
   loading = 'lazy',
   shouldGlow = false,
@@ -59,6 +61,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
       className={cn(
         variant === 'base' ? 'flex max-w-fit items-center gap-2' : null,
         variant === 'inline' ? 'ml-0.5 mt-0.5 inline-block min-h-7 gap-2' : null,
+        wrapperClassName,
       )}
       {...(hasTooltip && shouldLink ? cardTooltipProps : undefined)}
     >

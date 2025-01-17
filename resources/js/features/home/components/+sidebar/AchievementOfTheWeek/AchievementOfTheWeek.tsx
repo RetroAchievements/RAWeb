@@ -7,6 +7,8 @@ import { GameAvatar } from '@/common/components/GameAvatar';
 import { SystemChip } from '@/common/components/SystemChip';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import type { AvatarSize } from '@/common/models';
+import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
+import { cn } from '@/common/utils/cn';
 
 import { HomeHeading } from '../../HomeHeading';
 
@@ -59,7 +61,7 @@ export const AchievementOfTheWeek: FC = () => {
                   <SystemChip {...system} className="bg-zinc-800" />
 
                   {achievementOfTheWeek.activeUntil ? (
-                    <span className="smalldate">
+                    <span className="smalldate !min-w-fit self-end">
                       <Trans
                         i18nKey="Ends <1>{{when}}</1>"
                         values={{ when: achievementOfTheWeek.activeUntil }}
@@ -80,10 +82,13 @@ export const AchievementOfTheWeek: FC = () => {
           </div>
         </div>
 
-        {achievementOfTheWeek.forumTopicId ? (
+        {achievementOfTheWeek.event?.legacyGame ? (
           <div className="w-ful flex justify-end">
-            <a className="text-xs" href={`/viewtopic.php?t=${achievementOfTheWeek.forumTopicId}`}>
-              {t('Learn more about this event')}
+            <a
+              className={cn('text-xs', buildTrackingClassNames('Click AOTW Link'))}
+              href={route('game.show', { game: achievementOfTheWeek.event.legacyGame.id })}
+            >
+              {t("View this year's event")}
             </a>
           </div>
         ) : null}

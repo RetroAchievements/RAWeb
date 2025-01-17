@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\HubResource\Pages;
 
+use App\Filament\Actions\ProcessUploadedImageAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\HubResource;
-use App\Filament\Resources\NewsResource\Actions\ProcessUploadedImageAction;
 use App\Platform\Enums\GameSetType;
 use Filament\Resources\Pages\CreateRecord;
 

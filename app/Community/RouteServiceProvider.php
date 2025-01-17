@@ -28,6 +28,7 @@ use App\Community\Controllers\GameModificationsCommentController;
 use App\Community\Controllers\LeaderboardCommentController;
 use App\Community\Controllers\MessageController;
 use App\Community\Controllers\MessageThreadController;
+use App\Community\Controllers\UserAchievementChecklistController;
 use App\Community\Controllers\UserCommentController;
 use App\Community\Controllers\UserForumTopicCommentController;
 use App\Community\Controllers\UserGameListController;
@@ -120,6 +121,7 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('forums/post/{comment}/edit2', [ForumTopicCommentController::class, 'edit'])->name('forum-topic-comment.edit');
 
                     Route::get('user/{user}/posts', [UserForumTopicCommentController::class, 'index'])->name('user.posts.index');
+                    Route::get('user/{user}/achievement-checklist', [UserAchievementChecklistController::class, 'index'])->name('user.achievement-checklist');
 
                     Route::get('settings', [UserSettingsController::class, 'show'])->name('settings.show');
                 });

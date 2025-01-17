@@ -9,6 +9,7 @@ use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Enums\ArticleType;
 use App\Platform\Actions\SyncGameTagsFromTitleAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
+use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameSetType;
@@ -23,6 +24,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -37,7 +40,11 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Tags\HasTags;
 
 // TODO implements HasComments
-class Game extends BaseModel implements HasMedia
+
+/**
+ * @implements HasVersionedTrigger<Game>
+ */
+class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 {
     /*
      * Community Traits
@@ -92,7 +99,12 @@ class Game extends BaseModel implements HasMedia
         'Genre',
         'released_at',
         'released_at_granularity',
+        'trigger_id',
         'GuideURL',
+        'ImageIcon',
+        'ImageTitle',
+        'ImageIngame',
+        'ImageBoxArt',
     ];
 
     protected $casts = [
@@ -222,6 +234,9 @@ class Game extends BaseModel implements HasMedia
                 'Developer',
                 'Genre',
                 'ImageIcon',
+                'ImageBoxArt',
+                'ImageTitle',
+                'ImageIngame',
                 'released_at',
                 'released_at_granularity',
             ])
@@ -581,6 +596,14 @@ class Game extends BaseModel implements HasMedia
     }
 
     /**
+     * @return HasMany<PlayerBadge>
+     */
+    public function playerBadges(): HasMany
+    {
+        return $this->hasMany(PlayerBadge::class, 'AwardData', 'ID');
+    }
+
+    /**
      * @return BelongsToMany<User>
      */
     public function playerUsers(): BelongsToMany
@@ -619,7 +642,6 @@ class Game extends BaseModel implements HasMedia
     public function gameSets(): BelongsToMany
     {
         return $this->belongsToMany(GameSet::class, 'game_set_games', 'game_id', 'game_set_id')
-            ->withTimestamps()
             ->withPivot('created_at', 'updated_at', 'deleted_at');
     }
 
@@ -671,7 +693,44 @@ class Game extends BaseModel implements HasMedia
         return $this->tickets()->unresolved();
     }
 
+    /**
+     * @return BelongsTo<Trigger, Game>
+     */
+    public function currentTrigger(): BelongsTo
+    {
+        return $this->belongsTo(Trigger::class, 'trigger_id', 'ID');
+    }
+
+    public function trigger(): MorphOne
+    {
+        return $this->morphOne(Trigger::class, 'triggerable')
+            ->latest('version');
+    }
+
+    public function triggers(): MorphMany
+    {
+        return $this->morphMany(Trigger::class, 'triggerable')
+            ->orderBy('version');
+    }
+
+    /**
+     * @return HasOne<Event>
+     */
+    public function event(): HasOne
+    {
+        return $this->hasOne(Event::class, 'legacy_game_id');
+    }
+
     // == scopes
+
+    /**
+     * @param Builder<Game> $query
+     * @return Builder<Game>
+     */
+    public function scopeWhereHasPublishedAchievements($query): Builder
+    {
+        return $query->where('achievements_published', '>', 0);
+    }
 
     /**
      * @param Builder<Game> $query

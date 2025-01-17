@@ -8,9 +8,16 @@ use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class EventAchievement extends BaseModel
 {
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
+
     protected $table = 'event_achievements';
 
     protected $fillable = [
@@ -33,7 +40,26 @@ class EventAchievement extends BaseModel
     public const RAEVENTS_USER_ID = 279854;
     public const DEVQUEST_USER_ID = 240336;
 
+    // == logging
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'source_achievement_id',
+                'active_from',
+                'active_until',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
+
     // == accessors
+
+    public function getTitleAttribute(): string
+    {
+        return $this->achievement->title;
+    }
 
     public function getActiveThroughAttribute(): ?Carbon
     {
@@ -52,6 +78,21 @@ class EventAchievement extends BaseModel
     }
 
     // == relations
+
+    /**
+     * @return HasOneThrough<Event>
+     */
+    public function event(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Event::class,
+            Achievement::class,
+            'ID',             // Achievements.ID
+            'legacy_game_id', // events.legacy_game_id
+            'achievement_id', // event_achievements.achievement_id
+            'GameID'          // Achievements.GameID
+        );
+    }
 
     /**
      * @return BelongsTo<Achievement, EventAchievement>

@@ -86,7 +86,7 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
 
         <div className="mb-1 hidden text-2xs text-neutral-400/90 sm:block">
           {isRecentPost ? (
-            <BaseBadge className="mr-2 bg-stone-700 px-1 py-0 text-xs font-normal text-white light:bg-white light:text-neutral-700">
+            <BaseBadge className="mr-2 max-h-[16px] bg-stone-700 px-1 py-0 text-xs font-normal text-white light:bg-white light:text-neutral-700">
               {t('new')}
             </BaseBadge>
           ) : null}
