@@ -213,14 +213,14 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
                 if ($eventAward) {
                     $image = $eventAward->image_asset_path;
 
-                    if ($eventAward->achievements_required < $event->game->achievements_published) {
+                    if ($eventAward->achievements_required < $event->legacyGame->achievements_published) {
                         $tooltip = "Awarded for earning at least {$eventAward->achievements_required} achievements in the {$event->title} event";
                     }
                 }
             }
 
             echo avatar('event', $event->id,
-                link: route('game.show', $event->game->id),
+                link: route('game.show', $event->legacyGame->id),
                 tooltip: "<div class='p-2 max-w-[320px] text-pretty'><span>$tooltip</span><p class='italic'>{$awardDate}</p></div>",
                 iconUrl: media_asset($image),
                 iconSize: $imageSize,

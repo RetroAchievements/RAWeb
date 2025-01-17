@@ -41,7 +41,7 @@ describe('Component: RecentPostsCards', () => {
 
     // ASSERT
     expect(screen.getByText(recentActiveForumTopic.title)).toBeVisible();
-    expect(screen.getByText(recentActiveForumTopic.latestComment.body)).toBeVisible();
+    expect(screen.getByText(recentActiveForumTopic.latestComment!.body)).toBeVisible();
   });
 
   it('shows user metadata by default', () => {

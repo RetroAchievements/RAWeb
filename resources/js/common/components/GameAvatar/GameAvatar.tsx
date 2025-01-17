@@ -18,6 +18,8 @@ type GameAvatarProps = BaseAvatarProps &
     shouldGlow?: boolean;
     showHoverCardProgressForUsername?: string;
     showSystemChip?: boolean;
+    showSystemInTitle?: boolean;
+    variant?: 'base' | 'inline';
     wrapperClassName?: string;
   };
 
@@ -36,8 +38,10 @@ export const GameAvatar: FC<GameAvatarProps> = ({
   showLabel = true,
   shouldLink = true,
   showSystemChip = false,
+  showSystemInTitle = false,
   size = 32,
   hasTooltip = true,
+  variant = 'base',
 }) => {
   const { auth } = usePageProps();
 
@@ -49,10 +53,16 @@ export const GameAvatar: FC<GameAvatarProps> = ({
 
   const Wrapper = shouldLink ? 'a' : 'div';
 
+  const gameTitle = showSystemInTitle ? `${title} (${system?.name})` : title;
+
   return (
     <Wrapper
       href={shouldLink ? route('game.show', { game: id }) : undefined}
-      className={cn('flex max-w-fit items-center gap-2', wrapperClassName)}
+      className={cn(
+        variant === 'base' ? 'flex max-w-fit items-center gap-2' : null,
+        variant === 'inline' ? 'ml-0.5 mt-0.5 inline-block min-h-7 gap-2' : null,
+        wrapperClassName,
+      )}
       {...(hasTooltip && shouldLink ? cardTooltipProps : undefined)}
     >
       {showImage ? (
@@ -67,14 +77,19 @@ export const GameAvatar: FC<GameAvatarProps> = ({
               height={size}
               src={badgeUrl}
               alt={title ?? 'Game'}
-              className="rounded-sm"
+              className={cn('rounded-sm', variant === 'inline' ? 'mr-1.5' : null)}
             />
           )}
         </>
       ) : null}
 
-      <div className="flex flex-col gap-0.5">
-        {title && showLabel ? <GameTitle title={title} className={gameTitleClassName} /> : null}
+      <div
+        className={cn(
+          variant === 'base' ? 'flex flex-col gap-0.5' : null,
+          variant === 'inline' ? 'inline-block' : null,
+        )}
+      >
+        {title && showLabel ? <GameTitle title={gameTitle} className={gameTitleClassName} /> : null}
 
         {system && showSystemChip ? (
           <SystemChip {...system} className="text-text hover:text-text" />
