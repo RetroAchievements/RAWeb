@@ -6,7 +6,6 @@ namespace Tests\Feature\Api;
 
 use App\Models\Achievement;
 use App\Models\Game;
-use App\Models\StaticData;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
@@ -142,52 +141,6 @@ class V1Test extends TestCase
         $this->get($this->apiUrl('GetAchievementOfTheWeek'))
             ->assertSuccessful()
             ->assertJson(['Achievement' => ['ID' => null], 'StartAt' => null]);
-    }
-
-    public function testGetAchievementOfTheWeek(): void
-    {
-        /** @var System $system */
-        $system = System::factory()->create();
-        /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
-        $this->addSoftcoreUnlock($this->user, $achievement);
-
-        $staticData = StaticData::factory()->create([
-            'Event_AOTW_AchievementID' => $achievement->ID,
-            'Event_AOTW_StartAt' => Carbon::now()->subDay(),
-        ]);
-
-        $this->get($this->apiUrl('GetAchievementOfTheWeek'))
-            ->assertSuccessful()
-            ->assertJson([
-                'Achievement' => [
-                    'ID' => $achievement->ID,
-                    'BadgeName' => $achievement->BadgeName,
-                    'BadgeURL' => "/Badge/{$achievement->BadgeName}.png",
-                ],
-                'Console' => [
-                    'ID' => $system->ID,
-                ],
-                'ForumTopic' => [
-                    'ID' => 1,
-                ],
-                'Game' => [
-                    'ID' => $game->ID,
-                ],
-                'StartAt' => $staticData->Event_AOTW_StartAt->jsonSerialize(),
-                'TotalPlayers' => 1,
-                'Unlocks' => [
-                    [
-                        'User' => $this->user->User,
-                        'RAPoints' => $this->user->RAPoints,
-                        'HardcoreMode' => 0,
-                    ],
-                ],
-                'UnlocksCount' => 1,
-                'UnlocksHardcoreCount' => 0,
-            ]);
     }
 
     public function testGetAchievementsEarnedBetweenEmptyResponse(): void

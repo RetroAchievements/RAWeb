@@ -7,6 +7,7 @@ use App\Models\Game;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadataAction;
 use App\Platform\Actions\UpdateGameSetFromGameAlternativesModificationAction;
+use App\Platform\Actions\UpsertTriggerVersionAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Facades\Log;
@@ -955,6 +956,13 @@ function modifyGameRichPresence(User $user, int $gameId, string $dataIn): bool
 
     $game->RichPresencePatch = $dataIn;
     $game->save();
+
+    (new UpsertTriggerVersionAction())->execute(
+        $game,
+        $dataIn,
+        versioned: true, // rich presence is always published
+        user: $user
+    );
 
     addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the rich presence script");
 

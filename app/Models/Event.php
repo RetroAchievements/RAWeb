@@ -8,6 +8,7 @@ use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -57,7 +58,7 @@ class Event extends BaseModel
 
     public function getTitleAttribute(): string
     {
-        return $this->game->title;
+        return $this->legacyGame->title;
     }
 
     public function getActiveThroughAttribute(): ?Carbon
@@ -73,14 +74,14 @@ class Event extends BaseModel
     public function getPermalinkAttribute(): string
     {
         // TODO: use slug (implies slug is immutable)
-        return $this->game->getPermalinkAttribute();
+        return $this->legacyGame->getPermalinkAttribute();
     }
 
     // == mutators
 
     public function setTitleAttribute(string $value): void
     {
-        $this->game->title = $value;
+        $this->legacyGame->title = $value;
     }
 
     public function setActiveThroughAttribute(Carbon|string|null $value): void
@@ -95,9 +96,17 @@ class Event extends BaseModel
     // == relations
 
     /**
+     * @return HasMany<EventAward>
+     */
+    public function awards(): HasMany
+    {
+        return $this->hasMany(EventAward::class, 'event_id');
+    }
+
+    /**
      * @return BelongsTo<Game, Event>
      */
-    public function game(): BelongsTo
+    public function legacyGame(): BelongsTo
     {
         return $this->belongsTo(Game::class, 'legacy_game_id', 'ID');
     }
@@ -107,13 +116,13 @@ class Event extends BaseModel
      */
     public function achievements(): HasManyThrough
     {
-        return $this->game->hasManyThrough(
+        return $this->legacyGame->hasManyThrough(
             EventAchievement::class,
             Achievement::class,
             'GameID',         // Achievements.GameID
             'achievement_id', // event_achievements.achievement_id
-            'ID',             // Game.ID
-            'ID',             // Achievement.ID
+            'ID',             // GameData.ID
+            'ID',             // Achievements.ID
         )->with('achievement.game');
     }
 
@@ -122,7 +131,7 @@ class Event extends BaseModel
      */
     public function hubs(): BelongsToMany
     {
-        return $this->game->gameSets();
+        return $this->legacyGame->gameSets();
     }
 
     // == scopes
