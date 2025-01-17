@@ -14,7 +14,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'title' => 'required|string|max:255',
 ]);
 
-$userModel = User::firstWhere('User', $username);
+$userModel = User::whereName($username)->first();
 
 /** @var ForumTopic $forumTopic */
 $forumTopic = ForumTopic::find((int) $input['topic']);

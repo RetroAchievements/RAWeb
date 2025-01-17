@@ -41,7 +41,7 @@ describe('Component: RecentPostsTable', () => {
 
     // ASSERT
     expect(screen.getByText(recentActiveForumTopic.title)).toBeVisible();
-    expect(screen.getByText(recentActiveForumTopic.latestComment.body)).toBeVisible();
+    expect(screen.getByText(recentActiveForumTopic.latestComment!.body)).toBeVisible();
   });
 
   it('displays metadata if there are multiple recent posts on the topic', () => {
