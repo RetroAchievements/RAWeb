@@ -136,7 +136,6 @@
     "Forum Index": "Forum Index",
     "Forum Posts": "Forum Posts",
     "Forum Posts - {{user}}": "Forum Posts - {{user}}",
-    "from": "from",
     "Game": "Game",
     "Game Details": "Game Details",
     "Games": "Games",
@@ -626,5 +625,6 @@
     "Similar masteries": "Similar masteries",
     "Beaten by players of": "Beaten by players of",
     "Mastered by players of": "Mastered by players of",
-    "Roll again": "Roll again"
+    "Roll again": "Roll again",
+    "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>": "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>"
 }

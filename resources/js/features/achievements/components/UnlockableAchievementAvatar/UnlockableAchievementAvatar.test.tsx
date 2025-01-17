@@ -106,8 +106,8 @@ describe('Component: UnlockableAchievementAvatar', () => {
     expect(img).toBeVisible();
     expect(img.src).toContain(achievement.badgeLockedUrl);
 
-    expect(screen.getByText(/Creative Name/)).toBeVisible();
-    expect(screen.getByText(/Container Set/)).toBeVisible();
+    expect(screen.getAllByText(/Creative Name/)[0]).toBeVisible();
+    expect(screen.getAllByText(/Container Set/)[0]).toBeVisible();
     expect(screen.getByText(/Do the thing/)).toBeVisible();
     expect(screen.queryByText(/unlocked/i)).toBeNull();
   });
