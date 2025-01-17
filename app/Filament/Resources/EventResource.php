@@ -59,9 +59,6 @@ class EventResource extends Resource
                         Infolists\Components\TextEntry::make('game.title')
                             ->label('Title'),
 
-                        Infolists\Components\TextEntry::make('game.sort_title')
-                            ->label('Sort Title'),
-
                         Infolists\Components\TextEntry::make('slug')
                             ->label('URL alias'),
 
@@ -121,16 +118,6 @@ class EventResource extends Resource
                             ->minLength(2)
                             ->maxLength(80),
 
-                        Forms\Components\TextInput::make('sort_title')
-                            ->required()
-                            ->label('Sort Title')
-                            ->minLength(2)
-                            ->helperText('Normalized title for sorting purposes. For example, "The Goonies II" would sort as "goonies 02". DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.')
-                            ->reactive()
-                            ->afterStateHydrated(function (callable $set, callable $get, ?string $state) {
-                                $set('original_sort_title', $state ?? '');
-                            }),
-
                         Forms\Components\TextInput::make('ForumTopicID')
                             ->label('Forum Topic ID')
                             ->numeric()
@@ -143,6 +130,7 @@ class EventResource extends Resource
                         Forms\Components\TextInput::make('slug')
                             ->label('URL alias')
                             ->helperText('Provides an alias for accessing the event via a URL: /events/[URL alias]')
+                            ->placeholder('event-alias')
                             ->rules(['alpha_dash'])
                             ->minLength(4)
                             ->maxLength(20)
