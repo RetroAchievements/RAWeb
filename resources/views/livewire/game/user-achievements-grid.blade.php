@@ -19,7 +19,7 @@ state(['isLoading' => true]);
 // == actions
 $loadContent = function() {
     $game = Game::find($this->gameId);
-    $user = User::firstWhere('User', $this->targetUsername);
+    $user = User::whereName($this->targetUsername)->first();
 
     $service = new GameUserAchievementsGridService();
     $this->gameAchievementsWithProgress = $service->getGameAchievementsWithUserProgress(

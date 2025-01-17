@@ -236,7 +236,7 @@ function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, User $a
 
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID#$commentID";
     foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author->User, ArticleType::Forum, $topicTitle, $urlTarget, payload: $payload);
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author->display_name, ArticleType::Forum, $topicTitle, $urlTarget, payload: $payload);
     }
 }
 

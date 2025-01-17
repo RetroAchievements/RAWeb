@@ -10,6 +10,7 @@ type UserAvatarProps = BaseAvatarProps &
   };
 
 export const UserAvatar: FC<UserAvatarProps> = ({
+  avatarUrl,
   displayName,
   deletedAt,
   imgClassName,
@@ -36,7 +37,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
           decoding="async"
           width={size}
           height={size}
-          src={`http://media.retroachievements.org/UserPic/${displayName}.png`}
+          src={avatarUrl}
           alt={displayName ?? 'Deleted User'}
           className={cn('rounded-sm', imgClassName)}
         />

@@ -39,4 +39,20 @@ describe('Component: CommonPlayersReason', () => {
     // ASSERT
     expect(screen.getByRole('link', { name: /sonic the hedgehog/i })).toBeVisible();
   });
+
+  it('given there is no related game and the source game kind is beaten, shows the correct label', () => {
+    // ARRANGE
+    render(<CommonPlayersReason relatedGame={null} sourceGameKind="beaten" />);
+
+    // ASSERT
+    expect(screen.getByText(/beaten by same players/i)).toBeVisible();
+  });
+
+  it('given there is no related game and the source game kind is mastered, shows the correct label', () => {
+    // ARRANGE
+    render(<CommonPlayersReason relatedGame={null} sourceGameKind="mastered" />);
+
+    // ASSERT
+    expect(screen.getByText(/mastered by same players/i)).toBeVisible();
+  });
 });

@@ -6,13 +6,11 @@ use Carbon\Carbon;
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $userPage = requestInputSanitized('u', $user);
+$userDetails = User::whereName($userPage)->first();
 
-if (!isset($userPage) || !isValidUsername($userPage)) {
-    abort(404);
-}
+$userPage = $userDetails?->display_name ?? $userDetails?->username;
 
-$userDetails = User::firstWhere('User', $userPage);
-if (!$userDetails) {
+if (!isset($userPage) || !$userDetails) {
     abort(404);
 }
 
@@ -208,7 +206,7 @@ $userScoreData = getAwardedList($userDetails);
     echo "<h3>History</h3>";
 
     echo "<div>";
-    echo "<img src='" . media_asset('/UserPic/' . $userPage . '.png') . "' alt='$userPage' align='right' width='64' height='64' class='rounded-sm'>";
+    echo "<img src='" . media_asset('/UserPic/' . $userDetails->username . '.png') . "' alt='$userPage' align='right' width='64' height='64' class='rounded-sm'>";
     echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ";
     if ($userPageHardcorePoints > 0) {
         echo "(" . localized_number($userPageHardcorePoints) . ") ";

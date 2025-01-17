@@ -233,11 +233,11 @@ function informAllSubscribersAboutActivity(
             break;
 
         case ArticleType::User:  // User wall
-            $wallUserData = getUserMetadataFromID($articleID);
+            $wallUserData = User::find($articleID);
             $subscribers = getSubscribersOfUserWall($articleID, $wallUserData['User']);
-            $subjectAuthor = $wallUserData['User'];
-            $articleTitle = $wallUserData['User'];
-            $urlTarget = "user/" . $wallUserData['User'];
+            $subjectAuthor = $wallUserData->display_name;
+            $articleTitle = $wallUserData->display_name;
+            $urlTarget = "user/" . $wallUserData->display_name;
             break;
 
         case ArticleType::News:  // News

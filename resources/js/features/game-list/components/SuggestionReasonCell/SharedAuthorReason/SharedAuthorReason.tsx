@@ -8,7 +8,7 @@ import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 
 interface SharedAuthorReasonProps {
   relatedAuthor: App.Data.User;
-  relatedGame: App.Platform.Data.Game;
+  relatedGame: App.Platform.Data.Game | null;
 }
 
 export const SharedAuthorReason: FC<SharedAuthorReasonProps> = ({ relatedAuthor, relatedGame }) => {
@@ -24,35 +24,21 @@ export const SharedAuthorReason: FC<SharedAuthorReasonProps> = ({ relatedAuthor,
     >
       <LuWrench className="size-[18px]" />
 
-      <span className="xl:hidden">
-        <Trans
-          i18nKey="Same <1>dev</1> as"
-          components={{
-            1: (
-              <a
-                href={route('user.show', { user: relatedAuthor.displayName })}
-                {...cardTooltipProps}
-              />
-            ),
-          }}
-        />
-      </span>
+      <Trans
+        i18nKey={relatedGame ? 'By <1>same developer</1> as' : 'By <1>same developer</1>'}
+        components={{
+          1: (
+            <a
+              href={route('user.show', { user: relatedAuthor.displayName })}
+              {...cardTooltipProps}
+            />
+          ),
+        }}
+      />
 
-      <span className="hidden xl:inline">
-        <Trans
-          i18nKey="By <1>same developer</1> as"
-          components={{
-            1: (
-              <a
-                href={route('user.show', { user: relatedAuthor.displayName })}
-                {...cardTooltipProps}
-              />
-            ),
-          }}
-        />
-      </span>
-
-      <GameAvatar {...relatedGame} showLabel={false} size={24} wrapperClassName="inline-block" />
+      {relatedGame ? (
+        <GameAvatar {...relatedGame} showLabel={false} size={24} wrapperClassName="inline-block" />
+      ) : null}
     </BaseChip>
   );
 };

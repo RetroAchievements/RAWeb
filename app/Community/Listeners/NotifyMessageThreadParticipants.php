@@ -61,7 +61,7 @@ class NotifyMessageThreadParticipants
 
             // send email?
             if (BitSet($userTo->websitePrefs, UserPreference::EmailOn_PrivateMessage)) {
-                sendPrivateMessageEmail($userTo->User, $userTo->EmailAddress, $thread->title, $message->body, $userFrom->User);
+                sendPrivateMessageEmail($userTo->display_name, $userTo->EmailAddress, $thread->title, $message->body, $userFrom->display_name);
             }
 
             $this->forwardToDiscord($userFrom, $userTo, $thread, $message);
@@ -156,9 +156,9 @@ class NotifyMessageThreadParticipants
             'embeds' => [
                 [
                     'author' => [
-                        'name' => $userFrom->username,
+                        'name' => $userFrom->display_name,
                         // TODO 'url' => route('user.show', $userFrom),
-                        'url' => url('user/' . $userFrom->username),
+                        'url' => url('user/' . $userFrom->display_name),
                         'icon_url' => $userFrom->avatar_url,
                     ],
                     'title' => mb_substr($messageThread->title, 0, 100),

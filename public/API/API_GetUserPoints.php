@@ -8,15 +8,19 @@
  *  int        SoftcorePoints          number of softcore points the user has
  */
 
-$user = request()->query('u');
+use App\Models\User;
 
-if (!getPlayerPoints($user, $userDetails)) {
+$username = request()->query('u');
+
+$foundUser = User::whereName($username)->first();
+
+if (!$foundUser) {
     return response()->json([
-        'User' => $user,
+        'User' => $username,
     ], 404);
 }
 
 return response()->json(array_map('intval', [
-    'Points' => $userDetails['RAPoints'],
-    'SoftcorePoints' => $userDetails['RASoftcorePoints'],
+    'Points' => $foundUser->points,
+    'SoftcorePoints' => $foundUser->points_softcore,
 ]));
