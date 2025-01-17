@@ -13,7 +13,11 @@ import { buildSuggestionReasonColumnDef } from '../../utils/column-definitions/b
 import { buildSystemColumnDef } from '../../utils/column-definitions/buildSystemColumnDef';
 import { buildTitleColumnDef } from '../../utils/column-definitions/buildTitleColumnDef';
 
-export function useColumnDefinitions(): ColumnDef<App.Platform.Data.GameSuggestionEntry>[] {
+export function useColumnDefinitions(
+  options: {
+    showSourceGame: boolean;
+  } = { showSourceGame: true },
+): ColumnDef<App.Platform.Data.GameSuggestionEntry>[] {
   const { sourceGame } = usePageProps<App.Platform.Data.GameSuggestPageProps>();
 
   const { t } = useTranslation();
@@ -31,7 +35,10 @@ export function useColumnDefinitions(): ColumnDef<App.Platform.Data.GameSuggesti
       }),
       buildPointsTotalColumnDef({ t_label: t('Points'), options: { enableSorting: false } }),
       buildPlayersTotalColumnDef({ t_label: t('Players'), options: { enableSorting: false } }),
-      buildSuggestionReasonColumnDef({ sourceGame, t_label: t('Reasoning') }),
+      buildSuggestionReasonColumnDef({
+        sourceGame: options.showSourceGame ? sourceGame : null,
+        t_label: t('Reasoning'),
+      }),
       buildPlayerGameProgressColumnDef({
         t_label: t('Progress'),
         options: { enableSorting: false },
@@ -40,7 +47,7 @@ export function useColumnDefinitions(): ColumnDef<App.Platform.Data.GameSuggesti
     ];
 
     return columns;
-  }, [sourceGame, t]);
+  }, [options.showSourceGame, sourceGame, t]);
 
   return columnDefinitions;
 }

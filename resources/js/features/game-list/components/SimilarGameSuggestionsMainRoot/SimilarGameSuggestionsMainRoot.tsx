@@ -33,7 +33,7 @@ export const SimilarGameSuggestionsMainRoot: FC = memo(() => {
               className={baseButtonVariants({ size: 'sm', className: 'gap-1' })}
             >
               <LuUser className="size-4" />
-              {t('See games picked just for you')}
+              {t('See your full recommendation feed')}
             </InertiaLink>
 
             <BaseButton onClick={handleReload} size="sm" className="group gap-1">
@@ -43,7 +43,7 @@ export const SimilarGameSuggestionsMainRoot: FC = memo(() => {
           </div>
         </div>
 
-        <GameSuggestionsDataTable />
+        <GameSuggestionsDataTable showSourceGame={false} />
       </div>
     </div>
   );

@@ -244,7 +244,7 @@ describe('Component: SimilarGameSuggestionsMainRoot', () => {
     });
 
     // ASSERT
-    const linkEl = screen.getByRole('link', { name: /see games picked just for you/i });
+    const linkEl = screen.getByRole('link', { name: /see your full recommendation feed/i });
 
     expect(linkEl).toBeVisible();
     expect(linkEl).toHaveAttribute('href', 'game.suggestions.personalized');

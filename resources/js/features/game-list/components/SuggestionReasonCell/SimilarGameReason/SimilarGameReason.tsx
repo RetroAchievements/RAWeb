@@ -6,7 +6,7 @@ import { BaseChip } from '@/common/components/+vendor/BaseChip';
 import { GameAvatar } from '@/common/components/GameAvatar';
 
 interface SimilarGameReasonProps {
-  relatedGame: App.Platform.Data.Game;
+  relatedGame: App.Platform.Data.Game | null;
   sourceGameKind: App.Platform.Services.GameSuggestions.Enums.SourceGameKind | null;
 }
 
@@ -23,8 +23,13 @@ export const SimilarGameReason: FC<SimilarGameReasonProps> = ({ relatedGame, sou
       {sourceGameKind === 'beaten' ? t('Similar to beaten') : null}
       {sourceGameKind === 'mastered' ? t('Similar to mastered') : null}
       {sourceGameKind === 'want-to-play' ? t('Similar to backlog') : null}
-      {!sourceGameKind ? t('Similar to') : null}
-      <GameAvatar {...relatedGame} showLabel={false} size={24} wrapperClassName="inline-block" />
+
+      {!sourceGameKind && relatedGame ? t('Similar to') : null}
+      {!sourceGameKind && !relatedGame ? t('Similar') : null}
+
+      {relatedGame ? (
+        <GameAvatar {...relatedGame} showLabel={false} size={24} wrapperClassName="inline-block" />
+      ) : null}
     </BaseChip>
   );
 };

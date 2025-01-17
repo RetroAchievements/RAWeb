@@ -57,4 +57,12 @@ describe('Component: SimilarGameReason', () => {
     expect(screen.getByText('Similar to')).toBeVisible();
     expect(screen.getByRole('img', { name: /sonic the hedgehog/i })).toBeVisible();
   });
+
+  it('given the related game is null, displays the correct label', () => {
+    // ARRANGE
+    render(<SimilarGameReason relatedGame={null} sourceGameKind={null} />);
+
+    // ASSERT
+    expect(screen.getByText('Similar')).toBeVisible();
+  });
 });
