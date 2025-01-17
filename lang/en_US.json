@@ -629,7 +629,7 @@
     "Similar to": "Similar to",
     "Similar": "Similar",
     "See your full recommendation feed": "See your full recommendation feed",
-    "Also beaten by same players": "Also beaten by same players",
-    "Also mastered by same players": "Also mastered by same players",
+    "Beaten by same players": "Beaten by same players",
+    "Mastered by same players": "Mastered by same players",
     "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>": "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>"
 }

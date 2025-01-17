@@ -36,9 +36,9 @@ export const CommonPlayersReason: FC<CommonPlayersReasonProps> = ({
           />
         </>
       ) : sourceGameKind === 'beaten' ? (
-        t('Also beaten by same players')
+        t('Beaten by same players')
       ) : (
-        t('Also mastered by same players')
+        t('Mastered by same players')
       )}
     </BaseChip>
   );

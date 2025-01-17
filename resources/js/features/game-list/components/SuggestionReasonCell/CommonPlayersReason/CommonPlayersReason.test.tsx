@@ -45,7 +45,7 @@ describe('Component: CommonPlayersReason', () => {
     render(<CommonPlayersReason relatedGame={null} sourceGameKind="beaten" />);
 
     // ASSERT
-    expect(screen.getByText(/also beaten by same players/i)).toBeVisible();
+    expect(screen.getByText(/beaten by same players/i)).toBeVisible();
   });
 
   it('given there is no related game and the source game kind is mastered, shows the correct label', () => {
@@ -53,6 +53,6 @@ describe('Component: CommonPlayersReason', () => {
     render(<CommonPlayersReason relatedGame={null} sourceGameKind="mastered" />);
 
     // ASSERT
-    expect(screen.getByText(/also mastered by same players/i)).toBeVisible();
+    expect(screen.getByText(/mastered by same players/i)).toBeVisible();
   });
 });
