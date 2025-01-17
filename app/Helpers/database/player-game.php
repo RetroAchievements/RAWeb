@@ -277,32 +277,26 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
 
 function GetAllUserProgress(User $user, int $consoleID): array
 {
-    /** @var Collection<int, PlayerGame> $playerGames */
-    $playerGames = $user->playerGames()
-        ->whereIn('game_id', function ($query) use ($consoleID) {
-            $query->select('ID')
-                  ->from('GameData')
-                  ->where('ConsoleID', $consoleID)
-                  ->where('achievements_published', '>', 0);
-        })
-        ->get()
-        ->keyBy('game_id');
-
     /** @var Collection<int, Game> $games */
-    $games = Game::where('ConsoleID', $consoleID)
-        ->where('achievements_published', '>', 0)
+    $playerGames = $user->playerGames()
+        ->whereHas('game', function ($query) use ($consoleID) {
+            $query->where('ConsoleID', $consoleID)
+                ->where('achievements_published', '>', 0);
+        })
+        ->where('achievements_unlocked', '>', 0)
+        ->with(['game' => function ($query) {
+            $query->select('ID', 'achievements_published');
+        }])
         ->get();
 
     /** @var array<int, array{NumAch: int, Earned: int, HCEarned: int}> $retVal */
     $retVal = [];
-    foreach ($games as $game) {
+    foreach ($playerGames as $playerGame) {
         /** @var ?PlayerGame $playerGame */
-        $playerGame = $playerGames->get($game->id);
-
-        $retVal[$game->id] = [
-            'NumAch' => $game->achievements_published,
-            'Earned' => $playerGame?->achievements_unlocked ?? 0,
-            'HCEarned' => $playerGame?->achievements_unlocked_hardcore ?? 0,
+        $retVal[$playerGame->game_id] = [
+            'Achievements' => $playerGame->game->achievements_published,
+            'Unlocked' => $playerGame->achievements_unlocked,
+            'UnlockedHardcore' => $playerGame->achievements_unlocked_hardcore,
         ];
     }
 
