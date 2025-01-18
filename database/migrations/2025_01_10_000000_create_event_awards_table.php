@@ -25,7 +25,7 @@ return new class() extends Migration {
                     ->references('id')
                     ->on('events')
                     ->onDelete('cascade');
-    
+
                 $table->unique(['event_id', 'tier_index']);
             });
         }
