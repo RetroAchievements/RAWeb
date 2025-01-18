@@ -109,8 +109,7 @@ class AchievementsRelationManager extends RelationManager
                                     continue;
                                 }
 
-                                // TODO: whereName
-                                $forUser = User::where('User', $username)->first();
+                                $forUser = User::whereName($username)->first();
 
                                 if ($forUser) {
                                     $foundCount++;
