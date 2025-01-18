@@ -250,7 +250,8 @@ function getFilteredClaims(
     $userCondition = '';
     if (isset($username)) {
         $bindings['username'] = $username;
-        $userCondition = "AND ua.User = :username";
+        $bindings['display_name'] = $username;
+        $userCondition = "AND (ua.User = :username OR ua.display_name = :display_name)";
     }
 
     $gameCondition = '';
@@ -268,7 +269,7 @@ function getFilteredClaims(
     // Get either the filtered count or the filtered data
     $selectCondition = "
         sc.ID AS ID,
-        ua.User AS User,
+        COALESCE(ua.display_name, ua.User) AS User,
         sc.game_id AS GameID,
         gd.Title AS GameTitle,
         gd.ImageIcon AS GameIcon,

@@ -642,7 +642,43 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     public function gameSets(): BelongsToMany
     {
         return $this->belongsToMany(GameSet::class, 'game_set_games', 'game_id', 'game_set_id')
-            ->withPivot('created_at', 'updated_at', 'deleted_at');
+            ->withPivot(['created_at', 'updated_at', 'deleted_at'])
+            ->withTimestamps('created_at', 'updated_at');
+    }
+
+    /**
+     * @return BelongsToMany<GameSet>
+     */
+    public function hubs(): BelongsToMany
+    {
+        return $this->gameSets()->whereType(GameSetType::Hub);
+    }
+
+    /**
+     * @return BelongsToMany<GameSet>
+     */
+    public function similarGames(): BelongsToMany
+    {
+        return $this->gameSets()->whereType(GameSetType::SimilarGames);
+    }
+
+    /**
+     * @return BelongsToMany<Game>
+     */
+    public function similarGamesList(): BelongsToMany
+    {
+        // This should always be truthy.
+        $gameSet = GameSet::query()
+            ->whereGameId($this->id)
+            ->whereType(GameSetType::SimilarGames)
+            ->first();
+
+        // Return an empty relationship if no game set exists.
+        if (!$gameSet) {
+            return $this->belongsToMany(Game::class, 'game_set_games')->whereRaw('1 = 0');
+        }
+
+        return $gameSet->games()->with('system')->withTimestamps(['created_at', 'updated_at']);
     }
 
     /**

@@ -3,6 +3,7 @@ import { useImperativeHandle } from 'react';
 import { useIsomorphicLayoutEffect } from 'react-use';
 
 import { cn } from '@/common/utils/cn';
+import type { TranslatedString } from '@/types/i18next';
 
 interface UseBaseAutosizeTextAreaProps {
   textAreaRef: React.MutableRefObject<HTMLTextAreaElement | null>;
@@ -21,31 +22,26 @@ export const useBaseAutosizeTextArea = ({
 
   // Use useIsomorphicLayoutEffect to prevent layout flickering on client hydration.
   useIsomorphicLayoutEffect(() => {
-    // We need to reset the height momentarily to get the correct scrollHeight for the textarea.
-    const offsetBorder = 6;
     const textAreaElement = textAreaRef.current;
 
     if (textAreaElement) {
       if (init) {
-        textAreaElement.style.minHeight = `${minHeight + offsetBorder}px`;
+        textAreaElement.style.minHeight = `${minHeight}px`;
         if (maxHeight > minHeight) {
           textAreaElement.style.maxHeight = `${maxHeight}px`;
         }
         setInit(false);
       }
 
-      // Store the current scroll position to restore it after resizing.
       const scrollPos = window.scrollY;
 
-      textAreaElement.style.height = `${minHeight + offsetBorder}px`;
+      textAreaElement.style.height = `${minHeight}px`;
       const scrollHeight = textAreaElement.scrollHeight;
 
-      // We then set the height directly, outside of the render loop.
-      // Trying to set this with state or a ref will produce an incorrect value.
       if (scrollHeight > maxHeight) {
         textAreaElement.style.height = `${maxHeight}px`;
       } else {
-        textAreaElement.style.height = `${scrollHeight + offsetBorder}px`;
+        textAreaElement.style.height = `${scrollHeight}px`;
       }
 
       // Restore the scroll position to prevent page jumps.
@@ -66,7 +62,8 @@ export type BaseAutosizeTextAreaRef = {
 type BaseAutosizeTextAreaProps = {
   maxHeight?: number;
   minHeight?: number;
-} & React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+  placeholder?: TranslatedString;
+} & Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'placeholder'>;
 
 export const BaseAutosizeTextarea = React.forwardRef<
   BaseAutosizeTextAreaRef,

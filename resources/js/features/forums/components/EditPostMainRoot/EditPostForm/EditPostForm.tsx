@@ -46,10 +46,12 @@ export const EditPostForm: FC<EditPostFormProps> = ({ onPreview }) => {
                 <BaseFormLabel className="sr-only">{t('Body')}</BaseFormLabel>
                 <BaseFormControl>
                   <BaseAutosizeTextarea
-                    className="min-h-[308px] p-3"
-                    placeholder="Don't ask for links to copyrighted ROMs. Don't share links to copyrighted ROMs."
-                    minHeight={308}
+                    className="p-3"
+                    placeholder={t(
+                      "Don't ask for links to copyrighted ROMs. Don't share links to copyrighted ROMs.",
+                    )}
                     maxLength={60_000}
+                    minHeight={308}
                     {...field}
                   />
                 </BaseFormControl>

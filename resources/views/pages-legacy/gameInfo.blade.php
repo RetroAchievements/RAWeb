@@ -778,37 +778,14 @@ if ($isFullyFeaturedGame) {
                 echo "</form>";
             }
 
-            if ($permissions >= Permissions::Developer) {
-                echo "<form class='mb-2' method='post' action='/request/game-relation/create.php'>";
-                echo csrf_field();
-                echo "<input type='hidden' name='game' value='$gameID'>";
-                echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
-                echo "<label for='game_relation_add'>Add Related Games<br>(CSV of game IDs)</label>";
-                echo "<input type='text' name='relations' id='game_relation_add' class='w-full'>";
-                echo "<div class='text-right'><button class='btn'>Add</button></div>";
-                echo "</div>";
-                echo "</form>";
+            if ($userModel && $userModel->can('manage', [\App\Models\GameSet::class])) {
+                $manageSimilarGamesHref = route('filament.admin.resources.games.similar-games', ['record' => $gameID]);
+                $manageHubsHref = route('filament.admin.resources.games.hubs', ['record' => $gameID]);
 
-                if (!empty($relatedGames)) {
-                    echo "<form class='mb-2' method='post' action='/request/game-relation/delete.php'>";
-                    echo csrf_field();
-                    echo "<input type='hidden' name='game' value='$gameID'>";
-                    echo "<div><label for='game_relations'>Related Games</label></div>";
-                    echo "<select class='resize-y w-full overflow-auto h-[125px] mb-1' name='relations[]' id='game_relations' multiple>";
-                    foreach ($relatedGames as $gameAlt) {
-                        $gameAltID = $gameAlt['gameIDAlt'];
-                        $gameAltTitle = $gameAlt['Title'];
-                        $gameAltConsole = $gameAlt['ConsoleName'];
-                        sanitize_outputs(
-                            $gameAltTitle,
-                            $gameAltConsole,
-                        );
-                        echo "<option value='$gameAltID'>$gameAltTitle ($gameAltConsole)</option>";
-                    }
-                    echo "</select>";
-                    echo "<div class='text-right'><button class='btn btn-danger' onclick='return confirm(\"Are you sure you want to remove the selected relations?\")'>Remove</button></div>";
-                    echo "</form>";
-                }
+                echo "<div class='mb-2 flex flex-col gap-2'>";
+                echo "<a href='{$manageHubsHref}'>Manage Related Hubs</a>";
+                echo "<a href='{$manageSimilarGamesHref}'>Manage Similar Games</a>";
+                echo "</div>";
             }
             if ($isFullyFeaturedGame) {
                 echo "<div><label for='game_rich_presence'><a href='https://docs.retroachievements.org/developer-docs/rich-presence.html'>Rich Presence</a> Script</label></div>";

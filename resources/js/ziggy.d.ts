@@ -96,13 +96,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.suggest": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.claims": [
         {
             "name": "game",

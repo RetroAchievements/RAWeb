@@ -12,7 +12,7 @@ import { GameAvatar } from '@/common/components/GameAvatar';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
 
 interface SharedHubReasonProps {
-  relatedGame: App.Platform.Data.Game;
+  relatedGame: App.Platform.Data.Game | null;
   relatedGameSet: App.Platform.Data.GameSet;
 }
 
@@ -25,7 +25,11 @@ export const SharedHubReason: FC<SharedHubReasonProps> = ({ relatedGame, related
       <LuNetwork className="size-[18px] lg:hidden xl:block" />
 
       <Trans
-        i18nKey="In <1><2><3>hub</3></2><4>{{hubName}}</4></1> with"
+        i18nKey={
+          relatedGame
+            ? 'In <1><2><3>hub</3></2><4>{{hubName}}</4></1> with'
+            : 'In same <1><2><3>hub</3></2><4>{{hubName}}</4></1>'
+        }
         components={{
           1: <BaseTooltip></BaseTooltip>,
           2: <BaseTooltipTrigger></BaseTooltipTrigger>,
@@ -34,12 +38,15 @@ export const SharedHubReason: FC<SharedHubReasonProps> = ({ relatedGame, related
         }}
         values={{ hubName: cleanHubTitle(relatedGameSet.title!) }}
       />
-      <GameAvatar
-        {...relatedGame}
-        showLabel={false}
-        size={24}
-        wrapperClassName="ml-0.5 inline-block"
-      />
+
+      {relatedGame ? (
+        <GameAvatar
+          {...relatedGame}
+          showLabel={false}
+          size={24}
+          wrapperClassName="ml-0.5 inline-block"
+        />
+      ) : null}
     </BaseChip>
   );
 };

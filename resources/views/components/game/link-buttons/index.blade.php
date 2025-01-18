@@ -114,7 +114,7 @@ if ($canSeeOpenTickets) {
     @if (in_array('suggested-games', $allowedLinks) && $user)
         <x-game.link-buttons.game-link-button
             icon="🕹️"
-            href="{{ route('game.suggest', ['game' => $game]) }}"
+            href="{{ route('game.suggestions.similar', ['game' => $game]) }}"
         >
             Find Something Similar to Play
         </x-game.link-buttons.game-link-button>

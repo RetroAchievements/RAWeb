@@ -13,7 +13,7 @@ $mobileBrowser = (new GetUserDeviceKindAction())->execute() === 'mobile';
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$userModel = $user ? User::firstWhere('User', $user) : null;
+$userModel = $user ? User::whereName($user)->first() : null;
 
 $maxCount = 25;
 
@@ -34,7 +34,10 @@ $dev_param = null;
 $devUser = null;
 if ($dev != null) {
     $dev_param .= "&d=$dev";
-    $devUser = User::firstWhere('User', $dev);
+    $devUser = User::whereName($dev)->first();
+}
+if (is_string($dev) && !$devUser) {
+    $devUser = User::whereName($dev)->first();
 }
 
 $sortBy = (int) request()->input('s', 17);
@@ -60,7 +63,7 @@ if ($consoleIDInput !== 0) {
 
     echo "<h3>";
     if ($dev != null) {
-        echo "<a href='/user/$dev'>$dev</a>'s ";
+        echo "<a href='/user/$dev'>{$devUser->display_name}</a>'s ";
     }
     echo "Achievement List</h3>";
 

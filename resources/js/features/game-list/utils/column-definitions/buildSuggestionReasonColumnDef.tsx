@@ -7,10 +7,12 @@ import { SuggestionReasonCell } from '../../components/SuggestionReasonCell';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildSuggestionReasonColumnDefProps {
+  sourceGame: App.Platform.Data.Game | null;
   t_label: TranslatedString;
 }
 
 export function buildSuggestionReasonColumnDef({
+  sourceGame,
   t_label,
 }: BuildSuggestionReasonColumnDefProps): ColumnDef<App.Platform.Data.GameSuggestionEntry> {
   return {
@@ -21,6 +23,6 @@ export function buildSuggestionReasonColumnDef({
 
     header: ({ column, table }) => <DataTableColumnHeader column={column} table={table} />,
 
-    cell: ({ row }) => <SuggestionReasonCell originalRow={row.original} />,
+    cell: ({ row }) => <SuggestionReasonCell originalRow={row.original} sourceGame={sourceGame} />,
   };
 }
