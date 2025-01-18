@@ -632,5 +632,7 @@
     "Beaten by same players": "Beaten by same players",
     "Mastered by same players": "Mastered by same players",
     "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>": "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>",
-    "Don't ask for links to copyrighted ROMs. Don't share links to copyrighted ROMs.": "Don't ask for links to copyrighted ROMs. Don't share links to copyrighted ROMs."
+    "Don't ask for links to copyrighted ROMs. Don't share links to copyrighted ROMs.": "Don't ask for links to copyrighted ROMs. Don't share links to copyrighted ROMs.",
+    "Start new topic": "Start new topic",
+    "enter your new topic's title...": "enter your new topic's title..."
 }
