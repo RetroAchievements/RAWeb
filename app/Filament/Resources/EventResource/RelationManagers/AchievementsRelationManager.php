@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\EventResource\RelationManagers;
 
+use App\Models\Event;
 use App\Models\EventAchievement;
 use App\Models\User;
+use App\Platform\Jobs\UnlockPlayerAchievementJob;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class AchievementsRelationManager extends RelationManager
 {
@@ -77,7 +82,67 @@ class AchievementsRelationManager extends RelationManager
 
             ])
             ->actions([
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('award')
+                        ->label('Award to User(s)')
+                        ->icon('fas-trophy')
+                        ->form([
+                            Forms\Components\Textarea::make('users')
+                                ->label('CSV of User names')
+                                ->autosize()
+                                ->required(),
+                        ])
+                        ->modalHeading(function (EventAchievement $eventAchievement): string {
+                            return "Manually award {$eventAchievement->achievement->title}";
+                        })
+                        ->action(function (array $data, EventAchievement $eventAchievement): void {
+                            /** @var User $unlockedBy */
+                            $unlockedBy = auth()->user();
 
+                            $foundCount = 0;
+                            $unknown = [];
+                            $timestamp = Carbon::now();
+                            $lastFoundUser = null;
+                            foreach (explode(',', $data['users']) as $username) {
+                                $username = trim($username);
+                                if (empty($username)) {
+                                    continue;
+                                }
+
+                                $forUser = User::whereName($username)->first();
+
+                                if ($forUser) {
+                                    $foundCount++;
+                                    $lastFoundUser = $username;
+
+                                    dispatch(new UnlockPlayerAchievementJob($forUser->id, $eventAchievement->achievement_id, true, $timestamp, $unlockedBy->id))
+                                        ->onQueue('player-achievements');
+                                } else {
+                                    $unknown[] = $username;
+                                }
+                            }
+
+                            if ($foundCount == 1) {
+                                Notification::make()
+                                    ->title("Awarded achievement to $lastFoundUser")
+                                    ->success()
+                                    ->send();
+                            } elseif ($foundCount > 0) {
+                                Notification::make()
+                                    ->title("Awarded achievement to $foundCount users")
+                                    ->success()
+                                    ->send();
+                            }
+
+                            if (!empty($unknown)) {
+                                Notification::make()
+                                    ->title("Unknown " . Str::plural('user', count($unknown)) . ": " . implode(', ', $unknown))
+                                    ->danger()
+                                    ->send();
+                            }
+                        })
+                        ->hidden(!$user->can('manage', Event::class)),
+                ]),
             ])
             ->bulkActions([
 
