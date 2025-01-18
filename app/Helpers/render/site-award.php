@@ -1,13 +1,15 @@
 <?php
 
 use App\Community\Enums\AwardType;
+use App\Models\Event;
+use App\Models\EventAward;
 use App\Models\PlayerBadge;
 
 function SeparateAwards(array $userAwards): array
 {
     $gameAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] != 'Events'));
 
-    $eventAwards = array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] == 'Events');
+    $eventAwards = array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Event || ($award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] == 'Events'));
 
     $devEventsPrefix = "[Dev Events - ";
     $devEventsHub = "[Central - Developer Events]";
@@ -173,7 +175,7 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
     $awardGameTitle = $award['Title'];
     $awardGameConsole = $award['ConsoleName'];
     $awardGameImage = $award['ImageIcon'];
-    $awardDate = getNiceDate((int) $award['AwardedAt']);
+    $awardDate = getNiceDate((int) $award['AwardedAt'], justDay: true);
     $awardButGameIsIncomplete = (isset($award['Incomplete']) && $award['Incomplete'] == 1);
     $imgclass = 'badgeimg siteawards';
 
@@ -193,6 +195,39 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
         $dataAttrGameId = $award['GameID'];
         // NOTE: If these data-* attributes are removed, userscripts will begin breaking.
         echo "<div data-gameid='$dataAttrGameId' data-date='$awardDate'>" . gameAvatar($award, label: false, iconSize: $imageSize, context: $ownerUsername, iconClass: $imgclass) . "</div>";
+
+        return;
+    }
+
+    if ($awardType == AwardType::Event) {
+        $event = Event::find($awardData);
+        if ($event) {
+            $tooltip = "Awarded for completing the {$event->title} event";
+            $image = $event->image_asset_path;
+
+            if ($awardDataExtra !== 0) {
+                $eventAward = EventAward::where('event_id', $awardData)
+                    ->where('tier_index', $awardDataExtra)
+                    ->first();
+
+                if ($eventAward) {
+                    $image = $eventAward->image_asset_path;
+
+                    if ($eventAward->achievements_required < $event->legacyGame->achievements_published) {
+                        $tooltip = "Awarded for earning at least {$eventAward->achievements_required} achievements in the {$event->title} event";
+                    }
+                }
+            }
+
+            echo avatar('event', $event->id,
+                link: route('game.show', $event->legacyGame->id),
+                tooltip: "<div class='p-2 max-w-[320px] text-pretty'><span>$tooltip</span><p class='italic'>{$awardDate}</p></div>",
+                iconUrl: media_asset($image),
+                iconSize: $imageSize,
+                iconClass: 'goldimage',
+                context: $ownerUsername,
+            );
+        }
 
         return;
     }

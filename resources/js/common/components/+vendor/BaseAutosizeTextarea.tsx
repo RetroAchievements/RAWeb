@@ -3,6 +3,7 @@ import { useImperativeHandle } from 'react';
 import { useIsomorphicLayoutEffect } from 'react-use';
 
 import { cn } from '@/common/utils/cn';
+import type { TranslatedString } from '@/types/i18next';
 
 interface UseBaseAutosizeTextAreaProps {
   textAreaRef: React.MutableRefObject<HTMLTextAreaElement | null>;
@@ -61,7 +62,8 @@ export type BaseAutosizeTextAreaRef = {
 type BaseAutosizeTextAreaProps = {
   maxHeight?: number;
   minHeight?: number;
-} & React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+  placeholder?: TranslatedString;
+} & Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'placeholder'>;
 
 export const BaseAutosizeTextarea = React.forwardRef<
   BaseAutosizeTextAreaRef,

@@ -186,6 +186,8 @@ if ($isEventGame) {
     if ($gameModel->event) {
         $gameData['ImageIcon'] = $gameModel->event->image_asset_path;
     }
+
+    $isGameBeatable = true;
 }
 
 if ($isFullyFeaturedGame || $isEventGame) {
