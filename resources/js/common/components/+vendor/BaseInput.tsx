@@ -1,8 +1,11 @@
 import * as React from 'react';
 
 import { cn } from '@/common/utils/cn';
+import type { TranslatedString } from '@/types/i18next';
 
-export type BaseInputProps = React.InputHTMLAttributes<HTMLInputElement>;
+export type BaseInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'placeholder'> & {
+  placeholder?: TranslatedString;
+};
 
 const BaseInput = React.forwardRef<HTMLInputElement, BaseInputProps>(
   ({ className, type, ...props }, ref) => {
