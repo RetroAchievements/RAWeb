@@ -33,6 +33,11 @@ trait HasSelfHealingUrls
 
     public function resolveRouteBinding(mixed $value, $field = null)
     {
+        // Skip self-healing for internal-api routes.
+        if (str_starts_with(request()->path(), 'internal-api')) {
+            return parent::resolveRouteBinding($value, $field);
+        }
+
         // If it's just a number, redirect to the full slug.
         if (is_numeric($value)) {
             $model = static::findOrFail($value);
