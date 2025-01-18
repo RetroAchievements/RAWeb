@@ -42,6 +42,25 @@ describe('Component: SystemGamesMainRoot', () => {
     expect(container).toBeTruthy();
   });
 
+  it('displays accessible breadcrumbs', () => {
+    // ARRANGE
+    const system = createSystem({ name: 'Nintendo 64' });
+
+    render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
+      pageProps: {
+        system,
+        defaultDesktopPageSize: 100,
+        paginatedGameListEntries: createPaginatedData([]),
+        can: { develop: false },
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('listitem', { name: /all games/i })).toBeVisible();
+    expect(screen.getByRole('listitem', { name: system.name })).toBeVisible();
+  });
+
   it('displays default columns', async () => {
     // ARRANGE
     render<App.Platform.Data.SystemGameListPageProps>(<SystemGamesMainRoot />, {
@@ -763,9 +782,7 @@ describe('Component: SystemGamesMainRoot', () => {
     });
 
     // ASSERT
-    expect(await screen.findByRole('list')).toBeVisible();
-    expect(screen.queryByRole('table')).not.toBeInTheDocument();
-
     expect(await screen.findByText(/sonic the hedgehog/i)).toBeVisible();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 });

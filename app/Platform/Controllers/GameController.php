@@ -196,9 +196,6 @@ class GameController extends Controller
         $user = $request->user();
         abort_if(!$user, 404);
 
-        $persistenceCookieName = 'data_table_view_preference_suggest';
-        $request->setPersistenceCookieName($persistenceCookieName);
-
         $paginatedData = (new BuildGameListAction())->execute(
             GameListType::UserSpecificSuggestions,
             user: $user,
@@ -208,8 +205,6 @@ class GameController extends Controller
 
         $props = new GameSuggestPagePropsData(
             paginatedGameListEntries: $paginatedData,
-            persistenceCookieName: $persistenceCookieName,
-            persistedViewPreferences: $request->getCookiePreferences(),
         );
 
         return Inertia::render('games/suggestions', $props);
@@ -221,9 +216,6 @@ class GameController extends Controller
         $user = $request->user();
         abort_if(!$user, 404);
 
-        $persistenceCookieName = 'data_table_view_preference_suggest';
-        $request->setPersistenceCookieName($persistenceCookieName);
-
         $paginatedData = (new BuildGameListAction())->execute(
             GameListType::GameSpecificSuggestions,
             user: $user,
@@ -234,11 +226,8 @@ class GameController extends Controller
 
         $props = new GameSuggestPagePropsData(
             paginatedGameListEntries: $paginatedData,
-            persistenceCookieName: $persistenceCookieName,
-            persistedViewPreferences: $request->getCookiePreferences(),
+            sourceGame: GameData::from($game)->include('badgeUrl'),
         );
-
-        dump(json_encode($props, JSON_PRETTY_PRINT));
 
         return Inertia::render('game/[game]/suggestions', $props);
     }

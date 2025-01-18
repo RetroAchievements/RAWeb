@@ -5,6 +5,7 @@ import {
   createEventAchievement,
   createGame,
   createHomePageProps,
+  createRaEvent,
   createSystem,
 } from '@/test/factories';
 
@@ -41,31 +42,34 @@ describe('Component: AchievementOfTheWeek', () => {
 
   it('displays an accessible link to the event page', () => {
     // ARRANGE
+    const legacyGame = createGame();
+    const event = createRaEvent({ legacyGame });
+
     render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
       pageProps: createHomePageProps({
-        achievementOfTheWeek: createEventAchievement({ forumTopicId: 100 }),
+        achievementOfTheWeek: createEventAchievement({ event }),
       }),
     });
 
     // ASSERT
-    const linkEl = screen.getByRole('link', { name: /learn more about this event/i });
+    const linkEl = screen.getByRole('link', { name: /view this year's event/i });
 
     expect(linkEl).toBeVisible();
-    expect(linkEl).toHaveAttribute('href', '/viewtopic.php?t=100');
+    expect(linkEl).toHaveAttribute('href', expect.stringContaining('game.show'));
   });
 
   it('given there is no accessible link to the event page, does not render a link', () => {
     // ARRANGE
+    const event = createRaEvent({ legacyGame: undefined });
+
     render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
       pageProps: createHomePageProps({
-        achievementOfTheWeek: createEventAchievement({ forumTopicId: undefined }),
+        achievementOfTheWeek: createEventAchievement({ event }),
       }),
     });
 
     // ASSERT
-    expect(
-      screen.queryByRole('link', { name: /learn more about this event/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /view this year's event/i })).not.toBeInTheDocument();
   });
 
   it('has a link to the achievement', () => {

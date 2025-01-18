@@ -37,7 +37,7 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
 $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 100;
 
-$targetUser = User::firstWhere('User', request()->query('u'));
+$targetUser = User::whereName(request()->query('u'))->first();
 if (!$targetUser) {
     return response()->json([], 404);
 }
