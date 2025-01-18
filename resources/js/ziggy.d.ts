@@ -96,13 +96,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.suggest": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.claims": [
         {
             "name": "game",
@@ -264,6 +257,14 @@ declare module 'ziggy-js' {
             "name": "achievement",
             "required": true,
             "binding": "ID"
+        }
+    ],
+    "api.forum-topic-comment.preview": [],
+    "api.forum-topic-comment.update": [
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "id"
         }
     ],
     "api.game.claims.comment.store": [
@@ -506,6 +507,13 @@ declare module 'ziggy-js' {
         }
     ],
     "forum.recent-posts": [],
+    "forum-topic-comment.edit": [
+        {
+            "name": "comment",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "user.posts.index": [
         {
             "name": "user",

@@ -17,7 +17,7 @@ use App\Models\User;
 
 $gameId = (int) request()->query('g');
 
-$user = User::firstWhere('User', request()->query('u'));
+$user = User::whereName(request()->query('u'))->first();
 if (!$user) {
     return response()->json([]);
 }

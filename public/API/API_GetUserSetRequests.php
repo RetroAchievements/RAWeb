@@ -28,7 +28,7 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
     't' => ['nullable', 'in:0,1'],
 ]);
 
-$user = User::firstWhere('User', request()->query('u'));
+$user = User::whereName(request()->query('u'))->first();
 if (!$user) {
     return response()->json([], 404);
 }

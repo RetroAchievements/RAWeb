@@ -38,7 +38,7 @@
 
                     @can('update', $forumTopicComment)
                         <a
-                            href="{{ route('forum.post.edit', ['forumTopicComment' => $forumTopicComment]) }}"
+                            href="{{ route('forum-topic-comment.edit', ['comment' => $forumTopicComment]) }}"
                             class='btn p-1 lg:text-xs'
                         >
                             Edit

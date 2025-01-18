@@ -9,6 +9,7 @@ describe('Component: SuggestionReasonCell', () => {
     const { container } = render(
       <SuggestionReasonCell
         originalRow={createGameSuggestionEntry({ suggestionReason: 'random' })}
+        sourceGame={null}
       />,
     );
 
@@ -21,6 +22,7 @@ describe('Component: SuggestionReasonCell', () => {
     render(
       <SuggestionReasonCell
         originalRow={createGameSuggestionEntry({ suggestionReason: 'shared-hub' })}
+        sourceGame={null}
       />,
     );
 
@@ -33,6 +35,7 @@ describe('Component: SuggestionReasonCell', () => {
     render(
       <SuggestionReasonCell
         originalRow={createGameSuggestionEntry({ suggestionReason: 'similar-game' })}
+        sourceGame={null}
       />,
     );
 
@@ -45,6 +48,7 @@ describe('Component: SuggestionReasonCell', () => {
     render(
       <SuggestionReasonCell
         originalRow={createGameSuggestionEntry({ suggestionReason: 'random' })}
+        sourceGame={null}
       />,
     );
 
@@ -57,6 +61,7 @@ describe('Component: SuggestionReasonCell', () => {
     render(
       <SuggestionReasonCell
         originalRow={createGameSuggestionEntry({ suggestionReason: 'want-to-play' })}
+        sourceGame={null}
       />,
     );
 
@@ -69,6 +74,7 @@ describe('Component: SuggestionReasonCell', () => {
     render(
       <SuggestionReasonCell
         originalRow={createGameSuggestionEntry({ suggestionReason: 'revised' })}
+        sourceGame={null}
       />,
     );
 
@@ -81,6 +87,7 @@ describe('Component: SuggestionReasonCell', () => {
     render(
       <SuggestionReasonCell
         originalRow={createGameSuggestionEntry({ suggestionReason: 'common-players' })}
+        sourceGame={null}
       />,
     );
 
@@ -93,6 +100,7 @@ describe('Component: SuggestionReasonCell', () => {
     render(
       <SuggestionReasonCell
         originalRow={createGameSuggestionEntry({ suggestionReason: 'shared-author' })}
+        sourceGame={null}
       />,
     );
 
@@ -108,6 +116,7 @@ describe('Component: SuggestionReasonCell', () => {
           // @ts-expect-error Testing invalid reason
           suggestionReason: 'unknown-reason',
         }}
+        sourceGame={null}
       />,
     );
 

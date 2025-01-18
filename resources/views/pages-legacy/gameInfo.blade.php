@@ -761,17 +761,16 @@ if ($isFullyFeaturedGame) {
                 echo "</form>";
             }
 
-            if ($permissions >= Permissions::Developer) {
-                if ($userModel && $userModel->can('manage', [\App\Models\GameSet::class])) {
-                    $manageSimilarGamesHref = route('filament.admin.resources.games.similar-games', ['record' => $gameID]);
-                    $manageHubsHref = route('filament.admin.resources.games.hubs', ['record' => $gameID]);
+            if ($userModel && $userModel->can('manage', [\App\Models\GameSet::class])) {
+                $manageSimilarGamesHref = route('filament.admin.resources.games.similar-games', ['record' => $gameID]);
+                $manageHubsHref = route('filament.admin.resources.games.hubs', ['record' => $gameID]);
 
-                    echo "<div class='mb-2 flex flex-col gap-2'>";
-                    echo "<a href='{$manageHubsHref}'>Manage Related Hubs</a>";
-                    echo "<a href='{$manageSimilarGamesHref}'>Manage Similar Games</a>";
-                    echo "</div>";
-                }
+                echo "<div class='mb-2 flex flex-col gap-2'>";
+                echo "<a href='{$manageHubsHref}'>Manage Related Hubs</a>";
+                echo "<a href='{$manageSimilarGamesHref}'>Manage Similar Games</a>";
+                echo "</div>";
             }
+            
             if ($isFullyFeaturedGame) {
                 echo "<div><label for='game_rich_presence'><a href='https://docs.retroachievements.org/developer-docs/rich-presence.html'>Rich Presence</a> Script</label></div>";
                 if ($hasMinimumDeveloperPermissions) {

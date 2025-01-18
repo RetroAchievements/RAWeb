@@ -79,6 +79,7 @@ return [
         '/popularGames.php' => '/games/popular',
         '/random.php' => '/game/random',
         '/game/{game}/masters' => '/game/{game}/top-achievers',
+        '/game/{game}/suggest' => '/game/{game}/suggestions',
         '/games/suggest' => '/games/suggestions',
 
         /*
@@ -98,7 +99,7 @@ return [
         '/userList.php' => '/users',
         '/history.php' => '/user/{u}/history',
         '/historyexamine.php' => '/user/{u}/history/{d}',
-        '/usergameactivity.php' => '/user/{f}/game/{ID}',
+        // '/usergameactivity.php' => '/user/{f}/game/{ID}',
         '/gamecompare.php' => '/user/{f}/game/{ID}/compare',
 
         /*

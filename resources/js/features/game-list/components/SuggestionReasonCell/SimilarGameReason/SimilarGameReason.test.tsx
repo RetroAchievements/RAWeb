@@ -46,4 +46,23 @@ describe('Component: SimilarGameReason', () => {
     expect(screen.getByText(/similar to backlog/i)).toBeVisible();
     expect(screen.getByRole('img', { name: /sonic the hedgehog/i })).toBeVisible();
   });
+
+  it('given there is no source game kind, still shows a label', () => {
+    // ARRANGE
+    const game = createGame({ title: 'Sonic the Hedgehog' });
+
+    render(<SimilarGameReason relatedGame={game} sourceGameKind={null} />);
+
+    // ASSERT
+    expect(screen.getByText('Similar to')).toBeVisible();
+    expect(screen.getByRole('img', { name: /sonic the hedgehog/i })).toBeVisible();
+  });
+
+  it('given the related game is null, displays the correct label', () => {
+    // ARRANGE
+    render(<SimilarGameReason relatedGame={null} sourceGameKind={null} />);
+
+    // ASSERT
+    expect(screen.getByText('Similar')).toBeVisible();
+  });
 });

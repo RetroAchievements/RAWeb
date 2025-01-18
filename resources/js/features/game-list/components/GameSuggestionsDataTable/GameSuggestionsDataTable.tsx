@@ -7,11 +7,17 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { GameListDataTable } from '../GameListDataTable';
 import { useColumnDefinitions } from './useColumnDefinitions';
 
-export const GameSuggestionsDataTable: FC = () => {
-  const { auth, paginatedGameListEntries } = usePageProps<App.Platform.Data.GameSuggestPageProps>();
+interface GameSuggestionsDataTableProps {
+  showSourceGame?: boolean;
+}
+
+export const GameSuggestionsDataTable: FC<GameSuggestionsDataTableProps> = ({
+  showSourceGame = true,
+}) => {
+  const { paginatedGameListEntries } = usePageProps<App.Platform.Data.GameSuggestPageProps>();
 
   const table = useReactTable({
-    columns: useColumnDefinitions({ forUsername: auth!.user.displayName }),
+    columns: useColumnDefinitions({ showSourceGame }),
     data: paginatedGameListEntries.items,
 
     getCoreRowModel: getCoreRowModel(),

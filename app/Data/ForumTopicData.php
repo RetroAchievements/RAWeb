@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use App\Models\ForumTopic;
 use App\Support\Shortcode\Shortcode;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -17,13 +18,31 @@ class ForumTopicData extends Data
         public int $id,
         public string $title,
         public Carbon $createdAt,
-        public Lazy|ForumTopicCommentData $latestComment,
-        public Lazy|int|null $commentCount24h,
-        public Lazy|int|null $oldestComment24hId,
-        public Lazy|int|null $commentCount7d,
-        public Lazy|int|null $oldestComment7dId,
+        public Lazy|ForumData|null $forum,
+        public Lazy|ForumTopicCommentData|null $latestComment, // TODO move to separate DTO
+        public Lazy|int|null $commentCount24h, // TODO move to separate DTO
+        public Lazy|int|null $oldestComment24hId, // TODO move to separate DTO
+        public Lazy|int|null $commentCount7d, // TODO move to separate DTO
+        public Lazy|int|null $oldestComment7dId, // TODO move to separate DTO
         public ?UserData $user = null,
         ) {
+    }
+
+    public static function fromForumTopic(ForumTopic $topic): self
+    {
+        return new self(
+            id: $topic->id,
+            title: $topic->title,
+            createdAt: $topic->created_at,
+            forum: Lazy::create(fn () => ForumData::fromForum($topic->forum)),
+            user: UserData::from($topic->user),
+
+            latestComment: null,
+            commentCount24h: null,
+            oldestComment24hId: null,
+            commentCount7d: null,
+            oldestComment7dId: null,
+        );
     }
 
     public static function fromHomePageQuery(array $comment): self
@@ -33,6 +52,7 @@ class ForumTopicData extends Data
             title: $comment['ForumTopicTitle'],
             createdAt: Carbon::parse($comment['PostedAt']),
 
+            forum: null,
             user: null,
 
             commentCount24h: null,
@@ -58,6 +78,7 @@ class ForumTopicData extends Data
             title: $topic['ForumTopicTitle'],
             createdAt: Carbon::parse($topic['PostedAt']),
 
+            forum: null,
             user: null,
 
             commentCount24h: Lazy::create(fn () => $topic['Count_1d']),
@@ -87,6 +108,7 @@ class ForumTopicData extends Data
             title: $userPost['ForumTopicTitle'],
             createdAt: Carbon::parse($userPost['PostedAt']),
 
+            forum: null,
             user: null,
 
             commentCount24h: null,

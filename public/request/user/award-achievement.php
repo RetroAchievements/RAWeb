@@ -17,12 +17,12 @@ if ($user->getAttribute('Permissions') < Permissions::Moderator) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'user' => 'required|string|exists:UserAccounts,User',
+    'user' => 'required|string|exists:UserAccounts,display_name',
     'achievement' => 'required|integer|exists:Achievements,ID',
     'hardcore' => 'required|integer|min:0|max:1',
 ]);
 
-$player = User::firstWhere('User', $input['user']);
+$player = User::whereName($input['user'])->first();
 
 $achievementId = $input['achievement'];
 $awardHardcore = (bool) $input['hardcore'];
