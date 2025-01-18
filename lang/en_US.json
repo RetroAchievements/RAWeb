@@ -631,5 +631,11 @@
     "See your full recommendation feed": "See your full recommendation feed",
     "Beaten by same players": "Beaten by same players",
     "Mastered by same players": "Mastered by same players",
-    "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>": "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>"
+    "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>": "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>",
+    "news-category.achievement-set": "Featured Set",
+    "news-category.community": "Community",
+    "news-category.events": "Events",
+    "news-category.guide": "Guide",
+    "news-category.media": "Media",
+    "news-category.technical": "Technical"
 }
