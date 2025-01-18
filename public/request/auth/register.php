@@ -1,20 +1,13 @@
 <?php
 
 use App\Models\User;
-use App\Support\Rules\CtypeAlnum;
+use App\Support\Rules\ValidNewUsername;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'username' => [
-        'required',
-        'unique:mysql.UserAccounts,User',
-        'unique:mysql.UserAccounts,display_name',
-        'min:4',
-        'max:20',
-        new CtypeAlnum(),
-    ],
+    'username' => ValidNewUsername::get(),
     'password' => 'required|min:8|different:username',
     'email' => 'required|email:filter|confirmed',
     'terms' => 'accepted',

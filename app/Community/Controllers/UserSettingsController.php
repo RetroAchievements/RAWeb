@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
+use App\Community\Data\StoreUsernameChangeData;
 use App\Community\Data\UpdateEmailData;
 use App\Community\Data\UpdateLocaleData;
 use App\Community\Data\UpdatePasswordData;
@@ -13,6 +14,7 @@ use App\Community\Data\UserSettingsPagePropsData;
 use App\Community\Enums\ArticleType;
 use App\Community\Requests\ResetConnectApiKeyRequest;
 use App\Community\Requests\ResetWebApiKeyRequest;
+use App\Community\Requests\StoreUsernameChangeRequest;
 use App\Community\Requests\UpdateEmailRequest;
 use App\Community\Requests\UpdateLocaleRequest;
 use App\Community\Requests\UpdatePasswordRequest;
@@ -24,6 +26,7 @@ use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Http\Controller;
 use App\Models\User;
+use App\Models\UserUsername;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,14 +52,42 @@ class UserSettingsController extends Controller
         );
 
         $can = UserPermissionsData::fromUser($user)->include(
+            'createUsernameChangeRequest',
             'manipulateApiKeys',
             'updateAvatar',
             'updateMotto'
         );
 
-        $props = new UserSettingsPagePropsData($userSettings, $can);
+        $requestedUsername = UserUsername::whereUserId($user->id)
+            ->pending()
+            ->latest('created_at')
+            ->first()
+            ?->username;
+
+        $props = new UserSettingsPagePropsData(
+            $userSettings,
+            $can,
+            $requestedUsername
+        );
 
         return Inertia::render('settings', $props);
+    }
+
+    public function storeUsernameChangeRequest(StoreUsernameChangeRequest $request): JsonResponse
+    {
+        $this->authorize('create', UserUsername::class);
+
+        $data = StoreUsernameChangeData::fromRequest($request);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        UserUsername::create([
+            'user_id' => $user->id,
+            'username' => $data->newDisplayName,
+        ]);
+
+        return response()->json(['success' => true]);
     }
 
     public function updatePassword(UpdatePasswordRequest $request): JsonResponse

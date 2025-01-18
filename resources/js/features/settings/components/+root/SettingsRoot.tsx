@@ -5,6 +5,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { ChangeEmailAddressSectionCard } from '../ChangeEmailAddressSectionCard';
 import { ChangePasswordSectionCard } from '../ChangePasswordSectionCard';
+import { ChangeUsernameSectionCard } from '../ChangeUsernameSectionCard';
 import { DeleteAccountSectionCard } from '../DeleteAccountSectionCard';
 import { KeysSectionCard } from '../KeysSectionCard';
 import { LocaleSectionCard } from '../LocaleSectionCard';
@@ -47,6 +48,7 @@ export const SettingsRoot: FC = memo(() => {
         />
 
         <KeysSectionCard />
+        {!auth?.user.isMuted ? <ChangeUsernameSectionCard /> : null}
         <ChangePasswordSectionCard />
         <ChangeEmailAddressSectionCard />
         <ResetGameProgressSectionCard />

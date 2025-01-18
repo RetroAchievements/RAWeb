@@ -457,3 +457,22 @@ function sendSetRevisionEmail(
 
     return mail_utf8($email, $emailTitle, $msg);
 }
+
+/**
+ * Sends an email to a user informing them that their display name was successfully changed.
+ */
+function sendDisplayNameChangeConfirmationEmail(
+    User $user,
+    string $newDisplayName,
+): bool {
+    $emailTitle = "Username Change Approved";
+    $profileLink = "<a href='" . route('user.show', ['user' => $newDisplayName]) . "'>here</a>";
+
+    $msg = "Hello,<br><br>" .
+        "Great news! Your username change request to {$newDisplayName} has been approved.<br><br>" .
+        "You can now use your new username to log in everywhere on RetroAchievements.org.<br><br>" .
+        "Check out your updated profile {$profileLink}.<br><br>" .
+        "-- Your friends at RetroAchievements.org<br>";
+
+    return mail_utf8($user->EmailAddress, $emailTitle, $msg);
+}

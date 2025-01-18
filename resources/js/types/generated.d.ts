@@ -130,6 +130,7 @@ declare namespace App.Community.Data {
   export type UserSettingsPageProps = {
     userSettings: App.Data.User;
     can: App.Data.UserPermissions;
+    requestedUsername: string | null;
   };
 }
 declare namespace App.Community.Enums {
@@ -274,6 +275,7 @@ declare namespace App.Data {
   };
   export type UserPermissions = {
     createTriggerTicket?: boolean;
+    createUsernameChangeRequest?: boolean;
     develop?: boolean;
     manageGameHashes?: boolean;
     manageGameSets?: boolean;
@@ -631,18 +633,9 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
-  export type UnlockMode = 0 | 1;
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
   export type AchievementFlag = 3 | 5;
   export type AchievementSetAuthorTask = 'artwork';
-  export type AchievementSetType =
-    | 'core'
-    | 'bonus'
-    | 'specialty'
-    | 'exclusive'
-    | 'will_be_bonus'
-    | 'will_be_specialty'
-    | 'will_be_exclusive';
   export type GameListProgressFilterValue =
     | 'unstarted'
     | 'unfinished'
@@ -655,6 +648,15 @@ declare namespace App.Platform.Enums {
     | 'eq_mastered'
     | 'revised'
     | 'neq_mastered';
+  export type UnlockMode = 0 | 1;
+  export type AchievementSetType =
+    | 'core'
+    | 'bonus'
+    | 'specialty'
+    | 'exclusive'
+    | 'will_be_bonus'
+    | 'will_be_specialty'
+    | 'will_be_exclusive';
   export type GameListSortField =
     | 'title'
     | 'system'
@@ -680,6 +682,7 @@ declare namespace App.Platform.Enums {
   export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
   export type TicketableType = 'achievement' | 'leaderboard' | 'rich-presence';
+  export type TriggerableType = 'achievement' | 'leaderboard' | 'game';
 }
 declare namespace App.Platform.Services.GameSuggestions.Enums {
   export type SourceGameKind = 'beaten' | 'mastered' | 'want-to-play';

@@ -631,5 +631,22 @@
     "See your full recommendation feed": "See your full recommendation feed",
     "Beaten by same players": "Beaten by same players",
     "Mastered by same players": "Mastered by same players",
-    "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>": "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>"
+    "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>": "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>",
+    "New usernames must match.": "New usernames must match.",
+    "You can only request a new username once every 30 days, even if your new username is not approved. Are you sure you want to do this?": "You can only request a new username once every 30 days, even if your new username is not approved. Are you sure you want to do this?",
+    "Submitting username change request...": "Submitting username change request...",
+    "Submitted username change request!": "Submitted username change request!",
+    "Must contain only ASCII characters.": "Must contain only ASCII characters.",
+    "Change Username": "Change Username",
+    "Current Username": "Current Username",
+    "New Username": "New Username",
+    "enter your new username here...": "enter your new username here...",
+    "Confirm New Username": "Confirm New Username",
+    "confirm your new username here...": "confirm your new username here...",
+    "This username is already taken.": "This username is already taken.",
+    "You have an active username change request.": "You have an active username change request.",
+    "Your request will either be approved or it will automatically expire 30 days from when you requested it.": "Your request will either be approved or it will automatically expire 30 days from when you requested it.",
+    "Requested Username": "Requested Username",
+    "You must wait to change your username.": "You must wait to change your username.",
+    "Each account is limited to one username change every 30 days.": "Each account is limited to one username change every 30 days."
 }

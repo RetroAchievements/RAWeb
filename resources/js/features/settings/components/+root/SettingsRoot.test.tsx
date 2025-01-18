@@ -48,4 +48,32 @@ describe('Component: SettingsRoot', () => {
       websitePrefs: 8399,
     });
   });
+
+  it('given the user is muted, does not show the change username section', async () => {
+    // ARRANGE
+    render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ websitePrefs: 139687, isMuted: true }) },
+        userSettings: createUser(),
+        can: { updateMotto: true },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/change username/i)).not.toBeInTheDocument();
+  });
+
+  it('given the user is not muted, shows the change username section', () => {
+    // ARRANGE
+    render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ websitePrefs: 139687, isMuted: false }) },
+        userSettings: createUser(),
+        can: { updateMotto: true },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/change username/i)).toBeVisible();
+  });
 });
