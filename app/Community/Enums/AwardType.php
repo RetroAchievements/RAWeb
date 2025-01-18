@@ -27,6 +27,8 @@ abstract class AwardType
     // TODO refactor to AchievementSetBeaten
     public const GameBeaten = 8;
 
+    public const Event = 9;
+
     public static function cases(): array
     {
         return [
