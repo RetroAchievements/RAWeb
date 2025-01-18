@@ -47,7 +47,9 @@ export const EditPostForm: FC<EditPostFormProps> = ({ onPreview }) => {
                 <BaseFormControl>
                   <BaseAutosizeTextarea
                     className="p-3"
-                    placeholder="Don't ask for links to copyrighted ROMs. Don't share links to copyrighted ROMs."
+                    placeholder={t(
+                      "Don't ask for links to copyrighted ROMs. Don't share links to copyrighted ROMs.",
+                    )}
                     maxLength={60_000}
                     minHeight={308}
                     {...field}
