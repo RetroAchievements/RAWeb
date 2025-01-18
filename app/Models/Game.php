@@ -9,6 +9,7 @@ use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Enums\ArticleType;
 use App\Platform\Actions\SyncGameTagsFromTitleAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
+use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameSetType;
@@ -23,6 +24,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -37,7 +40,11 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Tags\HasTags;
 
 // TODO implements HasComments
-class Game extends BaseModel implements HasMedia
+
+/**
+ * @implements HasVersionedTrigger<Game>
+ */
+class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 {
     /*
      * Community Traits
@@ -92,6 +99,7 @@ class Game extends BaseModel implements HasMedia
         'Genre',
         'released_at',
         'released_at_granularity',
+        'trigger_id',
         'GuideURL',
         'ImageIcon',
         'ImageTitle',
@@ -634,7 +642,43 @@ class Game extends BaseModel implements HasMedia
     public function gameSets(): BelongsToMany
     {
         return $this->belongsToMany(GameSet::class, 'game_set_games', 'game_id', 'game_set_id')
-            ->withPivot('created_at', 'updated_at', 'deleted_at');
+            ->withPivot(['created_at', 'updated_at', 'deleted_at'])
+            ->withTimestamps('created_at', 'updated_at');
+    }
+
+    /**
+     * @return BelongsToMany<GameSet>
+     */
+    public function hubs(): BelongsToMany
+    {
+        return $this->gameSets()->whereType(GameSetType::Hub);
+    }
+
+    /**
+     * @return BelongsToMany<GameSet>
+     */
+    public function similarGames(): BelongsToMany
+    {
+        return $this->gameSets()->whereType(GameSetType::SimilarGames);
+    }
+
+    /**
+     * @return BelongsToMany<Game>
+     */
+    public function similarGamesList(): BelongsToMany
+    {
+        // This should always be truthy.
+        $gameSet = GameSet::query()
+            ->whereGameId($this->id)
+            ->whereType(GameSetType::SimilarGames)
+            ->first();
+
+        // Return an empty relationship if no game set exists.
+        if (!$gameSet) {
+            return $this->belongsToMany(Game::class, 'game_set_games')->whereRaw('1 = 0');
+        }
+
+        return $gameSet->games()->with('system')->withTimestamps(['created_at', 'updated_at']);
     }
 
     /**
@@ -683,6 +727,26 @@ class Game extends BaseModel implements HasMedia
     public function unresolvedTickets(): HasManyThrough
     {
         return $this->tickets()->unresolved();
+    }
+
+    /**
+     * @return BelongsTo<Trigger, Game>
+     */
+    public function currentTrigger(): BelongsTo
+    {
+        return $this->belongsTo(Trigger::class, 'trigger_id', 'ID');
+    }
+
+    public function trigger(): MorphOne
+    {
+        return $this->morphOne(Trigger::class, 'triggerable')
+            ->latest('version');
+    }
+
+    public function triggers(): MorphMany
+    {
+        return $this->morphMany(Trigger::class, 'triggerable')
+            ->orderBy('version');
     }
 
     /**

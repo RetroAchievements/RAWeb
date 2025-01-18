@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
 use App\Community\Enums\ArticleType;
+use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
@@ -24,6 +25,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -37,7 +40,10 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 // TODO implements HasComments
 
-class Achievement extends BaseModel
+/**
+ * @implements HasVersionedTrigger<Achievement>
+ */
+class Achievement extends BaseModel implements HasVersionedTrigger
 {
     /*
      * Community Traits
@@ -94,6 +100,7 @@ class Achievement extends BaseModel
         'type',
         'MemAddr',
         'user_id',
+        'trigger_id',
     ];
 
     // TODO cast Flags to AchievementFlag if it isn't dropped from the table
@@ -362,6 +369,7 @@ class Achievement extends BaseModel
     }
 
     /**
+     * @deprecated use comments()
      * @return HasMany<Comment>
      *
      * TODO use ->comments() after commentable_type and commentable_id are synced in Comments table
@@ -426,6 +434,26 @@ class Achievement extends BaseModel
         $currentUser = $user ?? Auth::user();
 
         return $this->comments()->visibleTo($currentUser);
+    }
+
+    /**
+     * @return BelongsTo<Trigger, Achievement>
+     */
+    public function currentTrigger(): BelongsTo
+    {
+        return $this->belongsTo(Trigger::class, 'trigger_id', 'ID');
+    }
+
+    public function trigger(): MorphOne
+    {
+        return $this->morphOne(Trigger::class, 'triggerable')
+            ->latest('version');
+    }
+
+    public function triggers(): MorphMany
+    {
+        return $this->morphMany(Trigger::class, 'triggerable')
+            ->orderBy('version');
     }
 
     // == scopes

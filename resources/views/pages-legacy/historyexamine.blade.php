@@ -10,10 +10,12 @@ if (empty($userPage)) {
     abort(404);
 }
 
-$userDetails = User::firstWhere('User', $userPage);
+$userDetails = User::whereName($userPage)->first();
 if (!$userDetails) {
     abort(404);
 }
+
+$userPage = $userDetails->display_name;
 
 $dateInput = (int) request()->input('d', 0);
 

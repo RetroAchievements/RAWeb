@@ -5,6 +5,7 @@ use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\User;
 use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
+use App\Platform\Actions\UpsertTriggerVersionAction;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
@@ -184,7 +185,7 @@ function GetAchievementData(int $achievementId): ?array
         'TrueRatio' => $achievement->points_weighted,
         'Flags' => $achievement->Flags,
         'type' => $achievement->type,
-        'Author' => $achievement->developer?->User,
+        'Author' => $achievement->developer?->display_name,
         'DateCreated' => $achievement->DateCreated->format('Y-m-d H:i:s'),
         'DateModified' => $achievement->DateModified->format('Y-m-d H:i:s'),
         'BadgeName' => $achievement->badge_name,
@@ -216,7 +217,7 @@ function UploadNewAchievement(
     $consoleName = $gameData['ConsoleName'];
     $isEventGame = $consoleName == 'Events';
 
-    $author = User::firstWhere('User', $authorUsername);
+    $author = User::whereName($authorUsername)->first();
     $authorPermissions = (int) $author?->getAttribute('Permissions');
 
     // Prevent <= registered users from uploading or modifying achievements
@@ -299,6 +300,14 @@ function UploadNewAchievement(
         $achievement->save();
         $idInOut = $achievement->ID;
 
+        // It's a new achievement, so create the initial trigger version.
+        (new UpsertTriggerVersionAction())->execute(
+            $achievement,
+            $mem,
+            versioned: $flag === AchievementFlag::OfficialCore->value,
+            user: $author
+        );
+
         $achievement->ensureAuthorshipCredit($author, AchievementAuthorTask::Logic);
 
         static_addnewachievement($idInOut);
@@ -306,8 +315,8 @@ function UploadNewAchievement(
             "Server",
             ArticleType::Achievement,
             $idInOut,
-            "$authorUsername uploaded this achievement.",
-            $authorUsername
+            "{$author->display_name} uploaded this achievement.",
+            $author->display_name
         );
 
         return true;
@@ -390,6 +399,21 @@ function UploadNewAchievement(
 
             if ($changingLogic) {
                 $achievement->ensureAuthorshipCredit($author, AchievementAuthorTask::Logic);
+
+                (new UpsertTriggerVersionAction())->execute(
+                    $achievement,
+                    $achievement->MemAddr,
+                    versioned: $achievement->Flags === AchievementFlag::OfficialCore->value,
+                    user: $author
+                );
+            } elseif ($changingAchSet && $achievement->trigger && $achievement->Flags === AchievementFlag::OfficialCore->value) {
+                // If only flags changed, re-version the existing trigger (if it exists).
+                (new UpsertTriggerVersionAction())->execute(
+                    $achievement,
+                    $achievement->trigger->conditions,
+                    versioned: true,
+                    user: $author
+                );
             }
 
             if ($changingAchSet) {
@@ -398,16 +422,16 @@ function UploadNewAchievement(
                         "Server",
                         ArticleType::Achievement,
                         $idInOut,
-                        "$authorUsername promoted this achievement to the Core set.",
-                        $authorUsername
+                        "{$author->display_name} promoted this achievement to the Core set.",
+                        $author->display_name
                     );
                 } elseif ($flag === AchievementFlag::Unofficial->value) {
                     addArticleComment(
                         "Server",
                         ArticleType::Achievement,
                         $idInOut,
-                        "$authorUsername demoted this achievement to Unofficial.",
-                        $authorUsername
+                        "{$author->display_name} demoted this achievement to Unofficial.",
+                        $author->display_name
                     );
                 }
                 expireGameTopAchievers($gameID);
@@ -419,8 +443,8 @@ function UploadNewAchievement(
                         "Server",
                         ArticleType::Achievement,
                         $idInOut,
-                        "$authorUsername edited this achievement's $editString.",
-                        $authorUsername
+                        "{$author->display_name} edited this achievement's $editString.",
+                        $author->display_name
                     );
                 }
             }

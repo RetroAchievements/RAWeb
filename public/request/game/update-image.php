@@ -35,7 +35,7 @@ if ($input['type'] === ImageType::GameIcon) {
 $gameID = (int) $input['game'];
 $imageType = $input['type'];
 
-$userModel = User::firstWhere('User', $user);
+$userModel = User::whereName($user)->first();
 
 // Only allow jr. devs if they are the sole author of the set or have the primary claim
 if (
@@ -95,6 +95,6 @@ $label = match ($imageType) {
     default => '?', // should never hit this because of the match above
 };
 
-addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the $label");
+addArticleComment('Server', ArticleType::GameModification, $gameID, "{$userModel->display_name} changed the $label");
 
 return back()->with('success', __('legacy.success.image_upload'));

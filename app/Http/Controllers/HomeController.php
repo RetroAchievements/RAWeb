@@ -41,7 +41,7 @@ class HomeController extends Controller
         $staticData = StaticData::first();
         $staticDataData = StaticDataData::fromStaticData($staticData);
 
-        $achievementOfTheWeek = $buildAchievementOfTheWeekData->execute($staticData);
+        $achievementOfTheWeek = $buildAchievementOfTheWeekData->execute();
         $mostRecentGameMastered = $buildMostRecentGameAwardData->execute($staticData, AwardType::Mastery);
         $mostRecentGameBeaten = $buildMostRecentGameAwardData->execute($staticData, AwardType::GameBeaten);
         $recentNews = $buildNewsData->execute();

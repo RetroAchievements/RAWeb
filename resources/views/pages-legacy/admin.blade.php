@@ -15,7 +15,7 @@ $message = null;
 if ($action === 'alt_identifier') {
     $altsForUser = request()->input('u');
 
-    $forUser = User::where('User', $altsForUser)->first();
+    $forUser = User::whereName($altsForUser)->first();
     if ($forUser == null) {
         $message = "Unknown user: $altsForUser";
     } else {
@@ -151,70 +151,6 @@ $staticData = StaticData::first();
             </table>
             <button class="btn">Submit</button>
         </form>
-    </section>
-
-    <section class="mb-4">
-        <?php
-        $eventAotwAchievementID = $staticData['Event_AOTW_AchievementID'] ?? null;
-        $eventAotwStartAt = $staticData['Event_AOTW_StartAt'] ?? null;
-        $eventAotwForumTopicID = $staticData['Event_AOTW_ForumID'] ?? null;
-        ?>
-        <h4>Achievement of the Week</h4>
-        <form method="post" action="request/admin.php">
-            @csrf()
-            <input type="hidden" name="action" value="aotw">
-            <table class="mb-1">
-                <colgroup>
-                    <col>
-                    <col>
-                    <col class="w-full">
-                </colgroup>
-                <tbody>
-                <tr>
-                    <td class="whitespace-nowrap">
-                        <label for="event_aotw_achievement_id">Achievement ID</label>
-                    </td>
-                    <td>
-                        <input id="event_aotw_achievement_id" name="a" value="<?= $eventAotwAchievementID ?>">
-                    </td>
-                    <td>
-                        <a href="/achievement/<?= $eventAotwAchievementID ?>">Link</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="whitespace-nowrap">
-                        <label for="event_aotw_start_at">Start At (UTC time)</label>
-                    </td>
-                    <td>
-                        <input id="event_aotw_start_at" name="s" value="<?= $eventAotwStartAt ?>">
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="whitespace-nowrap">
-                        <label for="event_aotw_forum_topic_id">Forum Topic ID</label>
-                    </td>
-                    <td>
-                        <input id="event_aotw_forum_topic_id" name="f" value="<?= $eventAotwForumTopicID ?>">
-                    </td>
-                    <td>
-                        <a href="/viewtopic.php?t=<?= $eventAotwForumTopicID ?>">Link</a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <button class="btn">Submit</button>
-        </form>
-
-        <div id="aotw_entries"></div>
-
-        <script>
-            jQuery('#event_aotw_start_at').datetimepicker({
-                format: 'Y-m-d H:i:s',
-                mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
-            });
-        </script>
     </section>
 
     <section class="mb-4">

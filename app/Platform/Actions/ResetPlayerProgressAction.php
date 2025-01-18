@@ -26,7 +26,7 @@ class ResetPlayerProgressAction
 
         $affectedAchievements = legacyDbFetchAll("
             SELECT
-                ua.User AS Author,
+                COALESCE(ua.display_name, ua.User) AS Author,
                 ach.GameID,
                 CASE WHEN pa.unlocked_hardcore_at THEN 1 ELSE 0 END AS HardcoreMode,
                 COUNT(ach.ID) AS Count, SUM(ach.Points) AS Points,
@@ -92,7 +92,12 @@ class ResetPlayerProgressAction
             $user->save();
         }
 
-        $authors = User::whereIn('User', $authorUsernames->unique())->get('ID');
+        $authors = User::query()
+            ->where(function ($query) use ($authorUsernames) {
+                $query->whereIn('User', $authorUsernames->unique())
+                    ->orWhereIn('display_name', $authorUsernames->unique());
+            })
+            ->get('ID');
         foreach ($authors as $author) {
             dispatch(new UpdateDeveloperContributionYieldJob($author->id));
         }

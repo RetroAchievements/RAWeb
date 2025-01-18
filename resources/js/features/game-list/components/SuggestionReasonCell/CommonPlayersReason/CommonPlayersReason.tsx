@@ -6,7 +6,7 @@ import { BaseChip } from '@/common/components/+vendor/BaseChip';
 import { GameAvatar } from '@/common/components/GameAvatar';
 
 interface CommonPlayersReasonProps {
-  relatedGame: App.Platform.Data.Game;
+  relatedGame: App.Platform.Data.Game | null;
   sourceGameKind: App.Platform.Services.GameSuggestions.Enums.SourceGameKind;
 }
 
@@ -25,13 +25,21 @@ export const CommonPlayersReason: FC<CommonPlayersReasonProps> = ({
     >
       <IconComponent className="size-[18px] lg:hidden xl:block" />
 
-      <span className="inline xl:hidden">
-        {sourceGameKind === 'beaten' ? t('Similar beats') : t('Similar masteries')}
-      </span>
-      <span className="hidden xl:inline">
-        {sourceGameKind === 'beaten' ? t('Beaten by players of') : t('Mastered by players of')}
-      </span>
-      <GameAvatar {...relatedGame} showLabel={false} size={24} wrapperClassName="inline-block" />
+      {relatedGame ? (
+        <>
+          {sourceGameKind === 'beaten' ? t('Beaten by players of') : t('Mastered by players of')}
+          <GameAvatar
+            {...relatedGame}
+            showLabel={false}
+            size={24}
+            wrapperClassName="inline-block"
+          />
+        </>
+      ) : sourceGameKind === 'beaten' ? (
+        t('Beaten by same players')
+      ) : (
+        t('Mastered by same players')
+      )}
     </BaseChip>
   );
 };

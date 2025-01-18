@@ -36,4 +36,16 @@ describe('Component: SharedHubReason', () => {
     expect(screen.getByRole('img', { name: /sonic the hedgehog/i })).toBeVisible();
     expect(screen.getByRole('link', { name: /sonic the hedgehog/i })).toBeVisible();
   });
+
+  it('given the related game is null, shows the correct label', () => {
+    // ARRANGE
+    const game = null;
+    const hub = createGameSet({ title: 'Platformers' });
+
+    render(<SharedHubReason relatedGame={game} relatedGameSet={hub} />);
+
+    // ASSERT
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    expect(screen.getByText(/in same/i)).toBeVisible();
+  });
 });

@@ -35,4 +35,19 @@ describe('Component: SharedAuthorReason', () => {
     // ASSERT
     expect(screen.getByRole('link', { name: /dragster/i })).toBeVisible();
   });
+
+  it('given there is no related game, shows the correct label', () => {
+    // ARRANGE
+    const relatedAuthor = createUser({ displayName: 'Scott' });
+    const relatedGame = null;
+
+    render(<SharedAuthorReason relatedAuthor={relatedAuthor} relatedGame={relatedGame} />);
+
+    // ASSERT
+    expect(screen.getByText(/by/i)).toBeVisible();
+    expect(screen.getByText(/same developer/i)).toBeVisible();
+    expect(screen.queryByText(/as/i)).not.toBeInTheDocument();
+
+    expect(screen.getByRole('link', { name: /same developer/i })).toBeVisible();
+  });
 });
