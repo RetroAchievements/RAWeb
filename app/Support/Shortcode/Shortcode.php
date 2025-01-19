@@ -318,7 +318,23 @@ final class Shortcode
 
     private function renderQuote(ShortcodeInterface $shortcode): string
     {
-        return '<p class="quotedtext">' . $shortcode->getContent() . '</p>';
+        $content = $shortcode->getContent() ?? '';
+
+        // $content will contain a leading and trailing <br> if the [quote] tag is on a separate line.
+        //
+        //   [quote]
+        //   This is a quote.
+        //   [/quote]
+        //
+        // We don't want that extra whitespace in the output, so strip them. Leave any intermediary <br>s.
+        if (str_starts_with($content, '<br>')) {
+            $content = substr($content, 4);
+        }
+        if (str_ends_with($content, '<br>')) {
+            $content = substr($content, 0, -4);
+        }
+
+        return '<span class="quotedtext">' . $content . '</span>';
     }
 
     private function renderSpoiler(ShortcodeInterface $shortcode): string

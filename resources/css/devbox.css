@@ -24,13 +24,15 @@
   box-sizing: border-box;
 }
 
-.quotedtext {
-  border-left: 3px solid var(--text-color-muted);
-  padding: 4px 6px 5px 8px;
-  margin: 3px 0px;
-  background: var(--box-bg-color);
-  width: 100%;
-  display: inline-block;
+@layer components {
+  .quotedtext {
+    border-left: 3px solid var(--text-color-muted);
+    padding: 4px 6px 5px 8px;
+    margin: 3px 0px;
+    background: var(--box-bg-color);
+    width: 100%;
+    display: inline-block;
+  }
 }
 
 .devbox > .spoiler {
