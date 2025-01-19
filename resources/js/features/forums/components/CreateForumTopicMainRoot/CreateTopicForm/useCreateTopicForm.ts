@@ -6,19 +6,26 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { preProcessShortcodesInBody } from '@/features/forums/utils/preProcessShortcodesInBody';
 
 const formSchema = z.object({
+  title: z.string().min(2).max(255),
   body: z.string().min(1).max(60_000),
 });
 type FormValues = z.infer<typeof formSchema>;
 
-export function useEditPostForm(comment: App.Data.ForumTopicComment, initialValues: FormValues) {
+export function useCreateTopicForm() {
+  const { forum } = usePageProps<App.Data.CreateForumTopicPageProps>();
+
   const { t } = useTranslation();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialValues,
+    defaultValues: {
+      title: '',
+      body: '',
+    },
   });
 
   const mutation = useMutation({
@@ -28,8 +35,8 @@ export function useEditPostForm(comment: App.Data.ForumTopicComment, initialValu
         body: preProcessShortcodesInBody(payload.body),
       };
 
-      return axios.patch(
-        route('api.forum-topic-comment.update', { comment: comment.id }),
+      return axios.post<{ success: boolean; newTopicId: number }>(
+        route('api.forum-topic.store', { category: forum.category!.id, forum: forum.id }),
         normalizedPayload,
       );
     },
@@ -37,13 +44,11 @@ export function useEditPostForm(comment: App.Data.ForumTopicComment, initialValu
 
   const onSubmit = (formValues: FormValues) => {
     toastMessage.promise(mutation.mutateAsync(formValues), {
-      loading: t('Updating...'),
-      success: () => {
-        window.location.assign(
-          `/viewtopic.php?t=${comment.forumTopic!.id}&c=${comment.id}#${comment.id}`,
-        );
+      loading: t('Submitting...'),
+      success: ({ data }) => {
+        window.location.assign(`/viewtopic.php?t=${data.newTopicId}`);
 
-        return t('Updated.');
+        return t('Submitted!');
       },
       error: t('Something went wrong.'),
     });

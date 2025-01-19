@@ -11,24 +11,20 @@ import {
   BaseFormMessage,
   BaseFormProvider,
 } from '@/common/components/+vendor/BaseForm';
-import { usePageProps } from '@/common/hooks/usePageProps';
+import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { getStringByteCount } from '@/common/utils/getStringByteCount';
 
 import { ShortcodePanel } from '../../ShortcodePanel';
-import { useEditPostForm } from './useEditPostForm';
+import { useCreateTopicForm } from './useCreateTopicForm';
 
-interface EditPostFormProps {
+interface CreateTopicFormProps {
   onPreview: (content: string) => void;
 }
 
-export const EditPostForm: FC<EditPostFormProps> = ({ onPreview }) => {
-  const { forumTopicComment } = usePageProps<App.Data.EditForumTopicCommentPageProps>();
-
+export const CreateTopicForm: FC<CreateTopicFormProps> = ({ onPreview }) => {
   const { t } = useTranslation();
 
-  const { form, mutation, onSubmit } = useEditPostForm(forumTopicComment, {
-    body: forumTopicComment.body,
-  });
+  const { form, mutation, onSubmit } = useCreateTopicForm();
 
   const [body] = form.watch(['body']);
 
@@ -36,8 +32,26 @@ export const EditPostForm: FC<EditPostFormProps> = ({ onPreview }) => {
     <BaseFormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3">
-          <ShortcodePanel />
+          <BaseFormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <BaseFormItem className="flex flex-col gap-1">
+                <BaseFormLabel>{t('Title')}</BaseFormLabel>
+                <BaseFormControl>
+                  <BaseInput
+                    {...field}
+                    required
+                    placeholder={t("enter your new topic's title...")}
+                  />
+                </BaseFormControl>
 
+                <BaseFormMessage />
+              </BaseFormItem>
+            )}
+          />
+
+          <ShortcodePanel />
           <BaseFormField
             control={form.control}
             name="body"
@@ -55,8 +69,6 @@ export const EditPostForm: FC<EditPostFormProps> = ({ onPreview }) => {
                     {...field}
                   />
                 </BaseFormControl>
-
-                <BaseFormMessage />
               </BaseFormItem>
             )}
           />

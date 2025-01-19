@@ -134,7 +134,7 @@ declare namespace App.Community.Data {
 }
 declare namespace App.Community.Enums {
   export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-  export type AwardType = 1 | 2 | 3 | 6 | 7 | 8;
+  export type AwardType = 1 | 2 | 3 | 6 | 7 | 8 | 9;
   export type ClaimSetType = 0 | 1;
   export type ClaimStatus = 0 | 1 | 2 | 3;
   export type ClaimType = 0 | 1;
@@ -159,6 +159,9 @@ declare namespace App.Data {
     status: number;
     created: string;
     finished: string;
+  };
+  export type CreateForumTopicPageProps = {
+    forum: App.Data.Forum;
   };
   export type CurrentlyOnline = {
     logEntries: Array<number>;
