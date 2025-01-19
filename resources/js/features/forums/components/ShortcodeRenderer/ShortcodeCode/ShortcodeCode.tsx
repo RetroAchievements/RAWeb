@@ -6,7 +6,7 @@ interface ShortcodeCodeProps {
 
 export const ShortcodeCode: FC<ShortcodeCodeProps> = ({ children }) => {
   // Remove leading <br>s and empty strings until we find content.
-  var isLeadingWhitespace = true;
+  let isLeadingWhitespace = true;
   const processedChildren = (Array.isArray(children) ? children : [children]).filter((node) => {
     const isObjectNode = typeof node === 'object' && node !== null;
     const isEmptyObject = isObjectNode && !Object.keys(node as object).length;
