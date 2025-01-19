@@ -38,20 +38,25 @@ class UserUsernamePolicy
         }
 
         $lastChanges = UserUsername::whereUserId($user->id)
-            ->selectRaw('MAX(created_at) as last_request, MAX(approved_at) as last_approval')
+            ->selectRaw(<<<SQL
+                MAX(created_at) as last_request, 
+                MAX(approved_at) as last_approval
+            SQL)
             ->first();
 
-        // Users can only request a new username every 30 days.
-        if ($lastChanges?->last_request && Carbon::parse($lastChanges->last_request)->isAfter(now()->subDays(30))) {
-            return false;
+        // If no previous requests exist, allow creation.
+        if (!$lastChanges || (!$lastChanges->last_request && !$lastChanges->last_approval)) {
+            return true;
         }
 
-        // Users must wait 30 days after their last approved username change.
-        if ($lastChanges?->last_approval && Carbon::parse($lastChanges->last_approval)->isAfter(now()->subDays(30))) {
-            return false;
-        }
+        // Get the most recent action date - between request and approval.
+        $lastActionDate = max(
+            $lastChanges->last_request ? Carbon::parse($lastChanges->last_request) : Carbon::create(0),
+            $lastChanges->last_approval ? Carbon::parse($lastChanges->last_approval) : Carbon::create(0)
+        );
 
-        return true;
+        // Users get a 30-day cooldown after requests & after approval.
+        return !$lastActionDate->isAfter(now()->subDays(30));
     }
 
     public function update(User $user): bool
@@ -65,7 +70,7 @@ class UserUsernamePolicy
         return false;
     }
 
-    public function resotre(User $user): bool
+    public function restore(User $user): bool
     {
         return false;
     }

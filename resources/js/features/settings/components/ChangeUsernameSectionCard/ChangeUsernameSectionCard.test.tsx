@@ -32,7 +32,7 @@ describe('Component: ChangeUsernameSectionCard', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/you have an active username change request/i)).toBeVisible();
+    expect(screen.getByText(/your username change request is being reviewed/i)).toBeVisible();
     expect(screen.getByText(/new-username/i)).toBeVisible();
   });
 
@@ -46,9 +46,11 @@ describe('Component: ChangeUsernameSectionCard', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/you must wait to change your username/i)).toBeVisible();
+    expect(screen.getByText(/your username cannot be changed right now/i)).toBeVisible();
     expect(
-      screen.getByText(/each account is limited to one username change every 30 days/i),
+      screen.getByText(
+        /you can request another change after your previous request's 30-day cooldown period has ended/i,
+      ),
     ).toBeVisible();
   });
 

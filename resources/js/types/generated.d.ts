@@ -267,6 +267,7 @@ declare namespace App.Data {
     deletedAt?: string | null;
     emailAddress?: string | null;
     id?: number;
+    isEmailVerified?: boolean;
     isMuted?: boolean;
     isNew?: boolean;
     legacyPermissions?: number | null;

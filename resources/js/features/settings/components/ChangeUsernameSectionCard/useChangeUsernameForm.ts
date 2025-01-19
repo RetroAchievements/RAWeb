@@ -8,11 +8,14 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import type { LaravelValidationError } from '@/common/models';
 
 import { requestedUsernameAtom } from '../../state/settings.atoms';
 
 export function useChangeUsernameForm() {
+  const { auth } = usePageProps();
+
   const { t } = useTranslation();
 
   const [requestedUsername, setRequestedUsername] = useAtom(requestedUsernameAtom);
@@ -35,8 +38,12 @@ export function useChangeUsernameForm() {
         .refine((data) => data.newUsername === data.confirmUsername, {
           message: t('New usernames must match.'),
           path: ['confirmUsername'],
+        })
+        .refine((data) => data.newUsername !== auth!.user.displayName, {
+          message: t('New username must be different from current username.'),
+          path: ['newUsername'],
         }),
-    [t],
+    [auth, t],
   );
 
   type FormValues = z.infer<typeof usernameChangeFormSchema>;

@@ -49,11 +49,17 @@ describe('Component: SettingsRoot', () => {
     });
   });
 
-  it('given the user is muted, does not show the change username section', async () => {
+  it('given the user is muted and is email verified, does not show the change username section', async () => {
     // ARRANGE
     render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser({ websitePrefs: 139687, isMuted: true }) },
+        auth: {
+          user: createAuthenticatedUser({
+            websitePrefs: 139687,
+            isMuted: true,
+            isEmailVerified: true,
+          }),
+        },
         userSettings: createUser(),
         can: { updateMotto: true },
       },
@@ -63,11 +69,17 @@ describe('Component: SettingsRoot', () => {
     expect(screen.queryByText(/change username/i)).not.toBeInTheDocument();
   });
 
-  it('given the user is not muted, shows the change username section', () => {
+  it('given the user is not muted and is email verified, shows the change username section', () => {
     // ARRANGE
     render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser({ websitePrefs: 139687, isMuted: false }) },
+        auth: {
+          user: createAuthenticatedUser({
+            websitePrefs: 139687,
+            isMuted: false,
+            isEmailVerified: true,
+          }),
+        },
         userSettings: createUser(),
         can: { updateMotto: true },
       },
@@ -75,5 +87,25 @@ describe('Component: SettingsRoot', () => {
 
     // ASSERT
     expect(screen.getByText(/change username/i)).toBeVisible();
+  });
+
+  it('given the user is not muted and is not email verified, does not show the change username change', () => {
+    // ARRANGE
+    render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({
+            websitePrefs: 139687,
+            isMuted: false,
+            isEmailVerified: false,
+          }),
+        },
+        userSettings: createUser(),
+        can: { updateMotto: true },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/change username/i)).not.toBeInTheDocument();
   });
 });

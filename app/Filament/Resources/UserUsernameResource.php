@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Community\Actions\ApproveNewDisplayNameAction;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\UserUsernameResource\Pages;
 use App\Models\User;
@@ -51,6 +52,14 @@ class UserUsernameResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('user.username')
+                    ->label('Original Username')
+                    ->url(fn (UserUsername $record) => UserResource::getUrl('view', ['record' => $record->user->display_name]))
+                    ->extraAttributes(['class' => 'underline'])
+                    ->openUrlInNewTab()
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('user.display_name')
                     ->label('Current Username')
                     ->url(fn (UserUsername $record) => UserResource::getUrl('view', ['record' => $record->user->display_name]))
@@ -68,30 +77,55 @@ class UserUsernameResource extends Resource
                     ->label('Requested At')
                     ->dateTime()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Status')
+                    ->state(fn (UserUsername $record): string => match (true) {
+                        $record->is_approved => 'Approved',
+                        $record->is_denied => 'Denied',
+                        default => 'Pending',
+                    })
+                    ->icon(fn (UserUsername $record): string => match (true) {
+                        $record->is_approved => 'heroicon-o-check-circle',
+                        $record->is_denied => 'heroicon-o-x-circle',
+                        default => 'heroicon-o-clock',
+                    })
+                    ->color(fn (UserUsername $record): string => match (true) {
+                        $record->is_approved => 'success',
+                        $record->is_denied => 'danger',
+                        default => 'warning',
+                    }),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_approved')
-                    ->queries(
-                        true: fn ($query) => $query->whereNotNull('approved_at'),
-                        false: fn ($query) => $query->whereNull('approved_at'),
-                    )
-                    ->default(false),
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'pending' => 'Pending',
+                        'approved' => 'Approved',
+                        'denied' => 'Denied',
+                    ])
+                    ->query(function ($query, $state) {
+                        if (!isset($state['value'])) {
+                            return $query;
+                        }
+
+                        return match ($state['value']) {
+                            'pending' => $query->pending(),
+                            'approved' => $query->approved(),
+                            'denied' => $query->denied(),
+                            default => $query,
+                        };
+                    })
+                    ->default('pending'),
             ])
             ->actions([
                 Tables\Actions\Action::make('approve')
                     ->action(function (UserUsername $record) {
-                        $record->update(['approved_at' => now()]);
-
                         /** @var User $user */
                         $user = $record->user;
-
                         $originalDisplayName = $user->display_name;
 
-                        $user->display_name = $record->username;
-                        $user->save();
-
-                        sendDisplayNameChangeConfirmationEmail($user, $record->username);
+                        (new ApproveNewDisplayNameAction())->execute($user, $record);
 
                         Notification::make()
                             ->success()
@@ -99,16 +133,30 @@ class UserUsernameResource extends Resource
                             ->body("Approved {$originalDisplayName}'s username change request.")
                             ->send();
                     })
-                    ->visible(fn (UserUsername $record) => !$record->is_approved)
+                    ->visible(fn (UserUsername $record) => !$record->is_approved && !$record->is_denied)
                     ->requiresConfirmation()
                     ->modalDescription("Are you sure you'd like to do this? The username change will go into effect immediately.")
                     ->color('success')
                     ->icon('heroicon-o-check'),
+
+                Tables\Actions\Action::make('deny')
+                    ->action(function (UserUsername $record) {
+                        $record->update(['denied_at' => now()]);
+
+                        Notification::make()
+                            ->success()
+                            ->title('Success')
+                            ->body("Denied {$record->user->display_name}'s username change request.")
+                            ->send();
+                    })
+                    ->visible(fn (UserUsername $record) => !$record->is_approved && !$record->is_denied)
+                    ->requiresConfirmation()
+                    ->modalDescription('Are you sure you want to deny this username change request?')
+                    ->color('danger')
+                    ->icon('heroicon-o-x-mark'),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+
             ]);
     }
 

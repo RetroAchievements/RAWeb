@@ -16,29 +16,24 @@ class UserUsername extends BaseModel
         'user_id',
         'username',
         'approved_at',
+        'denied_at',
     ];
 
     protected $casts = [
         'approved_at' => 'datetime',
+        'denied_at' => 'datetime',
     ];
-
-    protected static function booted(): void
-    {
-        // Username change requests that are more than 30 days old are naturally
-        // filtered out of all requests. These are considered "expired".
-        static::addGlobalScope('hideStaleRequests', function (Builder $builder) {
-            $builder->where(function ($query) {
-                $query->whereNotNull('approved_at')
-                    ->orWhere('created_at', '>', now()->subDays(30));
-            });
-        });
-    }
 
     // == accessors
 
     public function getIsApprovedAttribute(): bool
     {
         return $this->approved_at !== null;
+    }
+
+    public function getIsDeniedAttribute(): bool
+    {
+        return $this->denied_at !== null;
     }
 
     // == mutators
@@ -59,8 +54,29 @@ class UserUsername extends BaseModel
      * @param Builder<UserUsername> $query
      * @return Builder<UserUsername>
      */
+    public function scopeApproved(Builder $query): Builder
+    {
+        return $query->whereNotNull('approved_at');
+    }
+
+    /**
+     * @param Builder<UserUsername> $query
+     * @return Builder<UserUsername>
+     */
+    public function scopeDenied(Builder $query): Builder
+    {
+        return $query->whereNotNull('denied_at')
+            ->where('denied_at', '>', now()->subDays(30));
+    }
+
+    /**
+     * @param Builder<UserUsername> $query
+     * @return Builder<UserUsername>
+     */
     public function scopePending(Builder $query): Builder
     {
-        return $query->whereNull('approved_at');
+        return $query->whereNull('approved_at')
+            ->whereNull('denied_at')
+            ->where('created_at', '>', now()->subDays(30));
     }
 }

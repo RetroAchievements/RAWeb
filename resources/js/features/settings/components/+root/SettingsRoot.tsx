@@ -48,7 +48,7 @@ export const SettingsRoot: FC = memo(() => {
         />
 
         <KeysSectionCard />
-        {!auth?.user.isMuted ? <ChangeUsernameSectionCard /> : null}
+        {!auth?.user.isMuted && auth?.user.isEmailVerified ? <ChangeUsernameSectionCard /> : null}
         <ChangePasswordSectionCard />
         <ChangeEmailAddressSectionCard />
         <ResetGameProgressSectionCard />

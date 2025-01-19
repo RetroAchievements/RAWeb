@@ -81,6 +81,8 @@ export const ChangeUsernameSectionCard: FC = () => {
                         <BaseInput
                           placeholder={t('enter your new username here...')}
                           required
+                          minLength={4}
+                          maxLength={20}
                           {...field}
                         />
                       </BaseFormControl>
@@ -105,6 +107,8 @@ export const ChangeUsernameSectionCard: FC = () => {
                         <BaseInput
                           placeholder={t('confirm your new username here...')}
                           required
+                          minLength={4}
+                          maxLength={20}
                           {...field}
                         />
                       </BaseFormControl>
@@ -128,7 +132,7 @@ const PendingRequestAlert: FC = () => {
   return (
     <BaseAlert>
       <LuAlertCircle className="size-5" />
-      <BaseAlertTitle>{t('You have an active username change request.')}</BaseAlertTitle>
+      <BaseAlertTitle>{t('Your username change request is being reviewed.')}</BaseAlertTitle>
       <BaseAlertDescription>
         {t(
           'Your request will either be approved or it will automatically expire 30 days from when you requested it.',
@@ -144,9 +148,11 @@ const WaitAlert: FC = () => {
   return (
     <BaseAlert>
       <LuAlertCircle className="size-5" />
-      <BaseAlertTitle>{t('You must wait to change your username.')}</BaseAlertTitle>
+      <BaseAlertTitle>{t('Your username cannot be changed right now.')}</BaseAlertTitle>
       <BaseAlertDescription>
-        {t('Each account is limited to one username change every 30 days.')}
+        {t(
+          "You can request another change after your previous request's 30-day cooldown period has ended.",
+        )}
       </BaseAlertDescription>
     </BaseAlert>
   );
