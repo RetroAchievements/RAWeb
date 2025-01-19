@@ -123,6 +123,7 @@ export const AwardType = {
     PatreonSupporter: 6,
     CertifiedLegend: 7,
     GameBeaten: 8,
+    Event: 9,
 } as const;
 
 
@@ -133,6 +134,7 @@ export const StringifiedAwardType = {
     PatreonSupporter: '6',
     CertifiedLegend: '7',
     GameBeaten: '8',
+    Event: '9',
 } as const;
 
 
@@ -192,6 +194,15 @@ export const UserGameListType = {
     AchievementSetRequest: 'achievement_set_request',
     Play: 'play',
     Develop: 'develop',
+} as const;
+
+
+export const TicketState = {
+    Closed: 0,
+    Open: 1,
+    Resolved: 2,
+    Request: 3,
+    REASON_DEMOTED: 'Demoted',
 } as const;
 
 

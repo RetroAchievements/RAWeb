@@ -15,11 +15,12 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 
+import { NewsCategoryLabel } from './NewsCategoryLabel';
+
 interface NewsCardProps {
   news: App.Data.News;
 
   className?: string;
-  tagLabel?: string;
 }
 
 export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
@@ -54,14 +55,6 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
         ) : null}
 
         <NewsCardImage src={news.imageAssetPath} />
-
-        {/* {tagLabel ? (
-            <div className="absolute bottom-2 right-2">
-              <div className="flex h-[22px] select-none items-center justify-center rounded-full bg-neutral-50 px-2 font-bold text-zinc-900">
-                {tagLabel}
-              </div>
-            </div>
-          ) : null} */}
       </div>
 
       <div className="relative w-full">
@@ -96,6 +89,12 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
           <span className="ml-1 normal-case italic">
             {'·'} {t('by {{authorDisplayName}}', { authorDisplayName: news?.user.displayName })}
           </span>
+
+          {news.category ? (
+            <>
+              {' · '} <NewsCategoryLabel category={news.category} />
+            </>
+          ) : null}
         </div>
 
         <p className="mb-2 mt-2 text-balance text-base sm:mt-0 md:text-wrap">

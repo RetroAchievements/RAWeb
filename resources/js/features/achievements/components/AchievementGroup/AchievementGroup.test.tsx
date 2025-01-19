@@ -68,12 +68,14 @@ describe('Component: AchievementGroup', () => {
     render(<AchievementGroup group={group} showGame={true} />);
 
     // ASSERT
-    expect(screen.getByText(/First Achievement/)).toBeVisible();
-    expect(screen.getByText(/First Game/)).toBeVisible();
+    expect(screen.getAllByText(/First Achievement/)[0]).toBeVisible();
+    expect(screen.getAllByText(/First Game/)[0]).toBeVisible();
     expect(screen.getByText(/Do the first thing/)).toBeVisible();
-    expect(screen.getByText(/Second Achievement/)).toBeVisible();
+
+    expect(screen.getAllByText(/Second Achievement/)[0]).toBeVisible();
     expect(screen.getByText(/Do the second thing/)).toBeVisible();
-    expect(screen.getByText(/Third Achievement/)).toBeVisible();
+
+    expect(screen.getAllByText(/Third Achievement/)[0]).toBeVisible();
     expect(screen.getByText(/Do the third thing/)).toBeVisible();
   });
 });

@@ -69,14 +69,14 @@ function performSearch(
     }
 
     if (in_array(SearchType::User, $searchType)) {
-        $counts[] = "SELECT COUNT(*) AS Count FROM UserAccounts WHERE User LIKE '%$searchQuery%'";
+        $counts[] = "SELECT COUNT(*) AS Count FROM UserAccounts WHERE display_name LIKE '%$searchQuery%'";
         $parts[] = "
-        SELECT " . SearchType::User . " AS Type, ua.User AS ID,
-               CONCAT( '/user/', ua.User ) AS Target, ua.User AS Title,
-               CASE WHEN ua.User LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
-        FROM UserAccounts AS ua
-        WHERE ua.User LIKE '%$searchQuery%' AND ua.Permissions >= 0 AND ua.Deleted IS NULL
-        ORDER BY SecondarySort, ua.User";
+            SELECT " . SearchType::User . " AS Type, ua.display_name AS ID,
+                CONCAT( '/user/', ua.display_name ) AS Target, ua.display_name AS Title,
+                CASE WHEN ua.display_name LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
+            FROM UserAccounts AS ua
+            WHERE ua.display_name LIKE '%$searchQuery%' AND ua.Permissions >= 0 AND ua.Deleted IS NULL
+            ORDER BY SecondarySort, ua.display_name";
     }
 
     if (in_array(SearchType::Forum, $searchType)) {

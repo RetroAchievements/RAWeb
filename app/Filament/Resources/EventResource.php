@@ -9,9 +9,11 @@ use App\Filament\Enums\ImageUploadType;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EventResource\Pages;
 use App\Filament\Resources\EventResource\RelationManagers\AchievementsRelationManager;
+use App\Filament\Resources\EventResource\RelationManagers\EventAwardsRelationManager;
 use App\Filament\Resources\EventResource\RelationManagers\HubsRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
 use App\Models\Event;
+use App\Models\EventAchievement;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -35,11 +37,11 @@ class EventResource extends Resource
     protected static ?string $navigationGroup = 'Platform';
     protected static ?string $navigationLabel = 'Events';
     protected static ?int $navigationSort = 55;
-    protected static ?string $recordTitleAttribute = 'game.title';
+    protected static ?string $recordTitleAttribute = 'legacyGame.title';
 
     public static function getRecordTitle(?Model $record): string|Htmlable|null
     {
-        return $record->game->title ?? '';
+        return $record->legacyGame->title ?? '';
     }
 
     public static function infolist(Infolist $infolist): Infolist
@@ -54,11 +56,8 @@ class EventResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('game.title')
+                        Infolists\Components\TextEntry::make('legacyGame.title')
                             ->label('Title'),
-
-                        Infolists\Components\TextEntry::make('game.sort_title')
-                            ->label('Sort Title'),
 
                         Infolists\Components\TextEntry::make('slug')
                             ->label('URL alias'),
@@ -71,7 +70,7 @@ class EventResource extends Resource
                             ->extraAttributes(['class' => 'underline'])
                             ->openUrlInNewTab(),
 
-                        Infolists\Components\TextEntry::make('game.forumTopic.id')
+                        Infolists\Components\TextEntry::make('legacyGame.forumTopic.id')
                             ->label('Forum Topic ID')
                             ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
                             ->extraAttributes(['class' => 'underline']),
@@ -92,11 +91,11 @@ class EventResource extends Resource
                     ")
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('game.players_total')
+                        Infolists\Components\TextEntry::make('legacyGame.players_total')
                             ->label('Players')
                             ->numeric(),
 
-                        Infolists\Components\TextEntry::make('game.achievements_published')
+                        Infolists\Components\TextEntry::make('legacyGame.achievements_published')
                             ->label('Achievements')
                             ->numeric(),
                     ]),
@@ -105,10 +104,12 @@ class EventResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $isNew = !is_a($form->model, Event::class);
+
         return $form
             ->schema([
                 Forms\Components\Section::make()
-                    ->relationship('game')
+                    ->relationship('legacyGame')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
                         Forms\Components\TextInput::make('Title')
@@ -116,16 +117,6 @@ class EventResource extends Resource
                             ->label('Title')
                             ->minLength(2)
                             ->maxLength(80),
-
-                        Forms\Components\TextInput::make('sort_title')
-                            ->required()
-                            ->label('Sort Title')
-                            ->minLength(2)
-                            ->helperText('Normalized title for sorting purposes. For example, "The Goonies II" would sort as "goonies 02". DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.')
-                            ->reactive()
-                            ->afterStateHydrated(function (callable $set, callable $get, ?string $state) {
-                                $set('original_sort_title', $state ?? '');
-                            }),
 
                         Forms\Components\TextInput::make('ForumTopicID')
                             ->label('Forum Topic ID')
@@ -139,9 +130,11 @@ class EventResource extends Resource
                         Forms\Components\TextInput::make('slug')
                             ->label('URL alias')
                             ->helperText('Provides an alias for accessing the event via a URL: /events/[URL alias]')
+                            ->placeholder('event-alias')
                             ->rules(['alpha_dash'])
                             ->minLength(4)
                             ->maxLength(20)
+                            ->required()
                             ->columnSpan(2),
 
                         Forms\Components\DatePicker::make('active_from')
@@ -154,6 +147,26 @@ class EventResource extends Resource
                             ->native(false)
                             ->date(),
                     ]),
+
+                Forms\Components\Section::make('Achievements')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Forms\Components\TextInput::make('numberOfAchievements')
+                            ->label('Number of achievements')
+                            ->numeric()
+                            ->default(6)
+                            ->required(),
+
+                        Forms\Components\Select::make('user_id')
+                            ->label('Username to use as author of new achievements')
+                            ->options([
+                                EventAchievement::RAEVENTS_USER_ID => "RAEvents",
+                                EventAchievement::DEVQUEST_USER_ID => "DevQuest",
+                            ])
+                            ->default(EventAchievement::RAEVENTS_USER_ID)
+                            ->required(),
+                    ])
+                    ->visible($isNew),
 
                 Forms\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
@@ -170,6 +183,7 @@ class EventResource extends Resource
                             ->acceptedFileTypes(['image/png'])
                             ->maxSize(1024)
                             ->maxFiles(1)
+                            ->required($isNew)
                             ->previewable(true),
                     ])
                     ->columns(2),
@@ -179,7 +193,7 @@ class EventResource extends Resource
                 //       https://discord.com/channels/310192285306454017/758865736072167474/1326712584623099927
                 Forms\Components\Section::make('Media from Game Record')
                     ->icon('heroicon-s-photo')
-                    ->relationship('game')
+                    ->relationship('legacyGame')
                     ->schema([
                         // Store a temporary file on disk until the user submits.
                         // When the user submits, put in storage.
@@ -238,7 +252,10 @@ class EventResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('active_until', 'desc')
+            ->defaultSort(function (Builder $query) {
+                $query->orderBy('active_until', 'desc')
+                    ->orderBy('slug'); // TODO: should be 'title' once it's moved out of GameData
+            })
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
@@ -249,7 +266,8 @@ class EventResource extends Resource
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('game.title')
+                Tables\Columns\TextColumn::make('legacyGame.title')
+                    ->label('Title')
                     ->sortable()
                     ->searchable(),
 
@@ -263,19 +281,19 @@ class EventResource extends Resource
                     ->sortable(['active_until'])
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('game.forumTopic.id')
+                Tables\Columns\TextColumn::make('legacyGame.forumTopic.id')
                     ->label('Forum Topic')
                     ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('game.players_hardcore')
+                Tables\Columns\TextColumn::make('legacyGame.players_hardcore')
                     ->label('Players')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('game.achievements_published')
+                Tables\Columns\TextColumn::make('legacyGame.achievements_published')
                     ->label('Achievements')
                     ->numeric()
                     ->sortable()
@@ -301,6 +319,7 @@ class EventResource extends Resource
     {
         return [
             AchievementsRelationManager::class,
+            EventAwardsRelationManager::class,
             HubsRelationManager::class,
         ];
     }
@@ -330,6 +349,6 @@ class EventResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['game']);
+            ->with(['legacyGame']);
     }
 }

@@ -2,7 +2,6 @@ export * from './autoExpandTextInput';
 export * from './cookie';
 export * from './copyToClipboard';
 export * from './fetcher';
-export * from './getStringByteCount';
 export * from './handleLeaderboardTabClick';
 export * from './helpers';
 export * from './initializeTextareaCounter';

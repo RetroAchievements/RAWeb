@@ -30,7 +30,7 @@ class BeatenGamesLeaderboardService
         $foundUserByFilter = null;
         $isUserFilterSet = isset($validatedData['filter']['user']);
         if ($isUserFilterSet) {
-            $foundUserByFilter = User::byDisplayName($validatedData['filter']['user'])->first();
+            $foundUserByFilter = User::whereName($validatedData['filter']['user'])->first();
 
             if (!$foundUserByFilter) {
                 return ['redirect' => route('ranking.beaten-games')];
