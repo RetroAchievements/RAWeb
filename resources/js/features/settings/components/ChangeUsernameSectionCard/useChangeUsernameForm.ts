@@ -28,12 +28,12 @@ export function useChangeUsernameForm() {
             .string()
             .min(4)
             .max(20)
-            .regex(/^[\x20-\x7E]*$/, t('Must contain only ASCII characters.')),
+            .regex(/^[a-zA-Z0-9]+$/, t('Must contain only letters and numbers.')),
           confirmUsername: z
             .string()
             .min(4)
             .max(20)
-            .regex(/^[\x20-\x7E]*$/, t('Must contain only ASCII characters.')),
+            .regex(/^[a-zA-Z0-9]+$/, t('Must contain only letters and numbers.')),
         })
         .refine((data) => data.newUsername === data.confirmUsername, {
           message: t('New usernames must match.'),

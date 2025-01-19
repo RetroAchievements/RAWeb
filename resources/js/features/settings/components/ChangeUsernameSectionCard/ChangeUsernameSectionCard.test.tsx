@@ -88,6 +88,27 @@ describe('Component: ChangeUsernameSectionCard', () => {
     expect(postSpy).not.toHaveBeenCalled();
   });
 
+  it('given the user attempts to submit usernames with invalid characters, does not submit', async () => {
+    // ARRANGE
+    const postSpy = vi.spyOn(axios, 'post');
+
+    render(<ChangeUsernameSectionCard />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ displayName: 'TestUser' }) },
+        can: { createUsernameChangeRequest: true },
+      },
+    });
+
+    // ACT
+    await userEvent.type(screen.getAllByLabelText(/new username/i)[0], 'new-name');
+    await userEvent.type(screen.getByLabelText(/confirm new username/i), 'new-name');
+    await userEvent.click(screen.getByRole('button', { name: /update/i }));
+
+    // ASSERT
+    expect(postSpy).not.toHaveBeenCalled();
+    expect(screen.getAllByText(/only letters and numbers/i)[0]).toBeVisible();
+  });
+
   it('given the user submits valid form data but cancels the confirmation, does not submit', async () => {
     // ARRANGE
     vi.spyOn(window, 'confirm').mockImplementationOnce(() => false);
@@ -101,8 +122,8 @@ describe('Component: ChangeUsernameSectionCard', () => {
     });
 
     // ACT
-    await userEvent.type(screen.getAllByLabelText(/new username/i)[0], 'new-name');
-    await userEvent.type(screen.getByLabelText(/confirm new username/i), 'new-name');
+    await userEvent.type(screen.getAllByLabelText(/new username/i)[0], 'NewName');
+    await userEvent.type(screen.getByLabelText(/confirm new username/i), 'NewName');
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
@@ -120,19 +141,19 @@ describe('Component: ChangeUsernameSectionCard', () => {
 
     render(<ChangeUsernameSectionCard />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser({ displayName: 'test-user' }) },
+        auth: { user: createAuthenticatedUser({ displayName: 'TestUser' }) },
         can: { createUsernameChangeRequest: true },
       },
     });
 
     // ACT
-    await userEvent.type(screen.getAllByLabelText(/new username/i)[0], 'new-name');
-    await userEvent.type(screen.getByLabelText(/confirm new username/i), 'new-name');
+    await userEvent.type(screen.getAllByLabelText(/new username/i)[0], 'NewName');
+    await userEvent.type(screen.getByLabelText(/confirm new username/i), 'NewName');
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
     expect(postSpy).toHaveBeenCalledWith(route('api.settings.username-change-request.store'), {
-      newDisplayName: 'new-name',
+      newDisplayName: 'NewName',
     });
   });
 
@@ -149,14 +170,14 @@ describe('Component: ChangeUsernameSectionCard', () => {
 
     render(<ChangeUsernameSectionCard />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser({ displayName: 'test-user' }) },
+        auth: { user: createAuthenticatedUser({ displayName: 'TestUser' }) },
         can: { createUsernameChangeRequest: true },
       },
     });
 
     // ACT
-    await userEvent.type(screen.getAllByLabelText(/new username/i)[0], 'new-name');
-    await userEvent.type(screen.getByLabelText(/confirm new username/i), 'new-name');
+    await userEvent.type(screen.getAllByLabelText(/new username/i)[0], 'NewName');
+    await userEvent.type(screen.getByLabelText(/confirm new username/i), 'NewName');
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
@@ -178,14 +199,14 @@ describe('Component: ChangeUsernameSectionCard', () => {
 
     render(<ChangeUsernameSectionCard />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser({ displayName: 'test-user' }) },
+        auth: { user: createAuthenticatedUser({ displayName: 'TestUser' }) },
         can: { createUsernameChangeRequest: true },
       },
     });
 
     // ACT
-    await userEvent.type(screen.getAllByLabelText(/new username/i)[0], 'new-name');
-    await userEvent.type(screen.getByLabelText(/confirm new username/i), 'new-name');
+    await userEvent.type(screen.getAllByLabelText(/new username/i)[0], 'NewName');
+    await userEvent.type(screen.getByLabelText(/confirm new username/i), 'NewName');
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
