@@ -37,11 +37,11 @@ class EventResource extends Resource
     protected static ?string $navigationGroup = 'Platform';
     protected static ?string $navigationLabel = 'Events';
     protected static ?int $navigationSort = 55;
-    protected static ?string $recordTitleAttribute = 'game.title';
+    protected static ?string $recordTitleAttribute = 'legacyGame.title';
 
     public static function getRecordTitle(?Model $record): string|Htmlable|null
     {
-        return $record->game->title ?? '';
+        return $record->legacyGame->title ?? '';
     }
 
     public static function infolist(Infolist $infolist): Infolist
