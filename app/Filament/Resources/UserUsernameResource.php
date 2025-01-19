@@ -13,6 +13,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserUsernameResource extends Resource
 {
@@ -51,6 +52,11 @@ class UserUsernameResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->where(function ($query) {
+                $query->whereNotNull('approved_at')
+                    ->orWhereNotNull('denied_at')
+                    ->orWhere('created_at', '>', now()->subDays(30));
+            }))
             ->columns([
                 Tables\Columns\TextColumn::make('user.username')
                     ->label('Original Username')
@@ -142,6 +148,11 @@ class UserUsernameResource extends Resource
                 Tables\Actions\Action::make('deny')
                     ->action(function (UserUsername $record) {
                         $record->update(['denied_at' => now()]);
+
+                        /** @var User $user */
+                        $user = $record->user;
+
+                        sendDisplayNameChangeDeclineEmail($user, $record->username);
 
                         Notification::make()
                             ->success()

@@ -106,7 +106,9 @@ describe('Component: ChangeUsernameSectionCard', () => {
 
     // ASSERT
     expect(postSpy).not.toHaveBeenCalled();
-    expect(screen.getAllByText(/only letters and numbers/i)[0]).toBeVisible();
+    expect(
+      screen.getAllByText(/must only contain unaccented letters and numbers./i)[0],
+    ).toBeVisible();
   });
 
   it('given the user submits valid form data but cancels the confirmation, does not submit', async () => {

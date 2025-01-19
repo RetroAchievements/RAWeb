@@ -470,8 +470,31 @@ function sendDisplayNameChangeConfirmationEmail(
 
     $msg = "Hello,<br><br>" .
         "Great news! Your username change request to {$newDisplayName} has been approved.<br><br>" .
+
         "You can now use your new username to log in everywhere on RetroAchievements.org.<br><br>" .
+
         "Check out your updated profile {$profileLink}.<br><br>" .
+
+        "-- Your friends at RetroAchievements.org<br>";
+
+    return mail_utf8($user->EmailAddress, $emailTitle, $msg);
+}
+
+/**
+ * Sends an email to a user informing them that their display name change request was declined.
+ */
+function sendDisplayNameChangeDeclineEmail(
+    User $user,
+    string $desiredDisplayName,
+): bool {
+    $emailTitle = "About Your Username Change Request";
+
+    $msg = "Hello,<br><br>" .
+        "We've reviewed your request to change your username to {$desiredDisplayName}. " .
+        "Unfortunately we weren't able to approve this change at this time.<br><br>" .
+
+        "You're welcome to submit another request after a 30 day cooldown period has ended.<br><br> " .
+
         "-- Your friends at RetroAchievements.org<br>";
 
     return mail_utf8($user->EmailAddress, $emailTitle, $msg);

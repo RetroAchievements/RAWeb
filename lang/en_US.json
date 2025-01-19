@@ -636,7 +636,7 @@
     "You can only request a new username once every 30 days, even if your new username is not approved. Are you sure you want to do this?": "You can only request a new username once every 30 days, even if your new username is not approved. Are you sure you want to do this?",
     "Submitting username change request...": "Submitting username change request...",
     "Submitted username change request!": "Submitted username change request!",
-    "Must contain only letters and numbers.": "Must contain only letters and numbers.",
+    "Must only contain unaccented letters and numbers.": "Must only contain unaccented letters and numbers.",
     "Change Username": "Change Username",
     "Current Username": "Current Username",
     "New Username": "New Username",
