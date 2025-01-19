@@ -15,8 +15,8 @@ export const ShortcodeCode: FC<ShortcodeCodeProps> = ({ children }) => {
       return true;
     });
 
-    return <span className="codetags font-mono">{processedChildren}</span>;
+    return <span className="codetags mb-3 font-mono">{processedChildren}</span>;
   }
 
-  return <span className="codetags">{children}</span>;
+  return <span className="codetags mb-3 font-mono">{children}</span>;
 };
