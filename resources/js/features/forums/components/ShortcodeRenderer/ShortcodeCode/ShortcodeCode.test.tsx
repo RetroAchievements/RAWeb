@@ -60,7 +60,7 @@ describe('Component: ShortcodeCode', () => {
     expect(spanEl.innerHTML).toEqual('test content');
   });
 
-  it('removes inner line breaks in the output', () => {
+  it('retains inner line breaks in the output', () => {
     // ARRANGE
     render(
       <ShortcodeCode>
@@ -73,6 +73,6 @@ describe('Component: ShortcodeCode', () => {
     // ASSERT
     const spanEl = screen.getByText(/test/i);
     expect(spanEl).toBeVisible();
-    expect(spanEl.innerHTML).toEqual('testcontent');
+    expect(spanEl.innerHTML).toEqual('test<br>content');
   });
 });
