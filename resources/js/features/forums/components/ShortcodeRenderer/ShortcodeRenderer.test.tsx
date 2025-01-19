@@ -1,6 +1,7 @@
 import {
   persistedAchievementsAtom,
   persistedGamesAtom,
+  persistedHubsAtom,
   persistedTicketsAtom,
   persistedUsersAtom,
 } from '@/features/forums/state/forum.atoms';
@@ -8,6 +9,7 @@ import { render, screen } from '@/test';
 import {
   createAchievement,
   createGame,
+  createGameSet,
   createSystem,
   createTicket,
   createUser,
@@ -85,7 +87,10 @@ describe('Component: ShortcodeRenderer', () => {
     const body = '[user=Scott]';
 
     render(<ShortcodeRenderer body={body} />, {
-      jotaiAtoms: [[persistedUsersAtom, []]],
+      jotaiAtoms: [
+        [persistedUsersAtom, []],
+        //
+      ],
     });
 
     // ASSERT
@@ -97,7 +102,10 @@ describe('Component: ShortcodeRenderer', () => {
     const body = '[user=Scott]';
 
     render(<ShortcodeRenderer body={body} />, {
-      jotaiAtoms: [[persistedUsersAtom, [createUser({ displayName: 'Scott' })]]],
+      jotaiAtoms: [
+        [persistedUsersAtom, [createUser({ displayName: 'Scott' })]],
+        //
+      ],
     });
 
     // ASSERT
@@ -112,13 +120,35 @@ describe('Component: ShortcodeRenderer', () => {
     const body = '[game=1]';
 
     render(<ShortcodeRenderer body={body} />, {
-      jotaiAtoms: [[persistedGamesAtom, [game]]],
+      jotaiAtoms: [
+        [persistedGamesAtom, [game]],
+        //
+      ],
     });
 
     // ASSERT
     expect(screen.getByRole('link')).toBeVisible();
     expect(screen.getByRole('img')).toBeVisible();
     expect(screen.getByText('Sonic the Hedgehog (Sega Genesis)')).toBeVisible();
+  });
+
+  it('given a body with a hub tag and a found persisted hub, renders the hub shortcode component', () => {
+    // ARRANGE
+    const hub = createGameSet({ id: 1, title: '[Central]' });
+
+    const body = '[hub=1]';
+
+    render(<ShortcodeRenderer body={body} />, {
+      jotaiAtoms: [
+        [persistedHubsAtom, [hub]],
+        //
+      ],
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link')).toBeVisible();
+    expect(screen.getByRole('img')).toBeVisible();
+    expect(screen.getByText('[Central] (Hubs)')).toBeVisible();
   });
 
   it('given a body with an achievement tag and a found persisted achievement, renders the ach shortcode component', () => {
@@ -128,7 +158,10 @@ describe('Component: ShortcodeRenderer', () => {
     const body = '[ach=9]';
 
     render(<ShortcodeRenderer body={body} />, {
-      jotaiAtoms: [[persistedAchievementsAtom, [achievement]]],
+      jotaiAtoms: [
+        [persistedAchievementsAtom, [achievement]],
+        //
+      ],
     });
 
     // ASSERT
@@ -147,7 +180,10 @@ describe('Component: ShortcodeRenderer', () => {
     const body = '[ticket=12345]';
 
     render(<ShortcodeRenderer body={body} />, {
-      jotaiAtoms: [[persistedTicketsAtom, [ticket]]],
+      jotaiAtoms: [
+        [persistedTicketsAtom, [ticket]],
+        //
+      ],
     });
 
     // ASSERT

@@ -8,6 +8,7 @@ import {
   LuEyeOff,
   LuItalic,
   LuLink,
+  LuNetwork,
   LuStrikethrough,
   LuUnderline,
 } from 'react-icons/lu';
@@ -28,6 +29,7 @@ export function useShortcodesList() {
     { icon: LuLink, t_label: t('Link'), start: '[url=', end: ']' },
     { icon: ImTrophy, t_label: t('Achievement'), start: '[ach=', end: ']' },
     { icon: FaGamepad, t_label: t('Game'), start: '[game=', end: ']' },
+    { icon: LuNetwork, t_label: t('Hub'), start: '[hub=', end: ']' },
     { icon: FaUser, t_label: t('User'), start: '[user=', end: ']' },
     { icon: FaTicketAlt, t_label: t('Ticket'), start: '[ticket=', end: ']' },
   ];

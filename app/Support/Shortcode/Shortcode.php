@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Support\Shortcode;
 
+use App\Models\GameSet;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Enums\GameSetType;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Thunder\Shortcode\Event\FilterShortcodesEvent;
@@ -35,6 +37,7 @@ final class Shortcode
             ->add('spoiler', fn (ShortcodeInterface $s) => $this->renderSpoiler($s))
             ->add('ach', fn (ShortcodeInterface $s) => $this->embedAchievement((int) ($s->getBbCode() ?: $s->getContent())))
             ->add('game', fn (ShortcodeInterface $s) => $this->embedGame((int) ($s->getBbCode() ?: $s->getContent())))
+            ->add('hub', fn (ShortcodeInterface $s) => $this->embedHub((int) ($s->getBbCode() ?: $s->getContent())))
             ->add('ticket', fn (ShortcodeInterface $s) => $this->embedTicket((int) ($s->getBbCode() ?: $s->getContent())))
             ->add('user', fn (ShortcodeInterface $s) => $this->embedUser($s->getBbCode() ?: $s->getContent()));
     }
@@ -352,6 +355,32 @@ final class Shortcode
         }
 
         return str_replace("\n", '', gameAvatar($data, iconSize: 24));
+    }
+
+    private function embedHub(int $id): string
+    {
+        $data = Cache::store('array')->rememberForever('hub: ' . $id . ':hub-data', function () use ($id) {
+            $hubGameSet = GameSet::where('type', GameSetType::Hub)
+                ->where('id', $id)
+                ->first();
+
+            if (!$hubGameSet) {
+                return [];
+            }
+
+            return [
+                ...getGameData($hubGameSet->game_id),
+                'HubID' => $hubGameSet->id,
+            ];
+        });
+
+        if (empty($data)) {
+            return '';
+        }
+
+        $hubHref = route('hub.show', ['gameSet' => $data['HubID']]);
+
+        return str_replace("\n", '', gameAvatar($data, iconSize: 24, href: $hubHref));
     }
 
     private function embedTicket(int $id): string
