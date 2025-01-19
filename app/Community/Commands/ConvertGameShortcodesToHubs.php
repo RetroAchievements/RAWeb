@@ -82,8 +82,10 @@ class ConvertGameShortcodesToHubs extends Command
                 if ($originalPayload !== $updatedPayload) {
                     DB::table('forum_topic_comments')
                         ->where('id', $forumTopicComment->id)
-                        ->timestamps(false)
-                        ->update(['body' => $updatedPayload]);
+                        ->update([
+                            'body' => $updatedPayload,
+                            'updated_at' => DB::raw('updated_at'), // don't change the value
+                        ]);
                 }
             }
 
@@ -143,8 +145,10 @@ class ConvertGameShortcodesToHubs extends Command
                 if ($originalBody !== $updatedBody) {
                     DB::table('messages')
                         ->where('id', $message->id)
-                        ->timestamps(false)
-                        ->update(['body' => $updatedBody]);
+                        ->update([
+                            'body' => $updatedBody,
+                            'updated_at' => DB::raw('updated_at'), // don't change the value
+                        ]);
                 }
             }
 
@@ -194,8 +198,10 @@ class ConvertGameShortcodesToHubs extends Command
                 if ($originalPayload !== $updatedPayload) {
                     DB::table('forum_topic_comments')
                         ->where('id', $forumTopicComment->id)
-                        ->timestamps(false)
-                        ->update(['body' => $updatedPayload]);
+                        ->update([
+                            'body' => $updatedPayload,
+                            'updated_at' => DB::raw('updated_at'), // don't change the value
+                        ]);
                 }
             }
 
@@ -245,8 +251,10 @@ class ConvertGameShortcodesToHubs extends Command
                 if ($originalBody !== $updatedBody) {
                     DB::table('messages')
                         ->where('id', $message->id)
-                        ->timestamps(false)
-                        ->update(['body' => $updatedBody]);
+                        ->update([
+                            'body' => $updatedBody,
+                            'updated_at' => DB::raw('updated_at'), // don't change the value
+                        ]);
                 }
             }
 
