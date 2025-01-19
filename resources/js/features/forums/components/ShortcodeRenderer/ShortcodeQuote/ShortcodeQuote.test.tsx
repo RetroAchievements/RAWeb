@@ -21,4 +21,35 @@ describe('Component: ShortcodeQuote', () => {
     expect(spanEl).toBeVisible();
     expect(spanEl).toHaveClass('quotedtext');
   });
+
+  it('removes leading line breaks in the output', () => {
+    // ARRANGE
+    render(
+      <ShortcodeQuote>
+        <br />
+        test content
+      </ShortcodeQuote>,
+    );
+
+    // ASSERT
+    const spanEl = screen.getByText(/test/i);
+    expect(spanEl).toBeVisible();
+    expect(spanEl.innerHTML).toEqual('test content');
+  });
+
+  it('retains inner line breaks in the output', () => {
+    // ARRANGE
+    render(
+      <ShortcodeQuote>
+        test
+        <br />
+        content
+      </ShortcodeQuote>,
+    );
+
+    // ASSERT
+    const spanEl = screen.getByText(/test/i);
+    expect(spanEl).toBeVisible();
+    expect(spanEl.innerHTML).toEqual('test<br>content');
+  });
 });

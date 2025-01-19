@@ -318,7 +318,7 @@ final class Shortcode
 
     private function renderQuote(ShortcodeInterface $shortcode): string
     {
-        $content = $shortcode->getContent() ?? '';
+        $content = trim($shortcode->getContent() ?? '');
 
         // $content will contain a leading and trailing <br> if the [quote] tag is on a separate line.
         //
