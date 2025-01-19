@@ -6,7 +6,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useForumPostPreview } from '../../hooks/useForumPostPreview';
 import { ForumPostCard } from '../ForumPostCard';
-import { CreateTopicForm } from './CreateTopicForm/CreateTopicForm';
+import { CreateTopicForm } from './CreateTopicForm';
 
 export const CreateForumTopicMainRoot: FC = memo(() => {
   const { forum } = usePageProps<App.Data.CreateForumTopicPageProps>();
