@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use App\Community\Enums\NewsCategory;
 use App\Models\News;
 use Carbon\Carbon;
 use Spatie\LaravelData\Data;
@@ -21,6 +22,7 @@ class NewsData extends Data
         public UserData $user,
         public ?string $link,
         public ?string $imageAssetPath,
+        public ?NewsCategory $category,
         public ?Carbon $publishAt,
         public ?Carbon $unpublishAt,
         public ?Carbon $pinnedAt,
@@ -38,6 +40,7 @@ class NewsData extends Data
             user: UserData::from($news->user),
             link: $news->link,
             imageAssetPath: $news->image_asset_path,
+            category: $news->category,
             publishAt: $news->publish_at,
             unpublishAt: $news->unpublish_at,
             pinnedAt: $news->pinned_at,

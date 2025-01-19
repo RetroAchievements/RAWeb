@@ -7,6 +7,7 @@ export const createNews = createFactory<App.Data.News>((faker) => {
     createdAt: faker.date.recent().toISOString(),
     id: faker.number.int({ min: 1, max: 10000 }),
     imageAssetPath: faker.internet.url(),
+    category: null,
     lead: faker.word.words(24),
     link: faker.internet.url(),
     pinnedAt: null,
