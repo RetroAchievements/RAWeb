@@ -6,6 +6,8 @@ namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
+use Database\Factories\EventFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,6 +17,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Event extends BaseModel
 {
+    /** @use HasFactory<EventFactory> */
+    use HasFactory;
+
     use LogsActivity {
         LogsActivity::activities as auditLog;
     }
@@ -38,6 +43,11 @@ class Event extends BaseModel
     protected $appends = [
         'active_through',
     ];
+
+    protected static function newFactory(): EventFactory
+    {
+        return EventFactory::new();
+    }
 
     // == logging
 

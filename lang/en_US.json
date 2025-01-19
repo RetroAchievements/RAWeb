@@ -631,5 +631,6 @@
     "See your full recommendation feed": "See your full recommendation feed",
     "Beaten by same players": "Beaten by same players",
     "Mastered by same players": "Mastered by same players",
-    "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>": "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>"
+    "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>": "<1>{{achievementTitle}}</1> from <2>{{gameTitle}}</2>",
+    "Don't ask for links to copyrighted ROMs. Don't share links to copyrighted ROMs.": "Don't ask for links to copyrighted ROMs. Don't share links to copyrighted ROMs."
 }
