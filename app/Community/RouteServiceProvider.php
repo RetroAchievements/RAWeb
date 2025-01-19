@@ -46,10 +46,11 @@ class RouteServiceProvider extends ServiceProvider
          * sanitize route model binding patterns
          */
         Route::pattern('topic', '[0-9]{1,17}');
-        Route::pattern('forum', '[0-9]{1,17}');
-        Route::pattern('category', '[0-9]{1,17}');
         Route::pattern('comment', '[0-9]{1,17}');
         Route::pattern('news', '[0-9]{1,17}');
+
+        Route::pattern('category', '[a-zA-Z0-9-]+');
+        Route::pattern('forum', '[a-zA-Z0-9-]+');
 
         parent::boot();
     }
