@@ -82,6 +82,7 @@ class ConvertGameShortcodesToHubs extends Command
                 if ($originalPayload !== $updatedPayload) {
                     DB::table('forum_topic_comments')
                         ->where('id', $forumTopicComment->id)
+                        ->timestamps(false)
                         ->update(['body' => $updatedPayload]);
                 }
             }
@@ -142,6 +143,7 @@ class ConvertGameShortcodesToHubs extends Command
                 if ($originalBody !== $updatedBody) {
                     DB::table('messages')
                         ->where('id', $message->id)
+                        ->timestamps(false)
                         ->update(['body' => $updatedBody]);
                 }
             }
@@ -192,6 +194,7 @@ class ConvertGameShortcodesToHubs extends Command
                 if ($originalPayload !== $updatedPayload) {
                     DB::table('forum_topic_comments')
                         ->where('id', $forumTopicComment->id)
+                        ->timestamps(false)
                         ->update(['body' => $updatedPayload]);
                 }
             }
@@ -242,6 +245,7 @@ class ConvertGameShortcodesToHubs extends Command
                 if ($originalBody !== $updatedBody) {
                     DB::table('messages')
                         ->where('id', $message->id)
+                        ->timestamps(false)
                         ->update(['body' => $updatedBody]);
                 }
             }
