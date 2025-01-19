@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Enums\Permissions;
 use App\Models\Forum;
 use App\Models\ForumTopic;
 use App\Models\Role;
@@ -20,8 +19,7 @@ class ForumTopicPolicy
         return $user->hasAnyRole([
             Role::MODERATOR,
             Role::FORUM_MANAGER,
-        ])
-            || $user->getAttribute('Permissions') >= Permissions::Moderator;
+        ]);
     }
 
     public function viewAny(?User $user): bool

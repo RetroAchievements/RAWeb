@@ -90,7 +90,10 @@ sanitize_outputs(
         echo "</div>";
     }
     if ($requestedForumID && $userModel?->can('create', [App\Models\ForumTopic::class, $forum])) {
-        $createRoute = route('forum-topic.create', ['forum' => $thisForumID]);
+        $createRoute = route('forum-topic.create', [
+            'category' => $thisCategoryID,
+            'forum' => $thisForumID,
+        ]);
         echo "<a class='btn btn-link' href='{$createRoute}'>Create New Topic</a>";
     }
     echo "</div>";
@@ -170,7 +173,10 @@ sanitize_outputs(
         echo "</div>";
     }
     if ($requestedForumID && $userModel?->can('create', [App\Models\ForumTopic::class, $forum])) {
-        $createRoute = route('forum-topic.create', ['forum' => $thisForumID]);
+        $createRoute = route('forum-topic.create', [
+            'category' => $thisCategoryID,
+            'forum' => $thisForumID,
+        ]);
         echo "<a class='btn btn-link' href='{$createRoute}'>Create New Topic</a>";
     }
     echo "</div>";

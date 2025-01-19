@@ -648,5 +648,14 @@
     "Your request will either be approved or it will automatically expire 30 days from when you requested it.": "Your request will either be approved or it will automatically expire 30 days from when you requested it.",
     "Requested Username": "Requested Username",
     "You must wait to change your username.": "You must wait to change your username.",
-    "Each account is limited to one username change every 30 days.": "Each account is limited to one username change every 30 days."
+    "Each account is limited to one username change every 30 days.": "Each account is limited to one username change every 30 days.",
+    "news-category.achievement-set": "Featured Set",
+    "news-category.community": "Community",
+    "news-category.events": "Events",
+    "news-category.guide": "Guide",
+    "news-category.media": "Media",
+    "news-category.technical": "Technical",
+    "Don't ask for links to copyrighted ROMs. Don't share links to copyrighted ROMs.": "Don't ask for links to copyrighted ROMs. Don't share links to copyrighted ROMs.",
+    "Start new topic": "Start new topic",
+    "enter your new topic's title...": "enter your new topic's title..."
 }

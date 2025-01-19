@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Community\Concerns\DiscussedInForum;
 use App\Support\Database\Eloquent\BaseModel;
 use App\Support\Database\Eloquent\BasePivot;
+use App\Support\Routing\HasSelfHealingUrls;
 use Database\Factories\SystemFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
@@ -53,8 +53,9 @@ class System extends BaseModel implements HasMedia
     use InteractsWithMedia;
 
     /*
-     * Search and Filtering Traits
+     * Searching, Filtering, and Routing Traits
      */
+    use HasSelfHealingUrls;
     use Searchable;
 
     // TODO rename Console table to systems
@@ -80,6 +81,11 @@ class System extends BaseModel implements HasMedia
         return SystemFactory::new();
     }
 
+    protected function getSlugSourceField(): string
+    {
+        return 'name';
+    }
+
     protected $fillable = [
         'Name',
         'name_full',
@@ -101,35 +107,6 @@ class System extends BaseModel implements HasMedia
     protected $casts = [
         'active' => 'boolean',
     ];
-
-    // == routing
-
-    // TODO extract setting getRouteKey and resolveRouteBinding for self-healing urls to a trait if used on another model
-
-    public function getRouteKey(): string
-    {
-        // Forward slashes also need to be dasherized.
-        $nameWithDashes = str_replace('/', '-', $this->name);
-
-        return Str::slug($nameWithDashes) . '-' . $this->id;
-    }
-
-    public function resolveRouteBinding(mixed $value, $field = null)
-    {
-        // Skip self-healing for internal-api routes.
-        if (str_starts_with(request()->path(), 'internal-api')) {
-            return parent::resolveRouteBinding($value, $field);
-        }
-
-        $id = last(explode('-', $value));
-        $model = parent::resolveRouteBinding($id, $field);
-
-        if (!$model || $model->getRouteKey() === $value) {
-            return $model;
-        }
-
-        throw new HttpResponseException(redirect()->route('system.game.index', $model));
-    }
 
     // == constants
 
