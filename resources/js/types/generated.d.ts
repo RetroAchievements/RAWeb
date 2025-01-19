@@ -134,6 +134,14 @@ declare namespace App.Community.Data {
 }
 declare namespace App.Community.Enums {
   export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+  export type NewsCategory =
+    | 'achievement-set'
+    | 'community'
+    | 'events'
+    | 'guide'
+    | 'media'
+    | 'site-release-notes'
+    | 'technical';
   export type AwardType = 1 | 2 | 3 | 6 | 7 | 8 | 9;
   export type ClaimSetType = 0 | 1;
   export type ClaimStatus = 0 | 1 | 2 | 3;
@@ -216,6 +224,7 @@ declare namespace App.Data {
     user: App.Data.User;
     link: string | null;
     imageAssetPath: string | null;
+    category: App.Community.Enums.NewsCategory | null;
     publishAt: string | null;
     unpublishAt: string | null;
     pinnedAt: string | null;

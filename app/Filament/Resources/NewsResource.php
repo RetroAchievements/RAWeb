@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Community\Enums\NewsCategory;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\NewsResource\Pages;
 use App\Models\News;
@@ -51,10 +52,37 @@ class NewsResource extends Resource
                             ->required()
                             ->activeUrl(),
 
+                        Forms\Components\Select::make('category')
+                            ->label('Category')
+                            ->options([
+                                NewsCategory::AchievementSet->value => 'Featured Set',
+                                NewsCategory::Community->value => 'Community',
+                                NewsCategory::Events->value => 'Events',
+                                NewsCategory::Guide->value => 'Guide',
+                                NewsCategory::Media->value => 'Media',
+                                NewsCategory::Technical->value => 'Technical',
+                            ])
+                            ->helperText(function ($state) {
+                                // Show an example based on selected category.
+                                $example = match ($state) {
+                                    NewsCategory::AchievementSet->value => 'Example: "New set: Pokémon XD: Gale of Darkness"',
+                                    NewsCategory::Community->value => 'Example: "Come Celebrate 1 MILLION Users!"',
+                                    NewsCategory::Events->value => 'Example: "RetroAchievemas 2024 Event"',
+                                    NewsCategory::Guide->value => 'Example: "Achievement Guide: Final Fantasy VII"',
+                                    NewsCategory::Media->value => 'Example: "authorblues and Skybilz at AGDQ 2025"',
+                                    NewsCategory::Technical->value => 'Example: "Upcoming Hardcore Restriction"',
+                                    default => 'Optional.',
+                                };
+
+                                return $example;
+                            })
+                            ->live()
+                            ->placeholder('No category')
+                            ->nullable(),
+
                         Forms\Components\Toggle::make('pinned_at')
                             ->label('Pinned')
                             ->helperText('If enabled, this will be sorted to the top of the news until unpinned.')
-                            ->columnSpanFull()
                             ->disabled(fn (?News $record) => !$record || !$user->can('pin', $record))
                             ->dehydrated()
                             ->afterStateHydrated(function (?News $record, $component) {
