@@ -10,7 +10,7 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('user_usernames', function (Blueprint $table) {
-            $table->dropForeign('user_usernames_user_id_foreign');
+            $table->dropForeign(['user_id']);
             $table->dropUnique(['user_id', 'username']);
 
             $table->foreign('user_id', 'user_usernames_user_id_foreign')
