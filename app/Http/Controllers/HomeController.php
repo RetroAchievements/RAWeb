@@ -38,10 +38,13 @@ class HomeController extends Controller
         BuildHomePageClaimsDataAction $buildHomePageClaimsData,
         BuildThinRecentForumPostsDataAction $buildThinRecentForumPostsData,
     ): InertiaResponse {
+        /** @var ?User $user */
+        $user = Auth::user();
+
         $staticData = StaticData::first();
         $staticDataData = StaticDataData::fromStaticData($staticData);
 
-        $achievementOfTheWeek = $buildAchievementOfTheWeekData->execute();
+        $achievementOfTheWeek = $buildAchievementOfTheWeekData->execute($user);
         $mostRecentGameMastered = $buildMostRecentGameAwardData->execute($staticData, AwardType::Mastery);
         $mostRecentGameBeaten = $buildMostRecentGameAwardData->execute($staticData, AwardType::GameBeaten);
         $recentNews = $buildNewsData->execute();
@@ -53,8 +56,6 @@ class HomeController extends Controller
         $activePlayers = $buildActivePlayers->execute(perPage: 20, search: $persistedActivePlayersSearch);
         $trendingGames = $buildTrendingGames->execute();
 
-        /** @var ?User $user */
-        $user = Auth::user();
         $permissions = $user ? (int) $user->getAttribute('Permissions') : Permissions::Unregistered;
         $recentForumPosts = $buildThinRecentForumPostsData->execute(
             permissions: $permissions,

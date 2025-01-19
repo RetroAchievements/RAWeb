@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\ForumCategoryFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -12,6 +14,8 @@ use Laravel\Scout\Searchable;
 
 class ForumCategory extends BaseModel
 {
+    /** @use HasFactory<ForumCategoryFactory> */
+    use HasFactory;
     use Searchable;
     use SoftDeletes;
 
@@ -22,6 +26,11 @@ class ForumCategory extends BaseModel
         'description',
         'order_column',
     ];
+
+    protected static function newFactory(): ForumCategoryFactory
+    {
+        return ForumCategoryFactory::new();
+    }
 
     // == search
 

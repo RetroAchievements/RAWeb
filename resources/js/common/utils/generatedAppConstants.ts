@@ -123,6 +123,7 @@ export const AwardType = {
     PatreonSupporter: 6,
     CertifiedLegend: 7,
     GameBeaten: 8,
+    Event: 9,
 } as const;
 
 
@@ -133,6 +134,7 @@ export const StringifiedAwardType = {
     PatreonSupporter: '6',
     CertifiedLegend: '7',
     GameBeaten: '8',
+    Event: '9',
 } as const;
 
 

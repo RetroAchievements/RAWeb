@@ -142,7 +142,7 @@ declare namespace App.Community.Enums {
     | 'media'
     | 'site-release-notes'
     | 'technical';
-  export type AwardType = 1 | 2 | 3 | 6 | 7 | 8;
+  export type AwardType = 1 | 2 | 3 | 6 | 7 | 8 | 9;
   export type ClaimSetType = 0 | 1;
   export type ClaimStatus = 0 | 1 | 2 | 3;
   export type ClaimType = 0 | 1;
@@ -167,6 +167,9 @@ declare namespace App.Data {
     status: number;
     created: string;
     finished: string;
+  };
+  export type CreateForumTopicPageProps = {
+    forum: App.Data.Forum;
   };
   export type CurrentlyOnline = {
     logEntries: Array<number>;
@@ -321,9 +324,13 @@ declare namespace App.Enums {
     | 18;
 }
 declare namespace App.Http.Data {
+  export type AchievementOfTheWeekProps = {
+    currentEventAchievement: App.Platform.Data.EventAchievement;
+    doesUserHaveUnlock: boolean;
+  };
   export type HomePageProps<TItems = App.Community.Data.ActivePlayer> = {
     staticData: App.Data.StaticData;
-    achievementOfTheWeek: App.Platform.Data.EventAchievement | null;
+    achievementOfTheWeek: App.Http.Data.AchievementOfTheWeekProps | null;
     mostRecentGameMastered: App.Data.StaticGameAward | null;
     mostRecentGameBeaten: App.Data.StaticGameAward | null;
     recentNews: Array<App.Data.News>;

@@ -7,9 +7,12 @@ namespace App\Community\Controllers;
 use App\Community\Actions\BuildAggregateRecentForumPostsDataAction;
 use App\Community\Data\RecentPostsPagePropsData;
 use App\Community\Requests\ForumTopicRequest;
+use App\Data\CreateForumTopicPagePropsData;
+use App\Data\ForumData;
 use App\Enums\Permissions;
 use App\Http\Controller;
 use App\Models\Forum;
+use App\Models\ForumCategory;
 use App\Models\ForumTopic;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -24,8 +27,17 @@ class ForumTopicController extends Controller
         $this->authorize('viewAny', ForumTopic::class);
     }
 
-    public function create(Forum $forum): void
+    public function create(ForumCategory $category, Forum $forum, Request $request): InertiaResponse
     {
+        $this->authorize('create', [ForumTopic::class, $forum]);
+
+        $props = new CreateForumTopicPagePropsData(
+            forum: ForumData::from($forum)->include(
+                'category'
+            ),
+        );
+
+        return Inertia::render('forums/[category]/[forum]/create', $props);
     }
 
     public function show(Request $request, ForumTopic $topic, ?string $slug = null): void
