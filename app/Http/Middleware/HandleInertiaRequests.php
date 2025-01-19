@@ -44,6 +44,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => $user ? [
                 'user' => UserData::fromUser($user)->include(
                     'id',
+                    'isEmailVerified',
                     'isMuted',
                     'isNew',
                     'legacyPermissions',
