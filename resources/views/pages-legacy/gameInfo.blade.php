@@ -1130,7 +1130,7 @@ if ($isFullyFeaturedGame) {
                                 <img width="48" height="48" src="{!! media_asset($award->image_asset_path) !!}" alt="{{ $award->label }}" />
                                 <div>
                                     <p>{{ $award->label }}</p>
-                                    <p class="smalltext">{{ $award->achievements_required }} {{ Str::plural('point', $award->achievements_required) }}</p>
+                                    <p class="smalltext">{{ $award->achievements_required }} {{ Str::plural('achievement', $award->achievements_required) }}</p>
                                 </div>
                             </div>
                         </td>
