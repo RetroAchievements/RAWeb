@@ -138,7 +138,7 @@ if ($game->system->id === System::Events) {
             // future event has been picked. don't show it until it's active
             $eventAchievement = null;
             $badgeName = $dataOut['BadgeName'] = '00000';
-            $achievementTitleRaw = $achievementTitle = $dataOut['Title'] = '?????';
+            $achievementTitleRaw = $achievementTitle = $dataOut['Title'] = 'Upcoming Challenge';
             $achievementDescriptionRaw = $dataOut['Description'] = '?????';
             $dataOut['SourceGameId'] = null;
         } else {

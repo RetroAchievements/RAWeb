@@ -345,9 +345,9 @@ final class Shortcode
 
         if ($data['ConsoleID'] === System::Events) {
             $achievement = Achievement::find($id);
-            if ($achievement->eventData?->source_achievement_id &&
-                $achievement->eventData?->active_from > Carbon::now()) {
-                $data['Title'] = $data['AchievementTitle'] = '?????';
+            if ($achievement->eventData?->source_achievement_id
+                && $achievement->eventData->active_from > Carbon::now()) {
+                $data['Title'] = $data['AchievementTitle'] = 'Upcoming Challenge';
                 $data['Description'] = '?????';
                 $data['BadgeName'] = '00000';
             }

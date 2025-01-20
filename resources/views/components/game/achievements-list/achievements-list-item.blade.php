@@ -47,7 +47,7 @@ if ($achievement['ActiveFrom'] ?? null && $achievement['ActiveUntil'] ?? null) {
     } elseif ($achievement['SourceAchievementId']) {
         // future event has been picked. don't show it until it's active
         $achBadgeName = '00000';
-        $achievement['Title'] = '?????';
+        $achievement['Title'] = 'Upcoming Challenge';
         $achievement['Description'] = '?????';
         $achievement['SourceGameId'] = null;
     }
