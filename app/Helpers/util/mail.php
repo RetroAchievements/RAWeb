@@ -490,10 +490,10 @@ function sendDisplayNameChangeDeclineEmail(
     $emailTitle = "About Your Username Change Request";
 
     $msg = "Hello,<br><br>" .
-        "We've reviewed your request to change your username to {$desiredDisplayName}. " .
-        "Unfortunately we weren't able to approve this change at this time.<br><br>" .
+        "We have reviewed your request to change your username to {$desiredDisplayName}, " .
+        "and have decided not to approve it at this time.<br><br>" .
 
-        "You're welcome to submit another request after a 30 day cooldown period has ended.<br><br> " .
+        "You are welcome to submit another request after a 30 day cooldown period has ended.<br><br> " .
 
         "-- Your friends at RetroAchievements.org<br>";
 
