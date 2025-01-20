@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Community\Concerns\HasAuthor;
 use App\Community\Contracts\HasComments;
+use App\Community\Enums\NewsCategory;
 use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
 use Database\Factories\NewsFactory;
@@ -40,12 +41,14 @@ class News extends BaseModel implements HasComments, HasMedia
         'user_id',
         'link',
         'image_asset_path',
+        'category',
         'publish_at',
         'unpublish_at',
         'pinned_at',
     ];
 
     protected $casts = [
+        'category' => NewsCategory::class,
         'publish_at' => 'datetime',
         'unpublish_at' => 'datetime',
         'pinned_at' => 'datetime',

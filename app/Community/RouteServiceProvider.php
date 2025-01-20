@@ -9,6 +9,7 @@ use App\Community\Controllers\AchievementCommentController;
 use App\Community\Controllers\AchievementSetClaimController;
 use App\Community\Controllers\Api\AchievementCommentApiController;
 use App\Community\Controllers\Api\ActivePlayersApiController;
+use App\Community\Controllers\Api\ForumTopicApiController;
 use App\Community\Controllers\Api\ForumTopicCommentApiController;
 use App\Community\Controllers\Api\GameClaimsCommentApiController;
 use App\Community\Controllers\Api\GameCommentApiController;
@@ -45,10 +46,11 @@ class RouteServiceProvider extends ServiceProvider
          * sanitize route model binding patterns
          */
         Route::pattern('topic', '[0-9]{1,17}');
-        Route::pattern('forum', '[0-9]{1,17}');
-        Route::pattern('category', '[0-9]{1,17}');
         Route::pattern('comment', '[0-9]{1,17}');
         Route::pattern('news', '[0-9]{1,17}');
+
+        Route::pattern('category', '[a-zA-Z0-9-]+');
+        Route::pattern('forum', '[a-zA-Z0-9-]+');
 
         parent::boot();
     }
@@ -69,8 +71,9 @@ class RouteServiceProvider extends ServiceProvider
                     Route::group(['prefix' => 'internal-api'], function () {
                         Route::post('achievement/{achievement}/comment', [AchievementCommentApiController::class, 'store'])->name('api.achievement.comment.store');
 
-                        Route::post('forums/post/preview', [ForumTopicCommentApiController::class, 'preview'])->name('api.forum-topic-comment.preview');
+                        Route::post('forums/{category}/{forum}/topic', [ForumTopicApiController::class, 'store'])->name('api.forum-topic.store');
                         Route::patch('forums/post/{comment}', [ForumTopicCommentApiController::class, 'update'])->name('api.forum-topic-comment.update');
+                        Route::post('forums/post/preview', [ForumTopicCommentApiController::class, 'preview'])->name('api.forum-topic-comment.preview');
 
                         Route::post('game/{game}/claims/comment', [GameClaimsCommentApiController::class, 'store'])->name('api.game.claims.comment.store');
                         Route::post('game/{game}/comment', [GameCommentApiController::class, 'store'])->name('api.game.comment.store');
@@ -101,6 +104,13 @@ class RouteServiceProvider extends ServiceProvider
                         Route::post('user-game-list/{game}', [UserGameListApiController::class, 'store'])->name('api.user-game-list.store');
                         Route::delete('user-game-list/{game}', [UserGameListApiController::class, 'destroy'])->name('api.user-game-list.destroy');
                     });
+
+                    Route::middleware(['inertia'])->group(function () {
+                        Route::get('forums/{category}/{forum}/create', [ForumTopicController::class, 'create'])->name('forum-topic.create');
+                        Route::get('forums/post/{comment}/edit', [ForumTopicCommentController::class, 'edit'])->name('forum-topic-comment.edit');
+
+                        Route::get('settings', [UserSettingsController::class, 'show'])->name('settings.show');
+                    });
                 });
 
                 Route::middleware(['inertia'])->group(function () {
@@ -118,12 +128,9 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('user/{user}/moderation-comments', [UserModerationCommentController::class, 'index'])->name('user.moderation-comment.index');
 
                     Route::get('forums/recent-posts', [ForumTopicController::class, 'recentPosts'])->name('forum.recent-posts');
-                    Route::get('forums/post/{comment}/edit', [ForumTopicCommentController::class, 'edit'])->name('forum-topic-comment.edit');
 
                     Route::get('user/{user}/posts', [UserForumTopicCommentController::class, 'index'])->name('user.posts.index');
                     Route::get('user/{user}/achievement-checklist', [UserAchievementChecklistController::class, 'index'])->name('user.achievement-checklist');
-
-                    Route::get('settings', [UserSettingsController::class, 'show'])->name('settings.show');
                 });
 
                 /*

@@ -26,15 +26,6 @@ if (!$isUnlocked) {
 $imgClass = $isUnlockedOnHardcore ? 'goldimagebig' : 'badgeimg';
 $imgClass .= ' w-[54px] h-[54px] sm:w-16 sm:h-16';
 
-$renderedAchievementAvatar = achievementAvatar(
-    $achievement,
-    label: false,
-    icon: $achBadgeName,
-    iconSize: 64,
-    iconClass: $imgClass,
-    tooltip: false
-);
-
 $unlockDate = '';
 if (isset($achievement['DateEarned'])) {
     $unlockDate = Carbon::parse($achievement['DateEarned'])->format('F j Y, g:ia');
@@ -53,8 +44,23 @@ if ($achievement['ActiveFrom'] ?? null && $achievement['ActiveUntil'] ?? null) {
         if ($activeUntil > Carbon::now()) {
             $isActive = true;
         }
+    } elseif ($achievement['SourceAchievementId']) {
+        // future event has been picked. don't show it until it's active
+        $achBadgeName = '00000';
+        $achievement['Title'] = 'Upcoming Challenge';
+        $achievement['Description'] = '?????';
+        $achievement['SourceGameId'] = null;
     }
 }
+
+$renderedAchievementAvatar = achievementAvatar(
+    $achievement,
+    label: false,
+    icon: $achBadgeName,
+    iconSize: 64,
+    iconClass: $imgClass,
+    tooltip: false
+);
 ?>
 
 <li class="flex gap-x-3 odd:bg-[rgba(50,50,50,0.4)] light:odd:bg-neutral-200  px-2 py-3 md:py-1 w-full {{ $isUnlocked ? 'unlocked-row' : '' }} {{ $achievement['type'] === 'missable' ? 'missable-row' : '' }} {{ $isActive ? 'active-row' : '' }}">

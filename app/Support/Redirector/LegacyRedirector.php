@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support\Redirector;
 
+use App\Models\Forum;
+use Exception;
 use GuzzleHttp\Psr7\Query;
 use Spatie\MissingPageRedirector\Redirector\Redirector;
 use Spatie\Url\Url;
@@ -19,6 +21,11 @@ class LegacyRedirector implements Redirector
         // removing the script will redirect eventually
         if (file_exists(public_path($request->getPathInfo()))) {
             return [];
+        }
+
+        // Handle the legacy create topic URL pattern.
+        if (preg_match('#^/forums/forum/(\d+)/topic/create$#', $request->getPathInfo(), $matches)) {
+            return $this->handleForumTopicCreateRedirect($matches[1]);
         }
 
         /*
@@ -61,5 +68,32 @@ class LegacyRedirector implements Redirector
         }
 
         return $redirects;
+    }
+
+    /**
+     * Handles the redirection of legacy forum topic create URLs to the new format.
+     * Returns an empty array if the forum is not found to allow 404 handling.
+     */
+    private function handleForumTopicCreateRedirect(string $forumId): array
+    {
+        try {
+            // Find the forum and load the category relation.
+            $forum = Forum::with('category')->find($forumId);
+
+            if (!$forum || !$forum->category) {
+                return [];
+            }
+
+            // Construct the new URL with all required segments.
+            $newUrl = sprintf(
+                '/forums/%s/%s/create',
+                $forum->category->id,
+                $forum->id
+            );
+
+            return [sprintf('/forums/forum/%s/topic/create', $forumId) => $newUrl];
+        } catch (Exception $e) {
+            return [];
+        }
     }
 }

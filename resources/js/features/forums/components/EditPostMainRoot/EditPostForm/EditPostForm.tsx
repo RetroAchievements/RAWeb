@@ -74,7 +74,7 @@ export const EditPostForm: FC<EditPostFormProps> = ({ onPreview }) => {
                 {t('Preview')}
               </BaseButton>
 
-              <BaseButton type="submit" disabled={!body.length || mutation.isPending}>
+              <BaseButton type="submit" disabled={!form.formState.isValid || mutation.isPending}>
                 {t('Submit')}
               </BaseButton>
             </div>

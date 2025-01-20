@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Support\Shortcode;
 
+use App\Models\Achievement;
+use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Thunder\Shortcode\Event\FilterShortcodesEvent;
@@ -360,6 +363,16 @@ final class Shortcode
 
         if (empty($data)) {
             return '';
+        }
+
+        if ($data['ConsoleID'] === System::Events) {
+            $achievement = Achievement::find($id);
+            if ($achievement->eventData?->source_achievement_id
+                && $achievement->eventData->active_from > Carbon::now()) {
+                $data['Title'] = $data['AchievementTitle'] = 'Upcoming Challenge';
+                $data['Description'] = '?????';
+                $data['BadgeName'] = '00000';
+            }
         }
 
         return achievementAvatar($data, iconSize: 24);

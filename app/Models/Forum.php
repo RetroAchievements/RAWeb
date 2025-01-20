@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use App\Support\Routing\HasSelfHealingUrls;
 use Database\Factories\ForumFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 
 class Forum extends BaseModel
 {
     /** @use HasFactory<ForumFactory> */
     use HasFactory;
+    use HasSelfHealingUrls;
     use Searchable;
     use SoftDeletes;
 
@@ -62,12 +63,6 @@ class Forum extends BaseModel
     public function getPermalinkAttribute(): string
     {
         return route('forum.show', $this);
-    }
-
-    public function getSlugAttribute(): string
-    {
-        return ($this->category->title ? '-' . Str::slug($this->category->title) : '')
-            . ($this->title ? '-' . Str::slug($this->title) : '');
     }
 
     // == mutators
