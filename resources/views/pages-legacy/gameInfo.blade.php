@@ -1123,9 +1123,9 @@ if ($isFullyFeaturedGame) {
             <div class="component gamealts">
                 <h2 class="text-h3">Award Tiers</h2>
                 <table class="table-highlight"><tbody>
-                @foreach ($gameModel->event->awards->sortBy('acheivements_required') as $award)
-                    <tr style="width:100%">
-                        <td style="width:100%">
+                @foreach ($gameModel->event->awards->sortBy('achievements_required') as $award)
+                    <tr style="w-full">
+                        <td style="w-full">
                             <div class="flex relative gap-x-2 items-center">
                                 <img width="48" height="48" src="{!! media_asset($award->image_asset_path) !!}" alt="{{ $award->label }}" />
                                 <div>
@@ -1134,7 +1134,7 @@ if ($isFullyFeaturedGame) {
                                 </div>
                             </div>
                         </td>
-                        <td style="text-align: right">
+                        <td style="text-right">
                             {{ number_format($badgeCounts->where('AwardDataExtra', $award->tier_index)->first()?->total ?? 0) }}
                         </td>
                     </tr>
