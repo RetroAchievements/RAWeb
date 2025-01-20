@@ -8,6 +8,7 @@ import {
   LuEyeOff,
   LuItalic,
   LuLink,
+  LuQuote,
   LuStrikethrough,
   LuUnderline,
 } from 'react-icons/lu';
@@ -23,6 +24,7 @@ export function useShortcodesList() {
     { icon: LuUnderline, t_label: t('Underline'), start: '[u]', end: '[/u]' },
     { icon: LuStrikethrough, t_label: t('Strikethrough'), start: '[s]', end: '[/s]' },
     { icon: LuCode2, t_label: t('Code'), start: '[code]', end: '[/code]' },
+    { icon: LuQuote, t_label: t('Quote'), start: '[quote]', end: '[/quote]' },
     { icon: LuEyeOff, t_label: t('Spoiler'), start: '[spoiler]', end: '[/spoiler]' },
     { icon: BsImageFill, t_label: t('Image'), start: '[img=', end: ']' },
     { icon: LuLink, t_label: t('Link'), start: '[url=', end: ']' },

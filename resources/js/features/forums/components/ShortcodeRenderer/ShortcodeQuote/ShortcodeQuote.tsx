@@ -1,10 +1,10 @@
 import type { FC, ReactNode } from 'react';
 
-interface ShortcodeCodeProps {
+interface ShortcodeQuoteProps {
   children: ReactNode;
 }
 
-export const ShortcodeCode: FC<ShortcodeCodeProps> = ({ children }) => {
+export const ShortcodeQuote: FC<ShortcodeQuoteProps> = ({ children }) => {
   // Remove leading <br>s and empty strings until we find content.
   let isLeadingWhitespace = true;
   const processedChildren = (Array.isArray(children) ? children : [children]).filter((node) => {
@@ -22,5 +22,5 @@ export const ShortcodeCode: FC<ShortcodeCodeProps> = ({ children }) => {
     return !isLeadingWhitespace;
   });
 
-  return <span className="codetags mb-3 font-mono">{processedChildren}</span>;
+  return <span className="quotedtext mb-3">{processedChildren}</span>;
 };

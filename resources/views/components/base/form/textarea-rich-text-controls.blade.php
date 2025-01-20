@@ -30,9 +30,13 @@ if(!$id) {
             {{-- x-tooltip="tooltip" --}} title="{{ __('Code') }}">
         <x-fas-code />
     </button>
-     <button type="button" class="btn" onclick="injectShortcode('{{ $id }}', '[spoiler]', '[/spoiler]')"
+    <button type="button" class="btn" onclick="injectShortcode('{{ $id }}', '[quote]', '[/quote]')"
+            {{-- x-tooltip="tooltip" --}} title="{{ __('Quote') }}">
+        <x-fas-quote-right />
+    </button>
+    <button type="button" class="btn" onclick="injectShortcode('{{ $id }}', '[spoiler]', '[/spoiler]')"
             {{-- x-tooltip="tooltip" --}} title="{{ __('Spoiler') }}">
-        Spoiler
+        <x-fas-eye-slash />
     </button>
     <button type="button" class="btn" onclick="injectShortcode('{{ $id }}', '[img=', ']')"
             {{-- x-tooltip="tooltip" --}} title="{{ __('Image') }}">
