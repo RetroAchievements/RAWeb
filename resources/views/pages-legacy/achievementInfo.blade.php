@@ -15,6 +15,7 @@ use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Services\TriggerDecoderService;
 use App\Support\Shortcode\Shortcode;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -132,9 +133,18 @@ if ($game->system->id === System::Events) {
     $eventAchievement = EventAchievement::where('achievement_id', '=', $achievementID)
         ->with('sourceAchievement')->first();
 
-    // update the ID of the dataOut so the link goes to the source achievement
     if ($eventAchievement?->sourceAchievement) {
-        $dataOut['ID'] = $eventAchievement->sourceAchievement->ID;
+        if ($eventAchievement->active_from > Carbon::now()) {
+            // future event has been picked. don't show it until it's active
+            $eventAchievement = null;
+            $badgeName = $dataOut['BadgeName'] = '00000';
+            $achievementTitleRaw = $achievementTitle = $dataOut['Title'] = 'Upcoming Challenge';
+            $achievementDescriptionRaw = $dataOut['Description'] = '?????';
+            $dataOut['SourceGameId'] = null;
+        } else {
+            // update the ID of the dataOut so the link goes to the source achievement
+            $dataOut['ID'] = $eventAchievement->sourceAchievement->ID;
+        }
     }
 }
 
