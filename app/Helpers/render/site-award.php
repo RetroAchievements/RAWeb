@@ -8,64 +8,43 @@ use App\Models\PlayerBadge;
 
 function SeparateAwards(array $userAwards): array
 {
-    // Pre-calculate type checks and perform partitioning in a single pass.
-    $typeInfo = [];
-    $gameAwards = [];
-    $eventAwards = [];
-
-    // Process each award: store its type info for later O(1) lookups.
-    foreach ($userAwards as $key => $award) {
-        $type = (int) $award['AwardType'];
-        $typeInfo[$key] = ['isGame' => AwardType::isGame($type), 'isActive' => AwardType::isActive($type)];
-
-        if ($type === AwardType::Event || ($type === AwardType::Mastery && $award['ConsoleName'] === 'Events')) {
-            $eventAwards[] = $award;
-        } elseif ($type === AwardType::Mastery) {
-            $gameAwards[] = $award;
-        }
-    }
-
-    // If there are no event awards, don't even check for dev events. We're done.
-    if (empty($eventAwards)) {
-        return [
-            $gameAwards,
-            [],
-            array_values(array_filter($userAwards, fn ($award, $key) => !$typeInfo[$key]['isGame'] && $typeInfo[$key]['isActive'], ARRAY_FILTER_USE_BOTH)),
-        ];
-    }
-
-    // Find dev event games with a single optimized query.
-    $devEventGamesLookup = array_flip(GameSet::query()
-        ->whereHas('games', fn ($q) => $q->whereIn('game_id', array_column($eventAwards, 'AwardData')))
-        ->where(fn ($q) => $q->where('id', 5)->orWhere('title', 'like', '[Dev Events - %'))
-        ->with(['games' => fn ($q) => $q->select('GameData.ID as id')])
+    // Get all dev event game IDs in a single optimized query.
+    $devEventGameIds = GameSet::query()
+        ->whereHas('games', fn ($q) => $q->whereIn('game_id', array_column($userAwards, 'AwardData')))
+        ->where(fn ($q) => $q->where('id', GameSet::DeveloperEventsHubId)
+                ->orWhere('title', 'LIKE', '[Dev Events - %')
+        )
+        ->with(['games' => fn ($q) => $q->select('GameData.ID')])
         ->get()
-        ->pluck('games.*.id')
+        ->pluck('games.*.ID')
         ->flatten()
         ->unique()
         ->values()
-        ->all());
+        ->all();
 
-    // Separate dev event awards and regular event awards with O(1) lookups.
-    $devEventAwards = [];
-    $regularEventAwards = [];
-    foreach ($eventAwards as $award) {
-        if (isset($devEventGamesLookup[$award['AwardData']])) {
-            $devEventAwards[] = $award;
-        } else {
-            $regularEventAwards[] = $award;
+    $gameAwards = []; // Mastery awards that aren't Events.
+    $eventAwards = []; // Event awards and Events mastery awards.
+    $siteAwards = []; // Dev event awards and non-game active awards.
+
+    foreach ($userAwards as $award) {
+        $type = (int) $award['AwardType'];
+
+        // Pre-calculate all type checks for this award.
+        $isGame = AwardType::isGame($type); // True if award is game-related (beaten/mastery).
+        $isActive = AwardType::isActive($type);
+        $isDevEvent = in_array($award['AwardData'], $devEventGameIds); // True if award is from dev events hub.
+
+        // Order matters when categorizing awards. Site awards take priority over game/event awards.
+        if ($isDevEvent || (!$isGame && $isActive)) {
+            $siteAwards[] = $award;
+        } elseif ($type === AwardType::Mastery && $award['ConsoleName'] !== 'Events') {
+            $gameAwards[] = $award;
+        } elseif ($type === AwardType::Event || ($type === AwardType::Mastery && $award['ConsoleName'] === 'Events')) {
+            $eventAwards[] = $award;
         }
     }
 
-    // Calculate site awards including dev event awards.
-    $devEventAwardsLookup = array_flip(array_map('serialize', $devEventAwards));
-
-    return [
-        $gameAwards,
-        $regularEventAwards,
-        array_values(array_filter($userAwards, fn ($award, $key) => isset($devEventAwardsLookup[serialize($award)])
-            || (!$typeInfo[$key]['isGame'] && $typeInfo[$key]['isActive']), ARRAY_FILTER_USE_BOTH)),
-    ];
+    return [array_values($gameAwards), array_values($eventAwards), array_values($siteAwards)];
 }
 
 function RenderSiteAwards(array $userAwards, string $awardsOwnerUsername): void
