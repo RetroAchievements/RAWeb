@@ -8,8 +8,13 @@ use App\Models\Achievement;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\System;
+use App\Models\User;
+use App\Platform\Actions\AssociateAchievementSetToGameAction;
+use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
+use App\Platform\Enums\AchievementSetType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
@@ -20,6 +25,21 @@ class UnlocksTest extends TestCase
     use RefreshDatabase;
     use TestsEmulatorUserAgent;
     use TestsPlayerAchievements;
+
+    private UpsertGameCoreAchievementSetFromLegacyFlagsAction $upsertGameCoreSetAction;
+    private AssociateAchievementSetToGameAction $associateAchievementSetToGameAction;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->upsertGameCoreSetAction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
+        $this->associateAchievementSetToGameAction = new AssociateAchievementSetToGameAction();
+
+        /** @var User $user */
+        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $this->user = $user;
+    }
 
     public function testUnlocks(): void
     {
@@ -33,13 +53,34 @@ class UnlocksTest extends TestCase
         /** @var Achievement $achievement4 */
         $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
 
+        $this->upsertGameCoreSetAction->execute($game);
+
+        /** @var Game $bonusGame */
+        $bonusGame = Game::factory()->create([
+            'ConsoleID' => $game->ConsoleID,
+            'Title' => $game->title . ' [Subset - Bonus]',
+        ]);
+        /** @var Achievement $bonusAchievement1 */
+        $bonusAchievement1 = Achievement::factory()->published()->create(['GameID' => $bonusGame->id]);
+        /** @var Achievement $bonusAchievement2 */
+        $bonusAchievement2 = Achievement::factory()->published()->create(['GameID' => $bonusGame->id]);
+
+        $this->upsertGameCoreSetAction->execute($bonusGame);
+        $this->associateAchievementSetToGameAction->execute($game, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+
         $now = Carbon::now()->subSeconds(15); // 15-second offset so times aren't on the boundaries being queried
+
         $unlock1Date = $now->clone()->subMinutes(65);
         $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date);
         $unlock2Date = $now->clone()->subMinutes(22);
         $this->addHardcoreUnlock($this->user, $achievement2, $unlock2Date);
         $unlock3Date = $now->clone()->subMinutes(1);
         $this->addSoftcoreUnlock($this->user, $achievement3, $unlock3Date);
+
+        $bonusUnlock1Date = $now->clone()->subMinutes(45);
+        $this->addHardcoreUnlock($this->user, $bonusAchievement1, $bonusUnlock1Date);
+        $bonusUnlock2Date = $now->clone()->subMinutes(15);
+        $this->addSoftcoreUnlock($this->user, $bonusAchievement2, $bonusUnlock2Date);
 
         $this->seedEmulatorUserAgents();
 
@@ -50,7 +91,13 @@ class UnlocksTest extends TestCase
                 'Success' => true,
                 'GameID' => $game->ID,
                 'HardcoreMode' => false,
-                'UserUnlocks' => [$achievement1->ID, $achievement2->ID, $achievement3->ID],
+                'UserUnlocks' => [
+                    $achievement1->ID,
+                    $achievement2->ID,
+                    $achievement3->ID,
+                    $bonusAchievement1->ID,
+                    $bonusAchievement2->ID,
+                ],
             ]);
 
         // hardcore unlocks for the game
@@ -60,7 +107,11 @@ class UnlocksTest extends TestCase
                 'Success' => true,
                 'GameID' => $game->ID,
                 'HardcoreMode' => true,
-                'UserUnlocks' => [$achievement1->ID, $achievement2->ID],
+                'UserUnlocks' => [
+                    $achievement1->ID,
+                    $achievement2->ID,
+                    $bonusAchievement1->ID,
+                ],
             ]);
 
         // hardcore filter not specified, return all unlocks for the game
@@ -70,7 +121,13 @@ class UnlocksTest extends TestCase
                 'Success' => true,
                 'GameID' => $game->ID,
                 'HardcoreMode' => false,
-                'UserUnlocks' => [$achievement1->ID, $achievement2->ID, $achievement3->ID],
+                'UserUnlocks' => [
+                    $achievement1->ID,
+                    $achievement2->ID,
+                    $achievement3->ID,
+                    $bonusAchievement1->ID,
+                    $bonusAchievement2->ID,
+                ],
             ]);
 
         // all unlocks for the game (outdated client)
@@ -80,7 +137,14 @@ class UnlocksTest extends TestCase
                 'Success' => true,
                 'GameID' => $game->ID,
                 'HardcoreMode' => false,
-                'UserUnlocks' => [$achievement1->ID, $achievement2->ID, $achievement3->ID, Achievement::CLIENT_WARNING_ID],
+                'UserUnlocks' => [
+                    $achievement1->ID,
+                    $achievement2->ID,
+                    $achievement3->ID,
+                    $bonusAchievement1->ID,
+                    $bonusAchievement2->ID,
+                    Achievement::CLIENT_WARNING_ID,
+                ],
             ]);
 
         // hardcore unlocks for the game (outdated client)
@@ -90,7 +154,11 @@ class UnlocksTest extends TestCase
                 'Success' => true,
                 'GameID' => $game->ID,
                 'HardcoreMode' => true,
-                'UserUnlocks' => [$achievement1->ID, $achievement2->ID],
+                'UserUnlocks' => [
+                    $achievement1->ID,
+                    $achievement2->ID,
+                    $bonusAchievement1->ID,
+                ],
             ]);
 
         // hardcore unlocks for the game (unsupported client)
@@ -100,7 +168,11 @@ class UnlocksTest extends TestCase
                 'Success' => true,
                 'GameID' => $game->ID,
                 'HardcoreMode' => true,
-                'UserUnlocks' => [$achievement1->ID, $achievement2->ID],
+                'UserUnlocks' => [
+                    $achievement1->ID,
+                    $achievement2->ID,
+                    $bonusAchievement1->ID,
+                ],
             ]);
 
         // unknown game ID
@@ -120,7 +192,11 @@ class UnlocksTest extends TestCase
                 'Success' => true,
                 'GameID' => $game->ID,
                 'HardcoreMode' => true,
-                'UserUnlocks' => [$achievement1->ID, $achievement2->ID],
+                'UserUnlocks' => [
+                    $achievement1->ID,
+                    $achievement2->ID,
+                    $bonusAchievement1->ID,
+                ],
             ]);
 
         // not-unlocked event achievement hides hardcore unlock when active
@@ -129,6 +205,8 @@ class UnlocksTest extends TestCase
         $eventGame = Game::factory()->create(['ConsoleID' => System::Events]);
         /** @var Achievement $eventAchievement1 */
         $eventAchievement1 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+
+        $this->upsertGameCoreSetAction->execute($eventGame);
 
         Carbon::setTestNow($now->addWeeks(1));
         EventAchievement::create([
@@ -145,7 +223,13 @@ class UnlocksTest extends TestCase
                 'Success' => true,
                 'GameID' => $game->ID,
                 'HardcoreMode' => false,
-                'UserUnlocks' => [$achievement1->ID, $achievement2->ID, $achievement3->ID],
+                'UserUnlocks' => [
+                    $achievement1->ID,
+                    $achievement2->ID,
+                    $achievement3->ID,
+                    $bonusAchievement1->ID,
+                    $bonusAchievement2->ID,
+                ],
             ]);
 
         // hardcore ignores event achievement when untracked
@@ -157,7 +241,11 @@ class UnlocksTest extends TestCase
                 'Success' => true,
                 'GameID' => $game->ID,
                 'HardcoreMode' => true,
-                'UserUnlocks' => [$achievement1->ID, $achievement2->ID],
+                'UserUnlocks' => [
+                    $achievement1->ID,
+                    $achievement2->ID,
+                    $bonusAchievement1->ID,
+                ],
             ]);
         $this->user->unranked_at = null;
         $this->user->save();
@@ -169,7 +257,10 @@ class UnlocksTest extends TestCase
                 'Success' => true,
                 'GameID' => $game->ID,
                 'HardcoreMode' => true,
-                'UserUnlocks' => [$achievement2->ID],
+                'UserUnlocks' => [
+                    $achievement2->ID,
+                    $bonusAchievement1->ID,
+                ],
             ]);
 
         // event achievement returned as unlocked after unlocking it
@@ -180,7 +271,11 @@ class UnlocksTest extends TestCase
                 'Success' => true,
                 'GameID' => $game->ID,
                 'HardcoreMode' => true,
-                'UserUnlocks' => [$achievement1->ID, $achievement2->ID],
+                'UserUnlocks' => [
+                    $achievement1->ID,
+                    $achievement2->ID,
+                    $bonusAchievement1->ID,
+                ],
             ]);
     }
 }
