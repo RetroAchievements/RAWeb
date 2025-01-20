@@ -139,4 +139,15 @@ describe('Util: preProcessShortcodesInBody', () => {
     // ASSERT
     expect(result).toEqual('  indented\n  still indented  \n\n  more space  ');
   });
+
+  it('preserves whitespace while normalizing encoded line endings', () => {
+    // ARRANGE
+    const input = '  indented\u21B5\n  still indented  \u21B5\n\n  more space  ';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('  indented\n  still indented  \n\n  more space  ');
+  });
 });
