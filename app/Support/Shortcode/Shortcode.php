@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Support\Shortcode;
 
+use App\Models\Achievement;
+use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Thunder\Shortcode\Event\FilterShortcodesEvent;
@@ -32,6 +35,7 @@ final class Shortcode
             ->add('code', fn (ShortcodeInterface $s) => $this->renderCode($s))
             ->add('url', fn (ShortcodeInterface $s) => $this->renderUrlLink($s))
             ->add('link', fn (ShortcodeInterface $s) => $this->renderLink($s))
+            ->add('quote', fn (ShortcodeInterface $s) => $this->renderQuote($s))
             ->add('spoiler', fn (ShortcodeInterface $s) => $this->renderSpoiler($s))
             ->add('ach', fn (ShortcodeInterface $s) => $this->embedAchievement((int) ($s->getBbCode() ?: $s->getContent())))
             ->add('game', fn (ShortcodeInterface $s) => $this->embedGame((int) ($s->getBbCode() ?: $s->getContent())))
@@ -148,11 +152,11 @@ final class Shortcode
             '~\[ticket(=)?(\d+)]~i' => 'Ticket $2',
 
             // Fragments: opening tags without closing tags.
-            '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)\b[^\]]*?\]~i' => '',
-            '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)\b[^\]]*?$~i' => '...',
+            '~\[(b|i|u|s|img|code|url|link|quote|spoiler|ach|game|ticket|user)\b[^\]]*?\]~i' => '',
+            '~\[(b|i|u|s|img|code|url|link|quote|spoiler|ach|game|ticket|user)\b[^\]]*?$~i' => '...',
 
             // Fragments: closing tags without opening tags.
-            '~\[/?(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)\]~i' => '',
+            '~\[/?(b|i|u|s|img|code|url|link|quote|spoiler|ach|game|ticket|user)\]~i' => '',
         ];
 
         foreach ($stripPatterns as $stripPattern => $replacement) {
@@ -315,6 +319,27 @@ final class Shortcode
         return '<pre class="codetags">' . str_replace('<br>', '', $shortcode->getContent() ?? '') . '</pre>';
     }
 
+    private function renderQuote(ShortcodeInterface $shortcode): string
+    {
+        $content = trim($shortcode->getContent() ?? '');
+
+        // $content will contain a leading and trailing <br> if the [quote] tag is on a separate line.
+        //
+        //   [quote]
+        //   This is a quote.
+        //   [/quote]
+        //
+        // We don't want that extra whitespace in the output, so strip them. Leave any intermediary <br>s.
+        if (str_starts_with($content, '<br>')) {
+            $content = substr($content, 4);
+        }
+        if (str_ends_with($content, '<br>')) {
+            $content = substr($content, 0, -4);
+        }
+
+        return '<span class="quotedtext">' . $content . '</span>';
+    }
+
     private function renderSpoiler(ShortcodeInterface $shortcode): string
     {
         $content = $shortcode->getContent() ?? '';
@@ -338,6 +363,16 @@ final class Shortcode
 
         if (empty($data)) {
             return '';
+        }
+
+        if ($data['ConsoleID'] === System::Events) {
+            $achievement = Achievement::find($id);
+            if ($achievement->eventData?->source_achievement_id
+                && $achievement->eventData->active_from > Carbon::now()) {
+                $data['Title'] = $data['AchievementTitle'] = 'Upcoming Challenge';
+                $data['Description'] = '?????';
+                $data['BadgeName'] = '00000';
+            }
         }
 
         return achievementAvatar($data, iconSize: 24);

@@ -44,4 +44,35 @@ describe('Component: ShortcodeCode', () => {
     expect(spanEl).toHaveClass('font-mono');
     expect(spanEl).toHaveClass('codetags');
   });
+
+  it('removes leading line breaks in the output', () => {
+    // ARRANGE
+    render(
+      <ShortcodeCode>
+        <br />
+        test content
+      </ShortcodeCode>,
+    );
+
+    // ASSERT
+    const spanEl = screen.getByText(/test/i);
+    expect(spanEl).toBeVisible();
+    expect(spanEl.innerHTML).toEqual('test content');
+  });
+
+  it('retains inner line breaks in the output', () => {
+    // ARRANGE
+    render(
+      <ShortcodeCode>
+        test
+        <br />
+        content
+      </ShortcodeCode>,
+    );
+
+    // ASSERT
+    const spanEl = screen.getByText(/test/i);
+    expect(spanEl).toBeVisible();
+    expect(spanEl.innerHTML).toEqual('test<br>content');
+  });
 });
