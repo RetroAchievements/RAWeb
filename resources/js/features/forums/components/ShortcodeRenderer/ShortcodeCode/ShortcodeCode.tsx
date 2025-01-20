@@ -22,5 +22,5 @@ export const ShortcodeCode: FC<ShortcodeCodeProps> = ({ children }) => {
     return !isLeadingWhitespace;
   });
 
-  return <span className="codetags font-mono">{processedChildren}</span>;
+  return <span className="codetags mb-3 font-mono">{processedChildren}</span>;
 };

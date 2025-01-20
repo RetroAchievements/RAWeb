@@ -22,5 +22,5 @@ export const ShortcodeQuote: FC<ShortcodeQuoteProps> = ({ children }) => {
     return !isLeadingWhitespace;
   });
 
-  return <span className="quotedtext">{processedChildren}</span>;
+  return <span className="quotedtext mb-3">{processedChildren}</span>;
 };
