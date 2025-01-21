@@ -44,6 +44,7 @@ class UserFactory extends Factory
             'Untracked' => 0,
             'UserWallActive' => 1,
             'muted_until' => null,
+            'visible_role_id' => null,
 
             // nullable
             'APIKey' => 'apiKey',
