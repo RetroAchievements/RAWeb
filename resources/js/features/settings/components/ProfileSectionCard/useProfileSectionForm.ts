@@ -10,9 +10,15 @@ import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 const profileFormSchema = z.object({
   motto: z.string().max(50),
   userWallActive: z.boolean(),
+  visibleRoleId: z
+    .string() // The incoming value is a string from a select field.
+    .nullable()
+    .transform((val) => Number(val)) // We need to convert it to a numeric ID.
+    .pipe(z.number().nullable())
+    .optional(),
 });
 
-type FormValues = z.infer<typeof profileFormSchema>;
+export type FormValues = z.infer<typeof profileFormSchema>;
 
 export function useProfileSectionForm(initialValues: FormValues) {
   const { t } = useTranslation();
@@ -24,7 +30,12 @@ export function useProfileSectionForm(initialValues: FormValues) {
 
   const mutation = useMutation({
     mutationFn: (formValues: FormValues) => {
-      return axios.put(route('api.settings.profile.update'), formValues);
+      const payload = { ...formValues };
+      if (!payload.visibleRoleId) {
+        delete payload.visibleRoleId;
+      }
+
+      return axios.put(route('api.settings.profile.update'), payload);
     },
   });
 

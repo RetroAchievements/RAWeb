@@ -8,6 +8,11 @@ import { createUser } from '@/test/factories';
 import { ProfileSectionCard } from './ProfileSectionCard';
 
 describe('Component: ProfileSectionCard', () => {
+  beforeEach(() => {
+    window.HTMLElement.prototype.hasPointerCapture = vi.fn();
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render<App.Community.Data.UserSettingsPageProps>(<ProfileSectionCard />, {
@@ -26,7 +31,7 @@ describe('Component: ProfileSectionCard', () => {
     render<App.Community.Data.UserSettingsPageProps>(<ProfileSectionCard />, {
       pageProps: {
         can: {},
-        userSettings: createUser({ visibleRole: null }),
+        userSettings: createUser(),
       },
     });
 
@@ -38,13 +43,19 @@ describe('Component: ProfileSectionCard', () => {
     // ARRANGE
     render<App.Community.Data.UserSettingsPageProps>(<ProfileSectionCard />, {
       pageProps: {
+        displayableRoles: [{ id: 6, name: 'developer' }],
+        auth: {
+          user: createAuthenticatedUser({
+            visibleRole: { id: 6, name: 'developer' },
+          }),
+        },
         can: {},
-        userSettings: createUser({ visibleRole: 'Some Role' }),
+        userSettings: createUser(),
       },
     });
 
     // ASSERT
-    expect(screen.getByLabelText(/visible role/i)).toHaveTextContent(/some role/i);
+    expect(screen.getByLabelText(/visible role/i)).toHaveTextContent(/developer/i);
   });
 
   it('given the user is unable to change their motto, tells them', () => {
@@ -54,7 +65,7 @@ describe('Component: ProfileSectionCard', () => {
         can: {
           updateMotto: false,
         },
-        userSettings: createUser({ visibleRole: 'Some Role' }),
+        userSettings: createUser(),
       },
     });
 
@@ -75,7 +86,7 @@ describe('Component: ProfileSectionCard', () => {
           user: createAuthenticatedUser({ username: 'Scott', id: 1 }),
         },
         can: {},
-        userSettings: createUser({ visibleRole: null }),
+        userSettings: createUser(),
       },
     });
 
@@ -98,7 +109,7 @@ describe('Component: ProfileSectionCard', () => {
           user: createAuthenticatedUser({ username: 'Scott', id: 1 }),
         },
         can: {},
-        userSettings: createUser({ visibleRole: null }),
+        userSettings: createUser(),
       },
     });
 
@@ -121,7 +132,6 @@ describe('Component: ProfileSectionCard', () => {
         },
         can: {},
         userSettings: createUser({
-          visibleRole: null,
           motto: mockMotto,
           userWallActive: mockUserWallActive,
         }),
@@ -142,14 +152,16 @@ describe('Component: ProfileSectionCard', () => {
 
     render(<ProfileSectionCard />, {
       pageProps: {
+        displayableRoles: [], // !! no selectable roles
         auth: {
-          user: createAuthenticatedUser({ username: 'Scott' }),
+          user: createAuthenticatedUser({
+            username: 'Scott',
+          }),
         },
         can: {
           updateMotto: true,
         },
         userSettings: createUser({
-          visibleRole: null,
           motto: mockMotto,
           userWallActive: mockUserWallActive,
         }),
@@ -170,6 +182,53 @@ describe('Component: ProfileSectionCard', () => {
     expect(putSpy).toHaveBeenCalledWith(route('api.settings.profile.update'), {
       motto: 'https://www.youtube.com/watch?v=YYOKMUTTDdA',
       userWallActive: false,
+    });
+  });
+
+  it('given the user has selectable visible roles, properly submits their selection', async () => {
+    // ARRANGE
+    const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });
+
+    const mockMotto = 'my motto';
+    const mockUserWallActive = true;
+
+    const displayableRoles: App.Data.Role[] = [
+      { id: 2, name: 'administrator' },
+      { id: 6, name: 'developer' },
+    ];
+
+    const visibleRole = displayableRoles[1];
+
+    render(<ProfileSectionCard />, {
+      pageProps: {
+        displayableRoles, // !! two of them
+        auth: {
+          user: createAuthenticatedUser({
+            visibleRole, // !! developer
+            username: 'Scott',
+          }),
+        },
+        can: {
+          updateMotto: true,
+        },
+        userSettings: createUser({
+          motto: mockMotto,
+          userWallActive: mockUserWallActive,
+        }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('combobox', { name: /role/i }));
+    await userEvent.click(screen.getByRole('option', { name: /admin/i }));
+
+    await userEvent.click(screen.getByRole('button', { name: /update/i }));
+
+    // ASSERT
+    expect(putSpy).toHaveBeenCalledWith(route('api.settings.profile.update'), {
+      motto: 'my motto',
+      userWallActive: true,
+      visibleRoleId: 2,
     });
   });
 });

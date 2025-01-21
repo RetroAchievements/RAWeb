@@ -31,6 +31,7 @@ class UpdateProfileRequest extends FormRequest
         return [
             'motto' => 'nullable|string|max:50',
             'userWallActive' => 'nullable|boolean',
+            'visibleRoleId' => 'nullable|integer',
         ];
     }
 

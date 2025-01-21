@@ -31,10 +31,9 @@
                     {!! userAvatar($author, icon: false, tooltip: true) !!}
                 </div>
 
-                {{-- TODO display visible role --}}
-                @if ($author->getAttribute('Permissions') > Permissions::Registered)
+                @if ($author->visible_role?->name)
                     <p class="smalltext !leading-4 !text-xs lg:!text-2xs">
-                        {{ Permissions::toString($author->getAttribute('Permissions')) }}
+                        {{ __('permission.role.' . $author->visible_role->name) }}
                     </p>
                 @endif
 

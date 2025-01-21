@@ -18,11 +18,13 @@ use App\Community\Requests\UpdateLocaleRequest;
 use App\Community\Requests\UpdatePasswordRequest;
 use App\Community\Requests\UpdateProfileRequest;
 use App\Community\Requests\UpdateWebsitePrefsRequest;
+use App\Data\RoleData;
 use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Http\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -54,7 +56,18 @@ class UserSettingsController extends Controller
             'updateMotto'
         );
 
-        $props = new UserSettingsPagePropsData($userSettings, $can);
+        /** @var Role $displayableRoles */
+        $displayableRoles = $user->displayableRoles()->orderBy('display')->orderBy('name')->get();
+
+        $mappedRoles = $displayableRoles->map(fn ($role) => RoleData::fromRole($role))
+            ->values()
+            ->all();
+
+        $props = new UserSettingsPagePropsData(
+            $userSettings,
+            $can,
+            $mappedRoles,
+        );
 
         return Inertia::render('settings', $props);
     }

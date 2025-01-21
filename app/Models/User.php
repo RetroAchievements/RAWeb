@@ -164,6 +164,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         'Untracked',
         'User', // fillable for registration
         'UserWallActive',
+        'visible_role_id',
         'websitePrefs',
     ];
 

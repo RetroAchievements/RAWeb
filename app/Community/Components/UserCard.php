@@ -63,6 +63,7 @@ class UserCard extends Component
                 return $foundUser ? [
                     ...$foundUser->toArray(),
                     'isMuted' => $foundUser->isMuted(),
+                    'visibleRoleName' => $foundUser->visible_role?->name,
                 ] : null;
             }
         );
@@ -72,7 +73,7 @@ class UserCard extends Component
     {
         $cardBioData = $this->buildCardBioData($rawUserData);
         $cardRankData = $this->buildCardRankData($username, $rawUserData['RAPoints'], $rawUserData['RASoftcorePoints'], $rawUserData['Untracked'] ? true : false);
-        $cardRoleData = $this->buildCardRoleData($username, $rawUserData['Permissions']);
+        $cardRoleData = $this->buildCardRoleData($username, $rawUserData['visibleRoleName']);
 
         return array_merge($cardBioData, $cardRankData, $cardRoleData);
     }
@@ -147,10 +148,10 @@ class UserCard extends Component
         );
     }
 
-    private function buildCardRoleData(string $username, int $permissions): array
+    private function buildCardRoleData(string $username, ?string $visibleRoleName): array
     {
-        $canShowUserRole = $permissions >= Permissions::JuniorDeveloper;
-        $roleLabel = Permissions::toString($permissions);
+        $canShowUserRole = $visibleRoleName !== null;
+        $roleLabel = $visibleRoleName ? __('permission.role.' . $visibleRoleName) : null;
 
         $useExtraNamePadding =
             $canShowUserRole
