@@ -80,6 +80,7 @@ trait ActsAsCommunityMember
      */
     public function displayableRoles(): BelongsToMany
     {
+        /** @var BelongsToMany<SpatieRole> */
         return $this->roles()->where('display', '>', 0);
     }
 

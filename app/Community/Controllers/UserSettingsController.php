@@ -28,6 +28,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
@@ -56,7 +57,7 @@ class UserSettingsController extends Controller
             'updateMotto'
         );
 
-        /** @var Role $displayableRoles */
+        /** @var Collection<int, Role> $displayableRoles */
         $displayableRoles = $user->displayableRoles()->orderBy('display')->orderBy('name')->get();
 
         $mappedRoles = $displayableRoles->map(fn ($role) => RoleData::fromRole($role))
