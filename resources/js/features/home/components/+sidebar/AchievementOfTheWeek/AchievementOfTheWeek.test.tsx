@@ -253,4 +253,54 @@ describe('Component: AchievementOfTheWeek', () => {
     expect(screen.queryByText(/ends/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/from now/i)).not.toBeInTheDocument();
   });
+
+  it('given the user has unlocked the achievement of the week, gives the achievement badge a border', () => {
+    // ARRANGE
+    const sourceAchievement = createAchievement({
+      id: 9,
+      title: 'That Was Easy',
+      description: 'foo',
+    });
+    const achievementOfTheWeek = createAchievementOfTheWeekProps({
+      currentEventAchievement: createEventAchievement({
+        achievement: sourceAchievement,
+        sourceAchievement,
+        activeUntil: undefined,
+      }),
+      doesUserHaveUnlock: true, // !!
+    });
+
+    render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
+      pageProps: createHomePageProps({ achievementOfTheWeek }),
+    });
+
+    // ASSERT
+    const imgEl = screen.getByRole('img', { name: /that was easy/i });
+    expect(imgEl).toHaveClass('outline outline-[gold]');
+  });
+
+  it('given the user has not unlocked the achievement of the week, does not give the achievement badge a border', () => {
+    // ARRANGE
+    const sourceAchievement = createAchievement({
+      id: 9,
+      title: 'That Was Easy',
+      description: 'foo',
+    });
+    const achievementOfTheWeek = createAchievementOfTheWeekProps({
+      currentEventAchievement: createEventAchievement({
+        achievement: sourceAchievement,
+        sourceAchievement,
+        activeUntil: undefined,
+      }),
+      doesUserHaveUnlock: false, // !!
+    });
+
+    render<App.Http.Data.HomePageProps>(<AchievementOfTheWeek />, {
+      pageProps: createHomePageProps({ achievementOfTheWeek }),
+    });
+
+    // ASSERT
+    const imgEl = screen.getByRole('img', { name: /that was easy/i });
+    expect(imgEl).not.toHaveClass('outline outline-[gold]');
+  });
 });
