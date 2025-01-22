@@ -210,13 +210,16 @@ function getUserAchievementUnlocksForGame(User|string $user, int $gameID, Achiev
 
     $playerAchievements = $user
         ->playerAchievements()
-        ->join('Achievements', 'Achievements.ID', '=', 'achievement_id')
-        ->where('GameID', $gameID)
+        ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
+        ->join('achievement_set_achievements', 'Achievements.ID', '=', 'achievement_set_achievements.achievement_id')
+        ->join('achievement_sets', 'achievement_sets.id', '=', 'achievement_set_achievements.achievement_set_id')
+        ->join('game_achievement_sets', 'game_achievement_sets.achievement_set_id', '=', 'achievement_sets.id')
+        ->where('game_achievement_sets.game_id', $gameID)
         ->where('Flags', $flag->value)
         ->get([
-            'achievement_id',
-            'unlocked_at',
-            'unlocked_hardcore_at',
+            'player_achievements.achievement_id',
+            'player_achievements.unlocked_at',
+            'player_achievements.unlocked_hardcore_at',
         ])
         ->mapWithKeys(function ($unlock, int $key) {
             $result = [];

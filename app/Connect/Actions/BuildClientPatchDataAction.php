@@ -48,7 +48,7 @@ class BuildClientPatchDataAction
             return $this->buildPatchData($game, null, $user, $flag);
         }
 
-        $rootGameId = (new ResolveRootGameIdAction())->execute($gameHash, $game, $user);
+        $rootGameId = (new ResolveRootGameIdFromGameAndGameHashAction())->execute($gameHash, $game, $user);
         $rootGame = Game::find($rootGameId);
 
         // If multiset is disabled or there's no user, just use the game directly.
@@ -69,7 +69,7 @@ class BuildClientPatchDataAction
         $richPresencePatch = $coreGame->RichPresencePatch;
 
         // For specialty/exclusive sets, we use:
-        // - The root game's ID and achievements (already determined by ResolveRootGameIdAction).
+        // - The root game's ID and achievements (already determined by ResolveRootGameIdFromGameAndGameHashAction).
         // - The core game's title and image.
         // - The root game's RP if present, otherwise fall back to core game's RP.
         if ($rootGameId === $gameHash->game->id) {
