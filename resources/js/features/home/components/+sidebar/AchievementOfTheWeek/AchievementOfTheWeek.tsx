@@ -44,6 +44,7 @@ export const AchievementOfTheWeek: FC = () => {
                 hasTooltip={false}
                 size={64}
                 showLabel={false}
+                showHardcoreUnlockBorder={achievementOfTheWeek?.doesUserHaveUnlock}
               />
 
               <div className="flex flex-col gap-0.5 self-start">
