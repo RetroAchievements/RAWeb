@@ -42,6 +42,10 @@ class UserSettingsController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
+        $user->load(['roles' => function ($query) {
+            $query->where('display', '>', 0);
+        }]);
+
         $userSettings = UserData::fromUser($user)->include(
             'apiKey',
             'deleteRequested',
@@ -58,7 +62,7 @@ class UserSettingsController extends Controller
         );
 
         /** @var Collection<int, Role> $displayableRoles */
-        $displayableRoles = $user->displayableRoles()->orderBy('display')->orderBy('name')->get();
+        $displayableRoles = $user->roles;
 
         $mappedRoles = $displayableRoles->map(fn ($role) => RoleData::fromRole($role))
             ->values()

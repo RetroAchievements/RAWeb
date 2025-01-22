@@ -231,4 +231,38 @@ describe('Component: ProfileSectionCard', () => {
       visibleRoleId: 2,
     });
   });
+
+  it('given multiple visible roles are available, displays them sorted alphabetically by translated name', async () => {
+    // ARRANGE
+    const displayableRoles: App.Data.Role[] = [
+      { id: 1, name: 'zdev' },
+      { id: 2, name: 'adev' },
+      { id: 3, name: 'mdev' },
+    ];
+
+    render<App.Community.Data.UserSettingsPageProps>(<ProfileSectionCard />, {
+      pageProps: {
+        displayableRoles,
+        auth: {
+          user: createAuthenticatedUser({
+            visibleRole: displayableRoles[0],
+          }),
+        },
+        can: {
+          updateMotto: true,
+        },
+        userSettings: createUser(),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('combobox', { name: /role/i }));
+
+    // ASSERT
+    const optionEls = screen.getAllByRole('option');
+
+    expect(optionEls[0]).toHaveTextContent(/adev/i);
+    expect(optionEls[1]).toHaveTextContent(/mdev/i);
+    expect(optionEls[2]).toHaveTextContent(/zdev/i);
+  });
 });

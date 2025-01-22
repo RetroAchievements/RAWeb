@@ -46,6 +46,13 @@ export const VisibleRoleField: FC = () => {
     );
   }
 
+  const sortedDisplayableRoles = displayableRoles.sort((a, b) => {
+    const aName = t(a.name as TranslationKey);
+    const bName = t(b.name as TranslationKey);
+
+    return aName.localeCompare(bName);
+  });
+
   return (
     <BaseFormField
       control={form.control}
@@ -64,12 +71,9 @@ export const VisibleRoleField: FC = () => {
                 </BaseSelectTrigger>
 
                 <BaseSelectContent>
-                  {displayableRoles.map((displayableRole) => (
-                    <BaseSelectItem
-                      key={`role-option-${displayableRole.id}`}
-                      value={String(displayableRole.id)}
-                    >
-                      {t(displayableRole.name as TranslationKey)}
+                  {sortedDisplayableRoles.map((role) => (
+                    <BaseSelectItem key={`role-option-${role.id}`} value={String(role.id)}>
+                      {t(role.name as TranslationKey)}
                     </BaseSelectItem>
                   ))}
                 </BaseSelectContent>
