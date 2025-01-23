@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Filament\Actions\ProcessUploadedImageAction;
+use App\Filament\Enums\ImageUploadType;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EventAchievementResource\Pages;
 use App\Models\Achievement;
@@ -89,6 +91,29 @@ class EventAchievementResource extends Resource
                             ]),
                     ])
                     ->hidden(fn ($record) => !$record->sourceAchievement),
+
+                Infolists\Components\Section::make()
+                    ->relationship('achievement')
+                    ->columns(['xl' => 2, '2xl' => 3])
+                    ->schema([
+                        Infolists\Components\Group::make()
+                            ->schema([
+                                Infolists\Components\ImageEntry::make('badge_url')
+                                    ->label('Badge')
+                                    ->size(config('media.icon.lg.width')),
+                                Infolists\Components\ImageEntry::make('badge_locked_url')
+                                    ->label('Badge (locked)')
+                                    ->size(config('media.icon.lg.width')),
+                            ]),
+
+                        Infolists\Components\Group::make()
+                            ->schema([
+                                Infolists\Components\TextEntry::make('Title'),
+
+                                Infolists\Components\TextEntry::make('Description'),
+                            ]),
+                    ])
+                    ->hidden(fn ($record) => $record->sourceAchievement),
             ]);
     }
 
@@ -130,6 +155,41 @@ class EventAchievementResource extends Resource
                             ->native(false)
                             ->date(),
                     ]),
+
+                Forms\Components\Section::make()
+                    ->relationship('achievement')
+                    ->columns(['xl' => 2, '2xl' => 2])
+                    ->schema([
+                        Forms\Components\TextInput::make('Title')
+                            ->required()
+                            ->maxLength(64),
+
+                        Forms\Components\TextInput::make('Description')
+                            ->required()
+                            ->maxLength(255),
+
+                        // Store a temporary file on disk until the user submits.
+                        // When the user submits, put in storage.
+                        Forms\Components\FileUpload::make('BadgeName')
+                            ->label('Badge')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->image()
+                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/gif'])
+                            ->maxSize(1024)
+                            ->maxFiles(1)
+                            ->previewable(true),
+                    ])
+                    ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
+                        if (isset($data['BadgeName'])) {
+                            $data['BadgeName'] = (new ProcessUploadedImageAction())->execute($data['BadgeName'], ImageUploadType::AchievementBadge);
+                        } else {
+                            unset($data['BadgeName']); // prevent clearing out existing value
+                        }
+
+                        return $data;
+                    })
+                    ->hidden(fn ($record) => $record->sourceAchievement)
+                    ->columns(2),
             ]);
     }
 

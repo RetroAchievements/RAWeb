@@ -500,7 +500,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
                 :numGamesWithRichPresence="$anyDevRichPresenceCount"
                 :numTotalLeaderboards="$anyDevLeaderboardTotal"
                 statsKind="any"
-                :targetDeveloperUsername="$dev"
+                :targetDeveloperUsername="$devUser->username"
                 :targetGameIds="$anyDevGameIDs"
             />
 
@@ -512,7 +512,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
                 :numGamesWithRichPresence="$majorityDevRichPresenceCount"
                 :numTotalLeaderboards="$majorityDevLeaderboardTotal"
                 statsKind="majority"
-                :targetDeveloperUsername="$dev"
+                :targetDeveloperUsername="$devUser->username"
                 :targetGameIds="$majorityDevGameIDs"
             />
 
@@ -524,7 +524,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
                 :numGamesWithRichPresence="$onlyDevRichPresenceCount"
                 :numTotalLeaderboards="$onlyDevLeaderboardTotal"
                 statsKind="sole"
-                :targetDeveloperUsername="$dev"
+                :targetDeveloperUsername="$devUser->username"
                 :targetGameIds="$onlyDevGameIDs"
             />
 

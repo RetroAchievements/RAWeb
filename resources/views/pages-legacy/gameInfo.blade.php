@@ -190,6 +190,20 @@ if ($isEventGame) {
     }
 
     $isGameBeatable = true;
+
+    if ($userModel) {
+        if ($gameModel->event) {
+            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
+                ->where('AwardType', AwardType::Event)
+                ->where('AwardData', $gameModel->event->id)
+                ->exists();
+        } else {
+            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
+                ->where('AwardType', AwardType::Mastery)
+                ->where('AwardData', $gameModel->id)
+                ->exists();
+        }
+    }
 }
 
 if ($isFullyFeaturedGame || $isEventGame) {
@@ -290,7 +304,7 @@ if ($isFullyFeaturedGame || $isEventGame) {
 
     // Show the beaten award display in the progress component optimistically.
     // The actual award metadata is updated async via actions/background jobs.
-    if ($user && $isGameBeatable) {
+    if ($user && $isGameBeatable && !$isEventGame) {
         $neededProgressions = $totalProgressionAchievements > 0 ? $totalProgressionAchievements : 0;
         $neededWinConditions = $totalWinConditionAchievements > 0 ? 1 : 0;
 
