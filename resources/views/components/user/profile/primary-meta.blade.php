@@ -46,6 +46,8 @@ $shouldMoveRoleToNextLine =
                             Spam
                         @elseif ($userMassData['Permissions'] === Permissions::Banned)
                             Banned
+                        @elseif ($userMassData['Permissions'] === Permissions::Unregistered)
+                            Unregistered
                         @else
                             {{ __('permission.role.' . $user->visible_role->name) }}
                         @endif
