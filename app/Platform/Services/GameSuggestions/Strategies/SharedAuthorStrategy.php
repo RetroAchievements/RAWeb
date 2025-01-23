@@ -7,6 +7,7 @@ namespace App\Platform\Services\GameSuggestions\Strategies;
 use App\Data\UserData;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSuggestionContextData;
@@ -46,6 +47,7 @@ class SharedAuthorStrategy implements GameSuggestionStrategy
 
         // Then, find another game with achievements by this author
         $this->selectedGame = Game::query()
+            ->whereNotIn('ConsoleID', System::getNonGameSystems())
             ->whereHas('achievements', function ($query) use ($author) {
                 $query->where('user_id', $author->user_id)
                     ->where('Flags', AchievementFlag::OfficialCore->value);
