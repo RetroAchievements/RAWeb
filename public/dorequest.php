@@ -4,7 +4,8 @@ use App\Community\Enums\ActivityType;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
-use App\Connect\Actions\ResolveRootGameIdAction;
+use App\Connect\Actions\ResolveRootGameIdFromGameAndGameHashAction;
+use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
@@ -335,7 +336,7 @@ switch ($requestType) {
 
             // If multiset is enabled, resolve the root game ID.
             if (config('feature.enable_multiset')) {
-                $rootGameId = (new ResolveRootGameIdAction())->execute($gameHash, $game, $user);
+                $rootGameId = (new ResolveRootGameIdFromGameAndGameHashAction())->execute($gameHash, $game, $user);
                 $game = Game::find($rootGameId);
             }
 
@@ -622,7 +623,7 @@ switch ($requestType) {
 
         $response['Success'] = true;
         $userModel = User::whereName($username)->first();
-        $userUnlocks = getUserAchievementUnlocksForGame($userModel, $gameID);
+        $userUnlocks = getUserAchievementUnlocksForGame($userModel, (new ResolveRootGameIdFromGameIdAction())->execute($gameID));
         $userUnlocks = reactivateUserEventAchievements($userModel, $userUnlocks);
         foreach ($userUnlocks as $achId => $unlock) {
             if (array_key_exists('DateEarnedHardcore', $unlock)) {
@@ -745,7 +746,7 @@ switch ($requestType) {
     case "unlocks":
         $hardcoreMode = (int) request()->input('h', 0) === UnlockMode::Hardcore;
         $userModel = User::whereName($username)->first();
-        $userUnlocks = getUserAchievementUnlocksForGame($userModel, $gameID);
+        $userUnlocks = getUserAchievementUnlocksForGame($userModel, (new ResolveRootGameIdFromGameIdAction())->execute($gameID));
         if ($hardcoreMode) {
             $userUnlocks = reactivateUserEventAchievements($userModel, $userUnlocks);
             $response['UserUnlocks'] = collect($userUnlocks)

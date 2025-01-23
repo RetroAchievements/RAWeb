@@ -11,7 +11,7 @@ use App\Models\User;
 use App\Platform\Enums\AchievementSetType;
 use InvalidArgumentException;
 
-class ResolveRootGameIdAction
+class ResolveRootGameIdFromGameAndGameHashAction
 {
     /**
      * Resolves the root game ID for a given game hash and user combination.

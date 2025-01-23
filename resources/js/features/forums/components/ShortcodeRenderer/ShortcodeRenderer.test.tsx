@@ -60,6 +60,20 @@ describe('Component: ShortcodeRenderer', () => {
     expect(textEl).toHaveClass('codetags');
   });
 
+  it('given a body with a quote tag, renders the quote shortcode component', () => {
+    // ARRANGE
+    const body = '[quote]this is some stuff inside quote tags[/quote]';
+
+    render(<ShortcodeRenderer body={body} />);
+
+    // ASSERT
+    const textEl = screen.getByText(/this is some stuff/i);
+
+    expect(textEl).toBeVisible();
+    expect(textEl.nodeName).toEqual('SPAN');
+    expect(textEl).toHaveClass('quotedtext');
+  });
+
   it('given a body with a spoiler tag, renders the spoiler shortcode component', () => {
     // ARRANGE
     const body = '[spoiler]this is a spoiler![/spoiler]';

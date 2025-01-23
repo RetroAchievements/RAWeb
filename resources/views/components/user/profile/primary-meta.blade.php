@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\Role;
 use Illuminate\Support\Carbon;
 ?>
 
@@ -15,10 +16,7 @@ use Illuminate\Support\Carbon;
 $me = Auth::user() ?? null;
 
 $hasVisibleRole = (
-    (
-        $userMassData['Permissions'] !== Permissions::Registered
-        && $userMassData['Permissions'] !== Permissions::Unregistered
-    )
+    $user->visible_role?->name
     || ($me?->can('manage', App\Models\User::class) && $userMassData['Permissions'] !== Permissions::Registered)
 );
 
@@ -40,11 +38,20 @@ $shouldMoveRoleToNextLine =
             {{-- Username --}}
             <h1 class='border-0 text-lg sm:text-2xl font-semibold mb-0'>{{ $user->display_name }}</h1>
 
-            {{-- Legacy Role --}}
-            {{-- TODO: Support N roles. --}}
+            {{-- Visible Role --}}
             @if ($hasVisibleRole)
                 <div class="flex h-4 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1">
-                    <p class="text-2xs -mb-0.5">{{ $roleLabel }}</p>
+                    <p class="text-2xs -mb-0.5">
+                        @if ($userMassData['Permissions'] === Permissions::Spam)
+                            Spam
+                        @elseif ($userMassData['Permissions'] === Permissions::Banned)
+                            Banned
+                        @elseif ($userMassData['Permissions'] === Permissions::Unregistered)
+                            Unregistered
+                        @else
+                            {{ __('permission.role.' . $user->visible_role->name) }}
+                        @endif
+                    </p>
                 </div>
             @endif
         </div>

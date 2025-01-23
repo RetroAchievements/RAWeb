@@ -3,38 +3,48 @@
 use App\Community\Enums\AwardType;
 use App\Models\Event;
 use App\Models\EventAward;
+use App\Models\GameSet;
 use App\Models\PlayerBadge;
 
 function SeparateAwards(array $userAwards): array
 {
-    $gameAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] != 'Events'));
+    // Get all dev event game IDs in a single optimized query.
+    $devEventGameIds = GameSet::query()
+        ->whereHas('games', fn ($q) => $q->whereIn('game_id', array_column($userAwards, 'AwardData')))
+        ->where(fn ($q) => $q->where('id', GameSet::DeveloperEventsHubId)
+                ->orWhere('title', 'LIKE', '[Dev Events - %')
+        )
+        ->with(['games' => fn ($q) => $q->select('GameData.ID')])
+        ->get()
+        ->pluck('games.*.ID')
+        ->flatten()
+        ->unique()
+        ->values()
+        ->all();
 
-    $eventAwards = array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Event || ($award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] == 'Events'));
+    $gameAwards = []; // Mastery awards that aren't Events.
+    $eventAwards = []; // Event awards and Events mastery awards.
+    $siteAwards = []; // Dev event awards and non-game active awards.
 
-    $devEventsPrefix = "[Dev Events - ";
-    $devEventsHub = "[Central - Developer Events]";
-    $devEventAwards = [];
-    foreach ($eventAwards as $eventAward) {
-        $related = getGameAlternatives($eventAward['AwardData']);
-        foreach ($related as $hub) {
-            if ($hub['Title'] == $devEventsHub || str_starts_with($hub['Title'], $devEventsPrefix)) {
-                $devEventAwards[] = $eventAward;
-                break;
-            }
+    foreach ($userAwards as $award) {
+        $type = (int) $award['AwardType'];
+
+        // Pre-calculate all type checks for this award.
+        $isGame = AwardType::isGame($type); // True if award is game-related (beaten/mastery).
+        $isActive = AwardType::isActive($type);
+        $isDevEvent = in_array($award['AwardData'], $devEventGameIds); // True if award is from dev events hub.
+
+        // Order matters when categorizing awards. Site awards take priority over game/event awards.
+        if ($isDevEvent || (!$isGame && $isActive)) {
+            $siteAwards[] = $award;
+        } elseif ($type === AwardType::Mastery && $award['ConsoleName'] !== 'Events') {
+            $gameAwards[] = $award;
+        } elseif ($type === AwardType::Event || ($type === AwardType::Mastery && $award['ConsoleName'] === 'Events')) {
+            $eventAwards[] = $award;
         }
     }
 
-    $eventAwards = array_values(array_filter($eventAwards, fn ($award) => !in_array($award, $devEventAwards)));
-
-    $siteAwards = array_values(array_filter($userAwards, function ($userAward) use ($devEventAwards) {
-        $isNotMasteryOrGameBeaten = !AwardType::isGame((int) $userAward['AwardType']);
-        $isActiveAwardType = AwardType::isActive((int) $userAward['AwardType']);
-        $isDevEventAward = in_array($userAward, $devEventAwards);
-
-        return ($isNotMasteryOrGameBeaten && $isActiveAwardType) || $isDevEventAward;
-    }));
-
-    return [$gameAwards, $eventAwards, $siteAwards];
+    return [array_values($gameAwards), array_values($eventAwards), array_values($siteAwards)];
 }
 
 function RenderSiteAwards(array $userAwards, string $awardsOwnerUsername): void

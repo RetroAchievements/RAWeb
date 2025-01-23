@@ -92,7 +92,8 @@ class GameCard extends Component
             $processedClaims = [];
             foreach ($foundClaims as $foundClaim) {
                 $processedClaim = $foundClaim->toArray();
-                $processedClaim['User'] = $foundClaim->user->display_name;
+                $processedClaim['User'] = $foundClaim->user->username;
+                $processedClaim['DisplayName'] = $foundClaim->user->display_name;
 
                 $processedClaims[] = $processedClaim;
             }
@@ -179,7 +180,8 @@ class GameCard extends Component
 
         $activeClaims = array_filter($rawGameData['Claims'], fn ($claim) => ClaimStatus::isActive($claim['Status']));
         $activeDeveloperUsernames = array_map(fn ($activeClaim) => $activeClaim['User'], array_values($activeClaims));
-        $activeDevelopersLabel = $this->buildActiveDevelopersLabel($activeDeveloperUsernames);
+        $activeDeveloperDisplayNames = array_map(fn ($activeClaim) => $activeClaim['DisplayName'], array_values($activeClaims));
+        $activeDevelopersLabel = $this->buildActiveDevelopersLabel($activeDeveloperDisplayNames);
 
         return compact(
             'achievementsCount',

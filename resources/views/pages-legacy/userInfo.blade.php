@@ -110,7 +110,7 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
 <x-app-layout
     :pageTitle="$userPage"
     :pageDescription="$userPage . ' Profile'"
-    :pageImage="media_asset('/UserPic/' . $userPage . '.png')"
+    :pageImage="media_asset('/UserPic/' . $userPageModel->username . '.png')"
     pageType="retroachievements:user"
 >
     <x-user-profile-meta

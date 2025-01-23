@@ -62,7 +62,7 @@ if ($consoleIDInput !== 0) {
     echo "<div class='detaillist'>";
 
     echo "<h3>";
-    if ($dev != null) {
+    if ($devUser !== null) {
         echo "<a href='/user/$dev'>{$devUser->display_name}</a>'s ";
     }
     echo "Achievement List</h3>";
