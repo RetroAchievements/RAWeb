@@ -42,7 +42,7 @@ class SharedAuthorStrategy implements GameSuggestionStrategy
             return null;
         }
 
-        $this->selectedAuthor = User::find($author->user_id);
+        $this->selectedAuthor = User::withTrashed()->find($author->user_id);
 
         // Then, find another game with achievements by this author
         $this->selectedGame = Game::query()
