@@ -252,7 +252,7 @@ class AchievementResource extends Resource
                             ->label('Badge')
                             ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
                             ->image()
-                            ->acceptedFileTypes(['image/png', 'image/jpg', 'image/gif'])
+                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/gif'])
                             ->maxSize(1024)
                             ->maxFiles(1)
                             ->previewable(true),
