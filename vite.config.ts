@@ -40,7 +40,15 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     ],
 
     ssr: {
-      noExternal: ['react-use'],
+      noExternal: [
+        'react-use',
+        '@bbob/core',
+        '@bbob/html',
+        '@bbob/plugin-helper',
+        '@bbob/preset-react',
+        '@bbob/preset-html5',
+        '@bbob/react',
+      ],
     },
 
     optimizeDeps: {
