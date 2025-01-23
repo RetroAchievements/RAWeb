@@ -72,7 +72,8 @@ class WriteUserActivity
                 } else {
                     // Manual unlocks should not update the user's LastLogin.
                     $unlock = $user->playerAchievements()->firstWhere('achievement_id', $subjectId);
-                    $updateLastLogin = ($unlock?->unlocker_id ?? 0) === 0;
+                    $isManualUnlock = $unlock && $unlock->unlocker_id !== 0;
+                    $updateLastLogin = !$isManualUnlock;
                 }
 
                 break;
