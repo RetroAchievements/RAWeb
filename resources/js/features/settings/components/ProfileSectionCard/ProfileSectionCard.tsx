@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import type { FC } from 'react';
-import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuAlertCircle } from 'react-icons/lu';
 
@@ -20,6 +19,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { SectionFormCard } from '../SectionFormCard';
 import { useProfileSectionForm } from './useProfileSectionForm';
+import { VisibleRoleField } from './VisibleRoleField';
 
 export const ProfileSectionCard: FC = () => {
   const { auth, can, userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
@@ -33,6 +33,7 @@ export const ProfileSectionCard: FC = () => {
   } = useProfileSectionForm({
     motto: userSettings.motto ?? '',
     userWallActive: userSettings.userWallActive ?? false,
+    visibleRoleId: auth?.user.visibleRole ? auth.user.visibleRole.id : null,
   });
 
   const deleteAllCommentsMutation = useMutation({
@@ -40,8 +41,6 @@ export const ProfileSectionCard: FC = () => {
       return axios.delete(route('user.comment.destroyAll', auth!.user.id));
     },
   });
-
-  const visibleRoleFieldId = useId();
 
   const handleDeleteAllCommentsClick = () => {
     if (!confirm(t('Are you sure you want to permanently delete all comments on your wall?'))) {
@@ -63,18 +62,7 @@ export const ProfileSectionCard: FC = () => {
       isSubmitting={formMutation.isPending}
     >
       <div className="flex flex-col gap-7 @container @xl:gap-5">
-        <div className="flex w-full flex-col @xl:flex-row @xl:items-center">
-          <label id={visibleRoleFieldId} className="text-menu-link @xl:w-2/5">
-            {t('Visible Role')}
-          </label>
-          <p aria-labelledby={visibleRoleFieldId}>
-            {userSettings.visibleRole ? (
-              `${userSettings.visibleRole}`
-            ) : (
-              <span className="italic">{t('none')}</span>
-            )}
-          </p>
-        </div>
+        <VisibleRoleField />
 
         <BaseFormField
           control={form.control}

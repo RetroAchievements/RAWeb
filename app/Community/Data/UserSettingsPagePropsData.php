@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Data;
 
+use App\Data\RoleData;
 use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use Spatie\LaravelData\Data;
@@ -15,6 +16,8 @@ class UserSettingsPagePropsData extends Data
     public function __construct(
         public UserData $userSettings,
         public UserPermissionsData $can,
+        /** @var RoleData[] */
+        public array $displayableRoles,
     ) {
     }
 }
