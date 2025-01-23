@@ -221,13 +221,20 @@ function getRecentProgressionAwardData(
  */
 function getUserEventAwardCount(User $user): int
 {
-    return $user->playerBadges()
+    $eventGameBadgeCount = $user->playerBadges()
         ->where('AwardType', AwardType::Mastery)
         ->whereHas('gameIfApplicable.system', function ($query) {
             $query->where('ID', System::Events);
         })
         ->distinct('AwardData')
         ->count('AwardData');
+
+    $eventBadgeCount = $user->playerBadges()
+        ->where('AwardType', AwardType::Event)
+        ->distinct('AwardData')
+        ->count('AwardData');
+
+    return $eventGameBadgeCount + $eventBadgeCount;
 }
 
 /**
