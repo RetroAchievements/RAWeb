@@ -192,10 +192,17 @@ if ($isEventGame) {
     $isGameBeatable = true;
 
     if ($userModel) {
-        $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
-            ->where('AwardType', AwardType::Event)
-            ->where('AwardData', $gameModel->event->id)
-            ->exists();
+        if ($gameModel->event) {
+            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
+                ->where('AwardType', AwardType::Event)
+                ->where('AwardData', $gameModel->event->id)
+                ->exists();
+        } else {
+            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
+                ->where('AwardType', AwardType::Mastery)
+                ->where('AwardData', $gameModel->id)
+                ->exists();
+        }
     }
 }
 
