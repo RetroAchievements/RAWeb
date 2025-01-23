@@ -50,7 +50,7 @@ return [
 
     [
         'name' => Role::ADMINISTRATOR,
-        'display' => 1,
+        'display' => 0,
         'assign' => $adminAssignable,
         'staff' => true,
         'legacy_role' => Permissions::Moderator,
