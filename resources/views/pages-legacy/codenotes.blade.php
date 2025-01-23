@@ -11,7 +11,10 @@ if (empty($gameData)) {
     abort(404);
 }
 
-$userModel = User::find($userDetails['ID']);
+$userModel = null;
+if ($user) {
+    $userModel = User::find($userDetails['ID']);
+}
 
 getCodeNotes($gameID, $codeNotes);
 $codeNoteCount = count(array_filter($codeNotes, function ($x) { return $x['Note'] !== "" && $x['Note'] !== "''"; }));
