@@ -66,9 +66,14 @@ class WriteUserActivity
                 $subjectId = $event->achievement->id;
                 $context = $event->hardcore ? 1 : null;
 
-                // Manual unlocks should not update the user's LastLogin.
-                $unlock = $user->playerAchievements()->firstWhere('achievement_id', $subjectId);
-                $updateLastLogin = ($unlock?->unlocker_id ?? 0) === 0;
+                if (!System::isGameSystem($event->achievement->game->system->id)) {
+                    // event unlocks should not update the user's LastLogin
+                    $updateLastLogin = false;
+                } else {
+                    // Manual unlocks should not update the user's LastLogin.
+                    $unlock = $user->playerAchievements()->firstWhere('achievement_id', $subjectId);
+                    $updateLastLogin = ($unlock?->unlocker_id ?? 0) === 0;
+                }
 
                 break;
             case AchievementSetCompleted::class:
@@ -90,7 +95,7 @@ class WriteUserActivity
                 $storeActivity = !empty($subjectId);
 
                 // don't update user's LastLogin when creating player_game entries for events
-                $updateLastLogin = System::isGameSystem($event->game->ConsoleId ?? 0);
+                $updateLastLogin = System::isGameSystem($event->game->system->id);
                 break;
             default:
         }
