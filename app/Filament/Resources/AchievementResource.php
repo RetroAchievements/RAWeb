@@ -194,11 +194,6 @@ class AchievementResource extends Resource
                                 ->maxLength(255)
                                 ->disabled(!$user->can('updateField', [$form->model, 'Description'])),
 
-                            Forms\Components\TextInput::make('BadgeName')
-                                ->required()
-                                ->default('00000')
-                                ->disabled(!$user->can('updateField', [$form->model, 'BadgeName'])),
-
                             Forms\Components\Select::make('GameID')
                                 ->label('Game')
                                 ->relationship(
@@ -247,6 +242,23 @@ class AchievementResource extends Resource
                                 ->disabled(!$user->can('updateField', [$form->model, 'DisplayOrder'])),
                         ]),
                 ])->from('md'),
+
+                Forms\Components\Section::make('Media')
+                    ->icon('heroicon-s-photo')
+                    ->schema([
+                        // Store a temporary file on disk until the user submits.
+                        // When the user submits, put in storage.
+                        Forms\Components\FileUpload::make('BadgeName')
+                            ->label('Badge')
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->image()
+                            ->acceptedFileTypes(['image/png', 'image/jpg', 'image/gif'])
+                            ->maxSize(1024)
+                            ->maxFiles(1)
+                            ->previewable(true),
+                    ])
+                    ->columns(2)
+                    ->hidden(!$user->can('updateField', [$form->model, 'BadgeName'])),
             ]);
     }
 
