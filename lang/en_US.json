@@ -664,5 +664,19 @@
     "dev-compliance": "Developer Compliance",
     "code-reviewer": "Code Reviewer",
     "community-manager": "Community Manager",
-    "quality-assurance": "Quality Assurance"
+    "quality-assurance": "Quality Assurance",
+    "Messages": "Messages",
+    "unreadMessages": "You have $t(unreadMessageCount, {\"count\": {{unreadCount}} }) in $t(threadCount, {\"count\": {{threadCount}} }).",
+    "unreadMessageCount": "{{count, number}} unread message",
+    "unreadMessageCount_other": "{{count, number}} unread messages",
+    "messageCount": "{{count, number}} message",
+    "messageCount_other": "{{count, number}} messages",
+    "threadCount": "{{count, number}} message thread",
+    "threadCount_other": "{{count, number}} message threads",
+    "New Message": "New Message",
+    "Subject": "Subject",
+    "With": "With",
+    "Last Message": "Last Message",
+    "(unread)": "(unread)",
+    "Message Count": "Message Count"
 }

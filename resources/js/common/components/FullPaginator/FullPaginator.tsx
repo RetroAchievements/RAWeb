@@ -20,8 +20,9 @@ import {
 } from '../+vendor/BaseSelect';
 
 interface FullPaginatorProps<TData = unknown> {
-  onPageSelectValueChange: (newPageValue: number) => void;
   paginatedData: App.Data.PaginatedData<TData>;
+
+  onPageSelectValueChange?: (newPageValue: number) => void;
 }
 
 export const FullPaginator: FC<FullPaginatorProps> = ({
@@ -85,7 +86,7 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
 
           <BaseSelect
             value={String(currentPage)}
-            onValueChange={(value) => onPageSelectValueChange(Number(value))}
+            onValueChange={(value) => onPageSelectValueChange?.(Number(value))}
           >
             <BaseSelectTrigger className="!h-[32px] min-w-[70px]">
               <BaseSelectValue />
