@@ -188,7 +188,7 @@ class EventAchievementResource extends Resource
 
                         return $data;
                     })
-                    ->hidden(fn ($record) => $record->sourceAchievement)
+                    ->hidden(fn ($record) => $record?->sourceAchievement)
                     ->columns(2),
             ]);
     }
