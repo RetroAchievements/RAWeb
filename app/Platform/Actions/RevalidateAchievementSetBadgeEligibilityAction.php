@@ -161,6 +161,9 @@ class RevalidateAchievementSetBadgeEligibilityAction
     {
         $event = $playerGame->game->event;
         if (!$event) {
+            // no event information, just check for all achievement unlocks (legacy event)
+            $this->revalidateCompletionBadgeEligibility($playerGame);
+
             return;
         }
 
