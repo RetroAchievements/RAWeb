@@ -67,6 +67,8 @@ class HubController extends Controller
         $persistenceCookieName = 'datatable_view_preference_hub_games';
         $request->setPersistenceCookieName($persistenceCookieName);
 
+        $request->setDefaultPageSize(50);
+
         $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
 
         $paginatedData = (new BuildGameListAction())->execute(
@@ -75,7 +77,7 @@ class HubController extends Controller
             user: $user,
             filters: $request->getFilters(defaultAchievementsPublishedFilter: 'either'),
             sort: $request->getSort(),
-            perPage: $isMobile ? 100 : 25,
+            perPage: $isMobile ? 100 : $request->getPageSize(),
 
             /**
              * Ignore page params on mobile.
