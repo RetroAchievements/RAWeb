@@ -112,6 +112,33 @@ class UserSettingsControllerTest extends TestCase
         $this->assertNull($user->email_verified_at);
     }
 
+    public function testUpdateUsername(): void
+    {
+        // Arrange
+        $this->withoutMiddleware();
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'User' => 'Scott',
+            'display_name' => 'Scott',
+        ]);
+
+        // Act
+        $response = $this->actingAs($user)
+            ->postJson(route('api.settings.username-change-request.store'), [
+                'newDisplayName' => 'Scott123456712',
+            ]);
+
+        // Assert
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('user_usernames', [
+            'user_id' => $user->id,
+            'username' => 'Scott123456712',
+            'approved_at' => null,
+        ]);
+    }
+
     public function testUpdateProfile(): void
     {
         // Arrange
