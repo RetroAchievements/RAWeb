@@ -496,6 +496,23 @@ class GameResource extends Resource
                         false: fn (Builder $query): Builder => $query->where('achievements_published', '<', 6),
                         blank: fn (Builder $query): Builder => $query,
                     ),
+
+                Tables\Filters\TernaryFilter::make('has_dynamic_rp')
+                    ->label('Has dynamic rich presence')
+                    ->placeholder('Any')
+                    ->trueLabel('Yes')
+                    ->falseLabel('No')
+                    ->queries(
+                        true: fn (Builder $query): Builder => $query
+                            ->whereNotNull('RichPresencePatch')
+                            ->whereRaw('CHAR_LENGTH(RichPresencePatch) - CHAR_LENGTH(REPLACE(RichPresencePatch, "\n", "")) >= 1'),
+                        false: fn (Builder $query): Builder => $query
+                            ->where(fn (Builder $query): Builder => $query
+                                ->whereNull('RichPresencePatch')
+                                ->orWhereRaw('CHAR_LENGTH(RichPresencePatch) - CHAR_LENGTH(REPLACE(RichPresencePatch, "\n", "")) < 1')
+                            ),
+                        blank: fn (Builder $query): Builder => $query,
+                    ),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
