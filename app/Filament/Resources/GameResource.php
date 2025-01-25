@@ -496,6 +496,25 @@ class GameResource extends Resource
                         false: fn (Builder $query): Builder => $query->where('achievements_published', '<', 6),
                         blank: fn (Builder $query): Builder => $query,
                     ),
+
+                Tables\Filters\TernaryFilter::make('has_box_art')
+                    ->label('Has box art')
+                    ->placeholder('Any')
+                    ->trueLabel('Yes')
+                    ->falseLabel('No')
+                    ->queries(
+                        true: fn (Builder $query): Builder => $query
+                            ->whereNotNull('ImageBoxArt')
+                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->where('ImageBoxArt', '!=', '/Images/000002.png'),
+                        false: fn (Builder $query): Builder => $query
+                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->where(fn (Builder $query): Builder => $query
+                                ->whereNull('ImageBoxArt')
+                                ->orWhere('ImageBoxArt', '/Images/000002.png')
+                            ),
+                        blank: fn (Builder $query): Builder => $query,
+                    ),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
