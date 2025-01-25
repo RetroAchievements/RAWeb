@@ -24,6 +24,7 @@ export interface SectionFormCardProps {
   isSubmitting: boolean;
 
   buttonProps?: BaseButtonProps;
+  shouldShowFooter?: boolean;
 }
 
 export const SectionFormCard: FC<SectionFormCardProps> = ({
@@ -33,6 +34,7 @@ export const SectionFormCard: FC<SectionFormCardProps> = ({
   isSubmitting,
   onSubmit,
   t_headingLabel,
+  shouldShowFooter = true,
 }) => {
   const { t } = useTranslation();
 
@@ -46,18 +48,20 @@ export const SectionFormCard: FC<SectionFormCardProps> = ({
         <form onSubmit={formMethods.handleSubmit(onSubmit)}>
           <BaseCardContent>{children}</BaseCardContent>
 
-          <BaseCardFooter>
-            <div className="flex w-full justify-end">
-              <BaseButton
-                type="submit"
-                disabled={isSubmitting}
-                data-testid={`${t_headingLabel}-submit`}
-                {...buttonProps}
-              >
-                {buttonProps?.children ?? t('Update')}
-              </BaseButton>
-            </div>
-          </BaseCardFooter>
+          {shouldShowFooter ? (
+            <BaseCardFooter>
+              <div className="flex w-full justify-end">
+                <BaseButton
+                  type="submit"
+                  disabled={isSubmitting}
+                  data-testid={`${t_headingLabel}-submit`}
+                  {...buttonProps}
+                >
+                  {buttonProps?.children ?? t('Update')}
+                </BaseButton>
+              </div>
+            </BaseCardFooter>
+          ) : null}
         </form>
       </BaseFormProvider>
     </BaseCard>
