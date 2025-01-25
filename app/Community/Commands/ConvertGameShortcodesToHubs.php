@@ -80,9 +80,12 @@ class ConvertGameShortcodesToHubs extends Command
                 // Update the comment in the DB only if it has actually changed.
                 // Use `DB` so we don't change the `updated_at` value.
                 if ($originalPayload !== $updatedPayload) {
-                    $forumTopicComment->body = $updatedPayload;
-                    $forumTopicComment->timestamps = false;
-                    $forumTopicComment->save();
+                    DB::table('forum_topic_comments')
+                        ->where('id', $forumTopicComment->id)
+                        ->update([
+                            'body' => $updatedPayload,
+                            'updated_at' => DB::raw('updated_at'), // don't change the value
+                        ]);
                 }
             }
 
@@ -189,9 +192,12 @@ class ConvertGameShortcodesToHubs extends Command
                 // Update the comment in the DB only if it has actually changed.
                 // Use `DB` so we don't change the `updated_at` value.
                 if ($originalPayload !== $updatedPayload) {
-                    $forumTopicComment->body = $updatedPayload;
-                    $forumTopicComment->timestamps = false;
-                    $forumTopicComment->save();
+                    DB::table('forum_topic_comments')
+                        ->where('id', $forumTopicComment->id)
+                        ->update([
+                            'body' => $updatedPayload,
+                            'updated_at' => DB::raw('updated_at'), // don't change the value
+                        ]);
                 }
             }
 
