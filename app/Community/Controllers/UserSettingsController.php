@@ -70,7 +70,7 @@ class UserSettingsController extends Controller
             ->latest('created_at')
             ->first()
             ?->username;
-            
+
         /** @var Collection<int, Role> $displayableRoles */
         $displayableRoles = $user->roles;
 
