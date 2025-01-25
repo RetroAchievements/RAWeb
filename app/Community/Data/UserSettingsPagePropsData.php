@@ -18,6 +18,7 @@ class UserSettingsPagePropsData extends Data
         public UserPermissionsData $can,
         /** @var RoleData[] */
         public array $displayableRoles,
+        public ?string $requestedUsername = null,
     ) {
     }
 }
