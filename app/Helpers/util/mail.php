@@ -457,3 +457,45 @@ function sendSetRevisionEmail(
 
     return mail_utf8($email, $emailTitle, $msg);
 }
+
+/**
+ * Sends an email to a user informing them that their display name was successfully changed.
+ */
+function sendDisplayNameChangeConfirmationEmail(
+    User $user,
+    string $newDisplayName,
+): bool {
+    $emailTitle = "Username Change Approved";
+    $profileLink = "<a href='" . route('user.show', ['user' => $newDisplayName]) . "'>here</a>";
+
+    $msg = "Hello,<br><br>" .
+        "Great news! Your username change request to {$newDisplayName} has been approved.<br><br>" .
+
+        "You can now use your new username to log in everywhere on RetroAchievements.org.<br><br>" .
+
+        "Check out your updated profile {$profileLink}.<br><br>" .
+
+        "-- Your friends at RetroAchievements.org<br>";
+
+    return mail_utf8($user->EmailAddress, $emailTitle, $msg);
+}
+
+/**
+ * Sends an email to a user informing them that their display name change request was declined.
+ */
+function sendDisplayNameChangeDeclineEmail(
+    User $user,
+    string $desiredDisplayName,
+): bool {
+    $emailTitle = "About Your Username Change Request";
+
+    $msg = "Hello,<br><br>" .
+        "We have reviewed your request to change your username to {$desiredDisplayName}, " .
+        "and have decided not to approve it at this time.<br><br>" .
+
+        "You are welcome to submit another request after a 30 day cooldown period has ended.<br><br> " .
+
+        "-- Your friends at RetroAchievements.org<br>";
+
+    return mail_utf8($user->EmailAddress, $emailTitle, $msg);
+}

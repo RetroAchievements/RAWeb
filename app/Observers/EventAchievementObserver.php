@@ -21,7 +21,11 @@ class EventAchievementObserver
             ]);
 
         if ($needsCopy) {
-            $eventAchievement->loadMissing(['achievement', 'sourceAchievement']);
+            // Can't use loadMissing here as the relationship widget on the edit page
+            // may have loaded the previous state of the achievement. Do a full refresh
+            // to ensure we aren't using stale data.
+            $eventAchievement = EventAchievement::with(['achievement', 'sourceAchievement'])
+                ->find($eventAchievement->id);
 
             $achievement = $eventAchievement->achievement;
             $sourceAchievement = $eventAchievement->sourceAchievement;
