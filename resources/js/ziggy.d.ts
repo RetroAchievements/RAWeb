@@ -581,6 +581,7 @@ declare module 'ziggy-js' {
     "api.settings.preferences.update": [],
     "api.settings.password.update": [],
     "api.settings.email.update": [],
+    "api.settings.username-change-request.store": [],
     "api.settings.keys.web.destroy": [],
     "api.settings.keys.connect.destroy": [],
     "api.active-player.index": [],
