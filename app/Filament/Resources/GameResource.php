@@ -484,7 +484,23 @@ class GameResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('system')
-                    ->relationship('system', 'Name'),
+                    ->options(function () {
+                        $options = ['active' => 'All Active Systems'];
+                        $systemOptions = System::orderBy('Name')
+                            ->pluck('Name', 'ID')
+                            ->toArray();
+
+                        return $options + $systemOptions;
+                    })
+                    ->query(function (Builder $query, $data) {
+                        $value = $data['value'] ?? null;
+
+                        if ($value === 'active') {
+                            $query->whereIn('ConsoleID', System::active()->pluck('ID'));
+                        } elseif ($value) {
+                            $query->where('ConsoleID', $value);
+                        }
+                    }),
 
                 Tables\Filters\TernaryFilter::make('achievements_published')
                     ->label('Has core set')
@@ -494,6 +510,63 @@ class GameResource extends Resource
                     ->queries(
                         true: fn (Builder $query): Builder => $query->where('achievements_published', '>=', 6),
                         false: fn (Builder $query): Builder => $query->where('achievements_published', '<', 6),
+                        blank: fn (Builder $query): Builder => $query,
+                    ),
+
+                Tables\Filters\TernaryFilter::make('has_badge')
+                    ->label('Has badge')
+                    ->placeholder('Any')
+                    ->trueLabel('Yes')
+                    ->falseLabel('No')
+                    ->queries(
+                        true: fn (Builder $query): Builder => $query
+                            ->whereNotNull('ImageIcon')
+                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->where('ImageIcon', '!=', '/Images/000001.png'),
+                        false: fn (Builder $query): Builder => $query
+                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->where(fn (Builder $query): Builder => $query
+                                ->whereNull('ImageIcon')
+                                ->orWhere('ImageIcon', '/Images/000001.png')
+                            ),
+                        blank: fn (Builder $query): Builder => $query,
+                    ),
+
+                Tables\Filters\TernaryFilter::make('has_title_image')
+                    ->label('Has title image')
+                    ->placeholder('Any')
+                    ->trueLabel('Yes')
+                    ->falseLabel('No')
+                    ->queries(
+                        true: fn (Builder $query): Builder => $query
+                            ->whereNotNull('ImageTitle')
+                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->where('ImageTitle', '!=', '/Images/000002.png'),
+                        false: fn (Builder $query): Builder => $query
+                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->where(fn (Builder $query): Builder => $query
+                                ->whereNull('ImageTitle')
+                                ->orWhere('ImageTitle', '/Images/000002.png')
+                            ),
+                        blank: fn (Builder $query): Builder => $query,
+                    ),
+
+                Tables\Filters\TernaryFilter::make('has_in_game_image')
+                    ->label('Has in game Image')
+                    ->placeholder('Any')
+                    ->trueLabel('Yes')
+                    ->falseLabel('No')
+                    ->queries(
+                        true: fn (Builder $query): Builder => $query
+                            ->whereNotNull('ImageIngame')
+                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->where('ImageIngame', '!=', '/Images/000002.png'),
+                        false: fn (Builder $query): Builder => $query
+                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->where(fn (Builder $query): Builder => $query
+                                ->whereNull('ImageIngame')
+                                ->orWhere('ImageIngame', '/Images/000002.png')
+                            ),
                         blank: fn (Builder $query): Builder => $query,
                     ),
 
