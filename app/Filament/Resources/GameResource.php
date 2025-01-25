@@ -506,13 +506,19 @@ class GameResource extends Resource
                         true: fn (Builder $query): Builder => $query
                             ->whereNotNull('RichPresencePatch')
                             ->whereNotIn('ConsoleID', System::getNonGameSystems())
-                            ->whereRaw('CHAR_LENGTH(RichPresencePatch) - CHAR_LENGTH(REPLACE(RichPresencePatch, "\n", "")) >= 1'),
+                            ->where(function (Builder $query) {
+                                $query->where('RichPresencePatch', 'LIKE', '%@%')
+                                    ->orWhere('RichPresencePatch', 'LIKE', '%?%');
+                            }),
                         false: fn (Builder $query): Builder => $query
                             ->whereNotIn('ConsoleID', System::getNonGameSystems())
-                            ->where(fn (Builder $query): Builder => $query
-                                ->whereNull('RichPresencePatch')
-                                ->orWhereRaw('CHAR_LENGTH(RichPresencePatch) - CHAR_LENGTH(REPLACE(RichPresencePatch, "\n", "")) < 1')
-                            ),
+                            ->where(function (Builder $query) {
+                                $query->whereNull('RichPresencePatch')
+                                    ->orWhere(function (Builder $query) {
+                                        $query->where('RichPresencePatch', 'NOT LIKE', '%@%')
+                                            ->where('RichPresencePatch', 'NOT LIKE', '%?%');
+                                    });
+                            }),
                         blank: fn (Builder $query): Builder => $query,
                     ),
             ])
