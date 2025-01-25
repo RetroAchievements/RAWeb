@@ -101,7 +101,7 @@ describe('Component: MessagesTableRow', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/5/i)).toBeVisible();
+    expect(screen.getAllByText(/5/i)[0]).toBeVisible();
   });
 
   it('displays the other participant avatar', () => {

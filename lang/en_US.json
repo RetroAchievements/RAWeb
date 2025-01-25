@@ -678,5 +678,7 @@
     "With": "With",
     "Last Message": "Last Message",
     "(unread)": "(unread)",
-    "Message Count": "Message Count"
+    "Message Count": "Message Count",
+    "Inbox": "Inbox",
+    "Messages Inbox": "Messages Inbox"
 }
