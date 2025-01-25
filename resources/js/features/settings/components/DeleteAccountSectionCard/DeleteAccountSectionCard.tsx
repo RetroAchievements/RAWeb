@@ -67,7 +67,7 @@ export const DeleteAccountSectionCard: FC = () => {
       <div className="flex flex-col gap-4">
         {isDeleteAlreadyRequested ? (
           <BaseAlert variant="destructive">
-            <LuAlertCircle className="h-5 w-5" />
+            <LuAlertCircle className="size-5" />
             <BaseAlertTitle>{t("You've requested account deletion.")}</BaseAlertTitle>
             <BaseAlertDescription>
               {t('Your account will be permanently deleted on {{date}}', {

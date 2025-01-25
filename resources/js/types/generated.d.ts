@@ -130,6 +130,7 @@ declare namespace App.Community.Data {
   export type UserSettingsPageProps = {
     userSettings: App.Data.User;
     can: App.Data.UserPermissions;
+    requestedUsername: string | null;
     displayableRoles: Array<App.Data.Role>;
   };
 }
@@ -272,6 +273,7 @@ declare namespace App.Data {
     displayableRoles?: Array<App.Data.Role> | null;
     emailAddress?: string | null;
     id?: number;
+    isEmailVerified?: boolean;
     isMuted?: boolean;
     isNew?: boolean;
     legacyPermissions?: number | null;
@@ -292,6 +294,7 @@ declare namespace App.Data {
   };
   export type UserPermissions = {
     createTriggerTicket?: boolean;
+    createUsernameChangeRequest?: boolean;
     develop?: boolean;
     manageGameHashes?: boolean;
     manageGameSets?: boolean;
