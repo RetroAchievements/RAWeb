@@ -16,6 +16,7 @@ class UserPermissionsData extends Data
 {
     public function __construct(
         public Lazy|bool $createTriggerTicket,
+        public Lazy|bool $createUsernameChangeRequest,
         public Lazy|bool $develop,
         public Lazy|bool $manageGameHashes,
         public Lazy|bool $manageGameSets,
@@ -35,6 +36,7 @@ class UserPermissionsData extends Data
                 ? $user->can('createFor', [\App\Models\TriggerTicket::class, $triggerable])
                 : $user?->can('create', \App\Models\TriggerTicket::class) ?? false
             ),
+            createUsernameChangeRequest: Lazy::create(fn () => $user ? $user->can('create', \App\Models\UserUsername::class) : false),
             develop: Lazy::create(fn () => $user ? $user->can('develop') : false),
             manageGameHashes: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameHash::class) : false),
             manageGameSets: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameSet::class) : false),
