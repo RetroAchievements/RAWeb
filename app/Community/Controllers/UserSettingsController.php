@@ -81,8 +81,8 @@ class UserSettingsController extends Controller
         $props = new UserSettingsPagePropsData(
             $userSettings,
             $can,
-            $requestedUsername,
-            $mappedRoles
+            $mappedRoles,
+            $requestedUsername
         );
 
         return Inertia::render('settings', $props);

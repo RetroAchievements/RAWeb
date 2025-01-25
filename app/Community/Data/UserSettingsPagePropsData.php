@@ -16,9 +16,9 @@ class UserSettingsPagePropsData extends Data
     public function __construct(
         public UserData $userSettings,
         public UserPermissionsData $can,
-        public ?string $requestedUsername = null,
         /** @var RoleData[] */
         public array $displayableRoles,
+        public ?string $requestedUsername = null,
     ) {
     }
 }
