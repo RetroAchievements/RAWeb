@@ -340,6 +340,7 @@ trait BuildsGameListQueries
                     ELSE 4
                 END AS granularity_order
             SQL)
+            ->orderByRaw('released_at IS NULL') 
             ->orderBy('normalized_released_at', $sortDirection)
             ->orderBy('granularity_order', $sortDirection);
     }
