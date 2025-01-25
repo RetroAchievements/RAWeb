@@ -505,8 +505,10 @@ class GameResource extends Resource
                     ->queries(
                         true: fn (Builder $query): Builder => $query
                             ->whereNotNull('RichPresencePatch')
+                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
                             ->whereRaw('CHAR_LENGTH(RichPresencePatch) - CHAR_LENGTH(REPLACE(RichPresencePatch, "\n", "")) >= 1'),
                         false: fn (Builder $query): Builder => $query
+                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
                             ->where(fn (Builder $query): Builder => $query
                                 ->whereNull('RichPresencePatch')
                                 ->orWhereRaw('CHAR_LENGTH(RichPresencePatch) - CHAR_LENGTH(REPLACE(RichPresencePatch, "\n", "")) < 1')
