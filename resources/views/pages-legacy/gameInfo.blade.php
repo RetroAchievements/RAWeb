@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
@@ -11,6 +12,7 @@ use App\Enums\UserPreference;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\GameSet;
+use App\Models\PlayerBadge;
 use App\Models\System;
 use App\Models\User;
 use App\Models\UserGameListEntry;
@@ -188,6 +190,20 @@ if ($isEventGame) {
     }
 
     $isGameBeatable = true;
+
+    if ($userModel) {
+        if ($gameModel->event) {
+            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
+                ->where('AwardType', AwardType::Event)
+                ->where('AwardData', $gameModel->event->id)
+                ->exists();
+        } else {
+            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
+                ->where('AwardType', AwardType::Mastery)
+                ->where('AwardData', $gameModel->id)
+                ->exists();
+        }
+    }
 }
 
 if ($isFullyFeaturedGame || $isEventGame) {
@@ -288,7 +304,7 @@ if ($isFullyFeaturedGame || $isEventGame) {
 
     // Show the beaten award display in the progress component optimistically.
     // The actual award metadata is updated async via actions/background jobs.
-    if ($user && $isGameBeatable) {
+    if ($user && $isGameBeatable && !$isEventGame) {
         $neededProgressions = $totalProgressionAchievements > 0 ? $totalProgressionAchievements : 0;
         $neededWinConditions = $totalWinConditionAchievements > 0 ? 1 : 0;
 
@@ -1108,6 +1124,37 @@ if ($isFullyFeaturedGame) {
 
         @if ($gameModel->system->active && !$isEventGame)
             <x-game.leaderboards-listing :game="$gameModel" />
+        @endif
+
+        @if (count($gameModel->event?->awards ?? []) > 0)
+            <?php
+                $badgeCounts = PlayerBadge::where('AwardType', AwardType::Event)
+                    ->where('AwardData', $gameModel->event->id)
+                    ->groupBy('AwardDataExtra')
+                    ->select(['AwardDataExtra', DB::raw('count(*) AS total')])
+                    ->get();
+            ?>
+            <div class="component gamealts">
+                <h2 class="text-h3">Award Tiers</h2>
+                <table class="table-highlight"><tbody>
+                @foreach ($gameModel->event->awards->sortBy('achievements_required') as $award)
+                    <tr style="w-full">
+                        <td style="w-full">
+                            <div class="flex relative gap-x-2 items-center">
+                                <img width="48" height="48" src="{!! media_asset($award->image_asset_path) !!}" alt="{{ $award->label }}" />
+                                <div>
+                                    <p>{{ $award->label }}</p>
+                                    <p class="smalltext">{{ $award->achievements_required }} {{ Str::plural('achievement', $award->achievements_required) }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="text-right">
+                            {{ number_format($badgeCounts->where('AwardDataExtra', $award->tier_index)->first()?->total ?? 0) }}
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody></table>
+            </div>
         @endif
     </x-slot>
 @endif

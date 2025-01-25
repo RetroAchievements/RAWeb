@@ -9,6 +9,8 @@ import type enUS from '../../../lang/en_US.json';
 declare const TranslatedStringBrand: unique symbol;
 export type TranslatedString = string & { [TranslatedStringBrand]: never };
 
+export type TranslationKey = keyof typeof enUS;
+
 declare module 'i18next' {
   interface CustomTypeOptions {
     resources: {
@@ -18,6 +20,6 @@ declare module 'i18next' {
 
   // Extend t() to return TranslatedString.
   interface TFunction {
-    <TKey extends keyof typeof enUS>(key: TKey | TKey[], options?: object): TranslatedString;
+    <TKey extends TranslationKey>(key: TKey | TKey[], options?: object): TranslatedString;
   }
 }

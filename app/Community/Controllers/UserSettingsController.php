@@ -20,15 +20,18 @@ use App\Community\Requests\UpdateLocaleRequest;
 use App\Community\Requests\UpdatePasswordRequest;
 use App\Community\Requests\UpdateProfileRequest;
 use App\Community\Requests\UpdateWebsitePrefsRequest;
+use App\Data\RoleData;
 use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Http\Controller;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserUsername;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
@@ -41,6 +44,10 @@ class UserSettingsController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
+
+        $user->load(['roles' => function ($query) {
+            $query->where('display', '>', 0);
+        }]);
 
         $userSettings = UserData::fromUser($user)->include(
             'apiKey',
@@ -63,11 +70,19 @@ class UserSettingsController extends Controller
             ->latest('created_at')
             ->first()
             ?->username;
+            
+        /** @var Collection<int, Role> $displayableRoles */
+        $displayableRoles = $user->roles;
+
+        $mappedRoles = $displayableRoles->map(fn ($role) => RoleData::fromRole($role))
+            ->values()
+            ->all();
 
         $props = new UserSettingsPagePropsData(
             $userSettings,
             $can,
-            $requestedUsername
+            $requestedUsername,
+            $mappedRoles
         );
 
         return Inertia::render('settings', $props);

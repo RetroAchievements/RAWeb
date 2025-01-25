@@ -12,5 +12,6 @@ enum ImageUploadType
     case GameBoxArt;
     case GameTitle;
     case GameInGame;
+    case AchievementBadge;
     case EventAward;
 }

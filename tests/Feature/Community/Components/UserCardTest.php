@@ -6,7 +6,9 @@ namespace Tests\Feature\Community\Components;
 
 use App\Community\Enums\Rank;
 use App\Enums\Permissions;
+use App\Models\Role;
 use App\Models\User;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -41,21 +43,24 @@ class UserCardTest extends TestCase
 
     public function testItDisplaysUserRoleWhenAppropriate(): void
     {
-        User::factory()->create([
+        $this->seed(RolesTableSeeder::class);
+
+        /** @var User $user */
+        $user = User::factory()->create([
             'User' => 'mockUser',
             'Motto' => 'mockMotto',
             'RAPoints' => 5000,
             'RASoftcorePoints' => 50,
             'TrueRAPoints' => 6500,
             'Untracked' => false,
-            'Permissions' => Permissions::JuniorDeveloper,
             'Created' => '2023-07-01 00:00:00',
             'LastLogin' => '2023-07-10 00:00:00',
         ]);
+        $user->assignRole(Role::DEVELOPER_JUNIOR);
 
         $view = $this->blade('<x-user-card user="mockUser" />');
 
-        $view->assertSeeText(Permissions::toString(Permissions::JuniorDeveloper));
+        $view->assertSeeText('Junior Developer');
     }
 
     public function testItDoesntDisplayIfUserIsBanned(): void

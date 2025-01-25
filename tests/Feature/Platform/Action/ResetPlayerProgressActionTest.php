@@ -6,6 +6,7 @@ namespace Tests\Feature\Platform\Action;
 
 use App\Models\Achievement;
 use App\Models\PlayerBadge;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\ResetPlayerProgressAction;
 use App\Platform\Enums\AchievementFlag;
@@ -342,6 +343,35 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertHasHardcoreUnlock($user2, $achievements->get(1));
         $this->assertHasHardcoreUnlock($user2, $achievements->get(2));
         $this->assertHasMasteryBadge($user2, $game);
+    }
+
+    public function testResetEventGame(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create(['RASoftcorePoints' => 123, 'RAPoints' => 1234, 'TrueRAPoints' => 2345]);
+        /** @var User $author */
+        $author = User::factory()->create(['ContribCount' => 111, 'ContribYield' => 2222]);
+        $eventSystem = System::factory()->create(['ID' => System::Events]);
+        $game = $this->seedGame(system: $eventSystem, withHash: false);
+        $achievements = Achievement::factory()->published()
+            ->count(PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY)
+            ->create(['GameID' => $game->ID, 'user_id' => $author->id, 'Points' => 0]);
+
+        foreach ($achievements as $achievement) {
+            $this->addHardcoreUnlock($user, $achievement);
+        }
+
+        $user->refresh();
+        $this->assertHasMasteryBadge($user, $game);
+
+        (new ResetPlayerProgressAction())->execute($user, gameID: $game->ID);
+        $user->refresh();
+
+        // unlocks and badge should have been revoked
+        foreach ($achievements as $achievement) {
+            $this->assertDoesNotHaveAnyUnlock($user, $achievement);
+        }
+        $this->assertDoesNotHaveMasteryBadge($user, $game);
     }
 
     public function testResetAll(): void

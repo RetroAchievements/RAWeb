@@ -17,7 +17,6 @@ class NewsPolicy
     {
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
-            Role::DEVELOPER,
             Role::EVENT_MANAGER,
             Role::MODERATOR,
             Role::NEWS_MANAGER,
@@ -39,7 +38,6 @@ class NewsPolicy
     {
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
-            Role::DEVELOPER,
             Role::EVENT_MANAGER,
             Role::MODERATOR,
             Role::NEWS_MANAGER,
@@ -51,7 +49,6 @@ class NewsPolicy
     {
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
-            Role::DEVELOPER,
             Role::EVENT_MANAGER,
             Role::MODERATOR,
             Role::NEWS_MANAGER,
@@ -106,7 +103,6 @@ class NewsPolicy
     {
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
-            Role::NEWS_MANAGER,
         ]);
     }
 }

@@ -131,6 +131,7 @@ declare namespace App.Community.Data {
     userSettings: App.Data.User;
     can: App.Data.UserPermissions;
     requestedUsername: string | null;
+    displayableRoles: Array<App.Data.Role>;
   };
 }
 declare namespace App.Community.Enums {
@@ -244,6 +245,10 @@ declare namespace App.Data {
       nextPageUrl: string | null;
     };
   };
+  export type Role = {
+    id: number;
+    name: string;
+  };
   export type StaticData = {
     numGames: number;
     numAchievements: number;
@@ -265,6 +270,7 @@ declare namespace App.Data {
     apiKey?: string | null;
     deleteRequested?: string | null;
     deletedAt?: string | null;
+    displayableRoles?: Array<App.Data.Role> | null;
     emailAddress?: string | null;
     id?: number;
     isEmailVerified?: boolean;
@@ -281,7 +287,7 @@ declare namespace App.Data {
     unreadMessageCount?: number | null;
     username?: string | null;
     userWallActive?: boolean | null;
-    visibleRole?: string | null;
+    visibleRole?: App.Data.Role | null;
     websitePrefs?: number | null;
     preferences?: { shouldAlwaysBypassContentWarnings: boolean; prefersAbsoluteDates: boolean };
     roles?: App.Models.UserRole[];

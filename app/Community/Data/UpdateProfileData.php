@@ -12,6 +12,7 @@ class UpdateProfileData extends Data
     public function __construct(
         public string $motto,
         public bool $userWallActive,
+        public ?int $visibleRoleId,
     ) {
     }
 
@@ -20,6 +21,7 @@ class UpdateProfileData extends Data
         return new self(
             motto: $request->motto,
             userWallActive: $request->userWallActive,
+            visibleRoleId: $request->visibleRoleId,
         );
     }
 
@@ -28,6 +30,7 @@ class UpdateProfileData extends Data
         return [
             'Motto' => $this->motto,
             'UserWallActive' => $this->userWallActive,
+            'visible_role_id' => $this->visibleRoleId,
         ];
     }
 }
