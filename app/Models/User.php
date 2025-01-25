@@ -375,6 +375,14 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         return $this->locale;
     }
 
+    public function resolveSoftDeletableRouteBinding($value, $field = null)
+    {
+        return $this->where('display_name', $value)
+            ->orWhere('User', $value)
+            ->withTrashed()
+            ->firstOrFail();
+    }
+
     public function getRouteKey(): string
     {
         return !empty($this->display_name) ? $this->display_name : 'User';
