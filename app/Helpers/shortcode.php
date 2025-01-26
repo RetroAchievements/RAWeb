@@ -85,6 +85,7 @@ function normalize_shortcodes(string $input): string
 
     $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'user');
     $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'game');
+    $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'hub');
     $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'achievement', 'ach');
     $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'ticket');
 
