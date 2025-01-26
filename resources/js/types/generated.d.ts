@@ -69,6 +69,24 @@ declare namespace App.Community.Data {
     isSubscribed: boolean;
     canComment: boolean;
   };
+  export type Message = {
+    body: string;
+    createdAt: string;
+    author?: App.Data.User;
+  };
+  export type MessageThread = {
+    id: number;
+    title: string;
+    numMessages: number;
+    lastMessageId: number;
+    isUnread: boolean;
+    messages?: Array<App.Community.Data.Message>;
+    participants?: Array<App.Data.User>;
+  };
+  export type MessageThreadIndexPageProps<TItems = App.Community.Data.MessageThread> = {
+    paginatedMessageThreads: App.Data.PaginatedData<TItems>;
+    unreadMessageCount: number;
+  };
   export type RecentLeaderboardEntry = {
     leaderboard: App.Platform.Data.Leaderboard;
     leaderboardEntry: App.Platform.Data.LeaderboardEntry;
