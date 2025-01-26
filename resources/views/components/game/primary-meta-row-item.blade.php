@@ -38,10 +38,7 @@ if ($gameHubs) {
                     }
                 }
 
-                $href = route('game.show', $hub['gameIDAlt']);
-                if (config('feature.enable_modern_hubs') && $hub['GameSetID']) {
-                    $href = route('hub.show', ['gameSet' => $hub['GameSetID']]);
-                }
+                $href = route('hub.show', ['gameSet' => $hub['GameSetID']]);
                 $escapedLink = "<a href={$href}>" . htmlspecialchars($value) . "</a>";
 
                 // Check if key is valid.
