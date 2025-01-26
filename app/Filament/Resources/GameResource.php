@@ -513,80 +513,46 @@ class GameResource extends Resource
                         blank: fn (Builder $query): Builder => $query,
                     ),
 
-                Tables\Filters\TernaryFilter::make('has_badge')
-                    ->label('Has badge')
-                    ->placeholder('Any')
-                    ->trueLabel('Yes')
-                    ->falseLabel('No')
-                    ->queries(
-                        true: fn (Builder $query): Builder => $query
-                            ->whereNotNull('ImageIcon')
-                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
-                            ->where('ImageIcon', '!=', '/Images/000001.png'),
-                        false: fn (Builder $query): Builder => $query
-                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
-                            ->where(fn (Builder $query): Builder => $query
-                                ->whereNull('ImageIcon')
-                                ->orWhere('ImageIcon', '/Images/000001.png')
-                            ),
-                        blank: fn (Builder $query): Builder => $query,
-                    ),
+                Tables\Filters\SelectFilter::make('missing_assets')
+                    ->label('Missing assets')
+                    ->multiple()
+                    ->options([
+                        'badge' => 'Badge icon',
+                        'title' => 'Title image',
+                        'ingame' => 'In-game image',
+                        'boxart' => 'Box art',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['values'])) {
+                            return $query;
+                        }
 
-                Tables\Filters\TernaryFilter::make('has_title_image')
-                    ->label('Has title image')
-                    ->placeholder('Any')
-                    ->trueLabel('Yes')
-                    ->falseLabel('No')
-                    ->queries(
-                        true: fn (Builder $query): Builder => $query
-                            ->whereNotNull('ImageTitle')
-                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
-                            ->where('ImageTitle', '!=', '/Images/000002.png'),
-                        false: fn (Builder $query): Builder => $query
-                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
-                            ->where(fn (Builder $query): Builder => $query
-                                ->whereNull('ImageTitle')
-                                ->orWhere('ImageTitle', '/Images/000002.png')
-                            ),
-                        blank: fn (Builder $query): Builder => $query,
-                    ),
-
-                Tables\Filters\TernaryFilter::make('has_in_game_image')
-                    ->label('Has in game Image')
-                    ->placeholder('Any')
-                    ->trueLabel('Yes')
-                    ->falseLabel('No')
-                    ->queries(
-                        true: fn (Builder $query): Builder => $query
-                            ->whereNotNull('ImageIngame')
-                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
-                            ->where('ImageIngame', '!=', '/Images/000002.png'),
-                        false: fn (Builder $query): Builder => $query
-                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
-                            ->where(fn (Builder $query): Builder => $query
-                                ->whereNull('ImageIngame')
-                                ->orWhere('ImageIngame', '/Images/000002.png')
-                            ),
-                        blank: fn (Builder $query): Builder => $query,
-                    ),
-
-                Tables\Filters\TernaryFilter::make('has_box_art')
-                    ->label('Has box art')
-                    ->placeholder('Any')
-                    ->trueLabel('Yes')
-                    ->falseLabel('No')
-                    ->queries(
-                        true: fn (Builder $query): Builder => $query
-                            ->whereNotNull('ImageBoxArt')
-                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
-                            ->where('ImageBoxArt', '!=', '/Images/000002.png'),
-                        false: fn (Builder $query): Builder => $query
-                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
-                            ->where(fn (Builder $query): Builder => $query
-                                ->whereNull('ImageBoxArt')
-                                ->orWhere('ImageBoxArt', '/Images/000002.png')
-                            ),
-                        blank: fn (Builder $query): Builder => $query,
+                        return $query->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->where(function (Builder $query) use ($data) {
+                                foreach ($data['values'] as $type) {
+                                    $query->where(function (Builder $query) use ($type) {
+                                        switch ($type) {
+                                            case 'badge':
+                                                $query->whereNull('ImageIcon')
+                                                    ->orWhere('ImageIcon', '/Images/000001.png');
+                                                break;
+                                            case 'title':
+                                                $query->whereNull('ImageTitle')
+                                                    ->orWhere('ImageTitle', '/Images/000002.png');
+                                                break;
+                                            case 'ingame':
+                                                $query->whereNull('ImageIngame')
+                                                    ->orWhere('ImageIngame', '/Images/000002.png');
+                                                break;
+                                            case 'boxart':
+                                                $query->whereNull('ImageBoxArt')
+                                                    ->orWhere('ImageBoxArt', '/Images/000002.png');
+                                                break;
+                                        }
+                                    });
+                                }
+                            });
+                        }
                     ),
             ])
             ->actions([
