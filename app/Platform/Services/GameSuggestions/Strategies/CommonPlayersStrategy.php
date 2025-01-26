@@ -39,7 +39,7 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
             ->whereAllAchievementsUnlocked()
             ->where('achievements_total', '>', 0)
             ->where('game_id', '!=', $this->sourceGame->id)
-            ->whereNull('deleted_at')
+            ->withTrashed()
             ->groupBy('game_id')
             ->orderByRaw('COUNT(*) DESC')
             ->limit(10)
@@ -96,7 +96,7 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
             ->where('game_id', $this->sourceGame->id)
             ->where('user_id', '!=', $this->user->id)
             ->whereAllAchievementsUnlocked()
-            ->whereNull('deleted_at')
+            ->withTrashed()
             ->whereRaw('id % 100 < 5')
             ->limit(5)
             ->pluck('user_id');
@@ -112,7 +112,7 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
         return PlayerGame::where('game_id', $this->sourceGame->id)
             ->where('user_id', '!=', $this->user->id)
             ->whereAllAchievementsUnlocked()
-            ->whereNull('deleted_at')
+            ->withTrashed()
             ->orderByRaw('rowid % 100')
             ->limit(5)
             ->pluck('user_id');

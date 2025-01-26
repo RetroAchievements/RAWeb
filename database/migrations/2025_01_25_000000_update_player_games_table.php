@@ -14,7 +14,6 @@ return new class() extends Migration {
                 'user_id',
                 'achievements_unlocked',
                 'achievements_total',
-                'deleted_at',
                 'game_id',
             ], 'idx_player_games_suggestions'); // custom name needed because the auto-generated one is too long
         });
