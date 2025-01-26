@@ -54,6 +54,8 @@ class SystemController extends Controller
         $persistenceCookieName = 'datatable_view_preference_system_games';
         $request->setPersistenceCookieName($persistenceCookieName);
 
+        $request->setDefaultPageSize(100);
+
         $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
 
         $paginatedData = (new BuildGameListAction())->execute(
@@ -62,7 +64,7 @@ class SystemController extends Controller
             user: $user,
             filters: $request->getFilters(targetSystemId: $system->id),
             sort: $request->getSort(),
-            perPage: 100,
+            perPage: $request->getPageSize(),
 
             /**
              * Ignore page params on mobile.

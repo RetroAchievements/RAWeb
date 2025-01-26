@@ -6,6 +6,7 @@ import type { DynamicShortcodeEntities } from '../models';
 export interface ForumPostPreviewMutationResponse {
   achievements: App.Platform.Data.Achievement[];
   games: App.Platform.Data.Game[];
+  hubs: App.Platform.Data.GameSet[];
   tickets: App.Platform.Data.Ticket[];
   users: App.Data.User[];
 }

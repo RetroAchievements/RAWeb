@@ -1,6 +1,7 @@
 export interface DynamicShortcodeEntities {
-  usernames: string[];
-  ticketIds: number[];
-  gameIds: number[];
   achievementIds: number[];
+  gameIds: number[];
+  hubIds: number[];
+  ticketIds: number[];
+  usernames: string[];
 }

@@ -1,30 +1,21 @@
 import type { DynamicShortcodeEntities } from '../models';
 
 const shortcodePatterns = {
-  user: /\[user=([^\]]+)\]/g,
-  game: /\[game=([^\]]+)\]/g,
   achievement: /\[ach=([^\]]+)\]/g,
+  game: /\[game=([^\]]+)\]/g,
+  hub: /\[hub=([^\]]+)\]/g,
   ticket: /\[ticket=([^\]]+)\]/g,
+  user: /\[user=([^\]]+)\]/g,
 };
 
 export function extractDynamicEntitiesFromBody(input: string): DynamicShortcodeEntities {
   const entities: DynamicShortcodeEntities = {
-    usernames: [],
-    ticketIds: [],
     achievementIds: [],
     gameIds: [],
+    hubIds: [],
+    ticketIds: [],
+    usernames: [],
   };
-
-  // Extract usernames.
-  for (const match of input.matchAll(shortcodePatterns.user)) {
-    entities.usernames.push(match[1]);
-  }
-
-  // Extract ticket IDs.
-  for (const match of input.matchAll(shortcodePatterns.ticket)) {
-    const id = parseInt(match[1], 10);
-    if (!isNaN(id)) entities.ticketIds.push(id);
-  }
 
   // Extract achievement IDs.
   for (const match of input.matchAll(shortcodePatterns.achievement)) {
@@ -38,10 +29,28 @@ export function extractDynamicEntitiesFromBody(input: string): DynamicShortcodeE
     if (!isNaN(id)) entities.gameIds.push(id);
   }
 
+  // Extract hub IDs.
+  for (const match of input.matchAll(shortcodePatterns.hub)) {
+    const id = parseInt(match[1], 10);
+    if (!isNaN(id)) entities.hubIds.push(id);
+  }
+
+  // Extract ticket IDs.
+  for (const match of input.matchAll(shortcodePatterns.ticket)) {
+    const id = parseInt(match[1], 10);
+    if (!isNaN(id)) entities.ticketIds.push(id);
+  }
+
+  // Extract usernames.
+  for (const match of input.matchAll(shortcodePatterns.user)) {
+    entities.usernames.push(match[1]);
+  }
+
   return {
-    usernames: [...new Set(entities.usernames)],
-    ticketIds: [...new Set(entities.ticketIds)],
     achievementIds: [...new Set(entities.achievementIds)],
     gameIds: [...new Set(entities.gameIds)],
+    hubIds: [...new Set(entities.hubIds)],
+    ticketIds: [...new Set(entities.ticketIds)],
+    usernames: [...new Set(entities.usernames)],
   };
 }

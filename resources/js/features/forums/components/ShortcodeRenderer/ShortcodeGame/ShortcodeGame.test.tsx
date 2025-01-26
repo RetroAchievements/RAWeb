@@ -8,7 +8,10 @@ describe('Component: ShortcodeGame', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(<ShortcodeGame gameId={1} />, {
-      jotaiAtoms: [[persistedGamesAtom, []]],
+      jotaiAtoms: [
+        [persistedGamesAtom, []],
+        //
+      ],
     });
 
     // ASSERT
@@ -18,7 +21,10 @@ describe('Component: ShortcodeGame', () => {
   it('given the game ID is not found in persisted games, renders nothing', () => {
     // ARRANGE
     render(<ShortcodeGame gameId={999999} />, {
-      jotaiAtoms: [[persistedGamesAtom, [createGame({ id: 1 })]]],
+      jotaiAtoms: [
+        [persistedGamesAtom, [createGame({ id: 1 })]],
+        //
+      ],
     });
 
     // ASSERT
@@ -31,10 +37,15 @@ describe('Component: ShortcodeGame', () => {
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
 
     render(<ShortcodeGame gameId={1} />, {
-      jotaiAtoms: [[persistedGamesAtom, [game]]],
+      jotaiAtoms: [
+        [persistedGamesAtom, [game]],
+        //
+      ],
     });
 
     // ASSERT
+    expect(screen.getByTestId('game-embed')).toBeVisible();
+
     expect(screen.getByRole('img', { name: /sonic the hedgehog/i })).toBeVisible();
     expect(screen.getByText(/sega genesis/i)).toBeVisible();
     expect(screen.getByRole('link')).toBeVisible();
