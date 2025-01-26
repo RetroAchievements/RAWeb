@@ -65,7 +65,7 @@ class MessageThreadControllerTest extends TestCase
             ->has('paginatedMessageThreads.items', 1)
             ->where('paginatedMessageThreads.items.0.id', $thread->id)
             ->where('paginatedMessageThreads.items.0.title', $thread->title)
-            ->where('paginatedMessageThreads.items.0.lastMessageId', $thread->last_message_id)
+            ->has('paginatedMessageThreads.items.0.lastMessage.createdAt')
             ->where('paginatedMessageThreads.items.0.isUnread', false)
             ->has('paginatedMessageThreads.items.0.messages')
             ->has('paginatedMessageThreads.items.0.participants')
