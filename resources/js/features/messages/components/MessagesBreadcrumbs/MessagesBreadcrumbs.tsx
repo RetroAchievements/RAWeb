@@ -24,7 +24,7 @@ export const MessagesBreadcrumbs: FC<MessagesBreadcrumbsProps> = ({ t_currentPag
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
           <BaseBreadcrumbItem aria-label={t('Messages')}>
-            <BaseBreadcrumbLink href={route('message-thread.index2')}>
+            <BaseBreadcrumbLink href={route('message-thread.index')}>
               {t('Messages')}
             </BaseBreadcrumbLink>
           </BaseBreadcrumbItem>

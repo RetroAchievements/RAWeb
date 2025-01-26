@@ -56,7 +56,7 @@ class MessageThreadControllerTest extends TestCase
 
         // Act
         $response = $this->actingAs($this->user)
-            ->get(route('message-thread.index2'));
+            ->get(route('message-thread.index'));
 
         // Assert
         $response->assertOk();
