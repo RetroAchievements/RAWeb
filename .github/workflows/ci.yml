@@ -45,45 +45,6 @@ jobs:
         if: steps.composer-cache.outputs.cache-hit != 'true'
         run: composer install --prefer-dist
 
-  node-setup:
-    runs-on: ubuntu-22.04
-    name: Node.js Setup
-    outputs:
-      cache-key: ${{ steps.cache-key.outputs.value }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Use Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Generate cache key
-        id: cache-key
-        run: echo "value=${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
-
-      - name: Install
-        if: steps.node-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile --prefer-offline
-
-      - name: Cache node_modules
-        id: node-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            .pnpm-store
-          key: ${{ steps.cache-key.outputs.value }}
-
   php-checks:
     needs: php-setup
     runs-on: ubuntu-22.04
@@ -123,7 +84,6 @@ jobs:
         run: ${{ matrix.command }}
 
   node-checks:
-    needs: node-setup
     runs-on: ubuntu-22.04
     name: Node.js Checks
     strategy:
@@ -154,13 +114,8 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-      - name: Restore node_modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            .pnpm-store
-          key: ${{ needs.node-setup.outputs.cache-key }}
+      - name: Install
+        run: pnpm i
       - name: Run ${{ matrix.check }}
         run: ${{ matrix.command }}
         env: ${{ matrix.env || fromJSON('{}') }}
