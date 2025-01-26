@@ -11,7 +11,6 @@ import { preProcessShortcodesInBody } from '@/features/forums/utils/preProcessSh
 const formSchema = z.object({
   body: z.string().min(1).max(60_000),
 });
-
 type FormValues = z.infer<typeof formSchema>;
 
 export function useEditPostForm(comment: App.Data.ForumTopicComment, initialValues: FormValues) {

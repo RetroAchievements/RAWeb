@@ -11,16 +11,23 @@ import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames'
 import { cn } from '@/common/utils/cn';
 
 import { HomeHeading } from '../../HomeHeading';
+import { AotwUnlockedIndicator } from './AotwUnlockedIndicator';
 
 export const AchievementOfTheWeek: FC = () => {
   const { achievementOfTheWeek, auth } = usePageProps<App.Http.Data.HomePageProps>();
 
   const { t } = useTranslation();
 
-  const game = achievementOfTheWeek?.sourceAchievement?.game;
+  if (!achievementOfTheWeek) {
+    return null;
+  }
+
+  const { currentEventAchievement } = achievementOfTheWeek;
+
+  const game = currentEventAchievement?.sourceAchievement?.game;
   const system = game?.system;
 
-  if (!achievementOfTheWeek?.achievement || !game || !system) {
+  if (!currentEventAchievement?.achievement || !game || !system) {
     return null;
   }
 
@@ -29,26 +36,27 @@ export const AchievementOfTheWeek: FC = () => {
       <HomeHeading>{t('Achievement of the Week')}</HomeHeading>
 
       <div className="flex flex-col gap-2">
-        <div className="rounded bg-embed p-2">
+        <div className="overflow-hidden rounded bg-embed px-2 pt-2">
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <AchievementAvatar
-                {...achievementOfTheWeek.achievement}
+                {...currentEventAchievement.achievement}
                 hasTooltip={false}
                 size={64}
                 showLabel={false}
+                showHardcoreUnlockBorder={achievementOfTheWeek?.doesUserHaveUnlock}
               />
 
               <div className="flex flex-col gap-0.5 self-start">
                 <a
                   href={route('achievement.show', {
-                    achievement: achievementOfTheWeek.achievement.id,
+                    achievement: currentEventAchievement.achievement.id,
                   })}
                 >
-                  {achievementOfTheWeek.achievement.title}
+                  {currentEventAchievement.achievement.title}
                 </a>
 
-                <p>{achievementOfTheWeek.achievement.description}</p>
+                <p>{currentEventAchievement.achievement.description}</p>
               </div>
             </div>
 
@@ -60,15 +68,15 @@ export const AchievementOfTheWeek: FC = () => {
                 <div className="flex w-full items-center justify-between">
                   <SystemChip {...system} className="bg-zinc-800" />
 
-                  {achievementOfTheWeek.activeUntil ? (
+                  {currentEventAchievement.activeUntil ? (
                     <span className="smalldate !min-w-fit self-end">
                       <Trans
                         i18nKey="Ends <1>{{when}}</1>"
-                        values={{ when: achievementOfTheWeek.activeUntil }}
+                        values={{ when: currentEventAchievement.activeUntil }}
                         components={{
                           1: (
                             <DiffTimestamp
-                              at={achievementOfTheWeek.activeUntil}
+                              at={currentEventAchievement.activeUntil}
                               asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates}
                             />
                           ),
@@ -80,13 +88,17 @@ export const AchievementOfTheWeek: FC = () => {
               </div>
             </div>
           </div>
+
+          <div className="-mx-2 mt-2">
+            <AotwUnlockedIndicator />
+          </div>
         </div>
 
-        {achievementOfTheWeek.event?.legacyGame ? (
+        {currentEventAchievement.event?.legacyGame ? (
           <div className="w-ful flex justify-end">
             <a
               className={cn('text-xs', buildTrackingClassNames('Click AOTW Link'))}
-              href={route('game.show', { game: achievementOfTheWeek.event.legacyGame.id })}
+              href={route('game.show', { game: currentEventAchievement.event.legacyGame.id })}
             >
               {t("View this year's event")}
             </a>

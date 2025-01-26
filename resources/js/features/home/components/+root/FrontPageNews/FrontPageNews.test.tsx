@@ -275,4 +275,19 @@ describe('Component: FrontPageNews', () => {
     // ASSERT
     expect(screen.queryByText('new')).not.toBeInTheDocument();
   });
+
+  it('given a news post has a category, displays the category', () => {
+    // ARRANGE
+    const recentNews = [createNews({ title: 'Foo', category: 'achievement-set' })];
+
+    render<App.Http.Data.HomePageProps>(<FrontPageNews />, {
+      pageProps: {
+        recentNews,
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/featured set/i)).toBeVisible();
+  });
 });

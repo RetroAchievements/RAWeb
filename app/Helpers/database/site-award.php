@@ -58,6 +58,7 @@ function getUsersSiteAwards(?User $user): array
     $bindings = [
         'userId' => $user->id,
         'userId2' => $user->id,
+        'userId3' => $user->id,
     ];
 
     $query = "
@@ -82,11 +83,20 @@ function getUsersSiteAwards(?User $user): array
                     WHERE saw3.AwardType = saw.AwardType AND saw3.AwardData = saw.AwardData AND saw3.AwardDataExtra = 1 AND saw3.user_id = saw.user_id
                 ))
         UNION
+        -- event awards
+        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.user_id, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, " . System::Events . ", NULL, NULL, NULL
+            FROM SiteAwards AS saw
+            LEFT JOIN events e ON e.id = saw.AwardData
+            LEFT JOIN GameData gd ON gd.id = e.legacy_game_id
+            WHERE
+                saw.AwardType = " . AwardType::Event . "
+                AND saw.user_id = :userId3
+        UNION
         -- non-game awards (developer contribution, ...)
         SELECT " . unixTimestampStatement('MAX(saw.AwardDate)', 'AwardedAt') . ", saw.AwardType, saw.user_id, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL, NULL
             FROM SiteAwards AS saw
             WHERE
-                saw.AwardType NOT IN(" . implode(',', AwardType::game()) . ")
+                saw.AwardType NOT IN(" . implode(',', AwardType::game()) . "," . AwardType::Event . ")
                 AND saw.user_id = :userId2
             GROUP BY saw.AwardType
         ORDER BY DisplayOrder, AwardedAt, AwardType, AwardDataExtra ASC";
@@ -211,13 +221,20 @@ function getRecentProgressionAwardData(
  */
 function getUserEventAwardCount(User $user): int
 {
-    return $user->playerBadges()
+    $eventGameBadgeCount = $user->playerBadges()
         ->where('AwardType', AwardType::Mastery)
         ->whereHas('gameIfApplicable.system', function ($query) {
             $query->where('ID', System::Events);
         })
         ->distinct('AwardData')
         ->count('AwardData');
+
+    $eventBadgeCount = $user->playerBadges()
+        ->where('AwardType', AwardType::Event)
+        ->distinct('AwardData')
+        ->count('AwardData');
+
+    return $eventGameBadgeCount + $eventBadgeCount;
 }
 
 /**

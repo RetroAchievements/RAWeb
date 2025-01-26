@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Actions\BuildAchievementOfTheWeekDataAction;
-use App\Models\Achievement;
 use App\Models\EventAchievement;
 use Illuminate\Support\Facades\DB;
 
@@ -49,7 +48,7 @@ use Illuminate\Support\Facades\DB;
 
 $aotwData = (new BuildAchievementOfTheWeekDataAction())->execute();
 
-$achievementId = $aotwData->achievement->id ?? 0;
+$achievementId = $aotwData->currentEventAchievement->achievement->id ?? 0;
 $eventAchievement = EventAchievement::active()->where('achievement_id', $achievementId)->first();
 
 if (!$eventAchievement?->sourceAchievement) {
@@ -86,7 +85,7 @@ $console = [
 ];
 
 $forumTopic = [
-    'ID' => $aotwData->forumTopicId->resolve() ?? null,
+    'ID' => $aotwData->currentEventAchievement->forumTopicId->resolve() ?? null,
 ];
 
 $unlocks = collect();

@@ -7,6 +7,7 @@ namespace App\Platform\Actions;
 use App\Community\Enums\AwardType;
 use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
+use App\Models\System;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeAwarded;
 use App\Platform\Events\PlayerBadgeLost;
@@ -24,8 +25,12 @@ class RevalidateAchievementSetBadgeEligibilityAction
             return;
         }
 
-        $this->revalidateBeatenBadgeEligibility($playerGame);
-        $this->revalidateCompletionBadgeEligibility($playerGame);
+        if ($playerGame->game->system->id === System::Events) {
+            $this->revalidateEventBadgeEligibility($playerGame);
+        } else {
+            $this->revalidateBeatenBadgeEligibility($playerGame);
+            $this->revalidateCompletionBadgeEligibility($playerGame);
+        }
     }
 
     private function revalidateBeatenBadgeEligibility(PlayerGame $playerGame): void
@@ -150,5 +155,58 @@ class RevalidateAchievementSetBadgeEligibilityAction
             $badge->AwardData,
             $badge->AwardDataExtra,
         );
+    }
+
+    private function revalidateEventBadgeEligibility(PlayerGame $playerGame): void
+    {
+        $event = $playerGame->game->event;
+        if (!$event) {
+            // no event information, just check for all achievement unlocks (legacy event)
+            $this->revalidateCompletionBadgeEligibility($playerGame);
+
+            return;
+        }
+
+        $expectedAward = $event->awards->sortByDesc('achievements_required')
+            ->where('achievements_required', '<=', $playerGame->achievements_unlocked_hardcore)
+            ->first();
+
+        if ($expectedAward) {
+            // found an award the user is eligible for
+            $expectedTier = $expectedAward->tier_index;
+        } elseif ($event->awards->isEmpty()
+                && $playerGame->game->achievements_published > 0
+                && $playerGame->achievements_unlocked_hardcore === $playerGame->game->achievements_published) {
+            // no awards available, award tier 0 if all achievements have been unlocked
+            $expectedTier = 0;
+        } else {
+            // player is not eligible for any awards for the event
+            $expectedTier = -1;
+        }
+
+        $existingAward = $playerGame->user->playerBadges->where('AwardType', AwardType::Event)
+            ->where('AwardData', $event->id)
+            ->first();
+        if ($existingAward) {
+            if ($existingAward->AwardDataExtra >= $expectedTier) {
+                // player already has the appropriate award (or better - never downgrade an award due to resetting)
+                return;
+            }
+
+            // upgraded the badge and update the AwardDate.
+            $existingAward->AwardDataExtra = $expectedTier;
+            $existingAward->AwardDate = Carbon::now();
+            $existingAward->save();
+        } else {
+            if ($expectedTier === -1) {
+                // player doesn't have an award, and isn't due one
+                return;
+            }
+
+            // new award
+            $existingAward = AddSiteAward($playerGame->user, AwardType::Event, $event->id, $expectedTier);
+        }
+
+        PlayerBadgeAwarded::dispatch($existingAward);
     }
 }

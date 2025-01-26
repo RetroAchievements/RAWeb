@@ -8,7 +8,10 @@ describe('Component: ShortcodeAch', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(<ShortcodeAch achievementId={1} />, {
-      jotaiAtoms: [[persistedAchievementsAtom, []]],
+      jotaiAtoms: [
+        [persistedAchievementsAtom, []],
+        //
+      ],
     });
 
     // ASSERT
@@ -20,7 +23,10 @@ describe('Component: ShortcodeAch', () => {
     const achievement = createAchievement({ id: 1 });
 
     render(<ShortcodeAch achievementId={999} />, {
-      jotaiAtoms: [[persistedAchievementsAtom, [achievement]]],
+      jotaiAtoms: [
+        [persistedAchievementsAtom, [achievement]],
+        //
+      ],
     });
 
     // ASSERT
@@ -32,7 +38,10 @@ describe('Component: ShortcodeAch', () => {
     const achievement = createAchievement({ id: 1, title: 'Test Achievement', points: 5 });
 
     render(<ShortcodeAch achievementId={1} />, {
-      jotaiAtoms: [[persistedAchievementsAtom, [achievement]]],
+      jotaiAtoms: [
+        [persistedAchievementsAtom, [achievement]],
+        //
+      ],
     });
 
     // ASSERT

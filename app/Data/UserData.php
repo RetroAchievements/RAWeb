@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-use App\Enums\Permissions;
 use App\Models\User;
 use App\Platform\Enums\PlayerPreferredMode;
 use Illuminate\Support\Carbon;
@@ -24,8 +23,11 @@ class UserData extends Data
         public Lazy|string|null $apiKey = null,
         public Lazy|string|null $deleteRequested = null,
         public Lazy|Carbon|null $deletedAt = null,
+        /** @var RoleData[] */
+        public Lazy|array|null $displayableRoles = null,
         public Lazy|string|null $emailAddress = null,
         public Lazy|int $id = 0,
+        public Lazy|bool $isEmailVerified = false,
         public Lazy|bool $isMuted = false,
         public Lazy|bool $isNew = false,
         public Lazy|int|null $legacyPermissions = null,
@@ -39,7 +41,7 @@ class UserData extends Data
         public Lazy|int|null $unreadMessageCount = null,
         public Lazy|string|null $username = null,
         public Lazy|bool|null $userWallActive = null,
-        public Lazy|string|null $visibleRole = null,
+        public Lazy|RoleData|null $visibleRole = null,
         public Lazy|int|null $websitePrefs = null,
 
         #[TypeScriptType([
@@ -64,8 +66,6 @@ class UserData extends Data
 
     public static function fromUser(User $user): self
     {
-        $legacyPermissions = (int) $user->getAttribute('Permissions');
-
         return new self(
             // == eager fields
             displayName: $user->display_name,
@@ -75,9 +75,11 @@ class UserData extends Data
             apiKey: Lazy::create(fn () => $user->APIKey),
             deletedAt: Lazy::create(fn () => $user->Deleted ? Carbon::parse($user->Deleted) : null),
             deleteRequested: Lazy::create(fn () => $user->DeleteRequested),
+            displayableRoles: Lazy::create(fn () => $user->displayableRoles),
             emailAddress: Lazy::create(fn () => $user->EmailAddress),
             mutedUntil: Lazy::create(fn () => $user->muted_until),
             id: Lazy::create(fn () => $user->id),
+            isEmailVerified: Lazy::create(fn () => $user->isEmailVerified()),
             isMuted: Lazy::create(fn () => $user->isMuted()),
             isNew: Lazy::create(fn () => $user->isNew()),
             legacyPermissions: Lazy::create(fn () => (int) $user->getAttribute('Permissions')),
@@ -97,7 +99,7 @@ class UserData extends Data
             unreadMessageCount: Lazy::create(fn () => $user->UnreadMessageCount),
             username: Lazy::create(fn () => $user->username),
             userWallActive: Lazy::create(fn () => $user->UserWallActive),
-            visibleRole: Lazy::create(fn () => $legacyPermissions > 1 ? Permissions::toString($legacyPermissions) : null),
+            visibleRole: Lazy::create(fn () => $user->visible_role ? RoleData::fromRole($user->visible_role) : null),
             websitePrefs: Lazy::create(fn () => $user->websitePrefs),
         );
     }

@@ -106,6 +106,11 @@ final class ShortcodeTest extends TestCase
 
         $this->assertSame(
             'Hello',
+            Shortcode::stripAndClamp('[quote]Hello[/quote]')
+        );
+
+        $this->assertSame(
+            'Hello',
             Shortcode::stripAndClamp('[url=abc.xyz]Hello[/url]')
         );
 
@@ -208,6 +213,18 @@ final class ShortcodeTest extends TestCase
 
         $this->assertEquals(
             '[game=1]',
+            $normalized
+        );
+    }
+
+    public function testNormalizeHubShortcodes(): void
+    {
+        $rawString = 'https://retroachievements.org/hub/1';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[hub=1]',
             $normalized
         );
     }

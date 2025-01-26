@@ -16,6 +16,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire;
@@ -51,8 +52,10 @@ class Hubs extends ManageRelatedRecords
 
                 Tables\Columns\TextColumn::make('id')
                     ->label('ID')
-                    ->sortable()
-                    ->searchable(),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where('game_sets.id', 'like', "%{$search}");
+                    })
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('title')
                     ->label('Title')

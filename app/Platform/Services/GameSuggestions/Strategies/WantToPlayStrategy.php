@@ -6,6 +6,7 @@ namespace App\Platform\Services\GameSuggestions\Strategies;
 
 use App\Community\Enums\UserGameListType;
 use App\Models\Game;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Data\GameSuggestionContextData;
 use App\Platform\Enums\GameSuggestionReason;
@@ -22,7 +23,8 @@ class WantToPlayStrategy implements GameSuggestionStrategy
         return $this->user->gameListEntries()
             ->whereType(UserGameListType::Play)
             ->whereHas('game', function ($query) {
-                $query->whereHasPublishedAchievements();
+                $query->whereHasPublishedAchievements()
+                    ->whereNotIn('ConsoleID', System::getNonGameSystems());
             })
             ->with('game')
             ->inRandomOrder()

@@ -1,8 +1,9 @@
 const shortcodeTypes = [
-  { type: 'user', shortcode: 'user' },
-  { type: 'game', shortcode: 'game' },
   { type: 'achievement', shortcode: 'ach' },
+  { type: 'game', shortcode: 'game' },
+  { type: 'hub', shortcode: 'hub' },
   { type: 'ticket', shortcode: 'ticket' },
+  { type: 'user', shortcode: 'user' },
 ] as const;
 
 const createPatterns = (type: string) => [
@@ -30,7 +31,11 @@ const createPatterns = (type: string) => [
 ];
 
 export function preProcessShortcodesInBody(body: string): string {
-  let result = body;
+  // First, normalize any escaped newlines back to actual newlines.
+  let result = body.replace(/\u21B5\n/g, '\n');
+
+  // Then, normalize any remaining line endings.
+  result = result.replace(/\r\n|\r|\n/g, '\n');
 
   for (const { type, shortcode } of shortcodeTypes) {
     const patterns = createPatterns(type);

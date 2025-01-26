@@ -314,7 +314,10 @@ describe('Component: DataTableToolbar', () => {
         ziggy: createZiggyProps({ device: 'desktop' }),
         filterableSystemOptions: [createSystem({ name: 'Nintendo 64', nameShort: 'N64' })],
       },
-      jotaiAtoms: [[isCurrentlyPersistingViewAtom, false]], // !!
+      jotaiAtoms: [
+        [isCurrentlyPersistingViewAtom, false], // !!
+        //
+      ],
     });
 
     // ASSERT
@@ -331,7 +334,10 @@ describe('Component: DataTableToolbar', () => {
         ziggy: createZiggyProps({ device: 'desktop' }),
         filterableSystemOptions: [createSystem({ name: 'Nintendo 64', nameShort: 'N64' })],
       },
-      jotaiAtoms: [[isCurrentlyPersistingViewAtom, true]], // !!
+      jotaiAtoms: [
+        [isCurrentlyPersistingViewAtom, true], // !!
+        //
+      ],
     });
 
     // ASSERT
@@ -348,7 +354,10 @@ describe('Component: DataTableToolbar', () => {
         ziggy: createZiggyProps({ device: 'desktop' }),
         filterableSystemOptions: [createSystem({ name: 'Nintendo 64', nameShort: 'N64' })],
       },
-      jotaiAtoms: [[isCurrentlyPersistingViewAtom, false]], // !!
+      jotaiAtoms: [
+        [isCurrentlyPersistingViewAtom, false], // !!
+        //
+      ],
     });
 
     // ACT

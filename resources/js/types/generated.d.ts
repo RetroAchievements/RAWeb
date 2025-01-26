@@ -130,11 +130,21 @@ declare namespace App.Community.Data {
   export type UserSettingsPageProps = {
     userSettings: App.Data.User;
     can: App.Data.UserPermissions;
+    displayableRoles: Array<App.Data.Role>;
+    requestedUsername: string | null;
   };
 }
 declare namespace App.Community.Enums {
   export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-  export type AwardType = 1 | 2 | 3 | 6 | 7 | 8;
+  export type NewsCategory =
+    | 'achievement-set'
+    | 'community'
+    | 'events'
+    | 'guide'
+    | 'media'
+    | 'site-release-notes'
+    | 'technical';
+  export type AwardType = 1 | 2 | 3 | 6 | 7 | 8 | 9;
   export type ClaimSetType = 0 | 1;
   export type ClaimStatus = 0 | 1 | 2 | 3;
   export type ClaimType = 0 | 1;
@@ -159,6 +169,9 @@ declare namespace App.Data {
     status: number;
     created: string;
     finished: string;
+  };
+  export type CreateForumTopicPageProps = {
+    forum: App.Data.Forum;
   };
   export type CurrentlyOnline = {
     logEntries: Array<number>;
@@ -213,6 +226,7 @@ declare namespace App.Data {
     user: App.Data.User;
     link: string | null;
     imageAssetPath: string | null;
+    category: App.Community.Enums.NewsCategory | null;
     publishAt: string | null;
     unpublishAt: string | null;
     pinnedAt: string | null;
@@ -230,6 +244,10 @@ declare namespace App.Data {
       previousPageUrl: string | null;
       nextPageUrl: string | null;
     };
+  };
+  export type Role = {
+    id: number;
+    name: string;
   };
   export type StaticData = {
     numGames: number;
@@ -252,8 +270,10 @@ declare namespace App.Data {
     apiKey?: string | null;
     deleteRequested?: string | null;
     deletedAt?: string | null;
+    displayableRoles?: Array<App.Data.Role> | null;
     emailAddress?: string | null;
     id?: number;
+    isEmailVerified?: boolean;
     isMuted?: boolean;
     isNew?: boolean;
     legacyPermissions?: number | null;
@@ -267,13 +287,14 @@ declare namespace App.Data {
     unreadMessageCount?: number | null;
     username?: string | null;
     userWallActive?: boolean | null;
-    visibleRole?: string | null;
+    visibleRole?: App.Data.Role | null;
     websitePrefs?: number | null;
     preferences?: { shouldAlwaysBypassContentWarnings: boolean; prefersAbsoluteDates: boolean };
     roles?: App.Models.UserRole[];
   };
   export type UserPermissions = {
     createTriggerTicket?: boolean;
+    createUsernameChangeRequest?: boolean;
     develop?: boolean;
     manageGameHashes?: boolean;
     manageGameSets?: boolean;
@@ -312,9 +333,13 @@ declare namespace App.Enums {
     | 18;
 }
 declare namespace App.Http.Data {
+  export type AchievementOfTheWeekProps = {
+    currentEventAchievement: App.Platform.Data.EventAchievement;
+    doesUserHaveUnlock: boolean;
+  };
   export type HomePageProps<TItems = App.Community.Data.ActivePlayer> = {
     staticData: App.Data.StaticData;
-    achievementOfTheWeek: App.Platform.Data.EventAchievement | null;
+    achievementOfTheWeek: App.Http.Data.AchievementOfTheWeekProps | null;
     mostRecentGameMastered: App.Data.StaticGameAward | null;
     mostRecentGameBeaten: App.Data.StaticGameAward | null;
     recentNews: Array<App.Data.News>;
@@ -631,18 +656,9 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
-  export type UnlockMode = 0 | 1;
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
   export type AchievementFlag = 3 | 5;
   export type AchievementSetAuthorTask = 'artwork';
-  export type AchievementSetType =
-    | 'core'
-    | 'bonus'
-    | 'specialty'
-    | 'exclusive'
-    | 'will_be_bonus'
-    | 'will_be_specialty'
-    | 'will_be_exclusive';
   export type GameListProgressFilterValue =
     | 'unstarted'
     | 'unfinished'
@@ -655,6 +671,15 @@ declare namespace App.Platform.Enums {
     | 'eq_mastered'
     | 'revised'
     | 'neq_mastered';
+  export type UnlockMode = 0 | 1;
+  export type AchievementSetType =
+    | 'core'
+    | 'bonus'
+    | 'specialty'
+    | 'exclusive'
+    | 'will_be_bonus'
+    | 'will_be_specialty'
+    | 'will_be_exclusive';
   export type GameListSortField =
     | 'title'
     | 'system'
@@ -680,6 +705,7 @@ declare namespace App.Platform.Enums {
   export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
   export type TicketableType = 'achievement' | 'leaderboard' | 'rich-presence';
+  export type TriggerableType = 'achievement' | 'leaderboard' | 'game';
 }
 declare namespace App.Platform.Services.GameSuggestions.Enums {
   export type SourceGameKind = 'beaten' | 'mastered' | 'want-to-play';

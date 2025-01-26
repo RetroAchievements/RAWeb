@@ -48,7 +48,7 @@ if (!empty($gotoCommentID)) {
 // Fetch comments
 $numTotalComments = $forumTopic->comments()->count();
 $allForumTopicCommentsForTopic = $forumTopic->comments()
-    ->with(['user', 'forumTopic'])
+    ->with(['user.displayableRoles', 'forumTopic'])
     ->where('forum_topic_id', $requestedTopicID)
     ->orderBy('created_at', 'asc')
     ->offset($offset)

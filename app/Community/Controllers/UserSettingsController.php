@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
+use App\Community\Data\StoreUsernameChangeData;
 use App\Community\Data\UpdateEmailData;
 use App\Community\Data\UpdateLocaleData;
 use App\Community\Data\UpdatePasswordData;
@@ -13,19 +14,24 @@ use App\Community\Data\UserSettingsPagePropsData;
 use App\Community\Enums\ArticleType;
 use App\Community\Requests\ResetConnectApiKeyRequest;
 use App\Community\Requests\ResetWebApiKeyRequest;
+use App\Community\Requests\StoreUsernameChangeRequest;
 use App\Community\Requests\UpdateEmailRequest;
 use App\Community\Requests\UpdateLocaleRequest;
 use App\Community\Requests\UpdatePasswordRequest;
 use App\Community\Requests\UpdateProfileRequest;
 use App\Community\Requests\UpdateWebsitePrefsRequest;
+use App\Data\RoleData;
 use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Http\Controller;
+use App\Models\Role;
 use App\Models\User;
+use App\Models\UserUsername;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
@@ -39,6 +45,10 @@ class UserSettingsController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
+        $user->load(['roles' => function ($query) {
+            $query->where('display', '>', 0);
+        }]);
+
         $userSettings = UserData::fromUser($user)->include(
             'apiKey',
             'deleteRequested',
@@ -49,14 +59,56 @@ class UserSettingsController extends Controller
         );
 
         $can = UserPermissionsData::fromUser($user)->include(
+            'createUsernameChangeRequest',
             'manipulateApiKeys',
             'updateAvatar',
             'updateMotto'
         );
 
-        $props = new UserSettingsPagePropsData($userSettings, $can);
+        $requestedUsername = UserUsername::whereUserId($user->id)
+            ->pending()
+            ->latest('created_at')
+            ->first()
+            ?->username;
+
+        /** @var Collection<int, Role> $displayableRoles */
+        $displayableRoles = $user->roles;
+
+        $mappedRoles = $displayableRoles->map(fn ($role) => RoleData::fromRole($role))
+            ->values()
+            ->all();
+
+        $props = new UserSettingsPagePropsData(
+            $userSettings,
+            $can,
+            $mappedRoles,
+            $requestedUsername
+        );
 
         return Inertia::render('settings', $props);
+    }
+
+    public function storeUsernameChangeRequest(StoreUsernameChangeRequest $request): JsonResponse
+    {
+        $this->authorize('create', UserUsername::class);
+
+        $data = StoreUsernameChangeData::fromRequest($request);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        $isOnlyCapitalizationChange = strtolower($user->display_name) === strtolower($data->newDisplayName);
+        if ($isOnlyCapitalizationChange) {
+            $user->display_name = $data->newDisplayName;
+            $user->save();
+        } else {
+            UserUsername::create([
+                'user_id' => $user->id,
+                'username' => $data->newDisplayName,
+            ]);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     public function updatePassword(UpdatePasswordRequest $request): JsonResponse

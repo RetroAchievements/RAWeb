@@ -5,7 +5,7 @@ use App\Models\Role;
 return [
     'role' => [
         Role::ROOT => 'Root',
-        Role::ADMINISTRATOR => __('Administrator'),
+        Role::ADMINISTRATOR => __('Admin'),
 
         // moderation & platform staff roles
 
@@ -23,7 +23,7 @@ return [
         Role::ARTIST => __('Artist'),
         Role::WRITER => __('Writer'),
         Role::GAME_EDITOR => __('Game Editor'),
-        Role::PLAY_TESTER => __('Play Tester'),
+        Role::PLAY_TESTER => __('Playtester'),
 
         // community staff roles
 

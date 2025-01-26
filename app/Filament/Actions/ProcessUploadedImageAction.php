@@ -34,6 +34,9 @@ class ProcessUploadedImageAction
             $imagePath = null;
             if ($imageUploadType === ImageUploadType::News) {
                 $imagePath = UploadNewsImage($dataUrl);
+            } elseif ($imageUploadType === ImageUploadType::AchievementBadge) {
+                $file = createFileArrayFromDataUrl($dataUrl);
+                $imagePath = UploadBadgeImage($file);
             } else {
                 $imageType = match ($imageUploadType) {
                     ImageUploadType::HubBadge => ImageType::GameIcon,

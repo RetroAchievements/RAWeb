@@ -183,7 +183,12 @@ function getSubscribersOfArticle(
     }
 
     if ($noExplicitSubscriptions) {
-        $dbResult = s_mysql_query($qry);
+        $preparedQry = $qry;
+        foreach ($bindings as $key => $value) {
+            $preparedQry = str_replace(":$key", DB::getPdo()->quote($value), $preparedQry);
+        }
+
+        $dbResult = s_mysql_query($preparedQry);
         if (!$dbResult) {
             log_sql_fail();
 

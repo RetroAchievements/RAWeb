@@ -112,6 +112,62 @@ class UserSettingsControllerTest extends TestCase
         $this->assertNull($user->email_verified_at);
     }
 
+    public function testUpdateUsername(): void
+    {
+        // Arrange
+        $this->withoutMiddleware();
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'User' => 'Scott',
+            'display_name' => 'Scott',
+        ]);
+
+        // Act
+        $response = $this->actingAs($user)
+            ->postJson(route('api.settings.name-change-request.store'), [
+                'newDisplayName' => 'Scott123456712',
+            ]);
+
+        // Assert
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('user_usernames', [
+            'user_id' => $user->id,
+            'username' => 'Scott123456712',
+            'approved_at' => null,
+        ]);
+    }
+
+    public function testUpdateUsernameWithOnlyCapitalizationChange(): void
+    {
+        // Arrange
+        $this->withoutMiddleware();
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'User' => 'scott',
+            'display_name' => 'scott',
+        ]);
+
+        // Act
+        $response = $this->actingAs($user)
+            ->postJson(route('api.settings.name-change-request.store'), [
+                'newDisplayName' => 'Scott',
+            ]);
+
+        // Assert
+        $response->assertStatus(200);
+
+        $user = $user->fresh();
+        $this->assertEquals('Scott', $user->display_name); // instantly makes the update
+
+        $this->assertDatabaseMissing('user_usernames', [ // does not make an approval request record
+            'user_id' => $user->id,
+            'username' => 'Scott',
+        ]);
+    }
+
     public function testUpdateProfile(): void
     {
         // Arrange
