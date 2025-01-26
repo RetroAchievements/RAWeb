@@ -1126,7 +1126,7 @@ if ($isFullyFeaturedGame) {
             <x-game.leaderboards-listing :game="$gameModel" />
         @endif
 
-        @if (count($gameModel->event?->awards ?? []) > 0)
+        @if ($gameModel->event)
             <?php
                 $badgeCounts = PlayerBadge::where('AwardType', AwardType::Event)
                     ->where('AwardData', $gameModel->event->id)
@@ -1137,22 +1137,39 @@ if ($isFullyFeaturedGame) {
             <div class="component gamealts">
                 <h2 class="text-h3">Award Tiers</h2>
                 <table class="table-highlight"><tbody>
-                @foreach ($gameModel->event->awards->sortBy('achievements_required') as $award)
+                @if (count($gameModel->event->awards) > 0)
+                    @foreach ($gameModel->event->awards->sortBy('achievements_required') as $award)
+                        <tr style="w-full">
+                            <td style="w-full">
+                                <div class="flex relative gap-x-2 items-center">
+                                    <img width="48" height="48" src="{!! media_asset($award->image_asset_path) !!}" alt="{{ $award->label }}" />
+                                    <div>
+                                        <p>{{ $award->label }}</p>
+                                        <p class="smalltext">{{ $award->achievements_required }} {{ Str::plural('achievement', $award->achievements_required) }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="text-right">
+                                {{ number_format($badgeCounts->where('AwardDataExtra', $award->tier_index)->first()?->total ?? 0) }}
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
                     <tr style="w-full">
                         <td style="w-full">
                             <div class="flex relative gap-x-2 items-center">
-                                <img width="48" height="48" src="{!! media_asset($award->image_asset_path) !!}" alt="{{ $award->label }}" />
+                                <img width="48" height="48" src="{!! media_asset($gameModel->event->image_asset_path) !!}" alt="{{ $gameModel->title }}" />
                                 <div>
-                                    <p>{{ $award->label }}</p>
-                                    <p class="smalltext">{{ $award->achievements_required }} {{ Str::plural('achievement', $award->achievements_required) }}</p>
+                                    <p>{{ $gameModel->title }}</p>
+                                    <p class="smalltext">{{ $gameModel->achievements_published }} {{ Str::plural('achievement', $gameModel->achievements_published) }}</p>
                                 </div>
                             </div>
                         </td>
                         <td style="text-right">
-                            {{ number_format($badgeCounts->where('AwardDataExtra', $award->tier_index)->first()?->total ?? 0) }}
+                            {{ number_format($badgeCounts->where('AwardDataExtra', 0)->first()?->total ?? 0) }}
                         </td>
                     </tr>
-                @endforeach
+                @endif
                 </tbody></table>
             </div>
         @endif

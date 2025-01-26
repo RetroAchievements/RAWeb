@@ -374,7 +374,7 @@ class RouteServiceProvider extends ServiceProvider
                     Route::put('email', [UserSettingsController::class, 'updateEmail'])->name('api.settings.email.update');
 
                     Route::post('username-change-request', [UserSettingsController::class, 'storeUsernameChangeRequest'])
-                        ->name('api.settings.username-change-request.store');
+                        ->name('api.settings.name-change-request.store');
 
                     Route::delete('keys/web', [UserSettingsController::class, 'resetWebApiKey'])->name('api.settings.keys.web.destroy');
                     Route::delete('keys/connect', [UserSettingsController::class, 'resetConnectApiKey'])->name('api.settings.keys.connect.destroy');
