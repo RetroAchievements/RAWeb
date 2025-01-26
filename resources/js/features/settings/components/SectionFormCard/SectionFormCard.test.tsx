@@ -73,4 +73,28 @@ describe('Component: SectionFormCard', () => {
     // ASSERT
     expect(screen.getByRole('button', { name: /some different label/i })).toBeVisible();
   });
+
+  it('given shouldShowFooter is false, does not render the card footer', () => {
+    // ARRANGE
+    render(
+      <TestHarness t_headingLabel={i18n.t('Profile')} onSubmit={vi.fn()} shouldShowFooter={false}>
+        children
+      </TestHarness>,
+    );
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /update/i })).not.toBeInTheDocument();
+  });
+
+  it('given shouldShowFooter is true, renders the card footer', () => {
+    // ARRANGE
+    render(
+      <TestHarness t_headingLabel={i18n.t('Profile')} onSubmit={vi.fn()} shouldShowFooter={true}>
+        children
+      </TestHarness>,
+    );
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /update/i })).toBeVisible();
+  });
 });

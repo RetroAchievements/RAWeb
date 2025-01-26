@@ -49,6 +49,7 @@ describe('Hook: useShortcodesList', () => {
         '[url=',
         '[ach=',
         '[game=',
+        '[hub=',
         '[user=',
         '[ticket=',
       ]),

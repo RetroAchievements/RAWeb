@@ -50,6 +50,17 @@ describe('Util: extractDynamicEntitiesFromBody', () => {
     expect(result.gameIds).toEqual([1, 14402]);
   });
 
+  it('given the input contains hub shortcodes, extracts and dedupes all hub IDs', () => {
+    // ARRANGE
+    const input = 'I like to visit [hub=1] and [hub=2] and [hub=1].';
+
+    // ACT
+    const result = extractDynamicEntitiesFromBody(input);
+
+    // ASSERT
+    expect(result.hubIds).toEqual([1, 2]);
+  });
+
   it('given the input contains invalid numeric IDs, ignores them', () => {
     // ARRANGE
     const input = '[ticket=abc] [ach=def] [game=xyz]';

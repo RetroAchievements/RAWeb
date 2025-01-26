@@ -217,6 +217,18 @@ final class ShortcodeTest extends TestCase
         );
     }
 
+    public function testNormalizeHubShortcodes(): void
+    {
+        $rawString = 'https://retroachievements.org/hub/1';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[hub=1]',
+            $normalized
+        );
+    }
+
     public function testNormalizeGameShortcodesWithSubpaths(): void
     {
         $rawString = 'https://retroachievements.org/game/1/hashes';
