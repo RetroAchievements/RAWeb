@@ -36,8 +36,8 @@ class SharedHubStrategy implements GameSuggestionStrategy
             ->whereHas('games', function ($query) {
                 $query->where('game_id', '!=', $this->sourceGame->id); // needs other games too!
             })
-            ->where('Title', 'NOT LIKE', "%Meta%")
-            ->where('Title', 'NOT LIKE', "%Misc%")
+            ->where('Title', 'NOT LIKE', "%Meta - %")
+            ->where('Title', 'NOT LIKE', "%Misc. - %")
             ->inRandomOrder()
             ->first();
 
