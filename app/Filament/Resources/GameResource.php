@@ -513,8 +513,8 @@ class GameResource extends Resource
                         blank: fn (Builder $query): Builder => $query,
                     ),
 
-                Tables\Filters\SelectFilter::make('missing_assets')
-                    ->label('Missing assets')
+                Tables\Filters\SelectFilter::make('missing_media')
+                    ->label('Missing media')
                     ->multiple()
                     ->options([
                         'badge' => 'Badge icon',
