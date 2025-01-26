@@ -12,7 +12,6 @@ use App\Platform\Data\GameData;
 use App\Platform\Data\GameSuggestionContextData;
 use App\Platform\Enums\GameSuggestionReason;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 class CommonPlayersStrategy implements GameSuggestionStrategy
 {
@@ -77,43 +76,13 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
      */
     private function getMasterUserIds(): Collection
     {
-        $connection = DB::connection()->getDriverName();
-
-        return match ($connection) {
-            'sqlite' => $this->getMasterUserIdsSQLite(),
-            default => $this->getMasterUserIdsMariaDB(),
-        };
-    }
-
-    /**
-     * @return Collection<int, int>
-     */
-    private function getMasterUserIdsMariaDB(): Collection
-    {
         // Use the optimized index hint for MariaDB.
         // This is unfortunately not supported by SQLite.
-        return PlayerGame::from(DB::raw('`player_games` FORCE INDEX (player_games_completion_sample_idx)'))
-            ->where('game_id', $this->sourceGame->id)
-            ->where('user_id', '!=', $this->user->id)
-            ->whereAllAchievementsUnlocked()
-            ->withTrashed()
-            ->whereRaw('id % 100 < 5')
-            ->limit(5)
-            ->pluck('user_id');
-    }
-
-    /**
-     * @return Collection<int, int>
-     */
-    private function getMasterUserIdsSQLite(): Collection
-    {
-        // For SQLite, we'll use a different approach to get a stable random sample.
-        // We use the rowid (which SQLite automatically provides) for sampling.
         return PlayerGame::where('game_id', $this->sourceGame->id)
             ->where('user_id', '!=', $this->user->id)
             ->whereAllAchievementsUnlocked()
             ->withTrashed()
-            ->orderByRaw('rowid % 100')
+            ->whereRaw('id % 100 < 5')
             ->limit(5)
             ->pluck('user_id');
     }
