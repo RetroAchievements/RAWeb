@@ -130,8 +130,8 @@ declare namespace App.Community.Data {
   export type UserSettingsPageProps = {
     userSettings: App.Data.User;
     can: App.Data.UserPermissions;
-    requestedUsername: string | null;
     displayableRoles: Array<App.Data.Role>;
+    requestedUsername: string | null;
   };
 }
 declare namespace App.Community.Enums {

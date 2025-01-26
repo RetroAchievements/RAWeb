@@ -141,6 +141,9 @@ class UserAgentService
 
                         // promote libretro core information
                         $index = strpos($client, '_libretro');
+                        if ($index === false) {
+                            $index = strpos($client, '.libretro');
+                        }
                         if ($index !== false) {
                             $data['clientVariation'] = substr($client, 0, $index);
                         }
