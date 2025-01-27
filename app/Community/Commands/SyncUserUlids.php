@@ -16,11 +16,6 @@ class SyncUserUlids extends Command
 
     protected $description = 'Sync user ulid field values';
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
     public function handle(): void
     {
         $total = User::whereNull('ulid')->count();
