@@ -265,6 +265,23 @@ class UserPolicy
         return true;
     }
 
+    public function viewDisplayNameHistory(User $user, User $model): bool
+    {
+        if ($model->isBlocking($user)) {
+            return false;
+        }
+
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+            Role::DEVELOPER,
+            Role::EVENT_MANAGER,
+            Role::NEWS_MANAGER,
+            Role::ENGINEER,
+            Role::GAME_EDITOR,
+        ]);
+    }
+
     private function requireAdministrativePrivileges(User $user, ?User $model = null): bool
     {
         if (!$model) {
