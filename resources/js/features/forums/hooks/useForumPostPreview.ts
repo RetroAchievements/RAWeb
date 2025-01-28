@@ -4,6 +4,7 @@ import { useState } from 'react';
 import {
   persistedAchievementsAtom,
   persistedGamesAtom,
+  persistedHubsAtom,
   persistedTicketsAtom,
   persistedUsersAtom,
 } from '../state/forum.atoms';
@@ -17,6 +18,7 @@ export function useForumPostPreview() {
 
   const [persistedAchievements, setPersistedAchievements] = useAtom(persistedAchievementsAtom);
   const [persistedGames, setPersistedGames] = useAtom(persistedGamesAtom);
+  const [persistedHubs, setPersistedHubs] = useAtom(persistedHubsAtom);
   const [persistedTickets, setPersistedTickets] = useAtom(persistedTicketsAtom);
   const [persistedUsers, setPersistedUsers] = useAtom(persistedUsersAtom);
 
@@ -27,6 +29,7 @@ export function useForumPostPreview() {
       mergeEntities(prev, responseData.achievements, (item) => item.id),
     );
     setPersistedGames((prev) => mergeEntities(prev, responseData.games, (item) => item.id));
+    setPersistedHubs((prev) => mergeEntities(prev, responseData.hubs, (item) => item.id));
     setPersistedTickets((prev) => mergeEntities(prev, responseData.tickets, (item) => item.id));
     setPersistedUsers((prev) =>
       mergeEntities(prev, responseData.users, (item) => item.displayName),
@@ -60,6 +63,7 @@ export function useForumPostPreview() {
     return {
       persistedAchievements,
       persistedGames,
+      persistedHubs,
       persistedTickets,
       persistedUsers,
     };

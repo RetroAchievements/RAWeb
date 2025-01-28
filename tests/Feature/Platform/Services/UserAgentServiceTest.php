@@ -109,6 +109,21 @@ class UserAgentServiceTest extends TestCase
         ], $this->parseUserAgent($userAgent));
     }
 
+    public function testRetroArchUserAgentWithCoreIOS(): void
+    {
+        $userAgent = 'RetroArch/1.20.0 (iOS 17.5) mgba.libretro/0.11-dev_747362c';
+
+        $this->assertEquals([
+            'client' => 'RetroArch',
+            'clientVersion' => '1.20.0',
+            'os' => 'iOS 17.5',
+            'clientVariation' => 'mgba',
+            'extra' => [
+                'mgba.libretro' => '0.11-dev_747362c',
+            ],
+        ], $this->parseUserAgent($userAgent));
+    }
+
     public function testRetroArchUserAgentWithCoreVersionContainingParentheses(): void
     {
         $userAgent = 'RetroArch/1.19.1 (Windows 8 x64 Build 9200 6.2) parallel_n64_next_libretro/2.21.0_(Parallel_Launcher_Edition)';
@@ -536,5 +551,20 @@ class UserAgentServiceTest extends TestCase
             'clientVersion' => '2.0.8.3',
             'os' => 'Microsoft Windows 10+,  Xbox One X',
         ], $this->parseUserAgent($userAgent));
+    }
+
+    public function testLunaProject64UserAgent(): void
+    {
+        $userAgent = 'LunaProject64/3.0.1.5865-5ba8d97c-Dirty (WindowsNT 10.0) Integration/1.3.0';
+
+        $this->assertEquals([
+            'client' => 'LunaProject64',
+            'clientVersion' => '3.0.1.5865-5ba8d97c-Dirty',
+            'os' => 'WindowsNT 10.0',
+            'integrationVersion' => '1.3.0',
+        ], $this->parseUserAgent($userAgent));
+
+        $this->assertEquals(1, UserAgentService::versionCompare('3.0.1.5865-5ba8d97c-Dirty', '3.0.1.5864'));
+        $this->assertEquals(-1, UserAgentService::versionCompare('3.0.1.5865-5ba8d97c-Dirty', '3.0.1.5866'));
     }
 }

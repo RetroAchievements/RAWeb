@@ -54,6 +54,9 @@ if(!$id) {
             {{-- x-tooltip="{{ __res('game', 1) }}" --}} title="{{ __res('game', 1) }}">
         <x-fas-gamepad />
     </button>
+    <button type="button" class="btn" onclick="injectShortcode('{{ $id }}', '[hub=', ']')" title="Hub">
+        <x-fas-network-wired />
+    </button>
     <button type="button" class="btn" onclick="injectShortcode('{{ $id }}', '[user=', ']')"
             {{-- x-tooltip="{{ __res('user', 1) }}" --}} title="{{ __res('user', 1) }}">
         <x-fas-user />

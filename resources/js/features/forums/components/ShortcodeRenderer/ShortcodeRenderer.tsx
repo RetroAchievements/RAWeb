@@ -8,6 +8,7 @@ import { postProcessShortcodesInBody } from '../../utils/postProcessShortcodesIn
 import { ShortcodeAch } from './ShortcodeAch';
 import { ShortcodeCode } from './ShortcodeCode';
 import { ShortcodeGame } from './ShortcodeGame';
+import { ShortcodeHub } from './ShortcodeHub';
 import { ShortcodeImg } from './ShortcodeImg';
 import { ShortcodeQuote } from './ShortcodeQuote';
 import { ShortcodeSpoiler } from './ShortcodeSpoiler';
@@ -75,6 +76,13 @@ const retroachievementsPreset = presetReact.extend((tags) => ({
     },
   }),
 
+  hub: (node) => ({
+    tag: ShortcodeHub,
+    attrs: {
+      hubId: Number((node.content as string[]).join()),
+    },
+  }),
+
   ach: (node) => ({
     tag: ShortcodeAch,
     attrs: {
@@ -124,6 +132,7 @@ export const ShortcodeRenderer: FC<ShortcodeRendererProps> = ({ body }) => {
           'user',
           'ach',
           'game',
+          'hub',
           'ticket',
           'video',
         ],

@@ -1,19 +1,8 @@
+import { getIsInsideBbcodeTag } from './getIsInsideBbcodeTag';
 import { processAllVideoUrls } from './processAllVideoUrls';
 
 export function postProcessShortcodesInBody(body: string): string {
   let result = body;
-
-  // Helper to check if we're inside a specific BBCode tag.
-  const isInsideTag = (index: number, text: string, tagName: string): boolean => {
-    const beforeText = text.slice(0, index);
-    const openTagPattern = new RegExp(`\\[${tagName}[\\]=]`, 'g');
-    const closeTagPattern = new RegExp(`\\[\\/${tagName}\\]`, 'g');
-
-    const openMatches = [...beforeText.matchAll(openTagPattern)];
-    const closeMatches = [...beforeText.matchAll(closeTagPattern)];
-
-    return openMatches.length > closeMatches.length;
-  };
 
   // First, remove any empty self-closing tags.
   result = result.replace(/\[(\w+)=["']?["']?\]/g, '');
@@ -51,7 +40,10 @@ export function postProcessShortcodesInBody(body: string): string {
     newResult += result.slice(lastIndex, matchIndex);
 
     // Only wrap if not inside url or img tags.
-    if (!isInsideTag(matchIndex, result, 'url') && !isInsideTag(matchIndex, result, 'img')) {
+    if (
+      !getIsInsideBbcodeTag(matchIndex, result, 'url') &&
+      !getIsInsideBbcodeTag(matchIndex, result, 'img')
+    ) {
       newResult += `[url]${matchText}[/url]`;
     } else {
       newResult += matchText;
