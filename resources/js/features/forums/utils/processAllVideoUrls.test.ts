@@ -99,4 +99,16 @@ describe('Util: processAllVideoUrls', () => {
       'Video: [video]https://youtube.com/watch?v=123[/video], Website: https://example.com',
     );
   });
+
+  it('does not wrap video links embedded in url tags', () => {
+    // ARRANGE
+    const body = '[url=https://www.youtube.com/watch?v=NODtRgBxPhw]Longplay[/url]';
+
+    // ACT
+    const result = processAllVideoUrls(body);
+
+    // ASSERT
+    expect(result).toEqual(body);
+    expect(result).not.toContain('[video]');
+  });
 });
