@@ -12,7 +12,7 @@
 <?php
 
 $href = route('game.show', $gameId);
-if (config('feature.enable_modern_hubs') && $gameSetId) {
+if ($gameSetId) {
     $href = route('hub.show', ['gameSet' => $gameSetId]);
 }
 

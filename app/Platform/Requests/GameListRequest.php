@@ -8,16 +8,26 @@ use App\Platform\Enums\GameListProgressFilterValue;
 use App\Platform\Enums\GameListSortField;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
+use InvalidArgumentException;
 
 class GameListRequest extends FormRequest
 {
-    // (!!) Be sure to do performance testing on any default higher than 100.
-    // Note that mobile _ALWAYS_ uses a page size of 100.
-    private const DEFAULT_PAGE_SIZE = 25;
     private const VALID_PAGE_SIZES = [10, 25, 50, 100, 200];
 
+    private int $defaultPageSize = 25; // (!!) Be sure to do performance testing on any default higher than 100.
     private string $persistenceCookieName = 'datatable_view_preference_generic_games';
     private ?array $cookiePreferences = null;
+
+    public function setDefaultPageSize(int $size): self
+    {
+        if (!in_array($size, self::VALID_PAGE_SIZES)) {
+            throw new InvalidArgumentException('Invalid page size. Must be one of: ' . implode(', ', self::VALID_PAGE_SIZES));
+        }
+
+        $this->defaultPageSize = $size;
+
+        return $this;
+    }
 
     public function setPersistenceCookieName(string $name): self
     {
@@ -68,7 +78,7 @@ class GameListRequest extends FormRequest
     {
         // URL params take precedence over cookie preferences.
         if ($this->has('page.size')) {
-            return (int) $this->input('page.size', self::DEFAULT_PAGE_SIZE);
+            return (int) $this->input('page.size', $this->defaultPageSize);
         }
 
         // If no URL param, check the cookie next.
@@ -76,10 +86,10 @@ class GameListRequest extends FormRequest
         if ($preferences && isset($preferences['pagination']['pageSize'])) {
             $cookieSize = (int) $preferences['pagination']['pageSize'];
 
-            return in_array($cookieSize, self::VALID_PAGE_SIZES) ? $cookieSize : self::DEFAULT_PAGE_SIZE;
+            return in_array($cookieSize, self::VALID_PAGE_SIZES) ? $cookieSize : $this->defaultPageSize;
         }
 
-        return self::DEFAULT_PAGE_SIZE;
+        return $this->defaultPageSize;
     }
 
     /**

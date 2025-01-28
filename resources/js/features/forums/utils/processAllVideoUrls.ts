@@ -1,3 +1,4 @@
+import { getIsInsideBbcodeTag } from './getIsInsideBbcodeTag';
 import { processVideoUrl } from './processVideoUrl';
 
 /**
@@ -5,15 +6,17 @@ import { processVideoUrl } from './processVideoUrl';
  * Handles both YouTube and Twitch URLs, preserving any parameters.
  */
 export function processAllVideoUrls(text: string): string {
-  const urls = text.match(/https?:\/\/[^\s<>]+\b/g) ?? [];
-
-  let processedText = text;
-  for (const url of urls) {
+  return text.replace(/https?:\/\/[^\s<>]+\b/g, (url, offset) => {
     const videoInfo = processVideoUrl(url);
-    if (videoInfo) {
-      processedText = processedText.replace(url, `[video]${url}[/video]`);
-    }
-  }
 
-  return processedText;
+    if (
+      videoInfo &&
+      !getIsInsideBbcodeTag(offset, text, 'url') &&
+      !getIsInsideBbcodeTag(offset, text, 'video')
+    ) {
+      return `[video]${url}[/video]`;
+    }
+
+    return url;
+  });
 }
