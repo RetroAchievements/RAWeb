@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community;
 
+use App\Community\Commands\ConvertGameShortcodesToHubs;
 use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\SyncComments;
 use App\Community\Commands\SyncForumCategories;
@@ -47,6 +48,8 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                ConvertGameShortcodesToHubs::class,
+
                 SyncComments::class,
                 SyncForumCategories::class,
                 SyncForums::class,

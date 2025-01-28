@@ -20,7 +20,10 @@ describe('Component: ShortcodeUser', () => {
     const testUser = createUser({ displayName: 'test-user' });
 
     render(<ShortcodeUser displayName="test-user" />, {
-      jotaiAtoms: [[persistedUsersAtom, [testUser]]],
+      jotaiAtoms: [
+        [persistedUsersAtom, [testUser]],
+        //
+      ],
     });
 
     // ASSERT
@@ -32,7 +35,10 @@ describe('Component: ShortcodeUser', () => {
     const testUser = createUser({ displayName: 'test-user' });
 
     render(<ShortcodeUser displayName="non-existent-user" />, {
-      jotaiAtoms: [[persistedUsersAtom, [testUser]]],
+      jotaiAtoms: [
+        [persistedUsersAtom, [testUser]],
+        //
+      ],
     });
 
     // ASSERT

@@ -265,4 +265,43 @@ describe('Component: ProfileSectionCard', () => {
     expect(optionEls[1]).toHaveTextContent(/mdev/i);
     expect(optionEls[2]).toHaveTextContent(/zdev/i);
   });
+
+  it('given the user has a single visible role, still allows them to submit the form', async () => {
+    // ARRANGE
+    const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });
+
+    const displayableRoles: App.Data.Role[] = [{ id: 1, name: 'zdev' }];
+
+    render<App.Community.Data.UserSettingsPageProps>(<ProfileSectionCard />, {
+      pageProps: {
+        displayableRoles,
+        auth: {
+          user: createAuthenticatedUser({
+            visibleRole: displayableRoles[0],
+          }),
+        },
+        can: {
+          updateMotto: true,
+        },
+        userSettings: createUser({ userWallActive: false }),
+      },
+    });
+
+    // ACT
+    const mottoField = screen.getByLabelText(/motto/i);
+    const userWallActiveField = screen.getByLabelText(/allow comments/i);
+
+    await userEvent.clear(mottoField);
+    await userEvent.type(mottoField, 'https://www.youtube.com/watch?v=YYOKMUTTDdA');
+    await userEvent.click(userWallActiveField);
+
+    await userEvent.click(screen.getByRole('button', { name: /update/i }));
+
+    // ASSERT
+    expect(putSpy).toHaveBeenCalledWith(route('api.settings.profile.update'), {
+      motto: 'https://www.youtube.com/watch?v=YYOKMUTTDdA',
+      userWallActive: true,
+      visibleRoleId: 1,
+    });
+  });
 });

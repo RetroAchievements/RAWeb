@@ -8,6 +8,12 @@ import { requestedUsernameAtom } from '../../state/settings.atoms';
 import { ChangeUsernameSectionCard } from './ChangeUsernameSectionCard';
 
 describe('Component: ChangeUsernameSectionCard', () => {
+  const originalLocation = window.location;
+
+  afterEach(() => {
+    window.location = originalLocation;
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(<ChangeUsernameSectionCard />, {
@@ -154,7 +160,7 @@ describe('Component: ChangeUsernameSectionCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
-    expect(postSpy).toHaveBeenCalledWith(route('api.settings.username-change-request.store'), {
+    expect(postSpy).toHaveBeenCalledWith(route('api.settings.name-change-request.store'), {
       newDisplayName: 'NewName',
     });
   });
@@ -214,6 +220,75 @@ describe('Component: ChangeUsernameSectionCard', () => {
     // ASSERT
     await waitFor(() => {
       expect(screen.getByText(/something went wrong/i)).toBeVisible();
+    });
+  });
+
+  it('given the user submits a username that only differs in case, auto-approves without confirmation', async () => {
+    // ARRANGE
+    delete (window as any).location;
+    window.location = {
+      ...originalLocation,
+      reload: vi.fn(),
+    };
+
+    const confirmSpy = vi.spyOn(window, 'confirm');
+    const reloadSpy = vi.spyOn(window.location, 'reload').mockImplementation(() => {});
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: {
+        success: true,
+      },
+    });
+
+    render(<ChangeUsernameSectionCard />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ displayName: 'testuser' }) },
+        can: { createUsernameChangeRequest: true },
+      },
+    });
+
+    // ACT
+    await userEvent.type(screen.getAllByLabelText(/new username/i)[0], 'TestUser');
+    await userEvent.type(screen.getByLabelText(/confirm new username/i), 'TestUser');
+    await userEvent.click(screen.getByRole('button', { name: /update/i }));
+
+    // ASSERT
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(postSpy).toHaveBeenCalledWith(route('api.settings.name-change-request.store'), {
+      newDisplayName: 'TestUser',
+    });
+    expect(reloadSpy).toHaveBeenCalled();
+  });
+
+  it('given the API returns success for a case change, reloads the page', async () => {
+    // ARRANGE
+    delete (window as any).location;
+    window.location = {
+      ...originalLocation,
+      reload: vi.fn(),
+    };
+
+    const reloadSpy = vi.spyOn(window.location, 'reload').mockImplementation(() => {});
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: {
+        success: true,
+      },
+    });
+
+    render(<ChangeUsernameSectionCard />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ displayName: 'testuser' }) },
+        can: { createUsernameChangeRequest: true },
+      },
+    });
+
+    // ACT
+    await userEvent.type(screen.getAllByLabelText(/new username/i)[0], 'TestUser');
+    await userEvent.type(screen.getByLabelText(/confirm new username/i), 'TestUser');
+    await userEvent.click(screen.getByRole('button', { name: /update/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(reloadSpy).toHaveBeenCalled();
     });
   });
 });
