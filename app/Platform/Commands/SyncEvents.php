@@ -36,10 +36,10 @@ class SyncEvents extends Command
     public function handle(): void
     {
         // special conversions
-        PlayerBadge::where('user_id', User::where('User', 'jplima')->first()->id)->where('AwardData', 1018)->update(['AwardDataExtra' => 1]); // eliminates softcore badge for Devember 2019
+        //PlayerBadge::where('user_id', User::where('User', 'jplima')->first()->id)->where('AwardData', 1018)->update(['AwardDataExtra' => 1]); // eliminates softcore badge for Devember 2019
 
-        PlayerBadge::whereIn('user_id', User::whereIn('User', ['Pebete', 'AuburnRDM', 'TheJediSonic', 'Fridge', 'DanB'])->pluck('ID'))
-            ->where('AwardData', 7970)->update(['AwardDataExtra' => 1]); // eliminates softcore badge for Devember 2022
+        //PlayerBadge::whereIn('user_id', User::whereIn('User', ['Pebete', 'AuburnRDM', 'TheJediSonic', 'Fridge', 'DanB'])->pluck('ID'))
+        //    ->where('AwardData', 7970)->update(['AwardDataExtra' => 1]); // eliminates softcore badge for Devember 2022
 
         $gameConversions = [
             1963 => new ConvertAsIs('solar-jetman'),
@@ -63,7 +63,7 @@ class SyncEvents extends Command
                 68553 => ['Keltron3030', 'televandalist'],
                 68554 => ['SporyTike', 'kdecks', 'Salsa', 'JAM'],
                 68555 => ['Thoreau', 'Blazekickn', 'theztret00', 'Grenade44', 'DrPixel', 'ColonD', 'Tutumos'],
-                68556 => ['Zaphnath', 'Rimsala', 'SirVG', 'Jamiras', 'devidokop', 'MGNS8M', 'ikki5'],
+                68556 => ['Zaphnath', 'Rimsala', 'SirVG', 'Jamiras', 'deividokop', 'MGNS8M', 'ikki5'],
             ]),
             13755 => new ConvertCollapse('aotw-2018', '1/1/2018', '12/31/2018'),
             14315 => new ConvertToTracked('aotw-2019-spring', [
@@ -80,7 +80,7 @@ class SyncEvents extends Command
                 63183 => ['10/18/2019', '10/24/2019'],
                 32640 => ['10/25/2019', '10/31/2019'],
             ]),
-            1018 => new ConvertAsIs('devember-2019', '11/14/2019', '12/12/2019'),
+            1018 => new ConvertToSoftcoreTiered('devember-2019', 'Any points', '320 points'),
             1046 => new ConvertAotWTiered('aotw-2019', '1/4/2019', [20 => 1023, 30 => 1026, 40 => 1046], [
                 7091, 7277, 3975, 67795, 20262, 32418, 37147, 22135, 70572, 56991, 5359, 60531,
                 19375, 49583, 2288, 1879, 4572, 70351, 61774, 70295, 28572, 73619, 20140, 18654,
@@ -360,6 +360,10 @@ class SyncEvents extends Command
             $gameConversions = [
                 $id => $gameConversions[$id],
             ];
+
+            // when processing a single game, run all the jobs synchronously so the validation
+            // can check the final state.
+            config(['queue.default' => 'sync']);
         }
 
         $gameCount = count($gameConversions);
@@ -368,7 +372,16 @@ class SyncEvents extends Command
         $progressBar = $this->output->createProgressBar($gameCount);
 
         foreach ($gameConversions as $gameId => $conversion) {
+            if ($id) {
+                $before = $conversion->captureBefore($gameId);
+            }
+
             $conversion->convert($this, $gameId);
+
+            if ($id) {
+                $conversion->validate($this, $gameId, $before);
+            }
+
             $progressBar->advance();
         }
 
@@ -434,6 +447,76 @@ class ConvertGame
             ->where('AwardData', $event->legacyGame->id)
             ->where('AwardDataExtra', 0)
             ->delete();
+    }
+
+    public function captureBefore(int $gameId): array
+    {
+        $badges = PlayerBadge::where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $gameId)
+            ->orderBy('AwardDataExtra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+
+        $before = [];
+        foreach ($badges->get() as $badge) {
+            $before[$badge->user_id] = [
+                'AwardDate' => $badge->AwardDate,
+                'AwardDataExtra' => ($badge->AwardDataExtra === 1) ? 0 : -1,
+            ];
+        }
+
+        return $before;
+    }
+
+    public function validate(Command $command, int $gameId, array $before): void
+    {
+        if (empty($before)) {
+            $command->error("No badges expected. Previously converted?");
+            return;
+        }
+
+        $event = Event::where('legacy_game_id', $gameId)->firstOrFail();
+        $badges = PlayerBadge::where('AwardType', AwardType::Event)
+            ->where('AwardData', $event->id);
+
+        $after = [];
+        foreach ($badges->get() as $badge) {
+            $after[$badge->user_id] = [
+                'AwardDate' => $badge->AwardDate,
+                'AwardDataExtra' => $badge->AwardDataExtra,
+            ];
+        }
+
+        $converted = 0;
+        $deleted = 0;
+        foreach ($before as $userId => $badge) {
+            if (!array_key_exists($userId, $after)) {
+                if ($badge['AwardDataExtra'] !== -1) {
+                    $command->error("Badge for user $userId lost in conversion.");
+                } else {
+                    $deleted++;
+                }
+            } else {
+                $badgeAfter = $after[$userId];
+                unset($after[$userId]);
+
+                if ($badge['AwardDataExtra'] != $badgeAfter['AwardDataExtra']) {
+                    if ($badge['AwardDataExtra'] === -1) {
+                        $command->error("Badge for user $userId was not deleted.");
+                    } else {
+                        $command->error("Badge for user $userId does not have expected tier_index {$badge['AwardDataExtra']}. Found {$badgeAfter['AwardDataExtra']}.");
+                    }
+                } elseif ($badge['AwardDate'] != $badgeAfter['AwardDate']) {
+                    $command->error("Badge for user $userId award date changed from " . $badge['AwardDate']->format("Y-m-d") . " to " . $badgeAfter['AwardDate']->format("Y-m-d"));
+                } else {
+                    $converted++;
+                }
+            }
+        }
+
+        foreach ($after as $userId => $badge) {
+            $command->error("Badge for user $userId unexpected.");
+        }
+
+        $command->info("Converted $converted badges." . ($deleted ? " Deleted $deleted badges." : ""));
     }
 
     protected function setAchievementCount(Event $event, int $count): void
@@ -566,6 +649,9 @@ class ConvertGame
     }
 }
 
+// Keeps all achievements and unlocks for the game.
+// Don't create any tiers.
+// Badge only for people who have "mastered" the event.
 class ConvertAsIs extends ConvertGame
 {
     public function __construct(string $slug, ?string $activeFrom = null, ?string $activeThrough = null)
@@ -576,6 +662,9 @@ class ConvertAsIs extends ConvertGame
     }
 }
 
+// Only keep one achievement and its unlocks. Others are redundant to get the minimum 6 needed for a game mastery.
+// Don't create any tiers.
+// Badge only for people who have "mastered" the event.
 class ConvertCollapse extends ConvertGame
 {
     public function __construct(string $slug, ?string $activeFrom = null, ?string $activeThrough = null)
@@ -611,6 +700,9 @@ class ConvertCollapse extends ConvertGame
     }
 }
 
+// Replace existing achievements with event achievements associated to unlock in a given date range
+// Don't create any tiers.
+// Badge only for people who have "mastered" the event.
 class ConvertToTracked extends ConvertGame
 {
     protected array $achievements;
@@ -652,6 +744,12 @@ class ConvertToTracked extends ConvertGame
     }
 }
 
+// Replace achievements with tiered unlocks awarded to users.
+//  Unlocks are awarded as specified in the $achievements array.
+//  Users in first entry get all achievements. Users in second entry get all achievements but first.
+//  Users in last entry only get last achievement.
+// Create the $tiers specified.
+// Badge people according to number of unlocks they have based on the $tiers.
 class ConvertToTiered extends ConvertGame
 {
     protected array $tiers;
@@ -667,6 +765,57 @@ class ConvertToTiered extends ConvertGame
     protected function convertSiteAwards(Event $event): void
     {
         // do not process site awards here, we'll do it later so we can assign tiers
+    }
+
+    public function captureBefore(int $gameId): array
+    {
+        $badges = PlayerBadge::where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $gameId)
+            ->orderBy('AwardDataExtra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+
+        $before = [];
+        foreach ($badges->get() as $badge) {
+            $before[$badge->user_id] = [
+                'AwardDate' => $badge->AwardDate,
+                'AwardDataExtra' => 0,
+            ];
+        }
+
+        // count the number of achievements we expect each user to have
+        $allUserIds = [];
+        foreach ($this->achievements as $achievementId => $users) {
+            $userIds = User::whereIn('User', $users)->pluck('ID')->toArray();
+            $allUserIds = array_merge($allUserIds, $userIds);
+            foreach ($allUserIds as $userId) {
+                if (array_key_exists($userId, $before)) {
+                    $before[$userId]['AwardDataExtra'] = $before[$userId]['AwardDataExtra'] + 1;
+                }
+            }
+        }
+
+        // convert to tiers
+        foreach ($before as $userId => &$badge) {
+            $tier_index = 1;
+            foreach ($this->tiers as $count => $label) {
+                if ($count === $badge['AwardDataExtra']) {
+                    $badge['AwardDataExtra'] = $tier_index;
+                    break;
+                }
+
+                if ($count > $badge['AwardDataExtra']) {
+                    $badge['AwardDataExtra'] = $tier_index - 1;
+                    break;
+                }
+
+                $tier_index++;
+            }
+
+            if ($badge['AwardDataExtra'] > count($this->tiers)) {
+                $badge['AwardDataExtra'] = count($this->tiers);
+            }
+        }
+
+        return $before;
     }
 
     protected function process(Command $command, Event $event): void
@@ -811,9 +960,13 @@ class ConvertToTiered extends ConvertGame
     }
 }
 
+// Keep all the existing achievements for the hardcore baadge
+//  Add an additional achievement for users who only earned the softcore badge.
+// Create two tiers - one for the softcore badge and one for the hardcore badge.
+// Map players with the softcore badge to the softcore achievement and softcore badge.
+// Map players with the hardcore badge to all achievements and the hardcore badge.
 class ConvertToSoftcoreTiered extends ConvertGame
 {
-
     protected string $softcoreLabel;
     protected string $hardcoreLabel;
 
@@ -836,6 +989,23 @@ class ConvertToSoftcoreTiered extends ConvertGame
             $badge->AwardDataExtra = ($badge->AwardDataExtra === 1) ? 2 : 1;
             $badge->save();
         }
+    }
+
+    public function captureBefore(int $gameId): array
+    {
+        $badges = PlayerBadge::where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $gameId)
+            ->orderBy('AwardDataExtra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+
+        $before = [];
+        foreach ($badges->get() as $badge) {
+            $before[$badge->user_id] = [
+                'AwardDate' => $badge->AwardDate,
+                'AwardDataExtra' => ($badge->AwardDataExtra === 1) ? 2 : 1,
+            ];
+        }
+
+        return $before;
     }
 
     protected function process(Command $command, Event $event): void
@@ -876,7 +1046,6 @@ class ConvertToSoftcoreTiered extends ConvertGame
         }
 
         // convert achievements to event achievements
-        print "zzz";
         $first = true;
         foreach ($event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value) as $achievement) {
             $this->createEventAchievement($command, $achievement);
