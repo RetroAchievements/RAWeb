@@ -19,6 +19,8 @@ class PreviewForumPostRequest extends FormRequest
             'achievementIds.*' => 'integer',
             'gameIds' => 'present|array',
             'gameIds.*' => 'integer',
+            'hubIds' => 'present|array',
+            'hubIds.*' => 'integer',
         ];
     }
 }
