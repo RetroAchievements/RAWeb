@@ -1074,7 +1074,7 @@ if ($isFullyFeaturedGame) {
             </div>
         @endif
 
-        @if ($numAchievements > 0 && $isOfficial)
+        @if ($numAchievements > 1 && $isOfficial)
             <div id="achdistribution" class="component">
                 <h2 class="text-h3">Achievement Distribution</h2>
                 <div id="chart_distribution" class="min-h-[260px]"></div>
