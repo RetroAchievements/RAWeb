@@ -73,7 +73,7 @@ class SharedHubStrategy implements GameSuggestionStrategy
              * Exclude certain hubs via regex.
              * We don't want to recommend something just because it's in the Noncompliant Writing hub.
              */
-            ->whereRaw("game_sets.title NOT REGEXP '^(Meta[| -]|Misc\\.[ -])'")
+            ->whereRaw("game_sets.title NOT REGEXP '^\\\\[(Meta[| -]|Misc\\\\.[ -])'")
             ->inRandomOrder()
             ->first();
     }
@@ -89,9 +89,9 @@ class SharedHubStrategy implements GameSuggestionStrategy
                 $query->where('game_id', '!=', $this->sourceGame->id); // needs other games too.
             })
             ->where(function ($query) {
-                $query->where('title', 'NOT LIKE', 'Meta - %')
-                    ->where('title', 'NOT LIKE', 'Meta|%')
-                    ->where('title', 'NOT LIKE', 'Misc. - %');
+                $query->where('title', 'NOT LIKE', '[Meta - %')
+                    ->where('title', 'NOT LIKE', '[Meta|%')
+                    ->where('title', 'NOT LIKE', '[Misc. - %');
             })
             ->inRandomOrder()
             ->first();
