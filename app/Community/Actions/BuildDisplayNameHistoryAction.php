@@ -20,7 +20,9 @@ class BuildDisplayNameHistoryAction
         $entries = collect();
 
         // Add current display_name if it came from a change request.
-        if ($currentChange = $allChanges->firstWhere('username', $user->display_name)) {
+        if ($user->display_name === $user->username) {
+            $entries->push($this->formatEntry($user->display_name, $user->created_at));
+        } elseif ($currentChange = $allChanges->firstWhere('username', $user->display_name)) {
             $entries->push($this->formatEntry($user->display_name, $currentChange->approved_at));
         }
 
