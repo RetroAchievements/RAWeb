@@ -97,10 +97,16 @@ class UserSettingsController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        UserUsername::create([
-            'user_id' => $user->id,
-            'username' => $data->newDisplayName,
-        ]);
+        $isOnlyCapitalizationChange = strtolower($user->display_name) === strtolower($data->newDisplayName);
+        if ($isOnlyCapitalizationChange) {
+            $user->display_name = $data->newDisplayName;
+            $user->save();
+        } else {
+            UserUsername::create([
+                'user_id' => $user->id,
+                'username' => $data->newDisplayName,
+            ]);
+        }
 
         return response()->json(['success' => true]);
     }

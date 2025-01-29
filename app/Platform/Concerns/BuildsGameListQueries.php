@@ -340,6 +340,8 @@ trait BuildsGameListQueries
                     ELSE 4
                 END AS granularity_order
             SQL)
+            // Ensure NULL release dates always sort to the end, regardless of sort direction.
+            ->orderByRaw('released_at IS NULL')
             ->orderBy('normalized_released_at', $sortDirection)
             ->orderBy('granularity_order', $sortDirection);
     }

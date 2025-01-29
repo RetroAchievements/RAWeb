@@ -7,11 +7,14 @@ namespace App\Community\Actions;
 use App\Data\UserData;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameSet;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\GameData;
+use App\Platform\Data\GameSetData;
 use App\Platform\Data\TicketData;
+use App\Platform\Enums\GameSetType;
 use Illuminate\Support\Collection;
 
 class FetchDynamicShortcodeContentAction
@@ -21,12 +24,14 @@ class FetchDynamicShortcodeContentAction
         array $ticketIds = [],
         array $achievementIds = [],
         array $gameIds = [],
+        array $hubIds = [],
     ): array {
         $results = collect([
             'users' => $this->fetchUsers($usernames),
             'tickets' => $this->fetchTickets($ticketIds),
             'achievements' => $this->fetchAchievements($achievementIds),
             'games' => $this->fetchGames($gameIds),
+            'hubs' => $this->fetchHubs($hubIds),
         ]);
 
         return $results->toArray();
@@ -96,5 +101,20 @@ class FetchDynamicShortcodeContentAction
             ->whereIn('ID', $gameIds)
             ->get()
             ->map(fn (Game $game) => GameData::fromGame($game)->include('badgeUrl', 'system.name'));
+    }
+
+    /**
+     * @return Collection<int, GameSetData>
+     */
+    private function fetchHubs(array $hubIds): Collection
+    {
+        if (empty($hubIds)) {
+            return collect();
+        }
+
+        return GameSet::whereIn('id', $hubIds)
+            ->where('type', GameSetType::Hub)
+            ->get()
+            ->map(fn (GameSet $gameSet) => GameSetData::fromGameSetWithCounts($gameSet)->include('gameId'));
     }
 }

@@ -20,6 +20,8 @@ export * from './createGameTopAchiever';
 export * from './createHomePageProps';
 export * from './createLeaderboard';
 export * from './createLeaderboardEntry';
+export * from './createMessage';
+export * from './createMessageThread';
 export * from './createNews';
 export * from './createPaginatedData';
 export * from './createParsedUserAgent';

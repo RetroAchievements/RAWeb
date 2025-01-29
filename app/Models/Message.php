@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\MessageFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laravel\Scout\Searchable;
 
 class Message extends BaseModel
 {
+    /** @use HasFactory<MessageFactory> */
+    use HasFactory;
     use Searchable;
 
     protected $table = 'messages';
@@ -22,6 +26,15 @@ class Message extends BaseModel
         'body',
         'created_at',
     ];
+
+    protected $casts = [
+        'Unread' => 'boolean',
+    ];
+
+    protected static function newFactory(): MessageFactory
+    {
+        return MessageFactory::new();
+    }
 
     // == search
 
@@ -51,7 +64,7 @@ class Message extends BaseModel
      */
     public function author(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'author_id');
+        return $this->belongsTo(User::class, 'author_id', 'ID');
     }
 
     // == scopes

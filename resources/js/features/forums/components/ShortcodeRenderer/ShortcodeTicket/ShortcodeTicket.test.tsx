@@ -16,7 +16,10 @@ describe('Component: ShortcodeTicket', () => {
     });
 
     const { container } = render(<ShortcodeTicket ticketId={123} />, {
-      jotaiAtoms: [[persistedTicketsAtom, [ticket]]],
+      jotaiAtoms: [
+        [persistedTicketsAtom, [ticket]],
+        //
+      ],
     });
 
     // ASSERT
@@ -34,7 +37,10 @@ describe('Component: ShortcodeTicket', () => {
 
     // !! using id 999
     render(<ShortcodeTicket ticketId={999} />, {
-      jotaiAtoms: [[persistedTicketsAtom, [ticket]]],
+      jotaiAtoms: [
+        [persistedTicketsAtom, [ticket]],
+        //
+      ],
     });
 
     // ASSERT
@@ -51,7 +57,10 @@ describe('Component: ShortcodeTicket', () => {
     });
 
     render(<ShortcodeTicket ticketId={123} />, {
-      jotaiAtoms: [[persistedTicketsAtom, [ticket]]],
+      jotaiAtoms: [
+        [persistedTicketsAtom, [ticket]],
+        //
+      ],
     });
 
     // ASSERT
@@ -74,7 +83,10 @@ describe('Component: ShortcodeTicket', () => {
     });
 
     render(<ShortcodeTicket ticketId={123} />, {
-      jotaiAtoms: [[persistedTicketsAtom, [ticket]]],
+      jotaiAtoms: [
+        [persistedTicketsAtom, [ticket]],
+        //
+      ],
     });
 
     // ASSERT
@@ -92,7 +104,10 @@ describe('Component: ShortcodeTicket', () => {
     });
 
     render(<ShortcodeTicket ticketId={123} />, {
-      jotaiAtoms: [[persistedTicketsAtom, [ticket]]],
+      jotaiAtoms: [
+        [persistedTicketsAtom, [ticket]],
+        //
+      ],
     });
 
     // ASSERT
@@ -109,7 +124,10 @@ describe('Component: ShortcodeTicket', () => {
     });
 
     render(<ShortcodeTicket ticketId={123} />, {
-      jotaiAtoms: [[persistedTicketsAtom, [ticket]]],
+      jotaiAtoms: [
+        [persistedTicketsAtom, [ticket]],
+        //
+      ],
     });
 
     // ASSERT
@@ -126,7 +144,10 @@ describe('Component: ShortcodeTicket', () => {
     });
 
     render(<ShortcodeTicket ticketId={123} />, {
-      jotaiAtoms: [[persistedTicketsAtom, [ticket]]],
+      jotaiAtoms: [
+        [persistedTicketsAtom, [ticket]],
+        //
+      ],
     });
 
     // ASSERT
@@ -143,7 +164,10 @@ describe('Component: ShortcodeTicket', () => {
     });
 
     render(<ShortcodeTicket ticketId={123} />, {
-      jotaiAtoms: [[persistedTicketsAtom, [ticket]]],
+      jotaiAtoms: [
+        [persistedTicketsAtom, [ticket]],
+        //
+      ],
     });
 
     // ASSERT
@@ -160,7 +184,10 @@ describe('Component: ShortcodeTicket', () => {
     });
 
     render(<ShortcodeTicket ticketId={123} />, {
-      jotaiAtoms: [[persistedTicketsAtom, [ticket]]],
+      jotaiAtoms: [
+        [persistedTicketsAtom, [ticket]],
+        //
+      ],
     });
 
     // ASSERT
@@ -179,7 +206,10 @@ describe('Component: ShortcodeTicket', () => {
     });
 
     render(<ShortcodeTicket ticketId={123} />, {
-      jotaiAtoms: [[persistedTicketsAtom, [ticket]]],
+      jotaiAtoms: [
+        [persistedTicketsAtom, [ticket]],
+        //
+      ],
     });
 
     // ASSERT

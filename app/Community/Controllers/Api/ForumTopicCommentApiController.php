@@ -50,6 +50,7 @@ class ForumTopicCommentApiController extends Controller
             ticketIds: $request->input('ticketIds'),
             achievementIds: $request->input('achievementIds'),
             gameIds: $request->input('gameIds'),
+            hubIds: $request->input('hubIds'),
         );
 
         return response()->json($entities);
