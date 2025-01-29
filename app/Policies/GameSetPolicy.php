@@ -37,13 +37,11 @@ class GameSetPolicy
 
     public function create(User $user): bool
     {
-        return false;
-
-        // TODO enable after dropping GameAlternatives
-        // return $user->hasAnyRole([
-        //     Role::ADMINISTRATOR,
-        //     Role::GAME_EDITOR,
-        // ]);
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::GAME_HASH_MANAGER,
+            Role::GAME_EDITOR,
+        ]);
     }
 
     public function update(User $user, GameSet $gameSet): bool

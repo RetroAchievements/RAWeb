@@ -15,6 +15,7 @@ class MessageThreadParticipant extends BaseModel
     protected $fillable = [
         'user_id',
         'thread_id',
+        'num_unread',
         'created_at',
         'updated_at',
     ];

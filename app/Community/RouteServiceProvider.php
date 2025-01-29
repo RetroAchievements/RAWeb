@@ -109,6 +109,8 @@ class RouteServiceProvider extends ServiceProvider
                         Route::get('forums/{category}/{forum}/create', [ForumTopicController::class, 'create'])->name('forum-topic.create');
                         Route::get('forums/post/{comment}/edit', [ForumTopicCommentController::class, 'edit'])->name('forum-topic-comment.edit');
 
+                        Route::get('messages2', [MessageThreadController::class, 'index'])->name('message-thread.index2');
+
                         Route::get('settings', [UserSettingsController::class, 'show'])->name('settings.show');
                     });
                 });

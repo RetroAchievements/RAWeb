@@ -1,7 +1,13 @@
 import axios from 'axios';
 
 import { act, renderHook, waitFor } from '@/test';
-import { createAchievement, createGame, createTicket, createUser } from '@/test/factories';
+import {
+  createAchievement,
+  createGame,
+  createGameSet,
+  createTicket,
+  createUser,
+} from '@/test/factories';
 
 import { persistedGamesAtom } from '../state/forum.atoms';
 import { useForumPostPreview } from './useForumPostPreview';
@@ -43,6 +49,7 @@ describe('Hook: useForumPostPreview', () => {
       data: {
         achievements: [],
         games: [createGame({ id: 123, title: 'Test Game' })],
+        hubs: [],
         tickets: [],
         users: [createUser({ displayName: 'username' })],
       },
@@ -70,6 +77,7 @@ describe('Hook: useForumPostPreview', () => {
       data: {
         achievements: [createAchievement({ id: 9 })],
         games: [createGame({ id: 123, title: 'Test Game' })],
+        hubs: [createGameSet({ id: 1, title: '[Central]' })],
         tickets: [createTicket({ id: 12345 })],
         users: [createUser({ displayName: 'username' })],
       },
@@ -79,7 +87,10 @@ describe('Hook: useForumPostPreview', () => {
 
     const initialGames = [{ id: 456, name: 'Existing Game' }];
     const { result } = renderHook(() => useForumPostPreview(), {
-      jotaiAtoms: [[persistedGamesAtom, initialGames]],
+      jotaiAtoms: [
+        [persistedGamesAtom, initialGames],
+        //
+      ],
     });
 
     // ACT
@@ -92,8 +103,13 @@ describe('Hook: useForumPostPreview', () => {
       expect(result.current.previewContent).toEqual(contentWithEntities);
     });
 
-    const { persistedGames, persistedAchievements, persistedTickets, persistedUsers } =
-      result.current.unsafe_getPersistedValues();
+    const {
+      persistedGames,
+      persistedHubs,
+      persistedAchievements,
+      persistedTickets,
+      persistedUsers,
+    } = result.current.unsafe_getPersistedValues();
 
     expect(persistedGames).toHaveLength(2);
     expect(persistedGames).toEqual(
@@ -103,6 +119,7 @@ describe('Hook: useForumPostPreview', () => {
       ]),
     );
 
+    expect(persistedHubs).toHaveLength(1);
     expect(persistedAchievements).toHaveLength(1);
     expect(persistedTickets).toHaveLength(1);
     expect(persistedUsers).toHaveLength(1);

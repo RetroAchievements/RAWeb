@@ -460,6 +460,7 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "message-thread.index2": [],
     "settings.show": [],
     "achievement.comment.index": [
         {
