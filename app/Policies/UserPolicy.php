@@ -278,6 +278,7 @@ class UserPolicy
             Role::QUALITY_ASSURANCE,
             Role::EVENT_MANAGER,
             Role::GAME_EDITOR,
+            Role::CHEAT_INVESTIGATOR,
         ]);
     }
 
