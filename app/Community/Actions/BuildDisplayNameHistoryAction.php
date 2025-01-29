@@ -30,8 +30,7 @@ class BuildDisplayNameHistoryAction
 
         // Add their original username if it's different from their current display_name and not already included.
         if ($user->username !== $user->display_name && !$allChanges->contains('username', $user->username)) {
-            $date = $allChanges->last()?->approved_at ?? $user->created_at;
-            $entries->push($this->formatEntry($user->username, $date));
+            $entries->push($this->formatEntry($user->username, $user->created_at));
         }
 
         return $entries->join("\n");
