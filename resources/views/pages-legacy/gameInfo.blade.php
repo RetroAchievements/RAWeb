@@ -170,6 +170,14 @@ if ($isEventGame) {
         $achievementData[$eventAchievement->achievement_id]['ActiveUntil'] = $eventAchievement->active_until?->subSeconds(1);
     }
 
+    // hide points unless more than 1. never show TrueRatio.
+    foreach ($achievementData as &$achievement) {
+        if ($achievement['Points'] === 1) {
+            $achievement['Points'] = 0;
+        }
+        $achievement['TrueRatio'] = 0;
+    }
+
     if ($gameModel->event) {
         $gameData['ImageIcon'] = $gameModel->event->image_asset_path;
     }

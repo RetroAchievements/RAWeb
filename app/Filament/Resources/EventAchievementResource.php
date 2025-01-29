@@ -48,6 +48,8 @@ class EventAchievementResource extends Resource
                         Infolists\Components\TextEntry::make('active_through')
                             ->label('Active Through')
                             ->date(),
+                        Infolists\Components\TextEntry::make('achievement.Points')
+                            ->label('Points'),
                     ])
                     ->columns(['xl' => 4, 'md' => 2]),
 
@@ -154,6 +156,15 @@ class EventAchievementResource extends Resource
                             ->label('Active Through')
                             ->native(false)
                             ->date(),
+
+                        Forms\Components\Group::make()
+                            ->relationship('achievement')
+                            ->schema([
+                                Forms\Components\Select::make('Points')
+                                    ->options([1 => '1', 2 => '2', 3 => '3', 4 => '4', 5 => '5'])
+                                    ->default(1)
+                                    ->required(),
+                            ]),
                     ]),
 
                 Forms\Components\Section::make()
