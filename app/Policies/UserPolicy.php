@@ -274,10 +274,9 @@ class UserPolicy
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
             Role::MODERATOR,
-            Role::DEVELOPER,
+            Role::DEV_COMPLIANCE,
+            Role::QUALITY_ASSURANCE,
             Role::EVENT_MANAGER,
-            Role::NEWS_MANAGER,
-            Role::ENGINEER,
             Role::GAME_EDITOR,
         ]);
     }
