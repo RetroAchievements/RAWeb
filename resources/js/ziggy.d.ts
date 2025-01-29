@@ -4,7 +4,6 @@ declare module 'ziggy-js' {
     "demo": [],
     "tickets.index": [],
     "ranking.beaten-games": [],
-    "message.create": [],
     "achievement.tickets": [
         {
             "name": "achievement",
@@ -102,6 +101,7 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "message.create": [],
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],
@@ -244,6 +244,7 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.shortcode-body.preview": [],
     "api.forum-topic.store": [
         {
             "name": "category",
@@ -263,7 +264,6 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "api.forum-topic-comment.preview": [],
     "api.game.claims.comment.store": [
         {
             "name": "game",
@@ -406,6 +406,14 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.message.store": [],
+    "api.message-thread.destroy": [
+        {
+            "name": "messageThread",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "api.subscription.store": [
         {
             "name": "subjectType",
@@ -460,6 +468,13 @@ declare module 'ziggy-js' {
         }
     ],
     "message-thread.index": [],
+    "message-thread.show2": [
+        {
+            "name": "messageThread",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "settings.show": [],
     "achievement.comment.index": [
         {

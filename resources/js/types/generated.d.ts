@@ -87,6 +87,12 @@ declare namespace App.Community.Data {
     paginatedMessageThreads: App.Data.PaginatedData<TItems>;
     unreadMessageCount: number;
   };
+  export type MessageThreadShowPageProps<TItems = App.Community.Data.Message> = {
+    messageThread: App.Community.Data.MessageThread;
+    paginatedMessages: App.Data.PaginatedData<TItems>;
+    dynamicEntities: App.Community.Data.ShortcodeDynamicEntities;
+    canReply: boolean;
+  };
   export type RecentLeaderboardEntry = {
     leaderboard: App.Platform.Data.Leaderboard;
     leaderboardEntry: App.Platform.Data.LeaderboardEntry;
@@ -109,6 +115,13 @@ declare namespace App.Community.Data {
     user: App.Data.User;
     unlockedAt: string;
     isHardcore: boolean;
+  };
+  export type ShortcodeDynamicEntities = {
+    users: Array<App.Data.User>;
+    tickets: Array<App.Platform.Data.Ticket>;
+    achievements: Array<App.Platform.Data.Achievement>;
+    games: Array<App.Platform.Data.Game>;
+    hubs: Array<App.Platform.Data.GameSet>;
   };
   export type Subscription = {
     id: number;

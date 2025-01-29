@@ -13,7 +13,8 @@ import type { TranslatedString } from '@/types/i18next';
 
 interface MessagesBreadcrumbsProps {
   t_currentPageLabel: TranslatedString;
-  user: App.Data.User;
+
+  user?: App.Data.User;
 }
 
 export const MessagesBreadcrumbs: FC<MessagesBreadcrumbsProps> = ({ t_currentPageLabel, user }) => {
@@ -31,13 +32,17 @@ export const MessagesBreadcrumbs: FC<MessagesBreadcrumbsProps> = ({ t_currentPag
 
           <BaseBreadcrumbSeparator />
 
-          <BaseBreadcrumbItem aria-label={user.displayName}>
-            <BaseBreadcrumbLink href={route('user.show', user.displayName)}>
-              {user.displayName}
-            </BaseBreadcrumbLink>
-          </BaseBreadcrumbItem>
+          {user ? (
+            <>
+              <BaseBreadcrumbItem aria-label={user.displayName}>
+                <BaseBreadcrumbLink href={route('user.show', user.displayName)}>
+                  {user.displayName}
+                </BaseBreadcrumbLink>
+              </BaseBreadcrumbItem>
 
-          <BaseBreadcrumbSeparator />
+              <BaseBreadcrumbSeparator />
+            </>
+          ) : null}
 
           <BaseBreadcrumbItem aria-label={t_currentPageLabel}>
             <BaseBreadcrumbPage>{t_currentPageLabel}</BaseBreadcrumbPage>

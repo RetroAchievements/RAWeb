@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
+use App\Community\Data\ShortcodeDynamicEntitiesData;
 use App\Data\UserData;
 use App\Models\Achievement;
 use App\Models\Game;
@@ -25,16 +26,14 @@ class FetchDynamicShortcodeContentAction
         array $achievementIds = [],
         array $gameIds = [],
         array $hubIds = [],
-    ): array {
-        $results = collect([
-            'users' => $this->fetchUsers($usernames),
-            'tickets' => $this->fetchTickets($ticketIds),
-            'achievements' => $this->fetchAchievements($achievementIds),
-            'games' => $this->fetchGames($gameIds),
-            'hubs' => $this->fetchHubs($hubIds),
-        ]);
-
-        return $results->toArray();
+    ): ShortcodeDynamicEntitiesData {
+        return new ShortcodeDynamicEntitiesData(
+            users: $this->fetchUsers($usernames)->toArray(),
+            tickets: $this->fetchTickets($ticketIds)->toArray(),
+            achievements: $this->fetchAchievements($achievementIds)->toArray(),
+            games: $this->fetchGames($gameIds)->toArray(),
+            hubs: $this->fetchHubs($hubIds)->toArray(),
+        );
     }
 
     /**

@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { preProcessShortcodesInBody } from '@/features/forums/utils/preProcessShortcodesInBody';
+import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 
 const formSchema = z.object({
   title: z.string().min(2).max(255),
