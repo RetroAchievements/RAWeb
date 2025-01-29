@@ -15,9 +15,6 @@ export const MessagesCard: FC<MessagesCardProps> = ({ messageThread }) => {
 
   const { t } = useTranslation();
 
-  const messages = messageThread.messages as App.Community.Data.Message[];
-  const lastMessage = messages[messages.length - 1];
-
   const otherParticipant =
     (messageThread.participants?.find(
       (p) => p.displayName !== auth?.user.displayName,
@@ -32,7 +29,7 @@ export const MessagesCard: FC<MessagesCardProps> = ({ messageThread }) => {
           <span className="text-2xs text-neutral-400 light:text-neutral-700">
             <DiffTimestamp
               asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates ?? false}
-              at={lastMessage.createdAt}
+              at={messageThread.lastMessage!.createdAt}
             />
           </span>
         </div>
