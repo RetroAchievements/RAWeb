@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Action;
 
 use App\Community\Enums\AwardType;
+use App\Models\Achievement;
 use App\Models\Event;
 use App\Models\EventAward;
 use App\Models\Game;
@@ -32,12 +33,13 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
     {
         $user = User::factory()->create();
         System::factory()->create(['ID' => System::Events]);
-        $game = Game::factory()->create(['ConsoleID' => System::Events]);
-        $achievements = $this->seedAchievements(8, $game);
+        $game = Game::factory()->create(['ConsoleID' => System::Events, 'achievements_published' => 8, 'points_total' => 8]);
+        $achievements = $game->achievements()->saveMany(Achievement::factory()->published()
+            ->count(8)->create(['Points' => 1]));
         $event = Event::create(['legacy_game_id' => $game->id, 'slug' => 'test-event']);
-        EventAward::create(['event_id' => $event->id, 'tier_index' => 1, 'label' => 'Bronze', 'achievements_required' => 2, 'image_asset_path' => '/Images/000001.png']);
-        EventAward::create(['event_id' => $event->id, 'tier_index' => 2, 'label' => 'Silver', 'achievements_required' => 4, 'image_asset_path' => '/Images/000002.png']);
-        EventAward::create(['event_id' => $event->id, 'tier_index' => 3, 'label' => 'Gold', 'achievements_required' => 6, 'image_asset_path' => '/Images/000003.png']);
+        EventAward::create(['event_id' => $event->id, 'tier_index' => 1, 'label' => 'Bronze', 'points_required' => 2, 'image_asset_path' => '/Images/000001.png']);
+        EventAward::create(['event_id' => $event->id, 'tier_index' => 2, 'label' => 'Silver', 'points_required' => 4, 'image_asset_path' => '/Images/000002.png']);
+        EventAward::create(['event_id' => $event->id, 'tier_index' => 3, 'label' => 'Gold', 'points_required' => 6, 'image_asset_path' => '/Images/000003.png']);
 
         $now = Carbon::now()->startOfSecond();
         Carbon::setTestNow($now);

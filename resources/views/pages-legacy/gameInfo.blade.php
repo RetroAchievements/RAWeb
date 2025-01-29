@@ -1099,14 +1099,14 @@ if ($isFullyFeaturedGame) {
                 <h2 class="text-h3">Award Tiers</h2>
                 <table class="table-highlight"><tbody>
                 @if (count($gameModel->event->awards) > 0)
-                    @foreach ($gameModel->event->awards->sortBy('achievements_required') as $award)
+                    @foreach ($gameModel->event->awards->sortBy('points_required') as $award)
                         <tr style="w-full">
                             <td style="w-full">
                                 <div class="flex relative gap-x-2 items-center">
                                     <img width="48" height="48" src="{!! media_asset($award->image_asset_path) !!}" alt="{{ $award->label }}" />
                                     <div>
                                         <p>{{ $award->label }}</p>
-                                        <p class="smalltext">{{ $award->achievements_required }} {{ Str::plural('achievement', $award->achievements_required) }}</p>
+                                        <p class="smalltext">{{ $award->points_required }} {{ Str::plural('point', $award->points_required) }}</p>
                                     </div>
                                 </div>
                             </td>
