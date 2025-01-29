@@ -13,6 +13,7 @@ use App\Platform\Data\GameSuggestionContextData;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\GameSuggestionReason;
 use App\Platform\Services\GameSuggestions\Enums\SourceGameKind;
+use Illuminate\Support\Facades\DB;
 
 class SharedHubStrategy implements GameSuggestionStrategy
 {
@@ -29,15 +30,7 @@ class SharedHubStrategy implements GameSuggestionStrategy
     public function select(): ?Game
     {
         // First, get a random hub that contains our source game.
-        $this->selectedHub = GameSet::whereType(GameSetType::Hub)
-            ->whereHas('games', function ($query) {
-                $query->whereGameId($this->sourceGame->id); // needs our source game
-            })
-            ->whereHas('games', function ($query) {
-                $query->where('game_id', '!=', $this->sourceGame->id); // needs other games too!
-            })
-            ->inRandomOrder()
-            ->first();
+        $this->selectedHub = $this->getRandomHub();
 
         if (!$this->selectedHub) {
             return null;
@@ -55,6 +48,53 @@ class SharedHubStrategy implements GameSuggestionStrategy
             ->first();
 
         return $this->selectedGame;
+    }
+
+    private function getRandomHub(): ?GameSet
+    {
+        $connection = DB::connection()->getDriverName();
+
+        return match ($connection) {
+            'sqlite' => $this->getRandomHubSQLite(),
+            default => $this->getRandomHubMariaDB(),
+        };
+    }
+
+    private function getRandomHubMariaDB(): ?GameSet
+    {
+        return GameSet::whereType(GameSetType::Hub)
+            ->whereHas('games', function ($query) {
+                $query->whereGameId($this->sourceGame->id); // needs our source game.
+            })
+            ->whereHas('games', function ($query) {
+                $query->where('game_id', '!=', $this->sourceGame->id); // needs other games too.
+            })
+            /**
+             * Exclude certain hubs via regex.
+             * We don't want to recommend something just because it's in the Noncompliant Writing hub.
+             */
+            ->whereRaw("game_sets.title NOT REGEXP '^\\\\[(Meta[| -]|Misc\\\\.[ -])'")
+            ->inRandomOrder()
+            ->first();
+    }
+
+    private function getRandomHubSQLite(): ?GameSet
+    {
+        // For SQLite, we use LIKE with multiple patterns instead of REGEXP.
+        return GameSet::whereType(GameSetType::Hub)
+            ->whereHas('games', function ($query) {
+                $query->whereGameId($this->sourceGame->id); // needs our source game.
+            })
+            ->whereHas('games', function ($query) {
+                $query->where('game_id', '!=', $this->sourceGame->id); // needs other games too.
+            })
+            ->where(function ($query) {
+                $query->where('title', 'NOT LIKE', '[Meta - %')
+                    ->where('title', 'NOT LIKE', '[Meta|%')
+                    ->where('title', 'NOT LIKE', '[Misc. - %');
+            })
+            ->inRandomOrder()
+            ->first();
     }
 
     public function reason(): GameSuggestionReason
