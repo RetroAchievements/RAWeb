@@ -42,9 +42,10 @@ class RandomGameStrategy implements GameSuggestionStrategy
         // Instead, we'll get the total count of eligible games
         // and randomly pick one of the values.
 
-        $totalCount = Game::whereHasPublishedAchievements()
-            ->whereNotIn('ConsoleID', System::getNonGameSystems())
-            ->count();
+        $baseQuery = Game::whereHasPublishedAchievements()
+            ->whereNotIn('ConsoleID', System::getNonGameSystems());
+
+        $totalCount = $baseQuery->count();
 
         if ($totalCount === 0) {
             return null;
@@ -52,8 +53,7 @@ class RandomGameStrategy implements GameSuggestionStrategy
 
         $randomOffset = random_int(0, $totalCount - 1);
 
-        return Game::whereHasPublishedAchievements()
-            ->select('ID')
+        return $baseQuery->select('ID')
             ->skip($randomOffset)
             ->value('ID');
     }

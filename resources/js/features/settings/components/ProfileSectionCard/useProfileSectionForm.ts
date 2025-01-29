@@ -10,10 +10,9 @@ import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 const profileFormSchema = z.object({
   motto: z.string().max(50),
   userWallActive: z.boolean(),
-  visibleRoleId: z
-    .string() // The incoming value is a string from a select field.
+  visibleRoleId: z.coerce
+    .number() // The incoming value is a string from a select field.
     .nullable()
-    .transform((val) => Number(val)) // We need to convert it to a numeric ID.
     .pipe(z.number().nullable())
     .optional(),
 });

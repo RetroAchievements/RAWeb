@@ -37,7 +37,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
           decoding="async"
           width={size}
           height={size}
-          src={avatarUrl}
+          src={avatarUrl ?? 'https://media.retroachievements.org/UserPic/Server.png'}
           alt={displayName ?? 'Deleted User'}
           className={cn('rounded-sm', imgClassName)}
         />

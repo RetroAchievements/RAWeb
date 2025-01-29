@@ -59,11 +59,19 @@ export function useChangeUsernameForm() {
 
   const mutation = useMutation({
     mutationFn: (formValues: FormValues) => {
-      return axios.post(route('api.settings.username-change-request.store'), {
+      return axios.post(route('api.settings.name-change-request.store'), {
         newDisplayName: formValues.newUsername,
       });
     },
     onSuccess: (_, { newUsername }) => {
+      const wasAutoApproved = auth!.user.displayName.toLowerCase() === newUsername.toLowerCase();
+
+      if (wasAutoApproved) {
+        window.location.reload();
+
+        return;
+      }
+
       setRequestedUsername(newUsername);
     },
   });
@@ -73,7 +81,12 @@ export function useChangeUsernameForm() {
       'You can only request a new username once every 30 days, even if your new username is not approved. Are you sure you want to do this?',
     );
 
-    if (!confirm(confirmationMessage)) {
+    // If the user just wants a case change, no need to confirm.
+    // We'll make the change instantly without needing approval.
+    const mustShowConfirm =
+      auth!.user.displayName.toLowerCase() !== formValues.newUsername.toLowerCase();
+
+    if (mustShowConfirm && !confirm(confirmationMessage)) {
       return;
     }
 
