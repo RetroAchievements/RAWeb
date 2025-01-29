@@ -3,6 +3,7 @@
 use App\Enums\Permissions;
 use App\Models\Role;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 ?>
 
 @props([
@@ -19,6 +20,21 @@ $hasVisibleRole = (
     $user->visible_role?->name
     || ($me?->can('manage', App\Models\User::class) && $userMassData['Permissions'] !== Permissions::Registered)
 );
+
+$fullRolesLabel = null;
+if ($hasVisibleRole) {
+    $allDisplayableRoles = $user->displayableRoles->toArray();
+
+    if (count($allDisplayableRoles) >= 2) {
+        $roleNames = array_map(fn ($role) => __('permission.role.' . $role['name']), $allDisplayableRoles);
+        sort($roleNames);
+        
+        $lastRole = array_pop($roleNames);
+        $fullRolesLabel = count($roleNames) > 1
+            ? implode(', ', $roleNames) . ', and ' . $lastRole // 3+ roles: "A, B, and C"
+            : implode(' and ', [$roleNames[0], $lastRole]); // 2 roles: "A and B"
+    }
+}
 
 $roleLabel = $hasVisibleRole ? Permissions::toString($userMassData['Permissions']) : '';
 $shouldMoveRoleToNextLine =
@@ -40,7 +56,10 @@ $shouldMoveRoleToNextLine =
 
             {{-- Visible Role --}}
             @if ($hasVisibleRole)
-                <div class="flex h-4 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1">
+                <div
+                    class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1 {{ $fullRolesLabel ? 'cursor-help border border-dotted border-neutral-400' : '' }}"
+                    @if ($fullRolesLabel) title="{{ $fullRolesLabel }}" @endif
+                >
                     <p class="text-2xs -mb-0.5">
                         @if ($userMassData['Permissions'] === Permissions::Spam)
                             Spam
