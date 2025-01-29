@@ -1,5 +1,6 @@
 <?php
 
+use App\Community\Actions\BuildDisplayNameHistoryAction;
 use App\Enums\Permissions;
 use App\Models\Role;
 use Illuminate\Support\Carbon;
@@ -27,30 +28,9 @@ $shouldMoveRoleToNextLine =
 
 $previousUsernames = '';
 if ($me && $me->can('viewDisplayNameHistory', $user)) {
-    $historyEntries = collect();
-    
-    // If the current display_name is different from the username, always show the username.
-    if ($user->display_name !== $user->username) {
-        $historyEntries->push($user->username . ' (' . $user->created_at->format('F j, Y') . ')');
-    }
-    
-    // Add any approved username changes that aren't the current display_name.
-    $historyEntries = $historyEntries->concat(
-        $user->usernameRequests()
-            ->approved()
-            ->where('username', '!=', $user->display_name)
-            ->orderBy('approved_at', 'desc')
-            ->get()
-            ->map(function($request) {
-                return $request->username . ' (' . $request->approved_at->format('F j, Y') . ')';
-            })
-    );
-    
-    if ($historyEntries->isNotEmpty()) {
-        $previousUsernames = $historyEntries->join("\n");
-    }
+    $previousUsernames = (new BuildDisplayNameHistoryAction())->execute($user);
 }
-$usernameTitle = $previousUsernames ? "Previously known as:\n{$previousUsernames}" : '';
+$usernameTitle = $previousUsernames ? "Username history:\n{$previousUsernames}" : '';
 ?>
 
 <div class="relative flex border-x border-embed-highlight flex-row-reverse sm:flex-row gap-x-4 pb-5 bg-embed -mx-5 px-5 mt-[-15px] pt-5">
