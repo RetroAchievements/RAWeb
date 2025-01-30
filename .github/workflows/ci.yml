@@ -14,7 +14,7 @@ jobs:
       node: ${{ steps.filter.outputs.node }}
     steps:
       - name: Check changed files
-        uses: dorny/paths-filter@v2
+        uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
