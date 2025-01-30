@@ -7,32 +7,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-changes:
-  runs-on: ubuntu-22.04
-  outputs:
-    php: ${{ steps.filter.outputs.php }}
-    node: ${{ steps.filter.outputs.node }}
-  steps:
-    - name: Check changed files
-      uses: dorny/paths-filter@v2
-      id: filter
-      with:
-        filters: |
-          php:
-            - '**/*.php'
-            - 'composer.json'
-            - 'composer.lock'
-            - 'phpstan.neon'
-            - 'pint.json'
-          node:
-            - '**/*.js'
-            - '**/*.ts'
-            - '**/*.tsx'
-            - 'package.json'
-            - 'pnpm-lock.yaml'
-            - '*eslint*'
-            - 'tailwind.config.json'
-            - 'lang/**/*.json'
+  changes:
+    runs-on: ubuntu-22.04
+    outputs:
+      php: ${{ steps.filter.outputs.php }}
+      node: ${{ steps.filter.outputs.node }}
+    steps:
+      - name: Check changed files
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            php:
+              - '**/*.php'
+              - 'composer.json'
+              - 'composer.lock'
+              - 'phpstan.neon'
+              - 'pint.json'
+            node:
+              - '**/*.js'
+              - '**/*.ts'
+              - '**/*.tsx'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - '*eslint*'
+              - 'tailwind.config.json'
+              - 'lang/**/*.json'
 
   php-setup:
     needs: changes
