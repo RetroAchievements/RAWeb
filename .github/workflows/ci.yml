@@ -94,9 +94,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
-
   php-checks:
     needs: php-setup
     runs-on: ubuntu-22.04
