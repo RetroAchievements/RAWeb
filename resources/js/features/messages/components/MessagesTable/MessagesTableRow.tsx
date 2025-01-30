@@ -17,9 +17,6 @@ export const MessagesTableRow: FC<MessagesTableRowProps> = ({ messageThread }) =
 
   const { t } = useTranslation();
 
-  const messages = messageThread.messages as App.Community.Data.Message[];
-  const lastMessage = messages[messages.length - 1];
-
   // Find who we're chatting with in order to populate the "With" column.
   const otherParticipant =
     (messageThread.participants?.find(
@@ -43,7 +40,7 @@ export const MessagesTableRow: FC<MessagesTableRowProps> = ({ messageThread }) =
       <BaseTableCell className="text-right">
         <DiffTimestamp
           asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates ?? false}
-          at={lastMessage.createdAt}
+          at={messageThread.lastMessage!.createdAt}
           className="text-2xs text-neutral-400 light:text-neutral-800"
         />
       </BaseTableCell>

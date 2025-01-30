@@ -18,7 +18,7 @@ export const MessagesRoot: FC = memo(() => {
 
   const handlePageSelectValueChange = (newPageValue: number) => {
     router.visit(
-      route('message-thread.index2', {
+      route('message-thread.index', {
         _query: { page: newPageValue },
       }),
     );

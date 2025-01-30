@@ -22,6 +22,7 @@ return [
             // public
             'achievements' => env('DISCORD_WEBHOOK_ACHIEVEMENTS'),
             'claims' => env('DISCORD_WEBHOOK_CLAIMS'),
+            'name-changes' => env('DISCORD_WEBHOOK_NAME_CHANGES'), // available to many privileged roles
             'news' => env('DISCORD_WEBHOOK_NEWS'),
             'users' => env('DISCORD_WEBHOOK_USERS'),
             // moderation
