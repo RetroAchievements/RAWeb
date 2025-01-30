@@ -166,6 +166,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
       - name: Run ${{ matrix.check }}
         run: ${{ matrix.command }}
         env: ${{ matrix.env || fromJSON('{}') }}
