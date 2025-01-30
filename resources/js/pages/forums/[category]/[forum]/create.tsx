@@ -11,6 +11,8 @@ const CreateForumTopic: AppPage = () => {
 
   const { t } = useTranslation();
 
+  // some new stuff
+
   return (
     <>
       <SEO
