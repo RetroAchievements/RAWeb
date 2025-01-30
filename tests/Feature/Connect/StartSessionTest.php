@@ -14,6 +14,7 @@ use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -400,12 +401,54 @@ class StartSessionTest extends TestCase
 
         // ----------------------------
         // event achievement outside of active range is ignored
-        /** @var Achievement $eventAchievement2 */
+        /** @var Achievement $eventAchievement3 */
         $eventAchievement3 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
         EventAchievement::create([
             'achievement_id' => $eventAchievement2->ID,
             'source_achievement_id' => $achievement1->ID,
             'active_from' => $now->clone()->addDays(2),
+            'active_until' => $now->clone()->addDays(5),
+        ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'HardcoreUnlocks' => [
+                    [
+                        'ID' => $achievement1->ID,
+                        'When' => $unlock1Date->timestamp,
+                    ],
+                    [
+                        'ID' => $achievement2->ID,
+                        'When' => $unlock2Date->timestamp,
+                    ],
+                    [
+                        'ID' => $bonusAchievement1->ID,
+                        'When' => $bonusUnlock1Date->timestamp,
+                    ],
+                ],
+                'Unlocks' => [
+                    [
+                        'ID' => $achievement3->ID,
+                        'When' => $unlock3Date->timestamp,
+                    ],
+                    [
+                        'ID' => $bonusAchievement2->ID,
+                        'When' => $bonusUnlock2Date->timestamp,
+                    ],
+                ],
+                'ServerNow' => Carbon::now()->timestamp,
+            ]);
+
+        // ----------------------------
+        // demoted event achievement is ignored
+        /** @var Achievement $eventAchievement4 */
+        $eventAchievement4 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID, 'Flags' => AchievementFlag::Unofficial->value]);
+        EventAchievement::create([
+            'achievement_id' => $eventAchievement4->ID,
+            'source_achievement_id' => $achievement1->ID,
+            'active_from' => $now->clone()->subDays(2),
             'active_until' => $now->clone()->addDays(5),
         ]);
 

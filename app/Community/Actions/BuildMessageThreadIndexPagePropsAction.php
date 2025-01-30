@@ -32,6 +32,7 @@ class BuildMessageThreadIndexPagePropsAction
             ->whereNull('message_thread_participants.deleted_at')
             ->with([
                 'messages',
+                'lastMessage',
                 'messages.author' => function ($query) {
                     $query->withTrashed();
                 },

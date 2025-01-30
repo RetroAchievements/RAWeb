@@ -498,6 +498,31 @@ class GameResource extends Resource
                         blank: fn (Builder $query): Builder => $query,
                     ),
 
+                Tables\Filters\TernaryFilter::make('has_dynamic_rp')
+                    ->label('Has dynamic rich presence')
+                    ->placeholder('Any')
+                    ->trueLabel('Yes')
+                    ->falseLabel('No')
+                    ->queries(
+                        true: fn (Builder $query): Builder => $query
+                            ->whereNotNull('RichPresencePatch')
+                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->where(function (Builder $query) {
+                                $query->where('RichPresencePatch', 'LIKE', '%@%')
+                                    ->orWhere('RichPresencePatch', 'LIKE', '%?%');
+                            }),
+                        false: fn (Builder $query): Builder => $query
+                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->where(function (Builder $query) {
+                                $query->whereNull('RichPresencePatch')
+                                    ->orWhere(function (Builder $query) {
+                                        $query->where('RichPresencePatch', 'NOT LIKE', '%@%')
+                                            ->where('RichPresencePatch', 'NOT LIKE', '%?%');
+                                    });
+                            }),
+                        blank: fn (Builder $query): Builder => $query,
+                    ),
+
                 Tables\Filters\TernaryFilter::make('duplicate_achievement_badges')
                     ->label('Has stock/recycled achievement badges')
                     ->placeholder('Any')
