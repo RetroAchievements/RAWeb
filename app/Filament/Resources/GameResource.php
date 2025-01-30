@@ -16,6 +16,7 @@ use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\ReleasedAtGranularity;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -591,6 +592,33 @@ class GameResource extends Resource
                                 return $query;
                         }
                     }),
+
+                Tables\Filters\TernaryFilter::make('duplicate_achievement_badges')
+                    ->label('Has stock/recycled achievement badges')
+                    ->placeholder('Any')
+                    ->trueLabel('Yes')
+                    ->falseLabel('No')
+                    ->queries(
+                        true: fn (Builder $query): Builder => $query->whereExists(function ($subquery) {
+                            $subquery->selectRaw('1')
+                                ->from('Achievements')
+                                ->whereColumn('Achievements.GameID', 'GameData.ID')
+                                ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
+                                ->whereNull('Achievements.deleted_at')
+                                ->groupBy('Achievements.GameID', 'Achievements.BadgeName')
+                                ->havingRaw('COUNT(*) > 1');
+                        }),
+                        false: fn (Builder $query): Builder => $query->whereNotExists(function ($subquery) {
+                            $subquery->selectRaw('1')
+                                ->from('Achievements')
+                                ->whereColumn('Achievements.GameID', 'GameData.ID')
+                                ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
+                                ->whereNull('Achievements.deleted_at')
+                                ->groupBy('Achievements.GameID', 'Achievements.BadgeName')
+                                ->havingRaw('COUNT(*) > 1');
+                        }),
+                        blank: fn (Builder $query): Builder => $query,
+                    ),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([

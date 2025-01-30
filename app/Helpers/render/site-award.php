@@ -8,19 +8,47 @@ use App\Models\PlayerBadge;
 
 function SeparateAwards(array $userAwards): array
 {
-    // Get all dev event game IDs in a single optimized query.
-    $devEventGameIds = GameSet::query()
-        ->whereHas('games', fn ($q) => $q->whereIn('game_id', array_column($userAwards, 'AwardData')))
-        ->where(fn ($q) => $q->where('id', GameSet::DeveloperEventsHubId)
-                ->orWhere('title', 'LIKE', '[Dev Events - %')
-        )
-        ->with(['games' => fn ($q) => $q->select('GameData.ID')])
-        ->get()
-        ->pluck('games.*.ID')
-        ->flatten()
-        ->unique()
-        ->values()
-        ->all();
+    // TODO: add site_event flag to events table after converting existing events
+    $awardEventGameIds = [];
+    $awardEventIds = [];
+    foreach ($userAwards as $award) {
+        $type = (int) $award['AwardType'];
+        if ($type === AwardType::Event) {
+            $awardEventIds[] = (int) $award['AwardData'];
+        } elseif (AwardType::isGame($type) && $award['ConsoleName'] === 'Events') {
+            $awardEventGameIds[] = (int) $award['AwardData'];
+        }
+    }
+
+    if (!empty($awardEventIds)) {
+        $awardEventGameIds = array_merge($awardEventGameIds,
+            Event::whereIn('id', $awardEventIds)->pluck('legacy_game_id')->toArray()
+        );
+    }
+
+    $devEventIds = [];
+    $devEventGameIds = [];
+    if (!empty($awardEventGameIds)) {
+        $awardEventGameIds = array_unique($awardEventGameIds);
+
+        // Get all dev event game IDs in a single optimized query.
+        $devEventGameIds = GameSet::query()
+            ->whereHas('games', fn ($q) => $q->whereIn('game_id', $awardEventGameIds))
+            ->where(fn ($q) => $q->where('id', GameSet::DeveloperEventsHubId)
+                    ->orWhere('title', 'LIKE', '[Dev Events - %')
+            )
+            ->with(['games' => fn ($q) => $q->select('GameData.ID')])
+            ->get()
+            ->pluck('games.*.ID')
+            ->flatten()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (!empty($awardEventIds)) {
+            $devEventIds = Event::whereIn('legacy_game_id', $devEventGameIds)->pluck('id')->toArray();
+        }
+    }
 
     $gameAwards = []; // Mastery awards that aren't Events.
     $eventAwards = []; // Event awards and Events mastery awards.
@@ -28,19 +56,24 @@ function SeparateAwards(array $userAwards): array
 
     foreach ($userAwards as $award) {
         $type = (int) $award['AwardType'];
+        $id = (int) $award['AwardData'];
 
-        // Pre-calculate all type checks for this award.
-        $isGame = AwardType::isGame($type); // True if award is game-related (beaten/mastery).
-        $isActive = AwardType::isActive($type);
-        $isDevEvent = in_array($award['AwardData'], $devEventGameIds); // True if award is from dev events hub.
-
-        // Order matters when categorizing awards. Site awards take priority over game/event awards.
-        if ($isDevEvent || (!$isGame && $isActive)) {
+        if (AwardType::isGame($type)) {
+            if (in_array($id, $devEventGameIds)) {
+                $siteAwards[] = $award;
+            } elseif ($award['ConsoleName'] === 'Events') {
+                $eventAwards[] = $award;
+            } else {
+                $gameAwards[] = $award;
+            }
+        } elseif ($type === AwardType::Event) {
+            if (in_array($id, $devEventIds)) {
+                $siteAwards[] = $award;
+            } else {
+                $eventAwards[] = $award;
+            }
+        } elseif (AwardType::isActive($type)) {
             $siteAwards[] = $award;
-        } elseif ($type === AwardType::Mastery && $award['ConsoleName'] !== 'Events') {
-            $gameAwards[] = $award;
-        } elseif ($type === AwardType::Event || ($type === AwardType::Mastery && $award['ConsoleName'] === 'Events')) {
-            $eventAwards[] = $award;
         }
     }
 

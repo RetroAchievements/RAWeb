@@ -18,6 +18,7 @@ function gameAvatar(
     bool $tooltip = true,
     ?string $context = null,
     ?string $title = null,
+    ?string $href = null,
 ): string {
     $id = $game;
 
@@ -52,7 +53,7 @@ function gameAvatar(
         resource: 'game',
         id: $id,
         label: $label !== false && ($label || !$icon) ? $label : null,
-        link: route('game.show', $id),
+        link: $href ?? route('game.show', $id),
         tooltip: $tooltip,
         iconUrl: $icon !== false && ($icon || !$label) ? $icon : null,
         iconSize: $iconSize,
@@ -230,7 +231,7 @@ function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
         $points = (int) $points;
         $totalTP = (int) $totalTP;
 
-        $isFullyFeaturedGame = $consoleName != 'Hubs';
+        $isFullyFeaturedGame = $consoleName !== 'Hubs' && $consoleName !== 'Events';
         if (!$isFullyFeaturedGame) {
             $consoleName = null;
         }

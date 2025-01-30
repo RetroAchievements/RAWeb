@@ -286,7 +286,17 @@ function informAllSubscribersAboutActivity(
         $isThirdParty = ($subscriber['User'] != $activityAuthor && ($subjectAuthor === null || $subscriber['User'] != $subjectAuthor));
 
         if (isset($subscriber['EmailAddress'])) {
-            sendActivityEmail($subscriber['User'], $subscriber['EmailAddress'], $articleID, $activityAuthor, $articleType, $articleTitle, $urlTarget, $isThirdParty, $payload);
+            sendActivityEmail(
+                isset($subscriber['display_name']) ? $subscriber['display_name'] : $subscriber['User'],
+                $subscriber['EmailAddress'],
+                $articleID,
+                $activityAuthor,
+                $articleType,
+                $articleTitle,
+                $urlTarget,
+                $isThirdParty,
+                $payload,
+            );
         }
     }
 }

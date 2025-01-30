@@ -249,6 +249,9 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
     // find any active event achievements for the set of achievements that the user has already unlocked
     $activeEventAchievementMap = EventAchievement::active()
         ->whereIn('source_achievement_id', array_keys($userUnlocks))
+        ->whereHas('achievement', function ($query) {
+            $query->where('Flags', AchievementFlag::OfficialCore->value);
+        })
         ->get(['source_achievement_id', 'achievement_id'])
         ->mapWithKeys(function ($eventAchievement, int $key) {
             return [$eventAchievement->achievement_id => $eventAchievement->source_achievement_id];
