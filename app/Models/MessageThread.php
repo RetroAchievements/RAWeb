@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\MessageThreadFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -49,6 +50,14 @@ class MessageThread extends BaseModel
     // == mutators
 
     // == relations
+
+    /**
+     * @return BelongsTo<Message, MessageThread>
+     */
+    public function lastMessage(): BelongsTo
+    {
+        return $this->belongsTo(Message::class, 'last_message_id');
+    }
 
     /**
      * @return HasMany<Message>
