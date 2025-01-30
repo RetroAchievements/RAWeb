@@ -36,6 +36,12 @@ class CommentsTest extends TestCase
         $this->get($this->apiUrl('GetComments', ['i' => 'not-an-integer', 't' => 1]))
             ->assertJsonValidationErrors(['i']);
 
+        $this->get($this->apiUrl('GetComments', ['i' => 1, 't' => 1, 's' => 'not-an-integer']))
+            ->assertJsonValidationErrors(['s']);
+
+        $this->get($this->apiUrl('GetComments', ['i' => 1, 't' => 1, 's' => 3]))
+            ->assertJsonValidationErrors(['s']);
+
         $this->get($this->apiUrl('GetComments', ['i' => null, 't' => 2]))
             ->assertJsonValidationErrors(['i']);
     }
@@ -95,6 +101,61 @@ class CommentsTest extends TestCase
                     'User' => $user2->User,
                     'Submitted' => $comment2->Submitted->toISOString(),
                     'CommentText' => $comment2->Payload,
+                ],
+            ],
+        ]);
+    }
+
+    public function testGetCommentsForAchievementDescendingOrder(): void
+    {
+        // Arrange
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        $bannedUser = User::factory()->create(['ID' => 309, 'banned_at' => Carbon::now()->subDay()]);
+
+        $achievement = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $user1->ID]);
+        $comment1 = Comment::factory()->create([
+            'ArticleID' => $achievement->ID,
+            'ArticleType' => 2,
+            'user_id' => $user1->ID,
+            'Payload' => 'This is a great achievement!',
+            'Submitted' => "2024-01-18T15:01:04.000000Z",
+        ]);
+        $comment2 = Comment::factory()->create([
+            'ArticleID' => $achievement->ID,
+            'ArticleType' => 2,
+            'user_id' => $user2->ID,
+            'Payload' => 'I agree, this is awesome!',
+            'Submitted' => "2024-12-18T15:01:04.000000Z",
+        ]);
+        $comment3 = Comment::factory()->create([
+            'ArticleID' => $achievement->ID,
+            'ArticleType' => 2,
+            'user_id' => $bannedUser->ID,
+            'Payload' => 'This comment is from a banned user!',
+        ]);
+
+        // Act
+        $response = $this->get($this->apiUrl('GetComments', ['i' => $achievement->ID, 't' => 2, 's' => 1]))
+            ->assertSuccessful();
+
+        // Assert
+        $response->assertStatus(200);
+        $response->assertJson([
+            'Count' => 2,
+            'Total' => 2,
+            'Results' => [
+                [
+                    'User' => $user2->User,
+                    'Submitted' => $comment2->Submitted->toISOString(),
+                    'CommentText' => $comment2->Payload,
+                ],
+                [
+                    'User' => $user1->User,
+                    'Submitted' => $comment1->Submitted->toISOString(),
+                    'CommentText' => $comment1->Payload,
                 ],
             ],
         ]);
