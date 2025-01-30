@@ -15,6 +15,7 @@ use Illuminate\Validation\Rule;
 *    t : 1 = game, 2 = achievement, 3 = user
 *    o : offset - number of entries to skip (default: 0)
 *    c : count - number of entries to return (default: 100, max: 500)
+*    s : sortOrder - sort comments. 0 = ascending, 1 = descending (default: 0)
 *
 *  int         Count                       number of comment records returned in the response
 *  int         Total                       number of comment records the game/achievement/user actually has overall
@@ -43,12 +44,14 @@ $rules = [
     ],
     'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
     'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
+    's' => ['sometimes', 'integer', 'min:0', 'max:1', 'nullable'],
 ];
 
 $input = Validator::validate(Arr::wrap($query), $rules);
 
 $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 100;
+$sortOrder = $input['s'] ?? 0;
 
 $username = null;
 $gameOrAchievementId = 0;
@@ -75,7 +78,7 @@ if ($username) {
 
 $articleId = $user ? $user->ID : $gameOrAchievementId;
 
-$comments = Comment::withTrashed()
+$commentsQuery = Comment::withTrashed()
     ->with('user')
     ->where('ArticleType', $commentType)
     ->where('ArticleID', $articleId)
@@ -84,8 +87,13 @@ $comments = Comment::withTrashed()
         $query->whereNull('banned_at');
     })
     ->offset($offset)
-    ->limit($count)
-    ->get();
+    ->limit($count);
+
+if ($sortOrder == 1) {
+    $commentsQuery->orderBy('Submitted', 'DESC');
+}
+
+$comments = $commentsQuery->get();
 
 $totalComments = Comment::withTrashed()
     ->where('ArticleType', $commentType)
