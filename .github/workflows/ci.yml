@@ -7,7 +7,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    runs-on: ubuntu-22.04
+    outputs:
+      php: ${{ steps.filter.outputs.php }}
+      node: ${{ steps.filter.outputs.node }}
+    steps:
+      - name: Check changed files
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            php:
+              - '**/*.php'
+              - 'composer.json'
+              - 'composer.lock'
+              - 'phpstan.neon'
+              - 'pint.json'
+            node:
+              - '**/*.js'
+              - '**/*.ts'
+              - '**/*.tsx'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - '*eslint*'
+              - 'tailwind.config.json'
+
   php-setup:
+    needs: changes
+    if: needs.changes.outputs.php == 'true'
     runs-on: ubuntu-22.04
     name: PHP Setup
     outputs:
@@ -46,10 +74,10 @@ jobs:
         run: composer install --prefer-dist
 
   node-setup:
+    needs: changes
+    if: needs.changes.outputs.node == 'true'
     runs-on: ubuntu-22.04
     name: Node.js Setup
-    outputs:
-      cache-key: ${{ steps.cache-key.outputs.value }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -65,24 +93,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
 
-      - name: Generate cache key
-        id: cache-key
-        run: echo "value=${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
-
-      - name: Install
-        if: steps.node-cache.outputs.cache-hit != 'true'
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
-
-      - name: Cache node_modules
-        id: node-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            .pnpm-store
-          key: ${{ steps.cache-key.outputs.value }}
 
   php-checks:
     needs: php-setup
@@ -153,14 +166,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
-      - name: Restore node_modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            .pnpm-store
-          key: ${{ needs.node-setup.outputs.cache-key }}
       - name: Run ${{ matrix.check }}
         run: ${{ matrix.command }}
         env: ${{ matrix.env || fromJSON('{}') }}
