@@ -160,45 +160,6 @@ $userGameProgressionAwards = [
     'mastered' => null,
 ];
 
-if ($isEventGame) {
-    $eventAchievements = EventAchievement::whereIn('achievement_id', array_keys($achievementData))->with('sourceAchievement.game')->get();
-    foreach ($eventAchievements as $eventAchievement) {
-        $achievementData[$eventAchievement->achievement_id]['SourceAchievementId'] = $eventAchievement->source_achievement_id;
-        $achievementData[$eventAchievement->achievement_id]['SourceGameId'] = $eventAchievement->sourceAchievement?->game->id;
-        $achievementData[$eventAchievement->achievement_id]['SourceGameTitle'] = $eventAchievement->sourceAchievement?->game->title;
-        $achievementData[$eventAchievement->achievement_id]['ActiveFrom'] = $eventAchievement->active_from ?? null;
-        $achievementData[$eventAchievement->achievement_id]['ActiveUntil'] = $eventAchievement->active_until?->subSeconds(1);
-    }
-
-    // hide points unless more than 1. never show TrueRatio.
-    foreach ($achievementData as &$achievement) {
-        if ($achievement['Points'] === 1) {
-            $achievement['Points'] = 0;
-        }
-        $achievement['TrueRatio'] = 0;
-    }
-
-    if ($gameModel->event) {
-        $gameData['ImageIcon'] = $gameModel->event->image_asset_path;
-    }
-
-    $isGameBeatable = true;
-
-    if ($userModel) {
-        if ($gameModel->event) {
-            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
-                ->where('AwardType', AwardType::Event)
-                ->where('AwardData', $gameModel->event->id)
-                ->exists();
-        } else {
-            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
-                ->where('AwardType', AwardType::Mastery)
-                ->where('AwardData', $gameModel->id)
-                ->exists();
-        }
-    }
-}
-
 if ($isFullyFeaturedGame || $isEventGame) {
     $numDistinctPlayers = $gameData['NumDistinctPlayers'];
 
@@ -313,6 +274,46 @@ if ($isFullyFeaturedGame || $isEventGame) {
     }
 
     $claimData = getClaimData([$gameID], true);
+}
+
+if ($isEventGame) {
+    $eventAchievements = EventAchievement::whereIn('achievement_id', array_keys($achievementData))->with('sourceAchievement.game')->get();
+    foreach ($eventAchievements as $eventAchievement) {
+        $achievementData[$eventAchievement->achievement_id]['SourceAchievementId'] = $eventAchievement->source_achievement_id;
+        $achievementData[$eventAchievement->achievement_id]['SourceGameId'] = $eventAchievement->sourceAchievement?->game->id;
+        $achievementData[$eventAchievement->achievement_id]['SourceGameTitle'] = $eventAchievement->sourceAchievement?->game->title;
+        $achievementData[$eventAchievement->achievement_id]['ActiveFrom'] = $eventAchievement->active_from ?? null;
+        $achievementData[$eventAchievement->achievement_id]['ActiveUntil'] = $eventAchievement->active_until?->subSeconds(1);
+    }
+
+    // hide points unless more than 1. never show TrueRatio.
+    foreach ($achievementData as &$achievement) {
+        if ($achievement['Points'] === 1) {
+            $achievement['Points'] = 0;
+        }
+        $achievement['TrueRatio'] = 0;
+    }
+    $totalEarnedTrueRatio = 0;
+
+    if ($gameModel->event) {
+        $gameData['ImageIcon'] = $gameModel->event->image_asset_path;
+    }
+
+    $isGameBeatable = true;
+
+    if ($userModel) {
+        if ($gameModel->event) {
+            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
+                ->where('AwardType', AwardType::Event)
+                ->where('AwardData', $gameModel->event->id)
+                ->exists();
+        } else {
+            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
+                ->where('AwardType', AwardType::Mastery)
+                ->where('AwardData', $gameModel->id)
+                ->exists();
+        }
+    }
 }
 
 sanitize_outputs(
