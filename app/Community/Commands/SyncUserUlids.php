@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Community\Commands;
 
 use App\Models\User;
-use Carbon\Carbon;
 use DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
@@ -18,28 +17,22 @@ class SyncUserUlids extends Command
 
     public function handle(): void
     {
-        $total = User::whereNull('ulid')->count();
-
-        if ($total === 0) {
-            $this->info('No records need ULIDs.');
-
-            return;
-        }
+        $total = User::count();
 
         $progressBar = $this->output->createProgressBar($total);
         $progressBar->start();
 
         User::withTrashed()
-            ->whereNull('ulid')
-            ->chunkById(4000, function ($users) use ($progressBar, &$lastTimestamp) {
+            ->chunkById(4000, function ($users) use ($progressBar) {
                 $updates = [];
 
                 /** @var User $user */
                 foreach ($users as $user) {
-                    // Increment timestamp for each ULID to ensure some variance.
-                    $lastTimestamp++;
+                    $milliseconds = rand(1, 20);
+                    $milliseconds %= 1000;
 
-                    $ulid = (string) Str::ulid(Carbon::createFromTimestamp($lastTimestamp));
+                    $timestamp = $user->Created->clone()->addMilliseconds($milliseconds);
+                    $ulid = (string) Str::ulid($timestamp);
 
                     $updates[] = [
                         'ID' => $user->id,
