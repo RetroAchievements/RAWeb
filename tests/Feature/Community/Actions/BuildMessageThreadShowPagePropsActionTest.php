@@ -121,7 +121,7 @@ class BuildMessageThreadShowPagePropsActionTest extends TestCase
         // Assert
         $this->assertNotNull($result['props']);
         $this->assertCount(1, $result['props']->dynamicEntities->users);
-        $this->assertEquals('TestUser', $result['props']->dynamicEntities->users[0]['displayName']);
+        $this->assertEquals('TestUser', $result['props']->dynamicEntities->users[0]->displayName);
     }
 
     public function testItDisallowsReplyWhenAllOtherParticipantsAreDeleted(): void

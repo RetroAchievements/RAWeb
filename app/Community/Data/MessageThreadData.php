@@ -36,12 +36,15 @@ class MessageThreadData extends Data
             lastMessage: Lazy::create(fn () => MessageData::fromMessage($messageThread->lastMessage)),
             isUnread: $messageThread->is_unread,
 
+            /** @phpstan-ignore-next-line -- all() is valid */
             messages: Lazy::create(fn () => $messageThread->messages->map(
                 fn ($message) => MessageData::fromMessage($message)
-            )->all()),
+            ))->all(),
+
+            /** @phpstan-ignore-next-line -- all() is valid */
             participants: Lazy::create(fn () => $messageThread->participants->map(
                 fn ($participant) => UserData::fromUser($participant)->include('deletedAt')
-            )->all()),
+            ))->all(),
         );
     }
 
