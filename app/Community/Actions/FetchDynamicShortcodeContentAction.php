@@ -28,11 +28,11 @@ class FetchDynamicShortcodeContentAction
         array $hubIds = [],
     ): ShortcodeDynamicEntitiesData {
         return new ShortcodeDynamicEntitiesData(
-            users: $this->fetchUsers($usernames)->toArray(),
-            tickets: $this->fetchTickets($ticketIds)->toArray(),
-            achievements: $this->fetchAchievements($achievementIds)->toArray(),
-            games: $this->fetchGames($gameIds)->toArray(),
-            hubs: $this->fetchHubs($hubIds)->toArray(),
+            users: $this->fetchUsers($usernames)->all(),
+            tickets: $this->fetchTickets($ticketIds)->all(),
+            achievements: $this->fetchAchievements($achievementIds)->all(),
+            games: $this->fetchGames($gameIds)->all(),
+            hubs: $this->fetchHubs($hubIds)->all(),
         );
     }
 
