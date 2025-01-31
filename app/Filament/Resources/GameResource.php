@@ -594,7 +594,7 @@ class GameResource extends Resource
                     }),
 
                 Tables\Filters\TernaryFilter::make('has_dynamic_rp')
-                    ->label('Has dynamic rich presence')
+                    ->label('111Has dynamic rich presence')
                     ->placeholder('Any')
                     ->trueLabel('Yes')
                     ->falseLabel('No')
