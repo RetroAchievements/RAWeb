@@ -28,7 +28,7 @@ class MessageThreadController extends Controller
         $actionResult = (new BuildMessageThreadIndexPagePropsAction())->execute($user, $currentPage);
 
         if ($actionResult['redirectToPage'] !== null) {
-            return redirect()->route('message-thread.index2', [
+            return redirect()->route('message-thread.index', [
                 'page' => $actionResult['redirectToPage'],
             ]);
         }

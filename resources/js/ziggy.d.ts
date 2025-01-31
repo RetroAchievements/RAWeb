@@ -4,7 +4,6 @@ declare module 'ziggy-js' {
     "demo": [],
     "tickets.index": [],
     "ranking.beaten-games": [],
-    "message-thread.index": [],
     "message.create": [],
     "achievement.tickets": [
         {
@@ -460,7 +459,7 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "message-thread.index2": [],
+    "message-thread.index": [],
     "settings.show": [],
     "achievement.comment.index": [
         {

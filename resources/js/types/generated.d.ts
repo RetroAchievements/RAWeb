@@ -78,7 +78,7 @@ declare namespace App.Community.Data {
     id: number;
     title: string;
     numMessages: number;
-    lastMessageId: number;
+    lastMessage?: App.Community.Data.Message;
     isUnread: boolean;
     messages?: Array<App.Community.Data.Message>;
     participants?: Array<App.Data.User>;
