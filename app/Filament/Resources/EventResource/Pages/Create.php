@@ -7,6 +7,7 @@ namespace App\Filament\Resources\EventResource\Pages;
 use App\Filament\Actions\ProcessUploadedImageAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\EventResource;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\System;
 use App\Platform\Actions\AddAchievementsToEventAction;
@@ -41,6 +42,7 @@ class Create extends CreateRecord
         unset($data['user_id']);
 
         // create the event record
+        /** @var Event $event */
         $event = static::getModel()::create($data);
 
         // create the number of requested achievements

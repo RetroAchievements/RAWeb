@@ -7,6 +7,7 @@ namespace App\Filament\Resources\EventResource\RelationManagers;
 use App\Models\Event;
 use App\Models\EventAchievement;
 use App\Models\User;
+use App\Platform\Actions\AddAchievementsToEventAction;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use Carbon\Carbon;
 use Filament\Forms;
@@ -79,7 +80,30 @@ class AchievementsRelationManager extends RelationManager
 
             ])
             ->headerActions([
+                Tables\Actions\Action::make('add-achievements')
+                    ->label('Add additional achievements')
+                    ->modalHeading('Add additional achievements')
+                    ->form([
+                        Forms\Components\TextInput::make('numberOfAchievements')
+                            ->label('Number of achievements')
+                            ->numeric()
+                            ->default(1)
+                            ->required(),
+                    ])
+                    ->action(function (array $data): void {
+                        $numberOfAchievements = (int) $data['numberOfAchievements'];
+                        /** @var Event $event */
+                        $event = $this->getOwnerRecord();
+                        $user_id = $event->achievements->first()?->achievement->user_id ?? EventAchievement::RAEVENTS_USER_ID;
 
+                        (new AddAchievementsToEventAction())->execute($event, $numberOfAchievements, $user_id);
+
+                        Notification::make()
+                            ->title("Created $numberOfAchievements new " . Str::Plural('achievement', $numberOfAchievements))
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn () => $user->can('manage', Event::class)),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([

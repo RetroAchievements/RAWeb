@@ -14,7 +14,7 @@ class AddAchievementsToEventAction
 {
     public function execute(Event $event, int $numberOfAchievements, int $user_id): void
     {
-        $displayOrder = $event->achievements->max('DisplayOrder') ?? 0;
+        $displayOrder = $event->achievements->max('achievement.DisplayOrder') ?? 0;
 
         // create the number of requested achievements
         for ($i = 0; $i < $numberOfAchievements; $i++) {
