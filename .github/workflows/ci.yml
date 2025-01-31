@@ -7,7 +7,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    runs-on: ubuntu-22.04
+    outputs:
+      php: ${{ steps.filter.outputs.php }}
+      node: ${{ steps.filter.outputs.node }}
+    steps:
+      - name: Check changed files
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            php:
+              - '**/*.php'
+              - 'composer.json'
+              - 'composer.lock'
+              - 'phpstan.neon'
+              - 'pint.json'
+            node:
+              - '**/*.js'
+              - '**/*.ts'
+              - '**/*.tsx'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - '*eslint*'
+              - 'tailwind.config.json'
+              - 'lang/**/*.json'
+
   php-setup:
+    needs: changes
+    if: needs.changes.outputs.php == 'true'
     runs-on: ubuntu-22.04
     name: PHP Setup
     outputs:
@@ -44,6 +73,27 @@ jobs:
       - name: Install
         if: steps.composer-cache.outputs.cache-hit != 'true'
         run: composer install --prefer-dist
+
+  node-setup:
+    needs: changes
+    if: needs.changes.outputs.node == 'true'
+    runs-on: ubuntu-22.04
+    name: Node.js Setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
   php-checks:
     needs: php-setup
@@ -113,9 +163,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
-      - name: Install
-        run: pnpm i
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
       - name: Run ${{ matrix.check }}
         run: ${{ matrix.command }}
         env: ${{ matrix.env || fromJSON('{}') }}
