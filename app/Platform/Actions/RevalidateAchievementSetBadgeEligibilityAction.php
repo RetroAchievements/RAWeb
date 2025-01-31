@@ -167,8 +167,8 @@ class RevalidateAchievementSetBadgeEligibilityAction
             return;
         }
 
-        $expectedAward = $event->awards->sortByDesc('achievements_required')
-            ->where('achievements_required', '<=', $playerGame->achievements_unlocked_hardcore)
+        $expectedAward = $event->awards->sortByDesc('points_required')
+            ->where('points_required', '<=', $playerGame->points_hardcore)
             ->first();
 
         if ($expectedAward) {

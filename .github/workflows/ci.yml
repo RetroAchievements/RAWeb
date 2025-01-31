@@ -7,18 +7,49 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    runs-on: ubuntu-22.04
+    name: Check for changes
+    outputs:
+      php: ${{ steps.filter.outputs.php }}
+      node: ${{ steps.filter.outputs.node }}
+    steps:
+      - name: Check changed files
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            php:
+              - '**/*.php'
+              - 'composer.json'
+              - 'composer.lock'
+              - 'phpstan.neon'
+              - 'pint.json'
+            node:
+              - '**/*.js'
+              - '**/*.ts'
+              - '**/*.tsx'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - '*eslint*'
+              - 'tailwind.config.json'
+              - 'lang/**/*.json'
+
   php-setup:
+    needs: changes
     runs-on: ubuntu-22.04
     name: PHP Setup
     outputs:
       cache-key: ${{ steps.cache-key.outputs.value }}
     steps:
       - name: Checkout code
+        if: ${{ needs.changes.outputs.php == 'true' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
       - name: Setup PHP
+        if: ${{ needs.changes.outputs.php == 'true' }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.2
@@ -27,10 +58,12 @@ jobs:
           coverage: none
 
       - name: Generate a cache key
+        if: ${{ needs.changes.outputs.php == 'true' }}
         id: cache-key
         run: echo "value=${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}" >> $GITHUB_OUTPUT
 
       - name: Cache composer packages
+        if: ${{ needs.changes.outputs.php == 'true' }}
         id: composer-cache
         uses: actions/cache@v4
         with:
@@ -42,50 +75,34 @@ jobs:
             ${{ runner.os }}-php-
             
       - name: Install
-        if: steps.composer-cache.outputs.cache-hit != 'true'
+        if: ${{ needs.changes.outputs.php == 'true' && steps.composer-cache.outputs.cache-hit != 'true' }}
         run: composer install --prefer-dist
 
   node-setup:
+    needs: changes
     runs-on: ubuntu-22.04
     name: Node.js Setup
-    outputs:
-      cache-key: ${{ steps.cache-key.outputs.value }}
     steps:
       - name: Checkout code
+        if: ${{ needs.changes.outputs.node == 'true' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
       - name: Install pnpm
+        if: ${{ needs.changes.outputs.node == 'true' }}
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
       - name: Use Node 20
+        if: ${{ needs.changes.outputs.node == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
-
-      - name: Generate cache key
-        id: cache-key
-        run: echo "value=${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
-
-      - name: Install
-        if: steps.node-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile --prefer-offline
-
-      - name: Cache node_modules
-        id: node-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            .pnpm-store
-          key: ${{ steps.cache-key.outputs.value }}
 
   php-checks:
-    needs: php-setup
+    needs: [changes, php-setup]
     runs-on: ubuntu-22.04
     name: PHP Checks
     strategy:
@@ -99,18 +116,27 @@ jobs:
           - check: test
             command: composer paratest -- --processes=$(nproc)
     steps:
+      - name: Check PHP changes
+        if: ${{ needs.changes.outputs.php != 'true' }}
+        run: echo "No PHP changes; skipping checks" && exit 0
+
       - name: Checkout code
+        if: ${{ needs.changes.outputs.php == 'true' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
       - name: Setup PHP
+        if: ${{ needs.changes.outputs.php == 'true' }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.2
           extensions: mbstring, :psr
           coverage: none
           ini-values: memory_limit=1G
+
       - name: Load composer packages
+        if: ${{ needs.changes.outputs.php == 'true' }}
         uses: actions/cache@v4
         with:
           path: |
@@ -119,11 +145,13 @@ jobs:
           key: ${{ needs.php-setup.outputs.cache-key }}
           restore-keys: |
             ${{ runner.os }}-php-
+
       - name: Run ${{ matrix.check }}
+        if: ${{ needs.changes.outputs.php == 'true' }}
         run: ${{ matrix.command }}
 
   node-checks:
-    needs: node-setup
+    needs: [changes, node-setup]
     runs-on: ubuntu-22.04
     name: Node.js Checks
     strategy:
@@ -141,26 +169,33 @@ jobs:
               APP_URL: https://raweb.test
               LARAVEL_BYPASS_ENV_CHECK: 1
     steps:
+      - name: Check Node changes
+        if: ${{ needs.changes.outputs.node != 'true' }}
+        run: echo "No Node changes; skipping checks" && exit 0
+
       - name: Checkout code
+        if: ${{ needs.changes.outputs.node == 'true' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
       - name: Install pnpm
+        if: ${{ needs.changes.outputs.node == 'true' }}
         uses: pnpm/action-setup@v4
         with:
           version: 9
+
       - name: Use Node 20
+        if: ${{ needs.changes.outputs.node == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
-      - name: Restore node_modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            .pnpm-store
-          key: ${{ needs.node-setup.outputs.cache-key }}
+
+      - name: Install dependencies
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        run: pnpm install --frozen-lockfile --prefer-offline
+
       - name: Run ${{ matrix.check }}
+        if: ${{ needs.changes.outputs.node == 'true' }}
         run: ${{ matrix.command }}
         env: ${{ matrix.env || fromJSON('{}') }}

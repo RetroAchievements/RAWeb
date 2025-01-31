@@ -33,8 +33,8 @@ class EventAwardsRelationManager extends RelationManager
     {
         /** @var Event $event */
         $event = $this->getOwnerRecord();
-        $minAchievements = 1;
-        $maxAchievements = $event->achievements()->count();
+        $minPoints = 1;
+        $maxPoints = $event->achievements()->count();
         $isNew = true;
 
         if (!$event->awards()->exists()) {
@@ -52,12 +52,12 @@ class EventAwardsRelationManager extends RelationManager
 
             $previousTier = $event->awards()->where('tier_index', $tierIndex - 1)->first();
             if ($previousTier) {
-                $minAchievements = $previousTier->achievements_required + 1;
+                $minPoints = $previousTier->points_required + 1;
             }
 
             $nextTier = $event->awards()->where('tier_index', $tierIndex + 1)->first();
             if ($nextTier) {
-                $maxAchievements = $nextTier->achievements_required - 1;
+                $maxPoints = $nextTier->points_required - 1;
             }
         }
 
@@ -68,11 +68,11 @@ class EventAwardsRelationManager extends RelationManager
                     ->maxLength(40)
                     ->required(),
 
-                Forms\Components\TextInput::make('achievements_required')
-                    ->default($maxAchievements)
+                Forms\Components\TextInput::make('points_required')
+                    ->default($maxPoints)
                     ->numeric()
-                    ->minValue($minAchievements)
-                    ->maxValue($maxAchievements)
+                    ->minValue($minPoints)
+                    ->maxValue($maxPoints)
                     ->required(),
 
                 Forms\Components\TextInput::make('tier_index')
@@ -117,7 +117,7 @@ class EventAwardsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('label')
                     ->label('Label'),
 
-                Tables\Columns\TextColumn::make('achievements_required'),
+                Tables\Columns\TextColumn::make('points_required'),
             ])
             ->filters([
 
