@@ -256,8 +256,8 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
                 if ($eventAward) {
                     $image = $eventAward->image_asset_path;
 
-                    if ($eventAward->achievements_required < $event->legacyGame->achievements_published) {
-                        $tooltip = "Awarded for earning at least {$eventAward->achievements_required} achievements in the {$event->title} event";
+                    if ($eventAward->points_required < $event->legacyGame->points_total) {
+                        $tooltip = "Awarded for earning at least {$eventAward->points_required} points in the {$event->title} event";
                     }
                 }
             }

@@ -25,9 +25,11 @@ $hasSoftcoreProgress = $numEarnedSoftcoreAchievements > 0;
             <div class="flex gap-x-1">
                 <div class="flex font-bold gap-x-1">
                     {{ localized_number($numEarnedHardcorePoints) }}
-                    <x-points-weighted-container>
-                        ({{ localized_number($numEarnedWeightedPoints) }})
-                    </x-points-weighted-container>
+                    @if ($numEarnedWeightedPoints > 0)
+                        <x-points-weighted-container>
+                            ({{ localized_number($numEarnedWeightedPoints) }})
+                        </x-points-weighted-container>
+                    @endif
                 </div>
 
                 <p>
