@@ -134,6 +134,7 @@ jobs:
         run: ${{ matrix.command }}
 
   node-checks:
+    needs: node-setup
     runs-on: ubuntu-22.04
     name: Node.js Checks
     strategy:
