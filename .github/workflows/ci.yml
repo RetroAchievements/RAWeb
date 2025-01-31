@@ -78,6 +78,29 @@ jobs:
         if: ${{ needs.changes.outputs.php == 'true' && steps.composer-cache.outputs.cache-hit != 'true' }}
         run: composer install --prefer-dist
 
+  node-setup:
+    needs: changes
+    runs-on: ubuntu-22.04
+    name: Node.js Setup
+    steps:
+      - name: Checkout code
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install pnpm
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Use Node 20
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
   php-checks:
     needs: [changes, php-setup]
     runs-on: ubuntu-22.04
