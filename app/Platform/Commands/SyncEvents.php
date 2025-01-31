@@ -21,7 +21,9 @@ use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class SyncEvents extends Command
 {
@@ -35,6 +37,12 @@ class SyncEvents extends Command
 
     public function handle(): void
     {
+        if (Schema::hasColumn('event_awards', 'achievements_required')) {
+            Schema::table('event_awards', function (Blueprint $table) {
+                $table->renameColumn('achievements_required', 'points_required');
+            });
+        }
+
         // special conversions
         //PlayerBadge::where('user_id', User::where('User', 'jplima')->first()->id)->where('AwardData', 1018)->update(['AwardDataExtra' => 1]); // eliminates softcore badge for Devember 2019
 
@@ -199,10 +207,10 @@ class SyncEvents extends Command
                 82308 => ['12/19/2021', '12/25/2021'],
                 176857 => ['12/26/2021', '1/1/2022'],
             ]),
-            6189 => new ConvertToTiered('lotm', [1 => '100 points', 2 => '200 points'], [
-                238014 => 'to_hardcore',
-                238015 => 'hardcore_only',
-            ]),
+            // 6189 => new ConvertToTiered('lotm', [1 => '100 points', 2 => '200 points'], [
+            //     238014 => 'to_hardcore',
+            //     238015 => 'hardcore_only',
+            // ]),
             15942 => new ConvertCollapse('devquest-017'),
             15943 => new ConvertAsIs('aotw-2014'),
             // 15943 => new ConvertToTracked('aotw-2014', [
@@ -533,6 +541,7 @@ class ConvertGame
                 } else {
                     $publishedCount++;
                     $achievement->DisplayOrder = $publishedCount;
+                    $achievement->Points = 1;
                     $achievement->save();
                 }
             } else {
@@ -548,6 +557,7 @@ class ConvertGame
                     $publishedCount++;
 
                     $achievement->DisplayOrder = $publishedCount;
+                    $achievement->Points = 1;
                     $achievement->Flags = AchievementFlag::OfficialCore->value;
                     $achievement->save();
 
@@ -563,6 +573,7 @@ class ConvertGame
             $achievement = Achievement::create([
                 'Title' => 'Title',
                 'Description' => 'Description',
+                'Points' => 1,
                 'MemAddr' => '0=1',
                 'Flags' => AchievementFlag::OfficialCore->value,
                 'GameID' => $event->legacyGame->id,
@@ -574,6 +585,7 @@ class ConvertGame
 
         if ($event->legacyGame->achievements_published != $publishedCount) {
             $event->legacyGame->achievements_published = $publishedCount;
+            $event->legacyGame->points_total = $publishedCount;
             $event->legacyGame->save();
 
             $event->legacyGame->refresh();
@@ -834,7 +846,7 @@ class ConvertToTiered extends ConvertGame
                     'event_id' => $event->id,
                     'tier_index' => $tier_index,
                     'label' => $label,
-                    'achievements_required' => $count,
+                    'points_required' => $count,
                     'image_asset_path' => $event->image_asset_path,
                 ]);
             }
@@ -1016,6 +1028,7 @@ class ConvertToSoftcoreTiered extends ConvertGame
             $winnerAchievement = Achievement::create([
                 'Title' => 'Winner',
                 'Description' => $description,
+                'Points' => 1,
                 'MemAddr' => '0=1',
                 'Flags' => AchievementFlag::OfficialCore->value,
                 'GameID' => $event->legacyGame->id,
@@ -1030,7 +1043,7 @@ class ConvertToSoftcoreTiered extends ConvertGame
                 'event_id' => $event->id,
                 'tier_index' => 1,
                 'label' => $this->softcoreLabel,
-                'achievements_required' => 1,
+                'points_required' => 1,
                 'image_asset_path' => $event->image_asset_path,
             ]);
         }
@@ -1040,7 +1053,7 @@ class ConvertToSoftcoreTiered extends ConvertGame
                 'event_id' => $event->id,
                 'tier_index' => 2,
                 'label' => $this->hardcoreLabel,
-                'achievements_required' => $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->count(),
+                'points_required' => $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->count(),
                 'image_asset_path' => $event->image_asset_path,
             ]);
         }
@@ -1130,7 +1143,7 @@ class ConvertToCollapsedTiered extends ConvertToTiered
                     'event_id' => $event->id,
                     'tier_index' => $tier_index,
                     'label' => $label,
-                    'achievements_required' => $tier_index,
+                    'points_required' => $tier_index,
                     'image_asset_path' => Game::find($gameId)->ImageIcon,
                 ]);
             }
@@ -1264,7 +1277,7 @@ class ConvertAotWTiered extends ConvertGame
                     'event_id' => $event->id,
                     'tier_index' => $tier_index,
                     'label' => substr($game->Title, $lastSpace + 1),
-                    'achievements_required' => $count,
+                    'points_required' => $count,
                     'image_asset_path' => $game->ImageIcon,
                 ]);
             }
