@@ -76,21 +76,23 @@ $renderedAchievementAvatar = achievementAvatar(
                         <x-achievement.title :rawTitle="$achievement['Title']" />
                     </a>
 
-                    @if ($achievement['Points'] > 0 || $achievement['TrueRatio'] > 0)
-                        <p class="inline text-xs whitespace-nowrap">
-                            <span>({{ $achievement['Points'] }})</span>
-                            <x-points-weighted-container>
-                                ({{ localized_number($achievement['TrueRatio']) }})
-                            </x-points-weighted-container>
-                        </p>
-                    @endif
-
                     @if ($achievement['SourceGameId'] ?? null)
                         <p class="inline text-xs">
                             <span>from</span>
                             <a class="inline mr-1" href="{{ route('game.show', $achievement['SourceGameId']) }}">
                                 <x-game-title :rawTitle="$achievement['SourceGameTitle']" />
                             </a>
+                        </p>
+                    @endif
+
+                    @if ($achievement['Points'] > 0 || $achievement['TrueRatio'] > 0)
+                        <p class="inline text-xs whitespace-nowrap">
+                            <span>({{ $achievement['Points'] }})</span>
+                            @if ($achievement['TrueRatio'] > 0)
+                                <x-points-weighted-container>
+                                    ({{ localized_number($achievement['TrueRatio']) }})
+                                </x-points-weighted-container>
+                            @endif
                         </p>
                     @endif
 

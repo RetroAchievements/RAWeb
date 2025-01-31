@@ -15,7 +15,7 @@ class EventAward extends BaseModel
         'event_id',
         'tier_index',
         'label',
-        'achievements_required',
+        'points_required',
         'image_asset_path',
     ];
 
