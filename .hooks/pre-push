@@ -1,31 +1,75 @@
 #!/bin/sh
-# exit on error
+# Exit on error.
 set -e
 
-printf "\n⏳ composer lint\n"
-vendor/bin/pint --test
+# Checks if files matching a pattern have changed.
+check_changed_files() {
+    # Get the list of changed files between current branch and main.
+    changed_files=$(git diff --name-only main...HEAD)
+    
+    # Check each pattern against the changed files.
+    for pattern in "$@"; do
+        if echo "$changed_files" | grep -q "$pattern"; then
+            return 0 # Found a match.
+        fi
+    done
+    
+    return 1 # No matches found.
+}
 
-printf "\n⏳ composer analyse\n"
-vendor/bin/phpstan analyse --memory-limit 768M
+is_php_changed=false
+is_node_changed=false
 
-printf "\n⏳ pnpm lint:eslint\n"
-pnpm lint:eslint
+# Check for PHP changes.
+if check_changed_files "\.php$" "composer\.json$" "composer\.lock$" "phpstan\.neon$" "pint\.json$"; then
+    is_php_changed=true
+fi
 
-printf "\n⏳ pnpm tsc\n"
-pnpm tsc
+# Check for Node.js changes.
+if check_changed_files "\.js$" "\.ts$" "\.tsx$" "package\.json$" "pnpm-lock\.yaml$" "eslint" "tailwind\.config\.json$" "lang/.*\.json$"; then
+    is_node_changed=true
+fi
 
-printf "\n⏳ pnpm test\n"
-pnpm test
+# If no relevant changes detected, exit early.
+if [ "$is_php_changed" = false ] && [ "$is_node_changed" = false ]; then
+    printf "\n✅ No PHP or Node.js changes detected. Skipping checks.\n\n"
+    exit 0
+fi
 
-# Check the OS. Windows does not support the --parallel flag.
-if [ "$(uname)" = "Linux" ] || [ "$(uname)" = "Darwin" ]; then
-  # Use --parallel if macOS or Linux are detected.
-  printf "\n⏳ composer test -- --parallel\n"
-  vendor/bin/paratest
-else
-  # If neither of those are detected, don't use --parallel.
-  printf "\n⏳ composer test\n"
-  vendor/bin/phpunit
+# Run PHP checks if needed.
+if [ "$is_php_changed" = true ]; then
+    printf "\n🔍 PHP changes detected. Running PHP checks...\n"
+    
+    printf "\n⏳ composer lint\n"
+    vendor/bin/pint --test
+    
+    printf "\n⏳ composer analyse\n"
+    vendor/bin/phpstan analyse --memory-limit 768M
+    
+    # Check the OS. Windows does not support the --parallel flag.
+    if [ "$(uname)" = "Linux" ] || [ "$(uname)" = "Darwin" ]; then
+        # Use --parallel if macOS or Linux are detected.
+        printf "\n⏳ composer test -- --parallel\n"
+        vendor/bin/paratest
+    else
+        # If neither of those are detected, don't use --parallel.
+        printf "\n⏳ composer test\n"
+        vendor/bin/phpunit
+    fi
+fi
+
+# Run Node.js checks if needed.
+if [ "$is_node_changed" = true ]; then
+    printf "\n🔍 Node.js changes detected. Running Node.js checks...\n"
+    
+    printf "\n⏳ pnpm lint:eslint\n"
+    pnpm lint:eslint
+    
+    printf "\n⏳ pnpm tsc\n"
+    pnpm tsc
+    
+    printf "\n⏳ pnpm test\n"
+    pnpm test
 fi
 
 printf "\n✅ pre-push OK\n\n"
