@@ -358,7 +358,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     public static function whereName(?string $displayNameOrUsername): Builder
     {
         if ($displayNameOrUsername === null) {
-            return static::query();
+            return static::query()->whereRaw('1 = 0');
         }
 
         return static::query()

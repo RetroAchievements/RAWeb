@@ -16,6 +16,7 @@ use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\ReleasedAtGranularity;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -484,7 +485,23 @@ class GameResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('system')
-                    ->relationship('system', 'Name'),
+                    ->options(function () {
+                        $options = ['active' => 'All Active Systems'];
+                        $systemOptions = System::orderBy('Name')
+                            ->pluck('Name', 'ID')
+                            ->toArray();
+
+                        return $options + $systemOptions;
+                    })
+                    ->query(function (Builder $query, $data) {
+                        $value = $data['value'] ?? null;
+
+                        if ($value === 'active') {
+                            $query->whereIn('ConsoleID', System::active()->pluck('ID'));
+                        } elseif ($value) {
+                            $query->where('ConsoleID', $value);
+                        }
+                    }),
 
                 Tables\Filters\TernaryFilter::make('achievements_published')
                     ->label('Has core set')
@@ -494,6 +511,137 @@ class GameResource extends Resource
                     ->queries(
                         true: fn (Builder $query): Builder => $query->where('achievements_published', '>=', 6),
                         false: fn (Builder $query): Builder => $query->where('achievements_published', '<', 6),
+                        blank: fn (Builder $query): Builder => $query,
+                    ),
+
+                Tables\Filters\SelectFilter::make('media')
+                    ->label('Media')
+                    ->placeholder('Select a value')
+                    ->options([
+                        'none' => 'Has all media',
+                        'all' => 'Missing all media',
+                        'any' => 'Missing any media',
+                        'badge' => 'Missing badge icon',
+                        'boxart' => 'Missing box art',
+                        'title' => 'Missing title image',
+                        'ingame' => 'Missing in-game image',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['value'])) {
+                            return $query;
+                        }
+
+                        $query = $query->whereNotIn('ConsoleID', System::getNonGameSystems());
+
+                        switch ($data['value']) {
+                            case 'none':
+                                return $query->whereNotNull('ImageIcon')
+                                    ->where('ImageIcon', '!=', '/Images/000001.png')
+                                    ->whereNotNull('ImageTitle')
+                                    ->where('ImageTitle', '!=', '/Images/000002.png')
+                                    ->whereNotNull('ImageIngame')
+                                    ->where('ImageIngame', '!=', '/Images/000002.png')
+                                    ->whereNotNull('ImageBoxArt')
+                                    ->where('ImageBoxArt', '!=', '/Images/000002.png');
+                            case 'all':
+                                return $query->where(function ($query) {
+                                    $query->whereNull('ImageIcon')
+                                        ->orWhere('ImageIcon', '/Images/000001.png');
+                                })->where(function ($query) {
+                                    $query->whereNull('ImageTitle')
+                                        ->orWhere('ImageTitle', '/Images/000002.png');
+                                })->where(function ($query) {
+                                    $query->whereNull('ImageIngame')
+                                        ->orWhere('ImageIngame', '/Images/000002.png');
+                                })->where(function ($query) {
+                                    $query->whereNull('ImageBoxArt')
+                                        ->orWhere('ImageBoxArt', '/Images/000002.png');
+                                });
+                            case 'any':
+                                return $query->where(function ($query) {
+                                    $query->whereNull('ImageIcon')
+                                        ->orWhere('ImageIcon', '/Images/000001.png')
+                                        ->orWhereNull('ImageTitle')
+                                        ->orWhere('ImageTitle', '/Images/000002.png')
+                                        ->orWhereNull('ImageIngame')
+                                        ->orWhere('ImageIngame', '/Images/000002.png')
+                                        ->orWhereNull('ImageBoxArt')
+                                        ->orWhere('ImageBoxArt', '/Images/000002.png');
+                                });
+                            case 'badge':
+                                return $query->where(function ($query) {
+                                    $query->whereNull('ImageIcon')
+                                        ->orWhere('ImageIcon', '/Images/000001.png');
+                                });
+                            case 'boxart':
+                                return $query->where(function ($query) {
+                                    $query->whereNull('ImageBoxArt')
+                                        ->orWhere('ImageBoxArt', '/Images/000002.png');
+                                });
+                            case 'title':
+                                return $query->where(function ($query) {
+                                    $query->whereNull('ImageTitle')
+                                        ->orWhere('ImageTitle', '/Images/000002.png');
+                                });
+                            case 'ingame':
+                                return $query->where(function ($query) {
+                                    $query->whereNull('ImageIngame')
+                                        ->orWhere('ImageIngame', '/Images/000002.png');
+                                });
+                            default:
+                                return $query;
+                        }
+                    }),
+
+                Tables\Filters\TernaryFilter::make('has_dynamic_rp')
+                    ->label('Has dynamic rich presence')
+                    ->placeholder('Any')
+                    ->trueLabel('Yes')
+                    ->falseLabel('No')
+                    ->queries(
+                        true: fn (Builder $query): Builder => $query
+                            ->whereNotNull('RichPresencePatch')
+                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->where(function (Builder $query) {
+                                $query->where('RichPresencePatch', 'LIKE', '%@%')
+                                    ->orWhere('RichPresencePatch', 'LIKE', '%?%');
+                            }),
+                        false: fn (Builder $query): Builder => $query
+                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->where(function (Builder $query) {
+                                $query->whereNull('RichPresencePatch')
+                                    ->orWhere(function (Builder $query) {
+                                        $query->where('RichPresencePatch', 'NOT LIKE', '%@%')
+                                            ->where('RichPresencePatch', 'NOT LIKE', '%?%');
+                                    });
+                            }),
+                        blank: fn (Builder $query): Builder => $query,
+                    ),
+
+                Tables\Filters\TernaryFilter::make('duplicate_achievement_badges')
+                    ->label('Has stock/recycled achievement badges')
+                    ->placeholder('Any')
+                    ->trueLabel('Yes')
+                    ->falseLabel('No')
+                    ->queries(
+                        true: fn (Builder $query): Builder => $query->whereExists(function ($subquery) {
+                            $subquery->selectRaw('1')
+                                ->from('Achievements')
+                                ->whereColumn('Achievements.GameID', 'GameData.ID')
+                                ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
+                                ->whereNull('Achievements.deleted_at')
+                                ->groupBy('Achievements.GameID', 'Achievements.BadgeName')
+                                ->havingRaw('COUNT(*) > 1');
+                        }),
+                        false: fn (Builder $query): Builder => $query->whereNotExists(function ($subquery) {
+                            $subquery->selectRaw('1')
+                                ->from('Achievements')
+                                ->whereColumn('Achievements.GameID', 'GameData.ID')
+                                ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
+                                ->whereNull('Achievements.deleted_at')
+                                ->groupBy('Achievements.GameID', 'Achievements.BadgeName')
+                                ->havingRaw('COUNT(*) > 1');
+                        }),
                         blank: fn (Builder $query): Builder => $query,
                     ),
             ])

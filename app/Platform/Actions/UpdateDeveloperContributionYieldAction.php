@@ -89,35 +89,37 @@ class UpdateDeveloperContributionYieldAction
         $tier = 0;
         $nextThreshold = PlayerBadge::getBadgeThreshold($type, $tier);
 
-        foreach ($unlocks->get() as $unlock) {
-            if ($type == AwardType::AchievementPointsYield) {
-                $total += $unlock->Points;
-            } else {
-                $total++;
+        $unlocks->chunk(10000, function ($rows) use ($user, $type, $lastAwardedTier, $newTier, $displayOrder, $total, $tier, $nextThreshold) {
+            foreach ($rows as $unlock) {
+                if ($type == AwardType::AchievementPointsYield) {
+                    $total += $unlock->Points;
+                } else {
+                    $total++;
+                }
+
+                while ($total >= $nextThreshold) {
+                    if ($tier > $lastAwardedTier) {
+                        PlayerBadge::create([
+                            'user_id' => $user->id,
+                            'AwardType' => $type,
+                            'AwardData' => $tier,
+                            'AwardDate' => $unlock->unlocked_at,
+                            'DisplayOrder' => $displayOrder,
+                        ]);
+                    }
+
+                    $tier++;
+                    if ($tier == $newTier) {
+                        return;
+                    }
+
+                    $nextThreshold = PlayerBadge::getBadgeThreshold($type, $tier);
+                    if ($nextThreshold < $total) {
+                        // unexpected. bail
+                        return;
+                    }
+                }
             }
-
-            while ($total >= $nextThreshold) {
-                if ($tier > $lastAwardedTier) {
-                    PlayerBadge::create([
-                        'user_id' => $user->id,
-                        'AwardType' => $type,
-                        'AwardData' => $tier,
-                        'AwardDate' => $unlock->unlocked_at,
-                        'DisplayOrder' => $displayOrder,
-                    ]);
-                }
-
-                $tier++;
-                if ($tier == $newTier) {
-                    return;
-                }
-
-                $nextThreshold = PlayerBadge::getBadgeThreshold($type, $tier);
-                if ($nextThreshold < $total) {
-                    // unexpected. bail
-                    return;
-                }
-            }
-        }
+        });
     }
 }

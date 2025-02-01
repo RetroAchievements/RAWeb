@@ -4,7 +4,6 @@ declare module 'ziggy-js' {
     "demo": [],
     "tickets.index": [],
     "ranking.beaten-games": [],
-    "message-thread.index": [],
     "message.create": [],
     "achievement.tickets": [
         {
@@ -460,6 +459,7 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "message-thread.index": [],
     "settings.show": [],
     "achievement.comment.index": [
         {
@@ -581,7 +581,7 @@ declare module 'ziggy-js' {
     "api.settings.preferences.update": [],
     "api.settings.password.update": [],
     "api.settings.email.update": [],
-    "api.settings.username-change-request.store": [],
+    "api.settings.name-change-request.store": [],
     "api.settings.keys.web.destroy": [],
     "api.settings.keys.connect.destroy": [],
     "api.active-player.index": [],

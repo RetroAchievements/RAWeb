@@ -162,6 +162,7 @@ class EventResource extends Resource
                             ->options([
                                 EventAchievement::RAEVENTS_USER_ID => "RAEvents",
                                 EventAchievement::DEVQUEST_USER_ID => "DevQuest",
+                                EventAchievement::QATEAM_USER_ID => "QATeam",
                             ])
                             ->default(EventAchievement::RAEVENTS_USER_ID)
                             ->required(),
