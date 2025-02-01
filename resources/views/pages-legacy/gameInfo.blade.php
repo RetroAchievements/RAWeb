@@ -111,9 +111,7 @@ $isFullyFeaturedGame = System::isGameSystem($gameData['ConsoleID']);
 $isEventGame = $gameData['ConsoleID'] == System::Events;
 
 // future events can only be viewed by users who can manage events.
-if ($isEventGame && $gameModel->event?->active_from != null
-    && $gameModel->event->active_from > Carbon::now()
-    && !$userModel?->can('manage', $gameModel->event)) {
+if ($isEventGame && $gameModel->event && !$userModel?->can('view', $gameModel->event)) {
     abort(401);
 }
 
