@@ -73,7 +73,7 @@ if ($userPermissions >= Permissions::Moderator) {
             $achievement = Achievement::where('GameID', $achievementSetClaim->game->id)
                 ->where('user_id', $achievementSetClaim->user->id)
                 ->orderByDesc('Updated')
-                ->first(['Updated as updated_at']);
+                ->first(['Updated']);
 
             if ($achievement?->updated_at) {
                 $lastPlayed = $achievement->updated_at;
