@@ -22,6 +22,7 @@ use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Gate;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {
@@ -111,7 +112,7 @@ $isFullyFeaturedGame = System::isGameSystem($gameData['ConsoleID']);
 $isEventGame = $gameData['ConsoleID'] == System::Events;
 
 // future events can only be viewed by users who can manage events.
-if ($isEventGame && $gameModel->event && !$userModel?->can('view', $gameModel->event)) {
+if ($isEventGame && $gameModel->event && !Gate::allows('view', $gameModel->event)) {
     abort(401);
 }
 
