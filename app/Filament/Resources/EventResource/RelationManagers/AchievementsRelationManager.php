@@ -94,12 +94,12 @@ class AchievementsRelationManager extends RelationManager
                         $numberOfAchievements = (int) $data['numberOfAchievements'];
                         /** @var Event $event */
                         $event = $this->getOwnerRecord();
-                        $user_id = $event->achievements->first()?->achievement->user_id ?? EventAchievement::RAEVENTS_USER_ID;
+                        $user_id = $event->publishedAchievements->first()?->achievement->user_id ?? EventAchievement::RAEVENTS_USER_ID;
 
                         (new AddAchievementsToEventAction())->execute($event, $numberOfAchievements, $user_id);
 
                         Notification::make()
-                            ->title("Created $numberOfAchievements new " . Str::Plural('achievement', $numberOfAchievements))
+                            ->title("Created $numberOfAchievements new " . Str::plural('achievement', $numberOfAchievements))
                             ->success()
                             ->send();
                     })
