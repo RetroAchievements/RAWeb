@@ -4,8 +4,8 @@ set -e
 
 # Checks if files matching a pattern have changed.
 check_changed_files() {
-    # Get the list of changed files between current branch and main.
-    changed_files=$(git diff --name-only main...HEAD)
+    # Get the list of changed files between current branch and master.
+    changed_files=$(git diff --name-only master...HEAD)
     
     # Check each pattern against the changed files.
     for pattern in "$@"; do
