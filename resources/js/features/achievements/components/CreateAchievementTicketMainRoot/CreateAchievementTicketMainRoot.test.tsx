@@ -1093,8 +1093,8 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
       );
 
       // ACT
-      await userEvent.type(
-        screen.getByRole('textbox', { name: /description/i }),
+      await userEvent.click(screen.getByRole('textbox', { name: /description/i }));
+      await userEvent.paste(
         `
         Steps to reproduce: 
         Played as Waluigi in Party Mode on Shy Guy's board, 10 turns, 3 easy CPUs (Mario, Luigi and Peach) and 
