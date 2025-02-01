@@ -31,7 +31,7 @@ render(function (View $view, User $user, DeveloperSetsService $pageService) {
     pageTitle="{{ $user->display_name }} - Developed Sets"
     pageDescription="View achievement sets developed by {{ $user->display_name }} for various games on RetroAchievements"
 >
-    <x-user.breadcrumbs :targetDisplayName="$user->display_name" currentPage="Developed Sets" />
+    <x-user.breadcrumbs :user="$user" currentPage="Developed Sets" />
 
     <div class="mt-3 -mb-3 w-full flex gap-x-3">
         {!! userAvatar($user, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}

@@ -45,7 +45,7 @@ render(function (View $view, User $user, TicketListService $ticketListService) {
 
 <x-app-layout pageTitle="Tickets - {{ $user->display_name }}">
     <x-user.breadcrumbs
-        :targetDisplayName="$user->display_name"
+        :user="$user"
         currentPage="Tickets"
     />
 
