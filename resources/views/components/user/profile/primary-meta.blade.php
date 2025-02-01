@@ -49,7 +49,7 @@ $usernameTitle = $previousUsernames ? "Username history:\n{$previousUsernames}" 
             >
                 {{ $user->display_name }}
                 @if ($me && $me->can('viewDisplayNameHistory', $user) && $previousUsernames)
-                    <hr class="hidden lg:block absolute w-full bottom-px left-0 border-dashed border-neutral-600 light:border-neutral-500">
+                    <hr class="hidden lg:block absolute w-full bottom-px left-0 border-dashed border-neutral-500">
                 @endif
             </h1>
 

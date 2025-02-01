@@ -17,6 +17,11 @@ class BuildDisplayNameHistoryAction
             ->orderBy('approved_at', 'desc')
             ->get();
 
+        // If there are no changes and display_name matches the username, return an empty string.
+        if ($allChanges->isEmpty() && $user->display_name === $user->username) {
+            return '';
+        }
+
         $entries = collect();
 
         // Add current display_name if it came from a change request.
