@@ -2,7 +2,8 @@
 
 /*
  *  API_GetAchievementsEarnedOnDay - returns achievements earned by a user between two timestamps
- *    u : user
+ *    u : username
+ *    i : user ULID
  *    d : date (YYYY-MM-DD)
  *
  *  array
@@ -31,11 +32,15 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
+    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
+    'i' => ['required_without:u', 'string', 'size:26'],
     'd' => ['required', 'date'],
 ]);
 
-$user = User::whereName(request()->query('u'))->first();
+$user = isset($input['i'])
+    ? User::whereUlid($input['i'])->first()
+    : User::whereName($input['u'])->first();
+
 if (!$user) {
     return response()->json([]);
 }

@@ -24,11 +24,14 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
+    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
+    'i' => ['required_without:u', 'string', 'size:26'],
     't' => ['nullable', 'in:0,1'],
 ]);
 
-$user = User::whereName(request()->query('u'))->first();
+$user = isset($input['i'])
+    ? User::whereUlid($input['i'])->first()
+    : User::whereName($input['u'])->first();
 if (!$user) {
     return response()->json([], 404);
 }

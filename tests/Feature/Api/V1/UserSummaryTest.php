@@ -42,14 +42,45 @@ class UserSummaryTest extends TestCase
             ->assertJson(['ID' => null, 'User' => 'nonExistant']);
     }
 
-    public function testGetUserSummaryNoGameHistory(): void
+    public function testGetUserSummaryNoGameHistoryByName(): void
     {
         // user with no game history should have no points
         $this->user->RAPoints = 0;
         $this->user->RASoftcorePoints = 0;
         $this->user->save();
 
-        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->User]))
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->User])) // !!
+            ->assertSuccessful()
+            ->assertJson([
+                'ID' => $this->user->ID,
+                'TotalPoints' => $this->user->RAPoints,
+                'TotalSoftcorePoints' => $this->user->RASoftcorePoints,
+                'TotalTruePoints' => $this->user->TrueRAPoints,
+                'Permissions' => $this->user->Permissions,
+                'MemberSince' => $this->user->created_at->__toString(),
+                'Untracked' => $this->user->Untracked,
+                'UserPic' => '/UserPic/' . $this->user->User . '.png',
+                'Motto' => $this->user->Motto,
+                'UserWallActive' => $this->user->UserWallActive,
+                'ContribCount' => $this->user->ContribCount,
+                'ContribYield' => $this->user->ContribYield,
+                'Rank' => null,
+                'TotalRanked' => 0,
+                'LastGameID' => null,
+                'RichPresenceMsg' => null,
+                'RecentlyPlayedCount' => 0,
+                'RecentlyPlayed' => [],
+            ]);
+    }
+
+    public function testGetUserSummaryNoGameHistoryByUlid(): void
+    {
+        // user with no game history should have no points
+        $this->user->RAPoints = 0;
+        $this->user->RASoftcorePoints = 0;
+        $this->user->save();
+
+        $this->get($this->apiUrl('GetUserSummary', ['i' => $this->user->ulid])) // !!
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $this->user->ID,

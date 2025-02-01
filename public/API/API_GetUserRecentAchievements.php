@@ -6,7 +6,7 @@ use Illuminate\Support\Carbon;
 
 /*
  *  API_GetUserRecentAchievements - returns achievements recently earned by a user
- *    u : user
+ *    u : username
  *    m : minutes to look back (default: 60)
  *
  *  array

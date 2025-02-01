@@ -3,6 +3,7 @@
 /*
  *  API_GetUserAwards - returns information about the user's earned awards
  *    u : username
+ *    i : user ULID
  *
  *  int        TotalAwardsCount           number of awards earned by the user, including hidden
  *  int        HiddenAwardsCount          number of awards hidden by the user
@@ -35,12 +36,14 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
+    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
+    'i' => ['required_without:u', 'string', 'size:26'],
 ]);
 
-$user = request()->query('u');
+$userModel = isset($input['i'])
+    ? User::whereUlid($input['i'])->first()
+    : User::whereName($input['u'])->first();
 
-$userModel = User::whereName($user)->first();
 $userAwards = getUsersSiteAwards($userModel);
 [$gameMasteryAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
 

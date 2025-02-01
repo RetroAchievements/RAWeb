@@ -3,11 +3,13 @@
 /*
  *  API_GetUserClaims - returns information about a all users set claims
  *    u : username
+ *    i : user ULID
  *
  *  array
  *   object     [value]
  *    int        ID                 unique ID of the claim
  *    string     User               user who made the claim
+ *    string     ULID               queryable stable unique identifier of the user who made the claim
  *    int        GameID             id of the claimed game
  *    string     GameTitle          title of the claimed game
  *    string     GameIcon           site-relative path to the game's icon image
@@ -26,10 +28,26 @@
  *    int        MinutesLeft        time in minutes left until the claim expires
  */
 
-$user = request()->query('u');
+use App\Models\User;
+use App\Support\Rules\CtypeAlnum;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
+
+$input = Validator::validate(Arr::wrap(request()->query()), [
+    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
+    'i' => ['required_without:u', 'string', 'size:26'],
+]);
+
+$user = isset($input['i'])
+    ? User::whereUlid($input['i'])->first()
+    : User::whereName($input['u'])->first();
+
+if (!$user) {
+    return response()->json([], 404);
+}
 
 return response()->json(
     getFilteredClaims(
-        username: $user
+        username: $user->username
     )
 );

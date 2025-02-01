@@ -4,6 +4,7 @@
  *  API_GetGameInfoAndUserProgress
  *    g : game id
  *    u : username
+ *    i : user ULID
  *    a : if 1, include highest award metadata (default: 0)
  *
  *  int        ID                         unique identifier of the game
@@ -31,6 +32,7 @@
  *    int        NumAwardedHardcore       number of times the achievement has been awarded in hardcore
  *    int        DisplayOrder             field used for determining which order to display the achievements
  *    string     Author                   user who originally created the achievement
+ *    string     AuthorULID               queryable stable unique identifier of the user who first created the achievement
  *    datetime   DateCreated              when the achievement was created
  *    datetime   DateModified             when the achievement was last modified
  *    string     MemAddr                  md5 of the logic for the achievement
@@ -53,12 +55,25 @@
  *  ?datetime  HighestAwardDate           an ISO8601 timestamp string, or null, for when the HighestAwardKind was granted. requires the 'a' query param to be 1.
  */
 
- use App\Models\PlayerBadge;
- use App\Models\User;
- use Illuminate\Support\Carbon;
+use App\Models\PlayerBadge;
+use App\Models\User;
+use App\Support\Rules\CtypeAlnum;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Validator;
 
-$gameID = (int) request()->query('g');
-$targetUser = User::whereName(request()->query('u'))->first();
+$input = Validator::validate(Arr::wrap(request()->query()), [
+    'g' => ['required', 'min:1'],
+    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
+    'i' => ['required_without:u', 'string', 'size:26'],
+]);
+
+$gameID = (int) $input['g'];
+
+$targetUser = isset($input['i'])
+    ? User::whereUlid($input['i'])->first()
+    : User::whereName($input['u'])->first();
+
 if (!$targetUser) {
     return response()->json([]);
 }

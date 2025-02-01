@@ -19,12 +19,15 @@ class UserAwardsTest extends TestCase
     use RefreshDatabase;
     use BootstrapsApiV1;
 
-    public function testGetUserAwardsIfNoUserParam(): void
+    public function testGetUserAwardsIfNoParams(): void
     {
         $this->get($this->apiUrl('GetUserAwards'))
             ->assertStatus(422)
             ->assertJson([
-                "message" => "The u field is required.",
+                "errors" => [
+                    'u' => ['The u field is required when i is not present.'],
+                    'i' => ['The i field is required when u is not present.'],
+                ],
             ]);
     }
 
@@ -44,6 +47,19 @@ class UserAwardsTest extends TestCase
         PlayerBadge::factory()->count(3)->create(['user_id' => $user->id]);
 
         $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'TotalAwardsCount' => 3,
+            ]);
+    }
+
+    public function testGetCorrectTotalAwardsCountByUlid(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+        PlayerBadge::factory()->count(3)->create(['user_id' => $user->id]);
+
+        $this->get($this->apiUrl('GetUserAwards', ['i' => $user->ulid]))
             ->assertSuccessful()
             ->assertJson([
                 'TotalAwardsCount' => 3,

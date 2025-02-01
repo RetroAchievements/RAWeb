@@ -57,6 +57,7 @@ class GetRecentGameAwardsTest extends TestCase
                 'Results' => [
                     [
                         'User' => 'playerThree',
+                        'ULID' => $playerThree->ulid,
                         'AwardKind' => 'completed',
                         'AwardDate' => Carbon::now()->subMinutes(1)->toIso8601String(),
                         'GameID' => $game->ID,
@@ -66,6 +67,7 @@ class GetRecentGameAwardsTest extends TestCase
                     ],
                     [
                         'User' => 'playerOne',
+                        'ULID' => $playerOne->ulid,
                         'AwardKind' => 'beaten-softcore',
                         'AwardDate' => Carbon::now()->subMinutes(5)->toIso8601String(),
                         'GameID' => $game->ID,
@@ -75,6 +77,7 @@ class GetRecentGameAwardsTest extends TestCase
                     ],
                     [
                         'User' => 'playerTwo',
+                        'ULID' => $playerTwo->ulid,
                         'AwardKind' => 'beaten-hardcore',
                         'AwardDate' => Carbon::now()->subMinutes(10)->toIso8601String(),
                         'GameID' => $game->ID,
@@ -84,6 +87,7 @@ class GetRecentGameAwardsTest extends TestCase
                     ],
                     [
                         'User' => 'playerFour',
+                        'ULID' => $playerFour->ulid,
                         'AwardKind' => 'mastered',
                         'AwardDate' => Carbon::now()->subMinutes(15)->toIso8601String(),
                         'GameID' => $game->ID,
@@ -125,6 +129,7 @@ class GetRecentGameAwardsTest extends TestCase
                 'Results' => [
                     [
                         'User' => 'playerThree',
+                        'ULID' => $playerThree->ulid,
                         'AwardKind' => 'completed',
                         'AwardDate' => Carbon::now()->subMinutes(1)->toIso8601String(),
                         'GameID' => $game->ID,
@@ -134,6 +139,7 @@ class GetRecentGameAwardsTest extends TestCase
                     ],
                     [
                         'User' => 'playerOne',
+                        'ULID' => $playerOne->ulid,
                         'AwardKind' => 'beaten-softcore',
                         'AwardDate' => Carbon::now()->subMinutes(5)->toIso8601String(),
                         'GameID' => $game->ID,
@@ -175,6 +181,7 @@ class GetRecentGameAwardsTest extends TestCase
                 'Results' => [
                     [
                         'User' => 'playerFour',
+                        'ULID' => $playerFour->ulid,
                         'AwardKind' => 'mastered',
                         'AwardDate' => Carbon::now()->subMinutes(15)->toIso8601String(),
                         'GameID' => $game->ID,

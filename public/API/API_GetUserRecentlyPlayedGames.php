@@ -3,6 +3,7 @@
 /*
  *  API_GetUserRecentlyPlayedGames
  *    u : username
+ *    i : user ULID
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of games to return (default: 10, max: 50)
  *
@@ -31,12 +32,15 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
+    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
+    'i' => ['required_without:u', 'string', 'size:26'],
     'c' => 'nullable|integer|min:0',
     'o' => 'nullable|integer|min:0',
 ]);
 
-$user = User::whereName(request()->query('u'))->first();
+$user = isset($input['i'])
+    ? User::whereUlid($input['i'])->first()
+    : User::whereName($input['u'])->first();
 if (!$user) {
     return response()->json([]);
 }

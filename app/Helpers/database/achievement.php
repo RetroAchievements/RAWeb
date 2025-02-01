@@ -186,6 +186,7 @@ function GetAchievementData(int $achievementId): ?array
         'Flags' => $achievement->Flags,
         'type' => $achievement->type,
         'Author' => $achievement->developer?->display_name,
+        'AuthorULID' => $achievement->developer?->ulid,
         'DateCreated' => $achievement->DateCreated->format('Y-m-d H:i:s'),
         'DateModified' => $achievement->DateModified->format('Y-m-d H:i:s'),
         'BadgeName' => $achievement->badge_name,

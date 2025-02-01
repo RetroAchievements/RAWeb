@@ -8,6 +8,7 @@
  *    string     1                     name of the user
  *    int        2                     total points earned by the user
  *    int        3                     total RetroPoints ("white points") earned by the user
+ *    string     4                     ulid of the user
  */
 
 $dataOut = getTopUsersByScore(10);

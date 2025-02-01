@@ -4,6 +4,7 @@
  *  API_GetUserProgress - gets user's High Scores entry for a game
  *    i : CSV of game ids
  *    u : username
+ *    d : user ULID
  *
  *  map
  *   string     [key]                       unique identifier of the game
@@ -15,9 +16,19 @@
  *    string     ScoreAchievedHardcore      number of points earned by the user in hardcore
  */
 
- use App\Models\User;
+use App\Models\User;
+use App\Support\Rules\CtypeAlnum;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
 
-$user = User::whereName(request()->query('u'))->first();
+$input = Validator::validate(Arr::wrap(request()->query()), [
+    'u' => ['required_without:d', 'min:2', 'max:20', new CtypeAlnum()],
+    'd' => ['required_without:u', 'string', 'size:26'],
+]);
+
+$user = isset($input['d'])
+    ? User::whereUlid($input['d'])->first()
+    : User::whereName($input['u'])->first();
 if (!$user) {
     return response()->json([]);
 }

@@ -254,6 +254,55 @@ class GetUserGameLeaderboardsTest extends TestCase
             ]);
     }
 
+    public function testGetUserGameLeaderboardsHavingASingleLeaderboardEntryForGameByUlid(): void
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Test leaderboard",
+            'Description' => "I am a leaderboard",
+            'LowerIsBetter' => true,
+        ]);
+
+        $user = User::factory()->create(['User' => 'myUser1']);
+        $leaderboardEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $user->ID,
+            'score' => 1,
+        ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'd' => $user->ulid])) // !!
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1,
+                'Results' => [
+                    [
+                        'ID' => $leaderboard->ID,
+                        'RankAsc' => $leaderboard->LowerIsBetter,
+                        'Title' => $leaderboard->Title,
+                        'Description' => $leaderboard->Description,
+                        'Format' => $leaderboard->Format,
+                        'UserEntry' => [
+                            'User' => $user->User,
+                            'Score' => $leaderboardEntry->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardEntry->score, $leaderboard->Format),
+                            'Rank' => 1,
+                            'DateUpdated' => $leaderboardEntry->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
     public function testGetUserGameLeaderboardsHavingMultipleLeaderboardEntryForGame(): void
     {
         Carbon::setTestNow(Carbon::now());

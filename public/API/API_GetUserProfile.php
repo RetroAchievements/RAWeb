@@ -3,11 +3,11 @@
 /*
  *  API_GetUserProfile
  *    u : username
- *    i : ULID
+ *    i : user ULID
  *
  *  string     User                    non-stable name of user
  *  int        ID                      unique identifier of the user
- *  string     ULID                    queryable unique identifier of the user
+ *  string     ULID                    queryable stable unique identifier of the user
  *  int        TotalPoints             number of hardcore points the user has
  *  int        TotalSoftcorePoints     number of softcore points the user has
  *  int        TotalTruePoints         number of RetroPoints ("white points") the user has

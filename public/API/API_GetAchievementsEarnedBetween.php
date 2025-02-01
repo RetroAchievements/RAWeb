@@ -2,7 +2,8 @@
 
 /*
  *  API_GetAchievementsEarnedBetween - returns achievements earned by a user between two timestamps
- *    u : user
+ *    u : username
+ *    i : user ULID
  *    f : from (time_t)
  *    t : to (time_t)
  *
@@ -28,8 +29,19 @@
  */
 
 use App\Models\User;
+use App\Support\Rules\CtypeAlnum;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
 
-$user = User::whereName(request()->query('u'))->first();
+$input = Validator::validate(Arr::wrap(request()->query()), [
+    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
+    'i' => ['required_without:u', 'string', 'size:26'],
+]);
+
+$user = isset($input['i'])
+    ? User::whereUlid($input['i'])->first()
+    : User::whereName($input['u'])->first();
+
 if (!$user) {
     return response()->json([]);
 }
