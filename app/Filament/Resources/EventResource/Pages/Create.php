@@ -51,6 +51,7 @@ class Create extends CreateRecord
                 'Title' => 'Placeholder',
                 'Description' => 'TBD',
                 'MemAddr' => '0=1',
+                'Points' => 1,
                 'Flags' => AchievementFlag::OfficialCore->value,
                 'GameID' => $game->id,
                 'user_id' => $user_id,

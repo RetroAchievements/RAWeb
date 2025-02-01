@@ -59,7 +59,7 @@ function submitSetRequest(user, gameID) {
         type: '<?= UserGameListType::AchievementSetRequest ?>'
     })
         .done(function () {
-            getSetRequestInformation('<?= $user->User ?>', <?= $gameId ?>);
+            getSetRequestInformation('<?= $user->display_name ?>', <?= $gameId ?>);
         });
 }
 

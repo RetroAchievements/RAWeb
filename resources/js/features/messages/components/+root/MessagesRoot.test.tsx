@@ -125,7 +125,7 @@ describe('Component: MessagesRoot', () => {
 
     // ASSERT
     expect(visitSpy).toHaveBeenCalledOnce();
-    expect(visitSpy).toHaveBeenCalledWith(['message-thread.index2', { _query: { page: 2 } }]);
+    expect(visitSpy).toHaveBeenCalledWith(['message-thread.index', { _query: { page: 2 } }]);
   });
 
   it('displays a link to create a new message', () => {
