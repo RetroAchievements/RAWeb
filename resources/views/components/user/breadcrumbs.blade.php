@@ -1,17 +1,21 @@
 @props([
-    'targetDisplayName' => '',
+    'currentPage' => '',
     'parentPage' => '',
     'parentPageUrl' => '',
-    'currentPage' => '',
+    'user' => null, // ?User
 ])
 
 <div class='navpath'>
     <a href='/userList.php'>All Users</a>
     &raquo;
     @if (empty($currentPage))
-        <span class="font-bold"><a href="{{ route('user.show', $targetDisplayName) }}">{{ $targetDisplayName }}</a></span>
+        <span class="font-bold"><a href="{{ route('user.show', $user->display_name) }}">{{ $user->display_name }}</a></span>
     @else
-        <a href="{{ route('user.show', $targetDisplayName) }}">{{ $targetDisplayName }}</a>
+        @if ($user->Deleted)
+            <span class="line-through">{{ $user->display_name }}</span>
+        @else
+            <a href="{{ route('user.show', $user->display_name) }}">{{ $user->display_name }}</a>
+        @endif
         &raquo;
         @if (!empty($parentPage))
             <a href="{!! $parentPageUrl !!}">{{ $parentPage }}</a>

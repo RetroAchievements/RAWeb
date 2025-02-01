@@ -16,6 +16,7 @@ use App\Models\UserActivity;
 use App\Models\UserComment;
 use App\Models\UserGameListEntry;
 use App\Models\UserRelation;
+use App\Models\UserUsername;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -268,5 +269,13 @@ trait ActsAsCommunityMember
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class, 'user_id', 'ID');
+    }
+
+    /**
+     * @return HasMany<UserUsername>
+     */
+    public function usernameRequests(): HasMany
+    {
+        return $this->hasMany(UserUsername::class, 'user_id', 'ID');
     }
 }
