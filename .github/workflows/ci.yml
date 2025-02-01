@@ -146,9 +146,25 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-php-
 
+      - name: Restore PHPStan result cache
+        if: ${{ needs.changes.outputs.php == 'true' && matrix.check == 'analyse' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: tmp
+          key: phpstan-result-cache-${{ github.run_id }}
+          restore-keys: |
+            phpstan-result-cache-
+
       - name: Run ${{ matrix.check }}
         if: ${{ needs.changes.outputs.php == 'true' }}
         run: ${{ matrix.command }}
+
+      - name: Save PHPStan result cache
+        if: ${{ needs.changes.outputs.php == 'true' && matrix.check == 'analyse' }}
+        uses: actions/cache/save@v4
+        with:
+          path: tmp
+          key: phpstan-result-cache-${{ github.run_id }}
 
   node-checks:
     needs: [changes, node-setup]
