@@ -8,7 +8,7 @@ import { loadDayjsLocale } from './common/utils/l10n/loadDayjsLocale';
 import i18n from './i18n-client';
 
 const appName = import.meta.env.APP_NAME || 'RetroAchievements';
-////
+
 createInertiaApp({
   title: (title) => (title ? `${title} · ${appName}` : appName),
 
