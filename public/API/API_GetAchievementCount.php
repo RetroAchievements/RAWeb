@@ -11,8 +11,6 @@ use App\Models\Achievement;
  *   int        [value]                   unique identifier of an achievement associated to the game
  */
 
-/////
-
 $gameID = (int) request()->query('i');
 
 return response()->json([
