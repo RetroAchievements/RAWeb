@@ -137,6 +137,14 @@ class Event extends BaseModel
     }
 
     /**
+     * @return HasManyThrough<EventAchievement>
+     */
+    public function publishedAchievements(): HasManyThrough
+    {
+        return $this->achievements()->published();
+    }
+
+    /**
      * @return BelongsToMany<GameSet>
      */
     public function hubs(): BelongsToMany

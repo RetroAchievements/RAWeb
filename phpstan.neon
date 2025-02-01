@@ -8,6 +8,7 @@ parameters:
         - resources/views
         - tests
     level: 6
+    tmpDir: tmp
     treatPhpDocTypesAsCertain: false
     # TODO figure out why github actions phpstan does not find the same
     reportUnmatchedIgnoredErrors: false
