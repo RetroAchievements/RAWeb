@@ -3,9 +3,11 @@
 /*
  *  API_GetUserProfile
  *    u : username
+ *    i : ULID
  *
- *  string     User                    name of user
+ *  string     User                    non-stable name of user
  *  int        ID                      unique identifier of the user
+ *  string     ULID                    queryable unique identifier of the user
  *  int        TotalPoints             number of hardcore points the user has
  *  int        TotalSoftcorePoints     number of softcore points the user has
  *  int        TotalTruePoints         number of RetroPoints ("white points") the user has
@@ -27,10 +29,13 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
+    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
+    'i' => ['required_without:u', 'string', 'size:26'],
 ]);
 
-$user = User::whereName(request()->query('u'))->first();
+$user = isset($input['i'])
+    ? User::whereUlid($input['i'])->first()
+    : User::whereName($input['u'])->first();
 
 if (!$user) {
     return response()->json([], 404);
@@ -38,6 +43,7 @@ if (!$user) {
 
 return response()->json([
     'User' => $user->display_name,
+    'ULID' => $user->ulid,
     'UserPic' => sprintf("/UserPic/%s.png", $user->username),
     'MemberSince' => $user->created_at->toDateTimeString(),
     'RichPresenceMsg' => empty($user->RichPresenceMsg) || $user->RichPresenceMsg === 'Unknown' ? null : $user->RichPresenceMsg,
