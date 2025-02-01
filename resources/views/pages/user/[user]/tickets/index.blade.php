@@ -5,7 +5,9 @@ use App\Models\Ticket;
 use App\Platform\Services\TicketListService;
 use Illuminate\View\View;
 
-use function Laravel\Folio\{middleware, name, render};
+use function Laravel\Folio\{middleware, name, render, withTrashed};
+
+withTrashed();
 
 middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
 name('developer.tickets');
@@ -43,7 +45,7 @@ render(function (View $view, User $user, TicketListService $ticketListService) {
 
 <x-app-layout pageTitle="Tickets - {{ $user->display_name }}">
     <x-user.breadcrumbs
-        :targetDisplayName="$user->display_name"
+        :user="$user"
         currentPage="Tickets"
     />
 

@@ -1,8 +1,10 @@
 <?php
 
+use App\Community\Actions\BuildDisplayNameHistoryAction;
 use App\Enums\Permissions;
 use App\Models\Role;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 ?>
 
 @props([
@@ -20,10 +22,31 @@ $hasVisibleRole = (
     || ($me?->can('manage', App\Models\User::class) && $userMassData['Permissions'] !== Permissions::Registered)
 );
 
+$fullRolesLabel = null;
+if ($hasVisibleRole) {
+    $allDisplayableRoles = $user->displayableRoles->toArray();
+
+    if (count($allDisplayableRoles) >= 2) {
+        $roleNames = array_map(fn ($role) => __('permission.role.' . $role['name']), $allDisplayableRoles);
+        sort($roleNames);
+        
+        $lastRole = array_pop($roleNames);
+        $fullRolesLabel = count($roleNames) > 1
+            ? implode(', ', $roleNames) . ', and ' . $lastRole // 3+ roles: "A, B, and C"
+            : implode(' and ', [$roleNames[0], $lastRole]); // 2 roles: "A and B"
+    }
+}
+
 $roleLabel = $hasVisibleRole ? Permissions::toString($userMassData['Permissions']) : '';
 $shouldMoveRoleToNextLine =
     $hasVisibleRole
     && ((mb_strlen($roleLabel) >= 12 && mb_strlen($user->User) >= 12) || mb_strlen($user->User) >= 16);
+
+$previousUsernames = '';
+if ($me && $me->can('viewDisplayNameHistory', $user)) {
+    $previousUsernames = (new BuildDisplayNameHistoryAction())->execute($user);
+}
+$usernameTitle = $previousUsernames ? "Username history:\n{$previousUsernames}" : '';
 ?>
 
 <div class="relative flex border-x border-embed-highlight flex-row-reverse sm:flex-row gap-x-4 pb-5 bg-embed -mx-5 px-5 mt-[-15px] pt-5">
@@ -36,11 +59,22 @@ $shouldMoveRoleToNextLine =
     <div class="w-full">
         <div class="flex sm:-mt-1 sm:flex-row sm:justify-start sm:items-center gap-x-2 {{ $hasVisibleRole ? 'mb-2 sm:mb-0' : '' }} {{ $shouldMoveRoleToNextLine ? 'flex-col' : 'items-center' }}">
             {{-- Username --}}
-            <h1 class='border-0 text-lg sm:text-2xl font-semibold mb-0'>{{ $user->display_name }}</h1>
+            <h1
+                class='border-0 text-lg sm:text-2xl font-semibold mb-0 relative {{ $previousUsernames ? 'cursor-help' : '' }}'
+                @if ($previousUsernames) title="{{ $usernameTitle }}" @endif
+            >
+                {{ $user->display_name }}
+                @if ($me && $me->can('viewDisplayNameHistory', $user) && $previousUsernames)
+                    <hr class="hidden lg:block absolute w-full bottom-px left-0 border-dashed border-neutral-500">
+                @endif
+            </h1>
 
             {{-- Visible Role --}}
             @if ($hasVisibleRole)
-                <div class="flex h-4 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1">
+                <div
+                    class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1 {{ $fullRolesLabel ? 'cursor-help border border-dotted border-neutral-400' : '' }}"
+                    @if ($fullRolesLabel) title="{{ $fullRolesLabel }}" @endif
+                >
                     <p class="text-2xs -mb-0.5">
                         @if ($userMassData['Permissions'] === Permissions::Spam)
                             Spam

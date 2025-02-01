@@ -7,12 +7,10 @@ namespace App\Filament\Resources\EventResource\Pages;
 use App\Filament\Actions\ProcessUploadedImageAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\EventResource;
-use App\Models\Achievement;
-use App\Models\EventAchievement;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\System;
-use App\Platform\Enums\AchievementFlag;
-use App\Platform\Jobs\UpdateGameMetricsJob;
+use App\Platform\Actions\AddAchievementsToEventAction;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 
@@ -37,34 +35,18 @@ class Create extends CreateRecord
         ]);
         $data['legacy_game_id'] = $game->id;
 
+        // these fields don't actually exist on the event record. don't pass to create().
         $numberOfAchievements = (int) $data['numberOfAchievements'];
         unset($data['numberOfAchievements']);
         $user_id = $data['user_id'];
         unset($data['user_id']);
 
         // create the event record
+        /** @var Event $event */
         $event = static::getModel()::create($data);
 
         // create the number of requested achievements
-        for ($i = 0; $i < $numberOfAchievements; $i++) {
-            $achievement = Achievement::create([
-                'Title' => 'Placeholder',
-                'Description' => 'TBD',
-                'MemAddr' => '0=1',
-                'Flags' => AchievementFlag::OfficialCore->value,
-                'GameID' => $game->id,
-                'user_id' => $user_id,
-                'BadgeName' => '00000',
-                'DisplayOrder' => $i + 1,
-            ]);
-
-            EventAchievement::create([
-                'achievement_id' => $achievement->id,
-            ]);
-        }
-
-        // update metrics and sync to game_achievement_set
-        dispatch(new UpdateGameMetricsJob($game->id))->onQueue('game-metrics');
+        (new AddAchievementsToEventAction())->execute($event, $numberOfAchievements, $user_id);
 
         return $event;
     }

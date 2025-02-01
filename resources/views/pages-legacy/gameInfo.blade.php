@@ -160,37 +160,6 @@ $userGameProgressionAwards = [
     'mastered' => null,
 ];
 
-if ($isEventGame) {
-    $eventAchievements = EventAchievement::whereIn('achievement_id', array_keys($achievementData))->with('sourceAchievement.game')->get();
-    foreach ($eventAchievements as $eventAchievement) {
-        $achievementData[$eventAchievement->achievement_id]['SourceAchievementId'] = $eventAchievement->source_achievement_id;
-        $achievementData[$eventAchievement->achievement_id]['SourceGameId'] = $eventAchievement->sourceAchievement?->game->id;
-        $achievementData[$eventAchievement->achievement_id]['SourceGameTitle'] = $eventAchievement->sourceAchievement?->game->title;
-        $achievementData[$eventAchievement->achievement_id]['ActiveFrom'] = $eventAchievement->active_from ?? null;
-        $achievementData[$eventAchievement->achievement_id]['ActiveUntil'] = $eventAchievement->active_until?->subSeconds(1);
-    }
-
-    if ($gameModel->event) {
-        $gameData['ImageIcon'] = $gameModel->event->image_asset_path;
-    }
-
-    $isGameBeatable = true;
-
-    if ($userModel) {
-        if ($gameModel->event) {
-            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
-                ->where('AwardType', AwardType::Event)
-                ->where('AwardData', $gameModel->event->id)
-                ->exists();
-        } else {
-            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
-                ->where('AwardType', AwardType::Mastery)
-                ->where('AwardData', $gameModel->id)
-                ->exists();
-        }
-    }
-}
-
 if ($isFullyFeaturedGame || $isEventGame) {
     $numDistinctPlayers = $gameData['NumDistinctPlayers'];
 
@@ -305,6 +274,46 @@ if ($isFullyFeaturedGame || $isEventGame) {
     }
 
     $claimData = getClaimData([$gameID], true);
+}
+
+if ($isEventGame) {
+    $eventAchievements = EventAchievement::whereIn('achievement_id', array_keys($achievementData))->with('sourceAchievement.game')->get();
+    foreach ($eventAchievements as $eventAchievement) {
+        $achievementData[$eventAchievement->achievement_id]['SourceAchievementId'] = $eventAchievement->source_achievement_id;
+        $achievementData[$eventAchievement->achievement_id]['SourceGameId'] = $eventAchievement->sourceAchievement?->game->id;
+        $achievementData[$eventAchievement->achievement_id]['SourceGameTitle'] = $eventAchievement->sourceAchievement?->game->title;
+        $achievementData[$eventAchievement->achievement_id]['ActiveFrom'] = $eventAchievement->active_from ?? null;
+        $achievementData[$eventAchievement->achievement_id]['ActiveUntil'] = $eventAchievement->active_until?->subSeconds(1);
+    }
+
+    // hide points unless more than 1. never show TrueRatio.
+    foreach ($achievementData as &$achievement) {
+        if ($achievement['Points'] === 1) {
+            $achievement['Points'] = 0;
+        }
+        $achievement['TrueRatio'] = 0;
+    }
+    $totalEarnedTrueRatio = 0;
+
+    if ($gameModel->event) {
+        $gameData['ImageIcon'] = $gameModel->event->image_asset_path;
+    }
+
+    $isGameBeatable = true;
+
+    if ($userModel) {
+        if ($gameModel->event) {
+            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
+                ->where('AwardType', AwardType::Event)
+                ->where('AwardData', $gameModel->event->id)
+                ->exists();
+        } else {
+            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
+                ->where('AwardType', AwardType::Mastery)
+                ->where('AwardData', $gameModel->id)
+                ->exists();
+        }
+    }
 }
 
 sanitize_outputs(
@@ -1074,7 +1083,7 @@ if ($isFullyFeaturedGame) {
             </div>
         @endif
 
-        @if ($numAchievements > 0 && $isOfficial)
+        @if ($numAchievements > 1 && $isOfficial)
             <div id="achdistribution" class="component">
                 <h2 class="text-h3">Achievement Distribution</h2>
                 <div id="chart_distribution" class="min-h-[260px]"></div>
@@ -1099,14 +1108,14 @@ if ($isFullyFeaturedGame) {
                 <h2 class="text-h3">Award Tiers</h2>
                 <table class="table-highlight"><tbody>
                 @if (count($gameModel->event->awards) > 0)
-                    @foreach ($gameModel->event->awards->sortBy('achievements_required') as $award)
+                    @foreach ($gameModel->event->awards->sortBy('points_required') as $award)
                         <tr style="w-full">
                             <td style="w-full">
                                 <div class="flex relative gap-x-2 items-center">
                                     <img width="48" height="48" src="{!! media_asset($award->image_asset_path) !!}" alt="{{ $award->label }}" />
                                     <div>
                                         <p>{{ $award->label }}</p>
-                                        <p class="smalltext">{{ $award->achievements_required }} {{ Str::plural('achievement', $award->achievements_required) }}</p>
+                                        <p class="smalltext">{{ $award->points_required }} {{ Str::plural('point', $award->points_required) }}</p>
                                     </div>
                                 </div>
                             </td>

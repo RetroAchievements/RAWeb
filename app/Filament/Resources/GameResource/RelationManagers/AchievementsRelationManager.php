@@ -120,6 +120,33 @@ class AchievementsRelationManager extends RelationManager
                             $query->where('Flags', $data['value']);
                         }
                     }),
+
+                Filters\TernaryFilter::make('duplicate_badges')
+                    ->label('Has duplicate badge')
+                    ->placeholder('Any')
+                    ->trueLabel('Yes')
+                    ->falseLabel('No')
+                    ->queries(
+                        true: fn (Builder $query): Builder => $query->whereExists(function ($subquery) {
+                            $subquery->selectRaw('1')
+                                ->from('Achievements as a2')
+                                ->whereColumn('a2.GameID', 'Achievements.GameID')
+                                ->whereColumn('a2.BadgeName', 'Achievements.BadgeName')
+                                ->where('a2.ID', '!=', DB::raw('Achievements.ID'))
+                                ->whereNull('a2.deleted_at')
+                                ->limit(1);
+                        }),
+                        false: fn (Builder $query): Builder => $query->whereNotExists(function ($subquery) {
+                            $subquery->selectRaw('1')
+                                ->from('Achievements as a2')
+                                ->whereColumn('a2.GameID', 'Achievements.GameID')
+                                ->whereColumn('a2.BadgeName', 'Achievements.BadgeName')
+                                ->where('a2.ID', '!=', DB::raw('Achievements.ID'))
+                                ->whereNull('a2.deleted_at')
+                                ->limit(1);
+                        }),
+                        blank: fn (Builder $query): Builder => $query,
+                    ),
             ])
             ->headerActions([
 
