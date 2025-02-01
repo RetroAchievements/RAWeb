@@ -146,11 +146,22 @@ class EventAchievement extends BaseModel
     {
         $timestamp ??= Carbon::now();
 
-        return $query->where(function ($q) use ($timestamp) {
+        return $query->published()->where(function ($q) use ($timestamp) {
                 $q->where('active_from', '<=', $timestamp)->orWhereNull('active_from');
             })
             ->where(function ($q) use ($timestamp) {
                 $q->where('active_until', '>', $timestamp)->orWhereNull('active_until');
             });
+    }
+
+    /**
+     * @param Builder<EventAchievement> $query
+     * @return Builder<EventAchievement>
+     */
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query->whereHas('achievement', function ($q) {
+            $q->published();
+        });
     }
 }

@@ -40,7 +40,7 @@ render(function (View $view, User $user, PlayerCompletionProgressPageService $pa
     :pageDescription="$seo['pageDescription']"
 >
     <div>
-        <x-user.breadcrumbs :targetDisplayName="$user->display_name" currentPage="Completion Progress" />
+        <x-user.breadcrumbs :user="$user" currentPage="Completion Progress" />
 
         <div class="mt-3 -mb-3 w-full flex gap-x-3">
             {!! userAvatar($targetUsername, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
