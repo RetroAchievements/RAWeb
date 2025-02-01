@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { stripLeadingWhitespaceFromChildren } from '../../../utils/shortcodes/stripLeadingWhitespaceFromChildren';
 import { BaseButton } from '../../+vendor/BaseButton';
 import {
   BaseCollapsible,
@@ -22,7 +23,7 @@ export const ShortcodeSpoiler: FC<ShortcodeSpoilerProps> = ({ children }) => {
       </BaseCollapsibleTrigger>
 
       <BaseCollapsibleContent className="rounded border border-dashed border-text-muted px-3 py-2">
-        {children}
+        {stripLeadingWhitespaceFromChildren(children)}
       </BaseCollapsibleContent>
     </BaseCollapsible>
   );

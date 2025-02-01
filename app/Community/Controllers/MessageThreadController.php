@@ -42,10 +42,12 @@ class MessageThreadController extends Controller
 
     public function show(Request $request, MessageThread $messageThread): InertiaResponse|RedirectResponse
     {
-        $this->authorize('view', $messageThread);
-
         /** @var User $user */
         $user = $request->user();
+        if (!$user->can('view', $messageThread)) {
+            abort(404);
+        }
+
         $currentPage = (int) $request->input('page', 1);
 
         $actionResult = (new BuildMessageThreadShowPagePropsAction())->execute(

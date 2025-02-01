@@ -10,13 +10,16 @@ export function postProcessShortcodesInBody(body: string): string {
   // Strip body content from img tags while preserving the img=url format.
   result = result.replace(/\[img=([^\]]+)\].*?\[\/img\]/g, '[img=$1][/img]');
 
+  // Convert remaining self-closing [img=url] to [img]url[/img] format.
+  result = result.replace(/\[img=["']?([^"'\]]+)["']?\](?!\s*[^\n\[]*\[\/img\])/g, '[img]$1[/img]');
+
   // Handle self-closing url tags.
   result = result.replace(
     /\[url=["']?([^"'\]]+)["']?\](?!\s*[^\n\[]*\[\/url\])/g,
     '[url="$1"]$1[/url]',
   );
 
-  // Then, handle all other [tag=value] formats, excluding url tags.
+  // Then, handle all other [tag=value] formats, excluding url and img tags.
   result = result.replace(
     /\[(?!url\b)(?!img\b)(\w+)=["']?([^"'\]]+)["']?\]/g,
     (_, tag, value) => `[${tag}]${value}[/${tag}]`,

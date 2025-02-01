@@ -191,4 +191,15 @@ describe('Util: postProcessShortcodesInBody', () => {
     // ASSERT
     expect(result).toEqual('[img=https://i.imgur.com/ov30jeD.jpeg][/img]');
   });
+
+  it('sanitizes self-closing img tags', () => {
+    // ARRANGE
+    const body = '[spoiler][img=https://i.imgur.com/ov30jeD.jpeg][/spoiler]';
+
+    // ACT
+    const result = postProcessShortcodesInBody(body);
+
+    // ASSERT
+    expect(result).toEqual('[spoiler][img]https://i.imgur.com/ov30jeD.jpeg[/img][/spoiler]');
+  });
 });
