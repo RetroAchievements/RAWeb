@@ -34,7 +34,7 @@ render(function (View $view, User $user, Game $game, CompareUnlocksPageService $
     pageDescription="Compares unlocks between {{ $user->display_name }} and {{ $otherUser->display_name }} for {{ $game->Title }}"
 >
     <x-user.breadcrumbs
-        :targetDisplayName="$otherUser->display_name"
+        :user="$otherUser"
         :parentPage="$game->Title"
         :parentPageUrl="$game->permalink"
         currentPage="Compare Unlocks"
