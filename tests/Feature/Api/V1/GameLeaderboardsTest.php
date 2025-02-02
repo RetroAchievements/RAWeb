@@ -152,6 +152,22 @@ class GameLeaderboardsTest extends TestCase
             'score' => 3,
         ]);
 
+        /** @var Leaderboard $hiddenLeaderboard */
+        $hiddenLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Test hidden leaderboard",
+            'Description' => "I am a hidden leaderboard",
+            'Format' => "TIME",
+            'LowerIsBetter' => 1,
+            'DisplayOrder' => -1,
+        ]);
+        $userEight = User::factory()->create(['User' => 'myUser8']);
+        $leaderboardEntryFive = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $hiddenLeaderboard->ID,
+            'user_id' => $userEight->ID,
+            'score' => 2,
+        ]);
+
         $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->ID]))
             ->assertSuccessful()
             ->assertJson([
