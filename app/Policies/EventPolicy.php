@@ -29,7 +29,7 @@ class EventPolicy
 
     public function view(?User $user, Event $event): bool
     {
-        if ($event->active_from != null && $event->active_from > Carbon::now()) {
+        if ($event->active_from !== null && $event->active_from > Carbon::now()) {
             // future events can only be viewed by users who can manage events
             if (!$user || !$this->manage($user)) {
                 return false;
