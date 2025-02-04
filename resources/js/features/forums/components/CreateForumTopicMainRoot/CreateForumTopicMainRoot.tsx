@@ -16,7 +16,7 @@ export const CreateForumTopicMainRoot: FC = memo(() => {
   const { initiatePreview, previewContent } = useShortcodeBodyPreview();
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <ForumBreadcrumbs
         forum={forum}
         forumCategory={forum.category}
@@ -26,7 +26,7 @@ export const CreateForumTopicMainRoot: FC = memo(() => {
       <CreateTopicForm onPreview={initiatePreview} />
 
       {previewContent ? (
-        <div data-testid="preview-content" className="mt-4">
+        <div data-testid="preview-content">
           <ForumPostCard body={previewContent} />
         </div>
       ) : null}

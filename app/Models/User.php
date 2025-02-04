@@ -34,7 +34,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Jenssegers\Optimus\Optimus;
-use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -53,7 +52,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     use HasFactory;
     use Notifiable;
 
-    use Searchable;
     use SoftDeletes;
 
     /*
@@ -453,7 +451,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
        return $this->username ?? null;
     }
 
-    public function getUsernameAttribute(): string
+    public function getUsernameAttribute(): ?string
     {
         return $this->getAttribute('User');
     }
@@ -608,5 +606,53 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     public function scopeTracked(Builder $query): Builder
     {
         return $query->where('Untracked', false); // TODO: use unranked_at=NULL?
+    }
+
+    /**
+     * @param Builder<User> $query
+     * @return Builder<User>
+     */
+    public function scopeSearch(Builder $query, string $keyword): Builder
+    {
+        // Start with base conditions that apply to all searches.
+        $baseQuery = $query
+            ->whereNotNull('email_verified_at')
+            ->whereNull('Deleted')
+            ->whereNull('banned_at');
+
+        // Return early if keyword is empty to avoid unnecessary processing.
+        if (empty($keyword)) {
+            return $baseQuery;
+        }
+
+        // Common ranking calculation for both queries.
+        $activityRank = "
+            CASE
+                WHEN achievements_unlocked > 0 THEN 40
+                WHEN LastLogin > DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 20
+                WHEN LastLogin > DATE_SUB(NOW(), INTERVAL 90 DAY) THEN 10
+                ELSE 0
+            END";
+
+        return $baseQuery
+            ->select('*')
+            ->selectRaw("
+                CASE 
+                    WHEN User = ? THEN 100
+                    WHEN display_name = ? THEN 90
+                    WHEN User LIKE ? THEN 80
+                    WHEN display_name LIKE ? THEN 70
+                    ELSE 0
+                END + {$activityRank} as search_rank
+            ", [$keyword, $keyword, "{$keyword}%", "{$keyword}%"])
+            ->where(function ($q) use ($keyword) {
+                $q->where('User', '=', $keyword)
+                  ->orWhere('display_name', '=', $keyword)
+                  ->orWhere('User', 'LIKE', "{$keyword}%")
+                  ->orWhere('display_name', 'LIKE', "{$keyword}%");
+            })
+            ->orderBy('search_rank', 'desc')
+            ->orderBy('achievements_unlocked', 'desc')
+            ->limit(10);
     }
 }

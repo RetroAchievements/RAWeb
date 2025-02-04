@@ -468,6 +468,7 @@ declare module 'ziggy-js' {
         }
     ],
     "message-thread.index": [],
+    "message-thread.create": [],
     "message-thread.show2": [
         {
             "name": "messageThread",
@@ -654,7 +655,8 @@ declare module 'ziggy-js' {
     "api.user.delete-request.store": [],
     "api.user.delete-request.destroy": [],
     "api.user.avatar.store": [],
-    "api.user.avatar.destroy": []
+    "api.user.avatar.destroy": [],
+    "api.search.index": []
 }
 }
 export {};

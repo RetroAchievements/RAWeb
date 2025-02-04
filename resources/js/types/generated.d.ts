@@ -74,6 +74,12 @@ declare namespace App.Community.Data {
     createdAt: string;
     author?: App.Data.User;
   };
+  export type MessageThreadCreatePageProps = {
+    toUser: App.Data.User | null;
+    message: string | null;
+    subject: string | null;
+    templateKind: App.Community.Enums.MessageThreadTemplateKind | null;
+  };
   export type MessageThread = {
     id: number;
     title: string;
@@ -166,7 +172,6 @@ declare namespace App.Community.Data {
   };
 }
 declare namespace App.Community.Enums {
-  export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   export type NewsCategory =
     | 'achievement-set'
     | 'community'
@@ -175,6 +180,13 @@ declare namespace App.Community.Enums {
     | 'media'
     | 'site-release-notes'
     | 'technical';
+  export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+  export type MessageThreadTemplateKind =
+    | 'achievement-issue'
+    | 'manual-unlock'
+    | 'misclassification'
+    | 'unwelcome-concept'
+    | 'writing-error';
   export type AwardType = 1 | 2 | 3 | 6 | 7 | 8 | 9;
   export type ClaimSetType = 0 | 1;
   export type ClaimStatus = 0 | 1 | 2 | 3;
