@@ -18,6 +18,12 @@ class UserProfileTest extends TestCase
         $this->get($this->apiUrl('GetUserProfile'))
             ->assertJsonValidationErrors([
                 'u',
+                'i',
+            ]);
+
+        $this->get($this->apiUrl('GetUserProfile', ['u' => 'username', 'i' => 'ulid']))
+            ->assertJsonValidationErrors([
+                'i', // should fail size:26 validation.
             ]);
     }
 
@@ -28,7 +34,14 @@ class UserProfileTest extends TestCase
             ->assertJson([]);
     }
 
-    public function testGetUserProfile(): void
+    public function testGetUserProfileUnknownUlid(): void
+    {
+        $this->get($this->apiUrl('GetUserProfile', ['i' => '01HNG49MXJA71KCVG3PXQS5B2C']))
+            ->assertNotFound()
+            ->assertJson([]);
+    }
+
+    public function testGetUserProfileByUsername(): void
     {
         /** @var User $user */
         $user = User::factory()->create();
@@ -37,6 +50,33 @@ class UserProfileTest extends TestCase
             ->assertSuccessful()
             ->assertJson([
                 'User' => $user->User,
+                'UserPic' => sprintf("/UserPic/%s.png", $user->User),
+                'MemberSince' => $user->created_at->toDateTimeString(),
+                'RichPresenceMsg' => ($user->RichPresenceMsg) ? $user->RichPresenceMsg : null,
+                'LastGameID' => $user->LastGameID,
+                'ContribCount' => $user->ContribCount,
+                'ContribYield' => $user->ContribYield,
+                'TotalPoints' => $user->RAPoints,
+                'TotalSoftcorePoints' => $user->RASoftcorePoints,
+                'TotalTruePoints' => $user->TrueRAPoints,
+                'Permissions' => $user->getAttribute('Permissions'),
+                'Untracked' => $user->Untracked,
+                'ID' => $user->ID,
+                'UserWallActive' => $user->UserWallActive,
+                'Motto' => $user->Motto,
+            ]);
+    }
+
+    public function testGetUserProfileByUlid(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        $this->get($this->apiUrl('GetUserProfile', ['i' => $user->ulid]))
+            ->assertSuccessful()
+            ->assertJson([
+                'User' => $user->User,
+                'ULID' => $user->ulid,
                 'UserPic' => sprintf("/UserPic/%s.png", $user->User),
                 'MemberSince' => $user->created_at->toDateTimeString(),
                 'RichPresenceMsg' => ($user->RichPresenceMsg) ? $user->RichPresenceMsg : null,
