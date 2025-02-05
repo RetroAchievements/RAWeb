@@ -107,8 +107,7 @@ describe('Component: FullPaginator', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('combobox'));
-    await userEvent.click(screen.getByRole('option', { name: '2' }));
+    await userEvent.selectOptions(screen.getByRole('combobox'), ['2']);
 
     // ASSERT
     expect(onPageSelectValueChange).toHaveBeenCalledWith(2);
