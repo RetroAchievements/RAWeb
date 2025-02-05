@@ -120,8 +120,7 @@ describe('Component: MessagesRoot', () => {
 
     // ACT
     const paginatorCombobox = screen.getAllByRole('combobox')[0];
-    await userEvent.click(paginatorCombobox);
-    await userEvent.click(screen.getByRole('option', { name: '2' }));
+    await userEvent.selectOptions(paginatorCombobox, ['2']);
 
     // ASSERT
     expect(visitSpy).toHaveBeenCalledOnce();

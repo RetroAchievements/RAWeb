@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { type ChangeEvent, type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuArrowLeft, LuArrowLeftToLine, LuArrowRight, LuArrowRightToLine } from 'react-icons/lu';
 
@@ -11,13 +11,7 @@ import {
 import { cn } from '@/common/utils/cn';
 
 import { baseButtonVariants } from '../+vendor/BaseButton';
-import {
-  BaseSelect,
-  BaseSelectContent,
-  BaseSelectItem,
-  BaseSelectTrigger,
-  BaseSelectValue,
-} from '../+vendor/BaseSelect';
+import { BaseSelectNative } from '../+vendor/BaseSelectNative';
 
 interface FullPaginatorProps<TData = unknown> {
   onPageSelectValueChange: (newPageValue: number) => void;
@@ -36,12 +30,19 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
     links: { firstPageUrl, lastPageUrl, nextPageUrl, previousPageUrl },
   } = paginatedData;
 
+  const [internalValue, setInternalValue] = useState(String(currentPage));
+
   if (!previousPageUrl && !nextPageUrl) {
     return <span />;
   }
 
   // Generate an array of all page numbers. We'll use this to populate the select control.
   const pageOptions = Array.from({ length: lastPage }, (_, i) => i + 1);
+
+  const handlePageSelect = (event: ChangeEvent<HTMLSelectElement>) => {
+    setInternalValue(event.target.value);
+    onPageSelectValueChange(Number(event.target.value));
+  };
 
   return (
     <BasePagination>
@@ -83,22 +84,17 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
         >
           <span>{t('Page')}</span>
 
-          <BaseSelect
-            value={String(currentPage)}
-            onValueChange={(value) => onPageSelectValueChange(Number(value))}
+          <BaseSelectNative
+            value={internalValue}
+            onChange={handlePageSelect}
+            className="!h-[32px] min-w-[70px]"
           >
-            <BaseSelectTrigger className="!h-[32px] min-w-[70px]">
-              <BaseSelectValue />
-            </BaseSelectTrigger>
-
-            <BaseSelectContent>
-              {pageOptions.map((page) => (
-                <BaseSelectItem key={`page-value-${page}`} value={page.toString()}>
-                  {page}
-                </BaseSelectItem>
-              ))}
-            </BaseSelectContent>
-          </BaseSelect>
+            {pageOptions.map((page) => (
+              <option key={`page-value-${page}`} value={page.toString()}>
+                {page}
+              </option>
+            ))}
+          </BaseSelectNative>
 
           <span className="whitespace-nowrap">
             {t('of {{pageNumber, number}}', { pageNumber: lastPage })}

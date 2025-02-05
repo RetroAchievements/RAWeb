@@ -78,6 +78,20 @@ class GameSet extends BaseModel
                     ])
                     ->event('pivotAttached')
                     ->log('pivotAttached');
+
+                // Log the attachment on each game model.
+                foreach ($attachedGames as $game) {
+                    $attribute = $model->type === GameSetType::Hub ? 'hubs' : 'similarGames';
+
+                    activity()->causedBy($user)->performedOn($game)
+                        ->withProperty('old', [$attribute => null])
+                        ->withProperty('attributes', [$attribute => [
+                            'id' => $model->id,
+                            'title' => $model->title,
+                        ]])
+                        ->event('pivotAttached')
+                        ->log('pivotAttached');
+                }
             }
 
             if ($relationName === 'parents') {
@@ -121,6 +135,20 @@ class GameSet extends BaseModel
                     ->withProperty('attributes', [$relationName => null])
                     ->event('pivotDetached')
                     ->log('pivotDetached');
+
+                // Log the detachment on each game model.
+                foreach ($detachedGames as $game) {
+                    $attribute = $model->type === GameSetType::Hub ? 'hubs' : 'similarGames';
+
+                    activity()->causedBy($user)->performedOn($game)
+                        ->withProperty('old', [$attribute => [
+                            'id' => $model->id,
+                            'title' => $model->title,
+                        ]])
+                        ->withProperty('attributes', [$attribute => null])
+                        ->event('pivotDetached')
+                        ->log('pivotDetached');
+                }
             }
 
             if ($relationName === 'parents') {
