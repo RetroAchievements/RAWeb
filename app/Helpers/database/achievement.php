@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
+use App\Models\EventAchievement;
 use App\Models\User;
 use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
 use App\Platform\Actions\UpsertTriggerVersionAction;
@@ -446,6 +447,24 @@ function UploadNewAchievement(
                         "{$author->display_name} edited this achievement's $editString.",
                         $author->display_name
                     );
+                }
+            }
+
+            // copy the updated badge/title/description to any active event achievements referencing it.
+            if (in_array('badge', $fields)
+                || in_array('title', $fields)
+                || in_array('description', $fields)) {
+
+                $eventAchievements = EventAchievement::with(['achievement'])
+                    ->where('source_achievement_id', $achievement->id)
+                    ->active()
+                    ->get();
+
+                foreach ($eventAchievements as $eventAchievement) {
+                    $eventAchievement->achievement->BadgeName = $badge;
+                    $eventAchievement->achievement->Title = $title;
+                    $eventAchievement->achievement->Description = $desc;
+                    $eventAchievement->achievement->save();
                 }
             }
         }

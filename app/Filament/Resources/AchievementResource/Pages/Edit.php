@@ -9,8 +9,10 @@ use App\Filament\Concerns\HasFieldLevelAuthorization;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\AchievementResource;
 use App\Models\Achievement;
+use App\Models\EventAchievement;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
 
 class Edit extends EditRecord
 {
@@ -55,5 +57,35 @@ class Edit extends EditRecord
         }
 
         return $data;
+    }
+
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        $record->fill($data);
+
+        // copy the updated badge/title/description to any active event achievements referencing it.
+        if ($record->isDirty('BadgeName')
+            || $record->isDirty('Title')
+            || $record->isDirty('Description')) {
+
+            /** @var Achievement $achievement */
+            $achievement = $record;
+
+            $eventAchievements = EventAchievement::with(['achievement'])
+                ->where('source_achievement_id', $achievement->id)
+                ->active()
+                ->get();
+
+            foreach ($eventAchievements as $eventAchievement) {
+                $eventAchievement->achievement->BadgeName = $achievement->BadgeName;
+                $eventAchievement->achievement->Title = $achievement->Title;
+                $eventAchievement->achievement->Description = $achievement->Description;
+                $eventAchievement->achievement->save();
+            }
+        }
+
+        $record->save();
+
+        return $record;
     }
 }
