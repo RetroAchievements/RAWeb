@@ -38,7 +38,7 @@ class Create extends CreateRecord
         // these fields don't actually exist on the event record. don't pass to create().
         $numberOfAchievements = (int) $data['numberOfAchievements'];
         unset($data['numberOfAchievements']);
-        $user_id = $data['user_id'];
+        $user_id = (int) $data['user_id'];
         unset($data['user_id']);
 
         // create the event record
