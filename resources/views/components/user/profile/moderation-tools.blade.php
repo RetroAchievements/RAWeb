@@ -40,7 +40,7 @@ $hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUser);
                 <form method="post" action="/request/user/update.php">
                     @csrf
                     <input type="hidden" name="property" value="{{ UserAction::UpdatePermissions }}">
-                    <input type="hidden" name="target" value="{{ $targetUsername }}">
+                    <input type="hidden" name="target" value="{{ $targetUser->display_name }}">
                     
                     <td class="text-right">
                         <button class="btn">Update Account Type</button>
@@ -66,7 +66,7 @@ $hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUser);
                 <form method="post" action="/request/user/update.php">
                     @csrf
                     <input type="hidden" name="property" value="{{ UserAction::PatreonBadge }}">
-                    <input type="hidden" name="target" value="{{ $targetUsername }}">
+                    <input type="hidden" name="target" value="{{ $targetUser->display_name }}">
                     <input type="hidden" name="value" value="0" />
                     <button class="btn">Toggle Patreon Supporter</button>
                 </form>
@@ -81,7 +81,7 @@ $hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUser);
                 <form method="post" action="/request/user/update.php">
                     @csrf
                     <input type="hidden" name="property" value="{{ UserAction::LegendBadge }}">
-                    <input type="hidden" name="target" value="{{ $targetUsername }}">
+                    <input type="hidden" name="target" value="{{ $targetUser->display_name }}">
                     <input type="hidden" name="value" value="0" />
                     <button class="btn">Toggle Certified Legend</button>
                 </form>
@@ -96,7 +96,7 @@ $hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUser);
                 <form method="post" action="/request/user/update.php">
                     @csrf
                     <input type="hidden" name="property" value="{{ UserAction::TrackedStatus }}">
-                    <input type="hidden" name="target" value="{{ $targetUsername }}">
+                    <input type="hidden" name="target" value="{{ $targetUser->display_name }}">
                     <input type="hidden" name="value" value="{{ $isTargetUserUntracked ? 0 : 1 }}" />
                     <button class="btn btn-danger">Toggle Tracked Status</button>
                 </form>
