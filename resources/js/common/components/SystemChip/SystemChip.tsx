@@ -24,7 +24,7 @@ export const SystemChip: FC<SystemChipProps> = ({
   }
 
   return (
-    <BaseChip className={className}>
+    <BaseChip className={cn('whitespace-nowrap', className)}>
       <img src={iconUrl} alt={nameShort} width={18} height={18} />
 
       <span className={cn(showLabel ? null : 'sr-only')}>{children ?? nameShort}</span>
