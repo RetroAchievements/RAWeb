@@ -98,6 +98,7 @@ class SimilarGames extends ManageRelatedRecords
                             ->multiple()
                             ->options(function () {
                                 return Game::whereNot('ID', $this->getOwnerRecord()->id)
+                                    ->where('ConsoleID', '!=', System::Hubs)
                                     ->limit(50)
                                     ->with('system')
                                     ->get()
@@ -105,6 +106,7 @@ class SimilarGames extends ManageRelatedRecords
                             })
                             ->getOptionLabelsUsing(function (array $values): array {
                                 return Game::whereIn('ID', $values)
+                                    ->where('ConsoleID', '!=', System::Hubs)
                                     ->with('system')
                                     ->get()
                                     ->mapWithKeys(fn ($game) => [$game->id => "[{$game->id}] {$game->title} ({$game->system->name})"])
@@ -113,6 +115,7 @@ class SimilarGames extends ManageRelatedRecords
                             ->searchable()
                             ->getSearchResultsUsing(function (string $search) {
                                 return Game::whereNot('ID', $this->getOwnerRecord()->id)
+                                    ->where('ConsoleID', '!=', System::Hubs)
                                     ->where(function ($query) use ($search) {
                                         $query->where('ID', 'LIKE', "%{$search}%")
                                             ->orWhere('Title', 'LIKE', "%{$search}%");
