@@ -860,4 +860,69 @@ class GetUserGameLeaderboardsTest extends TestCase
                 ],
             ]);
     }
+
+    public function testGetUserGameLeaderboardsDoesNotIncludeDeletedLeaderboards(): void
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var Leaderboard $activeLeaderboard */
+        $activeLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Active leaderboard",
+            'Description' => "I am active",
+            'LowerIsBetter' => true,
+        ]);
+
+        /** @var Leaderboard $deletedLeaderboard */
+        $deletedLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Deleted leaderboard",
+            'Description' => "I am deleted",
+            'LowerIsBetter' => true,
+            'deleted_at' => now(),
+        ]);
+
+        $user = User::factory()->create(['User' => 'testUser']);
+
+        // ... create entries for both leaderboards ...
+        $activeEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $activeLeaderboard->ID,
+            'user_id' => $user->ID,
+            'score' => 100,
+        ]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $deletedLeaderboard->ID,
+            'user_id' => $user->ID,
+            'score' => 200,
+        ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1, // !! only count the non-deleted leaderboard
+                'Results' => [
+                    [
+                        'ID' => $activeLeaderboard->ID,
+                        'RankAsc' => $activeLeaderboard->LowerIsBetter,
+                        'Title' => $activeLeaderboard->Title,
+                        'Description' => $activeLeaderboard->Description,
+                        'Format' => $activeLeaderboard->Format,
+                        'UserEntry' => [ // !! just one entry, for the non-deleted leaderboard
+                            'User' => $user->User,
+                            'Score' => $activeEntry->score,
+                            'FormattedScore' => ValueFormat::format($activeEntry->score, $activeLeaderboard->Format),
+                            'Rank' => 1,
+                            'DateUpdated' => $activeEntry->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+    }
 }

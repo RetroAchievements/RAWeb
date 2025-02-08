@@ -114,7 +114,7 @@ class EventResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('Title')
                             ->label('Title')
-                            ->unique()
+                            ->unique(ignoreRecord: true)
                             ->required()
                             ->minLength(2)
                             ->maxLength(80),
@@ -135,7 +135,7 @@ class EventResource extends Resource
                             ->rules(['alpha_dash'])
                             ->minLength(4)
                             ->maxLength(20)
-                            ->unique()
+                            ->unique(ignoreRecord: true)
                             ->required()
                             ->columnSpan(2),
 

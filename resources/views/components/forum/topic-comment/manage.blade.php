@@ -13,7 +13,7 @@
 >
     {{ csrf_field() }}
     <input type='hidden' name='property' value="{{ UserAction::UpdateForumPostPermissions }}" />
-    <input type='hidden' name='target' value="{{ $forumTopicComment->user->username }}" />
+    <input type='hidden' name='target' value="{{ $forumTopicComment->user->display_name }}" />
     <input type='hidden' name='value' value='1' />
     <button class='btn p-1 lg:text-xs'>Authorise</button>
 </form>
@@ -25,7 +25,7 @@
 >
     {{ csrf_field() }}
     <input type='hidden' name='property' value="{{ UserAction::UpdateForumPostPermissions }}" />
-    <input type='hidden' name='target' value="{{ $forumTopicComment->user->username }}" />
+    <input type='hidden' name='target' value="{{ $forumTopicComment->user->display_name }}" />
     <input type='hidden' name='value' value='0' />
     <button class='btn btn-danger p-1 lg:text-xs'>Block</button>
 </form>

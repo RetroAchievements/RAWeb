@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community\Controllers;
 
 use App\Community\Actions\BuildMessageThreadIndexPagePropsAction;
+use App\Community\Actions\BuildMessageThreadShowPagePropsAction;
 use App\Community\Actions\DeleteMessageThreadAction;
 use App\Http\Controller;
 use App\Models\MessageThread;
@@ -25,7 +26,10 @@ class MessageThreadController extends Controller
         $user = $request->user();
         $currentPage = (int) request()->input('page', 1);
 
-        $actionResult = (new BuildMessageThreadIndexPagePropsAction())->execute($user, $currentPage);
+        $actionResult = (new BuildMessageThreadIndexPagePropsAction())->execute(
+            $user,
+            $currentPage
+        );
 
         if ($actionResult['redirectToPage'] !== null) {
             return redirect()->route('message-thread.index', [
@@ -34,6 +38,31 @@ class MessageThreadController extends Controller
         }
 
         return Inertia::render('messages', $actionResult['props']);
+    }
+
+    public function show(Request $request, MessageThread $messageThread): InertiaResponse|RedirectResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        if (!$user->can('view', $messageThread)) {
+            abort(404);
+        }
+
+        $currentPage = (int) $request->input('page', 1);
+
+        $actionResult = (new BuildMessageThreadShowPagePropsAction())->execute(
+            $messageThread,
+            $user,
+            $currentPage
+        );
+
+        if ($actionResult['redirectToPage'] !== null) {
+            return redirect()->route('message-thread.show', [
+                'page' => $actionResult['redirectToPage'],
+            ]);
+        }
+
+        return Inertia::render('messages/[messageThread]', $actionResult['props']);
     }
 
     public function destroy(Request $request, MessageThread $messageThread): RedirectResponse

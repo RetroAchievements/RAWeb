@@ -49,6 +49,7 @@ class GameSuggestionEngine
             ];
         } else {
             $masteredGames = Game::query()
+                ->whereNotIn('ConsoleID', System::getNonGameSystems())
                 ->whereHas('playerGames', function ($query) {
                     $query->whereUserId($this->user->id)
                         ->whereColumn('achievements_unlocked', 'achievements_total')
@@ -58,6 +59,7 @@ class GameSuggestionEngine
                 ->get();
 
             $beatenGames = Game::query()
+                ->whereNotIn('ConsoleID', System::getNonGameSystems())
                 ->whereHas('playerGames', function ($query) {
                     $query->whereUserId($this->user->id)
                         ->whereNotNull('beaten_at');
@@ -121,6 +123,7 @@ class GameSuggestionEngine
                     new Strategies\SharedAuthorStrategy($beatenGame, SourceGameKind::Beaten),
                     $weight * 0.2,
                 ];
+
                 $this->strategies[] = [new Strategies\CommonPlayersStrategy($this->user, $beatenGame), $weight * 0.4];
             }
 

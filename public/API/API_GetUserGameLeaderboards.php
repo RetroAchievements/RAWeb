@@ -62,8 +62,9 @@ $userLeaderboardEntriesCount = LeaderboardEntry::where('user_id', $user->id)
     ->join('UserAccounts', 'leaderboard_entries.user_id', '=', 'UserAccounts.ID')
     ->whereIn('leaderboard_id', function ($query) use ($game) {
         $query->select('ID')
-              ->from('LeaderboardDef')
-              ->where('GameID', $game->ID);
+            ->from('LeaderboardDef')
+            ->where('GameID', $game->ID)
+            ->whereNull('deleted_at');
     })
     ->whereNull('UserAccounts.unranked_at')
     ->where('UserAccounts.Untracked', 0)
@@ -86,10 +87,10 @@ $leaderboardEntries = LeaderboardEntry::select('leaderboard_entries.*')
             ->where(function ($query) {
                 $query->where(function ($q) {
                     $q->where('leaderboard_rank_calc.LowerIsBetter', 1)
-                      ->whereColumn('entries_rank_calc.score', '<', 'leaderboard_entries.score');
+                        ->whereColumn('entries_rank_calc.score', '<', 'leaderboard_entries.score');
                 })->orWhere(function ($q) {
                     $q->where('leaderboard_rank_calc.LowerIsBetter', 0)
-                      ->whereColumn('entries_rank_calc.score', '>', 'leaderboard_entries.score');
+                        ->whereColumn('entries_rank_calc.score', '>', 'leaderboard_entries.score');
                 });
             })
             ->selectRaw('COUNT(*) + 1'),
@@ -100,6 +101,7 @@ $leaderboardEntries = LeaderboardEntry::select('leaderboard_entries.*')
     ->where('leaderboard_entries.user_id', $user->id)
     ->whereNull('UserAccounts.unranked_at')
     ->where('UserAccounts.Untracked', 0)
+    ->whereNull('LeaderboardDef.deleted_at')
     ->with('leaderboard')
     ->orderBy('LeaderboardDef.ID', 'asc')
     ->skip($offset)
