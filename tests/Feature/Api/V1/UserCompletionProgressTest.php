@@ -27,12 +27,6 @@ class UserCompletionProgressTest extends TestCase
         $this->get($this->apiUrl('GetUserCompletionProgress'))
             ->assertJsonValidationErrors([
                 'u',
-                'i',
-            ]);
-
-        $this->get($this->apiUrl('GetUserCompletionProgress', ['u' => 'username', 'i' => 'ulid']))
-            ->assertJsonValidationErrors([
-                'i', // should fail size:26 validation.
             ]);
     }
 

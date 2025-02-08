@@ -3,8 +3,7 @@
  /*
  *  API_GetUserGameLeaderboards - returns a list of Leaderboards for the given User and GameID
  *    i : gameID
- *    u : username
- *    d : user ULID
+ *    u : username or user ULID
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of entries to return (default: 200, max: 500)
  *
@@ -27,18 +26,17 @@
  *      string     DateUpdated              an ISO8601 timestamp string for when the entry was updated
  */
 
+use App\Actions\FindUserByIdentifierAction;
 use App\Models\Game;
 use App\Models\LeaderboardEntry;
-use App\Models\User;
 use App\Platform\Enums\ValueFormat;
-use App\Support\Rules\CtypeAlnum;
+use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'i' => ['required', 'min:1'],
-    'u' => ['required_without:d', 'min:2', 'max:20', new CtypeAlnum()],
-    'd' => ['required_without:u', 'string', 'size:26'],
+    'u' => ['required', new ValidUserIdentifier()],
     'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
     'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
 ]);
@@ -46,9 +44,7 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
 $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 200;
 
-$user = isset($input['d'])
-    ? User::whereUlid($input['d'])->first()
-    : User::whereName($input['u'])->first();
+$user = (new FindUserByIdentifierAction())->execute($input['u']);
 if (!$user) {
     return response()->json(['User not found'], 404);
 }

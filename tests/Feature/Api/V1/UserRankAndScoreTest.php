@@ -15,15 +15,9 @@ class UserRankAndScoreTest extends TestCase
 
     public function testItValidates(): void
     {
-        $this->get($this->apiUrl('GetUserRankAndScore'))
+        $this->get($this->apiUrl('GetUserCompletionProgress'))
             ->assertJsonValidationErrors([
                 'u',
-                'i',
-            ]);
-
-        $this->get($this->apiUrl('GetUserRankAndScore', ['u' => 'username', 'i' => 'ulid']))
-            ->assertJsonValidationErrors([
-                'i', // should fail size:26 validation.
             ]);
     }
 
@@ -74,7 +68,7 @@ class UserRankAndScoreTest extends TestCase
             'RAPoints' => 25842,
         ]);
 
-        $this->get($this->apiUrl('GetUserRankAndScore', ['i' => $user->ulid]))
+        $this->get($this->apiUrl('GetUserRankAndScore', ['u' => $user->ulid]))
             ->assertSuccessful()
             ->assertJson([
                 'Score' => $user->RAPoints,

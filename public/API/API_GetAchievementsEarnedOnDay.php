@@ -2,8 +2,7 @@
 
 /*
  *  API_GetAchievementsEarnedOnDay - returns achievements earned by a user between two timestamps
- *    u : username
- *    i : user ULID
+ *    u : username or user ULID
  *    d : date (YYYY-MM-DD)
  *
  *  array
@@ -26,21 +25,17 @@
  *    string     GameURL                  site-relative path to the game page
  */
 
-use App\Models\User;
-use App\Support\Rules\CtypeAlnum;
+use App\Actions\FindUserByIdentifierAction;
+use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
-    'i' => ['required_without:u', 'string', 'size:26'],
+    'u' => ['required', new ValidUserIdentifier()],
     'd' => ['required', 'date'],
 ]);
 
-$user = isset($input['i'])
-    ? User::whereUlid($input['i'])->first()
-    : User::whereName($input['u'])->first();
-
+$user = (new FindUserByIdentifierAction())->execute($input['u']);
 if (!$user) {
     return response()->json([]);
 }

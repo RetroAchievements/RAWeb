@@ -1,12 +1,8 @@
 <?php
 
-use App\Models\User;
-use App\Platform\Enums\UnlockMode;
-use Illuminate\Support\Carbon;
-
 /*
  *  API_GetUserRecentAchievements - returns achievements recently earned by a user
- *    u : username
+ *    u : username or user ULID
  *    m : minutes to look back (default: 60)
  *
  *  array
@@ -29,12 +25,24 @@ use Illuminate\Support\Carbon;
  *    string     GameURL                  site-relative path to the game page
  */
 
-$user = User::whereName(request()->query('u'))->first();
+use App\Actions\FindUserByIdentifierAction;
+use App\Platform\Enums\UnlockMode;
+use App\Support\Rules\ValidUserIdentifier;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Validator;
+
+$input = Validator::validate(Arr::wrap(request()->query()), [
+    'u' => ['required', new ValidUserIdentifier()],
+    'm' => ['sometimes', 'integer', 'min:0', 'nullable'],
+]);
+
+$user = (new FindUserByIdentifierAction())->execute($input['u']);
 if (!$user) {
     return response()->json([]);
 }
 
-$minutes = (int) request()->query('m', '60');
+$minutes = $input['m'] ?? 60;
 
 $dateStart = Carbon::now()->subMinutes($minutes)->format('Y-m-d H:i:s');
 $dateEnd = Carbon::now()->addMinutes(1)->format('Y-m-d H:i:s');

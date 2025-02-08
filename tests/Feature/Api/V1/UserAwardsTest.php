@@ -24,10 +24,7 @@ class UserAwardsTest extends TestCase
         $this->get($this->apiUrl('GetUserAwards'))
             ->assertStatus(422)
             ->assertJson([
-                "errors" => [
-                    'u' => ['The u field is required when i is not present.'],
-                    'i' => ['The i field is required when u is not present.'],
-                ],
+                "message" => "The u field is required.",
             ]);
     }
 
@@ -59,7 +56,7 @@ class UserAwardsTest extends TestCase
         $user = User::factory()->create();
         PlayerBadge::factory()->count(3)->create(['user_id' => $user->id]);
 
-        $this->get($this->apiUrl('GetUserAwards', ['i' => $user->ulid]))
+        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->ulid]))
             ->assertSuccessful()
             ->assertJson([
                 'TotalAwardsCount' => 3,

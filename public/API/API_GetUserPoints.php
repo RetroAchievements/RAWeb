@@ -2,26 +2,22 @@
 
 /*
  *  API_GetUserPoints
- *    u : username
- *    i : user ULID
+ *    u : username or user ULID
  *
  *  int        Points                  number of hardcore points the user has
  *  int        SoftcorePoints          number of softcore points the user has
  */
 
- use App\Models\User;
- use App\Support\Rules\CtypeAlnum;
- use Illuminate\Support\Arr;
- use Illuminate\Support\Facades\Validator;
+use App\Actions\FindUserByIdentifierAction;
+use App\Support\Rules\ValidUserIdentifier;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
 
  $input = Validator::validate(Arr::wrap(request()->query()), [
-     'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
-     'i' => ['required_without:u', 'string', 'size:26'],
+     'u' => ['required', new ValidUserIdentifier()],
  ]);
 
-$foundUser = isset($input['i'])
-    ? User::whereUlid($input['i'])->first()
-    : User::whereName($input['u'])->first();
+$foundUser = (new FindUserByIdentifierAction())->execute($input['u']);
 
 if (!$foundUser) {
     return response()->json([], 404);

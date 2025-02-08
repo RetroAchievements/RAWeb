@@ -2,7 +2,7 @@
 
 /*
  *  API_GetUserSetRequests - gets user's set request list
- *    u : username
+ *    u : username or user ULID
  *    t : type. 0 = only active, 1 = all requests including completed ones (default: 0)
  *
  *  array      RequestedSets
@@ -16,22 +16,19 @@
  *  int        PointsForNext              number of points remaining until maximum request increase
  */
 
+use App\Actions\FindUserByIdentifierAction;
 use App\Community\Enums\UserGameListType;
-use App\Models\User;
 use App\Models\UserGameListEntry;
-use App\Support\Rules\CtypeAlnum;
+use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
-    'i' => ['required_without:u', 'string', 'size:26'],
+    'u' => ['required', new ValidUserIdentifier()],
     't' => ['nullable', 'in:0,1'],
 ]);
 
-$user = isset($input['i'])
-    ? User::whereUlid($input['i'])->first()
-    : User::whereName($input['u'])->first();
+$user = (new FindUserByIdentifierAction())->execute($input['u']);
 if (!$user) {
     return response()->json([], 404);
 }

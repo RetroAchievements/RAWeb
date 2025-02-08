@@ -279,7 +279,7 @@ class GetUserGameLeaderboardsTest extends TestCase
             'score' => 1,
         ]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'd' => $user->ulid])) // !!
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->ulid])) // !!
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,

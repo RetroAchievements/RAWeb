@@ -2,8 +2,7 @@
 
 /*
  *  API_GetUserAwards - returns information about the user's earned awards
- *    u : username
- *    i : user ULID
+ *    u : username or user ULID
  *
  *  int        TotalAwardsCount           number of awards earned by the user, including hidden
  *  int        HiddenAwardsCount          number of awards hidden by the user
@@ -27,22 +26,19 @@
 
 declare(strict_types=1);
 
+use App\Actions\FindUserByIdentifierAction;
 use App\Community\Enums\AwardType;
-use App\Models\User;
 use App\Platform\Enums\UnlockMode;
-use App\Support\Rules\CtypeAlnum;
+use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
-    'i' => ['required_without:u', 'string', 'size:26'],
+    'u' => ['required', new ValidUserIdentifier()],
 ]);
 
-$userModel = isset($input['i'])
-    ? User::whereUlid($input['i'])->first()
-    : User::whereName($input['u'])->first();
+$userModel = (new FindUserByIdentifierAction())->execute($input['u']);
 
 $userAwards = getUsersSiteAwards($userModel);
 [$gameMasteryAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);

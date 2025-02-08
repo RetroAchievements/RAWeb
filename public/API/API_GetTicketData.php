@@ -84,8 +84,7 @@
 
 /*
  *  API_GetTicketData - returns ticket statistics for the specified user
- *    u : username
- *    i : user ULID
+ *    u : username or user ULID
  *
  *  string     User                    non-stable unique identifier of the user
  *  string     ULID                    queryable stable unique identifier of the user
@@ -146,6 +145,7 @@
  *  string     URL                     URL to the list of tickets associated to the game
  */
 
+use App\Actions\FindUserByIdentifierAction;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Models\Achievement;
@@ -190,7 +190,7 @@ if ($gamesTableFlag == 1) {
 // getting ticket info for a specific user
 $assignedToUser = request()->query('u');
 if (!empty($assignedToUser)) {
-    $foundUser = User::whereName($assignedToUser)->orWhere('ulid', $assignedToUser)->first();
+    $foundUser = (new FindUserByIdentifierAction())->execute($assignedToUser);
     if (!$foundUser) {
         return response()->json(['error' => "User $assignedToUser not found"], 404);
     }

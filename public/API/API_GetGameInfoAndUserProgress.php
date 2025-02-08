@@ -3,8 +3,7 @@
 /*
  *  API_GetGameInfoAndUserProgress
  *    g : game id
- *    u : username
- *    i : user ULID
+ *    u : username or user ULID
  *    a : if 1, include highest award metadata (default: 0)
  *
  *  int        ID                         unique identifier of the game
@@ -55,25 +54,21 @@
  *  ?datetime  HighestAwardDate           an ISO8601 timestamp string, or null, for when the HighestAwardKind was granted. requires the 'a' query param to be 1.
  */
 
+use App\Actions\FindUserByIdentifierAction;
 use App\Models\PlayerBadge;
-use App\Models\User;
-use App\Support\Rules\CtypeAlnum;
+use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'g' => ['required', 'min:1'],
-    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
-    'i' => ['required_without:u', 'string', 'size:26'],
+    'u' => ['required', new ValidUserIdentifier()],
 ]);
 
 $gameID = (int) $input['g'];
 
-$targetUser = isset($input['i'])
-    ? User::whereUlid($input['i'])->first()
-    : User::whereName($input['u'])->first();
-
+$targetUser = (new FindUserByIdentifierAction())->execute($input['u']);
 if (!$targetUser) {
     return response()->json([]);
 }

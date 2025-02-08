@@ -4,8 +4,7 @@
  *  API_GetUserCompletionProgress - gets the entire completion progress (eg: /user/{username}/progress) for a user
  *                                  similar to `GetUserCompletedGames`, but only includes a single record for each game
  *                                  and also includes the game's current award level as shown on the "Completion Progress" page.
- *    u : username
- *    i : user ULID
+ *    u : username or user ULID
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of entries to return (default: 100, max: 500)
  *
@@ -26,16 +25,15 @@
  *    ?datetime   HighestAwardDate          an ISO8601 timestamp string, or null, for when the HighestAwardKind was granted
  */
 
-use App\Models\User;
+use App\Actions\FindUserByIdentifierAction;
 use App\Platform\Services\PlayerProgressionService;
-use App\Support\Rules\CtypeAlnum;
+use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
-    'i' => ['required_without:u', 'string', 'size:26'],
+    'u' => ['required', new ValidUserIdentifier()],
     'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
     'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
 ]);
@@ -43,9 +41,7 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
 $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 100;
 
-$userModel = isset($input['i'])
-    ? User::whereUlid($input['i'])->first()
-    : User::whereName($input['u'])->first();
+$userModel = (new FindUserByIdentifierAction())->execute($input['u']);
 
 $playerProgressionService = new PlayerProgressionService();
 

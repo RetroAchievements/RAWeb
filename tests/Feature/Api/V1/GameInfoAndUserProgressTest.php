@@ -209,7 +209,7 @@ class GameInfoAndUserProgressTest extends TestCase
         $this->addHardcoreUnlock($user4, $achievement1);
         $this->addHardcoreUnlock($user4, $achievement2);
 
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->ID, 'i' => $user3->ulid])) // !! ulid
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->ID, 'u' => $user3->ulid])) // !! ulid
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $game->ID,

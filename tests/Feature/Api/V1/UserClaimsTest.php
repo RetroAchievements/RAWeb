@@ -22,20 +22,6 @@ class UserClaimsTest extends TestCase
     use RefreshDatabase;
     use BootstrapsApiV1;
 
-    public function testItValidates(): void
-    {
-        $this->get($this->apiUrl('GetUserClaims'))
-            ->assertJsonValidationErrors([
-                'u',
-                'i',
-            ]);
-
-        $this->get($this->apiUrl('GetUserClaims', ['u' => 'username', 'i' => 'ulid']))
-            ->assertJsonValidationErrors([
-                'i', // should fail size:26 validation.
-            ]);
-    }
-
     public function testGetUserClaimsUnknownUser(): void
     {
         Game::factory()->create();
@@ -105,7 +91,7 @@ class UserClaimsTest extends TestCase
             'game_id' => $game->id,
         ]);
 
-        $this->get($this->apiUrl('GetUserClaims', ['i' => $user->ulid]))
+        $this->get($this->apiUrl('GetUserClaims', ['u' => $user->ulid]))
             ->assertSuccessful()
             ->assertJson([
                 [

@@ -23,12 +23,6 @@ class UserCompletedGamesTest extends TestCase
         $this->get($this->apiUrl('GetUserCompletedGames'))
             ->assertJsonValidationErrors([
                 'u',
-                'i',
-            ]);
-
-        $this->get($this->apiUrl('GetUserCompletedGames', ['u' => 'username', 'i' => 'ulid']))
-            ->assertJsonValidationErrors([
-                'i', // should fail size:26 validation.
             ]);
     }
 
@@ -216,7 +210,7 @@ class UserCompletedGamesTest extends TestCase
             $this->addSoftcoreUnlock($user, $ach);
         }
 
-        $this->get($this->apiUrl('GetUserCompletedGames', ['i' => $user->ulid]))
+        $this->get($this->apiUrl('GetUserCompletedGames', ['u' => $user->ulid])) // !!
             ->assertSuccessful()
             ->assertJson([
                 [

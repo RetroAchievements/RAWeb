@@ -147,12 +147,8 @@ class V1Test extends TestCase
     {
         $this->get($this->apiUrl('GetAchievementsEarnedBetween'))
             ->assertStatus(422)
-            ->assertExactJson([
-                'message' => 'The u field is required when i is not present. (and 1 more error)',
-                'errors' => [
-                    'u' => ['The u field is required when i is not present.'],
-                    'i' => ['The i field is required when u is not present.'],
-                ],
+            ->assertJson([
+                "message" => "The u field is required.",
             ]);
     }
 
@@ -216,7 +212,7 @@ class V1Test extends TestCase
 
         $this->get(
             $this->apiUrl('GetAchievementsEarnedBetween', [
-                'i' => $this->user->ulid, // !!
+                'u' => $this->user->ulid, // !!
                 'f' => Carbon::now()->subDay()->startOfDay()->unix(),
                 't' => Carbon::now()->addDay()->endOfDay()->unix(),
             ])
@@ -300,7 +296,7 @@ class V1Test extends TestCase
 
         $this->get(
             $this->apiUrl('GetAchievementsEarnedOnDay', [
-                'i' => $this->user->ulid, // !!
+                'u' => $this->user->ulid, // !!
                 'd' => $unlockTime->format('Y-m-d'),
             ])
         )

@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\FindUserByIdentifierAction;
 use App\Models\Comment;
 use App\Models\User;
 use App\Policies\CommentPolicy;
@@ -66,10 +67,7 @@ $user = null;
 $userPolicy = new UserCommentPolicy();
 
 if ($usernameOrUlid) {
-    $user = User::whereName($usernameOrUlid)
-        ->orWhere('ulid', $usernameOrUlid)
-        ->first();
-
+    $user = (new FindUserByIdentifierAction())->execute($usernameOrUlid);
     if (!$user || !$userPolicy->viewAny(null, $user)) {
         return response()->json([], 404);
     }

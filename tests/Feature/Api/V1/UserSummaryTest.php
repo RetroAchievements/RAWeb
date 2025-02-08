@@ -80,7 +80,7 @@ class UserSummaryTest extends TestCase
         $this->user->RASoftcorePoints = 0;
         $this->user->save();
 
-        $this->get($this->apiUrl('GetUserSummary', ['i' => $this->user->ulid])) // !!
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->ulid])) // !!
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $this->user->ID,

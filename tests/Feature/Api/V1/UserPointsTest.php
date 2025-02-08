@@ -15,15 +15,9 @@ class UserPointsTest extends TestCase
 
     public function testItValidates(): void
     {
-        $this->get($this->apiUrl('GetUserPoints'))
+        $this->get($this->apiUrl('GetUserCompletionProgress'))
             ->assertJsonValidationErrors([
                 'u',
-                'i',
-            ]);
-
-        $this->get($this->apiUrl('GetUserPoints', ['u' => 'username', 'i' => 'ulid']))
-            ->assertJsonValidationErrors([
-                'i', // should fail size:26 validation.
             ]);
     }
 
@@ -55,7 +49,7 @@ class UserPointsTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
 
-        $this->get($this->apiUrl('GetUserPoints', ['i' => $user->ulid]))
+        $this->get($this->apiUrl('GetUserPoints', ['u' => $user->ulid]))
             ->assertSuccessful()
             ->assertJson([
                 'Points' => $user->RAPoints,

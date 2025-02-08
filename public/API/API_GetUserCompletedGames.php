@@ -2,8 +2,7 @@
 
 /*
  *  API_GetUserCompletedGames - gets all game progress for a user
- *    u : username
- *    i : user ULID
+ *    u : username or user ULID
  *
  *    NOTE: each game may appear in the list twice - once for Hardcore and once for Casual
  *
@@ -20,19 +19,16 @@
  *    string     HardcoreMode     "1" if the data is for hardcore, otherwise "0"
  */
 
- use App\Models\User;
-use App\Support\Rules\CtypeAlnum;
+use App\Actions\FindUserByIdentifierAction;
+use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
-    'i' => ['required_without:u', 'string', 'size:26'],
+    'u' => ['required', new ValidUserIdentifier()],
 ]);
 
-$user = isset($input['i'])
-    ? User::whereUlid($input['i'])->first()
-    : User::whereName($input['u'])->first();
+$user = (new FindUserByIdentifierAction())->execute($input['u']);
 
 $result = [];
 $completedGames = getUsersCompletedGamesAndMax($user?->username ?? "");

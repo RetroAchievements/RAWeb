@@ -82,7 +82,7 @@ class UserGameRankAndScoreTest extends TestCase
         $this->addHardcoreUnlock($user2, $secondAchievement);
         $this->addHardcoreUnlock($user2, $thirdAchievement);
 
-        $this->get($this->apiUrl('GetUserGameRankAndScore', ['i' => $user->ulid, 'g' => $game->ID]))
+        $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => $user->ulid, 'g' => $game->ID]))
             ->assertSuccessful()
             ->assertJson([[
                 'User' => $user->User,

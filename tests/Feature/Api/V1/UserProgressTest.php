@@ -106,7 +106,7 @@ class UserProgressTest extends TestCase
 
         $csv = $game->ID . ',' . $game2->ID . ',' . $game3->ID . ',15934';
 
-        $this->get($this->apiUrl('GetUserProgress', ['d' => $this->user->ulid, 'i' => $csv]))
+        $this->get($this->apiUrl('GetUserProgress', ['u' => $this->user->ulid, 'i' => $csv]))
             ->assertSuccessful()
             ->assertJson([
                 $game->ID => [

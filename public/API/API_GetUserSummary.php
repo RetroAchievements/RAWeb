@@ -2,8 +2,7 @@
 
 /*
  *  API_GetUserSummary
- *    u : username
- *    i : user ULID
+ *    u : username or user ULID
  *    g : number of recent games to return (default: 0)
  *    a : number of recent achievements to return (default: 10)
  *        NOTE: Recent achievements are pulled from recent games, so if you ask for
@@ -88,14 +87,13 @@
  *  int        ContribYield            points awarded to others
  */
 
-use App\Models\User;
-use App\Support\Rules\CtypeAlnum;
+use App\Actions\FindUserByIdentifierAction;
+use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required_without:i', 'min:2', 'max:20', new CtypeAlnum()],
-    'i' => ['required_without:u', 'string', 'size:26'],
+    'u' => ['required', new ValidUserIdentifier()],
     'g' => 'nullable|integer|min:0',
     'a' => 'nullable|integer|min:0',
 ]);
@@ -108,9 +106,7 @@ if ($recentGamesPlayed > 100) {
     $recentGamesPlayed = 100;
 }
 
-$userModel = isset($input['i'])
-    ? User::whereUlid($input['i'])->first()
-    : User::whereName($input['u'])->first();
+$userModel = (new FindUserByIdentifierAction())->execute($input['u']);
 $retVal = getUserPageInfo($userModel?->display_name ?? "", $recentGamesPlayed, $recentAchievementsEarned);
 
 if (empty($retVal)) {
