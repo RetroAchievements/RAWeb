@@ -211,7 +211,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
             $nextSubmitAt = $nextEntry['DateSubmitted'];
             $nextSubmitAtNice = getNiceDate($nextSubmitAt);
 
-            $isLocal = $nextUser === $userModel->display_name;
+            $isLocal = $nextUser === $userModel?->display_name;
             $lastEntry = ($resultsDrawn + 1 == $numEntries);
             $userAppendedInResults = ($numEntries > $count);
 
