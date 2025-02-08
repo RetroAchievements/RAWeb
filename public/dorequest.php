@@ -178,7 +178,7 @@ if (
 
     // Replace the initiating user's properties with those of the user being delegated.
     $user = $foundDelegateToUser;
-    $username = $delegateTo;
+    $username = $foundDelegateToUser->username;
 }
 
 switch ($requestType) {
