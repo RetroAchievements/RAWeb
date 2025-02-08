@@ -80,6 +80,6 @@ foreach ($leaderboards as $leaderboard) {
 
 return response()->json([
     'Count' => count($leaderboards),
-    'Total' => $game->leaderboards()->count(),
+    'Total' => $game->leaderboards()->visible()->count(),
     'Results' => $results,
 ]);

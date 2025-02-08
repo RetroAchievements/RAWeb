@@ -29,6 +29,7 @@ class UserFactory extends Factory
     {
         return [
             // required
+            'ulid' => (string) Str::ulid(),
             'User' => $this->fakeUsername(),
             'EmailAddress' => fake()->unique()->safeEmail,
             'email_verified_at' => now(),

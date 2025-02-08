@@ -59,7 +59,7 @@ class BuildMessageThreadIndexPagePropsAction
                 total: $paginatedMessageThreads->total(),
                 items: MessageThreadData::fromCollection($paginatedMessageThreads->getCollection())
             ),
-            unreadMessageCount: $user->UnreadMessageCount,
+            unreadMessageCount: $user->UnreadMessageCount ?? 0,
         );
 
         return ['props' => $props, 'redirectToPage' => null];
