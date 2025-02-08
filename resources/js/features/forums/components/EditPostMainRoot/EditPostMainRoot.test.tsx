@@ -1,3 +1,4 @@
+import * as UseShortcodeBodyPreviewModule from '@/common/hooks/useShortcodeBodyPreview';
 import { render, screen } from '@/test';
 import {
   createForum,
@@ -6,7 +7,6 @@ import {
   createForumTopicComment,
 } from '@/test/factories';
 
-import * as UseForumPostPreviewModule from '../../hooks/useForumPostPreview';
 import { EditPostMainRoot } from './EditPostMainRoot';
 
 // Prevent the autosize textarea from flooding the console with errors.
@@ -74,7 +74,7 @@ describe('Component: EditPostMainRoot', () => {
 
     const mockPreviewContent = 'Test preview content.';
 
-    vi.spyOn(UseForumPostPreviewModule, 'useForumPostPreview').mockReturnValue({
+    vi.spyOn(UseShortcodeBodyPreviewModule, 'useShortcodeBodyPreview').mockReturnValue({
       initiatePreview: vi.fn(),
       previewContent: mockPreviewContent,
     } as any);

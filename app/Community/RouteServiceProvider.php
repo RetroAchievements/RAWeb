@@ -16,6 +16,9 @@ use App\Community\Controllers\Api\GameCommentApiController;
 use App\Community\Controllers\Api\GameHashesCommentApiController;
 use App\Community\Controllers\Api\GameModificationsCommentApiController;
 use App\Community\Controllers\Api\LeaderboardCommentApiController;
+use App\Community\Controllers\Api\MessageApiController;
+use App\Community\Controllers\Api\MessageThreadApiController;
+use App\Community\Controllers\Api\ShortcodeApiController;
 use App\Community\Controllers\Api\SubscriptionApiController;
 use App\Community\Controllers\Api\UserCommentApiController;
 use App\Community\Controllers\Api\UserGameListApiController;
@@ -71,9 +74,10 @@ class RouteServiceProvider extends ServiceProvider
                     Route::group(['prefix' => 'internal-api'], function () {
                         Route::post('achievement/{achievement}/comment', [AchievementCommentApiController::class, 'store'])->name('api.achievement.comment.store');
 
+                        Route::post('shortcode-body/preview', [ShortcodeApiController::class, 'preview'])->name('api.shortcode-body.preview');
+
                         Route::post('forums/{category}/{forum}/topic', [ForumTopicApiController::class, 'store'])->name('api.forum-topic.store');
                         Route::patch('forums/post/{comment}', [ForumTopicCommentApiController::class, 'update'])->name('api.forum-topic-comment.update');
-                        Route::post('forums/post/preview', [ForumTopicCommentApiController::class, 'preview'])->name('api.forum-topic-comment.preview');
 
                         Route::post('game/{game}/claims/comment', [GameClaimsCommentApiController::class, 'store'])->name('api.game.claims.comment.store');
                         Route::post('game/{game}/comment', [GameCommentApiController::class, 'store'])->name('api.game.comment.store');
@@ -90,11 +94,12 @@ class RouteServiceProvider extends ServiceProvider
                         Route::delete('game/{game}/comment/{comment}', [GameCommentApiController::class, 'destroy'])->name('api.game.comment.destroy');
                         Route::delete('game/{game}/hashes/comment/{comment}', [GameHashesCommentApiController::class, 'destroy'])->name('api.game.hashes.comment.destroy');
                         Route::delete('game/{game}/modification-comment/{comment}', [GameModificationsCommentApiController::class, 'destroy'])->name('api.game.modification-comment.destroy');
-
                         Route::delete('leaderboard/{leaderboard}/comment/{comment}', [LeaderboardCommentApiController::class, 'destroy'])->name('api.leaderboard.comment.destroy');
-
                         Route::delete('user/{user}/comment/{comment}', [UserCommentApiController::class, 'destroy'])->name('api.user.comment.destroy');
                         Route::delete('user/{user}/moderation-comment/{comment}', [UserModerationCommentApiController::class, 'destroy'])->name('api.user.moderation-comment.destroy');
+
+                        Route::post('messages', [MessageApiController::class, 'store'])->name('api.message.store');
+                        Route::delete('messages/{messageThread}', [MessageThreadApiController::class, 'destroy'])->name('api.message-thread.destroy');
 
                         Route::post('subscription/{subjectType}/{subjectId}', [SubscriptionApiController::class, 'store'])->name('api.subscription.store');
                         Route::delete('subscription/{subjectType}/{subjectId}', [SubscriptionApiController::class, 'destroy'])->name('api.subscription.destroy');
@@ -110,6 +115,7 @@ class RouteServiceProvider extends ServiceProvider
                         Route::get('forums/post/{comment}/edit', [ForumTopicCommentController::class, 'edit'])->name('forum-topic-comment.edit');
 
                         Route::get('messages', [MessageThreadController::class, 'index'])->name('message-thread.index');
+                        Route::get('message-thread2/{messageThread}', [MessageThreadController::class, 'show'])->name('message-thread.show2');
 
                         Route::get('settings', [UserSettingsController::class, 'show'])->name('settings.show');
                     });
