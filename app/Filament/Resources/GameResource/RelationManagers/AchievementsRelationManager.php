@@ -306,14 +306,33 @@ class AchievementsRelationManager extends RelationManager
                             return false;
                         }
 
-                        $records->each(function (Achievement $record) use ($data) {
-                            $targetUser = User::find($data['user_id']);
+                        $targetUser = User::find($data['user_id']);
+                        $task = AchievementAuthorTask::from($data['task']);
+                        $backdate = Carbon::parse($data['created_at']) ?? now();
 
-                            $record->ensureAuthorshipCredit(
-                                $targetUser,
-                                AchievementAuthorTask::from($data['task']),
-                                backdate: Carbon::parse($data['created_at']) ?? now(),
-                            );
+                        // Load all existing credit records in a single query.
+                        $existingRecords = AchievementAuthor::withTrashed()
+                            ->whereIn('achievement_id', $records->pluck('id'))
+                            ->whereUserId($targetUser->id)
+                            ->whereTask($task->value)
+                            ->get()
+                            ->keyBy('achievement_id');
+
+                        $records->each(function (Achievement $record) use ($existingRecords, $targetUser, $task, $backdate) {
+                            $existingRecord = $existingRecords->get($record->id);
+
+                            if ($existingRecord) {
+                                if ($existingRecord->trashed()) {
+                                    $existingRecord->restore();
+                                }
+                                $existingRecord->created_at = $backdate;
+                                $existingRecord->save();
+
+                                return;
+                            }
+
+                            // If no existing credit record is found, create a new one.
+                            $record->ensureAuthorshipCredit($targetUser, $task, $backdate);
                         });
 
                         Notification::make()

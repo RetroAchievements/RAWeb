@@ -94,6 +94,21 @@ class AchievementSetsRelationManager extends RelationManager
                         'integer',
                         'min:1',
                     ])
+                    ->updateStateUsing(function ($record, $state) {
+                        // Filament is going to automatically try to use the updated_at
+                        // column name of the parent resource, which is `Updated`. The mismatch
+                        // between parent (`Updated`) and child (`updated_at`) throws a SQL error
+                        // unless we intervene.
+                        $record->games()->updateExistingPivot(
+                            $this->getOwnerRecord()->id,
+                            [
+                                'order_column' => $state,
+                                'updated_at' => now(),
+                            ]
+                        );
+
+                        return $state;
+                    })
                     ->disabled(fn ($record) => $record->type === AchievementSetType::Core->value),
             ])
             ->filters([

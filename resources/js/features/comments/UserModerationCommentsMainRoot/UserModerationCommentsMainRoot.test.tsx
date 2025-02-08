@@ -147,7 +147,7 @@ describe('Component: UserModerationCommentsMainRoot', () => {
     // ACT
     const comboboxEl = screen.getAllByRole('combobox')[0];
     await userEvent.click(comboboxEl);
-    await userEvent.click(screen.getByRole('option', { name: '2' }));
+    await userEvent.selectOptions(comboboxEl, ['2']);
 
     // ASSERT
     expect(visitSpy).toHaveBeenCalledOnce();
