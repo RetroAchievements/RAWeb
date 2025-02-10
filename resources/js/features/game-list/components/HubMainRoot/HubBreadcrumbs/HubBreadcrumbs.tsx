@@ -38,10 +38,8 @@ export const HubBreadcrumbs: FC<HubBreadcrumbsProps> = ({ breadcrumbs }) => {
                 {index !== breadcrumbs.length - 1 ? (
                   <>
                     <BaseBreadcrumbItem aria-label={breadcrumb.title!}>
-                      <BaseBreadcrumbLink asChild>
-                        <InertiaLink href={route('hub.show', { gameSet: breadcrumb.id })}>
-                          {currentTitle}
-                        </InertiaLink>
+                      <BaseBreadcrumbLink href={route('hub.show', { gameSet: breadcrumb.id })}>
+                        {currentTitle}
                       </BaseBreadcrumbLink>
                     </BaseBreadcrumbItem>
 
