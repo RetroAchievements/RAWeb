@@ -9,7 +9,6 @@ import {
   BaseBreadcrumbPage,
   BaseBreadcrumbSeparator,
 } from '@/common/components/+vendor/BaseBreadcrumb';
-import { InertiaLink } from '@/common/components/InertiaLink';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
 
 interface HubBreadcrumbsProps {

@@ -10,7 +10,6 @@ import {
   BaseTableRow,
 } from '@/common/components/+vendor/BaseTable';
 import { GameTitle } from '@/common/components/GameTitle';
-import { InertiaLink } from '@/common/components/InertiaLink';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
