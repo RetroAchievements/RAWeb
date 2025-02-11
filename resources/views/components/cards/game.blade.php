@@ -65,12 +65,12 @@
             <div class="mb-2"></div>
 
             @if ($isHub)
-                <x-card.info-row label="Links">
-                    {{ localized_number($altGamesCount) }}
+                <x-card.info-row label="Games">
+                    {{ localized_number($hubGamesCount )}}
                 </x-card.info-row>
 
-                <x-card.info-row label="Last Updated">
-                    {{ $lastUpdated->format('j F Y') }}
+                <x-card.info-row label="Links">
+                    {{ localized_number($hubLinksCount) }}
                 </x-card.info-row>
             @elseif (count($activeDeveloperUsernames) === 0)
                 <p>

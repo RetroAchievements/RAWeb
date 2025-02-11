@@ -7,9 +7,11 @@ namespace App\Platform\Components;
 use App\Community\Enums\ClaimStatus;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
-use App\Models\GameAlternative;
+use App\Models\GameSet;
 use App\Models\PlayerBadge;
+use App\Models\System;
 use App\Models\User;
+use App\Platform\Enums\GameSetType;
 use App\Support\Cache\CacheKey;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
@@ -20,8 +22,6 @@ use Illuminate\View\Component;
 class GameCard extends Component
 {
     private int $gameId;
-    private int $hubConsoleId = 100;
-    private int $eventConsoleId = 101;
     private ?array $userHighestGameAward = null;
     private ?User $userContext;
 
@@ -85,7 +85,26 @@ class GameCard extends Component
                 return null;
             }
 
-            $foundGameConsoleId = $foundGame->system->ID;
+            $imageIcon = $foundGame->ImageIcon;
+            $foundGameSystemId = $foundGame->system->id;
+
+            $hubGamesCount = 0;
+            $hubLinksCount = 0;
+            if ($foundGameSystemId === System::Hubs) {
+                $gameSet = GameSet::query()
+                    ->whereType(GameSetType::Hub)
+                    ->whereGameId($gameId)
+                    ->first();
+
+                if (!$gameSet) {
+                    return null;
+                }
+
+                $hubGamesCount = $gameSet->games->count();
+                $hubLinksCount = $gameSet->children->count();
+                $imageIcon = $gameSet->image_asset_path;
+            }
+
             $foundGameAchievements = $foundGame->achievements->toArray();
 
             $foundClaims = AchievementSetClaim::with('user')->where('game_id', $gameId)->get();
@@ -98,18 +117,16 @@ class GameCard extends Component
                 $processedClaims[] = $processedClaim;
             }
 
-            $foundAltGames = [];
-            if ($foundGameConsoleId === $this->hubConsoleId) {
-                $foundAltGames = GameAlternative::where('gameID', $gameId)->get()->toArray();
-            }
-
             return array_merge(
                 $foundGame->toArray(), [
-                    'ConsoleID' => $foundGameConsoleId,
+                    'ConsoleID' => $foundGameSystemId,
                     'ConsoleName' => $foundGame->system->Name,
                     'Achievements' => $foundGameAchievements,
                     'Claims' => $processedClaims,
-                    'AltGames' => $foundAltGames,
+                    'AltGames' => [],
+                    'ImageIcon' => $imageIcon,
+                    'HubGamesCount' => $hubGamesCount,
+                    'HubLinksCount' => $hubLinksCount,
                 ]
             );
         })();
@@ -164,9 +181,10 @@ class GameCard extends Component
         $gameSystemIconSrc = getSystemIconUrl($rawGameData['ConsoleID']);
         $consoleName = $rawGameData['ConsoleName'];
         $achievementsCount = count($rawGameData['Achievements']);
-        $isHub = $rawGameData['ConsoleID'] === $this->hubConsoleId;
-        $isEvent = $rawGameData['ConsoleID'] === $this->eventConsoleId;
-        $altGamesCount = count($rawGameData['AltGames']);
+        $isHub = $rawGameData['ConsoleID'] === System::Hubs;
+        $isEvent = $rawGameData['ConsoleID'] === System::Events;
+        $hubGamesCount = $rawGameData['HubGamesCount'];
+        $hubLinksCount = $rawGameData['HubLinksCount'];
 
         [$pointsSum, $retroPointsSum, $retroRatio, $lastUpdated] = $this->buildCardAchievementsData(
             $rawGameData['Achievements'],
@@ -187,12 +205,13 @@ class GameCard extends Component
             'achievementsCount',
             'activeDevelopersLabel',
             'activeDeveloperUsernames',
-            'altGamesCount',
             'badgeUrl',
             'consoleName',
             'gameSystemIconSrc',
             'highestProgressionAwardDate',
             'highestProgressionStatus',
+            'hubGamesCount',
+            'hubLinksCount',
             'isEvent',
             'isHub',
             'lastUpdated',
