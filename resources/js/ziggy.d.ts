@@ -257,6 +257,34 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "api.forum-topic.destroy": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "api.forum-topic.update": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "api.forum-topic.gate": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "api.forum-topic-comment.create": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "api.forum-topic-comment.update": [
         {
             "name": "comment",
@@ -483,6 +511,13 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "forum-topic.show": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "game.comment.index": [
         {
             "name": "game",
@@ -651,6 +686,7 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "api.user.forum-permissions.update": [],
     "api.user.delete-request.store": [],
     "api.user.delete-request.destroy": [],
     "api.user.avatar.store": [],

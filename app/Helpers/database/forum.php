@@ -164,6 +164,7 @@ function editTopicComment(int $commentId, string $newPayload): void
     $comment->save();
 }
 
+// TODO convert to action
 function submitTopicComment(
     User $user,
     int $topicId,
