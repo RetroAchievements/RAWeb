@@ -55,7 +55,7 @@ describe('Component: ChangeUsernameSectionCard', () => {
     expect(screen.getByText(/your username cannot be changed right now/i)).toBeVisible();
     expect(
       screen.getByText(
-        /you can request another change after your previous request's 30-day cooldown period has ended/i,
+        /you can request another change after your previous request's cooldown period has ended/i,
       ),
     ).toBeVisible();
   });

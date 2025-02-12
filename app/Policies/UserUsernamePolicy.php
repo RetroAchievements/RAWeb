@@ -55,8 +55,8 @@ class UserUsernamePolicy
             $lastChanges->last_approval ? Carbon::parse($lastChanges->last_approval) : Carbon::create(0)
         );
 
-        // Users get a 30-day cooldown after requests & after approval.
-        return !$lastActionDate->isAfter(now()->subDays(30));
+        // Users get a 90-day cooldown after requests & after approval.
+        return !$lastActionDate->isAfter(now()->subDays(90));
     }
 
     public function update(User $user): bool
