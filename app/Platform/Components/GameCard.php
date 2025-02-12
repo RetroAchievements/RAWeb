@@ -85,6 +85,7 @@ class GameCard extends Component
                 return null;
             }
 
+            $title = $foundGame->title;
             $imageIcon = $foundGame->ImageIcon;
             $foundGameSystemId = $foundGame->system->id;
 
@@ -100,6 +101,7 @@ class GameCard extends Component
                     return null;
                 }
 
+                $title = $gameSet->title;
                 $hubGamesCount = $gameSet->games->count();
                 $hubLinksCount = $gameSet->children->count();
                 $imageIcon = $gameSet->image_asset_path;
@@ -119,6 +121,7 @@ class GameCard extends Component
 
             return array_merge(
                 $foundGame->toArray(), [
+                    'Title' => $title,
                     'ConsoleID' => $foundGameSystemId,
                     'ConsoleName' => $foundGame->system->Name,
                     'Achievements' => $foundGameAchievements,
