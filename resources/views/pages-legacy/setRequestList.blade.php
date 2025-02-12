@@ -52,6 +52,7 @@ if (empty($username)) {
     }
 } else {
     $userModel = User::whereName($username)->first();
+    $username = $userModel->display_name;
     if (!$userModel) {
         abort(404);
     }
