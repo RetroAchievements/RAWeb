@@ -167,7 +167,7 @@ if (empty($username)) {
             . $userSetRequestInformation['used'] . " of " . $userSetRequestInformation['total'] . " Requests Made</h2>";
 
         if ($flag == 0) {
-            if ($username === $userDetails['User'] || $username === $userDetails['display_name']) {
+            if ($username === $userDetails['display_name']) {
                 echo "<div class='float-right'>Next request in " . localized_number($userSetRequestInformation['pointsForNext']) . " points</div>";
             }
             echo "<a href='/setRequestList.php?u=$username&f=1'>View All User Set Requests</a>";
