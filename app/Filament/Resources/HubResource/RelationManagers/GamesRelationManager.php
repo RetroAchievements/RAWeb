@@ -9,8 +9,6 @@ use App\Filament\Resources\SystemResource;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\System;
-use App\Platform\Actions\AttachGamesToGameSetAction;
-use App\Platform\Actions\DetachGamesFromGameSetAction;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -105,7 +103,6 @@ class GamesRelationManager extends RelationManager
                     ),
             ])
             ->headerActions([
-                // TODO after dropping GameAlternatives, try to use native attach
                 Tables\Actions\Action::make('add')
                     ->label('Add games')
                     ->form([
@@ -151,7 +148,7 @@ class GamesRelationManager extends RelationManager
 
                         // Handle select field input.
                         if (!empty($data['game_ids'])) {
-                            (new AttachGamesToGameSetAction())->execute($gameSet, $data['game_ids']);
+                            $gameSet->games()->attach($data['game_ids']);
 
                             return;
                         }
@@ -171,13 +168,12 @@ class GamesRelationManager extends RelationManager
                                 ->toArray();
 
                             if (!empty($validGameIds)) {
-                                (new AttachGamesToGameSetAction())->execute($gameSet, $validGameIds);
+                                $gameSet->games()->attach($validGameIds);
                             }
                         }
                     }),
             ])
             ->actions([
-                // TODO after dropping GameAlternatives, use native detach
                 Tables\Actions\Action::make('remove')
                     ->tooltip('Remove')
                     ->icon('heroicon-o-trash')
@@ -189,7 +185,7 @@ class GamesRelationManager extends RelationManager
                         /** @var GameSet $gameSet */
                         $gameSet = $this->getOwnerRecord();
 
-                        (new DetachGamesFromGameSetAction())->execute($gameSet, [$game->id]);
+                        $gameSet->games()->detach([$game->id]);
 
                         Notification::make()
                             ->success()
@@ -206,7 +202,6 @@ class GamesRelationManager extends RelationManager
                     ->openUrlInNewTab(),
             ])
             ->bulkActions([
-                // TODO after dropping GameAlternatives, use native detach
                 Tables\Actions\BulkAction::make('remove')
                     ->label('Remove selected')
                     ->modalHeading('Remove selected games from hub')
@@ -217,7 +212,7 @@ class GamesRelationManager extends RelationManager
                         /** @var GameSet $gameSet */
                         $gameSet = $this->getOwnerRecord();
 
-                        (new DetachGamesFromGameSetAction())->execute($gameSet, $games->pluck('id')->toArray());
+                        $gameSet->games()->detach($games->pluck('id')->toArray());
 
                         $this->deselectAllTableRecords();
 

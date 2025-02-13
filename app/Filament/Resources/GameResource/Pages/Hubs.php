@@ -8,8 +8,6 @@ use App\Filament\Resources\GameResource;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\User;
-use App\Platform\Actions\AttachGamesToGameSetAction;
-use App\Platform\Actions\DetachGamesFromGameSetAction;
 use App\Platform\Enums\GameSetType;
 use Filament\Forms;
 use Filament\Notifications\Notification;
@@ -109,7 +107,7 @@ class Hubs extends ManageRelatedRecords
                             ->get();
 
                         foreach ($gameSets as $gameSet) {
-                            (new AttachGamesToGameSetAction())->execute($gameSet, [$game->id]);
+                            $gameSet->games()->attach([$game->id]);
                         }
                     }),
             ])
@@ -125,7 +123,7 @@ class Hubs extends ManageRelatedRecords
                         /** @var Game $game */
                         $game = $this->getOwnerRecord();
 
-                        (new DetachGamesFromGameSetAction())->execute($gameSet, [$game->id]);
+                        $gameSet->games()->detach([$game->id]);
 
                         Notification::make()
                             ->success()
@@ -153,7 +151,7 @@ class Hubs extends ManageRelatedRecords
                         $game = $this->getOwnerRecord();
 
                         foreach ($gameSets as $gameSet) {
-                            (new DetachGamesFromGameSetAction())->execute($gameSet, [$game->id]);
+                            $gameSet->games()->detach([$game->id]);
                         }
 
                         $this->deselectAllTableRecords();
