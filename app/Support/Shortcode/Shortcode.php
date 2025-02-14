@@ -404,8 +404,10 @@ final class Shortcode
             }
 
             return [
-                ...getGameData($hubGameSet->game_id),
-                'HubID' => $hubGameSet->id,
+                'ID' => $hubGameSet->id,
+                'Title' => $hubGameSet->title,
+                'ConsoleName' => "Hubs",
+                'ImageIcon' => $hubGameSet->image_asset_path,
             ];
         });
 
@@ -413,9 +415,7 @@ final class Shortcode
             return '';
         }
 
-        $hubHref = route('hub.show', ['gameSet' => $data['HubID']]);
-
-        return str_replace("\n", '', gameAvatar($data, iconSize: 24, href: $hubHref));
+        return str_replace("\n", '', gameAvatar($data, iconSize: 24, isHub: true));
     }
 
     private function embedTicket(int $id): string
