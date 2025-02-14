@@ -42,7 +42,7 @@ function changeFriendStatus(User $senderUser, User $targetUser, int $newStatus):
             // attempt to notify the target of the new follower
             if ($newRelationship && BitSet($targetUser->websitePrefs, UserPreference::EmailOn_Followed)) {
                 // notify the new friend of the request
-                sendFriendEmail($targetUser->User, $targetUser->EmailAddress, 0, $senderUser->User);
+                sendFriendEmail($targetUser->display_name, $targetUser->EmailAddress, 0, $senderUser->display_name);
             }
 
             return "user_follow";
