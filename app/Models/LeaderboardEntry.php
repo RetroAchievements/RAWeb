@@ -26,6 +26,7 @@ class LeaderboardEntry extends BaseModel
         'player_session_id',
         'created_at',
         'updated_at',
+        'deleted_at',
     ];
 
     protected static function newFactory(): LeaderboardEntryFactory
