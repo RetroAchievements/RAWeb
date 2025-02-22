@@ -50,7 +50,9 @@ export const RecentUnlocksTable: FC<RecentUnlocksTableProps> = ({ recentUnlocks 
                     <div className="flex max-w-fit items-center gap-1">
                       <AchievementAvatar
                         {...recentUnlock.achievement}
-                        showHardcoreUnlockBorder={recentUnlock.isHardcore}
+                        displayLockedStatus={
+                          recentUnlock.isHardcore ? 'unlocked-hardcore' : 'unlocked'
+                        }
                       />
 
                       <span className="text-neutral-500 light:text-neutral-700">

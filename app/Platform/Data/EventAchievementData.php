@@ -15,22 +15,32 @@ class EventAchievementData extends Data
 {
     public function __construct(
         public Lazy|AchievementData $achievement,
-        public Lazy|AchievementData $sourceAchievement,
+        public Lazy|AchievementData|null $sourceAchievement,
         public Lazy|EventData $event,
+        public Lazy|Carbon $activeFrom,
         public Lazy|Carbon $activeUntil,
-        public Lazy|int $forumTopicId,
     ) {
     }
 
     public static function fromEventAchievement(
         EventAchievement $eventAchievement,
     ): self {
+        $playerAchievement = $eventAchievement->achievement->relationLoaded('playerAchievements')
+            ? $eventAchievement->achievement->playerAchievements->first()
+            : null;
+
         return new self(
-            achievement: Lazy::create(fn () => AchievementData::fromAchievement($eventAchievement->achievement)),
-            sourceAchievement: Lazy::create(fn () => AchievementData::fromAchievement($eventAchievement->sourceAchievement)),
+            achievement: Lazy::create(fn () => AchievementData::fromAchievement(
+                $eventAchievement->achievement,
+                $playerAchievement
+            )),
+            sourceAchievement: Lazy::create(fn () => $eventAchievement->sourceAchievement
+                ? AchievementData::fromAchievement($eventAchievement->sourceAchievement)
+                : null
+            ),
             event: Lazy::create(fn () => EventData::fromEvent($eventAchievement->event)),
-            activeUntil: Lazy::create(fn () => $eventAchievement->active_until),
-            forumTopicId: Lazy::create(fn () => $eventAchievement->achievement->game->ForumTopicID),
+            activeFrom: Lazy::create(fn () => $eventAchievement->active_from),
+            activeUntil: Lazy::create(fn () => $eventAchievement->active_until)
         );
     }
 }

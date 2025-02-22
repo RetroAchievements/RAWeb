@@ -85,7 +85,7 @@ $console = [
 ];
 
 $forumTopic = [
-    'ID' => $aotwData->currentEventAchievement->forumTopicId->resolve() ?? null,
+    'ID' => $aotwData->currentEventAchievement->event->legacyGame->forumTopicId->resolve() ?? null,
 ];
 
 $unlocks = collect();

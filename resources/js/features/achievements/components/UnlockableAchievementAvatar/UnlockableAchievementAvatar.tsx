@@ -17,17 +17,11 @@ export const UnlockableAchievementAvatar: FC<UnlockableAchievementAvatarProps> =
   showGame = false,
   imageSize = 48,
 }) => {
-  const badgeUrl =
-    !achievement.unlockedAt && !achievement.unlockedHardcoreAt
-      ? achievement.badgeLockedUrl
-      : achievement.badgeUnlockedUrl;
-
   return (
     <div className="mb-2 flex items-center gap-2">
       <AchievementAvatar
         {...achievement}
-        showHardcoreUnlockBorder={!!achievement.unlockedHardcoreAt}
-        badgeUnlockedUrl={badgeUrl}
+        displayLockedStatus="auto"
         showLabel={false}
         size={imageSize}
       />

@@ -1,0 +1,31 @@
+import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { AwardTierItem } from './AwardTierItem';
+
+interface EventAwardTiersProps {
+  event: App.Platform.Data.Event;
+}
+
+export const EventAwardTiers: FC<EventAwardTiersProps> = ({ event }) => {
+  const { t } = useTranslation();
+
+  if (!event.eventAwards?.length) {
+    return null;
+  }
+
+  // Sort by most points to least points.
+  const sortedByPoints = event.eventAwards.sort((a, b) => b.pointsRequired - a.pointsRequired);
+
+  return (
+    <div data-testid="award-tiers" className="rounded-lg bg-embed p-2">
+      <h2 className="border-0 text-lg font-semibold">{t('Award Tiers')}</h2>
+
+      <div className="flex flex-col gap-3">
+        {sortedByPoints.map((eventAward) => (
+          <AwardTierItem key={eventAward.label} event={event} eventAward={eventAward} />
+        ))}
+      </div>
+    </div>
+  );
+};

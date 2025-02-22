@@ -327,6 +327,21 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         return media_asset($this->ImageIcon);
     }
 
+    public function getImageBoxArtUrlAttribute(): string
+    {
+        return media_asset($this->ImageBoxArt);
+    }
+
+    public function getImageTitleUrlAttribute(): string
+    {
+        return media_asset($this->ImageTitle);
+    }
+
+    public function getImageIngameUrlAttribute(): string
+    {
+        return media_asset($this->ImageIngame);
+    }
+
     public function getCanHaveBeatenTypes(): bool
     {
         $isSubsetOrTestKit = (

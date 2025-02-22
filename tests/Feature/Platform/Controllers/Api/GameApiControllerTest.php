@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Controllers\Api;
 
+use App\Models\Forum;
+use App\Models\ForumTopic;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\System;
+use App\Models\User;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -64,5 +69,63 @@ class GameApiControllerTest extends TestCase
                     ],
                 ],
             ]);
+    }
+
+    public function testGenerateOfficialForumTopicCreatesTopicAndLinksToGame(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+
+        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user->assignRole(Role::DEVELOPER);
+        $this->actingAs($user);
+
+        $system = System::factory()->create(['ID' => 1, 'Name' => 'Sega Genesis/Mega Drive']);
+        $game = Game::factory()->create([
+            'ConsoleID' => $system->id,
+            'Title' => 'Sonic the Hedgehog',
+            'ForumTopicID' => null, // !! no existing topic
+        ]);
+
+        Forum::factory()->create(['id' => 10]); // need a forum to put the new topic in
+
+        // Act
+        $response = $this->postJson(route('api.game.forum-topic.create', $game));
+
+        // Assert
+        $response->assertOk();
+
+        $game->refresh();
+        $this->assertGreaterThan(0, $game->ForumTopicID);
+
+        $topic = ForumTopic::find($game->ForumTopicID);
+        $this->assertNotNull($topic);
+        $this->assertEquals($game->title, $topic->title);
+        $this->assertEquals($user->id, $topic->author_id);
+    }
+
+    public function testGenerateOfficialForumTopicRequiresAuthorization(): void
+    {
+        // Arrange
+        $this->seed(RolesTableSeeder::class);
+
+        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user->assignRole(Role::DEVELOPER_JUNIOR); // !! jrdevs shouldn't be able to do this
+        $this->actingAs($user);
+
+        $system = System::factory()->create(['ID' => 1, 'Name' => 'Sega Genesis/Mega Drive']);
+        $game = Game::factory()->create([
+            'ConsoleID' => $system->id,
+            'Title' => 'Sonic the Hedgehog',
+            'ForumTopicID' => null, // !! no existing topic
+        ]);
+
+        Forum::factory()->create(['id' => 10]); // need a forum to put the new topic in
+
+        // Act
+        $response = $this->postJson(route('api.game.forum-topic.create', $game));
+
+        // Assert
+        $response->assertForbidden();
     }
 }

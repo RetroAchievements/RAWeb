@@ -32,7 +32,7 @@ class AchievementCommentController extends CommentController
             view: 'achievement/[achievement]/comments',
             createPropsData: function ($achievement, $paginatedComments, $isSubscribed, $user) {
                 return new AchievementCommentsPagePropsData(
-                    achievement: AchievementData::fromAchievement($achievement)->include('game.system', 'badgeUnlockedUrl'),
+                    achievement: AchievementData::fromAchievement($achievement)->include('game.system'),
                     paginatedComments: PaginatedData::fromLengthAwarePaginator(
                         $paginatedComments,
                         total: $paginatedComments->total(),

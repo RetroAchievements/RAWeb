@@ -118,7 +118,7 @@ class BuildDeveloperFeedDataAction
             ->get()
             ->reject(fn ($unlock) => $unlock->user->Untracked)
             ->map(fn ($unlock) => new RecentUnlockData(
-                achievement: AchievementData::fromAchievement($unlock->achievement)->include('badgeUnlockedUrl', 'points'),
+                achievement: AchievementData::fromAchievement($unlock->achievement)->include('points'),
                 game: GameData::fromGame($unlock->achievement->game)->include('badgeUrl', 'system.iconUrl', 'system.nameShort'),
                 user: UserData::fromUser($unlock->user),
                 unlockedAt: $unlock->unlocked_at,

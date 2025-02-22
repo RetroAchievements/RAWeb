@@ -135,6 +135,13 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "event.show": [
+        {
+            "name": "event",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "game.dev-interest": [
         {
             "name": "game",
@@ -193,6 +200,13 @@ declare module 'ziggy-js' {
         }
     ],
     "game.random": [],
+    "api.game.forum-topic.create": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "api.user.game.destroy": [
         {
             "name": "game",
