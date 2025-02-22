@@ -105,6 +105,10 @@ class ValidUserIdentifierTest extends TestCase
         ]);
 
         $this->assertTrue($validator->fails());
+        $this->assertEquals(
+            'The Username must be between 2 and 20 characters when providing a username.',
+            $validator->errors()->first('username')
+        );
     }
 
     public function testItFailsWithInvalidUlidCharacters(): void
@@ -116,5 +120,24 @@ class ValidUserIdentifierTest extends TestCase
         ]);
 
         $this->assertTrue($validator->fails());
+        $this->assertEquals(
+            'The Username must be a valid ULID.',
+            $validator->errors()->first('username')
+        );
+    }
+
+    public function testItFailsWithInvalidUlidFormat(): void
+    {
+        $data = ['username' => '01H9XY7HSB10SCDZ6PZ6T7YQ4!'];
+
+        $validator = Validator::make($data, [
+            'username' => [new ValidUserIdentifier()],
+        ]);
+
+        $this->assertTrue($validator->fails());
+        $this->assertEquals(
+            'The Username must be a valid ULID.',
+            $validator->errors()->first('username')
+        );
     }
 }
