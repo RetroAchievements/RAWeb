@@ -1,8 +1,9 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\User;
 
-function RenderCodeNotes(array $codeNotes, ?string $editingUser = null, ?int $editingPermissions = null): void
+function RenderCodeNotes(array $codeNotes, ?User $editingUser = null, ?int $editingPermissions = null): void
 {
     $isEditable = $editingUser && $editingPermissions >= Permissions::JuniorDeveloper;
 
@@ -29,7 +30,7 @@ function RenderCodeNotes(array $codeNotes, ?string $editingUser = null, ?int $ed
 
         $canEditNote = (
             $editingPermissions >= Permissions::Developer
-            || ($editingPermissions === Permissions::JuniorDeveloper && $nextCodeNote['User'] === $editingUser)
+            || ($editingPermissions === Permissions::JuniorDeveloper && $nextCodeNote['User'] === $editingUser?->display_name)
         );
 
         echo "<tr id='row-$rowIndex' class='note-row'>";

@@ -27,7 +27,8 @@ if (!$leaderboard) {
     abort(404);
 }
 
-$lbData = GetLeaderboardData($leaderboard, Auth::user(), $count, $offset);
+$userModel = Auth::user();
+$lbData = GetLeaderboardData($leaderboard, $userModel, $count, $offset);
 
 $numEntries = is_countable($lbData['Entries']) ? count($lbData['Entries']) : 0;
 $totalEntries = $leaderboard->entries()->count();
@@ -210,7 +211,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
             $nextSubmitAt = $nextEntry['DateSubmitted'];
             $nextSubmitAtNice = getNiceDate($nextSubmitAt);
 
-            $isLocal = (strcmp($nextUser, $user) == 0);
+            $isLocal = $nextUser === $userModel?->display_name;
             $lastEntry = ($resultsDrawn + 1 == $numEntries);
             $userAppendedInResults = ($numEntries > $count);
 

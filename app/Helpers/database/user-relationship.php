@@ -20,8 +20,12 @@ function changeFriendStatus(User $senderUser, User $targetUser, int $newStatus):
         $oldStatus = UserRelationship::NotFollowing;
     }
 
-    if ($newStatus === UserRelationship::Following && $targetUser->isBlocking($senderUser)) {
-        // other user has blocked this user, can't follow them
+    if (
+        $newStatus === UserRelationship::Following
+        && ($targetUser->isBlocking($senderUser) || $senderUser->isFreshAccount())
+    ) {
+        // don't allow follows if one user is blocking the other, or if the
+        // person initiating the follow has little to no activity on their account
         return "error";
     }
 
@@ -42,7 +46,7 @@ function changeFriendStatus(User $senderUser, User $targetUser, int $newStatus):
             // attempt to notify the target of the new follower
             if ($newRelationship && BitSet($targetUser->websitePrefs, UserPreference::EmailOn_Followed)) {
                 // notify the new friend of the request
-                sendFriendEmail($targetUser->User, $targetUser->EmailAddress, 0, $senderUser->User);
+                sendFriendEmail($targetUser->display_name, $targetUser->EmailAddress, 0, $senderUser->display_name);
             }
 
             return "user_follow";

@@ -11,10 +11,10 @@ import {
   BaseFormMessage,
   BaseFormProvider,
 } from '@/common/components/+vendor/BaseForm';
+import { ShortcodePanel } from '@/common/components/ShortcodePanel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { getStringByteCount } from '@/common/utils/getStringByteCount';
 
-import { ShortcodePanel } from '../../ShortcodePanel';
 import { useEditPostForm } from './useEditPostForm';
 
 interface EditPostFormProps {
