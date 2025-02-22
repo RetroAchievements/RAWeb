@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { SEO } from '@/common/components/SEO';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
-import { MessagesRoot } from '@/features/messages/components/+root';
+import { MessagesIndexRoot } from '@/features/messages/components/+index';
 
 const Messages: AppPage = () => {
   const { t } = useTranslation();
@@ -13,7 +13,7 @@ const Messages: AppPage = () => {
       <SEO title={t('Messages')} description="Your inbox messages" />
 
       <AppLayout.Main>
-        <MessagesRoot />
+        <MessagesIndexRoot />
       </AppLayout.Main>
     </>
   );

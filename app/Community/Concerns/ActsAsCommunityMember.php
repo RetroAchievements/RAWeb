@@ -141,6 +141,18 @@ trait ActsAsCommunityMember
         return $this->getRelationship($user) === UserRelationship::Blocked;
     }
 
+    public function isFreshAccount(): bool
+    {
+        // Fresh accounts can be used as a vehicle for harassment.
+
+        return
+            !$this->isForumVerified()
+            && $this->points === 0
+            && $this->points_softcore === 0
+            && $this->Created > now()->subWeeks(2) // account is less than 2 weeks old
+        ;
+    }
+
     public function isFriendsWith(User $user): bool
     {
         return $this->isFollowing($user) && $user->isFollowing($this);

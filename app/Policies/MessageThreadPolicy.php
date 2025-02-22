@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Models\MessageThread;
+use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -19,7 +20,10 @@ class MessageThreadPolicy
 
     public function view(User $user, MessageThread $messageThread): bool
     {
-        return true;
+        // To view the message thread, the user must be one of the participants.
+        return $messageThread->participants()
+            ->where('user_id', $user->id)
+            ->exists();
     }
 
     public function viewAny(?User $user): bool
@@ -39,7 +43,11 @@ class MessageThreadPolicy
 
     public function delete(User $user, MessageThread $messageThread): bool
     {
-        return true;
+        $isParticipant = MessageThreadParticipant::where('thread_id', $messageThread->id)
+            ->where('user_id', $user->id)
+            ->exists();
+
+        return $isParticipant;
     }
 
     public function restore(User $user, MessageThread $messageThread): bool

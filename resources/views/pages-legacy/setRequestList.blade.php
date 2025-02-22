@@ -52,6 +52,7 @@ if (empty($username)) {
     }
 } else {
     $userModel = User::whereName($username)->first();
+    $username = $userModel->display_name;
     if (!$userModel) {
         abort(404);
     }
@@ -166,7 +167,7 @@ if (empty($username)) {
             . $userSetRequestInformation['used'] . " of " . $userSetRequestInformation['total'] . " Requests Made</h2>";
 
         if ($flag == 0) {
-            if ($username === $user) {
+            if ($username === $userDetails['display_name']) {
                 echo "<div class='float-right'>Next request in " . localized_number($userSetRequestInformation['pointsForNext']) . " points</div>";
             }
             echo "<a href='/setRequestList.php?u=$username&f=1'>View All User Set Requests</a>";

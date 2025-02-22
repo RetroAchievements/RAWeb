@@ -158,7 +158,7 @@ $permissions = $user->getAttribute('Permissions');
 
                 <div id="unlockHistoryContent" class="hidden devboxcontainer">
                     @if (empty($sessions))
-                        {{ $ticket->reporter->User }} has not earned any achievements for this game.
+                        {{ $ticket->reporter->display_name }} has not earned any achievements for this game.
                     @else
                         <x-alert title="Warning">
                             <p>
@@ -182,7 +182,7 @@ $permissions = $user->getAttribute('Permissions');
                         @if ($existingUnlock->unlocker_id)
                             <span>Manually unlocked by {!! userAvatar(User::firstWhere('id', $existingUnlock->unlocker_id), icon:false) !!} at {{ getNiceDate($unlockedAt->unix()) }}</span>
                         @else
-                            {{ $ticket->reporter->User }} earned this achievement at 
+                            {{ $ticket->reporter->display_name }} earned this achievement at 
                             {{ getNiceDate($unlockedAt->unix()) }}
                             @if ($unlockedAt > $ticket->ReportedAt)
                                 (after the report)
@@ -192,14 +192,14 @@ $permissions = $user->getAttribute('Permissions');
                         @endif
                     @else
                         <div class="flex w-full justify-between border-embed-highlight items-center">
-                            {{ $ticket->reporter->User }} did not earn this achievement
+                            {{ $ticket->reporter->display_name }} did not earn this achievement
                             @if ($permissions >= Permissions::Moderator)
                                 <script>
                                     function AwardManually(hardcore) {
                                         showStatusMessage('Awarding...');
 
                                         $.post('/request/user/award-achievement.php', {
-                                            user: '{{ $ticket->reporter->User }}',
+                                            user: '{{ $ticket->reporter->display_name }}',
                                             achievement: {{ $ticket->achievement->id }},
                                             hardcore: hardcore
                                         })
