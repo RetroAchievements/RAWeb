@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 
 import { ForumBreadcrumbs } from '@/common/components/ForumBreadcrumbs';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useShortcodeBodyPreview } from '@/common/hooks/useShortcodeBodyPreview';
 
-import { useForumPostPreview } from '../../hooks/useForumPostPreview';
 import { ForumPostCard } from '../ForumPostCard';
 import { EditPostForm } from './EditPostForm';
 
@@ -13,7 +13,7 @@ export const EditPostMainRoot: FC = memo(() => {
 
   const { t } = useTranslation();
 
-  const { initiatePreview, previewContent } = useForumPostPreview();
+  const { initiatePreview, previewContent } = useShortcodeBodyPreview();
 
   return (
     <div>

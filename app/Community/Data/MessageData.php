@@ -26,7 +26,7 @@ class MessageData extends Data
         return new self(
             body: $message->body,
             createdAt: $message->created_at,
-            author: Lazy::create(fn () => UserData::from($message->author)),
+            author: Lazy::create(fn () => UserData::fromUser($message->author)),
         );
     }
 }
