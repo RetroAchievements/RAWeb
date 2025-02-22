@@ -92,6 +92,9 @@ class BuildTicketCreationDataAction
         if ($needsOther) {
             $emulators->add(new EmulatorData(0, 'Other (please specify in description)'));
         }
+
+        // Deduplicate without needing to normalize decoded client strings.
+        $emulators = $emulators->unique('name');
     }
 
     /**
