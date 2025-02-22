@@ -2,6 +2,8 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { usePageProps } from '@/common/hooks/usePageProps';
+
 import { buildAchievementsPublishedColumnDef } from '../../utils/column-definitions/buildAchievementsPublishedColumnDef';
 import { buildHasActiveOrInReviewClaimsColumnDef } from '../../utils/column-definitions/buildHasActiveOrInReviewClaimsColumnDef';
 import { buildLastUpdatedColumnDef } from '../../utils/column-definitions/buildLastUpdatedColumnDef';
@@ -20,6 +22,8 @@ export function useColumnDefinitions(options: {
   canSeeOpenTicketsColumn: boolean;
   forUsername?: string;
 }): ColumnDef<App.Platform.Data.GameListEntry>[] {
+  const { auth } = usePageProps();
+
   const { t } = useTranslation();
 
   const columnDefinitions = useMemo(() => {
@@ -42,9 +46,12 @@ export function useColumnDefinitions(options: {
       columns.push(buildNumUnresolvedTicketsColumnDef({ t_label: t('Tickets') }));
     }
 
+    if (auth?.user) {
+      columns.push(buildPlayerGameProgressColumnDef({ t_label: t('Progress') }));
+    }
+
     columns.push(
       ...([
-        buildPlayerGameProgressColumnDef({ t_label: t('Progress') }),
         buildHasActiveOrInReviewClaimsColumnDef({
           t_label: t('Claimed'),
           strings: {
@@ -57,7 +64,7 @@ export function useColumnDefinitions(options: {
     );
 
     return columns;
-  }, [options.canSeeOpenTicketsColumn, options.forUsername, t]);
+  }, [auth?.user, options.canSeeOpenTicketsColumn, options.forUsername, t]);
 
   return columnDefinitions;
 }
