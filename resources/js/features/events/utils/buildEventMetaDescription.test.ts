@@ -2,7 +2,7 @@ import { createEventAchievement, createRaEvent } from '@/test/factories';
 
 import { buildEventMetaDescription } from './buildEventMetaDescription';
 
-describe('Function: buildEventMetaDescription', () => {
+describe('Util: buildEventMetaDescription', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const event = createRaEvent({

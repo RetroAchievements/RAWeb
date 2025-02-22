@@ -97,8 +97,8 @@ describe('Component: EventProgress', () => {
     // ARRANGE
     const event = createRaEvent({
       eventAwards: [
-        createEventAward({ earnedAt: '2023-01-01' }),
-        createEventAward({ earnedAt: null }),
+        createEventAward({ earnedAt: '2023-01-01', pointsRequired: 5 }),
+        createEventAward({ earnedAt: null, pointsRequired: 10 }),
       ],
     });
     const playerGame = createPlayerGame({ achievementsUnlocked: 1 });

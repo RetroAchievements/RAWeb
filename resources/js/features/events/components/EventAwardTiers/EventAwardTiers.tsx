@@ -10,7 +10,7 @@ interface EventAwardTiersProps {
 export const EventAwardTiers: FC<EventAwardTiersProps> = ({ event }) => {
   const { t } = useTranslation();
 
-  if (!event.eventAwards?.length) {
+  if (!event.eventAwards?.length || event.eventAwards.length === 1) {
     return null;
   }
 

@@ -2,7 +2,26 @@ import { createGame, createRaEvent } from '@/test/factories';
 
 import { cleanEventAwardLabel } from './cleanEventAwardLabel';
 
-describe('Function: cleanEventAwardLabel', () => {
+describe('Util: cleanEventAwardLabel', () => {
+  it('is defined', () => {
+    // ASSERT
+    expect(cleanEventAwardLabel).toBeDefined();
+  });
+
+  it('given the award label is identical to the event title, returns it untouched', () => {
+    // ARRANGE
+    const legacyGame = createGame({ title: 'Achievement of the Week 2025' });
+    const event = createRaEvent({ legacyGame });
+
+    const awardLabel = 'Achievement of the Week 2025';
+
+    // ACT
+    const result = cleanEventAwardLabel(awardLabel, event);
+
+    // ASSERT
+    expect(result).toEqual(awardLabel);
+  });
+
   it('given the award label starts with the event title, removes the title prefix', () => {
     // ARRANGE
     const legacyGame = createGame({ title: 'Achievement of the Week 2025' });

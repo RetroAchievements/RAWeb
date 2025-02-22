@@ -8,14 +8,14 @@ import { cleanEventAwardLabel } from '../../../utils/cleanEventAwardLabel';
 
 interface BigStatusLabelProps {
   event: App.Platform.Data.Event;
+  isMastered: boolean;
 }
 
-export const BigStatusLabel: FC<BigStatusLabelProps> = ({ event }) => {
+export const BigStatusLabel: FC<BigStatusLabelProps> = ({ event, isMastered }) => {
   const { t } = useTranslation();
 
   const eventAwards = event.eventAwards ?? [];
 
-  const isMastered = eventAwards.length > 0 && eventAwards.every((award) => award.earnedAt);
   const isAwarded = eventAwards.some((award) => award.earnedAt);
 
   let colorClassName = 'text-text-muted';

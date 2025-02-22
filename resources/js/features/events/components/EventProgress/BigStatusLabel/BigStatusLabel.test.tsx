@@ -7,7 +7,7 @@ describe('Component: BigStatusLabel', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const event = createRaEvent();
-    const { container } = render(<BigStatusLabel event={event} />);
+    const { container } = render(<BigStatusLabel event={event} isMastered={false} />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -17,7 +17,7 @@ describe('Component: BigStatusLabel', () => {
     // ARRANGE
     const event = createRaEvent({ eventAwards: [] });
 
-    render(<BigStatusLabel event={event} />);
+    render(<BigStatusLabel event={event} isMastered={false} />);
 
     // ASSERT
     const label = screen.getByText(/unfinished/i);
@@ -31,7 +31,7 @@ describe('Component: BigStatusLabel', () => {
       eventAwards: [createEventAward({ earnedAt: '2023-01-01', label: 'Bronze' })],
     });
 
-    render(<BigStatusLabel event={event} />);
+    render(<BigStatusLabel event={event} isMastered={true} />);
 
     // ASSERT
     const label = screen.getByText(/awarded/i);
@@ -48,7 +48,7 @@ describe('Component: BigStatusLabel', () => {
       ],
     });
 
-    render(<BigStatusLabel event={event} />);
+    render(<BigStatusLabel event={event} isMastered={false} />);
 
     // ASSERT
     const label = screen.getByText(/bronze/i);
@@ -65,7 +65,7 @@ describe('Component: BigStatusLabel', () => {
       ],
     });
 
-    render(<BigStatusLabel event={event} />);
+    render(<BigStatusLabel event={event} isMastered={true} />);
 
     // ASSERT
     const label = screen.getByText(/silver/i);

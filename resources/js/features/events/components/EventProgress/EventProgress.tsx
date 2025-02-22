@@ -13,12 +13,18 @@ interface EventProgressProps {
 export const EventProgress: FC<EventProgressProps> = ({ event, playerGame }) => {
   const { t } = useTranslation();
 
+  const eventAwards = event.eventAwards ?? [];
+
   const hasUnlockedAnyAchievements = !!playerGame?.achievementsUnlocked;
-  const hasEarnedAnyAward = !!event.eventAwards?.some((award) => award.earnedAt);
-  const hasEarnedEveryAward = !!event.eventAwards?.every((award) => award.earnedAt);
+  const hasEarnedAnyAward = !!eventAwards.some((award) => award.earnedAt);
   const areAllAchievementsOnePoint = !!event.eventAchievements?.every(
     (ea) => ea.achievement?.points && ea.achievement.points === 1,
   );
+
+  // Check if the highest tier award (most pointsRequired) has been earned.
+  const isMastered =
+    eventAwards.length > 0 &&
+    !!eventAwards.sort((a, b) => b.pointsRequired - a.pointsRequired)[0]?.earnedAt;
 
   let totalPoints = 0;
   for (const ea of event.eventAchievements || []) {
@@ -29,15 +35,15 @@ export const EventProgress: FC<EventProgressProps> = ({ event, playerGame }) => 
 
   return (
     <div className="group relative -mx-5 lg:mx-0">
-      {hasUnlockedAnyAchievements && hasEarnedAnyAward ? (
-        <Glow isMastered={hasEarnedEveryAward} />
-      ) : null}
+      {hasUnlockedAnyAchievements && hasEarnedAnyAward ? <Glow isMastered={isMastered} /> : null}
 
       <div className="relative border border-embed-highlight bg-embed px-5 pb-5 pt-3.5 lg:rounded">
         <div className="mb-2">
           <p className="sr-only">{t('Your Progress')}</p>
 
-          {hasUnlockedAnyAchievements ? <BigStatusLabel event={event} /> : null}
+          {hasUnlockedAnyAchievements ? (
+            <BigStatusLabel event={event} isMastered={isMastered} />
+          ) : null}
 
           <p className="mt-2 leading-4">
             {hasUnlockedAnyAchievements ? (
