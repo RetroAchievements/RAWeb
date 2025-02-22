@@ -614,45 +614,43 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
      */
     public function scopeSearch(Builder $query, string $keyword): Builder
     {
-        // Start with base conditions that apply to all searches.
-        $baseQuery = $query
-            ->whereNotNull('email_verified_at')
-            ->whereNull('Deleted')
-            ->whereNull('banned_at');
-
-        // Return early if keyword is empty to avoid unnecessary processing.
+        // Just return the base query if the keyword is empty.
         if (empty($keyword)) {
-            return $baseQuery;
+            return $query->whereNotNull('email_verified_at')
+                ->whereNull('Deleted')
+                ->whereNull('banned_at');
         }
 
-        // Common ranking calculation for both queries.
-        $activityRank = "
-            CASE
-                WHEN achievements_unlocked > 0 THEN 40
-                WHEN LastLogin > DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 20
-                WHEN LastLogin > DATE_SUB(NOW(), INTERVAL 90 DAY) THEN 10
-                ELSE 0
-            END";
+        $keyword = trim($keyword);
+        $escapedKeyword = addslashes($keyword);
+        $fullTextQuery = '+' . $escapedKeyword . '*';
 
-        return $baseQuery
-            ->select('*')
-            ->selectRaw("
+        /**
+         * Search users with FULLTEXT index and rank results by:
+         * 1. Exact username match (100 points).
+         * 2. Exact display name match (90 points).
+         * 3. Username prefix match (80 points).
+         * 4. Display name prefix match (70 points).
+         * 5. Username infix match (weighted by FULLTEXT relevance).
+         * 6. Display name infix match (weighted by FULLTEXT relevance).
+         *
+         * Finally, sort equally-ranked results by last login date.
+         */
+        return $query->whereNotNull('email_verified_at')
+            ->whereNull('Deleted')
+            ->whereNull('banned_at')
+            ->whereRaw('MATCH(User, display_name) AGAINST (? IN BOOLEAN MODE)', [$fullTextQuery])
+            ->orderByRaw("
                 CASE 
                     WHEN User = ? THEN 100
                     WHEN display_name = ? THEN 90
                     WHEN User LIKE ? THEN 80
                     WHEN display_name LIKE ? THEN 70
-                    ELSE 0
-                END + {$activityRank} as search_rank
-            ", [$keyword, $keyword, "{$keyword}%", "{$keyword}%"])
-            ->where(function ($q) use ($keyword) {
-                $q->where('User', '=', $keyword)
-                  ->orWhere('display_name', '=', $keyword)
-                  ->orWhere('User', 'LIKE', "{$keyword}%")
-                  ->orWhere('display_name', 'LIKE', "{$keyword}%");
-            })
-            ->orderBy('search_rank', 'desc')
-            ->orderBy('achievements_unlocked', 'desc')
+                    ELSE MATCH(User, display_name) AGAINST (? IN BOOLEAN MODE) * 10
+                END DESC",
+                [$keyword, $keyword, $keyword . '%', $keyword . '%', $fullTextQuery]
+            )
+            ->orderBy('LastLogin', 'desc')
             ->limit(10);
     }
 }
