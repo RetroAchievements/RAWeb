@@ -22,6 +22,7 @@ class MessageThreadFactory extends Factory
     {
         return [
             'title' => $this->faker->sentence(3),
+            'num_messages' => 1,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];

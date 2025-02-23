@@ -12,9 +12,9 @@ import {
   BaseFormProvider,
 } from '@/common/components/+vendor/BaseForm';
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
+import { ShortcodePanel } from '@/common/components/ShortcodePanel';
 import { getStringByteCount } from '@/common/utils/getStringByteCount';
 
-import { ShortcodePanel } from '../../ShortcodePanel';
 import { useCreateTopicForm } from './useCreateTopicForm';
 
 interface CreateTopicFormProps {
