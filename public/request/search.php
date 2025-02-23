@@ -25,7 +25,7 @@ if ($source == 'game') {
 } elseif ($source == 'user' || $source == 'game-compare') {
     $order = [SearchType::User];
 } else {
-    $order = [SearchType::Game, SearchType::Achievement, SearchType::User];
+    $order = [SearchType::Game, SearchType::Hub, SearchType::Achievement, SearchType::User];
 }
 
 performSearch($order, $searchTerm, 0, $maxResults, $permissions, $results, wantTotalResults: false);

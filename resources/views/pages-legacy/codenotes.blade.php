@@ -236,7 +236,7 @@ function saveCodeNote(rowIndex, isDeleting = false) {
     <p>There are currently <span class='font-bold code-note-count'><?= $codeNoteCount ?></span> code notes for this game.</p>
     <?php
     if (isset($user) && $permissions >= Permissions::Registered) {
-        RenderCodeNotes($codeNotes, $user, $permissions);
+        RenderCodeNotes($codeNotes, $userModel, $permissions);
     }
     ?>
 </x-app-layout>

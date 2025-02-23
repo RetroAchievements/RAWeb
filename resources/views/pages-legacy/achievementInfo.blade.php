@@ -47,7 +47,7 @@ $author = $dataOut['Author'];
 $dateCreated = $dataOut['DateCreated'];
 $dateModified = $dataOut['DateModified'];
 $achMem = $dataOut['MemAddr'];
-$isAuthor = $user == $author;
+$isAuthor = $userModel?->display_name === $author;
 
 $canEmbedVideo = (
     $permissions >= Permissions::Developer

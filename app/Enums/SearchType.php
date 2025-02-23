@@ -32,6 +32,8 @@ abstract class SearchType
 
     public const UserModerationComment = 12;
 
+    public const Hub = 13;
+
     public static function cases(): array
     {
         // NOTE: this order determines the order of the items in the 'search in' dropdown
@@ -50,6 +52,7 @@ abstract class SearchType
             self::GameHashComment,
             self::SetClaimComment,
             self::UserModerationComment,
+            self::Hub,
         ];
     }
 
@@ -74,6 +77,7 @@ abstract class SearchType
             SearchType::UserModerationComment => "User Moderation Comments",
             SearchType::GameHashComment => "Game Hash Comments",
             SearchType::SetClaimComment => "Set Claim Comments",
+            SearchType::Hub => "Hubs",
             default => "Invalid search type",
         };
     }
