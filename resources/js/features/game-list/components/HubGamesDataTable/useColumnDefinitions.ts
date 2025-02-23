@@ -25,6 +25,8 @@ export function useColumnDefinitions(options: {
   canSeeOpenTicketsColumn: boolean;
   forUsername?: string;
 }): ColumnDef<App.Platform.Data.GameListEntry>[] {
+  const { auth } = usePageProps();
+
   const { hub } = usePageProps<App.Platform.Data.HubPageProps>();
 
   const { t } = useTranslation();
@@ -82,13 +84,18 @@ export function useColumnDefinitions(options: {
       );
     }
 
-    columns.push(
-      ...([
+    if (auth?.user) {
+      columns.push(
         buildPlayerGameProgressColumnDef({
           tableApiRouteName,
           tableApiRouteParams,
           t_label: t('Progress'),
         }),
+      );
+    }
+
+    columns.push(
+      ...([
         buildHasActiveOrInReviewClaimsColumnDef({
           tableApiRouteName,
           tableApiRouteParams,
@@ -103,7 +110,7 @@ export function useColumnDefinitions(options: {
     );
 
     return columns;
-  }, [hub.id, options.canSeeOpenTicketsColumn, options.forUsername, t]);
+  }, [auth?.user, hub.id, options.canSeeOpenTicketsColumn, options.forUsername, t]);
 
   return columnDefinitions;
 }
