@@ -57,6 +57,7 @@ class UserCommentPolicy
             !$commentable
             || $user->is_muted
             || !$user->hasVerifiedEmail()
+            || $user->isFreshAccount()
             || $commentable->isBlocking($user)
             || !$commentable->UserWallActive
             || (

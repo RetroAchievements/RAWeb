@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\FindUserByIdentifierAction;
 use App\Community\Enums\ActivityType;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
@@ -150,7 +151,7 @@ if (
         return DoRequestError('Access denied.', 405, 'access_denied');
     }
 
-    $foundDelegateToUser = User::whereName($delegateTo)->first();
+    $foundDelegateToUser = (new FindUserByIdentifierAction())->execute($delegateTo);
     if (!$foundDelegateToUser) {
         return DoRequestError("The target user couldn't be found.", 404, 'not_found');
     }
@@ -177,7 +178,7 @@ if (
 
     // Replace the initiating user's properties with those of the user being delegated.
     $user = $foundDelegateToUser;
-    $username = $delegateTo;
+    $username = $foundDelegateToUser->username;
 }
 
 switch ($requestType) {
