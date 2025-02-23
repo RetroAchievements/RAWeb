@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ShortcodeRenderer } from '../ShortcodeRenderer';
+import { ShortcodeRenderer } from '@/common/components/ShortcodeRenderer';
 
 interface ForumPostCardProps {
   body: string;
