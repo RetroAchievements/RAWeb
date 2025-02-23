@@ -2,6 +2,9 @@ import { render, screen } from '@/test';
 
 import { ShortcodeUrl } from './ShortcodeUrl';
 
+// Suppress "TypeError: Invalid URL".
+console.debug = vi.fn();
+
 describe('Component: ShortcodeUrl', () => {
   it('renders without crashing', () => {
     // ARRANGE
