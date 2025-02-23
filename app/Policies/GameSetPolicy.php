@@ -37,11 +37,19 @@ class GameSetPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole([
-            Role::ADMINISTRATOR,
-            Role::GAME_HASH_MANAGER,
-            Role::GAME_EDITOR,
-        ]);
+        return false;
+
+        // Temporarily disabled.
+        // If an avatar or card component renders for a hub that has no backing game,
+        // a server error is thrown. Can be re-enabled after it's verified that [hub] shortcodes
+        // and game avatar components (ie: on the game page) pointing to hubs don't throw any
+        // errors if a backing game does not exist.
+
+        // return $user->hasAnyRole([
+        //     Role::ADMINISTRATOR,
+        //     Role::GAME_HASH_MANAGER,
+        //     Role::GAME_EDITOR,
+        // ]);
     }
 
     public function update(User $user, GameSet $gameSet): bool

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-import { preProcessShortcodesInBody } from '@/features/forums/utils/preProcessShortcodesInBody';
+import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 
 const formSchema = z.object({
   body: z.string().min(1).max(60_000),

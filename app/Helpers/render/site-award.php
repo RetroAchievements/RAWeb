@@ -63,7 +63,7 @@ function SeparateAwards(array $userAwards): array
                 $siteAwards[] = $award;
             } elseif ($award['ConsoleName'] === 'Events') {
                 $eventAwards[] = $award;
-            } else {
+            } elseif ($award['AwardType'] !== AwardType::GameBeaten) {
                 $gameAwards[] = $award;
             }
         } elseif ($type === AwardType::Event) {
