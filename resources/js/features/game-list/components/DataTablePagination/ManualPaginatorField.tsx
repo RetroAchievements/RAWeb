@@ -5,6 +5,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { useDebounce } from 'react-use';
 
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
+import { cn } from '@/common/utils/cn';
 
 interface ManualPaginatorFieldProps<TData> {
   table: Table<TData>;
@@ -60,7 +61,12 @@ export function ManualPaginatorField<TData>({
                 type="number"
                 min={1}
                 max={totalPages}
-                className="h-8 max-w-[80px] pt-[5px] text-[13px] text-neutral-200 light:text-neutral-900"
+                className={cn(
+                  'h-8 max-w-[80px] pt-[5px] text-[13px] text-neutral-200 light:text-neutral-900',
+
+                  // Hide the number spinner on desktop browsers -- it can obstruct the input field.
+                  'appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+                )}
                 value={inputValue}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
                 aria-label={t('current page number')}
