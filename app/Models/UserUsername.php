@@ -45,6 +45,27 @@ class UserUsername extends BaseModel
         return $this->created_at->isPast() && $this->created_at->diffInDays(now()) >= 30;
     }
 
+    public function getPreviousUsagesAttribute(): array
+    {
+        $usages = [];
+
+        $previousApprovedChanges = static::query()
+            ->with('user')
+            ->where('username', $this->username)
+            ->where('id', '!=', $this->id)
+            ->whereNotNull('approved_at')
+            ->get();
+
+        foreach ($previousApprovedChanges as $change) {
+            $usages[] = [
+                'user' => $change->user,
+                'when' => $change->approved_at,
+            ];
+        }
+
+        return $usages;
+    }
+
     // == mutators
 
     // == relations
