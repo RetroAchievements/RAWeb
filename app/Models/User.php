@@ -622,33 +622,39 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         }
 
         $keyword = trim($keyword);
-        $escapedKeyword = addslashes($keyword);
-        $fullTextQuery = '+' . $escapedKeyword . '*';
 
         /**
-         * Search users with FULLTEXT index and rank results by:
-         * 1. Exact username match (100 points).
-         * 2. Exact display name match (90 points).
-         * 3. Username prefix match (80 points).
-         * 4. Display name prefix match (70 points).
-         * 5. Username infix match (weighted by FULLTEXT relevance).
-         * 6. Display name infix match (weighted by FULLTEXT relevance).
+         * Search users and rank results by:
+         * 1. Exact display_name match (100 points).
+         * 2. display_name prefix match (90 points).
+         * 3. display_name contains match (80 points).
+         * 4. Exact username match (70 points).
+         * 5. username contains match (60 points).
          *
          * Finally, sort equally-ranked results by last login date.
          */
         return $query->whereNotNull('email_verified_at')
             ->whereNull('Deleted')
             ->whereNull('banned_at')
-            ->whereRaw('MATCH(User, display_name) AGAINST (? IN BOOLEAN MODE)', [$fullTextQuery])
+            ->where(function ($query) use ($keyword) {
+                $query->where('display_name', 'LIKE', '%' . $keyword . '%')
+                      ->orWhere('User', 'LIKE', '%' . $keyword . '%');
+            })
             ->orderByRaw("
                 CASE 
-                    WHEN User = ? THEN 100
-                    WHEN display_name = ? THEN 90
-                    WHEN User LIKE ? THEN 80
-                    WHEN display_name LIKE ? THEN 70
-                    ELSE MATCH(User, display_name) AGAINST (? IN BOOLEAN MODE) * 10
+                    WHEN display_name = ? THEN 100
+                    WHEN display_name LIKE ? THEN 90
+                    WHEN display_name LIKE ? THEN 80
+                    WHEN User = ? THEN 70
+                    WHEN User LIKE ? THEN 60
                 END DESC",
-                [$keyword, $keyword, $keyword . '%', $keyword . '%', $fullTextQuery]
+                [
+                    $keyword,
+                    $keyword . '%',
+                    '%' . $keyword . '%',
+                    $keyword,
+                    '%' . $keyword . '%',
+                ]
             )
             ->orderBy('LastLogin', 'desc')
             ->limit(10);
