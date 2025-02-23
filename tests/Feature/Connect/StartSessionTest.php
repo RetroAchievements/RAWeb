@@ -631,7 +631,7 @@ class StartSessionTest extends TestCase
         $this->assertEquals($this->userAgentUnknown, $playerSession5->user_agent);
     }
 
-    public function testStartSessionDelegated(): void
+    public function testStartSessionDelegatedByName(): void
     {
         $now = Carbon::create(2020, 3, 4, 16, 40, 13); // 4:40:13pm 4 Mar 2020
         Carbon::setTestNow($now);
@@ -796,5 +796,116 @@ class StartSessionTest extends TestCase
                 "Error" => "Access denied.",
                 "Status" => 405,
             ]);
+    }
+
+    public function testStartSessionDelegatedByUlid(): void
+    {
+        $now = Carbon::create(2020, 3, 4, 16, 40, 13); // 4:40:13pm 4 Mar 2020
+        Carbon::setTestNow($now);
+
+        /** @var System $standalonesSystem */
+        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        /** @var Game $gameOne */
+        $gameOne = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+
+        /** @var User $integrationUser */
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        /** @var User $delegatedUser */
+        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+
+        // The integration user is the sole author of all the set's achievements.
+        $coreAchievements = Achievement::factory()->published()->count(3)->create([
+            'GameID' => $gameOne->id,
+            'user_id' => $integrationUser->id,
+        ]);
+        $this->upsertGameCoreSetAction->execute($gameOne);
+
+        /** @var Game $bonusGameOne */
+        $bonusGameOne = Game::factory()->create([
+            'ConsoleID' => $standalonesSystem->ID,
+            'Title' => $gameOne->Title . ' [Subset - Bonus]',
+        ]);
+        $bonusAchievements = Achievement::factory()->published()->count(3)->create([
+            'GameID' => $bonusGameOne->id,
+            'user_id' => $integrationUser->id,
+        ]);
+        $this->upsertGameCoreSetAction->execute($bonusGameOne);
+        $this->associateAchievementSetToGameAction->execute($gameOne, $bonusGameOne, AchievementSetType::Bonus, 'Bonus');
+
+        // ... core unlocks ...
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($delegatedUser, $coreAchievements->get(0), $unlock1Date);
+        $unlock2Date = $now->clone()->subMinutes(22);
+        $this->addHardcoreUnlock($delegatedUser, $coreAchievements->get(1), $unlock2Date);
+        $unlock3Date = $now->clone()->subMinutes(1);
+        $this->addSoftcoreUnlock($delegatedUser, $coreAchievements->get(2), $unlock3Date);
+
+        // ... bonus unlocks ...
+        $bonusUnlock1Date = $now->clone()->subMinutes(45);
+        $this->addHardcoreUnlock($delegatedUser, $bonusAchievements->get(0), $bonusUnlock1Date);
+        $bonusUnlock2Date = $now->clone()->subMinutes(15);
+        $this->addSoftcoreUnlock($delegatedUser, $bonusAchievements->get(1), $bonusUnlock2Date);
+
+        $this->seedEmulatorUserAgents();
+
+        $params = [
+            'u' => $integrationUser->User,
+            't' => $integrationUser->appToken,
+            'r' => 'startsession',
+            'g' => $gameOne->id,
+            'k' => $delegatedUser->ulid, // !!
+        ];
+
+        // ----------------------------
+        // game with unlocks
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->post($requestUrl)
+            ->assertExactJson([
+                'Success' => true,
+                'HardcoreUnlocks' => [
+                    [
+                        'ID' => $coreAchievements->get(0)->ID,
+                        'When' => $unlock1Date->timestamp,
+                    ],
+                    [
+                        'ID' => $coreAchievements->get(1)->ID,
+                        'When' => $unlock2Date->timestamp,
+                    ],
+                    [
+                        'ID' => $bonusAchievements->get(0)->ID,
+                        'When' => $bonusUnlock1Date->timestamp,
+                    ],
+                ],
+                'Unlocks' => [
+                    [
+                        'ID' => $coreAchievements->get(2)->ID,
+                        'When' => $unlock3Date->timestamp,
+                    ],
+                    [
+                        'ID' => $bonusAchievements->get(1)->ID,
+                        'When' => $bonusUnlock2Date->timestamp,
+                    ],
+                ],
+                'ServerNow' => Carbon::now()->timestamp,
+            ]);
+
+        // player session created
+        $playerSession = PlayerSession::where([
+            'user_id' => $delegatedUser->id,
+            'game_id' => $bonusGameOne->id,
+        ])->first();
+        $this->assertModelExists($playerSession);
+        $this->assertEquals(1, $playerSession->duration);
+        $this->assertEquals('Playing ' . $bonusGameOne->title, $playerSession->rich_presence);
+
+        $this->assertEquals($bonusGameOne->id, $delegatedUser->LastGameID);
+        $this->assertEquals("Playing " . $bonusGameOne->Title, $delegatedUser->RichPresenceMsg);
+
+        // While delegating, updates are made on behalf of username `k`.
+        $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
+            'user_id' => $integrationUser->id,
+            'game_id' => $bonusGameOne->id,
+        ]);
     }
 }
