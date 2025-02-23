@@ -95,13 +95,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "message-thread.show": [
-        {
-            "name": "messageThread",
-            "required": true,
-            "binding": "id"
-        }
-    ],
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],
@@ -468,7 +461,7 @@ declare module 'ziggy-js' {
         }
     ],
     "message-thread.index": [],
-    "message-thread.show2": [
+    "message-thread.show": [
         {
             "name": "messageThread",
             "required": true,
