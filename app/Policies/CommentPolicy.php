@@ -50,7 +50,7 @@ class CommentPolicy
             return false;
         }
 
-        if ($user && !$user->hasVerifiedEmail()) {
+        if ($user && $user->isFreshAccount()) {
             return false;
         }
 
