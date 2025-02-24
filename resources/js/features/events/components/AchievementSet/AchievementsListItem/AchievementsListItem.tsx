@@ -70,14 +70,14 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
             {/* Title */}
             <div className="-mt-2 mb-0.5 flex justify-between gap-x-2 md:mt-0">
               <div className="flex flex-wrap gap-1">
-                <a href={route('achievement.show', { achievement })} className="mr-1 inline">
+                <a href={route('achievement.show', { achievement })} className="inline">
                   {title}
                 </a>
 
                 {game?.title ? (
                   <>
-                    <span className="text-[12px]">{t('from')}</span>
-                    <a className="text-[12px]" href={route('achievement.show', { achievement })}>
+                    <span>{t('from')}</span>
+                    <a href={route('achievement.show', { achievement })}>
                       <GameTitle title={game.title} />
                     </a>
                   </>
