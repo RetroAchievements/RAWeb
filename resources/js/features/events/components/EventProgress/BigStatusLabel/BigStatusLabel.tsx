@@ -25,7 +25,7 @@ export const BigStatusLabel: FC<BigStatusLabelProps> = ({ event, isMastered }) =
     colorClassName = 'text-yellow-400 light:text-yellow-600';
     statusLabel = t('Awarded');
   } else if (isAwarded && eventAwards.length > 1) {
-    colorClassName = 'text-neutral-300 light:text-neutral-500';
+    colorClassName = 'text-neutral-300 light:text-neutral-700';
 
     const highestAwardLabel = eventAwards
       .sort((a, b) => b.pointsRequired - a.pointsRequired)

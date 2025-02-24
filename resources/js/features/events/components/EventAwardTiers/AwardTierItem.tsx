@@ -32,8 +32,8 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward }) => 
   return (
     <div
       className={cn(
-        'group rounded-lg p-1',
-        eventAward.earnedAt ? 'bg-zinc-700/50' : 'bg-zinc-800/50',
+        'group rounded-lg p-1 light:bg-white',
+        eventAward.earnedAt ? 'border border-yellow-500 bg-zinc-700/50' : 'bg-zinc-800/50',
       )}
     >
       <div className="relative flex items-center gap-3">
@@ -54,7 +54,7 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward }) => 
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
               <p className="flex gap-2 text-xs font-medium">{cleanedAwardLabel}</p>
-              <span className="whitespace-nowrap rounded bg-white/5 px-1.5 text-2xs text-neutral-400">
+              <span className="whitespace-nowrap rounded bg-white/5 px-1.5 text-2xs text-neutral-400 light:bg-neutral-100 light:text-neutral-600">
                 {t(
                   areAllAchievementsOnePoint
                     ? '{{val, number}} achievements'
@@ -75,7 +75,7 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward }) => 
               <BaseTooltipTrigger>
                 <div
                   data-testid="award-earned-checkmark"
-                  className="mr-1 flex size-6 items-center justify-center rounded-full bg-embed"
+                  className="mr-1 flex size-6 items-center justify-center rounded-full bg-embed light:text-neutral-700"
                 >
                   <LuCheck className="size-4" />
                 </div>
