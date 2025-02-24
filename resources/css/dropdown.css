@@ -9,10 +9,9 @@
   position: absolute;
   left: 0;
   margin: 0;
+  box-shadow: var(--box-shadow-color) 0 10px 30px -8px, var(--box-shadow-color) 0px 8px 16px -8px;
   background-color: var(--embed-highlight-color);
   z-index: 20;
-
-  @apply shadow-lg;
 }
 
 .dropdown-menu-right {
