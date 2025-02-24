@@ -93,6 +93,14 @@ class SimilarGames extends ManageRelatedRecords
                 Tables\Actions\Action::make('add')
                     ->label('Add similar games')
                     ->form([
+                        Forms\Components\TextInput::make('game_ids_csv')
+                            ->label('Game IDs (CSV)')
+                            ->placeholder('729,2204,3987,53')
+                            ->helperText('Enter game IDs separated by commas or spaces. URLs are also supported.')
+                            ->hidden(fn (Forms\Get $get): bool => filled($get('game_ids')))
+                            ->disabled(fn (Forms\Get $get): bool => filled($get('game_ids')))
+                            ->live(debounce: 200),
+
                         Forms\Components\Select::make('game_ids')
                             ->label('Games')
                             ->multiple()
@@ -124,7 +132,11 @@ class SimilarGames extends ManageRelatedRecords
                                     ->with('system')
                                     ->get()
                                     ->mapWithKeys(fn ($game) => [$game->id => "[{$game->id}] {$game->title} ({$game->system->name})"]);
-                            }),
+                            })
+                            ->hidden(fn (Forms\Get $get): bool => filled($get('game_ids_csv')))
+                            ->disabled(fn (Forms\Get $get): bool => filled($get('game_ids_csv')))
+                            ->live()
+                            ->helperText('... or search and select games to add.'),
                     ])
                     ->modalHeading('Add similar games')
                     ->modalAutofocus(false)
