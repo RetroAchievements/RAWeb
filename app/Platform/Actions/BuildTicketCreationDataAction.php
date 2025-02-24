@@ -83,7 +83,7 @@ class BuildTicketCreationDataAction
                 $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $decoded['client']);
                 if (!$emulatorUserAgent) {
                     $needsOther = true;
-                } else {
+                } else if (!$emulators->contains('name', $emulatorUserAgent->emulator->name)) {
                     $emulators->add(EmulatorData::fromEmulator($emulatorUserAgent->emulator));
                 }
             }
@@ -92,9 +92,6 @@ class BuildTicketCreationDataAction
         if ($needsOther) {
             $emulators->add(new EmulatorData(0, 'Other (please specify in description)'));
         }
-
-        // Deduplicate without needing to normalize decoded client strings.
-        $emulators = $emulators->unique('name');
     }
 
     /**
