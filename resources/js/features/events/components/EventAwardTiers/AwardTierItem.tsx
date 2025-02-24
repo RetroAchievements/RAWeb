@@ -33,7 +33,9 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward }) => 
     <div
       className={cn(
         'group rounded-lg p-1 light:bg-white',
-        eventAward.earnedAt ? 'border border-yellow-500 bg-zinc-700/50' : 'bg-zinc-800/50',
+        eventAward.earnedAt
+          ? 'bg-zinc-700/50 light:border light:border-yellow-500'
+          : 'bg-zinc-800/50',
       )}
     >
       <div className="relative flex items-center gap-3">
