@@ -58,6 +58,10 @@ class GameCommentPolicy
             return false;
         }
 
+        if ($user->isFreshAccount()) {
+            return false;
+        }
+
         return true;
     }
 

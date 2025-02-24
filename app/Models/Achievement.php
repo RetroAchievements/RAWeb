@@ -162,6 +162,23 @@ class Achievement extends BaseModel implements HasVersionedTrigger
                 }
             }
         });
+
+        static::deleting(function (Achievement $achievement) {
+            // If we're force deleting the achievement, force delete the tickets.
+            if ($achievement->isForceDeleting()) {
+                $achievement->tickets()->forceDelete();
+
+                return;
+            }
+
+            // Otherwise, soft delete the tickets.
+            $achievement->tickets()->delete();
+        });
+
+        // When restoring an achievement, restore its tickets.
+        static::restoring(function (Achievement $achievement) {
+            $achievement->tickets()->restore();
+        });
     }
 
     protected static function newFactory(): AchievementFactory
@@ -434,6 +451,14 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         $currentUser = $user ?? Auth::user();
 
         return $this->comments()->visibleTo($currentUser);
+    }
+
+    /**
+     * @return HasMany<Ticket>
+     */
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'AchievementID');
     }
 
     /**

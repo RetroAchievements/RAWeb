@@ -114,7 +114,7 @@ class UpdateGameClaimAction
 
             foreach ($userAwards as $userAward) {
                 sendSetRevisionEmail(
-                    $userAward->user->User,
+                    $userAward->user->display_name,
                     $userAward->user->EmailAddress,
                     $userAward->AwardDataExtra === 1,
                     $game->ID,
