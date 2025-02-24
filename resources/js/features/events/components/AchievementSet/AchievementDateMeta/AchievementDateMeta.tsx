@@ -49,16 +49,8 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
   return (
     <div
       data-testid="date-meta"
-      className={cn('gap-x-2 text-[0.63rem] text-neutral-400/70', className)}
+      className={cn('gap-x-2 text-[0.63rem] text-neutral-400/70 light:text-neutral-500', className)}
     >
-      {unlockedAt ? (
-        <p>
-          {t('Unlocked {{unlockDate}}', {
-            unlockDate: formatDate(unlockedHardcoreAt ?? unlockedAt, 'lll'),
-          })}
-        </p>
-      ) : null}
-
       {isActive && activeUntil ? (
         <p className="text-green-400">
           {t('Active until {{date}}', { date: formatDate(activeUntil, 'll') })}
@@ -70,7 +62,17 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
       ) : null}
 
       {isExpired && activeUntil ? (
-        <p>{t('Ended {{endDate}}', { endDate: formatDate(activeUntil, 'll') })}</p>
+        <p className="text-neutral-300 light:text-neutral-800">
+          {t('Ended {{endDate}}', { endDate: formatDate(activeUntil, 'll') })}
+        </p>
+      ) : null}
+
+      {unlockedAt ? (
+        <p>
+          {t('Unlocked {{unlockDate}}', {
+            unlockDate: formatDate(unlockedHardcoreAt ?? unlockedAt, 'lll'),
+          })}
+        </p>
       ) : null}
     </div>
   );
