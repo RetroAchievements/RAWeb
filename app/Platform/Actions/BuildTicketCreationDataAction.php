@@ -83,7 +83,7 @@ class BuildTicketCreationDataAction
                 $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $decoded['client']);
                 if (!$emulatorUserAgent) {
                     $needsOther = true;
-                } else {
+                } elseif (!$emulators->contains('name', $emulatorUserAgent->emulator->name)) {
                     $emulators->add(EmulatorData::fromEmulator($emulatorUserAgent->emulator));
                 }
             }
