@@ -52,7 +52,10 @@ describe('Component: AchievementsListItem', () => {
 
     // ASSERT
     expect(screen.getByText(/from/i)).toBeInTheDocument();
-    expect(screen.getByText('Test Game')).toBeInTheDocument();
+
+    // ... these are separated due to word wrap logic ...
+    expect(screen.getByText('Test')).toBeInTheDocument();
+    expect(screen.getByText('Game')).toBeInTheDocument();
   });
 
   it('given the achievement has no game title, does not crash', () => {
