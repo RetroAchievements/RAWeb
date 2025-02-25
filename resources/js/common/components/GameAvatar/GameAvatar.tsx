@@ -13,6 +13,7 @@ import { SystemChip } from '../SystemChip';
 type GameAvatarProps = BaseAvatarProps &
   App.Platform.Data.Game & {
     decoding?: ImgHTMLAttributes<HTMLImageElement>['decoding'];
+    dynamicTooltipType?: 'game' | 'hub';
     gameTitleClassName?: string;
     loading?: ImgHTMLAttributes<HTMLImageElement>['loading'];
     shouldGlow?: boolean;
@@ -32,6 +33,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
   title,
   wrapperClassName,
   decoding = 'async',
+  dynamicTooltipType = 'game',
   loading = 'lazy',
   shouldGlow = false,
   showImage = true,
@@ -46,7 +48,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
   const { auth } = usePageProps();
 
   const { cardTooltipProps } = useCardTooltip({
-    dynamicType: 'game',
+    dynamicType: dynamicTooltipType,
     dynamicId: id,
     dynamicContext: showHoverCardProgressForUsername ?? auth?.user.displayName,
   });

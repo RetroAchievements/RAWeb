@@ -119,11 +119,11 @@ if (strlen($searchQuery) >= 2) {
                         echo "<td colspan='2'>";
                         echo gameAvatar(
                             [
-                                'GameID' => $hub->game_id,
+                                'GameID' => $hub->id,
                                 'ImageIcon' => $hub->image_asset_path
                             ],
                             title: $hub->title,
-                            href: route('hub.show', $hub)
+                            isHub: true,
                         );
                         echo "</td>";
                         break;
