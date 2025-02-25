@@ -355,7 +355,7 @@ class AwardAchievementTest extends TestCase
         );
     }
 
-    public function testDelegatedUnlock(): void
+    public function testDelegatedUnlockByName(): void
     {
         $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
         Carbon::setTestNow($now);
@@ -534,6 +534,114 @@ class AwardAchievementTest extends TestCase
                 "Error" => "Access denied.",
                 "Status" => 403,
             ]);
+    }
+
+    public function testDelegatedUnlockByUlid(): void
+    {
+        $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
+        Carbon::setTestNow($now);
+
+        /** @var System $standalonesSystem */
+        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        /** @var Game $gameOne */
+        $gameOne = $this->seedGame(system: $standalonesSystem, withHash: false);
+
+        /** @var User $integrationUser */
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        /** @var User $delegatedUser */
+        $delegatedUser = User::factory()->create(['User' => 'Username', 'Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+
+        $delegatedUser->LastGameID = $gameOne->id;
+        $delegatedUser->save();
+
+        /** @var Achievement $achievement1 */
+        $achievement1 = Achievement::factory()->published()->create(['ID' => 1, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+        /** @var Achievement $achievement2 */
+        $achievement2 = Achievement::factory()->published()->create(['ID' => 2, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+        /** @var Achievement $achievement3 */
+        $achievement3 = Achievement::factory()->published()->create(['ID' => 3, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+        /** @var Achievement $achievement4 */
+        $achievement4 = Achievement::factory()->published()->create(['ID' => 4, 'GameID' => $gameOne->ID, 'user_id' => 9999999]);
+        /** @var Achievement $achievement5 */
+        $achievement5 = Achievement::factory()->published()->create(['ID' => 5, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+        /** @var Achievement $achievement6 */
+        $achievement6 = Achievement::factory()->published()->create(['ID' => 6, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($delegatedUser, $achievement1, $unlock1Date);
+        $this->addHardcoreUnlock($delegatedUser, $achievement5, $unlock1Date);
+        $this->addHardcoreUnlock($delegatedUser, $achievement6, $unlock1Date);
+
+        $playerSession1 = PlayerSession::where([
+            'user_id' => $delegatedUser->id,
+            'game_id' => $achievement3->game_id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession1);
+
+        // cache the unlocks for the game - verify singular unlock captured
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->ID);
+        $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
+
+        // do the delegated hardcore unlock
+        $scoreBefore = $delegatedUser->RAPoints;
+        $softcoreScoreBefore = $delegatedUser->RASoftcorePoints;
+
+        $params = [
+            'u' => $integrationUser->User,
+            't' => $integrationUser->appToken,
+            'r' => 'awardachievement',
+            'k' => $delegatedUser->ulid, // !!
+            'h' => 1,
+            'a' => $achievement3->ID,
+            'v' => '62c47b9fba313855ff8a09673780bb35',
+        ];
+
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->post($requestUrl)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->ID,
+                'AchievementsRemaining' => 2,
+                'Score' => $scoreBefore + $achievement3->Points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $delegatedUser->refresh();
+
+        // player session resumed
+        $playerSession2 = PlayerSession::where([
+            'user_id' => $delegatedUser->id,
+            'game_id' => $achievement3->game_id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession2);
+
+        // game attached
+        $playerGame = PlayerGame::where([
+            'user_id' => $delegatedUser->id,
+            'game_id' => $achievement3->game_id,
+        ])->first();
+        $this->assertModelExists($playerGame);
+        $this->assertNotNull($playerGame->last_played_at);
+
+        // achievement unlocked
+        $playerAchievement = PlayerAchievement::where([
+            'user_id' => $delegatedUser->id,
+            'achievement_id' => $achievement3->id,
+        ])->first();
+        $this->assertModelExists($playerAchievement);
+        $this->assertNotNull($playerAchievement->unlocked_at);
+        $this->assertNotNull($playerAchievement->unlocked_hardcore_at);
+        $this->assertEquals($playerAchievement->player_session_id, $playerSession2->id);
+
+        // player score should have increased
+        $user1 = User::whereName($delegatedUser->User)->first();
+        $this->assertEquals($scoreBefore + $achievement3->Points, $user1->RAPoints);
+        $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
+
+        // make sure the unlock cache was updated
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->ID);
+        $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
+        $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
+        $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
     }
 
     public function testBackdatedUnlock(): void
