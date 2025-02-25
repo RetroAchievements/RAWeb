@@ -44,7 +44,7 @@ export function useCreateMessageReplyForm() {
       success: () => {
         setTimeout(() => {
           router.visit(
-            route('message-thread.show2', {
+            route('message-thread.show', {
               messageThread: messageThread.id,
               _query: { page: paginatedMessages.lastPage },
             }),

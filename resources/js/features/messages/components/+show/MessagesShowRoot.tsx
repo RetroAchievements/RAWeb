@@ -41,7 +41,7 @@ export const MessagesShowRoot: FC = () => {
 
   const handlePageSelectValueChange = (newPageValue: number) => {
     router.visit(
-      route('message-thread.show2', {
+      route('message-thread.show', {
         messageThread: messageThread.id,
         _query: { page: newPageValue },
       }),
