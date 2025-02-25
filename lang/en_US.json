@@ -765,5 +765,7 @@
     "Unfinished": "Unfinished",
     "Awarded": "Awarded",
     "screenshot": "screenshot",
-    "Status": "Status"
+    "Status": "Status",
+    "<1>You must</1> <2>sign in</2> <3>before you can participate in this event.</3>": "<1>You must</1> <2>sign in</2> <3>before you can participate in this event.</3>",
+    "You haven't unlocked any achievements for this event.": "You haven't unlocked any achievements for this event."
 }

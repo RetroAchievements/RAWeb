@@ -1,6 +1,8 @@
 import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
+import { usePageProps } from '@/common/hooks/usePageProps';
+
 import { BigStatusLabel } from './BigStatusLabel';
 import { Glow } from './Glow';
 import { ProgressBar } from './ProgressBar';
@@ -11,6 +13,8 @@ interface EventProgressProps {
 }
 
 export const EventProgress: FC<EventProgressProps> = ({ event, playerGame }) => {
+  const { auth } = usePageProps();
+
   const { t } = useTranslation();
 
   const eventAwards = event.eventAwards ?? [];
@@ -46,17 +50,32 @@ export const EventProgress: FC<EventProgressProps> = ({ event, playerGame }) => 
           ) : null}
 
           <p className="mt-2 leading-4">
-            {hasUnlockedAnyAchievements ? (
+            {auth ? (
+              <>
+                {hasUnlockedAnyAchievements ? (
+                  <Trans
+                    i18nKey="<1>{{earned, number}}</1> of {{total, number}} achievements"
+                    components={{ 1: <span className="font-bold" /> }}
+                    values={{
+                      earned: playerGame.achievementsUnlocked,
+                      total: totalAchievements,
+                    }}
+                  />
+                ) : null}
+
+                {!hasUnlockedAnyAchievements ? (
+                  <span>{t("You haven't unlocked any achievements for this event.")}</span>
+                ) : null}
+              </>
+            ) : (
               <Trans
-                i18nKey="<1>{{earned, number}}</1> of {{total, number}} achievements"
-                components={{ 1: <span className="font-bold" /> }}
-                values={{
-                  earned: playerGame.achievementsUnlocked,
-                  total: totalAchievements,
+                i18nKey="<1>You must</1> <2>sign in</2> <3>before you can participate in this event.</3>"
+                components={{
+                  1: <span />,
+                  2: <a className="inline" href={route('login')} />,
+                  3: <span />,
                 }}
               />
-            ) : (
-              "You haven't unlocked any achievements for this event."
             )}
           </p>
 

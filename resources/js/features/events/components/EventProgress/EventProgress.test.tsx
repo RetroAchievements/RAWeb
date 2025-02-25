@@ -1,3 +1,4 @@
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import {
   createAchievement,
@@ -18,11 +19,25 @@ describe('Component: EventProgress', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given the user has not unlocked any achievements, shows the empty state message', () => {
+  it('given the user is unauthenticated, shows a sign in call to action', () => {
     // ARRANGE
     const event = createRaEvent();
 
-    render(<EventProgress event={event} playerGame={null} />);
+    render(<EventProgress event={event} playerGame={null} />, {
+      pageProps: { auth: null },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /sign in/i })).toBeVisible();
+  });
+
+  it('given the authenticated user has not unlocked any achievements, shows the empty state message', () => {
+    // ARRANGE
+    const event = createRaEvent();
+
+    render(<EventProgress event={event} playerGame={null} />, {
+      pageProps: { auth: { user: createAuthenticatedUser() } },
+    });
 
     // ASSERT
     expect(screen.getByText(/haven't unlocked any achievements/i)).toBeVisible();
@@ -39,7 +54,9 @@ describe('Component: EventProgress', () => {
     });
     const playerGame = createPlayerGame({ achievementsUnlocked: 1, pointsHardcore: 5 });
 
-    render(<EventProgress event={event} playerGame={playerGame} />);
+    render(<EventProgress event={event} playerGame={playerGame} />, {
+      pageProps: { auth: { user: createAuthenticatedUser() } },
+    });
 
     // ASSERT
     expect(screen.getAllByText(/1/)[0]).toBeVisible();
@@ -58,7 +75,9 @@ describe('Component: EventProgress', () => {
     });
     const playerGame = createPlayerGame({ achievementsUnlocked: 1, pointsHardcore: 5 });
 
-    render(<EventProgress event={event} playerGame={playerGame} />);
+    render(<EventProgress event={event} playerGame={playerGame} />, {
+      pageProps: { auth: { user: createAuthenticatedUser() } },
+    });
 
     // ASSERT
     expect(screen.getByText(/of 5 points/i)).toBeVisible();
@@ -74,7 +93,9 @@ describe('Component: EventProgress', () => {
     });
     const playerGame = createPlayerGame({ achievementsUnlocked: 1, pointsHardcore: 1 });
 
-    render(<EventProgress event={event} playerGame={playerGame} />);
+    render(<EventProgress event={event} playerGame={playerGame} />, {
+      pageProps: { auth: { user: createAuthenticatedUser() } },
+    });
 
     // ASSERT
     expect(screen.queryByText(/points/i)).not.toBeInTheDocument();
@@ -87,7 +108,9 @@ describe('Component: EventProgress', () => {
     });
     const playerGame = createPlayerGame({ achievementsUnlocked: 1 });
 
-    render(<EventProgress event={event} playerGame={playerGame} />);
+    render(<EventProgress event={event} playerGame={playerGame} />, {
+      pageProps: { auth: { user: createAuthenticatedUser() } },
+    });
 
     // ASSERT
     expect(screen.queryByTestId('progress-blur')).not.toBeInTheDocument();
@@ -103,7 +126,9 @@ describe('Component: EventProgress', () => {
     });
     const playerGame = createPlayerGame({ achievementsUnlocked: 1 });
 
-    render(<EventProgress event={event} playerGame={playerGame} />);
+    render(<EventProgress event={event} playerGame={playerGame} />, {
+      pageProps: { auth: { user: createAuthenticatedUser() } },
+    });
 
     // ASSERT
     const glowElement = screen.getByTestId('progress-blur');
@@ -121,7 +146,9 @@ describe('Component: EventProgress', () => {
     });
     const playerGame = createPlayerGame({ achievementsUnlocked: 2 });
 
-    render(<EventProgress event={event} playerGame={playerGame} />);
+    render(<EventProgress event={event} playerGame={playerGame} />, {
+      pageProps: { auth: { user: createAuthenticatedUser() } },
+    });
 
     // ASSERT
     const glowElement = screen.getByTestId('progress-blur');
