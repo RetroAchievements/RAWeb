@@ -232,10 +232,15 @@ $unlockMode = match ($sort % 10) {
 
         if ($dataPoint['Points'] != $rankPoints) {
             if ($rankPoints === null && $friends === 0 && $type === 2 && $offset > 0) {
-                // first rank of subsequent pages for all users / all time should be calculated
-                // as it might be shared with users on the previous page
-                $rankType = ($unlockMode == UnlockMode::Hardcore) ? RankType::Hardcore : RankType::Softcore;
-                $rank = getUserRank($dataPoint['User'], $rankType);
+                // The first rank of subsequent pages for all users / all time should be calculated,
+                // as it might be tied with users on the previous page.
+                // Values >10 indicate descending order, so we'll use modulo to get the base sort type.
+                $rank = match ($sort % 10) {
+                    5 => getUserRank($dataPoint['User'], RankType::Hardcore),
+                    2 => getUserRank($dataPoint['User'], RankType::Softcore),
+                    6 => getUserRank($dataPoint['User'], RankType::TruePoints),
+                    default => $rowRank
+                };
             } else {
                 $rank = $rowRank;
             }

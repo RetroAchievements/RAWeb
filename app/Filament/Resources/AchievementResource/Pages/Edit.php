@@ -9,8 +9,10 @@ use App\Filament\Concerns\HasFieldLevelAuthorization;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\AchievementResource;
 use App\Models\Achievement;
+use App\Platform\Actions\SyncEventAchievementMetadataAction;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
 
 class Edit extends EditRecord
 {
@@ -55,5 +57,18 @@ class Edit extends EditRecord
         }
 
         return $data;
+    }
+
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        $record->fill($data);
+
+        /** @var Achievement $achievement */
+        $achievement = $record;
+        (new SyncEventAchievementMetadataAction())->execute($achievement);
+
+        $record->save();
+
+        return $record;
     }
 }

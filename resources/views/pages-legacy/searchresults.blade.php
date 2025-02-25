@@ -4,6 +4,7 @@
 
 use App\Enums\SearchType;
 use App\Models\Achievement;
+use App\Models\GameSet;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -109,6 +110,21 @@ if (strlen($searchQuery) >= 2) {
                         $gameData = getGameData($nextID);
                         echo "<td colspan='2'>";
                         echo gameAvatar($gameData);
+                        echo "</td>";
+                        break;
+
+                    case SearchType::Hub:
+                        echo "<td>Hub</td>";
+                        $hub = GameSet::find($nextID);
+                        echo "<td colspan='2'>";
+                        echo gameAvatar(
+                            [
+                                'GameID' => $hub->id,
+                                'ImageIcon' => $hub->image_asset_path
+                            ],
+                            title: $hub->title,
+                            isHub: true,
+                        );
                         echo "</td>";
                         break;
 
