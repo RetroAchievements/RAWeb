@@ -50,9 +50,15 @@ class SyncEvents extends Command
         //    ->where('AwardData', 7970)->update(['AwardDataExtra' => 1]); // eliminates softcore badge for Devember 2022
 
         $gameConversions = [
-            1963 => new ConvertAsIs('solar-jetman'),
-            11128 => new ConvertAsIs('pumpkin-king-2017', '10/13/2017', '10/31/2017'),
+            // ===== 2017 =====
+
+            //1963 => new ConvertAsIs('solar-jetman'),
+            //11128 => new ConvertAsIs('pumpkin-king-2017', '10/13/2017', '10/31/2017'),
             11597 => new ConvertAsIs('christmas-2017', '12/1/2017', '1/7/2018'),
+
+            // ===== 2018 =====
+
+            13755 => new ConvertCollapse('aotw-2018', '1/1/2018', '12/31/2018'),
             13279 => new ConvertToTracked('aotw-2018-halloween', [
                 16187 => ['10/6/2018', '10/12/2018'],
                 15585 => ['10/13/2018', '10/19/2018'],
@@ -73,22 +79,9 @@ class SyncEvents extends Command
                 68555 => ['Thoreau', 'Blazekickn', 'theztret00', 'Grenade44', 'DrPixel', 'ColonD', 'Tutumos'],
                 68556 => ['Zaphnath', 'Rimsala', 'SirVG', 'Jamiras', 'deividokop', 'MGNS8M', 'ikki5'],
             ]),
-            13755 => new ConvertCollapse('aotw-2018', '1/1/2018', '12/31/2018'),
-            14315 => new ConvertToTracked('aotw-2019-spring', [
-                19375 => ['3/29/2019', '4/4/2019'],
-                49583 => ['4/5/2019', '4/11/2019'],
-                2288 => ['4/12/2019', '4/18/2019'],
-                1879 => ['4/19/2019', '4/25/2019'],
-            ]),
-            14400 => new ConvertCollapse('community-rescore', '7/14/2019', '7/28/2019'),
-            14404 => new ConvertCollapse('retro-cleanup-2019', '3/1/2019', '3/31/2019'),
-            14314 => new ConvertToTracked('aotw-2019-spooky', [
-                8275 => ['10/4/2019', '10/10/2019'],
-                3077 => ['10/11/2019', '10/17/2019'],
-                63183 => ['10/18/2019', '10/24/2019'],
-                32640 => ['10/25/2019', '10/31/2019'],
-            ]),
-            1018 => new ConvertToSoftcoreTiered('devember-2019', 'Any points', '320 points'),
+
+            // ===== 2019 =====
+
             1046 => new ConvertAotWTiered('aotw-2019', '1/4/2019', [20 => 1023, 30 => 1026, 40 => 1046], [
                 7091, 7277, 3975, 67795, 20262, 32418, 37147, 22135, 70572, 56991, 5359, 60531,
                 19375, 49583, 2288, 1879, 4572, 70351, 61774, 70295, 28572, 73619, 20140, 18654,
@@ -100,37 +93,39 @@ class SyncEvents extends Command
                 [1078 => '47 points', 1114 => '60.5 points', 1119 => '61 points'],
                 [93204, 93210, 93216],
             ),
-            9834 => new ConvertAsIs('spring-cleaning-2020'),
-            9858 => new ConvertToTiered('leapfrog-4', [1 => 'Survived 14 days', 2 => 'Survived 29 days'], [
-                111931 => ['Xymjak', 'Klarth18'], // 90
-                111932 => ['Searo'], // 75
-                111933 => ['Haruda', 'deng', 'televandalist'], // 60
-                111934 => ['Shmelyoff', 'NickGoat1990', 'Nevermond12', 'jltn', 'BendyHuman'], // 45
-                111935 => ['RetroRobb', 'SteevL', 'DrPixel', 'jos', 'Gamechamp', 'TheRecognitionScene',
-                    'EverElsewhere', 'Boldewin'], // 29
-                111936 => ['timmytenfingers', 'Snow', 'matheus2653', 'BenGhazi', 'KickMeElmo', 'Cactuarin247', 'LootusMaximus',
-                    'RABarcade', 'ObsoleteGamer2004', 'Tvols1480', 'Hotscrock'], // 14
+            14315 => new ConvertToTracked('aotw-2019-spring', [
+                19375 => ['3/29/2019', '4/4/2019'],
+                49583 => ['4/5/2019', '4/11/2019'],
+                2288 => ['4/12/2019', '4/18/2019'],
+                1879 => ['4/19/2019', '4/25/2019'],
             ]),
-            3046 => new ConvertAsIs('jr-dev-graduate'),
-            8275 => new ConvertAsIs('unwanted-bronze'),
-            3530 => new ConvertAsIs('unwanted-silver'),
-            3904 => new ConvertAsIs('unwanted-gold'),
-            15945 => new ConvertAsIs('unwanted-platinum'),
-            5982 => new ConvertAsIs('challenge-league-2'),
+            14314 => new ConvertToTracked('aotw-2019-spooky', [
+                8275 => ['10/4/2019', '10/10/2019'],
+                3077 => ['10/11/2019', '10/17/2019'],
+                63183 => ['10/18/2019', '10/24/2019'],
+                32640 => ['10/25/2019', '10/31/2019'],
+            ]),
+            14400 => new ConvertCollapse('community-rescore', '7/14/2019', '7/28/2019'),
+            14404 => new ConvertCollapse('retro-cleanup-2019', '3/1/2019', '3/31/2019'),
+            1018 => new ConvertToSoftcoreTiered('devember-2019', 'Any points', '320 points', 90625),
+
+            // ===== 2020 =====
+
             9569 => new ConvertAotWTiered('aotw-2020', '1/5/2020', [16 => 9550, 32 => 5929, 48 => 7725, 64 => 9569], [
                 30631, 49307, 92276, 34853, 71436, 81977, 84142, 98264, 69285, 21833, 12613, 67132,
                 22128, 77147, 23441, 5854, 71060, 70473, 106331, 3181, 34529, 38502, 108013, 80055,
                 12950, 33225, 7569, 93487, 38438, 75779, 66435, 48348, 2040, 45399, 70566, 80104,
                 62503, 6050, 105837, 39623, 14643, 128968, 100650, 7287, 12364, 46479, 67139, 50940,
                 114492, 7311, 78373, 85393,
-            ], [2388, 10660, 11846, 49687, [53694, 53697, 53700, 53685], 60521, 9793, 67629, 63579, 48860, 99742, 55509]),
-            15936 => new ConvertCollapse('aotm-2020', '1/5/2020', '1/2/2021'),
+            ], [2388, 10660, 11846, 49687, [53694, 53697, 53700, 53685], 60521, 9793, 67629, 63579, 48860, 99742, 55509],
+                extraDay: true),
             4721 => new ConvertToTracked('aotw-2020-camping', [
-                48348 => ['8/9/2020', '8/15/2020'],
-                2040 => ['8/16/2020', '8/22/2020'],
-                45399 => ['8/23/2020', '8/29/2020'],
-                70566 => ['8/30/2020', '9/5/2020'],
+                48348 => ['8/9/2020', '8/16/2020'],
+                2040 => ['8/16/2020', '8/23/2020'],
+                45399 => ['8/23/2020', '8/30/2020'],
+                70566 => ['8/30/2020', '9/6/2020'],
             ]),
+            9834 => new ConvertAsIs('spring-cleaning-2020'),
             15905 => new ConvertToTracked('aotw-2020-christmas', [
                 50940 => ['11/29/2020', '12/5/2020'],
                 114492 => ['12/6/2020', '12/12/2020'],
@@ -138,26 +133,99 @@ class SyncEvents extends Command
                 78373 => ['12/20/2020', '12/26/2020'],
                 85393 => ['12/27/2020', '1/2/2021'],
             ]),
-            17076 => new ConvertAsIs('communiplay'),
+            15936 => new ConvertToTracked('aotm-2020', [
+                2388 => ['1/5/2020', '2/1/2020'],
+                10660 => ['2/2/2020', '3/7/2020'],
+                11846 => ['3/8/2020', '4/4/2020'],
+                49687 => ['4/5/2020', '5/2/2020'],
+                53685 => ['5/3/2020', '6/6/2020', [53694, 53697, 53700, 53685]],
+                60521 => ['6/7/2020', '7/4/2020'],
+                9793 => ['7/5/2020', '8/1/2020'],
+                67629 => ['8/2/2020', '9/5/2020'],
+                63579 => ['9/6/2020', '10/3/2020'],
+                48860 => ['10/4/2020', '11/7/2020'],
+                99742 => ['11/8/2020', '12/5/2020'],
+                55509 => ['12/6/2020', '1/2/2021'],
+            ]),
+            9858 => new ConvertToTiered('leapfrog-4', [1 => 'Survived 14 days', 2 => 'Survived 29 days'], [
+                111931 => ['Xymjak', 'Klarth18'], // 90
+                111932 => ['Searo'], // 75
+                111933 => ['Haruda', 'Blazekickn', 'televandalist'], // 60
+                111934 => ['Shmelyoff', 'NickGoat1990', 'Nevermond12', 'jltn', 'BendyHuman'], // 45
+                111935 => ['RetroRobb', 'SteevL', 'DrPixel', 'jos', 'Gamechamp', 'TheRecognitionScene',
+                    'EverElsewhere', 'Boldewin'], // 29
+                111936 => ['timmytenfingers', 'Snow', 'matheus2653', 'BenGhazi', 'KickMeElmo', 'Cactuarin247', 'LootusMaximus',
+                    'RABarcade', 'ObsoleteGamer2004', 'Tvols1480', 'Hotscrock'], // 14
+            ]),
+            3046 => new ConvertAsIs('jr-dev-graduate'),
+            8275 => new ConvertAsIs('unwanted-bronze', '07/15/2020'),
+            3530 => new ConvertAsIs('unwanted-silver', '07/15/2020'),
+            3904 => new ConvertAsIs('unwanted-gold', '07/15/2020'),
+            15945 => new ConvertAsIs('unwanted-platinum', '07/15/2020', noWinners: true),
+            5982 => new ConvertAsIs('challenge-league-2'),
+            //17076 => new ConvertAsIs('communiplay'),
             17310 => new ConvertAsIs('devember-2020', '11/15/2020', '12/13/2020'),
-            3487 => new ConvertAsIs('challenge-league-3', '2/1/2021', '1/31/2021'),
+            2785 => new ConvertToMergedTracked('tba-2020', 'The Big Achievement 2020',
+                [5 => 6005, 15 => 4076, 30 => 6872, 40 => 2785],
+                [
+                    1004 => ['1/1/2020', '1/14/2020'],
+                    5794 => ['1/15/2020', '1/28/2020'],
+                    5561 => ['1/29/2020', '2/11/2020'],
+                    54856 => ['2/12/2020', '2/25/2020'],
+                    70263 => ['2/26/2020', '3/24/2020'],
+                    78686 => ['3/25/2020', '4/7/2020'],
+                    37529 => ['4/8/2020', '4/23/2020'],
+                    36104 => ['4/24/2020', '5/8/2020'],
+                    108577 => ['4/9/2020', '5/23/2020', [63880, 108577]],
+                    18405 => ['5/23/2020', '6/5/2020'],
+                    10920 => ['6/6/2020', '6/18/2020'],
+                    87607 => ['6/19/2020', '7/2/2020'],
+                    3633 => ['7/3/2020', '7/16/2020'],
+                    15104 => ['7/17/2020', '7/31/2020', [117022, 15104]],
+                    5722 => ['8/1/2020', '8/16/2020'],
+                    54539 => ['8/17/2020', '8/30/2020'],
+                    41791 => ['8/31/2020', '9/12/2020'],
+                    98035 => ['9/13/2020', '9/26/2020'],
+                    277 => ['9/27/2020', '10/10/2020'],
+                    36680 => ['10/11/2020', '10/24/2020'],
+                    89846 => ['10/25/2020', '11/7/2020'],
+                    26186 => ['11/8/2020', '11/21/2020'],
+                    56763 => ['11/22/2020', '12/6/2020'],
+                    114454 => ['12/7/2020', '12/20/2020'],
+                    83160 => ['12/21/2020', '1/3/2021'],
+                ],
+                [
+                    21488 => ['1/1/2020', '1/31/2020'],
+                    'Leapfrog' => ['2/1/2020', '2/28/2020'],
+                    'March Mastery' => ['3/1/2020', '3/31/2020'],
+                    'TBA x VGM' => ['4/1/2020', '4/30/2020'],
+                    106400 => ['5/1/2020', '5/31/2020'],
+                    86433 => ['6/1/2020', '6/30/2020'],
+                    33775 => ['7/1/2020', '7/31/2020'],
+                    81438 => ['8/1/2020', '8/31/2020'],
+                    49276 => ['9/1/2020', '9/30/2020', [56709, 49276]],
+                    'Spooky Bingo' => ['10/1/2020', '10/31/2020'],
+                    'Doomsday Challenge' => ['11/1/2020', '11/30/2020'],
+                    'First to Master' => ['12/1/2020', '12/31/2020'],
+                ]
+            ),
+
+            // ===== 2021 =====
+
+            3487 => new ConvertAsIs('challenge-league-3', '2/1/2021', '1/31/2022'),
             15940 => new ConvertCollapse('devquest-001'),
             15957 => new ConvertCollapse('devquest-002'),
             15953 => new ConvertCollapse('devquest-003'),
             15947 => new ConvertAsIs('devquest-004'),
             15950 => new ConvertAsIs('playtester'),
             15951 => new ConvertAsIs('great-jacko', '4/2/2021', '5/1/2021'),
-            6005 => new ConvertAsIs('big-achievement-bronze', '1/1/2020', '1/3/2021'),
-            4076 => new ConvertAsIs('big-achievement-silver', '1/1/2020', '1/3/2021'),
-            6872 => new ConvertAsIs('big-achievement-gold', '1/1/2020', '1/3/2021'),
-            2785 => new ConvertAsIs('big-achievement-platinum', '1/1/2020', '1/3/2021'),
             15952 => new ConvertCollapse('devquest-005'),
             15907 => new ConvertCollapse('devquest-006'),
             17758 => new ConvertCollapse('devquest-007'),
             15918 => new ConvertCollapse('devquest-008'),
             1246 => new ConvertAsIs('unwanted2-bronze'),
             1266 => new ConvertAsIs('unwanted2-silver'),
-            1273 => new ConvertAsIs('unwanted2-gold'),
+            1273 => new ConvertAsIs('unwanted2-gold', noWinners: true),
             15937 => new ConvertCollapse('devquest-009'),
             15939 => new ConvertCollapse('devquest-010'),
             15949 => new ConvertToCollapsedTiered('retroolympics-2021', 'RetroOlympics 2021',
@@ -173,6 +241,9 @@ class SyncEvents extends Command
                 187534 => ['Bartis1989'],
                 187535 => 'to_hardcore',
             ]),
+
+            // ===== 2022 =====
+
             672 => new ConvertCollapse('devquest-012'),
             795 => new ConvertCollapse('devquest-013'),
             862 => new ConvertCollapse('devquest-014'),
@@ -365,6 +436,12 @@ class SyncEvents extends Command
 
         $id = $this->argument('gameId');
         if ($id) {
+            if (!array_key_exists($id, $gameConversions)) {
+                $this->error("No conversion defined for game $id");
+
+                return;
+            }
+
             $gameConversions = [
                 $id => $gameConversions[$id],
             ];
@@ -382,12 +459,24 @@ class SyncEvents extends Command
         foreach ($gameConversions as $gameId => $conversion) {
             if ($id) {
                 $before = $conversion->captureBefore($gameId);
+                DB::beginTransaction();
             }
 
-            $conversion->convert($this, $gameId);
+            try {
+                $conversion->convert($this, $gameId);
 
-            if ($id) {
-                $conversion->validate($this, $gameId, $before);
+                if ($id) {
+                    if ($conversion->validate($this, $gameId, $before)) {
+                        DB::commit();
+                    } else {
+                        //DB::commit();
+                        DB::rollBack();
+                    }
+                }
+            } catch (Exception $e) {
+                if ($id) {
+                    DB::rollBack();
+                }
             }
 
             $progressBar->advance();
@@ -404,6 +493,7 @@ class ConvertGame
     protected string $slug;
     protected ?string $activeFrom = null;
     protected ?string $activeThrough = null;
+    protected bool $noWinners = false;
 
     public function convert(Command $command, int $gameId): void
     {
@@ -474,11 +564,12 @@ class ConvertGame
         return $before;
     }
 
-    public function validate(Command $command, int $gameId, array $before): void
+    public function validate(Command $command, int $gameId, array $before): bool
     {
-        if (empty($before)) {
+        $result = true;
+        if (empty($before) && !$this->noWinners) {
             $command->error("No badges expected. Previously converted?");
-            return;
+            return false;
         }
 
         $event = Event::where('legacy_game_id', $gameId)->firstOrFail();
@@ -498,7 +589,9 @@ class ConvertGame
         foreach ($before as $userId => $badge) {
             if (!array_key_exists($userId, $after)) {
                 if ($badge['AwardDataExtra'] !== -1) {
-                    $command->error("Badge for user $userId lost in conversion.");
+                    $user = User::find($userId);
+                    $command->error("Badge for user $userId ({$user->User}) lost in conversion.");
+                    $result = false;
                 } else {
                     $deleted++;
                 }
@@ -507,13 +600,17 @@ class ConvertGame
                 unset($after[$userId]);
 
                 if ($badge['AwardDataExtra'] != $badgeAfter['AwardDataExtra']) {
+                    $user = User::find($userId);
                     if ($badge['AwardDataExtra'] === -1) {
-                        $command->error("Badge for user $userId was not deleted.");
+                        $command->error("Badge for user $userId ({$user->User}) was not deleted.");
                     } else {
-                        $command->error("Badge for user $userId does not have expected tier_index {$badge['AwardDataExtra']}. Found {$badgeAfter['AwardDataExtra']}.");
+                        $command->error("Badge for user $userId ({$user->User}) does not have expected tier_index {$badge['AwardDataExtra']}. Found {$badgeAfter['AwardDataExtra']}.");
                     }
+                    $result = false;
                 } elseif ($badge['AwardDate'] != $badgeAfter['AwardDate']) {
-                    $command->error("Badge for user $userId award date changed from " . $badge['AwardDate']->format("Y-m-d") . " to " . $badgeAfter['AwardDate']->format("Y-m-d"));
+                    $user = User::find($userId);
+                    $command->error("Badge for user $userId ({$user->User}) award date changed from " . $badge['AwardDate']->format("Y-m-d") . " to " . $badgeAfter['AwardDate']->format("Y-m-d"));
+                    $result = false;
                 } else {
                     $converted++;
                 }
@@ -521,10 +618,13 @@ class ConvertGame
         }
 
         foreach ($after as $userId => $badge) {
-            $command->error("Badge for user $userId unexpected.");
+            $user = User::find($userId);
+            $command->error("Badge for user $userId ({$user->User}) unexpected. Found tier {$badge['AwardDataExtra']}.");
+            $result = false;
         }
 
         $command->info("Converted $converted badges." . ($deleted ? " Deleted $deleted badges." : ""));
+        return $result;
     }
 
     protected function setAchievementCount(Event $event, int $count): void
@@ -659,6 +759,19 @@ class ConvertGame
             (new DetachGamesFromGameSetAction())->execute($gameSet, [$gameId]);
         }
     }
+
+    protected function updateMetrics(Event $event): void
+    {
+        $gameId = $event->legacyGame->id;
+
+        // update metrics and sync to game_achievement_set
+        dispatch(new UpdateGameMetricsJob($gameId))->onQueue('game-metrics');
+
+        $playerGames = PlayerGame::where('game_id', $gameId)->get();
+        foreach ($playerGames as $playerGame) {
+            dispatch(new UpdatePlayerGameMetricsJob($playerGame->user_id, $gameId));
+        }
+    }
 }
 
 // Keeps all achievements and unlocks for the game.
@@ -666,11 +779,12 @@ class ConvertGame
 // Badge only for people who have "mastered" the event.
 class ConvertAsIs extends ConvertGame
 {
-    public function __construct(string $slug, ?string $activeFrom = null, ?string $activeThrough = null)
+    public function __construct(string $slug, ?string $activeFrom = null, ?string $activeThrough = null, bool $noWinners = false)
     {
         $this->slug = $slug;
         $this->activeFrom = $activeFrom;
         $this->activeThrough = $activeThrough;
+        $this->noWinners = $noWinners;
     }
 }
 
@@ -739,7 +853,7 @@ class ConvertToTracked extends ConvertGame
                 return;
             }
 
-            $eventAchievement = $this->createEventAchievement($command, $achievement, $sourceAchievementId, Carbon::parse($dates[0]), Carbon::parse($dates[1]));
+            $eventAchievement = $this->createDatedEventAchievement($command, $achievement, $sourceAchievementId, $dates);
 
             if ($index === 0) {
                 $event->active_from = $eventAchievement->active_from;
@@ -751,8 +865,156 @@ class ConvertToTracked extends ConvertGame
         $event->active_until = $eventAchievement->active_until;
         $event->save();
 
-        // update metrics and sync to game_achievement_set
-        dispatch(new UpdateGameMetricsJob($event->legacyGame->id))->onQueue('game-metrics');
+        $this->updateMetrics($event);
+    }
+
+    protected function createDatedEventAchievement(Command $command, Achievement $achievement, ?int $sourceAchievementId, array $dates): EventAchievement
+    {
+        $eventAchievement = $this->createEventAchievement($command, $achievement, $sourceAchievementId, Carbon::parse($dates[0]), Carbon::parse($dates[1]));
+
+        if (count($dates) >= 3) {
+            foreach ($dates[2] as $achievementId) {
+                $eventAchievement->source_achievement_id = $achievementId;
+                $eventAchievement->save();
+            }
+        }
+
+        return $eventAchievement;
+    }
+}
+
+class ConvertToMergedTracked extends ConvertToTracked
+{
+    protected array $achievements;
+
+    public function __construct(string $slug, $title, array $tiers, array $achievements, array $bonusAchievements = [])
+    {
+        $this->slug = $slug;
+        $this->title = $title;
+        $this->tiers = $tiers;
+        $this->achievements = $achievements;
+        $this->bonusAchievements = $bonusAchievements;
+    }
+
+    public function captureBefore(int $gameId): array
+    {
+        $before = [];
+
+        $tierIndex = 1;
+        foreach ($this->tiers as $count => $tierGameId) {
+            $badges = PlayerBadge::where('AwardType', AwardType::Mastery)
+                ->where('AwardData', $tierGameId)
+                ->orderBy('AwardDataExtra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+
+            foreach ($badges->get() as $badge) {
+                $before[$badge->user_id] = [
+                    'AwardDate' => $badge->AwardDate,
+                    'AwardDataExtra' => $tierIndex,
+                ];
+            }
+
+            ++$tierIndex;
+        }
+
+        return $before;
+    }
+
+    protected function convertSiteAwards(Event $event): void
+    {
+        // do not process site awards here, we'll do it later so we can assign tiers
+    }
+
+    protected function process(Command $command, Event $event): void
+    {
+        $this->setAchievementCount($event, count($this->achievements) + count($this->bonusAchievements));
+
+        // define tiers and update badges
+        $tier_index = 1;
+        foreach ($this->tiers as $count => $gameId) {
+            $eventAward = EventAward::where('event_id', $event->id)
+                ->where('tier_index', $tier_index)
+                ->first();
+
+            if (!$eventAward) {
+                $game = Game::find($gameId);
+                $lastSpace = strrpos($game->Title, ' ');
+
+                $eventAward = EventAward::create([
+                    'event_id' => $event->id,
+                    'tier_index' => $tier_index,
+                    'label' => substr($game->Title, $lastSpace + 1),
+                    'points_required' => $count,
+                    'image_asset_path' => $game->ImageIcon,
+                ]);
+            }
+
+            PlayerBadge::where('AwardType', AwardType::Mastery)
+                ->where('AwardData', $gameId)
+                ->where('AwardDataExtra', 1)
+                ->update([
+                    'AwardType' => AwardType::Event,
+                    'AwardData' => $event->id,
+                    'AwardDataExtra' => $tier_index,
+                ]);
+
+            PlayerBadge::where('AwardType', AwardType::Mastery)
+                ->where('AwardData', $gameId)
+                ->where('AwardDataExtra', 0)
+                ->delete();
+
+            $tier_index++;
+        }
+
+        // convert achievements to event achievements
+        $index = 0;
+        foreach ($this->achievements as $sourceAchievementId => $dates) {
+            $achievement = $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->skip($index)->first();
+            if (!$achievement) {
+                $command->error("Could not find achievement[$index]");
+
+                return;
+            }
+
+            $eventAchievement = $this->createDatedEventAchievement($command, $achievement, $sourceAchievementId, $dates);
+
+            if ($index === 0) {
+                $event->active_from = $eventAchievement->active_from;
+            }
+
+            $index++;
+        }
+
+        $event->active_until = $eventAchievement->active_until;
+
+        foreach ($this->bonusAchievements as $sourceAchievementId => $dates) {
+            $achievement = $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->skip($index)->first();
+            if (!$achievement) {
+                $command->error("Could not find achievement[$index]");
+
+                return;
+            }
+
+            if (is_string($sourceAchievementId)) {
+                $this->createDatedEventAchievement($command, $achievement, null, $dates);
+                $achievement->Title = $sourceAchievementId;
+            } else {
+                $this->createDatedEventAchievement($command, $achievement, $sourceAchievementId, $dates);
+            }
+
+            $achievement->Points = 2;
+            $achievement->save();
+
+            $index++;
+        }
+
+        if ($eventAchievement->activeUntil > $event->active_until) {
+            $event->active_until = $eventAchievement->active_until;
+        }
+
+        $event->title = $this->title;
+        $event->save();
+
+        $this->updateMetrics($event);
     }
 }
 
@@ -761,6 +1023,7 @@ class ConvertToTracked extends ConvertGame
 //  Users in first entry get all achievements. Users in second entry get all achievements but first.
 //  Users in last entry only get last achievement.
 // Create the $tiers specified.
+//  Tiers are order most prominent to least prominent (gold => silver => bronze)
 // Badge people according to number of unlocks they have based on the $tiers.
 class ConvertToTiered extends ConvertGame
 {
@@ -795,17 +1058,31 @@ class ConvertToTiered extends ConvertGame
 
         // count the number of achievements we expect each user to have
         $allUserIds = [];
+        $index = 1;
         foreach ($this->achievements as $achievementId => $users) {
-            $userIds = User::whereIn('User', $users)->pluck('ID')->toArray();
+            if ($users === "hardcore_only") {
+                $userIds = PlayerAchievement::where('achievement_id', $achievementId)
+                    ->whereNotNull('unlocked_hardcore_at')
+                    ->pluck('user_id')->toArray();
+            } elseif ($users === "to_hardcore") {
+                $userIds = PlayerAchievement::where('achievement_id', $achievementId)
+                    ->pluck('user_id')->toArray();
+            } else {
+                $userIds = User::whereIn('User', $users)->pluck('ID')->toArray();
+            }
+
             $allUserIds = array_merge($allUserIds, $userIds);
             foreach ($allUserIds as $userId) {
                 if (array_key_exists($userId, $before)) {
                     $before[$userId]['AwardDataExtra'] = $before[$userId]['AwardDataExtra'] + 1;
                 }
             }
+
+            ++$index;
         }
 
         // convert to tiers
+        $tier_index = 1;
         foreach ($before as $userId => &$badge) {
             $tier_index = 1;
             foreach ($this->tiers as $count => $label) {
@@ -887,10 +1164,9 @@ class ConvertToTiered extends ConvertGame
                     ]);
             } else {
                 if ($users === 'to_hardcore') {
-                    // convert softcore badge to tiered badge
+                    // convert hardcore and softcore badge to tiered badge
                     PlayerBadge::where('AwardType', AwardType::Mastery)
                         ->where('AwardData', $event->legacyGame->id)
-                        ->where('AwardDataExtra', 0)
                         ->update([
                             'AwardType' => AwardType::Event,
                             'AwardData' => $event->id,
@@ -934,8 +1210,7 @@ class ConvertToTiered extends ConvertGame
             $achievement->save();
         }
 
-        // update metrics and sync to game_achievement_set
-        dispatch(new UpdateGameMetricsJob($event->legacyGame->id))->onQueue('game-metrics');
+        $this->updateMetrics($event);
 
         // delete any remaining badges
         PlayerBadge::where('AwardType', AwardType::Mastery)
@@ -981,12 +1256,14 @@ class ConvertToSoftcoreTiered extends ConvertGame
 {
     protected string $softcoreLabel;
     protected string $hardcoreLabel;
+    protected int $hardcoreAchievementId;
 
-    public function __construct(string $slug, string $softcoreLabel, string $hardcoreLabel)
+    public function __construct(string $slug, string $softcoreLabel, string $hardcoreLabel, int $hardcoreAchievementId = 0)
     {
         $this->slug = $slug;
         $this->softcoreLabel = $softcoreLabel;
         $this->hardcoreLabel = $hardcoreLabel;
+        $this->hardcoreAchievementId = $hardcoreAchievementId;
     }
 
     protected function convertSiteAwards(Event $event): void
@@ -1023,7 +1300,9 @@ class ConvertToSoftcoreTiered extends ConvertGame
     protected function process(Command $command, Event $event): void
     {
         $description = "Earn $this->softcoreLabel";
-        $winnerAchievement = Achievement::where('GameID', $event->legacyGame->id)->where('Description', $description)->first();
+        $winnerAchievement = ($this->hardcoreAchievementId)
+            ? Achievement::find($this->hardcoreAchievementId)
+            : Achievement::where('GameID', $event->legacyGame->id)->where('Description', $description)->first();
         if (!$winnerAchievement) {
             $winnerAchievement = Achievement::create([
                 'Title' => 'Winner',
@@ -1085,19 +1364,26 @@ class ConvertToSoftcoreTiered extends ConvertGame
                         }
                     }
                 }
-            } else {
-                // delete any softcore unlocks for this achievement
-                PlayerAchievement::where('achievement_id', $achievement->id)
-                    ->whereNull('unlocked_hardcore_at')
-                    ->delete();
             }
+
+            // delete any softcore unlocks for this achievement
+            PlayerAchievement::where('achievement_id', $achievement->id)
+                ->whereNull('unlocked_hardcore_at')
+                ->delete();
         }
 
-        // update metrics and sync to game_achievement_set
-        dispatch(new UpdateGameMetricsJob($event->legacyGame->id))->onQueue('game-metrics');
+        $this->updateMetrics($event);
     }
 }
 
+
+// Replace achievements with tiered unlocks awarded to users.
+//  Unlocks are redistributed to ensure each player receives the correct tier.
+//  The first achievement is awarded to all people.
+//  The last achievement is only awarded to people receiving the last tier.
+// Create the $tiers specified.
+//  Tiers are ordered least prominent to most prominent (bronze => silver => gold)
+// Badge people according to number of unlocks they have based on the $tiers.
 class ConvertToCollapsedTiered extends ConvertToTiered
 {
     protected string $title;
@@ -1113,6 +1399,31 @@ class ConvertToCollapsedTiered extends ConvertToTiered
     protected function convertSiteAwards(Event $event): void
     {
         // do not process site awards here, we'll do it later so we can assign tiers
+    }
+
+
+    public function captureBefore(int $gameId): array
+    {
+        $before = [];
+
+        $tierIndex = 1;
+        foreach ($this->tiers as $tierGameId => $title) {
+            $badges = PlayerBadge::where('AwardType', AwardType::Mastery)
+                ->where('AwardData', $tierGameId)
+                ->orderBy('AwardDataExtra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+
+            $before = [];
+            foreach ($badges->get() as $badge) {
+                $before[$badge->user_id] = [
+                    'AwardDate' => $badge->AwardDate,
+                    'AwardDataExtra' => $tierIndex,
+                ];
+            }
+
+            ++$tierIndex;
+        }
+
+        return $before;
     }
 
     protected function process(Command $command, Event $event): void
@@ -1132,6 +1443,8 @@ class ConvertToCollapsedTiered extends ConvertToTiered
         Achievement::whereIn('ID', $this->achievements)
             ->update(['Flags' => AchievementFlag::OfficialCore->value]);
 
+        $eventGameUserIds = PlayerGame::where('game_id', $event->legacyGame->id)->pluck('user_id')->toArray();
+
         $tier_index = 1;
         foreach ($this->tiers as $gameId => $label) {
             $eventAward = EventAward::where('event_id', $event->id)
@@ -1148,15 +1461,18 @@ class ConvertToCollapsedTiered extends ConvertToTiered
                 ]);
             }
 
+            // migrate the player game metrics to the merged game
+            if ($gameId != $event->legacyGame->id) {
+                PlayerGame::where('game_id', $gameId)
+                    ->whereNotIn('user_id', $eventGameUserIds)
+                    ->update(['game_id' => $event->legacyGame->id]);
+            }
+
             $tier_index++;
         }
 
         // convert achievements to event achievements
-        $tier_index = count($this->tiers);
-        $count = count($this->achievements);
         $index = 0;
-        $allUserIds = [];
-        $previousAchievementIds = [];
         foreach ($this->achievements as $achievementId) {
             $achievement = Achievement::find($achievementId);
             if (!$achievement) {
@@ -1170,11 +1486,20 @@ class ConvertToCollapsedTiered extends ConvertToTiered
             $achievement->DisplayOrder = $index + 1;
             $achievement->save();
 
+            $index++;
+        }
+
+        $tier_index = count($this->tiers);
+        $count = count($this->achievements);
+        $allUserIds = [];
+        $previousAchievementIds = [];
+        foreach (array_reverse($this->achievements) as $achievementId) {
             $userIds = $achievement->playerAchievements()->pluck('user_id')->toArray();
             foreach ($userIds as $userId) {
                 $this->convertBadge($event, $userId, $tier_index);
             }
 
+            // reassign unlocks from a secondary achievement in the first tier set to the primary achievement in the new tier set
             if (!empty($allUserIds)) {
                 $newPreviousAchievementIds = [];
                 foreach ($previousAchievementIds as $previousAchievementId) {
@@ -1200,15 +1525,11 @@ class ConvertToCollapsedTiered extends ConvertToTiered
                 ->update(['unlocked_hardcore_at' => DB::raw('unlocked_at')]);
 
             $tier_index--;
-            $index++;
         }
 
         $event->legacyGame->achievements_published = count($this->achievements);
         $event->legacyGame->Title = $this->title;
         $event->legacyGame->save();
-
-        // update metrics and sync to game_achievement_set
-        dispatch(new UpdateGameMetricsJob($event->legacyGame->id))->onQueue('game-metrics');
 
         // delete any remaining badges
         PlayerBadge::where('AwardType', AwardType::Mastery)
@@ -1216,10 +1537,12 @@ class ConvertToCollapsedTiered extends ConvertToTiered
             ->where('AwardDataExtra', 0)
             ->delete();
 
+        // ensure PlayerGame records exist for all specified users
         foreach ($allUserIds as $userId) {
             (new AttachPlayerGameAction())->execute(User::find($userId), $event->legacyGame);
-            dispatch(new UpdatePlayerGameMetricsJob($userId, $event->legacyGame->id));
         }
+
+        $this->updateMetrics($event);
 
         // update the merged games to be ~Z~ records and disconnect them from all hubs
         foreach ($this->tiers as $gameId => $label) {
@@ -1235,15 +1558,40 @@ class ConvertAotWTiered extends ConvertGame
     protected array $tiers;
     protected array $achievements;
     protected ?array $aotm_achievements;
+    protected bool $extraDay;
 
     public function __construct(string $slug, string $activeFrom, array $tiers,
-                                array $achievements, ?array $aotm_achievements = null)
+                                array $achievements, ?array $aotm_achievements = null, bool $extraDay = false)
     {
         $this->slug = $slug;
         $this->activeFrom = $activeFrom;
         $this->tiers = $tiers;
         $this->achievements = $achievements;
         $this->aotm_achievements = $aotm_achievements;
+        $this->extraDay = $extraDay;
+    }
+
+    public function captureBefore(int $gameId): array
+    {
+        $before = [];
+
+        $tierIndex = 1;
+        foreach ($this->tiers as $count => $tierGameId) {
+            $badges = PlayerBadge::where('AwardType', AwardType::Mastery)
+                ->where('AwardData', $tierGameId)
+                ->orderBy('AwardDataExtra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+
+            foreach ($badges->get() as $badge) {
+                $before[$badge->user_id] = [
+                    'AwardDate' => $badge->AwardDate,
+                    'AwardDataExtra' => $tierIndex,
+                ];
+            }
+
+            ++$tierIndex;
+        }
+
+        return $before;
     }
 
     protected function convertSiteAwards(Event $event): void
@@ -1310,7 +1658,7 @@ class ConvertAotWTiered extends ConvertGame
         // convert achievements to event achievements
         $index = 0;
         foreach ($this->achievements as $sourceAchievementId) {
-            $endDate = $date->clone()->addDays(6);
+            $endDate = $date->clone()->addDays($this->extraDay ? 7 : 6);
 
             $achievement = $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->skip($index)->first();
             $eventAchievement = $this->createEventAchievement($command, $achievement, $sourceAchievementId, $date, $endDate);
@@ -1352,8 +1700,7 @@ class ConvertAotWTiered extends ConvertGame
 
         $event->save();
 
-        // update metrics and sync to game_achievement_set
-        dispatch(new UpdateGameMetricsJob($event->legacyGame->id))->onQueue('game-metrics');
+        $this->updateMetrics($event);
 
         // update the merged games to be ~Z~ records and disconnect them from all hubs
         foreach ($this->tiers as $count => $gameId) {
