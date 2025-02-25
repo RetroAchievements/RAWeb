@@ -1,15 +1,9 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import {
-  BaseDialog,
-  BaseDialogContent,
-  BaseDialogDescription,
-  BaseDialogTitle,
-  BaseDialogTrigger,
-} from '@/common/components/+vendor/BaseDialog';
 import { cn } from '@/common/utils/cn';
-import type { TranslatedString } from '@/types/i18next';
+
+import { ZoomableImage } from '../ZoomableImage';
 
 interface EventMainMediaProps {
   imageTitleUrl: string;
@@ -33,47 +27,17 @@ export const EventMainMedia: FC<EventMainMediaProps> = ({ imageIngameUrl, imageT
         'xl:mx-0 xl:min-h-[180px] xl:w-full xl:rounded-lg xl:px-4 xl:py-2',
       )}
     >
-      <ZoomableImage src={imageTitleUrl} alt={t('title screenshot')} />
-      <ZoomableImage src={imageIngameUrl} alt={t('ingame screenshot')} />
-    </div>
-  );
-};
-
-interface ZoomableImageProps {
-  src: string;
-  alt: TranslatedString;
-}
-
-const ZoomableImage: FC<ZoomableImageProps> = ({ src, alt }) => {
-  const { t } = useTranslation();
-
-  return (
-    <BaseDialog>
-      <BaseDialogTitle className="sr-only">{t('screenshot')}</BaseDialogTitle>
-
-      <BaseDialogTrigger>
+      <ZoomableImage src={imageTitleUrl} alt={t('title screenshot')}>
         <div className="flex items-center justify-center overflow-hidden">
-          <img className="w-full rounded-sm" src={src} alt={alt} />
+          <img className="w-full rounded-sm" src={imageTitleUrl} alt={t('title screenshot')} />
         </div>
-      </BaseDialogTrigger>
+      </ZoomableImage>
 
-      <BaseDialogContent
-        className="max-w-5xl border-0 bg-transparent p-0"
-        shouldShowCloseButton={false}
-      >
-        {/* Both of these are needed for a11y */}
-        <BaseDialogTitle className="sr-only">{t('screenshot')}</BaseDialogTitle>
-        <BaseDialogDescription className="sr-only">{t('screenshot')}</BaseDialogDescription>
-
-        <div className="relative h-[calc(100vh-220px)] w-full overflow-clip rounded-md bg-transparent shadow-md">
-          <img
-            src={src}
-            alt={alt}
-            className="h-full w-full object-contain"
-            style={{ imageRendering: 'pixelated' }}
-          />
+      <ZoomableImage src={imageIngameUrl} alt={t('ingame screenshot')}>
+        <div className="flex items-center justify-center overflow-hidden">
+          <img className="w-full rounded-sm" src={imageIngameUrl} alt={t('ingame screenshot')} />
         </div>
-      </BaseDialogContent>
-    </BaseDialog>
+      </ZoomableImage>
+    </div>
   );
 };

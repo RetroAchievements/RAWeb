@@ -1,6 +1,8 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { ZoomableImage } from '../ZoomableImage';
+
 interface BoxArtImageProps {
   event: App.Platform.Data.Event;
 }
@@ -13,10 +15,14 @@ export const BoxArtImage: FC<BoxArtImageProps> = ({ event }) => {
   }
 
   return (
-    <img
-      className="max-w-full rounded-sm"
-      src={event.legacyGame.imageBoxArtUrl}
-      alt={t('boxart')}
-    />
+    <div className="overflow-hidden text-center">
+      <ZoomableImage src={event.legacyGame.imageBoxArtUrl} alt={t('boxart')}>
+        <img
+          className="max-w-full rounded-sm"
+          src={event.legacyGame.imageBoxArtUrl}
+          alt={t('boxart')}
+        />
+      </ZoomableImage>
+    </div>
   );
 };
