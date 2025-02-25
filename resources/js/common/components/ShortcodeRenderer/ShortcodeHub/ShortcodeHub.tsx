@@ -23,8 +23,9 @@ export const ShortcodeHub: FC<ShortcodeHubProps> = ({ hubId }) => {
   return (
     <span data-testid="hub-embed" className="inline">
       <GameAvatar
-        id={foundHub.gameId!}
+        id={foundHub.id}
         title={t('{{hubTitle}} (Hubs)', { hubTitle: foundHub.title })}
+        dynamicTooltipType="hub"
         badgeUrl={foundHub.badgeUrl!}
         size={24}
         variant="inline"
