@@ -1,5 +1,5 @@
 import * as motion from 'motion/react-m';
-import type { FC } from 'react';
+import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
@@ -68,21 +68,21 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
         <div className="md:col-span-4">
           <div className="mb-0.5 flex justify-between gap-x-2">
             {/* Title */}
-            <div className="-mt-2 mb-0.5 flex justify-between gap-x-2 md:mt-0">
-              <div className="flex flex-wrap gap-1">
-                <a href={route('achievement.show', { achievement })} className="inline">
-                  {title}
-                </a>
+            <div className="-mt-2 mb-0.5 md:mt-0">
+              <a href={route('achievement.show', { achievement })} className="font-medium">
+                {title}
+                {game?.title ? ' ' : null}
+              </a>
 
-                {game?.title ? (
-                  <>
-                    <span>{t('from')}</span>
-                    <a href={route('achievement.show', { achievement })}>
-                      <GameTitle title={game.title} />
-                    </a>
-                  </>
-                ) : null}
-              </div>
+              {game?.title ? (
+                <>
+                  <span>{t('from')}</span>{' '}
+                  <a href={route('achievement.show', { achievement })}>
+                    <GameTitle title={game.title} isWordWrappingEnabled={true} />{' '}
+                    {`(${game.system!.nameShort})`}
+                  </a>
+                </>
+              ) : null}
             </div>
 
             {/* Meta chips (Mobile) */}
