@@ -712,6 +712,7 @@
     "Ended {{eventEndDate}}": "Ended {{eventEndDate}}",
     "Ends {{eventEndDate}}": "Ends {{eventEndDate}}",
     "Active": "Active",
+    "Current": "Current",
     "No Time Limit": "No Time Limit",
     "Concluded": "Concluded",
     "This event is currently running and has a set end date. Join now to participate and earn an award before it ends.": "This event is currently running and has a set end date. Join now to participate and earn an award before it ends.",
@@ -763,5 +764,6 @@
     "Your Progress": "Your Progress",
     "Unfinished": "Unfinished",
     "Awarded": "Awarded",
-    "screenshot": "screenshot"
+    "screenshot": "screenshot",
+    "Status": "Status"
 }

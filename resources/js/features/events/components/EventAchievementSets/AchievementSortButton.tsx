@@ -56,7 +56,7 @@ export const AchievementSortButton: FC<AchievementSortButtonProps> = ({
   if (includeActiveOption) {
     sortOptions.unshift({
       value: 'active',
-      label: t('Active'),
+      label: t('Status'),
     });
   }
 

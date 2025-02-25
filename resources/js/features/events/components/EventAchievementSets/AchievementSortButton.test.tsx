@@ -3,7 +3,6 @@ import { vi } from 'vitest';
 
 import { render, screen } from '@/test';
 
-import type { AchievementSortOrder } from '../../models';
 import { AchievementSortButton } from './AchievementSortButton';
 
 describe('Component: AchievementSortButton', () => {
@@ -73,11 +72,11 @@ describe('Component: AchievementSortButton', () => {
     render(<AchievementSortButton value="active" onChange={onChange} includeActiveOption />);
 
     // ASSERT
-    expect(screen.getByText(/active/i)).toBeVisible();
+    expect(screen.getByText(/status/i)).toBeVisible();
     expect(screen.getByTestId('sort-ascending-icon')).toBeVisible();
   });
 
-  it('given includeActiveOption is false, does not show the active option in dropdown', async () => {
+  it('given includeActiveOption is false, does not show the status option in dropdown', async () => {
     // ARRANGE
     const onChange = vi.fn();
     render(<AchievementSortButton value="displayOrder" onChange={onChange} />);
@@ -86,32 +85,34 @@ describe('Component: AchievementSortButton', () => {
     await userEvent.click(screen.getByRole('button'));
 
     // ASSERT
-    expect(screen.queryByRole('menuitemcheckbox', { name: /active/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitemcheckbox', { name: /status/i })).not.toBeInTheDocument();
   });
 
-  it('given includeActiveOption is true, shows the active option in dropdown', async () => {
+  it('given includeActiveOption is true, shows the status option in dropdown', async () => {
+    // ARRANGE
+    const onChange = vi.fn();
+    render(
+      <AchievementSortButton value="displayOrder" onChange={onChange} includeActiveOption={true} />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button'));
+
+    // ASSERT
+    expect(screen.getByRole('menuitemcheckbox', { name: /status/i })).toBeVisible();
+  });
+
+  it('when clicking the status sort option, calls onChange with active', async () => {
     // ARRANGE
     const onChange = vi.fn();
     render(<AchievementSortButton value="displayOrder" onChange={onChange} includeActiveOption />);
 
     // ACT
     await userEvent.click(screen.getByRole('button'));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /^status$/i }));
 
     // ASSERT
-    expect(screen.getByRole('menuitemcheckbox', { name: /active/i })).toBeVisible();
-  });
-
-  it('when clicking active sort option, calls onChange with active', async () => {
-    // ARRANGE
-    const onChange = vi.fn();
-    render(<AchievementSortButton value="displayOrder" onChange={onChange} includeActiveOption />);
-
-    // ACT
-    await userEvent.click(screen.getByRole('button'));
-    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /^active$/i }));
-
-    // ASSERT
-    expect(onChange).toHaveBeenCalledWith('active' as AchievementSortOrder);
+    expect(onChange).toHaveBeenCalledWith('active');
   });
 
   it('when clicking display order (first) option, calls onChange with displayOrder', async () => {
@@ -126,7 +127,7 @@ describe('Component: AchievementSortButton', () => {
     );
 
     // ASSERT
-    expect(onChange).toHaveBeenCalledWith('displayOrder' as AchievementSortOrder);
+    expect(onChange).toHaveBeenCalledWith('displayOrder');
   });
 
   it('when clicking display order (last) option, calls onChange with -displayOrder', async () => {
@@ -141,7 +142,7 @@ describe('Component: AchievementSortButton', () => {
     );
 
     // ASSERT
-    expect(onChange).toHaveBeenCalledWith('-displayOrder' as AchievementSortOrder);
+    expect(onChange).toHaveBeenCalledWith('-displayOrder');
   });
 
   it('when clicking won by (most) option, calls onChange with wonBy', async () => {
@@ -154,7 +155,7 @@ describe('Component: AchievementSortButton', () => {
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /won by \(most\)/i }));
 
     // ASSERT
-    expect(onChange).toHaveBeenCalledWith('wonBy' as AchievementSortOrder);
+    expect(onChange).toHaveBeenCalledWith('wonBy');
   });
 
   it('when clicking won by (least) option, calls onChange with -wonBy', async () => {
@@ -167,6 +168,6 @@ describe('Component: AchievementSortButton', () => {
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /won by \(least\)/i }));
 
     // ASSERT
-    expect(onChange).toHaveBeenCalledWith('-wonBy' as AchievementSortOrder);
+    expect(onChange).toHaveBeenCalledWith('-wonBy');
   });
 });

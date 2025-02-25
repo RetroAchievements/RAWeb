@@ -58,8 +58,8 @@ export const AchievementSet: FC<AchievementSetProps> = ({
   const groupedAchievements: Record<number, App.Platform.Data.Achievement[]> = {};
 
   const statusTitles = {
-    0: t('Active'),
-    1: t('Expired'),
+    0: t('Current'),
+    1: t('Previous'),
     2: t('Upcoming'),
     3: t('Evergreen'),
   };

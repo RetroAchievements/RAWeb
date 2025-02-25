@@ -48,7 +48,7 @@ describe('Component: EventAchievementSets', () => {
     expect(screen.queryByText(/active/i)).not.toBeInTheDocument();
   });
 
-  it('given the event is not evergreen, defaults to active sort', () => {
+  it('given the event is not evergreen, defaults to status sort', () => {
     // ARRANGE
     const event = createRaEvent({
       state: 'active',
@@ -65,7 +65,7 @@ describe('Component: EventAchievementSets', () => {
     render(<EventAchievementSets event={event} />);
 
     // ASSERT
-    expect(screen.getByRole('button', { name: /active/i })).toBeVisible();
+    expect(screen.getByRole('button', { name: /status/i })).toBeVisible();
   });
 
   it('given the user changes the sort order, updates the sort', async () => {
@@ -85,7 +85,7 @@ describe('Component: EventAchievementSets', () => {
     render(<EventAchievementSets event={event} />);
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /active/i }));
+    await userEvent.click(screen.getByRole('button', { name: /status/i }));
     await userEvent.click(screen.getByText(/display order \(first\)/i));
 
     // ASSERT
