@@ -1,6 +1,7 @@
 @props([
     'consoleId' => null,
     'consoleName' => null,
+    'dynamicType' => 'game', // 'game' | 'hub'
     'gameId',
     'gameImageIcon',
     'gameTitle',
@@ -36,7 +37,7 @@ if ($showConsoleLine) {
         href="{{ $href ?? $gameHref }}" 
         @if(!$showConsoleLine) class="flex items-center gap-x-2" @endif
         @if($hasTooltip)
-            x-data="tooltipComponent($el, {dynamicType: 'game', dynamicId: '{{ $gameId }}'})" 
+            x-data="tooltipComponent($el, {dynamicType: '{{ $dynamicType }}', dynamicId: '{{ $gameId }}'})" 
             @mouseover="showTooltip($event)"
             @mouseleave="hideTooltip"
             @mousemove="trackMouseMovement($event)"
