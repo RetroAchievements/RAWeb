@@ -2,7 +2,7 @@ import type { ElementWithXAttributes } from 'alpinejs';
 import { useEffect } from 'react';
 
 export function useCardTooltip(args: {
-  dynamicType: 'user' | 'game' | 'achievement' | 'ticket';
+  dynamicType: 'user' | 'game' | 'hub' | 'achievement' | 'ticket';
   dynamicId: string | number | null;
   dynamicContext?: string;
 }) {
