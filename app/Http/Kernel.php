@@ -45,6 +45,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             Middleware\UserPreferences::class,
             Middleware\UpdateLastLogin::class,
+            Middleware\CheckBanned::class,
             // TODO Web Interceptor middleware
             // TODO \Illuminate\Routing\Middleware\ThrottleRequests::class.':web',
         ],
