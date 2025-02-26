@@ -147,7 +147,7 @@ describe('Util: sortAchievements', () => {
     const result = sortAchievements(achievements, 'active', eventAchievements);
 
     // ASSERT
-    expect(result.map((a) => a.id)).toEqual([2, 4, 3, 5, 1]);
+    expect(result.map((a) => a.id)).toEqual([2, 3, 4, 5, 1]);
   });
 
   it('given an unsupported sort order, returns achievements unmodified', () => {
@@ -303,7 +303,7 @@ describe('Util: getStatus', () => {
     const result = getStatus(achievement, eventAchievements);
 
     // ASSERT
-    expect(result).toEqual(2);
+    expect(result).toEqual(1);
   });
 
   it('given an achievement that is upcoming within 30 days, returns upcoming status', () => {
@@ -322,7 +322,7 @@ describe('Util: getStatus', () => {
     const result = getStatus(achievement, eventAchievements);
 
     // ASSERT
-    expect(result).toEqual(1);
+    expect(result).toEqual(2);
   });
 
   it('given an achievement that is upcoming but more than 30 days away, returns future status', () => {

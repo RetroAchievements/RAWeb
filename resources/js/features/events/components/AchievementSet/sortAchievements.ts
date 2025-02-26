@@ -76,8 +76,8 @@ export function sortAchievements(
 /**
  * Returns the status priority for an event achievement:
  * 0 = Active
- * 1 = Upcoming (within next 30 days)
- * 2 = Expired
+ * 1 = Expired
+ * 2 = Upcoming (within next 30 days)
  * 3 = Future (more than 30 days away)
  * 4 = Evergreen
  */
@@ -96,9 +96,9 @@ export function getStatus(
 
   // Check if upcoming is within the next 30 days.
   const thirtyDaysFromNow = now.add(30, 'day');
-  if (activeFrom.isAfter(now) && activeFrom.isSameOrBefore(thirtyDaysFromNow)) return 1; // Upcoming within 30 days.
+  if (activeFrom.isAfter(now) && activeFrom.isSameOrBefore(thirtyDaysFromNow)) return 2; // Upcoming within 30 days.
 
-  if (activeUntil.isBefore(now)) return 2; // Expired.
+  if (activeUntil.isBefore(now)) return 1; // Expired.
 
   return 3; // Future (more than 30 days away).
 }
