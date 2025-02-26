@@ -30,7 +30,7 @@ describe('Component: EventAchievementSection', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <EventAchievementSection title="title" isInitiallyOpened={true}>
+      <EventAchievementSection title="title" isInitiallyOpened={true} achievementCount={2}>
         children
       </EventAchievementSection>,
     );
@@ -42,7 +42,7 @@ describe('Component: EventAchievementSection', () => {
   it('displays the provided title', async () => {
     // ARRANGE
     render(
-      <EventAchievementSection title="title" isInitiallyOpened={true}>
+      <EventAchievementSection title="title" isInitiallyOpened={true} achievementCount={2}>
         children
       </EventAchievementSection>,
     );
@@ -56,7 +56,7 @@ describe('Component: EventAchievementSection', () => {
   it('displays children', async () => {
     // ARRANGE
     render(
-      <EventAchievementSection title="title" isInitiallyOpened={true}>
+      <EventAchievementSection title="title" isInitiallyOpened={true} achievementCount={2}>
         children
       </EventAchievementSection>,
     );
@@ -67,10 +67,22 @@ describe('Component: EventAchievementSection', () => {
     });
   });
 
+  it('displays the count of achievements', () => {
+    // ARRANGE
+    render(
+      <EventAchievementSection title="title" isInitiallyOpened={true} achievementCount={2}>
+        children
+      </EventAchievementSection>,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/2 achievements/i)).toBeInTheDocument();
+  });
+
   it('given the user clicks on the trigger, toggles the section visibility', async () => {
     // ARRANGE
     render(
-      <EventAchievementSection title="title" isInitiallyOpened={true}>
+      <EventAchievementSection title="title" isInitiallyOpened={true} achievementCount={2}>
         children
       </EventAchievementSection>,
     );
@@ -87,7 +99,7 @@ describe('Component: EventAchievementSection', () => {
   it('given the user clicks on the trigger twice, makes section content visible again', async () => {
     // ARRANGE
     render(
-      <EventAchievementSection title="title" isInitiallyOpened={true}>
+      <EventAchievementSection title="title" isInitiallyOpened={true} achievementCount={2}>
         children
       </EventAchievementSection>,
     );
@@ -115,7 +127,7 @@ describe('Component: EventAchievementSection', () => {
 
     // ACT
     render(
-      <EventAchievementSection title="title" isInitiallyOpened={true}>
+      <EventAchievementSection title="title" isInitiallyOpened={false} achievementCount={2}>
         <div data-testid="child-content">children</div>
       </EventAchievementSection>,
     );
@@ -138,7 +150,7 @@ describe('Component: EventAchievementSection', () => {
 
     // ACT
     render(
-      <EventAchievementSection title="title" isInitiallyOpened={true}>
+      <EventAchievementSection title="title" isInitiallyOpened={true} achievementCount={2}>
         <div data-testid="child-content">children</div>
       </EventAchievementSection>,
     );

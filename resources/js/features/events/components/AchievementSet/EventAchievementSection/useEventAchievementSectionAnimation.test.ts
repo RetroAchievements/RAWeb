@@ -179,4 +179,33 @@ describe('Hook: useEventAchievementSectionAnimation', () => {
     expect(heightSpy).not.toHaveBeenCalledWith('');
     expect(overflowSpy).not.toHaveBeenCalledWith('');
   });
+
+  it('given isInitiallyOpened is false, applies initial closed styling on mount', () => {
+    // ARRANGE
+    const contentElement = document.createElement('div');
+    const heightSpy = vi.spyOn(contentElement.style, 'height', 'set');
+    const overflowSpy = vi.spyOn(contentElement.style, 'overflow', 'set');
+
+    // ... use a factory to prepare the hook with mocked refs ...
+    const useTestHook = () => {
+      const hook = useEventAchievementSectionAnimation({ isInitiallyOpened: false });
+
+      // Mock the contentRef with our prepared element - this runs during initialization
+      if (!hook.contentRef.current) {
+        Object.defineProperty(hook.contentRef, 'current', {
+          value: contentElement,
+          writable: true,
+        });
+      }
+
+      return hook;
+    };
+
+    // ACT
+    renderHook(() => useTestHook());
+
+    // ASSERT
+    expect(heightSpy).toHaveBeenCalledWith('0px');
+    expect(overflowSpy).toHaveBeenCalledWith('hidden');
+  });
 });

@@ -10,6 +10,15 @@ export function useEventAchievementSectionAnimation(options: { isInitiallyOpened
   // We don't want to animate on first render (mount).
   const isInitialRender = useRef(true);
 
+  // Run once on mount to properly set up the initial state.
+  useEffect(() => {
+    // If the section should start closed, make sure we apply proper styling.
+    if (!options.isInitiallyOpened && contentRef.current) {
+      contentRef.current.style.height = '0px';
+      contentRef.current.style.overflow = 'hidden';
+    }
+  }, [options.isInitiallyOpened]);
+
   useEffect(() => {
     // Skip the animation on mount.
     if (isInitialRender.current) {

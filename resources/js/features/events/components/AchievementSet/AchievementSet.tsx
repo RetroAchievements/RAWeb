@@ -88,6 +88,7 @@ export const AchievementSet: FC<AchievementSetProps> = ({
           return (
             <EventAchievementSection
               key={status}
+              achievementCount={items.length}
               isInitiallyOpened={Number(status) !== eventAchievementTimeStatus.future}
               title={statusTitles[Number(status) as keyof typeof statusTitles]}
             >
