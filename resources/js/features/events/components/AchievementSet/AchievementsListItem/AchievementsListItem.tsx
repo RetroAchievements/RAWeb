@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next';
 
 import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
-import { GameTitle } from '@/common/components/GameTitle';
 import { cn } from '@/common/utils/cn';
 import { formatNumber } from '@/common/utils/l10n/formatNumber';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 
 import { AchievementDateMeta } from '../AchievementDateMeta';
+import { AchievementGameTitle } from '../AchievementGameTitle';
 
 interface AchievementsListItemProps {
   achievement: App.Platform.Data.Achievement;
@@ -76,11 +76,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 
               {game?.title ? (
                 <>
-                  <span>{t('from')}</span>{' '}
-                  <a href={route('achievement.show', { achievement })}>
-                    <GameTitle title={game.title} isWordWrappingEnabled={true} />{' '}
-                    {`(${game.system!.nameShort})`}
-                  </a>
+                  <span>{t('from')}</span> <AchievementGameTitle game={game} />
                 </>
               ) : null}
             </div>
