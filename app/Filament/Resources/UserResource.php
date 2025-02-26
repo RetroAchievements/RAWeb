@@ -115,6 +115,7 @@ class UserResource extends Resource
                                         ->openUrlInNewTab(),
 
                                     Infolists\Components\TextEntry::make('permalink')
+                                        ->formatStateUsing(fn () => 'Here')
                                         ->url(fn (User $record): string => $record->getPermalinkAttribute())
                                         ->openUrlInNewTab(),
                                 ]),

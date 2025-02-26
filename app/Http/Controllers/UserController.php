@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\FindUserByIdentifierAction;
 use App\Http\Controller;
 use App\Models\PlayerGame;
 use App\Models\User;
@@ -16,7 +17,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Log;
-use Jenssegers\Optimus\Optimus;
 
 class UserController extends Controller
 {
@@ -75,10 +75,9 @@ class UserController extends Controller
             ->with('user', $user);
     }
 
-    public function permalink(Optimus $optimus, int $hashId): Redirector|Application|RedirectResponse
+    public function permalink(string $ulid): Redirector|Application|RedirectResponse
     {
-        $userId = $optimus->decode($hashId);
-        $user = User::findOrFail($userId);
+        $user = (new FindUserByIdentifierAction())->execute($ulid);
 
         $this->authorize('view', $user);
 
