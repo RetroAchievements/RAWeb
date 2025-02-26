@@ -13,12 +13,17 @@ import { useEventAchievementSectionAnimation } from './useEventAchievementSectio
 
 interface EventAchievementSectionProps {
   children: ReactNode;
+  isInitiallyOpened: boolean;
   title: string;
 }
 
-export const EventAchievementSection: FC<EventAchievementSectionProps> = ({ children, title }) => {
+export const EventAchievementSection: FC<EventAchievementSectionProps> = ({
+  children,
+  isInitiallyOpened,
+  title,
+}) => {
   const { childContainerRef, contentRef, isInitialRender, isOpen, setIsOpen } =
-    useEventAchievementSectionAnimation({ isInitiallyOpened: true });
+    useEventAchievementSectionAnimation({ isInitiallyOpened });
 
   return (
     <motion.li

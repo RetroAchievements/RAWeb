@@ -4,6 +4,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { AchievementSortOrder } from '../../models';
+import { eventAchievementTimeStatus } from '../../utils/eventAchievementTimeStatus';
 import { AchievementsListItem } from './AchievementsListItem';
 import { EventAchievementSection } from './EventAchievementSection';
 import { getStatus, sortAchievements } from './sortAchievements';
@@ -58,11 +59,11 @@ export const AchievementSet: FC<AchievementSetProps> = ({
   const groupedAchievements: Record<number, App.Platform.Data.Achievement[]> = {};
 
   const statusTitles = {
-    0: t('Current'),
-    1: t('Previous'),
-    2: t('Upcoming'),
-    3: t('Future'),
-    4: t('Evergreen'),
+    [eventAchievementTimeStatus.active]: t('Current'),
+    [eventAchievementTimeStatus.expired]: t('Previous'),
+    [eventAchievementTimeStatus.upcoming]: t('Upcoming'),
+    [eventAchievementTimeStatus.future]: t('Future'),
+    [eventAchievementTimeStatus.evergreen]: t('Evergreen'),
   };
 
   // Initialize groups to avoid undefined checks later.
@@ -87,6 +88,7 @@ export const AchievementSet: FC<AchievementSetProps> = ({
           return (
             <EventAchievementSection
               key={status}
+              isInitiallyOpened={Number(status) !== eventAchievementTimeStatus.future}
               title={statusTitles[Number(status) as keyof typeof statusTitles]}
             >
               {items.map((achievement, index) => (

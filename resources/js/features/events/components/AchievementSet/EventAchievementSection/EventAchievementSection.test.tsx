@@ -30,7 +30,9 @@ describe('Component: EventAchievementSection', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <EventAchievementSection title="title">children</EventAchievementSection>,
+      <EventAchievementSection title="title" isInitiallyOpened={true}>
+        children
+      </EventAchievementSection>,
     );
 
     // ASSERT
@@ -39,7 +41,11 @@ describe('Component: EventAchievementSection', () => {
 
   it('displays the provided title', async () => {
     // ARRANGE
-    render(<EventAchievementSection title="title">children</EventAchievementSection>);
+    render(
+      <EventAchievementSection title="title" isInitiallyOpened={true}>
+        children
+      </EventAchievementSection>,
+    );
 
     // ASSERT
     await waitFor(() => {
@@ -49,7 +55,11 @@ describe('Component: EventAchievementSection', () => {
 
   it('displays children', async () => {
     // ARRANGE
-    render(<EventAchievementSection title="title">children</EventAchievementSection>);
+    render(
+      <EventAchievementSection title="title" isInitiallyOpened={true}>
+        children
+      </EventAchievementSection>,
+    );
 
     // ASSERT
     await waitFor(() => {
@@ -59,18 +69,28 @@ describe('Component: EventAchievementSection', () => {
 
   it('given the user clicks on the trigger, toggles the section visibility', async () => {
     // ARRANGE
-    render(<EventAchievementSection title="title">children</EventAchievementSection>);
+    render(
+      <EventAchievementSection title="title" isInitiallyOpened={true}>
+        children
+      </EventAchievementSection>,
+    );
 
     // ACT
     await userEvent.click(screen.getByText(/title/i));
 
     // ASSERT
-    expect(screen.getByText(/children/i)).not.toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/children/i)).not.toBeVisible();
+    });
   });
 
   it('given the user clicks on the trigger twice, makes section content visible again', async () => {
     // ARRANGE
-    render(<EventAchievementSection title="title">children</EventAchievementSection>);
+    render(
+      <EventAchievementSection title="title" isInitiallyOpened={true}>
+        children
+      </EventAchievementSection>,
+    );
 
     // ACT
     await userEvent.click(screen.getByText(/title/i));
@@ -78,7 +98,9 @@ describe('Component: EventAchievementSection', () => {
     await userEvent.click(screen.getByText(/title/i));
 
     // ASSERT
-    expect(screen.getByText(/children/i)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/children/i)).toBeVisible();
+    });
   });
 
   it('given the section is initially closed, applies the hidden class', () => {
@@ -93,7 +115,7 @@ describe('Component: EventAchievementSection', () => {
 
     // ACT
     render(
-      <EventAchievementSection title="title">
+      <EventAchievementSection title="title" isInitiallyOpened={true}>
         <div data-testid="child-content">children</div>
       </EventAchievementSection>,
     );
@@ -116,7 +138,7 @@ describe('Component: EventAchievementSection', () => {
 
     // ACT
     render(
-      <EventAchievementSection title="title">
+      <EventAchievementSection title="title" isInitiallyOpened={true}>
         <div data-testid="child-content">children</div>
       </EventAchievementSection>,
     );
