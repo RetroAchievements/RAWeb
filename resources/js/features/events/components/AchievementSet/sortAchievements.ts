@@ -1,4 +1,11 @@
+import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import utc from 'dayjs/plugin/utc';
+
 import type { AchievementSortOrder } from '../../models';
+
+dayjs.extend(utc);
+dayjs.extend(isSameOrBefore);
 
 export function sortAchievements(
   achievements: App.Platform.Data.Achievement[],
@@ -69,23 +76,29 @@ export function sortAchievements(
 /**
  * Returns the status priority for an event achievement:
  * 0 = Active
- * 1 = Expired
- * 2 = Upcoming
- * 3 = Evergreen
+ * 1 = Upcoming (within next 30 days)
+ * 2 = Expired
+ * 3 = Future (more than 30 days away)
+ * 4 = Evergreen
  */
 export function getStatus(
   achievement: App.Platform.Data.Achievement,
   eventAchievements?: App.Platform.Data.EventAchievement[],
-): 0 | 1 | 2 | 3 {
+): 0 | 1 | 2 | 3 | 4 {
   const eventAchievement = eventAchievements?.find((ea) => ea.achievement?.id === achievement.id);
-  if (!eventAchievement?.activeFrom || !eventAchievement?.activeUntil) return 3; // evergreen?
+  if (!eventAchievement?.activeFrom || !eventAchievement?.activeUntil) return 4; // evergreen?
 
-  const now = new Date();
-  const activeFrom = new Date(eventAchievement.activeFrom);
-  const activeUntil = new Date(eventAchievement.activeUntil);
+  const now = dayjs.utc();
+  const activeFrom = dayjs.utc(eventAchievement.activeFrom);
+  const activeUntil = dayjs.utc(eventAchievement.activeUntil);
 
-  if (activeFrom <= now && now <= activeUntil) return 0; // Active.
-  if (activeUntil < now) return 1; // Expired.
+  if (activeFrom.isSameOrBefore(now) && now.isSameOrBefore(activeUntil)) return 0; // Active.
 
-  return 2; // Upcoming.
+  // Check if upcoming is within the next 30 days.
+  const thirtyDaysFromNow = now.add(30, 'day');
+  if (activeFrom.isAfter(now) && activeFrom.isSameOrBefore(thirtyDaysFromNow)) return 1; // Upcoming within 30 days.
+
+  if (activeUntil.isBefore(now)) return 2; // Expired.
+
+  return 3; // Future (more than 30 days away).
 }

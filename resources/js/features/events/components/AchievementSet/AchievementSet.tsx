@@ -59,9 +59,10 @@ export const AchievementSet: FC<AchievementSetProps> = ({
 
   const statusTitles = {
     0: t('Current'),
-    1: t('Previous'),
-    2: t('Upcoming'),
-    3: t('Evergreen'),
+    1: t('Upcoming'),
+    2: t('Previous'),
+    3: t('Future'),
+    4: t('Evergreen'),
   };
 
   // Initialize groups to avoid undefined checks later.

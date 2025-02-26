@@ -13,7 +13,7 @@ import {
 } from '@/common/components/+vendor/BaseDropdownMenu';
 import type { TranslatedString } from '@/types/i18next';
 
-import type { AchievementSortOrder } from '../../models';
+import type { AchievementSortOrder } from '../../../models';
 
 interface SortOption {
   value: AchievementSortOrder;

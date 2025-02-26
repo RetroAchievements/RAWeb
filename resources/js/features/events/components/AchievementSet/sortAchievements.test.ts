@@ -116,7 +116,8 @@ describe('Util: sortAchievements', () => {
       { ...baseAchievement, id: 1 }, // Evergreen
       { ...baseAchievement, id: 2 }, // Active
       { ...baseAchievement, id: 3 }, // Expired
-      { ...baseAchievement, id: 4 }, // Upcoming
+      { ...baseAchievement, id: 4 }, // Upcoming (within 30 days)
+      { ...baseAchievement, id: 5 }, // Future (more than 30 days away)
     ];
 
     const eventAchievements: App.Platform.Data.EventAchievement[] = [
@@ -133,7 +134,12 @@ describe('Util: sortAchievements', () => {
       {
         achievement: achievements[3],
         activeFrom: new Date(now.getTime() + 1000).toISOString(),
-        activeUntil: new Date(now.getTime() + 2000).toISOString(),
+        activeUntil: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 10).toISOString(), // 10 days from now
+      },
+      {
+        achievement: achievements[4],
+        activeFrom: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 40).toISOString(), // 40 days from now
+        activeUntil: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 50).toISOString(), // 50 days from now
       },
     ];
 
@@ -141,7 +147,7 @@ describe('Util: sortAchievements', () => {
     const result = sortAchievements(achievements, 'active', eventAchievements);
 
     // ASSERT
-    expect(result.map((a) => a.id)).toEqual([2, 3, 4, 1]);
+    expect(result.map((a) => a.id)).toEqual([2, 4, 3, 5, 1]);
   });
 
   it('given an unsupported sort order, returns achievements unmodified', () => {
@@ -175,8 +181,8 @@ describe('Util: sortAchievements', () => {
 
     const achievements: App.Platform.Data.Achievement[] = [
       { ...baseAchievement, id: 1, createdAt: '2023-01-02', orderColumn: 2 },
-      { ...baseAchievement, id: 2, createdAt: '2023-01-02', orderColumn: 1 }, // Same date, different order
-      { ...baseAchievement, id: 3, createdAt: '2023-01-01', orderColumn: 1 }, // Earlier date
+      { ...baseAchievement, id: 2, createdAt: '2023-01-02', orderColumn: 1 }, // !! same date, different order
+      { ...baseAchievement, id: 3, createdAt: '2023-01-01', orderColumn: 1 }, // !! earlier date
     ];
 
     const eventAchievements: App.Platform.Data.EventAchievement[] = [
@@ -259,7 +265,7 @@ describe('Util: getStatus', () => {
     const result = getStatus(achievement, []);
 
     // ASSERT
-    expect(result).toEqual(3);
+    expect(result).toEqual(4);
   });
 
   it('given an achievement that is currently active, returns active status', () => {
@@ -269,8 +275,8 @@ describe('Util: getStatus', () => {
     const eventAchievements = [
       createEventAchievement({
         achievement,
-        activeFrom: new Date(now.getTime() - 1000).toISOString(), // 1 second ago
-        activeUntil: new Date(now.getTime() + 1000).toISOString(), // 1 second from now
+        activeFrom: new Date(now.getTime() - 1000).toISOString(), // !! 1 second ago
+        activeUntil: new Date(now.getTime() + 1000).toISOString(), // !! 1 second from now
       }),
     ];
 
@@ -288,8 +294,27 @@ describe('Util: getStatus', () => {
     const eventAchievements: App.Platform.Data.EventAchievement[] = [
       createEventAchievement({
         achievement,
-        activeFrom: new Date(now.getTime() - 2000).toISOString(), // 2 seconds ago
-        activeUntil: new Date(now.getTime() - 1000).toISOString(), // 1 second ago
+        activeFrom: new Date(now.getTime() - 2000).toISOString(), // !! 2 seconds ago
+        activeUntil: new Date(now.getTime() - 1000).toISOString(), // !! 1 second ago
+      }),
+    ];
+
+    // ACT
+    const result = getStatus(achievement, eventAchievements);
+
+    // ASSERT
+    expect(result).toEqual(2);
+  });
+
+  it('given an achievement that is upcoming within 30 days, returns upcoming status', () => {
+    // ARRANGE
+    const now = new Date();
+    const achievement = createAchievement({ id: 1 });
+    const eventAchievements = [
+      createEventAchievement({
+        achievement,
+        activeFrom: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 15).toISOString(), // !! 15 days from now
+        activeUntil: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 20).toISOString(), // !! 20 days from now
       }),
     ];
 
@@ -300,15 +325,15 @@ describe('Util: getStatus', () => {
     expect(result).toEqual(1);
   });
 
-  it('given an achievement that is upcoming, returns upcoming status', () => {
+  it('given an achievement that is upcoming but more than 30 days away, returns future status', () => {
     // ARRANGE
     const now = new Date();
     const achievement = createAchievement({ id: 1 });
     const eventAchievements = [
       createEventAchievement({
         achievement,
-        activeFrom: new Date(now.getTime() + 1000).toISOString(), // 1 second from now
-        activeUntil: new Date(now.getTime() + 2000).toISOString(), // 2 seconds from now
+        activeFrom: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 40).toISOString(), // !! 40 days from now
+        activeUntil: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 45).toISOString(), // !! 45 days from now
       }),
     ];
 
@@ -316,6 +341,6 @@ describe('Util: getStatus', () => {
     const result = getStatus(achievement, eventAchievements);
 
     // ASSERT
-    expect(result).toEqual(2);
+    expect(result).toEqual(3);
   });
 });
