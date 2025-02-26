@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { SystemChip } from '@/common/components/SystemChip';
 
@@ -18,6 +19,8 @@ interface EventHeaderProps {
 }
 
 export const EventHeader: FC<EventHeaderProps> = ({ event }) => {
+  const { t } = useTranslation();
+
   if (!event.legacyGame) {
     return null;
   }
@@ -34,9 +37,9 @@ export const EventHeader: FC<EventHeaderProps> = ({ event }) => {
             </h1>
             <SystemChip
               id={101}
-              name="Events"
+              name={t('Event')}
               iconUrl="/assets/images/system/events.png"
-              nameShort="Events"
+              nameShort={t('Event')}
               className="bg-transparent p-0 light:border-0"
             />
           </div>

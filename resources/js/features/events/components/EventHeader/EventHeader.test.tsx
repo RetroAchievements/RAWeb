@@ -36,6 +36,6 @@ describe('Component: EventHeader', () => {
     // ASSERT
     expect(screen.getAllByRole('img')[0]).toHaveAttribute('src', '/test-badge.png');
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Test Game Title');
-    expect(screen.getByText(/events/i)).toBeVisible();
+    expect(screen.getByText(/event/i)).toBeVisible();
   });
 });
