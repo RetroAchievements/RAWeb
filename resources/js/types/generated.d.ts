@@ -458,6 +458,7 @@ declare namespace App.Platform.Data {
     event?: App.Platform.Data.Event;
     activeFrom?: string;
     activeUntil?: string;
+    isObfuscated: boolean;
   };
   export type EventAward = {
     id: number;
