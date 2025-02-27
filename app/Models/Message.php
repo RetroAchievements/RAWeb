@@ -64,7 +64,7 @@ class Message extends BaseModel
      */
     public function author(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'author_id', 'ID');
+        return $this->belongsTo(User::class, 'author_id', 'ID')->withTrashed();
     }
 
     // == scopes
