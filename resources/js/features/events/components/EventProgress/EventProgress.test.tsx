@@ -48,8 +48,8 @@ describe('Component: EventProgress', () => {
     // ARRANGE
     const event = createRaEvent({
       eventAchievements: [
-        { achievement: createAchievement({ points: 5 }) },
-        { achievement: createAchievement({ points: 5 }) },
+        { achievement: createAchievement({ points: 5 }), isObfuscated: false },
+        { achievement: createAchievement({ points: 5 }), isObfuscated: false },
       ],
     });
     const playerGame = createPlayerGame({ achievementsUnlocked: 1, pointsHardcore: 5 });
@@ -69,8 +69,8 @@ describe('Component: EventProgress', () => {
     // ARRANGE
     const event = createRaEvent({
       eventAchievements: [
-        { achievement: createAchievement({ points: 5 }) },
-        { achievement: createAchievement({ points: undefined }) },
+        { achievement: createAchievement({ points: 5 }), isObfuscated: false },
+        { achievement: createAchievement({ points: undefined }), isObfuscated: false },
       ],
     });
     const playerGame = createPlayerGame({ achievementsUnlocked: 1, pointsHardcore: 5 });
@@ -87,8 +87,8 @@ describe('Component: EventProgress', () => {
     // ARRANGE
     const event = createRaEvent({
       eventAchievements: [
-        { achievement: createAchievement({ points: 1 }) },
-        { achievement: createAchievement({ points: 1 }) },
+        { achievement: createAchievement({ points: 1 }), isObfuscated: false },
+        { achievement: createAchievement({ points: 1 }), isObfuscated: false },
       ],
     });
     const playerGame = createPlayerGame({ achievementsUnlocked: 1, pointsHardcore: 1 });

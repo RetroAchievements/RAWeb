@@ -99,12 +99,14 @@ describe('Component: EventAchievementSets', () => {
       eventAchievements: [
         {
           achievement: undefined,
+          isObfuscated: false,
         },
         {
           achievement: createAchievement({
             id: 1,
             title: 'Valid Achievement',
           }),
+          isObfuscated: false,
         },
       ],
     });

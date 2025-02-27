@@ -102,8 +102,8 @@ describe('Component: AwardTierItem', () => {
     // ARRANGE
     const event = createRaEvent({
       eventAchievements: [
-        { achievement: createAchievement({ points: 1 }) },
-        { achievement: createAchievement({ points: 1 }) },
+        { achievement: createAchievement({ points: 1 }), isObfuscated: false },
+        { achievement: createAchievement({ points: 1 }), isObfuscated: false },
       ],
     });
     const eventAward = createEventAward({ pointsRequired: 2 });
@@ -120,8 +120,8 @@ describe('Component: AwardTierItem', () => {
     // ARRANGE
     const event = createRaEvent({
       eventAchievements: [
-        { achievement: createAchievement({ points: 1 }) },
-        { achievement: createAchievement({ points: 2 }) },
+        { achievement: createAchievement({ points: 1 }), isObfuscated: false },
+        { achievement: createAchievement({ points: 2 }), isObfuscated: false },
       ],
     });
     const eventAward = createEventAward({ pointsRequired: 3 });
