@@ -241,6 +241,7 @@ declare namespace App.Data {
     title: string;
     createdAt: string;
     forum?: App.Data.Forum | null;
+    requiredPermissions?: number | null;
     latestComment?: App.Data.ForumTopicComment | null;
     commentCount24h?: number | null;
     oldestComment24hId?: number | null;
@@ -280,6 +281,13 @@ declare namespace App.Data {
     id: number;
     name: string;
   };
+  export type ShowForumTopicPageProps<TItems = App.Data.ForumTopicComment> = {
+    can: App.Data.UserPermissions;
+    dynamicEntities: App.Community.Data.ShortcodeDynamicEntities;
+    forumTopic: App.Data.ForumTopic;
+    isSubscribed: boolean;
+    paginatedForumTopicComments: App.Data.PaginatedData<TItems>;
+  };
   export type StaticData = {
     numGames: number;
     numAchievements: number;
@@ -299,6 +307,7 @@ declare namespace App.Data {
     displayName: string;
     avatarUrl: string;
     apiKey?: string | null;
+    createdAt?: string | null;
     deleteRequested?: string | null;
     deletedAt?: string | null;
     displayableRoles?: Array<App.Data.Role> | null;
@@ -324,13 +333,18 @@ declare namespace App.Data {
     roles?: App.Models.UserRole[];
   };
   export type UserPermissions = {
+    authorizeForumTopicComments?: boolean;
     createTriggerTicket?: boolean;
     createUsernameChangeRequest?: boolean;
+    deleteForumTopic?: boolean;
     develop?: boolean;
+    manageForumTopicComments?: boolean;
+    manageForumTopics?: boolean;
     manageGameHashes?: boolean;
     manageGameSets?: boolean;
     manipulateApiKeys?: boolean;
     updateAvatar?: boolean;
+    updateForumTopic?: boolean;
     updateMotto?: boolean;
   };
 }

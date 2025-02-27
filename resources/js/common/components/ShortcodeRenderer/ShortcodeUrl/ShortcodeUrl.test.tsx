@@ -2,6 +2,9 @@ import { render, screen } from '@/test';
 
 import { ShortcodeUrl } from './ShortcodeUrl';
 
+// Suppress "TypeError: Invalid URL".
+console.debug = vi.fn();
+
 describe('Component: ShortcodeUrl', () => {
   it('renders without crashing', () => {
     // ARRANGE
@@ -59,11 +62,19 @@ describe('Component: ShortcodeUrl', () => {
     expect(screen.getByTestId(`url-embed-https://example.com/`)).toBeVisible();
   });
 
-  it('given an empty URL, renders an empty href', () => {
+  it('given an empty URL, renders broken link text', () => {
     // ARRANGE
     render(<ShortcodeUrl href="">Empty link</ShortcodeUrl>);
 
     // ASSERT
-    expect(screen.getByTestId(`url-embed-`)).toBeVisible();
+    expect(screen.getByText(/broken link/i)).toBeVisible();
+  });
+
+  it('given a broken URL, renders broken link text', () => {
+    // ARRANGE
+    render(<ShortcodeUrl href="<a">Empty link</ShortcodeUrl>);
+
+    // ASSERT
+    expect(screen.getByText(/broken link/i)).toBeVisible();
   });
 });

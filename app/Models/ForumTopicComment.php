@@ -130,4 +130,30 @@ class ForumTopicComment extends BaseModel
             $query->where('required_permissions', '<=', $userPermissions);
         });
     }
+
+    /**
+     * @param Builder<ForumTopicComment> $query
+     * @return Builder<ForumTopicComment>
+     */
+    public function scopeVisibleTo(Builder $query, ?User $currentUser = null): Builder
+    {
+        return $query->where(function ($query) use ($currentUser) {
+            // Anyone can see authorized comments.
+            $query->where('is_authorized', true);
+
+            if ($currentUser) {
+                // Users can always see their own comments.
+                $query->orWhere('author_id', $currentUser->id);
+
+                // Some users can see all comments.
+                if ($currentUser->hasAnyRole([
+                    Role::ADMINISTRATOR,
+                    Role::MODERATOR,
+                    Role::FORUM_MANAGER,
+                ])) {
+                    $query->orWhereRaw('1=1');
+                }
+            }
+        });
+    }
 }

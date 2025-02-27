@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 
@@ -106,6 +107,17 @@ class ForumTopic extends BaseModel
     public function comments(): HasMany
     {
         return $this->hasMany(ForumTopicComment::class, 'forum_topic_id')->with('user');
+    }
+
+    /**
+     * @return HasMany<ForumTopicComment>
+     */
+    public function visibleComments(?User $user = null): HasMany
+    {
+        /** @var ?User $user */
+        $currentUser = $user ?? Auth::user();
+
+        return $this->comments()->visibleTo($currentUser);
     }
 
     /**

@@ -6,6 +6,7 @@ namespace Tests\Feature\Community\Controllers;
 
 use App\Models\Forum;
 use App\Models\ForumCategory;
+use App\Models\ForumTopic;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -57,6 +58,50 @@ class ForumTopicControllerTest extends TestCase
 
             ->where('forum.category.id', $category->id)
             ->where('forum.category.title', $category->title)
+        );
+    }
+
+    public function testShowDeniesAccessToUnauthorizedUsers(): void
+    {
+        // Arrange
+        $author = User::factory()->create();
+
+        $topic = ForumTopic::factory()->create(['author_id' => $author->id, 'required_permissions' => 4]); // !! high permission requirement
+        $user = User::factory()->create([
+            'websitePrefs' => 63,
+            'UnreadMessageCount' => 0,
+            'email_verified_at' => now(),
+            'Permissions' => 1, // !! low permissions
+        ]);
+
+        // Act
+        $response = $this->actingAs($user)->get(route('forum-topic.show', $topic));
+
+        // Assert
+        $response->assertForbidden();
+    }
+
+    public function testShowDisplaysTopicForAuthorizedUsers(): void
+    {
+        // Arrange
+        $author = User::factory()->create();
+
+        $topic = ForumTopic::factory()->create(['author_id' => $author->id, 'required_permissions' => 0]); // !! high permission requirement
+        $user = User::factory()->create([
+            'websitePrefs' => 63,
+            'UnreadMessageCount' => 0,
+            'email_verified_at' => now(),
+            'Permissions' => 1, // !! low permissions
+        ]);
+
+        // Act
+        $response = $this->actingAs($user)->get(route('forum-topic.show', $topic));
+
+        // Assert
+        $response->assertOk();
+        $response->assertInertia(fn ($page) => $page
+            ->has('forumTopic')
+            ->has('paginatedForumTopicComments')
         );
     }
 }

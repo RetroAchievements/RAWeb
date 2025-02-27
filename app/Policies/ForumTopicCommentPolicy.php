@@ -37,8 +37,6 @@ class ForumTopicCommentPolicy
             if ($this->manage($user) || $user->is($comment->user)) {
                 return true;
             }
-
-            // TODO return false if the comment was authored by someone blocking the current user
         }
 
         // If the comment is authorized, then it's publicly viewable.

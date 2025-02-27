@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Http\Concerns\HandlesPublicFileRequests;
+use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\UserController;
@@ -100,6 +101,8 @@ class RouteServiceProvider extends ServiceProvider
                 'prefix' => 'internal-api',
             ], function () {
                 // Route::get('notifications', [NotificationsController::class, 'index'])->name('notification.index');
+
+                Route::put('user/forum-permissions', [UserApiController::class, 'updateForumPostPermissions'])->name('api.user.forum-permissions.update');
 
                 Route::post('delete-request', [UserController::class, 'requestAccountDeletion'])->name('api.user.delete-request.store');
                 Route::delete('delete-request', [UserController::class, 'cancelAccountDeletion'])->name('api.user.delete-request.destroy');

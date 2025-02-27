@@ -5,6 +5,7 @@ export const createUser = createFactory<App.Data.User>((faker) => {
 
   return {
     displayName,
+    createdAt: faker.date.recent().toISOString(),
     username: displayName,
     isMuted: faker.datatype.boolean(),
     mutedUntil: null,
