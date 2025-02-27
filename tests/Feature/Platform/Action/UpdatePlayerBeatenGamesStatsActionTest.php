@@ -199,6 +199,51 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         $this->assertCount(4, $userHomebrewStats);
     }
 
+    public function testItZeroesStatsWhenResettingBeatenGameAchievements(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $system = System::factory()->create();
+        $game = Game::factory()->create([
+            'ConsoleID' => $system->ID,
+            'Title' => 'Super Mario Bros.',
+        ]);
+
+        // ... add a hardcore beaten game award ...
+        $this->addGameBeatenAward($user, $game, UnlockMode::Hardcore, Carbon::create(2023, 1, 1));
+
+        // ... make the initial update to create the player's stats ...
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
+
+        // ... before moving on, verify the initial state shows 1 game beaten ...
+        $initialStats = PlayerStat::where('user_id', $user->id)->get();
+        $this->assertCount(2, $initialStats); // One overall, one system-specific.
+        $this->assertEquals(1, $initialStats->whereNull('system_id')->first()->value);
+        $this->assertEquals(1, $initialStats->where('system_id', $system->ID)->first()->value);
+
+        // Act
+        $user->playerBadges()->delete(); // simulate resetting achievements by deleting the beaten game award
+
+        // ... update stats again ...
+        (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
+
+        // Assert
+        $finalStats = PlayerStat::where('user_id', $user->id)->get();
+        $this->assertCount(2, $finalStats); // they still exist, but we'll verify that they're zeroed out.
+
+        $overallStats = $finalStats->whereNull('system_id')->first(); // overall stats
+        $this->assertEquals(0, $overallStats->value); // !!
+        $this->assertEquals(PlayerStatType::GamesBeatenHardcoreRetail, $overallStats->type);
+        $this->assertNull($overallStats->last_game_id);
+        $this->assertNull($overallStats->stat_updated_at);
+
+        $systemStats = $finalStats->where('system_id', $system->id)->first(); // system-specific stats
+        $this->assertEquals(0, $systemStats->value); // !!
+        $this->assertEquals(PlayerStatType::GamesBeatenHardcoreRetail, $systemStats->type);
+        $this->assertNull($systemStats->last_game_id);
+        $this->assertNull($systemStats->stat_updated_at);
+    }
+
     protected function assertPlayerStatDetails(
         mixed $playerStats,
         int $gameId,
