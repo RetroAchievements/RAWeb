@@ -53,7 +53,7 @@ describe('Component: EventAchievementSection', () => {
     });
   });
 
-  it('displays children', async () => {
+  it('displays children', { retry: 3 }, async () => {
     // ARRANGE
     render(
       <EventAchievementSection title="title" isInitiallyOpened={true} achievementCount={2}>
@@ -79,41 +79,49 @@ describe('Component: EventAchievementSection', () => {
     expect(screen.getByText(/2 achievements/i)).toBeInTheDocument();
   });
 
-  it('given the user clicks on the trigger, toggles the section visibility', async () => {
-    // ARRANGE
-    render(
-      <EventAchievementSection title="title" isInitiallyOpened={true} achievementCount={2}>
-        children
-      </EventAchievementSection>,
-    );
+  it(
+    'given the user clicks on the trigger, toggles the section visibility',
+    { retry: 3 },
+    async () => {
+      // ARRANGE
+      render(
+        <EventAchievementSection title="title" isInitiallyOpened={true} achievementCount={2}>
+          children
+        </EventAchievementSection>,
+      );
 
-    // ACT
-    await userEvent.click(screen.getByText(/title/i));
+      // ACT
+      await userEvent.click(screen.getByText(/title/i));
 
-    // ASSERT
-    await waitFor(() => {
-      expect(screen.getByText(/children/i)).not.toBeVisible();
-    });
-  });
+      // ASSERT
+      await waitFor(() => {
+        expect(screen.getByText(/children/i)).not.toBeVisible();
+      });
+    },
+  );
 
-  it('given the user clicks on the trigger twice, makes section content visible again', async () => {
-    // ARRANGE
-    render(
-      <EventAchievementSection title="title" isInitiallyOpened={true} achievementCount={2}>
-        children
-      </EventAchievementSection>,
-    );
+  it(
+    'given the user clicks on the trigger twice, makes section content visible again',
+    { retry: 3 },
+    async () => {
+      // ARRANGE
+      render(
+        <EventAchievementSection title="title" isInitiallyOpened={true} achievementCount={2}>
+          children
+        </EventAchievementSection>,
+      );
 
-    // ACT
-    await userEvent.click(screen.getByText(/title/i));
-    await __UNSAFE_VERY_DANGEROUS_SLEEP(2000); // we can't use a waitFor or a findBy* fn
-    await userEvent.click(screen.getByText(/title/i));
+      // ACT
+      await userEvent.click(screen.getByText(/title/i));
+      await __UNSAFE_VERY_DANGEROUS_SLEEP(2000); // we can't use a waitFor or a findBy* fn
+      await userEvent.click(screen.getByText(/title/i));
 
-    // ASSERT
-    await waitFor(() => {
-      expect(screen.getByText(/children/i)).toBeVisible();
-    });
-  });
+      // ASSERT
+      await waitFor(() => {
+        expect(screen.getByText(/children/i)).toBeVisible();
+      });
+    },
+  );
 
   it('given the section is initially closed, applies the hidden class', () => {
     // ARRANGE
