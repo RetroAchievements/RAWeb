@@ -705,5 +705,18 @@
     "Enter your message here...": "Enter your message here...",
     "You can't reply to this conversation right now.": "You can't reply to this conversation right now.",
     "Muted users can only message team accounts.": "Muted users can only message team accounts.",
-    "This user isn't accepting messages right now.": "This user isn't accepting messages right now."
+    "This user isn't accepting messages right now.": "This user isn't accepting messages right now.",
+    "Create New Message": "Create New Message",
+    "Start new message thread": "Start new message thread",
+    "enter your message's subject...": "enter your message's subject...",
+    "Recipient": "Recipient",
+    "find a user...": "find a user...",
+    "Please write your message in English. This helps ensure the issue can be resolved as quickly as possible.": "Please write your message in English. This helps ensure the issue can be resolved as quickly as possible.",
+    "Please provide as much evidence as possible in your manual unlock request.": "Please provide as much evidence as possible in your manual unlock request.",
+    "The person reviewing the request will almost always want either a video or screenshot.": "The person reviewing the request will almost always want either a video or screenshot.",
+    "Follow the template below. If you don't, your request will be ignored.": "Follow the template below. If you don't, your request will be ignored.",
+    "When in doubt, <1>consult the docs.</1>": "When in doubt, <1>consult the docs.</1>",
+    "Please provide as much information as possible about the issue.": "Please provide as much information as possible about the issue.",
+    "No users found.": "No users found.",
+    "type a username...": "type a username..."
 }

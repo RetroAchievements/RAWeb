@@ -30,6 +30,7 @@ class MessageApiController extends Controller
         $body = normalize_shortcodes($input['body']);
         $body = Shortcode::convertUserShortcodesToUseIds($body);
 
+        $thread = null;
         if (array_key_exists('thread_id', $input) && $input['thread_id'] !== null) {
             $thread = MessageThread::firstWhere('id', $input['thread_id']);
             if (!$thread) {
@@ -66,6 +67,6 @@ class MessageApiController extends Controller
             $thread = (new CreateMessageThreadAction())->execute($user, $recipient, $input['title'], $body);
         }
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'threadId' => $thread->id]);
     }
 }
