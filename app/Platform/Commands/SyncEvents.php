@@ -265,23 +265,15 @@ class SyncEvents extends Command
                 155612, 156253, 8306, 131820, 102129, 109418, 100414, 140885, 124425, 15569, 34402, 150781,
                 80943, 101418, 168388, 48648, 2811, 80125, 71178, 98638, 13072, 140047, 19595, 97397,
                 157177, 1344, 82308, 176857
-            ], [[125205, 5959], 48511, 5825, 53312, 14905, 146742, 67230, 5561, 88350, 91715, 125572, 136669]),
-            3855 => new ConvertToTracked('aotw-2021-halloween', [
-                48648 => ['10/3/2021', '10/9/2021'],
-                2811 => ['10/10/2021', '10/16/2021'],
-                80125 => ['10/17/2021', '10/23/2021'],
-                71178 => ['10/24/2021', '10/30/2021'],
-            ]),
-            3856 => new ConvertToTracked('aotw-2021-christmas', [
-                157177 => ['12/5/2021', '12/11/2021'],
-                1344 => ['12/12/2021', '12/18/2021'],
-                82308 => ['12/19/2021', '12/25/2021'],
-                176857 => ['12/26/2021', '1/1/2022'],
-            ]),
+            ], [[125205, 5959], 48511, 5825, 53312, 14905, 146742, 67230, 5561, 88350, 91715, 125572, 136669],
+                extraDay: true),
+            3855 => new ConvertCollapse('aotw-2021-halloween', '10/3/2021', '11/6/2021'),
+            3856 => new ConvertCollapse('aotw-2021-festive', '12/5/2021', '1/1/2022'),
             // 6189 => new ConvertToTiered('lotm', [1 => '100 points', 2 => '200 points'], [
             //     238014 => 'to_hardcore',
             //     238015 => 'hardcore_only',
             // ]),
+
             15942 => new ConvertCollapse('devquest-017'),
             15943 => new ConvertAsIs('aotw-2014'),
             // 15943 => new ConvertToTracked('aotw-2014', [
@@ -729,7 +721,9 @@ class ConvertGame
             $winners = PlayerAchievement::where('achievement_id', $sourceAchievementId)
                 ->where('unlocked_hardcore_at', '>=', $eventAchievement->active_from)
                 ->where('unlocked_hardcore_at', '<', $eventAchievement->active_until);
+            $winnerIds = [];
             foreach ($winners->get() as $winner) {
+                $winnerIds[] = $winner->user_id;
                 $unlock = PlayerAchievement::where('achievement_id', $achievement->id)
                     ->where('user_id', $winner->user_id)
                     ->first();
@@ -738,6 +732,11 @@ class ConvertGame
                     $unlock->save();
                 }
             }
+
+            // delete unlocks on the event achievement if the user hasn't unlocked the source achievement
+            PlayerAchievement::where('achievement_id', $achievement->id)
+                ->whereNotIn('user_id', $winnerIds)
+                ->delete();
 
             // EventAchievementObserver will copy data and additional unlocks for anyone that
             // wasn't awarded the badge from the source achievement
@@ -1082,7 +1081,6 @@ class ConvertToTiered extends ConvertGame
         }
 
         // convert to tiers
-        $tier_index = 1;
         foreach ($before as $userId => &$badge) {
             $tier_index = 1;
             foreach ($this->tiers as $count => $label) {
