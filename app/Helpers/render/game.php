@@ -18,7 +18,7 @@ function gameAvatar(
     bool $tooltip = true,
     ?string $context = null,
     ?string $title = null,
-    ?string $href = null,
+    bool $isHub = false,
 ): string {
     $id = $game;
 
@@ -50,10 +50,10 @@ function gameAvatar(
     }
 
     return avatar(
-        resource: 'game',
+        resource: $isHub ? 'hub' : 'game',
         id: $id,
         label: $label !== false && ($label || !$icon) ? $label : null,
-        link: $href ?? route('game.show', $id),
+        link: $isHub ? route('hub.show', ['gameSet' => $id]) : route('game.show', $id),
         tooltip: $tooltip,
         iconUrl: $icon !== false && ($icon || !$label) ? $icon : null,
         iconSize: $iconSize,
@@ -152,6 +152,17 @@ function renderGameCard(int|array $game, ?string $targetUsername): string
     return Blade::render('<x-game-card :gameId="$gameId" :targetUsername="$targetUsername" />', [
         'gameId' => $gameId,
         'targetUsername' => $targetUsername,
+    ]);
+}
+
+function renderHubCard(int $hubId): string
+{
+    if (empty($hubId)) {
+        return __('legacy.error.error');
+    }
+
+    return Blade::render('<x-cards.hub :$hubId />', [
+        'hubId' => $hubId,
     ]);
 }
 

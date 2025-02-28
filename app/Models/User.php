@@ -18,7 +18,6 @@ use App\Platform\Concerns\CollectsBadges;
 use App\Platform\Contracts\Developer;
 use App\Platform\Contracts\Player;
 use App\Support\Database\Eloquent\Concerns\HasFullTableName;
-use App\Support\HashId\HasHashId;
 use Database\Factories\UserFactory;
 use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
 use Filament\Models\Contracts\FilamentUser;
@@ -33,7 +32,6 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Jenssegers\Optimus\Optimus;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
@@ -71,7 +69,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     /*
      * Shared Traits
      */
-    use HasHashId;
     use HasFullTableName;
 
     /*
@@ -417,12 +414,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     public function getPermalinkAttribute(): string
     {
-        return route('user.permalink', $this->getHashIdAttribute());
-    }
-
-    protected function getHashIdAttribute(): int
-    {
-        return app(Optimus::class)->encode($this->getAttribute('ID'));
+        return route('user.permalink', $this->ulid);
     }
 
     public function getAvatarUrlAttribute(): string

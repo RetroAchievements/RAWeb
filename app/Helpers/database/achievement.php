@@ -5,6 +5,7 @@ use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\User;
 use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
+use App\Platform\Actions\SyncEventAchievementMetadataAction;
 use App\Platform\Actions\UpsertTriggerVersionAction;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
@@ -391,6 +392,8 @@ function UploadNewAchievement(
 
         if ($achievement->isDirty()) {
             CauserResolver::setCauser($author);
+
+            (new SyncEventAchievementMetadataAction())->execute($achievement);
 
             $achievement->DateModified = now();
             $achievement->save();

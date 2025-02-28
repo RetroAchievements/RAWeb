@@ -84,6 +84,27 @@ class UserUsernameResource extends Resource
                     ->dateTime()
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('previous_usages')
+                    ->label('Previously Used By')
+                    ->state(fn (UserUsername $record): string => empty($record->previous_usages) ? '-' : 'has_users')
+                    ->description(fn (UserUsername $record): ?string => count($record->previous_usages) > 1
+                            ? "Used by " . count($record->previous_usages) . " different users"
+                            : null
+                    )
+                    ->formatStateUsing(function (string $state, UserUsername $record): string {
+                        if ($state === '-') {
+                            return '-';
+                        }
+
+                        return collect($record->previous_usages)
+                            ->map(fn ($usage) => "<a href='" . route('user.show', $usage['user']) . "' 
+                                    class='underline text-warning-600' 
+                                    target='_blank'>" . $usage['user']->display_name . "</a>"
+                            )
+                            ->implode(', ');
+                    })
+                    ->html(),
+
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->state(fn (UserUsername $record): string => match (true) {

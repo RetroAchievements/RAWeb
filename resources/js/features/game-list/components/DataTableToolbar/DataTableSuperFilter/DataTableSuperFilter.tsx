@@ -84,7 +84,7 @@ export function DataTableSuperFilter<TData>({
   };
 
   return (
-    <BaseDrawer shouldScaleBackground={false} modal={false}>
+    <BaseDrawer shouldScaleBackground={false}>
       <BaseDrawerTrigger asChild>
         <button className="flex items-center gap-1 tracking-tight text-neutral-200 light:text-neutral-950">
           {currentSuperFilterLabel}
