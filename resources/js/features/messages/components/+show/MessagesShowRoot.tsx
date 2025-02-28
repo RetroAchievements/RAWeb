@@ -5,13 +5,13 @@ import { useTranslation } from 'react-i18next';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { FullPaginator } from '@/common/components/FullPaginator';
-import { ShortcodeRenderer } from '@/common/components/ShortcodeRenderer';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useShortcodeBodyPreview } from '@/common/hooks/useShortcodeBodyPreview';
 import type { TranslatedString } from '@/types/i18next';
 
 import { useDeleteMessageThreadMutation } from '../../hooks/useDeleteMessageThreadMutation';
 import { CreateMessageReplyForm } from '../CreateMessageReplyForm';
+import { MessagePreviewContent } from '../MessagePreviewContent';
 import { MessagesBreadcrumbs } from '../MessagesBreadcrumbs';
 import { ReadableMessageCard } from '../ReadableMessageCard';
 
@@ -41,7 +41,7 @@ export const MessagesShowRoot: FC = () => {
 
   const handlePageSelectValueChange = (newPageValue: number) => {
     router.visit(
-      route('message-thread.show2', {
+      route('message-thread.show', {
         messageThread: messageThread.id,
         _query: { page: newPageValue },
       }),
@@ -86,21 +86,7 @@ export const MessagesShowRoot: FC = () => {
         </p>
       )}
 
-      {previewContent ? (
-        <div data-testid="preview-content" className="mt-2">
-          <div className="rounded bg-embed px-2.5 py-1.5">
-            <div>
-              <p className="text-neutral-300 light:text-neutral-700">{t('Preview')}</p>
-            </div>
-
-            <hr className="my-2 w-full border-embed-highlight" />
-
-            <div style={{ wordBreak: 'break-word' }}>
-              <ShortcodeRenderer body={previewContent} />
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {previewContent ? <MessagePreviewContent previewContent={previewContent} /> : null}
 
       <div className="mt-3 flex w-full justify-end">
         <FullPaginator

@@ -95,13 +95,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "message-thread.show": [
-        {
-            "name": "messageThread",
-            "required": true,
-            "binding": "id"
-        }
-    ],
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],
@@ -482,7 +475,8 @@ declare module 'ziggy-js' {
         }
     ],
     "message-thread.index": [],
-    "message-thread.show2": [
+    "message-thread.create": [],
+    "message-thread.show": [
         {
             "name": "messageThread",
             "required": true,
@@ -668,7 +662,8 @@ declare module 'ziggy-js' {
     "api.user.delete-request.store": [],
     "api.user.delete-request.destroy": [],
     "api.user.avatar.store": [],
-    "api.user.avatar.destroy": []
+    "api.user.avatar.destroy": [],
+    "api.search.index": []
 }
 }
 export {};

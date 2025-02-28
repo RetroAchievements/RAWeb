@@ -119,6 +119,7 @@ function getGameMetadata(
         ach.Points,
         ach.TrueRatio,
         COALESCE(ua.display_name, ua.User) AS Author,
+        ua.ulid AS AuthorULID,
         ach.DateModified,
         ach.DateCreated,
         ach.BadgeName,

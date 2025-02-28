@@ -72,6 +72,7 @@ class AchievementSetClaimTest extends TestCase
                     'Status' => ClaimStatus::Complete,
                     'Updated' => $claim->Updated->__toString(),
                     'User' => $user->User,
+                    'ULID' => $user->ulid,
                     'UserIsJrDev' => 0,
                 ],
             ]);
@@ -114,6 +115,7 @@ class AchievementSetClaimTest extends TestCase
                     'Status' => ClaimStatus::Dropped,
                     'Updated' => $claim->Updated->__toString(),
                     'User' => $user->User,
+                    'ULID' => $user->ulid,
                     'UserIsJrDev' => 1,
                 ],
             ]);
@@ -172,6 +174,7 @@ class AchievementSetClaimTest extends TestCase
                     'Status' => ClaimStatus::Active,
                     'Updated' => $claim->Updated->__toString(),
                     'User' => $user->User,
+                    'ULID' => $user->ulid,
                     'UserIsJrDev' => 0,
                 ],
             ]);

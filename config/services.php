@@ -18,6 +18,8 @@ return [
         'client_id' => env('DISCORD_KEY'),
         'client_secret' => env('DISCORD_SECRET'),
         'invite_id' => env('DISCORD_INVITE_ID'),
+        'guild_id' => env('DISCORD_GUILD_ID'),
+        'rabot_token' => env('DISCORD_RABOT_TOKEN'),
         'webhook' => [
             // public
             'achievements' => env('DISCORD_WEBHOOK_ACHIEVEMENTS'),
