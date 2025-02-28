@@ -269,6 +269,7 @@ function getFilteredClaims(
     // Get either the filtered count or the filtered data
     $selectCondition = "
         sc.ID AS ID,
+        ua.ulid as ULID,
         COALESCE(ua.display_name, ua.User) AS User,
         sc.game_id AS GameID,
         gd.Title AS GameTitle,

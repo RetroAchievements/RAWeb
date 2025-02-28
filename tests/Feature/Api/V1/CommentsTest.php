@@ -88,11 +88,13 @@ class CommentsTest extends TestCase
             'Results' => [
                 [
                     'User' => $user1->User,
+                    'ULID' => $user1->ulid,
                     'Submitted' => $comment1->Submitted->toISOString(),
                     'CommentText' => $comment1->Payload,
                 ],
                 [
                     'User' => $user2->User,
+                    'ULID' => $user2->ulid,
                     'Submitted' => $comment2->Submitted->toISOString(),
                     'CommentText' => $comment2->Payload,
                 ],
@@ -147,11 +149,13 @@ class CommentsTest extends TestCase
             'Results' => [
                 [
                     'User' => $user1->User,
+                    'ULID' => $user1->ulid,
                     'Submitted' => $comment1->Submitted->toISOString(),
                     'CommentText' => $comment1->Payload,
                 ],
                 [
                     'User' => $user2->User,
+                    'ULID' => $user2->ulid,
                     'Submitted' => $comment2->Submitted->toISOString(),
                     'CommentText' => $comment2->Payload,
                 ],
@@ -159,7 +163,7 @@ class CommentsTest extends TestCase
         ]);
     }
 
-    public function testGetCommentsForUser(): void
+    public function testGetCommentsForUserByName(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -197,11 +201,65 @@ class CommentsTest extends TestCase
             'Results' => [
                 [
                     'User' => $user2->User,
+                    'ULID' => $user2->ulid,
                     'Submitted' => $comment1->Submitted->toISOString(),
                     'CommentText' => $comment1->Payload,
                 ],
                 [
                     'User' => $user2->User,
+                    'ULID' => $user2->ulid,
+                    'Submitted' => $comment2->Submitted->toISOString(),
+                    'CommentText' => $comment2->Payload,
+                ],
+            ],
+        ]);
+    }
+
+    public function testGetCommentsForUserByUlid(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $user2 = User::factory()->create();
+        $bannedUser = User::factory()->create(['banned_at' => Carbon::now()]);
+
+        $comment1 = Comment::factory()->create([
+            'ArticleID' => $user->ID,
+            'ArticleType' => 3,
+            'user_id' => $user2->ID,
+            'Payload' => 'This is my first comment.',
+        ]);
+        $comment2 = Comment::factory()->create([
+            'ArticleID' => $user->ID,
+            'ArticleType' => 3,
+            'user_id' => $user2->ID,
+            'Payload' => 'This is my second comment.',
+        ]);
+        $comment3 = Comment::factory()->create([
+            'ArticleID' => $user->ID,
+            'ArticleType' => 2,
+            'user_id' => $bannedUser->ID,
+            'Payload' => 'This comment is from a banned user!',
+        ]);
+
+        // Act
+        $response = $this->get($this->apiUrl('GetComments', ['i' => $user->ulid, 't' => 3]))
+            ->assertSuccessful();
+
+        // Assert
+        $response->assertStatus(200);
+        $response->assertJson([
+            'Count' => 2,
+            'Total' => 2,
+            'Results' => [
+                [
+                    'User' => $user2->User,
+                    'ULID' => $user2->ulid,
+                    'Submitted' => $comment1->Submitted->toISOString(),
+                    'CommentText' => $comment1->Payload,
+                ],
+                [
+                    'User' => $user2->User,
+                    'ULID' => $user2->ulid,
                     'Submitted' => $comment2->Submitted->toISOString(),
                     'CommentText' => $comment2->Payload,
                 ],
@@ -228,8 +286,10 @@ class CommentsTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get($this->apiUrl('GetComments', ['i' => $user->User]))
-            ->assertNotFound()
-            ->assertJson([]);
+        $response = $this->get($this->apiUrl('GetComments', ['i' => $user->User]));
+
+        // Assert
+        $response->assertNotFound();
+        $response->assertJson([]);
     }
 }

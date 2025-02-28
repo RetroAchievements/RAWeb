@@ -45,7 +45,7 @@ function countRankedUsers(int $type = RankType::Hardcore): int
 
 function getTopUsersByScore(int $count): array
 {
-    return User::select(['display_name', 'User', 'RAPoints', 'TrueRAPoints'])
+    return User::select(['ulid', 'display_name', 'User', 'RAPoints', 'TrueRAPoints'])
         ->where('Untracked', false)
         ->orderBy('RAPoints', 'desc')
         ->orderBy('TrueRAPoints', 'desc')
@@ -55,6 +55,7 @@ function getTopUsersByScore(int $count): array
             1 => $user->display_name ?? $user->User,
             2 => $user->RAPoints,
             3 => $user->TrueRAPoints,
+            4 => $user->ulid,
         ])
         ->toArray();
 }

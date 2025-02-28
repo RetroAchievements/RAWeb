@@ -26,6 +26,7 @@
  *    int        NumAwardedHardcore       number of times the achievement has been awarded in hardcore
  *    int        DisplayOrder             field used for determining which order to display the achievements
  *    string     Author                   user who originally created the achievement
+ *    string     AuthorULID               queryable stable unique identifier of the user who first created the achievement
  *    datetime   DateCreated              when the achievement was created
  *    datetime   DateModified             when the achievement was last modified
  *    string     MemAddr                  md5 of the logic for the achievement
@@ -45,6 +46,7 @@
  *  array      Claims
  *   object    [value]
  *    string    User                      user holding the claim
+ *    string    ULID                      queryable stable unique identifier of the user holding the claim
  *    int       SetType                   set type claimed: 0 - new set, 1 - revision
  *    int       ClaimType                 claim type: 0 - primary, 1 - collaboration
  *    string    Created                   date the claim was made
@@ -104,6 +106,7 @@ if (!$gameAchievements->isEmpty()) {
             'Points' => $am->Points,
             'TrueRatio' => $am->TrueRatio,
             'Author' => $am->developer?->display_name,
+            'AuthorULID' => $am->developer?->ulid,
             'DateModified' => Carbon::parse($am->DateModified)->format('Y-m-d H:i:s'),
             'DateCreated' => Carbon::parse($am->DateCreated)->format('Y-m-d H:i:s'),
             'BadgeName' => $am->BadgeName,
@@ -122,6 +125,7 @@ if (!$gameAchievementSetClaims) {
     $gameClaims = $gameAchievementSetClaims->map(function ($gc) {
         return [
             'User' => $gc->user->display_name,
+            'ULID' => $gc->user->ulid,
             'SetType' => $gc->SetType,
             'GameID' => $gc->game_id,
             'ClaimType' => $gc->ClaimType,

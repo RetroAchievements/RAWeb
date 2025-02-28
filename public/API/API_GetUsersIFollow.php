@@ -51,6 +51,7 @@ $usersList = $user
   ->map(
     fn ($followedUser) => [
         "User" => $followedUser->display_name,
+        "ULID" => $followedUser->ulid,
         "Points" => $followedUser->points,
         "PointsSoftcore" => $followedUser->points_softcore,
         "IsFollowingMe" => $followedUser->relatedUsers->first()?->pivot?->Friendship ===

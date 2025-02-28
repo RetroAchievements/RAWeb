@@ -90,6 +90,7 @@ class AchievementOfTheWeekTest extends TestCase
                 'Unlocks' => [
                     [
                         'User' => $user3->User,
+                        'ULID' => $user3->ulid,
                         'RAPoints' => $user3->RAPoints,
                         'RASoftcorePoints' => $user3->RASoftcorePoints,
                         'HardcoreMode' => 1,
@@ -97,6 +98,7 @@ class AchievementOfTheWeekTest extends TestCase
                     ],
                     [
                         'User' => $this->user->User,
+                        'ULID' => $this->user->ulid,
                         'RAPoints' => $this->user->RAPoints,
                         'RASoftcorePoints' => $this->user->RASoftcorePoints,
                         'HardcoreMode' => 1,
