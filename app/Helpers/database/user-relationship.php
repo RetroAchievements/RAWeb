@@ -3,6 +3,8 @@
 use App\Community\Enums\UserRelationship;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
+use App\Models\Game;
+use App\Models\PlayerSession;
 use App\Models\User;
 use App\Models\UserRelation;
 
@@ -75,22 +77,48 @@ function changeFriendStatus(User $senderUser, User $targetUser, int $newStatus):
 
 function GetFriendList(User $user): array
 {
-    $friendList = $user->followedUsers()
+    $friendList = [];
+
+    // ASSERT: this is only called from the Connect getfriendlist API.
+    // only return the 100 most recently active friends (some users have more than 1000!)
+    $friends = $user->followedUsers()
         ->where('Permissions', '>=', Permissions::Unregistered)
         ->whereNull('Deleted')
-        ->orderBy('LastActivityID', 'DESC')
-        ->get()
-        ->map(function ($friend) {
-            return [
-                'Friend' => $friend->display_name,
-                'AvatarUrl' => $friend->avatar_url,
-                'RAPoints' => $friend->points,
-                'LastSeen' => empty($friend->RichPresenceMsg) ? 'Unknown' : strip_tags($friend->RichPresenceMsg),
-                'ID' => $friend->id,
-            ];
-        });
+        ->orderBy('LastLogin', 'DESC')
+        ->limit(100);
 
-    return $friendList->toArray();
+    foreach ($friends->get() as $friend) {
+        $entry = [
+            'Friend' => $friend->display_name,
+            'AvatarUrl' => $friend->avatar_url,
+            'RAPoints' => $friend->points,
+            'LastSeen' => empty($friend->RichPresenceMsg) ? 'Unknown' : strip_tags($friend->RichPresenceMsg),
+            'LastSeenTime' => ($friend->RichPresenceMsgDate ?? $friend->LastLogin)?->unix(),
+        ];
+
+        $mostRecentSession = PlayerSession::where('user_id', $friend->ID)
+            ->with('game')
+            ->orderBy('rich_presence_updated_at', 'desc')
+            ->first();
+
+        if ($mostRecentSession && $mostRecentSession->rich_presence) {
+            $entry['LastSeen'] = $mostRecentSession->rich_presence;
+            $entry['LastSeenTime'] = $mostRecentSession->rich_presence_updated_at?->unix();
+            $lastGame = $mostRecentSession->game;
+        } else {
+            $lastGame = Game::find($friend->LastGameID);
+        }
+
+        $entry['LastGameId'] = $lastGame?->id;
+        $entry['LastGameTitle'] = $lastGame?->title;
+        $entry['LastGameIconUrl'] = $lastGame?->badge_url;
+
+        $friendList[] = $entry;
+    }
+
+    usort($friendList, fn ($a, $b) => $b['LastSeenTime'] - $a['LastSeenTime']);
+
+    return $friendList;
 }
 
 function GetExtendedFriendsList(User $user): array
