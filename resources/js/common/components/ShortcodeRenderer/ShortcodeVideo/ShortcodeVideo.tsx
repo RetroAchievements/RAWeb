@@ -2,6 +2,8 @@ import type { FC } from 'react';
 
 import { processVideoUrl } from '../../../utils/shortcodes/processVideoUrl';
 
+const baseUrl = import.meta.env.VITE_BASE_URL;
+
 interface ShortcodeVideoProps {
   src: string;
 }
@@ -24,7 +26,7 @@ export const ShortcodeVideo: FC<ShortcodeVideoProps> = ({ src }) => {
     case 'twitch-video': {
       const params = new URLSearchParams({
         video: processedVideo.videoId,
-        parent: window.location.hostname,
+        parent: baseUrl,
         autoplay: 'false',
       });
       embedUrl = `//player.twitch.tv/?${params.toString()}`;
@@ -34,7 +36,7 @@ export const ShortcodeVideo: FC<ShortcodeVideoProps> = ({ src }) => {
     case 'twitch-collection': {
       const params = new URLSearchParams({
         collection: processedVideo.videoId,
-        parent: window.location.hostname,
+        parent: baseUrl,
         autoplay: 'false',
       });
       embedUrl = `//player.twitch.tv/?${params.toString()}`;
@@ -44,7 +46,7 @@ export const ShortcodeVideo: FC<ShortcodeVideoProps> = ({ src }) => {
     case 'twitch-clip': {
       const params = new URLSearchParams({
         clip: processedVideo.videoId,
-        parent: window.location.hostname,
+        parent: baseUrl,
         autoplay: 'false',
       });
       embedUrl = `//clips.twitch.tv/embed?${params.toString()}`;
