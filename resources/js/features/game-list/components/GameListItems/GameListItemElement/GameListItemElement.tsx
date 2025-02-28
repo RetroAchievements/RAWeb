@@ -55,12 +55,7 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
   };
 
   return (
-    <BaseDrawer
-      open={isDrawerOpen}
-      onOpenChange={setIsDrawerOpen}
-      shouldScaleBackground={false}
-      modal={false}
-    >
+    <BaseDrawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen} shouldScaleBackground={false}>
       <GameListItemContent
         backlogState={backlogState}
         gameListEntry={gameListEntry}
