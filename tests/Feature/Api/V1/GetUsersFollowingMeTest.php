@@ -92,30 +92,35 @@ class GetUsersFollowingMeTest extends TestCase
                 'Results' => [
                     [
                         "User" => $followerUser1->display_name,
+                        "ULID" => $followerUser1->ulid,
                         "Points" => $followerUser1->Points,
                         "PointsSoftcore" => $followerUser1->points_softcore,
                         "AmIFollowing" => true,
                     ],
                     [
                         "User" => $followerUser2->display_name,
+                        "ULID" => $followerUser2->ulid,
                         "Points" => $followerUser2->Points,
                         "PointsSoftcore" => $followerUser2->points_softcore,
                         "AmIFollowing" => false,
                     ],
                     [
                         "User" => $followerUser3->display_name,
+                        "ULID" => $followerUser3->ulid,
                         "Points" => $followerUser3->Points,
                         "PointsSoftcore" => $followerUser3->points_softcore,
                         "AmIFollowing" => false,
                     ],
                     [
                         "User" => $followerUser4->display_name,
+                        "ULID" => $followerUser4->ulid,
                         "Points" => $followerUser4->Points,
                         "PointsSoftcore" => $followerUser4->points_softcore,
                         "AmIFollowing" => false,
                     ],
                     [
                         "User" => $followerUser5->display_name,
+                        "ULID" => $followerUser5->ulid,
                         "Points" => $followerUser5->Points,
                         "PointsSoftcore" => $followerUser5->points_softcore,
                         "AmIFollowing" => false,
@@ -131,12 +136,14 @@ class GetUsersFollowingMeTest extends TestCase
                     'Results' => [
                         [
                             "User" => $followerUser4->display_name,
+                            "ULID" => $followerUser4->ulid,
                             "Points" => $followerUser4->Points,
                             "PointsSoftcore" => $followerUser4->points_softcore,
                             "AmIFollowing" => false,
                         ],
                         [
                             "User" => $followerUser5->display_name,
+                            "ULID" => $followerUser5->ulid,
                             "Points" => $followerUser5->Points,
                             "PointsSoftcore" => $followerUser5->points_softcore,
                             "AmIFollowing" => false,
@@ -152,12 +159,14 @@ class GetUsersFollowingMeTest extends TestCase
                     'Results' => [
                         [
                             "User" => $followerUser1->display_name,
+                            "ULID" => $followerUser1->ulid,
                             "Points" => $followerUser1->Points,
                             "PointsSoftcore" => $followerUser1->points_softcore,
                             "AmIFollowing" => true,
                         ],
                         [
                             "User" => $followerUser2->display_name,
+                            "ULID" => $followerUser2->ulid,
                             "Points" => $followerUser2->Points,
                             "PointsSoftcore" => $followerUser2->points_softcore,
                             "AmIFollowing" => false,
@@ -184,12 +193,14 @@ class GetUsersFollowingMeTest extends TestCase
                     'Results' => [
                         [
                             "User" => $followerUser2->display_name,
+                            "ULID" => $followerUser2->ulid,
                             "Points" => $followerUser2->Points,
                             "PointsSoftcore" => $followerUser2->points_softcore,
                             "AmIFollowing" => false,
                         ],
                         [
                             "User" => $followerUser3->display_name,
+                            "ULID" => $followerUser3->ulid,
                             "Points" => $followerUser3->Points,
                             "PointsSoftcore" => $followerUser3->points_softcore,
                             "AmIFollowing" => false,

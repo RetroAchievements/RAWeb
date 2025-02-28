@@ -13,6 +13,14 @@ class UserPointsTest extends TestCase
     use RefreshDatabase;
     use BootstrapsApiV1;
 
+    public function testItValidates(): void
+    {
+        $this->get($this->apiUrl('GetUserCompletionProgress'))
+            ->assertJsonValidationErrors([
+                'u',
+            ]);
+    }
+
     public function testGetUserPointsUnknownUser(): void
     {
         $this->user->RAPoints = 600; // make sure enough points to be ranked
@@ -20,17 +28,28 @@ class UserPointsTest extends TestCase
 
         $this->get($this->apiUrl('GetUserPoints', ['u' => 'nonExistant']))
             ->assertNotFound()
-            ->assertJson([
-                'User' => 'nonExistant',
-            ]);
+            ->assertJson([]);
     }
 
-    public function testGetUserPoints(): void
+    public function testGetUserPointsByName(): void
     {
         /** @var User $user */
         $user = User::factory()->create();
 
         $this->get($this->apiUrl('GetUserPoints', ['u' => $user->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Points' => $user->RAPoints,
+                'SoftcorePoints' => $user->RASoftcorePoints,
+            ]);
+    }
+
+    public function testGetUserPointsByUlid(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        $this->get($this->apiUrl('GetUserPoints', ['u' => $user->ulid]))
             ->assertSuccessful()
             ->assertJson([
                 'Points' => $user->RAPoints,

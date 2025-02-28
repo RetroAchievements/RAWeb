@@ -12,6 +12,7 @@
  *  int        Points                  number of points the achievement
  *  string     BadgeName               unique identifier of the badge image for the achievement
  *  string     AchievementAuthor       user who originally created the achievement
+ *  string     AchievementAuthorULID   queryable stable unique identifier of the user who originally created the achievement
  *  int        GameID                  unique identifier of the game associated to the achievement
  *  string     GameTitle               title of the game
  *  string     GameIcon                site-relative path to the game's icon image
@@ -24,8 +25,10 @@
  *  int?       Hardcore                1=Hardcore, 0=not Hardcore, null=unknown
  *  string     ReportNotes             summary of the problem as reported by the user
  *  string     ReportedBy              user that created the ticket
+ *  string     ReportedByULID          queryable stable unique identifier of the user that created the ticket
  *  datetime   ResolvedAt              when the ticket was closed
  *  string     ResolvedBy              user that closed the ticket
+ *  string     ResolvedByULID          queryable stable unique identifier of the user that closed the ticket
  *  string     URL                     URL to the editor for the ticket
  */
 
@@ -43,6 +46,7 @@
  *   int        Points                 number of points the achievement
  *   string     BadgeName              unique identifier of the badge image for the achievement
  *   string     AchievementAuthor      user who originally created the achievement
+ *   string     AchievementAuthorULID  queryable stable unique identifier of the user who originally created the achievement
  *   int        GameID                 unique identifier of the game associated to the achievement
  *   string     GameTitle              title of the game
  *   string     GameIcon               site-relative path to the game's icon image
@@ -55,8 +59,10 @@
  *   int?       Hardcore               1=Hardcore, 0=not Hardcore, null=unknown
  *   string     ReportNotes            summary of the problem as reported by the user
  *   string     ReportedBy             user that created the ticket
+ *   string     ReportedByULID         queryable stable unique identifier of the user that created the ticket
  *   datetime   ResolvedAt             when the ticket was closed
  *   string     ResolvedBy             user that closed the ticket
+ *   string     ResolvedByULID         queryable stable unique identifier of the user that closed the ticket
  *  int        OpenTickets             number of open tickets
  *  string     URL                     URL to the list of open tickets
  */
@@ -78,9 +84,10 @@
 
 /*
  *  API_GetTicketData - returns ticket statistics for the specified user
- *    u : username
+ *    u : username or user ULID
  *
- *  string     User                    unique identifier of the user
+ *  string     User                    non-stable unique identifier of the user
+ *  string     ULID                    queryable stable unique identifier of the user
  *  int        Open                    number of open tickets
  *  int        Closed                  number of closed tickets
  *  int        Resolved                number of resolved tickets
@@ -108,6 +115,7 @@
  *   int        Points                 number of points the achievement
  *   string     BadgeName              unique identifier of the badge image for the achievement
  *   string     AchievementAuthor      user who originally created the achievement
+ *   string     AchievementAuthorULID  queryable stable unique identifier of the user who originally created the achievement
  *   int        GameID                 unique identifier of the game associated to the achievement
  *   string     GameTitle              title of the game
  *   string     GameIcon               site-relative path to the game's icon image
@@ -120,8 +128,10 @@
  *   int?       Hardcore               1=Hardcore, 0=not Hardcore, null=unknown
  *   string     ReportNotes            summary of the problem as reported by the user
  *   string     ReportedBy             user that created the ticket
+ *   string     ReportedByULID         queryable stable unique identifier of the user that created the ticket
  *   datetime   ResolvedAt             when the ticket was closed
  *   string     ResolvedBy             user that closed the ticket
+ *   string     ResolvedByULID         queryable stable unique identifier of the user that closed the ticket
  */
 
 /*
@@ -135,6 +145,7 @@
  *  string     URL                     URL to the list of tickets associated to the game
  */
 
+use App\Actions\FindUserByIdentifierAction;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Models\Achievement;
@@ -179,12 +190,13 @@ if ($gamesTableFlag == 1) {
 // getting ticket info for a specific user
 $assignedToUser = request()->query('u');
 if (!empty($assignedToUser)) {
-    $foundUser = User::whereName($assignedToUser)->first();
+    $foundUser = (new FindUserByIdentifierAction())->execute($assignedToUser);
     if (!$foundUser) {
         return response()->json(['error' => "User $assignedToUser not found"], 404);
     }
 
     $ticketData['User'] = $foundUser->display_name;
+    $ticketData['ULID'] = $foundUser->ulid;
     $ticketData['Open'] = 0;
     $ticketData['Closed'] = 0;
     $ticketData['Resolved'] = 0;
@@ -238,6 +250,7 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
             'Points' => $ticket->achievement->points,
             'BadgeName' => $ticket->achievement->BadgeName,
             'AchievementAuthor' => $ticket->author?->display_name,
+            'AchievementAuthorULID' => $ticket->author?->ulid,
             'GameID' => $ticket->achievement->game->ID,
             'ConsoleName' => $ticket->achievement->game->system->name,
             'GameTitle' => $ticket->achievement->game->title,
@@ -247,8 +260,10 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
             'ReportTypeDescription' => TicketType::toString($ticket->ReportType),
             'ReportNotes' => $ticket->ReportNotes,
             'ReportedBy' => $ticket->reporter?->display_name,
+            'ReportedByULID' => $ticket->reporter?->ulid,
             'ResolvedAt' => $ticket->ResolvedAt?->__toString(),
             'ResolvedBy' => $ticket->resolver?->display_name,
+            'ResolvedByULID' => $ticket->resolver?->ulid,
             'ReportState' => $ticket->ReportState,
             'ReportStateDescription' => TicketState::toString($ticket->ReportState),
             'Hardcore' => $ticket->Hardcore,
