@@ -40,23 +40,33 @@ class UserUsernamePolicy
         $lastChanges = UserUsername::whereUserId($user->id)
             ->selectRaw(<<<SQL
                 MAX(created_at) as last_request, 
-                MAX(approved_at) as last_approval
+                MAX(approved_at) as last_approval,
+                MAX(denied_at) as last_denial
             SQL)
             ->first();
 
         // If no previous requests exist, allow creation.
-        if (!$lastChanges || (!$lastChanges->last_request && !$lastChanges->last_approval)) {
+        if (
+            !$lastChanges
+            || (!$lastChanges->last_request && !$lastChanges->last_approval && !$lastChanges->last_denial)
+        ) {
             return true;
         }
 
-        // Get the most recent action date - between request and approval.
-        $lastActionDate = max(
-            $lastChanges->last_request ? Carbon::parse($lastChanges->last_request) : Carbon::create(0),
-            $lastChanges->last_approval ? Carbon::parse($lastChanges->last_approval) : Carbon::create(0)
-        );
+        // Check the most recent approval (90 day cooldown).
+        $lastApproval = $lastChanges->last_approval ? Carbon::parse($lastChanges->last_approval) : null;
+        if ($lastApproval && $lastApproval->isAfter(now()->subDays(90))) {
+            return false;
+        }
 
-        // Users get a 90-day cooldown after requests & after approval.
-        return !$lastActionDate->isAfter(now()->subDays(90));
+        // Check the most recent denial (30 day cooldown).
+        $lastDenial = $lastChanges->last_denial ? Carbon::parse($lastChanges->last_denial) : null;
+        if ($lastDenial && $lastDenial->isAfter(now()->subDays(30))) {
+            return false;
+        }
+
+        // If neither approval nor denial is within their respective cooldown periods, allow creation.
+        return true;
     }
 
     public function update(User $user): bool
@@ -66,7 +76,7 @@ class UserUsernamePolicy
 
     public function delete(User $user): bool
     {
-        // They'll just need to wait for 30 days to lapse.
+        // They'll need to wait for the cooldown period to lapse.
         return false;
     }
 
