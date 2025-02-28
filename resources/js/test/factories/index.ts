@@ -5,6 +5,7 @@ export * from './createActivePlayer';
 export * from './createComment';
 export * from './createEmulator';
 export * from './createEventAchievement';
+export * from './createEventAward';
 export * from './createForum';
 export * from './createForumCategory';
 export * from './createForumTopic';

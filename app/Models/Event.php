@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Platform\Enums\EventState;
 use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
 use Database\Factories\EventFactory;
@@ -66,6 +67,46 @@ class Event extends BaseModel
 
     // == accessors
 
+    public function getStateAttribute(): EventState
+    {
+        $now = now();
+
+        /**
+         * An event is active if:
+         * - The conclusion date is in the future, or
+         * - Any of the event achievements have an activeUntil date in the future.
+         */
+        if (
+            $this->active_through?->isAfter($now)
+            || $this->achievements->some(fn ($a) => $a->active_until?->isAfter($now))
+        ) {
+            return EventState::Active;
+        }
+
+        /**
+         * An event is evergreen (never expires) if:
+         * - Every event achievement has a null activeUntil value, meaning they can be earned indefinitely.
+         */
+        if ($this->achievements->every(fn ($a) => !$a->active_until)) {
+            return EventState::Evergreen;
+        }
+
+        /**
+         * An event is concluded if:
+         * - The event's end date is before the current date, and
+         * - Every event achievement has an activeUntil date which is before the current date.
+         */
+        if (
+            $this->active_through?->isBefore($now)
+            && $this->achievements->every(fn ($a) => $a->active_until?->isBefore($now))
+        ) {
+            return EventState::Concluded;
+        }
+
+        // This shouldn't happen.
+        return EventState::Concluded;
+    }
+
     public function getTitleAttribute(): string
     {
         return $this->legacyGame->title;
@@ -126,12 +167,12 @@ class Event extends BaseModel
      */
     public function achievements(): HasManyThrough
     {
-        return $this->legacyGame->hasManyThrough(
+        return $this->hasManyThrough(
             EventAchievement::class,
             Achievement::class,
             'GameID',         // Achievements.GameID
             'achievement_id', // event_achievements.achievement_id
-            'ID',             // GameData.ID
+            'legacy_game_id', // events.legacy_game_id
             'ID',             // Achievements.ID
         )->with('achievement.game');
     }

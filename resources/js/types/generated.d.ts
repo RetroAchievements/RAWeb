@@ -336,9 +336,11 @@ declare namespace App.Data {
     roles?: App.Models.UserRole[];
   };
   export type UserPermissions = {
+    createGameForumTopic?: boolean;
     createTriggerTicket?: boolean;
     createUsernameChangeRequest?: boolean;
     develop?: boolean;
+    manageEvents?: boolean;
     manageGameHashes?: boolean;
     manageGameSets?: boolean;
     manipulateApiKeys?: boolean;
@@ -426,17 +428,23 @@ declare namespace App.Models {
 }
 declare namespace App.Platform.Data {
   export type Achievement = {
+    badgeLockedUrl: string;
+    badgeUnlockedUrl: string;
     id: number;
     title: string;
+    createdAt?: string;
     description?: string;
-    badgeUnlockedUrl?: string;
-    badgeLockedUrl?: string;
     flags?: App.Platform.Enums.AchievementFlag;
     game?: App.Platform.Data.Game;
-    unlockedAt?: string;
-    unlockedHardcoreAt?: string;
+    orderColumn?: number;
     points?: number;
     pointsWeighted?: number;
+    unlockedAt?: string;
+    unlockedHardcoreAt?: string;
+    unlockHardcorePercentage?: number;
+    unlockPercentage?: number;
+    unlocksHardcoreTotal?: number;
+    unlocksTotal?: number;
   };
   export type CreateAchievementTicketPageProps = {
     achievement: App.Platform.Data.Achievement;
@@ -458,14 +466,36 @@ declare namespace App.Platform.Data {
   };
   export type EventAchievement = {
     achievement?: App.Platform.Data.Achievement;
-    sourceAchievement?: App.Platform.Data.Achievement;
+    sourceAchievement?: App.Platform.Data.Achievement | null;
     event?: App.Platform.Data.Event;
+    activeFrom?: string;
     activeUntil?: string;
-    forumTopicId?: number;
+    isObfuscated: boolean;
+  };
+  export type EventAward = {
+    id: number;
+    eventId: number;
+    tierIndex: number;
+    label: string;
+    pointsRequired: number;
+    badgeUrl: string;
+    earnedAt: string | null;
+    badgeCount?: number;
   };
   export type Event = {
     id: number;
+    activeFrom: string | null;
+    activeThrough: string | null;
     legacyGame?: App.Platform.Data.Game;
+    eventAchievements?: Array<App.Platform.Data.EventAchievement>;
+    eventAwards?: Array<App.Platform.Data.EventAward>;
+    state?: App.Platform.Enums.EventState;
+  };
+  export type EventShowPagePropsData = {
+    event: App.Platform.Data.Event;
+    can: App.Data.UserPermissions;
+    playerGame: App.Platform.Data.PlayerGame | null;
+    playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
   };
   export type GameClaimant = {
     user: App.Data.User;
@@ -482,11 +512,15 @@ declare namespace App.Platform.Data {
     pointsWeighted?: number;
     releasedAt?: string | null;
     releasedAtGranularity?: string | null;
+    playersHardcore?: number;
     playersTotal?: number;
     lastUpdated?: string;
     numVisibleLeaderboards?: number;
     numUnresolvedTickets?: number;
     hasActiveOrInReviewClaims?: boolean;
+    imageBoxArtUrl?: string;
+    imageIngameUrl?: string;
+    imageTitleUrl?: string;
     claimants?: Array<App.Platform.Data.GameClaimant>;
   };
   export type GameHash = {
@@ -653,6 +687,12 @@ declare namespace App.Platform.Data {
     pointsHardcore: number | null;
     highestAward?: App.Platform.Data.PlayerBadge | null;
   };
+  export type PlayerGameProgressionAwards = {
+    beatenSoftcore: App.Platform.Data.PlayerBadge | null;
+    beatenHardcore: App.Platform.Data.PlayerBadge | null;
+    completed: App.Platform.Data.PlayerBadge | null;
+    mastered: App.Platform.Data.PlayerBadge | null;
+  };
   export type PlayerResettableGameAchievement = {
     id: number;
     title: string;
@@ -702,6 +742,16 @@ declare namespace App.Platform.Enums {
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
   export type AchievementFlag = 3 | 5;
   export type AchievementSetAuthorTask = 'artwork';
+  export type UnlockMode = 0 | 1;
+  export type AchievementSetType =
+    | 'core'
+    | 'bonus'
+    | 'specialty'
+    | 'exclusive'
+    | 'will_be_bonus'
+    | 'will_be_specialty'
+    | 'will_be_exclusive';
+  export type EventState = 'active' | 'concluded' | 'evergreen';
   export type GameListProgressFilterValue =
     | 'unstarted'
     | 'unfinished'
@@ -714,15 +764,6 @@ declare namespace App.Platform.Enums {
     | 'eq_mastered'
     | 'revised'
     | 'neq_mastered';
-  export type UnlockMode = 0 | 1;
-  export type AchievementSetType =
-    | 'core'
-    | 'bonus'
-    | 'specialty'
-    | 'exclusive'
-    | 'will_be_bonus'
-    | 'will_be_specialty'
-    | 'will_be_exclusive';
   export type GameListSortField =
     | 'title'
     | 'system'

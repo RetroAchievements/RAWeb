@@ -1,7 +1,7 @@
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { Dispatch, SetStateAction } from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { LuCheck, LuChevronsUpDown, LuLoader2, LuSearch } from 'react-icons/lu';
+import { LuCheck, LuChevronsUpDown, LuLoaderCircle, LuSearch } from 'react-icons/lu';
 import { useDebounce } from 'react-use';
 
 import { cn } from '@/common/utils/cn';
@@ -147,7 +147,7 @@ export function BaseSelectAsync<T>({
             />
             {query.isFetching && (
               <div className="absolute right-2 top-1/2 flex -translate-y-1/2 transform items-center">
-                <LuLoader2 className="h-4 w-4 animate-spin" />
+                <LuLoaderCircle className="h-4 w-4 animate-spin" />
               </div>
             )}
           </div>

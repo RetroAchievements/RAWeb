@@ -39,7 +39,6 @@ class CreateAchievementTicketPagePropsData extends Data
 
         return new self(
             achievement: AchievementData::fromAchievement($achievement)->include(
-                'badgeUnlockedUrl',
                 'game',
                 'game.system'
             ),

@@ -99,11 +99,11 @@ describe('Component: AchievementAvatar', () => {
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 
-  it('adds hardcore unlock border styling when showHardcoreUnlockBorder is true', () => {
+  it('adds hardcore unlock border styling when displayLockedStatus is set to "unlocked-hardcore"', () => {
     // ARRANGE
     const achievement = createAchievement();
 
-    render(<AchievementAvatar {...achievement} showHardcoreUnlockBorder={true} />);
+    render(<AchievementAvatar {...achievement} displayLockedStatus="unlocked-hardcore" />);
 
     // ASSERT
     const imgEl = screen.getByRole('img');
@@ -150,12 +150,12 @@ describe('Component: AchievementAvatar', () => {
     expect(screen.getByText(/sublabel content/i)).toBeVisible();
   });
 
-  it('given showHardcoreUnlockBorder is false, applies the correct gap spacing', () => {
+  it('given displayLockedStatus is not "unlocked-hardcore", applies the correct gap spacing', () => {
     // ARRANGE
     const achievement = createAchievement();
 
     // ACT
-    render(<AchievementAvatar {...achievement} showHardcoreUnlockBorder={false} />);
+    render(<AchievementAvatar {...achievement} displayLockedStatus="unlocked" />);
 
     // ASSERT
     const containerEl = screen.getByText(achievement.title).parentElement?.parentElement;
@@ -163,12 +163,12 @@ describe('Component: AchievementAvatar', () => {
     expect(containerEl).not.toHaveClass('gap-2.5');
   });
 
-  it('given showHardcoreUnlockBorder is false, does not apply border styling to the image', () => {
+  it('given displayLockedStatus is not "unlocked-hardcore", does not apply border styling to the image', () => {
     // ARRANGE
     const achievement = createAchievement();
 
     // ACT
-    render(<AchievementAvatar {...achievement} showHardcoreUnlockBorder={false} />);
+    render(<AchievementAvatar {...achievement} displayLockedStatus="unlocked" />);
 
     // ASSERT
     const imgEl = screen.getByRole('img');
@@ -259,5 +259,70 @@ describe('Component: AchievementAvatar', () => {
     const sublabelEl = screen.getByText(/sublabel content/i);
     expect(sublabelEl.parentElement).toHaveClass('flex flex-col');
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('given displayLockedStatus is auto and unlockedHardcoreAt exists, shows hardcore styling', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedHardcoreAt: '2024-02-22T12:00:00Z',
+    });
+
+    // ACT
+    render(<AchievementAvatar {...achievement} displayLockedStatus="auto" />);
+
+    // ASSERT
+    const imgEl = screen.getByRole('img');
+    expect(imgEl).toHaveClass(
+      'rounded-[1px] outline outline-2 outline-offset-1 outline-[gold] light:outline-amber-500',
+    );
+  });
+
+  it('given displayLockedStatus is auto and only unlockedAt exists, does not show hardcore styling', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: '2024-02-22T12:00:00Z',
+      unlockedHardcoreAt: undefined,
+    });
+
+    // ACT
+    render(<AchievementAvatar {...achievement} displayLockedStatus="auto" />);
+
+    // ASSERT
+    const imgEl = screen.getByRole('img');
+    expect(imgEl).not.toHaveClass('outline-2');
+  });
+
+  it('given displayLockedStatus is auto and neither unlock timestamp exists, shows the locked badge', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: undefined,
+      unlockedHardcoreAt: undefined,
+      badgeLockedUrl: 'https://example.com/locked.png',
+      badgeUnlockedUrl: 'https://example.com/unlocked.png',
+    });
+
+    // ACT
+    render(<AchievementAvatar {...achievement} displayLockedStatus="auto" />);
+
+    // ASSERT
+    const imgEl = screen.getByRole('img');
+    expect(imgEl).toHaveAttribute('src', 'https://example.com/locked.png');
+  });
+
+  it('given displayLockedStatus is auto and achievement is unlocked normally, shows the unlocked badge', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: '2024-02-22T12:00:00Z',
+      unlockedHardcoreAt: undefined,
+      badgeLockedUrl: 'https://example.com/locked.png',
+      badgeUnlockedUrl: 'https://example.com/unlocked.png',
+    });
+
+    // ACT
+    render(<AchievementAvatar {...achievement} displayLockedStatus="auto" />);
+
+    // ASSERT
+    const imgEl = screen.getByRole('img');
+    expect(imgEl).toHaveAttribute('src', 'https://example.com/unlocked.png');
   });
 });

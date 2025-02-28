@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { LuAlertCircle } from 'react-icons/lu';
+import { LuCircleAlert } from 'react-icons/lu';
 
 import {
   BaseAlert,
@@ -20,7 +20,7 @@ export const TemplateKindAlert: FC<TemplateKindAlertProps> = ({ templateKind }) 
 
   return (
     <BaseAlert>
-      <LuAlertCircle className="size-5" />
+      <LuCircleAlert className="size-5" />
 
       <BaseAlertTitle>{t('Important')}</BaseAlertTitle>
       <BaseAlertDescription>

@@ -1,6 +1,6 @@
 import { type ComponentProps, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuChevronLeft, LuChevronRight, LuMoreHorizontal } from 'react-icons/lu';
+import { LuChevronLeft, LuChevronRight, LuEllipsis } from 'react-icons/lu';
 
 import { cn } from '@/common/utils/cn';
 
@@ -63,7 +63,7 @@ const BasePaginationPrevious = ({
   ...props
 }: ComponentProps<typeof BasePaginationLink>) => (
   <BasePaginationLink size="default" className={cn('gap-1 pl-2.5', className)} {...props}>
-    <LuChevronLeft className="h-4 w-4" />
+    <LuChevronLeft className="size-4" />
     <span>{props.children ?? 'Previous'}</span>
   </BasePaginationLink>
 );
@@ -72,7 +72,7 @@ BasePaginationPrevious.displayName = 'BasePaginationPrevious';
 const BasePaginationNext = ({ className, ...props }: ComponentProps<typeof BasePaginationLink>) => (
   <BasePaginationLink size="default" className={cn('gap-1 pr-2.5', className)} {...props}>
     <span>{props.children ?? 'Next'}</span>
-    <LuChevronRight className="h-4 w-4" />
+    <LuChevronRight className="size-4" />
   </BasePaginationLink>
 );
 BasePaginationNext.displayName = 'BasePaginationNext';
@@ -86,7 +86,7 @@ const BasePaginationEllipsis = ({ className, ...props }: ComponentProps<'span'>)
       className={cn('flex h-9 w-9 items-center justify-center', className)}
       {...props}
     >
-      <LuMoreHorizontal className="h-4 w-4" />
+      <LuEllipsis className="size-4" />
       <span className="sr-only">{t('More pages')}</span>
     </span>
   );

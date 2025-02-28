@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V1;
 
 use App\Models\Achievement;
+use App\Models\Event;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\StaticData;
@@ -56,6 +57,11 @@ class AchievementOfTheWeekTest extends TestCase
         System::factory()->create(['ID' => System::Events]);
         /** @var Game $eventGame */
         $eventGame = Game::factory()->create(['ConsoleID' => System::Events, 'Title' => 'Achievement of the Week', 'ForumTopicId' => 1]);
+        Event::factory()->create([
+            'legacy_game_id' => $eventGame->id,
+            'active_from' => $now->clone()->subDays(1),
+            'active_until' => $now->clone()->addDays(2),
+        ]);
         /** @var Achievement $eventAchievement1 */
         $eventAchievement1 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
 

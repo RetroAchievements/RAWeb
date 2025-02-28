@@ -1,3 +1,5 @@
+/* eslint-disable testing-library/no-container */
+
 import { render, screen } from '@/test';
 
 import { GameTitle } from './GameTitle';
@@ -67,5 +69,47 @@ describe('Component: GameTitle', () => {
     // ASSERT
     expect(screen.queryByText(/prototype/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/hack/i)).not.toBeInTheDocument();
+  });
+
+  it('renders title as a single text node when isWordWrappingEnabled is false', () => {
+    // ARRANGE
+    const { container } = render(<GameTitle title="Super Mario Bros." />);
+
+    // ASSERT
+    // The title should be directly in the span without word wrapping elements.
+    const mainSpan = container.firstChild;
+    expect(mainSpan?.textContent).toEqual('Super Mario Bros.');
+
+    // Check that there are no inline spans for individual words.
+    const inlineSpans = container.querySelectorAll('.inline');
+    expect(inlineSpans.length).toBe(0);
+  });
+
+  it('splits the title into separate word elements when isWordWrappingEnabled is true', () => {
+    // ARRANGE
+    const { container } = render(
+      <GameTitle title="Super Mario Bros." isWordWrappingEnabled={true} />,
+    );
+
+    // ASSERT
+    // Each word should be in its own inline span.
+    const inlineSpans = container.querySelectorAll('.inline');
+    expect(inlineSpans.length).toEqual(3); // "Super", "Mario", "Bros."
+
+    expect(inlineSpans[0].textContent).toBe('Super');
+    expect(inlineSpans[1].textContent).toBe('Mario');
+    expect(inlineSpans[2].textContent).toBe('Bros.');
+  });
+
+  it('maintains tag rendering when using word wrapping', () => {
+    // ARRANGE
+    render(<GameTitle title="Super Mario Bros. [Subset - Bonus]" isWordWrappingEnabled={true} />);
+
+    // ASSERT
+    const spans = screen.getAllByText(/super|mario|bros/i);
+    expect(spans.length).toEqual(3);
+
+    expect(screen.getByText(/bonus/i)).toBeVisible();
+    expect(screen.getByText(/subset/i)).toBeVisible();
   });
 });
