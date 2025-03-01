@@ -4,6 +4,7 @@ use App\Actions\FindUserByIdentifierAction;
 use App\Community\Enums\ActivityType;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
+use App\Connect\Actions\InjectPatchAotwEventDataAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameAndGameHashAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
@@ -581,6 +582,9 @@ switch ($requestType) {
                 $gameHash,
                 $game,
             );
+
+            // Add Achievement of the Week/Month labels to achievement descriptions.
+            $response = (new InjectPatchAotwEventDataAction())->execute($response);
         } catch (InvalidArgumentException $e) {
             return DoRequestError('Unknown game', 404, 'not_found');
         }
