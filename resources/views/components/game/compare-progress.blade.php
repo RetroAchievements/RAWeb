@@ -14,10 +14,9 @@ use App\Models\UserRelation;
 $followedUserCompletion = null;
 
 if ($user !== null) {
-    // Create a temporary variable to store limited followed users
     $limitedFollowedUsers = UserRelation::query()
         ->join('UserAccounts', 'Friends.related_user_id', '=', 'UserAccounts.ID')
-        ->where('Friends.user_id', '=', $user->ID)
+        ->where('Friends.user_id', '=', $user->id)
         ->where('Friends.Friendship', '=', UserRelationship::Following)
         ->select('UserAccounts.ID')
         ->limit(1000)
@@ -35,7 +34,7 @@ if ($user !== null) {
         'last_played_at',
     ];
 
-    $followedUserCompletion = PlayerGame::where('game_id', $game->ID)
+    $followedUserCompletion = PlayerGame::where('game_id', $game->id)
         ->whereIn('user_id', $limitedFollowedUsers)
         ->where(function ($query) {
             $query->where('achievements_unlocked', '>', 0)
