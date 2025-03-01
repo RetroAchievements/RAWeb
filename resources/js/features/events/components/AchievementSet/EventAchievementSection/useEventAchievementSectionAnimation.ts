@@ -16,6 +16,7 @@ export function useEventAchievementSectionAnimation(options: { isInitiallyOpened
     if (!options.isInitiallyOpened && contentRef.current) {
       contentRef.current.style.height = '0px';
       contentRef.current.style.overflow = 'hidden';
+      contentRef.current.style.opacity = '0';
     }
   }, [options.isInitiallyOpened]);
 
@@ -34,57 +35,89 @@ export function useEventAchievementSectionAnimation(options: { isInitiallyOpened
       return;
     }
 
-    // `if` is the opening animation.
+    const cleanup = () => {
+      if (contentElement) {
+        contentElement.removeEventListener('transitionend', handleTransitionEnd);
+      }
+    };
+
+    // This is a Material Design like easing curve.
+    const emphasizedEasing = 'cubic-bezier(0.2, 0, 0, 1)';
+
+    // The duration is slightly elongated from Tailwind's default (200ms).
+    // This helps the animation feel a bit more "deliberate".
+    const duration = 350;
+
+    const handleTransitionEnd = (event: TransitionEvent) => {
+      // Only handle the height transition completion.
+      if (event.propertyName !== 'height' || event.target !== contentElement) {
+        return;
+      }
+
+      if (isOpen) {
+        // After the height transition completes, add a small buffer and
+        // set overflow to visible to prevent content truncation. If we don't do
+        // this, there will be an undesirable "pop" effect at the end of the animation.
+        const currentHeight = parseFloat(contentElement.style.height);
+        const newHeight = Math.ceil(currentHeight + 4); // add some px buffer
+
+        contentElement.style.height = `${newHeight}px`;
+        contentElement.style.overflow = 'visible';
+      }
+
+      cleanup();
+    };
+
     if (isOpen) {
-      const height = childContainer.offsetHeight;
-
-      // Set initial state.
+      // Start from zero height.
       contentElement.style.height = '0px';
       contentElement.style.overflow = 'hidden';
+      contentElement.style.opacity = '0';
 
-      // Force the browser to acknowledge the initial state.
+      // Force the browser to acknowledge this.
       void contentElement.offsetHeight;
 
-      // Add the transition.
-      contentElement.style.transition = 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+      // Add transitions for height and opacity with coordinated timing.
+      contentElement.style.transition = `
+        height ${duration}ms ${emphasizedEasing}, 
+        opacity ${Math.round(duration * 0.75)}ms ${emphasizedEasing}
+      `;
 
-      // Set the target height.
-      contentElement.style.height = `${height}px`;
+      // Calculate our target (destination) height.
+      const targetHeight = childContainer.scrollHeight;
 
-      // Remove style constraints after animation completes.
-      const onTransitionEnd = () => {
-        contentElement.style.height = '';
-        contentElement.style.overflow = '';
-        contentElement.style.transition = '';
-        contentElement.removeEventListener('transitionend', onTransitionEnd);
-      };
+      // Apply the opacity change immediately.
+      contentElement.style.opacity = '1';
 
-      contentElement.addEventListener('transitionend', onTransitionEnd);
-    }
-    // `else` is the closing animation.
-    else {
-      // Set the initial state with current height.
-      const height = childContainer.offsetHeight;
-      contentElement.style.height = `${height}px`;
+      // Apply our height change with a tiny delay for a more natural/staggered sequence.
+      setTimeout(() => {
+        contentElement.style.height = `${targetHeight}px`;
+      }, 10);
+
+      contentElement.addEventListener('transitionend', handleTransitionEnd);
+    } else {
+      // Start from the current height.
+      const currentHeight = childContainer.scrollHeight;
+      contentElement.style.height = `${currentHeight}px`;
       contentElement.style.overflow = 'hidden';
+      contentElement.style.opacity = '1';
 
-      // Force the browser to acknowledge the initial state.
+      // Force the browser to acknowledge this.
       void contentElement.offsetHeight;
 
-      // Add the transition.
-      contentElement.style.transition = 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+      // Add transitions for height and opacity with coordinated timing.
+      contentElement.style.transition = `
+        height ${duration}ms ${emphasizedEasing}, 
+        opacity ${Math.round(duration * 0.6)}ms ${emphasizedEasing}
+      `;
 
-      // Set the target height to 0.
       contentElement.style.height = '0px';
+      contentElement.style.opacity = '0';
 
-      // Keep style constraints after animation.
-      const onTransitionEnd = () => {
-        contentElement.style.transition = '';
-        contentElement.removeEventListener('transitionend', onTransitionEnd);
-      };
-
-      contentElement.addEventListener('transitionend', onTransitionEnd);
+      contentElement.addEventListener('transitionend', handleTransitionEnd);
     }
+
+    return cleanup;
   }, [isOpen]);
 
   return {
