@@ -51,11 +51,13 @@ class Hashes extends ManageRelatedRecords
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('File Name'),
+                    ->label('File Name')
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('md5')
                     ->label('MD5')
-                    ->fontFamily(FontFamily::Mono),
+                    ->fontFamily(FontFamily::Mono)
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('labels')
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -68,6 +70,7 @@ class Hashes extends ManageRelatedRecords
                     ->label('Resource Page URL')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('name')
             ->filters([
 
             ])
