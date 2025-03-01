@@ -142,6 +142,21 @@ class EventAchievement extends BaseModel
      * @param Builder<EventAchievement> $query
      * @return Builder<EventAchievement>
      */
+    public function scopeCurrentAchievementOfTheMonth(Builder $query): Builder
+    {
+        return $query->active()
+            ->whereHas('achievement.game', function ($query) { // only from the current AotW event
+                $query->where('Title', 'like', '%of the week%');
+            })
+            ->whereNotNull('active_from')
+            ->whereNotNull('active_until')
+            ->whereRaw(dateCompareStatement('active_until', 'active_from', '> 20')); // ignore AotW achievements.
+    }
+
+    /**
+     * @param Builder<EventAchievement> $query
+     * @return Builder<EventAchievement>
+     */
     public function scopeActive(Builder $query, ?Carbon $timestamp = null): Builder
     {
         $timestamp ??= Carbon::now();
