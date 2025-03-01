@@ -10,6 +10,7 @@ use App\Models\Event;
 use App\Models\User;
 use App\Platform\Data\EventData;
 use App\Platform\Data\EventShowPagePropsData;
+use App\Platform\Data\GameSetData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
 use Illuminate\Http\Request;
@@ -89,6 +90,7 @@ class EventController extends Controller
                 'legacyGame',
                 'state',
             ),
+            hubs: $event->legacyGame->hubs->map(fn ($hub) => GameSetData::from($hub))->all(),
             playerGame: $playerGame ? PlayerGameData::fromPlayerGame($playerGame) : null,
             playerGameProgressionAwards: $user
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($event->legacyGame->id, $user))

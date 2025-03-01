@@ -49,4 +49,21 @@ describe('Component: ShortcodeHub', () => {
     expect(screen.getByText(/central/i)).toBeVisible();
     expect(screen.getByRole('link')).toBeVisible();
   });
+
+  it('links to the correct page', () => {
+    // ARRANGE
+    const hub = createGameSet({ id: 1, title: '[Central]' });
+
+    render(<ShortcodeHub hubId={1} />, {
+      jotaiAtoms: [
+        [persistedHubsAtom, [hub]],
+        //
+      ],
+    });
+
+    // ASSERT
+    const linkEl = screen.getByRole('link');
+    expect(linkEl).toBeVisible();
+    expect(linkEl).toHaveAttribute('href', expect.stringContaining('hub.show'));
+  });
 });
