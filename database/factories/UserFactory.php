@@ -46,6 +46,7 @@ class UserFactory extends Factory
             'UserWallActive' => 1,
             'muted_until' => null,
             'visible_role_id' => null,
+            'websitePrefs' => 0,
 
             // nullable
             'APIKey' => 'apiKey',
