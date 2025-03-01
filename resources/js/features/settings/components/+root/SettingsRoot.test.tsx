@@ -8,6 +8,9 @@ import { createUser } from '@/test/factories';
 
 import { SettingsRoot } from './SettingsRoot';
 
+// Suppress setState() warnings that only happen in JSDOM.
+console.error = vi.fn();
+
 describe('Component: SettingsRoot', () => {
   afterEach(() => {
     resetIntersectionMocking();
