@@ -30,7 +30,7 @@ describe('Component: CreateMessageThreadForm', () => {
     // ARRANGE
     const mockUser = createUser({
       id: 1,
-      displayName: faker.internet.userName().slice(0, 20),
+      displayName: faker.internet.username().slice(0, 20),
       avatarUrl: faker.image.avatar(),
     });
 
@@ -89,7 +89,7 @@ describe('Component: CreateMessageThreadForm', () => {
     // ARRANGE
     const mockUser = createUser({
       id: 1,
-      displayName: faker.internet.userName().slice(0, 20),
+      displayName: faker.internet.username().slice(0, 20),
       avatarUrl: faker.image.avatar(),
     });
 
@@ -137,7 +137,7 @@ describe('Component: CreateMessageThreadForm', () => {
     // ARRANGE
     const mockUser = createUser({
       id: 1,
-      displayName: faker.internet.userName().slice(0, 20),
+      displayName: faker.internet.username().slice(0, 20),
       avatarUrl: faker.image.avatar(),
     });
 
@@ -204,7 +204,7 @@ describe('Component: CreateMessageThreadForm', () => {
     // ARRANGE
     const mockUser = createUser({
       id: 1,
-      displayName: faker.internet.userName().slice(0, 20),
+      displayName: faker.internet.username().slice(0, 20),
       avatarUrl: faker.image.avatar(),
     });
 
@@ -239,7 +239,7 @@ describe('Component: CreateMessageThreadForm', () => {
     // ARRANGE
     const mockUser = createUser({
       id: 1,
-      displayName: faker.internet.userName().slice(0, 20),
+      displayName: faker.internet.username().slice(0, 20),
       avatarUrl: faker.image.avatar(),
     });
 

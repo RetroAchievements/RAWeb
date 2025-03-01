@@ -68,7 +68,6 @@ class BuildPlayerGameActivityDataAction
                     ]);
 
                     $event['achievement'] = AchievementData::fromAchievement($achievement)->include(
-                        'badgeUnlockedUrl',
                         'flags',
                         'points',
                     );

@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuAlertCircle } from 'react-icons/lu';
+import { LuCircleAlert } from 'react-icons/lu';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
@@ -52,7 +52,7 @@ export const ManageConnectApiKey: FC = () => {
             variant="destructive"
             onClick={handleResetApiKeyClick}
           >
-            <LuAlertCircle className="h-4 w-4" />
+            <LuCircleAlert className="h-4 w-4" />
             {t('Reset Connect API Key')}
           </BaseButton>
         </div>

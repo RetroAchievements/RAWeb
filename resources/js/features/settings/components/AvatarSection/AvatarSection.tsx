@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuAlertCircle } from 'react-icons/lu';
+import { LuCircleAlert } from 'react-icons/lu';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { baseCardTitleClassNames } from '@/common/components/+vendor/BaseCard';
@@ -111,7 +111,7 @@ export const AvatarSection: FC = () => {
             variant="destructive"
             onClick={handleResetAvatarClick}
           >
-            <LuAlertCircle className="h-4 w-4" />
+            <LuCircleAlert className="h-4 w-4" />
             {t('Reset Avatar to Default')}
           </BaseButton>
         </>

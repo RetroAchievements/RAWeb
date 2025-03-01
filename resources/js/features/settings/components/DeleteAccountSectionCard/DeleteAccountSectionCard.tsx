@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuAlertCircle } from 'react-icons/lu';
+import { LuCircleAlert } from 'react-icons/lu';
 
 import {
   BaseAlert,
@@ -67,7 +67,7 @@ export const DeleteAccountSectionCard: FC = () => {
       <div className="flex flex-col gap-4">
         {isDeleteAlreadyRequested ? (
           <BaseAlert variant="destructive">
-            <LuAlertCircle className="size-5" />
+            <LuCircleAlert className="size-5" />
             <BaseAlertTitle>{t("You've requested account deletion.")}</BaseAlertTitle>
             <BaseAlertDescription>
               {t('Your account will be permanently deleted on {{date}}', {
