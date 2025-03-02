@@ -1,6 +1,8 @@
 <?php
+use App\Community\Enums\UserRelationship;
 use App\Models\PlayerGame;
 use App\Models\User;
+use App\Models\UserRelation;
 ?>
 
 @props([
@@ -9,10 +11,18 @@ use App\Models\User;
 ])
 
 <?php
-$followedUserIds = $user->followedUsers()->select(['UserAccounts.ID', 'UserAccounts.User'])->pluck('ID');
-
 $followedUserCompletion = null;
-if (!empty($followedUserIds)) {
+
+if ($user !== null) {
+    $limitedFollowedUsers = UserRelation::query()
+        ->join('UserAccounts', 'Friends.related_user_id', '=', 'UserAccounts.ID')
+        ->where('Friends.user_id', '=', $user->id)
+        ->where('Friends.Friendship', '=', UserRelationship::Following)
+        ->select('UserAccounts.ID')
+        ->orderBy('LastLogin', 'DESC')
+        ->pluck('ID')
+        ->toArray();
+
     $fields = [
         'user_id',
         'achievements_unlocked',
@@ -24,8 +34,8 @@ if (!empty($followedUserIds)) {
         'last_played_at',
     ];
 
-    $followedUserCompletion = PlayerGame::where('game_id', $game->ID)
-        ->whereIn('user_id', $followedUserIds)
+    $followedUserCompletion = PlayerGame::where('game_id', $game->id)
+        ->whereIn('user_id', $limitedFollowedUsers)
         ->where(function ($query) {
             $query->where('achievements_unlocked', '>', 0)
                 ->orWhere('achievements_unlocked_hardcore', '>', 0);
@@ -33,8 +43,13 @@ if (!empty($followedUserIds)) {
         ->select($fields)
         ->orderBy('achievements_unlocked_hardcore', 'DESC')
         ->orderBy('achievements_unlocked', 'DESC')
+        ->orderBy('last_unlock_at')
+        ->limit(50)
         ->get()
         ->toArray();
+
+    $userIds = array_column($followedUserCompletion, 'user_id');
+    $friends = User::whereIn('ID', $userIds)->get()->keyBy('ID');
 }
 
 $placeholderUser = new User();
@@ -96,7 +111,7 @@ function selectSearchBoxUser() {
             <div class="">
                 @foreach ($followedUserCompletion as $completion)
                     @php
-                        $friend = User::find($completion['user_id']);
+                        $friend = $friends[$completion['user_id']];
                     @endphp
                     <div class="odd:bg-embed hover:bg-embed-highlight border border-transparent hover:border-[rgba(128,128,128,.3)] p-1 flex items-center justify-between w-full">
                         <div>
