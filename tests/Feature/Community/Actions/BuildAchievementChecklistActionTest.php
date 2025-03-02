@@ -243,6 +243,11 @@ class BuildAchievementChecklistActionTest extends TestCase
                 'id' => $achievement->game->id,
                 'title' => $achievement->game->title,
                 'badgeUrl' => $achievement->game->badgeUrl,
+                'system' => [
+                    'id' => $achievement->game->system->id,
+                    'name' => $achievement->game->system->name,
+                    'nameShort' => $achievement->game->system->name_short,
+                ],
             ],
         ];
     }

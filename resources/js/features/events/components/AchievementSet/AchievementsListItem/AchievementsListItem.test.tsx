@@ -130,6 +130,31 @@ describe('Component: AchievementsListItem', () => {
     expect(hardcoreUnlocks).toHaveClass('font-bold');
   });
 
+  it('given null total players, does not display progress', () => {
+    // ARRANGE
+    render(
+      <AchievementsListItem
+        achievement={createAchievement({
+          title: 'Test Achievement',
+          description: 'Test Description',
+          unlocksTotal: 100,
+          unlocksHardcoreTotal: 50,
+          unlockHardcorePercentage: 10,
+        })}
+        index={0}
+        isLargeList={false}
+        playersTotal={null}
+      />,
+    );
+
+    // ASSERT
+    const totalUnlocks = screen.queryByText(/total unlocks/i);
+    const hardcoreUnlocks = screen.queryByText(/hardcore unlocks/i);
+
+    expect(totalUnlocks).not.toBeInTheDocument();
+    expect(hardcoreUnlocks).not.toBeInTheDocument();
+  });
+
   it('given an achievement with null unlock stats, uses default values of 0', () => {
     // ARRANGE
     render(
