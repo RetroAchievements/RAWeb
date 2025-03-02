@@ -15,6 +15,7 @@ type GameAvatarProps = BaseAvatarProps &
     decoding?: ImgHTMLAttributes<HTMLImageElement>['decoding'];
     dynamicTooltipType?: 'game' | 'hub';
     gameTitleClassName?: string;
+    href?: string;
     loading?: ImgHTMLAttributes<HTMLImageElement>['loading'];
     shouldGlow?: boolean;
     showHoverCardProgressForUsername?: string;
@@ -27,6 +28,7 @@ type GameAvatarProps = BaseAvatarProps &
 export const GameAvatar: FC<GameAvatarProps> = ({
   badgeUrl,
   gameTitleClassName,
+  href,
   id,
   showHoverCardProgressForUsername,
   system,
@@ -57,9 +59,11 @@ export const GameAvatar: FC<GameAvatarProps> = ({
 
   const gameTitle = showSystemInTitle ? `${title} (${system?.name})` : title;
 
+  const usedHref = href ?? route('game.show', { game: id });
+
   return (
     <Wrapper
-      href={shouldLink ? route('game.show', { game: id }) : undefined}
+      href={shouldLink ? usedHref : undefined}
       className={cn(
         variant === 'base' ? 'flex max-w-fit items-center gap-2' : null,
         variant === 'inline' ? 'ml-0.5 mt-0.5 inline-block min-h-7 gap-2' : null,

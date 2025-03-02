@@ -29,6 +29,7 @@ export const ShortcodeHub: FC<ShortcodeHubProps> = ({ hubId }) => {
         badgeUrl={foundHub.badgeUrl!}
         size={24}
         variant="inline"
+        href={route('hub.show', { gameSet: foundHub })}
       />
     </span>
   );
