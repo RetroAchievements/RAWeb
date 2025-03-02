@@ -59,7 +59,7 @@ class BuildAchievementChecklistAction
         }
         $ids = array_unique($ids);
 
-        $achievements = Achievement::whereIn('ID', $ids)->with('game')->get();
+        $achievements = Achievement::whereIn('ID', $ids)->with('game.system')->get();
         $unlocks = PlayerAchievement::where('user_id', $user->id)->whereIn('achievement_id', $ids)->get();
 
         $result = [];
@@ -75,6 +75,7 @@ class BuildAchievementChecklistAction
                         'unlockedAt',
                         'unlockedHardcoreAt',
                         'game.badgeUrl',
+                        'game.system.nameShort',
                     );
                 }
             }

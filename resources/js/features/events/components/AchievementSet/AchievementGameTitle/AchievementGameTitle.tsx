@@ -19,7 +19,7 @@ export const AchievementGameTitle: FC<AchievementGameTitleProps> = ({ game }) =>
 
   return (
     <a href={route('game.show', { game })} {...cardTooltipProps}>
-      <GameTitle title={game.title} isWordWrappingEnabled={true} /> {`(${game.system!.nameShort})`}
+      <GameTitle title={game.title} isWordWrappingEnabled={true} /> {`(${game.system?.nameShort})`}
     </a>
   );
 };
