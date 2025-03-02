@@ -19,7 +19,7 @@ if ($user !== null) {
         ->where('Friends.user_id', '=', $user->id)
         ->where('Friends.Friendship', '=', UserRelationship::Following)
         ->select('UserAccounts.ID')
-        ->limit(1000)
+        ->orderBy('LastLogin')
         ->pluck('ID')
         ->toArray();
 
@@ -43,6 +43,7 @@ if ($user !== null) {
         ->select($fields)
         ->orderBy('achievements_unlocked_hardcore', 'DESC')
         ->orderBy('achievements_unlocked', 'DESC')
+        ->orderBy('last_unlock_at', 'DESC')
         ->limit(50)
         ->get()
         ->toArray();
