@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { LuAlertCircle } from 'react-icons/lu';
+import { LuCircleAlert } from 'react-icons/lu';
 
 import {
   BaseAlert,
@@ -14,7 +14,7 @@ export const NewUserCta: FC = () => {
 
   return (
     <BaseAlert variant="notice" className="bg-embed light:bg-neutral-50">
-      <LuAlertCircle className="size-5" />
+      <LuCircleAlert className="size-5" />
       <BaseAlertTitle className="mb-3 text-xl font-semibold leading-4">
         {t('Getting Started')}
       </BaseAlertTitle>

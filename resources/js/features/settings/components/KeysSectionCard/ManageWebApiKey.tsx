@@ -3,7 +3,7 @@ import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import { type FC, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { LuAlertCircle, LuCopy } from 'react-icons/lu';
+import { LuCircleAlert, LuCopy } from 'react-icons/lu';
 import { useCopyToClipboard, useMedia } from 'react-use';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -109,7 +109,7 @@ export const ManageWebApiKey: FC = () => {
             variant="destructive"
             onClick={handleResetApiKeyClick}
           >
-            <LuAlertCircle className="h-4 w-4" />
+            <LuCircleAlert className="h-4 w-4" />
             {t('Reset Web API Key')}
           </BaseButton>
         </div>

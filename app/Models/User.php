@@ -32,7 +32,6 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -51,7 +50,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     use HasFactory;
     use Notifiable;
 
-    use Searchable;
     use SoftDeletes;
 
     /*
@@ -445,7 +443,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
        return $this->username ?? null;
     }
 
-    public function getUsernameAttribute(): string
+    public function getUsernameAttribute(): ?string
     {
         return $this->getAttribute('User');
     }
@@ -600,5 +598,57 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     public function scopeTracked(Builder $query): Builder
     {
         return $query->where('Untracked', false); // TODO: use unranked_at=NULL?
+    }
+
+    /**
+     * @param Builder<User> $query
+     * @return Builder<User>
+     */
+    public function scopeSearch(Builder $query, string $keyword): Builder
+    {
+        // Just return the base query if the keyword is empty.
+        if (empty($keyword)) {
+            return $query->whereNotNull('email_verified_at')
+                ->whereNull('Deleted')
+                ->whereNull('banned_at');
+        }
+
+        $keyword = trim($keyword);
+
+        /**
+         * Search users and rank results by:
+         * 1. Exact display_name match (100 points).
+         * 2. display_name prefix match (90 points).
+         * 3. display_name contains match (80 points).
+         * 4. Exact username match (70 points).
+         * 5. username contains match (60 points).
+         *
+         * Finally, sort equally-ranked results by last login date.
+         */
+        return $query->whereNotNull('email_verified_at')
+            ->whereNull('Deleted')
+            ->whereNull('banned_at')
+            ->where(function ($query) use ($keyword) {
+                $query->where('display_name', 'LIKE', '%' . $keyword . '%')
+                      ->orWhere('User', 'LIKE', '%' . $keyword . '%');
+            })
+            ->orderByRaw("
+                CASE 
+                    WHEN display_name = ? THEN 100
+                    WHEN display_name LIKE ? THEN 90
+                    WHEN display_name LIKE ? THEN 80
+                    WHEN User = ? THEN 70
+                    WHEN User LIKE ? THEN 60
+                END DESC",
+                [
+                    $keyword,
+                    $keyword . '%',
+                    '%' . $keyword . '%',
+                    $keyword,
+                    '%' . $keyword . '%',
+                ]
+            )
+            ->orderBy('LastLogin', 'desc')
+            ->limit(10);
     }
 }

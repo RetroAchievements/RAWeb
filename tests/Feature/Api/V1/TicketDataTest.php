@@ -45,6 +45,7 @@ class TicketDataTest extends TestCase
                 'Points' => $achievement->Points,
                 'BadgeName' => $achievement->BadgeName,
                 'AchievementAuthor' => $achievement->developer->User,
+                'AchievementAuthorULID' => $achievement->developer->ulid,
                 'GameID' => $game->ID,
                 'GameTitle' => $game->Title,
                 'GameIcon' => $game->ImageIcon,
@@ -57,8 +58,10 @@ class TicketDataTest extends TestCase
                 'Hardcore' => 1,
                 'ReportNotes' => $ticket->ReportNotes,
                 'ReportedBy' => $this->user->User,
+                'ReportedByULID' => $this->user->ulid,
                 'ResolvedAt' => null,
                 'ResolvedBy' => null,
+                'ResolvedByULID' => null,
                 'URL' => config('app.url') . '/ticket/' . $ticket->ID,
             ]);
     }
@@ -115,6 +118,7 @@ class TicketDataTest extends TestCase
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
                         'AchievementAuthor' => $achievement2->developer->User,
+                        'AchievementAuthorULID' => $achievement2->developer->ulid,
                         'GameID' => $game2->ID,
                         'GameTitle' => $game2->Title,
                         'GameIcon' => $game2->ImageIcon,
@@ -127,8 +131,10 @@ class TicketDataTest extends TestCase
                         'Hardcore' => 0,
                         'ReportNotes' => $ticket2->ReportNotes,
                         'ReportedBy' => $user2->User,
+                        'ReportedByULID' => $user2->ulid,
                         'ResolvedAt' => null,
                         'ResolvedBy' => null,
+                        'ResolvedByULID' => null,
                     ],
                     [
                         'ID' => $ticket->ID,
@@ -138,6 +144,7 @@ class TicketDataTest extends TestCase
                         'Points' => $achievement->Points,
                         'BadgeName' => $achievement->BadgeName,
                         'AchievementAuthor' => $achievement->developer->User,
+                        'AchievementAuthorULID' => $achievement->developer->ulid,
                         'GameID' => $game->ID,
                         'GameTitle' => $game->Title,
                         'GameIcon' => $game->ImageIcon,
@@ -150,8 +157,10 @@ class TicketDataTest extends TestCase
                         'Hardcore' => 1,
                         'ReportNotes' => $ticket->ReportNotes,
                         'ReportedBy' => $this->user->User,
+                        'ReportedByULID' => $this->user->ulid,
                         'ResolvedAt' => null,
                         'ResolvedBy' => null,
+                        'ResolvedByULID' => null,
                     ],
                 ],
                 'OpenTickets' => 2,
@@ -225,7 +234,7 @@ class TicketDataTest extends TestCase
             ]);
     }
 
-    public function testGetTicketDataForUser(): void
+    public function testGetTicketDataForUserByName(): void
     {
         /** @var System $system */
         $system = System::factory()->create();
@@ -268,10 +277,67 @@ class TicketDataTest extends TestCase
             'ticketable_author_id' => $achievement3->user_id,
         ]);
 
-        $this->get($this->apiUrl('GetTicketData', ['u' => $this->user->User]))
+        $this->get($this->apiUrl('GetTicketData', ['u' => $this->user->User])) // !!
             ->assertSuccessful()
             ->assertJson([
                 'User' => $this->user->User,
+                'ULID' => $this->user->ulid,
+                'Open' => 2,
+                'Closed' => 0,
+                'Resolved' => 1,
+                'Total' => 3,
+                'URL' => config('app.url') . '/user/' . $this->user->User . '/tickets',
+            ]);
+    }
+
+    public function testGetTicketDataForUserByUlid(): void
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $this->user->id]);
+        /** @var Ticket $ticket */
+        $ticket = Ticket::factory()->create([
+            'AchievementID' => $achievement->ID,
+            'reporter_id' => $this->user->ID,
+            'ticketable_author_id' => $achievement->user_id,
+        ]);
+        /** @var User $user2 */
+        $user2 = User::factory()->create();
+        /** @var Game $game2 */
+        $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var Achievement $achievement2 */
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'user_id' => $this->user->id]);
+        /** @var Ticket $ticket2 */
+        $ticket2 = Ticket::factory()->create([
+            'AchievementID' => $achievement2->ID,
+            'reporter_id' => $user2->ID,
+            'Hardcore' => 0,
+            'ReportType' => TicketType::TriggeredAtWrongTime,
+            'ticketable_author_id' => $achievement2->user_id,
+        ]);
+        /** @var User $user3 */
+        $user3 = User::factory()->create();
+        /** @var Game $game3 */
+        $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var Achievement $achievement3 */
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game3->ID, 'user_id' => $this->user->id]);
+        Ticket::factory()->create([
+            'AchievementID' => $achievement3->ID,
+            'reporter_id' => $user2->ID,
+            'ReportState' => TicketState::Resolved,
+            'resolver_id' => $user3->ID,
+            'ResolvedAt' => Carbon::now(),
+            'ticketable_author_id' => $achievement3->user_id,
+        ]);
+
+        $this->get($this->apiUrl('GetTicketData', ['u' => $this->user->ulid])) // !!
+            ->assertSuccessful()
+            ->assertJson([
+                'User' => $this->user->User,
+                'ULID' => $this->user->ulid,
                 'Open' => 2,
                 'Closed' => 0,
                 'Resolved' => 1,
@@ -326,6 +392,7 @@ class TicketDataTest extends TestCase
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
                         'AchievementAuthor' => $achievement2->developer->User,
+                        'AchievementAuthorULID' => $achievement2->developer->ulid,
                         'GameID' => $game->ID,
                         'GameTitle' => $game->Title,
                         'GameIcon' => $game->ImageIcon,
@@ -338,8 +405,10 @@ class TicketDataTest extends TestCase
                         'Hardcore' => 0,
                         'ReportNotes' => $ticket2->ReportNotes,
                         'ReportedBy' => $this->user->User,
+                        'ReportedByULID' => $this->user->ulid,
                         'ResolvedAt' => null,
                         'ResolvedBy' => null,
+                        'ResolvedByULID' => null,
                     ],
                     [
                         'ID' => $ticket->ID,
@@ -349,6 +418,7 @@ class TicketDataTest extends TestCase
                         'Points' => $achievement1->Points,
                         'BadgeName' => $achievement1->BadgeName,
                         'AchievementAuthor' => $achievement1->developer->User,
+                        'AchievementAuthorULID' => $achievement1->developer->ulid,
                         'GameID' => $game->ID,
                         'GameTitle' => $game->Title,
                         'GameIcon' => $game->ImageIcon,
@@ -361,8 +431,10 @@ class TicketDataTest extends TestCase
                         'Hardcore' => 1,
                         'ReportNotes' => $ticket->ReportNotes,
                         'ReportedBy' => $this->user->User,
+                        'ReportedByULID' => $this->user->ulid,
                         'ResolvedAt' => null,
                         'ResolvedBy' => null,
+                        'ResolvedByULID' => null,
                     ],
                 ],
                 'URL' => config('app.url') . '/game/' . $game->ID . '/tickets',

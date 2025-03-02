@@ -4,27 +4,26 @@ import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 import type { BaseAvatarProps } from '@/common/models';
 import { cn } from '@/common/utils/cn';
 
-// TODO come up with some way to determine if the locked or unlocked badge should be shown
-// this can be driven off `unlockedAt` or `unlockedHardcoreAt` from the `Achievement` model,
-// but there may be cases we want to always show locked or always show unlocked.
-// maybe an enum prop like `displayLockedStatus: 'always-locked' | 'always-unlocked' | 'auto'.
 type AchievementAvatarProps = BaseAvatarProps &
   App.Platform.Data.Achievement & {
-    showHardcoreUnlockBorder?: boolean;
+    displayLockedStatus?: 'auto' | 'locked' | 'unlocked' | 'unlocked-hardcore';
     showPointsInTitle?: boolean;
     sublabelSlot?: ReactNode;
     variant?: 'base' | 'inline';
   };
 
 export const AchievementAvatar: FC<AchievementAvatarProps> = ({
-  badgeUnlockedUrl, // see TODO above
+  badgeLockedUrl,
+  badgeUnlockedUrl,
   id,
   imgClassName,
   points,
   sublabelSlot,
   title,
+  unlockedAt,
+  unlockedHardcoreAt,
+  displayLockedStatus = 'unlocked',
   hasTooltip = true,
-  showHardcoreUnlockBorder = true,
   showImage = true,
   showLabel = true,
   showPointsInTitle = false,
@@ -37,6 +36,13 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
   if (showPointsInTitle) {
     titleLabel = `${title} (${points ?? 0})`;
   }
+
+  const derivedDisplayLockedStatus =
+    displayLockedStatus === 'auto'
+      ? getAutoLockStatus(unlockedHardcoreAt, unlockedAt)
+      : displayLockedStatus;
+
+  const badgeUrl = derivedDisplayLockedStatus === 'locked' ? badgeLockedUrl : badgeUnlockedUrl;
 
   const achievementLink = (children: React.ReactNode) => (
     <a
@@ -51,10 +57,10 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
   if (!showLabel && showImage && badgeUnlockedUrl) {
     return achievementLink(
       <AchievementBadge
-        badgeUrl={badgeUnlockedUrl}
+        badgeUrl={badgeUrl}
         title={title}
         size={size}
-        showHardcoreUnlockBorder={showHardcoreUnlockBorder}
+        displayLockedStatus={derivedDisplayLockedStatus}
         variant={variant}
         imgClassName={imgClassName}
       />,
@@ -68,15 +74,15 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
         variant === 'base' ? 'flex max-w-fit items-center' : null,
         variant === 'inline' ? 'inline-block min-h-[26px]' : null,
 
-        showHardcoreUnlockBorder ? 'gap-2.5' : 'gap-2',
+        derivedDisplayLockedStatus === 'unlocked-hardcore' ? 'gap-2.5' : 'gap-2',
       )}
     >
-      {showImage && badgeUnlockedUrl ? (
+      {showImage && badgeUrl ? (
         <AchievementBadge
-          badgeUrl={badgeUnlockedUrl}
+          badgeUrl={badgeUrl}
           title={title}
           size={size}
-          showHardcoreUnlockBorder={showHardcoreUnlockBorder}
+          displayLockedStatus={derivedDisplayLockedStatus}
           variant={variant}
           imgClassName={imgClassName}
         />
@@ -96,15 +102,16 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
 
 type AchievementBadgeProps = Partial<AchievementAvatarProps> & {
   badgeUrl: string;
+  displayLockedStatus: 'locked' | 'unlocked' | 'unlocked-hardcore';
 };
 
 const AchievementBadge: FC<AchievementBadgeProps> = ({
   badgeUrl,
-  title,
-  size,
-  showHardcoreUnlockBorder,
-  variant,
+  displayLockedStatus,
   imgClassName,
+  size,
+  title,
+  variant,
 }) => {
   return (
     <img
@@ -117,7 +124,7 @@ const AchievementBadge: FC<AchievementBadgeProps> = ({
       className={cn(
         'rounded-sm',
 
-        showHardcoreUnlockBorder
+        displayLockedStatus === 'unlocked-hardcore'
           ? 'rounded-[1px] outline outline-2 outline-offset-1 outline-[gold] light:outline-amber-500'
           : null,
 
@@ -128,3 +135,18 @@ const AchievementBadge: FC<AchievementBadgeProps> = ({
     />
   );
 };
+
+function getAutoLockStatus(
+  unlockedHardcoreAt?: string,
+  unlockedAt?: string,
+): 'locked' | 'unlocked' | 'unlocked-hardcore' {
+  if (unlockedHardcoreAt) {
+    return 'unlocked-hardcore';
+  }
+
+  if (unlockedAt) {
+    return 'unlocked';
+  }
+
+  return 'locked';
+}

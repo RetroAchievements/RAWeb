@@ -30,7 +30,7 @@ export const UnlockEventContent: FC<UnlockEventContentProps> = ({
     <AchievementAvatar
       {...achievement}
       imgClassName={cn(isOfficialAchievement ? null : 'grayscale')}
-      showHardcoreUnlockBorder={!!sessionEvent.hardcore}
+      displayLockedStatus={sessionEvent.hardcore ? 'unlocked-hardcore' : 'locked'}
       showPointsInTitle={true}
       size={32}
       sublabelSlot={

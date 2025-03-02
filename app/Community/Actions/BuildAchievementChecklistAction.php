@@ -72,8 +72,6 @@ class BuildAchievementChecklistAction
                     $achievementList[] = AchievementData::from($achievement, $unlock)->include(
                         'description',
                         'points',
-                        'badgeUnlockedUrl',
-                        'badgeLockedUrl',
                         'unlockedAt',
                         'unlockedHardcoreAt',
                         'game.badgeUrl',

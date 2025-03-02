@@ -44,16 +44,16 @@ class TopTenUsersTest extends TestCase
         $this->get($this->apiUrl('GetTopTenUsers'))
             ->assertSuccessful()
             ->assertJson([
-                ['1' => $user6->User, '2' => $user6->RAPoints, '3' => $user6->TrueRAPoints],
-                ['1' => $user11->User, '2' => $user11->RAPoints, '3' => $user11->TrueRAPoints],
-                ['1' => $user12->User, '2' => $user12->RAPoints, '3' => $user12->TrueRAPoints],
-                ['1' => $user7->User, '2' => $user7->RAPoints, '3' => $user7->TrueRAPoints],
-                ['1' => $user10->User, '2' => $user10->RAPoints, '3' => $user10->TrueRAPoints],
-                ['1' => $user8->User, '2' => $user8->RAPoints, '3' => $user8->TrueRAPoints],
-                ['1' => $user1->User, '2' => $user1->RAPoints, '3' => $user1->TrueRAPoints],
-                ['1' => $user3->User, '2' => $user3->RAPoints, '3' => $user3->TrueRAPoints],
-                ['1' => $user2->User, '2' => $user2->RAPoints, '3' => $user2->TrueRAPoints],
-                ['1' => $user9->User, '2' => $user9->RAPoints, '3' => $user9->TrueRAPoints],
+                ['1' => $user6->User, '2' => $user6->RAPoints, '3' => $user6->TrueRAPoints, '4' => $user6->ulid],
+                ['1' => $user11->User, '2' => $user11->RAPoints, '3' => $user11->TrueRAPoints, '4' => $user11->ulid],
+                ['1' => $user12->User, '2' => $user12->RAPoints, '3' => $user12->TrueRAPoints, '4' => $user12->ulid],
+                ['1' => $user7->User, '2' => $user7->RAPoints, '3' => $user7->TrueRAPoints, '4' => $user7->ulid],
+                ['1' => $user10->User, '2' => $user10->RAPoints, '3' => $user10->TrueRAPoints, '4' => $user10->ulid],
+                ['1' => $user8->User, '2' => $user8->RAPoints, '3' => $user8->TrueRAPoints, '4' => $user8->ulid],
+                ['1' => $user1->User, '2' => $user1->RAPoints, '3' => $user1->TrueRAPoints, '4' => $user1->ulid],
+                ['1' => $user3->User, '2' => $user3->RAPoints, '3' => $user3->TrueRAPoints, '4' => $user3->ulid],
+                ['1' => $user2->User, '2' => $user2->RAPoints, '3' => $user2->TrueRAPoints, '4' => $user2->ulid],
+                ['1' => $user9->User, '2' => $user9->RAPoints, '3' => $user9->TrueRAPoints, '4' => $user9->ulid],
             ]);
     }
 }

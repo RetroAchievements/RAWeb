@@ -9,6 +9,7 @@
  *  array       Results
  *   object      [value]
  *    string     User                       username
+ *    string     ULID                       queryable stable unique identifier of the user
  *    int        Points                     number of hardcore points the user has earned
  *    int        PointsSoftcore             number of softcore points the user has earned
  *    boolean    AmIFollowing               whether the caller user follows the follower user back
@@ -51,6 +52,7 @@ $usersList = $user
   ->map(
     fn ($followerUser) => [
         "User" => $followerUser->display_name,
+        "ULID" => $followerUser->ulid,
         "Points" => $followerUser->points,
         "PointsSoftcore" => $followerUser->points_softcore,
         "AmIFollowing" => $followerUser->inverseRelatedUsers->first()?->pivot?->Friendship ===
