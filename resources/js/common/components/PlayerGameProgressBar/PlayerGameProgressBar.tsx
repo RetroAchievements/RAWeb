@@ -9,6 +9,7 @@ import { useGetAwardLabelFromPlayerBadge } from '@/common/hooks/useGetAwardLabel
 import { buildAwardLabelColorClassNames } from '@/common/utils/buildAwardLabelColorClassNames';
 import { cn } from '@/common/utils/cn';
 import { getIsEventGame } from '@/common/utils/getIsEventGame';
+import type { TranslatedString } from '@/types/i18next';
 
 import { BaseProgress } from '../+vendor/BaseProgress';
 import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
@@ -22,10 +23,13 @@ interface PlayerGameProgressBarProps {
   game: App.Platform.Data.Game;
   playerGame: App.Platform.Data.PlayerGame | null;
 
+  ariaLabel?: TranslatedString;
+
   /**
-   * Defaults to true. When truthy, links directly to the game page.
+   * When undefined, defaults to game.show.
+   * @default route('game.show', { game });
    */
-  isHyperlink?: boolean;
+  href?: string | null;
 
   isTooltipEnabled?: boolean;
 
@@ -42,19 +46,24 @@ interface PlayerGameProgressBarProps {
 
   /**
    * base: The award label is subdued. Useful when many progress bars are in a "stacked" layout.
+   * event: The award label is not shown. Points is only shown in the tooltip if pointsTotal is different from achievementsPublished.
    * unmuted: The award label is not subdued. Good for when there aren't many bars to display.
    */
-  variant?: 'base' | 'unmuted';
+  variant?: 'base' | 'event' | 'unmuted';
+
+  width?: number;
 }
 
 export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
+  ariaLabel,
   game,
+  href,
   playerGame,
   progressClassName,
-  isHyperlink = true,
   isTooltipEnabled = true,
   showProgressPercentage = false,
   variant = 'base',
+  width = 120,
 }) => {
   const { t } = useTranslation();
 
@@ -86,23 +95,34 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
     return null;
   }
 
-  const Wrapper = achievementsUnlocked ? 'a' : 'div';
+  if (href === undefined) {
+    href = route('game.show', { game: game.id });
+  }
+  if (ariaLabel === undefined) {
+    ariaLabel = t('Navigate to {{gameTitle}}', { gameTitle: game.title });
+  }
 
-  const canLinkToGamePage = isHyperlink && achievementsUnlocked;
+  const canLink = href && achievementsUnlocked;
+  const canShowTooltipPoints =
+    (variant === 'event' && achievementsPublished !== pointsTotal) || variant !== 'event';
+
+  const Wrapper = canLink && achievementsUnlocked ? 'a' : 'div';
 
   return (
     <BaseTooltip open={achievementsUnlocked === 0 || !isTooltipEnabled ? false : undefined}>
       <BaseTooltipTrigger
         className={cn(
-          'group min-w-[120px] max-w-[120px]',
+          'group',
           achievementsUnlocked === 0 ? '!cursor-auto' : '',
           !highestAward && isTooltipEnabled ? 'py-2' : '', // increase the hover surface area
         )}
+        style={{ minWidth: width, maxWidth: width }}
       >
         <Wrapper
-          className="flex max-w-[120px] flex-col gap-0.5"
-          href={canLinkToGamePage ? route('game.show', { game: game.id }) : undefined}
-          aria-label={canLinkToGamePage ? `Navigate to ${game.title}` : undefined}
+          className="flex flex-col gap-0.5"
+          style={{ maxWidth: width }}
+          href={canLink ? (href as string) : undefined}
+          aria-label={canLink ? ariaLabel : undefined}
         >
           <BaseProgress
             className={progressClassName}
@@ -117,7 +137,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
           />
 
           <div className={cn('flex w-full items-center justify-between')}>
-            {highestAward && !isEventGame ? (
+            {highestAward && !isEventGame && variant !== 'event' ? (
               <div className={cn('flex items-center gap-1')}>
                 <PlayerBadgeIndicator playerBadge={highestAward} className="mt-px" />
                 <p>
@@ -178,22 +198,26 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
                 </p>
               ) : null}
 
-              {pointsHardcore > 0 ? (
-                <p>
-                  {t('{{earned, number}} of {{total, number}} points earned', {
-                    earned: pointsHardcore,
-                    total: pointsTotal,
-                  })}
-                </p>
-              ) : null}
+              {canShowTooltipPoints ? (
+                <>
+                  {pointsHardcore > 0 ? (
+                    <p>
+                      {t('{{earned, number}} of {{total, number}} points earned', {
+                        earned: pointsHardcore,
+                        total: pointsTotal,
+                      })}
+                    </p>
+                  ) : null}
 
-              {points > 0 ? (
-                <p>
-                  {t('{{earned, number}} of {{total, number}} softcore points earned', {
-                    earned: points,
-                    total: pointsTotal,
-                  })}
-                </p>
+                  {points > 0 ? (
+                    <p>
+                      {t('{{earned, number}} of {{total, number}} softcore points earned', {
+                        earned: points,
+                        total: pointsTotal,
+                      })}
+                    </p>
+                  ) : null}
+                </>
               ) : null}
             </>
           ) : null}

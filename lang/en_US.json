@@ -783,5 +783,10 @@
     "Please provide as much information as possible about the issue.": "Please provide as much information as possible about the issue.",
     "No users found.": "No users found.",
     "type a username...": "type a username...",
-    "Hubs": "Hubs"
+    "Hubs": "Hubs",
+    "Compare Progress": "Compare Progress",
+    "Navigate to {{gameTitle}}": "Navigate to {{gameTitle}}",
+    "No one you follow has unlocked any achievements for this event.": "No one you follow has unlocked any achievements for this event.",
+    "compare with any user...": "compare with any user...",
+    "See {{val, number}} more": "See {{val, number}} more"
 }
