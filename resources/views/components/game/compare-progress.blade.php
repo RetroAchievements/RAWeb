@@ -43,7 +43,7 @@ if ($user !== null) {
         ->select($fields)
         ->orderBy('achievements_unlocked_hardcore', 'DESC')
         ->orderBy('achievements_unlocked', 'DESC')
-        ->orderBy('last_unlock_at', 'DESC')
+        ->orderBy('last_unlock_at')
         ->limit(50)
         ->get()
         ->toArray();
