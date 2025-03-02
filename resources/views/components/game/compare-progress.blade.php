@@ -19,7 +19,7 @@ if ($user !== null) {
         ->where('Friends.user_id', '=', $user->id)
         ->where('Friends.Friendship', '=', UserRelationship::Following)
         ->select('UserAccounts.ID')
-        ->orderBy('LastLogin')
+        ->orderBy('LastLogin', 'DESC')
         ->pluck('ID')
         ->toArray();
 
