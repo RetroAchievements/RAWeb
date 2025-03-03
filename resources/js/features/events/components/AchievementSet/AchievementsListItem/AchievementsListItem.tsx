@@ -144,7 +144,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 
             <BaseProgress
               className="h-1"
-              max={1521}
+              max={playersTotal}
               segments={[
                 {
                   value: unlocksHardcoreTotal,

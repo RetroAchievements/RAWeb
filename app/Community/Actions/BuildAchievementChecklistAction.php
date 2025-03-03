@@ -74,7 +74,11 @@ class BuildAchievementChecklistAction
                         'points',
                         'unlockedAt',
                         'unlockedHardcoreAt',
+                        'unlocksTotal',
+                        'unlocksHardcoreTotal',
+                        'unlockHardcorePercentage',
                         'game.badgeUrl',
+                        'game.playersTotal',
                         'game.system.nameShort',
                     );
                 }

@@ -79,7 +79,7 @@ const UserAchievementChecklist: AppPage = () => {
                       index={achIndex}
                       isLargeList={false}
                       eventAchievement={undefined}
-                      playersTotal={null}
+                      playersTotal={achievement.game?.playersTotal ?? null}
                     />
                   ))}
                 </EventAchievementSection>
