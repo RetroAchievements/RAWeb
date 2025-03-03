@@ -1,15 +1,14 @@
 import * as motion from 'motion/react-m';
 import { type FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
-import { cn } from '@/common/utils/cn';
-import { formatNumber } from '@/common/utils/l10n/formatNumber';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 
 import { AchievementDateMeta } from '../AchievementDateMeta';
 import { AchievementGameTitle } from '../AchievementGameTitle';
+import { ProgressBarMetaText } from './ProgressBarMetaText';
 
 interface AchievementsListItemProps {
   achievement: App.Platform.Data.Achievement;
@@ -36,7 +35,10 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 
   const { title, description, game } = achievement;
 
-  const unlockHardcorePercentage = achievement.unlockHardcorePercentage ?? 0;
+  const unlockHardcorePercentage = achievement.unlockHardcorePercentage
+    ? Number(achievement.unlockHardcorePercentage)
+    : 0;
+
   const unlocksHardcoreTotal = achievement.unlocksHardcoreTotal ?? 0;
   const unlocksTotal = achievement.unlocksTotal ?? 0;
 
@@ -75,9 +77,13 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
               </a>
 
               {game?.title ? (
-                <>
-                  <span>{t('from')}</span> <AchievementGameTitle game={game} />
-                </>
+                <Trans
+                  i18nKey="<1>from</1> <2>{{gameTitle}}</2>"
+                  components={{
+                    1: <span />,
+                    2: <AchievementGameTitle game={game} />,
+                  }}
+                />
               ) : null}
             </div>
 
@@ -113,32 +119,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
           </p>
 
           <p className="mb-0.5 flex gap-x-1 text-2xs md:mb-0 md:justify-center md:text-center">
-            <span
-              title={t('Total unlocks')}
-              className={cn(
-                unlocksTotal === unlocksHardcoreTotal && unlocksHardcoreTotal > 0
-                  ? 'font-bold'
-                  : null,
-                'cursor-help',
-              )}
-            >
-              {formatNumber(unlocksTotal)}
-            </span>
-            {unlocksTotal !== unlocksHardcoreTotal ? (
-              <span className="cursor-help font-bold" title={t('Hardcore unlocks')}>
-                {'('}
-                {formatNumber(unlocksHardcoreTotal)}
-                {')'}
-              </span>
-            ) : null}
-            {t('of')}
-            <span title={t('Total players')} className="cursor-help">
-              {formatNumber(playersTotal)}
-            </span>
-            <span className="md:hidden">
-              {'–'} {formatPercentage(unlockHardcorePercentage)}
-            </span>
-            <span className="hidden sm:inline md:hidden">{t('unlock rate')}</span>
+            <ProgressBarMetaText achievement={achievement} playersTotal={playersTotal} />
           </p>
 
           <BaseProgress
