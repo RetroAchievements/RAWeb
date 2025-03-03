@@ -782,11 +782,6 @@
     "No users found.": "No users found.",
     "type a username...": "type a username...",
     "Hubs": "Hubs",
-    "Compare Progress": "Compare Progress",
-    "Navigate to {{gameTitle}}": "Navigate to {{gameTitle}}",
-    "No one you follow has unlocked any achievements for this event.": "No one you follow has unlocked any achievements for this event.",
-    "compare with any user...": "compare with any user...",
-    "See {{val, number}} more": "See {{val, number}} more",
     "<1>{{totalUnlocks, number}}</1> <2>({{totalHardcoreUnlocks, number}})</2> of <3>{{totalPlayers, number}}</3> <4>- {{unlockHardcorePercentage}}</4> <5>unlock rate</5>": "<1>{{totalUnlocks, number}}</1> <2>({{totalHardcoreUnlocks, number}})</2> of <3>{{totalPlayers, number}}</3> <4>- {{unlockHardcorePercentage}}</4> <5>unlock rate</5>",
     "<1>from</1> <2>{{gameTitle}}</2>": "<1>from</1> <2>{{gameTitle}}</2>"
 }
