@@ -147,16 +147,6 @@ class SyncEvents extends Command
                 99742 => ['11/8/2020', '12/5/2020'],
                 55509 => ['12/6/2020', '1/2/2021'],
             ]),
-            9858 => new ConvertToTiered('leapfrog-4', [1 => 'Survived 14 days', 2 => 'Survived 29 days'], [
-                111931 => ['Xymjak', 'Klarth18'], // 90
-                111932 => ['Searo'], // 75
-                111933 => ['Haruda', 'Blazekickn', 'televandalist'], // 60
-                111934 => ['Shmelyoff', 'NickGoat1990', 'Nevermond12', 'jltn', 'BendyHuman'], // 45
-                111935 => ['RetroRobb', 'SteevL', 'DrPixel', 'jos', 'Gamechamp', 'TheRecognitionScene',
-                    'EverElsewhere', 'Boldewin'], // 29
-                111936 => ['timmytenfingers', 'Snow', 'matheus2653', 'BenGhazi', 'KickMeElmo', 'Cactuarin247', 'LootusMaximus',
-                    'RABarcade', 'ObsoleteGamer2004', 'Tvols1480', 'Hotscrock'], // 14
-            ]),
             3046 => new ConvertAsIs('jr-dev-graduate'),
             8275 => new ConvertAsIs('unwanted-bronze', '07/15/2020'),
             3530 => new ConvertAsIs('unwanted-silver', '07/15/2020'),
@@ -273,63 +263,95 @@ class SyncEvents extends Command
             //     238014 => 'to_hardcore',
             //     238015 => 'hardcore_only',
             // ]),
-
             15942 => new ConvertCollapse('devquest-017'),
-            15943 => new ConvertAsIs('aotw-2014'),
-            // 15943 => new ConvertToTracked('aotw-2014', [
-            //     1801 => ['2/10/2014', '2/17/2014'], // t=506
-            //     3542 => ['2/18/2014', '2/24/2014'], // t=547
-            //     4347 => ['2/25/2014', '3/3/2014'], // t=614
-            //     5166 => ['3/4/2014', '3/10/2014'], // t=656
-            //     1955 => ['3/11/2014', '3/17/2014'], // t=688
-            //     5066 => ['3/18/2014', '3/24/2014'], // t=725
-            //     2241 => ['3/25/2014', '3/30/2014'], // t=748
-            //     6366 => ['3/31/2014', '4/6/2014'], // t=780
-            //     5247 => ['4/7/2014', '4/14/2014'], // t=810
-            //     22 => ['4/15/2014', '4/21/2014'], // t=832
-            //     3320 => ['4/22/2014', '4/28/2014'], // t=846
-            //     7508 => ['4/29/2014', '5/5/2014'], // t=871
-            //     6961 => ['5/6/2014', '5/12/2014'], // t=885
-            //     4643 => ['5/12/2014', '5/18/2014'], // t=913
-            //     3131 => ['5/19/2014', '5/26/2014'], // t=930
-            //     6082 => ['5/27/2014', '6/8/2014'], // t=939
-            //     1339 => ['6/9/2014', '6/15/2014'], // t=950
-            //     262 => ['6/16/2014', '6/23/2014'], // t=960
-            //     4927 => ['6/24/2014', '6/30/2014'], // t=986
-            //     6694 => ['7/1/2014', '7/7/2014'], // t=1000
-            //     1752 => ['7/8/2014', '7/13/2014'], // t=1012
-            //     969 => ['7/14/2014', '7/21/2014'], // t=1022
-            //     9845 => ['7/22/2014', '7/28/2014'], // t=1034
-            //     898 => ['7/29/2014', '8/4/2014'], // t=1046
-            //     7278 => ['8/5/2014', '8/12/2014'], // t=1054
-            //     51772 => ['8/13/2014', '8/17/2014'], // t=1064
-            //     3057 => ['8/18/2014', '8/24/2014'], // t=1079
-            //     9980 => ['8/25/2014', '8/31/2014'], // t=1100
-            //     281 => ['9/1/2014', '9/7/2014'], // t=1111
-            //     9627 => ['9/8/2014', '9/14/2014'], // t=1128
-            //     311 => ['9/15/2014', '9/21/2014'], // t=1155
-            //     11595 => ['9/22/2014', '9/28/2014'], // t=1171
-            //     13577 => ['9/29/2014', '10/5/2014'], // t=1186
-            //     13608 => ['10/6/2014', '10/12/2014'], // t=1206
-            //     6224 => ['10/13/2014', '10/19/2014'], // t=1226
-            //     8368 => ['10/20/2014', '10/26/2014'], // t=1241
-            //     16198 => ['10/27/2014', '11/10/2014'], // t=1266
-            //     8584 => ['11/11/2014', '11/17/2014'], // t=1299
-            //     12205 => ['11/18/2014', '11/25/2014'], // t=1306
-            //     6393 => ['11/26/2014', '12/1/2014'], // t=1313
-            //     11991 => ['12/2/2014', '12/8/2014'], // t=1316
-            //     7198 => ['12/9/2014', '12/15/2014'], // t=1323
-            //     7762 => ['12/16/2014', '12/23/2014'], // t=1327
-            //     1893 => ['4/7/2014', '4/21/2014'], // t=810 two week challenge
-            //     4708 => ['4/29/2014', '5/11/2014'], // t=871 two week challenge
-            //     5880 => ['5/27/2014', '6/23/2014'], // t=939 month challenge
-            //     8644 => ['6/24/2014', '7/21/2014'], // t=986 month challenge
-            //     6801 => ['7/22/2014', '8/19/2014'], // t=1034 month challenge
-            //     11117 => ['8/18/2014', '9/15/2014'], // t=1079 month challenge
-            //     7628 => ['9/15/2014', '10/13/2014'], // t=1155 month challenge
-            //     91819 => ['10/13/2014', '11/10/2014'], // t=1226 month challenge (master)
-            //     2759 => ['11/11/2014', '12/8/2014'], // t=1299 month challenge
-            // ]), // TODO: revalidate
+            7970 => new ConvertAsIs('devember-2022'),
+            8032 => new ConvertCollapse('leapfrog'),
+            7938 => new ConvertCollapse('leapfrog-2'),
+            7980 => new ConvertCollapse('leapfrog-ex'),
+            9858 => new ConvertToTiered('leapfrog-4', [1 => 'Survived 14 days', 2 => 'Survived 29 days'], [
+                111931 => ['Xymjak', 'Klarth18'], // 90
+                111932 => ['Searo'], // 75
+                111933 => ['Haruda', 'Blazekickn', 'televandalist'], // 60
+                111934 => ['Shmelyoff', 'NickGoat1990', 'Nevermond12', 'jltn', 'BendyHuman'], // 45
+                111935 => ['RetroRobb', 'SteevL', 'DrPixel', 'jos', 'Gamechamp', 'TheRecognitionScene',
+                    'EverElsewhere', 'Boldewin'], // 29
+                111936 => ['timmytenfingers', 'Snow', 'matheus2653', 'BenGhazi', 'KickMeElmo', 'Cactuarin247', 'LootusMaximus',
+                    'RABarcade', 'ObsoleteGamer2004', 'Tvols1480', 'Hotscrock'], // 14
+            ]),
+            3903 => new ConvertCollapse('leapfrog-5'),
+            3906 => new ConvertAsIs('challenge-league'),
+            7998 => new ConvertAsIs('rpm'),
+            22094 => new ConvertAotWTiered('aotw-2022', '1/3/2022', [16 => 22091, 32 => 22092, 48 => 22093, 64 => 22094], [
+                82634, 112016, 26996, 103469, 47314, 3524, 104634, 33246, 3369, 1904, 70239, 66977,
+                27089, 7071, 179974, 169496, 177842, 83357, 18523, 93571, 56752, 43874, 189217, 25036,
+                217350, 48117, 187270, 126929, 51865, 3078, 48615, 24684, 142853, 92424, 229835, 52861,
+                150395, 140379, 51502, 235444, 165062, 191610, 240391, 1, 1801, 113871, 49123, 146664,
+                234608, 261040, 225742, 28312
+            ], [81716, 1004, 49219, 7738, 162456, [19377, 19381, 19379], 39537, 99991, 119231, 228082, 228878, 173962]),
+            22095 => new ConvertCollapse('ps2-launch-bronze'),
+            22096 => new ConvertCollapse('ps2-launch-silver'),
+            22097 => new ConvertAsIs('ps2-launch-gold'),
+            3920 => new ConvertAsIs('cl2022-completion'),
+            3961 => new ConvertAsIs('cl2022-mastery'),
+            7937 => new ConvertAsIs('cl2022-bonus'),
+
+            // ===== backfill (done in 2022) =====
+
+            //15943 => new ConvertAsIs('aotw-2014'),
+            15943 => new ConvertToTracked('aotw-2014', [
+                1801 => ['2/10/2014', '2/17/2014'], // t=506
+                3542 => ['2/18/2014', '2/24/2014'], // t=547
+                4347 => ['2/25/2014', '3/3/2014'], // t=614
+                5166 => ['3/4/2014', '3/10/2014'], // t=656
+                1955 => ['3/11/2014', '3/17/2014'], // t=688
+                5066 => ['3/18/2014', '3/24/2014'], // t=725
+                2241 => ['3/25/2014', '3/30/2014'], // t=748
+                6366 => ['3/31/2014', '4/6/2014'], // t=780
+                5247 => ['4/7/2014', '4/14/2014'], // t=810
+                22 => ['4/15/2014', '4/21/2014'], // t=832
+                3320 => ['4/22/2014', '4/28/2014'], // t=846
+                7508 => ['4/29/2014', '5/5/2014'], // t=871
+                6961 => ['5/6/2014', '5/12/2014'], // t=885
+                4643 => ['5/12/2014', '5/18/2014'], // t=913
+                3131 => ['5/19/2014', '5/26/2014'], // t=930
+                6082 => ['5/27/2014', '6/8/2014'], // t=939
+                1339 => ['6/9/2014', '6/15/2014'], // t=950
+                262 => ['6/16/2014', '6/23/2014'], // t=960
+                4927 => ['6/24/2014', '6/30/2014'], // t=986
+                6694 => ['7/1/2014', '7/7/2014'], // t=1000
+                1752 => ['7/8/2014', '7/13/2014'], // t=1012
+                969 => ['7/14/2014', '7/21/2014'], // t=1022
+                9845 => ['7/22/2014', '7/28/2014'], // t=1034
+                898 => ['7/29/2014', '8/4/2014'], // t=1046
+                7278 => ['8/5/2014', '8/12/2014'], // t=1054
+                51772 => ['8/13/2014', '8/17/2014'], // t=1064
+                3057 => ['8/18/2014', '8/24/2014'], // t=1079
+                9980 => ['8/25/2014', '8/31/2014'], // t=1100
+                281 => ['9/1/2014', '9/7/2014'], // t=1111
+                9627 => ['9/8/2014', '9/14/2014'], // t=1128
+                311 => ['9/15/2014', '9/21/2014'], // t=1155
+                11595 => ['9/22/2014', '9/28/2014'], // t=1171
+                13577 => ['9/29/2014', '10/5/2014'], // t=1186
+                13608 => ['10/6/2014', '10/12/2014'], // t=1206
+                6224 => ['10/13/2014', '10/19/2014'], // t=1226
+                8368 => ['10/20/2014', '10/26/2014'], // t=1241
+                16198 => ['10/27/2014', '11/10/2014'], // t=1266
+                8584 => ['11/11/2014', '11/17/2014'], // t=1299
+                12205 => ['11/18/2014', '11/25/2014'], // t=1306
+                6393 => ['11/26/2014', '12/1/2014'], // t=1313
+                11991 => ['12/2/2014', '12/8/2014'], // t=1316
+                7198 => ['12/9/2014', '12/15/2014'], // t=1323
+                7762 => ['12/16/2014', '12/23/2014'], // t=1327
+                1893 => ['4/7/2014', '4/21/2014'], // t=810 two week challenge
+                4708 => ['4/29/2014', '5/11/2014'], // t=871 two week challenge
+                5880 => ['5/27/2014', '6/23/2014'], // t=939 month challenge
+                8644 => ['6/24/2014', '7/21/2014'], // t=986 month challenge
+                6801 => ['7/22/2014', '8/19/2014'], // t=1034 month challenge
+                11117 => ['8/18/2014', '9/15/2014'], // t=1079 month challenge
+                7628 => ['9/15/2014', '10/13/2014'], // t=1155 month challenge
+                91819 => ['10/13/2014', '11/10/2014'], // t=1226 month challenge (master)
+                2759 => ['11/11/2014', '12/8/2014'], // t=1299 month challenge
+            ]),
             15944 => new ConvertAsIs('aotw-2015'),
             // 15944 => new ConvertToTracked('aotw-2015', [
             //     2027 => ['1/6/2015', '1/12/2015'], // t=1370
@@ -376,7 +398,6 @@ class SyncEvents extends Command
             //     7824 => ['7/13/2015', '8/10/2015'], // t=1939 monthly
             //     21541 => ['8/11/2015', '9/7/2015'], // t=2173 monthly
             // ]),
-            7970 => new ConvertAsIs('devember-2022'),
             3892 => new ConvertAsIs('aotw-2016'),
             // 3892 => new ConvertToTracked('aotw-2016', [
             //     29960 => ['11/10/2015', '11/16/2015'], // SMW
@@ -398,25 +419,10 @@ class SyncEvents extends Command
             //     5801 => ['6/1/2016', '6/30/2016'], // t=3197
             //     10229 => ['6/1/2016', '6/30/2016'], // t=3197
             // ]),
-            8032 => new ConvertCollapse('leapfrog'),
-            7938 => new ConvertCollapse('leapfrog-2'),
-            7980 => new ConvertCollapse('leapfrog-ex'),
-            3906 => new ConvertAsIs('challenge-league'),
-            7998 => new ConvertCollapse('rpm'),
-            3903 => new ConvertCollapse('leapfrog-5'),
-            22094 => new ConvertAotWTiered('aotw-2022', '1/3/2022', [16 => 22091, 32 => 22092, 48 => 22093, 64 => 22094], [
-                82634, 112016, 26996, 103469, 47314, 3524, 104634, 33246, 3369, 1904, 70239, 66977,
-                27089, 7071, 179974, 169496, 177842, 83357, 18523, 93571, 56752, 43874, 189217, 25036,
-                217350, 48117, 187270, 126929, 51865, 3078, 48615, 24684, 142853, 92424, 229835, 52861,
-                150395, 140379, 51502, 235444, 165062, 191610, 240391, 1, 1801, 113871, 49123, 146664,
-                234608, 261040, 225742, 28312
-            ], [81716, 1004, 49219, 7738, 162456, [19377, 19381, 19379], 39537, 99991, 119231, 228082, 228878, 173962]),
-            22095 => new ConvertCollapse('ps2-launch-bronze'),
-            22096 => new ConvertCollapse('ps2-launch-silver'),
-            22097 => new ConvertAsIs('ps2-launch-gold'),
-            3920 => new ConvertAsIs('cl2022-completion'),
-            3961 => new ConvertAsIs('cl2022-mastery'),
-            7937 => new ConvertAsIs('cl2022-bonus'),
+            8043 => new ConvertAsIs('aotw-2017'),
+
+            // ===== 2023 =====
+
             22561 => new ConvertCollapse('devquest-001-2'),
             22562 => new ConvertCollapse('devquest-002-2'),
             22563 => new ConvertCollapse('devquest-013-2'),
@@ -424,6 +430,29 @@ class SyncEvents extends Command
             22565 => new ConvertCollapse('devquest-019'),
             22566 => new ConvertCollapse('devquest-016-2'),
             3911 => new ConvertToSoftcoreTiered('distractions-3', '30 points', '90 points'),
+            7950 => new ConvertAsIs('rawr-2023'),
+            7939 => new ConvertAsIs('retroolympics-2022-bronze'),
+            7984 => new ConvertAsIs('retroolympics-2022-silver'),
+            8014 => new ConvertAsIs('retroolympics-2022-gold'),
+            25672 => new ConvertAsIs('devquest-020'),
+            25673 => new ConvertAsIs('devquest-020-subgenre', noWinners: true),
+            25674 => new ConvertCollapse('devquest-001-3'),
+            25675 => new ConvertCollapse('devquest-002-3'),
+            25676 => new ConvertCollapse('devquest-013-3'),
+            25677 => new ConvertCollapse('devquest-021'),
+            25678 => new ConvertCollapse('devquest-022'),
+            8028 => new ConvertAsIs('console-wars-completion', '2023-03-11', '2023-08-18'),
+            8030 => new ConvertAsIs('console-wars-mastery', '2023-03-11', '2023-08-18'),
+            8033 => new ConvertAsIs('console-wars-bonus', '2023-03-11', '2023-08-18'),
+            7996 => new ConvertAsIs('ffv-fjf-superboss', '2023-06-15', '2023-09-17'),
+            7995 => new ConvertAsIs('ffv-fjf-exdeath', '2023-06-15', '2023-09-17'),
+            8013 => new ConvertAsIs('halloween-2023-bronze', '2023-10-16', '2023-10-31'),
+            7972 => new ConvertAsIs('halloween-2023-silver', '2023-10-16', '2023-10-31'),
+            3954 => new ConvertAsIs('halloween-2023-gold', '2023-10-16', '2023-10-31'),
+            27430 => new ConvertToCollapsedTiered('cream-of-the-crop', 'Cream of the Crop',
+                [27428 => '3rd-7th in your house', 27429 => '2nd in your house', 27430 => '1st in your house'],
+                [374063, 374069, 374075],
+            ),
         ];
 
         $id = $this->argument('gameId');
@@ -701,47 +730,83 @@ class ConvertGame
             return null;
         }
 
-        $eventAchievement = EventAchievement::where('achievement_id', $achievement->id)->first();
-        if (!$eventAchievement) {
-            $eventAchievement = EventAchievement::create([
-                'achievement_id' => $achievement->id,
-                'source_achievement_id' => $sourceAchievementId,
-                'active_from' => $activeFrom,
-                'active_through' => $activeThrough,
-            ]);
-        } else {
-            $eventAchievement->source_achievement_id = $sourceAchievementId;
-            $eventAchievement->active_from = $activeFrom;
-            $eventAchievement->active_through = $activeThrough;
-            $eventAchievement->save();
-        }
-
+        // initialize the unlocks before creating the event achievements to prevent metrics cascading.
+        // metrics will be forcibly recalculated after conversion completes.
         if ($sourceAchievementId) {
             // update unlock timestamps on the event achievements to match the source unlock
             $winners = PlayerAchievement::where('achievement_id', $sourceAchievementId)
-                ->where('unlocked_hardcore_at', '>=', $eventAchievement->active_from)
-                ->where('unlocked_hardcore_at', '<', $eventAchievement->active_until);
-            $winnerIds = [];
+                ->whereNotNull('unlocked_hardcore_at')
+                ->join('UserAccounts', 'UserAccounts.ID', '=', 'player_achievements.user_id')
+                ->select([
+                    'player_achievements.user_id',
+                    'player_achievements.unlocked_hardcore_at',
+                    'UserAccounts.Untracked',
+                    'UserAccounts.unranked_at',
+                ]);
+
+            if ($activeFrom) {
+                $winners->where('unlocked_hardcore_at', '>=', $activeFrom);
+            }
+            if ($activeThrough) {
+                $winners->where('unlocked_hardcore_at', '<', $activeThrough);
+            }
+
             foreach ($winners->get() as $winner) {
-                $winnerIds[] = $winner->user_id;
-                $unlock = PlayerAchievement::where('achievement_id', $achievement->id)
-                    ->where('user_id', $winner->user_id)
-                    ->first();
-                if ($unlock) {
-                    $unlock->unlocked_hardcore_at = $unlock->unlocked_at = $winner->unlocked_hardcore_at;
-                    $unlock->save();
+                if ($winner->Untracked || $winner->unranked_at) {
+                    $existingUnlock = PlayerAchievement::where('achievement_id', $achievement->id)
+                        ->where('user_id', $winner->user_id);
+                    if (!$existingUnlock->exists()) {
+                        continue;
+                    }
+                    $command->info("updating {$winner->user_id}");
+                }
+
+                $playerAchievement = PlayerAchievement::updateOrCreate([
+                    'achievement_id' => $achievement->id,
+                    'user_id' => $winner->user_id,
+                ], [
+                    'unlocked_at' => $winner->unlocked_hardcore_at,
+                    'unlocked_hardcore_at' => $winner->unlocked_hardcore_at,
+                ]);
+
+                if ($playerAchievement->wasRecentlyCreated) {
+                    $achievement->loadMissing('game');
+                    (new AttachPlayerGameAction())->execute($playerAchievement->user, $achievement->game);
                 }
             }
 
-            // delete unlocks on the event achievement if the user hasn't unlocked the source achievement
+            // delete unlocks on the event achievement if the user hasn't unlocked the source achievement.
+            // this could affect users who have reset the achievement, but they'll get to keep the badge.
             PlayerAchievement::where('achievement_id', $achievement->id)
-                ->whereNotIn('user_id', $winnerIds)
+                ->whereNotIn('user_id', $winners->pluck('user_id')->toArray())
                 ->delete();
-
-            // EventAchievementObserver will copy data and additional unlocks for anyone that
-            // wasn't awarded the badge from the source achievement
-            $eventAchievement->save();
         }
+
+        // disable the EventAchievementObserver. we're going to manually populate the associated unlocks.
+        $dispatcher = EventAchievement::getEventDispatcher();
+        EventAchievement::unsetEventDispatcher();
+
+        // create the event achievement
+        $eventAchievement = EventAchievement::updateOrCreate([
+            'achievement_id' => $achievement->id,
+        ],[
+            'source_achievement_id' => $sourceAchievementId,
+            'active_from' => $activeFrom,
+            'active_through' => $activeThrough,
+        ]);
+
+        if ($sourceAchievementId) {
+            // make the event achievement look like the source achievement
+            $achievement = $eventAchievement->achievement;
+            $sourceAchievement = $eventAchievement->sourceAchievement;
+            $achievement->title = $sourceAchievement->title;
+            $achievement->description = $sourceAchievement->description;
+            $achievement->BadgeName = $sourceAchievement->BadgeName;
+            $achievement->save();
+        }
+
+        // re-enable the EventAchievementObserver
+        EventAchievement::setEventDispatcher($dispatcher);
 
         return $eventAchievement;
     }
@@ -770,6 +835,8 @@ class ConvertGame
         foreach ($playerGames as $playerGame) {
             dispatch(new UpdatePlayerGameMetricsJob($playerGame->user_id, $gameId));
         }
+
+        $game = Game::find($gameId);
     }
 }
 
