@@ -294,6 +294,9 @@ class SyncEvents extends Command
             3920 => new ConvertAsIs('cl2022-completion'),
             3961 => new ConvertAsIs('cl2022-mastery'),
             7937 => new ConvertAsIs('cl2022-bonus'),
+            7939 => new ConvertAsIs('retroolympics-2022-bronze'),
+            7984 => new ConvertAsIs('retroolympics-2022-silver'),
+            8014 => new ConvertAsIs('retroolympics-2022-gold'),
 
             // ===== backfill (done in 2022) =====
 
@@ -431,9 +434,6 @@ class SyncEvents extends Command
             22566 => new ConvertCollapse('devquest-016-2'),
             3911 => new ConvertToSoftcoreTiered('distractions-3', '30 points', '90 points'),
             7950 => new ConvertAsIs('rawr-2023'),
-            7939 => new ConvertAsIs('retroolympics-2022-bronze'),
-            7984 => new ConvertAsIs('retroolympics-2022-silver'),
-            8014 => new ConvertAsIs('retroolympics-2022-gold'),
             25672 => new ConvertAsIs('devquest-020'),
             25673 => new ConvertAsIs('devquest-020-subgenre', noWinners: true),
             25674 => new ConvertCollapse('devquest-001-3'),
@@ -453,6 +453,57 @@ class SyncEvents extends Command
                 [27428 => '3rd-7th in your house', 27429 => '2nd in your house', 27430 => '1st in your house'],
                 [374063, 374069, 374075],
             ),
+            28302 => new ConvertAotWTiered('aotw-2023', '1/2/2023', [12 => 28299, 30 => 28300, 48 => 28301, 64 => 28302], [
+                260166, 212964, 230525, 73042, 274930, 185099, 24646, 4838, 83259, 78981, 4325,
+                109069, 22689, 18818, 58325, 1416, 54780, 95373, 173593, 51710, 23368,
+                96778, 295871, 301448, 5023, 104869, 157193, 211745, 280643, 252126, 188882,
+                327046, 262494, 7775, 36328, 184233, 316765, 59368, 110384, 8290, 179859,
+                143077, 178634, 25966, 181455, 62895, 363780, 16928, 78614, 303560, 22380, 80855
+            ], [11801, 193270, 294591, 1854, [164510, 164493], 245538, 84366, 289915, [178231, 178230], 2100, 128471, 16955]),
+            7948 => new ConvertToTracked('aotw-2023-fools', [
+                18818 => ['4/3/2023', '4/9/2023'],
+                37961 => ['4/3/2023', '4/9/2023'],
+                58325 => ['4/10/2023', '4/16/2023'],
+                288006 => ['4/10/2023', '4/16/2023'],
+                1416 => ['4/17/2023', '4/23/2023'],
+                94242 => ['4/17/2023', '4/23/2023'],
+                54780 => ['4/24/2023', '4/30/2023'],
+                5150 => ['4/24/2023', '4/30/2023'],
+            ]),
+            7971 => new ConvertToTracked('aotw-2023-box-office', [
+                327046 => ['8/7/2023', '8/13/2023'],
+                262494 => ['8/14/2023', '8/20/2023'],
+                7775 => ['8/21/2023', '8/27/2023'],
+                36328 => ['8/28/2023', '9/3/2023'],
+                289915 => ['8/7/2023', '9/3/2023'],
+            ]),
+            28304 => new ConvertAsIs('mario-party-ra-beat', '2023-07-06', '2023-12-28'),
+            28305 => new ConvertAsIs('mario-party-ra-master', '2023-07-06', '2023-12-28'),
+            28306 => new ConvertAsIs('mario-party-ra-bonus', '2023-07-06', '2023-12-28'),
+            28379 => new ConvertToTiered('on-the-horizon', [1 => 'Unlock subjobs', 2 => 'Unlock first advanced job'], [
+                 394761 => 'to_hardcore',
+                 394762 => 'hardcore_only',
+            ]),
+            28327 => new ConvertToSoftcoreTiered('devember-2023', '50 points', '150 points'),
+            28432 => new ConvertToCollapsedTiered('cl-top-100', 'Challenge League: The Top 100',
+                [28430 => '30 points', 28431 => '60 points', 28432 => '90 points'],
+                [400375, 400369, 400361],
+            ),
+            28434 => new ConvertCollapse('cl-top-100-evergreen'),
+            29086 => new ConvertAsIs('retroolympics-2023-bronze'),
+            29087 => new ConvertAsIs('retroolympics-2023-silver'),
+            29088 => new ConvertAsIs('retroolympics-2023-gold'),
+
+            // ===== 2024 =====
+
+            28942 => new ConvertCollapse('distractions-1-evergreen'),
+            28328 => new ConvertAsIs('house-cleaning'),
+            29834 => new ConvertAsIs('rawr-2024'),
+            29877 => new ConvertCollapse('beaten-into-completion'),
+            20000 => new ConvertAsIs('devjam-1', '2023-07-01', '2023-09-30'),
+            29997 => new ConvertAsIs('ffv-fjf-meteor-superboss', '2023-06-10', '2023-09-15'),
+            29996 => new ConvertAsIs('ffv-fjf-meteor-exdeath', '2023-06-10', '2023-09-15'),
+
         ];
 
         $id = $this->argument('gameId');
@@ -488,6 +539,7 @@ class SyncEvents extends Command
 
                 if ($id) {
                     if ($conversion->validate($this, $gameId, $before)) {
+                        //DB::rollBack();
                         DB::commit();
                     } else {
                         //DB::commit();
@@ -758,7 +810,6 @@ class ConvertGame
                     if (!$existingUnlock->exists()) {
                         continue;
                     }
-                    $command->info("updating {$winner->user_id}");
                 }
 
                 $playerAchievement = PlayerAchievement::updateOrCreate([
@@ -1156,7 +1207,7 @@ class ConvertToTiered extends ConvertGame
                     break;
                 }
 
-                if ($count > $badge['AwardDataExtra']) {
+                if ($count < $badge['AwardDataExtra']) {
                     $badge['AwardDataExtra'] = $tier_index - 1;
                     break;
                 }
@@ -1238,7 +1289,10 @@ class ConvertToTiered extends ConvertGame
                             'AwardDataExtra' => $tier_index,
                         ]);
 
-                    // fallthrough to convert softcore unlocks to hardcore
+                    // copy softcore unlock time to hardcore unlock time and 
+                    // update any softcore unlocks at this tier to hardcore
+                    PlayerAchievement::where('achievement_id', $achievementId)
+                        ->update(['unlocked_hardcore_at' => DB::raw('unlocked_at')]);
                 } else {
                     // convert badge to current tier
                     $userIds = User::whereIn('User', $users)->withTrashed()->pluck('ID')->toArray();
@@ -1254,13 +1308,11 @@ class ConvertToTiered extends ConvertGame
                         ->whereNotIn('user_id', $allUserIds)
                         ->delete();
 
-                    // fallthrough to convert softcore unlocks to hardcore
+                    // update any softcore unlocks at this tier to hardcore
+                    PlayerAchievement::where('achievement_id', $achievementId)
+                        ->whereNull('unlocked_hardcore_at')
+                        ->update(['unlocked_hardcore_at' => DB::raw('unlocked_at')]);
                 }
-
-                // update any softcore unlocks at this tier to hardcore
-                PlayerAchievement::where('achievement_id', $achievementId)
-                    ->whereNull('unlocked_hardcore_at')
-                    ->update(['unlocked_hardcore_at' => DB::raw('unlocked_at')]);
             }
 
             // update tier_index if crossing a threshold
