@@ -19,7 +19,7 @@ if ($action === 'alt_identifier') {
     if ($forUser == null) {
         $message = "Unknown user: $altsForUser";
     } else {
-        $altsForUser = $forUser->User;
+        $altsForUser = "{$forUser->display_name} ({$forUser->User})";
 
         $emailAddresses = [];
         if (!empty($forUser->EmailAddress)) {
