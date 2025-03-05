@@ -52,7 +52,7 @@ class SyncEvents extends Command
         $gameConversions = [
             // ===== 2017 =====
 
-            //1963 => new ConvertAsIs('solar-jetman'),
+            1963 => new ConvertAprilFools('solar-jetman'),
             //11128 => new ConvertAsIs('pumpkin-king-2017', '10/13/2017', '10/31/2017'),
             11597 => new ConvertAsIs('christmas-2017', '12/1/2017', '1/7/2018'),
 
@@ -294,9 +294,9 @@ class SyncEvents extends Command
             3920 => new ConvertAsIs('cl2022-completion'),
             3961 => new ConvertAsIs('cl2022-mastery'),
             7937 => new ConvertAsIs('cl2022-bonus'),
-            7939 => new ConvertAsIs('retroolympics-2022-bronze'),
-            7984 => new ConvertAsIs('retroolympics-2022-silver'),
-            8014 => new ConvertAsIs('retroolympics-2022-gold'),
+            7939 => new ConvertAsIs('retroolymp-2022-brz'),
+            7984 => new ConvertAsIs('retroolymp-2022-slvr'),
+            8014 => new ConvertAsIs('retroolymp-2022-gld'),
 
             // ===== backfill (done in 2022) =====
 
@@ -433,22 +433,23 @@ class SyncEvents extends Command
             22565 => new ConvertCollapse('devquest-019'),
             22566 => new ConvertCollapse('devquest-016-2'),
             3911 => new ConvertToSoftcoreTiered('distractions-3', '30 points', '90 points'),
+            23902 => new ConvertAprilFools('smb-stimulus'),
             7950 => new ConvertAsIs('rawr-2023'),
             25672 => new ConvertAsIs('devquest-020'),
-            25673 => new ConvertAsIs('devquest-020-subgenre', noWinners: true),
+            25673 => new ConvertAsIs('devquest-020-sub', noWinners: true),
             25674 => new ConvertCollapse('devquest-001-3'),
             25675 => new ConvertCollapse('devquest-002-3'),
             25676 => new ConvertCollapse('devquest-013-3'),
             25677 => new ConvertCollapse('devquest-021'),
             25678 => new ConvertCollapse('devquest-022'),
-            8028 => new ConvertAsIs('console-wars-completion', '2023-03-11', '2023-08-18'),
+            8028 => new ConvertAsIs('console-wars-comp', '2023-03-11', '2023-08-18'),
             8030 => new ConvertAsIs('console-wars-mastery', '2023-03-11', '2023-08-18'),
             8033 => new ConvertAsIs('console-wars-bonus', '2023-03-11', '2023-08-18'),
-            7996 => new ConvertAsIs('ffv-fjf-superboss', '2023-06-15', '2023-09-17'),
-            7995 => new ConvertAsIs('ffv-fjf-exdeath', '2023-06-15', '2023-09-17'),
-            8013 => new ConvertAsIs('halloween-2023-bronze', '2023-10-16', '2023-10-31'),
-            7972 => new ConvertAsIs('halloween-2023-silver', '2023-10-16', '2023-10-31'),
-            3954 => new ConvertAsIs('halloween-2023-gold', '2023-10-16', '2023-10-31'),
+            7996 => new ConvertAsIs('fjf-bosses', '2023-06-15', '2023-09-17'),
+            7995 => new ConvertAsIs('fjf-exdeath', '2023-06-15', '2023-09-17'),
+            8013 => new ConvertAsIs('halloween-2023-brz', '2023-10-16', '2023-10-31'),
+            7972 => new ConvertAsIs('halloween-2023-slv', '2023-10-16', '2023-10-31'),
+            3954 => new ConvertAsIs('halloween-2023-gld', '2023-10-16', '2023-10-31'),
             27430 => new ConvertToCollapsedTiered('cream-of-the-crop', 'Cream of the Crop',
                 [27428 => '3rd-7th in your house', 27429 => '2nd in your house', 27430 => '1st in your house'],
                 [374063, 374069, 374075],
@@ -478,7 +479,7 @@ class SyncEvents extends Command
                 289915 => ['8/7/2023', '9/3/2023'],
             ]),
             28304 => new ConvertAsIs('mario-party-ra-beat', '2023-07-06', '2023-12-28'),
-            28305 => new ConvertAsIs('mario-party-ra-master', '2023-07-06', '2023-12-28'),
+            28305 => new ConvertAsIs('mario-party-ra-mstr', '2023-07-06', '2023-12-28'),
             28306 => new ConvertAsIs('mario-party-ra-bonus', '2023-07-06', '2023-12-28'),
             28379 => new ConvertToTiered('on-the-horizon', [1 => 'Unlock subjobs', 2 => 'Unlock first advanced job'], [
                  394761 => 'to_hardcore',
@@ -490,20 +491,46 @@ class SyncEvents extends Command
                 [400375, 400369, 400361],
             ),
             28434 => new ConvertCollapse('cl-top-100-evergreen'),
-            29086 => new ConvertAsIs('retroolympics-2023-bronze'),
-            29087 => new ConvertAsIs('retroolympics-2023-silver'),
-            29088 => new ConvertAsIs('retroolympics-2023-gold'),
+            29086 => new ConvertAsIs('retroolymp-2023-brz'),
+            29087 => new ConvertAsIs('retroolymp-2023-slv'),
+            29088 => new ConvertAsIs('retroolymp-2023-gld'),
 
             // ===== 2024 =====
 
-            28942 => new ConvertCollapse('distractions-1-evergreen'),
+            28942 => new ConvertCollapse('distractions-1-eg'),
+            23117 => new ConvertAprilFools('find-the-pixel'),
+            18704 => new ConvertAprilFools('sanic-hedghoog'),
             28328 => new ConvertAsIs('house-cleaning'),
             29834 => new ConvertAsIs('rawr-2024'),
-            29877 => new ConvertCollapse('beaten-into-completion'),
+            29877 => new ConvertCollapse('beaten-completion'),
             20000 => new ConvertAsIs('devjam-1', '2023-07-01', '2023-09-30'),
-            29997 => new ConvertAsIs('ffv-fjf-meteor-superboss', '2023-06-10', '2023-09-15'),
-            29996 => new ConvertAsIs('ffv-fjf-meteor-exdeath', '2023-06-10', '2023-09-15'),
-
+            29997 => new ConvertAsIs('fjf-meteor-bosses', '2023-06-10', '2023-09-15'),
+            29996 => new ConvertAsIs('fjf-meteor-exdeath', '2023-06-10', '2023-09-15'),
+            31487 => new ConvertAsIs('bounty-hunt-2024-brz'),
+            31488 => new ConvertAsIs('bounty-hunt-2024-slv'),
+            31489 => new ConvertAsIs('bounty-hunt-2024-gld'),
+            31490 => new ConvertAsIs('bounty-hunt-2024-eg'),
+            31740 => new ConvertCollapse('gamecube-launch-bronze'),
+            31741 => new ConvertCollapse('gamecube-launch-silver'),
+            31742 => new ConvertAsIs('gamecube-launch-gold'),
+            31743 => new ConvertAsIs('playjam-1'),
+            31746 => new ConvertAotWTiered('aotw-2024', '1/1/2024', [12 => 31749, 30 => 31748, 48 => 31747, 64 => 31746], [
+                188961, 341928, 119310, 85316, 296849, 183495, 275711, 342048, 22457, 259367,
+                210457, 7391, 10100, 231269, 186149, 52973, 2619, 165924, 11404, 192727,
+                309235, 234608, 183470, 307884, 262265, 95458, 175853, 1960, 87552, 412856,
+                320990, 370124, 187631, 293328, 442338, 129817, 126400, 260274, 396136, 4606,
+                133279, 398296, 363705, 382820, 187770, 91704, 7443, 99594, 234186, 230854,
+                239151, 211106
+            ], [7778, 303930, 374310, 210777, 246894, 287681, 164878, 394827, 97955, 79938, 424098, 8577]),
+            31769 => new ConvertCollapse('psp-excellence'),
+            31770 => new ConvertCollapse('ps2-excellence'),
+            31771 => new ConvertCollapse('dreamcast-excellence'),
+            31772 => new ConvertCollapse('gamecube-excellence'),
+            32485 => new ConvertToCollapsedTiered('artquest', 'ArtQuest',
+                [32482 => 'Earned 25 points', 32483 => 'Earned 50 points', 32484 => 'Earned 75 points', 32485 => 'Earned 100 points'],
+                [485510, 485516, 485522, 485528],
+                noWinners: true,
+            ),
         ];
 
         $id = $this->argument('gameId');
@@ -902,6 +929,46 @@ class ConvertAsIs extends ConvertGame
         $this->activeFrom = $activeFrom;
         $this->activeThrough = $activeThrough;
         $this->noWinners = $noWinners;
+    }
+}
+
+class ConvertAprilFools extends ConvertGame
+{
+    public function __construct(string $slug, ?string $activeFrom = null, ?string $activeThrough = null, bool $noWinners = false)
+    {
+        $this->slug = $slug;
+        $this->activeFrom = $activeFrom;
+        $this->activeThrough = $activeThrough;
+    }
+
+    public function captureBefore(int $gameId): array
+    {
+        $before = [];
+
+        $badges = PlayerBadge::where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $gameId)
+            ->orderBy('AwardDataExtra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+
+        foreach ($badges->get() as $badge) {
+            $before[$badge->user_id] = [
+                'AwardDate' => $badge->AwardDate,
+                'AwardDataExtra' => 0,
+            ];
+        }
+
+        return $before;
+    }
+
+    protected function convertSiteAwards(Event $event): void
+    {
+        // convert all badges to hardcore badges
+        $badges = PlayerBadge::where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $event->legacyGame->id)
+            ->update([
+                'AwardType' => AwardType::Event,
+                'AwardData' => $event->id,
+                'AwardDataExtra' => 0,
+            ]);
     }
 }
 
@@ -1505,12 +1572,13 @@ class ConvertToCollapsedTiered extends ConvertToTiered
 {
     protected string $title;
 
-    public function __construct(string $slug, string $title, array $tiers, array $tierAchievements)
+    public function __construct(string $slug, string $title, array $tiers, array $tierAchievements, bool $noWinners = false)
     {
         $this->slug = $slug;
         $this->title = $title;
         $this->tiers = $tiers;
         $this->achievements = $tierAchievements;
+        $this->noWinners = $noWinners;
     }
 
     protected function convertSiteAwards(Event $event): void
