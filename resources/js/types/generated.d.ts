@@ -494,6 +494,7 @@ declare namespace App.Platform.Data {
   export type EventShowPagePropsData = {
     event: App.Platform.Data.Event;
     can: App.Data.UserPermissions;
+    hubs: Array<App.Platform.Data.GameSet>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
   };

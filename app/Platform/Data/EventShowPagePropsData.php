@@ -14,6 +14,8 @@ class EventShowPagePropsData extends Data
     public function __construct(
         public EventData $event,
         public UserPermissionsData $can,
+        /** @var GameSetData[] */
+        public array $hubs,
         public ?PlayerGameData $playerGame,
         public ?PlayerGameProgressionAwardsData $playerGameProgressionAwards,
     ) {
