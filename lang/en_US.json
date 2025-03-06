@@ -788,5 +788,13 @@
     "Navigate to {{gameTitle}}": "Navigate to {{gameTitle}}",
     "No one you follow has unlocked any achievements for this event.": "No one you follow has unlocked any achievements for this event.",
     "compare with any user...": "compare with any user...",
-    "See {{val, number}} more": "See {{val, number}} more"
+    "See {{val, number}} more": "See {{val, number}} more",
+    "Achievement Distribution": "Achievement Distribution",
+    "Hardcore Players": "Hardcore Players",
+    "Softcore Players": "Softcore Players",
+    "Earned {{start, number}}–{{end, number}} achievements": "Earned {{start, number}}–{{end, number}} achievements",
+    "distributionEarned_one": "Earned {{val, number}} achievement",
+    "distributionEarned_other": "Earned {{val, number}} achievements",
+    "Your hardcore progress": "Your hardcore progress",
+    "Your softcore progress": "Your softcore progress"
 }

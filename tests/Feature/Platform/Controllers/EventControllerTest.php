@@ -27,6 +27,8 @@ class EventControllerTest extends TestCase
         $game = Game::factory()->create([
             'Title' => 'Event 001',
             'ConsoleID' => $system->id,
+            'players_total' => 0,
+            'achievements_published' => 0,
         ]);
         $event = Event::factory()->create([
             'legacy_game_id' => $game->id,
@@ -57,6 +59,8 @@ class EventControllerTest extends TestCase
         $game = Game::factory()->create([
             'Title' => 'Event 001',
             'ConsoleID' => $system->id,
+            'players_total' => 0,
+            'achievements_published' => 0,
         ]);
         $event = Event::factory()->create([
             'legacy_game_id' => $game->id,
@@ -86,6 +90,8 @@ class EventControllerTest extends TestCase
         $game = Game::factory()->create([
             'Title' => 'Event 001',
             'ConsoleID' => $system->id,
+            'players_total' => 0,
+            'achievements_published' => 0,
         ]);
         $event = Event::factory()->create([
             'legacy_game_id' => $game->id,
@@ -112,6 +118,8 @@ class EventControllerTest extends TestCase
         $game = Game::factory()->create([
             'Title' => 'Event 001',
             'ConsoleID' => $system->id,
+            'players_total' => 0,
+            'achievements_published' => 0,
         ]);
         $event = Event::factory()->create([
             'legacy_game_id' => $game->id,
@@ -137,6 +145,8 @@ class EventControllerTest extends TestCase
         $game = Game::factory()->create([
             'Title' => 'Event 001',
             'ConsoleID' => $system->id,
+            'players_total' => 0,
+            'achievements_published' => 0,
         ]);
         $event = Event::factory()->create([
             'legacy_game_id' => $game->id,

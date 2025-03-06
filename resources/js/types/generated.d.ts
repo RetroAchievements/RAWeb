@@ -496,6 +496,7 @@ declare namespace App.Platform.Data {
     can: App.Data.UserPermissions;
     hubs: Array<App.Platform.Data.GameSet>;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
+    playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
   };
@@ -629,6 +630,12 @@ declare namespace App.Platform.Data {
     integrationVersion: string | null;
     extra: Array<any> | null;
     clientVariation: string | null;
+  };
+  export type PlayerAchievementChartBucket = {
+    start: number;
+    end: number;
+    softcore: number;
+    hardcore: number;
   };
   export type PlayerBadge = {
     awardType: number;
