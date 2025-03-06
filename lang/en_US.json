@@ -784,5 +784,11 @@
     "Please provide as much information as possible about the issue.": "Please provide as much information as possible about the issue.",
     "No users found.": "No users found.",
     "type a username...": "type a username...",
-    "Hubs": "Hubs"
+    "Hubs": "Hubs",
+    "Are you sure?": "Are you sure?",
+    "Nevermind": "Nevermind",
+    "Continue": "Continue",
+    "This achievement appears to be part of a subset, which is allowed to contain concepts that might otherwise be unwelcome in the game's main set.": "This achievement appears to be part of a subset, which is allowed to contain concepts that might otherwise be unwelcome in the game's main set.",
+    "Subsets are designed to be optional content that players can choose to engage with or avoid based on their preferences.": "Subsets are designed to be optional content that players can choose to engage with or avoid based on their preferences.",
+    "Do you still want to report this achievement as containing an unwelcome concept?": "Do you still want to report this achievement as containing an unwelcome concept?"
 }
