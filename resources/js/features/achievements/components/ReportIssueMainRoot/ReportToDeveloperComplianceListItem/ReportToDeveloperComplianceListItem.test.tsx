@@ -67,7 +67,7 @@ describe('Component: ReportToDeveloperComplianceListItem', () => {
 
     // ASSERT
     expect(screen.getByRole('heading', { name: /are you sure\?/i })).toBeVisible();
-    expect(screen.getByText(/this achievement appears to be part of subset/i)).toBeVisible();
+    expect(screen.getByText(/this achievement appears to be part of a subset/i)).toBeVisible();
     expect(screen.getByRole('button', { name: /nevermind/i })).toBeVisible();
     expect(screen.getByRole('button', { name: /continue/i })).toBeVisible();
   });

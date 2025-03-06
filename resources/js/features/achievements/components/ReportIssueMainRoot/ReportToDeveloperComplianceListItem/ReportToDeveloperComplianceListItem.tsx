@@ -66,7 +66,7 @@ export const ReportToDeveloperComplianceListItem: FC<ReportToDeveloperCompliance
                 <BaseAlertDialogDescription className="flex flex-col gap-4">
                   <span>
                     {t(
-                      "This achievement appears to be part of subset, which is allowed to contain concepts that might otherwise be unwelcome in the game's main set.",
+                      "This achievement appears to be part of a subset, which is allowed to contain concepts that might otherwise be unwelcome in the game's main set.",
                     )}
                   </span>
 
