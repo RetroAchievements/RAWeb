@@ -841,7 +841,7 @@ class ConvertGame
 
                 $playerAchievement = PlayerAchievement::updateOrCreate([
                     'achievement_id' => $achievement->id,
-                    'user_id' => $winner->user_id,
+                    'user_id' => $this->findUserMain($winner->user_id),
                 ], [
                     'unlocked_at' => $winner->unlocked_hardcore_at,
                     'unlocked_hardcore_at' => $winner->unlocked_hardcore_at,
@@ -915,6 +915,127 @@ class ConvertGame
         }
 
         $game = Game::find($gameId);
+    }
+
+    protected function findUserMain(int $userId): int
+    {
+        // map alts to their main to prevent awarding badges to the alt
+        return match($userId) {
+            1836   => 107971, // Karth18 -> Klarth
+            15214  => 33487,  // Guidestatue -> Adenothe
+            27668  => 127681, // Auburn -> AuburnRDM
+            29221  => 17598,  // EricM -> ikki5
+            38793  => 4597,   // Matest -> matheus2653
+            61608  => 110753, // ryuk52109 -> WinglessShinigami
+            79770  => 45240,  // Hect0r -> Shmelyoff
+            82605  => 176207, // Waluigi -> GalacticSpear
+            88584  => 14863,  // ObiWanShinobi -> televandalist
+            89686  => 36549,  // GoldenSneer -> BenGhazi
+            98352  => 42326,  // deng -> Blazekickn
+            98863  => 13047,  // altearfly -> earfly
+            101569 => 49169,  // JoJos -> jos
+            101615 => 58560,  // BraekAlt -> Braek
+            107972 => 90230,  // jelatin -> jltn
+            109183 => 81300,  // mariojuniorALT -> MarioJunior10
+            113720 => 20033,  // XymjakAlt -> Xymjak
+            113723 => 20033,  // XymjakThe2nd -> Xymjak
+            121015 => 76472,  // RookieClubPenguin -> Redwykelz
+            121091 => 116064, // Anagnorisis -> TheRecognitionScene
+            147722 => 398812, // Conair -> orchidcnr
+            164324 => 1275,   // Gjallarhorn -> msdmario
+            192129 => 176207, // Winky -> GalacticSpear
+            194028 => 68008,  // MaddieKittyTV2 -> MaddieKittyTV
+            210416 => 125964, // RyudoAlt -> Ryudo
+            211383 => 133673, // TheJediSonicPart2 -> TheJediSonic
+            217792 => 161745, // NEOMAR2 -> NEOMAR
+            223502 => 173881, // Tayalt -> Tayadaoc
+            225092 => 83594,  // ockerjjEncore -> ockerjj
+            226525 => 146762, // Tirbaba2 -> Tirbaba
+            228198 => 174635, // SairotraALT -> Sairotra
+            246475 => 166898, // RaphMecsALT -> RaphMec
+            249825 => 658750, // FunguyNick -> RetroVGs
+            249939 => 56539,  // KangRelaxa -> perdiga
+            250208 => 206413, // newnumachi -> roukanumachi
+            261293 => 109458, // srepmk -> kmpers
+            275937 => 204848, // pitapocket17alt -> pitapocket17
+            338836 => 286671, // Noiratus -> Sutarion
+            340048 => 11933,  // eventdork -> Grungust
+            361929 => 215145, // TheJoh4nx -> TheJohanx
+            361342 => 167351, // s1uth -> s0uth
+            361393 => 48554,  // PhantomDoom -> FlamingDoom
+            362367 => 30398,  // PieAlt -> ilikepie345
+            363916 => 143963, // LittleGrimm -> Abigail1905
+            365313 => 263046, // Ponk8 -> Ponkey
+            367636 => 48748,  // AmorGaros -> Amir96lx
+            375866 => 200038, // Whispy -> Wispydream
+            377065 => 45802,  // Lonoke31 -> Lonoke13
+            377552 => 55020,  // salobrother -> BrothersGames
+            379471 => 186055, // Narsil -> thundere
+            380188 => 148613, // Suidoken -> SlashTangent
+            381848 => 132970, // AltBrian -> BrianMiranda
+            386755 => 253370, // SpideyGL -> PenguGG
+            389822 => 78695,  // NicePhoenix -> IcePhoenix
+            390383 => 6828,   // LogicAltFallacy -> LogicalFallacy
+            391339 => 76760,  // WimpyfoxAlt -> Wimpyfox
+            392748 => 153952, // EzyCheeves -> Retrokaiser
+            395264 => 97061,  // AnotherNael -> AngeloLeonhart
+            403643 => 125726, // Megidolaon -> FBernkastelKues
+            407125 => 381454, // piesu2138 -> Piesu2137
+            423189 => 13111,  // amine456alt -> amine456
+            423830 => 120973, // DoubleRoxie -> BubbleRoxie
+            428326 => 165975, // Agonius -> Enagonius
+            452701 => 191983, // dericobanjoke -> dericobanjo
+            452927 => 264317, // Grovyle -> Empovyle
+            487113 => 267223, // Chile -> NiterZ7
+            489319 => 441056, // ProtaTime -> Prota
+            499060 => 82186,  // NezperdianAlt -> Nezperdian
+            499154 => 248426, // DSkull1057 -> dragonskull1057
+            500448 => 412331, // 1stPrizeALT -> 1stPrize
+            508024 => 364393, // bigalt24 -> bigdud24
+            526909 => 479890, // BonkeyMug -> MonkeyBug
+            529499 => 142106, // TheTwooseGroose -> TheLooseGroose
+            543132 => 140464, // SilveryamiAlt -> Silveryami
+            561632 => 340380, // Jurbados -> Jurbadis
+            563187 => 530505, // Vitamina -> Vlt0
+            568956 => 267480, // OldSportEXE -> OldSport
+            596801 => 492642, // RoroprALTa -> Roroprata
+            601772 => 35904,  // AlakatroreAlt -> Alakatrore
+            623735 => 582101, // Speedy2 -> Reeve42
+            637834 => 264150, // refurbishedchirp -> chirpchirp96
+            643102 => 227062, // Leminala -> xenoriddley
+            652075 => 109458, // 5360 -> kmpers
+            652199 => 349521, // TeensiesAlt -> TeensiesKing
+            652773 => 574013, // DrAOTW -> DrDeadbeat
+            654786 => 465578, // STP2 -> ShagthePoker
+            655145 => 97387,  // Shorty132471alt -> Shorty132471
+            665454 => 226183, // Erbaciola82 -> Erbaciola28
+            685677 => 139574, // dackte2 -> DackTe
+            700483 => 56311,  // Mindhralt -> Mindhral
+            702524 => 18698,  // ToxAntidote -> ToxicAntidote
+            716787 => 1882,   // RodLimaAlt -> RodLima
+            718876 => 139091, // luis025alt -> luis025
+            739398 => 614790, // kavihassu -> havikassu
+            740273 => 231896, // ShaoProxy -> Shaoden
+            746112 => 184606, // Blatancy2 -> Blatancy
+            751347 => 627789, // altea -> ahtea
+            812211 => 77579,  // Altferno93 -> Impferno93
+            825772 => 282363, // XTRMNTR -> spoorloos
+            840066 => 489934, // TrucyStarAlt -> TrucyStar
+            840507 => 434245, // TheAltato4242 -> ThePotato4242
+            855590 => 147890, // CMatador2 -> CMatador
+            922924 => 332445, // pgomez2 -> pgomez
+            928160 => 709448, // LaothAlter -> Laoth
+            960168 => 158596, // pixelisakALT -> pizelisak
+            970171 => 531066, // Trifinn -> Linklight
+            971733 => 176624, // CocaineBearistotle -> Sobou
+            977983 => 226142, // ypaC -> Capy
+            978342 => 261290, // SecondSpagyet -> Spagyeti
+            979687 => 381134, // austin83599 -> austin8259
+            979791 => 763895, // converge -> scatter
+            982346 => 204471, // CassetteCobraAlt -> CassetteCobra
+            1019869=> 3942,   // bonecrusher1023 -> bonecrusher1022
+            default => $userId,
+        };
     }
 }
 
