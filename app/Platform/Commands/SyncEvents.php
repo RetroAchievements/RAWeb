@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Schema;
 
 class SyncEvents extends Command
 {
-    protected $signature = 'ra:sync:events {gameId?}';
+    protected $signature = 'ra:sync:events {gameId?} {--test}';
     protected $description = 'Sync events from event games';
 
     public function __construct()
@@ -37,18 +37,6 @@ class SyncEvents extends Command
 
     public function handle(): void
     {
-        if (Schema::hasColumn('event_awards', 'achievements_required')) {
-            Schema::table('event_awards', function (Blueprint $table) {
-                $table->renameColumn('achievements_required', 'points_required');
-            });
-        }
-
-        // special conversions
-        //PlayerBadge::where('user_id', User::where('User', 'jplima')->first()->id)->where('AwardData', 1018)->update(['AwardDataExtra' => 1]); // eliminates softcore badge for Devember 2019
-
-        //PlayerBadge::whereIn('user_id', User::whereIn('User', ['Pebete', 'AuburnRDM', 'TheJediSonic', 'Fridge', 'DanB'])->pluck('ID'))
-        //    ->where('AwardData', 7970)->update(['AwardDataExtra' => 1]); // eliminates softcore badge for Devember 2022
-
         $gameConversions = [
             // ===== 2017 =====
 
@@ -107,7 +95,7 @@ class SyncEvents extends Command
             ]),
             14400 => new ConvertCollapse('community-rescore', '7/14/2019', '7/28/2019'),
             14404 => new ConvertCollapse('retro-cleanup-2019', '3/1/2019', '3/31/2019'),
-            1018 => new ConvertToSoftcoreTiered('devember-2019', 'Any points', '320 points', 90625),
+            1018 => new ConvertToSoftcoreTiered('devember-2019', 'Any points', '320 points'),
 
             // ===== 2020 =====
 
@@ -552,11 +540,16 @@ class SyncEvents extends Command
 
         $gameCount = count($gameConversions);
 
-        $this->info("\nUpserting {$gameCount} events derived from event games.");
+        $test = $this->option('test');
+        if ($test) {
+            $this->info("\nTesting conversion of {$gameCount} event games.");
+        } else {
+            $this->info("\nUpserting {$gameCount} events derived from event games.");
+        }
         $progressBar = $this->output->createProgressBar($gameCount);
 
         foreach ($gameConversions as $gameId => $conversion) {
-            if ($id) {
+            if ($test) {
                 $before = $conversion->captureBefore($gameId);
                 DB::beginTransaction();
             }
@@ -564,19 +557,15 @@ class SyncEvents extends Command
             try {
                 $conversion->convert($this, $gameId);
 
-                if ($id) {
-                    if ($conversion->validate($this, $gameId, $before)) {
-                        //DB::rollBack();
-                        DB::commit();
-                    } else {
-                        //DB::commit();
-                        DB::rollBack();
-                    }
+                if ($test) {
+                    $this->dumpConverted($this, $gameId);
+                    $conversion->validate($this, $gameId, $before);
                 }
             } catch (Exception $e) {
-                if ($id) {
-                    DB::rollBack();
-                }
+            }
+
+            if ($test) {
+                DB::rollBack();
             }
 
             $progressBar->advance();
@@ -585,6 +574,17 @@ class SyncEvents extends Command
         $progressBar->finish();
 
         $this->info("\nDone.");
+    }
+
+    private function dumpConverted(Command $command, int $gameId): void
+    {
+        $game = Game::find($gameId);
+        $event = $game->event;
+
+        $achievements = $game->achievements()->published()->orderBy('DisplayOrder')->get();
+        foreach ($achievements as $achievement) {
+            $this->info(sprintf("  %6u %5u/%u %s", $achievement->ID,  $achievement->unlocks_hardcore_total, $game->players_hardcore, $achievement->Title));
+        }
     }
 }
 
@@ -961,7 +961,20 @@ class ConvertAprilFools extends ConvertGame
 
     protected function convertSiteAwards(Event $event): void
     {
-        // convert all badges to hardcore badges
+        // delete softcore badges where hardcore badges exist
+        $hardcoreBadgeUserIds = PlayerBadge::where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $event->legacyGame->id)
+            ->where('AwardDataExtra', 1)
+            ->pluck('user_id')
+            ->toArray();
+
+        PlayerBadge::where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $event->legacyGame->id)
+            ->where('AwardDataExtra', 0)
+            ->whereIn('user_id', $hardcoreBadgeUserIds)
+            ->delete();
+
+        // convert all remaining badges to hardcore event badges
         $badges = PlayerBadge::where('AwardType', AwardType::Mastery)
             ->where('AwardData', $event->legacyGame->id)
             ->update([
@@ -1364,7 +1377,7 @@ class ConvertToTiered extends ConvertGame
                     // convert badge to current tier
                     $userIds = User::whereIn('User', $users)->withTrashed()->pluck('ID')->toArray();
                     foreach ($userIds as $userId) {
-                        $this->convertBadge($event, $userId, $tier_index);
+                        $this->convertBadge($event, $event->legacyGame->id, $userId, $tier_index);
                     }
 
                     // keep track of users eligible for later achievements
@@ -1403,11 +1416,11 @@ class ConvertToTiered extends ConvertGame
             ->delete();
     }
 
-    protected function convertBadge(Event $event, int $userId, int $tier_index): void
+    protected function convertBadge(Event $event, int $gameId, int $userId, int $tier_index): void
     {
         // find hardcore badge
         $badge = PlayerBadge::where('AwardType', AwardType::Mastery)
-            ->where('AwardData', $event->legacyGame->id)
+            ->where('AwardData', $gameId)
             ->where('AwardDataExtra', 1)
             ->where('user_id', $userId)
             ->first();
@@ -1415,7 +1428,7 @@ class ConvertToTiered extends ConvertGame
         if (!$badge) {
             // hardcore badge not found, look for softcore badge
             $badge = PlayerBadge::where('AwardType', AwardType::Mastery)
-                ->where('AwardData', $event->legacyGame->id)
+                ->where('AwardData', $gameId)
                 ->where('AwardDataExtra', 0)
                 ->where('user_id', $userId)
                 ->first();
@@ -1440,14 +1453,12 @@ class ConvertToSoftcoreTiered extends ConvertGame
 {
     protected string $softcoreLabel;
     protected string $hardcoreLabel;
-    protected int $hardcoreAchievementId;
 
-    public function __construct(string $slug, string $softcoreLabel, string $hardcoreLabel, int $hardcoreAchievementId = 0)
+    public function __construct(string $slug, string $softcoreLabel, string $hardcoreLabel)
     {
         $this->slug = $slug;
         $this->softcoreLabel = $softcoreLabel;
         $this->hardcoreLabel = $hardcoreLabel;
-        $this->hardcoreAchievementId = $hardcoreAchievementId;
     }
 
     protected function convertSiteAwards(Event $event): void
@@ -1484,12 +1495,10 @@ class ConvertToSoftcoreTiered extends ConvertGame
     protected function process(Command $command, Event $event): void
     {
         $description = "Earn $this->softcoreLabel";
-        $winnerAchievement = ($this->hardcoreAchievementId)
-            ? Achievement::find($this->hardcoreAchievementId)
-            : Achievement::where('GameID', $event->legacyGame->id)->where('Description', $description)->first();
+        $winnerAchievement = Achievement::where('GameID', $event->legacyGame->id)->where('Description', $description)->first();
         if (!$winnerAchievement) {
             $winnerAchievement = Achievement::create([
-                'Title' => 'Winner',
+                'Title' => $this->softcoreLabel,
                 'Description' => $description,
                 'Points' => 1,
                 'MemAddr' => '0=1',
@@ -1523,14 +1532,20 @@ class ConvertToSoftcoreTiered extends ConvertGame
 
         // convert achievements to event achievements
         $first = true;
+        $lastBadge = '00000';
         foreach ($event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value) as $achievement) {
             $this->createEventAchievement($command, $achievement);
+            $lastBadge = $achievement->BadgeName;
 
             if ($first) {
                 $first = false;
 
                 if (!PlayerAchievement::where('achievement_id', $winnerAchievement->id)->exists()) {
-                    foreach (PlayerAchievement::where('achievement_id', $achievement->id)->get() as $playerAchievement) {
+                    foreach (PlayerAchievement::where('achievement_id', $achievement->id)->with('user')->get() as $playerAchievement) {
+                        if ($playerAchievement->user->Untracked || $playerAchievement->user->unranked_at) {
+                            continue;
+                        }
+
                         if ($playerAchievement->unlocked_hardcore_at) {
                             // duplicate any hardcore unlocks for this achievement to the Winner achievement
                             PlayerAchievement::create([
@@ -1554,6 +1569,11 @@ class ConvertToSoftcoreTiered extends ConvertGame
             PlayerAchievement::where('achievement_id', $achievement->id)
                 ->whereNull('unlocked_hardcore_at')
                 ->delete();
+        }
+
+        if ($winnerAchievement->BadgeName === '00000') {
+            $winnerAchievement->BadgeName = $lastBadge;
+            $winnerAchievement->save();
         }
 
         $this->updateMetrics($event);
@@ -1586,7 +1606,6 @@ class ConvertToCollapsedTiered extends ConvertToTiered
         // do not process site awards here, we'll do it later so we can assign tiers
     }
 
-
     public function captureBefore(int $gameId): array
     {
         $before = [];
@@ -1597,7 +1616,6 @@ class ConvertToCollapsedTiered extends ConvertToTiered
                 ->where('AwardData', $tierGameId)
                 ->orderBy('AwardDataExtra'); // force softcore awards first so they overwritten if the user also has a hardcore award
 
-            $before = [];
             foreach ($badges->get() as $badge) {
                 $before[$badge->user_id] = [
                     'AwardDate' => $badge->AwardDate,
@@ -1628,8 +1646,6 @@ class ConvertToCollapsedTiered extends ConvertToTiered
         Achievement::whereIn('ID', $this->achievements)
             ->update(['Flags' => AchievementFlag::OfficialCore->value]);
 
-        $eventGameUserIds = PlayerGame::where('game_id', $event->legacyGame->id)->pluck('user_id')->toArray();
-
         $tier_index = 1;
         foreach ($this->tiers as $gameId => $label) {
             $eventAward = EventAward::where('event_id', $event->id)
@@ -1648,8 +1664,11 @@ class ConvertToCollapsedTiered extends ConvertToTiered
 
             // migrate the player game metrics to the merged game
             if ($gameId != $event->legacyGame->id) {
+                $usersToNotMigrate = PlayerGame::where('game_id', $event->legacyGame->id)
+                    ->pluck('user_id')
+                    ->toArray();
                 PlayerGame::where('game_id', $gameId)
-                    ->whereNotIn('user_id', $eventGameUserIds)
+                    ->whereNotIn('user_id', $usersToNotMigrate)
                     ->update(['game_id' => $event->legacyGame->id]);
             }
 
@@ -1675,13 +1694,16 @@ class ConvertToCollapsedTiered extends ConvertToTiered
         }
 
         $tier_index = count($this->tiers);
+        $gameIds = array_keys($this->tiers);
         $count = count($this->achievements);
         $allUserIds = [];
         $previousAchievementIds = [];
         foreach (array_reverse($this->achievements) as $achievementId) {
-            $userIds = $achievement->playerAchievements()->pluck('user_id')->toArray();
+            $gameId = $gameIds[$tier_index - 1];
+            $userIds = PlayerAchievement::where('achievement_id', $achievementId)
+                ->pluck('user_id')->toArray();
             foreach ($userIds as $userId) {
-                $this->convertBadge($event, $userId, $tier_index);
+                $this->convertBadge($event, $gameId, $userId, $tier_index);
             }
 
             // reassign unlocks from a secondary achievement in the first tier set to the primary achievement in the new tier set
