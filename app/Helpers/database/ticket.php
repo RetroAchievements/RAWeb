@@ -37,7 +37,11 @@ function submitNewTicketsJSON(
     }
 
     $note = $noteIn;
-    $note .= "\nRetroAchievements Hash: $RAHash";
+
+    $gameHash = GameHash::where('md5', '=', $RAHash)->first();
+    if (!$gameHash) {
+        $note .= "\nRetroAchievements Hash: $RAHash";
+    }
 
     $achievementIDs = explode(',', $idsCSV);
 
@@ -65,6 +69,10 @@ function submitNewTicketsJSON(
         if ($ticketID === 0) {
             $errorsEncountered = true;
         } else {
+            if ($gameHash) {
+                Ticket::where('id', $ticketID)->update(['game_hash_id' => $gameHash->id]);
+            }
+
             $idsAdded++;
         }
     }
