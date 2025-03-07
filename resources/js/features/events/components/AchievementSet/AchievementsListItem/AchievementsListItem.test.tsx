@@ -138,7 +138,7 @@ describe('Component: AchievementsListItem', () => {
           description: 'Test Description',
           unlocksTotal: 100,
           unlocksHardcoreTotal: 50,
-          unlockHardcorePercentage: 10,
+          unlockHardcorePercentage: '0.1',
         })}
         index={0}
         isLargeList={false}
