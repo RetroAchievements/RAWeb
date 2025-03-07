@@ -527,6 +527,7 @@ declare namespace App.Platform.Data {
     imageBoxArtUrl?: string;
     imageIngameUrl?: string;
     imageTitleUrl?: string;
+    isSubsetGame?: boolean;
     claimants?: Array<App.Platform.Data.GameClaimant>;
   };
   export type GameHash = {
