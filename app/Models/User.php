@@ -380,7 +380,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     public function getRouteKey(): string
     {
-        return !empty($this->display_name) ? $this->display_name : 'User';
+        return $this->display_name;
     }
 
     public function resolveRouteBinding($value, $field = null): ?self
@@ -434,16 +434,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
             : Carbon::now(); // Created is currently nullable
     }
 
-    public function getDisplayNameAttribute(): ?string
-    {
-       if (!empty($this->attributes['display_name'])) {
-           return $this->attributes['display_name'];
-       }
-
-       return $this->username ?? null;
-    }
-
-    public function getUsernameAttribute(): ?string
+    public function getUsernameAttribute(): string
     {
         return $this->getAttribute('User');
     }
