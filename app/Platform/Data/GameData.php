@@ -34,6 +34,7 @@ class GameData extends Data
         public Lazy|string $imageBoxArtUrl,
         public Lazy|string $imageIngameUrl,
         public Lazy|string $imageTitleUrl,
+        public Lazy|bool $isSubsetGame,
         /** @var Lazy|array<GameClaimantData> */
         public Lazy|array $claimants,
     ) {
@@ -51,6 +52,7 @@ class GameData extends Data
             imageBoxArtUrl: Lazy::create(fn () => $game->image_box_art_url),
             imageIngameUrl: Lazy::create(fn () => $game->image_ingame_url),
             imageTitleUrl: Lazy::create(fn () => $game->image_title_url),
+            isSubsetGame: Lazy::create(fn () => $game->is_subset_game),
             lastUpdated: Lazy::create(fn () => $game->lastUpdated),
             numUnresolvedTickets: Lazy::create(fn () => $game->num_unresolved_tickets ?? 0),
             numVisibleLeaderboards: Lazy::create(fn () => $game->num_visible_leaderboards ?? 0),
