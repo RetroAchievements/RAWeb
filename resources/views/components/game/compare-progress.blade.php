@@ -14,12 +14,11 @@ use App\Models\UserRelation;
 $followedUserCompletion = null;
 
 if ($user !== null) {
-    $limitedFollowedUsers = UserRelation::query()
+    $followedUsers = UserRelation::query()
         ->join('UserAccounts', 'Friends.related_user_id', '=', 'UserAccounts.ID')
         ->where('Friends.user_id', '=', $user->id)
         ->where('Friends.Friendship', '=', UserRelationship::Following)
         ->select('UserAccounts.ID')
-        ->orderBy('LastLogin', 'DESC')
         ->pluck('ID')
         ->toArray();
 
@@ -35,7 +34,7 @@ if ($user !== null) {
     ];
 
     $followedUserCompletion = PlayerGame::where('game_id', $game->id)
-        ->whereIn('user_id', $limitedFollowedUsers)
+        ->whereIn('user_id', $followedUsers)
         ->where(function ($query) {
             $query->where('achievements_unlocked', '>', 0)
                 ->orWhere('achievements_unlocked_hardcore', '>', 0);
@@ -43,7 +42,7 @@ if ($user !== null) {
         ->select($fields)
         ->orderBy('achievements_unlocked_hardcore', 'DESC')
         ->orderBy('achievements_unlocked', 'DESC')
-        ->orderBy('last_unlock_at')
+        ->orderBy('last_unlock_at', 'DESC')
         ->limit(50)
         ->get()
         ->toArray();
