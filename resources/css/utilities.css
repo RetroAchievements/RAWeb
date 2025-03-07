@@ -6,6 +6,24 @@
   .container {
     @apply sm:max-w-[theme('screens.lg')] xl:max-w-[theme('screens.xl')];
   }
+
+  .zebra-list > * {
+    @apply outline outline-1 outline-transparent -outline-offset-1;
+  }
+  .zebra-list > *:nth-child(odd) {
+    @apply bg-[rgba(50,50,50,0.3)];
+  }
+  [data-scheme='light'] .zebra-list > *:nth-child(odd),
+  [data-scheme='system'] .zebra-list > *:nth-child(odd) {
+    @apply bg-[rgba(80,80,80,0.09)];
+  }
+  .zebra-list > *:hover:not(.no-hover) {
+    @apply outline-[rgba(128,128,128,0.3)] bg-[rgba(128,128,128,0.2)];
+  }
+  [data-scheme='light'] .zebra-list > *:hover:not(.no-hover),
+  [data-scheme='system'] .zebra-list > *:hover:not(.no-hover) {
+    @apply outline-[rgba(128,128,128,0.4)] bg-[rgba(128,128,128,0.22)];
+  }
 }
 
 @layer utilities {

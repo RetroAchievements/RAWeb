@@ -25,6 +25,21 @@ describe('Component: AchievementGameTitle', () => {
     expect(screen.getByText(/n64/i)).toBeVisible();
   });
 
+  it('given there is no system short name, does not crash and displays empty system', () => {
+    // ARRANGE
+    const system = createSystem({ nameShort: undefined });
+    const game = createGame({ title: 'StarCraft 64', system });
+
+    const { container } = render(<AchievementGameTitle game={game} />, {
+      pageProps: { auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) } },
+    });
+
+    // ASSERT
+    expect(container).toBeTruthy();
+    expect(screen.getByText(/starcraft/i)).toBeVisible();
+    expect(screen.getByText(/\(\)/i)).toBeVisible();
+  });
+
   it('links to the game', () => {
     // ARRANGE
     const system = createSystem({ nameShort: 'N64' });

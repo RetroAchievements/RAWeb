@@ -494,8 +494,14 @@ declare namespace App.Platform.Data {
   export type EventShowPagePropsData = {
     event: App.Platform.Data.Event;
     can: App.Data.UserPermissions;
+    hubs: Array<App.Platform.Data.GameSet>;
+    followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
+  };
+  export type FollowedPlayerCompletion = {
+    user: App.Data.User;
+    playerGame: App.Platform.Data.PlayerGame;
   };
   export type GameClaimant = {
     user: App.Data.User;
@@ -521,6 +527,7 @@ declare namespace App.Platform.Data {
     imageBoxArtUrl?: string;
     imageIngameUrl?: string;
     imageTitleUrl?: string;
+    isSubsetGame?: boolean;
     claimants?: Array<App.Platform.Data.GameClaimant>;
   };
   export type GameHash = {

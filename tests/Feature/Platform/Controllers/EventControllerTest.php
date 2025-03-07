@@ -6,9 +6,11 @@ namespace Tests\Feature\Platform\Controllers;
 
 use App\Models\Event;
 use App\Models\Game;
+use App\Models\GameSet;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Enums\GameSetType;
 use Carbon\Carbon;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -126,5 +128,35 @@ class EventControllerTest extends TestCase
 
         // Assert
         $response->assertOk();
+    }
+
+    public function testShowIncludesHubsAssociatedWithEventGame(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['ID' => System::Events]);
+        $game = Game::factory()->create([
+            'Title' => 'Event 001',
+            'ConsoleID' => $system->id,
+        ]);
+        $event = Event::factory()->create([
+            'legacy_game_id' => $game->id,
+            'slug' => 'event-001',
+            'active_from' => '2020-01-01',
+        ]);
+
+        $hub1 = GameSet::factory()->create(['type' => GameSetType::Hub, 'title' => 'Hub 1']);
+        $hub2 = GameSet::factory()->create(['type' => GameSetType::Hub, 'title' => 'Hub 2']);
+        $game->gameSets()->attach([$hub1->id, $hub2->id]);
+
+        // Act
+        $response = $this->get(route('event.show', $event));
+
+        // Assert
+        $response->assertOk();
+        $response->assertInertia(fn ($page) => $page
+            ->has('hubs', 2)
+            ->where('hubs.0.title', 'Hub 1')
+            ->where('hubs.1.title', 'Hub 2')
+        );
     }
 }

@@ -8,8 +8,10 @@ use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Event;
 use App\Models\User;
+use App\Platform\Actions\BuildFollowedPlayerCompletionAction;
 use App\Platform\Data\EventData;
 use App\Platform\Data\EventShowPagePropsData;
+use App\Platform\Data\GameSetData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
 use Illuminate\Http\Request;
@@ -79,6 +81,7 @@ class EventController extends Controller
                 'eventAchievements',
                 'eventAwards',
                 'eventAwards.badgeCount',
+                'legacyGame.achievementsPublished',
                 'legacyGame.badgeUrl',
                 'legacyGame.forumTopicId',
                 'legacyGame.imageBoxArtUrl',
@@ -86,9 +89,12 @@ class EventController extends Controller
                 'legacyGame.imageTitleUrl',
                 'legacyGame.playersHardcore',
                 'legacyGame.playersTotal',
+                'legacyGame.pointsTotal',
                 'legacyGame',
                 'state',
             ),
+            hubs: $event->legacyGame->hubs->map(fn ($hub) => GameSetData::from($hub))->all(),
+            followedPlayerCompletions: (new BuildFollowedPlayerCompletionAction())->execute($user, $event->legacyGame),
             playerGame: $playerGame ? PlayerGameData::fromPlayerGame($playerGame) : null,
             playerGameProgressionAwards: $user
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($event->legacyGame->id, $user))
