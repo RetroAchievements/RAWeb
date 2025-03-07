@@ -277,7 +277,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     public function getFilamentName(): string
     {
-        return $this->getDisplayNameAttribute();
+        return $this->display_name;
     }
 
     // search
