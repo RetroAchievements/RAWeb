@@ -6,6 +6,7 @@ namespace App\Community;
 
 use App\Community\Commands\ConvertGameShortcodesToHubs;
 use App\Community\Commands\GenerateAnnualRecap;
+use App\Community\Commands\MigrateTicketCommentMetadata;
 use App\Community\Commands\SyncComments;
 use App\Community\Commands\SyncForumCategories;
 use App\Community\Commands\SyncForums;
@@ -51,6 +52,8 @@ class AppServiceProvider extends ServiceProvider
             $this->commands([
                 ConvertGameShortcodesToHubs::class,
 
+                MigrateTicketCommentMetadata::class,
+                
                 SyncComments::class,
                 SyncForumCategories::class,
                 SyncForums::class,
