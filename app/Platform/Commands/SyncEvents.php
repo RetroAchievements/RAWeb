@@ -1382,17 +1382,29 @@ class ConvertToTiered extends ConvertGame
                 $userIds = PlayerAchievement::where('achievement_id', $achievementId)
                     ->whereNotNull('unlocked_hardcore_at')
                     ->pluck('user_id')->toArray();
-            } elseif ($users === "to_hardcore") {
-                $userIds = PlayerAchievement::where('achievement_id', $achievementId)
-                    ->pluck('user_id')->toArray();
-            } else {
-                $userIds = User::whereIn('User', $users)->pluck('ID')->toArray();
-            }
 
-            $allUserIds = array_merge($allUserIds, $userIds);
-            foreach ($allUserIds as $userId) {
-                if (array_key_exists($userId, $before)) {
-                    $before[$userId]['AwardDataExtra'] = $before[$userId]['AwardDataExtra'] + 1;
+                // only update hardcore users - allUserIds may contain softcore users from to_hardcore tier
+                foreach ($userIds as $userId) {
+                    if (array_key_exists($userId, $before)) {
+                        $before[$userId]['AwardDataExtra'] = $before[$userId]['AwardDataExtra'] + 1;
+                    }
+                }
+
+                $allUserIds = array_merge($allUserIds, $userIds);
+            } else {
+                if ($users === "to_hardcore") {
+                    $userIds = PlayerAchievement::where('achievement_id', $achievementId)
+                        ->pluck('user_id')->toArray();
+                } else {
+                    $userIds = User::whereIn('User', $users)->pluck('ID')->toArray();
+                }
+
+                $allUserIds = array_merge($allUserIds, $userIds);
+
+                foreach ($allUserIds as $userId) {
+                    if (array_key_exists($userId, $before)) {
+                        $before[$userId]['AwardDataExtra'] = $before[$userId]['AwardDataExtra'] + 1;
+                    }
                 }
             }
 
@@ -1408,7 +1420,7 @@ class ConvertToTiered extends ConvertGame
                     break;
                 }
 
-                if ($count < $badge['AwardDataExtra']) {
+                if ($count > $badge['AwardDataExtra']) {
                     $badge['AwardDataExtra'] = $tier_index - 1;
                     break;
                 }
@@ -1449,6 +1461,27 @@ class ConvertToTiered extends ConvertGame
             $tier_index++;
         }
 
+        // if a tier is hardcore_only, process it's badges now so the to_hardcore tier
+        // can convert all remaining badges.
+        $tier_index = count($tier_counts);
+        foreach ($this->achievements as $achievementId => $users) {
+            if ($users === 'hardcore_only') {
+                PlayerBadge::where('AwardType', AwardType::Mastery)
+                    ->where('AwardData', $event->legacyGame->id)
+                    ->where('AwardDataExtra', 1)
+                    ->update([
+                        'AwardType' => AwardType::Event,
+                        'AwardData' => $event->id,
+                        'AwardDataExtra' => $tier_index,
+                    ]);
+            } 
+
+            // update tier_index if crossing a threshold
+            if ($tier_index > 0 && $tier_counts[$tier_index - 1] === $count) {
+                $tier_index--;
+            }
+        }
+
         // convert achievements to event achievements
         $tier_index = count($tier_counts);
         $count = count($this->achievements);
@@ -1469,51 +1502,39 @@ class ConvertToTiered extends ConvertGame
                 PlayerAchievement::where('achievement_id', $achievementId)
                     ->whereNull('unlocked_hardcore_at')
                     ->delete();
-
-                // convert hardcore badge to tiered badge
+            } elseif ($users === 'to_hardcore') {
+                // convert hardcore and softcore badge to tiered badge
                 PlayerBadge::where('AwardType', AwardType::Mastery)
                     ->where('AwardData', $event->legacyGame->id)
-                    ->where('AwardDataExtra', 1)
                     ->update([
                         'AwardType' => AwardType::Event,
                         'AwardData' => $event->id,
                         'AwardDataExtra' => $tier_index,
                     ]);
+
+                // copy softcore unlock time to hardcore unlock time and 
+                // update any softcore unlocks at this tier to hardcore
+                PlayerAchievement::where('achievement_id', $achievementId)
+                    ->update(['unlocked_hardcore_at' => DB::raw('unlocked_at')]);
             } else {
-                if ($users === 'to_hardcore') {
-                    // convert hardcore and softcore badge to tiered badge
-                    PlayerBadge::where('AwardType', AwardType::Mastery)
-                        ->where('AwardData', $event->legacyGame->id)
-                        ->update([
-                            'AwardType' => AwardType::Event,
-                            'AwardData' => $event->id,
-                            'AwardDataExtra' => $tier_index,
-                        ]);
-
-                    // copy softcore unlock time to hardcore unlock time and 
-                    // update any softcore unlocks at this tier to hardcore
-                    PlayerAchievement::where('achievement_id', $achievementId)
-                        ->update(['unlocked_hardcore_at' => DB::raw('unlocked_at')]);
-                } else {
-                    // convert badge to current tier
-                    $userIds = User::whereIn('User', $users)->withTrashed()->pluck('ID')->toArray();
-                    foreach ($userIds as $userId) {
-                        $this->convertBadge($event, $event->legacyGame->id, $userId, $tier_index);
-                    }
-
-                    // keep track of users eligible for later achievements
-                    $allUserIds = array_merge($allUserIds, $userIds);
-
-                    // delete all unlocks for users not at this tier
-                    PlayerAchievement::where('achievement_id', $achievementId)
-                        ->whereNotIn('user_id', $allUserIds)
-                        ->delete();
-
-                    // update any softcore unlocks at this tier to hardcore
-                    PlayerAchievement::where('achievement_id', $achievementId)
-                        ->whereNull('unlocked_hardcore_at')
-                        ->update(['unlocked_hardcore_at' => DB::raw('unlocked_at')]);
+                // convert badge to current tier
+                $userIds = User::whereIn('User', $users)->withTrashed()->pluck('ID')->toArray();
+                foreach ($userIds as $userId) {
+                    $this->convertBadge($event, $event->legacyGame->id, $userId, $tier_index);
                 }
+
+                // keep track of users eligible for later achievements
+                $allUserIds = array_merge($allUserIds, $userIds);
+
+                // delete all unlocks for users not at this tier
+                PlayerAchievement::where('achievement_id', $achievementId)
+                    ->whereNotIn('user_id', $allUserIds)
+                    ->delete();
+
+                // update any softcore unlocks at this tier to hardcore
+                PlayerAchievement::where('achievement_id', $achievementId)
+                    ->whereNull('unlocked_hardcore_at')
+                    ->update(['unlocked_hardcore_at' => DB::raw('unlocked_at')]);
             }
 
             // update tier_index if crossing a threshold
