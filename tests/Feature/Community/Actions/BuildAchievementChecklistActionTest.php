@@ -229,6 +229,7 @@ class BuildAchievementChecklistActionTest extends TestCase
     private function wrapAchievement(Achievement $achievement, ?Carbon $hardcoreUnlock = null, ?Carbon $softcoreUnlock = null): array
     {
         $achievement->loadMissing('game');
+        $achievement->refresh(); // fetch updated aggregate values
 
         return [
             'id' => $achievement->ID,
@@ -239,10 +240,19 @@ class BuildAchievementChecklistActionTest extends TestCase
             'badgeLockedUrl' => $achievement->badgeLockedUrl,
             'unlockedAt' => $softcoreUnlock ? $softcoreUnlock->format('c') : ($hardcoreUnlock ? $hardcoreUnlock->format('c') : null),
             'unlockedHardcoreAt' => $hardcoreUnlock ? $hardcoreUnlock->format('c') : null,
+            'unlocksTotal' => $achievement->unlocks_total,
+            'unlocksHardcoreTotal' => $achievement->unlocks_hardcore_total,
+            'unlockHardcorePercentage' => $achievement->unlock_hardcore_percentage,
             'game' => [
                 'id' => $achievement->game->id,
                 'title' => $achievement->game->title,
                 'badgeUrl' => $achievement->game->badgeUrl,
+                'playersTotal' => $achievement->game->players_total,
+                'system' => [
+                    'id' => $achievement->game->system->id,
+                    'name' => $achievement->game->system->name,
+                    'nameShort' => $achievement->game->system->name_short,
+                ],
             ],
         ];
     }
