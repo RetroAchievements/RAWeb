@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\HubResource\RelationManagers;
 
+use App\Filament\Actions\ParseIdsFromCsvAction;
 use App\Filament\Resources\HubResource;
 use App\Models\GameSet;
 use App\Platform\Actions\AttachGameLinksToGameSetAction;
@@ -69,6 +70,14 @@ class ParentHubsRelationManager extends RelationManager
                 Tables\Actions\Action::make('add')
                     ->label('Add related hubs')
                     ->form([
+                        Forms\Components\TextInput::make('hub_ids_csv')
+                            ->label('Hub IDs (CSV)')
+                            ->placeholder('729,2204,3987,53')
+                            ->helperText('Enter hub IDs separated by commas or spaces. URLs are also supported.')
+                            ->hidden(fn (Forms\Get $get): bool => filled($get('hub_ids')))
+                            ->disabled(fn (Forms\Get $get): bool => filled($get('hub_ids')))
+                            ->live(debounce: 200),
+
                         Forms\Components\Select::make('hub_ids')
                             ->label('Hubs')
                             ->multiple()
@@ -91,14 +100,38 @@ class ParentHubsRelationManager extends RelationManager
                                     ->get()
                                     ->mapWithKeys(fn ($gameSet) => [$gameSet->id => "[{$gameSet->id} {$gameSet->title}]"]);
                             })
-                            ->required(),
+                            ->hidden(fn (Forms\Get $get): bool => filled($get('hub_ids_csv')))
+                            ->disabled(fn (Forms\Get $get): bool => filled($get('hub_ids_csv')))
+                            ->live()
+                            ->helperText('... or search and select hubs to add.'),
                     ])
                     ->modalHeading('Add related hub links to hub')
+                    ->modalAutofocus(false)
                     ->action(function (array $data): void {
                         /** @var GameSet $gameSet */
                         $gameSet = $this->getOwnerRecord();
 
-                        (new AttachGameLinksToGameSetAction())->execute($gameSet, $data['hub_ids']);
+                        // Handle select field input.
+                        if (!empty($data['hub_ids'])) {
+                            (new AttachGameLinksToGameSetAction())->execute($gameSet, $data['hub_ids']);
+
+                            return;
+                        }
+
+                        // Handle CSV input.
+                        if (!empty($data['hub_ids_csv'])) {
+                            $hubIds = (new ParseIdsFromCsvAction())->execute($data['hub_ids_csv']);
+
+                            // Validate that these hubs can be attached.
+                            $hubGameSets = GameSet::whereType(GameSetType::Hub)
+                                ->whereIn('id', $hubIds)
+                                ->whereNotIn('id', $this->getOwnerRecord()->parents->pluck('id'))
+                                ->get();
+
+                            foreach ($hubGameSets as $hubGameSet) {
+                                (new AttachGameLinksToGameSetAction())->execute($gameSet, [$hubGameSet->id]);
+                            }
+                        }
                     }),
             ])
             ->actions([

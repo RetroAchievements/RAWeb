@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\Pages;
 
+use App\Filament\Actions\ParseIdsFromCsvAction;
 use App\Filament\Resources\GameResource;
 use App\Models\Game;
 use App\Models\GameSet;
@@ -71,6 +72,14 @@ class Hubs extends ManageRelatedRecords
                 Tables\Actions\Action::make('add')
                     ->label('Add hubs')
                     ->form([
+                        Forms\Components\TextInput::make('hub_ids_csv')
+                            ->label('Hub IDs (CSV)')
+                            ->placeholder('729,2204,3987,53')
+                            ->helperText('Enter hub IDs separated by commas or spaces. URLs are also supported.')
+                            ->hidden(fn (Forms\Get $get): bool => filled($get('hub_ids')))
+                            ->disabled(fn (Forms\Get $get): bool => filled($get('hub_ids')))
+                            ->live(debounce: 200),
+
                         Forms\Components\Select::make('hub_ids')
                             ->label('Hubs')
                             ->multiple()
@@ -99,7 +108,11 @@ class Hubs extends ManageRelatedRecords
                                     ->limit(50)
                                     ->get()
                                     ->mapWithKeys(fn ($hub) => [$hub->id => "[{$hub->id}] {$hub->title}"]);
-                            }),
+                            })
+                            ->hidden(fn (Forms\Get $get): bool => filled($get('hub_ids_csv')))
+                            ->disabled(fn (Forms\Get $get): bool => filled($get('hub_ids_csv')))
+                            ->live()
+                            ->helperText('... or search and select hubs to add.'),
                     ])
                     ->modalHeading('Add hubs to game')
                     ->modalAutofocus(false)
@@ -107,12 +120,32 @@ class Hubs extends ManageRelatedRecords
                         /** @var Game $game */
                         $game = $this->getOwnerRecord();
 
-                        $gameSets = GameSet::whereType(GameSetType::Hub)
-                            ->whereIn('id', $data['hub_ids'])
-                            ->get();
+                        // Handle select field input.
+                        if (!empty($data['hub_ids'])) {
+                            $gameSets = GameSet::whereType(GameSetType::Hub)
+                                ->whereIn('id', $data['hub_ids'])
+                                ->get();
 
-                        foreach ($gameSets as $gameSet) {
-                            (new AttachGamesToGameSetAction())->execute($gameSet, [$game->id]);
+                            foreach ($gameSets as $gameSet) {
+                                (new AttachGamesToGameSetAction())->execute($gameSet, [$game->id]);
+                            }
+
+                            return;
+                        }
+
+                        // Handle CSV input.
+                        if (!empty($data['hub_ids_csv'])) {
+                            $hubIds = (new ParseIdsFromCsvAction())->execute($data['hub_ids_csv']);
+
+                            // Validate that these hubs can be attached.
+                            $gameSets = GameSet::whereType(GameSetType::Hub)
+                                ->whereIn('id', $hubIds)
+                                ->whereNotIn('id', $this->getOwnerRecord()->hubs->pluck('id'))
+                                ->get();
+
+                            foreach ($gameSets as $gameSet) {
+                                (new AttachGamesToGameSetAction())->execute($gameSet, [$game->id]);
+                            }
                         }
                     }),
             ])
