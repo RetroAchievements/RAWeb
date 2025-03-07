@@ -14,7 +14,7 @@ interface AchievementsListItemProps {
   achievement: App.Platform.Data.Achievement;
   index: number;
   isLargeList: boolean;
-  playersTotal: number;
+  playersTotal: number | null;
 
   /**
    * Wherever possible, map stuff onto `achievement`.
@@ -107,36 +107,38 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
         </div>
 
         {/* Progress bar and stats area */}
-        <div className="md:col-span-2 md:flex md:flex-col-reverse md:justify-end md:gap-y-1 md:pt-1">
-          {/* Meta chips */}
-          {/* <div className="hidden items-center justify-end gap-x-1 md:flex">
+        {playersTotal !== null ? (
+          <div className="md:col-span-2 md:flex md:flex-col-reverse md:justify-end md:gap-y-1 md:pt-1">
+            {/* Meta chips */}
+            {/* <div className="hidden items-center justify-end gap-x-1 md:flex">
           </div> */}
 
-          <p className="-mt-1.5 hidden text-center text-2xs md:block">
-            {t('{{percentage}} unlock rate', {
-              percentage: formatPercentage(unlockHardcorePercentage),
-            })}
-          </p>
+            <p className="-mt-1.5 hidden text-center text-2xs md:block">
+              {t('{{percentage}} unlock rate', {
+                percentage: formatPercentage(unlockHardcorePercentage),
+              })}
+            </p>
 
-          <p className="mb-0.5 flex gap-x-1 text-2xs md:mb-0 md:justify-center md:text-center">
-            <ProgressBarMetaText achievement={achievement} playersTotal={playersTotal} />
-          </p>
+            <p className="mb-0.5 flex gap-x-1 text-2xs md:mb-0 md:justify-center md:text-center">
+              <ProgressBarMetaText achievement={achievement} playersTotal={playersTotal} />
+            </p>
 
-          <BaseProgress
-            className="h-1"
-            max={1521}
-            segments={[
-              {
-                value: unlocksHardcoreTotal,
-                className: 'bg-gradient-to-r from-amber-500 to-[gold]',
-              },
-              {
-                value: unlocksTotal - unlocksHardcoreTotal,
-                className: 'bg-neutral-500',
-              },
-            ]}
-          />
-        </div>
+            <BaseProgress
+              className="h-1"
+              max={playersTotal}
+              segments={[
+                {
+                  value: unlocksHardcoreTotal,
+                  className: 'bg-gradient-to-r from-amber-500 to-[gold]',
+                },
+                {
+                  value: unlocksTotal - unlocksHardcoreTotal,
+                  className: 'bg-neutral-500',
+                },
+              ]}
+            />
+          </div>
+        ) : null}
 
         {/* Dates (mobile) */}
         <AchievementDateMeta

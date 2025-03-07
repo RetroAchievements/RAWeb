@@ -37,6 +37,7 @@ class ReportAchievementIssueController extends Controller
             'unlockedAt',
             'unlockedHardcoreAt',
             'game',
+            'game.isSubsetGame',
             'game.system',
         );
 
