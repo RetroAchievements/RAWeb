@@ -441,8 +441,8 @@ declare namespace App.Platform.Data {
     pointsWeighted?: number;
     unlockedAt?: string;
     unlockedHardcoreAt?: string;
-    unlockHardcorePercentage?: number;
-    unlockPercentage?: number;
+    unlockHardcorePercentage?: string;
+    unlockPercentage?: string;
     unlocksHardcoreTotal?: number;
     unlocksTotal?: number;
   };
