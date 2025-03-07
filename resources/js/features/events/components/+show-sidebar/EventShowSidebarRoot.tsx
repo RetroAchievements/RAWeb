@@ -2,6 +2,7 @@ import type { FC } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { AchievementDistribution } from '../AchievementDistribution';
 import { BoxArtImage } from '../BoxArtImage';
 import { CompareProgress } from '../CompareProgress';
 import { EventAwardTiers } from '../EventAwardTiers';
@@ -10,7 +11,7 @@ import { HubsList } from '../HubsList';
 import { OfficialForumTopicButton } from '../OfficialForumTopicButton';
 
 export const EventShowSidebarRoot: FC = () => {
-  const { event, followedPlayerCompletions, hubs, playerGame } =
+  const { event, followedPlayerCompletions, hubs, playerAchievementChartBuckets, playerGame } =
     usePageProps<App.Platform.Data.EventShowPagePropsData>();
 
   return (
@@ -24,6 +25,7 @@ export const EventShowSidebarRoot: FC = () => {
         followedPlayerCompletions={followedPlayerCompletions}
         game={event.legacyGame!}
       />
+      <AchievementDistribution buckets={playerAchievementChartBuckets} playerGame={playerGame} />
     </div>
   );
 };
