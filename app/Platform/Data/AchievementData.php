@@ -10,6 +10,7 @@ use App\Platform\Enums\AchievementFlag;
 use Carbon\Carbon;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
+use Spatie\TypeScriptTransformer\Attributes\LiteralTypeScriptType;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript('Achievement')]
@@ -30,7 +31,9 @@ class AchievementData extends Data
         public Lazy|int $pointsWeighted,
         public Lazy|string $unlockedAt,
         public Lazy|string $unlockedHardcoreAt,
+        #[LiteralTypeScriptType('string')]
         public Lazy|float $unlockHardcorePercentage,
+        #[LiteralTypeScriptType('string')]
         public Lazy|float $unlockPercentage,
         public Lazy|int $unlocksHardcoreTotal,
         public Lazy|int $unlocksTotal,

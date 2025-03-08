@@ -441,8 +441,8 @@ declare namespace App.Platform.Data {
     pointsWeighted?: number;
     unlockedAt?: string;
     unlockedHardcoreAt?: string;
-    unlockHardcorePercentage?: number;
-    unlockPercentage?: number;
+    unlockHardcorePercentage?: string;
+    unlockPercentage?: string;
     unlocksHardcoreTotal?: number;
     unlocksTotal?: number;
   };
@@ -495,8 +495,14 @@ declare namespace App.Platform.Data {
     event: App.Platform.Data.Event;
     can: App.Data.UserPermissions;
     hubs: Array<App.Platform.Data.GameSet>;
+    followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
+    playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
+  };
+  export type FollowedPlayerCompletion = {
+    user: App.Data.User;
+    playerGame: App.Platform.Data.PlayerGame;
   };
   export type GameClaimant = {
     user: App.Data.User;
@@ -625,6 +631,12 @@ declare namespace App.Platform.Data {
     integrationVersion: string | null;
     extra: Array<any> | null;
     clientVariation: string | null;
+  };
+  export type PlayerAchievementChartBucket = {
+    start: number;
+    end: number;
+    softcore: number;
+    hardcore: number;
   };
   export type PlayerBadge = {
     awardType: number;
