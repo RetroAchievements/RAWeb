@@ -134,6 +134,22 @@ class Ticket extends BaseModel
         return $this->belongsTo(User::class, 'resolver_id', 'ID')->withTrashed();
     }
 
+    /**
+     * @return BelongsTo<Emulator, Ticket>
+     */
+    public function emulator(): BelongsTo
+    {
+        return $this->belongsTo(Emulator::class, 'emulator_id', 'id');
+    }
+
+    /**
+     * @return BelongsTo<GameHash, Ticket>
+     */
+    public function gameHash(): BelongsTo
+    {
+        return $this->belongsTo(GameHash::class, 'game_hash_id', 'id');
+    }
+
     // == scopes
 
     /**

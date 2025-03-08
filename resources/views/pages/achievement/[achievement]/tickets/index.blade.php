@@ -11,7 +11,7 @@ middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
 name('achievement.tickets');
 
 render(function (View $view, Achievement $achievement, TicketListService $ticketListService) {
-    $selectFilters = $ticketListService->getSelectFilters(showDevType: false, showAchievementType: false);
+    $selectFilters = $ticketListService->getSelectFilters(showDevType: false, showAchievementType: false, systemId: $achievement->game->system->id);
     $filterOptions = $ticketListService->getFilterOptions(request());
     $tickets = $ticketListService->getTickets($filterOptions, Ticket::forAchievement($achievement));
 
