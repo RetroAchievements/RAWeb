@@ -9,6 +9,10 @@ import { AchievementsListItem } from './AchievementsListItem';
  */
 
 describe('Component: AchievementsListItem', () => {
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
@@ -173,5 +177,29 @@ describe('Component: AchievementsListItem', () => {
 
     // ASSERT
     expect(screen.getByText('0')).toBeInTheDocument();
+  });
+
+  it('given playersTotal is 0, does not throw an error', () => {
+    // ARRANGE
+    const mockConsoleError = vi.fn();
+    console.error = mockConsoleError;
+
+    render(
+      <AchievementsListItem
+        achievement={createAchievement({
+          title: 'Test Achievement',
+          description: 'Test Description',
+          unlocksTotal: 100,
+          unlocksHardcoreTotal: 50,
+          unlockHardcorePercentage: '0.1',
+        })}
+        index={0}
+        isLargeList={false}
+        playersTotal={0}
+      />,
+    );
+
+    // ASSERT
+    expect(mockConsoleError).not.toHaveBeenCalled();
   });
 });
