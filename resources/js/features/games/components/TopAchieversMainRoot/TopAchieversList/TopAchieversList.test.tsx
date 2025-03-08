@@ -2,9 +2,9 @@ import { AwardType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import {
   createGame,
-  createRankedGameTopAchiever,
   createPaginatedData,
   createPlayerBadge,
+  createRankedGameTopAchiever,
   createUser,
 } from '@/test/factories';
 

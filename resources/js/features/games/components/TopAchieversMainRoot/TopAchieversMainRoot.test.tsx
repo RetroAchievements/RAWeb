@@ -4,8 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { render, screen } from '@/test';
 import {
   createGame,
-  createRankedGameTopAchiever,
   createPaginatedData,
+  createRankedGameTopAchiever,
   createSystem,
   createUser,
 } from '@/test/factories';
