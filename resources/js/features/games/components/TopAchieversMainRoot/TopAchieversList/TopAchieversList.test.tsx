@@ -2,7 +2,7 @@ import { AwardType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import {
   createGame,
-  createGameTopAchiever,
+  createRankedGameTopAchiever,
   createPaginatedData,
   createPlayerBadge,
   createUser,
@@ -17,7 +17,7 @@ describe('Component: TopAchieversList', () => {
       <TopAchieversList />,
       {
         pageProps: {
-          paginatedUsers: createPaginatedData([createGameTopAchiever()]),
+          paginatedUsers: createPaginatedData([createRankedGameTopAchiever()]),
         },
       },
     );
@@ -45,7 +45,7 @@ describe('Component: TopAchieversList', () => {
       pageProps: {
         game: createGame(),
         paginatedUsers: createPaginatedData([
-          createGameTopAchiever({
+          createRankedGameTopAchiever({
             user,
             score: 753,
             badge: createPlayerBadge({
@@ -72,7 +72,7 @@ describe('Component: TopAchieversList', () => {
       pageProps: {
         game: createGame(),
         paginatedUsers: createPaginatedData([
-          createGameTopAchiever({
+          createRankedGameTopAchiever({
             user,
             score: 222,
             badge: createPlayerBadge({
@@ -97,7 +97,7 @@ describe('Component: TopAchieversList', () => {
     render<App.Platform.Data.GameTopAchieversPageProps>(<TopAchieversList />, {
       pageProps: {
         game: createGame(),
-        paginatedUsers: createPaginatedData([createGameTopAchiever({ user, score: 59 })]),
+        paginatedUsers: createPaginatedData([createRankedGameTopAchiever({ user, score: 59 })]),
       },
     });
 

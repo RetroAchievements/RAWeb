@@ -25,7 +25,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
   const { cardTooltipProps } = useCardTooltip({ dynamicType: 'user', dynamicId: displayName });
 
   const canLinkToUser = displayName && !deletedAt;
-  const Wrapper = canLinkToUser ? 'a' : 'div';
+  const Wrapper = canLinkToUser ? 'a' : 'span';
 
   return (
     <Wrapper

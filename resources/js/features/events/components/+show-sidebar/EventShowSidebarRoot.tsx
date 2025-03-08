@@ -9,10 +9,18 @@ import { EventAwardTiers } from '../EventAwardTiers';
 import { EventProgress } from '../EventProgress';
 import { HubsList } from '../HubsList';
 import { OfficialForumTopicButton } from '../OfficialForumTopicButton';
+import { TopEventPlayers } from '../TopEventPlayers';
 
 export const EventShowSidebarRoot: FC = () => {
-  const { event, followedPlayerCompletions, hubs, playerAchievementChartBuckets, playerGame } =
-    usePageProps<App.Platform.Data.EventShowPagePropsData>();
+  const {
+    event,
+    followedPlayerCompletions,
+    hubs,
+    numMasters,
+    playerAchievementChartBuckets,
+    playerGame,
+    topAchievers,
+  } = usePageProps<App.Platform.Data.EventShowPagePropsData>();
 
   return (
     <div data-testid="sidebar" className="flex flex-col gap-6">
@@ -26,6 +34,7 @@ export const EventShowSidebarRoot: FC = () => {
         game={event.legacyGame!}
       />
       <AchievementDistribution buckets={playerAchievementChartBuckets} playerGame={playerGame} />
+      <TopEventPlayers event={event} numMasters={numMasters} players={topAchievers} />
     </div>
   );
 };
