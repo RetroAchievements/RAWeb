@@ -36,7 +36,10 @@ use App\Models\User;
                 @endphp
                 @foreach ($highestPointEarners as $playerGame)
                     @php
-                        $user = User::find($playerGame['user_id'])
+                        $user = $playerGame['user'];
+                        if (!$user) {
+                            continue;
+                        }
                     @endphp
                     @if ($isEvent)
                         <x-game.top-achievers.score-row

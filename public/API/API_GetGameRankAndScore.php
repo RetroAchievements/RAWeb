@@ -41,11 +41,9 @@ if (($type === 1 && $numMasteries >= 10) || ($type !== 1 && $numMasteries < 10))
     // component caches the 10 most recent masteries if there are at least 10 masteries,
     // or the top earners if there are less than 10 masteries.
     foreach ($topAchievers as $playerGame) {
-        $user = User::find($playerGame['user_id']); // FIXME: N+1 query problem
-
         $gameTopAchievers[] = [
-            'User' => $user->display_name,
-            'ULID' => $user->ulid,
+            'User' => $playerGame['user']->display_name,
+            'ULID' => $playerGame['user']->ulid,
             'NumAchievements' => $playerGame['achievements_unlocked_hardcore'],
             'TotalScore' => $playerGame['points_hardcore'],
             'LastAward' => Carbon::createFromTimestamp($playerGame['last_unlock_hardcore_at'])->format('Y-m-d H:i:s'),
@@ -57,7 +55,7 @@ if (($type === 1 && $numMasteries >= 10) || ($type !== 1 && $numMasteries < 10))
 
     foreach ($playerGames as $playerGame) {
         $gameTopAchievers[] = [
-            'User' => $playerGame->user->User,
+            'User' => $playerGame->user->display_name,
             'ULID' => $playerGame->user->ulid,
             'NumAchievements' => $playerGame->achievements_unlocked_hardcore,
             'TotalScore' => $playerGame->points_hardcore,
