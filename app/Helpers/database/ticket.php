@@ -8,6 +8,7 @@ use App\Enums\UserPreference;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;

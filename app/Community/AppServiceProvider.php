@@ -53,7 +53,7 @@ class AppServiceProvider extends ServiceProvider
                 ConvertGameShortcodesToHubs::class,
 
                 MigrateTicketCommentMetadata::class,
-                
+
                 SyncComments::class,
                 SyncForumCategories::class,
                 SyncForums::class,

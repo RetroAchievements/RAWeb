@@ -34,8 +34,9 @@ class MigrateTicketCommentMetadata extends Command
             $progressBar = $this->output->createProgressBar($count);
 
             $count = 0;
-            Ticket::with('achievement.game')->chunkById(100, function ($tickets) use(&$count, $progressBar) {
+            Ticket::with('achievement.game')->chunkById(100, function ($tickets) use (&$count, $progressBar) {
                 foreach ($tickets as $ticket) {
+                    /** @var Ticket $ticket */
                     if ($this->syncMetadataForTicket($ticket)) {
                         $count++;
                     }
@@ -52,7 +53,7 @@ class MigrateTicketCommentMetadata extends Command
     {
         $changed = false;
         $newBody = '';
-        $normalizedBody = str_replace("\\n", "\n", 
+        $normalizedBody = str_replace("\\n", "\n",
                           str_replace("\\r", "\r",
                           str_replace("<br/>", "\n", $ticket->ReportNotes)));
         foreach (explode("\n", $normalizedBody) as $line) {
@@ -64,8 +65,7 @@ class MigrateTicketCommentMetadata extends Command
                     $changed = true;
                     continue;
                 }
-            }
-            elseif (str_starts_with($line, 'MD5:')) {
+            } elseif (str_starts_with($line, 'MD5:')) {
                 $hash = trim(substr($line, 4));
                 $gameHash = GameHash::where('md5', '=', $hash)->first();
                 if ($gameHash) {
@@ -73,8 +73,7 @@ class MigrateTicketCommentMetadata extends Command
                     $changed = true;
                     continue;
                 }
-            }
-            elseif (str_starts_with($line, 'Emulator:') || str_starts_with($line, 'Emulator used:')) {
+            } elseif (str_starts_with($line, 'Emulator:') || str_starts_with($line, 'Emulator used:')) {
                 if ($line[8] === ':') {
                     $emulatorName = trim(substr($line, 9));
                 } else {
@@ -114,8 +113,7 @@ class MigrateTicketCommentMetadata extends Command
                         continue;
                     }
                 }
-            }
-            elseif (str_starts_with($line, 'Emulator Version:')) {
+            } elseif (str_starts_with($line, 'Emulator Version:')) {
                 if ($ticket->emulator_id) {
                     $ticket->emulator_version = trim(substr($line, 17));
                     $changed = true;
@@ -156,7 +154,7 @@ class MigrateTicketCommentMetadata extends Command
                     $ticket->emulator_version = $emulatorVersion;
                     $ticket->emulator_core = $emulatorCore;
                     $changed = true;
-                } else if (count($emulators) > 1) {
+                } elseif (count($emulators) > 1) {
                     $ticket->emulator_id = null;
                     $ticket->emulator_version = null;
                     $ticket->emulator_core = null;

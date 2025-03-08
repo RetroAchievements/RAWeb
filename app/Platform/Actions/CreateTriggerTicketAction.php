@@ -25,7 +25,7 @@ class CreateTriggerTicketAction
 
         $ticket = Ticket::find($newTicketId);
         $ticket->game_hash_id = $data->gameHash->id;
-        
+
         $emulator = Emulator::where('name', $data->emulator)->first();
         if ($emulator) {
             $ticket->emulator_id = $emulator->id;
@@ -36,7 +36,6 @@ class CreateTriggerTicketAction
 
             $ticket->save();
         }
-
 
         return $ticket;
     }
@@ -57,7 +56,7 @@ class CreateTriggerTicketAction
         // Combine all notes.
         if (!empty($extraNotes)) {
             $note .= "\n\n" . implode("\n", $extraNotes);
-        };
+        }
 
         return $note;
     }
