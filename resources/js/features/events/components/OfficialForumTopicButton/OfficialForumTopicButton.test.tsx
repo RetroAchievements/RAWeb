@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
 import { render, screen, waitFor } from '@/test';
-import { createGame, createRaEvent } from '@/test/factories';
+import { createGame } from '@/test/factories';
 
 import { OfficialForumTopicButton } from './OfficialForumTopicButton';
 
@@ -16,8 +16,11 @@ describe('Component: OfficialForumTopicButton', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const event = createRaEvent({ legacyGame: createGame({ id: 1 }) });
-    const { container } = render(<OfficialForumTopicButton event={event} />);
+    const game = createGame({ id: 1 });
+
+    const { container } = render(<OfficialForumTopicButton game={game} />, {
+      pageProps: { can: {} },
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -25,8 +28,9 @@ describe('Component: OfficialForumTopicButton', () => {
 
   it('given the event has no associated legacy game, renders nothing', () => {
     // ARRANGE
-    const event = createRaEvent({ legacyGame: undefined });
-    render(<OfficialForumTopicButton event={event} />);
+    render(<OfficialForumTopicButton game={undefined as any} />, {
+      pageProps: { can: {} },
+    });
 
     // ASSERT
     expect(screen.queryByText(/topic/i)).not.toBeInTheDocument();
@@ -34,8 +38,9 @@ describe('Component: OfficialForumTopicButton', () => {
 
   it('given the game has no forum topic and the user can create forum topics, shows the create button', () => {
     // ARRANGE
-    const event = createRaEvent({ legacyGame: createGame({ id: 1, forumTopicId: undefined }) });
-    render(<OfficialForumTopicButton event={event} />, {
+    const game = createGame({ id: 1, forumTopicId: undefined });
+
+    render(<OfficialForumTopicButton game={game} />, {
       pageProps: { can: { createGameForumTopic: true } },
     });
 
@@ -45,8 +50,9 @@ describe('Component: OfficialForumTopicButton', () => {
 
   it('given the game has no forum topic and the user cannot create forum topics, does not show a create button', () => {
     // ARRANGE
-    const event = createRaEvent({ legacyGame: createGame({ id: 1, forumTopicId: undefined }) });
-    render(<OfficialForumTopicButton event={event} />, {
+    const game = createGame({ id: 1, forumTopicId: undefined });
+
+    render(<OfficialForumTopicButton game={game} />, {
       pageProps: { can: { createGameForumTopic: false } },
     });
 
@@ -56,8 +62,9 @@ describe('Component: OfficialForumTopicButton', () => {
 
   it('given the game has a forum topic, shows a link to it', () => {
     // ARRANGE
-    const event = createRaEvent({ legacyGame: createGame({ id: 1, forumTopicId: 123 }) });
-    render(<OfficialForumTopicButton event={event} />);
+    const game = createGame({ id: 1, forumTopicId: 123 });
+
+    render(<OfficialForumTopicButton game={game} />);
 
     // ASSERT
     const link = screen.getByRole('link', { name: /official forum topic/i });
@@ -70,8 +77,9 @@ describe('Component: OfficialForumTopicButton', () => {
     vi.spyOn(window, 'confirm').mockImplementation(() => false);
     const postSpy = vi.spyOn(axios, 'post');
 
-    const event = createRaEvent({ legacyGame: createGame({ id: 1, forumTopicId: undefined }) });
-    render(<OfficialForumTopicButton event={event} />, {
+    const game = createGame({ id: 1, forumTopicId: undefined });
+
+    render(<OfficialForumTopicButton game={game} />, {
       pageProps: { can: { createGameForumTopic: true } },
     });
 
@@ -93,8 +101,9 @@ describe('Component: OfficialForumTopicButton', () => {
 
     vi.spyOn(axios, 'post').mockResolvedValue({ data: { success: true, topicId: 456 } });
 
-    const event = createRaEvent({ legacyGame: createGame({ id: 1, forumTopicId: undefined }) });
-    render(<OfficialForumTopicButton event={event} />, {
+    const game = createGame({ id: 1, forumTopicId: undefined });
+
+    render(<OfficialForumTopicButton game={game} />, {
       pageProps: { can: { createGameForumTopic: true } },
     });
 
