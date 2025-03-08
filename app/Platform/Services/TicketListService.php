@@ -6,10 +6,12 @@ namespace App\Platform\Services;
 
 use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
+use App\Models\Emulator;
 use App\Models\Ticket;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TicketListService
 {
@@ -36,6 +38,7 @@ class TicketListService
             'filter.developerType' => 'sometimes|string|in:all,active,junior,inactive',
             'filter.developer' => 'sometimes|string|in:all,self,others',
             'filter.reporter' => 'sometimes|string|in:all,self,others',
+            'filter.emulator' => 'sometimes|string',
         ]);
 
         return [
@@ -46,6 +49,7 @@ class TicketListService
             'developerType' => $validatedData['filter']['developerType'] ?? 'all',
             'developer' => $validatedData['filter']['developer'] ?? 'all',
             'reporter' => $validatedData['filter']['reporter'] ?? 'all',
+            'emulator' => $validatedData['filter']['emulator'] ?? 'all',
         ];
     }
 
@@ -54,7 +58,8 @@ class TicketListService
         bool $showAchievementType = true,
         bool $showDevType = true,
         bool $showDeveloper = false,
-        bool $showReporter = false
+        bool $showReporter = false,
+        ?int $systemId = null,
     ): array {
         $availableSelectFilters = [];
 
@@ -139,6 +144,23 @@ class TicketListService
                 ],
             ];
         }
+
+        $emulatorOptions = ['all' => 'All'];
+        if ($systemId) {
+            $emulators = Emulator::forSystem($systemId);
+        } else {
+            $emulators = Emulator::whereIn('id', DB::table('system_emulators')->distinct('emulator_id')->pluck('emulator_id')->toArray());
+        }
+        foreach ($emulators->orderBy('name')->get() as $emulator) {
+            $emulatorOptions[$emulator->name] = $emulator->name;
+        }
+        $emulatorOptions['unknown'] = 'Unknown';
+
+        $availableSelectFilters[] = [
+            'kind' => 'emulator',
+            'label' => 'Emulator',
+            'options' => $emulatorOptions,
+        ];
 
         return $availableSelectFilters;
     }
@@ -259,6 +281,17 @@ class TicketListService
                 case 'others':
                     $tickets->where('reporter_id', '!=', $filterOptions['userId']);
                     break;
+            }
+        }
+
+        if ($filterOptions['emulator']) {
+            if ($filterOptions['emulator'] === 'unknown') {
+                $tickets->whereNull('emulator_id');
+            } else {
+                $emulator = Emulator::where('name', $filterOptions['emulator'])->first();
+                if ($emulator) {
+                    $tickets->where('emulator_id', '=', $emulator->id);
+                }
             }
         }
 

@@ -89,7 +89,6 @@ $permissions = $user->getAttribute('Permissions');
                 <x-ticket.stat-element label="Reporter">{!! userAvatar($ticket->reporter ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Reported at">{{ getNiceDate($ticket->ReportedAt->unix()) }}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Report type">{{ TicketType::toString($ticket->ReportType) }}</x-ticket.stat-element>
-                <x-ticket.stat-element label="Mode">{{ $ticket->Hardcore ? "Hardcore" : "Softcore" }}</x-ticket.stat-element>
                 @if ($ticket->emulator_version)
                     <x-ticket.stat-element label="Emulator">{{ $ticket->emulator?->name ?? 'Unknown' }} {{ $ticket->emulator_version }}</x-ticket.stat-element>
                 @else
@@ -103,6 +102,7 @@ $permissions = $user->getAttribute('Permissions');
                 @else
                     <x-ticket.stat-element label="Hash">Unknown</x-ticket.stat-element>
                 @endif
+                <x-ticket.stat-element label="Mode">{{ $ticket->Hardcore ? "Hardcore" : "Softcore" }}</x-ticket.stat-element>
                 @if (!TicketState::isOpen($ticket->ReportState))
                     @if ($ticket->resolver)
                         <x-ticket.stat-element label="Resolved by">{!! userAvatar($ticket->resolver ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
