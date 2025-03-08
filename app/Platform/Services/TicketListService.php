@@ -287,7 +287,7 @@ class TicketListService
         if ($filterOptions['emulator']) {
             if ($filterOptions['emulator'] === 'unknown') {
                 $tickets->whereNull('emulator_id');
-            } else {
+            } elseif ($filterOptions['emulator'] !== 'all') {
                 $emulator = Emulator::where('name', $filterOptions['emulator'])->first();
                 if ($emulator) {
                     $tickets->where('emulator_id', '=', $emulator->id);

@@ -10,9 +10,16 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('Ticket', function (Blueprint $table) {
-            $table->dropForeign('tickets_game_hash_set_id_foreign');
+            // SQLite does not support dropping the real FK by name.
+            if (DB::getDriverName() === 'sqlite') {
+                $table->dropForeign(['game_hash_set_id']);
+                $table->dropForeign(['player_session_id']);
+            } else {
+                $table->dropForeign('tickets_game_hash_set_id_foreign');
+                $table->dropForeign('tickets_player_session_id_foreign');
+            }
+
             $table->dropColumn('game_hash_set_id');
-            $table->dropForeign('tickets_player_session_id_foreign');
             $table->dropColumn('player_session_id');
 
             $table->unsignedBigInteger('game_hash_id')->nullable()->after('AchievementID');
