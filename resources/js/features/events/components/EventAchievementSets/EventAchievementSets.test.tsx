@@ -5,9 +5,6 @@ import { createAchievement, createEventAchievement, createRaEvent } from '@/test
 
 import { EventAchievementSets } from './EventAchievementSets';
 
-// Suppress "Invalid prop `max` of value `0` supplied to `Progress`".
-console.error = vi.fn();
-
 describe('Component: EventAchievementSets', () => {
   it('renders without crashing', () => {
     // ARRANGE
