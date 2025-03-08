@@ -172,8 +172,8 @@ class GameTopAchieversService
     {
         $retval = [];
         foreach ($playerGames as $playerGame) {
-            if (!$playerGame->relationLoaded('user') && $playerGame->user_id) {
-                $playerGame->load('user');
+            if ($playerGame->user_id) {
+                $playerGame->loadMissing('user');
             }
 
             $retval[] = [
