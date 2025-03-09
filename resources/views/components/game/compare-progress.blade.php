@@ -51,10 +51,8 @@ if ($user !== null) {
     $friends = User::whereIn('ID', $userIds)->get()->keyBy('ID');
 }
 
-$placeholderUser = new User();
-$placeholderUser->User = '[user]';
-$placeholderUrl = route('game.compare-unlocks', ['game' => $game, 'user' => $placeholderUser]);
 // NOTE: placeholderUrl will be url encoded (i.e '[user]' => '%5Buser%5D')
+$placeholderUrl = route('game.compare-unlocks', ['game' => $game, 'user' => '[user]']);
 ?>
 
 <script>
