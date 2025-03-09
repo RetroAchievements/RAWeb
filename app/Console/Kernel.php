@@ -48,7 +48,6 @@ class Kernel extends ConsoleKernel
                     // $this->call('ra:sync:user-awards');
                     // $this->call('ra:sync:game-relations');
                     // $this->call('ra:sync:leaderboards');
-                    $this->call('ra:sync:leaderboard-entries');
 
                     // Community
                     // $this->call('ra:sync:forum-categories');
