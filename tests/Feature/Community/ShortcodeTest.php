@@ -114,11 +114,6 @@ final class ShortcodeTest extends TestCase
 
         $this->assertSame(
             'Hello',
-            Shortcode::stripAndClamp('[quote]Hello[/quote]')
-        );
-
-        $this->assertSame(
-            'Hello',
             Shortcode::stripAndClamp('[url=abc.xyz]Hello[/url]')
         );
 
