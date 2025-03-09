@@ -121,7 +121,6 @@ class AppServiceProvider extends ServiceProvider
                 SyncGameSets::class,
                 SyncGameSetsHubForumTopicIds::class,
                 SyncGameSetsInternalNotes::class,
-                SyncLeaderboardEntries::class,
                 SyncLeaderboards::class,
                 SyncLegacyGameTags::class,
                 SyncMemoryNotes::class,
