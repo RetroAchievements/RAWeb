@@ -72,7 +72,7 @@ export const EventAchievementSection: FC<EventAchievementSectionProps> = ({
               !isInitiallyOpened && isInitialRender.current ? 'h-0 overflow-hidden' : null,
             )}
           >
-            <div className="pt-2.5">
+            <div className="relative pt-2.5">
               <ul ref={childContainerRef} className="flex flex-col gap-2.5">
                 {children}
               </ul>
