@@ -61,7 +61,7 @@ class SyncEvents extends Command
             ]),
             13448 => new ConvertToTiered('devember-2018', [1 => '1 set fixed', 2 => '2 sets fixed'], [
                 68551 => ['Hotscrock'],
-                68552 => ['BenGhazi'],
+                68552 => ['BenGhazi'], // note: account deleted
                 68553 => ['Keltron3030', 'televandalist'],
                 68554 => ['SporyTike', 'kdecks', 'Salsa', 'JAM'],
                 68555 => ['Thoreau', 'Blazekickn', 'theztret00', 'Grenade44', 'DrPixel', 'ColonD', 'Tutumos'],
@@ -502,6 +502,7 @@ class SyncEvents extends Command
             31741 => new ConvertCollapse('gamecube-launch-silver'),
             31742 => new ConvertAsIs('gamecube-launch-gold'),
             31743 => new ConvertAsIs('playjam-1'),
+            31744 => new ConvertAsIs('playjam-2', noWinners: true),
             31746 => new ConvertAotWTiered('aotw-2024', '1/1/2024', [12 => 31749, 30 => 31748, 48 => 31747, 64 => 31746], [
                 188961, 341928, 119310, 85316, 296849, 183495, 275711, 342048, 22457, 259367,
                 210457, 7391, 10100, 231269, 186149, 52973, 2619, 165924, 11404, 192727,
@@ -672,7 +673,16 @@ class ConvertGame
             return false;
         }
 
+        $achievementCount = Achievement::where('GameID', $gameId)->published()->count();
+        $command->info("Event has $achievementCount achievements.");
+
         $event = Event::where('legacy_game_id', $gameId)->firstOrFail();
+        $eventAchievementCount = $event->achievements()->count();
+        if ($eventAchievementCount !== $achievementCount) {
+            $command->error("But only $eventAchievementCount event achievements");
+            return false;
+        }
+
         $badges = PlayerBadge::where('AwardType', AwardType::Event)
             ->where('AwardData', $event->id);
 
@@ -686,6 +696,7 @@ class ConvertGame
 
         $converted = 0;
         $deleted = 0;
+        $tierCounts = [];
         foreach ($before as $userId => $badge) {
             if (!array_key_exists($userId, $after)) {
                 if ($badge['AwardDataExtra'] !== -1) {
@@ -714,6 +725,8 @@ class ConvertGame
                 } else {
                     $converted++;
                 }
+
+                $tierCounts[$badge['AwardDataExtra']] = ($tierCounts[$badge['AwardDataExtra']] ?? 0) + 1;
             }
         }
 
@@ -724,6 +737,9 @@ class ConvertGame
         }
 
         $command->info("Converted $converted badges." . ($deleted ? " Deleted $deleted badges." : ""));
+        foreach ($tierCounts as $tier => $count) {
+            $command->info("  {$count}x Tier $tier");
+        }
         return $result;
     }
 
@@ -1050,6 +1066,13 @@ class ConvertAsIs extends ConvertGame
         $this->activeFrom = $activeFrom;
         $this->activeThrough = $activeThrough;
         $this->noWinners = $noWinners;
+    }
+
+    protected function process(Command $command, Event $event): void
+    {
+        foreach (Achievement::where('GameID', $event->legacyGame->id)->published()->get() as $achievement) {
+            $this->createEventAchievement($command, $achievement);
+        }
     }
 }
 
@@ -1786,7 +1809,7 @@ class ConvertToCollapsedTiered extends ConvertToTiered
             ->whereNotIn('ID', $this->achievements)
             ->update(['Flags' => AchievementFlag::Unofficial->value]);
         Achievement::whereIn('ID', $this->achievements)
-            ->update(['Flags' => AchievementFlag::OfficialCore->value]);
+            ->update(['Flags' => AchievementFlag::OfficialCore->value, 'Points' => 1]);
 
         $tier_index = 1;
         foreach ($this->tiers as $gameId => $label) {
@@ -1831,6 +1854,8 @@ class ConvertToCollapsedTiered extends ConvertToTiered
             $achievement->Description = $labels[$index];
             $achievement->DisplayOrder = $index + 1;
             $achievement->save();
+
+            $this->createEventAchievement($command, $achievement);
 
             $index++;
         }
