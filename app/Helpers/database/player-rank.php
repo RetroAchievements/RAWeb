@@ -45,10 +45,9 @@ function countRankedUsers(int $type = RankType::Hardcore): int
 
 function getTopUsersByScore(int $count): array
 {
-    return User::select(['ulid', 'display_name', 'User', 'RAPoints', 'TrueRAPoints'])
+    $topUsers = User::select(['ulid', 'display_name', 'User', 'RAPoints', 'TrueRAPoints'])
         ->where('Untracked', false)
         ->orderBy('RAPoints', 'desc')
-        ->orderBy('TrueRAPoints', 'desc')
         ->take(min($count, 10))
         ->get()
         ->map(fn ($user) => [
@@ -58,6 +57,15 @@ function getTopUsersByScore(int $count): array
             4 => $user->ulid,
         ])
         ->toArray();
+
+    // Sort ties by TrueRAPoints (key 3) in descending order.
+    // We do this in PHP because it's much faster than sorting in the DB via SQL.
+    uasort($topUsers, function ($a, $b) {
+        // Only change the order if TrueRAPoints differ and RAPoints are equal.
+        return ($a[2] === $b[2]) ? ($b[3] <=> $a[3]) : 0;
+    });
+
+    return $topUsers;
 }
 
 /**
