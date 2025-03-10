@@ -185,15 +185,22 @@ final class Shortcode
             $input = preg_replace_callback($pattern, $callback, $input);
         }
 
+        // Remove all quoted content, including nested quotes.
+        // Keep replacing nested quoted content until no more is found.
+        while (preg_match('~\[quote\].*\[/quote\]~is', $input)) {
+            $input = preg_replace(
+                '~\[quote\]((?:[^[]|\[(?!/?quote])|(?R))*)\[/quote\]~is',
+                '',
+                $input
+            );
+        }
+
         $stripPatterns = [
             // "[img=https://google.com/icon.png]" --> ""
             '~\[img(=)?([^]]+)]~i' => '',
 
             // "[img]https://google.com/icon.png[/img]" --> ""
             '~\[img\](.*?)\[/img\]~i' => '',
-
-            // "[quote]some stuff[/quote]" --> ""
-            '~\[quote\](.*?)\[/quote\]~i' => '',
 
             // "[b]Hello[/b]" --> "Hello"
             '~\[(b|i|u|s|code)\](.*?)\[/\1\]~i' => '$2',

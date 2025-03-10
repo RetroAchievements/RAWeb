@@ -67,8 +67,8 @@ final class ShortcodeTest extends TestCase
     public function testStripAndClampQuotes(): void
     {
         $this->assertSame(
-            '',
-            Shortcode::stripAndClamp('[quote]hello there[/quote]')
+            'real stuff',
+            Shortcode::stripAndClamp('[quote]hello [quote]inner[/quote] there[/quote]real stuff')
         );
     }
 
