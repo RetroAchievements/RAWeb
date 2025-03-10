@@ -9,7 +9,8 @@ import {
   BaseTableRow,
 } from '@/common/components/+vendor/BaseTable';
 
-import type { TopPlayersListKind } from './top-players-list-kind.model';
+import type { PlayerWithRank } from './models';
+import type { TopPlayersListKind } from './models/top-players-list-kind.model';
 import { TopEventPlayersRow } from './TopEventPlayersRow';
 
 interface TopEventParticipantsProps {
@@ -30,6 +31,7 @@ export const TopEventPlayers: FC<TopEventParticipantsProps> = ({ event, numMaste
   );
 
   const listKind = getListKind(areAllAchievementsOnePoint, numMasters);
+  const playersWithRanks = calculatePlayerRanks(players, listKind);
 
   return (
     <div data-testid="top-players">
@@ -58,13 +60,14 @@ export const TopEventPlayers: FC<TopEventParticipantsProps> = ({ event, numMaste
           </BaseTableHeader>
 
           <BaseTableBody>
-            {players.map((player, playerIndex) => (
+            {playersWithRanks.map((player) => (
               <TopEventPlayersRow
                 key={`top-players-${player.userId}`}
+                calculatedRank={player.calculatedRank}
                 listKind={listKind}
                 numMasters={numMasters}
                 player={player}
-                playerIndex={playerIndex}
+                playerIndex={player.rankIndex}
               />
             ))}
           </BaseTableBody>
@@ -84,6 +87,40 @@ export const TopEventPlayers: FC<TopEventParticipantsProps> = ({ event, numMaste
     </div>
   );
 };
+
+/**
+ * Calculate ranks for Most Points/Achievements Earned, handling ties appropriately.
+ */
+function calculatePlayerRanks(
+  players: App.Platform.Data.GameTopAchiever[],
+  listKind: TopPlayersListKind,
+): PlayerWithRank[] {
+  // First, add the index to each player for referencing.
+  const playersWithRanks: PlayerWithRank[] = players.map((player, index) => {
+    return { ...player, rankIndex: index };
+  });
+
+  // Only calculate ranks for non-"latest-masters" lists.
+  if (listKind !== 'latest-masters') {
+    let currentRank = 1;
+    let nextRank = 1;
+
+    // Calculate ranks with ties.
+    for (let i = 0; i < playersWithRanks.length; i += 1) {
+      const player = playersWithRanks[i];
+
+      // This is either the first player or has a different score from previous player.
+      if (i === 0 || player.pointsHardcore !== playersWithRanks[i - 1].pointsHardcore) {
+        currentRank = nextRank;
+      }
+
+      player.calculatedRank = currentRank;
+      nextRank = i + 2;
+    }
+  }
+
+  return playersWithRanks;
+}
 
 function getListKind(areAllAchievementsOnePoint: boolean, numMasters: number): TopPlayersListKind {
   if (numMasters > 10) {

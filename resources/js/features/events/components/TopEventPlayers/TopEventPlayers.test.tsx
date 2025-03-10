@@ -104,4 +104,54 @@ describe('Component: TopEventPlayers', () => {
     // ASSERT
     expect(screen.queryByRole('link', { name: /see more/i })).not.toBeInTheDocument();
   });
+
+  it('given multiple players with different points, assigns ranks correctly', () => {
+    // ARRANGE
+    const players = [
+      createGameTopAchiever({ pointsHardcore: 100 }),
+      createGameTopAchiever({ pointsHardcore: 75 }),
+      createGameTopAchiever({ pointsHardcore: 50 }),
+    ];
+
+    const event = createRaEvent({
+      eventAchievements: [
+        createEventAchievement({ achievement: createAchievement({ points: 5 }) }),
+      ],
+    });
+
+    render(<TopEventPlayers event={event} numMasters={5} players={players} />);
+
+    // ASSERT
+    const rows = screen.getAllByRole('row');
+
+    // ... skip the header row ...
+    expect(rows[1]).toHaveTextContent('1');
+    expect(rows[2]).toHaveTextContent('2');
+    expect(rows[3]).toHaveTextContent('3');
+  });
+
+  it('given multiple players with tied points, assigns the same rank', () => {
+    // ARRANGE
+    const players = [
+      createGameTopAchiever({ pointsHardcore: 100 }),
+      createGameTopAchiever({ pointsHardcore: 100 }),
+      createGameTopAchiever({ pointsHardcore: 50 }),
+    ];
+
+    const event = createRaEvent({
+      eventAchievements: [
+        createEventAchievement({ achievement: createAchievement({ points: 5 }) }),
+      ],
+    });
+
+    render(<TopEventPlayers event={event} numMasters={5} players={players} />);
+
+    // ASSERT
+    const rows = screen.getAllByRole('row');
+
+    // ... skip the header row ...
+    expect(rows[1]).toHaveTextContent('1');
+    expect(rows[2]).toHaveTextContent('1');
+    expect(rows[3]).toHaveTextContent('3');
+  });
 });

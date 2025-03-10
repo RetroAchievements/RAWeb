@@ -74,19 +74,4 @@ describe('Component: TopEventPlayersRow', () => {
     // ASSERT
     expect(screen.getByText('8')).toBeVisible(); // !! 10 - 2 = 8
   });
-
-  it('given the list kind is most-points-earned, calculates row number by adding 1 to index', () => {
-    // ARRANGE
-    render(
-      <TopEventPlayersRow
-        listKind="most-points-earned"
-        numMasters={10}
-        player={createGameTopAchiever()}
-        playerIndex={2} // !!
-      />,
-    );
-
-    // ASSERT
-    expect(screen.getByText('3')).toBeVisible(); // !! 2 + 1 = 3
-  });
 });
