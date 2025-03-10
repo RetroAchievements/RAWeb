@@ -497,6 +497,8 @@ declare namespace App.Platform.Data {
     hubs: Array<App.Platform.Data.GameSet>;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
+    numMasters: number;
+    topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
   };
@@ -592,12 +594,14 @@ declare namespace App.Platform.Data {
     isInBacklog: boolean | null;
   };
   export type GameTopAchiever = {
-    rank: number;
-    user: App.Data.User;
-    score: number;
-    badge: App.Platform.Data.PlayerBadge | null;
+    userId: number;
+    user: App.Data.User | null;
+    achievementsUnlockedHardcore: number;
+    pointsHardcore: number;
+    lastUnlockHardcoreAt: string;
+    beatenHardcoreAt: string | null;
   };
-  export type GameTopAchieversPageProps<TItems = App.Platform.Data.GameTopAchiever> = {
+  export type GameTopAchieversPageProps<TItems = App.Platform.Data.RankedGameTopAchiever> = {
     game: App.Platform.Data.Game;
     paginatedUsers: App.Data.PaginatedData<TItems>;
   };
@@ -719,6 +723,12 @@ declare namespace App.Platform.Data {
     consoleName: string;
     numAwarded: number;
     numPossible: number;
+  };
+  export type RankedGameTopAchiever = {
+    rank: number;
+    user: App.Data.User;
+    score: number;
+    badge: App.Platform.Data.PlayerBadge | null;
   };
   export type ReportAchievementIssuePageProps = {
     achievement: App.Platform.Data.Achievement;

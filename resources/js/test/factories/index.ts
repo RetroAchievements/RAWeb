@@ -36,6 +36,7 @@ export * from './createPlayerGameClientBreakdown';
 export * from './createPlayerResettableGame';
 export * from './createPlayerResettableGameAchievement';
 export * from './createRaEvent';
+export * from './createRankedGameTopAchiever';
 export * from './createRecentActiveForumTopic';
 export * from './createRecentLeaderboardEntry';
 export * from './createRecentPlayerBadge';

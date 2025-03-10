@@ -10,9 +10,9 @@ use App\Data\UserData;
 use App\Http\Controller;
 use App\Models\Game;
 use App\Platform\Data\GameData;
-use App\Platform\Data\GameTopAchieverData;
 use App\Platform\Data\GameTopAchieversPagePropsData;
 use App\Platform\Data\PlayerBadgeData;
+use App\Platform\Data\RankedGameTopAchieverData;
 use App\Platform\Services\GameTopAchieversService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -84,7 +84,7 @@ class GameTopAchieversController extends Controller
                 );
             }
 
-            $items[] = new GameTopAchieverData(
+            $items[] = new RankedGameTopAchieverData(
                 rank: $rank,
                 user: UserData::fromUser($playerGame->user),
                 score: $score,
