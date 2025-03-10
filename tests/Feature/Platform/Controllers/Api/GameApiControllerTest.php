@@ -28,12 +28,13 @@ class GameApiControllerTest extends TestCase
         $gameOne = Game::factory()->create(['Title' => 'AAAAAAA', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
         /** @var Game $gameTwo */
         $gameTwo = Game::factory()->create(['Title' => 'BBBBBBB', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
+        /** @var Game $gameThree */
+        $gameThree = Game::factory()->create(['Title' => 'CCCCCCC [Subset - Bonus]', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
 
-        // Event, hub, inactive system, and subset games should all be excluded from the "All Games" list.
+        // Event, hub, and inactive system games should all be excluded from the "All Games" list.
         Game::factory()->create(['Title' => 'CCCCCCC', 'achievements_published' => 50, 'ConsoleID' => System::Events]);
         Game::factory()->create(['Title' => 'DDDDDDD', 'achievements_published' => 50, 'ConsoleID' => System::Hubs]);
         Game::factory()->create(['Title' => 'EEEEEEE', 'achievements_published' => 50, 'ConsoleID' => $inactiveGameSystem->id]);
-        Game::factory()->create(['Title' => 'AAAAAAA [Subset - Bonus]', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
 
         // Act
         $response = $this->get(route('api.game.index'));
@@ -48,7 +49,7 @@ class GameApiControllerTest extends TestCase
                 'perPage',
                 'items',
             ])
-            ->assertJsonCount(2, 'items')
+            ->assertJsonCount(3, 'items')
             ->assertJson([
                 'items' => [
                     [
@@ -64,6 +65,14 @@ class GameApiControllerTest extends TestCase
                             'title' => $gameTwo->title,
                             'system' => [
                                 'id' => $gameTwo->system->id,
+                            ],
+                        ],
+                    ],
+                    [
+                        'game' => [
+                            'title' => $gameThree->title,
+                            'system' => [
+                                'id' => $gameThree->system->id,
                             ],
                         ],
                     ],

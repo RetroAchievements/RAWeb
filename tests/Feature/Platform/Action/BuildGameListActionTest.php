@@ -943,7 +943,7 @@ class BuildGameListActionTest extends TestCase
         Game::factory()->create(['Title' => 'AAAAAAA', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
         Game::factory()->create(['Title' => 'BBBBBBB', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
 
-        // Event, hub, inactive system, and subset games should all be excluded from the "All Games" list.
+        // Event, hub, and inactive system games should all be excluded from the "All Games" list.
         Game::factory()->create(['Title' => 'CCCCCCC', 'achievements_published' => 50, 'ConsoleID' => System::Events]);
         Game::factory()->create(['Title' => 'DDDDDDD', 'achievements_published' => 50, 'ConsoleID' => System::Hubs]);
         Game::factory()->create(['Title' => 'EEEEEEE', 'achievements_published' => 50, 'ConsoleID' => $inactiveGameSystem->id]);
@@ -956,8 +956,8 @@ class BuildGameListActionTest extends TestCase
         );
 
         // Assert
-        $this->assertEquals(2, $result->total);
-        $this->assertEquals(2, count($result->items)); // These values can differ unless we override ->total.
+        $this->assertEquals(3, $result->total);
+        $this->assertEquals(3, count($result->items)); // These values can differ unless we override ->total.
     }
 
     private function seedGamesForLists(): void

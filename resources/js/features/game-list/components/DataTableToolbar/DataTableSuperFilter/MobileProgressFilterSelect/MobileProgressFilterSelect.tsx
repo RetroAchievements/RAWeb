@@ -1,4 +1,5 @@
 import type { Table } from '@tanstack/react-table';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCircleDot, LuMedal, LuSparkles, LuTrophy } from 'react-icons/lu';
 
@@ -20,7 +21,7 @@ interface MobileProgressFilterSelectProps<TData> {
 
 export function MobileProgressFilterSelect<TData>({
   table,
-}: MobileProgressFilterSelectProps<TData>) {
+}: MobileProgressFilterSelectProps<TData>): ReactNode {
   const { t } = useTranslation();
   const { auth } = usePageProps();
 
