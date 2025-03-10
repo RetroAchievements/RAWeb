@@ -103,7 +103,7 @@ if ($propertyType === UserAction::LegendBadge) {
 }
 
 if ($propertyType === UserAction::TrackedStatus) {
-    SetUserUntrackedStatus($targetUsername, $value);
+    SetUserUntrackedStatus($foundTargetUser, $value);
 
     if ($foundTargetUser) {
         addArticleComment(
