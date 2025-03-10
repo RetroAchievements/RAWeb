@@ -144,6 +144,21 @@ final class Shortcode
                 return "";
             },
 
+            // "[hub=1]" --> "[Central]"
+            '~\[hub=(\d+)]~i' => function ($matches) {
+                $hubId = (int) $matches[1];
+                $hubData = GameSet::query()
+                    ->where('id', $hubId)
+                    ->where('type', GameSetType::Hub)
+                    ->first();
+
+                if ($hubData) {
+                    return "{$hubData->title} (Hubs)";
+                }
+
+                return "";
+            },
+
             // "[ach=1]" --> "Ring Collector (5)"
             '~\[ach=(\d+)]~i' => function ($matches) {
                 $achievementData = GetAchievementData((int) $matches[1]);
@@ -176,6 +191,9 @@ final class Shortcode
 
             // "[img]https://google.com/icon.png[/img]" --> ""
             '~\[img\](.*?)\[/img\]~i' => '',
+
+            // "[quote]some stuff[/quote]" --> ""
+            '~\[quote\](.*?)\[/quote\]~i' => '',
 
             // "[b]Hello[/b]" --> "Hello"
             '~\[(b|i|u|s|code)\](.*?)\[/\1\]~i' => '$2',
