@@ -110,8 +110,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
         {playersTotal !== null ? (
           <div className="md:col-span-2 md:flex md:flex-col-reverse md:justify-end md:gap-y-1 md:pt-1">
             {/* Meta chips */}
-            {/* <div className="hidden items-center justify-end gap-x-1 md:flex">
-          </div> */}
+            {/* <div className="hidden items-center justify-end gap-x-1 md:flex"></div> */}
 
             <p className="-mt-1.5 hidden text-center text-2xs md:block">
               {t('{{percentage}} unlock rate', {
@@ -125,7 +124,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 
             <BaseProgress
               className="h-1"
-              max={playersTotal}
+              max={playersTotal > 0 ? playersTotal : undefined}
               segments={[
                 {
                   value: unlocksHardcoreTotal,
