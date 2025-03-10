@@ -7,8 +7,8 @@ import { BoxArtImage } from '../BoxArtImage';
 import { CompareProgress } from '../CompareProgress';
 import { EventAwardTiers } from '../EventAwardTiers';
 import { EventProgress } from '../EventProgress';
+import { EventSidebarFullWidthButtons } from '../EventSidebarFullWidthButtons';
 import { HubsList } from '../HubsList';
-import { OfficialForumTopicButton } from '../OfficialForumTopicButton';
 
 export const EventShowSidebarRoot: FC = () => {
   const { event, followedPlayerCompletions, hubs, playerAchievementChartBuckets, playerGame } =
@@ -17,7 +17,7 @@ export const EventShowSidebarRoot: FC = () => {
   return (
     <div data-testid="sidebar" className="flex flex-col gap-6">
       <BoxArtImage event={event} />
-      <OfficialForumTopicButton event={event} />
+      <EventSidebarFullWidthButtons event={event} />
       <EventProgress event={event} playerGame={playerGame} />
       <EventAwardTiers event={event} />
       <HubsList hubs={hubs} />
