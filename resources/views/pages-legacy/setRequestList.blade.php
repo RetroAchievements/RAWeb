@@ -52,10 +52,10 @@ if (empty($username)) {
     }
 } else {
     $userModel = User::whereName($username)->first();
-    $username = $userModel->display_name;
     if (!$userModel) {
         abort(404);
     }
+    $username = $userModel->display_name;
     $userSetRequestInformation = getUserRequestsInformation($userModel);
 
     $setRequestList = UserGameListEntry::where('SetRequest.user_id', $userModel->id)
