@@ -9,33 +9,29 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useCreateOfficialForumTopicMutation } from '../../hooks/mutations/useCreateOfficialForumTopicMutation';
 
 interface OfficialForumTopicButtonProps {
-  event: App.Platform.Data.Event;
+  game: App.Platform.Data.Game;
 }
 
-export const OfficialForumTopicButton: FC<OfficialForumTopicButtonProps> = ({ event }) => {
+export const OfficialForumTopicButton: FC<OfficialForumTopicButtonProps> = ({ game }) => {
   const { can } = usePageProps<App.Platform.Data.EventShowPagePropsData>();
 
   const { t } = useTranslation();
 
   const mutation = useCreateOfficialForumTopicMutation();
 
-  if (!event.legacyGame) {
-    return null;
-  }
-
   const handleCreateClick = async () => {
     if (!confirm(t('Are you sure you want to create the official forum topic for this page?'))) {
       return false;
     }
 
-    await toastMessage.promise(mutation.mutateAsync({ gameId: event.legacyGame!.id }), {
+    await toastMessage.promise(mutation.mutateAsync({ gameId: game.id }), {
       loading: t('Creating...'),
       success: t('Created!'),
       error: t('Something went wrong.'),
     });
   };
 
-  if (!event.legacyGame?.forumTopicId && can.createGameForumTopic) {
+  if (!game?.forumTopicId && can.createGameForumTopic) {
     return (
       <BaseButton size="sm" className="flex max-h-[28px] gap-1.5" onClick={handleCreateClick}>
         <LuMessageCircleWarning className="size-4 text-neutral-300" />
@@ -44,16 +40,16 @@ export const OfficialForumTopicButton: FC<OfficialForumTopicButtonProps> = ({ ev
     );
   }
 
-  if (!event.legacyGame?.forumTopicId && !can.createGameForumTopic) {
+  if (!game?.forumTopicId && !can.createGameForumTopic) {
     return null;
   }
 
   return (
     <a
-      href={`/viewtopic.php?t=${event.legacyGame.forumTopicId}`}
+      href={`/viewtopic.php?t=${game.forumTopicId}`}
       className={baseButtonVariants({ size: 'sm', className: 'flex max-h-[28px] gap-1.5' })}
     >
-      <LuMessageCircleWarning className="size-4 text-neutral-300" />
+      <LuMessageCircleWarning className="size-4 text-neutral-300 light:text-neutral-700" />
       <span>{t('Official Forum Topic')}</span>
     </a>
   );
