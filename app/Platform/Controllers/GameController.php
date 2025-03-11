@@ -18,6 +18,7 @@ use App\Platform\Data\GameData;
 use App\Platform\Data\GameListPagePropsData;
 use App\Platform\Data\GameSuggestPagePropsData;
 use App\Platform\Data\SystemData;
+use App\Platform\Enums\GameListSetTypeFilterValue;
 use App\Platform\Enums\GameListSortField;
 use App\Platform\Enums\GameListType;
 use App\Platform\Requests\GameListRequest;
@@ -50,7 +51,7 @@ class GameController extends Controller
         $paginatedData = (new BuildGameListAction())->execute(
             GameListType::AllGames,
             user: $user,
-            filters: $request->getFilters(),
+            filters: $request->getFilters(defaultSubsetFilter: GameListSetTypeFilterValue::OnlyGames),
             sort: $request->getSort(
                 defaultSortField: GameListSortField::PlayersTotal,
                 isDefaultSortAsc: false,
