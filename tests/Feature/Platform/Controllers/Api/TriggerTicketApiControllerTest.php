@@ -7,6 +7,7 @@ namespace Tests\Feature\Platform\Controllers\Api;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Models\Achievement;
+use App\Models\Emulator;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\PlayerGame;
@@ -98,6 +99,7 @@ class TriggerTicketApiControllerTest extends TestCase
         $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
         $developer = User::factory()->create();
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $developer->id]);
+        $emulator = Emulator::factory()->create(['name' => 'RetroArch']);
 
         /** @var User $user */
         $user = User::factory()->create([
@@ -130,6 +132,11 @@ class TriggerTicketApiControllerTest extends TestCase
             'reporter_id' => $user->id,
             'ReportType' => TicketType::TriggeredAtWrongTime,
             'hardcore' => 1,
+            'emulator_id' => $emulator->id,
+            'emulator_version' => '1.16.0',
+            'emulator_core' => 'mupen64plus',
+            'game_hash_id' => $gameHash->id,
+            "ReportNotes" => "Test description", // emulator data is not captured when an emulator record is found
         ]);
     }
 
@@ -172,7 +179,6 @@ class TriggerTicketApiControllerTest extends TestCase
             "ReportNotes" => "Test description\n\n" .
                 "Rich Presence at time of trigger:\n" .
                 "🐺Link 🗺️Death Mountain ❤️3/3 👥1/4 🧿0/4 👻0/60 🐜0/24 💀5 🕙12:00 AM🌙\n" .
-                "RetroAchievements Hash: {$gameHash->md5}\n" .
                 "Emulator: RetroArch (mupen64plus)\n" .
                 "Emulator Version: 1.16.0",
         ]);
@@ -261,7 +267,6 @@ class TriggerTicketApiControllerTest extends TestCase
 
         $this->assertDatabaseHas('Ticket', [
             'ReportNotes' => "Test description\n\n" .
-                "RetroAchievements Hash: {$gameHash->md5}\n" .
                 "Emulator: RAP64\n" .
                 "Emulator Version: 1.9.0",
         ]);

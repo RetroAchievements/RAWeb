@@ -1,6 +1,5 @@
 import type { FC } from 'react';
 
-import { ManageButton } from '@/common/components/ManageButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { EventAchievementSets } from '../EventAchievementSets';
@@ -10,7 +9,7 @@ import { EventMainMedia } from '../EventMainMedia';
 import { EventMobileMediaCarousel } from '../EventMobileMediaCarousel';
 
 export const EventShowMainRoot: FC = () => {
-  const { can, event } = usePageProps<App.Platform.Data.EventShowPagePropsData>();
+  const { event } = usePageProps<App.Platform.Data.EventShowPagePropsData>();
 
   const { legacyGame } = event;
 
@@ -36,10 +35,6 @@ export const EventShowMainRoot: FC = () => {
           imageTitleUrl={legacyGame.imageTitleUrl!}
         />
       </div>
-
-      {can.manageEvents ? (
-        <ManageButton href={`/manage/events/${event.id}`} className="max-w-fit" />
-      ) : null}
 
       <EventAchievementSets event={event} />
     </div>
