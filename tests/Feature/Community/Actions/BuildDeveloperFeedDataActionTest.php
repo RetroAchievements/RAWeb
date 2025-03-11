@@ -207,4 +207,79 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $this->assertEquals(1, count($result->recentUnlocks));
         $this->assertEquals($trackedUser->id, $result->recentUnlocks[0]->user->id->resolve());
     }
+
+    public function testItExcludedUntrackedPlayersFromLeaderboardEntries(): void
+    {
+        // Arrange
+        $developer = User::factory()->create(['ContribCount' => 100]);
+        $system = System::factory()->create();
+
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $leaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'author_id' => $developer->id,
+        ]);
+
+        $players = User::factory()->count(3)->create();
+        foreach ($players as $player) {
+            LeaderboardEntry::factory()->create([
+                'leaderboard_id' => $leaderboard->id,
+                'user_id' => $player->id,
+            ]);
+        }
+
+        $players[1]->Untracked = 1;
+        $players[1]->save();
+
+        // Act
+        $result = (new BuildDeveloperFeedDataAction())->execute($developer);
+
+        // Assert
+        $this->assertEquals(3, $result->leaderboardEntriesContributed); // countLeaderboardEntries doesn't currently join to users to filter out untracked users
+        $this->assertEquals(2, count($result->recentLeaderboardEntries));
+        $this->assertEquals($players[2]->id, $result->recentLeaderboardEntries[0]->user->id->resolve());
+        $this->assertEquals($players[0]->id, $result->recentLeaderboardEntries[1]->user->id->resolve());
+    }
+
+    public function testItExcludedDeletedLeaderboardsFromLeaderboardEntries(): void
+    {
+        // Arrange
+        $developer = User::factory()->create(['ContribCount' => 100]);
+        $system = System::factory()->create();
+
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $leaderboard1 = Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'author_id' => $developer->id,
+        ]);
+        $leaderboard2 = Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'author_id' => $developer->id,
+        ]);
+
+        $players = User::factory()->count(3)->create();
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard1->id,
+            'user_id' => $players[0]->id,
+        ]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard2->id,
+            'user_id' => $players[1]->id,
+        ]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard1->id,
+            'user_id' => $players[2]->id,
+        ]);
+
+        $leaderboard2->delete();
+
+        // Act
+        $result = (new BuildDeveloperFeedDataAction())->execute($developer);
+
+        // Assert
+        $this->assertEquals(3, $result->leaderboardEntriesContributed); // countLeaderboardEntries doesn't currently join to users to filter out untracked users
+        $this->assertEquals(2, count($result->recentLeaderboardEntries));
+        $this->assertEquals($players[2]->id, $result->recentLeaderboardEntries[0]->user->id->resolve());
+        $this->assertEquals($players[0]->id, $result->recentLeaderboardEntries[1]->user->id->resolve());
+    }
 }
