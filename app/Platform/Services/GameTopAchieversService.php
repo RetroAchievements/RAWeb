@@ -134,7 +134,7 @@ class GameTopAchieversService
 
     public function getTopAchieversComponentData(): array
     {
-        $cacheKey = "game:{$this->gameId}:top-achievers";
+        $cacheKey = "game:{$this->gameId}:top-achievers:v2";
         $retval = Cache::get($cacheKey);
         if ($retval !== null) {
             $userIds = array_column($retval[1], 'user_id');
