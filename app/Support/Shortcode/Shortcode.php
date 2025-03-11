@@ -144,6 +144,21 @@ final class Shortcode
                 return "";
             },
 
+            // "[hub=1]" --> "[Central]"
+            '~\[hub=(\d+)]~i' => function ($matches) {
+                $hubId = (int) $matches[1];
+                $hubData = GameSet::query()
+                    ->where('id', $hubId)
+                    ->where('type', GameSetType::Hub)
+                    ->first();
+
+                if ($hubData) {
+                    return "{$hubData->title} (Hubs)";
+                }
+
+                return "";
+            },
+
             // "[ach=1]" --> "Ring Collector (5)"
             '~\[ach=(\d+)]~i' => function ($matches) {
                 $achievementData = GetAchievementData((int) $matches[1]);
@@ -168,6 +183,16 @@ final class Shortcode
 
         foreach ($injectionShortcodes as $pattern => $callback) {
             $input = preg_replace_callback($pattern, $callback, $input);
+        }
+
+        // Remove all quoted content, including nested quotes.
+        // Keep replacing nested quoted content until no more is found.
+        while (preg_match('~\[quote\].*\[/quote\]~is', $input)) {
+            $input = preg_replace(
+                '~\[quote\]((?:[^[]|\[(?!/?quote])|(?R))*)\[/quote\]~is',
+                '',
+                $input
+            );
         }
 
         $stripPatterns = [
