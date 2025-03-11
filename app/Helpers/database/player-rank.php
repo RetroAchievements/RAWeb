@@ -58,11 +58,15 @@ function getTopUsersByScore(int $count): array
         ])
         ->toArray();
 
-    // Sort ties by TrueRAPoints (key 3) in descending order.
-    // We do this in PHP because it's much faster than sorting in the DB via SQL.
+    // For users with the same RAPoints, sort by TrueRAPoints in descending order.
     uasort($topUsers, function ($a, $b) {
-        // Only change the order if TrueRAPoints differ and RAPoints are equal.
-        return ($a[2] === $b[2]) ? ($b[3] <=> $a[3]) : 0;
+        // If RAPoints are different, keep the original order from the database query.
+        if ($a[2] !== $b[2]) {
+            return 0;
+        }
+
+        // If RAPoints are equal, sort by TrueRAPoints in descending order.
+        return $b[3] <=> $a[3];
     });
 
     return $topUsers;
