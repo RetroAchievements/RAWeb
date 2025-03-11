@@ -8,11 +8,12 @@ use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
-function SetUserUntrackedStatus(string $usernameIn, int $isUntracked): void
+function SetUserUntrackedStatus(User $user, int $isUntracked): void
 {
-    legacyDbStatement("UPDATE UserAccounts SET Untracked = $isUntracked, Updated=NOW() WHERE User = '$usernameIn'");
+    $user->Untracked = $isUntracked;
+    $user->save();
 
-    PlayerRankedStatusChanged::dispatch(User::whereName($usernameIn)->first(), (bool) $isUntracked);
+    PlayerRankedStatusChanged::dispatch($user, (bool) $isUntracked);
 
     // TODO update games that are affected by this user's library
 }

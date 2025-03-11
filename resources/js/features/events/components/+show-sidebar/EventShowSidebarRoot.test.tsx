@@ -20,7 +20,7 @@ describe('Component: EventShowSidebarRoot', () => {
     const event = createRaEvent();
 
     const { container } = render(<EventShowSidebarRoot />, {
-      pageProps: { event, playerAchievementChartBuckets: [], topAchievers: [] },
+      pageProps: { event, playerAchievementChartBuckets: [], topAchievers: [], can: {} },
     });
 
     // ASSERT
