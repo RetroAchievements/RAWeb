@@ -77,7 +77,7 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
             <x-dropdown-header>Miscellaneous</x-dropdown-header>
             <x-dropdown-item :href="route('game.index')">All Games</x-dropdown-item>
             {{--<x-dropdown-item href="popularGames.php">Most Played</x-dropdown-item>--}}
-            <x-dropdown-item :href="url('gameSearch.php?p=0')">Hardest Games</x-dropdown-item>
+            <x-dropdown-item :href="route('game.index', ['sort' => '-retroRatio'])">Hardest Games</x-dropdown-item>
             <x-dropdown-item :href="url('setRequestList.php')">Most Requested</x-dropdown-item>
             <x-dropdown-item :href="route('claims.completed')">New Sets & Revisions</x-dropdown-item>
             <x-dropdown-item :href="route('claims.active')">Sets in Progress</x-dropdown-item>
