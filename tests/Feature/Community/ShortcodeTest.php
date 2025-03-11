@@ -70,6 +70,11 @@ final class ShortcodeTest extends TestCase
             'real stuff',
             Shortcode::stripAndClamp('[quote]hello [quote]inner[/quote] there[/quote]real stuff')
         );
+
+        $this->assertSame(
+            'BeforeBetweenAfter',
+            Shortcode::stripAndClamp('Before[quote]First quote[/quote]Between[quote]Second quote[/quote]After')
+        );
     }
 
     public function testStripAndClampImages(): void
