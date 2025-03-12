@@ -21,15 +21,6 @@ describe('Component: EventAwardTiers', () => {
     expect(screen.queryByTestId('award-tiers')).not.toBeInTheDocument();
   });
 
-  it('given an event with only one award tier, should render nothing', () => {
-    // ARRANGE
-    const event = createRaEvent({ eventAwards: [createEventAward()] });
-    render(<EventAwardTiers event={event} />);
-
-    // ASSERT
-    expect(screen.queryByTestId('award-tiers')).not.toBeInTheDocument();
-  });
-
   it('given an event with multiple award tiers, should show the Award Tiers heading', () => {
     // ARRANGE
     const event = createRaEvent({
