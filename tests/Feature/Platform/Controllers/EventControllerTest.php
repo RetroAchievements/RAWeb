@@ -32,7 +32,6 @@ class EventControllerTest extends TestCase
         ]);
         $event = Event::factory()->create([
             'legacy_game_id' => $game->id,
-            'slug' => 'event-001',
             'active_from' => '2020-01-01',
         ]);
 
@@ -64,7 +63,6 @@ class EventControllerTest extends TestCase
         ]);
         $event = Event::factory()->create([
             'legacy_game_id' => $game->id,
-            'slug' => 'event-001',
             'active_from' => '2020-01-01',
         ]);
 
@@ -95,7 +93,6 @@ class EventControllerTest extends TestCase
         ]);
         $event = Event::factory()->create([
             'legacy_game_id' => $game->id,
-            'slug' => 'event-001',
             'active_from' => Carbon::now()->addMonth(),
         ]);
 
@@ -123,7 +120,6 @@ class EventControllerTest extends TestCase
         ]);
         $event = Event::factory()->create([
             'legacy_game_id' => $game->id,
-            'slug' => 'event-001',
             'active_from' => Carbon::now()->addMonth(),
         ]);
 
@@ -150,7 +146,6 @@ class EventControllerTest extends TestCase
         ]);
         $event = Event::factory()->create([
             'legacy_game_id' => $game->id,
-            'slug' => 'event-001',
             'active_from' => '2020-01-01',
         ]);
 
