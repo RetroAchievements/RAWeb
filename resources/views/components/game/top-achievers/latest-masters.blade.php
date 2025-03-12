@@ -28,7 +28,7 @@ $rank = $numMasters;
             <tbody>
                 @foreach ($latestMasters as $mastery)
                     @php
-                        $masteryUser = User::find($mastery['user_id']);
+                        $masteryUser = $mastery['user'];
                         if (!$masteryUser) {
                             continue;
                         }
