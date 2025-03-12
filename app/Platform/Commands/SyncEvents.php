@@ -1154,6 +1154,7 @@ class ConvertCollapse extends ConvertGame
                 }
 
                 $achievement->Flags = AchievementFlag::OfficialCore->value;
+                $achievement->Points = 1;
                 $achievement->Title = $event->Title;
                 if (empty(trim($achievement->Description))) {
                     $achievement->Description = "Earned enough points for the badge";
@@ -1164,6 +1165,8 @@ class ConvertCollapse extends ConvertGame
 
             $achievement->save();
         }
+
+        $this->updateMetrics($event);
     }
 }
 
@@ -1744,7 +1747,6 @@ class ConvertToSoftcoreTiered extends ConvertGame
         $this->updateMetrics($event);
     }
 }
-
 
 // Replace achievements with tiered unlocks awarded to users.
 //  Unlocks are redistributed to ensure each player receives the correct tier.
