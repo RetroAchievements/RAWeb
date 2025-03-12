@@ -134,7 +134,7 @@ class GameTopAchieversService
 
     public function getTopAchieversComponentData(): array
     {
-        $cacheKey = "game:{$this->gameId}:top-achievers:v2-1";
+        $cacheKey = "game:{$this->gameId}:top-achievers:v2";
         $retval = Cache::get($cacheKey);
         if ($retval !== null) {
             $userIds = array_column($retval[1], 'user_id');
@@ -180,6 +180,7 @@ class GameTopAchieversService
                 'user_id' => $playerGame->user_id,
                 'user_display_name' => $playerGame->user->display_name,
                 'user_avatar_url' => $playerGame->user->avatar_url,
+                'user_ulid' => $playerGame->user->ulid,
                 'achievements_unlocked_hardcore' => $playerGame->achievements_unlocked_hardcore,
                 'points_hardcore' => $playerGame->points_hardcore,
                 'last_unlock_hardcore_at' => $playerGame->last_unlock_hardcore_at?->unix() ?? 0,

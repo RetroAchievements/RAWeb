@@ -10,6 +10,9 @@ use Carbon\Carbon;
 
 $rank = $numMasters;
 
+$userIds = collect($latestMasters)->pluck('user_id')->filter()->all();
+$users = User::whereIn('ID', $userIds)->get()->keyBy('ID')
+
 ?>
 
 <div class="component">
@@ -28,10 +31,12 @@ $rank = $numMasters;
             <tbody>
                 @foreach ($latestMasters as $mastery)
                     @php
-                        $masteryUser = $mastery['user'];
+                        $userId = $mastery['user_id'];
+                        $masteryUser = $users[$userId] ?? null;
                         if (!$masteryUser) {
                             continue;
                         }
+
                         $masteryDate = Carbon::createFromTimestamp($mastery['last_unlock_hardcore_at']);
                     @endphp
 
