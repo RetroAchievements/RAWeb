@@ -25,7 +25,7 @@ describe('Component: BigStatusLabel', () => {
     expect(label.parentElement).toHaveClass('text-text-muted');
   });
 
-  it('given the event has a single earned award, shows Awarded in yellow text', () => {
+  it('given the player has a single earned award, shows Awarded in yellow text', () => {
     // ARRANGE
     const event = createRaEvent({
       eventAwards: [createEventAward({ earnedAt: '2023-01-01', label: 'Bronze' })],
@@ -39,7 +39,7 @@ describe('Component: BigStatusLabel', () => {
     expect(label.parentElement).toHaveClass('text-yellow-400');
   });
 
-  it('given the event has multiple awards with one earned, shows the earned award label in neutral text', () => {
+  it('given the player has multiple awards with one earned, shows the earned award label in neutral text', () => {
     // ARRANGE
     const event = createRaEvent({
       eventAwards: [
@@ -56,7 +56,7 @@ describe('Component: BigStatusLabel', () => {
     expect(label.parentElement).toHaveClass('text-neutral-300');
   });
 
-  it('given the event has all awards earned, shows the highest earned award label in gold text', () => {
+  it('given the player has all awards earned, shows the highest earned award label in gold text', () => {
     // ARRANGE
     const event = createRaEvent({
       eventAwards: [
@@ -69,6 +69,20 @@ describe('Component: BigStatusLabel', () => {
 
     // ASSERT
     const label = screen.getByText(/silver/i);
+    expect(label).toBeVisible();
+    expect(label.parentElement).toHaveClass('text-yellow-400');
+  });
+
+  it('given the player has "mastered" the event and there are no event award tiers, shows the Awarded label in gold text', () => {
+    // ARRANGE
+    const event = createRaEvent({
+      eventAwards: [],
+    });
+
+    render(<BigStatusLabel event={event} isMastered={true} />);
+
+    // ASSERT
+    const label = screen.getByText(/awarded/i);
     expect(label).toBeVisible();
     expect(label.parentElement).toHaveClass('text-yellow-400');
   });
