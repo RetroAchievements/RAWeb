@@ -806,5 +806,9 @@
     "Do you still want to report this achievement as containing an unwelcome concept?": "Do you still want to report this achievement as containing an unwelcome concept?",
     "Latest Masters": "Latest Masters",
     "Most Achievements Earned": "Most Achievements Earned",
-    "Most Points Earned": "Most Points Earned"
+    "Most Points Earned": "Most Points Earned",
+    "Set type": "Set type",
+    "All Sets": "All Sets",
+    "Main Sets Only": "Main Sets Only",
+    "Subsets Only": "Subsets Only"
 }

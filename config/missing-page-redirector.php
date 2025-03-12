@@ -73,7 +73,8 @@ return [
          */
         '/gameInfo.php' => '/game/{ID}',
         '/gameList.php' => '/system/{c}/games',
-        '/gameSearch.php' => '/games',
+        '/gameSearch.php' => '/games?sort=-retroRatio',
+        '/gameSearch.php?p=0' => '/games?sort=-retroRatio',
         '/codenotes.php' => '/game/{g}/notes',
         '/linkedhashes.php' => '/game/{g}/hashes',
         '/popularGames.php' => '/games/popular',

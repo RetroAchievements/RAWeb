@@ -766,6 +766,7 @@ declare namespace App.Platform.Enums {
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
   export type AchievementFlag = 3 | 5;
   export type AchievementSetAuthorTask = 'artwork';
+  export type EventState = 'active' | 'concluded' | 'evergreen';
   export type UnlockMode = 0 | 1;
   export type AchievementSetType =
     | 'core'
@@ -775,7 +776,6 @@ declare namespace App.Platform.Enums {
     | 'will_be_bonus'
     | 'will_be_specialty'
     | 'will_be_exclusive';
-  export type EventState = 'active' | 'concluded' | 'evergreen';
   export type GameListProgressFilterValue =
     | 'unstarted'
     | 'unfinished'
@@ -788,6 +788,7 @@ declare namespace App.Platform.Enums {
     | 'eq_mastered'
     | 'revised'
     | 'neq_mastered';
+  export type GameListSetTypeFilterValue = 'both' | 'only-games' | 'only-subsets';
   export type GameListSortField =
     | 'title'
     | 'system'
