@@ -34,13 +34,17 @@ export const TopEventPlayersRow: FC<TopEventPlayersRowProps> = ({
 
   return (
     <BaseTableRow
-      key={`top-players-${player.userId}`}
+      key={`top-players-${player.userDisplayName}`}
       className="last:rounded-b-lg [&>td]:py-[6px]"
     >
       <BaseTableCell className="text-right">{getRowNumber()}</BaseTableCell>
 
       <BaseTableCell>
-        <UserAvatar {...player.user!} size={16} />
+        <UserAvatar
+          avatarUrl={player.userAvatarUrl}
+          displayName={player.userDisplayName}
+          size={16}
+        />
       </BaseTableCell>
 
       {listKind === 'latest-masters' ? (

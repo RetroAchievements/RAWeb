@@ -62,7 +62,7 @@ export const TopEventPlayers: FC<TopEventParticipantsProps> = ({ event, numMaste
           <BaseTableBody>
             {playersWithRanks.map((player) => (
               <TopEventPlayersRow
-                key={`top-players-${player.userId}`}
+                key={`top-players-${player.userDisplayName}`}
                 calculatedRank={player.calculatedRank}
                 listKind={listKind}
                 numMasters={numMasters}

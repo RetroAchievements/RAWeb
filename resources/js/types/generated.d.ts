@@ -594,8 +594,8 @@ declare namespace App.Platform.Data {
     isInBacklog: boolean | null;
   };
   export type GameTopAchiever = {
-    userId: number;
-    user: App.Data.User | null;
+    userDisplayName: string;
+    userAvatarUrl: string;
     achievementsUnlockedHardcore: number;
     pointsHardcore: number;
     lastUnlockHardcoreAt: string;

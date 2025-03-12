@@ -5,7 +5,8 @@ export const createGameTopAchiever = createFactory<App.Platform.Data.GameTopAchi
   const user = createUser({ id: faker.number.int({ min: 1, max: 9999 }) });
 
   return {
-    user,
+    userAvatarUrl: faker.internet.url(),
+    userDisplayName: faker.internet.username(),
     achievementsUnlockedHardcore: faker.number.int({ min: 1, max: 100 }),
     beatenHardcoreAt: null,
     lastUnlockHardcoreAt: faker.date.recent().toISOString(),
