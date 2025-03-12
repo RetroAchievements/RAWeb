@@ -176,6 +176,7 @@ class BuildDeveloperFeedDataAction
             ->with(['leaderboard.game.system', 'user'])
             ->join('LeaderboardDef as ld', 'ld.ID', '=', 'leaderboard_entries.leaderboard_id')
             ->where('ld.author_id', $targetUser->id)
+            ->whereNull('ld.deleted_at')
             ->whereNull('leaderboard_entries.deleted_at')
             ->where('leaderboard_entries.updated_at', '>=', now()->subDays(30))
             ->orderBy('leaderboard_entries.updated_at', 'desc')
