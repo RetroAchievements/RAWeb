@@ -172,18 +172,12 @@ jobs:
     name: Node.js Checks
     strategy:
       matrix:
-        check: ['tsc', 'lint', 'test']
+        check: ['tsc', 'lint']
         include:
           - check: tsc
             command: pnpm tsc
           - check: lint
             command: pnpm lint
-          - check: test
-            command: pnpm test
-            env:
-              VITE_BUILD_PATH: dist
-              APP_URL: https://raweb.test
-              LARAVEL_BYPASS_ENV_CHECK: 1
     steps:
       - name: Check Node changes
         if: ${{ needs.changes.outputs.node != 'true' }}
@@ -215,3 +209,82 @@ jobs:
         if: ${{ needs.changes.outputs.node == 'true' }}
         run: ${{ matrix.command }}
         env: ${{ matrix.env || fromJSON('{}') }}
+
+  node-tests:
+    needs: [changes, node-setup]
+    runs-on: ubuntu-22.04
+    name: Node.js Tests
+    if: ${{ needs.changes.outputs.node == 'true' }}
+    strategy:
+      matrix:
+        shardIndex: [1, 2, 3, 4]
+        shardTotal: [4]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Run tests with sharding
+        run: pnpm test:run --coverage --coverage.thresholds=false --reporter=blob --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        env:
+          VITE_BUILD_PATH: dist
+          APP_URL: https://raweb.test
+          LARAVEL_BYPASS_ENV_CHECK: 1
+
+      - name: Upload blob report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-${{ matrix.shardIndex }}
+          path: .vitest-reports/*
+          include-hidden-files: true
+          retention-days: 1
+
+  merge-test-reports:
+    needs: [node-tests]
+    runs-on: ubuntu-22.04
+    name: Merge Test Reports
+    # Only run if any of the test jobs were successful.
+    if: ${{ !cancelled() }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Download blob reports
+        uses: actions/download-artifact@v4
+        with:
+          path: .vitest-reports
+          pattern: blob-report-*
+          merge-multiple: true
+
+      - name: Merge reports
+        run: pnpm test:run --merge-reports --coverage --coverage.reporters=text
