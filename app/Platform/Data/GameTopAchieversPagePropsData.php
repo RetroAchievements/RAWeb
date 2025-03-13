@@ -8,7 +8,7 @@ use App\Data\PaginatedData;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript('GameTopAchieversPageProps<TItems = App.Platform.Data.GameTopAchiever>')]
+#[TypeScript('GameTopAchieversPageProps<TItems = App.Platform.Data.RankedGameTopAchiever>')]
 class GameTopAchieversPagePropsData extends Data
 {
     public function __construct(
