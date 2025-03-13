@@ -172,4 +172,78 @@ describe('Util: createVirtualAward', () => {
     // ASSERT
     expect(result!.badgeCount).toEqual(42);
   });
+
+  it('given all achievements are earned, sets earnedAt to the most recent unlock date', () => {
+    // ARRANGE
+    const event = createRaEvent({
+      id: 123,
+      eventAchievements: [
+        createEventAchievement({
+          achievement: createAchievement({
+            points: 5,
+            unlockedHardcoreAt: '2024-01-01T00:00:00Z',
+          }),
+        }),
+        createEventAchievement({
+          achievement: createAchievement({
+            points: 10,
+            unlockedHardcoreAt: '2024-03-15T00:00:00Z',
+          }),
+        }),
+        createEventAchievement({
+          achievement: createAchievement({
+            points: 25,
+            unlockedHardcoreAt: '2024-02-01T00:00:00Z',
+          }),
+        }),
+      ],
+      legacyGame: createGame({
+        badgeUrl: 'https://example.com/badge.jpg',
+        title: 'Test Game',
+      }),
+    });
+
+    // ACT
+    const result = createVirtualAward(event, 1);
+
+    // ASSERT
+    expect(result!.earnedAt).toBe('2024-03-15T00:00:00Z');
+  });
+
+  it('given not all achievements are earned, sets earnedAt to null', () => {
+    // ARRANGE
+    const event = createRaEvent({
+      id: 123,
+      eventAchievements: [
+        createEventAchievement({
+          achievement: createAchievement({
+            points: 5,
+            unlockedHardcoreAt: '2024-01-01T00:00:00Z',
+          }),
+        }),
+        createEventAchievement({
+          achievement: createAchievement({
+            points: 10,
+            unlockedHardcoreAt: undefined, // !!
+          }),
+        }),
+        createEventAchievement({
+          achievement: createAchievement({
+            points: 25,
+            unlockedHardcoreAt: '2024-02-01T00:00:00Z',
+          }),
+        }),
+      ],
+      legacyGame: createGame({
+        badgeUrl: 'https://example.com/badge.jpg',
+        title: 'Test Game',
+      }),
+    });
+
+    // ACT
+    const result = createVirtualAward(event, 1);
+
+    // ASSERT
+    expect(result!.earnedAt).toBeNull();
+  });
 });

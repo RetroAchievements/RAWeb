@@ -19,10 +19,21 @@ export function createVirtualAward(
     totalPoints += ea.achievement!.points!;
   }
 
+  const hasEarned = pointedEventAchievements.every((ea) => !!ea.achievement?.unlockedHardcoreAt);
+
+  let earnedAt: string | null = null;
+  if (hasEarned) {
+    // Find the most recent unlock date.
+    earnedAt = pointedEventAchievements
+      .map((ea) => ea.achievement!.unlockedHardcoreAt!)
+      .sort()
+      .pop()!;
+  }
+
   return {
     id: 0,
+    earnedAt,
     badgeUrl: event.legacyGame.badgeUrl,
-    earnedAt: null,
     eventId: event.id,
     label: event.legacyGame.title,
     pointsRequired: totalPoints,
