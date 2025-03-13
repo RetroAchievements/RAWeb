@@ -896,7 +896,7 @@ describe('Component: HubMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('alertdialog', { name: /content warning/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('alertdialog', { name: /content warning/i })).toBeVisible();
   });
 
   it('given the hub does not have a content warning, does not display the content warning dialog', () => {
