@@ -4,7 +4,6 @@ declare module 'ziggy-js' {
     "demo": [],
     "tickets.index": [],
     "ranking.beaten-games": [],
-    "message.create": [],
     "achievement.tickets": [
         {
             "name": "achievement",
