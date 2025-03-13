@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuChevronRight, LuMoreHorizontal } from 'react-icons/lu';
+import { LuChevronRight, LuEllipsis } from 'react-icons/lu';
 
 import { cn } from '@/common/utils/cn';
 
@@ -95,7 +95,7 @@ const BaseBreadcrumbEllipsis = ({ className, ...props }: ComponentProps<'span'>)
       className={cn('flex h-9 w-9 items-center justify-center', className)}
       {...props}
     >
-      <LuMoreHorizontal className="h-4 w-4" />
+      <LuEllipsis className="h-4 w-4" />
       <span className="sr-only">{t('More')}</span>
     </span>
   );

@@ -24,7 +24,7 @@ export const ShortcodeAch: FC<ShortcodeAchievementProps> = ({ achievementId }) =
       <AchievementAvatar
         {...foundAchievement}
         size={24}
-        showHardcoreUnlockBorder={false}
+        displayLockedStatus="unlocked"
         showPointsInTitle={true}
         variant="inline"
       />

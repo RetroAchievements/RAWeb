@@ -141,7 +141,7 @@ describe('Component: MessagesShowRoot', () => {
 
     // ASSERT
     expect(visitSpy).toHaveBeenCalledWith(
-      route('message-thread.show2', {
+      route('message-thread.show', {
         messageThread: messageThread.id,
         _query: { page: 2 },
       }),

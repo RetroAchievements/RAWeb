@@ -4,7 +4,7 @@ import { FaGamepad, FaTicketAlt, FaUser } from 'react-icons/fa';
 import { ImTrophy } from 'react-icons/im';
 import {
   LuBold,
-  LuCode2,
+  LuCode,
   LuEyeOff,
   LuItalic,
   LuLink,
@@ -24,7 +24,7 @@ export function useShortcodesList() {
     { icon: LuItalic, t_label: t('Italic'), start: '[i]', end: '[/i]' },
     { icon: LuUnderline, t_label: t('Underline'), start: '[u]', end: '[/u]' },
     { icon: LuStrikethrough, t_label: t('Strikethrough'), start: '[s]', end: '[/s]' },
-    { icon: LuCode2, t_label: t('Code'), start: '[code]', end: '[/code]' },
+    { icon: LuCode, t_label: t('Code'), start: '[code]', end: '[/code]' },
     { icon: LuQuote, t_label: t('Quote'), start: '[quote]', end: '[/quote]' },
     { icon: LuEyeOff, t_label: t('Spoiler'), start: '[spoiler]', end: '[/spoiler]' },
     { icon: BsImageFill, t_label: t('Image'), start: '[img=', end: ']' },

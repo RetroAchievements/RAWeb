@@ -41,7 +41,6 @@ class CreateAchievementOfTheWeek
 
             Event::create([
                 'legacy_game_id' => $eventGame->ID,
-                'slug' => "aotw-$year",
                 'active_from' => $startDate,
                 'active_until' => $nextDate,
             ]);

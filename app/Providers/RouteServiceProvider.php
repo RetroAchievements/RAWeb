@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Http\Concerns\HandlesPublicFileRequests;
 use App\Http\Controllers\Api\UserApiController;
+use App\Http\Controllers\Api\SearchApiController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\UserController;
@@ -109,6 +110,8 @@ class RouteServiceProvider extends ServiceProvider
 
                 Route::post('avatar', [UserController::class, 'uploadAvatar'])->name('api.user.avatar.store');
                 Route::delete('avatar', [UserController::class, 'deleteAvatar'])->name('api.user.avatar.destroy');
+
+                Route::get('search', [SearchApiController::class, 'index'])->name('api.search.index');
             });
         });
     }

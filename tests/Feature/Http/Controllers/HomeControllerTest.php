@@ -173,7 +173,6 @@ class HomeControllerTest extends TestCase
         ]);
         $event = Event::create([
             'legacy_game_id' => $eventGame->id,
-            'slug' => 'foo',
             'active_from' => Carbon::now()->subDays(3),
             'active_until' => Carbon::now()->addDays(3),
         ]);
@@ -219,7 +218,6 @@ class HomeControllerTest extends TestCase
         ]);
         Event::create([
             'legacy_game_id' => $eventGame->id,
-            'slug' => 'foo',
             'active_from' => Carbon::now()->subDays(3),
             'active_until' => Carbon::now()->addDays(3),
         ]);

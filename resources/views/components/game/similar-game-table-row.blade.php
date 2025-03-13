@@ -21,7 +21,8 @@ if ($gameSetId) {
 <tr>
     <td class="w-full py-2">
         <x-game.multiline-avatar
-            :gameId="$gameId"
+            :dynamicType="$gameSetId ? 'hub' : 'game'"
+            :gameId="$gameSetId ?? $gameId"
             :gameTitle="$gameTitle"
             :gameImageIcon="$gameImageIcon"
             :consoleName="$consoleName"

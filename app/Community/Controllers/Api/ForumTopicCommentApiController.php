@@ -42,6 +42,9 @@ class ForumTopicCommentApiController extends Controller
         // Convert [user=$user->username] to [user=$user->id].
         $newPayload = Shortcode::convertUserShortcodesToUseIds($newPayload);
 
+        // Convert [game={legacy_hub_id}] to [hub={game_set_id}].
+        $newPayload = Shortcode::convertLegacyGameHubShortcodesToHubShortcodes($newPayload);
+
         $comment->body = $newPayload;
         $comment->save();
 

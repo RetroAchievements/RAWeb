@@ -34,11 +34,10 @@ class ReportAchievementIssueController extends Controller
             $achievement,
             $foundPlayerAchievement
         )->include(
-            'badgeUnlockedUrl',
-            'badgeLockedUrl',
             'unlockedAt',
             'unlockedHardcoreAt',
             'game',
+            'game.isSubsetGame',
             'game.system',
         );
 

@@ -49,6 +49,7 @@ function SubmitLeaderboardEntry(
         timestamp: $timestamp,
     );
 
+    // First check if there's an existing entry (including soft-deleted)
     $existingLeaderboardEntry = LeaderboardEntry::withTrashed()
         ->where('leaderboard_id', $leaderboard->id)
         ->where('user_id', $user->id)
@@ -74,15 +75,22 @@ function SubmitLeaderboardEntry(
             $retVal['BestScore'] = $existingLeaderboardEntry->score;
         }
     } else {
-        // No existing leaderboard entry. Let's insert a new one.
-        LeaderboardEntry::create([
-            'leaderboard_id' => $leaderboard->id,
-            'user_id' => $user->id,
-            'score' => $newEntry,
-            'player_session_id' => $playerSession->id,
-            'created_at' => $timestamp,
-            'updated_at' => $timestamp,
-        ]);
+        // No existing leaderboard entry. Let's insert a new one, using
+        // updateOrCreate to handle potential race conditions if the client
+        // is rapid-firing off submissions to the server.
+        $entry = LeaderboardEntry::updateOrCreate(
+            [
+                'leaderboard_id' => $leaderboard->id,
+                'user_id' => $user->id,
+            ],
+            [
+                'score' => $newEntry,
+                'player_session_id' => $playerSession->id,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
+                'deleted_at' => null, // Ensure the entry is not soft-deleted.
+            ]
+        );
 
         $retVal['BestScore'] = $newEntry;
     }
@@ -191,6 +199,7 @@ function GetLeaderboardData(
 
         $retVal['Entries'][] = [
             'User' => $entry->user->display_name,
+            'ULID' => $entry->user->ulid,
             'AvatarUrl' => $entry->user->avatar_url,
             'DateSubmitted' => $entry->updated_at->unix(),
             'Score' => $entry->score,

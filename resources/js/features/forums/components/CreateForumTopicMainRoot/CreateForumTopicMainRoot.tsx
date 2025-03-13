@@ -16,7 +16,7 @@ export const CreateForumTopicMainRoot: FC = memo(() => {
   const { initiatePreview, previewContent } = useShortcodeBodyPreview();
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <ForumBreadcrumbs
         forum={forum}
         forumCategory={forum.category}

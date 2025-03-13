@@ -2,8 +2,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-import { useAddToGameListMutation } from '@/common/hooks/useAddToGameListMutation';
-import { useRemoveFromGameListMutation } from '@/common/hooks/useRemoveFromGameListMutation';
+import { useAddToGameListMutation } from '@/common/hooks/mutations/useAddToGameListMutation';
+import { useRemoveFromGameListMutation } from '@/common/hooks/mutations/useRemoveFromGameListMutation';
 import type { TranslatedString } from '@/types/i18next';
 
 export function useWantToPlayGamesList() {

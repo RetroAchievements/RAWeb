@@ -26,7 +26,7 @@ function getGameRankAndScore(int $gameID, User $user): array
     }
 
     $query = "WITH data
-    AS (SELECT ua.User, $rankClause, pg.Points AS TotalScore, $dateClause AS LastAward
+    AS (SELECT ua.User, ua.ulid AS ULID, $rankClause, pg.Points AS TotalScore, $dateClause AS LastAward
         FROM player_games AS pg
         INNER JOIN UserAccounts AS ua ON ua.ID = pg.user_id
         WHERE pg.game_id = $gameID $untrackedClause

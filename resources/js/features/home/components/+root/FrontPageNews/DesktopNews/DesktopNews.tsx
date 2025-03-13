@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'motion/react';
-import * as m from 'motion/react-m';
+import * as motion from 'motion/react-m';
 import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuArrowLeft, LuArrowRight } from 'react-icons/lu';
@@ -45,9 +45,9 @@ export const DesktopNews: FC = () => {
         data-testid="desktop-news"
       >
         <AnimatePresence mode="wait" initial={false}>
-          <m.div key={currentPage} className="contents">
+          <motion.div key={currentPage} className="contents">
             {currentPageNewsItems.map((news, index) => (
-              <m.div
+              <motion.div
                 key={`news-${news.id}`}
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -65,9 +65,9 @@ export const DesktopNews: FC = () => {
                     buildTrackingClassNames(`Click News Post ${index + 1}`),
                   )}
                 />
-              </m.div>
+              </motion.div>
             ))}
-          </m.div>
+          </motion.div>
         </AnimatePresence>
       </div>
 
