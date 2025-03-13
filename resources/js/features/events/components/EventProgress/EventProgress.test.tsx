@@ -2,6 +2,7 @@ import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import {
   createAchievement,
+  createEventAchievement,
   createEventAward,
   createPlayerGame,
   createRaEvent,
@@ -154,5 +155,27 @@ describe('Component: EventProgress', () => {
     const glowElement = screen.getByTestId('progress-blur');
     expect(glowElement).toBeVisible();
     expect(glowElement).toHaveClass('from-yellow-400');
+  });
+
+  it('given there are no awards and the user has earned all points, shows the mastered glow effect and correct label', () => {
+    // ARRANGE
+    const event = createRaEvent({
+      eventAwards: [],
+      eventAchievements: [
+        createEventAchievement({ achievement: createAchievement({ points: 1 }) }),
+      ],
+    });
+    const playerGame = createPlayerGame({ achievementsUnlocked: 1, pointsHardcore: 1 });
+
+    render(<EventProgress event={event} playerGame={playerGame} />, {
+      pageProps: { auth: { user: createAuthenticatedUser() } },
+    });
+
+    // ASSERT
+    const glowElement = screen.getByTestId('progress-blur');
+    expect(glowElement).toBeVisible();
+    expect(glowElement).toHaveClass('from-yellow-400');
+
+    expect(screen.getByText(/awarded/i)).toBeVisible();
   });
 });
