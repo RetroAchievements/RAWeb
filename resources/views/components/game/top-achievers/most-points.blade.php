@@ -8,6 +8,9 @@
 
 use App\Models\User;
 
+$userIds = collect($highestPointEarners)->pluck('user_id')->filter()->all();
+$users = User::whereIn('ID', $userIds)->get()->keyBy('ID')
+
 @endphp
 
 <div class="component">
@@ -36,7 +39,8 @@ use App\Models\User;
                 @endphp
                 @foreach ($highestPointEarners as $playerGame)
                     @php
-                        $user = $playerGame['user'];
+                        $userId = $playerGame['user_id'];
+                        $user = $users[$userId] ?? null;
                         if (!$user) {
                             continue;
                         }

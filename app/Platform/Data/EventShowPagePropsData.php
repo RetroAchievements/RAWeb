@@ -15,6 +15,7 @@ class EventShowPagePropsData extends Data
     /**
      * @param Collection<int, FollowedPlayerCompletionData> $followedPlayerCompletions
      * @param Collection<int, PlayerAchievementChartBucketData> $playerAchievementChartBuckets
+     * @param Collection<int, GameTopAchieverData> $topAchievers
      */
     public function __construct(
         public EventData $event,
@@ -23,6 +24,8 @@ class EventShowPagePropsData extends Data
         public array $hubs,
         public Collection $followedPlayerCompletions,
         public Collection $playerAchievementChartBuckets,
+        public int $numMasters,
+        public Collection $topAchievers,
         public ?PlayerGameData $playerGame,
         public ?PlayerGameProgressionAwardsData $playerGameProgressionAwards,
     ) {
