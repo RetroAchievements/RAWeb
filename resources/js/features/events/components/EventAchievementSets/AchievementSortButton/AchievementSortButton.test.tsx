@@ -8,19 +8,16 @@ import { AchievementSortButton } from './AchievementSortButton';
 describe('Component: AchievementSortButton', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const onChange = vi.fn();
+    const { container } = render(<AchievementSortButton value="displayOrder" onChange={vi.fn()} />);
 
     // ASSERT
-    expect(() =>
-      render(<AchievementSortButton value="displayOrder" onChange={onChange} />),
-    ).not.toThrow();
+    expect(container).toBeTruthy();
   });
 
   it('given display order sort, shows the correct icon and text', () => {
     // ARRANGE
     const onChange = vi.fn();
 
-    // ACT
     render(<AchievementSortButton value="displayOrder" onChange={onChange} />);
 
     // ASSERT
@@ -32,7 +29,6 @@ describe('Component: AchievementSortButton', () => {
     // ARRANGE
     const onChange = vi.fn();
 
-    // ACT
     render(<AchievementSortButton value="-displayOrder" onChange={onChange} />);
 
     // ASSERT
@@ -44,7 +40,6 @@ describe('Component: AchievementSortButton', () => {
     // ARRANGE
     const onChange = vi.fn();
 
-    // ACT
     render(<AchievementSortButton value="wonBy" onChange={onChange} />);
 
     // ASSERT
@@ -56,7 +51,6 @@ describe('Component: AchievementSortButton', () => {
     // ARRANGE
     const onChange = vi.fn();
 
-    // ACT
     render(<AchievementSortButton value="-wonBy" onChange={onChange} />);
 
     // ASSERT
@@ -68,7 +62,6 @@ describe('Component: AchievementSortButton', () => {
     // ARRANGE
     const onChange = vi.fn();
 
-    // ACT
     render(<AchievementSortButton value="active" onChange={onChange} includeActiveOption />);
 
     // ASSERT
@@ -79,6 +72,7 @@ describe('Component: AchievementSortButton', () => {
   it('given includeActiveOption is false, does not show the status option in dropdown', async () => {
     // ARRANGE
     const onChange = vi.fn();
+
     render(<AchievementSortButton value="displayOrder" onChange={onChange} />);
 
     // ACT
@@ -91,6 +85,7 @@ describe('Component: AchievementSortButton', () => {
   it('given includeActiveOption is true, shows the status option in dropdown', async () => {
     // ARRANGE
     const onChange = vi.fn();
+
     render(
       <AchievementSortButton value="displayOrder" onChange={onChange} includeActiveOption={true} />,
     );
@@ -105,6 +100,7 @@ describe('Component: AchievementSortButton', () => {
   it('when clicking the status sort option, calls onChange with active', async () => {
     // ARRANGE
     const onChange = vi.fn();
+
     render(<AchievementSortButton value="displayOrder" onChange={onChange} includeActiveOption />);
 
     // ACT
@@ -118,6 +114,7 @@ describe('Component: AchievementSortButton', () => {
   it('when clicking display order (first) option, calls onChange with displayOrder', async () => {
     // ARRANGE
     const onChange = vi.fn();
+
     render(<AchievementSortButton value="wonBy" onChange={onChange} />);
 
     // ACT
@@ -133,6 +130,7 @@ describe('Component: AchievementSortButton', () => {
   it('when clicking display order (last) option, calls onChange with -displayOrder', async () => {
     // ARRANGE
     const onChange = vi.fn();
+
     render(<AchievementSortButton value="wonBy" onChange={onChange} />);
 
     // ACT
@@ -148,6 +146,7 @@ describe('Component: AchievementSortButton', () => {
   it('when clicking won by (most) option, calls onChange with wonBy', async () => {
     // ARRANGE
     const onChange = vi.fn();
+
     render(<AchievementSortButton value="displayOrder" onChange={onChange} />);
 
     // ACT
@@ -161,6 +160,7 @@ describe('Component: AchievementSortButton', () => {
   it('when clicking won by (least) option, calls onChange with -wonBy', async () => {
     // ARRANGE
     const onChange = vi.fn();
+
     render(<AchievementSortButton value="displayOrder" onChange={onChange} />);
 
     // ACT
