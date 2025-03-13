@@ -17,7 +17,6 @@ return new class() extends Migration {
     {
         Schema::table('events', function (Blueprint $table) {
             $table->string('slug', 20)->after('image_asset_path');
-            $table->unique('slug', 'events_slug_unique');
         });
     }
 };
