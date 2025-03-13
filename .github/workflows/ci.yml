@@ -213,12 +213,12 @@ jobs:
   node-tests:
     needs: [changes, node-setup]
     runs-on: ubuntu-22.04
-    name: Node.js Tests
+    name: Node.js Checks (test)
     if: ${{ needs.changes.outputs.node == 'true' }}
     strategy:
       matrix:
-        shardIndex: [1, 2, 3, 4]
-        shardTotal: [4]
+        shardIndex: [1, 2, 3, 4, 5]
+        shardTotal: [5]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
