@@ -38,7 +38,7 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         /** @var Collection<int, Achievement> $achievements */
         $achievements = $game->achievements()->saveMany(Achievement::factory()->published()
             ->count(8)->create(['Points' => 1]));
-        $event = Event::create(['legacy_game_id' => $game->id, 'slug' => 'test-event']);
+        $event = Event::create(['legacy_game_id' => $game->id]);
         EventAward::create(['event_id' => $event->id, 'tier_index' => 1, 'label' => 'Bronze', 'points_required' => 2, 'image_asset_path' => '/Images/000001.png']);
         EventAward::create(['event_id' => $event->id, 'tier_index' => 2, 'label' => 'Silver', 'points_required' => 4, 'image_asset_path' => '/Images/000002.png']);
         EventAward::create(['event_id' => $event->id, 'tier_index' => 3, 'label' => 'Gold', 'points_required' => 6, 'image_asset_path' => '/Images/000003.png']);
@@ -120,7 +120,7 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 1]);
         $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 2]);
         $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 2]);
-        $event = Event::create(['legacy_game_id' => $game->id, 'slug' => 'test-event']);
+        $event = Event::create(['legacy_game_id' => $game->id]);
         EventAward::create(['event_id' => $event->id, 'tier_index' => 1, 'label' => 'Bronze', 'points_required' => 2, 'image_asset_path' => '/Images/000001.png']);
         EventAward::create(['event_id' => $event->id, 'tier_index' => 2, 'label' => 'Silver', 'points_required' => 4, 'image_asset_path' => '/Images/000002.png']);
         EventAward::create(['event_id' => $event->id, 'tier_index' => 3, 'label' => 'Gold', 'points_required' => 6, 'image_asset_path' => '/Images/000003.png']);
@@ -173,7 +173,7 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         System::factory()->create(['ID' => System::Events]);
         $game = Game::factory()->create(['ConsoleID' => System::Events]);
         $achievements = $this->seedAchievements(3, $game);
-        $event = Event::create(['legacy_game_id' => $game->id, 'slug' => 'test-event']);
+        $event = Event::create(['legacy_game_id' => $game->id]);
 
         // no badge to start
         $this->assertNull($this->getPlayerBadge($user, $event));
