@@ -16,6 +16,7 @@ use App\Platform\Data\GameSetData;
 use App\Platform\Data\GameTopAchieverData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\GameTopAchieversService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -37,7 +38,8 @@ class EventController extends Controller
         $event->loadMissing([
             'legacyGame',
             'achievements' => function ($query) use ($user) {
-                $query->with(['sourceAchievement.game.system']);
+                $query->with(['sourceAchievement.game.system'])
+                    ->where('Flags', AchievementFlag::OfficialCore->value);
 
                 if ($user) {
                     $query->with(['achievement.playerAchievements' => function ($query) use ($user) {
