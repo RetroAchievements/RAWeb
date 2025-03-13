@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Http\Concerns\HandlesPublicFileRequests;
-use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\SearchApiController;
+use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\UserController;
