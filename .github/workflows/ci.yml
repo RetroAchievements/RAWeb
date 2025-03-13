@@ -257,7 +257,7 @@ jobs:
   merge-test-reports:
     needs: [node-tests]
     runs-on: ubuntu-22.04
-    name: Merge Test Reports
+    name: Merge Node.js Test Reports
     # Only run if any of the test jobs were successful.
     if: ${{ !cancelled() }}
     steps:
@@ -288,3 +288,7 @@ jobs:
 
       - name: Merge reports
         run: pnpm test:run --merge-reports --coverage --coverage.reporters=text
+        env:
+          VITE_BUILD_PATH: dist
+          APP_URL: https://raweb.test
+          LARAVEL_BYPASS_ENV_CHECK: 1
