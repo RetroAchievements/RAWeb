@@ -6,45 +6,32 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 
 const formSchema = z.object({
-  body: z.string().min(1).max(60_000),
+  permissions: z.coerce.number().int().min(0).max(4), // legacy permissions
 });
 type FormValues = z.infer<typeof formSchema>;
 
-export function useEditPostForm(comment: App.Data.ForumTopicComment, initialValues: FormValues) {
+export function useTopicManageForm(topic: App.Data.ForumTopic) {
   const { t } = useTranslation();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialValues,
+    defaultValues: {
+      permissions: topic.requiredPermissions!,
+    },
   });
 
   const mutation = useMutation({
     mutationFn: (payload: FormValues) => {
-      const normalizedPayload: FormValues = {
-        ...payload,
-        body: preProcessShortcodesInBody(payload.body),
-      };
-
-      return axios.patch(
-        route('api.forum-topic-comment.update', { comment: comment.id }),
-        normalizedPayload,
-      );
+      return axios.put(route('api.forum-topic.gate', { topic: topic.id }), payload);
     },
   });
 
   const onSubmit = (formValues: FormValues) => {
     toastMessage.promise(mutation.mutateAsync(formValues), {
-      loading: t('Updating...'),
-      success: () => {
-        window.location.assign(
-          `/viewtopic.php?t=${comment.forumTopic!.id}&c=${comment.id}#${comment.id}`,
-        );
-
-        return t('Updated.');
-      },
+      loading: t('Submitting...'),
+      success: t('Submitted!'),
       error: t('Something went wrong.'),
     });
   };

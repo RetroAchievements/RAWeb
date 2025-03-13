@@ -83,7 +83,8 @@ export const GameAvatar: FC<GameAvatarProps> = ({
               height={size}
               src={badgeUrl}
               alt={title ?? 'Game'}
-              className={cn('rounded-sm', variant === 'inline' ? 'mr-1.5' : null)}
+              style={{ aspectRatio: '1/1' }}
+              className={cn('rounded-sm object-cover', variant === 'inline' ? 'mr-1.5' : null)}
             />
           )}
         </>
