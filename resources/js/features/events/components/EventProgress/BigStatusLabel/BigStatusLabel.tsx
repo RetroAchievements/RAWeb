@@ -16,12 +16,12 @@ export const BigStatusLabel: FC<BigStatusLabelProps> = ({ event, isMastered }) =
 
   const eventAwards = event.eventAwards ?? [];
 
-  const isAwarded = eventAwards.some((award) => award.earnedAt);
+  const isAwarded = isMastered || eventAwards.some((award) => award.earnedAt);
 
   let colorClassName = 'text-text-muted';
   let statusLabel: string | TranslatedString = t('Unfinished');
 
-  if (isAwarded && eventAwards.length === 1) {
+  if (isAwarded && eventAwards.length <= 1) {
     colorClassName = 'text-yellow-400 light:text-yellow-600';
     statusLabel = t('Awarded');
   } else if (isAwarded && eventAwards.length > 1) {

@@ -25,21 +25,27 @@ export const EventProgress: FC<EventProgressProps> = ({ event, playerGame }) => 
     (ea) => ea.achievement?.points && ea.achievement.points === 1,
   );
 
-  // Check if the highest tier award (most pointsRequired) has been earned.
-  const isMastered =
-    eventAwards.length > 0 &&
-    !!eventAwards.sort((a, b) => b.pointsRequired - a.pointsRequired)[0]?.earnedAt;
-
   let totalPoints = 0;
   for (const ea of event.eventAchievements || []) {
     totalPoints += ea.achievement?.points || 0;
   }
 
+  const hasPlayerEarnedAllPoints = playerGame && playerGame.pointsHardcore === totalPoints;
+  const hasPlayerEarnedHighestAwardTier = !!eventAwards.sort(
+    (a, b) => b.pointsRequired - a.pointsRequired,
+  )[0]?.earnedAt;
+
+  const isMastered =
+    (eventAwards.length === 0 && hasPlayerEarnedAllPoints) ||
+    (eventAwards.length > 0 && hasPlayerEarnedHighestAwardTier);
+
   const totalAchievements = event.eventAchievements?.length ?? 0;
 
   return (
     <div className="group relative -mx-5 lg:mx-0">
-      {hasUnlockedAnyAchievements && hasEarnedAnyAward ? <Glow isMastered={isMastered} /> : null}
+      {(hasUnlockedAnyAchievements && hasEarnedAnyAward) || isMastered ? (
+        <Glow isMastered={isMastered} />
+      ) : null}
 
       <div className="relative border border-embed-highlight bg-embed px-5 pb-5 pt-3.5 light:bg-white lg:rounded">
         <div className="mb-2">
