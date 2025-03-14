@@ -86,7 +86,7 @@ describe('AchievementDateMeta', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/Active until/)).toBeInTheDocument();
+    expect(screen.getByText(/Active through/)).toBeInTheDocument();
   });
 
   it('should render upcoming status for future event achievement.', () => {
