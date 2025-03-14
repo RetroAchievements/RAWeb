@@ -56,11 +56,14 @@ class Hubs extends ManageRelatedRecords
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->where('game_sets.id', 'like', "%{$search}");
                     })
-                    ->sortable(),
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy('game_sets.id', $direction);
+                    }),
 
                 Tables\Columns\TextColumn::make('title')
                     ->label('Title')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
             ])
             ->filters([
 

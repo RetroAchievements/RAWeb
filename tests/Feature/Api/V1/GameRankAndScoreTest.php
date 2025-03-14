@@ -61,16 +61,19 @@ class GameRankAndScoreTest extends TestCase
             ->assertJson([
                 [
                     'User' => $this->user->User,
+                    'ULID' => $this->user->ulid,
                     'NumAchievements' => 3,
                     'TotalScore' => $ach1->Points + $ach2->Points + $ach3->Points,
                 ],
                 [
                     'User' => $user3->User,
+                    'ULID' => $user3->ulid,
                     'NumAchievements' => 2,
                     'TotalScore' => $ach1->Points + $ach3->Points,
                 ],
                 [
                     'User' => $user2->User,
+                    'ULID' => $user2->ulid,
                     'NumAchievements' => 2,
                     'TotalScore' => $ach1->Points + $ach2->Points,
                 ],
@@ -83,6 +86,7 @@ class GameRankAndScoreTest extends TestCase
             ->assertJson([
                 [
                     'User' => $this->user->User,
+                    'ULID' => $this->user->ulid,
                     'NumAchievements' => 3,
                     'TotalScore' => $ach1->Points + $ach2->Points + $ach3->Points,
                 ],

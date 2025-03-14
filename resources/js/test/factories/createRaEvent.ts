@@ -10,5 +10,7 @@ export const createRaEvent = createFactory<App.Platform.Data.Event>((faker) => {
   return {
     id: faker.number.int({ min: 1, max: 10000 }),
     legacyGame: createGame(),
+    activeFrom: faker.date.past().toISOString(),
+    activeThrough: faker.date.future().toISOString(),
   };
 });

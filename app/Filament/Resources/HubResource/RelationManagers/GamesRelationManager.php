@@ -54,7 +54,9 @@ class GamesRelationManager extends RelationManager
                     ->sortable(query: function (Builder $query, string $direction): Builder {
                         return $query->orderBy('GameData.ID', $direction);
                     })
-                    ->searchable()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where('GameData.ID', 'like', "%{$search}%");
+                    })
                     ->url(function (Game $record) {
                         if (request()->user()->can('manage', Game::class)) {
                             return GameResource::getUrl('view', ['record' => $record]);

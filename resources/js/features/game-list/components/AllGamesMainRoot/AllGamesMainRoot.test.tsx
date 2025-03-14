@@ -350,6 +350,7 @@ describe('Component: AllGamesMainRoot', () => {
         'api.game.index',
         {
           'filter[achievementsPublished]': 'has',
+          'filter[subsets]': 'only-games',
           'filter[title]': 'dragon quest',
           'page[number]': 1,
           'page[size]': 25,
@@ -406,6 +407,7 @@ describe('Component: AllGamesMainRoot', () => {
         'api.game.index',
         {
           'filter[achievementsPublished]': 'has',
+          'filter[subsets]': 'only-games',
           'filter[system]': '1',
           'page[number]': 1,
           'page[size]': 25,
@@ -505,6 +507,7 @@ describe('Component: AllGamesMainRoot', () => {
         'api.game.index',
         {
           'filter[achievementsPublished]': 'none',
+          'filter[subsets]': 'only-games',
           'page[number]': 1,
           'page[size]': 25,
           sort: '-playersTotal',
@@ -538,6 +541,7 @@ describe('Component: AllGamesMainRoot', () => {
         'api.game.index',
         {
           'filter[achievementsPublished]': 'has',
+          'filter[subsets]': 'only-games',
           'page[number]': 1,
           'page[size]': 25,
           sort: '-system',
@@ -571,6 +575,7 @@ describe('Component: AllGamesMainRoot', () => {
         'api.game.index',
         {
           'filter[achievementsPublished]': 'has',
+          'filter[subsets]': 'only-games',
           'page[number]': 1,
           'page[size]': 25,
           sort: 'achievementsPublished',
@@ -604,6 +609,7 @@ describe('Component: AllGamesMainRoot', () => {
         'api.game.index',
         {
           'filter[achievementsPublished]': 'has',
+          'filter[subsets]': 'only-games',
           'page[number]': 1,
           'page[size]': 25,
           sort: 'releasedAt',
@@ -641,6 +647,7 @@ describe('Component: AllGamesMainRoot', () => {
         'api.game.index',
         {
           'filter[achievementsPublished]': 'has',
+          'filter[subsets]': 'only-games',
           'page[number]': 1,
           'page[size]': 25,
           sort: '-hasActiveOrInReviewClaims',
@@ -714,6 +721,7 @@ describe('Component: AllGamesMainRoot', () => {
         'api.game.index',
         {
           'filter[achievementsPublished]': 'has',
+          'filter[subsets]': 'only-games',
           'page[number]': 2,
           'page[size]': 50,
           sort: '-playersTotal',

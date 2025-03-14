@@ -146,11 +146,13 @@ class V1Test extends TestCase
     public function testGetAchievementsEarnedBetweenEmptyResponse(): void
     {
         $this->get($this->apiUrl('GetAchievementsEarnedBetween'))
-            ->assertSuccessful()
-            ->assertExactJson([]);
+            ->assertStatus(422)
+            ->assertJson([
+                "message" => "The u field is required.",
+            ]);
     }
 
-    public function testGetAchievementsEarnedBetween(): void
+    public function testGetAchievementsEarnedBetweenByUser(): void
     {
         /** @var System $system */
         $system = System::factory()->create();
@@ -167,7 +169,7 @@ class V1Test extends TestCase
 
         $this->get(
             $this->apiUrl('GetAchievementsEarnedBetween', [
-                'u' => $this->user->User,
+                'u' => $this->user->User, // !!
                 'f' => Carbon::now()->subDay()->startOfDay()->unix(),
                 't' => Carbon::now()->addDay()->endOfDay()->unix(),
             ])
@@ -193,7 +195,50 @@ class V1Test extends TestCase
             ]);
     }
 
-    public function testGetAchievementsEarnedOnDay(): void
+    public function testGetAchievementsEarnedBetweenByUlid(): void
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'Points' => 100]);
+
+        $unlockTime = Carbon::now()->subMinutes(5);
+        $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
+        $this->addSoftcoreUnlock($this->user, $achievement, Carbon::now()->subDays(5));
+
+        $achievement = Achievement::first();
+
+        $this->get(
+            $this->apiUrl('GetAchievementsEarnedBetween', [
+                'u' => $this->user->ulid, // !!
+                'f' => Carbon::now()->subDay()->startOfDay()->unix(),
+                't' => Carbon::now()->addDay()->endOfDay()->unix(),
+            ])
+        )
+            ->assertSuccessful()
+            ->assertJson([
+                [
+                    'AchievementID' => $achievement->ID,
+                    'ConsoleName' => $system->Name,
+                    'CumulScore' => 100,
+                    'Date' => $unlockTime->format('Y-m-d H:i:s'),
+                    'Description' => $achievement->Description,
+                    'GameID' => $game->ID,
+                    'GameIcon' => $game->ImageIcon,
+                    'GameTitle' => $game->Title,
+                    'GameURL' => '/game/' . $game->ID,
+                    'HardcoreMode' => UnlockMode::Softcore,
+                    'Points' => $achievement->Points,
+                    'TrueRatio' => $achievement->points_weighted,
+                    'Type' => AchievementType::Progression,
+                    'Title' => $achievement->Title,
+                ],
+            ]);
+    }
+
+    public function testGetAchievementsEarnedOnDayByUser(): void
     {
         /** @var System $system */
         $system = System::factory()->create();
@@ -208,7 +253,7 @@ class V1Test extends TestCase
 
         $this->get(
             $this->apiUrl('GetAchievementsEarnedOnDay', [
-                'u' => $this->user->User,
+                'u' => $this->user->User, // !!
                 'd' => $unlockTime->format('Y-m-d'),
             ])
         )
@@ -217,6 +262,50 @@ class V1Test extends TestCase
                 [
                     'AchievementID' => $achievement->ID,
                     'Author' => $this->user->User,
+                    'AuthorULID' => $this->user->ulid,
+                    'BadgeName' => $achievement->BadgeName,
+                    'BadgeURL' => '/Badge/' . $achievement->BadgeName . '.png',
+                    'ConsoleName' => $system->Name,
+                    'CumulScore' => 100,
+                    'Date' => $unlockTime->format('Y-m-d H:i:s'),
+                    'Description' => $achievement->Description,
+                    'GameID' => $game->ID,
+                    'GameIcon' => $game->ImageIcon,
+                    'GameTitle' => $game->Title,
+                    'GameURL' => '/game/' . $game->ID,
+                    'HardcoreMode' => UnlockMode::Softcore,
+                    'Points' => $achievement->Points,
+                    'Type' => AchievementType::Progression,
+                    'Title' => $achievement->Title,
+                ],
+            ]);
+    }
+
+    public function testGetAchievementsEarnedOnDayByUlid(): void
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'Points' => 100, 'user_id' => $this->user->id]);
+
+        $unlockTime = Carbon::now()->subMinutes(5);
+        $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
+        $this->addSoftcoreUnlock($this->user, $achievement, Carbon::now()->subDays(5));
+
+        $this->get(
+            $this->apiUrl('GetAchievementsEarnedOnDay', [
+                'u' => $this->user->ulid, // !!
+                'd' => $unlockTime->format('Y-m-d'),
+            ])
+        )
+            ->assertSuccessful()
+            ->assertJson([
+                [
+                    'AchievementID' => $achievement->ID,
+                    'Author' => $this->user->User,
+                    'AuthorULID' => $this->user->ulid,
                     'BadgeName' => $achievement->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement->BadgeName . '.png',
                     'ConsoleName' => $system->Name,
@@ -265,6 +354,7 @@ class V1Test extends TestCase
                     'Points' => $achievement->Points,
                     'Type' => $achievement->type,
                     'Author' => $achievementAuthor->User,
+                    'AuthorULID' => $achievementAuthor->ulid,
                 ],
                 'Console' => [
                     'ID' => $system->ID,
@@ -276,6 +366,7 @@ class V1Test extends TestCase
                 'Unlocks' => [
                     [
                         'User' => $this->user->User,
+                        'ULID' => $this->user->ulid,
                         'RAPoints' => $this->user->RAPoints,
                         'RASoftcorePoints' => $this->user->RASoftcorePoints,
                         'HardcoreMode' => 0,
@@ -323,103 +414,4 @@ class V1Test extends TestCase
         $this->get($this->apiUrl('GetGameRating'))
             ->assertStatus(410);
     }
-
-    // public function testGetGame(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetGame'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetGameList(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetGameList'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetGameRankAndScore(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetGameRankAndScore'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetTicketData(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetTicketData'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetTopTenUsers(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetTopTenUsers'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetUserCompletedGames(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetUserCompletedGames'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetUserGameRankAndScore(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetUserGameRankAndScore'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetUserProgress(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetUserProgress'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetUserRankAndScore(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetUserRankAndScore'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetUserRecentlyPlayedGames(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetUserRecentlyPlayedGames'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetUserSummary(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetUserSummary'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
 }

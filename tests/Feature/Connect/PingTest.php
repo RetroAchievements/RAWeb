@@ -245,7 +245,7 @@ class PingTest extends TestCase
             ]);
     }
 
-    public function testPingDelegated(): void
+    public function testPingDelegatedByName(): void
     {
         /** @var System $standalonesSystem */
         $standalonesSystem = System::factory()->create(['ID' => 102]);
@@ -272,7 +272,94 @@ class PingTest extends TestCase
             'r' => 'ping',
             'g' => $gameOne->id,
             'm' => 'Doing good',
-            'k' => $delegatedUser->User,
+            'k' => $delegatedUser->User, // !!
+        ];
+
+        $this->post('dorequest.php', $params)
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+            ]);
+
+        $delegatedPlayerSession = PlayerSession::where([
+            'user_id' => $delegatedUser->id,
+            'game_id' => $gameOne->id,
+        ])->first();
+        $this->assertModelExists($delegatedPlayerSession);
+        $this->assertEquals(1, $delegatedPlayerSession->duration);
+        $this->assertEquals('Doing good', $delegatedPlayerSession->rich_presence);
+
+        // While delegating, updates are made on behalf of username `k`.
+        $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
+            'user_id' => $integrationUser->id,
+            'game_id' => $gameOne->id,
+        ]);
+
+        // Next, try to delegate on a non-standalone game.
+        // This is not allowed and should fail.
+        /** @var System $normalSystem */
+        $normalSystem = System::factory()->create(['ID' => 1]);
+        /** @var Game $gameTwo */
+        $gameTwo = Game::factory()->create(['ConsoleID' => $normalSystem->ID]);
+
+        $params['g'] = $gameTwo->id;
+
+        $this->post('dorequest.php', $params)
+            ->assertStatus(403)
+            ->assertExactJson([
+                "Success" => false,
+                "Error" => "You do not have permission to do that.",
+                "Code" => "access_denied",
+                "Status" => 403,
+            ]);
+
+        // Next, try to delegate on a game with no achievements authored by the integration user.
+        // This is not allowed and should fail.
+        /** @var Game $gameThree */
+        $gameThree = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        /** @var User $randomUser */
+        $randomUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->id, 'user_id' => $randomUser->id]);
+        $params['g'] = $gameThree->id;
+
+        $this->post('dorequest.php', $params)
+            ->assertStatus(403)
+            ->assertExactJson([
+                "Success" => false,
+                "Error" => "You do not have permission to do that.",
+                "Code" => "access_denied",
+                "Status" => 403,
+            ]);
+    }
+
+    public function testPingDelegatedByUlid(): void
+    {
+        /** @var System $standalonesSystem */
+        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        /** @var Game $gameOne */
+        $gameOne = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+
+        /** @var User $integrationUser */
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        /** @var User $delegatedUser */
+        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+
+        $delegatedUser->LastGameID = $gameOne->id;
+        $delegatedUser->save();
+
+        // The integration user is the sole author of all the set's achievements.
+        Achievement::factory()->published()->count(6)->create([
+            'GameID' => $gameOne->id,
+            'user_id' => $integrationUser->id,
+        ]);
+
+        $params = [
+            'u' => $integrationUser->User,
+            't' => $integrationUser->appToken,
+            'r' => 'ping',
+            'g' => $gameOne->id,
+            'm' => 'Doing good',
+            'k' => $delegatedUser->ulid, // !!
         ];
 
         $this->post('dorequest.php', $params)

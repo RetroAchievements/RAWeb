@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import * as m from 'motion/react-m';
+import * as motion from 'motion/react-m';
 import { type FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuSearch } from 'react-icons/lu';
@@ -66,7 +66,7 @@ export const ActivePlayerFeed: FC<ActivePlayerFeedProps> = ({
       </div>
 
       {hasSearchBar ? (
-        <m.div
+        <motion.div
           initial={false}
           animate={{ height: canShowSearchBar ? 50 : 0, opacity: canShowSearchBar ? 1 : 0 }}
           transition={{ duration: 0.15 }}
@@ -75,7 +75,7 @@ export const ActivePlayerFeed: FC<ActivePlayerFeedProps> = ({
             onSearch={handleSearch}
             persistedSearchValue={persistedSearchValue}
           />
-        </m.div>
+        </motion.div>
       ) : null}
 
       <div ref={scrollRef} className="z-50 h-[325px] w-full overflow-y-auto rounded bg-embed">

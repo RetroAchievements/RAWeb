@@ -1,7 +1,7 @@
 import { useAtom } from 'jotai';
 import { type FC, useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuAlertCircle } from 'react-icons/lu';
+import { LuCircleAlert } from 'react-icons/lu';
 
 import {
   BaseAlert,
@@ -131,7 +131,7 @@ const PendingRequestAlert: FC = () => {
 
   return (
     <BaseAlert>
-      <LuAlertCircle className="size-5" />
+      <LuCircleAlert className="size-5" />
       <BaseAlertTitle>{t('Your username change request is being reviewed.')}</BaseAlertTitle>
       <BaseAlertDescription>
         {t(
@@ -147,7 +147,7 @@ const WaitAlert: FC = () => {
 
   return (
     <BaseAlert>
-      <LuAlertCircle className="size-5" />
+      <LuCircleAlert className="size-5" />
       <BaseAlertTitle>{t('Your username cannot be changed right now.')}</BaseAlertTitle>
       <BaseAlertDescription>
         {t(

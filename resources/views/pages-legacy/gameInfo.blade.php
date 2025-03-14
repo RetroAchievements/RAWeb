@@ -125,7 +125,7 @@ $beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAch
 
 $allSimilarGames = $gameModel->similarGamesList;
 $allGameHubSets = $gameModel->hubs;
-$gameHubs = $allGameHubSets->map($mapGameHubToAlt)->values()->all();
+$gameHubs = $allGameHubSets->map($mapGameHubToAlt)->values()->sortBy('Title')->all();
 
 $v = requestInputSanitized('v', 0, 'integer');
 $gate = false;
@@ -1040,7 +1040,7 @@ if ($isFullyFeaturedGame) {
             echo "</div>";
         }
 
-        $mappedSimilarGames = $allSimilarGames->map($mapGameToAlt);
+        $mappedSimilarGames = $allSimilarGames->sortBy('Title')->map($mapGameToAlt);
 
         $onlySimilarGameSubsets = $mappedSimilarGames
             ->filter(fn (array $game) => str_contains($game['Title'], '[Subset -') && $game['ConsoleName'] !== 'Events')

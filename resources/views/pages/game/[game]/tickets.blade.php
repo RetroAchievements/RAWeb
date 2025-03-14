@@ -11,7 +11,7 @@ middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
 name('game.tickets');
 
 render(function (View $view, Game $game, TicketListService $ticketListService) {
-    $selectFilters = $ticketListService->getSelectFilters();
+    $selectFilters = $ticketListService->getSelectFilters(systemId: $game->system->id);
     $filterOptions = $ticketListService->getFilterOptions(request());
     $tickets = $ticketListService->getTickets($filterOptions, Ticket::forGame($game));
 

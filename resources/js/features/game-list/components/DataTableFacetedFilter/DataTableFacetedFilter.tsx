@@ -78,7 +78,7 @@ export function DataTableFacetedFilter<TData, TValue>({
 
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
-  const columnId = column!.id;
+  const columnId = column?.id;
   const allFlatOptions = getAllFlatOptions(options);
 
   if (variant === 'drawer') {
@@ -124,14 +124,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                 <>
                   <BaseSeparator orientation="vertical" className="mx-2 h-4" />
 
-                  <BaseBadge
-                    variant="secondary"
-                    className="rounded-sm px-1 font-normal leading-3 lg:hidden"
-                  >
-                    {selectedValues.size}
-                  </BaseBadge>
-
-                  <div className="hidden space-x-1 lg:flex">
+                  <div className="flex space-x-1">
                     {selectedValues.size > 2 ? (
                       <BaseBadge
                         variant="secondary"

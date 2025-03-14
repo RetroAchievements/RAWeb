@@ -7,6 +7,9 @@ import { render, screen, waitFor } from '@/test';
 import { requestedUsernameAtom } from '../../state/settings.atoms';
 import { ChangeUsernameSectionCard } from './ChangeUsernameSectionCard';
 
+// Suppress setState() warnings that only happen in JSDOM.
+console.error = vi.fn();
+
 describe('Component: ChangeUsernameSectionCard', () => {
   const originalLocation = window.location;
 

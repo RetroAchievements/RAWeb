@@ -6,16 +6,39 @@ interface GameTitleProps {
 
   className?: string;
   showTags?: boolean;
+
+  /**
+   * Enables word-by-word wrapping for the game title text.
+   * When enabled, each word in the title will be rendered as a separate
+   * inline element, allowing the browser to wrap between any two words.
+   * This is useful when the title appears inside clickable elements like
+   * anchor tags, which otherwise might not wrap naturally.
+   * @default false
+   */
+  isWordWrappingEnabled?: boolean;
 }
 
-export const GameTitle: FC<GameTitleProps> = ({ title, className, showTags = true }) => {
+export const GameTitle: FC<GameTitleProps> = ({
+  title,
+  className,
+  showTags = true,
+  isWordWrappingEnabled = false,
+}) => {
   const { t } = useTranslation();
 
   const { subsetKind, nonSubsetTags, strippedTitle } = stripTagsFromTitle(title);
 
   return (
     <span className={className}>
-      {strippedTitle}
+      {isWordWrappingEnabled
+        ? // Split title into words for proper wrapping on multiple lines.
+          strippedTitle.split(' ').map((word, index) => (
+            <Fragment key={`word-${index}`}>
+              {index > 0 && ' '}
+              <span className="inline">{word}</span>
+            </Fragment>
+          ))
+        : strippedTitle}
 
       {showTags ? (
         <>

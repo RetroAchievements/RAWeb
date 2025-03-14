@@ -120,7 +120,7 @@ class CreateGameClaimAction
                 'content' => route('game.show', $game) . "\n:new: " .
                              ClaimType::toString($claimType) .
                              ($setType === ClaimSetType::Revision ? ' revision' : '') .
-                             " claim made by " . $currentUser->displayName,
+                             " claim made by " . $currentUser->display_name,
             ];
             (new Client())->post($webhookUrl, ['json' => $payload]);
         }

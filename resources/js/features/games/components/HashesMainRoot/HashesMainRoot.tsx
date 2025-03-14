@@ -34,8 +34,8 @@ export const HashesMainRoot: FC = memo(() => {
               className: 'flex items-center gap-1 sm:max-w-fit',
             })}
           >
-            <LuSave className="h-5 w-5" />
-            <span className="">{t('Manage Hashes')}</span>
+            <LuSave className="size-5" />
+            <span>{t('Manage Hashes')}</span>
           </a>
         ) : null}
 

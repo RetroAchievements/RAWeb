@@ -68,7 +68,6 @@ class MessagePolicy
          */
         $canUserAlwaysPierceNoContactPreference = $user->hasAnyRole([
             Role::ADMINISTRATOR,
-            Role::DEVELOPER_JUNIOR,
             Role::DEVELOPER,
             Role::EVENT_MANAGER,
             Role::FORUM_MANAGER,

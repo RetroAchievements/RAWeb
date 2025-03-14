@@ -1,5 +1,5 @@
 import { type FC, memo } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 import { AchievementBreadcrumbs } from '@/common/components/AchievementBreadcrumbs';
 import { AchievementHeading } from '@/common/components/AchievementHeading';
@@ -8,6 +8,7 @@ import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames'
 
 import { buildStructuredMessage } from './buildStructuredMessage';
 import { ReportIssueOptionItem } from './ReportIssueOptionItem';
+import { ReportToDeveloperComplianceListItem } from './ReportToDeveloperComplianceListItem';
 import { SessionDrivenIssueListItems } from './SessionDrivenIssueListItems';
 import { UnlockStatusLabel } from './UnlockStatusLabel';
 
@@ -37,27 +38,7 @@ export const ReportIssueMainRoot: FC = memo(() => {
       <ul className="flex flex-col gap-5 sm:gap-3">
         <SessionDrivenIssueListItems />
 
-        <ReportIssueOptionItem
-          t_buttonText={t('Report to DevCompliance')}
-          href={route('message.create', {
-            to: 'DevCompliance',
-            ...buildStructuredMessage(achievement, 'unwelcome-concept'),
-          })}
-          anchorClassName={buildTrackingClassNames('Click Report Unwelcome Concept')}
-        >
-          <Trans
-            i18nKey="The achievement contains an <1>unwelcome concept</1>."
-            components={{
-              1: (
-                <a
-                  href="https://docs.retroachievements.org/guidelines/content/unwelcome-concepts.html"
-                  target="_blank"
-                  className={buildTrackingClassNames('Click Unwelcome Concept Docs Link')}
-                />
-              ),
-            }}
-          />
-        </ReportIssueOptionItem>
+        <ReportToDeveloperComplianceListItem achievement={achievement} />
 
         <ReportIssueOptionItem
           t_buttonText={t('Report to QATeam')}

@@ -5,11 +5,13 @@ namespace App\Platform\Controllers\Api;
 use App\Actions\GetUserDeviceKindAction;
 use App\Http\Controller;
 use App\Models\Game;
+use App\Models\User;
 use App\Platform\Actions\BuildGameListAction;
 use App\Platform\Actions\GetRandomGameAction;
 use App\Platform\Enums\GameListType;
 use App\Platform\Requests\GameListRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class GameApiController extends Controller
 {
@@ -58,5 +60,20 @@ class GameApiController extends Controller
         );
 
         return response()->json(['gameId' => $randomGame->id]);
+    }
+
+    public function generateOfficialForumTopic(Request $request, Game $game): JsonResponse
+    {
+        $this->authorize('createForumTopic', $game);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        $forumTopicComment = generateGameForumTopic($user, $game->id);
+        if (!$forumTopicComment) {
+            return response()->json(['success' => false], 500);
+        }
+
+        return response()->json(['success' => true, 'topicId' => $forumTopicComment->forumTopic->id]);
     }
 }

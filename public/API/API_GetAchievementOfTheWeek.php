@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
  *   int        TrueRatio               number of RetroPoints ("white points") the achievement is worth
  *   string     Type                    null, "progression", "win_condition", or "missable"
  *   string     Author                  user who first created the achievement
+ *   string     AuthorULID              stable unique identifier of the user who first created the achievement
  *   string     BadgeName               unique identifier of the badge image for the achievement
  *   string     BadgeURL                site-relative path to the badge image for the achievement
  *   datetime   DateCreated             when the achievement was created
@@ -34,6 +35,7 @@ use Illuminate\Support\Facades\DB;
  *  int        TotalPlayers             number of players who have played the game associated to the achievement
  *  array      Unlocks                  requested unlock information
  *   string     User                    user who unlocked the achievement
+ *   string     ULID                    stable unique identifier of the user who unlocked the achievement
  *   int        RAPoints                number of points the user has
  *   int        RASoftcorePoints        number of softcore points the user has
  *   datetime   DateAwarded             when the achievement was unlocked
@@ -68,6 +70,7 @@ $achievement = [
     'TrueRatio' => $sourceAchievement->TrueRatio ?? null,
     'Type' => $sourceAchievement->type ?? null,
     'Author' => $sourceAchievement->author->display_name ?? null,
+    'AuthorULID' => $sourceAchievement->author->ulid ?? null,
     'BadgeName' => $sourceAchievement->BadgeName,
     'BadgeURL' => "/Badge/" . $sourceAchievement->BadgeName . ".png",
     'DateCreated' => $sourceAchievement->DateCreated?->format('Y-m-d'),
@@ -85,7 +88,7 @@ $console = [
 ];
 
 $forumTopic = [
-    'ID' => $aotwData->currentEventAchievement->forumTopicId->resolve() ?? null,
+    'ID' => $aotwData->currentEventAchievement->event->legacyGame->forumTopicId->resolve() ?? null,
 ];
 
 $unlocks = collect();
@@ -101,6 +104,7 @@ $numWinnersHardcore = 0;
 foreach ($playerAchievements as $playerAchievement) {
     $unlocks[] = [
         'User' => $playerAchievement->user->display_name,
+        'ULID' => $playerAchievement->user->ulid,
         'RAPoints' => $playerAchievement->user->RAPoints,
         'RASoftcorePoints' => $playerAchievement->user->RASoftcorePoints,
         'HardcoreMode' => $playerAchievement->unlocked_hardcore_at !== null ? 1 : 0,

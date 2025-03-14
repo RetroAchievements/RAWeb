@@ -70,7 +70,7 @@ function getSetRequestorsList(int $gameId, bool $getEmailInfo = false): array
 
     $processedValues = $setRequests->map(function ($setRequest) use ($getEmailInfo) {
         $record = [
-            'Requestor' => $setRequest->user->User,
+            'Requestor' => $setRequest->user->display_name,
         ];
 
         if ($getEmailInfo) {

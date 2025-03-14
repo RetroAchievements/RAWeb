@@ -48,12 +48,12 @@ class RouteServiceProvider extends ServiceProvider
         /*
          * sanitize route model binding patterns
          */
-        Route::pattern('topic', '[0-9]{1,17}');
         Route::pattern('comment', '[0-9]{1,17}');
         Route::pattern('news', '[0-9]{1,17}');
 
         Route::pattern('category', '[a-zA-Z0-9-]+');
         Route::pattern('forum', '[a-zA-Z0-9-]+');
+        Route::pattern('topic', '[a-zA-Z0-9-]+');
 
         parent::boot();
     }
@@ -77,6 +77,11 @@ class RouteServiceProvider extends ServiceProvider
                         Route::post('shortcode-body/preview', [ShortcodeApiController::class, 'preview'])->name('api.shortcode-body.preview');
 
                         Route::post('forums/{category}/{forum}/topic', [ForumTopicApiController::class, 'store'])->name('api.forum-topic.store');
+                        Route::delete('forums/{topic}', [ForumTopicApiController::class, 'destroy'])->name('api.forum-topic.destroy');
+                        Route::put('forums/{topic}', [ForumTopicApiController::class, 'update'])->name('api.forum-topic.update');
+                        Route::put('forums/{topic}/gate', [ForumTopicApiController::class, 'gate'])->name('api.forum-topic.gate');
+
+                        Route::post('forums/{topic}/comment', [ForumTopicCommentApiController::class, 'store'])->name('api.forum-topic-comment.create');
                         Route::patch('forums/post/{comment}', [ForumTopicCommentApiController::class, 'update'])->name('api.forum-topic-comment.update');
 
                         Route::post('game/{game}/claims/comment', [GameClaimsCommentApiController::class, 'store'])->name('api.game.claims.comment.store');
@@ -115,7 +120,8 @@ class RouteServiceProvider extends ServiceProvider
                         Route::get('forums/post/{comment}/edit', [ForumTopicCommentController::class, 'edit'])->name('forum-topic-comment.edit');
 
                         Route::get('messages', [MessageThreadController::class, 'index'])->name('message-thread.index');
-                        Route::get('message-thread2/{messageThread}', [MessageThreadController::class, 'show'])->name('message-thread.show2');
+                        Route::get('messages/create2', [MessageThreadController::class, 'create'])->name('message-thread.create');
+                        Route::get('message-thread/{messageThread}', [MessageThreadController::class, 'show'])->name('message-thread.show');
 
                         Route::get('settings', [UserSettingsController::class, 'show'])->name('settings.show');
                     });
@@ -123,6 +129,8 @@ class RouteServiceProvider extends ServiceProvider
 
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('achievement/{achievement}/comments', [AchievementCommentController::class, 'index'])->name('achievement.comment.index');
+
+                    Route::get('forums/topic/{topic}', [ForumTopicController::class, 'show'])->name('forum-topic.show');
 
                     Route::get('game/{game}/comments', [GameCommentController::class, 'index'])->name('game.comment.index');
                     Route::get('game/{game}/modification-comments', [GameModificationsCommentController::class, 'index'])->name('game.modification-comment.index');
