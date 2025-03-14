@@ -27,7 +27,7 @@ export const EventShowSidebarRoot: FC = () => {
       <BoxArtImage event={event} />
       <EventSidebarFullWidthButtons event={event} />
       <EventProgress event={event} playerGame={playerGame} />
-      <EventAwardTiers event={event} />
+      <EventAwardTiers event={event} numMasters={numMasters} />
       <HubsList hubs={hubs} />
       <CompareProgress
         followedPlayerCompletions={followedPlayerCompletions}
