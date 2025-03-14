@@ -255,11 +255,11 @@ jobs:
           retention-days: 1
 
   merge-test-reports:
-    needs: [node-tests]
+    needs: [changes, node-tests]
     runs-on: ubuntu-22.04
     name: Merge Node.js Test Reports
-    # Only run if any of the test jobs were successful.
-    if: ${{ !cancelled() }}
+    # Only run if there are Node.js changes AND any of the test jobs were successful.
+    if: ${{ needs.changes.outputs.node == 'true' && !cancelled() }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
