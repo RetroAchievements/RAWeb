@@ -11,6 +11,7 @@ import { ShortcodeHub } from './ShortcodeHub';
 import { ShortcodeImg } from './ShortcodeImg';
 import { ShortcodeQuote } from './ShortcodeQuote';
 import { ShortcodeSpoiler } from './ShortcodeSpoiler';
+import { ShortcodeText } from './ShortcodeText';
 import { ShortcodeTicket } from './ShortcodeTicket';
 import { ShortcodeUrl } from './ShortcodeUrl';
 import { ShortcodeUser } from './ShortcodeUser';
@@ -104,6 +105,13 @@ const retroachievementsPreset = presetReact.extend((tags) => ({
       },
     };
   },
+
+  text: (node) => ({
+    tag: ShortcodeText,
+    attrs: {
+      content: (node.content as string[]).join(),
+    },
+  }),
 }));
 
 const plugins = [retroachievementsPreset(), bbobLineBreakPlugin()];
@@ -134,6 +142,7 @@ export const ShortcodeRenderer: FC<ShortcodeRendererProps> = ({ body }) => {
           'hub',
           'ticket',
           'video',
+          'text',
         ],
       }}
     >

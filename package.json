@@ -12,6 +12,7 @@
         "fix:eslint": "eslint public/js resources/js postcss.config.js tailwind.config.js vite.config.ts --fix",
         "test": "TZ=UTC vitest run --coverage --coverage.reporters=text --reporter=dot",
         "test:coverage": "TZ=UTC vitest --ui --coverage --reporter=dot",
+        "test:run": "TZ=UTC vitest --run",
         "test:watch": "TZ=UTC vitest",
         "tsc": "tsc --noEmit --skipLibCheck",
         "analyze": "cross-env ANALYZE=true pnpm prod",

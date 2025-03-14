@@ -26,7 +26,7 @@ export const CreateForumTopicMainRoot: FC = memo(() => {
       <CreateTopicForm onPreview={initiatePreview} />
 
       {previewContent ? (
-        <div data-testid="preview-content">
+        <div data-testid="preview-content" className="mb-3 mt-7">
           <ForumPostCard body={previewContent} />
         </div>
       ) : null}
