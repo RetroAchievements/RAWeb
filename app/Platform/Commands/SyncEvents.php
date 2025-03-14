@@ -609,7 +609,6 @@ class ConvertGame
         if (!$event) {
             $event = Event::create([
                 'legacy_game_id' => $game->ID,
-                'slug' => $this->slug,
                 'image_asset_path' => $game->ImageIcon,
             ]);
         }
@@ -1148,17 +1147,14 @@ class ConvertCollapse extends ConvertGame
             if ($first && $achievement->Flags === AchievementFlag::OfficialCore->value) {
                 $first = false;
 
-                $eventAchievement = EventAchievement::where('achievement_id', $achievement->id)->first();
-                if (!$eventAchievement) {
-                    $eventAchievement = EventAchievement::create(['achievement_id' => $achievement->id]);
-                }
-
                 $achievement->Flags = AchievementFlag::OfficialCore->value;
                 $achievement->Points = 1;
                 $achievement->Title = $event->Title;
                 if (empty(trim($achievement->Description))) {
                     $achievement->Description = "Earned enough points for the badge";
                 }
+
+                $this->createEventAchievement($command, $achievement);
             } else {
                 $achievement->Flags = AchievementFlag::Unofficial->value;
             }
@@ -1676,6 +1672,8 @@ class ConvertToSoftcoreTiered extends ConvertGame
                 'BadgeName' => '00000',
                 'DisplayOrder' => $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->count() + 1,
             ]);
+
+            $this->createEventAchievement($command, $winnerAchievement);
         }
 
         if (!EventAward::where('event_id', $event->id)->where('tier_index', 1)->exists()) {
