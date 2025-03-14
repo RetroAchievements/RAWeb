@@ -483,6 +483,7 @@ declare namespace App.Platform.Data {
     sourceAchievement?: App.Platform.Data.Achievement | null;
     event?: App.Platform.Data.Event;
     activeFrom?: string;
+    activeThrough?: string;
     activeUntil?: string;
     isObfuscated: boolean;
   };

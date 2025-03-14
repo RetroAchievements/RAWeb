@@ -758,7 +758,7 @@
     "{{percentage}} unlock rate": "{{percentage}} unlock rate",
     "unlock rate": "unlock rate",
     "Unlocked {{unlockDate}}": "Unlocked {{unlockDate}}",
-    "Active until {{date}}": "Active until {{date}}",
+    "Active through {{date}}": "Active through {{date}}",
     "Starts {{startDate}}": "Starts {{startDate}}",
     "Ended {{endDate}}": "Ended {{endDate}}",
     "Expired": "Expired",
