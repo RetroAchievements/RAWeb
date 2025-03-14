@@ -9,8 +9,12 @@ describe('Component: AwardTierItem', () => {
     const event = createRaEvent();
     const eventAward = createEventAward();
 
+    const { container } = render(
+      <AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />,
+    );
+
     // ASSERT
-    expect(() => render(<AwardTierItem event={event} eventAward={eventAward} />)).not.toThrow();
+    expect(container).toBeTruthy();
   });
 
   it('given an unearned award, shows the badge with reduced opacity', () => {
@@ -18,8 +22,7 @@ describe('Component: AwardTierItem', () => {
     const event = createRaEvent();
     const eventAward = createEventAward({ earnedAt: null });
 
-    // ACT
-    render(<AwardTierItem event={event} eventAward={eventAward} />);
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
 
     // ASSERT
     const badge = screen.getByRole('img');
@@ -29,15 +32,16 @@ describe('Component: AwardTierItem', () => {
   it('given an earned award, shows the badge with full opacity and gold outline', () => {
     // ARRANGE
     const event = createRaEvent();
-    const eventAward = createEventAward({ earnedAt: '2023-01-01' });
+    const eventAward = createEventAward({ label: 'Gold', earnedAt: '2023-01-01' });
 
-    // ACT
-    render(<AwardTierItem event={event} eventAward={eventAward} />);
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
 
     // ASSERT
     const badge = screen.getByRole('img');
     expect(badge).toHaveClass('opacity-100');
     expect(badge).toHaveClass('outline-[gold]');
+
+    expect(screen.getByTestId('award-tier-label')).toBeVisible();
   });
 
   it('given an earned award, shows a checkmark', () => {
@@ -45,8 +49,7 @@ describe('Component: AwardTierItem', () => {
     const event = createRaEvent();
     const eventAward = createEventAward({ earnedAt: '2023-01-01' });
 
-    // ACT
-    render(<AwardTierItem event={event} eventAward={eventAward} />);
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
 
     // ASSERT
     const checkmark = screen.getByTestId('award-earned-checkmark');
@@ -61,8 +64,7 @@ describe('Component: AwardTierItem', () => {
       badgeCount: 1,
     });
 
-    // ACT
-    render(<AwardTierItem event={event} eventAward={eventAward} />);
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
 
     // ASSERT
     expect(screen.getByText(/you are the only player to earn this/i)).toBeVisible();
@@ -76,8 +78,7 @@ describe('Component: AwardTierItem', () => {
       badgeCount: 5,
     });
 
-    // ACT
-    render(<AwardTierItem event={event} eventAward={eventAward} />);
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
 
     // ASSERT
     expect(screen.getByText(/5 players have earned this/i)).toBeVisible();
@@ -91,8 +92,7 @@ describe('Component: AwardTierItem', () => {
       badgeCount: 5,
     });
 
-    // ACT
-    render(<AwardTierItem event={event} eventAward={eventAward} />);
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
 
     // ASSERT
     expect(screen.getByText(/earned by you and 4 other players/i)).toBeVisible();
@@ -108,8 +108,7 @@ describe('Component: AwardTierItem', () => {
     });
     const eventAward = createEventAward({ pointsRequired: 2 });
 
-    // ACT
-    render(<AwardTierItem event={event} eventAward={eventAward} />);
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
 
     // ASSERT
     expect(screen.getByText(/2 achievements/i)).toBeVisible();
@@ -126,10 +125,25 @@ describe('Component: AwardTierItem', () => {
     });
     const eventAward = createEventAward({ pointsRequired: 3 });
 
-    // ACT
-    render(<AwardTierItem event={event} eventAward={eventAward} />);
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
 
     // ASSERT
     expect(screen.getByText(/3 points/i)).toBeVisible();
+  });
+
+  it('given hasVirtualTier is truthy, does not display the award tier label', () => {
+    // ARRANGE
+    const event = createRaEvent({
+      eventAchievements: [
+        { achievement: createAchievement({ points: 1 }), isObfuscated: false },
+        { achievement: createAchievement({ points: 2 }), isObfuscated: false },
+      ],
+    });
+    const eventAward = createEventAward({ pointsRequired: 3 });
+
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={true} />);
+
+    // ASSERT
+    expect(screen.queryByTestId('award-tier-label')).not.toBeInTheDocument();
   });
 });
