@@ -42,7 +42,7 @@ class EventData extends Data
                     'achievement',
                     'sourceAchievement',
                     'activeFrom',
-                    'activeUntil',
+                    'activeThrough',
                 )
             )->all()),
 

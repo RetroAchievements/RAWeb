@@ -72,7 +72,7 @@ describe('AchievementDateMeta', () => {
     const now = dayjs.utc();
     const eventAchievement = createEventAchievement({
       activeFrom: now.subtract(1, 'day').toISOString(),
-      activeUntil: now.add(1, 'day').toISOString(),
+      activeThrough: now.add(1, 'day').toISOString(),
     });
 
     render(
@@ -94,7 +94,7 @@ describe('AchievementDateMeta', () => {
     const now = dayjs.utc();
     const eventAchievement = createEventAchievement({
       activeFrom: now.add(1, 'day').toISOString(),
-      activeUntil: now.add(2, 'day').toISOString(),
+      activeThrough: now.add(2, 'day').toISOString(),
     });
 
     render(
@@ -116,7 +116,7 @@ describe('AchievementDateMeta', () => {
     const now = dayjs.utc();
     const eventAchievement = createEventAchievement({
       activeFrom: now.subtract(2, 'day').toISOString(),
-      activeUntil: now.subtract(1, 'day').toISOString(),
+      activeThrough: now.subtract(1, 'day').toISOString(),
     });
 
     render(
@@ -145,7 +145,7 @@ describe('AchievementDateMeta', () => {
     const now = dayjs.utc();
     const eventAchievement = createEventAchievement({
       activeFrom: now.subtract(1, 'day').toISOString(),
-      activeUntil: now.add(1, 'day').toISOString(),
+      activeThrough: now.add(1, 'day').toISOString(),
     });
 
     render(

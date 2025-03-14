@@ -87,15 +87,15 @@ export function getStatus(
   eventAchievements?: App.Platform.Data.EventAchievement[],
 ): EventAchievementTimeStatus {
   const eventAchievement = eventAchievements?.find((ea) => ea.achievement?.id === achievement.id);
-  if (!eventAchievement?.activeFrom || !eventAchievement?.activeUntil) {
+  if (!eventAchievement?.activeFrom || !eventAchievement?.activeThrough) {
     return eventAchievementTimeStatus.evergreen;
   }
 
   const now = dayjs.utc();
   const activeFrom = dayjs.utc(eventAchievement.activeFrom);
-  const activeUntil = dayjs.utc(eventAchievement.activeUntil);
+  const activeThrough = dayjs.utc(eventAchievement.activeThrough);
 
-  if (activeFrom.isSameOrBefore(now) && now.isSameOrBefore(activeUntil)) {
+  if (activeFrom.isSameOrBefore(now) && now.isSameOrBefore(activeThrough)) {
     return eventAchievementTimeStatus.active;
   }
 
@@ -105,7 +105,7 @@ export function getStatus(
     return eventAchievementTimeStatus.upcoming;
   }
 
-  if (activeUntil.isBefore(now)) {
+  if (activeThrough.isBefore(now)) {
     return eventAchievementTimeStatus.expired;
   }
 

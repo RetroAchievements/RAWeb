@@ -29,16 +29,16 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
   const { unlockedAt, unlockedHardcoreAt } = achievement;
 
   const activeFrom = eventAchievement?.activeFrom;
-  const activeUntil = eventAchievement?.activeUntil;
+  const activeThrough = eventAchievement?.activeThrough;
 
   let isActive = false;
   let isExpired = false;
   let isUpcoming = false;
-  if (eventAchievement && event?.state !== 'evergreen' && activeFrom && activeUntil) {
+  if (eventAchievement && event?.state !== 'evergreen' && activeFrom && activeThrough) {
     const now = dayjs.utc();
 
-    isActive = dayjs.utc(activeFrom).isBefore(now) && dayjs.utc(activeUntil).isAfter(now);
-    isExpired = dayjs.utc(activeUntil).isBefore(now);
+    isActive = dayjs.utc(activeFrom).isBefore(now) && dayjs.utc(activeThrough).isAfter(now);
+    isExpired = dayjs.utc(activeThrough).isBefore(now);
     isUpcoming = dayjs.utc(activeFrom).isAfter(now);
   }
 
@@ -51,9 +51,9 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
       data-testid="date-meta"
       className={cn('gap-x-2 text-[0.63rem] text-neutral-400/70 light:text-neutral-500', className)}
     >
-      {isActive && activeUntil ? (
+      {isActive && activeThrough ? (
         <p className="text-green-400">
-          {t('Active until {{date}}', { date: formatDate(activeUntil, 'll') })}
+          {t('Active until {{date}}', { date: formatDate(activeThrough, 'll') })}
         </p>
       ) : null}
 
@@ -61,9 +61,9 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
         <p>{t('Starts {{startDate}}', { startDate: formatDate(activeFrom, 'll') })}</p>
       ) : null}
 
-      {isExpired && activeUntil ? (
+      {isExpired && activeThrough ? (
         <p className="text-neutral-300 light:text-neutral-800">
-          {t('Ended {{endDate}}', { endDate: formatDate(activeUntil, 'll') })}
+          {t('Ended {{endDate}}', { endDate: formatDate(activeThrough, 'll') })}
         </p>
       ) : null}
 

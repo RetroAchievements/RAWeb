@@ -48,11 +48,11 @@ describe('Component: AchievementSet', () => {
     const eventAchievements = [
       createEventAchievement({
         achievement: achievements[0],
-        activeUntil: new Date(Date.now() + 86400000).toISOString(),
+        activeThrough: new Date(Date.now() + 86400000).toISOString(),
       }),
       createEventAchievement({
         achievement: achievements[1],
-        activeUntil: new Date(Date.now() - 86400000).toISOString(),
+        activeThrough: new Date(Date.now() - 86400000).toISOString(),
       }),
     ];
 
