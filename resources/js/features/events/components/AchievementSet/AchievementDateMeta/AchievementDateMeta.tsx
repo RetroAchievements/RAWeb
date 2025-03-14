@@ -53,7 +53,7 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
     >
       {isActive && activeThrough ? (
         <p className="text-green-400">
-          {t('Active until {{date}}', { date: formatDate(activeThrough, 'll') })}
+          {t('Active through {{date}}', { date: formatDate(activeThrough, 'll') })}
         </p>
       ) : null}
 

@@ -124,25 +124,25 @@ describe('Util: sortAchievements', () => {
       {
         achievement: achievements[1],
         activeFrom: new Date(now.getTime() - 1000).toISOString(),
-        activeUntil: new Date(now.getTime() + 1000).toISOString(),
+        activeThrough: new Date(now.getTime() + 1000).toISOString(),
         isObfuscated: false,
       },
       {
         achievement: achievements[2],
         activeFrom: new Date(now.getTime() - 2000).toISOString(),
-        activeUntil: new Date(now.getTime() - 1000).toISOString(),
+        activeThrough: new Date(now.getTime() - 1000).toISOString(),
         isObfuscated: false,
       },
       {
         achievement: achievements[3],
         activeFrom: new Date(now.getTime() + 1000).toISOString(),
-        activeUntil: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 10).toISOString(), // 10 days from now
+        activeThrough: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 10).toISOString(), // 10 days from now
         isObfuscated: false,
       },
       {
         achievement: achievements[4],
         activeFrom: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 40).toISOString(), // 40 days from now
-        activeUntil: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 50).toISOString(), // 50 days from now
+        activeThrough: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 50).toISOString(), // 50 days from now
         isObfuscated: false,
       },
     ];
@@ -194,19 +194,19 @@ describe('Util: sortAchievements', () => {
       {
         achievement: achievements[0],
         activeFrom: new Date(now.getTime() - 1000).toISOString(),
-        activeUntil: new Date(now.getTime() + 1000).toISOString(),
+        activeThrough: new Date(now.getTime() + 1000).toISOString(),
         isObfuscated: false,
       },
       {
         achievement: achievements[1],
         activeFrom: new Date(now.getTime() - 1000).toISOString(),
-        activeUntil: new Date(now.getTime() + 1000).toISOString(),
+        activeThrough: new Date(now.getTime() + 1000).toISOString(),
         isObfuscated: false,
       },
       {
         achievement: achievements[2],
         activeFrom: new Date(now.getTime() - 1000).toISOString(),
-        activeUntil: new Date(now.getTime() + 1000).toISOString(),
+        activeThrough: new Date(now.getTime() + 1000).toISOString(),
         isObfuscated: false,
       },
     ];
@@ -283,7 +283,7 @@ describe('Util: getStatus', () => {
       createEventAchievement({
         achievement,
         activeFrom: new Date(now.getTime() - 1000).toISOString(), // !! 1 second ago
-        activeUntil: new Date(now.getTime() + 1000).toISOString(), // !! 1 second from now
+        activeThrough: new Date(now.getTime() + 1000).toISOString(), // !! 1 second from now
       }),
     ];
 
@@ -302,7 +302,7 @@ describe('Util: getStatus', () => {
       createEventAchievement({
         achievement,
         activeFrom: new Date(now.getTime() - 2000).toISOString(), // !! 2 seconds ago
-        activeUntil: new Date(now.getTime() - 1000).toISOString(), // !! 1 second ago
+        activeThrough: new Date(now.getTime() - 1000).toISOString(), // !! 1 second ago
       }),
     ];
 
@@ -321,7 +321,7 @@ describe('Util: getStatus', () => {
       createEventAchievement({
         achievement,
         activeFrom: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 15).toISOString(), // !! 15 days from now
-        activeUntil: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 20).toISOString(), // !! 20 days from now
+        activeThrough: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 20).toISOString(), // !! 20 days from now
       }),
     ];
 
@@ -340,7 +340,7 @@ describe('Util: getStatus', () => {
       createEventAchievement({
         achievement,
         activeFrom: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 40).toISOString(), // !! 40 days from now
-        activeUntil: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 45).toISOString(), // !! 45 days from now
+        activeThrough: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 45).toISOString(), // !! 45 days from now
       }),
     ];
 
