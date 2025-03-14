@@ -584,7 +584,10 @@ class SyncEvents extends Command
 
         $achievements = $game->achievements()->published()->orderBy('DisplayOrder')->get();
         foreach ($achievements as $achievement) {
-            $this->info(sprintf("  %6u %5u/%u %s", $achievement->ID,  $achievement->unlocks_hardcore_total, $game->players_hardcore, $achievement->Title));
+            $command->info(sprintf("  %6u %5u/%u %s", $achievement->ID,  $achievement->unlocks_hardcore_total, $game->players_hardcore, $achievement->Title));
+            if ($achievement->Points === 0) {
+                $command->error("No points on achievement {$achievement->ID}");
+            }
         }
     }
 }
@@ -873,6 +876,9 @@ class ConvertGame
             PlayerAchievement::where('achievement_id', $achievement->id)
                 ->whereNotIn('user_id', $winners->pluck('user_id')->toArray())
                 ->delete();
+        } else {
+            $achievement->Points = 1;
+            $achievement->save();
         }
 
         // disable the EventAchievementObserver. we're going to manually populate the associated unlocks.
