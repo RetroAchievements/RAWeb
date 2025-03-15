@@ -7,6 +7,7 @@ import { cn } from '@/common/utils/cn';
 type ReferenceLineTooltipContentProps = ComponentProps<typeof BaseChartTooltipContent> & {
   buckets: App.Platform.Data.PlayerAchievementChartBucket[];
   userAchievementCounts: { softcore: number | null; hardcore: number | null } | null;
+  variant: 'game' | 'event';
 
   userHardcoreIndex?: number;
   userSoftcoreIndex?: number;
@@ -19,6 +20,7 @@ export const ReferenceLineTooltipContent: FC<ReferenceLineTooltipContentProps> =
   userHardcoreIndex,
   userSoftcoreIndex,
   userAchievementCounts,
+  variant,
   ...rest
 }) => {
   const { t } = useTranslation();
@@ -63,7 +65,10 @@ export const ReferenceLineTooltipContent: FC<ReferenceLineTooltipContentProps> =
               className="my-0.5 h-3 w-0 shrink-0 border-[1.5px] border-dashed"
               style={{ borderColor: '#cc9900' }}
             />
-            <span>{t('Your hardcore progress')}</span>
+            <span>
+              {variant === 'game' ? t('Your hardcore progress') : null}
+              {variant === 'event' ? t('Your progress') : null}
+            </span>
           </div>
         )}
 

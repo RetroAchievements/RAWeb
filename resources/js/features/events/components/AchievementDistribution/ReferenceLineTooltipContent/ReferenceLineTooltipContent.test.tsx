@@ -31,6 +31,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         payload={samplePayload}
         buckets={sampleBuckets}
         userAchievementCounts={{ softcore: 15, hardcore: 12 }}
+        variant="game"
       />,
     );
 
@@ -46,6 +47,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         payload={samplePayload}
         buckets={sampleBuckets}
         userAchievementCounts={{ softcore: 15, hardcore: 12 }}
+        variant="game"
       />,
     );
 
@@ -63,6 +65,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         payload={[]}
         buckets={sampleBuckets}
         userAchievementCounts={{ softcore: 15, hardcore: 12 }}
+        variant="game"
       />,
     );
 
@@ -80,6 +83,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         payload={samplePayload}
         buckets={sampleBuckets}
         userAchievementCounts={{ softcore: 15, hardcore: 12 }}
+        variant="game"
         userHardcoreIndex={0} // !! Different from current payload index (1)
         userSoftcoreIndex={2} // !! Different from current payload index (1)
       />,
@@ -100,6 +104,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         buckets={sampleBuckets}
         userAchievementCounts={{ softcore: 15, hardcore: 12 }}
         userHardcoreIndex={1} // !! Same as current payload index (1)
+        variant="game"
       />,
     );
 
@@ -118,6 +123,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         buckets={sampleBuckets}
         userAchievementCounts={{ softcore: 15, hardcore: 12 }}
         userSoftcoreIndex={1} // !! Same as current payload index (1)
+        variant="game"
       />,
     );
 
@@ -137,6 +143,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         userAchievementCounts={{ softcore: 15, hardcore: 12 }}
         userHardcoreIndex={1} // !! Same as current payload index (1)
         userSoftcoreIndex={1} // !! Same as current payload index (1)
+        variant="game"
       />,
     );
 
@@ -155,6 +162,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         buckets={sampleBuckets}
         userAchievementCounts={{ softcore: 15, hardcore: null }}
         userHardcoreIndex={1} // !! Same as current payload index (1)
+        variant="game"
       />,
     );
 
@@ -172,6 +180,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         buckets={sampleBuckets}
         userAchievementCounts={{ softcore: null, hardcore: 12 }}
         userSoftcoreIndex={1} // !! Same as current payload index (1)
+        variant="game"
       />,
     );
 
@@ -190,6 +199,7 @@ describe('Component: ReferenceLineTooltipContent', () => {
         userAchievementCounts={null}
         userHardcoreIndex={1}
         userSoftcoreIndex={1}
+        variant="game"
       />,
     );
 
@@ -197,5 +207,29 @@ describe('Component: ReferenceLineTooltipContent', () => {
     expect(screen.getByTestId('base-tooltip')).toBeVisible();
     expect(screen.queryByText(/your hardcore progress/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/your softcore progress/i)).not.toBeInTheDocument();
+  });
+
+  it('given the variant is event, does not delineate between softcore and hardcore', () => {
+    // ARRANGE
+    render(
+      <ReferenceLineTooltipContent
+        active={true}
+        payload={samplePayload}
+        buckets={sampleBuckets}
+        userAchievementCounts={{ softcore: 15, hardcore: 12 }}
+        userHardcoreIndex={1} // !! Same as current payload index (1)
+        variant="event" // !!
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByTestId('base-tooltip')).toBeVisible();
+
+    expect(screen.queryByText(/your hardcore progress/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/your softcore progress/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/hardcore players/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/softcore players/i)).not.toBeInTheDocument();
+
+    expect(screen.getByText(/your progress/i)).toBeVisible();
   });
 });

@@ -50,7 +50,9 @@ describe('Component: AchievementDistribution', () => {
       { start: 10, end: 19, hardcore: 15, softcore: 8 },
     ];
 
-    const { container } = render(<AchievementDistribution buckets={buckets} playerGame={null} />);
+    const { container } = render(
+      <AchievementDistribution buckets={buckets} playerGame={null} variant="game" />,
+    );
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -59,7 +61,7 @@ describe('Component: AchievementDistribution', () => {
 
   it('given there are no buckets, renders nothing', () => {
     // ARRANGE
-    render(<AchievementDistribution buckets={[]} playerGame={null} />);
+    render(<AchievementDistribution buckets={[]} playerGame={null} variant="game" />);
 
     // ASSERT
     expect(screen.queryByTestId('achievement-distribution')).not.toBeInTheDocument();
@@ -72,7 +74,7 @@ describe('Component: AchievementDistribution', () => {
       { start: 10, end: 19, hardcore: 15, softcore: 8 },
     ];
 
-    render(<AchievementDistribution buckets={buckets} playerGame={null} />);
+    render(<AchievementDistribution buckets={buckets} playerGame={null} variant="game" />);
 
     // ASSERT
     expect(screen.getByText(/achievement distribution/i)).toBeVisible();
@@ -87,7 +89,7 @@ describe('Component: AchievementDistribution', () => {
 
     const playerGame = createPlayerGame();
 
-    render(<AchievementDistribution buckets={buckets} playerGame={playerGame} />);
+    render(<AchievementDistribution buckets={buckets} playerGame={playerGame} variant="game" />);
 
     // ASSERT
     expect(
@@ -95,6 +97,7 @@ describe('Component: AchievementDistribution', () => {
     ).toHaveBeenCalledWith({
       buckets,
       playerGame,
+      variant: 'game',
     });
   });
 
@@ -114,8 +117,7 @@ describe('Component: AchievementDistribution', () => {
       userSoftcoreIndex: undefined,
     } as any);
 
-    // ACT
-    render(<AchievementDistribution buckets={buckets} playerGame={null} />);
+    render(<AchievementDistribution buckets={buckets} playerGame={null} variant="game" />);
 
     // ASSERT
     // Since we're not really able to render a ReferenceLine in tests (it's controlled by recharts),
@@ -144,8 +146,7 @@ describe('Component: AchievementDistribution', () => {
       userSoftcoreIndex: 4,
     } as any);
 
-    // ACT
-    render(<AchievementDistribution buckets={buckets} playerGame={null} />);
+    render(<AchievementDistribution buckets={buckets} playerGame={null} variant="game" />);
 
     // ASSERT
     const hookData = (useAchievementDistributionChartModule.useAchievementDistributionChart as any)
@@ -172,8 +173,7 @@ describe('Component: AchievementDistribution', () => {
       userSoftcoreIndex: 4,
     } as any);
 
-    // ACT
-    render(<AchievementDistribution buckets={buckets} playerGame={null} />);
+    render(<AchievementDistribution buckets={buckets} playerGame={null} variant="game" />);
 
     // ASSERT
     const hookData = (useAchievementDistributionChartModule.useAchievementDistributionChart as any)
@@ -199,8 +199,7 @@ describe('Component: AchievementDistribution', () => {
       userSoftcoreIndex: undefined,
     } as any);
 
-    // ACT
-    render(<AchievementDistribution buckets={buckets} playerGame={null} />);
+    render(<AchievementDistribution buckets={buckets} playerGame={null} variant="game" />);
 
     // ASSERT
     const hookData = (useAchievementDistributionChartModule.useAchievementDistributionChart as any)

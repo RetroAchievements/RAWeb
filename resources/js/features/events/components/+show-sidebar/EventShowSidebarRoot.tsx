@@ -33,7 +33,11 @@ export const EventShowSidebarRoot: FC = () => {
         followedPlayerCompletions={followedPlayerCompletions}
         game={event.legacyGame!}
       />
-      <AchievementDistribution buckets={playerAchievementChartBuckets} playerGame={playerGame} />
+      <AchievementDistribution
+        buckets={playerAchievementChartBuckets}
+        playerGame={playerGame}
+        variant="event"
+      />
       <TopEventPlayers event={event} numMasters={numMasters} players={topAchievers} />
     </div>
   );
