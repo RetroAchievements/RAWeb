@@ -13,9 +13,13 @@ use App\Platform\Actions\BuildGameAchievementDistributionAction;
 use App\Platform\Data\EventData;
 use App\Platform\Data\EventShowPagePropsData;
 use App\Platform\Data\GameSetData;
+use App\Platform\Data\GameTopAchieverData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
+use App\Platform\Enums\AchievementFlag;
+use App\Platform\Services\GameTopAchieversService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -24,6 +28,7 @@ class EventController extends Controller
     public function show(
         Request $request,
         Event $event,
+        GameTopAchieversService $gameTopAchieversService,
     ): InertiaResponse {
         $this->authorize('view', $event);
 
@@ -33,7 +38,8 @@ class EventController extends Controller
         $event->loadMissing([
             'legacyGame',
             'achievements' => function ($query) use ($user) {
-                $query->with(['sourceAchievement.game.system']);
+                $query->with(['sourceAchievement.game.system'])
+                    ->where('Flags', AchievementFlag::OfficialCore->value);
 
                 if ($user) {
                     $query->with(['achievement.playerAchievements' => function ($query) use ($user) {
@@ -53,6 +59,16 @@ class EventController extends Controller
                 }
             },
         ]);
+
+        $gameTopAchieversService->initialize($event->legacyGame);
+        [$numMasters, $rawTopAchievers] = $gameTopAchieversService->getTopAchieversComponentData();
+
+        /** @var array<int, array<string, mixed>> $rawTopAchievers */
+        /** @var Collection<int, GameTopAchieverData> $topAchievers */
+        $topAchievers = collect($rawTopAchievers)
+            ->map(function (array $topAchiever): GameTopAchieverData {
+                return GameTopAchieverData::fromTopAchiever($topAchiever);
+            });
 
         $playerGame = $user
             ? $user->playerGames()->whereGameId($event->legacyGame->id)->first()
@@ -97,6 +113,8 @@ class EventController extends Controller
             hubs: $event->legacyGame->hubs->map(fn ($hub) => GameSetData::from($hub))->all(),
             followedPlayerCompletions: (new BuildFollowedPlayerCompletionAction())->execute($user, $event->legacyGame),
             playerAchievementChartBuckets: (new BuildGameAchievementDistributionAction())->execute($event->legacyGame, $user),
+            numMasters: $numMasters,
+            topAchievers: $topAchievers,
             playerGame: $playerGame ? PlayerGameData::fromPlayerGame($playerGame) : null,
             playerGameProgressionAwards: $user
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($event->legacyGame->id, $user))

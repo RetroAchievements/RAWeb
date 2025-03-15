@@ -253,6 +253,7 @@ declare namespace App.Data {
     title: string;
     createdAt: string;
     forum?: App.Data.Forum | null;
+    requiredPermissions?: number | null;
     latestComment?: App.Data.ForumTopicComment | null;
     commentCount24h?: number | null;
     oldestComment24hId?: number | null;
@@ -292,6 +293,13 @@ declare namespace App.Data {
     id: number;
     name: string;
   };
+  export type ShowForumTopicPageProps<TItems = App.Data.ForumTopicComment> = {
+    can: App.Data.UserPermissions;
+    dynamicEntities: App.Community.Data.ShortcodeDynamicEntities;
+    forumTopic: App.Data.ForumTopic;
+    isSubscribed: boolean;
+    paginatedForumTopicComments: App.Data.PaginatedData<TItems>;
+  };
   export type StaticData = {
     numGames: number;
     numAchievements: number;
@@ -311,6 +319,7 @@ declare namespace App.Data {
     displayName: string;
     avatarUrl: string;
     apiKey?: string | null;
+    createdAt?: string | null;
     deleteRequested?: string | null;
     deletedAt?: string | null;
     displayableRoles?: Array<App.Data.Role> | null;
@@ -336,15 +345,20 @@ declare namespace App.Data {
     roles?: App.Models.UserRole[];
   };
   export type UserPermissions = {
+    authorizeForumTopicComments?: boolean;
     createGameForumTopic?: boolean;
     createTriggerTicket?: boolean;
     createUsernameChangeRequest?: boolean;
+    deleteForumTopic?: boolean;
     develop?: boolean;
+    manageForumTopicComments?: boolean;
+    manageForumTopics?: boolean;
     manageEvents?: boolean;
     manageGameHashes?: boolean;
     manageGameSets?: boolean;
     manipulateApiKeys?: boolean;
     updateAvatar?: boolean;
+    updateForumTopic?: boolean;
     updateMotto?: boolean;
   };
 }
@@ -469,6 +483,7 @@ declare namespace App.Platform.Data {
     sourceAchievement?: App.Platform.Data.Achievement | null;
     event?: App.Platform.Data.Event;
     activeFrom?: string;
+    activeThrough?: string;
     activeUntil?: string;
     isObfuscated: boolean;
   };
@@ -497,6 +512,8 @@ declare namespace App.Platform.Data {
     hubs: Array<App.Platform.Data.GameSet>;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
+    numMasters: number;
+    topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
   };
@@ -592,12 +609,14 @@ declare namespace App.Platform.Data {
     isInBacklog: boolean | null;
   };
   export type GameTopAchiever = {
-    rank: number;
-    user: App.Data.User;
-    score: number;
-    badge: App.Platform.Data.PlayerBadge | null;
+    userDisplayName: string;
+    userAvatarUrl: string;
+    achievementsUnlockedHardcore: number;
+    pointsHardcore: number;
+    lastUnlockHardcoreAt: string;
+    beatenHardcoreAt: string | null;
   };
-  export type GameTopAchieversPageProps<TItems = App.Platform.Data.GameTopAchiever> = {
+  export type GameTopAchieversPageProps<TItems = App.Platform.Data.RankedGameTopAchiever> = {
     game: App.Platform.Data.Game;
     paginatedUsers: App.Data.PaginatedData<TItems>;
   };
@@ -719,6 +738,12 @@ declare namespace App.Platform.Data {
     consoleName: string;
     numAwarded: number;
     numPossible: number;
+  };
+  export type RankedGameTopAchiever = {
+    rank: number;
+    user: App.Data.User;
+    score: number;
+    badge: App.Platform.Data.PlayerBadge | null;
   };
   export type ReportAchievementIssuePageProps = {
     achievement: App.Platform.Data.Achievement;

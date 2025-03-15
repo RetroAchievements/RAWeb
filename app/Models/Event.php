@@ -30,7 +30,6 @@ class Event extends BaseModel
     protected $fillable = [
         'legacy_game_id',
         'image_asset_path',
-        'slug',
         'active_from',
         'active_until',
         'active_through',
@@ -57,7 +56,6 @@ class Event extends BaseModel
         return LogOptions::defaults()
             ->logOnly([
                 'image_asset_path',
-                'slug',
                 'active_from',
                 'active_until',
             ])

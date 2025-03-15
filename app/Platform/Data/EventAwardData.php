@@ -6,7 +6,6 @@ namespace App\Platform\Data;
 
 use App\Models\EventAward;
 use Carbon\Carbon;
-use Log;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -28,13 +27,6 @@ class EventAwardData extends Data
 
     public static function fromEventAward(EventAward $award): self
     {
-        Log::info('Creating EventAwardData', [
-            'award_id' => $award->id,
-            'tier_index' => $award->tier_index,
-            'has_relation' => $award->relationLoaded('awardedUsers'),
-            'users' => $award->relationLoaded('awardedUsers') ? $award->awardedUsers->toArray() : null,
-        ]);
-
         return new self(
             id: $award->id,
             eventId: $award->event_id,

@@ -33,6 +33,7 @@
 /.settings
 /.vscode
 /.vagrant
+/.vitest-reports
 Homestead.json
 Homestead.yaml
 auth.json

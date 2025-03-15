@@ -186,7 +186,7 @@ describe('Component: AchievementOfTheWeek', () => {
       currentEventAchievement: createEventAchievement({
         achievement: sourceAchievement,
         sourceAchievement,
-        activeUntil: tomorrow.toISOString(),
+        activeThrough: tomorrow.toISOString(),
       }),
     });
 
@@ -210,7 +210,7 @@ describe('Component: AchievementOfTheWeek', () => {
       currentEventAchievement: createEventAchievement({
         achievement: sourceAchievement,
         sourceAchievement,
-        activeUntil: new Date('2030-04-08').toISOString(),
+        activeThrough: new Date('2030-04-08').toISOString(),
       }),
     });
 
@@ -241,7 +241,7 @@ describe('Component: AchievementOfTheWeek', () => {
       currentEventAchievement: createEventAchievement({
         achievement: sourceAchievement,
         sourceAchievement,
-        activeUntil: undefined,
+        activeThrough: undefined,
       }),
     });
 
@@ -265,7 +265,7 @@ describe('Component: AchievementOfTheWeek', () => {
       currentEventAchievement: createEventAchievement({
         achievement: sourceAchievement,
         sourceAchievement,
-        activeUntil: undefined,
+        activeThrough: undefined,
       }),
       doesUserHaveUnlock: true, // !!
     });
@@ -290,7 +290,7 @@ describe('Component: AchievementOfTheWeek', () => {
       currentEventAchievement: createEventAchievement({
         achievement: sourceAchievement,
         sourceAchievement,
-        activeUntil: undefined,
+        activeThrough: undefined,
       }),
       doesUserHaveUnlock: false, // !!
     });
