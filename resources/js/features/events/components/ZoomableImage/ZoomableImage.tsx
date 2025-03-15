@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import {
   BaseDialog,
+  BaseDialogClose,
   BaseDialogContent,
   BaseDialogDescription,
   BaseDialogTitle,
@@ -29,18 +30,21 @@ export const ZoomableImage: FC<ZoomableImageProps> = ({ alt, children, src }) =>
         className="max-w-5xl border-0 bg-transparent p-0"
         shouldShowCloseButton={false}
       >
-        {/* Both of these are needed for a11y */}
+        {/* Both of these are needed for a11y. */}
         <BaseDialogTitle className="sr-only">{t('screenshot')}</BaseDialogTitle>
         <BaseDialogDescription className="sr-only">{t('screenshot')}</BaseDialogDescription>
 
-        <div className="relative h-[calc(100vh-220px)] w-full overflow-clip rounded-md bg-transparent shadow-md">
-          <img
-            src={src}
-            alt={alt}
-            className="h-full w-full object-contain"
-            style={{ imageRendering: 'pixelated' }}
-          />
-        </div>
+        {/* Clicking anywhere in the dialog should close it. */}
+        <BaseDialogClose asChild>
+          <div className="relative h-[calc(100vh-220px)] w-full overflow-clip rounded-md">
+            <img
+              src={src}
+              alt={alt}
+              className="h-full w-full object-contain"
+              style={{ imageRendering: 'pixelated' }}
+            />
+          </div>
+        </BaseDialogClose>
       </BaseDialogContent>
     </BaseDialog>
   );
