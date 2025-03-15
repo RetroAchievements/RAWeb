@@ -100,7 +100,7 @@ export const AchievementOfTheWeek: FC = () => {
           <div className="w-ful flex justify-end">
             <a
               className={cn('text-xs', buildTrackingClassNames('Click AOTW Link'))}
-              href={route('game.show', { game: currentEventAchievement.event.legacyGame.id })}
+              href={route('event.show', { event: currentEventAchievement.event.id })}
             >
               {t("View this year's event")}
             </a>
