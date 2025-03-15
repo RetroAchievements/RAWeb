@@ -55,8 +55,8 @@ trait HasSelfHealingUrls
             throw new HttpResponseException(Redirect::to($model->slug));
         }
 
-        // Extract the ID from the slug-number format.
-        if (preg_match('/.*-(\d+)$/', $value, $matches)) {
+        // Extract the ID from the ID-slug format.
+        if (preg_match('/^(\d+)-.*/', $value, $matches)) {
             $model = static::findOrFail($matches[1]);
 
             // If slug doesn't match, redirect to the correct URL.
@@ -86,6 +86,6 @@ trait HasSelfHealingUrls
         $fieldValue = $this->{$this->getSlugSourceField()};
         $nameWithDashes = str_replace('/', '-', $fieldValue);
 
-        return Str::slug($nameWithDashes) . '-' . $this->id;
+        return $this->id . '-' . Str::slug($nameWithDashes);
     }
 }

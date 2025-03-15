@@ -17,7 +17,7 @@ use App\Models\System;
  * Routes are defined using simple configuration objects that specify their type:
  * - 'id': Routes that just use a numeric ID (eg: /ticket/123)
  * - 'string': Routes that use a string parameter (eg: /user/username)
- * - 'model': Routes that can be accessed by ID or slug (eg: /game/sonic-3-123)
+ * - 'model': Routes that can be accessed by ID or slug (eg: /game/123-sonic-3)
  * - 'nested': Routes with multiple ID-slug segments (eg: /forums/1-community/16-chit-chat/create-topic)
  * - 'legacy': Legacy routes that need special handling (eg: viewtopic.php?t=123)
  */
@@ -216,7 +216,7 @@ class ProcessPlausibleUrlAction
     // }
 
     /**
-     * Extracts an ID from either a direct ID or a slug-with-ID route.
+     * Extracts an ID from either a direct ID or an ID-slug route.
      */
     private function extractId(?string $param): ?int
     {
@@ -224,8 +224,8 @@ class ProcessPlausibleUrlAction
             return null;
         }
 
-        // Check for slug format first (eg: "sonic-3-123").
-        if (preg_match('/-(\d+)$/', $param, $matches)) {
+        // Check for ID-slug format first (eg: "123-sonic-3").
+        if (preg_match('/^(\d+)-/', $param, $matches)) {
             return (int) $matches[1];
         }
 
