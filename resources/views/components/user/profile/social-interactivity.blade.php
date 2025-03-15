@@ -30,7 +30,7 @@ use App\Community\Enums\UserRelationship;
             </form>
         @endif
 
-        <a class="btn max-h-[24px] flex items-center" href="{{ route('message.create', ['to' => $user->display_name]) }}">
+        <a class="btn max-h-[24px] flex items-center" href="{{ route('message-thread.create', ['to' => $user->display_name]) }}">
             <x-fas-envelope />
             <span class="sr-only">Message</span>
         </a>
