@@ -78,7 +78,7 @@ export function useChangeUsernameForm() {
 
   const onSubmit = async (formValues: FormValues) => {
     const confirmationMessage = t(
-      'You can only request a new username once every 30 days, even if your new username is not approved. Are you sure you want to do this?',
+      'Username change requests have cooldown periods: 90 days after an approval, or 30 days after a denial. Are you sure you want to request a change?',
     );
 
     // If the user just wants a case change, no need to confirm.
