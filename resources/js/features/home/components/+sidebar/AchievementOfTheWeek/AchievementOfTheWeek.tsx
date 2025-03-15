@@ -4,6 +4,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { GameAvatar } from '@/common/components/GameAvatar';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { SystemChip } from '@/common/components/SystemChip';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import type { AvatarSize } from '@/common/models';
@@ -98,12 +99,12 @@ export const AchievementOfTheWeek: FC = () => {
 
         {currentEventAchievement.event?.legacyGame ? (
           <div className="w-ful flex justify-end">
-            <a
+            <InertiaLink
               className={cn('text-xs', buildTrackingClassNames('Click AOTW Link'))}
               href={route('event.show', { event: currentEventAchievement.event.id })}
             >
               {t("View this year's event")}
-            </a>
+            </InertiaLink>
           </div>
         ) : null}
       </div>
