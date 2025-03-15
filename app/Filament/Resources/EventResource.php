@@ -63,6 +63,7 @@ class EventResource extends Resource
                             ->label('ID'),
 
                         Infolists\Components\TextEntry::make('permalink')
+                            ->formatStateUsing(fn () => 'Here')
                             ->url(fn (Event $record): string => $record->getPermalinkAttribute())
                             ->extraAttributes(['class' => 'underline'])
                             ->openUrlInNewTab(),
