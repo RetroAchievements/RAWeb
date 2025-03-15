@@ -108,7 +108,7 @@ export function DataTableFacetedFilter<TData, TValue>({
             <BaseButton
               size="sm"
               className={cn(
-                'border-dashed',
+                'border-dashed bg-neutral-950 light:bg-white',
                 buildTrackingClassNames(`Click ${columnId} Filter`),
                 disabled ? '!pointer-events-auto' : null,
                 className,

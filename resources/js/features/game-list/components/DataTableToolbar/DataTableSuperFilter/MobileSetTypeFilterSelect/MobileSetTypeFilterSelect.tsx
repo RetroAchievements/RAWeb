@@ -42,10 +42,7 @@ export function MobileSetTypeFilterSelect<TData>({
 
   return (
     <div className="flex flex-col gap-2">
-      <BaseLabel
-        htmlFor="drawer-achievements-published"
-        className="text-neutral-100 light:text-neutral-950"
-      >
+      <BaseLabel htmlFor="drawer-set-type" className="text-neutral-100 light:text-neutral-950">
         {t('Set type')}
       </BaseLabel>
 
