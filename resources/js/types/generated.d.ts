@@ -803,7 +803,7 @@ declare namespace App.Platform.Enums {
     | 'eq_mastered'
     | 'revised'
     | 'neq_mastered';
-  export type GameListSetTypeFilterValue = 'both' | 'only-games' | 'only-subsets';
+  export type GameListSetTypeFilterValue = 'only-games' | 'only-subsets';
   export type GameListSortField =
     | 'title'
     | 'system'
