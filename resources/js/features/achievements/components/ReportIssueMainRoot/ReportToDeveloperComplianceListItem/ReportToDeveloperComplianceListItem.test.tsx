@@ -93,6 +93,9 @@ describe('Component: ReportToDeveloperComplianceListItem', () => {
     await userEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     // ASSERT
-    expect(mockWindowLocationAssign).toHaveBeenCalledWith(['message.create', expect.anything()]);
+    expect(mockWindowLocationAssign).toHaveBeenCalledWith([
+      'message-thread.create',
+      expect.anything(),
+    ]);
   });
 });

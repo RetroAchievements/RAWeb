@@ -25,7 +25,9 @@ const Contact: AppPage = () => {
                 <p>
                   <Trans
                     i18nKey="<1>Send a message to RAdmin</1> for:"
-                    components={{ 1: <a href={route('message.create', { to: 'RAdmin' })} /> }}
+                    components={{
+                      1: <a href={route('message-thread.create', { to: 'RAdmin' })} />,
+                    }}
                   />
                 </p>
                 <ul className="list-inside list-disc">
@@ -43,7 +45,7 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to DevCompliance</1> for:"
                     components={{
-                      1: <a href={route('message.create', { to: 'DevCompliance' })} />,
+                      1: <a href={route('message-thread.create', { to: 'DevCompliance' })} />,
                     }}
                   />
                 </p>
@@ -61,7 +63,9 @@ const Contact: AppPage = () => {
                 <p>
                   <Trans
                     i18nKey="<1>Send a message to QATeam</1> for:"
-                    components={{ 1: <a href={route('message.create', { to: 'QATeam' })} /> }}
+                    components={{
+                      1: <a href={route('message-thread.create', { to: 'QATeam' })} />,
+                    }}
                   />
                 </p>
                 <ul className="list-inside list-disc">
@@ -80,7 +84,9 @@ const Contact: AppPage = () => {
                 <p>
                   <Trans
                     i18nKey="<1>Send a message to RAArtTeam</1> for:"
-                    components={{ 1: <a href={route('message.create', { to: 'RAArtTeam' })} /> }}
+                    components={{
+                      1: <a href={route('message-thread.create', { to: 'RAArtTeam' })} />,
+                    }}
                   />
                 </p>
                 <ul className="list-inside list-disc">
@@ -99,7 +105,7 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to DevQuest</1> for submissions, questions, ideas, or reporting issues related to <2>DevQuest</2>."
                     components={{
-                      1: <a href={route('message.create', { to: 'DevQuest' })} />,
+                      1: <a href={route('message-thread.create', { to: 'DevQuest' })} />,
                       2: <a href={route('game.show', { game: 5686 })} />,
                     }}
                   />
@@ -116,7 +122,7 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to RACheats</1> if you believe someone is in violation of our <2>Global Leaderboard and Achievement Hunting Rules</2>."
                     components={{
-                      1: <a href={route('message.create', { to: 'RACheats' })} />,
+                      1: <a href={route('message-thread.create', { to: 'RACheats' })} />,
                       2: (
                         <a href="https://docs.retroachievements.org/guidelines/users/global-leaderboard-and-achievement-hunting-rules.html#not-allowed" />
                       ),
@@ -137,7 +143,9 @@ const Contact: AppPage = () => {
                 <p>
                   <Trans
                     i18nKey="<1>Send a message to WritingTeam</1> for:"
-                    components={{ 1: <a href={route('message.create', { to: 'WritingTeam' })} /> }}
+                    components={{
+                      1: <a href={route('message-thread.create', { to: 'WritingTeam' })} />,
+                    }}
                   />
                 </p>
                 <ul className="list-inside list-disc">
@@ -157,7 +165,9 @@ const Contact: AppPage = () => {
                 <p>
                   <Trans
                     i18nKey="<1>Send a message to RANews</1> for:"
-                    components={{ 1: <a href={route('message.create', { to: 'RANews' })} /> }}
+                    components={{
+                      1: <a href={route('message-thread.create', { to: 'RANews' })} />,
+                    }}
                   />
                 </p>
                 <ul className="list-inside list-disc">
@@ -176,7 +186,7 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to RAEvents</1> for submissions, questions, ideas, or reporting issues related to <2>community events</2>."
                     components={{
-                      1: <a href={route('message.create', { to: 'RAEvents' })} />,
+                      1: <a href={route('message-thread.create', { to: 'RAEvents' })} />,
                       2: <a href={route('game.show', { game: 3105 })} />,
                     }}
                   />
@@ -185,7 +195,7 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to TheUnwanted</1> for submissions, questions, ideas, or reporting issues specifically related to <2>The Unwanted</2>."
                     components={{
-                      1: <a href={route('message.create', { to: 'TheUnwanted' })} />,
+                      1: <a href={route('message-thread.create', { to: 'TheUnwanted' })} />,
                       2: <a href={route('game.show', { game: 4271 })} />,
                     }}
                   />
