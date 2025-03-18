@@ -44,7 +44,7 @@ Some translation strings contain special elements that must be handled carefully
 
    ```
    Original: "Next {{count, number}}"
-   Translation: "Próximo {{count, number}}"
+   Translation: "Suivant {{count, number}}"
    ```
 
 2. **HTML-like Tags**
@@ -52,7 +52,7 @@ Some translation strings contain special elements that must be handled carefully
    - Keep tags intact and in the correct order
    ```
    Original: "Click <1>here</1> to visit the page"
-   Translation: "Clique <1>aqui</1> para visitar a página"
+   Translation: "Cliquez <1>ici</1> pour visiter la page"
    ```
 
 ## Review Process
