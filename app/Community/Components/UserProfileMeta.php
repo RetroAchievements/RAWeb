@@ -100,7 +100,7 @@ class UserProfileMeta extends Component
         $codeNotesCreatedStat = [
             'label' => 'Code notes created',
             'value' => localized_number($totalAuthoredCodeNotes),
-            'href' => $totalAuthoredCodeNotes ? '/individualdevstats.php?u=' . $user->display_name . '#code-notes' : null,
+            'href' => $userMassData['ContribCount'] > 0 && $totalAuthoredCodeNotes ? '/individualdevstats.php?u=' . $user->display_name . '#code-notes' : null,
             'isMuted' => !$totalAuthoredCodeNotes,
         ];
 
@@ -111,7 +111,7 @@ class UserProfileMeta extends Component
         $leaderboardsCreatedStat = [
             'label' => 'Leaderboards created',
             'value' => localized_number($totalAuthoredLeaderboards),
-            'href' => $totalAuthoredLeaderboards ? '/individualdevstats.php?u=' . $user->display_name : null,
+            'href' => $userMassData['ContribCount'] > 0 && $totalAuthoredLeaderboards ? '/individualdevstats.php?u=' . $user->display_name : null,
             'isMuted' => !$totalAuthoredLeaderboards,
         ];
 
