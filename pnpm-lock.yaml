@@ -27,11 +27,11 @@ importers:
         specifier: ^4.1.2
         version: 4.1.2(react-hook-form@7.54.2(react@18.3.1))
       '@inertiajs/core':
-        specifier: ^2.0.3
-        version: 2.0.3
+        specifier: ^2.0.5
+        version: 2.0.5
       '@inertiajs/react':
-        specifier: ^2.0.3
-        version: 2.0.3(react@18.3.1)
+        specifier: ^2.0.5
+        version: 2.0.5(react@18.3.1)
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.6
         version: 1.1.6(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -867,11 +867,11 @@ packages:
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
     deprecated: Use @eslint/object-schema instead
 
-  '@inertiajs/core@2.0.3':
-    resolution: {integrity: sha512-JvXzqc2XAt3WgEDMyxCyXO6bDLMCsBjFsYREU1/+3wtNTib7QKwK71+aF+MrhILpz+kRTi29TsLqnbkPHBAZjw==}
+  '@inertiajs/core@2.0.5':
+    resolution: {integrity: sha512-AEhWsfkn+rHCO35mArmLQVVkbzETJby8QZ9iwRxTz891kbWS+ZAiEPa7ROJkDg3iaPYKVGBnI126xCUVxxesJg==}
 
-  '@inertiajs/react@2.0.3':
-    resolution: {integrity: sha512-eUMywEY+w4jcROiNjD7Vm+2GFapqOQmMh3OGlSat9XJB5+H7vtsQI+cvDa7oQXvt3CCv9Y/+HrKDHC/m969peA==}
+  '@inertiajs/react@2.0.5':
+    resolution: {integrity: sha512-ber7MU+COXz/md/Nl2Z2V/uglsWIZjZEPulgSg6Qvr3/MuitIzmZX6FsZr4Muer+wI+Zzbj5vmoDKA2B/J7LzQ==}
     peerDependencies:
       react: ^16.9.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -1974,6 +1974,9 @@ packages:
 
   axios@1.7.7:
     resolution: {integrity: sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==}
+
+  axios@1.8.3:
+    resolution: {integrity: sha512-iP4DebzoNlP/YN2dpwCgb8zoCmhtkajzS48JvwmkSkXvPI3DHc7m+XYL5tGnSlJtR6nImXZmdCuN5aP8dh1d8A==}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -4832,17 +4835,17 @@ snapshots:
 
   '@humanwhocodes/object-schema@2.0.3': {}
 
-  '@inertiajs/core@2.0.3':
+  '@inertiajs/core@2.0.5':
     dependencies:
-      axios: 1.7.7
+      axios: 1.8.3
       deepmerge: 4.3.1
       qs: 6.13.0
     transitivePeerDependencies:
       - debug
 
-  '@inertiajs/react@2.0.3(react@18.3.1)':
+  '@inertiajs/react@2.0.5(react@18.3.1)':
     dependencies:
-      '@inertiajs/core': 2.0.3
+      '@inertiajs/core': 2.0.5
       lodash.isequal: 4.5.0
       react: 18.3.1
     transitivePeerDependencies:
@@ -6033,6 +6036,14 @@ snapshots:
   axe-core@4.10.2: {}
 
   axios@1.7.7:
+    dependencies:
+      follow-redirects: 1.15.9
+      form-data: 4.0.1
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
+  axios@1.8.3:
     dependencies:
       follow-redirects: 1.15.9
       form-data: 4.0.1
