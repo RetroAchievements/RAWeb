@@ -30,6 +30,7 @@ import { useSortConfigs } from '../../../hooks/useSortConfigs';
 import type { SortConfigKind } from '../../../models';
 import { DataTableSystemFilter } from '../DataTableSystemFilter';
 import { RandomGameButton } from '../RandomGameButton';
+import { MobileGameTypeFilterSelect } from './MobileGameTypeFilterSelect';
 import { MobileHasAchievementsFilterSelect } from './MobileHasAchievementsFilterSelect';
 import { MobileProgressFilterSelect } from './MobileProgressFilterSelect';
 import { MobileSetTypeFilterSelect } from './MobileSetTypeFilterSelect';
@@ -101,7 +102,7 @@ export function DataTableSuperFilter<TData>({
 
           <div className="flex flex-col gap-4 p-4">
             <div className="grid grid-cols-2 gap-2">
-              <MobileHasAchievementsFilterSelect table={table} />
+              <MobileGameTypeFilterSelect table={table} />
               <MobileSetTypeFilterSelect table={table} />
             </div>
 
@@ -112,6 +113,8 @@ export function DataTableSuperFilter<TData>({
                 variant="drawer"
               />
             ) : null}
+
+            <MobileHasAchievementsFilterSelect table={table} />
 
             {auth?.user ? <MobileProgressFilterSelect table={table} /> : null}
 
