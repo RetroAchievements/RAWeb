@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from '@inertiajs/react';
 import { useMutation } from '@tanstack/react-query';
 import axios, { type AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
@@ -43,7 +42,7 @@ export function useCreateMessageReplyForm() {
       loading: t('Submitting...'),
       success: () => {
         setTimeout(() => {
-          router.visit(
+          window.location.assign(
             route('message-thread.show', {
               messageThread: messageThread.id,
               _query: { page: paginatedMessages.lastPage },
