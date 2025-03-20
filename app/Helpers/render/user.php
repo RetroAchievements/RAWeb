@@ -45,7 +45,7 @@ function userAvatar(
     $displayName = $user['display_name'] ?? $user['User'] ?? null;
 
     if ($user['Deleted'] ?? false) {
-        $userSanitized = $username;
+        $userSanitized = $displayName;
         sanitize_outputs($userSanitized);
 
         $iconLabel = '';

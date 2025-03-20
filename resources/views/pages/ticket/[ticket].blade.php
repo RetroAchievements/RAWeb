@@ -266,10 +266,11 @@ $permissions = $user->getAttribute('Permissions');
                     @foreach ($commentData as $comment)
                         @php
                             $when = Carbon::createFromTimestamp($comment['Submitted']);
-                            $commentUser = 
-                                ($comment['User'] === $ticket->reporter?->User) ? $ticket->reporter :
-                                (($comment['User'] === $user->User) ? $user :
-                                    User::whereName($comment['User'])->first());
+                            $commentUser = match($comment['User']) {
+                                $ticket->reporter?->User => $ticket->reporter,
+                                $user->User => $user,
+                                default => User::withTrashed()->where('User', $comment['User'])->first()
+                            };
                         @endphp
                         <x-comment.item
                             :author="$commentUser"
