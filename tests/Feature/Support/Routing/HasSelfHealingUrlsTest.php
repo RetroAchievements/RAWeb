@@ -188,4 +188,25 @@ class HasSelfHealingUrlsTest extends TestCase
             );
         }
     }
+
+    public function testItRedirectsDirectPathEndingWithIncorrectValue(): void
+    {
+        // Arrange
+        $model = $this->createTestModel('Super Mario Bros.', 1);
+
+        request()->server->set('REQUEST_URI', '/games/1');
+
+        // Assert
+        try {
+            $model->resolveRouteBinding('1');
+            $this->fail('Expected HttpResponseException was not thrown');
+        } catch (HttpResponseException $e) {
+            $response = $e->getResponse();
+            $this->assertEquals(302, $response->getStatusCode());
+            $this->assertStringContainsString(
+                '/games/1-super-mario-bros',
+                $response->headers->get('Location')
+            );
+        }
+    }
 }
