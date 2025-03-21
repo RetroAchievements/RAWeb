@@ -87,7 +87,7 @@ describe('Component: ShortcodePanel', () => {
     await userEvent.click(screen.getByRole('button', { name: /link/i }));
 
     // ASSERT
-    expect(textarea.value).toEqual('Hello [url=world].');
+    expect(textarea.value).toEqual('Hello [url=world]Link[/url].');
   });
 
   it('given the user clicks the image button, wraps the selected text with the img shortcode', async () => {

@@ -28,7 +28,7 @@ export function useShortcodesList() {
     { icon: LuQuote, t_label: t('Quote'), start: '[quote]', end: '[/quote]' },
     { icon: LuEyeOff, t_label: t('Spoiler'), start: '[spoiler]', end: '[/spoiler]' },
     { icon: BsImageFill, t_label: t('Image'), start: '[img=', end: ']' },
-    { icon: LuLink, t_label: t('Link'), start: '[url=', end: ']' },
+    { icon: LuLink, t_label: t('Link'), start: '[url=', end: ']Link[/url]' },
     { icon: ImTrophy, t_label: t('Achievement'), start: '[ach=', end: ']' },
     { icon: FaGamepad, t_label: t('Game'), start: '[game=', end: ']' },
     { icon: LuNetwork, t_label: t('Hub'), start: '[hub=', end: ']' },
