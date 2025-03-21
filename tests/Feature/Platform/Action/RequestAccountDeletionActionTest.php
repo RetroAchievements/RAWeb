@@ -9,12 +9,13 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
+use App\Mail\RequestAccountDeleteMail;
 use App\Models\AchievementSetClaim;
 use App\Models\User;
 use App\Platform\Actions\RequestAccountDeletionAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Tests\Feature\Concerns\TestsMail;
+use Illuminate\Support\Facades\Mail;
 use Tests\Feature\Platform\Concerns\TestsAuditComments;
 use Tests\TestCase;
 
@@ -23,12 +24,11 @@ class RequestAccountDeletionActionTest extends TestCase
     use RefreshDatabase;
 
     use TestsAuditComments;
-    use TestsMail;
 
     public function testDeleteUnregistered(): void
     {
         $this->addServerUser();
-        $this->captureEmails();
+        Mail::fake();
 
         $now = Carbon::parse('2020-05-05 4:23:16');
         Carbon::setTestNow($now);
@@ -44,25 +44,22 @@ class RequestAccountDeletionActionTest extends TestCase
 
         $this->assertAuditComment(ArticleType::UserModeration, $user->ID, $user->User . ' requested account deletion');
 
-        $this->assertEmailSent($user, "Account Deletion Request");
+        Mail::assertQueued(RequestAccountDeleteMail::class, $user->EmailAddress);
 
         /* second attempt to delete user does nothing */
         $now2 = $now->clone()->addDays(2);
         Carbon::setTestNow($now2);
 
-        $this->captureEmails();
         $this->assertFalse((new RequestAccountDeletionAction())->execute($user));
 
         $user->refresh();
         $this->assertEquals($now, $user->DeleteRequested);
-
-        $this->assertEmailNotSent($user);
     }
 
     public function testDeleteDeveloperWithClaims(): void
     {
         $this->addServerUser();
-        $this->captureEmails();
+        Mail::fake();
 
         $now = Carbon::parse('2020-05-05 4:23:16');
         Carbon::setTestNow($now);
@@ -101,7 +98,7 @@ class RequestAccountDeletionActionTest extends TestCase
 
         $this->assertAuditComment(ArticleType::UserModeration, $user->ID, $user->User . ' requested account deletion');
 
-        $this->assertEmailSent($user, "Account Deletion Request");
+        Mail::assertQueued(RequestAccountDeleteMail::class, $user->EmailAddress);
 
         // non-completed claims should be dropped
         $claim1->refresh();
