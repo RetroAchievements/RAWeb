@@ -11,18 +11,18 @@ use App\Community\Actions\DeleteMessageThreadAction;
 use App\Community\Actions\ReadMessageThreadAction;
 use App\Community\Enums\UserRelationship;
 use App\Enums\UserPreference;
+use App\Mail\PrivateMessageReceivedMail;
 use App\Models\Message;
 use App\Models\User;
 use App\Models\UserRelation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Tests\Feature\Concerns\TestsMail;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class MessagesTest extends TestCase
 {
     use RefreshDatabase;
-    use TestsMail;
 
     public function testCreateMessageChain(): void
     {
@@ -35,7 +35,7 @@ class MessagesTest extends TestCase
         $user2 = User::factory()->create(['websitePrefs' => (1 << UserPreference::EmailOn_PrivateMessage)]);
 
         // user1 sends message to user2
-        $this->captureEmails();
+        Mail::fake();
         $thread = (new CreateMessageThreadAction())->execute($user1, $user2, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
@@ -68,7 +68,7 @@ class MessagesTest extends TestCase
         $user2->refresh();
         $this->assertEquals(1, $user2->UnreadMessageCount);
 
-        $this->assertEmailSent($user2, "New Private Message from {$user1->User}");
+        Mail::assertQueued(PrivateMessageReceivedMail::class, $user2->EmailAddress);
 
         // user2 responds
         (new ReadMessageThreadAction())->execute($thread, $user2);
@@ -84,7 +84,6 @@ class MessagesTest extends TestCase
         $now2 = $now->clone()->addMinutes(5);
         Carbon::setTestNow($now2);
 
-        $this->captureEmails();
         (new AddToMessageThreadAction())->execute($thread, $user2, 'This is a response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
@@ -115,13 +114,12 @@ class MessagesTest extends TestCase
         $user1->refresh();
         $this->assertEquals(1, $user1->UnreadMessageCount);
 
-        $this->assertEmailNotSent($user1);
+        Mail::assertNotQueued(PrivateMessageReceivedMail::class, $user1->EmailAddress);
 
         // user2 responds again
         $now3 = $now2->clone()->addMinutes(5);
         Carbon::setTestNow($now3);
 
-        $this->captureEmails();
         (new AddToMessageThreadAction())->execute($thread, $user2, 'This is another response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
@@ -152,7 +150,7 @@ class MessagesTest extends TestCase
         $user1->refresh();
         $this->assertEquals(2, $user1->UnreadMessageCount);
 
-        $this->assertEmailNotSent($user1);
+        Mail::assertNotQueued(PrivateMessageReceivedMail::class, $user1->EmailAddress);
 
         // user1 responds
         (new ReadMessageThreadAction())->execute($thread, $user1);
@@ -162,7 +160,6 @@ class MessagesTest extends TestCase
         $now4 = $now3->clone()->addMinutes(5);
         Carbon::setTestNow($now4);
 
-        $this->captureEmails();
         (new AddToMessageThreadAction())->execute($thread, $user1, 'This is a third response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
@@ -193,13 +190,12 @@ class MessagesTest extends TestCase
         $user2->refresh();
         $this->assertEquals(1, $user2->UnreadMessageCount);
 
-        $this->assertEmailSent($user2, "New Private Message from {$user1->User}");
+        Mail::assertQueued(PrivateMessageReceivedMail::class, $user2->EmailAddress);
 
         // user1 deletes
         $now5 = $now4->clone()->addMinutes(5);
         Carbon::setTestNow($now5);
 
-        $this->captureEmails();
         (new DeleteMessageThreadAction())->execute($thread, $user1);
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
@@ -223,14 +219,12 @@ class MessagesTest extends TestCase
         $user2->refresh();
         $this->assertEquals(1, $user2->UnreadMessageCount);
 
-        $this->assertEmailNotSent($user1);
-        $this->assertEmailNotSent($user2);
+        Mail::assertQueuedCount(2); // additional mail not sent to $user1 and $user2
 
         // user2 deletes - when both users delete the message, it's removed from the DB
         $now6 = $now5->clone()->addMinutes(5);
         Carbon::setTestNow($now6);
 
-        $this->captureEmails();
         (new DeleteMessageThreadAction())->execute($thread, $user2);
         $this->assertDatabaseMissing('message_threads', ['id' => 1]);
         $this->assertDatabaseMissing('messages', ['id' => 1]);
@@ -243,8 +237,7 @@ class MessagesTest extends TestCase
         $user2->refresh();
         $this->assertEquals(0, $user2->UnreadMessageCount);
 
-        $this->assertEmailNotSent($user1);
-        $this->assertEmailNotSent($user2);
+        Mail::assertQueuedCount(2); // additional mail not sent to $user1 and $user2
     }
 
     public function testBlockedUser(): void
@@ -266,7 +259,7 @@ class MessagesTest extends TestCase
         $relation->save();
 
         // message from user2 is automatically marked as deleted by user1
-        $this->captureEmails();
+        Mail::fake();
         $thread = (new CreateMessageThreadAction())->execute($user2, $user1, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
@@ -296,13 +289,12 @@ class MessagesTest extends TestCase
 
         $user1->refresh();
         $this->assertEquals(0, $user1->UnreadMessageCount);
-        $this->assertEmailNotSent($user1);
+        Mail::assertNothingQueued(); // nothing sent to $user1
 
         // additional message from user2 is also marked as deleted by user1
         $now2 = $now->clone()->addMinutes(5);
         Carbon::setTestNow($now2);
 
-        $this->captureEmails();
         (new AddToMessageThreadAction())->execute($thread, $user2, 'This is a response.');
 
         $this->assertDatabaseHas('message_threads', [
@@ -333,12 +325,11 @@ class MessagesTest extends TestCase
 
         $user1->refresh();
         $this->assertEquals(0, $user1->UnreadMessageCount);
-        $this->assertEmailNotSent($user1);
+        Mail::assertNothingQueued(); // nothing sent to $user1
 
         // message from user1 is delivered to user2
         Carbon::setTestNow($now);
 
-        $this->captureEmails();
         $thread = (new CreateMessageThreadAction())->execute($user1, $user2, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 2,
@@ -369,12 +360,11 @@ class MessagesTest extends TestCase
 
         $user2->refresh();
         $this->assertEquals(1, $user2->UnreadMessageCount);
-        $this->assertEmailSent($user2, "New Private Message from {$user1->User}");
+        Mail::assertQueued(PrivateMessageReceivedMail::class, $user2->EmailAddress);
 
         // additional message from user1 is also delivered
         Carbon::setTestNow($now2);
 
-        $this->captureEmails();
         (new AddToMessageThreadAction())->execute($thread, $user1, 'This is a response.');
 
         $this->assertDatabaseHas('message_threads', [
@@ -405,13 +395,13 @@ class MessagesTest extends TestCase
 
         $user2->refresh();
         $this->assertEquals(2, $user2->UnreadMessageCount);
-        $this->assertEmailSent($user2, "New Private Message from {$user1->User}");
+        Mail::assertQueued(PrivateMessageReceivedMail::class, $user2->EmailAddress);
+        Mail::assertQueuedCount(2);
 
         // response from user2 is ignored (no unread counter or email, but not deleted)
         $now3 = $now2->clone()->addMinutes(5);
         Carbon::setTestNow($now3);
 
-        $this->captureEmails();
         (new AddToMessageThreadAction())->execute($thread, $user2, 'This is another response.');
 
         $this->assertDatabaseHas('message_threads', [
@@ -442,7 +432,7 @@ class MessagesTest extends TestCase
 
         $user1->refresh();
         $this->assertEquals(0, $user1->UnreadMessageCount);
-        $this->assertEmailNotSent($user1);
+        Mail::assertNotQueued(PrivateMessageReceivedMail::class, $user1->EmailAddress);
     }
 
     public function testDeleteUserDeletesThread(): void

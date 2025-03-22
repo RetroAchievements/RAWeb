@@ -6,8 +6,10 @@ namespace App\Platform\Actions;
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Mail\RequestAccountDeleteMail;
 use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 class RequestAccountDeletionAction
 {
@@ -36,13 +38,7 @@ class RequestAccountDeletionAction
             $user->display_name . ' requested account deletion'
         );
 
-        mail_utf8($user->EmailAddress, "Account Deletion Request",
-            "Hello {$user->display_name},<br><br>" .
-            "Your account has been marked for deletion.<br>" .
-            "If you do not cancel this request before " . getDeleteDate($user->DeleteRequested) . ", " .
-            "you will no longer be able to access your account.<br><br>" .
-            "Thanks!<br>" .
-            "-- Your friends at RetroAchievements.org<br>");
+        Mail::to($user)->queue(new RequestAccountDeleteMail($user));
 
         return true;
     }
