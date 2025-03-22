@@ -226,17 +226,11 @@ class SyncEvents extends Command
             795 => new ConvertCollapse('devquest-013'),
             862 => new ConvertCollapse('devquest-014'),
             809 => new ConvertAsIs('devquest-015'),
-            8000 => new ConvertToTiered('distractions-1', [1 => '30 points', 2 => '60 points'], [
-                205862 => 'hardcore_only',
-                205863 => 'to_hardcore',
-            ]),
+            8000 => new ConvertCollapseSoftcore('distractions-1', '30 points', '60 points'),
             18999 => new ConvertCollapse('quality-quest'),
             2962 => new ConvertCollapse('devquest-016'),
             19704 => new ConvertCollapse('rawr-2022'),
-            18858 => new ConvertToTiered('distractions-2', [1 => '30 points', 2 => '60 points'], [
-                233732 => 'hardcore_only',
-                233733 => 'to_hardcore',
-            ]),
+            18858 => new ConvertCollapseSoftcore('distractions-2', '30 points', '60 points'),
             8069 => new ConvertAotWTiered('aotw-2021', '1/3/2021', [16 => 14872, 32 => 17306, 48 => 17426, 64 => 8069], [
                 58360, 16264, 137451, 115451, 4738, 117123, 4673, 114219, 78685, 136014, 13126, 133517,
                 50441, 31586, 48543, 73980, 16869, 47172, 13566, 70089, 129974, 125937, 156172, 26519,
@@ -469,10 +463,7 @@ class SyncEvents extends Command
             28304 => new ConvertAsIs('mario-party-ra-beat', '2023-07-06', '2023-12-28'),
             28305 => new ConvertAsIs('mario-party-ra-mstr', '2023-07-06', '2023-12-28'),
             28306 => new ConvertAsIs('mario-party-ra-bonus', '2023-07-06', '2023-12-28'),
-            28379 => new ConvertToTiered('on-the-horizon', [1 => 'Unlock subjobs', 2 => 'Unlock first advanced job'], [
-                 394761 => 'to_hardcore',
-                 394762 => 'hardcore_only',
-            ]),
+            28379 => new ConvertCollapseSoftcore('on-the-horizon', 'Unlock subjobs', 'Unlock first advanced job'),
             28327 => new ConvertToSoftcoreTiered('devember-2023', '50 points', '150 points'),
             28432 => new ConvertToCollapsedTiered('cl-top-100', 'Challenge League: The Top 100',
                 [28430 => '30 points', 28431 => '60 points', 28432 => '90 points'],
@@ -587,6 +578,8 @@ class SyncEvents extends Command
             $command->info(sprintf("  %6u %5u/%u %s", $achievement->ID,  $achievement->unlocks_hardcore_total, $game->players_hardcore, $achievement->Title));
             if ($achievement->Points === 0) {
                 $command->error("No points on achievement {$achievement->ID}");
+            } elseif ($achievement->unlocks_hardcore_total > $game->players_hardcore) {
+                $command->error("Too many achievements awarded for {$achievement->ID}");
             }
         }
     }
@@ -1161,6 +1154,137 @@ class ConvertCollapse extends ConvertGame
                 }
 
                 $this->createEventAchievement($command, $achievement);
+            } else {
+                $achievement->Flags = AchievementFlag::Unofficial->value;
+            }
+
+            $achievement->save();
+        }
+
+        $this->updateMetrics($event);
+    }
+}
+
+// Keep one achievement and its hardcore unlocks for the hardcore tier. Keep a second
+//  achievement and all of its unlocks for the softcore tier.
+//  Others are redundant to get the minimum 6 needed for a game mastery.
+// Create two tiers
+// Badge only for people who have "mastered" the event.
+class ConvertCollapseSoftcore extends ConvertGame
+{
+    public function __construct(string $slug, string $softcoreTierLabel, string $hardcoreTierLabel)
+    {
+        $this->slug = $slug;
+        $this->softcoreTierLabel = $softcoreTierLabel;
+        $this->hardcoreTierLabel = $hardcoreTierLabel;
+    }
+
+    public function captureBefore(int $gameId): array
+    {
+        $badges = PlayerBadge::where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $gameId)
+            ->orderBy('AwardDataExtra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+
+        $before = [];
+        foreach ($badges->get() as $badge) {
+            $before[$badge->user_id] = [
+                'AwardDate' => $badge->AwardDate,
+                'AwardDataExtra' => ($badge->AwardDataExtra === 1) ? 2 : 1,
+            ];
+        }
+
+        return $before;
+    }
+
+    protected function convertSiteAwards(Event $event): void
+    {
+        // delete softcore badges where hardcore badges exist
+        $hardcoreBadgeUserIds = PlayerBadge::where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $event->legacyGame->id)
+            ->where('AwardDataExtra', 1)
+            ->pluck('user_id')
+            ->toArray();
+
+        PlayerBadge::where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $event->legacyGame->id)
+            ->where('AwardDataExtra', 0)
+            ->whereIn('user_id', $hardcoreBadgeUserIds)
+            ->delete();
+
+        // convert softcore badges to tier 1
+        $badges = PlayerBadge::where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $event->legacyGame->id)
+            ->where('AwardDataExtra', 0)
+            ->update([
+                'AwardType' => AwardType::Event,
+                'AwardData' => $event->id,
+                'AwardDataExtra' => 1,
+            ]);
+
+        // convert hardcore badges to tier 2
+        $badges = PlayerBadge::where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $event->legacyGame->id)
+            ->where('AwardDataExtra', 1)
+            ->update([
+                'AwardType' => AwardType::Event,
+                'AwardData' => $event->id,
+                'AwardDataExtra' => 2,
+            ]);
+    }
+
+    protected function process(Command $command, Event $event): void
+    {
+        $this->setAchievementCount($event, 2);
+
+        $eventAward = EventAward::where('event_id', $event->id)
+            ->where('tier_index', 1)
+            ->first();
+
+        if (!$eventAward) {
+            $eventAward = EventAward::create([
+                'event_id' => $event->id,
+                'tier_index' => 1,
+                'label' => $this->softcoreTierLabel,
+                'points_required' => 1,
+                'image_asset_path' => $event->image_asset_path,
+            ]);
+        }
+
+        $eventAward = EventAward::where('event_id', $event->id)
+            ->where('tier_index', 2)
+            ->first();
+
+        if (!$eventAward) {
+            $eventAward = EventAward::create([
+                'event_id' => $event->id,
+                'tier_index' => 2,
+                'label' => $this->hardcoreTierLabel,
+                'points_required' => 2,
+                'image_asset_path' => $event->image_asset_path,
+            ]);
+        }
+
+        $tier_index = 1;
+        foreach ($event->legacyGame->achievements as $achievement) {
+            if ($tier_index < 3 && $achievement->Flags === AchievementFlag::OfficialCore->value) {
+                $achievement->Flags = AchievementFlag::OfficialCore->value;
+                $achievement->Points = 1;
+
+                $this->createEventAchievement($command, $achievement);
+
+                if ($tier_index === 1) {
+                    // convert softcore unlocks to hardcore
+                    PlayerAchievement::where('achievement_id', $achievement->id)
+                        ->whereNull('unlocked_hardcore_at')
+                        ->update(['unlocked_hardcore_at' => DB::raw('unlocked_at')]);
+                } else {
+                    // delete softcore unlocks
+                    PlayerAchievement::where('achievement_id', $achievement->id)
+                        ->whereNull('unlocked_hardcore_at')
+                        ->delete();
+                }
+
+                $tier_index++;
             } else {
                 $achievement->Flags = AchievementFlag::Unofficial->value;
             }
