@@ -18,7 +18,6 @@ const createPatterns = (type: string) => [
     `\\[url[^\\]]*retroachievements\\.org/${type}/(\\w{1,20})(/?(?![\\w/?]))[^\\]]*\\][^\\[]*\\[/url\\]`,
     'gi',
   ),
-  new RegExp(`\\[url[^\\]]*?${type}/(\\w{1,20})(/?(?![\\w/?])).*?\\[/url\\]`, 'gi'),
 
   // Direct production URLs.
   new RegExp(

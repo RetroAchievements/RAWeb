@@ -150,4 +150,15 @@ describe('Util: preProcessShortcodesInBody', () => {
     // ASSERT
     expect(result).toEqual('  indented\n  still indented  \n\n  more space  ');
   });
+
+  it('preserves external url tag', () => {
+    // ARRANGE
+    const input = '[url=https://example.com/game/1][/url]';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual(input);
+  });
 });

@@ -285,6 +285,18 @@ final class ShortcodeTest extends TestCase
         );
     }
 
+    public function testNormalizeShortcodesPreservesExternalUrlTag(): void
+    {
+        $rawString = '[url=https://example.com/game/1][/url]';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            $rawString,
+            $normalized
+        );
+    }
+
     /**
      * @dataProvider youtubeUrlProvider
      */
