@@ -10,12 +10,8 @@ use App\Models\User;
 
 class RemoveGameFromListAction
 {
-    public function execute(User $user, Game $game, string $type): bool
+    public function execute(User $user, Game $game, UserGameListType $type): bool
     {
-        if (!UserGameListType::isValid($type)) {
-            return false;
-        }
-
         return $user->gameListEntries($type)->where('GameID', $game->ID)->delete() === 1;
     }
 }
