@@ -12,6 +12,7 @@ use Illuminate\Validation\Rule;
  *   object     [value]
  *    int        ID                 unique ID of the claim
  *    string     User               user who made the claim
+ *    string     ULID               queryable stable unique identifier of the user
  *    int        GameID             id of the claimed game
  *    string     GameTitle          title of the claimed game
  *    string     GameIcon           site-relative path to the game's icon image

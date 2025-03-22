@@ -165,6 +165,7 @@ describe('Component: DataTableSuperFilter', () => {
       // ACT
       await userEvent.click(screen.getByRole('button', { name: /playable/i }));
 
+      await userEvent.click(screen.getByRole('combobox', { name: /has achievements/i }));
       await userEvent.click(screen.getByRole('option', { name: 'No' }));
 
       // ASSERT

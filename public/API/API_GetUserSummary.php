@@ -2,7 +2,7 @@
 
 /*
  *  API_GetUserSummary
- *    u : username
+ *    u : username or user ULID
  *    g : number of recent games to return (default: 0)
  *    a : number of recent achievements to return (default: 10)
  *        NOTE: Recent achievements are pulled from recent games, so if you ask for
@@ -11,6 +11,7 @@
  *              with the default of 0 recent games, no recent achievements will be returned.
  *
  *  int        ID                      unique identifier of the user
+ *  string     ULID                    queryable stable unique identifier of the user
  *  int        TotalPoints             number of hardcore points the user has
  *  int        TotalSoftcorePoints     number of softcore points the user has
  *  int        TotalTruePoints         number of RetroPoints ("white points") the user has
@@ -86,18 +87,17 @@
  *  int        ContribYield            points awarded to others
  */
 
-use App\Models\User;
-use App\Support\Rules\CtypeAlnum;
+use App\Actions\FindUserByIdentifierAction;
+use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
+    'u' => ['required', new ValidUserIdentifier()],
     'g' => 'nullable|integer|min:0',
     'a' => 'nullable|integer|min:0',
 ]);
 
-$username = request()->query('u');
 $recentGamesPlayed = (int) request()->query('g', '0');
 $recentAchievementsEarned = (int) request()->query('a', '10');
 
@@ -106,13 +106,13 @@ if ($recentGamesPlayed > 100) {
     $recentGamesPlayed = 100;
 }
 
-$userModel = User::whereName($username)->first();
-$retVal = getUserPageInfo($username, $recentGamesPlayed, $recentAchievementsEarned);
+$userModel = (new FindUserByIdentifierAction())->execute($input['u']);
+$retVal = getUserPageInfo($userModel?->display_name ?? "", $recentGamesPlayed, $recentAchievementsEarned);
 
 if (empty($retVal)) {
     return response()->json([
         'ID' => null,
-        'User' => $username,
+        'User' => isset($input['i']) ? $input['i'] : $input['u'],
     ], 404);
 }
 

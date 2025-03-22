@@ -27,7 +27,7 @@ class TicketData extends Data
             id: $ticket->id,
             ticketableType: TicketableType::Achievement,
             state: Lazy::create(fn () => $ticket->state),
-            ticketable: Lazy::create(fn () => AchievementData::fromAchievement($ticket->achievement)->include('badgeUnlockedUrl'))
+            ticketable: Lazy::create(fn () => AchievementData::fromAchievement($ticket->achievement))
         );
     }
 }

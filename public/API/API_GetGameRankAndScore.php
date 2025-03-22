@@ -8,6 +8,7 @@
  *  array
  *   object     [value]
  *    string     User                name of user
+ *    string     ULID                queryable stable unique identifier of the user
  *    int        NumAchievements     number of achievements earned by the user for the game
  *    int        TotalScore          number of points earned by the user for the game
  *    datetime   LastAward           when the user's latest achievement for the game was unlocked
@@ -41,7 +42,8 @@ if (($type === 1 && $numMasteries >= 10) || ($type !== 1 && $numMasteries < 10))
     // or the top earners if there are less than 10 masteries.
     foreach ($topAchievers as $playerGame) {
         $gameTopAchievers[] = [
-            'User' => User::find($playerGame['user_id'])->display_name, // FIXME: N+1 query problem
+            'User' => $playerGame['user_display_name'],
+            'ULID' => $playerGame['user_ulid'],
             'NumAchievements' => $playerGame['achievements_unlocked_hardcore'],
             'TotalScore' => $playerGame['points_hardcore'],
             'LastAward' => Carbon::createFromTimestamp($playerGame['last_unlock_hardcore_at'])->format('Y-m-d H:i:s'),
@@ -53,7 +55,8 @@ if (($type === 1 && $numMasteries >= 10) || ($type !== 1 && $numMasteries < 10))
 
     foreach ($playerGames as $playerGame) {
         $gameTopAchievers[] = [
-            'User' => $playerGame->user->User,
+            'User' => $playerGame->user->display_name,
+            'ULID' => $playerGame->user->ulid,
             'NumAchievements' => $playerGame->achievements_unlocked_hardcore,
             'TotalScore' => $playerGame->points_hardcore,
             'LastAward' => $playerGame->last_unlock_hardcore_at->format('Y-m-d H:i:s'),

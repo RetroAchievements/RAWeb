@@ -8,11 +8,12 @@ use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
-function SetUserUntrackedStatus(string $usernameIn, int $isUntracked): void
+function SetUserUntrackedStatus(User $user, int $isUntracked): void
 {
-    legacyDbStatement("UPDATE UserAccounts SET Untracked = $isUntracked, Updated=NOW() WHERE User = '$usernameIn'");
+    $user->Untracked = $isUntracked;
+    $user->save();
 
-    PlayerRankedStatusChanged::dispatch(User::whereName($usernameIn)->first(), (bool) $isUntracked);
+    PlayerRankedStatusChanged::dispatch($user, (bool) $isUntracked);
 
     // TODO update games that are affected by this user's library
 }
@@ -45,18 +46,25 @@ function countRankedUsers(int $type = RankType::Hardcore): int
 
 function getTopUsersByScore(int $count): array
 {
-    return User::select(['display_name', 'User', 'RAPoints', 'TrueRAPoints'])
+    $topUsers = User::select(['ulid', 'display_name', 'User', 'RAPoints', 'TrueRAPoints'])
         ->where('Untracked', false)
         ->orderBy('RAPoints', 'desc')
-        ->orderBy('TrueRAPoints', 'desc')
         ->take(min($count, 10))
         ->get()
         ->map(fn ($user) => [
             1 => $user->display_name ?? $user->User,
             2 => $user->RAPoints,
             3 => $user->TrueRAPoints,
+            4 => $user->ulid,
         ])
         ->toArray();
+
+    // First sort by RAPoints (key 2), then by TrueRAPoints (key 3) if RAPoints are equal.
+    uasort($topUsers, function ($a, $b) {
+        return ($a[2] === $b[2]) ? ($b[3] <=> $a[3]) : ($b[2] <=> $a[2]);
+    });
+
+    return $topUsers;
 }
 
 /**

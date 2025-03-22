@@ -7,6 +7,9 @@ namespace App\Community\Controllers;
 use App\Community\Actions\BuildMessageThreadIndexPagePropsAction;
 use App\Community\Actions\BuildMessageThreadShowPagePropsAction;
 use App\Community\Actions\DeleteMessageThreadAction;
+use App\Community\Data\MessageThreadCreatePagePropsData;
+use App\Community\Enums\MessageThreadTemplateKind;
+use App\Data\UserData;
 use App\Http\Controller;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
@@ -63,6 +66,29 @@ class MessageThreadController extends Controller
         }
 
         return Inertia::render('messages/[messageThread]', $actionResult['props']);
+    }
+
+    public function create(Request $request): InertiaResponse
+    {
+        $this->authorize('create', MessageThread::class);
+
+        $toUser = null;
+        $toUserData = null;
+        if ($request->input('to')) {
+            $toUser = User::whereName($request->input('to'))->first();
+            if ($toUser) {
+                $toUserData = UserData::fromUser($toUser);
+            }
+        }
+
+        return Inertia::render('messages/create', new MessageThreadCreatePagePropsData(
+            toUser: $toUserData,
+            message: $request->input('message'),
+            subject: $request->input('subject'),
+            templateKind: $request->input('templateKind')
+                ? MessageThreadTemplateKind::tryFrom($request->input('templateKind'))
+                : null,
+        ));
     }
 
     public function destroy(Request $request, MessageThread $messageThread): RedirectResponse

@@ -119,6 +119,7 @@ function getGameMetadata(
         ach.Points,
         ach.TrueRatio,
         COALESCE(ua.display_name, ua.User) AS Author,
+        ua.ulid AS AuthorULID,
         ach.DateModified,
         ach.DateCreated,
         ach.BadgeName,
@@ -693,40 +694,6 @@ function modifyGameForumTopic(string $username, int $gameId, int $newForumTopicI
     addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the forum topic");
 
     return true;
-}
-
-function getGameListSearch(int $offset, int $count, int $method, ?int $consoleID = null): array
-{
-    $query = null;
-    if ($method == 0) {
-        $where = '';
-        if (isset($consoleID) && $consoleID > 0) {
-            $where = "WHERE gd.ConsoleID = $consoleID ";
-        }
-
-        // By TA:
-        $query = "    SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, gd.Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.TotalTruePoints, c.Name AS ConsoleName
-                    FROM GameData AS gd
-                    LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                    $where
-                    ORDER BY gd.TotalTruePoints DESC
-                    LIMIT $offset, $count";
-    }
-
-    if (!$query) {
-        return [];
-    }
-
-    $dbResult = s_mysql_query($query);
-
-    $retval = [];
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $retval[] = $data;
-        }
-    }
-
-    return $retval;
 }
 
 function createNewGame(string $title, int $systemId): ?array

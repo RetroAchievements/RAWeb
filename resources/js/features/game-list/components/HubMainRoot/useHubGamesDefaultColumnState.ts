@@ -9,9 +9,12 @@ import { buildInitialDefaultColumnVisibility } from '../../utils/buildInitialDef
 export function useHubGamesDefaultColumnState(): DefaultColumnState {
   const { auth } = usePageProps();
 
+  const defaultSubsetsValue: App.Platform.Enums.GameListSetTypeFilterValue = 'both';
+
   return useMemo(() => {
     const defaultColumnFilters: ColumnFiltersState = [
       { id: 'achievementsPublished', value: ['either'] },
+      { id: 'subsets', value: [defaultSubsetsValue] },
     ];
 
     const defaultColumnSort: ColumnSort = { id: 'title', desc: false };

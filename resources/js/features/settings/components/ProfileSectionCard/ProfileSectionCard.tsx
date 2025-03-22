@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuAlertCircle } from 'react-icons/lu';
+import { LuCircleAlert } from 'react-icons/lu';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
@@ -116,7 +116,7 @@ export const ProfileSectionCard: FC = () => {
           variant="destructive"
           onClick={handleDeleteAllCommentsClick}
         >
-          <LuAlertCircle className="h-4 w-4" /> {t('Delete All Comments on My User Wall')}
+          <LuCircleAlert className="h-4 w-4" /> {t('Delete All Comments on My User Wall')}
         </BaseButton>
       </div>
     </SectionFormCard>

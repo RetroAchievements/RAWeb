@@ -95,13 +95,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "message-thread.show": [
-        {
-            "name": "messageThread",
-            "required": true,
-            "binding": "id"
-        }
-    ],
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],
@@ -133,6 +126,13 @@ declare module 'ziggy-js' {
             "name": "systemId",
             "required": true,
             "binding": "ID"
+        }
+    ],
+    "event.show": [
+        {
+            "name": "event",
+            "required": true,
+            "binding": "id"
         }
     ],
     "game.dev-interest": [
@@ -193,6 +193,13 @@ declare module 'ziggy-js' {
         }
     ],
     "game.random": [],
+    "api.game.forum-topic.create": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "api.user.game.destroy": [
         {
             "name": "game",
@@ -253,6 +260,34 @@ declare module 'ziggy-js' {
         },
         {
             "name": "forum",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "api.forum-topic.destroy": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "api.forum-topic.update": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "api.forum-topic.gate": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "api.forum-topic-comment.create": [
+        {
+            "name": "topic",
             "required": true,
             "binding": "id"
         }
@@ -468,7 +503,8 @@ declare module 'ziggy-js' {
         }
     ],
     "message-thread.index": [],
-    "message-thread.show2": [
+    "message-thread.create": [],
+    "message-thread.show": [
         {
             "name": "messageThread",
             "required": true,
@@ -481,6 +517,13 @@ declare module 'ziggy-js' {
             "name": "achievement",
             "required": true,
             "binding": "ID"
+        }
+    ],
+    "forum-topic.show": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
         }
     ],
     "game.comment.index": [
@@ -651,10 +694,12 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "api.user.forum-permissions.update": [],
     "api.user.delete-request.store": [],
     "api.user.delete-request.destroy": [],
     "api.user.avatar.store": [],
-    "api.user.avatar.destroy": []
+    "api.user.avatar.destroy": [],
+    "api.search.index": []
 }
 }
 export {};

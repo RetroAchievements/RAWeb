@@ -44,7 +44,9 @@ export const AchievementOfTheWeek: FC = () => {
                 hasTooltip={false}
                 size={64}
                 showLabel={false}
-                showHardcoreUnlockBorder={achievementOfTheWeek?.doesUserHaveUnlock}
+                displayLockedStatus={
+                  achievementOfTheWeek?.doesUserHaveUnlock ? 'unlocked-hardcore' : 'unlocked'
+                }
               />
 
               <div className="flex flex-col gap-0.5 self-start">
@@ -68,15 +70,15 @@ export const AchievementOfTheWeek: FC = () => {
                 <div className="flex w-full items-center justify-between">
                   <SystemChip {...system} className="bg-zinc-800" />
 
-                  {currentEventAchievement.activeUntil ? (
+                  {currentEventAchievement.activeThrough ? (
                     <span className="smalldate !min-w-fit self-end">
                       <Trans
                         i18nKey="Ends <1>{{when}}</1>"
-                        values={{ when: currentEventAchievement.activeUntil }}
+                        values={{ when: currentEventAchievement.activeThrough }}
                         components={{
                           1: (
                             <DiffTimestamp
-                              at={currentEventAchievement.activeUntil}
+                              at={currentEventAchievement.activeThrough}
                               asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates}
                             />
                           ),

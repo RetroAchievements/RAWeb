@@ -15,15 +15,9 @@ class UserProfileTest extends TestCase
 
     public function testItValidates(): void
     {
-        $this->get($this->apiUrl('GetUserProfile'))
+        $this->get($this->apiUrl('GetUserCompletionProgress'))
             ->assertJsonValidationErrors([
                 'u',
-                'i',
-            ]);
-
-        $this->get($this->apiUrl('GetUserProfile', ['u' => 'username', 'i' => 'ulid']))
-            ->assertJsonValidationErrors([
-                'i', // should fail size:26 validation.
             ]);
     }
 
@@ -36,7 +30,7 @@ class UserProfileTest extends TestCase
 
     public function testGetUserProfileUnknownUlid(): void
     {
-        $this->get($this->apiUrl('GetUserProfile', ['i' => '01HNG49MXJA71KCVG3PXQS5B2C']))
+        $this->get($this->apiUrl('GetUserProfile', ['u' => '01HNG49MXJA71KCVG3PXQS5B2C']))
             ->assertNotFound()
             ->assertJson([]);
     }
@@ -72,7 +66,7 @@ class UserProfileTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
 
-        $this->get($this->apiUrl('GetUserProfile', ['i' => $user->ulid]))
+        $this->get($this->apiUrl('GetUserProfile', ['u' => $user->ulid]))
             ->assertSuccessful()
             ->assertJson([
                 'User' => $user->User,

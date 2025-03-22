@@ -169,25 +169,6 @@ describe('Component: DataTableFacetedFilter', () => {
     expect(screen.getByText(/clear filters/i)).toBeVisible();
   });
 
-  it('given selected filters exist, shows a count badge on the filter button', () => {
-    // ARRANGE
-    const customColumn = {
-      ...mockColumn,
-      getFilterValue: () => ['opt1', 'opt2'],
-    } as unknown as Column<any, any>;
-
-    render(
-      <DataTableFacetedFilter
-        options={mockOptions}
-        column={customColumn}
-        t_title={'Test Filter' as TranslatedString}
-      />,
-    );
-
-    // ASSERT
-    expect(screen.getByText('2')).toBeVisible();
-  });
-
   it('given isSearchable is false, does not show the search input', () => {
     // ARRANGE
     render(

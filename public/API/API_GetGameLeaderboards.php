@@ -17,6 +17,7 @@
  *    object     TopEntry                   details of the current leader
  *     object      [value]
  *      string     User                     username of the current leader
+ *      string     ULID                     queryable stable unique identifier of the current leader
  *      int        Score                    raw value of current leader's score
  *      string     FormattedScore           formatted string value of current leader's score
  */
@@ -63,6 +64,7 @@ foreach ($leaderboards as $leaderboard) {
     if ($leaderboard->topEntry) {
         $topEntry = [
             'User' => $leaderboard->topEntry->user->display_name,
+            'ULID' => $leaderboard->topEntry->user->ulid,
             'Score' => $leaderboard->topEntry->score,
             'FormattedScore' => ValueFormat::format($leaderboard->topEntry->score, $leaderboard->Format),
         ];

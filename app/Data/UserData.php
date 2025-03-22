@@ -21,6 +21,7 @@ class UserData extends Data
         public string $avatarUrl,
 
         public Lazy|string|null $apiKey = null,
+        public Lazy|Carbon|null $createdAt = null,
         public Lazy|string|null $deleteRequested = null,
         public Lazy|Carbon|null $deletedAt = null,
         /** @var RoleData[] */
@@ -73,6 +74,7 @@ class UserData extends Data
 
             // == lazy fields
             apiKey: Lazy::create(fn () => $user->APIKey),
+            createdAt: Lazy::create(fn () => Carbon::parse($user->Created)),
             deletedAt: Lazy::create(fn () => $user->Deleted ? Carbon::parse($user->Deleted) : null),
             deleteRequested: Lazy::create(fn () => $user->DeleteRequested),
             displayableRoles: Lazy::create(fn () => $user->displayableRoles),

@@ -82,7 +82,6 @@ class FetchDynamicShortcodeContentAction
         return Achievement::whereIn('ID', $achievementIds)
             ->get()
             ->map(fn (Achievement $achievement) => AchievementData::fromAchievement($achievement)->include(
-                'badgeUnlockedUrl',
                 'points'
             ));
     }

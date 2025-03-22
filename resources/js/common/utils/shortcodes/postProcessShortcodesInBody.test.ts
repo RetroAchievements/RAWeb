@@ -202,4 +202,74 @@ describe('Util: postProcessShortcodesInBody', () => {
     // ASSERT
     expect(result).toEqual('[spoiler][img]https://i.imgur.com/ov30jeD.jpeg[/img][/spoiler]');
   });
+
+  it('preserves placeholder achievement tags', () => {
+    // ARRANGE
+    const body = '[ach=]';
+
+    // ACT
+    const result = postProcessShortcodesInBody(body);
+
+    // ASSERT
+    expect(result).toEqual('[text]{ach=}[/text]');
+  });
+
+  it('preserves placeholder url tags with content', () => {
+    // ARRANGE
+    const body = '[url=]Link[/url]';
+
+    // ACT
+    const result = postProcessShortcodesInBody(body);
+
+    // ASSERT
+    expect(result).toEqual('[text]{url=}Link{/url}[/text]');
+  });
+
+  it('handles multiple placeholder tags', () => {
+    // ARRANGE
+    const body = '[ach=][ach=][game=]';
+
+    // ACT
+    const result = postProcessShortcodesInBody(body);
+
+    // ASSERT
+    expect(result).toEqual('[text]{ach=}[/text][text]{ach=}[/text][text]{game=}[/text]');
+  });
+
+  it('preserves placeholder tags inside spoiler tags', () => {
+    // ARRANGE
+    const body = '[spoiler][ach=][url=]Link[/url][/spoiler]';
+
+    // ACT
+    const result = postProcessShortcodesInBody(body);
+
+    // ASSERT
+    expect(result).toEqual('[spoiler][text]{ach=}[/text][text]{url=}Link{/url}[/text][/spoiler]');
+  });
+
+  it('handles both placeholder and valid tags in the same input', () => {
+    // ARRANGE
+    const body = '[ach=]\n[ach=123][url=]Link[/url]\n[url=https://google.com]My Link[/url]';
+
+    // ACT
+    const result = postProcessShortcodesInBody(body);
+
+    // ASSERT
+    expect(result).toEqual(
+      '[text]{ach=}[/text]\n' +
+        '[ach]123[/ach][text]{url=}Link{/url}[/text]\n' +
+        '[url=https://google.com]My Link[/url]',
+    );
+  });
+
+  it('handles empty quoted tags differently from placeholder tags', () => {
+    // ARRANGE
+    const body = '[url=""][ach=][url=\'\']';
+
+    // ACT
+    const result = postProcessShortcodesInBody(body);
+
+    // ASSERT
+    expect(result).toEqual('[text]{ach=}[/text]');
+  });
 });

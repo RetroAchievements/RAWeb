@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import {
   LuBook,
   LuCircleDot,
+  LuCircleHelp,
   LuDownload,
-  LuHelpCircle,
   LuNewspaper,
   LuPodcast,
 } from 'react-icons/lu';
@@ -130,7 +130,7 @@ export const TopLinks: FC = () => {
             buildTrackingClassNames('Click Top Link FAQ'),
           )}
         >
-          <LuHelpCircle className="mr-2 h-4 w-4 text-blue-400" />
+          <LuCircleHelp className="mr-2 h-4 w-4 text-blue-400" />
           {t('FAQ')}
         </a>
       </div>

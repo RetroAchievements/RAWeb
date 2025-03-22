@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Shortcode;
 
 use App\Models\Achievement;
+use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\System;
 use App\Models\Ticket;
@@ -49,6 +50,38 @@ final class Shortcode
     public static function render(string $input, array $options = []): string
     {
         return (new Shortcode())->parse($input, $options);
+    }
+
+    public static function convertLegacyGameHubShortcodesToHubShortcodes(string $input): string
+    {
+        // Extract all game IDs from the shortcodes. We want to make a single query
+        // to avoid unnecessary database load.
+        preg_match_all('/\[game=(\d+)\]/', $input, $matches);
+        $gameIds = $matches[1];
+
+        if (empty($gameIds)) {
+            return $input;
+        }
+
+        // Find all legacy hubs (games with ConsoleID 100) and their corresponding
+        // game_sets entries in a single query.
+        $hubMap = Game::query()
+            ->join('game_sets', 'GameData.ID', '=', 'game_sets.game_id')
+            ->where('GameData.ConsoleID', System::Hubs)
+            ->where('game_sets.type', GameSetType::Hub)
+            ->whereIn('GameData.ID', $gameIds)
+            ->select('GameData.ID as game_id', 'game_sets.id as hub_id')
+            ->get()
+            ->pluck('hub_id', 'game_id');
+
+        // Replace each legacy game hub shortcode with the corresponding modern hub
+        // shortcode if it maps to a modern hub, otherwise leave it unchanged.
+        return preg_replace_callback('/\[game=(\d+)\]/', function ($matches) use ($hubMap) {
+            $gameId = $matches[1];
+            $hubId = $hubMap->get($gameId);
+
+            return $hubId ? "[hub={$hubId}]" : $matches[0];
+        }, $input);
     }
 
     public static function convertUserShortcodesToUseIds(string $input): string
@@ -111,6 +144,21 @@ final class Shortcode
                 return "";
             },
 
+            // "[hub=1]" --> "[Central]"
+            '~\[hub=(\d+)]~i' => function ($matches) {
+                $hubId = (int) $matches[1];
+                $hubData = GameSet::query()
+                    ->where('id', $hubId)
+                    ->where('type', GameSetType::Hub)
+                    ->first();
+
+                if ($hubData) {
+                    return "{$hubData->title} (Hubs)";
+                }
+
+                return "";
+            },
+
             // "[ach=1]" --> "Ring Collector (5)"
             '~\[ach=(\d+)]~i' => function ($matches) {
                 $achievementData = GetAchievementData((int) $matches[1]);
@@ -135,6 +183,16 @@ final class Shortcode
 
         foreach ($injectionShortcodes as $pattern => $callback) {
             $input = preg_replace_callback($pattern, $callback, $input);
+        }
+
+        // Remove all quoted content, including nested quotes.
+        // Keep replacing nested quoted content until no more is found.
+        while (preg_match('~\[quote\].*\[/quote\]~is', $input)) {
+            $input = preg_replace(
+                '~\[quote\]((?:[^[]|\[(?!/?quote])|(?R))*)\[/quote\]~is',
+                '',
+                $input
+            );
         }
 
         $stripPatterns = [
@@ -404,8 +462,10 @@ final class Shortcode
             }
 
             return [
-                ...getGameData($hubGameSet->game_id),
-                'HubID' => $hubGameSet->id,
+                'ID' => $hubGameSet->id,
+                'Title' => $hubGameSet->title,
+                'ConsoleName' => "Hubs",
+                'ImageIcon' => $hubGameSet->image_asset_path,
             ];
         });
 
@@ -413,9 +473,7 @@ final class Shortcode
             return '';
         }
 
-        $hubHref = route('hub.show', ['gameSet' => $data['HubID']]);
-
-        return str_replace("\n", '', gameAvatar($data, iconSize: 24, href: $hubHref));
+        return str_replace("\n", '', gameAvatar($data, iconSize: 24, isHub: true));
     }
 
     private function embedTicket(int $id): string

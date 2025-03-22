@@ -28,10 +28,11 @@ import { doesColumnExist } from '@/features/game-list/utils/doesColumnExist';
 
 import { useSortConfigs } from '../../../hooks/useSortConfigs';
 import type { SortConfigKind } from '../../../models';
-import { DataTableAchievementsPublishedFilter } from '../DataTableAchievementsPublishedFilter';
 import { DataTableSystemFilter } from '../DataTableSystemFilter';
 import { RandomGameButton } from '../RandomGameButton';
+import { MobileHasAchievementsFilterSelect } from './MobileHasAchievementsFilterSelect';
 import { MobileProgressFilterSelect } from './MobileProgressFilterSelect';
+import { MobileSetTypeFilterSelect } from './MobileSetTypeFilterSelect';
 import { useCurrentSuperFilterLabel } from './useCurrentSuperFilterLabel';
 
 interface DataTableSuperFilterProps<TData> {
@@ -84,7 +85,7 @@ export function DataTableSuperFilter<TData>({
   };
 
   return (
-    <BaseDrawer shouldScaleBackground={false} modal={false}>
+    <BaseDrawer shouldScaleBackground={false}>
       <BaseDrawerTrigger asChild>
         <button className="flex items-center gap-1 tracking-tight text-neutral-200 light:text-neutral-950">
           {currentSuperFilterLabel}
@@ -99,7 +100,10 @@ export function DataTableSuperFilter<TData>({
           </BaseDrawerHeader>
 
           <div className="flex flex-col gap-4 p-4">
-            <DataTableAchievementsPublishedFilter table={table} variant="drawer" />
+            <div className="grid grid-cols-2 gap-2">
+              <MobileHasAchievementsFilterSelect table={table} />
+              <MobileSetTypeFilterSelect table={table} />
+            </div>
 
             {doesColumnExist(allColumns, 'system') && filterableSystemOptions?.length > 1 ? (
               <DataTableSystemFilter

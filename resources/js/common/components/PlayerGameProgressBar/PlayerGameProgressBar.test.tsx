@@ -168,6 +168,33 @@ describe('Component: PlayerGameProgressBar', () => {
     expect(tooltipEl).toHaveTextContent(/mastered/i);
   });
 
+  it('given variant is "event" and pointsTotal equals achievementsPublished, does not show points metadata in the tooltip', async () => {
+    // ARRANGE
+    const system = createSystem({ id: 1 });
+    const game = createGame({ system, achievementsPublished: 400, pointsTotal: 400 });
+    const playerGame = createPlayerGame({
+      achievementsUnlocked: 8,
+      achievementsUnlockedHardcore: 8,
+      achievementsUnlockedSoftcore: 0,
+      pointsHardcore: 285,
+      highestAward: createPlayerBadge({
+        awardType: AwardType.Mastery,
+        awardDataExtra: 1,
+        awardDate: new Date('2023-05-06').toISOString(),
+      }),
+    });
+
+    render(<PlayerGameProgressBar game={game} playerGame={playerGame} variant="event" />);
+
+    // ACT
+    await userEvent.hover(screen.getByRole('progressbar'));
+
+    // ASSERT
+    const tooltipEl = await screen.findByRole('tooltip');
+
+    expect(tooltipEl).not.toHaveTextContent(/points/i);
+  });
+
   it('given the user has unlocked all the achievements for the game, shows no achievements or points metadata in the tooltip', async () => {
     // ARRANGE
     const system = createSystem({ id: 1 });

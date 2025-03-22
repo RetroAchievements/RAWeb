@@ -15,6 +15,7 @@ declare(strict_types=1);
  *  array       Results
  *   object      [value]
  *    string      User                      player who earned the award
+ *    string      ULID                      queryable stable unique identifier of the player who earned the award
  *    string      AwardKind                 "mastered', "completed", "beaten-hardcore", or "beaten-softcore"
  *    datetime    AwardDate                 an ISO8601 timestamp string for when the award was granted
  *    int         GameID                    unique identifier of the game
@@ -114,6 +115,7 @@ $mappedGameAwards = $fetchedGameAwards->map(function ($gameAward) use ($associat
 
     $mappedAward = [
         'User' => $gameAward->user->display_name,
+        'ULID' => $gameAward->user->ulid,
         'AwardKind' => $awardKind,
         'AwardDate' => $gameAward->AwardDate->toIso8601String(),
         'GameID' => $gameAward->AwardData,

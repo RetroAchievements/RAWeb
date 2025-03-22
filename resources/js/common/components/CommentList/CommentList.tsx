@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 import type { ArticleType } from '@/common/utils/generatedAppConstants';
 
 import { usePageProps } from '../../hooks/usePageProps';
+import { SignInMessage } from '../SignInMessage';
 import { CommentInput } from './CommentInput';
 import { CommentListProvider } from './CommentListContext';
 import { CommentListItem } from './CommentListItem';
 import { MutedMessage } from './MutedMessage';
-import { SignInMessage } from './SignInMessage';
 
 interface CommentListProps {
   /** Can the currently-authenticated user write a comment on this wall? */

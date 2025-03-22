@@ -77,6 +77,7 @@ class LeaderboardInfoTest extends TestCase
                             'Rank' => 1,
                             'Score' => 500,
                             'User' => $playerTwo->display_name,
+                            'ULID' => $playerTwo->ulid,
                             'AvatarUrl' => $playerTwo->avatar_url,
                         ],
                         [
@@ -85,6 +86,7 @@ class LeaderboardInfoTest extends TestCase
                             'Rank' => 2,
                             'Score' => 300,
                             'User' => $playerOne->display_name,
+                            'ULID' => $playerOne->ulid,
                             'AvatarUrl' => $playerOne->avatar_url,
                         ],
                         [
@@ -93,6 +95,7 @@ class LeaderboardInfoTest extends TestCase
                             'Rank' => 3,
                             'Score' => 100,
                             'User' => $playerThree->display_name,
+                            'ULID' => $playerThree->ulid,
                             'AvatarUrl' => $playerThree->avatar_url,
                         ],
                     ],

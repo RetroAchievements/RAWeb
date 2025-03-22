@@ -25,7 +25,6 @@ class EventFactory extends Factory
 
         return [
             'legacy_game_id' => Game::factory(),
-            'slug' => $this->faker->unique()->slug(),
             'active_from' => $activeFrom,
             'active_until' => $activeFrom->clone()->addYear(),
         ];

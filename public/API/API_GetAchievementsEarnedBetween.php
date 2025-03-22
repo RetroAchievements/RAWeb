@@ -2,7 +2,7 @@
 
 /*
  *  API_GetAchievementsEarnedBetween - returns achievements earned by a user between two timestamps
- *    u : user
+ *    u : username or user ULID
  *    f : from (time_t)
  *    t : to (time_t)
  *
@@ -27,9 +27,16 @@
  *    string     GameURL                  site-relative path to the game page
  */
 
-use App\Models\User;
+use App\Actions\FindUserByIdentifierAction;
+use App\Support\Rules\ValidUserIdentifier;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
 
-$user = User::whereName(request()->query('u'))->first();
+$input = Validator::validate(Arr::wrap(request()->query()), [
+    'u' => ['required', new ValidUserIdentifier()],
+]);
+
+$user = (new FindUserByIdentifierAction())->execute($input['u']);
 if (!$user) {
     return response()->json([]);
 }

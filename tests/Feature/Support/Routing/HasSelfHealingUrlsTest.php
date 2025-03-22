@@ -59,7 +59,7 @@ class HasSelfHealingUrlsTest extends TestCase
         $slug = $model->slug;
 
         // Assert
-        $this->assertEquals('super-mario-bros-1', $slug);
+        $this->assertEquals('1-super-mario-bros', $slug);
     }
 
     public function testItGeneratesSlugFromCustomField(): void
@@ -87,7 +87,7 @@ class HasSelfHealingUrlsTest extends TestCase
         $slug = $model->slug;
 
         // Assert
-        $this->assertEquals('used-name-1', $slug);
+        $this->assertEquals('1-used-name', $slug);
     }
 
     public function testItRedirectsNumericRouteParameters(): void
@@ -104,7 +104,7 @@ class HasSelfHealingUrlsTest extends TestCase
             $this->assertEquals(302, $response->getStatusCode());
 
             $this->assertStringContainsString(
-                'super-mario-bros-1',
+                '1-super-mario-bros',
                 $response->headers->get('Location')
             );
         }
@@ -117,14 +117,14 @@ class HasSelfHealingUrlsTest extends TestCase
 
         // Assert
         try {
-            $model->resolveRouteBinding('wrong-slug-1');
+            $model->resolveRouteBinding('1-wrong-slug');
             $this->fail('Expected HttpResponseException was not thrown');
         } catch (HttpResponseException $e) {
             $response = $e->getResponse();
             $this->assertEquals(302, $response->getStatusCode());
 
             $this->assertStringContainsString(
-                'super-mario-bros-1',
+                '1-super-mario-bros',
                 $response->headers->get('Location')
             );
         }
@@ -139,14 +139,14 @@ class HasSelfHealingUrlsTest extends TestCase
         $slug = $model->slug;
 
         // Assert
-        $this->assertEquals('usa-europe-1', $slug);
+        $this->assertEquals('1-usa-europe', $slug);
     }
 
     public function testItReturnsModelForCorrectSlug(): void
     {
         // Arrange
         $model = $this->createTestModel('Super Mario Bros.', 1);
-        $expectedSlug = 'super-mario-bros-1';
+        $expectedSlug = '1-super-mario-bros';
 
         // Act
         $resolved = $model->resolveRouteBinding($expectedSlug);
@@ -164,7 +164,7 @@ class HasSelfHealingUrlsTest extends TestCase
         $routeKey = $model->getRouteKey();
 
         // Assert
-        $this->assertEquals('super-mario-bros-1', $routeKey);
+        $this->assertEquals('1-super-mario-bros', $routeKey);
     }
 
     public function testItResolvesDeeplyNestedUrls(): void
@@ -183,7 +183,7 @@ class HasSelfHealingUrlsTest extends TestCase
             $this->assertEquals(302, $response->getStatusCode());
 
             $this->assertStringContainsString(
-                '/games/super-mario-bros-1/achievements/create',
+                '/games/1-super-mario-bros/achievements/create',
                 $response->headers->get('Location')
             );
         }

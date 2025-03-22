@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBeatenGamesStatsUpdated;
+use Illuminate\Support\Collection;
 
 class UpdatePlayerBeatenGamesStatsAction
 {
@@ -24,6 +25,9 @@ class UpdatePlayerBeatenGamesStatsAction
 
             return;
         }
+
+        // Get existing stats to ensure we maintain entries for all previously tracked systems.
+        $existingStats = PlayerStat::where('user_id', $user->id)->get();
 
         $playerBeatenHardcoreGames = $user
             ->playerBadges()
@@ -54,24 +58,40 @@ class UpdatePlayerBeatenGamesStatsAction
             ];
         });
 
-        $aggregatedPlayerStatValues = $this->calculateAggregatedGameBeatenHardcoreStatValues($playerBeatenHardcoreGames);
-        $this->upsertAllPlayerStats($user, $aggregatedPlayerStatValues);
+        $aggregatedPlayerStatValues = $this->calculateAggregatedGameBeatenHardcoreStatValues($playerBeatenHardcoreGames, $existingStats);
+        $this->upsertAllPlayerStats($user, $aggregatedPlayerStatValues, $existingStats);
     }
 
-    private function calculateAggregatedGameBeatenHardcoreStatValues(mixed $playerBeatenHardcoreGames): array
-    {
-        // We'll hold overall and per-console stat values.
-        // type => [value, most recent hardcore beaten game id, beaten at timestamp]
-        $statValues = [
-            'overall' => [
+    /**
+     * @param Collection<int, PlayerStat> $existingStats
+     */
+    private function calculateAggregatedGameBeatenHardcoreStatValues(
+        mixed $playerBeatenHardcoreGames,
+        Collection $existingStats,
+    ): array {
+        $getInitializedStats = function () {
+            return [
                 PlayerStatType::GamesBeatenHardcoreDemos => [0, null, null],
                 PlayerStatType::GamesBeatenHardcoreHacks => [0, null, null],
                 PlayerStatType::GamesBeatenHardcoreHomebrew => [0, null, null],
                 PlayerStatType::GamesBeatenHardcorePrototypes => [0, null, null],
                 PlayerStatType::GamesBeatenHardcoreRetail => [0, null, null],
                 PlayerStatType::GamesBeatenHardcoreUnlicensed => [0, null, null],
-            ],
+            ];
+        };
+
+        // We'll hold overall and per-console stat values.
+        // type => [value, most recent hardcore beaten game id, beaten at timestamp]
+        $statValues = [
+            'overall' => $getInitializedStats(),
         ];
+
+        // Initialize entries for all systems that previously had stats.
+        foreach ($existingStats as $stat) {
+            if ($stat->system_id !== null && !isset($statValues[$stat->system_id])) {
+                $statValues[$stat->system_id] = $getInitializedStats();
+            }
+        }
 
         $gameKindToStatType = [
             'demo' => PlayerStatType::GamesBeatenHardcoreDemos,
@@ -94,14 +114,7 @@ class UpdatePlayerBeatenGamesStatsAction
 
             // Ensure there's an array entry for the console aggregates.
             if (!isset($statValues[$gameConsoleId])) {
-                $statValues[$gameConsoleId] = [
-                    PlayerStatType::GamesBeatenHardcoreDemos => [0, null, null],
-                    PlayerStatType::GamesBeatenHardcoreHacks => [0, null, null],
-                    PlayerStatType::GamesBeatenHardcoreHomebrew => [0, null, null],
-                    PlayerStatType::GamesBeatenHardcorePrototypes => [0, null, null],
-                    PlayerStatType::GamesBeatenHardcoreRetail => [0, null, null],
-                    PlayerStatType::GamesBeatenHardcoreUnlicensed => [0, null, null],
-                ];
+                $statValues[$gameConsoleId] = $getInitializedStats();
             }
 
             // Update the individual console aggregates.
@@ -144,9 +157,22 @@ class UpdatePlayerBeatenGamesStatsAction
         return 'retail';
     }
 
-    private function upsertAllPlayerStats(User $user, array $aggregatedPlayerStatValues): int
-    {
+    /**
+     * @param Collection<int, PlayerStat> $existingStats
+     */
+    private function upsertAllPlayerStats(
+        User $user,
+        array $aggregatedPlayerStatValues,
+        Collection $existingStats,
+    ): int {
         $updatedCount = 0;
+
+        // Create a map for quick lookups using system_id and type as the key.
+        $existingStatsMap = [];
+        foreach ($existingStats as $stat) {
+            $key = ($stat->system_id ?? 'overall') . '|' . $stat->type;
+            $existingStatsMap[$key] = true;
+        }
 
         // Loop through each console ID in the aggregated values (including 'overall').
         foreach ($aggregatedPlayerStatValues as $aggregateSystemId => $systemStats) {
@@ -158,7 +184,10 @@ class UpdatePlayerBeatenGamesStatsAction
                 // Extract the value and most recent game ID.
                 [$value, $lastGameId, $statUpdatedAt] = $values;
 
-                if ($value > 0) {
+                // Check if this stat combination exists in our map.
+                $key = ($systemId ?? 'overall') . '|' . $statType;
+
+                if ($value > 0 || isset($existingStatsMap[$key])) {
                     $this->upsertPlayerStat($user, $statType, $value, $systemId, $lastGameId, $statUpdatedAt);
                     $updatedCount++;
                 }

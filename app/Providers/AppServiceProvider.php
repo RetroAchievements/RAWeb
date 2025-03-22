@@ -86,8 +86,6 @@ class AppServiceProvider extends ServiceProvider
             'user' => User::class,
         ]);
 
-        User::disableSearchSyncing();
-
         /*
          * Register Support Livewire components
          */

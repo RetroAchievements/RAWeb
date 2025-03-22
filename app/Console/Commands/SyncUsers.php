@@ -32,7 +32,7 @@ class SyncUsers extends Command
      */
     public function handle(): void
     {
-        User::disableSearchSyncing();
+        // User::disableSearchSyncing();
 
         $this->sync('users');
     }

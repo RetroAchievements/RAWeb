@@ -8,6 +8,7 @@ use App\Enums\UserPreference;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
@@ -37,7 +38,11 @@ function submitNewTicketsJSON(
     }
 
     $note = $noteIn;
-    $note .= "\nRetroAchievements Hash: $RAHash";
+
+    $gameHash = GameHash::where('md5', '=', $RAHash)->first();
+    if (!$gameHash) {
+        $note .= "\nRetroAchievements Hash: $RAHash";
+    }
 
     $achievementIDs = explode(',', $idsCSV);
 
@@ -65,6 +70,10 @@ function submitNewTicketsJSON(
         if ($ticketID === 0) {
             $errorsEncountered = true;
         } else {
+            if ($gameHash) {
+                Ticket::where('id', $ticketID)->update(['game_hash_id' => $gameHash->id]);
+            }
+
             $idsAdded++;
         }
     }
@@ -192,8 +201,8 @@ function getExistingTicketID(User $user, int $achievementID): int
 function getTicket(int $ticketID): ?array
 {
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.type AS AchievementType, ach.Points, ach.BadgeName,
-                COALESCE(ua3.display_name, ua3.User) AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
-                tick.ReportedAt, tick.ReportType, tick.ReportState, tick.Hardcore, tick.ReportNotes, COALESCE(ua.display_name, ua.User) AS ReportedBy, tick.ResolvedAt, COALESCE(ua2.display_name, ua2.User) AS ResolvedBy
+                COALESCE(ua3.display_name, ua3.User) AS AchievementAuthor, ua3.ulid AS AchievementAuthorULID, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
+                tick.ReportedAt, tick.ReportType, tick.ReportState, tick.Hardcore, tick.ReportNotes, COALESCE(ua.display_name, ua.User) AS ReportedBy, ua.ulid AS ReportedByULID, tick.ResolvedAt, COALESCE(ua2.display_name, ua2.User) AS ResolvedBy, ua2.ulid AS ResolvedByULID
               FROM Ticket AS tick
               LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID

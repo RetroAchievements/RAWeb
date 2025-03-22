@@ -16,6 +16,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\GameListProgressFilterValue;
+use App\Platform\Enums\GameListSetTypeFilterValue;
 use App\Platform\Enums\GameListSortField;
 use App\Platform\Enums\GameListType;
 use App\Platform\Enums\UnlockMode;
@@ -79,9 +80,7 @@ trait BuildsGameListQueries
                     ->pluck('ID')
                     ->all();
 
-                $query
-                    ->whereIn('GameData.ConsoleID', $validSystemIds)
-                    ->where('GameData.Title', 'not like', "%[Subset -%");
+                $query->whereIn('GameData.ConsoleID', $validSystemIds);
                 break;
 
             case GameListType::Hub:
@@ -149,6 +148,19 @@ trait BuildsGameListQueries
                 $query->whereHas('system', function (Builder $query) use ($filterValues) {
                     $query->whereIn('ID', $filterValues);
                 });
+                continue;
+            }
+
+            /*
+             * only show games based on whether they are "subset games"
+             */
+            if ($filterKey === 'subsets') {
+                if ($filterValues[0] === GameListSetTypeFilterValue::OnlyGames->value) {
+                    $query->where('GameData.Title', 'not like', '%[Subset -%');
+                }
+                if ($filterValues[0] === GameListSetTypeFilterValue::OnlySubsets->value) {
+                    $query->where('GameData.Title', 'like', '%[Subset -%');
+                }
                 continue;
             }
 
