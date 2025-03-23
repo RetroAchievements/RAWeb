@@ -3,7 +3,7 @@
 @endphp
 
 <x-mail::message>
-Hello, {{ $user->display_name }},
+Hello {{ $user->display_name }},
 
 Your account has been marked for deletion.
 
