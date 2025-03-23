@@ -36,6 +36,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       useAchievementDistributionChart({
         buckets: mockBuckets,
         playerGame: mockPlayerGame,
+        variant: 'game',
       }),
     );
 
@@ -56,6 +57,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       useAchievementDistributionChart({
         buckets: mockBuckets,
         playerGame: mockPlayerGame,
+        variant: 'game',
       }),
     );
 
@@ -85,6 +87,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       useAchievementDistributionChart({
         buckets: mockBuckets,
         playerGame: mockPlayerGame,
+        variant: 'game',
       }),
     );
 
@@ -105,6 +108,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       useAchievementDistributionChart({
         buckets: mockBuckets,
         playerGame: mockPlayerGame,
+        variant: 'game',
       }),
     );
 
@@ -121,6 +125,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       useAchievementDistributionChart({
         buckets: mockBuckets,
         playerGame: null,
+        variant: 'game',
       }),
     );
 
@@ -141,6 +146,7 @@ describe('Hook: useAchievementDistributionChart', () => {
       useAchievementDistributionChart({
         buckets: mockBuckets,
         playerGame: mockPlayerGame,
+        variant: 'game',
       }),
     );
 
@@ -162,6 +168,7 @@ describe('Hook: useAchievementDistributionChart', () => {
         useAchievementDistributionChart({
           buckets: mockBuckets,
           playerGame: mockPlayerGame,
+          variant: 'game',
         }),
       );
 
@@ -190,6 +197,7 @@ describe('Hook: useAchievementDistributionChart', () => {
         useAchievementDistributionChart({
           buckets: mockBuckets,
           playerGame: mockPlayerGame,
+          variant: 'game',
         }),
       );
 
@@ -212,6 +220,7 @@ describe('Hook: useAchievementDistributionChart', () => {
         useAchievementDistributionChart({
           buckets: mockBuckets,
           playerGame: mockPlayerGame,
+          variant: 'game',
         }),
       );
 
@@ -226,6 +235,34 @@ describe('Hook: useAchievementDistributionChart', () => {
 
       // ASSERT
       expect(label).toEqual('Earned 5 achievements');
+    });
+
+    it('given the variant is "event", does not delineate between hardcore and softcore in the labels', () => {
+      // ARRANGE
+      const mockPlayerGame = createPlayerGame({
+        achievementsUnlocked: 25,
+        achievementsUnlockedHardcore: 25,
+      });
+
+      const { result } = renderHook(() =>
+        useAchievementDistributionChart({
+          buckets: mockBuckets,
+          playerGame: mockPlayerGame,
+          variant: 'event',
+        }),
+      );
+
+      // ASSERT
+      expect(result.current.chartConfig).toEqual({
+        softcore: {
+          label: 'Softcore Players', // this is still here, but invisible
+          color: '#737373',
+        },
+        hardcore: {
+          label: 'Players',
+          color: '#cc9900',
+        },
+      });
     });
   });
 
@@ -242,6 +279,7 @@ describe('Hook: useAchievementDistributionChart', () => {
         useAchievementDistributionChart({
           buckets: mockBuckets,
           playerGame: mockPlayerGame,
+          variant: 'game',
         }),
       );
 

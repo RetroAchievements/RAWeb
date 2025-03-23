@@ -9,15 +9,22 @@ import { getUserBucketIndexes } from './getUserBucketIndexes';
 interface UseAchievementDistributionChartProps {
   buckets: App.Platform.Data.PlayerAchievementChartBucket[];
   playerGame: App.Platform.Data.PlayerGame | null;
+  variant: 'game' | 'event';
 }
 
 export function useAchievementDistributionChart({
   buckets,
   playerGame,
+  variant,
 }: UseAchievementDistributionChartProps) {
   const { t } = useTranslation();
 
   const { formatNumber } = useFormatNumber();
+
+  let hardcoreLabel = t('Hardcore Players');
+  if (variant === 'event') {
+    hardcoreLabel = t('Players');
+  }
 
   const chartConfig = {
     softcore: {
@@ -25,7 +32,7 @@ export function useAchievementDistributionChart({
       color: '#737373',
     },
     hardcore: {
-      label: t('Hardcore Players'),
+      label: hardcoreLabel,
       color: '#cc9900',
     },
   } satisfies BaseChartConfig;
