@@ -144,7 +144,7 @@ class GameListRequest extends FormRequest
     public function getFilters(
         string $defaultAchievementsPublishedFilter = 'has',
         ?int $targetSystemId = null,
-        ?GameListSetTypeFilterValue $defaultSubsetFilter = GameListSetTypeFilterValue::Both,
+        ?GameListSetTypeFilterValue $defaultSubsetFilter = null,
     ): array {
         $filters = [];
 
