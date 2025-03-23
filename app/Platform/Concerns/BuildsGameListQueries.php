@@ -405,8 +405,8 @@ trait BuildsGameListQueries
      */
     private function applyAchievementsPublishedFilter(Builder $query, array $filterValues): void
     {
-        // Bail early if necessary. If the user gives both options, it's the "either" case.
-        if (empty($filterValues) || count($filterValues) === 2) {
+        // Bail early if necessary.
+        if (empty($filterValues)) {
             return;
         }
 
