@@ -134,6 +134,7 @@ $menu = collect([
                     <span class="sr-only">Patreon</span>
                 </a>
             @endif
+
             @if(config('services.discord.invite_id'))
                 <a href="https://discord.gg/{{ config('services.discord.invite_id') }}"
                    data-toggle="tooltip" title="Join us on Discord" rel="noopener">
@@ -141,6 +142,7 @@ $menu = collect([
                     <span class="sr-only">Discord</span>
                 </a>
             @endif
+
             @if(config('services.github.organisation'))
                 <a href="https://github.com/{{ config('services.github.organisation') }}"
                    data-toggle="tooltip" title="Contribute on GitHub" rel="noopener">
@@ -148,21 +150,24 @@ $menu = collect([
                     <span class="sr-only">GitHub</span>
                 </a>
             @endif
-            @if(config('services.twitch.channel'))
+
+            {{-- @if(config('services.twitch.channel'))
                 <a href="https://twitch.tv/{{ config('services.twitch.channel') }}"
                    data-toggle="tooltip" title="Follow us on Twitch" rel="noopener">
                     <x-fab-twitch/>
                     <span class="sr-only">Twitch</span>
                 </a>
-            @endif
-            @if(config('services.facebook.channel'))
+            @endif --}}
+
+            {{-- @if(config('services.facebook.channel'))
                 <a href="https://facebook.com/{{ config('services.facebook.channel') }}/"
                    data-toggle="tooltip" title="Follow us on Facebook" rel="noopener">
                     <x-fab-facebook/>
                     <span class="sr-only">Facebook</span>
                 </a>
-            @endif
-            @if(config('services.threads.channel'))
+            @endif --}}
+
+            {{-- @if(config('services.threads.channel'))
                 <a
                     href="{{ 'https://threads.net/@' . config('services.threads.channel') }}"
                     data-toggle="tooltip"
@@ -172,15 +177,27 @@ $menu = collect([
                     <x-fab-threads />
                     <span class="sr-only">Threads</span>
                 </a>
+            @endif --}}
+
+            @if(config('services.twitter.channel'))
+                <a href="https://twitter.com/{{ config('services.twitter.channel') }}"
+                   data-toggle="tooltip" title="Follow us on X" rel="noopener">
+                    <x-fab-x-twitter />
+                    <span class="sr-only">X</span>
+                </a>
             @endif
 
-            {{-- @if(config('services.twitter.channel'))
-                <a href="https://twitter.com/{{ config('services.twitter.channel') }}"
-                   data-toggle="tooltip" title="Follow us on Twitter" rel="noopener">
-                    <x-fab-twitter/>
-                    <span class="sr-only">Twitter</span>
+            @if(config('services.bluesky.channel'))
+                <a
+                    href="https://bsky.app/profile/{{ config('services.bluesky.channel') }}"
+                    data-toggle="tooltip"
+                    title="Follow us on Bluesky"
+                    rel="noopener"
+                >
+                    <x-fab-bluesky />
+                    <span class="sr-only">Bluesky</span>
                 </a>
-            @endif --}}
+            @endif
             
             @if(config('services.reddit.channel'))
                 <a href="https://reddit.com/r/{{ config('services.reddit.channel') }}"
@@ -189,7 +206,7 @@ $menu = collect([
                     <span class="sr-only">Reddit</span>
                 </a>
             @endif
-            {{--<a href="{{ route('rss.index') }}"--}}
+
             <a href="{{ route('rss.index') }}"
                data-toggle="tooltip" title="RSS Feeds">
                 <x-fas-rss/>

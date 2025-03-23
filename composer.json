@@ -42,7 +42,7 @@
         "matomo/device-detector": "^6.0",
         "nesbot/carbon": "^2.72.2",
         "opcodesio/log-viewer": "^3.1",
-        "owenvoke/blade-fontawesome": "^2.0",
+        "owenvoke/blade-fontawesome": "^2.9",
         "sentry/sentry-laravel": "^4.13",
         "socialiteproviders/discord": "^4.1",
         "socialiteproviders/patreon": "^5.0",
