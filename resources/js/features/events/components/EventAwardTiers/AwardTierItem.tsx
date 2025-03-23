@@ -15,9 +15,10 @@ import { cleanEventAwardLabel } from '../../utils/cleanEventAwardLabel';
 interface AwardTierItemProps {
   event: App.Platform.Data.Event;
   eventAward: App.Platform.Data.EventAward;
+  hasVirtualTier: boolean;
 }
 
-export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward }) => {
+export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVirtualTier }) => {
   const { t } = useTranslation();
 
   const earnersMessage = useEarnersMessage(!!eventAward.earnedAt, eventAward.badgeCount!);
@@ -55,18 +56,25 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward }) => 
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <p className="flex gap-2 text-xs font-medium">{cleanedAwardLabel}</p>
-              <span className="whitespace-nowrap rounded bg-white/5 px-1.5 text-2xs text-neutral-400 light:bg-neutral-100 light:text-neutral-600">
-                {t(
-                  areAllAchievementsOnePoint
-                    ? '{{val, number}} achievements'
-                    : '{{val, number}} points',
-                  {
-                    val: eventAward.pointsRequired,
-                    count: eventAward.pointsRequired,
-                  },
-                )}
-              </span>
+              {!hasVirtualTier ? (
+                <>
+                  <p data-testid="award-tier-label" className="flex gap-2 text-xs font-medium">
+                    {cleanedAwardLabel}
+                  </p>
+
+                  <span className="whitespace-nowrap rounded bg-white/5 px-1.5 text-2xs text-neutral-400 light:bg-neutral-100 light:text-neutral-600">
+                    {t(
+                      areAllAchievementsOnePoint
+                        ? '{{val, number}} achievements'
+                        : '{{val, number}} points',
+                      {
+                        val: eventAward.pointsRequired,
+                        count: eventAward.pointsRequired,
+                      },
+                    )}
+                  </span>
+                </>
+              ) : null}
             </div>
 
             <p className="text-2xs text-neutral-500">{earnersMessage}</p>

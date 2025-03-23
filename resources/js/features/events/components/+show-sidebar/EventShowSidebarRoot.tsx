@@ -27,13 +27,17 @@ export const EventShowSidebarRoot: FC = () => {
       <BoxArtImage event={event} />
       <EventSidebarFullWidthButtons event={event} />
       <EventProgress event={event} playerGame={playerGame} />
-      <EventAwardTiers event={event} />
+      <EventAwardTiers event={event} numMasters={numMasters} />
       <HubsList hubs={hubs} />
       <CompareProgress
         followedPlayerCompletions={followedPlayerCompletions}
         game={event.legacyGame!}
       />
-      <AchievementDistribution buckets={playerAchievementChartBuckets} playerGame={playerGame} />
+      <AchievementDistribution
+        buckets={playerAchievementChartBuckets}
+        playerGame={playerGame}
+        variant="event"
+      />
       <TopEventPlayers event={event} numMasters={numMasters} players={topAchievers} />
     </div>
   );

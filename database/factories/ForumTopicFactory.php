@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\Forum;
 use App\Models\ForumTopic;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -25,6 +26,7 @@ class ForumTopicFactory extends Factory
         return [
             'title' => ucwords(fake()->words(2, true)),
             'author_id' => $user->id,
+            'forum_id' => Forum::factory(),
         ];
     }
 }

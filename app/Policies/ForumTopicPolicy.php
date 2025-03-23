@@ -17,6 +17,7 @@ class ForumTopicPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
             Role::MODERATOR,
             Role::FORUM_MANAGER,
         ]);
@@ -29,9 +30,17 @@ class ForumTopicPolicy
 
     public function view(?User $user, ForumTopic $topic): bool
     {
-        /*
-         * TODO: check forum restrictions
-         */
+        if (!$user && $topic->required_permissions > 0) {
+            return false;
+        }
+
+        if ($user && $topic->required_permissions > 0) {
+            $userPermissions = (int) $user->getAttribute('Permissions');
+            if ($userPermissions < $topic->required_permissions) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -73,5 +82,10 @@ class ForumTopicPolicy
     public function forceDelete(User $user, ForumTopic $topic): bool
     {
         return false;
+    }
+
+    public function gate(User $user, ForumTopic $topic): bool
+    {
+        return $this->manage($user);
     }
 }

@@ -17,7 +17,7 @@ interface AchievementSetProps {
   /**
    * Wherever possible, map stuff onto `achievement`.
    * The less smart this component is, the easier it'll be to maintain long-term.
-   * Only pick unique fields from this prop, such as `activeUntil`.
+   * Only pick unique fields from this prop, such as `activeThrough`.
    */
   eventAchievements?: App.Platform.Data.EventAchievement[];
 }

@@ -19,6 +19,7 @@ class EventAchievementData extends Data
         public Lazy|AchievementData|null $sourceAchievement,
         public Lazy|EventData $event,
         public Lazy|Carbon $activeFrom,
+        public Lazy|Carbon $activeThrough,
         public Lazy|Carbon $activeUntil,
         public bool $isObfuscated = false,
     ) {
@@ -62,6 +63,7 @@ class EventAchievementData extends Data
                 sourceAchievement: Lazy::create(fn () => null), // Force sourceAchievement to be null
                 event: Lazy::create(fn () => EventData::fromEvent($eventAchievement->event)),
                 activeFrom: Lazy::create(fn () => $eventAchievement->active_from),
+                activeThrough: Lazy::create(fn () => $eventAchievement->active_through),
                 activeUntil: Lazy::create(fn () => $eventAchievement->active_until),
                 isObfuscated: true,
             );
@@ -78,6 +80,7 @@ class EventAchievementData extends Data
             ),
             event: Lazy::create(fn () => EventData::fromEvent($eventAchievement->event)),
             activeFrom: Lazy::create(fn () => $eventAchievement->active_from),
+            activeThrough: Lazy::create(fn () => $eventAchievement->active_through),
             activeUntil: Lazy::create(fn () => $eventAchievement->active_until),
             isObfuscated: false,
         );

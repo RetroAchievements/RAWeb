@@ -215,4 +215,14 @@ describe('Component: ShortcodeRenderer', () => {
     // ASSERT
     expect(screen.getByTestId('video-embed')).toBeVisible();
   });
+
+  it('given a body with a text tag, displays the text content', () => {
+    // ARRANGE
+    const body = '[text]{ach=}[/text]';
+
+    render(<ShortcodeRenderer body={body} />);
+
+    // ASSERT
+    expect(screen.getByText('[ach=]')).toBeVisible();
+  });
 });

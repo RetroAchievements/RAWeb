@@ -9,7 +9,6 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 #[TypeScript]
 enum GameListSetTypeFilterValue: string
 {
-    case Both = 'both';
     case OnlyGames = 'only-games';
     case OnlySubsets = 'only-subsets';
 }
