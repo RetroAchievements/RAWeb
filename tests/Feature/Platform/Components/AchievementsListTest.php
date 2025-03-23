@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Tests\Feature\Platform\Components;
+
 use App\Models\Achievement;
 use App\Models\User;
 use App\Platform\Enums\AchievementType;

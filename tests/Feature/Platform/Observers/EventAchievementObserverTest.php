@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Platform\Action;
+namespace Tests\Feature\Platform\Observers;
 
 use App\Models\Achievement;
 use App\Models\EventAchievement;

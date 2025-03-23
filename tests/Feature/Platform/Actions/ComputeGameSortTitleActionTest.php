@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Platform\Action;
+namespace Tests\Feature\Platform\Actions;
 
 use App\Platform\Actions\ComputeGameSortTitleAction;
 use Tests\TestCase;

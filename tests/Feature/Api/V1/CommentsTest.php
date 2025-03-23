@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Tests\Feature\Api\V1;
+
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;

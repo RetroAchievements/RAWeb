@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Support\Routing;
+namespace Tests\Feature\Support\Routing;
 
 use App\Support\Routing\HasSelfHealingUrls;
 use Illuminate\Database\Eloquent\Model;
