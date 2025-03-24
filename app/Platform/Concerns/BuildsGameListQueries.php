@@ -152,6 +152,26 @@ trait BuildsGameListQueries
             }
 
             /*
+             * only show games based on their tags
+             */
+            if ($filterKey === 'game-type' && !empty($filterValues)) {
+                if (in_array('retail', $filterValues)) {
+                    // Only return untagged games.
+                    $query->whereNotExists(function ($subquery) {
+                        $subquery->select(DB::raw(1))
+                            ->from('tags')
+                            ->join('taggables', 'tags.id', '=', 'taggables.tag_id')
+                            ->whereColumn('taggables.taggable_id', 'GameData.ID')
+                            ->where('taggables.taggable_type', 'game')
+                            ->where('tags.type', 'game');
+                    });
+                } else {
+                    $query->withAnyTags($filterValues, 'game');
+                }
+                continue;
+            }
+
+            /*
              * only show games based on whether they are "subset games"
              */
             if ($filterKey === 'subsets') {
