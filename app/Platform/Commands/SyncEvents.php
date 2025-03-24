@@ -41,7 +41,7 @@ class SyncEvents extends Command
             // ===== 2017 =====
 
             1963 => new ConvertAprilFools('solar-jetman'),
-            //11128 => new ConvertAsIs('pumpkin-king-2017', '10/13/2017', '10/31/2017'),
+            11128 => new ConvertCollapse('pumpkin-king-2017', '10/13/2017', '10/31/2017'),
             11597 => new ConvertAsIs('christmas-2017', '12/1/2017', '1/7/2018'),
 
             // ===== 2018 =====
@@ -93,6 +93,7 @@ class SyncEvents extends Command
                 63183 => ['10/18/2019', '10/24/2019'],
                 32640 => ['10/25/2019', '10/31/2019'],
             ]),
+            3177 => new ConvertAsIs('leapfrog-allstars'),
             14400 => new ConvertCollapse('community-rescore', '7/14/2019', '7/28/2019'),
             14404 => new ConvertCollapse('retro-cleanup-2019', '3/1/2019', '3/31/2019'),
             1018 => new ConvertToSoftcoreTiered('devember-2019', 'Any points', '320 points'),
@@ -227,6 +228,7 @@ class SyncEvents extends Command
             862 => new ConvertCollapse('devquest-014'),
             809 => new ConvertAsIs('devquest-015'),
             8000 => new ConvertCollapseSoftcore('distractions-1', '30 points', '60 points'),
+            8001 => new ConvertCollapse('teles-april-fools'),
             18999 => new ConvertCollapse('quality-quest'),
             2962 => new ConvertCollapse('devquest-016'),
             19704 => new ConvertCollapse('rawr-2022'),
@@ -1141,6 +1143,8 @@ class ConvertCollapse extends ConvertGame
 
     protected function process(Command $command, Event $event): void
     {
+        $this->setAchievementCount($event, 1);
+
         $first = true;
         foreach ($event->legacyGame->achievements as $achievement) {
             if ($first && $achievement->Flags === AchievementFlag::OfficialCore->value) {
@@ -1998,6 +2002,9 @@ class ConvertToCollapsedTiered extends ConvertToTiered
         foreach (array_reverse($this->achievements) as $achievementId) {
             $gameId = $gameIds[$tier_index - 1];
             $userIds = PlayerAchievement::where('achievement_id', $achievementId)
+                ->whereHas('user', function ($query) {
+                    $query->where('Permissions', '>', '0'); // ignore banned users
+                })
                 ->pluck('user_id')->toArray();
             foreach ($userIds as $userId) {
                 $this->convertBadge($event, $gameId, $userId, $tier_index);
