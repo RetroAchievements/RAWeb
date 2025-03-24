@@ -26,7 +26,7 @@ export const ReportToDeveloperComplianceListItem: FC<ReportToDeveloperCompliance
 }) => {
   const { t } = useTranslation();
 
-  const destinationRoute = route('message.create', {
+  const destinationRoute = route('message-thread.create', {
     to: 'DevCompliance',
     ...buildStructuredMessage(achievement, 'unwelcome-concept'),
   });

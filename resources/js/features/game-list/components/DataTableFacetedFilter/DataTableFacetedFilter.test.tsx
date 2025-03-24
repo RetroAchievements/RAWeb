@@ -434,4 +434,41 @@ describe('Component: DataTableFacetedFilter', () => {
     // ASSERT
     expect(setFilterValueSpy).toHaveBeenCalledWith(['opt1']);
   });
+
+  it('given single select mode with multiple filter values, only keeps the first value in selectedValues', async () => {
+    // ARRANGE
+    const multipleValuesColumn = {
+      ...mockColumn,
+      getFilterValue: vi.fn().mockReturnValue(['opt1', 'opt2', 'opt3']), // !! multiple values
+    } as unknown as Column<any, any>;
+
+    render(
+      <DataTableFacetedFilter
+        options={mockOptions}
+        column={multipleValuesColumn}
+        t_title={'Test Filter' as TranslatedString}
+        isSingleSelect={true} // !!
+      />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /test filter/i }));
+
+    // ASSERT
+    const option1 = screen.getByRole('option', { name: /option 1/i });
+    const option2 = screen.getByRole('option', { name: /option 2/i });
+    const option3 = screen.getByRole('option', { name: /option 3/i });
+
+    expect(within(option1).getByTestId('filter-option-indicator')).toHaveClass('bg-neutral-700'); // !! selected
+
+    expect(within(option2).getByTestId('filter-option-indicator')).not.toHaveClass(
+      'bg-neutral-700',
+    ); // !! not selected
+    expect(within(option3).getByTestId('filter-option-indicator')).not.toHaveClass(
+      'bg-neutral-700',
+    ); // !! not selected
+
+    expect(screen.getAllByTestId('filter-selected-label')).toHaveLength(1);
+    expect(screen.getByTestId('filter-selected-label')).toHaveTextContent('Option 1');
+  });
 });
