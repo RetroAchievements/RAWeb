@@ -587,6 +587,7 @@ class SyncEvents extends Command
     }
 }
 
+// Base class - provides helper functions used by the individual converters below.
 class ConvertGame
 {
     protected string $slug;
@@ -1076,6 +1077,9 @@ class ConvertAsIs extends ConvertGame
     }
 }
 
+// No achievements for game (achievements were earnable, then demoted).
+// Don't create any tiers.
+// Softcore badges converted to hardcore.
 class ConvertAprilFools extends ConvertGame
 {
     public function __construct(string $slug, ?string $activeFrom = null, ?string $activeThrough = null, bool $noWinners = false)
@@ -1357,6 +1361,9 @@ class ConvertToTracked extends ConvertGame
     }
 }
 
+// Replace existing achievements with event achievements associated to unlock in a given date range
+// Create tiers from the multiple input games.
+// Badges awarded for each tier based on unlocks from individual tier thresholds.
 class ConvertToMergedTracked extends ConvertToTracked
 {
     protected array $achievements;
@@ -2064,6 +2071,10 @@ class ConvertToCollapsedTiered extends ConvertToTiered
     }
 }
 
+// Replace existing achievements with event achievements associated to unlock in a given date range
+//  Works like ConvertToTracked, but dates are automatically calculated.
+// Create tiers from the multiple input games.
+// Badges awarded for each tier based on unlocks from individual tier thresholds.
 class ConvertAotWTiered extends ConvertGame
 {
     protected array $tiers;
