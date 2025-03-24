@@ -36,7 +36,13 @@ export function MobileSetTypeFilterSelect<TData>({
 
   const selectedValues = virtualColumn.getFilterValue() as string[];
 
-  const handleValueChange = (value: App.Platform.Enums.GameListSetTypeFilterValue) => {
+  const handleValueChange = (value: App.Platform.Enums.GameListSetTypeFilterValue | 'null') => {
+    if (value === 'null') {
+      virtualColumn.setFilterValue(undefined);
+
+      return;
+    }
+
     virtualColumn.setFilterValue([value]);
   };
 
@@ -52,7 +58,7 @@ export function MobileSetTypeFilterSelect<TData>({
         </BaseSelectTrigger>
 
         <BaseSelectContent>
-          <BaseSelectItem value="both" data-testid="both-option">
+          <BaseSelectItem value="null" data-testid="all-sets-option">
             {t('All Sets')}
           </BaseSelectItem>
 

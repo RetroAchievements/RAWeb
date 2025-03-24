@@ -305,7 +305,9 @@ trait BuildsGameListQueries
                  * the game's count of tickets awaiting resolution
                  */
                 case GameListSortField::NumUnresolvedTickets->value:
-                    $query->orderBy('num_unresolved_tickets', $sortDirection);
+                    if ($user?->can('develop')) {
+                        $query->orderBy('num_unresolved_tickets', $sortDirection);
+                    }
                     break;
 
                 /*

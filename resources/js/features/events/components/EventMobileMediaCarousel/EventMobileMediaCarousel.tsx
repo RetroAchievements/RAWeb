@@ -16,7 +16,7 @@ export const EventMobileMediaCarousel: FC<EventMobileMediaCarouselProps> = ({
   imageTitleUrl,
 }) => {
   return (
-    <BaseCarousel>
+    <BaseCarousel className="bg-embed py-1.5">
       <BaseCarouselContent>
         <BaseCarouselItem className="basis-4/5">
           <img src={imageTitleUrl} />

@@ -128,7 +128,7 @@ class GameTopAchieversService
 
     public static function expireTopAchieversComponentData(int $gameId): void
     {
-        $cacheKey = "game:{$gameId}:top-achievers";
+        $cacheKey = "game:{$gameId}:top-achievers:v2";
         Cache::forget($cacheKey);
     }
 
