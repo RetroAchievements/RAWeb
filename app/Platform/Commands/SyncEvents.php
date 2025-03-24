@@ -20,6 +20,7 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -241,10 +242,6 @@ class SyncEvents extends Command
                 extraDay: true),
             3855 => new ConvertCollapse('aotw-2021-halloween', '10/3/2021', '11/6/2021'),
             3856 => new ConvertCollapse('aotw-2021-festive', '12/5/2021', '1/1/2022'),
-            // 6189 => new ConvertToTiered('lotm', [1 => '100 points', 2 => '200 points'], [
-            //     238014 => 'to_hardcore',
-            //     238015 => 'hardcore_only',
-            // ]),
             15942 => new ConvertCollapse('devquest-017'),
             7970 => new ConvertAsIs('devember-2022'),
             8032 => new ConvertCollapse('leapfrog'),
@@ -540,6 +537,7 @@ class SyncEvents extends Command
         }
         $progressBar = $this->output->createProgressBar($gameCount);
 
+        $before = [];
         foreach ($gameConversions as $gameId => $conversion) {
             if ($test) {
                 $before = $conversion->captureBefore($gameId);
@@ -597,7 +595,7 @@ class ConvertGame
     {
         $game = Game::find($gameId);
         if (!$game) {
-            $command->error("Game $gameID not found");
+            $command->error("Game $gameId not found");
 
             return;
         }
@@ -816,9 +814,9 @@ class ConvertGame
     }
 
     protected function createEventAchievement(Command $command, Achievement $achievement, ?int $sourceAchievementId = null,
-        ?Carbon $activeFrom = null, ?Carbon $activeThrough = null): EventAchievement
+        ?Carbon $activeFrom = null, ?Carbon $activeThrough = null): ?EventAchievement
     {
-        if ($sourceAchievementId && !Achievement::exists($sourceAchievementId)) {
+        if ($sourceAchievementId && !Achievement::where('ID', $sourceAchievementId)->exists()) {
             $command->error("Could not find source achievement: $sourceAchievementId");
 
             return null;
@@ -1088,6 +1086,7 @@ class ConvertAprilFools extends ConvertGame
         $this->slug = $slug;
         $this->activeFrom = $activeFrom;
         $this->activeThrough = $activeThrough;
+        $this->noWinners = $noWinners;
     }
 
     public function captureBefore(int $gameId): array
@@ -1323,6 +1322,7 @@ class ConvertToTracked extends ConvertGame
         $this->setAchievementCount($event, count($this->achievements));
 
         // convert achievements to event achievements
+        $eventAchievement = null;
         $index = 0;
         foreach ($this->achievements as $sourceAchievementId => $dates) {
             $achievement = $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->skip($index)->first();
@@ -1341,7 +1341,9 @@ class ConvertToTracked extends ConvertGame
             $index++;
         }
 
-        $event->active_until = $eventAchievement->active_until;
+        if ($eventAchievement) {
+            $event->active_until = $eventAchievement->active_until;
+        }
         $event->save();
 
         $this->updateMetrics($event);
@@ -1369,7 +1371,7 @@ class ConvertToMergedTracked extends ConvertToTracked
 {
     protected array $achievements;
 
-    public function __construct(string $slug, $title, array $tiers, array $achievements, array $bonusAchievements = [])
+    public function __construct(string $slug, string $title, array $tiers, array $achievements, array $bonusAchievements = [])
     {
         $this->slug = $slug;
         $this->title = $title;
@@ -1448,6 +1450,7 @@ class ConvertToMergedTracked extends ConvertToTracked
         }
 
         // convert achievements to event achievements
+        $eventAchievement = null;
         $index = 0;
         foreach ($this->achievements as $sourceAchievementId => $dates) {
             $achievement = $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->skip($index)->first();
@@ -1466,7 +1469,9 @@ class ConvertToMergedTracked extends ConvertToTracked
             $index++;
         }
 
-        $event->active_until = $eventAchievement->active_until;
+        if ($eventAchievement) {
+            $event->active_until = $eventAchievement->active_until;
+        }
 
         foreach ($this->bonusAchievements as $sourceAchievementId => $dates) {
             $achievement = $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->skip($index)->first();
@@ -1489,7 +1494,7 @@ class ConvertToMergedTracked extends ConvertToTracked
             $index++;
         }
 
-        if ($eventAchievement->activeUntil > $event->active_until) {
+        if ($eventAchievement && $eventAchievement->activeUntil > $event->active_until) {
             $event->active_until = $eventAchievement->active_until;
         }
 
@@ -1542,33 +1547,18 @@ class ConvertToTiered extends ConvertGame
         $allUserIds = [];
         $index = 1;
         foreach ($this->achievements as $achievementId => $users) {
-            if ($users === "hardcore_only") {
+            if ($users === "to_hardcore") {
                 $userIds = PlayerAchievement::where('achievement_id', $achievementId)
-                    ->whereNotNull('unlocked_hardcore_at')
                     ->pluck('user_id')->toArray();
-
-                // only update hardcore users - allUserIds may contain softcore users from to_hardcore tier
-                foreach ($userIds as $userId) {
-                    if (array_key_exists($userId, $before)) {
-                        $before[$userId]['AwardDataExtra'] = $before[$userId]['AwardDataExtra'] + 1;
-                    }
-                }
-
-                $allUserIds = array_merge($allUserIds, $userIds);
             } else {
-                if ($users === "to_hardcore") {
-                    $userIds = PlayerAchievement::where('achievement_id', $achievementId)
-                        ->pluck('user_id')->toArray();
-                } else {
-                    $userIds = User::whereIn('User', $users)->pluck('ID')->toArray();
-                }
+                $userIds = User::whereIn('User', $users)->pluck('ID')->toArray();
+            }
 
-                $allUserIds = array_merge($allUserIds, $userIds);
+            $allUserIds = array_merge($allUserIds, $userIds);
 
-                foreach ($allUserIds as $userId) {
-                    if (array_key_exists($userId, $before)) {
-                        $before[$userId]['AwardDataExtra'] = $before[$userId]['AwardDataExtra'] + 1;
-                    }
+            foreach ($allUserIds as $userId) {
+                if (array_key_exists($userId, $before)) {
+                    $before[$userId]['AwardDataExtra'] = $before[$userId]['AwardDataExtra'] + 1;
                 }
             }
 
@@ -1625,27 +1615,6 @@ class ConvertToTiered extends ConvertGame
             $tier_index++;
         }
 
-        // if a tier is hardcore_only, process it's badges now so the to_hardcore tier
-        // can convert all remaining badges.
-        $tier_index = count($tier_counts);
-        foreach ($this->achievements as $achievementId => $users) {
-            if ($users === 'hardcore_only') {
-                PlayerBadge::where('AwardType', AwardType::Mastery)
-                    ->where('AwardData', $event->legacyGame->id)
-                    ->where('AwardDataExtra', 1)
-                    ->update([
-                        'AwardType' => AwardType::Event,
-                        'AwardData' => $event->id,
-                        'AwardDataExtra' => $tier_index,
-                    ]);
-            }
-
-            // update tier_index if crossing a threshold
-            if ($tier_index > 0 && $tier_counts[$tier_index - 1] === $count) {
-                $tier_index--;
-            }
-        }
-
         // convert achievements to event achievements
         $tier_index = count($tier_counts);
         $count = count($this->achievements);
@@ -1661,12 +1630,7 @@ class ConvertToTiered extends ConvertGame
 
             $this->createEventAchievement($command, $achievement);
 
-            if ($users === 'hardcore_only') {
-                // delete any softcore unlocks at this tier
-                PlayerAchievement::where('achievement_id', $achievementId)
-                    ->whereNull('unlocked_hardcore_at')
-                    ->delete();
-            } elseif ($users === 'to_hardcore') {
+            if ($users === 'to_hardcore') {
                 // convert hardcore and softcore badge to tiered badge
                 PlayerBadge::where('AwardType', AwardType::Mastery)
                     ->where('AwardData', $event->legacyGame->id)
