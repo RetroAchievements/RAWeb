@@ -42,7 +42,7 @@ export const ReportIssueMainRoot: FC = memo(() => {
 
         <ReportIssueOptionItem
           t_buttonText={t('Report to QATeam')}
-          href={route('message.create', {
+          href={route('message-thread.create', {
             to: 'QATeam',
             ...buildStructuredMessage(achievement, 'misclassification'),
           })}
@@ -53,7 +53,7 @@ export const ReportIssueMainRoot: FC = memo(() => {
 
         <ReportIssueOptionItem
           t_buttonText={t('Report to WritingTeam')}
-          href={route('message.create', {
+          href={route('message-thread.create', {
             to: 'WritingTeam',
             ...buildStructuredMessage(achievement, 'writing-error'),
           })}
@@ -63,7 +63,7 @@ export const ReportIssueMainRoot: FC = memo(() => {
 
         <ReportIssueOptionItem
           t_buttonText={t('Message QATeam')}
-          href={route('message.create', {
+          href={route('message-thread.create', {
             to: 'QATeam',
             ...buildStructuredMessage(achievement, 'achievement-issue'),
           })}

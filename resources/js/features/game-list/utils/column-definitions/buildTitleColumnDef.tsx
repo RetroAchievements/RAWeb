@@ -48,7 +48,7 @@ export function buildTitleColumnDef<TEntry extends App.Platform.Data.GameListEnt
           className={cn(
             isSpaceConstrained
               ? 'min-w-[180px] max-w-[286px] xl:min-w-[286px]'
-              : 'min-w-[180px] max-w-[400px] xl:min-w-[370px]',
+              : 'min-w-[180px] max-w-[400px] xl:min-w-[320px]',
           )}
         >
           <GameAvatar
