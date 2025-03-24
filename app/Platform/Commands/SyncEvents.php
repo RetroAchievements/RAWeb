@@ -21,9 +21,7 @@ use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class SyncEvents extends Command
 {
@@ -142,7 +140,7 @@ class SyncEvents extends Command
             3904 => new ConvertAsIs('unwanted-gold', '07/15/2020'),
             15945 => new ConvertAsIs('unwanted-platinum', '07/15/2020', noWinners: true),
             5982 => new ConvertAsIs('challenge-league-2'),
-            //17076 => new ConvertAsIs('communiplay'),
+            // 17076 => new ConvertAsIs('communiplay'),
             17310 => new ConvertAsIs('devember-2020', '11/15/2020', '12/13/2020'),
             2785 => new ConvertToMergedTracked('tba-2020', 'The Big Achievement 2020',
                 [5 => 6005, 15 => 4076, 30 => 6872, 40 => 2785],
@@ -238,7 +236,7 @@ class SyncEvents extends Command
                 50441, 31586, 48543, 73980, 16869, 47172, 13566, 70089, 129974, 125937, 156172, 26519,
                 155612, 156253, 8306, 131820, 102129, 109418, 100414, 140885, 124425, 15569, 34402, 150781,
                 80943, 101418, 168388, 48648, 2811, 80125, 71178, 98638, 13072, 140047, 19595, 97397,
-                157177, 1344, 82308, 176857
+                157177, 1344, 82308, 176857,
             ], [[125205, 5959], 48511, 5825, 53312, 14905, 146742, 67230, 5561, 88350, 91715, 125572, 136669],
                 extraDay: true),
             3855 => new ConvertCollapse('aotw-2021-halloween', '10/3/2021', '11/6/2021'),
@@ -270,7 +268,7 @@ class SyncEvents extends Command
                 27089, 7071, 179974, 169496, 177842, 83357, 18523, 93571, 56752, 43874, 189217, 25036,
                 217350, 48117, 187270, 126929, 51865, 3078, 48615, 24684, 142853, 92424, 229835, 52861,
                 150395, 140379, 51502, 235444, 165062, 191610, 240391, 1, 1801, 113871, 49123, 146664,
-                234608, 261040, 225742, 28312
+                234608, 261040, 225742, 28312,
             ], [81716, 1004, 49219, 7738, 162456, [19377, 19381, 19379], 39537, 99991, 119231, 228082, 228878, 173962]),
             22095 => new ConvertCollapse('ps2-launch-bronze'),
             22096 => new ConvertCollapse('ps2-launch-silver'),
@@ -284,7 +282,7 @@ class SyncEvents extends Command
 
             // ===== backfill (done in 2022) =====
 
-            //15943 => new ConvertAsIs('aotw-2014'),
+            // 15943 => new ConvertAsIs('aotw-2014'),
             15943 => new ConvertToTracked('aotw-2014', [
                 1801 => ['2/10/2014', '2/17/2014'], // t=506
                 3542 => ['2/18/2014', '2/24/2014'], // t=547
@@ -443,7 +441,7 @@ class SyncEvents extends Command
                 109069, 22689, 18818, 58325, 1416, 54780, 95373, 173593, 51710, 23368,
                 96778, 295871, 301448, 5023, 104869, 157193, 211745, 280643, 252126, 188882,
                 327046, 262494, 7775, 36328, 184233, 316765, 59368, 110384, 8290, 179859,
-                143077, 178634, 25966, 181455, 62895, 363780, 16928, 78614, 303560, 22380, 80855
+                143077, 178634, 25966, 181455, 62895, 363780, 16928, 78614, 303560, 22380, 80855,
             ], [11801, 193270, 294591, 1854, [164510, 164493], 245538, 84366, 289915, [178231, 178230], 2100, 128471, 16955]),
             7948 => new ConvertToTracked('aotw-2023-fools', [
                 18818 => ['4/3/2023', '4/9/2023'],
@@ -502,7 +500,7 @@ class SyncEvents extends Command
                 309235, 234608, 183470, 307884, 262265, 95458, 175853, 1960, 87552, 412856,
                 320990, 370124, 187631, 293328, 442338, 129817, 126400, 260274, 396136, 4606,
                 133279, 398296, 363705, 382820, 187770, 91704, 7443, 99594, 234186, 230854,
-                239151, 211106
+                239151, 211106,
             ], [7778, 303930, 374310, 210777, 246894, 287681, 164878, 394827, 97955, 79938, 424098, 8577]),
             31769 => new ConvertCollapse('psp-excellence'),
             31770 => new ConvertCollapse('ps2-excellence'),
@@ -577,7 +575,7 @@ class SyncEvents extends Command
 
         $achievements = $game->achievements()->published()->orderBy('DisplayOrder')->get();
         foreach ($achievements as $achievement) {
-            $command->info(sprintf("  %6u %5u/%u %s", $achievement->ID,  $achievement->unlocks_hardcore_total, $game->players_hardcore, $achievement->Title));
+            $command->info(sprintf("  %6u %5u/%u %s", $achievement->ID, $achievement->unlocks_hardcore_total, $game->players_hardcore, $achievement->Title));
             if ($achievement->Points === 0) {
                 $command->error("No points on achievement {$achievement->ID}");
             } elseif ($achievement->unlocks_hardcore_total > $game->players_hardcore) {
@@ -668,6 +666,7 @@ class ConvertGame
         $result = true;
         if (empty($before) && !$this->noWinners) {
             $command->error("No badges expected. Previously converted?");
+
             return false;
         }
 
@@ -678,6 +677,7 @@ class ConvertGame
         $eventAchievementCount = $event->achievements()->count();
         if ($eventAchievementCount !== $achievementCount) {
             $command->error("But only $eventAchievementCount event achievements");
+
             return false;
         }
 
@@ -738,6 +738,7 @@ class ConvertGame
         foreach ($tierCounts as $tier => $count) {
             $command->info("  {$count}x Tier $tier");
         }
+
         return $result;
     }
 
@@ -884,7 +885,7 @@ class ConvertGame
         // create the event achievement
         $eventAchievement = EventAchievement::updateOrCreate([
             'achievement_id' => $achievement->id,
-        ],[
+        ], [
             'source_achievement_id' => $sourceAchievementId,
             'active_from' => $activeFrom,
             'active_through' => $activeThrough,
@@ -937,19 +938,19 @@ class ConvertGame
     protected function findUserMain(int $userId): int
     {
         // map alts to their main to prevent awarding badges to the alt
-        return match($userId) {
-            1836   => 107971, // Karth18 -> Klarth
-            15214  => 33487,  // Guidestatue -> Adenothe
-            27668  => 127681, // Auburn -> AuburnRDM
-            29221  => 17598,  // EricM -> ikki5
-            38793  => 4597,   // Matest -> matheus2653
-            61608  => 110753, // ryuk52109 -> WinglessShinigami
-            79770  => 45240,  // Hect0r -> Shmelyoff
-            82605  => 176207, // Waluigi -> GalacticSpear
-            88584  => 14863,  // ObiWanShinobi -> televandalist
-            89686  => 36549,  // GoldenSneer -> BenGhazi
-            98352  => 42326,  // deng -> Blazekickn
-            98863  => 13047,  // altearfly -> earfly
+        return match ($userId) {
+            1836 => 107971, // Karth18 -> Klarth
+            15214 => 33487,  // Guidestatue -> Adenothe
+            27668 => 127681, // Auburn -> AuburnRDM
+            29221 => 17598,  // EricM -> ikki5
+            38793 => 4597,   // Matest -> matheus2653
+            61608 => 110753, // ryuk52109 -> WinglessShinigami
+            79770 => 45240,  // Hect0r -> Shmelyoff
+            82605 => 176207, // Waluigi -> GalacticSpear
+            88584 => 14863,  // ObiWanShinobi -> televandalist
+            89686 => 36549,  // GoldenSneer -> BenGhazi
+            98352 => 42326,  // deng -> Blazekickn
+            98863 => 13047,  // altearfly -> earfly
             101569 => 49169,  // JoJos -> jos
             101615 => 58560,  // BraekAlt -> Braek
             107972 => 90230,  // jelatin -> jltn
@@ -1050,7 +1051,7 @@ class ConvertGame
             979687 => 381134, // austin83599 -> austin8259
             979791 => 763895, // converge -> scatter
             982346 => 204471, // CassetteCobraAlt -> CassetteCobra
-            1019869=> 3942,   // bonecrusher1023 -> bonecrusher1022
+            1019869 => 3942,   // bonecrusher1023 -> bonecrusher1022
             default => $userId,
         };
     }
@@ -1394,7 +1395,7 @@ class ConvertToMergedTracked extends ConvertToTracked
                 ];
             }
 
-            ++$tierIndex;
+            $tierIndex++;
         }
 
         return $before;
@@ -1571,7 +1572,7 @@ class ConvertToTiered extends ConvertGame
                 }
             }
 
-            ++$index;
+            $index++;
         }
 
         // convert to tiers
@@ -1637,7 +1638,7 @@ class ConvertToTiered extends ConvertGame
                         'AwardData' => $event->id,
                         'AwardDataExtra' => $tier_index,
                     ]);
-            } 
+            }
 
             // update tier_index if crossing a threshold
             if ($tier_index > 0 && $tier_counts[$tier_index - 1] === $count) {
@@ -1675,7 +1676,7 @@ class ConvertToTiered extends ConvertGame
                         'AwardDataExtra' => $tier_index,
                     ]);
 
-                // copy softcore unlock time to hardcore unlock time and 
+                // copy softcore unlock time to hardcore unlock time and
                 // update any softcore unlocks at this tier to hardcore
                 PlayerAchievement::where('achievement_id', $achievementId)
                     ->update(['unlocked_hardcore_at' => DB::raw('unlocked_at')]);
@@ -1861,7 +1862,7 @@ class ConvertToSoftcoreTiered extends ConvertGame
                                 'unlocker_id' => $playerAchievement->unlocker_id,
                                 'unlocked_at' => $playerAchievement->unlocked_at,
                                 'unlocked_hardcore_at' => $playerAchievement->unlocked_hardcore_at,
-                            ]);                            
+                            ]);
                         } else {
                             // convert any softcore unlocks for this achievement to hardcore unlocks for the Winner achievement
                             $playerAchievement->unlocked_hardcore_at = $playerAchievement->unlocked_at;
@@ -1929,7 +1930,7 @@ class ConvertToCollapsedTiered extends ConvertToTiered
                 ];
             }
 
-            ++$tierIndex;
+            $tierIndex++;
         }
 
         return $before;
@@ -2110,7 +2111,7 @@ class ConvertAotWTiered extends ConvertGame
                 ];
             }
 
-            ++$tierIndex;
+            $tierIndex++;
         }
 
         return $before;
