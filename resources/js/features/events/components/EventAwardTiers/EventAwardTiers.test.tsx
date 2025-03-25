@@ -89,7 +89,21 @@ describe('Component: EventAwardTiers', () => {
     expect(screen.getByText(/1,000 players have earned this/i)).toBeVisible();
   });
 
-  it('given there are no event awards and no event achievements, does not display a virtual award tier', () => {
+  it('given there are no event awards, no event achievements, and no masteries, does not display a virtual award tier', () => {
+    // ARRANGE
+    const event = createRaEvent({
+      legacyGame: createGame(),
+      eventAchievements: [], // !!
+      eventAwards: [], // !!
+    });
+
+    render(<EventAwardTiers event={event} numMasters={0} />);
+
+    // ASSERT
+    expect(screen.queryByText(/1,000 players have earned this/i)).not.toBeInTheDocument();
+  });
+
+  it('given there are no event awards, no event achievements, and masteries, displays a virtual award tier', () => {
     // ARRANGE
     const event = createRaEvent({
       legacyGame: createGame(),
@@ -100,7 +114,7 @@ describe('Component: EventAwardTiers', () => {
     render(<EventAwardTiers event={event} numMasters={1000} />);
 
     // ASSERT
-    expect(screen.queryByText(/1,000 players have earned this/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/1,000 players have earned this/i)).toBeVisible();
   });
 
   it('given we need to create a virtual award tier and some lazy properties are missing, does not crash', () => {
