@@ -91,6 +91,8 @@ $commentsQuery = Comment::withTrashed()
 
 if ($sortOrder == 1) {
     $commentsQuery->orderBy('Submitted', 'DESC');
+} else {
+    $commentsQuery->orderBy('Submitted', 'ASC');
 }
 
 $comments = $commentsQuery->get();

@@ -68,18 +68,21 @@ class CommentsTest extends TestCase
             'ArticleType' => 2,
             'user_id' => $user1->ID,
             'Payload' => 'This is a great achievement!',
+            'Submitted' => "2024-01-18T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
             'ArticleID' => $achievement->ID,
             'ArticleType' => 2,
             'user_id' => $user2->ID,
             'Payload' => 'I agree, this is awesome!',
+            'Submitted' => "2024-01-19T15:01:04.000000Z",
         ]);
         $comment3 = Comment::factory()->create([
             'ArticleID' => $achievement->ID,
             'ArticleType' => 2,
             'user_id' => $bannedUser->ID,
             'Payload' => 'This comment is from a banned user!',
+            'Submitted' => "2024-01-20T15:01:04.000000Z",
         ]);
 
         // Act
@@ -175,24 +178,28 @@ class CommentsTest extends TestCase
             'ArticleType' => 1,
             'user_id' => $user1->ID,
             'Payload' => 'This is a great achievement!',
+            'Submitted' => "2024-01-18T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
             'ArticleID' => $game->ID,
             'ArticleType' => 1,
             'user_id' => $user2->ID,
             'Payload' => 'I agree, this is awesome!',
+            'Submitted' => "2024-01-19T15:01:04.000000Z",
         ]);
         $comment3 = Comment::factory()->create([
             'ArticleID' => $game->ID,
             'ArticleType' => 2,
             'user_id' => $bannedUser->ID,
             'Payload' => 'This comment is from a banned user!',
+            'Submitted' => "2024-01-20T15:01:04.000000Z",
         ]);
         $deletedComment = Comment::factory()->create([
             'ArticleID' => $game->ID,
             'ArticleType' => 2,
             'user_id' => $user1->ID,
             'Payload' => 'This comment has been deleted!',
+            'Submitted' => "2024-01-21T15:01:04.000000Z",
             'deleted_at' => Carbon::now(),
         ]);
 
@@ -232,18 +239,21 @@ class CommentsTest extends TestCase
             'ArticleType' => 3,
             'user_id' => $user2->ID,
             'Payload' => 'This is my first comment.',
+            'Submitted' => "2024-01-18T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
             'ArticleID' => $user->ID,
             'ArticleType' => 3,
             'user_id' => $user2->ID,
             'Payload' => 'This is my second comment.',
+            'Submitted' => "2024-01-19T15:01:04.000000Z",
         ]);
         $comment3 = Comment::factory()->create([
             'ArticleID' => $user->ID,
             'ArticleType' => 2,
             'user_id' => $bannedUser->ID,
             'Payload' => 'This comment is from a banned user!',
+            'Submitted' => "2024-01-20T15:01:04.000000Z",
         ]);
 
         // Act
@@ -280,12 +290,14 @@ class CommentsTest extends TestCase
             'ArticleType' => 3,
             'user_id' => $user2->ID,
             'Payload' => 'This is my first comment.',
+            'Submitted' => "2024-01-18T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
             'ArticleID' => $user->ID,
             'ArticleType' => 3,
             'user_id' => $user2->ID,
             'Payload' => 'This is my second comment.',
+            'Submitted' => "2024-01-19T15:01:04.000000Z",
         ]);
 
         // Act
