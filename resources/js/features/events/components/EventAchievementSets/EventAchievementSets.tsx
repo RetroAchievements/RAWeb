@@ -1,4 +1,7 @@
 import { type FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { EmptyState } from '@/common/components/EmptyState';
 
 import type { AchievementSortOrder } from '../../models';
 import { AchievementSet } from '../AchievementSet';
@@ -13,13 +16,20 @@ interface EventAchievementSetsProps {
 }
 
 export const EventAchievementSets: FC<EventAchievementSetsProps> = ({ event }) => {
+  const { t } = useTranslation();
+
   const [currentSort, setCurrentSort] = useState<AchievementSortOrder>(
     event.state! === 'evergreen' ? 'displayOrder' : 'active',
   );
 
-  if (!event.eventAchievements) {
-    // TODO empty state
-    return null;
+  if (!event.eventAchievements?.length) {
+    return (
+      <div className="rounded bg-embed">
+        <EmptyState shouldShowImage={false}>
+          {t("There aren't any achievements for this event.")}
+        </EmptyState>
+      </div>
+    );
   }
 
   const achievements = mapEventAchievementsToAchievements(event.eventAchievements);
