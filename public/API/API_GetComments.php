@@ -15,7 +15,7 @@ use Illuminate\Validation\Rule;
 *    t : 1 = game, 2 = achievement, 3 = user
 *    o : offset - number of entries to skip (default: 0)
 *    c : count - number of entries to return (default: 100, max: 500)
-*    s : sortOrder - sort comments. 0 = ascending, 1 = descending (default: 0)
+*    s : sortOrder - sort comments. 'submitted' = ascending, '-submitted' = descending (default: 'submitted')
 *
 *  int         Count                       number of comment records returned in the response
 *  int         Total                       number of comment records the game/achievement/user actually has overall
@@ -32,6 +32,11 @@ $inputIsGameOrAchievement = function () use ($query) {
     return isset($query['i']) && is_numeric($query['i']) && intval($query['i']) == $query['i'];
 };
 
+$sortOptions = [
+    'submitted' => 'asc',
+    '-submitted' => 'desc',
+];
+
 $rules = [
     'i' => [
         'required',
@@ -44,14 +49,19 @@ $rules = [
     ],
     'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
     'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
-    's' => ['sometimes', 'integer', 'min:0', 'max:1', 'nullable'],
+    's' => [
+        'sometimes',
+        'string',
+        Rule::in(array_keys($sortOptions)),
+        'nullable',
+    ],
 ];
 
 $input = Validator::validate(Arr::wrap($query), $rules);
 
 $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 100;
-$sortOrder = $input['s'] ?? 0;
+$sortOrder = isset($input['s']) ? $input['s'] : 'submitted';
 
 $username = null;
 $gameOrAchievementId = 0;
@@ -89,11 +99,7 @@ $commentsQuery = Comment::withTrashed()
     ->offset($offset)
     ->limit($count);
 
-if ($sortOrder == 1) {
-    $commentsQuery->orderBy('Submitted', 'DESC');
-} else {
-    $commentsQuery->orderBy('Submitted', 'ASC');
-}
+$commentsQuery->orderBy('Submitted', $sortOptions[$sortOrder]);
 
 $comments = $commentsQuery->get();
 

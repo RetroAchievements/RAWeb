@@ -141,7 +141,7 @@ class CommentsTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get($this->apiUrl('GetComments', ['i' => $achievement->ID, 't' => 2, 's' => 1]))
+        $response = $this->get($this->apiUrl('GetComments', ['i' => $achievement->ID, 't' => 2, 's' => '-submitted']))
             ->assertSuccessful();
 
         // Assert
