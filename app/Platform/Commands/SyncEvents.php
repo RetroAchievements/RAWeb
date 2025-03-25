@@ -243,7 +243,7 @@ class SyncEvents extends Command
             3855 => new ConvertCollapse('aotw-2021-halloween', '10/3/2021', '11/6/2021'),
             3856 => new ConvertCollapse('aotw-2021-festive', '12/5/2021', '1/1/2022'),
             15942 => new ConvertCollapse('devquest-017'),
-            7970 => new ConvertAsIs('devember-2022'),
+            7970 => new ConvertToSoftcoreTiered('devember-2022', '100 points', '150 points'),
             8032 => new ConvertCollapse('leapfrog'),
             7938 => new ConvertCollapse('leapfrog-2'),
             7980 => new ConvertCollapse('leapfrog-ex'),
@@ -541,8 +541,9 @@ class SyncEvents extends Command
         foreach ($gameConversions as $gameId => $conversion) {
             if ($test) {
                 $before = $conversion->captureBefore($gameId);
-                DB::beginTransaction();
             }
+
+            DB::beginTransaction();
 
             try {
                 $conversion->convert($this, $gameId);
@@ -550,11 +551,12 @@ class SyncEvents extends Command
                 if ($test) {
                     $this->dumpConverted($this, $gameId);
                     $conversion->validate($this, $gameId, $before);
+                    DB::rollBack();
+                } else {
+                    DB::commit();
                 }
             } catch (Exception $e) {
-            }
-
-            if ($test) {
+                $this->error($e->getMessage());
                 DB::rollBack();
             }
 
@@ -576,6 +578,9 @@ class SyncEvents extends Command
             $command->info(sprintf("  %6u %5u/%u %s", $achievement->ID, $achievement->unlocks_hardcore_total, $game->players_hardcore, $achievement->Title));
             if ($achievement->Points === 0) {
                 $command->error("No points on achievement {$achievement->ID}");
+            } elseif ($achievement->unlocks_total > $achievement->unlocks_hardcore_total) {
+                $softcoreUnlocks = $achievement->unlocks_total - $achievement->unlocks_hardcore_total;
+                $command->error("$softcoreUnlocks softcore unlocks on {$achievement->ID}");
             } elseif ($achievement->unlocks_hardcore_total > $game->players_hardcore) {
                 $command->error("Too many achievements awarded for {$achievement->ID}");
             }
