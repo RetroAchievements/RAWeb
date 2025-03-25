@@ -73,7 +73,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
         Game::factory()->create(['ID' => 1, 'Title' => 'Sonic the Hedgehog 3']);
 
         // Act
-        $result = $this->action->execute('game/sonic-the-hedgehog-3-1', [], $this->defaultProps);
+        $result = $this->action->execute('game/1-sonic-the-hedgehog-3', [], $this->defaultProps);
 
         // Assert
         $this->assertEquals('/game/_PARAM_', $result['redactedUrl']);
@@ -130,7 +130,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
         Achievement::factory()->create(['ID' => 15, 'Title' => "Don't Get Lost"]);
 
         // Act
-        $result = $this->action->execute('achievement/dont-get-lost-15', [], $this->defaultProps);
+        $result = $this->action->execute('achievement/15-dont-get-lost', [], $this->defaultProps);
 
         // Assert
         $this->assertEquals('/achievement/_PARAM_', $result['redactedUrl']);
@@ -185,7 +185,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
         System::factory()->create(['ID' => 1, 'Name' => 'Game Boy']);
 
         // Act
-        $result = $this->action->execute('system/game-boy-1', [], $this->defaultProps);
+        $result = $this->action->execute('system/1-game-boy', [], $this->defaultProps);
 
         // Assert
         $this->assertEquals('/system/_PARAM_', $result['redactedUrl']);
@@ -223,7 +223,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
         GameSet::factory()->create(['id' => 2, 'type' => GameSetType::Hub, 'title' => '[Central - Genre & Subgenre]']);
 
         // Act
-        $result = $this->action->execute('hub/central-genre-subgenre-2', [], $this->defaultProps);
+        $result = $this->action->execute('hub/2-central-genre-subgenre', [], $this->defaultProps);
 
         // Assert
         $this->assertEquals('/hub/_PARAM_', $result['redactedUrl']);

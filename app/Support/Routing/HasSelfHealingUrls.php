@@ -18,7 +18,7 @@ trait HasSelfHealingUrls
      */
     protected function getSlugSourceField(): string
     {
-        return 'title';  // Default value
+        return 'title'; // Default value.
     }
 
     /**
@@ -31,6 +31,32 @@ trait HasSelfHealingUrls
         return $this->slug;
     }
 
+    /**
+     * Handles redirection to the correct URL based on the model and current path.
+     *
+     * @param string $incorrectValue the incorrect value from the URL
+     * @param self $model the model instance with the correct slug
+     */
+    protected function redirectToCorrectUrl(string $incorrectValue, $model): never
+    {
+        $currentPath = request()->server->get('REQUEST_URI', '/');
+
+        // Handle nested paths (ie: "/system/1/games").
+        if (str_contains($currentPath, '/' . $incorrectValue . '/')) {
+            // Preserve the path structure but replace the incorrect value with the slug
+            $redirectPath = str_replace('/' . $incorrectValue . '/', '/' . $model->slug . '/', $currentPath);
+            throw new HttpResponseException(Redirect::to($redirectPath));
+        }
+
+        // Handle direct paths ending with the incorrect value (ie: "/system/1").
+        if (str_ends_with($currentPath, '/' . $incorrectValue)) {
+            $redirectPath = substr($currentPath, 0, -strlen($incorrectValue)) . $model->slug;
+            throw new HttpResponseException(Redirect::to($redirectPath));
+        }
+
+        throw new HttpResponseException(Redirect::to($model->slug));
+    }
+
     public function resolveRouteBinding(mixed $value, $field = null)
     {
         // Skip self-healing for internal-api routes.
@@ -41,34 +67,16 @@ trait HasSelfHealingUrls
         // If it's just a number, redirect to the full slug.
         if (is_numeric($value)) {
             $model = static::findOrFail($value);
-
-            // Try to get full request URI. Fall back to the path if it's not available.
-            $currentPath = request()->server->get('REQUEST_URI', '/');
-
-            // If we have a nested path, use it.
-            if ($currentPath !== '/') {
-                $redirectPath = str_replace('/' . $value . '/', '/' . $model->slug . '/', $currentPath);
-                throw new HttpResponseException(Redirect::to($redirectPath));
-            }
-
-            // Otherwise just redirect to the slug.
-            throw new HttpResponseException(Redirect::to($model->slug));
+            $this->redirectToCorrectUrl($value, $model);
         }
 
-        // Extract the ID from the slug-number format.
-        if (preg_match('/.*-(\d+)$/', $value, $matches)) {
+        // Extract the ID from the ID-slug format.
+        if (preg_match('/^(\d+)-.*/', $value, $matches)) {
             $model = static::findOrFail($matches[1]);
 
             // If slug doesn't match, redirect to the correct URL.
             if ($value !== $model->slug) {
-                $currentPath = request()->server->get('REQUEST_URI', '/');
-
-                if ($currentPath !== '/') {
-                    $redirectPath = str_replace('/' . $value . '/', '/' . $model->slug . '/', $currentPath);
-                    throw new HttpResponseException(Redirect::to($redirectPath));
-                }
-
-                throw new HttpResponseException(Redirect::to($model->slug));
+                $this->redirectToCorrectUrl($value, $model);
             }
 
             return $model;
@@ -86,6 +94,6 @@ trait HasSelfHealingUrls
         $fieldValue = $this->{$this->getSlugSourceField()};
         $nameWithDashes = str_replace('/', '-', $fieldValue);
 
-        return Str::slug($nameWithDashes) . '-' . $this->id;
+        return $this->id . '-' . Str::slug($nameWithDashes);
     }
 }

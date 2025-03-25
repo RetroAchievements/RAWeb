@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 
 import { ForumBreadcrumbs } from '@/common/components/ForumBreadcrumbs';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useShortcodeBodyPreview } from '@/common/hooks/useShortcodeBodyPreview';
 
-import { useForumPostPreview } from '../../hooks/useForumPostPreview';
 import { ForumPostCard } from '../ForumPostCard';
 import { CreateTopicForm } from './CreateTopicForm';
 
@@ -13,10 +13,10 @@ export const CreateForumTopicMainRoot: FC = memo(() => {
 
   const { t } = useTranslation();
 
-  const { initiatePreview, previewContent } = useForumPostPreview();
+  const { initiatePreview, previewContent } = useShortcodeBodyPreview();
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <ForumBreadcrumbs
         forum={forum}
         forumCategory={forum.category}
@@ -26,7 +26,7 @@ export const CreateForumTopicMainRoot: FC = memo(() => {
       <CreateTopicForm onPreview={initiatePreview} />
 
       {previewContent ? (
-        <div data-testid="preview-content" className="mt-4">
+        <div data-testid="preview-content" className="mb-3 mt-7">
           <ForumPostCard body={previewContent} />
         </div>
       ) : null}

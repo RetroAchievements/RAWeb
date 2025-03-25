@@ -3,7 +3,7 @@
  /*
  *  API_GetUserGameLeaderboards - returns a list of Leaderboards for the given User and GameID
  *    i : gameID
- *    u : username
+ *    u : username or user ULID
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of entries to return (default: 200, max: 500)
  *
@@ -19,23 +19,24 @@
  *    object     UserEntry                  details of the requested user's leaderboard entry
  *     object      [value]
  *      string     User                     username
+ *      string     ULID                     queryable stable unique identifier of the user
  *      int        Score                    raw value score
  *      string     FormattedScore           formatted string value of score
  *      int        Rank                     user's leaderboard rank
  *      string     DateUpdated              an ISO8601 timestamp string for when the entry was updated
  */
 
+use App\Actions\FindUserByIdentifierAction;
 use App\Models\Game;
 use App\Models\LeaderboardEntry;
-use App\Models\User;
 use App\Platform\Enums\ValueFormat;
-use App\Support\Rules\CtypeAlnum;
+use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'i' => ['required', 'min:1'],
-    'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
+    'u' => ['required', new ValidUserIdentifier()],
     'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
     'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
 ]);
@@ -43,7 +44,7 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
 $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 200;
 
-$user = User::whereName(request()->query('u'))->first();
+$user = (new FindUserByIdentifierAction())->execute($input['u']);
 if (!$user) {
     return response()->json(['User not found'], 404);
 }
@@ -61,8 +62,9 @@ $userLeaderboardEntriesCount = LeaderboardEntry::where('user_id', $user->id)
     ->join('UserAccounts', 'leaderboard_entries.user_id', '=', 'UserAccounts.ID')
     ->whereIn('leaderboard_id', function ($query) use ($game) {
         $query->select('ID')
-              ->from('LeaderboardDef')
-              ->where('GameID', $game->ID);
+            ->from('LeaderboardDef')
+            ->where('GameID', $game->ID)
+            ->whereNull('deleted_at');
     })
     ->whereNull('UserAccounts.unranked_at')
     ->where('UserAccounts.Untracked', 0)
@@ -85,10 +87,10 @@ $leaderboardEntries = LeaderboardEntry::select('leaderboard_entries.*')
             ->where(function ($query) {
                 $query->where(function ($q) {
                     $q->where('leaderboard_rank_calc.LowerIsBetter', 1)
-                      ->whereColumn('entries_rank_calc.score', '<', 'leaderboard_entries.score');
+                        ->whereColumn('entries_rank_calc.score', '<', 'leaderboard_entries.score');
                 })->orWhere(function ($q) {
                     $q->where('leaderboard_rank_calc.LowerIsBetter', 0)
-                      ->whereColumn('entries_rank_calc.score', '>', 'leaderboard_entries.score');
+                        ->whereColumn('entries_rank_calc.score', '>', 'leaderboard_entries.score');
                 });
             })
             ->selectRaw('COUNT(*) + 1'),
@@ -99,6 +101,7 @@ $leaderboardEntries = LeaderboardEntry::select('leaderboard_entries.*')
     ->where('leaderboard_entries.user_id', $user->id)
     ->whereNull('UserAccounts.unranked_at')
     ->where('UserAccounts.Untracked', 0)
+    ->whereNull('LeaderboardDef.deleted_at')
     ->with('leaderboard')
     ->orderBy('LeaderboardDef.ID', 'asc')
     ->skip($offset)
@@ -115,6 +118,7 @@ foreach ($leaderboardEntries as $leaderboardEntry) {
         'Format' => $leaderboardEntry->leaderboard->Format,
         'UserEntry' => [
             'User' => $user->display_name,
+            'ULID' => $user->ulid,
             'Score' => $leaderboardEntry->score,
             'FormattedScore' => ValueFormat::format($leaderboardEntry->score, $leaderboardEntry->leaderboard->Format),
             'Rank' => $leaderboardEntry->calculated_rank,

@@ -327,6 +327,44 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         return media_asset($this->ImageIcon);
     }
 
+    public function getImageBoxArtUrlAttribute(): string
+    {
+        return media_asset($this->ImageBoxArt);
+    }
+
+    public function getImageTitleUrlAttribute(): string
+    {
+        return media_asset($this->ImageTitle);
+    }
+
+    public function getImageIngameUrlAttribute(): string
+    {
+        return media_asset($this->ImageIngame);
+    }
+
+    public function getIsSubsetGameAttribute(): bool
+    {
+        if (str_contains($this->title, "[Subset")) {
+            return true;
+        }
+
+        // Get all achievement sets associated with this game.
+        $achievementSets = GameAchievementSet::where('game_id', $this->id)
+            ->pluck('achievement_set_id');
+
+        if ($achievementSets->isEmpty()) {
+            return false;
+        }
+
+        // Check if any of these achievement sets are used in other games with non-core types.
+        $hasNonCoreUsages = GameAchievementSet::whereIn('achievement_set_id', $achievementSets)
+            ->where('game_id', '!=', $this->id)
+            ->where('type', '!=', AchievementSetType::Core)
+            ->exists();
+
+        return $hasNonCoreUsages;
+    }
+
     public function getCanHaveBeatenTypes(): bool
     {
         $isSubsetOrTestKit = (

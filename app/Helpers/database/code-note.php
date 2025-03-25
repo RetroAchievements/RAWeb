@@ -64,7 +64,7 @@ function submitCodeNote2(string $username, int $gameID, int $address, string $no
     if (
         $i !== false
         && $permissions <= Permissions::JuniorDeveloper
-        && $currentNotes[$i]['User'] !== $user->User
+        && $currentNotes[$i]['User'] !== $user->display_name
         && !empty($currentNotes[$i]['Note'])
     ) {
         return false;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Requests;
 
 use App\Platform\Enums\GameListProgressFilterValue;
+use App\Platform\Enums\GameListSetTypeFilterValue;
 use App\Platform\Enums\GameListSortField;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
@@ -140,8 +141,11 @@ class GameListRequest extends FormRequest
      * @param int|null $targetSystemId used when changing the system is not available, ie: system game lists
      * @return array<string, array<string>>
      */
-    public function getFilters(string $defaultAchievementsPublishedFilter = 'has', ?int $targetSystemId = null): array
-    {
+    public function getFilters(
+        string $defaultAchievementsPublishedFilter = 'has',
+        ?int $targetSystemId = null,
+        ?GameListSetTypeFilterValue $defaultSubsetFilter = null,
+    ): array {
         $filters = [];
 
         // URL params take precedence over cookie preferences.
@@ -167,6 +171,10 @@ class GameListRequest extends FormRequest
 
         if (!is_null($targetSystemId)) {
             $filters['system'] = [$targetSystemId];
+        }
+
+        if (!isset($filters['subsets']) && $defaultSubsetFilter) {
+            $filters['subsets'] = [$defaultSubsetFilter->value];
         }
 
         return $filters;

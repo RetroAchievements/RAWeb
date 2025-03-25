@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Achievement;
+use App\Actions\FindUserByIdentifierAction;
 use App\Models\Comment;
 use App\Models\User;
 use App\Policies\CommentPolicy;
@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 /*
-*  API_GetComments - returns the comments associated to a game or achievement
-*    i : game or achievement id or username
+*  API_GetComments - returns the comments associated to a game, achievement, or user wall
+*    i : game id, achievement id, username, or user ulid
 *    t : 1 = game, 2 = achievement, 3 = user
 *    o : offset - number of entries to skip (default: 0)
 *    c : count - number of entries to return (default: 100, max: 500)
@@ -21,7 +21,8 @@ use Illuminate\Validation\Rule;
 *  int         Total                       number of comment records the game/achievement/user actually has overall
 *  array       Results
 *   object      [value]
-*    int         User                      username of the commenter
+*    string      User                      username of the commenter
+*    string      ULID                      queryable stable unique identifier of the commenter
 *    string      Submitted                 date time the comment was submitted
 *    string      CommentText               text of the comment
 */
@@ -63,7 +64,7 @@ $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 100;
 $sortOrder = isset($input['s']) ? $input['s'] : 'submitted';
 
-$username = null;
+$usernameOrUlid = null;
 $gameOrAchievementId = 0;
 $commentType = 0;
 
@@ -71,16 +72,15 @@ if ($inputIsGameOrAchievement()) {
     $gameOrAchievementId = $query['i'];
     $commentType = $query['t'];
 } else {
-    $username = $query['i'];
+    $usernameOrUlid = $query['i'];
     $commentType = 3;
 }
 
 $user = null;
 $userPolicy = new UserCommentPolicy();
 
-if ($username) {
-    $user = User::whereName($username)->first();
-
+if ($usernameOrUlid) {
+    $user = (new FindUserByIdentifierAction())->execute($usernameOrUlid);
     if (!$user || !$userPolicy->viewAny(null, $user)) {
         return response()->json([], 404);
     }
@@ -121,6 +121,7 @@ $results = $comments->filter(function ($nextComment) use ($commentPolicy) {
 })->map(function ($nextComment) {
     return [
         'User' => $nextComment->user->display_name,
+        'ULID' => $nextComment->user->ulid,
         'Submitted' => $nextComment->Submitted,
         'CommentText' => $nextComment->Payload,
     ];

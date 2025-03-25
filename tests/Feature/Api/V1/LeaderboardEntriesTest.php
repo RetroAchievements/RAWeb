@@ -111,6 +111,7 @@ class LeaderboardEntriesTest extends TestCase
                     [
                         "Rank" => 1,
                         'User' => $userFour->User,
+                        'ULID' => $userFour->ulid,
                         'Score' => $leaderboardEntryFour->score,
                         'FormattedScore' => ValueFormat::format($leaderboardEntryFour->score, $leaderboard->Format),
                         'DateSubmitted' => $leaderboardEntryFour->updated_at->toIso8601String(),
@@ -118,6 +119,7 @@ class LeaderboardEntriesTest extends TestCase
                     [
                         "Rank" => 2,
                         'User' => $userFive->User,
+                        'ULID' => $userFive->ulid,
                         'Score' => $leaderboardEntryFive->score,
                         'FormattedScore' => ValueFormat::format($leaderboardEntryFive->score, $leaderboard->Format),
                         'DateSubmitted' => $leaderboardEntryFive->updated_at->toIso8601String(),
@@ -125,6 +127,7 @@ class LeaderboardEntriesTest extends TestCase
                     [
                         "Rank" => 3,
                         'User' => $userThree->User,
+                        'ULID' => $userThree->ulid,
                         'Score' => $leaderboardEntryThree->score,
                         'FormattedScore' => ValueFormat::format($leaderboardEntryThree->score, $leaderboard->Format),
                         'DateSubmitted' => $leaderboardEntryThree->updated_at->toIso8601String(),
@@ -132,6 +135,7 @@ class LeaderboardEntriesTest extends TestCase
                     [
                         "Rank" => 4,
                         'User' => $userOne->User,
+                        'ULID' => $userOne->ulid,
                         'Score' => $leaderboardEntryOne->score,
                         'FormattedScore' => ValueFormat::format($leaderboardEntryOne->score, $leaderboard->Format),
                         'DateSubmitted' => $leaderboardEntryOne->updated_at->toIso8601String(),
@@ -139,6 +143,7 @@ class LeaderboardEntriesTest extends TestCase
                     [
                         "Rank" => 4,
                         'User' => $userTwo->User,
+                        'ULID' => $userTwo->ulid,
                         'Score' => $leaderboardEntryTwo->score,
                         'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->Format),
                         'DateSubmitted' => $leaderboardEntryTwo->updated_at->toIso8601String(),
@@ -155,6 +160,7 @@ class LeaderboardEntriesTest extends TestCase
                         [
                             "Rank" => 4,
                             'User' => $userOne->User,
+                            'ULID' => $userOne->ulid,
                             'Score' => $leaderboardEntryOne->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryOne->score, $leaderboard->Format),
                             'DateSubmitted' => $leaderboardEntryOne->updated_at->toIso8601String(),
@@ -162,6 +168,7 @@ class LeaderboardEntriesTest extends TestCase
                         [
                             "Rank" => 4,
                             'User' => $userTwo->User,
+                            'ULID' => $userTwo->ulid,
                             'Score' => $leaderboardEntryTwo->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->Format),
                             'DateSubmitted' => $leaderboardEntryTwo->updated_at->toIso8601String(),
@@ -178,6 +185,7 @@ class LeaderboardEntriesTest extends TestCase
                         [
                             "Rank" => 1,
                             'User' => $userFour->User,
+                            'ULID' => $userFour->ulid,
                             'Score' => $leaderboardEntryFour->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryFour->score, $leaderboard->Format),
                             'DateSubmitted' => $leaderboardEntryFour->updated_at->toIso8601String(),
@@ -185,6 +193,7 @@ class LeaderboardEntriesTest extends TestCase
                         [
                             "Rank" => 2,
                             'User' => $userFive->User,
+                            'ULID' => $userFive->ulid,
                             'Score' => $leaderboardEntryFive->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryFive->score, $leaderboard->Format),
                             'DateSubmitted' => $leaderboardEntryFive->updated_at->toIso8601String(),
@@ -201,6 +210,7 @@ class LeaderboardEntriesTest extends TestCase
                         [
                             "Rank" => 2,
                             'User' => $userFive->User,
+                            'ULID' => $userFive->ulid,
                             'Score' => $leaderboardEntryFive->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryFive->score, $leaderboard->Format),
                             'DateSubmitted' => $leaderboardEntryFive->updated_at->toIso8601String(),
@@ -208,6 +218,7 @@ class LeaderboardEntriesTest extends TestCase
                         [
                             "Rank" => 3,
                             'User' => $userThree->User,
+                            'ULID' => $userThree->ulid,
                             'Score' => $leaderboardEntryThree->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryThree->score, $leaderboard->Format),
                             'DateSubmitted' => $leaderboardEntryThree->updated_at->toIso8601String(),
@@ -224,6 +235,7 @@ class LeaderboardEntriesTest extends TestCase
                         [
                             "Rank" => 1,
                             'User' => $userOne->User,
+                            'ULID' => $userOne->ulid,
                             'Score' => $timedLeaderboardEntryOne->score,
                             'FormattedScore' => ValueFormat::format($timedLeaderboardEntryOne->score, $timedLeaderboard->Format),
                             'DateSubmitted' => $timedLeaderboardEntryOne->updated_at->toIso8601String(),

@@ -16,7 +16,9 @@ import { DataTableSearchInput } from '../DataTableSearchInput';
 import { DataTableAchievementsPublishedFilter } from './DataTableAchievementsPublishedFilter';
 import { DataTableProgressFilter } from './DataTableProgressFilter';
 import { DataTableSystemFilter } from './DataTableSystemFilter';
+import { GameTypeFilter } from './GameTypeFilter';
 import { RandomGameButton } from './RandomGameButton';
+import { SetTypeFilter } from './SetTypeFilter';
 
 interface DataTableDesktopToolbarProps<TData> {
   table: Table<TData>;
@@ -53,14 +55,17 @@ export function DataTableDesktopToolbar<TData>({
 
   return (
     <div className="flex w-full flex-col justify-between gap-2">
-      <div className="flex w-full flex-col items-center justify-between gap-3 rounded bg-embed py-2 pl-2 pr-3 sm:flex-row">
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row md:gap-3">
+      <div className="flex w-full flex-col items-center justify-between gap-3 rounded bg-embed py-2 pl-2 pr-3 md:flex-row">
+        <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row md:flex-wrap md:gap-x-3">
           {doesColumnExist(allColumns, 'system') && filterableSystemOptions?.length > 1 ? (
             <DataTableSystemFilter
               table={table}
               filterableSystemOptions={filterableSystemOptions}
             />
           ) : null}
+
+          <SetTypeFilter table={table} />
+          <GameTypeFilter table={table} />
 
           {doesColumnExist(allColumns, 'achievementsPublished') ? (
             <DataTableAchievementsPublishedFilter table={table} />
@@ -80,7 +85,7 @@ export function DataTableDesktopToolbar<TData>({
           ) : null}
         </div>
 
-        <BaseLabel className="flex items-center gap-2 text-menu-link">
+        <BaseLabel className="flex items-center gap-2 whitespace-nowrap text-menu-link">
           <BaseCheckbox
             checked={isCurrentlyPersistingView}
             onCheckedChange={(checked: boolean) => setIsCurrentlyPersistingView(checked)}

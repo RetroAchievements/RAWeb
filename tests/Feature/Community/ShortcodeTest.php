@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit;
+namespace Tests\Feature\Community;
 
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
@@ -64,6 +64,19 @@ final class ShortcodeTest extends TestCase
         );
     }
 
+    public function testStripAndClampQuotes(): void
+    {
+        $this->assertSame(
+            'real stuff',
+            Shortcode::stripAndClamp('[quote]hello [quote]inner[/quote] there[/quote]real stuff')
+        );
+
+        $this->assertSame(
+            'BeforeBetweenAfter',
+            Shortcode::stripAndClamp('Before[quote]First quote[/quote]Between[quote]Second quote[/quote]After')
+        );
+    }
+
     public function testStripAndClampImages(): void
     {
         $this->assertSame(
@@ -102,11 +115,6 @@ final class ShortcodeTest extends TestCase
         $this->assertSame(
             'Hello',
             Shortcode::stripAndClamp('[code]Hello[/code]')
-        );
-
-        $this->assertSame(
-            'Hello',
-            Shortcode::stripAndClamp('[quote]Hello[/quote]')
         );
 
         $this->assertSame(
@@ -273,6 +281,18 @@ final class ShortcodeTest extends TestCase
 
         $this->assertEquals(
             '[ticket=100]',
+            $normalized
+        );
+    }
+
+    public function testNormalizeShortcodesPreservesExternalUrlTag(): void
+    {
+        $rawString = '[url=https://example.com/game/1][/url]';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            $rawString,
             $normalized
         );
     }

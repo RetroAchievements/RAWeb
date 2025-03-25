@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Enums\SearchType;
+use App\Platform\Enums\GameSetType;
 
 function canSearch(int $searchType, int $permissions): bool
 {
@@ -51,9 +52,28 @@ function performSearch(
         FROM GameData AS gd
         LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID AND ach.Flags = 3
         LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
-        WHERE gd.Title LIKE '%$searchQuery%'
+        WHERE gd.ConsoleID != 100
+        AND gd.Title LIKE '%$searchQuery%'
         GROUP BY gd.ID, gd.Title
         ORDER BY SecondarySort, REPLACE(gd.Title, '|', ''), gd.Title";
+    }
+
+    if (in_array(SearchType::Hub, $searchType)) {
+        $counts[] = "SELECT COUNT(*) AS Count FROM game_sets WHERE deleted_at IS NULL AND type = '" . GameSetType::Hub->value . "' AND title LIKE '%$searchQuery%'";
+        $parts[] = "
+        SELECT " . SearchType::Hub . " AS Type, gs.id AS ID, CONCAT('/hub/', gs.id) AS Target,
+               CONCAT(gs.title, ' (Hub)') AS Title,
+               CASE
+                   WHEN gs.title LIKE '$searchQuery%' THEN 0
+                   WHEN gs.title LIKE '%~ $searchQuery%' THEN 1
+                   ELSE 2
+               END AS SecondarySort
+        FROM game_sets AS gs
+        WHERE gs.deleted_at IS NULL 
+        AND gs.type = '" . GameSetType::Hub->value . "'
+        AND gs.title LIKE '%$searchQuery%'
+        GROUP BY gs.id, gs.title
+        ORDER BY SecondarySort, REPLACE(gs.title, '|', ''), gs.title";
     }
 
     if (in_array(SearchType::Achievement, $searchType)) {
@@ -162,8 +182,8 @@ function performSearch(
                 WHEN c.articletype=" . ArticleType::Achievement . " THEN CONCAT('/achievement/', c.ArticleID, '#comment_', c.ID)
                 WHEN c.articletype=" . ArticleType::Leaderboard . " THEN CONCAT('/leaderboardinfo.php?i=', c.ArticleID, '#comment_', c.ID)
                 WHEN c.articletype=" . ArticleType::AchievementTicket . " THEN CONCAT('/ticket/', c.ArticleID, '#comment_', c.ID)
-                WHEN c.articletype=" . ArticleType::User . " THEN CONCAT('/user/', ua.User, '#comment_', c.ID)
-                WHEN c.articletype=" . ArticleType::UserModeration . " THEN CONCAT('/user/', ua.User, '#comment_', c.ID)
+                WHEN c.articletype=" . ArticleType::User . " THEN CONCAT('/user/', ua.display_name, '#comment_', c.ID)
+                WHEN c.articletype=" . ArticleType::UserModeration . " THEN CONCAT('/user/', ua.display_name, '#comment_', c.ID)
                 WHEN c.articletype=" . ArticleType::GameHash . " THEN CONCAT('/game/', c.ArticleID, '/hashes/manage', '#comment_', c.ID)
                 WHEN c.articletype=" . ArticleType::SetClaim . " THEN CONCAT('/manageclaims.php?g=', c.ArticleID, '#comment_', c.ID)
                 ELSE CONCAT(c.articletype, '/', c.ArticleID)

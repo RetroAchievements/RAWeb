@@ -7,6 +7,9 @@ import { createUser } from '@/test/factories';
 
 import { ProfileSectionCard } from './ProfileSectionCard';
 
+// Suppress setState() warnings that only happen in JSDOM.
+console.error = vi.fn();
+
 describe('Component: ProfileSectionCard', () => {
   beforeEach(() => {
     window.HTMLElement.prototype.hasPointerCapture = vi.fn();

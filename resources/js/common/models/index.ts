@@ -3,4 +3,5 @@ export * from './app-page.model';
 export * from './base-avatar-props.model';
 export * from './laravel-validation-error.model';
 export * from './link-prefetch-behavior.model';
+export * from './shortcode';
 export * from './ziggy-props.model';

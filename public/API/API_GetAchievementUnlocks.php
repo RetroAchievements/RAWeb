@@ -13,6 +13,7 @@
  *   string     Points                  number of points the achievement is worth
  *   string     TrueRatio               number of RetroPoints ("white points") the achievement is worth
  *   string     Author                  user who first created the achievement
+ *   string     AuthorULID              queryable stable unique identifier of the user who first created the achievement
  *   datetime   DateCreated             when the achievement was created
  *   datetime   DateModified            when the achievement was last modified
  *   string     Type                    null, "progression", "win_condition", or "missable"
@@ -27,6 +28,7 @@
  *  int        TotalPlayers             number of players who have played the game associated to the achievement
  *  array      Unlocks                  requested unlock information
  *   string     User                    user who unlocked the achievement
+ *   string     ULID                    queryable stable unique identifier of the user
  *   string     RAPoints                number of points the user has
  *   string     RASoftcorePoints        number of softcore points the user has
  *   datetime   DateAwarded             when the achievement was unlocked
@@ -61,6 +63,7 @@ $achievement = [
     'Points' => $achievementData['Points'] ?? null,
     'TrueRatio' => $achievementData['TrueRatio'] ?? null,
     'Author' => $achievementData['Author'] ?? null,
+    'AuthorULID' => $achievementData['AuthorULID'] ?? null,
     'DateCreated' => $achievementData['DateCreated'] ?? null,
     'DateModified' => $achievementData['DateModified'] ?? null,
     'Type' => $achievementData['type'] ?? null,

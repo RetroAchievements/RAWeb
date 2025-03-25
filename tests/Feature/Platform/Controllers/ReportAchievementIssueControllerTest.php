@@ -54,6 +54,7 @@ class ReportAchievementIssueControllerTest extends TestCase
                     ->has('id')
                     ->has('title')
                     ->has('system')
+                    ->has('isSubsetGame')
                 )
             )
             ->has('hasSession')

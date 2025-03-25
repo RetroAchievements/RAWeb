@@ -11,6 +11,7 @@ use App\Platform\Controllers\Api\GameApiController;
 use App\Platform\Controllers\Api\HubApiController;
 use App\Platform\Controllers\Api\SystemApiController;
 use App\Platform\Controllers\Api\TriggerTicketApiController;
+use App\Platform\Controllers\EventController;
 use App\Platform\Controllers\GameController;
 use App\Platform\Controllers\GameHashController;
 use App\Platform\Controllers\GameTopAchieversController;
@@ -32,6 +33,7 @@ class RouteServiceProvider extends ServiceProvider
          * sanitize route model binding patterns
          */
         Route::pattern('achievement', '[0-9]{1,17}');
+        Route::pattern('event', '[a-zA-Z0-9-]+'); // self-healing URLs
         Route::pattern('game', '[0-9]{1,17}');
         Route::pattern('system', '[a-zA-Z0-9-]+'); // self-healing URLs
         Route::pattern('systemId', '[0-9]{1,17}');
@@ -64,6 +66,8 @@ class RouteServiceProvider extends ServiceProvider
             });
 
             Route::middleware(['web', 'inertia'])->group(function () {
+                Route::get('event/{event}', [EventController::class, 'show'])->name('event.show');
+
                 Route::get('game/{game}/dev-interest', [GameController::class, 'devInterest'])->name('game.dev-interest');
                 Route::get('game/{game}/hashes', [GameHashController::class, 'index'])->name('game.hashes.index');
                 Route::get('game/{game}/top-achievers', [GameTopAchieversController::class, 'index'])->name('game.top-achievers.index');
@@ -129,6 +133,8 @@ class RouteServiceProvider extends ServiceProvider
                 Route::group([
                     'prefix' => 'internal-api',
                 ], function () {
+                    Route::post('game/{game}/topic', [GameApiController::class, 'generateOfficialForumTopic'])->name('api.game.forum-topic.create');
+
                     Route::delete('user/game/{game}', [PlayerGameController::class, 'destroy'])->name('api.user.game.destroy');
                     Route::delete('user/achievement/{achievement}', [PlayerAchievementController::class, 'destroy'])->name('api.user.achievement.destroy');
 

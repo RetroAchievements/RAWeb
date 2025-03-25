@@ -4,7 +4,6 @@ declare module 'ziggy-js' {
     "demo": [],
     "tickets.index": [],
     "ranking.beaten-games": [],
-    "message.create": [],
     "achievement.tickets": [
         {
             "name": "achievement",
@@ -95,13 +94,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "message-thread.show": [
-        {
-            "name": "messageThread",
-            "required": true,
-            "binding": "id"
-        }
-    ],
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],
@@ -133,6 +125,13 @@ declare module 'ziggy-js' {
             "name": "systemId",
             "required": true,
             "binding": "ID"
+        }
+    ],
+    "event.show": [
+        {
+            "name": "event",
+            "required": true,
+            "binding": "id"
         }
     ],
     "game.dev-interest": [
@@ -193,6 +192,13 @@ declare module 'ziggy-js' {
         }
     ],
     "game.random": [],
+    "api.game.forum-topic.create": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "api.user.game.destroy": [
         {
             "name": "game",
@@ -244,6 +250,7 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.shortcode-body.preview": [],
     "api.forum-topic.store": [
         {
             "name": "category",
@@ -256,6 +263,34 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "api.forum-topic.destroy": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "api.forum-topic.update": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "api.forum-topic.gate": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "api.forum-topic-comment.create": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "api.forum-topic-comment.update": [
         {
             "name": "comment",
@@ -263,7 +298,6 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "api.forum-topic-comment.preview": [],
     "api.game.claims.comment.store": [
         {
             "name": "game",
@@ -406,6 +440,14 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.message.store": [],
+    "api.message-thread.destroy": [
+        {
+            "name": "messageThread",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "api.subscription.store": [
         {
             "name": "subjectType",
@@ -460,12 +502,27 @@ declare module 'ziggy-js' {
         }
     ],
     "message-thread.index": [],
+    "message-thread.create": [],
+    "message-thread.show": [
+        {
+            "name": "messageThread",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "settings.show": [],
     "achievement.comment.index": [
         {
             "name": "achievement",
             "required": true,
             "binding": "ID"
+        }
+    ],
+    "forum-topic.show": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
         }
     ],
     "game.comment.index": [
@@ -636,10 +693,12 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "api.user.forum-permissions.update": [],
     "api.user.delete-request.store": [],
     "api.user.delete-request.destroy": [],
     "api.user.avatar.store": [],
-    "api.user.avatar.destroy": []
+    "api.user.avatar.destroy": [],
+    "api.search.index": []
 }
 }
 export {};

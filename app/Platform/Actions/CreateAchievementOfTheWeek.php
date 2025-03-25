@@ -41,7 +41,6 @@ class CreateAchievementOfTheWeek
 
             Event::create([
                 'legacy_game_id' => $eventGame->ID,
-                'slug' => "aotw-$year",
                 'active_from' => $startDate,
                 'active_until' => $nextDate,
             ]);
@@ -54,6 +53,7 @@ class CreateAchievementOfTheWeek
                 'Title' => "Week $achievementCount",
                 'Description' => 'TBD',
                 'MemAddr' => '0=1',
+                'Points' => 1,
                 'Flags' => AchievementFlag::OfficialCore->value,
                 'GameID' => $eventGame->id,
                 'user_id' => EventAchievement::RAEVENTS_USER_ID,
@@ -85,6 +85,7 @@ class CreateAchievementOfTheWeek
                 'Title' => $date->format('F') . ' Achievement of the Month',
                 'Description' => 'TBD',
                 'MemAddr' => '0=1',
+                'Points' => 1,
                 'Flags' => AchievementFlag::OfficialCore->value,
                 'GameID' => $eventGame->id,
                 'user_id' => EventAchievement::RAEVENTS_USER_ID,

@@ -16,6 +16,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\GameListProgressFilterValue;
+use App\Platform\Enums\GameListSetTypeFilterValue;
 use App\Platform\Enums\GameListSortField;
 use App\Platform\Enums\GameListType;
 use App\Platform\Enums\UnlockMode;
@@ -79,9 +80,7 @@ trait BuildsGameListQueries
                     ->pluck('ID')
                     ->all();
 
-                $query
-                    ->whereIn('GameData.ConsoleID', $validSystemIds)
-                    ->where('GameData.Title', 'not like', "%[Subset -%");
+                $query->whereIn('GameData.ConsoleID', $validSystemIds);
                 break;
 
             case GameListType::Hub:
@@ -149,6 +148,39 @@ trait BuildsGameListQueries
                 $query->whereHas('system', function (Builder $query) use ($filterValues) {
                     $query->whereIn('ID', $filterValues);
                 });
+                continue;
+            }
+
+            /*
+             * only show games based on their tags
+             */
+            if ($filterKey === 'game-type' && !empty($filterValues)) {
+                if (in_array('retail', $filterValues)) {
+                    // Only return untagged games.
+                    $query->whereNotExists(function ($subquery) {
+                        $subquery->select(DB::raw(1))
+                            ->from('tags')
+                            ->join('taggables', 'tags.id', '=', 'taggables.tag_id')
+                            ->whereColumn('taggables.taggable_id', 'GameData.ID')
+                            ->where('taggables.taggable_type', 'game')
+                            ->where('tags.type', 'game');
+                    });
+                } else {
+                    $query->withAnyTags($filterValues, 'game');
+                }
+                continue;
+            }
+
+            /*
+             * only show games based on whether they are "subset games"
+             */
+            if ($filterKey === 'subsets') {
+                if ($filterValues[0] === GameListSetTypeFilterValue::OnlyGames->value) {
+                    $query->where('GameData.Title', 'not like', '%[Subset -%');
+                }
+                if ($filterValues[0] === GameListSetTypeFilterValue::OnlySubsets->value) {
+                    $query->where('GameData.Title', 'like', '%[Subset -%');
+                }
                 continue;
             }
 
@@ -273,7 +305,9 @@ trait BuildsGameListQueries
                  * the game's count of tickets awaiting resolution
                  */
                 case GameListSortField::NumUnresolvedTickets->value:
-                    $query->orderBy('num_unresolved_tickets', $sortDirection);
+                    if ($user?->can('develop')) {
+                        $query->orderBy('num_unresolved_tickets', $sortDirection);
+                    }
                     break;
 
                 /*
@@ -391,8 +425,8 @@ trait BuildsGameListQueries
      */
     private function applyAchievementsPublishedFilter(Builder $query, array $filterValues): void
     {
-        // Bail early if necessary. If the user gives both options, it's the "either" case.
-        if (empty($filterValues) || count($filterValues) === 2) {
+        // Bail early if necessary.
+        if (empty($filterValues)) {
             return;
         }
 

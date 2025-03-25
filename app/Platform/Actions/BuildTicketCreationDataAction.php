@@ -83,7 +83,7 @@ class BuildTicketCreationDataAction
                 $emulatorUserAgent = EmulatorUserAgent::firstWhere('client', $decoded['client']);
                 if (!$emulatorUserAgent) {
                     $needsOther = true;
-                } else {
+                } elseif (!$emulators->contains('name', $emulatorUserAgent->emulator->name)) {
                     $emulators->add(EmulatorData::fromEmulator($emulatorUserAgent->emulator));
                 }
             }
@@ -117,7 +117,7 @@ class BuildTicketCreationDataAction
             }
         }
 
-        // If no unlock was found, find the player's most relevant session.
+        // If no unlock was found, find the player's most recent session.
         $playerSession = $user->playerSessions()
             ->where('game_id', $achievement->game->id)
             ->where('duration', '>=', 5)

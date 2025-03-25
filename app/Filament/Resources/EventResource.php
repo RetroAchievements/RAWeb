@@ -59,13 +59,11 @@ class EventResource extends Resource
                         Infolists\Components\TextEntry::make('legacyGame.title')
                             ->label('Title'),
 
-                        Infolists\Components\TextEntry::make('slug')
-                            ->label('URL alias'),
-
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
 
                         Infolists\Components\TextEntry::make('permalink')
+                            ->formatStateUsing(fn () => 'Here')
                             ->url(fn (Event $record): string => $record->getPermalinkAttribute())
                             ->extraAttributes(['class' => 'underline'])
                             ->openUrlInNewTab(),
@@ -113,8 +111,9 @@ class EventResource extends Resource
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
                         Forms\Components\TextInput::make('Title')
-                            ->required()
                             ->label('Title')
+                            ->unique(ignoreRecord: true)
+                            ->required()
                             ->minLength(2)
                             ->maxLength(80),
 
@@ -127,16 +126,6 @@ class EventResource extends Resource
                 Forms\Components\Section::make()
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Forms\Components\TextInput::make('slug')
-                            ->label('URL alias')
-                            ->helperText('Provides an alias for accessing the event via a URL: /events/[URL alias]')
-                            ->placeholder('event-alias')
-                            ->rules(['alpha_dash'])
-                            ->minLength(4)
-                            ->maxLength(20)
-                            ->required()
-                            ->columnSpan(2),
-
                         Forms\Components\DatePicker::make('active_from')
                             ->label('Active From')
                             ->native(false)
@@ -255,7 +244,8 @@ class EventResource extends Resource
         return $table
             ->defaultSort(function (Builder $query) {
                 $query->orderBy('active_until', 'desc')
-                    ->orderBy('slug'); // TODO: should be 'title' once it's moved out of GameData
+                    ->join('GameData', 'events.legacy_game_id', '=', 'GameData.ID') // TODO: should be 'title' once it's moved out of GameData
+                    ->orderBy('GameData.title');
             })
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')

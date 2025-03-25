@@ -2,7 +2,7 @@
 
 /*
  *  API_GetUserRankAndScore
- *    u : username
+ *    u : username or user ULID
  *
  *  int        Score           number of hardcore points the user has
  *  int        SoftcoreScore   number of softcore points the user has
@@ -10,30 +10,28 @@
  *  int        TotalRanked     total number of ranked users
  */
 
-use App\Models\User;
-use App\Support\Rules\CtypeAlnum;
+use App\Actions\FindUserByIdentifierAction;
+use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
+    'u' => ['required', new ValidUserIdentifier()],
 ]);
 
-$username = request()->query('u');
+$user = (new FindUserByIdentifierAction())->execute($input['u']);
 
 $points = 0;
 $softcorePoints = 0;
 
-$foundUser = User::whereName($username)->first();
-
-if ($foundUser) {
-    $points = $foundUser?->points ?? 0;
-    $softcorePoints = $foundUser?->points_softcore ?? 0;
+if ($user) {
+    $points = $user?->points ?? 0;
+    $softcorePoints = $user?->points_softcore ?? 0;
 }
 
 return response()->json([
     'Score' => $points,
     'SoftcoreScore' => $softcorePoints,
-    'Rank' => $foundUser ? getUserRank($foundUser->display_name) : null,
+    'Rank' => $user ? getUserRank($user->display_name) : null,
     'TotalRanked' => countRankedUsers(),
 ]);

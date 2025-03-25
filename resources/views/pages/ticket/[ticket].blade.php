@@ -89,6 +89,19 @@ $permissions = $user->getAttribute('Permissions');
                 <x-ticket.stat-element label="Reporter">{!! userAvatar($ticket->reporter ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Reported at">{{ getNiceDate($ticket->ReportedAt->unix()) }}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Report type">{{ TicketType::toString($ticket->ReportType) }}</x-ticket.stat-element>
+                @if ($ticket->emulator_version)
+                    <x-ticket.stat-element label="Emulator">{{ $ticket->emulator?->name ?? 'Unknown' }} {{ $ticket->emulator_version }}</x-ticket.stat-element>
+                @else
+                    <x-ticket.stat-element label="Emulator">{{ $ticket->emulator?->name ?? 'Unknown' }}</x-ticket.stat-element>
+                @endif
+                @if ($ticket->emulator_core)
+                    <x-ticket.stat-element label="Core">{{ $ticket->emulator_core }}</x-ticket.stat-element>
+                @endif
+                @if ($ticket->gameHash)
+                    <x-ticket.stat-element label="Hash"><a href='{!! route("game.hashes.index", ["game" => $ticket->achievement->game]) !!}' title='{{ $ticket->gameHash->name }}'>{{ $ticket->gameHash->md5 }}</a></x-ticket.stat-element>
+                @else
+                    <x-ticket.stat-element label="Hash">Unknown</x-ticket.stat-element>
+                @endif
                 <x-ticket.stat-element label="Mode">{{ $ticket->Hardcore ? "Hardcore" : "Softcore" }}</x-ticket.stat-element>
                 @if (!TicketState::isOpen($ticket->ReportState))
                     @if ($ticket->resolver)
@@ -158,7 +171,7 @@ $permissions = $user->getAttribute('Permissions');
 
                 <div id="unlockHistoryContent" class="hidden devboxcontainer">
                     @if (empty($sessions))
-                        {{ $ticket->reporter->User }} has not earned any achievements for this game.
+                        {{ $ticket->reporter->display_name }} has not earned any achievements for this game.
                     @else
                         <x-alert title="Warning">
                             <p>
@@ -182,7 +195,7 @@ $permissions = $user->getAttribute('Permissions');
                         @if ($existingUnlock->unlocker_id)
                             <span>Manually unlocked by {!! userAvatar(User::firstWhere('id', $existingUnlock->unlocker_id), icon:false) !!} at {{ getNiceDate($unlockedAt->unix()) }}</span>
                         @else
-                            {{ $ticket->reporter->User }} earned this achievement at 
+                            {{ $ticket->reporter->display_name }} earned this achievement at 
                             {{ getNiceDate($unlockedAt->unix()) }}
                             @if ($unlockedAt > $ticket->ReportedAt)
                                 (after the report)
@@ -192,14 +205,14 @@ $permissions = $user->getAttribute('Permissions');
                         @endif
                     @else
                         <div class="flex w-full justify-between border-embed-highlight items-center">
-                            {{ $ticket->reporter->User }} did not earn this achievement
+                            {{ $ticket->reporter->display_name }} did not earn this achievement
                             @if ($permissions >= Permissions::Moderator)
                                 <script>
                                     function AwardManually(hardcore) {
                                         showStatusMessage('Awarding...');
 
                                         $.post('/request/user/award-achievement.php', {
-                                            user: '{{ $ticket->reporter->User }}',
+                                            user: '{{ $ticket->reporter->display_name }}',
                                             achievement: {{ $ticket->achievement->id }},
                                             hardcore: hardcore
                                         })
@@ -253,10 +266,11 @@ $permissions = $user->getAttribute('Permissions');
                     @foreach ($commentData as $comment)
                         @php
                             $when = Carbon::createFromTimestamp($comment['Submitted']);
-                            $commentUser = 
-                                ($comment['User'] === $ticket->reporter?->User) ? $ticket->reporter :
-                                (($comment['User'] === $user->User) ? $user :
-                                    User::whereName($comment['User'])->first());
+                            $commentUser = match($comment['User']) {
+                                $ticket->reporter?->User => $ticket->reporter,
+                                $user->User => $user,
+                                default => User::withTrashed()->where('User', $comment['User'])->first()
+                            };
                         @endphp
                         <x-comment.item
                             :author="$commentUser"

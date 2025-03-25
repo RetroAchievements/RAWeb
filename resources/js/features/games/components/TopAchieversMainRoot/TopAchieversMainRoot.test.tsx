@@ -4,8 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { render, screen } from '@/test';
 import {
   createGame,
-  createGameTopAchiever,
   createPaginatedData,
+  createRankedGameTopAchiever,
   createSystem,
   createUser,
 } from '@/test/factories';
@@ -67,7 +67,7 @@ describe('Component: TopAchieversMainRoot', () => {
 
   it('displays pagination controls', () => {
     // ARRANGE
-    const paginatedUsers = createPaginatedData([createGameTopAchiever()], {
+    const paginatedUsers = createPaginatedData([createRankedGameTopAchiever()], {
       currentPage: 1,
       lastPage: 2,
       perPage: 1,
@@ -102,8 +102,8 @@ describe('Component: TopAchieversMainRoot', () => {
       pageProps: {
         game: createGame(),
         paginatedUsers: createPaginatedData([
-          createGameTopAchiever({ user: user1 }),
-          createGameTopAchiever({ user: user2 }),
+          createRankedGameTopAchiever({ user: user1 }),
+          createRankedGameTopAchiever({ user: user2 }),
         ]),
       },
     });
@@ -117,7 +117,7 @@ describe('Component: TopAchieversMainRoot', () => {
     // ARRANGE
     const visitSpy = vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
 
-    const paginatedUsers = createPaginatedData([createGameTopAchiever()], {
+    const paginatedUsers = createPaginatedData([createRankedGameTopAchiever()], {
       perPage: 1,
       lastPage: 2,
       currentPage: 1,
@@ -138,8 +138,7 @@ describe('Component: TopAchieversMainRoot', () => {
 
     // ACT
     const comboboxEl = screen.getAllByRole('combobox')[0];
-    await userEvent.click(comboboxEl);
-    await userEvent.click(screen.getByRole('option', { name: '2' }));
+    await userEvent.selectOptions(comboboxEl, ['2']);
 
     // ASSERT
     expect(visitSpy).toHaveBeenCalledOnce();

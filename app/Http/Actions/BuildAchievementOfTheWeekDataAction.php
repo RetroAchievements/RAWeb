@@ -25,7 +25,6 @@ class BuildAchievementOfTheWeekDataAction
             'achievement.id',
             'achievement.title',
             'achievement.description',
-            'achievement.badgeUnlockedUrl',
             'sourceAchievement.game.badgeUrl',
             'sourceAchievement.game.system.iconUrl',
             'sourceAchievement.game.system.nameShort',

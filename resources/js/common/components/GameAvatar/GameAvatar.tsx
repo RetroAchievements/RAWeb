@@ -13,7 +13,9 @@ import { SystemChip } from '../SystemChip';
 type GameAvatarProps = BaseAvatarProps &
   App.Platform.Data.Game & {
     decoding?: ImgHTMLAttributes<HTMLImageElement>['decoding'];
+    dynamicTooltipType?: 'game' | 'hub';
     gameTitleClassName?: string;
+    href?: string;
     loading?: ImgHTMLAttributes<HTMLImageElement>['loading'];
     shouldGlow?: boolean;
     showHoverCardProgressForUsername?: string;
@@ -26,12 +28,14 @@ type GameAvatarProps = BaseAvatarProps &
 export const GameAvatar: FC<GameAvatarProps> = ({
   badgeUrl,
   gameTitleClassName,
+  href,
   id,
   showHoverCardProgressForUsername,
   system,
   title,
   wrapperClassName,
   decoding = 'async',
+  dynamicTooltipType = 'game',
   loading = 'lazy',
   shouldGlow = false,
   showImage = true,
@@ -46,7 +50,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
   const { auth } = usePageProps();
 
   const { cardTooltipProps } = useCardTooltip({
-    dynamicType: 'game',
+    dynamicType: dynamicTooltipType,
     dynamicId: id,
     dynamicContext: showHoverCardProgressForUsername ?? auth?.user.displayName,
   });
@@ -55,9 +59,11 @@ export const GameAvatar: FC<GameAvatarProps> = ({
 
   const gameTitle = showSystemInTitle ? `${title} (${system?.name})` : title;
 
+  const usedHref = href ?? route('game.show', { game: id });
+
   return (
     <Wrapper
-      href={shouldLink ? route('game.show', { game: id }) : undefined}
+      href={shouldLink ? usedHref : undefined}
       className={cn(
         variant === 'base' ? 'flex max-w-fit items-center gap-2' : null,
         variant === 'inline' ? 'ml-0.5 mt-0.5 inline-block min-h-7 gap-2' : null,
@@ -77,7 +83,8 @@ export const GameAvatar: FC<GameAvatarProps> = ({
               height={size}
               src={badgeUrl}
               alt={title ?? 'Game'}
-              className={cn('rounded-sm', variant === 'inline' ? 'mr-1.5' : null)}
+              style={{ aspectRatio: '1/1' }}
+              className={cn('rounded-sm object-cover', variant === 'inline' ? 'mr-1.5' : null)}
             />
           )}
         </>

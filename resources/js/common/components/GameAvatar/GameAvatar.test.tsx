@@ -193,4 +193,15 @@ describe('Component: GameAvatar', () => {
     expect(wrapperEl).toHaveClass('ml-0.5', 'mt-0.5', 'inline-block', 'min-h-7', 'gap-2');
     expect(screen.getByRole('img')).toHaveClass('mr-1.5');
   });
+
+  it('given a custom href, uses it', () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<GameAvatar {...game} href="https://google.com" />);
+
+    // ASSERT
+    const wrapperEl = screen.getByRole('link');
+    expect(wrapperEl).toHaveAttribute('href', 'https://google.com');
+  });
 });

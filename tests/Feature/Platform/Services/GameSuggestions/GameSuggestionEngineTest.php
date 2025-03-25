@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Platform\Services\GameSuggestions\GameSuggestionEngine;
+namespace Tests\Feature\Platform\Services\GameSuggestions;
 
 use App\Community\Actions\AddGameToListAction;
 use App\Community\Enums\UserGameListType;

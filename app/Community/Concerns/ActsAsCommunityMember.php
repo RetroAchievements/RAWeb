@@ -16,6 +16,7 @@ use App\Models\UserActivity;
 use App\Models\UserComment;
 use App\Models\UserGameListEntry;
 use App\Models\UserRelation;
+use App\Models\UserUsername;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -138,6 +139,18 @@ trait ActsAsCommunityMember
     public function isBlocking(User $user): bool
     {
         return $this->getRelationship($user) === UserRelationship::Blocked;
+    }
+
+    public function isFreshAccount(): bool
+    {
+        // Fresh accounts can be used as a vehicle for harassment.
+
+        return
+            !$this->isForumVerified()
+            && $this->points === 0
+            && $this->points_softcore === 0
+            && $this->Created > now()->subWeeks(2) // account is less than 2 weeks old
+        ;
     }
 
     public function isFriendsWith(User $user): bool
@@ -268,5 +281,13 @@ trait ActsAsCommunityMember
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class, 'user_id', 'ID');
+    }
+
+    /**
+     * @return HasMany<UserUsername>
+     */
+    public function usernameRequests(): HasMany
+    {
+        return $this->hasMany(UserUsername::class, 'user_id', 'ID');
     }
 }

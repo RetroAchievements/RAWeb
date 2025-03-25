@@ -13,8 +13,8 @@ export const AotwUnlockedIndicator: FC = () => {
   }
 
   return (
-    <div data-testid="aotw-progress" className="bg-neutral-950 px-2 py-1.5">
-      <p className="text-center text-xs text-neutral-300">{t('Unlocked')}</p>
+    <div data-testid="aotw-progress" className="bg-neutral-950 px-2 py-1.5 light:bg-neutral-200">
+      <p className="text-center text-xs text-neutral-300 light:text-neutral-800">{t('Unlocked')}</p>
     </div>
   );
 };

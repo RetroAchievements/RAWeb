@@ -30,7 +30,7 @@ use App\Community\Enums\UserRelationship;
             </form>
         @endif
 
-        <a class="btn max-h-[24px] flex items-center" href="{{ route('message.create', ['to' => $user->display_name]) }}">
+        <a class="btn max-h-[24px] flex items-center" href="{{ route('message-thread.create', ['to' => $user->display_name]) }}">
             <x-fas-envelope />
             <span class="sr-only">Message</span>
         </a>
@@ -42,7 +42,7 @@ use App\Community\Enums\UserRelationship;
                 <input type="hidden" name="action" value="{{ UserRelationship::NotFollowing }}">
                 <button class="btn btn max-h-[24px] flex items-center">Unfollow</button>
             </form>
-        @elseif ($myFriendshipType === UserRelationship::NotFollowing)
+        @elseif ($myFriendshipType === UserRelationship::NotFollowing && !$me->isFreshAccount())
             <form action="/request/user/update-relationship.php" method="POST">
                 {!! csrf_field() !!}
                 <input type="hidden" name="user" value="{{ $user->display_name }}">

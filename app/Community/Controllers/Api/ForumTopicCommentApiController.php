@@ -4,22 +4,33 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers\Api;
 
-use App\Community\Actions\FetchDynamicShortcodeContentAction;
-use App\Community\Requests\PreviewForumPostRequest;
-use App\Community\Requests\UpdateForumTopicCommentRequest;
+use App\Community\Requests\UpsertForumTopicCommentRequest;
 use App\Http\Controller;
+use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
+use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Http\JsonResponse;
 
 class ForumTopicCommentApiController extends Controller
 {
-    public function store(): void
-    {
+    public function store(
+        UpsertForumTopicCommentRequest $request,
+        ForumTopic $topic
+    ): JsonResponse {
+        $this->authorize('create', [ForumTopicComment::class, $topic]);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        // TODO use action
+        $newComment = submitTopicComment($user, $topic->id, $topic->title, $request->input('body'));
+
+        return response()->json(['success' => true, 'commentId' => $newComment->id]);
     }
 
     public function update(
-        UpdateForumTopicCommentRequest $request,
+        UpsertForumTopicCommentRequest $request,
         ForumTopicComment $comment
     ): JsonResponse {
         $this->authorize('update', $comment);
@@ -31,6 +42,9 @@ class ForumTopicCommentApiController extends Controller
         // Convert [user=$user->username] to [user=$user->id].
         $newPayload = Shortcode::convertUserShortcodesToUseIds($newPayload);
 
+        // Convert [game={legacy_hub_id}] to [hub={game_set_id}].
+        $newPayload = Shortcode::convertLegacyGameHubShortcodesToHubShortcodes($newPayload);
+
         $comment->body = $newPayload;
         $comment->save();
 
@@ -39,20 +53,5 @@ class ForumTopicCommentApiController extends Controller
 
     public function destroy(): void
     {
-    }
-
-    public function preview(
-        PreviewForumPostRequest $request,
-        FetchDynamicShortcodeContentAction $action
-    ): JsonResponse {
-        $entities = $action->execute(
-            usernames: $request->input('usernames'),
-            ticketIds: $request->input('ticketIds'),
-            achievementIds: $request->input('achievementIds'),
-            gameIds: $request->input('gameIds'),
-            hubIds: $request->input('hubIds'),
-        );
-
-        return response()->json($entities);
     }
 }

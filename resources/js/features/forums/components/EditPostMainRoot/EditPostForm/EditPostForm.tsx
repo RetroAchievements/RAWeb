@@ -11,11 +11,11 @@ import {
   BaseFormMessage,
   BaseFormProvider,
 } from '@/common/components/+vendor/BaseForm';
+import { ShortcodePanel } from '@/common/components/ShortcodePanel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { getStringByteCount } from '@/common/utils/getStringByteCount';
 
-import { ShortcodePanel } from '../../ShortcodePanel';
-import { useEditPostForm } from './useEditPostForm';
+import { useUpsertPostForm } from '../../../hooks/useUpsertPostForm';
 
 interface EditPostFormProps {
   onPreview: (content: string) => void;
@@ -26,9 +26,10 @@ export const EditPostForm: FC<EditPostFormProps> = ({ onPreview }) => {
 
   const { t } = useTranslation();
 
-  const { form, mutation, onSubmit } = useEditPostForm(forumTopicComment, {
-    body: forumTopicComment.body,
-  });
+  const { form, mutation, onSubmit } = useUpsertPostForm(
+    { targetComment: forumTopicComment },
+    { body: forumTopicComment.body },
+  );
 
   const [body] = form.watch(['body']);
 

@@ -6,14 +6,16 @@ import { cn } from '@/common/utils/cn';
 
 type UserAvatarProps = BaseAvatarProps &
   App.Data.User & {
+    labelClassName?: string;
     wrapperClassName?: string;
   };
 
 export const UserAvatar: FC<UserAvatarProps> = ({
   avatarUrl,
-  displayName,
   deletedAt,
+  displayName,
   imgClassName,
+  labelClassName,
   wrapperClassName,
   hasTooltip = true,
   showImage = true,
@@ -23,7 +25,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
   const { cardTooltipProps } = useCardTooltip({ dynamicType: 'user', dynamicId: displayName });
 
   const canLinkToUser = displayName && !deletedAt;
-  const Wrapper = canLinkToUser ? 'a' : 'div';
+  const Wrapper = canLinkToUser ? 'a' : 'span';
 
   return (
     <Wrapper
@@ -44,7 +46,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
       ) : null}
 
       {displayName && showLabel ? (
-        <span className={cn(deletedAt ? 'line-through' : null)}>{displayName}</span>
+        <span className={cn(deletedAt ? 'line-through' : null, labelClassName)}>{displayName}</span>
       ) : null}
     </Wrapper>
   );

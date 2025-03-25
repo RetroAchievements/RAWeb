@@ -18,7 +18,7 @@ class MessageRequest extends FormRequest
                 'max:60000',
                 new ContainsRegularCharacter(),
             ],
-            'recipient' => 'required_without:thread_id|exists:UserAccounts,User',
+            'recipient' => 'required_without:thread_id|exists:UserAccounts,display_name',
             'thread_id' => 'nullable|integer',
             'title' => 'required_without:thread_id|string|max:255',
         ];

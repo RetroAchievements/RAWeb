@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
+use App\Community\Data\ShortcodeDynamicEntitiesData;
 use App\Data\UserData;
 use App\Models\Achievement;
 use App\Models\Game;
@@ -25,16 +26,14 @@ class FetchDynamicShortcodeContentAction
         array $achievementIds = [],
         array $gameIds = [],
         array $hubIds = [],
-    ): array {
-        $results = collect([
-            'users' => $this->fetchUsers($usernames),
-            'tickets' => $this->fetchTickets($ticketIds),
-            'achievements' => $this->fetchAchievements($achievementIds),
-            'games' => $this->fetchGames($gameIds),
-            'hubs' => $this->fetchHubs($hubIds),
-        ]);
-
-        return $results->toArray();
+    ): ShortcodeDynamicEntitiesData {
+        return new ShortcodeDynamicEntitiesData(
+            users: $this->fetchUsers($usernames)->all(),
+            tickets: $this->fetchTickets($ticketIds)->all(),
+            achievements: $this->fetchAchievements($achievementIds)->all(),
+            games: $this->fetchGames($gameIds)->all(),
+            hubs: $this->fetchHubs($hubIds)->all(),
+        );
     }
 
     /**
@@ -83,7 +82,6 @@ class FetchDynamicShortcodeContentAction
         return Achievement::whereIn('ID', $achievementIds)
             ->get()
             ->map(fn (Achievement $achievement) => AchievementData::fromAchievement($achievement)->include(
-                'badgeUnlockedUrl',
                 'points'
             ));
     }

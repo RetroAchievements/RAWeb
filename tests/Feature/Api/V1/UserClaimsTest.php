@@ -27,11 +27,11 @@ class UserClaimsTest extends TestCase
         Game::factory()->create();
 
         $this->get($this->apiUrl('GetUserClaims', ['u' => 'nonExistant']))
-            ->assertSuccessful()
+            ->assertNotFound()
             ->assertJson([]);
     }
 
-    public function testGetUserClaims(): void
+    public function testGetUserClaimsByName(): void
     {
         // Freeze time
         Carbon::setTestNow(Carbon::now());
@@ -55,6 +55,49 @@ class UserClaimsTest extends TestCase
                 [
                     'ID' => $claim->ID,
                     'User' => $user->User,
+                    'ULID' => $user->ulid,
+                    'GameID' => $game->ID,
+                    'GameTitle' => $game->Title,
+                    'GameIcon' => $game->ImageIcon,
+                    'ConsoleName' => $system->Name,
+                    'ClaimType' => ClaimType::Primary,
+                    'SetType' => ClaimSetType::NewSet,
+                    'Status' => ClaimStatus::Active,
+                    'Extension' => 0,
+                    'Special' => ClaimSpecial::None,
+                    'Created' => $claim->Created->__toString(),
+                    'DoneTime' => $claim->Finished->__toString(),
+                    'Updated' => $claim->Updated->__toString(),
+                    'MinutesLeft' => Carbon::now()->diffInRealMinutes($claim->Finished),
+                ],
+            ]);
+    }
+
+    public function testGetUserClaimsByUlid(): void
+    {
+        // Freeze time
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var User $user */
+        $user = User::factory()->create(['Permissions' => Permissions::Developer]);
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var AchievementSetClaim $claim */
+        $claim = AchievementSetClaim::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+        ]);
+
+        $this->get($this->apiUrl('GetUserClaims', ['u' => $user->ulid]))
+            ->assertSuccessful()
+            ->assertJson([
+                [
+                    'ID' => $claim->ID,
+                    'User' => $user->User,
+                    'ULID' => $user->ulid,
                     'GameID' => $game->ID,
                     'GameTitle' => $game->Title,
                     'GameIcon' => $game->ImageIcon,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\HubResource\RelationManagers;
 
+use App\Filament\Actions\ParseIdsFromCsvAction;
 use App\Filament\Resources\GameResource;
 use App\Filament\Resources\SystemResource;
 use App\Models\Game;
@@ -53,7 +54,9 @@ class GamesRelationManager extends RelationManager
                     ->sortable(query: function (Builder $query, string $direction): Builder {
                         return $query->orderBy('GameData.ID', $direction);
                     })
-                    ->searchable()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where('GameData.ID', 'like', "%{$search}%");
+                    })
                     ->url(function (Game $record) {
                         if (request()->user()->can('manage', Game::class)) {
                             return GameResource::getUrl('view', ['record' => $record]);
@@ -112,7 +115,7 @@ class GamesRelationManager extends RelationManager
                         Forms\Components\TextInput::make('game_ids_csv')
                             ->label('Game IDs (CSV)')
                             ->placeholder('729,2204,3987,53')
-                            ->helperText('Use a comma-separated list of game IDs.')
+                            ->helperText('Enter game IDs separated by commas or spaces. URLs are also supported.')
                             ->hidden(fn (Forms\Get $get): bool => filled($get('game_ids')))
                             ->disabled(fn (Forms\Get $get): bool => filled($get('game_ids')))
                             ->live(debounce: 200),
@@ -158,10 +161,7 @@ class GamesRelationManager extends RelationManager
 
                         // Handle CSV input.
                         if (!empty($data['game_ids_csv'])) {
-                            $gameIds = collect(explode(',', $data['game_ids_csv']))
-                                ->map(fn ($id) => trim($id))
-                                ->filter()
-                                ->values();
+                            $gameIds = (new ParseIdsFromCsvAction())->execute($data['game_ids_csv']);
 
                             // Validate that these games can be attached.
                             $validGameIds = Game::whereIn('ID', $gameIds)

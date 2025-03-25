@@ -254,6 +254,55 @@ class GetUserGameLeaderboardsTest extends TestCase
             ]);
     }
 
+    public function testGetUserGameLeaderboardsHavingASingleLeaderboardEntryForGameByUlid(): void
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Test leaderboard",
+            'Description' => "I am a leaderboard",
+            'LowerIsBetter' => true,
+        ]);
+
+        $user = User::factory()->create(['User' => 'myUser1']);
+        $leaderboardEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->ID,
+            'user_id' => $user->ID,
+            'score' => 1,
+        ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->ulid])) // !!
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1,
+                'Results' => [
+                    [
+                        'ID' => $leaderboard->ID,
+                        'RankAsc' => $leaderboard->LowerIsBetter,
+                        'Title' => $leaderboard->Title,
+                        'Description' => $leaderboard->Description,
+                        'Format' => $leaderboard->Format,
+                        'UserEntry' => [
+                            'User' => $user->User,
+                            'Score' => $leaderboardEntry->score,
+                            'FormattedScore' => ValueFormat::format($leaderboardEntry->score, $leaderboard->Format),
+                            'Rank' => 1,
+                            'DateUpdated' => $leaderboardEntry->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
     public function testGetUserGameLeaderboardsHavingMultipleLeaderboardEntryForGame(): void
     {
         Carbon::setTestNow(Carbon::now());
@@ -806,6 +855,71 @@ class GetUserGameLeaderboardsTest extends TestCase
                             'FormattedScore' => ValueFormat::format($leaderboardEntryFour->score, $leaderboard->Format),
                             'Rank' => 4,
                             'DateUpdated' => $leaderboardEntryFour->created_at->toIso8601String(),
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
+    public function testGetUserGameLeaderboardsDoesNotIncludeDeletedLeaderboards(): void
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var Leaderboard $activeLeaderboard */
+        $activeLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Active leaderboard",
+            'Description' => "I am active",
+            'LowerIsBetter' => true,
+        ]);
+
+        /** @var Leaderboard $deletedLeaderboard */
+        $deletedLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Deleted leaderboard",
+            'Description' => "I am deleted",
+            'LowerIsBetter' => true,
+            'deleted_at' => now(),
+        ]);
+
+        $user = User::factory()->create(['User' => 'testUser']);
+
+        // ... create entries for both leaderboards ...
+        $activeEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $activeLeaderboard->ID,
+            'user_id' => $user->ID,
+            'score' => 100,
+        ]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $deletedLeaderboard->ID,
+            'user_id' => $user->ID,
+            'score' => 200,
+        ]);
+
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 1,
+                'Total' => 1, // !! only count the non-deleted leaderboard
+                'Results' => [
+                    [
+                        'ID' => $activeLeaderboard->ID,
+                        'RankAsc' => $activeLeaderboard->LowerIsBetter,
+                        'Title' => $activeLeaderboard->Title,
+                        'Description' => $activeLeaderboard->Description,
+                        'Format' => $activeLeaderboard->Format,
+                        'UserEntry' => [ // !! just one entry, for the non-deleted leaderboard
+                            'User' => $user->User,
+                            'Score' => $activeEntry->score,
+                            'FormattedScore' => ValueFormat::format($activeEntry->score, $activeLeaderboard->Format),
+                            'Rank' => 1,
+                            'DateUpdated' => $activeEntry->created_at->toIso8601String(),
                         ],
                     ],
                 ],

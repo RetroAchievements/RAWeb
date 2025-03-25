@@ -128,16 +128,17 @@ class GameTopAchieversService
 
     public static function expireTopAchieversComponentData(int $gameId): void
     {
-        $cacheKey = "game:{$gameId}:top-achievers";
+        $cacheKey = "game:{$gameId}:top-achievers:v2";
         Cache::forget($cacheKey);
     }
 
     public function getTopAchieversComponentData(): array
     {
-        $cacheKey = "game:{$this->gameId}:top-achievers";
+        $cacheKey = "game:{$this->gameId}:top-achievers:v2";
         $retval = Cache::get($cacheKey);
         if ($retval !== null) {
-            $numTrashed = User::onlyTrashed()->whereIn('ID', array_column($retval[1], 'user_id'))->count();
+            $userIds = array_column($retval[1], 'user_id');
+            $numTrashed = User::onlyTrashed()->whereIn('ID', $userIds)->count();
             if ($numTrashed === 0) {
                 return $retval;
             }
@@ -158,7 +159,7 @@ class GameTopAchieversService
 
         // only cache the result if the masters list is full.
         // that way we only have to expire it when there's a new mastery
-        // or an achievement gets promoted or demoted
+        // or an achievement gets promoted or demoted.
         Cache::put($cacheKey, $retval, Carbon::now()->addDays(30));
 
         return $retval;
@@ -171,8 +172,15 @@ class GameTopAchieversService
     {
         $retval = [];
         foreach ($playerGames as $playerGame) {
+            if ($playerGame->user_id) {
+                $playerGame->loadMissing('user');
+            }
+
             $retval[] = [
                 'user_id' => $playerGame->user_id,
+                'user_display_name' => $playerGame->user->display_name,
+                'user_avatar_url' => $playerGame->user->avatar_url,
+                'user_ulid' => $playerGame->user->ulid,
                 'achievements_unlocked_hardcore' => $playerGame->achievements_unlocked_hardcore,
                 'points_hardcore' => $playerGame->points_hardcore,
                 'last_unlock_hardcore_at' => $playerGame->last_unlock_hardcore_at?->unix() ?? 0,

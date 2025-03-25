@@ -22,6 +22,8 @@ class ReadMessageThreadAction
         }
     }
 
+    // TODO actions should only publicly expose `execute()`.
+    // this probably should be a new action.
     public static function markParticipantRead(MessageThreadParticipant $participant, User $user): void
     {
         if ($participant->num_unread) {
