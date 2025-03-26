@@ -33,10 +33,10 @@ class RouteServiceProvider extends ServiceProvider
          * sanitize route model binding patterns
          */
         Route::pattern('achievement', '[0-9]{1,17}');
+        Route::pattern('event', '[a-zA-Z0-9-]+'); // self-healing URLs
         Route::pattern('game', '[0-9]{1,17}');
         Route::pattern('system', '[a-zA-Z0-9-]+'); // self-healing URLs
         Route::pattern('systemId', '[0-9]{1,17}');
-        Route::pattern('event', '[a-zA-Z0-9-]+'); // Add this for event URLs
 
         /*
          * Don't reference hash identifiers by their raw ID

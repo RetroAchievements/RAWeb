@@ -826,6 +826,7 @@
     "distributionEarned_other": "Earned {{val, number}} achievements",
     "Your hardcore progress": "Your hardcore progress",
     "Your softcore progress": "Your softcore progress",
+    "Your progress": "Your progress",
     "Are you sure?": "Are you sure?",
     "Nevermind": "Nevermind",
     "Continue": "Continue",
@@ -838,5 +839,13 @@
     "Set type": "Set type",
     "All Sets": "All Sets",
     "Main Sets Only": "Main Sets Only",
-    "Subsets Only": "Subsets Only"
+    "Subsets Only": "Subsets Only",
+    "Game type": "Game type",
+    "Retail": "Retail",
+    "Hack": "Hack",
+    "Homebrew": "Homebrew",
+    "Prototype": "Prototype",
+    "Unlicensed": "Unlicensed",
+    "Demo": "Demo",
+    "There aren't any achievements for this event.": "There aren't any achievements for this event."
 }

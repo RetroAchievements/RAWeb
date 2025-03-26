@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit;
+namespace Tests\Feature\Community;
 
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
@@ -281,6 +281,18 @@ final class ShortcodeTest extends TestCase
 
         $this->assertEquals(
             '[ticket=100]',
+            $normalized
+        );
+    }
+
+    public function testNormalizeShortcodesPreservesExternalUrlTag(): void
+    {
+        $rawString = '[url=https://example.com/game/1][/url]';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            $rawString,
             $normalized
         );
     }

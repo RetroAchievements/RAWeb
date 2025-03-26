@@ -8,10 +8,6 @@ export function createVirtualAward(
 
   const pointedEventAchievements = event.eventAchievements.filter((ea) => !!ea.achievement?.points);
 
-  if (!pointedEventAchievements?.length) {
-    return null;
-  }
-
   let totalPoints = 0;
   for (const ea of pointedEventAchievements) {
     // This will always be truthy due to the filter above.

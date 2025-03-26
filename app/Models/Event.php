@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Platform\Enums\EventState;
 use App\Support\Database\Eloquent\BaseModel;
+use App\Support\Routing\HasSelfHealingUrls;
 use Carbon\Carbon;
 use Database\Factories\EventFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,6 +25,8 @@ class Event extends BaseModel
     use LogsActivity {
         LogsActivity::activities as auditLog;
     }
+
+    use HasSelfHealingUrls;
 
     protected $table = 'events';
 
@@ -47,6 +50,11 @@ class Event extends BaseModel
     protected static function newFactory(): EventFactory
     {
         return EventFactory::new();
+    }
+
+    protected function getSlugSourceField(): string
+    {
+        return 'title';
     }
 
     // == logging
@@ -122,8 +130,7 @@ class Event extends BaseModel
 
     public function getPermalinkAttribute(): string
     {
-        // TODO: use slug (implies slug is immutable)
-        return $this->legacyGame->getPermalinkAttribute();
+        return route('event.show', $this);
     }
 
     // == mutators

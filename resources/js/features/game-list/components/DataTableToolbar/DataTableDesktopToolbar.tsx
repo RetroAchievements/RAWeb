@@ -16,6 +16,7 @@ import { DataTableSearchInput } from '../DataTableSearchInput';
 import { DataTableAchievementsPublishedFilter } from './DataTableAchievementsPublishedFilter';
 import { DataTableProgressFilter } from './DataTableProgressFilter';
 import { DataTableSystemFilter } from './DataTableSystemFilter';
+import { GameTypeFilter } from './GameTypeFilter';
 import { RandomGameButton } from './RandomGameButton';
 import { SetTypeFilter } from './SetTypeFilter';
 
@@ -64,6 +65,7 @@ export function DataTableDesktopToolbar<TData>({
           ) : null}
 
           <SetTypeFilter table={table} />
+          <GameTypeFilter table={table} />
 
           {doesColumnExist(allColumns, 'achievementsPublished') ? (
             <DataTableAchievementsPublishedFilter table={table} />

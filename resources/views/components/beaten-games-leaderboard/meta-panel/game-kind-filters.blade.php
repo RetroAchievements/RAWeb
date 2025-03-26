@@ -4,7 +4,7 @@
     'leaderboardKind' => 'retail',
 ])
 
-<label class="text-xs font-bold sm:-mb-6">Game kinds</label>
+<label class="text-xs font-bold sm:-mb-6">Game types</label>
 <div class="flex gap-x-4 text-2xs gap-y-0.5">
     <x-beaten-games-leaderboard.meta-panel.game-kind-filter-radio
         value="retail"
