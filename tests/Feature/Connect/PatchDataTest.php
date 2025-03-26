@@ -7,6 +7,7 @@ namespace Tests\Feature\Connect;
 use App\Enums\ClientSupportLevel;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
 use App\Models\System;
@@ -126,6 +127,7 @@ class PatchDataTest extends TestCase
         $achievement9 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '65432', 'DisplayOrder' => 9]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+        $gameAchievementSet = GameAchievementSet::first();
 
         /** @var Leaderboard $leaderboard1 */
         $leaderboard1 = Leaderboard::factory()->create(['GameID' => $game->ID, 'DisplayOrder' => 2]);
@@ -158,6 +160,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'GameAchievementSetID' => $gameAchievementSet->id,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -189,6 +192,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'GameAchievementSetID' => $gameAchievementSet->id,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -224,6 +228,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'GameAchievementSetID' => $gameAchievementSet->id,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -266,6 +271,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game2->ID,
+                    'GameAchievementSetID' => null,
                     'Title' => $game2->Title,
                     'ConsoleID' => $game2->ConsoleID,
                     'ImageIcon' => $game2->ImageIcon,
@@ -313,6 +319,8 @@ class PatchDataTest extends TestCase
         $achievement3->unlocks_hardcore_total = 0;
         $achievement3->save();
 
+        $gameAchievementSet = GameAchievementSet::first();
+
         $this->seedEmulatorUserAgents();
 
         // if the player has never played game before, the number of players will be incremented to calculate rarity
@@ -322,6 +330,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'GameAchievementSetID' => $gameAchievementSet->id,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -349,6 +358,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'GameAchievementSetID' => $gameAchievementSet->id,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -393,6 +403,7 @@ class PatchDataTest extends TestCase
         $achievement4 = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'BadgeName' => '45678', 'DisplayOrder' => 5]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+        $gameAchievementSet = GameAchievementSet::first();
 
         $this->seedEmulatorUserAgents();
 
@@ -403,6 +414,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'GameAchievementSetID' => $gameAchievementSet->id,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -428,6 +440,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'GameAchievementSetID' => $gameAchievementSet->id,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -453,6 +466,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'GameAchievementSetID' => $gameAchievementSet->id,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -477,6 +491,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'GameAchievementSetID' => $gameAchievementSet->id,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -512,6 +527,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'GameAchievementSetID' => $gameAchievementSet->id,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,

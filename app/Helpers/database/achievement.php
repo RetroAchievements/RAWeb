@@ -3,6 +3,8 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
+use App\Models\GameAchievementSet;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
 use App\Platform\Actions\SyncEventAchievementMetadataAction;
@@ -203,7 +205,7 @@ function GetAchievementData(int $achievementId): ?array
 
 function UploadNewAchievement(
     string $authorUsername,
-    int $gameID,
+    ?int $gameID,
     string $title,
     string $desc,
     int $points,
@@ -212,12 +214,23 @@ function UploadNewAchievement(
     int $flag,
     ?int &$idInOut,
     string $badge,
-    ?string &$errorOut
+    ?string &$errorOut,
+    ?int $gameAchievementSetID
 ): bool {
+    if (!$gameAchievementSetID && !$gameID) {
+        $errorOut = "You must provide a game ID or a game achievement set ID.";
+
+        return false;
+    }
+
+    if ($gameAchievementSetID) {
+        $gameAchievementSet = GameAchievementSet::findOrFail($gameAchievementSetID);
+        $gameID = $gameAchievementSet->game_id;
+    }
+
     $gameData = getGameData($gameID);
     $consoleID = $gameData['ConsoleID'];
-    $consoleName = $gameData['ConsoleName'];
-    $isEventGame = $consoleName == 'Events';
+    $isEventGame = $gameData['ConsoleID'] == System::Events;
 
     $author = User::whereName($authorUsername)->first();
     $authorPermissions = (int) $author?->getAttribute('Permissions');
@@ -258,7 +271,6 @@ function UploadNewAchievement(
             mb_strpos($gameData['Title'], '[Subset') !== false
             || mb_strpos($gameData['Title'], '~Test Kit~') !== false
         );
-        $isEventGame = $gameData['ConsoleID'] == 101;
 
         if (
             ($isForSubsetOrTestKit || $isEventGame)

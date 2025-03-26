@@ -180,7 +180,7 @@ class BuildClientPatchDataAction
         return [
             'Success' => true,
             'PatchData' => [
-                ...$this->buildBaseGameData($game, $richPresencePatch, $titleGame),
+                ...$this->buildBaseGameData($game, $richPresencePatch, $titleGame, $coreAchievementSet?->id),
                 'Achievements' => $coreAchievementSet
                     ? $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $flag)
                     : [],
@@ -252,13 +252,18 @@ class BuildClientPatchDataAction
     /**
      * Builds the basic game information needed by emulators.
      */
-    private function buildBaseGameData(Game $game, ?string $richPresencePatch, ?Game $titleGame): array
-    {
+    private function buildBaseGameData(
+        Game $game,
+        ?string $richPresencePatch,
+        ?Game $titleGame,
+        ?int $coreGameAchievementSetId = null,
+    ): array {
         // If a title game is provided, use its title and image.
         $titleGame = $titleGame ?? $game;
 
         return [
             'ID' => $game->id,
+            'GameAchievementSetID' => $coreGameAchievementSetId,
             'Title' => $titleGame->title,
             'ImageIcon' => $titleGame->ImageIcon,
             'RichPresencePatch' => $richPresencePatch ?? $game->RichPresencePatch,
