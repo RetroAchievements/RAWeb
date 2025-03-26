@@ -2,7 +2,7 @@
 {{-- Header --}}
 <x-slot:header>
 <x-mail::header :url="config('app.url')">
-{{ config('app.name') }}
+<img src="{{ asset('assets/images/ra-icon.webp') }}" alt="{{ config('app.name') }} Logo" style="max-height: 50px; float: left;">
 </x-mail::header>
 </x-slot:header>
 
