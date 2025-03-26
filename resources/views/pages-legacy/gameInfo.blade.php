@@ -111,9 +111,8 @@ $guideURL = $gameData['GuideURL'];
 $isFullyFeaturedGame = System::isGameSystem($gameData['ConsoleID']);
 $isEventGame = $gameData['ConsoleID'] == System::Events;
 
-// future events can only be viewed by users who can manage events.
-if ($isEventGame && $gameModel->event && !Gate::allows('view', $gameModel->event)) {
-    abort(401);
+if ($isEventGame && $gameModel->event) {
+    abort_with(redirect(route('event.show', ['event' => $gameModel->event])));
 }
 
 $pageTitle = "$gameTitle ($consoleName)";
@@ -301,24 +300,13 @@ if ($isEventGame) {
     }
     $totalEarnedTrueRatio = 0;
 
-    if ($gameModel->event) {
-        $gameData['ImageIcon'] = $gameModel->event->image_asset_path;
-    }
-
     $isGameBeatable = true;
 
     if ($userModel) {
-        if ($gameModel->event) {
-            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
-                ->where('AwardType', AwardType::Event)
-                ->where('AwardData', $gameModel->event->id)
-                ->exists();
-        } else {
-            $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
-                ->where('AwardType', AwardType::Mastery)
-                ->where('AwardData', $gameModel->id)
-                ->exists();
-        }
+        $isBeatenHardcore = PlayerBadge::where('user_id', $userModel->id)
+            ->where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $gameModel->id)
+            ->exists();
     }
 }
 
@@ -529,16 +517,6 @@ if ($isFullyFeaturedGame) {
                     <x-game.primary-meta-row-item label="Developer" :metadataValue="$developer" />
                     <x-game.primary-meta-row-item label="Publisher" :metadataValue="$publisher" />
                     <x-game.primary-meta-row-item label="Genre" :metadataValue="$genre" />
-
-                    @if ($isEventGame && $gameModel->event?->active_from && $gameModel->event?->active_until)
-                        <div>
-                            <p class='inline smalldate mb-2'>Active from 
-                                <x-date :value="$gameModel->event->active_from" />
-                                    - 
-                                <x-date :value="$gameModel->event->active_through" />
-                            </p>
-                        </div>
-                    @endif
                 @endif
 
                 @php
@@ -559,24 +537,18 @@ if ($isFullyFeaturedGame) {
             <x-game.screenshots :titleImageSrc="$imageTitle" :ingameImageSrc="$imageIngame" />
         @endif
 
-        @if ($isFullyFeaturedGame || ($isEventGame && !$gameModel->event))
+        @if ($isFullyFeaturedGame || ($isEventGame))
             @if ($userModel && $userModel->can('update', $gameModel))
                 <a class="btn mb-1" href="{{ route('filament.admin.resources.games.edit', ['record' => $gameModel->id]) }}">Manage</a>
             @elseif ($userModel && $userModel->can('manage', $gameModel))
                 <a class="btn mb-1" href="{{ route('filament.admin.resources.games.view', ['record' => $gameModel->id]) }}">Manage</a>
-            @endif
-        @elseif ($isEventGame)
-            @if ($userModel && $userModel->can('update', $gameModel->event))
-                <a class="btn mb-1" href="{{ route('filament.admin.resources.events.edit', ['record' => $gameModel->event->id]) }}">Manage</a>
-            @elseif ($userModel && $userModel->can('manage', $gameModel->event))
-                <a class="btn mb-1" href="{{ route('filament.admin.resources.events.view', ['record' => $gameModel->event->id]) }}">Manage</a>
             @endif
         @endif
 
         <?php
         // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
         // TODO migrate devbox entirely to filament
-        if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper)) && (!$isEventGame || !$gameModel->event)) {
+        if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper)) && (!$isEventGame)) {
             // TODO use a policy
             $hasMinimumDeveloperPermissions = (
                 $permissions >= Permissions::Developer
@@ -925,17 +897,7 @@ if ($isFullyFeaturedGame) {
                 echo "</div>";
             } elseif ($isEventGame) {
                 $now = Carbon::now();
-                $hasActiveAchievements = $gameModel->event && $gameModel->event->achievements->contains(function ($value) use ($now) {
-                    return $value->active_from <= $now && $value->active_until > $now;
-                });
-                if ($hasActiveAchievements) {
-                    echo "<div class='flex flex-col sm:flex-row-reverse sm:items-end justify-between w-full py-3'>";
-                    ?>
-                        <x-game.achievements-list-filters canShowHideInactiveAchievements="True" />
-                    <?php
-                } else {
-                    echo "<div class='justify-between w-full py-3'>";
-                }
+                echo "<div class='justify-between w-full py-3'>";
 
                 RenderGameSort(System::Events, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
                 echo "</div>";
@@ -1100,54 +1062,6 @@ if ($isFullyFeaturedGame) {
 
         @if ($gameModel->system->active && !$isEventGame)
             <x-game.leaderboards-listing :game="$gameModel" />
-        @endif
-
-        @if ($gameModel->event)
-            <?php
-                $badgeCounts = PlayerBadge::where('AwardType', AwardType::Event)
-                    ->where('AwardData', $gameModel->event->id)
-                    ->groupBy('AwardDataExtra')
-                    ->select(['AwardDataExtra', DB::raw('count(*) AS total')])
-                    ->get();
-            ?>
-            <div class="component gamealts">
-                <h2 class="text-h3">Award Tiers</h2>
-                <table class="table-highlight"><tbody>
-                @if (count($gameModel->event->awards) > 0)
-                    @foreach ($gameModel->event->awards->sortBy('points_required') as $award)
-                        <tr style="w-full">
-                            <td style="w-full">
-                                <div class="flex relative gap-x-2 items-center">
-                                    <img width="48" height="48" src="{!! media_asset($award->image_asset_path) !!}" alt="{{ $award->label }}" />
-                                    <div>
-                                        <p>{{ $award->label }}</p>
-                                        <p class="smalltext">{{ $award->points_required }} {{ Str::plural('point', $award->points_required) }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td style="text-right">
-                                {{ number_format($badgeCounts->where('AwardDataExtra', $award->tier_index)->first()?->total ?? 0) }}
-                            </td>
-                        </tr>
-                    @endforeach
-                @else
-                    <tr style="w-full">
-                        <td style="w-full">
-                            <div class="flex relative gap-x-2 items-center">
-                                <img width="48" height="48" src="{!! media_asset($gameModel->event->image_asset_path) !!}" alt="{{ $gameModel->title }}" />
-                                <div>
-                                    <p>{{ $gameModel->title }}</p>
-                                    <p class="smalltext">{{ $gameModel->achievements_published }} {{ Str::plural('achievement', $gameModel->achievements_published) }}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td style="text-right">
-                            {{ number_format($badgeCounts->where('AwardDataExtra', 0)->first()?->total ?? 0) }}
-                        </td>
-                    </tr>
-                @endif
-                </tbody></table>
-            </div>
         @endif
     </x-slot>
 @endif

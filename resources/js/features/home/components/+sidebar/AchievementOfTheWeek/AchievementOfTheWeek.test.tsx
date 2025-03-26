@@ -70,7 +70,7 @@ describe('Component: AchievementOfTheWeek', () => {
     const linkEl = screen.getByRole('link', { name: /view this year's event/i });
 
     expect(linkEl).toBeVisible();
-    expect(linkEl).toHaveAttribute('href', expect.stringContaining('game.show'));
+    expect(linkEl).toHaveAttribute('href', expect.stringContaining('event.show'));
   });
 
   it('given there is no accessible link to the event page, does not render a link', () => {
