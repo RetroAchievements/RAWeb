@@ -48,7 +48,12 @@ if ($user !== null) {
         ->toArray();
 
     $userIds = array_column($followedUserCompletion, 'user_id');
-    $friends = User::whereIn('ID', $userIds)->get()->keyBy('ID');
+    $friends = User::whereIn('ID', $userIds)->whereNull('banned_at')->get()->keyBy('ID');
+
+    // Filter out completion data for banned users.
+    $followedUserCompletion = array_filter($followedUserCompletion, function ($item) use ($friends) {
+        return isset($friends[$item['user_id']]);
+    });
 }
 
 // NOTE: placeholderUrl will be url encoded (i.e '[user]' => '%5Buser%5D')

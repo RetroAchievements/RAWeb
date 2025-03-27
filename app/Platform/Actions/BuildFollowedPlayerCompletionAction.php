@@ -70,7 +70,7 @@ class BuildFollowedPlayerCompletionAction
         return $followedPlayerCompletion->map(function (PlayerGame $playerGame) use ($followedPlayers) {
             $user = $followedPlayers[$playerGame->user_id] ?? null;
 
-            if (!$user) {
+            if (!$user || $user->banned_at) {
                 return null;
             }
 
