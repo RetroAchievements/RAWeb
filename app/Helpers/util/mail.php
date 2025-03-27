@@ -271,7 +271,11 @@ function sendActivityEmail(
     bool $threadInvolved = false,
     ?string $payload = null,
 ): bool {
-    if ($user === $activityCommenter || getUserPermissions($user) < Permissions::Unregistered) {
+    if (
+        $user === $activityCommenter
+        || getUserPermissions($user) < Permissions::Unregistered
+        || empty(trim($email))
+    ) {
         return false;
     }
 
