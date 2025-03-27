@@ -19,7 +19,7 @@
         "aws/aws-sdk-php": "^3.235",
         "doctrine/dbal": "^3.4",
         "fico7489/laravel-pivot": "^3.0",
-        "filament/filament": "^3.2.124",
+        "filament/filament": "^3.3.5",
         "graham-campbell/markdown": "^15.0",
         "guzzlehttp/guzzle": "^7.5",
         "inertiajs/inertia-laravel": "^2.0",
