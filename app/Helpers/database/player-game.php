@@ -102,7 +102,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
     if ($numRecentAchievements >= 0) {
         $gameAchievementsMap = [];
         foreach ($gameIDs as $gameID) {
-            $unlockedAchievementsQuery = Achievement::query()
+            $achievementsQuery = Achievement::query()
                 ->published()
                 ->where('GameID', $gameID)
                 ->with(['game'])
@@ -119,10 +119,12 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
 
             // Only limit if we're not requesting all achievements.
             if ($numRecentAchievements > 0) {
-                $unlockedAchievementsQuery->limit($numRecentAchievements);
+                $achievementsQuery->whereNotNull('player_achievements.unlocked_at')
+                    ->orderBy('player_achievements.unlocked_at', 'desc')
+                    ->limit($numRecentAchievements);
             }
 
-            $gameAchievementsMap[$gameID] = $unlockedAchievementsQuery->get();
+            $gameAchievementsMap[$gameID] = $achievementsQuery->get();
         }
 
         foreach ($gameAchievementsMap as $gameID => $achievements) {
