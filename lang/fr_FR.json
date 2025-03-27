@@ -812,7 +812,7 @@
     "Prototype": "Prototype",
     "Unlicensed": "Non licencié",
     "Demo": "Démo",
-    "There aren't any achievements for this event.": "There aren't any achievements for this event.",
+    "There aren't any achievements for this event.": "Il n'y a pas de succès pour cet événement.",
     "supportedGameFilesCountLabel_one": "Il y a actuellement <1>{{count, number}}</1> empreinte de fichier de jeu pris en charge enregistrée pour ce jeu.",
     "supportedGameFilesCountLabel_other": "Il y a actuellement <1>{{count, number}}</1> empreintes de fichiers de jeu pris en charge enregistrées pour ce jeu.",
     "userCount_one": "<1>{{userCount, number}}</1> utilisateur est actuellement en ligne.",
