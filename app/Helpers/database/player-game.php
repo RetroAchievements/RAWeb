@@ -110,7 +110,6 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
                     $join->on('player_achievements.achievement_id', '=', 'Achievements.ID');
                     $join->where('player_achievements.user_id', $user->id);
                 })
-                ->whereNotNull('player_achievements.unlocked_at')
                 ->select(
                     'Achievements.*',
                     'player_achievements.unlocked_at',
