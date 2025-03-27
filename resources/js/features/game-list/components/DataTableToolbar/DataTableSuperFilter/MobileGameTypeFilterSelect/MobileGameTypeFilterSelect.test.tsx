@@ -123,4 +123,31 @@ describe('Component: MobileGameTypeFilterSelect', () => {
     // ASSERT
     expect(screen.getByRole('combobox')).toHaveTextContent(/homebrew/i);
   });
+
+  it('given the user selects the "All Games" option, clears the filter value', async () => {
+    // ARRANGE
+    const setColumnFiltersSpy = vi.fn();
+    const mockTable = createMockTable({
+      getState: vi.fn().mockReturnValue({
+        columnFilters: [{ id: 'otherFilter', value: 'someValue' }],
+      }),
+      setColumnFilters: setColumnFiltersSpy,
+    });
+
+    render(<MobileGameTypeFilterSelect table={mockTable as Table<any>} />);
+
+    // ACT
+    await userEvent.click(screen.getByRole('combobox'));
+    await userEvent.click(screen.getByTestId('hack-option'));
+
+    await userEvent.click(screen.getByRole('combobox'));
+    await userEvent.click(screen.getByTestId('all-games-option'));
+
+    // ASSERT
+    expect(setColumnFiltersSpy).toHaveBeenCalledWith(expect.any(Function));
+
+    const updateFn = setColumnFiltersSpy.mock.calls[1][0];
+    const result = updateFn([{ id: 'otherFilter', value: 'someValue' }]);
+    expect(result).toEqual([{ id: 'otherFilter', value: 'someValue' }]);
+  });
 });
