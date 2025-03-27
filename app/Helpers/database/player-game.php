@@ -97,23 +97,36 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
                 'ReleasedAtGranularity' => $game->released_at_granularity,
             ];
         }
+    }
 
-        if ($numRecentAchievements >= 0) {
-            $achievements = Achievement::query()
+    if ($numRecentAchievements >= 0) {
+        $gameAchievementsMap = [];
+        foreach ($gameIDs as $gameID) {
+            $unlockedAchievementsQuery = Achievement::query()
                 ->published()
-                ->whereIn('GameID', $gameIDs)
+                ->where('GameID', $gameID)
                 ->with(['game'])
                 ->leftJoin('player_achievements', function ($join) use ($user) {
                     $join->on('player_achievements.achievement_id', '=', 'Achievements.ID');
                     $join->where('player_achievements.user_id', $user->id);
                 })
+                ->whereNotNull('player_achievements.unlocked_at')
                 ->select(
                     'Achievements.*',
                     'player_achievements.unlocked_at',
                     'player_achievements.unlocked_hardcore_at'
                 )
-                ->get();
+                ->orderBy('player_achievements.unlocked_at', 'desc');
 
+            // Only limit if we're not requesting all achievements.
+            if ($numRecentAchievements > 0) {
+                $unlockedAchievementsQuery->limit($numRecentAchievements);
+            }
+
+            $gameAchievementsMap[$gameID] = $unlockedAchievementsQuery->get();
+        }
+
+        foreach ($gameAchievementsMap as $gameID => $achievements) {
             foreach ($achievements as $achievement) {
                 $gameData = $games->get($achievement->GameID)->toArray();
 
@@ -140,6 +153,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
             }
         }
     }
+
     $libraryOut['Awarded'] = $awardedData;
 
     if ($withGameInfo) {
