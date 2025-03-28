@@ -3,11 +3,10 @@
 @php
     $body = '';
     if (!empty($payload)) {
-        $body = htmlspecialchars($payload, ENT_QUOTES, 'UTF-8');
+        $body = $payload;
         $body = Shortcode::stripAndClamp($body, 1850, preserveWhitespace: true);
         $body = str_replace(["\r\n", "\r"], "\n", $body); // Convert to Unix newlines.
-        $body = preg_replace('/\n{3,}/', "\n\n", $body);
-        $body = nl2br($body);
+        $body = preg_replace('/\n{3,}|(<br\s*\/?>\s*){3,}/i', "\n\n", $body);
     }
 
     $url = $urlTarget;
