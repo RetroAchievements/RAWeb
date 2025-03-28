@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\Pages;
 
+use App\Filament\Actions\ParseIdsFromCsvAction;
 use App\Filament\Resources\GameResource;
 use App\Filament\Resources\SystemResource;
 use App\Models\Game;
@@ -152,12 +153,24 @@ class SimilarGames extends ManageRelatedRecords
                         /** @var Game $game */
                         $game = $this->getOwnerRecord();
 
-                        (new LinkSimilarGamesAction())->execute($game, $data['game_ids']);
+                        $gameIds = [];
+
+                        // Handle select field input.
+                        if (!empty($data['game_ids'])) {
+                            $gameIds = $data['game_ids'];
+                            (new LinkSimilarGamesAction())->execute($game, $gameIds);
+                        }
+
+                        // Handle CSV input.
+                        if (!empty($data['game_ids_csv'])) {
+                            $gameIds = (new ParseIdsFromCsvAction())->execute($data['game_ids_csv']);
+                            (new LinkSimilarGamesAction())->execute($game, $gameIds);
+                        }
 
                         Notification::make()
                             ->success()
                             ->title('Success')
-                            ->body('Added similar game.')
+                            ->body(count($gameIds) > 1 ? 'Added similar games.' : 'Added similar game.')
                             ->send();
                     }),
             ])
