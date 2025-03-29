@@ -110,7 +110,7 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
             UserAccounts ua ON (sc.user_id = ua.ID)
         WHERE
             sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3')
-            AND sr.type='" . UserGameListType::AchievementSetRequest . "'";
+            AND sr.type='" . UserGameListType::AchievementSetRequest->value . "'";
 
     if (is_array($console)) {
         $query .= ' AND c.ID IN (' . implode(',', $console) . ') ';
@@ -168,7 +168,7 @@ function getGamesWithRequests(array|int|null $console, int $requestStatus = Requ
     }
 
     $query .= "WHERE sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3')
-               AND sr.type='" . UserGameListType::AchievementSetRequest . "'";
+               AND sr.type='" . UserGameListType::AchievementSetRequest->value . "'";
 
     if (is_array($console)) {
         $query .= ' AND c.ID IN (' . implode(',', $console) . ') ';

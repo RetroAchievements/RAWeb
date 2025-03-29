@@ -16,29 +16,31 @@ if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'game' => 'required|integer|exists:GameData,ID',
-    'type' => ['required', 'string', Rule::in(UserGameListType::cases())],
+    'type' => ['required', 'string', Rule::in(array_column(UserGameListType::cases(), 'value'))],
 ]);
 
 $gameId = (int) $input['game'];
 $game = Game::findOrFail($gameId);
 
-$type = (string) $input['type'];
+$typeString = (string) $input['type'];
+$typeEnum = UserGameListType::from($typeString);
+
 $command = '';
 
 /** @var User $user */
 $user = User::findOrFail($userDetails['ID']);
-if ($user->gameListEntries($type)->where('GameID', $gameId)->exists()) {
+if ($user->gameListEntries($typeEnum)->where('GameID', $gameId)->exists()) {
     $action = new RemoveGameFromListAction();
-    $success = $action->execute($user, $game, $type);
+    $success = $action->execute($user, $game, $typeEnum);
     $command = 'removed';
 } else {
     $action = new AddGameToListAction();
-    $success = $action->execute($user, $game, $type);
+    $success = $action->execute($user, $game, $typeEnum);
     $command = 'added';
 }
 
 if ($success) {
-    return response()->json(['message' => __("user-game-list.$type.$command")]);
+    return response()->json(['message' => __("user-game-list.{$typeString}.{$command}")]);
 }
 
 abort(400);

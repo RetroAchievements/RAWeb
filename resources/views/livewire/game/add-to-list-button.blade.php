@@ -34,7 +34,7 @@ $toggle = function() {
     $command = $this->isOnList ? "removed" : "added";
     $this->isOnList = !$this->isOnList;
 
-    $this->dispatch('flash-success', message: __("user-game-list.{$this->listType}.{$command}"));
+    $this->dispatch('flash-success', message: __("user-game-list.{$this->listType->value}.{$command}"));
 };
 
 // == lifecycle
@@ -48,7 +48,7 @@ mount(function() {
 
 <button
     class="btn"
-    title="{{ __('user-game-list.' . $listType . ($this->isOnList ? '.remove' : '.add')) }}"
+    title="{{ __('user-game-list.' . $this->listType->value . ($this->isOnList ? '.remove' : '.add')) }}"
     wire:click="toggle"
 >
     <div class="flex items-center gap-x-1">

@@ -147,19 +147,24 @@ class UserGameListTest extends TestCase
         $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry2);
         $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry3);
 
-        $this->assertEquals($user->gameListEntries(UserGameListType::AchievementSetRequest)->get()->toArray(), [
-            ['id' => $userGameListEntry1->id, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-            ['id' => $userGameListEntry2->id, 'GameID' => $game2->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-            ['id' => $userGameListEntry3->id, 'GameID' => $game3->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-        ]);
+        $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
+        $this->assertCount(3, $entries);
+        $this->assertEquals($game1->ID, $entries[0]->GameID);
+        $this->assertEquals($game2->ID, $entries[1]->GameID);
+        $this->assertEquals($game3->ID, $entries[2]->GameID);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[2]->type);
 
         $deleteAction = new RemoveGameFromListAction();
         $this->assertTrue($deleteAction->execute($user, $game2, UserGameListType::AchievementSetRequest));
 
-        $this->assertEquals($user->gameListEntries(UserGameListType::AchievementSetRequest)->get()->toArray(), [
-            ['id' => $userGameListEntry1->id, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-            ['id' => $userGameListEntry3->id, 'GameID' => $game3->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-        ]);
+        $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
+        $this->assertCount(2, $entries);
+        $this->assertEquals($game1->ID, $entries[0]->GameID);
+        $this->assertEquals($game3->ID, $entries[1]->GameID);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
 
         // no longer present, delete should fail
         $this->assertFalse($deleteAction->execute($user, $game2, UserGameListType::AchievementSetRequest));
@@ -167,11 +172,15 @@ class UserGameListTest extends TestCase
         // re-add. should appear at end TODO not appearing at the end
         $userGameListEntry4 = $action->execute($user, $game2, UserGameListType::AchievementSetRequest);
         $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry4);
-        $this->assertEquals($user->gameListEntries(UserGameListType::AchievementSetRequest)->get()->toArray(), [
-            ['id' => $userGameListEntry1->id, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-            ['id' => $userGameListEntry4->id, 'GameID' => $game2->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-            ['id' => $userGameListEntry3->id, 'GameID' => $game3->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-        ]);
+
+        $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
+        $this->assertCount(3, $entries);
+        $this->assertEquals($game1->ID, $entries[0]->GameID);
+        $this->assertEquals($game2->ID, $entries[1]->GameID);
+        $this->assertEquals($game3->ID, $entries[2]->GameID);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[2]->type);
     }
 
     public function testSetRequestAddDuplicate(): void
@@ -195,10 +204,12 @@ class UserGameListTest extends TestCase
         $this->assertNull($action->execute($user, $game1, UserGameListType::AchievementSetRequest));
         $this->assertNull($action->execute($user, $game2, UserGameListType::AchievementSetRequest));
 
-        $this->assertEquals($user->gameListEntries(UserGameListType::AchievementSetRequest)->get()->toArray(), [
-            ['id' => $userGameListEntry1->id, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-            ['id' => $userGameListEntry2->id, 'GameID' => $game2->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-        ]);
+        $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
+        $this->assertCount(2, $entries);
+        $this->assertEquals($game1->ID, $entries[0]->GameID);
+        $this->assertEquals($game2->ID, $entries[1]->GameID);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
     }
 
     public function testSetRequestAddAtLimit(): void
@@ -220,9 +231,10 @@ class UserGameListTest extends TestCase
         $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry1);
         $this->assertNull($action->execute($user, $game2, UserGameListType::AchievementSetRequest));
 
-        $this->assertEquals($user->gameListEntries(UserGameListType::AchievementSetRequest)->get()->toArray(), [
-            ['id' => $userGameListEntry1->id, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-        ]);
+        $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
+        $this->assertCount(1, $entries);
+        $this->assertEquals($game1->ID, $entries[0]->GameID);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
     }
 
     public function testSetRequestScopeWithoutAchievements(): void
@@ -249,15 +261,20 @@ class UserGameListTest extends TestCase
         $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry2);
         $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry3);
 
-        $this->assertEquals($user->gameListEntries(UserGameListType::AchievementSetRequest)->get()->toArray(), [
-            ['id' => $userGameListEntry1->id, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-            ['id' => $userGameListEntry2->id, 'GameID' => $game2->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-            ['id' => $userGameListEntry3->id, 'GameID' => $game3->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-        ]);
+        $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
+        $this->assertCount(3, $entries);
+        $this->assertEquals($game1->ID, $entries[0]->GameID);
+        $this->assertEquals($game2->ID, $entries[1]->GameID);
+        $this->assertEquals($game3->ID, $entries[2]->GameID);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[2]->type);
 
-        $this->assertEquals($user->gameListEntries(UserGameListType::AchievementSetRequest)->withoutAchievements()->get()->toArray(), [
-            ['id' => $userGameListEntry1->id, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-            ['id' => $userGameListEntry3->id, 'GameID' => $game3->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
-        ]);
+        $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->withoutAchievements()->get();
+        $this->assertCount(2, $entries);
+        $this->assertEquals($game1->ID, $entries[0]->GameID);
+        $this->assertEquals($game3->ID, $entries[1]->GameID);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
     }
 }

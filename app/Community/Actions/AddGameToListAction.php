@@ -11,12 +11,8 @@ use App\Models\UserGameListEntry;
 
 class AddGameToListAction
 {
-    public function execute(User $user, Game $game, string $type): ?UserGameListEntry
+    public function execute(User $user, Game $game, UserGameListType $type): ?UserGameListEntry
     {
-        if (!UserGameListType::isValid($type)) {
-            return null;
-        }
-
         if ($user->gameListEntries($type)->where('GameID', $game->ID)->exists()) {
             return null;
         }

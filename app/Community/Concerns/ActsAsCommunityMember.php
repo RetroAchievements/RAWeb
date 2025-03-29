@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community\Concerns;
 
 use App\Community\Enums\ArticleType;
+use App\Community\Enums\UserGameListType;
 use App\Community\Enums\UserRelationship;
 use App\Models\Comment;
 use App\Models\EmailConfirmation;
@@ -70,7 +71,7 @@ trait ActsAsCommunityMember
     /**
      * @return HasMany<UserGameListEntry>
      */
-    public function gameListEntries(?string $type = null): HasMany
+    public function gameListEntries(?UserGameListType $type = null): HasMany
     {
         $query = $this->hasMany(UserGameListEntry::class, 'user_id', 'ID');
 
