@@ -156,8 +156,10 @@ class GameListRequest extends FormRequest
         // If no URL params, check the cookie next.
         if (empty($filters)) {
             $preferences = $this->getCookiePreferences();
-            if ($preferences && !empty($preferences['columnFilters'])) {
-                foreach ($preferences['columnFilters'] as $filter) {
+            $columnFilters = $preferences['columnFilters'] ?? [];
+
+            foreach ($columnFilters as $filter) {
+                if (isset($filter['id'], $filter['value'])) {
                     $value = $filter['value'];
                     $filters[$filter['id']] = is_array($value) ? $value : [$value];
                 }

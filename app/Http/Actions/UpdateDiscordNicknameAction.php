@@ -11,8 +11,8 @@ use Throwable;
 class UpdateDiscordNicknameAction
 {
     private Client $client;
-    private string $botToken;
-    private string $guildId;
+    private ?string $botToken;
+    private ?string $guildId;
 
     public function __construct()
     {

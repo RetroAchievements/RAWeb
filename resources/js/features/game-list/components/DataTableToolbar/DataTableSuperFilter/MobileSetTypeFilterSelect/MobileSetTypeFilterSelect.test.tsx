@@ -114,6 +114,9 @@ describe('Component: MobileSetTypeFilterSelect', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('combobox'));
+    await userEvent.click(screen.getByTestId('only-games-option'));
+
+    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByTestId('all-sets-option'));
 
     // ASSERT

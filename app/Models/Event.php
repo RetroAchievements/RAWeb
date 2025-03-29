@@ -78,6 +78,14 @@ class Event extends BaseModel
         $now = now();
 
         /**
+         * If there are no event achievements, we have nothing to derive an
+         * event state from. It must be concluded.
+         */
+        if ($this->achievements->isEmpty()) {
+            return EventState::Concluded;
+        }
+
+        /**
          * An event is active if:
          * - The conclusion date is in the future, or
          * - Any of the event achievements have an activeUntil date in the future.

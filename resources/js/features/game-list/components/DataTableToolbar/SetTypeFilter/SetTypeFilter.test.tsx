@@ -111,4 +111,25 @@ describe('Component: SetTypeFilter', () => {
       { id: 'subsets', value: ['only-games'] },
     ]);
   });
+
+  it('given the "All Sets" option is selected, removes the filter from filter state', async () => {
+    // ARRANGE
+    const setFiltersSpy = vi.fn();
+    const mockTableWithSpy = createMockTable({
+      setColumnFilters: setFiltersSpy,
+    });
+
+    render(<SetTypeFilter table={mockTableWithSpy as Table<any>} />);
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /set type/i }));
+
+    await userEvent.click(screen.getByText(/main sets only/i));
+    await userEvent.click(screen.getByText(/all sets/i));
+
+    // ASSERT
+    const updateFn = setFiltersSpy.mock.calls[1][0]; // !! the 2nd call
+    const result = updateFn([{ id: 'otherFilter', value: 'someValue' }]);
+    expect(result).toEqual([{ id: 'otherFilter', value: 'someValue' }]);
+  });
 });

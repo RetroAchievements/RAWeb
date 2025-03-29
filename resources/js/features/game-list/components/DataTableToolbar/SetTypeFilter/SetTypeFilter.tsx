@@ -18,6 +18,12 @@ export function SetTypeFilter<TData>({ table }: SetTypeFilterProps<TData>) {
       table.getState().columnFilters.find((f) => f.id === 'subsets')?.value ?? [],
 
     setFilterValue: (value) => {
+      if (value === undefined) {
+        table.setColumnFilters((prev) => [...prev.filter((f) => f.id !== 'subsets')]);
+
+        return;
+      }
+
       table.setColumnFilters((prev) => [
         ...prev.filter((f) => f.id !== 'subsets'),
         { id: 'subsets', value },

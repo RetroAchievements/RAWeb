@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Community\Actions\ApproveNewDisplayNameAction;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\UserUsernameResource\Pages;
+use App\Mail\DisplayNameChangeDeclinedMail;
 use App\Models\User;
 use App\Models\UserUsername;
 use Filament\Forms\Form;
@@ -14,6 +15,7 @@ use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Mail;
 
 class UserUsernameResource extends Resource
 {
@@ -173,7 +175,7 @@ class UserUsernameResource extends Resource
                         /** @var User $user */
                         $user = $record->user;
 
-                        sendDisplayNameChangeDeclineEmail($user, $record->username);
+                        Mail::to($user)->queue(new DisplayNameChangeDeclinedMail($user, $record->username));
 
                         Notification::make()
                             ->success()

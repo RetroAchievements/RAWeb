@@ -123,9 +123,6 @@ describe('Component: GameTypeFilter', () => {
 
     const updateFn = setFiltersSpy.mock.calls[0][0];
     const result = updateFn([{ id: 'otherFilter', value: 'someValue' }]);
-    expect(result).toEqual([
-      { id: 'otherFilter', value: 'someValue' },
-      { id: 'game-type', value: undefined },
-    ]);
+    expect(result).toEqual([{ id: 'otherFilter', value: 'someValue' }]);
   });
 });
