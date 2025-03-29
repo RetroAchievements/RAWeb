@@ -18,6 +18,7 @@ if ($user !== null) {
         ->join('UserAccounts', 'Friends.related_user_id', '=', 'UserAccounts.ID')
         ->where('Friends.user_id', '=', $user->id)
         ->where('Friends.Friendship', '=', UserRelationship::Following)
+        ->whereNull('UserAccounts.banned_at')
         ->select('UserAccounts.ID')
         ->pluck('ID')
         ->toArray();
@@ -48,7 +49,7 @@ if ($user !== null) {
         ->toArray();
 
     $userIds = array_column($followedUserCompletion, 'user_id');
-    $friends = User::whereIn('ID', $userIds)->whereNull('banned_at')->get()->keyBy('ID');
+    $friends = User::whereIn('ID', $userIds)->get()->keyBy('ID');
 
     // Filter out completion data for banned users.
     $followedUserCompletion = array_filter($followedUserCompletion, function ($item) use ($friends) {
