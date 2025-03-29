@@ -470,7 +470,7 @@ if ($game->system->id === System::Events) {
     if ($unlocks->isEmpty()) {
         echo "Nobody yet! Will you be the first?!<br>";
     } else {
-        $userWinners = $unlocks->pluck('User')->filter()->unique()->values()->toArray();
+        $userWinners = $unlocks->pluck('User')->toArray();
         $usersMap = [];
 
         if (!empty($userWinners)) {
