@@ -58,8 +58,8 @@ class PatchDataTest extends TestCase
             },
             //            'Description' => 'Hardcore unlocks cannot be earned using this client.',
             'Description' => ($clientSupportLevel === ClientSupportLevel::Outdated) ?
-                'Starting in April, all unlocks from this emulator version will be softcore' :
-                'Starting in April, all unlocks from this emulator will be softcore',
+                'Hardcore unlocks cannot be earned using this version of this emulator.' :
+                'Hardcore unlocks cannot be earned using this emulator.',
             'Points' => 0,
             'Author' => '',
             'Modified' => Carbon::now()->unix(),
