@@ -270,6 +270,7 @@ img {
     background-color: #edf2f7;
     color: #718096;
     padding: 16px;
+    word-break: break-all;
 }
 
 .panel-content p {
