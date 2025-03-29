@@ -15,7 +15,7 @@ describe('Component: EventAchievementSets', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given the event has no achievements, renders nothing', () => {
+  it('given the event has no achievements, renders an empty state', () => {
     // ARRANGE
     const event = createRaEvent({
       eventAchievements: undefined,
@@ -25,6 +25,7 @@ describe('Component: EventAchievementSets', () => {
 
     // ASSERT
     expect(screen.queryByTestId('event-achievement-sets')).not.toBeInTheDocument();
+    expect(screen.getByText(/there aren't any achievements for this event/i)).toBeVisible();
   });
 
   it('given the event is evergreen, defaults to display order sort and hides active option', () => {

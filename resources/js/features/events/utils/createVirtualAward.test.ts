@@ -13,24 +13,6 @@ describe('Util: createVirtualAward', () => {
     expect(createVirtualAward).toBeDefined();
   });
 
-  it('given the event is missing eventAchievements, returns null', () => {
-    // ARRANGE
-    const event = createRaEvent({
-      id: 1,
-      eventAchievements: [], // !!
-      legacyGame: createGame({
-        badgeUrl: 'https://example.com/badge.jpg',
-        title: 'Test Game',
-      }),
-    });
-
-    // ACT
-    const result = createVirtualAward(event, 100);
-
-    // ASSERT
-    expect(result).toBeNull();
-  });
-
   it('given the event is missing legacyGame.badgeUrl, returns null', () => {
     // ARRANGE
     const event = createRaEvent({
@@ -129,26 +111,6 @@ describe('Util: createVirtualAward', () => {
       tierIndex: 0,
       badgeCount: 3,
     });
-  });
-
-  it('given the event has no achievements with points, returns null', () => {
-    // ARRANGE
-    const event = createRaEvent({
-      id: 123,
-      eventAchievements: [
-        createEventAchievement({ achievement: createAchievement({ points: 0 }) }), // !!
-      ],
-      legacyGame: createGame({
-        badgeUrl: 'https://example.com/badge.jpg',
-        title: 'Test Game',
-      }),
-    });
-
-    // ACT
-    const result = createVirtualAward(event, 1);
-
-    // ASSERT
-    expect(result).toBeNull();
   });
 
   it('passes numMasters through to the badgeCount property', () => {

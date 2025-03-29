@@ -77,9 +77,15 @@ export function DataTableFacetedFilter<TData, TValue>({
   const { t } = useTranslation();
 
   const facets = column?.getFacetedUniqueValues();
-  const selectedValues = new Set(column?.getFilterValue() as string[]);
   const columnId = column?.id;
   const allFlatOptions = getAllFlatOptions(options);
+
+  const filterValue = column?.getFilterValue() as string[];
+  const selectedValues = new Set(
+    isSingleSelect && Array.isArray(filterValue) && filterValue.length > 1
+      ? [filterValue[0]]
+      : filterValue,
+  );
 
   if (variant === 'drawer') {
     return (
@@ -108,7 +114,7 @@ export function DataTableFacetedFilter<TData, TValue>({
             <BaseButton
               size="sm"
               className={cn(
-                'border-dashed',
+                'border-dashed bg-neutral-950 light:bg-white',
                 buildTrackingClassNames(`Click ${columnId} Filter`),
                 disabled ? '!pointer-events-auto' : null,
                 className,

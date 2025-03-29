@@ -14,6 +14,10 @@ return [
     |
     */
 
+    'bluesky' => [
+        'channel' => env('BLUESKY_CHANNEL'),
+    ],
+
     'discord' => [
         'client_id' => env('DISCORD_KEY'),
         'client_secret' => env('DISCORD_SECRET'),

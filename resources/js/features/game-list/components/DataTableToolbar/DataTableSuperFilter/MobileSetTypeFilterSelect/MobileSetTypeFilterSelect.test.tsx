@@ -51,7 +51,7 @@ describe('Component: MobileSetTypeFilterSelect', () => {
     await userEvent.click(screen.getByRole('combobox'));
 
     // ASSERT
-    expect(screen.getByTestId('both-option')).toBeVisible();
+    expect(screen.getByTestId('all-sets-option')).toBeVisible();
     expect(screen.getByTestId('only-games-option')).toBeVisible();
     expect(screen.getByTestId('only-subsets-option')).toBeVisible();
   });
@@ -114,7 +114,10 @@ describe('Component: MobileSetTypeFilterSelect', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('combobox'));
-    await userEvent.click(screen.getByTestId('both-option'));
+    await userEvent.click(screen.getByTestId('only-games-option'));
+
+    await userEvent.click(screen.getByRole('combobox'));
+    await userEvent.click(screen.getByTestId('all-sets-option'));
 
     // ASSERT
     expect(setColumnFiltersSpy).toHaveBeenCalledWith(expect.any(Function));
