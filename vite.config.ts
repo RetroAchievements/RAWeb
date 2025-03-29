@@ -118,25 +118,27 @@ function detectServerConfig(env) {
   };
 
   const { host } = new URL(env.APP_URL);
+
   const keyPath = resolve(homedir(), `.config/valet/Certificates/${host}.key`);
   const certificatePath = resolve(homedir(), `.config/valet/Certificates/${host}.crt`);
+  const useDevSsl = env.VITE_USE_DEV_SSL === 'true';
 
-  if (!existsSync(keyPath) || !existsSync(certificatePath)) {
-    // NOTE do not set host, it defaults to either localhost or 0.0.0.0 for Docker
+  if (useDevSsl && existsSync(keyPath) && existsSync(certificatePath)) {
     return {
-      port: env.VITE_PORT,
+      host,
       watch,
+      hmr: { host },
+      https: {
+        key: readFileSync(keyPath),
+        cert: readFileSync(certificatePath),
+      },
+      port: env.VITE_PORT,
     };
   }
 
   return {
-    hmr: { host },
-    host,
-    port: env.VITE_PORT,
     watch,
-    https: {
-      key: readFileSync(keyPath),
-      cert: readFileSync(certificatePath),
-    },
+    cors: true,
+    port: env.VITE_PORT,
   };
 }
