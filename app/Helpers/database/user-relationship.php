@@ -3,10 +3,12 @@
 use App\Community\Enums\UserRelationship;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
+use App\Mail\CommunityFriendMail;
 use App\Models\Game;
 use App\Models\PlayerSession;
 use App\Models\User;
 use App\Models\UserRelation;
+use Illuminate\Support\Facades\Mail;
 
 function changeFriendStatus(User $senderUser, User $targetUser, int $newStatus): string
 {
@@ -48,7 +50,7 @@ function changeFriendStatus(User $senderUser, User $targetUser, int $newStatus):
             // attempt to notify the target of the new follower
             if ($newRelationship && BitSet($targetUser->websitePrefs, UserPreference::EmailOn_Followed)) {
                 // notify the new friend of the request
-                sendFriendEmail($targetUser->display_name, $targetUser->EmailAddress, 0, $senderUser->display_name);
+                Mail::to($targetUser)->queue(new CommunityFriendMail($targetUser, $senderUser));
             }
 
             return "user_follow";

@@ -43,7 +43,7 @@ export const MessagesIndexRoot: FC = memo(() => {
       </div>
 
       <div className="flex w-full flex-col items-end justify-between gap-2 sm:flex-row sm:items-center">
-        <a href={route('message.create')} className={baseButtonVariants({ size: 'sm' })}>
+        <a href={route('message-thread.create')} className={baseButtonVariants({ size: 'sm' })}>
           {t('New Message')}
         </a>
 

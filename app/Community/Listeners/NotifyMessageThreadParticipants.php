@@ -7,14 +7,15 @@ namespace App\Community\Listeners;
 use App\Community\Actions\UpdateUnreadMessageCountAction;
 use App\Community\Events\MessageCreated;
 use App\Enums\UserPreference;
+use App\Mail\PrivateMessageReceivedMail;
 use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 use GuzzleHttp\Client;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class NotifyMessageThreadParticipants
 {
@@ -61,7 +62,14 @@ class NotifyMessageThreadParticipants
 
             // send email?
             if (BitSet($userTo->websitePrefs, UserPreference::EmailOn_PrivateMessage)) {
-                sendPrivateMessageEmail($userTo->display_name, $userTo->EmailAddress, $thread->title, $message->body, $userFrom->display_name);
+                if (!$userTo->is($userFrom)) {
+                    Mail::to($userTo)->queue(new PrivateMessageReceivedMail(
+                        $userTo,
+                        $userFrom,
+                        $thread,
+                        $message,
+                    ));
+                }
             }
 
             $this->forwardToDiscord($userFrom, $userTo, $thread, $message);
@@ -77,43 +85,52 @@ class NotifyMessageThreadParticipants
         $message->body = Shortcode::stripAndClamp($message->body, 1850, preserveWhitespace: true);
 
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
-        $webhookUrl = $inboxConfig['url'] ?? null;
 
-        if ($inboxConfig === null || empty($webhookUrl)) {
+        // If no config exists for this user or no URL is configured, bail early.
+        if ($inboxConfig === null || empty($inboxConfig['url'] ?? null)) {
             return;
         }
+
+        // Default webhook URL.
+        $webhookUrl = $inboxConfig['url'];
 
         if (empty($messageThread->title) || empty($message->body)) {
             return;
         }
 
+        // Set default values.
         $color = hexdec('0x0066CC');
-        $mentionRoles = collect(Arr::wrap($inboxConfig['mention_role'] ?? []))
-            ->map(fn ($role) => '<@&' . $role . '>');
         $isForum = $inboxConfig['is_forum'] ?? false;
 
-        if (mb_strpos(mb_strtolower($messageThread->title), 'verify') !== false
-            || mb_strpos(mb_strtolower($messageThread->title), 'verified') !== false
-            || mb_strpos(mb_strtolower($messageThread->title), 'verifying') !== false
-            || mb_strpos(mb_strtolower($messageThread->title), 'verification') !== false
-            || mb_strpos(mb_strtolower($messageThread->title), 'discord') !== false
-        ) {
+        // Process special message types only if the corresponding config keys exist.
+        $messageTitle = mb_strtolower($messageThread->title);
+
+        // Discord user verification messages.
+        if (isset($inboxConfig['verify_url']) && (
+            mb_strpos($messageTitle, 'verify') !== false
+            || mb_strpos($messageTitle, 'verified') !== false
+            || mb_strpos($messageTitle, 'verifying') !== false
+            || mb_strpos($messageTitle, 'verification') !== false
+            || mb_strpos($messageTitle, 'discord') !== false
+        )) {
             $webhookUrl = $inboxConfig['verify_url'];
             $color = hexdec('0x00CC66');
-            $mentionRoles = collect();
             $isForum = false;
         }
 
-        if (mb_strpos(mb_strtolower($messageThread->title), 'delete') !== false
-            || mb_strpos(mb_strtolower($messageThread->title), 'deleting') !== false
-            || mb_strpos(mb_strtolower($messageThread->title), 'deletion') !== false) {
+        // Deletion messages - just change the color, don't change the URL.
+        if (
+            mb_strpos($messageTitle, 'delete') !== false
+            || mb_strpos($messageTitle, 'deleting') !== false
+            || mb_strpos($messageTitle, 'deletion') !== false
+        ) {
             $color = hexdec('0xCC6600');
         }
 
-        if (mb_strpos(mb_strtolower($messageThread->title), 'manual') !== false) {
+        // Manual unlock messages.
+        if (isset($inboxConfig['manual_unlock_url']) && mb_strpos($messageTitle, 'manual') !== false) {
             $webhookUrl = $inboxConfig['manual_unlock_url'];
             $color = hexdec('0xCC0066');
-            $mentionRoles = collect();
             $isForum = false;
         }
 
@@ -124,10 +141,10 @@ class NotifyMessageThreadParticipants
             'Unwelcome Concept:' => 'unwelcome_concept_url',
             'Writing:' => 'url',
         ];
+
         foreach ($structuredTitlePrefixes as $prefix => $configKey) {
-            if (mb_strpos($messageThread->title, $prefix) !== false) {
+            if (mb_strpos($messageThread->title, $prefix) !== false && isset($inboxConfig[$configKey])) {
                 $webhookUrl = $inboxConfig[$configKey];
-                $mentionRoles = collect();
                 $isForum = true;
 
                 // Extract the achievement ID from the message thread title.
@@ -140,7 +157,12 @@ class NotifyMessageThreadParticipants
                     // We want to reformat the incoming structured title before it lands in the team forum.
                     //  - Original:  "Unwelcome Concept: Lots of Rings [12345] (Sonic the Hedgehog)"
                     //  - Formatted: "12345: Lots of Rings (Sonic the Hedgehog)"
-                    if (preg_match('/^(Incorrect type:|Issue:|Unwelcome Concept:|Writing:)\s*(.*)\s*\[([0-9]+)\]\s*(\(.*\))$/', $messageThread->title, $titleMatches)) {
+                    if (preg_match(
+                            '/^(Incorrect type:|Issue:|Unwelcome Concept:|Writing:)\s*(.*)\s*\[([0-9]+)\]\s*(\(.*\))$/',
+                            $messageThread->title,
+                            $titleMatches
+                        )
+                    ) {
                         $newTitle = $achievementId . ': ' . $titleMatches[2] . ' ' . $titleMatches[4];
                         $messageThread->title = $newTitle;
                     }
@@ -168,13 +190,6 @@ class NotifyMessageThreadParticipants
                 ],
             ],
         ];
-
-        // TODO to re-enable role mentions, uncomment the conditional below
-        // this is temporarily disabled due to a regression in Discord's webhooks functionality.
-        // when role pings are enabled, webhook messages are randomly deleted.
-        // if ($mentionRoles->isNotEmpty()) {
-        //     $payload['content'] = $mentionRoles->implode(' ');
-        // }
 
         if ($isForum) {
             // Forum channels require an additional 'thread_name' JSON parameter to be successfully posted.

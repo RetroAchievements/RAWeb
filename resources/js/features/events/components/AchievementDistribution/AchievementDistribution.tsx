@@ -5,16 +5,19 @@ import { Bar, BarChart, CartesianGrid, ReferenceLine, XAxis } from 'recharts';
 import { BaseChartContainer, BaseChartTooltip } from '@/common/components/+vendor/BaseChart';
 
 import { ReferenceLineTooltipContent } from './ReferenceLineTooltipContent';
+import { SoftcoreBar } from './SoftcoreBar';
 import { useAchievementDistributionChart } from './useAchievementDistributionChart';
 
 interface AchievementDistributionProps {
   buckets: App.Platform.Data.PlayerAchievementChartBucket[];
   playerGame: App.Platform.Data.PlayerGame | null;
+  variant: 'event' | 'game';
 }
 
 export const AchievementDistribution: FC<AchievementDistributionProps> = ({
   buckets,
   playerGame,
+  variant,
 }) => {
   const { t } = useTranslation();
 
@@ -25,9 +28,9 @@ export const AchievementDistribution: FC<AchievementDistributionProps> = ({
     userAchievementCounts,
     userHardcoreIndex,
     userSoftcoreIndex,
-  } = useAchievementDistributionChart({ buckets, playerGame });
+  } = useAchievementDistributionChart({ buckets, playerGame, variant });
 
-  if (!buckets.length) {
+  if (buckets.length < 2) {
     return null;
   }
 
@@ -45,11 +48,12 @@ export const AchievementDistribution: FC<AchievementDistributionProps> = ({
               content={
                 <ReferenceLineTooltipContent
                   className="min-w-[196px]"
+                  buckets={buckets}
                   labelFormatter={formatTooltipLabel}
+                  userAchievementCounts={userAchievementCounts}
                   userHardcoreIndex={userHardcoreIndex}
                   userSoftcoreIndex={userSoftcoreIndex}
-                  userAchievementCounts={userAchievementCounts}
-                  buckets={buckets}
+                  variant={variant}
                 />
               }
             />
@@ -60,12 +64,8 @@ export const AchievementDistribution: FC<AchievementDistributionProps> = ({
               stackId="a"
               isAnimationActive={false}
             />
-            <Bar
-              dataKey="softcore"
-              fill="var(--color-softcore)"
-              stackId="a"
-              isAnimationActive={false}
-            />
+            {/* Events do not track softcore progress. */}
+            <SoftcoreBar variant={variant} />
 
             {userHardcoreIndex !== undefined ? (
               <ReferenceLine

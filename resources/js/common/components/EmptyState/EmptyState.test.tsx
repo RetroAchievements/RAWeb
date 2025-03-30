@@ -11,7 +11,7 @@ describe('Component: EmptyState', () => {
     expect(container).toBeTruthy();
   });
 
-  it('displays an image', () => {
+  it('displays an image by default', () => {
     // ARRANGE
     render(<EmptyState>no results</EmptyState>);
 
@@ -25,5 +25,13 @@ describe('Component: EmptyState', () => {
 
     // ASSERT
     expect(screen.getByText(/no results/i)).toBeVisible();
+  });
+
+  it('allows disabling the image', () => {
+    // ARRANGE
+    render(<EmptyState shouldShowImage={false}>no results</EmptyState>);
+
+    // ASSERT
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 });
