@@ -6,6 +6,7 @@ namespace App\Community\Data;
 
 use App\Data\UserData;
 use App\Platform\Data\AchievementData;
+use App\Platform\Data\EventData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
 use App\Platform\Data\TicketData;
@@ -21,6 +22,7 @@ class ShortcodeDynamicEntitiesData extends Data
      * @param AchievementData[] $achievements
      * @param GameData[] $games
      * @param GameSetData[] $hubs
+     * @param EventData[] $events
      */
     public function __construct(
         public array $users = [],
@@ -28,6 +30,7 @@ class ShortcodeDynamicEntitiesData extends Data
         public array $achievements = [],
         public array $games = [],
         public array $hubs = [],
+        public array $events = [],
     ) {
     }
 }

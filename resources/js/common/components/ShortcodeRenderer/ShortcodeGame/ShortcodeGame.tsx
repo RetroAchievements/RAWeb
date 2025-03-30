@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import type { FC } from 'react';
 
 import { persistedGamesAtom } from '../../../state/shortcode.atoms';
@@ -9,7 +9,7 @@ interface ShortcodeGameProps {
 }
 
 export const ShortcodeGame: FC<ShortcodeGameProps> = ({ gameId }) => {
-  const [persistedGames] = useAtom(persistedGamesAtom);
+  const persistedGames = useAtomValue(persistedGamesAtom);
 
   const foundGame = persistedGames?.find((game) => game.id === gameId);
 

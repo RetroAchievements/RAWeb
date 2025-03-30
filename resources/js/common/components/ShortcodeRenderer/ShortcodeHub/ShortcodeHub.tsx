@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -12,7 +12,7 @@ interface ShortcodeHubProps {
 export const ShortcodeHub: FC<ShortcodeHubProps> = ({ hubId }) => {
   const { t } = useTranslation();
 
-  const [persistedHubs] = useAtom(persistedHubsAtom);
+  const persistedHubs = useAtomValue(persistedHubsAtom);
 
   const foundHub = persistedHubs?.find((hub) => hub.id === hubId);
 

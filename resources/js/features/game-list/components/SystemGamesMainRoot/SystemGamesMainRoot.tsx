@@ -1,5 +1,5 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -46,7 +46,7 @@ export const SystemGamesMainRoot: FC = memo(() => {
     paginatedData: paginatedGameListEntries,
   });
 
-  const [isCurrentlyPersistingView] = useAtom(isCurrentlyPersistingViewAtom);
+  const isCurrentlyPersistingView = useAtomValue(isCurrentlyPersistingViewAtom);
 
   useTableSync({
     columnFilters,

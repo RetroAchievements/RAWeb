@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Shortcode;
 
 use App\Models\Achievement;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\System;
@@ -43,6 +44,7 @@ final class Shortcode
             ->add('ach', fn (ShortcodeInterface $s) => $this->embedAchievement((int) ($s->getBbCode() ?: $s->getContent())))
             ->add('game', fn (ShortcodeInterface $s) => $this->embedGame((int) ($s->getBbCode() ?: $s->getContent())))
             ->add('hub', fn (ShortcodeInterface $s) => $this->embedHub((int) ($s->getBbCode() ?: $s->getContent())))
+            ->add('event', fn (ShortcodeInterface $s) => $this->embedEvent((int) ($s->getBbCode() ?: $s->getContent())))
             ->add('ticket', fn (ShortcodeInterface $s) => $this->embedTicket((int) ($s->getBbCode() ?: $s->getContent())))
             ->add('user', fn (ShortcodeInterface $s) => $this->embedUser($s->getBbCode() ?: $s->getContent()));
     }
@@ -452,7 +454,7 @@ final class Shortcode
 
     private function embedHub(int $id): string
     {
-        $data = Cache::store('array')->rememberForever('hub: ' . $id . ':hub-data', function () use ($id) {
+        $data = Cache::store('array')->rememberForever('hub:' . $id . ':hub-data', function () use ($id) {
             $hubGameSet = GameSet::where('type', GameSetType::Hub)
                 ->where('id', $id)
                 ->first();
@@ -474,6 +476,30 @@ final class Shortcode
         }
 
         return str_replace("\n", '', gameAvatar($data, iconSize: 24, isHub: true));
+    }
+
+    private function embedEvent(int $id): string
+    {
+        $data = Cache::store('array')->rememberForever('event:' . $id . ':event-data', function () use ($id) {
+            $event = Event::find($id);
+
+            if (!$event) {
+                return [];
+            }
+
+            return [
+                'ID' => $event->legacyGame->id,
+                'Title' => $event->legacyGame->title,
+                'ConsoleName' => "Events",
+                'ImageIcon' => $event->image_asset_path,
+            ];
+        });
+
+        if (empty($data)) {
+            return '';
+        }
+
+        return str_replace("\n", '', gameAvatar($data, iconSize: 24));
     }
 
     private function embedTicket(int $id): string

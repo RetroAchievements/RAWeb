@@ -57,6 +57,9 @@ if(!$id) {
     <button type="button" class="btn" onclick="injectShortcode('{{ $id }}', '[hub=', ']')" title="Hub">
         <x-fas-network-wired />
     </button>
+    <button type="button" class="btn" onclick="injectShortcode('{{ $id }}', '[event=', ']')" title="Event">
+        <x-fas-calendar />
+    </button>
     <button type="button" class="btn" onclick="injectShortcode('{{ $id }}', '[user=', ']')"
             {{-- x-tooltip="{{ __res('user', 1) }}" --}} title="{{ __res('user', 1) }}">
         <x-fas-user />
