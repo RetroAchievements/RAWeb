@@ -161,4 +161,48 @@ describe('Util: preProcessShortcodesInBody', () => {
     // ASSERT
     expect(result).toEqual(input);
   });
+
+  it('handles game URLs with slugs', () => {
+    // ARRANGE
+    const input = 'Check out https://retroachievements.org/game/1234-super-mario-64';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Check out [game=1234]');
+  });
+
+  it('handles event URLs with slugs', () => {
+    // ARRANGE
+    const input = 'Check out http://localhost:64000/event/123-achievement-of-the-week-2025';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Check out [event=123]');
+  });
+
+  it('handles hub URLs with slugs', () => {
+    // ARRANGE
+    const input = 'Check out https://retroachievements.org/hub/45-final-fantasy-series';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Check out [hub=45]');
+  });
+
+  it('handles user URLs with slugs', () => {
+    // ARRANGE
+    const input = 'Check out [url=https://retroachievements.org/user/Scott-Adams]Scott[/url]';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Check out [user=Scott]');
+  });
 });
