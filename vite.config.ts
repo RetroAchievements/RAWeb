@@ -1,5 +1,6 @@
 /// <reference types="vitest" />
 
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
 import { existsSync, readFileSync } from 'fs';
 import laravel from 'laravel-vite-plugin';
@@ -27,6 +28,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       outDir: isSsrBuild ? 'bootstrap/ssr' : `public/${env.VITE_BUILD_PATH}`,
       assetsDir: '',
       assetsInlineLimit: 4096,
+      sourcemap: true,
     },
 
     // https://vitejs.dev/config/#plugins
@@ -36,7 +38,14 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         ssr: 'resources/js/ssr.tsx',
         refresh: ['resources/views/**'],
       }),
+
       react(),
+
+      sentryVitePlugin({
+        org: 'retroachievementsorg',
+        project: 'raweb',
+        authToken: env.SENTRY_AUTH_TOKEN,
+      }),
     ],
 
     ssr: {
