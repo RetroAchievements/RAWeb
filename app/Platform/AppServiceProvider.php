@@ -30,6 +30,7 @@ use App\Platform\Commands\EnqueueStaleGamePlayerGamesUpdates;
 use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ResetPlayerAchievement;
+use App\Platform\Commands\SendClaimExpirationWarningEmails;
 use App\Platform\Commands\SyncAchievementAuthors;
 use App\Platform\Commands\SyncAchievements;
 use App\Platform\Commands\SyncGameAchievementSets;
@@ -107,6 +108,7 @@ class AppServiceProvider extends ServiceProvider
                 UpdateTotalGamesCount::class,
 
                 // Developer
+                SendClaimExpirationWarningEmails::class,
                 UpdateDeveloperContributionYield::class,
 
                 // Events
@@ -139,6 +141,7 @@ class AppServiceProvider extends ServiceProvider
             // $schedule->command(EnqueueStaleGamePlayerGamesUpdates::class)->everyFifteenMinutes();
             $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
+            $schedule->command(SendClaimExpirationWarningEmails::class)->hourly();
         });
 
         $this->loadMigrationsFrom([database_path('migrations/platform')]);
