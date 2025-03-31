@@ -470,18 +470,31 @@ if ($game->system->id === System::Events) {
     if ($unlocks->isEmpty()) {
         echo "Nobody yet! Will you be the first?!<br>";
     } else {
+        $userWinners = $unlocks->pluck('User')->toArray();
+        $usersMap = [];
+
+        if (!empty($userWinners)) {
+            $users = User::whereIn('User', $userWinners)->get();
+
+            foreach ($users as $user) {
+                $usersMap[$user->username] = $user;
+            }
+        }
+
         echo "<table class='table-highlight'><tbody>";
         echo "<tr class='do-not-highlight'><th class='w-[50%] xl:w-[60%]'>User</th><th>Mode</th><th class='text-right'>Unlocked</th></tr>";
         $iter = 0;
+
         foreach ($unlocks as $userObject) {
             $userWinner = $userObject['User'];
-            if ($userWinner == null || $userObject['DateAwarded'] == null) {
+            if ($userWinner == null || $userObject['DateAwarded'] == null || !isset($usersMap[$userWinner])) {
                 continue;
             }
+
             $niceDateWon = date("d M, Y H:i", strtotime($userObject['DateAwarded']));
             echo "<tr>";
             echo "<td class='w-[32px]'>";
-            echo userAvatar($userWinner, iconClass: 'mr-2');
+            echo userAvatar($usersMap[$userWinner], iconClass: 'mr-2');
             echo "</td>";
             echo "<td>";
             if ($userObject['HardcoreMode']) {

@@ -15,6 +15,7 @@ class SystemData extends Data
     public function __construct(
         public int $id,
         public string $name,
+        public Lazy|string $manufacturer,
         public Lazy|string $nameFull,
         public Lazy|string $nameShort,
         public Lazy|string $iconUrl,
@@ -26,6 +27,7 @@ class SystemData extends Data
         return new self(
             id: $system->id,
             name: $system->name,
+            manufacturer: Lazy::create(fn () => $system->manufacturer),
             nameFull: Lazy::create(fn () => $system->name_full),
             nameShort: Lazy::create(fn () => $system->name_short),
             iconUrl: Lazy::create(fn () => $system->icon_url),

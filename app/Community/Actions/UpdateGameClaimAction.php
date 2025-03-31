@@ -109,7 +109,6 @@ class UpdateGameClaimAction
         $game = Game::find($claim->game_id);
         $game->achievementSetClaims()->active()->update(['Status' => $claim->Status, 'Finished' => $claim->Finished]);
 
-        // TODO: these emails should be queued and sent asynchronously
         if ($claim->SetType === ClaimSetType::Revision) {
             // Send email to users who had previously mastered the set
             $userAwards = PlayerBadge::with('user')
@@ -118,7 +117,7 @@ class UpdateGameClaimAction
                 ->get();
 
             foreach ($userAwards as $userAward) {
-                if ($userAward->user) {
+                if ($userAward->user && !$userAward->user->banned_at) {
                     Mail::to($userAward->user)->queue(new SetRevisionNotificationMail(
                         $userAward->user,
                         $game,
@@ -133,7 +132,7 @@ class UpdateGameClaimAction
                 ->get();
 
             foreach ($setRequests as $setRequest) {
-                if ($setRequest->user) {
+                if ($setRequest->user && !$setRequest->user->banned_at) {
                     Mail::to($setRequest->user)->queue(new SetAchievementsPublishedNotificationMail(
                         $setRequest->user,
                         $game

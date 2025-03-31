@@ -27,6 +27,12 @@ export function MobileGameTypeFilterSelect<TData>({
       table.getState().columnFilters.find((f) => f.id === 'game-type')?.value ?? [],
 
     setFilterValue: (value) => {
+      if (value[0] === 'null') {
+        table.setColumnFilters((prev) => [...prev.filter((f) => f.id !== 'game-type')]);
+
+        return;
+      }
+
       table.setColumnFilters((prev) => [
         ...prev.filter((f) => f.id !== 'game-type'),
         { id: 'game-type', value },
@@ -52,6 +58,10 @@ export function MobileGameTypeFilterSelect<TData>({
         </BaseSelectTrigger>
 
         <BaseSelectContent>
+          <BaseSelectItem value="null" data-testid="all-games-option">
+            {t('All Games')}
+          </BaseSelectItem>
+
           <BaseSelectItem value="retail" data-testid="retail-option">
             {t('Retail')}
           </BaseSelectItem>
