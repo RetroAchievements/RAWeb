@@ -29,6 +29,20 @@ class AchievementFactory extends Factory
     {
         $user = User::inRandomOrder()->first();
 
+        // pick a random point value (prefer 5 and 10, exclude 0)
+        $points = match (random_int(0, 6)) {
+            0 => 5,
+            1 => 5,
+            2 => 5,
+            3 => 5,
+            4 => 10,
+            5 => 10,
+            default => AchievementPoints::cases()[array_rand(AchievementPoints::cases())],
+        };
+        if ($points === 0) {
+            $points = 5;
+        }
+
         return [
             'GameID' => 0,
             'Title' => ucwords(fake()->words(2, true)),
@@ -37,7 +51,7 @@ class AchievementFactory extends Factory
             'user_id' => $user?->id ?? 1,
             'Flags' => AchievementFlag::Unofficial->value,
             'type' => null,
-            'Points' => array_rand(array_diff(AchievementPoints::cases(), [0])),
+            'Points' => $points,
             'TrueRatio' => rand(1, 1000),
             'BadgeName' => '00001',
             'DateModified' => Carbon::now(),
