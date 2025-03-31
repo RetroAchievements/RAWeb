@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Tests\Feature\Community\Actions;
+
 use App\Community\Actions\FormatLegacyCommentPayloadAction;
 use Tests\TestCase;
 

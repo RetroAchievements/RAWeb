@@ -33,7 +33,7 @@ export const SharedHubReason: FC<SharedHubReasonProps> = ({ relatedGame, related
         components={{
           1: <BaseTooltip></BaseTooltip>,
           2: <BaseTooltipTrigger></BaseTooltipTrigger>,
-          3: <a href={route('game.show', { game: relatedGameSet.gameId! })}>{'hub'}</a>,
+          3: <a href={route('hub.show', { gameSet: relatedGameSet.id })}>{'hub'}</a>,
           4: <BaseTooltipContent>{cleanHubTitle(relatedGameSet.title!)}</BaseTooltipContent>,
         }}
         values={{ hubName: cleanHubTitle(relatedGameSet.title!) }}
