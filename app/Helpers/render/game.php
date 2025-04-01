@@ -50,7 +50,7 @@ function gameAvatar(
     }
 
     $link = route('game.show', $id);
-    if ($game['EventID']) {
+    if (isset($game['EventID'])) {
         $link = route('event.show', ['event' => $game['EventID']]);
     } elseif ($isHub) {
         $link = route('hub.show', ['gameSet' => $id]);
