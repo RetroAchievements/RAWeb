@@ -10,13 +10,18 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Community\Enums\UserGameListType;
+use App\Mail\SetAchievementsPublishedNotificationMail;
+use App\Mail\SetRevisionNotificationMail;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\PlayerBadge;
 use App\Models\User;
+use App\Models\UserGameListEntry;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class UpdateGameClaimAction
 {
@@ -104,7 +109,6 @@ class UpdateGameClaimAction
         $game = Game::find($claim->game_id);
         $game->achievementSetClaims()->active()->update(['Status' => $claim->Status, 'Finished' => $claim->Finished]);
 
-        // TODO: these emails should be queued and sent asynchronously
         if ($claim->SetType === ClaimSetType::Revision) {
             // Send email to users who had previously mastered the set
             $userAwards = PlayerBadge::with('user')
@@ -113,19 +117,27 @@ class UpdateGameClaimAction
                 ->get();
 
             foreach ($userAwards as $userAward) {
-                sendSetRevisionEmail(
-                    $userAward->user->display_name,
-                    $userAward->user->EmailAddress,
-                    $userAward->AwardDataExtra === 1,
-                    $game->ID,
-                    $game->Title,
-                );
+                if ($userAward->user && !$userAward->user->banned_at) {
+                    Mail::to($userAward->user)->queue(new SetRevisionNotificationMail(
+                        $userAward->user,
+                        $game,
+                        $userAward->AwardDataExtra === 1
+                    ));
+                }
             }
         } else {
-            // Send email to set requestors
-            $requestors = getSetRequestorsList($game->ID, true); // true to also fetch email
-            foreach ($requestors as $requestor) {
-                sendSetRequestEmail($requestor['Requestor'], $requestor['Email'], $game->ID, $game->Title);
+            $setRequests = UserGameListEntry::where('GameID', $game->id)
+                ->where('type', UserGameListType::AchievementSetRequest)
+                ->with('user')
+                ->get();
+
+            foreach ($setRequests as $setRequest) {
+                if ($setRequest->user && !$setRequest->user->banned_at) {
+                    Mail::to($setRequest->user)->queue(new SetAchievementsPublishedNotificationMail(
+                        $setRequest->user,
+                        $game
+                    ));
+                }
             }
         }
 
