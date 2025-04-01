@@ -70,6 +70,6 @@ describe('Component: ShortcodeEvent', () => {
     // ASSERT
     const linkEl = screen.getByRole('link');
     expect(linkEl).toBeVisible();
-    expect(linkEl).toHaveAttribute('href', expect.stringContaining('game.show'));
+    expect(linkEl).toHaveAttribute('href', expect.stringContaining('event.show'));
   });
 });

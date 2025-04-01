@@ -35,7 +35,7 @@ export const ShortcodeEvent: FC<ShortcodeEventProps> = ({ eventId }) => {
         badgeUrl={foundEvent.legacyGame.badgeUrl}
         size={24}
         variant="inline"
-        href={route('game.show', { game: foundEvent.legacyGame.id })}
+        href={route('event.show', { event: foundEvent.id })}
       />
     </span>
   );

@@ -489,6 +489,7 @@ final class Shortcode
 
             return [
                 'ID' => $event->legacyGame->id,
+                'EventID' => $event->id,
                 'Title' => $event->legacyGame->title,
                 'ConsoleName' => "Events",
                 'ImageIcon' => $event->image_asset_path,
