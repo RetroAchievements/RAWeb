@@ -474,10 +474,10 @@ if ($game->system->id === System::Events) {
         $usersMap = [];
 
         if (!empty($userWinners)) {
-            $users = User::whereIn('User', $userWinners)->get();
+            $users = User::whereIn('display_name', $userWinners)->get();
 
             foreach ($users as $user) {
-                $usersMap[$user->username] = $user;
+                $usersMap[$user->display_name] = $user;
             }
         }
 
