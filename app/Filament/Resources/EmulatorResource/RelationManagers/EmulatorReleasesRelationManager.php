@@ -21,6 +21,11 @@ class EmulatorReleasesRelationManager extends RelationManager
         return true;
     }
 
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        return (string) $ownerRecord->releases->count();
+    }
+
     public function form(Form $form): Form
     {
         return $form
