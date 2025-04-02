@@ -6,11 +6,10 @@
     'beatenHardcoreCount' => 0,
     'completedCount' => 0,
     'masteredCount' => 0,
+    'systems' => null,
 ])
 
 <?php
-
-use App\Models\System;
 
 $totalBeatenGamesCount = $beatenSoftcoreCount + $beatenHardcoreCount;
 $totalMasteredGamesCount = $completedCount + $masteredCount;
@@ -27,7 +26,11 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
     $widthMode = 'equal';
 }
 
-$system = System::find($consoleId);
+$system = null;
+if ($systems && isset($systems[$consoleId])) {
+    $system = $systems[$consoleId];
+}
+
 if ($system) {
     $gameSystemIconSrc = getSystemIconUrl($system);
     $displayLabel = $label ?? $system->name_short;
