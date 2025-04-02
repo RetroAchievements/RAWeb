@@ -6,6 +6,7 @@ import {
   createAchievement,
   createGame,
   createGameSet,
+  createRaEvent,
   createTicket,
   createUser,
 } from '@/test/factories';
@@ -50,6 +51,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
         achievements: [],
         games: [createGame({ id: 123, title: 'Test Game' })],
         hubs: [],
+        events: [],
         tickets: [],
         users: [createUser({ displayName: 'username' })],
       },
@@ -78,6 +80,12 @@ describe('Hook: useShortcodeBodyPreview', () => {
         achievements: [createAchievement({ id: 9 })],
         games: [createGame({ id: 123, title: 'Test Game' })],
         hubs: [createGameSet({ id: 1, title: '[Central]' })],
+        events: [
+          createRaEvent({
+            id: 2,
+            legacyGame: createGame({ title: 'Achievement of the Week 2025' }),
+          }),
+        ],
         tickets: [createTicket({ id: 12345 })],
         users: [createUser({ displayName: 'username' })],
       },
@@ -106,6 +114,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
     const {
       persistedGames,
       persistedHubs,
+      persistedEvents,
       persistedAchievements,
       persistedTickets,
       persistedUsers,
@@ -120,6 +129,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
     );
 
     expect(persistedHubs).toHaveLength(1);
+    expect(persistedEvents).toHaveLength(1);
     expect(persistedAchievements).toHaveLength(1);
     expect(persistedTickets).toHaveLength(1);
     expect(persistedUsers).toHaveLength(1);
