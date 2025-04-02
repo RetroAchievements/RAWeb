@@ -128,6 +128,7 @@ declare namespace App.Community.Data {
     achievements: Array<App.Platform.Data.Achievement>;
     games: Array<App.Platform.Data.Game>;
     hubs: Array<App.Platform.Data.GameSet>;
+    events: Array<App.Platform.Data.Event>;
   };
   export type Subscription = {
     id: number;

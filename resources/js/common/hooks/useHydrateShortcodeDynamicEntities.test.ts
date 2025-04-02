@@ -27,6 +27,7 @@ describe('Hook: useHydrateShortcodeDynamicEntities', () => {
       achievements: [],
       games: [],
       hubs: [],
+      events: [],
       tickets: [],
       users: [],
     };

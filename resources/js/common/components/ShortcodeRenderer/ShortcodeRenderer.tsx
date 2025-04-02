@@ -6,6 +6,7 @@ import { bbobLineBreakPlugin } from '../../utils/+vendor/bbobLineBreakPlugin';
 import { postProcessShortcodesInBody } from '../../utils/shortcodes/postProcessShortcodesInBody';
 import { ShortcodeAch } from './ShortcodeAch';
 import { ShortcodeCode } from './ShortcodeCode';
+import { ShortcodeEvent } from './ShortcodeEvent';
 import { ShortcodeGame } from './ShortcodeGame';
 import { ShortcodeHub } from './ShortcodeHub';
 import { ShortcodeImg } from './ShortcodeImg';
@@ -83,6 +84,13 @@ const retroachievementsPreset = presetReact.extend((tags) => ({
     },
   }),
 
+  event: (node) => ({
+    tag: ShortcodeEvent,
+    attrs: {
+      eventId: Number((node.content as string[]).join()),
+    },
+  }),
+
   ach: (node) => ({
     tag: ShortcodeAch,
     attrs: {
@@ -137,9 +145,10 @@ export const ShortcodeRenderer: FC<ShortcodeRendererProps> = ({ body }) => {
           'img',
           'url',
           'user',
-          'ach',
           'game',
           'hub',
+          'event',
+          'ach',
           'ticket',
           'video',
           'text',

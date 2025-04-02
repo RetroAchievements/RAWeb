@@ -13,6 +13,7 @@ import { SystemChip } from '../SystemChip';
 type GameAvatarProps = BaseAvatarProps &
   App.Platform.Data.Game & {
     decoding?: ImgHTMLAttributes<HTMLImageElement>['decoding'];
+    dynamicTooltipId?: number;
     dynamicTooltipType?: 'game' | 'hub';
     gameTitleClassName?: string;
     href?: string;
@@ -27,6 +28,7 @@ type GameAvatarProps = BaseAvatarProps &
 
 export const GameAvatar: FC<GameAvatarProps> = ({
   badgeUrl,
+  dynamicTooltipId,
   gameTitleClassName,
   href,
   id,
@@ -51,7 +53,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
 
   const { cardTooltipProps } = useCardTooltip({
     dynamicType: dynamicTooltipType,
-    dynamicId: id,
+    dynamicId: dynamicTooltipId ?? id,
     dynamicContext: showHoverCardProgressForUsername ?? auth?.user.displayName,
   });
 

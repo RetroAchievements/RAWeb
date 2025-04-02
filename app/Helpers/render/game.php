@@ -49,11 +49,18 @@ function gameAvatar(
         }
     }
 
+    $link = route('game.show', $id);
+    if (isset($game['EventID'])) {
+        $link = route('event.show', ['event' => $game['EventID']]);
+    } elseif ($isHub) {
+        $link = route('hub.show', ['gameSet' => $id]);
+    }
+
     return avatar(
         resource: $isHub ? 'hub' : 'game',
         id: $id,
         label: $label !== false && ($label || !$icon) ? $label : null,
-        link: $isHub ? route('hub.show', ['gameSet' => $id]) : route('game.show', $id),
+        link: $link,
         tooltip: $tooltip,
         iconUrl: $icon !== false && ($icon || !$label) ? $icon : null,
         iconSize: $iconSize,

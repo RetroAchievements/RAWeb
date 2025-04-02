@@ -3,6 +3,7 @@
 
 import { createInertiaApp } from '@inertiajs/react';
 import createServer from '@inertiajs/react/server';
+import * as Sentry from '@sentry/node';
 import dayjs from 'dayjs';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import ReactDOMServer from 'react-dom/server';
@@ -16,6 +17,14 @@ import { createServerI18nInstance } from './i18n-server';
 
 const appName = import.meta.env.APP_NAME ?? 'RetroAchievements';
 const inertiaDaemonPort = import.meta.env.VITE_INERTIA_SSR_PORT ?? 13714;
+
+// Initialize Sentry.
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  environment: import.meta.env.APP_ENV,
+  release: import.meta.env.APP_VERSION,
+  tracesSampleRate: import.meta.env.SENTRY_TRACES_SAMPLE_RATE,
+});
 
 createServer(
   (page) =>
@@ -38,6 +47,13 @@ createServer(
 
         const globalProps = props.initialPage.props as AppGlobalProps;
         const userLocale = globalProps.auth?.user.locale ?? 'en_US';
+
+        if (globalProps.auth?.user) {
+          Sentry.setUser({
+            id: globalProps.auth.user.id,
+            username: globalProps.auth.user.displayName,
+          });
+        }
 
         // Always reset the dayjs locale state on each request.
         // Otherwise, we may be holding on to a different user's locale
