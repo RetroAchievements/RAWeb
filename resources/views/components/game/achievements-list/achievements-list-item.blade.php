@@ -34,25 +34,6 @@ if (isset($achievement['DateEarnedHardcore'])) {
     $unlockDate = Carbon::parse($achievement['DateEarnedHardcore'])->format('F j Y, g:ia');
 }
 
-$hasActiveRange = false;
-$isActive = false;
-if ($achievement['ActiveFrom'] ?? null && $achievement['ActiveUntil'] ?? null) {
-    $hasActiveRange = true;
-    $activeFrom = Carbon::parse($achievement['ActiveFrom']);
-    if ($activeFrom <= Carbon::now()) {
-        $activeUntil = Carbon::parse($achievement['ActiveUntil']);
-        if ($activeUntil > Carbon::now()) {
-            $isActive = true;
-        }
-    } elseif ($achievement['SourceAchievementId']) {
-        // future event has been picked. don't show it until it's active
-        $achBadgeName = '00000';
-        $achievement['Title'] = 'Upcoming Challenge';
-        $achievement['Description'] = '?????';
-        $achievement['SourceGameId'] = null;
-    }
-}
-
 $renderedAchievementAvatar = achievementAvatar(
     $achievement,
     label: false,
@@ -63,7 +44,7 @@ $renderedAchievementAvatar = achievementAvatar(
 );
 ?>
 
-<li class="flex gap-x-3 odd:bg-[rgba(50,50,50,0.4)] light:odd:bg-neutral-200  px-2 py-3 md:py-1 w-full {{ $isUnlocked ? 'unlocked-row' : '' }} {{ $achievement['type'] === 'missable' ? 'missable-row' : '' }} {{ $isActive ? 'active-row' : '' }}">
+<li class="flex gap-x-3 odd:bg-[rgba(50,50,50,0.4)] light:odd:bg-neutral-200  px-2 py-3 md:py-1 w-full {{ $isUnlocked ? 'unlocked-row' : '' }} {{ $achievement['type'] === 'missable' ? 'missable-row' : '' }}">
     <div class="flex flex-col gap-y-1">
         {!! $renderedAchievementAvatar !!}
     </div>
@@ -76,15 +57,6 @@ $renderedAchievementAvatar = achievementAvatar(
                         <x-achievement.title :rawTitle="$achievement['Title']" />
                     </a>
 
-                    @if ($achievement['SourceGameId'] ?? null)
-                        <p class="inline text-xs">
-                            <span>from</span>
-                            <a class="inline mr-1" href="{{ route('game.show', $achievement['SourceGameId']) }}">
-                                <x-game-title :rawTitle="$achievement['SourceGameTitle']" />
-                            </a>
-                        </p>
-                    @endif
-
                     @if ($achievement['Points'] > 0 || $achievement['TrueRatio'] > 0)
                         <p class="inline text-xs whitespace-nowrap">
                             <span>({{ $achievement['Points'] }})</span>
@@ -93,14 +65,6 @@ $renderedAchievementAvatar = achievementAvatar(
                                     ({{ localized_number($achievement['TrueRatio']) }})
                                 </x-points-weighted-container>
                             @endif
-                        </p>
-                    @endif
-
-                    @if ($hasActiveRange)
-                        <p class="inline smalldate whitespace-nowrap">
-                            <x-date :value="$achievement['ActiveFrom']" />
-                            <span>-</span>
-                            <x-date :value="$achievement['ActiveUntil']" />
                         </p>
                     @endif
                 </div>
