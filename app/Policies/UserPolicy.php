@@ -28,9 +28,17 @@ class UserPolicy
     {
         /*
          * users may always view themselves
+         * moderators and admins may view any user
          */
-        if ($user && $user->is($model)) {
+        if ($user && ($user->is($model) || $this->manage($user))) {
             return true;
+        }
+
+        /*
+         * regular users shouldn't be able to view banned users
+         */
+        if ($model->isBanned()) {
+            return false;
         }
 
         /*

@@ -182,6 +182,14 @@ export const SEO: FC<SEOProps> = ({
 
   const resolvedCanonicalUrl = canonical ?? constructedCanonicalUrl;
 
+  // Fix a bug in Inertia's <Head> component where quotes break the template.
+  const safeTitle = escapeHtmlBreakingChars(String(title));
+  const safeDescription = escapeHtmlBreakingChars(description);
+  const safeOgTitle = escapeHtmlBreakingChars(String(ogTitle));
+  const safeOgDescription = escapeHtmlBreakingChars(ogDescription);
+  const safeTwitterTitle = escapeHtmlBreakingChars(String(twitterTitle));
+  const safeTwitterDescription = escapeHtmlBreakingChars(twitterDescription);
+
   const defaultJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -193,23 +201,23 @@ export const SEO: FC<SEOProps> = ({
   const isArticle = type === 'article';
 
   return (
-    <Head title={title}>
+    <Head title={safeTitle}>
       {/* Base metadata */}
-      <meta name="description" content={description} />
+      <meta name="description" content={safeDescription} />
       <link rel="canonical" href={resolvedCanonicalUrl} />
 
       {/* Open Graph metadata */}
       <meta property="og:site_name" content={ogSiteName} />
       <meta property="og:type" content={type} />
-      <meta property="og:title" content={ogTitle} />
-      <meta property="og:description" content={ogDescription} />
+      <meta property="og:title" content={safeOgTitle} />
+      <meta property="og:description" content={safeOgDescription} />
       <meta property="og:url" content={resolvedCanonicalUrl} />
       <meta property="og:image" content={ogImage} />
 
       {/* Twitter metadata */}
       <meta name="twitter:card" content={twitterCard} />
-      <meta name="twitter:title" content={twitterTitle} />
-      <meta name="twitter:description" content={twitterDescription} />
+      <meta name="twitter:title" content={safeTwitterTitle} />
+      <meta name="twitter:description" content={safeTwitterDescription} />
       <meta name="twitter:image" content={twitterImage} />
       <meta name="twitter:site" content={twitterSite} />
 
@@ -248,4 +256,8 @@ function useConstructedCanonicalUrl() {
   const constructedCanonicalUrl = `${baseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 
   return { constructedCanonicalUrl };
+}
+
+function escapeHtmlBreakingChars(content: string): string {
+  return content.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
