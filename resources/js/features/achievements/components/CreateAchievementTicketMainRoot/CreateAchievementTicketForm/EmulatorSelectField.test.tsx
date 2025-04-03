@@ -84,6 +84,6 @@ describe('Component: EmulatorSelectField', () => {
     await userEvent.click(screen.getByText(/ra2snes/i));
 
     // ASSERT
-    expect(screen.getByText(/developers may not be able to reproduce issues/i)).toBeVisible();
+    expect(screen.getByText(/developers may not be able to easily debug issues/i)).toBeVisible();
   });
 });

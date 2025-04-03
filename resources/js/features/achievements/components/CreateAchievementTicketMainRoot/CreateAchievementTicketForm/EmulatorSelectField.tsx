@@ -71,7 +71,7 @@ export const EmulatorSelectField: FC = () => {
                 {selectedEmulator?.supportsToolkit === false ? (
                   <BaseFormMessage>
                     {t(
-                      'Developers may not be able to reproduce issues with this emulator. Please be extremely detailed in your description, and provide a link to a save game or video if possible.',
+                      'Developers may not be able to easily debug issues with this emulator. Please be extremely detailed in your description, and provide a link to a save game or video if possible.',
                     )}
                   </BaseFormMessage>
                 ) : null}
