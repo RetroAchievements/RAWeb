@@ -395,7 +395,7 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $this->user->id]);
+        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $this->user->id, 'Points' => 5]);
 
         $params = [
             'u' => $author->User,
