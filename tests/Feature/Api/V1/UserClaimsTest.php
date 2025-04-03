@@ -68,7 +68,7 @@ class UserClaimsTest extends TestCase
                     'Created' => $claim->Created->__toString(),
                     'DoneTime' => $claim->Finished->__toString(),
                     'Updated' => $claim->Updated->__toString(),
-                    'MinutesLeft' => Carbon::now()->diffInRealMinutes($claim->Finished),
+                    'MinutesLeft' => (int) Carbon::now()->diffInMinutes($claim->Finished, true) + 1,
                 ],
             ]);
     }
@@ -110,7 +110,7 @@ class UserClaimsTest extends TestCase
                     'Created' => $claim->Created->__toString(),
                     'DoneTime' => $claim->Finished->__toString(),
                     'Updated' => $claim->Updated->__toString(),
-                    'MinutesLeft' => Carbon::now()->diffInRealMinutes($claim->Finished),
+                    'MinutesLeft' => (int) Carbon::now()->diffInMinutes($claim->Finished, true) + 1,
                 ],
             ]);
     }

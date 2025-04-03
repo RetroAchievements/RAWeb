@@ -447,7 +447,7 @@ class UserProfileMeta extends Component
             return 0;
         }
 
-        $weeksSinceFirstUnlock = $startingDate->diffInWeeks(Carbon::now());
+        $weeksSinceFirstUnlock = (int) $startingDate->diffInWeeks(Carbon::now(), true);
 
         // Avoid division by zero.
         if ($weeksSinceFirstUnlock <= 0) {
@@ -477,7 +477,7 @@ class UserProfileMeta extends Component
 
         foreach ($achievements as $playerAchievement) {
             $achievementDate = $playerAchievement->{$dateColumn};
-            $daysAgo = abs($now->diffInDays($achievementDate, false));
+            $daysAgo = abs((int) $now->diffInDays($achievementDate, false));
 
             if ($daysAgo <= 7) {
                 $pointsLast7Days += $playerAchievement->achievement->points;

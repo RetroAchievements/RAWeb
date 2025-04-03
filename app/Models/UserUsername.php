@@ -42,7 +42,7 @@ class UserUsername extends BaseModel
             return false;
         }
 
-        return $this->created_at->isPast() && $this->created_at->diffInDays(now()) >= 30;
+        return $this->created_at->isPast() && ((int) $this->created_at->diffInDays(now(), true)) >= 30;
     }
 
     public function getPreviousUsagesAttribute(): array

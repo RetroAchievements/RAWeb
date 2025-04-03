@@ -201,7 +201,7 @@ class UserPolicy
             return true;
         }
 
-        $membershipDuration = now()->diffInDays($user->created_at ?? now());
+        $membershipDuration = (int) now()->diffInDays($user->created_at ?? now(), true);
         if ($membershipDuration >= 14) {
             return true;
         }

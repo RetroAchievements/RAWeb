@@ -60,8 +60,8 @@ class ResumePlayerSessionAction
         }
 
         // if the session is less than 10 minutes old, resume session
-        if ($playerSession && $timestamp->diffInMinutes($playerSession->rich_presence_updated_at) < 10) {
-            $playerSession->duration = max(1, $timestamp->diffInMinutes($playerSession->created_at));
+        if ($playerSession && ((int) $timestamp->diffInMinutes($playerSession->rich_presence_updated_at, true)) < 10) {
+            $playerSession->duration = max(1, (int) $timestamp->diffInMinutes($playerSession->created_at, true));
 
             if ($presence) {
                 $playerSession->rich_presence = $presence;

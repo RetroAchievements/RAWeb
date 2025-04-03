@@ -402,7 +402,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     public function isNew(): bool
     {
-        return Carbon::now()->diffInMonths($this->created_at) < 1;
+        return ((int) Carbon::now()->diffInMonths($this->created_at, true)) < 1;
     }
 
     public function getCanonicalUrlAttribute(): string
