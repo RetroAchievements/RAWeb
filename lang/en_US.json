@@ -848,5 +848,7 @@
     "Prototype": "Prototype",
     "Unlicensed": "Unlicensed",
     "Demo": "Demo",
-    "There aren't any achievements for this event.": "There aren't any achievements for this event."
+    "There aren't any achievements for this event.": "There aren't any achievements for this event.",
+    "Optional.": "Optional.",
+    "Developers may not be able to reproduce issues with this emulator. Please be extremely detailed in your description, and provide a link to a save game or video if possible.": "Developers may not be able to reproduce issues with this emulator. Please be extremely detailed in your description, and provide a link to a save game or video if possible."
 }
