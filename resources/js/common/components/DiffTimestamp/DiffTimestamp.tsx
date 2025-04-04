@@ -36,13 +36,19 @@ export const DiffTimestamp: FC<DiffTimestampProps> = ({
   }
 
   if (!enableTooltip) {
-    return <span className={className}>{diffForHumans(at, renderedAt)}</span>;
+    return (
+      <span className={className} suppressHydrationWarning>
+        {diffForHumans(at, renderedAt)}
+      </span>
+    );
   }
 
   return (
     <BaseTooltip>
       <BaseTooltipTrigger className="cursor-default">
-        <span className={className}>{diffForHumans(at, renderedAt)}</span>
+        <span className={className} suppressHydrationWarning>
+          {diffForHumans(at, renderedAt)}
+        </span>
       </BaseTooltipTrigger>
 
       <BaseTooltipContent>
