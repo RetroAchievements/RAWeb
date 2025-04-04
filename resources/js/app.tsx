@@ -15,7 +15,10 @@ Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   integrations: [
     Sentry.browserTracingIntegration(),
-    Sentry.replayIntegration(),
+    Sentry.replayIntegration({
+      maskAllText: false,
+      blockAllMedia: false,
+    }),
     Sentry.captureConsoleIntegration({ levels: ['warn', 'error'] }),
   ],
   environment: import.meta.env.APP_ENV,
