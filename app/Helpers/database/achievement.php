@@ -224,11 +224,23 @@ function UploadNewAchievement(
     }
 
     if ($gameAchievementSetID) {
-        $gameAchievementSet = GameAchievementSet::findOrFail($gameAchievementSetID);
+        $gameAchievementSet = GameAchievementSet::find($gameAchievementSetID);
+        if (!$gameAchievementSet) {
+            $errorOut = "Game achievement set not found.";
+
+            return false;
+        }
+
         $gameID = $gameAchievementSet->game_id;
     }
 
     $gameData = getGameData($gameID);
+    if (is_null($gameData)) {
+        $errorOut = "Game not found.";
+
+        return false;
+    }
+
     $consoleID = $gameData['ConsoleID'];
     $isEventGame = $gameData['ConsoleID'] == System::Events;
 

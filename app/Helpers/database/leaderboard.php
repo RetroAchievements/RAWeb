@@ -326,7 +326,13 @@ function UploadNewLeaderboard(
     }
 
     if ($gameAchievementSetID) {
-        $gameAchievementSet = GameAchievementSet::findOrFail($gameAchievementSetID);
+        $gameAchievementSet = GameAchievementSet::find($gameAchievementSetID);
+        if (!$gameAchievementSet) {
+            $errorOut = "Game achievement set not found.";
+
+            return false;
+        }
+
         $gameID = $gameAchievementSet->game_id;
     }
 

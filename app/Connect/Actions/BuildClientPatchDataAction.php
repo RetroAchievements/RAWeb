@@ -180,7 +180,7 @@ class BuildClientPatchDataAction
         return [
             'Success' => true,
             'PatchData' => [
-                ...$this->buildBaseGameData($game, $richPresencePatch, $titleGame, $coreAchievementSet?->id),
+                ...$this->buildBaseGameData($game, $richPresencePatch, $titleGame),
                 'Achievements' => $coreAchievementSet
                     ? $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $flag)
                     : [],
@@ -256,14 +256,12 @@ class BuildClientPatchDataAction
         Game $game,
         ?string $richPresencePatch,
         ?Game $titleGame,
-        ?int $coreGameAchievementSetId = null,
     ): array {
         // If a title game is provided, use its title and image.
         $titleGame = $titleGame ?? $game;
 
         return [
             'ID' => $game->id,
-            'GameAchievementSetID' => $coreGameAchievementSetId,
             'Title' => $titleGame->title,
             'ImageIcon' => $titleGame->ImageIcon,
             'RichPresencePatch' => $richPresencePatch ?? $game->RichPresencePatch,
