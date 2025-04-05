@@ -86,6 +86,7 @@ function normalize_shortcodes(string $input): string
     $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'user');
     $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'game');
     $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'hub');
+    $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'event');
     $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'achievement', 'ach');
     $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'ticket');
 
@@ -97,10 +98,10 @@ function normalize_targeted_shortcodes(string $input, string $kind, ?string $tag
     // Find any URL variants of user links and transform them into shortcode tags.
     // Ignore URLs that contain path or query params.
     $find = [
-        "~\<a [^/>]*retroachievements\.org/" . $kind . "/([\w]{1,20})(/?(?![\w/?]))[^/>]*\][^</a>]*</a>~si",
-        "~\[url[^\]]*retroachievements\.org/" . $kind . "/([\w]{1,20})(/?(?![\w/?]))[^\]]*\][^\[]*\[/url\]~si",
-        "~https?://(?:[\w\-]+\.)?retroachievements\.org/" . $kind . "/([\w]{1,20})(/?(?![\w/?]))~si",
-        "~https?://localhost(?::\d{1,5})?/" . $kind . "/([\w]{1,20})(/?(?![\w/?]))~si",
+        "~\<a [^/>]*retroachievements\.org/" . $kind . "/([\w]{1,20})(?:-[^\s\"'<>]*)?(/?(?![\w/?]))[^/>]*\][^</a>]*</a>~si",
+        "~\[url[^\]]*retroachievements\.org/" . $kind . "/([\w]{1,20})(?:-[^\s\"'<>]*)?(/?(?![\w/?]))[^\]]*\][^\[]*\[/url\]~si",
+        "~https?://(?:[\w\-]+\.)?retroachievements\.org/" . $kind . "/([\w]{1,20})(?:-[^\s\"'<>]*)?(/?(?![\w/?]))~si",
+        "~https?://localhost(?::\d{1,5})?/" . $kind . "/([\w]{1,20})(?:-[^\s\"'<>]*)?(/?(?![\w/?]))~si",
     ];
     $replace = "[" . ($tagName ?? $kind) . "=$1]";
 

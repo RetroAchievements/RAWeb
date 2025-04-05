@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import {
   persistedAchievementsAtom,
+  persistedEventsAtom,
   persistedGamesAtom,
   persistedHubsAtom,
   persistedTicketsAtom,
@@ -22,6 +23,7 @@ export function useShortcodeBodyPreview() {
   const [persistedAchievements, setPersistedAchievements] = useAtom(persistedAchievementsAtom);
   const [persistedGames, setPersistedGames] = useAtom(persistedGamesAtom);
   const [persistedHubs, setPersistedHubs] = useAtom(persistedHubsAtom);
+  const [persistedEvents, setPersistedEvents] = useAtom(persistedEventsAtom);
   const [persistedTickets, setPersistedTickets] = useAtom(persistedTicketsAtom);
   const [persistedUsers, setPersistedUsers] = useAtom(persistedUsersAtom);
 
@@ -33,6 +35,7 @@ export function useShortcodeBodyPreview() {
     );
     setPersistedGames((prev) => mergeEntities(prev, responseData.games, (item) => item.id));
     setPersistedHubs((prev) => mergeEntities(prev, responseData.hubs, (item) => item.id));
+    setPersistedEvents((prev) => mergeEntities(prev, responseData.events, (item) => item.id));
     setPersistedTickets((prev) => mergeEntities(prev, responseData.tickets, (item) => item.id));
     setPersistedUsers((prev) =>
       mergeEntities(prev, responseData.users, (item) => item.displayName),
@@ -67,6 +70,7 @@ export function useShortcodeBodyPreview() {
       persistedAchievements,
       persistedGames,
       persistedHubs,
+      persistedEvents,
       persistedTickets,
       persistedUsers,
     };

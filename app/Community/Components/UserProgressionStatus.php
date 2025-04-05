@@ -55,6 +55,9 @@ class UserProgressionStatus extends Component
         $totalCompletedCount = $totalCountsMetrics['numCompleted'];
         $totalMasteredCount = $totalCountsMetrics['numMastered'];
 
+        $systemIds = array_keys($consoleProgress);
+        $systems = System::whereIn('ID', $systemIds)->get()->keyBy('ID');
+
         return view('components.user.progression-status.root', [
             'userCompletionProgress' => $this->userCompletionProgress,
             'userSiteAwards' => $this->userSiteAwards,
@@ -68,6 +71,7 @@ class UserProgressionStatus extends Component
             'totalMasteredCount' => $totalMasteredCount,
             'userHardcorePoints' => $this->userHardcorePoints,
             'userSoftcorePoints' => $this->userSoftcorePoints,
+            'systems' => $systems,
         ]);
     }
 

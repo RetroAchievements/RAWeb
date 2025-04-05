@@ -18,6 +18,9 @@
         <meta property="og:url" content="{{ $permalink ?? request()->url() }}">
     @endif
 
+    {{-- @see https://docs.sentry.io/platforms/php/guides/laravel/tracing/distributed-tracing/ --}}
+    {!! \Sentry\Laravel\Integration::sentryMeta() !!}
+
     <link rel="icon" type="image/png" href="{{ asset(app()->environment('local', 'stage') ? 'assets/images/favicon-gray.webp' : 'assets/images/favicon.webp') }}">
     <link rel="preload" as="image" importance="high" href="{{ asset('assets/images/ra-icon.webp') }}">
     <link rel="image_src" href="{{ asset('assets/images/ra-icon.webp') }}">
