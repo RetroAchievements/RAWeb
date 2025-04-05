@@ -252,8 +252,11 @@ class BuildClientPatchDataAction
     /**
      * Builds the basic game information needed by emulators.
      */
-    private function buildBaseGameData(Game $game, ?string $richPresencePatch, ?Game $titleGame): array
-    {
+    private function buildBaseGameData(
+        Game $game,
+        ?string $richPresencePatch,
+        ?Game $titleGame,
+    ): array {
         // If a title game is provided, use its title and image.
         $titleGame = $titleGame ?? $game;
 
