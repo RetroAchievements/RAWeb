@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import utc from 'dayjs/plugin/utc';
 import { useAtomValue } from 'jotai';
 import type { FC } from 'react';
@@ -9,6 +10,7 @@ import { formatDate } from '@/common/utils/l10n/formatDate';
 import { eventAtom } from '@/features/events/state/events.atoms';
 
 dayjs.extend(utc);
+dayjs.extend(isSameOrBefore);
 
 interface AchievementDateMetaProps {
   achievement: App.Platform.Data.Achievement;
@@ -36,10 +38,12 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
   let isUpcoming = false;
   if (eventAchievement && event?.state !== 'evergreen' && activeFrom && activeThrough) {
     const now = dayjs.utc();
+    const activeFrom = dayjs.utc(eventAchievement.activeFrom);
+    const activeUntil = dayjs.utc(eventAchievement.activeUntil);
 
-    isActive = dayjs.utc(activeFrom).isBefore(now) && dayjs.utc(activeThrough).isAfter(now);
-    isExpired = dayjs.utc(activeThrough).isBefore(now);
-    isUpcoming = dayjs.utc(activeFrom).isAfter(now);
+    isActive = activeFrom.isSameOrBefore(now) && now.isBefore(activeUntil);
+    isExpired = activeUntil.isBefore(now);
+    isUpcoming = activeFrom.isAfter(now);
   }
 
   if (!unlockedAt && !unlockedHardcoreAt && !isActive && !isExpired && !isUpcoming) {
