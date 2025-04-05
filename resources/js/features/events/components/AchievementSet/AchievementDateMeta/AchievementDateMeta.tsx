@@ -42,7 +42,7 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
     const activeUntil = dayjs.utc(eventAchievement.activeUntil);
 
     isActive = activeFrom.isSameOrBefore(now) && now.isBefore(activeUntil);
-    isExpired = activeUntil.isBefore(now);
+    isExpired = activeUntil.isSameOrBefore(now);
     isUpcoming = activeFrom.isAfter(now);
   }
 

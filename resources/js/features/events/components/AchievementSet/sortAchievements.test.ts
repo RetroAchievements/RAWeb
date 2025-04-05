@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 import { createAchievement, createEventAchievement } from '@/test/factories';
 
 import { getStatus, sortAchievements } from './sortAchievements';
@@ -111,7 +113,6 @@ describe('Util: sortAchievements', () => {
       orderColumn: 1,
     });
 
-    const now = new Date();
     const achievements: App.Platform.Data.Achievement[] = [
       { ...baseAchievement, id: 1 }, // Evergreen
       { ...baseAchievement, id: 2 }, // Active
@@ -123,30 +124,30 @@ describe('Util: sortAchievements', () => {
     const eventAchievements: App.Platform.Data.EventAchievement[] = [
       {
         achievement: achievements[1],
-        activeFrom: new Date(now.getTime() - 1000).toISOString(), // 1 second ago
-        activeThrough: new Date(now.getTime() + 1000).toISOString(), // 1 second from now
-        activeUntil: new Date(now.getTime() + 1000).toISOString(), // 1 second from now - needed for activeUntil check
+        activeFrom: dayjs().subtract(1, 'second').toISOString(),
+        activeThrough: dayjs().add(1, 'second').toISOString(),
+        activeUntil: dayjs().add(1, 'second').add(1, 'day').toISOString(),
         isObfuscated: false,
       },
       {
         achievement: achievements[2],
-        activeFrom: new Date(now.getTime() - 2000).toISOString(), // 2 seconds ago
-        activeThrough: new Date(now.getTime() - 1000).toISOString(), // 1 second ago
-        activeUntil: new Date(now.getTime() - 1000).toISOString(), // 1 second ago
+        activeFrom: dayjs().subtract(2, 'second').toISOString(),
+        activeThrough: dayjs().subtract(1, 'second').toISOString(),
+        activeUntil: dayjs().subtract(1, 'second').add(1, 'day').toISOString(),
         isObfuscated: false,
       },
       {
         achievement: achievements[3],
-        activeFrom: new Date(now.getTime() + 1000).toISOString(), // 1 second from now
-        activeThrough: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 10).toISOString(), // 10 days from now
-        activeUntil: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 10).toISOString(), // 10 days from now
+        activeFrom: dayjs().add(1, 'second').toISOString(),
+        activeThrough: dayjs().add(10, 'day').toISOString(),
+        activeUntil: dayjs().add(11, 'day').toISOString(),
         isObfuscated: false,
       },
       {
         achievement: achievements[4],
-        activeFrom: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 40).toISOString(), // 40 days from now
-        activeThrough: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 50).toISOString(), // 50 days from now
-        activeUntil: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 50).toISOString(), // 50 days from now
+        activeFrom: dayjs().add(40, 'day').toISOString(),
+        activeThrough: dayjs().add(50, 'day').toISOString(),
+        activeUntil: dayjs().add(51, 'day').toISOString(),
         isObfuscated: false,
       },
     ];
@@ -180,7 +181,6 @@ describe('Util: sortAchievements', () => {
 
   it('given active sort with same status, sorts by createdAt and then orderColumn', () => {
     // ARRANGE
-    const now = new Date();
     const baseAchievement = createAchievement({
       id: 1,
       createdAt: '2023-01-01',
@@ -197,23 +197,23 @@ describe('Util: sortAchievements', () => {
       // Make all achievements active to test secondary sort criteria
       {
         achievement: achievements[0],
-        activeFrom: new Date(now.getTime() - 1000).toISOString(),
-        activeThrough: new Date(now.getTime() + 1000).toISOString(),
-        activeUntil: new Date(now.getTime() + 1000).toISOString(),
+        activeFrom: dayjs().subtract(1, 'second').toISOString(),
+        activeThrough: dayjs().add(1, 'second').toISOString(),
+        activeUntil: dayjs().add(1, 'second').add(1, 'day').toISOString(),
         isObfuscated: false,
       },
       {
         achievement: achievements[1],
-        activeFrom: new Date(now.getTime() - 1000).toISOString(),
-        activeThrough: new Date(now.getTime() + 1000).toISOString(),
-        activeUntil: new Date(now.getTime() + 1000).toISOString(),
+        activeFrom: dayjs().subtract(1, 'second').toISOString(),
+        activeThrough: dayjs().add(1, 'second').toISOString(),
+        activeUntil: dayjs().add(1, 'second').add(1, 'day').toISOString(),
         isObfuscated: false,
       },
       {
         achievement: achievements[2],
-        activeFrom: new Date(now.getTime() - 1000).toISOString(),
-        activeThrough: new Date(now.getTime() + 1000).toISOString(),
-        activeUntil: new Date(now.getTime() + 1000).toISOString(),
+        activeFrom: dayjs().subtract(1, 'second').toISOString(),
+        activeThrough: dayjs().add(1, 'second').toISOString(),
+        activeUntil: dayjs().add(1, 'second').add(1, 'day').toISOString(),
         isObfuscated: false,
       },
     ];
@@ -284,14 +284,13 @@ describe('Util: getStatus', () => {
 
   it('given an achievement that is currently active, returns active status', () => {
     // ARRANGE
-    const now = new Date();
     const achievement = createAchievement({ id: 1 });
     const eventAchievements = [
       createEventAchievement({
         achievement,
-        activeFrom: new Date(now.getTime() - 1000).toISOString(), // 1 second ago
-        activeThrough: new Date(now.getTime() + 1000).toISOString(), // 1 second from now
-        activeUntil: new Date(now.getTime() + 1000).toISOString(), // 1 second from now
+        activeFrom: dayjs().subtract(1, 'second').toISOString(),
+        activeThrough: dayjs().add(1, 'second').toISOString(),
+        activeUntil: dayjs().add(1, 'second').toISOString(),
       }),
     ];
 
@@ -304,13 +303,12 @@ describe('Util: getStatus', () => {
 
   it('given an achievement that has expired, returns expired status', () => {
     // ARRANGE
-    const now = new Date();
     const achievement = createAchievement({ id: 1 });
     const eventAchievements: App.Platform.Data.EventAchievement[] = [
       createEventAchievement({
         achievement,
-        activeFrom: new Date(now.getTime() - 2000).toISOString(), // 2 seconds ago
-        activeThrough: new Date(now.getTime() - 1000).toISOString(), // 1 second ago
+        activeFrom: dayjs().subtract(2, 'second').toISOString(),
+        activeThrough: dayjs().subtract(1, 'second').toISOString(),
       }),
     ];
 
@@ -323,13 +321,12 @@ describe('Util: getStatus', () => {
 
   it('given an achievement that is upcoming within 30 days, returns upcoming status', () => {
     // ARRANGE
-    const now = new Date();
     const achievement = createAchievement({ id: 1 });
     const eventAchievements = [
       createEventAchievement({
         achievement,
-        activeFrom: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 15).toISOString(), // 15 days from now
-        activeThrough: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 20).toISOString(), // 20 days from now
+        activeFrom: dayjs().add(15, 'day').toISOString(),
+        activeThrough: dayjs().add(20, 'day').toISOString(),
       }),
     ];
 
@@ -342,13 +339,12 @@ describe('Util: getStatus', () => {
 
   it('given an achievement that is upcoming but more than 30 days away, returns future status', () => {
     // ARRANGE
-    const now = new Date();
     const achievement = createAchievement({ id: 1 });
     const eventAchievements = [
       createEventAchievement({
         achievement,
-        activeFrom: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 40).toISOString(), // 40 days from now
-        activeThrough: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 45).toISOString(), // 45 days from now
+        activeFrom: dayjs().add(40, 'day').toISOString(),
+        activeThrough: dayjs().add(45, 'day').toISOString(),
       }),
     ];
 
@@ -361,14 +357,13 @@ describe('Util: getStatus', () => {
 
   it('given an achievement with activeUntil different from activeThrough, uses activeUntil for active check', () => {
     // ARRANGE
-    const now = new Date();
     const achievement = createAchievement({ id: 1 });
     const eventAchievements = [
       createEventAchievement({
         achievement,
-        activeFrom: new Date(now.getTime() - 1000).toISOString(), // !! 1 second ago
-        activeThrough: new Date(now.getTime() + 1000).toISOString(), // !! 1 second from now
-        activeUntil: new Date(now.getTime() + 2000).toISOString(), // !! 2 seconds from now - different from activeThrough
+        activeFrom: dayjs().subtract(1, 'second').toISOString(),
+        activeThrough: dayjs().add(1, 'second').toISOString(),
+        activeUntil: dayjs().add(2, 'second').add(1, 'day').toISOString(),
       }),
     ];
 
@@ -381,14 +376,13 @@ describe('Util: getStatus', () => {
 
   it('given an achievement where now is after activeThrough but before activeUntil, returns active status', () => {
     // ARRANGE
-    const now = new Date();
     const achievement = createAchievement({ id: 1 });
     const eventAchievements = [
       createEventAchievement({
         achievement,
-        activeFrom: new Date(now.getTime() - 2000).toISOString(), // !! 2 seconds ago
-        activeThrough: new Date(now.getTime() - 500).toISOString(), // !! 0.5 seconds ago - already passed
-        activeUntil: new Date(now.getTime() + 1000).toISOString(), // !! 1 second from now - still active
+        activeFrom: dayjs().subtract(2, 'second').toISOString(),
+        activeThrough: dayjs().subtract(0.5, 'second').toISOString(), // already passed
+        activeUntil: dayjs().add(1, 'second').add(1, 'day').toISOString(), // still active
       }),
     ];
 
