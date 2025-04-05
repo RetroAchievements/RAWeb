@@ -477,7 +477,7 @@ class UserProfileMeta extends Component
 
         foreach ($achievements as $playerAchievement) {
             $achievementDate = $playerAchievement->{$dateColumn};
-            $daysAgo = abs((int) $now->diffInDays($achievementDate, false));
+            $daysAgo = $now->diffInDays($achievementDate, true);
 
             if ($daysAgo <= 7) {
                 $pointsLast7Days += $playerAchievement->achievement->points;

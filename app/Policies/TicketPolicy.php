@@ -35,7 +35,7 @@ class TicketPolicy
 
     public function create(User $user): bool
     {
-        if ((int) $user->created_at->diffInDays(now(), true) < 1 || $user->is_muted || $user->banned_at) {
+        if ($user->created_at->diffInDays(now(), true) < 1 || $user->is_muted || $user->banned_at) {
             return false;
         }
 

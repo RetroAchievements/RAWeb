@@ -33,7 +33,7 @@ class TriggerTicketPolicy
     {
         return
             $user->hasVerifiedEmail()
-            && (int) $user->created_at->diffInDays(now(), true) >= 1
+            && $user->created_at->diffInDays(now(), true) >= 1
             && !$user->is_muted
             && !$user->banned_at
         ;

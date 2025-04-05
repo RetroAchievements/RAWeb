@@ -29,7 +29,7 @@ class SendClaimExpirationWarningEmailsAction
 
         $newNotificationsSent = [];
         foreach ($expiringClaims as $claim) {
-            $remaining = (int) $claim->Finished->diffInHours(Carbon::now(), true);
+            $remaining = $claim->Finished->diffInHours(Carbon::now(), true);
             if ($remaining < 24) {
                 $state = 2;
             } else {
