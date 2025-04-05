@@ -265,7 +265,7 @@ $permissions = $user->getAttribute('Permissions');
                     @php $allowDelete = $permissions >= Permissions::Moderator @endphp
                     @foreach ($commentData as $comment)
                         @php
-                            $when = Carbon::createFromTimestamp($comment['Submitted']);
+                            $when = Carbon::createFromTimestampUTC($comment['Submitted']);
                             $commentUser = match($comment['User']) {
                                 $ticket->reporter?->User => $ticket->reporter,
                                 $user->User => $user,

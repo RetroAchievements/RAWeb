@@ -84,7 +84,7 @@ foreach ($pagedResults as $game) {
         'NumAwardedHardcore' => $game['NumAwardedHC'] ?? 0,
         'MostRecentAwardedDate' => isset($game['MostRecentWonDate']) ? (new Carbon($game['MostRecentWonDate'], 'UTC'))->toIso8601String() : null,
         'HighestAwardKind' => $game['HighestAwardKind'] ?? null,
-        'HighestAwardDate' => isset($game['HighestAwardDate']) ? Carbon::createFromTimestamp($game['HighestAwardDate'], 'UTC')->toIso8601String() : null,
+        'HighestAwardDate' => isset($game['HighestAwardDate']) ? Carbon::createFromTimestampUTC($game['HighestAwardDate'])->toIso8601String() : null,
     ];
 }
 

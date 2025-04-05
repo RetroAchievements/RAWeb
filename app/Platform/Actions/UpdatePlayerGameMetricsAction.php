@@ -69,8 +69,8 @@ class UpdatePlayerGameMetricsAction
             ->filter()
             ->max();
 
-        $timeTaken = $startedAt ? $startedAt->diffInSeconds($lastPlayedAt) : $playerGame->time_taken;
-        $timeTakenHardcore = $startedAt ? $startedAt->diffInSeconds($lastPlayedAt) : $playerGame->time_taken_hardcore;
+        $timeTaken = $startedAt ? (int) $startedAt->diffInSeconds($lastPlayedAt, true) : $playerGame->time_taken;
+        $timeTakenHardcore = $startedAt ? (int) $startedAt->diffInSeconds($lastPlayedAt, true) : $playerGame->time_taken_hardcore;
 
         $session = $user->playerSessions()
             ->with('gameHash')

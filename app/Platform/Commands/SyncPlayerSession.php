@@ -75,7 +75,7 @@ class SyncPlayerSession extends Command
             // extend the session to contain the achievement
             if ($unlockDate > $lastPlayerSession->updated_at) {
                 $lastPlayerSession->updated_at = $unlockDate;
-                $lastPlayerSession->duration = $unlockDate->diffInMinutes($lastPlayerSession->created_at);
+                $lastPlayerSession->duration = (int) $unlockDate->diffInMinutes($lastPlayerSession->created_at, true);
 
                 // use "timestamps=false" to prevent created_at/updated_at from being set to now()
                 $lastPlayerSession->save(['timestamps' => false]);

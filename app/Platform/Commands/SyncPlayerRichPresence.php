@@ -75,7 +75,7 @@ class SyncPlayerRichPresence extends Command
 
             if ($date > $session->updated_at) {
                 $transformed['updated_at'] = $date;
-                $transformed['duration'] = $date->diffInMinutes($session->created_at);
+                $transformed['duration'] = (int) $date->diffInMinutes($session->created_at, true);
             }
         } else {
             // create new session

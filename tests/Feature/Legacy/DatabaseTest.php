@@ -84,6 +84,6 @@ class DatabaseTest extends TestCase
         ");
 
         $this->assertEquals(10, $result['MinutesPassed']);
-        $this->assertEquals(Carbon::now()->addMonths(3)->diffInRealMinutes(Carbon::now()), $result['MinutesRemaining']);
+        $this->assertEquals(round(Carbon::now()->addMonths(3)->diffInMinutes(Carbon::now(), true)), $result['MinutesRemaining']);
     }
 }
