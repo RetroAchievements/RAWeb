@@ -8,7 +8,7 @@ import i18n from '@/i18n-client';
 import { render, screen, waitFor } from '@/test';
 import { createPaginatedData, createSystem, createZiggyProps } from '@/test/factories';
 
-import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
+import { isCurrentlyPersistingViewAtom } from '../../../state/game-list.atoms';
 import { DataTableToolbar } from './DataTableToolbar';
 
 // Suppress "Column with id 'achievementsPublished' does not exist".

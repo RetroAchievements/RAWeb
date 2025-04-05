@@ -6,8 +6,8 @@ import type { RouteName } from 'ziggy-js';
 import { BaseChip } from '@/common/components/+vendor/BaseChip';
 import { BaseSkeleton } from '@/common/components/+vendor/BaseSkeleton';
 
-import { useGameListInfiniteQuery } from '../../../hooks/useGameListInfiniteQuery';
-import { DataTableSearchInput } from '../../DataTableSearchInput';
+import { useGameListInfiniteQuery } from '../../../../hooks/useGameListInfiniteQuery';
+import { DataTableSearchInput } from '../../../DataTableSearchInput';
 import { DataTableSuperFilter } from '../DataTableSuperFilter';
 
 /**

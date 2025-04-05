@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { TranslatedString } from '@/types/i18next';
 
-import { DataTableFacetedFilter } from '../DataTableFacetedFilter';
+import { DataTableFacetedFilter } from '../../DataTableFacetedFilter';
 
 interface DataTableSystemFilterProps<TData> {
   filterableSystemOptions: App.Platform.Data.System[];

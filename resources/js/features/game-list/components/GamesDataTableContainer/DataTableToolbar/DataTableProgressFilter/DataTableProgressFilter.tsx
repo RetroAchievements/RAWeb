@@ -4,8 +4,8 @@ import { LuCircleDot, LuMedal, LuSparkles, LuTrophy } from 'react-icons/lu';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import type { FilterOptions } from '../../DataTableFacetedFilter';
-import { DataTableFacetedFilter } from '../../DataTableFacetedFilter';
+import type { FilterOptions } from '../../../DataTableFacetedFilter';
+import { DataTableFacetedFilter } from '../../../DataTableFacetedFilter';
 
 interface DataTableProgressFilterProps<TData> {
   table: Table<TData>;

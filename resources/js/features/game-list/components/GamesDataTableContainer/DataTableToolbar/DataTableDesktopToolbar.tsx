@@ -7,12 +7,12 @@ import { BaseCheckbox } from '@/common/components/+vendor/BaseCheckbox';
 import { BaseLabel } from '@/common/components/+vendor/BaseLabel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
-import { doesColumnExist } from '../../utils/doesColumnExist';
-import { getAreNonDefaultFiltersSet } from '../../utils/getAreNonDefaultFiltersSet';
-import { DataTableColumnsToggle } from '../DataTableColumnsToggle';
-import { DataTableResetFiltersButton } from '../DataTableResetFiltersButton';
-import { DataTableSearchInput } from '../DataTableSearchInput';
+import { isCurrentlyPersistingViewAtom } from '../../../state/game-list.atoms';
+import { doesColumnExist } from '../../../utils/doesColumnExist';
+import { getAreNonDefaultFiltersSet } from '../../../utils/getAreNonDefaultFiltersSet';
+import { DataTableColumnsToggle } from '../../DataTableColumnsToggle';
+import { DataTableResetFiltersButton } from '../../DataTableResetFiltersButton';
+import { DataTableSearchInput } from '../../DataTableSearchInput';
 import { DataTableAchievementsPublishedFilter } from './DataTableAchievementsPublishedFilter';
 import { DataTableProgressFilter } from './DataTableProgressFilter';
 import { DataTableSystemFilter } from './DataTableSystemFilter';

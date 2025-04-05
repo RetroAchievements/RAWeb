@@ -13,14 +13,14 @@ import {
   createSystem,
 } from '@/test/factories';
 
-import { buildHasActiveOrInReviewClaimsColumnDef } from '../../utils/column-definitions/buildHasActiveOrInReviewClaimsColumnDef';
-import { buildLastUpdatedColumnDef } from '../../utils/column-definitions/buildLastUpdatedColumnDef';
-import { buildNumUnresolvedTicketsColumnDef } from '../../utils/column-definitions/buildNumUnresolvedTicketsColumnDef';
-import { buildNumVisibleLeaderboardsColumnDef } from '../../utils/column-definitions/buildNumVisibleLeaderboardsColumnDef';
-import { buildPlayersTotalColumnDef } from '../../utils/column-definitions/buildPlayersTotalColumnDef';
-import { buildRetroRatioColumnDef } from '../../utils/column-definitions/buildRetroRatioColumnDef';
-import { buildSystemColumnDef } from '../../utils/column-definitions/buildSystemColumnDef';
-import { buildTitleColumnDef } from '../../utils/column-definitions/buildTitleColumnDef';
+import { buildHasActiveOrInReviewClaimsColumnDef } from '../../../utils/column-definitions/buildHasActiveOrInReviewClaimsColumnDef';
+import { buildLastUpdatedColumnDef } from '../../../utils/column-definitions/buildLastUpdatedColumnDef';
+import { buildNumUnresolvedTicketsColumnDef } from '../../../utils/column-definitions/buildNumUnresolvedTicketsColumnDef';
+import { buildNumVisibleLeaderboardsColumnDef } from '../../../utils/column-definitions/buildNumVisibleLeaderboardsColumnDef';
+import { buildPlayersTotalColumnDef } from '../../../utils/column-definitions/buildPlayersTotalColumnDef';
+import { buildRetroRatioColumnDef } from '../../../utils/column-definitions/buildRetroRatioColumnDef';
+import { buildSystemColumnDef } from '../../../utils/column-definitions/buildSystemColumnDef';
+import { buildTitleColumnDef } from '../../../utils/column-definitions/buildTitleColumnDef';
 import { GameListDataTable } from './GameListDataTable';
 
 dayjs.extend(utc);

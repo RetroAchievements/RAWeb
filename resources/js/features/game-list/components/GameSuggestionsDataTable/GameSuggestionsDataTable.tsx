@@ -4,7 +4,7 @@ import type { FC } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { GameListDataTable } from '../GameListDataTable';
+import { GameListDataTable } from '../GamesDataTableContainer/GameListDataTable';
 import { useColumnDefinitions } from './useColumnDefinitions';
 
 interface GameSuggestionsDataTableProps {

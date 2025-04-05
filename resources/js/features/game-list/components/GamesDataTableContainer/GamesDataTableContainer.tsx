@@ -1,4 +1,5 @@
 import type {
+  ColumnDef,
   ColumnFiltersState,
   PaginationState,
   SortingState,
@@ -7,55 +8,78 @@ import type {
 } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { type Dispatch, type FC, lazy, type SetStateAction, Suspense } from 'react';
+import type { RouteName } from 'ziggy-js';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useGameListPaginatedQuery } from '@/features/game-list/hooks/useGameListPaginatedQuery';
 
-import { DataTablePagination } from '../DataTablePagination';
-import { DataTableToolbar } from '../DataTableToolbar';
-import { GameListDataTable } from '../GameListDataTable';
 import { GameListItemsSuspenseFallback } from '../GameListItems/GameListItemsSuspenseFallback';
-import { useWantToPlayGamesDefaultColumnState } from '../WantToPlayGamesMainRoot/useWantToPlayGamesDefaultColumnState';
-import { useColumnDefinitions } from './useColumnDefinitions';
+import { DataTablePagination } from './DataTablePagination';
+import { DataTableToolbar } from './DataTableToolbar';
+import { GameListDataTable } from './GameListDataTable';
 
 const GameListItems = lazy(() => import('../GameListItems'));
 
-// These values are all generated from `useGameListState`.
-interface WantToPlayGamesDataTableProps {
+interface GamesDataTableContainerProps {
+  // Table state
   columnFilters: ColumnFiltersState;
   columnVisibility: VisibilityState;
   pagination: PaginationState;
+  sorting: SortingState;
+
+  // State setters
   setColumnFilters: Dispatch<SetStateAction<ColumnFiltersState>>;
   setColumnVisibility: Dispatch<SetStateAction<VisibilityState>>;
   setPagination: Dispatch<SetStateAction<PaginationState>>;
   setSorting: Dispatch<SetStateAction<SortingState>>;
-  sorting: SortingState;
+
+  // Table configuration
+  defaultColumnFilters: ColumnFiltersState;
+  columnDefinitions: ColumnDef<App.Platform.Data.GameListEntry>[];
+
+  // API configuration
+  apiRouteName?: RouteName;
+  apiRouteParams?: Record<string, unknown>;
+  randomGameApiRouteName?: RouteName;
+  shouldHideItemIfNotInBacklog?: boolean;
 }
 
-export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
+export const GamesDataTableContainer: FC<GamesDataTableContainerProps> = ({
+  // Table state
   columnFilters,
   columnVisibility,
   pagination,
+  sorting,
+
+  // State setters
   setColumnFilters,
   setColumnVisibility,
   setPagination,
   setSorting,
-  sorting,
-}) => {
-  const { can, ziggy } = usePageProps<App.Community.Data.UserGameListPageProps>();
 
-  const { defaultColumnFilters } = useWantToPlayGamesDefaultColumnState();
+  // Table configuration
+  defaultColumnFilters,
+  columnDefinitions,
+
+  // API configuration
+  apiRouteName = 'api.game.index', // All Games
+  apiRouteParams = {},
+  randomGameApiRouteName,
+  shouldHideItemIfNotInBacklog = false,
+}) => {
+  const { ziggy } = usePageProps();
 
   const gameListQuery = useGameListPaginatedQuery({
     columnFilters,
     pagination,
     sorting,
-    apiRouteName: 'api.user-game-list.index',
+    apiRouteName,
+    apiRouteParams,
     isEnabled: ziggy.device === 'desktop',
   });
 
   const table = useReactTable({
-    columns: useColumnDefinitions({ canSeeOpenTicketsColumn: !!can.develop }),
+    columns: columnDefinitions,
     data: gameListQuery.data?.items ?? [],
     manualPagination: true,
     manualSorting: true,
@@ -86,8 +110,9 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
         table={table}
         unfilteredTotal={gameListQuery.data?.unfilteredTotal ?? null}
         defaultColumnFilters={defaultColumnFilters}
-        randomGameApiRouteName="api.user-game-list.random"
-        tableApiRouteName="api.user-game-list.index"
+        randomGameApiRouteName={randomGameApiRouteName}
+        tableApiRouteName={apiRouteName}
+        tableApiRouteParams={apiRouteParams}
       />
 
       {ziggy.device === 'mobile' ? (
@@ -97,8 +122,9 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
               columnFilters={columnFilters}
               pagination={pagination}
               sorting={sorting}
-              apiRouteName="api.user-game-list.index"
-              shouldHideItemIfNotInBacklog={true}
+              apiRouteName={apiRouteName}
+              apiRouteParams={apiRouteParams}
+              shouldHideItemIfNotInBacklog={shouldHideItemIfNotInBacklog}
             />
           </Suspense>
         </div>
@@ -113,7 +139,8 @@ export const WantToPlayGamesDataTable: FC<WantToPlayGamesDataTableProps> = ({
 
           <DataTablePagination
             table={table as Table<unknown>}
-            tableApiRouteName="api.user-game-list.index"
+            tableApiRouteName={apiRouteName}
+            tableApiRouteParams={apiRouteParams}
           />
         </div>
       ) : null}
