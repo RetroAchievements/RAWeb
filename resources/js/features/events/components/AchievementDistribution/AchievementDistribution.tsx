@@ -30,7 +30,7 @@ export const AchievementDistribution: FC<AchievementDistributionProps> = ({
     userSoftcoreIndex,
   } = useAchievementDistributionChart({ buckets, playerGame, variant });
 
-  if (!buckets.length) {
+  if (buckets.length < 2) {
     return null;
   }
 

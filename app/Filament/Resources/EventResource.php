@@ -255,7 +255,9 @@ class EventResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where('events.id', 'like', "%{$search}%");
+                    }),
 
                 Tables\Columns\TextColumn::make('legacyGame.title')
                     ->label('Title')

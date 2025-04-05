@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 
@@ -28,8 +29,10 @@ function getUserBestDaysList(User $user, int $offset, int $limit, int $sortBy): 
     $query = "SELECT DATE(pa.unlocked_at) AS Date, COUNT(*) AS NumAwarded, SUM(Points) AS TotalPointsEarned
                 FROM player_achievements pa
                 INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
+                INNER JOIN GameData AS gd ON gd.ID = ach.GameID
                 WHERE pa.user_id={$user->id}
                 AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
+                AND gd.ConsoleID != " . System::Events . "
                 GROUP BY Date
                 $orderCond
                 LIMIT $offset, $limit";
@@ -102,6 +105,7 @@ function getAchievementsEarnedOnDay(int $unixTimestamp, User $user): array
 
 function getAwardedList(
     User $user,
+    bool $excludeEvents = true,
     ?int $offset = null,
     ?int $limit = null,
     ?string $dateFrom = null,
@@ -136,6 +140,7 @@ function getAwardedList(
                 INNER JOIN GameData AS gd ON gd.ID = ach.GameID
                 WHERE pa.user_id = {$user->id}
                 AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
+                " . ($excludeEvents ? "AND gd.ConsoleID != " . System::Events : "") . "
                 $dateCondition
                 GROUP BY Date
                 ORDER BY Date ASC

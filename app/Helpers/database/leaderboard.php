@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
@@ -20,6 +21,7 @@ function SubmitLeaderboardEntry(
     ?string $validation,
     ?GameHash $gameHash = null,
     ?Carbon $timestamp = null,
+    ClientSupportLevel $clientSupportLevel = ClientSupportLevel::Full,
 ): array {
     $retVal = ['Success' => true];
 
@@ -56,7 +58,9 @@ function SubmitLeaderboardEntry(
         ->first();
 
     if ($existingLeaderboardEntry) {
-        if ($existingLeaderboardEntry->trashed()
+        if ($clientSupportLevel !== ClientSupportLevel::Full) {
+            $retVal['BestScore'] = $existingLeaderboardEntry->score;
+        } elseif ($existingLeaderboardEntry->trashed()
             || $leaderboard->isBetterScore($newEntry, $existingLeaderboardEntry->score)) {
 
             if ($existingLeaderboardEntry->trashed()) {
@@ -74,6 +78,8 @@ function SubmitLeaderboardEntry(
             // No change made.
             $retVal['BestScore'] = $existingLeaderboardEntry->score;
         }
+    } elseif ($clientSupportLevel !== ClientSupportLevel::Full) {
+        $retVal['BestScore'] = 0;
     } else {
         // No existing leaderboard entry. Let's insert a new one, using
         // updateOrCreate to handle potential race conditions if the client

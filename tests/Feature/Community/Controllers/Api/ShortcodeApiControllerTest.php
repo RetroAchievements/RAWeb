@@ -22,6 +22,7 @@ class ShortcodeApiControllerTest extends TestCase
             'achievementIds' => [],
             'gameIds' => [],
             'hubIds' => [],
+            'eventIds' => [],
         ];
 
         // Act
@@ -43,6 +44,7 @@ class ShortcodeApiControllerTest extends TestCase
             'achievementIds' => [],
             'gameIds' => [],
             'hubIds' => [],
+            'eventIds' => [],
         ];
 
         // Act
@@ -56,6 +58,7 @@ class ShortcodeApiControllerTest extends TestCase
             'achievements' => [],
             'games' => [],
             'hubs' => [],
+            'events' => [],
         ]);
     }
 }

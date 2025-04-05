@@ -151,6 +151,16 @@ class Emulator extends BaseModel implements HasMedia
     // == relations
 
     /**
+     * @return BelongsToMany<Platform>
+     */
+    public function platforms(): BelongsToMany
+    {
+        return $this->belongsToMany(Platform::class, 'emulator_platforms')
+            ->using(BasePivot::class)
+            ->withTimestamps();
+    }
+
+    /**
      * @return BelongsToMany<System>
      */
     public function systems(): BelongsToMany
@@ -158,6 +168,14 @@ class Emulator extends BaseModel implements HasMedia
         return $this->belongsToMany(System::class, 'system_emulators', 'emulator_id', 'system_id')
             ->using(BasePivot::class)
             ->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<EmulatorDownload>
+     */
+    public function downloads(): HasMany
+    {
+        return $this->hasMany(EmulatorDownload::class);
     }
 
     /**
