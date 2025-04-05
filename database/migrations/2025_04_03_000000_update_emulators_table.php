@@ -10,7 +10,7 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('emulators', function (Blueprint $table) {
-            $table->boolean('supports_toolkit')->after('active')->nullable();
+            $table->boolean('supports_toolkit')->after('active')->default(true);
         });
     }
 
