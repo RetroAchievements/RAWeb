@@ -88,7 +88,7 @@ describe('Component: GameListItemDrawerContent', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
+    expect(screen.getAllByText(/sonic the hedgehog/i)[0]).toBeVisible();
   });
 
   it('there is always one or more tappable links directly to the game page', () => {
@@ -161,7 +161,7 @@ describe('Component: GameListItemDrawerContent', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
+    expect(screen.getAllByText(/sonic the hedgehog/i)[0]).toBeVisible();
   });
 
   it('given a game has a release date, displays it', () => {
