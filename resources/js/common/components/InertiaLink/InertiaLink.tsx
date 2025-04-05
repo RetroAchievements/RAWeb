@@ -22,7 +22,9 @@ export const InertiaLink: FC<InertiaLinkProps> = ({ href, prefetch = 'never', ..
   const { ziggy } = usePageProps();
   const isMobile = ziggy?.device === 'mobile';
 
-  const hoverTimeoutRef = useRef<number>();
+  const hoverTimeoutRef = useRef<number>(undefined);
+
+  const safeHref = typeof href === 'string' ? href : String(href || '');
 
   /**
    * Use an intersection observer for mobile prefetching.
@@ -34,7 +36,7 @@ export const InertiaLink: FC<InertiaLinkProps> = ({ href, prefetch = 'never', ..
   });
 
   const handlePrefetch = () => {
-    router.prefetch(href, { method: 'get' }, { cacheFor: '30s' });
+    router.prefetch(safeHref, { method: 'get' }, { cacheFor: '30s' });
   };
 
   /**
@@ -47,7 +49,7 @@ export const InertiaLink: FC<InertiaLinkProps> = ({ href, prefetch = 'never', ..
   return (
     <Link
       ref={ref}
-      href={href}
+      href={safeHref}
       // We'll manage prefetching explicitly.
       prefetch={false}
       onMouseEnter={() => {

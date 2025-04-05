@@ -6,7 +6,7 @@ import type { RenderHookOptions as RTLRenderHookOptions } from '@testing-library
 import { render as defaultRender, renderHook as defaultRenderHook } from '@testing-library/react';
 import type { WritableAtom } from 'jotai';
 import type { useHydrateAtoms } from 'jotai/utils';
-import type { ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 
 import { AppProviders } from '@/common/components/AppProviders';
 import type { AppGlobalProps } from '@/common/models';
@@ -23,9 +23,21 @@ vi.mock('@inertiajs/react', async (importOriginal) => {
     ...original,
     __esModule: true,
 
-    Head: ({ children }: { children: ReactNode }) => (
-      <div data-testid="head-content">{children}</div>
-    ),
+    Head: ({ children }: { children: ReactNode }) => {
+      // React 19 refuses to render <meta /> or <link /> tags into JSDOM.
+      // We need to convert them to <span /> tags instead if we want to peek
+      // at their attributes.
+      const convertedChildren = React.Children.map(children, (child) => {
+        if (React.isValidElement(child) && (child.type === 'meta' || child.type === 'link')) {
+          // Convert meta to span but keep all the props.
+          return <span {...(child.props as unknown as any)} />;
+        }
+
+        return child;
+      });
+
+      return <div data-testid="head-content">{convertedChildren}</div>;
+    },
 
     usePage: vi.fn(),
   };

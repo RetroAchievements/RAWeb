@@ -36,9 +36,9 @@ describe('Component: SEO', () => {
     );
 
     // ASSERT
-    const ogTitle = container.querySelector('meta[property="og:title"]');
-    const ogType = container.querySelector('meta[property="og:type"]');
-    const twitterCard = container.querySelector('meta[name="twitter:card"]');
+    const ogTitle = container.querySelector('span[property="og:title"]');
+    const ogType = container.querySelector('span[property="og:type"]');
+    const twitterCard = container.querySelector('span[name="twitter:card"]');
 
     expect(ogTitle?.getAttribute('content')).toEqual('Test Title');
     expect(ogType?.getAttribute('content')).toEqual('website');
@@ -58,7 +58,7 @@ describe('Component: SEO', () => {
     );
 
     // ASSERT
-    const canonicalLink = container.querySelector('link[rel="canonical"]');
+    const canonicalLink = container.querySelector('span[rel="canonical"]');
     expect(canonicalLink?.getAttribute('href')).toEqual(customCanonical);
   });
 
@@ -79,11 +79,11 @@ describe('Component: SEO', () => {
     );
 
     // ASSERT
-    const publishedTime = container.querySelector('meta[property="article:published_time"]');
-    const modifiedTime = container.querySelector('meta[property="article:modified_time"]');
-    const section = container.querySelector('meta[property="article:section"]');
-    const author = container.querySelector('meta[property="article:author"]');
-    const tags = container.querySelectorAll('meta[property="article:tag"]');
+    const publishedTime = container.querySelector('span[property="article:published_time"]');
+    const modifiedTime = container.querySelector('span[property="article:modified_time"]');
+    const section = container.querySelector('span[property="article:section"]');
+    const author = container.querySelector('span[property="article:author"]');
+    const tags = container.querySelectorAll('span[property="article:tag"]');
 
     expect(publishedTime?.getAttribute('content')).toEqual('2023-01-01T00:00:00Z');
     expect(modifiedTime?.getAttribute('content')).toEqual('2023-01-02T00:00:00Z');
@@ -106,9 +106,9 @@ describe('Component: SEO', () => {
     );
 
     // ASSERT
-    const ogTitle = container.querySelector('meta[property="og:title"]');
-    const ogDescription = container.querySelector('meta[property="og:description"]');
-    const ogImage = container.querySelector('meta[property="og:image"]');
+    const ogTitle = container.querySelector('span[property="og:title"]');
+    const ogDescription = container.querySelector('span[property="og:description"]');
+    const ogImage = container.querySelector('span[property="og:image"]');
 
     expect(ogTitle?.getAttribute('content')).toEqual('Custom OG Title');
     expect(ogDescription?.getAttribute('content')).toEqual('Custom OG Description');
@@ -131,10 +131,10 @@ describe('Component: SEO', () => {
     );
 
     // ASSERT
-    const twitterTitle = container.querySelector('meta[name="twitter:title"]');
-    const twitterDescription = container.querySelector('meta[name="twitter:description"]');
-    const twitterCard = container.querySelector('meta[name="twitter:card"]');
-    const twitterSite = container.querySelector('meta[name="twitter:site"]');
+    const twitterTitle = container.querySelector('span[name="twitter:title"]');
+    const twitterDescription = container.querySelector('span[name="twitter:description"]');
+    const twitterCard = container.querySelector('span[name="twitter:card"]');
+    const twitterSite = container.querySelector('span[name="twitter:site"]');
 
     expect(twitterTitle?.getAttribute('content')).toEqual('Custom Twitter Title');
     expect(twitterDescription?.getAttribute('content')).toEqual('Custom Twitter Description');
