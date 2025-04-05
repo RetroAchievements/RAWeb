@@ -478,6 +478,7 @@ declare namespace App.Platform.Data {
   export type Emulator = {
     id: number;
     name: string;
+    supportsToolkit: boolean | null;
   };
   export type EventAchievement = {
     achievement?: App.Platform.Data.Achievement;
@@ -756,6 +757,7 @@ declare namespace App.Platform.Data {
   export type System = {
     id: number;
     name: string;
+    manufacturer?: string;
     nameFull?: string;
     nameShort?: string;
     iconUrl?: string;
@@ -783,15 +785,6 @@ declare namespace App.Platform.Enums {
   export type AchievementFlag = 3 | 5;
   export type AchievementSetAuthorTask = 'artwork';
   export type EventState = 'active' | 'concluded' | 'evergreen';
-  export type UnlockMode = 0 | 1;
-  export type AchievementSetType =
-    | 'core'
-    | 'bonus'
-    | 'specialty'
-    | 'exclusive'
-    | 'will_be_bonus'
-    | 'will_be_specialty'
-    | 'will_be_exclusive';
   export type GameListProgressFilterValue =
     | 'unstarted'
     | 'unfinished'
@@ -804,6 +797,15 @@ declare namespace App.Platform.Enums {
     | 'eq_mastered'
     | 'revised'
     | 'neq_mastered';
+  export type UnlockMode = 0 | 1;
+  export type AchievementSetType =
+    | 'core'
+    | 'bonus'
+    | 'specialty'
+    | 'exclusive'
+    | 'will_be_bonus'
+    | 'will_be_specialty'
+    | 'will_be_exclusive';
   export type GameListSetTypeFilterValue = 'only-games' | 'only-subsets';
   export type GameListSortField =
     | 'title'
@@ -827,6 +829,14 @@ declare namespace App.Platform.Enums {
     | 'shared-hub'
     | 'similar-game'
     | 'want-to-play';
+  export type PlatformExecutionEnvironment =
+    | 'desktop'
+    | 'mobile'
+    | 'console'
+    | 'single_board'
+    | 'original_hardware'
+    | 'embedded'
+    | 'web';
   export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
   export type TicketableType = 'achievement' | 'leaderboard' | 'rich-presence';
