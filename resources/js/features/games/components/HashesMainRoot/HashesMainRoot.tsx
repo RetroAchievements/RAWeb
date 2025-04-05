@@ -76,6 +76,20 @@ export const HashesMainRoot: FC = memo(() => {
           </p>
 
           <HashesList />
+
+          <p className="mt-4 text-center text-neutral-500">
+            <Trans
+              i18nKey="Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester."
+              components={{
+                1: (
+                  <a
+                    href="https://docs.retroachievements.org/guidelines/content/player-compatibility-testing.html"
+                    target="_blank"
+                  />
+                ),
+              }}
+            />
+          </p>
         </div>
       </div>
     </div>
