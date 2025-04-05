@@ -263,7 +263,7 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
             }
 
             echo avatar('event', $event->id,
-                link: route('game.show', $event->legacyGame->id),
+                link: route('event.show', $event->id),
                 tooltip: "<div class='p-2 max-w-[320px] text-pretty'><span>$tooltip</span><p class='italic'>{$awardDate}</p></div>",
                 iconUrl: media_asset($image),
                 iconSize: $imageSize,
