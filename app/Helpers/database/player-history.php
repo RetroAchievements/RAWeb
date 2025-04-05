@@ -29,8 +29,10 @@ function getUserBestDaysList(User $user, int $offset, int $limit, int $sortBy): 
     $query = "SELECT DATE(pa.unlocked_at) AS Date, COUNT(*) AS NumAwarded, SUM(Points) AS TotalPointsEarned
                 FROM player_achievements pa
                 INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
+                INNER JOIN GameData AS gd ON gd.ID = ach.GameID
                 WHERE pa.user_id={$user->id}
                 AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
+                AND gd.ConsoleID != " . System::Events . "
                 GROUP BY Date
                 $orderCond
                 LIMIT $offset, $limit";
