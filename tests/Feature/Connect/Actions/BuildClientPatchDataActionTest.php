@@ -73,6 +73,7 @@ class BuildClientPatchDataActionTest extends TestCase
     private function assertBaseGameData(array $patchData, Game $game): void
     {
         $this->assertEquals($game->id, $patchData['ID']);
+        $this->assertEquals($game->id, $patchData['ParentID']);
         $this->assertEquals($game->title, $patchData['Title']);
         $this->assertEquals($game->ConsoleID, $patchData['ConsoleID']);
         $this->assertEquals($game->ImageIcon, $patchData['ImageIcon']);
@@ -312,12 +313,17 @@ class BuildClientPatchDataActionTest extends TestCase
         $this->assertArrayHasKey('Sets', $result['PatchData']);
         $this->assertCount(1, $result['PatchData']['Sets']);
 
+        // ... verify the base data includes ParentID ...
+        $this->assertEquals($baseGame->id, $result['PatchData']['ID']);
+        $this->assertEquals($baseGame->id, $result['PatchData']['ParentID']);
+
         // ... verify the core set is at the root level ...
         $this->assertCount(2, $result['PatchData']['Achievements']);
 
         // ... verify the bonus set is in the sets level ...
         $bonusSet = $result['PatchData']['Sets'][0];
         $this->assertEquals(AchievementSetType::Bonus->value, $bonusSet['Type']);
+        $this->assertEquals($bonusGame->id, $bonusSet['GameID']); // Each set includes the game ID
         $this->assertCount(1, $bonusSet['Achievements']);
     }
 
@@ -620,8 +626,9 @@ class BuildClientPatchDataActionTest extends TestCase
         $this->assertEquals($baseGame->title, $result['PatchData']['Title']);
         $this->assertEquals($baseGame->ImageIcon, $result['PatchData']['ImageIcon']);
 
-        // ... id and achievements should be from the subset ...
+        // ... id should be from the subset but ParentID should point to the base game ...
         $this->assertEquals($specialtyGame->id, $result['PatchData']['ID']);
+        $this->assertEquals($baseGame->id, $result['PatchData']['ParentID']);
         $this->assertCount(2, $result['PatchData']['Achievements']); // the subset game's achievements
 
         // ... RP should be from the specialty game ...
@@ -661,8 +668,9 @@ class BuildClientPatchDataActionTest extends TestCase
         $this->assertEquals($baseGame->title, $result['PatchData']['Title']);
         $this->assertEquals($baseGame->ImageIcon, $result['PatchData']['ImageIcon']);
 
-        // ... id and achievements should be from the subset ...
+        // ... id should be from the subset but ParentID should point to the base game ...
         $this->assertEquals($exclusiveGame->id, $result['PatchData']['ID']);
+        $this->assertEquals($baseGame->id, $result['PatchData']['ParentID']);
         $this->assertCount(2, $result['PatchData']['Achievements']); // the subset game's achievements
 
         // ... RP should be from the exclusive game ...
@@ -802,8 +810,22 @@ class BuildClientPatchDataActionTest extends TestCase
         $this->assertArrayHasKey('Sets', $result['PatchData']);
         $this->assertCount(2, $result['PatchData']['Sets']); // only bonus sets, core is at the root level
 
+        // ... verify the ID and ParentID match for root game ...
+        $this->assertEquals($baseGame->id, $result['PatchData']['ID']);
+        $this->assertEquals($baseGame->id, $result['PatchData']['ParentID']);
+
         // ... verify core is at the root level ...
         $this->assertCount(2, $result['PatchData']['Achievements']);
+
+        // ... verify each set has a GameID field ...
+        foreach ($result['PatchData']['Sets'] as $set) {
+            $this->assertArrayHasKey('GameID', $set);
+        }
+
+        // ... verify the bonus set GameIDs ...
+        $setGameIds = array_column($result['PatchData']['Sets'], 'GameID');
+        $this->assertContains($bonusSet->id, $setGameIds);
+        $this->assertContains($bonusSet2->id, $setGameIds);
 
         $setTypes = array_column($result['PatchData']['Sets'], 'Type');
         $this->assertContains(AchievementSetType::Bonus->value, $setTypes);
