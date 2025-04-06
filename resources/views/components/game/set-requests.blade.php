@@ -56,7 +56,7 @@ function getSetRequestInformation(user, gameID) {
 function submitSetRequest(user, gameID) {
     $.post('/request/user-game-list/toggle.php', {
         game: gameID,
-        type: '<?= UserGameListType::AchievementSetRequest ?>'
+        type: '<?= UserGameListType::AchievementSetRequest->value ?>'
     })
         .done(function () {
             getSetRequestInformation('<?= $user->display_name ?>', <?= $gameId ?>);

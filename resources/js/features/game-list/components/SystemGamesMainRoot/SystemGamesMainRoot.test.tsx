@@ -3,7 +3,6 @@ import axios from 'axios';
 import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { UserGameListType } from '@/common/utils/generatedAppConstants';
 import { render, screen, waitFor } from '@/test';
 import {
   createGame,
@@ -160,7 +159,7 @@ describe('Component: SystemGamesMainRoot', () => {
 
     // ASSERT
     expect(postSpy).toHaveBeenCalledWith(['api.user-game-list.store', mockGame.id], {
-      userGameListType: UserGameListType.Play,
+      userGameListType: 'play',
     });
   });
 
@@ -201,7 +200,7 @@ describe('Component: SystemGamesMainRoot', () => {
 
     // ASSERT
     expect(deleteSpy).toHaveBeenCalledWith(['api.user-game-list.destroy', mockGame.id], {
-      data: { userGameListType: UserGameListType.Play },
+      data: { userGameListType: 'play' },
     });
   });
 
@@ -248,11 +247,11 @@ describe('Component: SystemGamesMainRoot', () => {
 
     // ASSERT
     expect(deleteSpy).toHaveBeenCalledWith(['api.user-game-list.destroy', mockGame.id], {
-      data: { userGameListType: UserGameListType.Play },
+      data: { userGameListType: 'play' },
     });
 
     expect(postSpy).toHaveBeenCalledWith(['api.user-game-list.store', mockGame.id], {
-      userGameListType: UserGameListType.Play,
+      userGameListType: 'play',
     });
   });
 
