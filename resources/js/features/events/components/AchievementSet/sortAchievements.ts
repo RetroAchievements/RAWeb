@@ -94,8 +94,9 @@ export function getStatus(
   const now = dayjs.utc();
   const activeFrom = dayjs.utc(eventAchievement.activeFrom);
   const activeThrough = dayjs.utc(eventAchievement.activeThrough);
+  const activeUntil = dayjs.utc(eventAchievement.activeUntil);
 
-  if (activeFrom.isSameOrBefore(now) && now.isSameOrBefore(activeThrough)) {
+  if (activeFrom.isSameOrBefore(now) && now.isBefore(activeUntil)) {
     return eventAchievementTimeStatus.active;
   }
 
