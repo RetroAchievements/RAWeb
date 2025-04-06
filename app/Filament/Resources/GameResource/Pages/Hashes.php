@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\GameResource\Pages;
 
 use App\Community\Enums\ArticleType;
+use App\Enums\GameHashCompatibility;
 use App\Filament\Resources\GameHashResource;
 use App\Filament\Resources\GameResource;
 use App\Models\Comment;
@@ -59,6 +60,13 @@ class Hashes extends ManageRelatedRecords
                     ->fontFamily(FontFamily::Mono)
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('compatibility')
+                    ->label('Compatibility')
+                    ->formatStateUsing(function (string $state): string
+                    {
+                        return GameHashCompatibility::from($state)->label();
+                    }),
+
                 Tables\Columns\TextColumn::make('labels')
                     ->toggleable(isToggledHiddenByDefault: true),
 
@@ -102,6 +110,14 @@ class Hashes extends ManageRelatedRecords
                                             ->required(),
 
                                         Forms\Components\TextInput::make('labels'),
+
+                                        Forms\Components\Select::make('compatibility')
+                                            ->options([
+                                                GameHashCompatibility::Compatible->value => GameHashCompatibility::Compatible->label(),
+                                                GameHashCompatibility::Incompatible->value => GameHashCompatibility::Incompatible->label(),
+                                                GameHashCompatibility::Untested->value => GameHashCompatibility::Untested->label(),
+                                                GameHashCompatibility::PatchRequired->value => GameHashCompatibility::PatchRequired->label(),
+                                            ]),
                                     ]),
 
                                 Forms\Components\TextInput::make('patch_url')

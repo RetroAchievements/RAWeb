@@ -58,6 +58,7 @@ class GameHash extends BaseModel
             ->logOnly([
                 'name',
                 'labels',
+                'compatibility',
                 'md5',
                 'patch_url',
                 'source',
