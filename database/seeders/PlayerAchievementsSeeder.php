@@ -14,6 +14,7 @@ use App\Platform\Actions\UpdateGameMetricsAction;
 use App\Platform\Actions\UpdatePlayerGameMetricsAction;
 use App\Platform\Actions\UpdatePlayerMetricsAction;
 use App\Platform\Enums\AchievementType;
+use DateTime;
 use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -43,14 +44,14 @@ class PlayerAchievementsSeeder extends Seeder
                 $keepPlayingChance = random_int(75, 100);
                 $num_sessions = 1;
 
-                $date = Carbon::now()->subMinutes(random_int(1000, 1000000)); // between 16 hours ago and ~2 years ago
+                $date = Carbon::parse($faker->dateTimeBetween('-3 years', '-2 hours')->format(DateTime::ATOM));
                 $playerSession = $resumePlayerSessionAction->execute($user, $game, timestamp: $date);
                 $playerSession->created_at = $date;
 
                 $playerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $game->id)->firstOrFail();
                 $playerGame->created_at = $date;
 
-                $date = $date->addSeconds(random_int(200, 2000));
+                $date = $date->addSeconds(random_int(100, 2000));
 
                 foreach ($game->achievements()->published()->get() as $achievement) {
                     if ($achievement->type !== AchievementType::Progression) {
@@ -107,7 +108,7 @@ class PlayerAchievementsSeeder extends Seeder
                         if ($date < Carbon::now()) {
                             $playerSession = $resumePlayerSessionAction->execute($user, $game, timestamp: $date);
                             $playerSession->created_at = $date;
-                            $date = $date->addSeconds(random_int(200, 2000));
+                            $date = $date->addSeconds(random_int(100, 2000));
                         }
                     }
 
