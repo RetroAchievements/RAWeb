@@ -38,7 +38,7 @@ class AchievementSetClaimTest extends TestCase
     public function testGetCompletedClaims(): void
     {
         // Freeze time
-        Carbon::setTestNow(Carbon::now());
+        Carbon::setTestNow(Carbon::now()->startOfSecond());
 
         /** @var System $system */
         $system = System::factory()->create();
@@ -66,7 +66,7 @@ class AchievementSetClaimTest extends TestCase
                     'GameIcon' => '/Images/000001.png',
                     'GameTitle' => $game->Title,
                     'ID' => $claim->ID,
-                    'MinutesLeft' => round(Carbon::now()->diffInMinutes($claim->Finished, true)),
+                    'MinutesLeft' => Carbon::now()->diffInMinutes($claim->Finished),
                     'SetType' => ClaimSetType::NewSet,
                     'Special' => ClaimSpecial::None,
                     'Status' => ClaimStatus::Complete,
@@ -81,7 +81,7 @@ class AchievementSetClaimTest extends TestCase
     public function testGetDroppedClaims(): void
     {
         // Freeze time
-        Carbon::setTestNow(Carbon::now());
+        Carbon::setTestNow(Carbon::now()->startOfSecond());
 
         /** @var System $system */
         $system = System::factory()->create();
@@ -109,7 +109,7 @@ class AchievementSetClaimTest extends TestCase
                     'GameIcon' => '/Images/000001.png',
                     'GameTitle' => $game->Title,
                     'ID' => $claim->ID,
-                    'MinutesLeft' => round(Carbon::now()->diffInMinutes($claim->Finished, true)),
+                    'MinutesLeft' => Carbon::now()->diffInMinutes($claim->Finished),
                     'SetType' => ClaimSetType::NewSet,
                     'Special' => ClaimSpecial::None,
                     'Status' => ClaimStatus::Dropped,
@@ -141,7 +141,7 @@ class AchievementSetClaimTest extends TestCase
     public function testGetUserClaims(): void
     {
         // Freeze time
-        $now = Carbon::now();
+        $now = Carbon::now()->startOfSecond();
         Carbon::setTestNow($now);
 
         /** @var System $system */
@@ -169,7 +169,7 @@ class AchievementSetClaimTest extends TestCase
                     'GameIcon' => '/Images/000001.png',
                     'GameTitle' => $game->Title,
                     'ID' => $claim->ID,
-                    'MinutesLeft' => round((int) $now->diffInMinutes($claim->Finished, true) + 1),
+                    'MinutesLeft' => (int) $now->diffInMinutes($claim->Finished, true),
                     'SetType' => ClaimSetType::NewSet,
                     'Special' => ClaimSpecial::None,
                     'Status' => ClaimStatus::Active,

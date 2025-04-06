@@ -62,6 +62,9 @@ class DatabaseTest extends TestCase
 
     public function testSqliteDiffStatements(): void
     {
+        // Freeze time
+        Carbon::setTestNow(Carbon::now()->startOfSecond());
+
         User::factory()->create([
             // active for 10 minutes
             'Created' => Carbon::now()->subMinutes(10),
@@ -84,6 +87,6 @@ class DatabaseTest extends TestCase
         ");
 
         $this->assertEquals(10, $result['MinutesPassed']);
-        $this->assertEquals(round(Carbon::now()->addMonths(3)->diffInMinutes(Carbon::now(), true)), $result['MinutesRemaining']);
+        $this->assertEquals(Carbon::now()->addMonths(3)->diffInMinutes(Carbon::now(), true), $result['MinutesRemaining']);
     }
 }

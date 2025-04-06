@@ -33,11 +33,11 @@ class PlayerGameActivityServiceTest extends TestCase
 
         // ==== Start session at time1 ====
         $now = Carbon::now()->floorSeconds();
-        $time1 = $now->clone()->subMinutes(100);
+        $time1 = $now->clone()->subMinutes(100)->startOfSecond();
         Carbon::setTestNow($time1);
         /** @var PlayerSession $playerSession */
         $playerSession = (new ResumePlayerSessionAction())->execute($user, $game);
-        $playerSession->duration = (int) abs($now->diffInMinutes($time1));
+        $playerSession->duration = (int) $now->diffInMinutes($time1, true);
         $playerSession->save();
 
         $activity = new PlayerGameActivityService();
@@ -59,7 +59,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->addHardcoreUnlock($user, $ach1, $time2);
         // UnlockPlayerAchievementAction updates duration to be 'unlock time - created_at'
         $playerSession->refresh();
-        $playerSession->duration = (int) abs($now->diffInMinutes($time1));
+        $playerSession->duration = (int) $now->diffInMinutes($time1, true);
         $playerSession->save();
 
         $activity = new PlayerGameActivityService();
@@ -83,7 +83,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->addHardcoreUnlock($user, $ach3, $time3);
         // UnlockPlayerAchievementAction updates duration to be 'unlock time - created_at'
         $playerSession->refresh();
-        $playerSession->duration = (int) abs($now->diffInMinutes($time1));
+        $playerSession->duration = (int) $now->diffInMinutes($time1, true);
         $playerSession->save();
 
         $activity = new PlayerGameActivityService();
@@ -106,7 +106,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $playerSession->refresh();
         $playerSession->rich_presence = "Updated Rich Presence";
         $playerSession->rich_presence_updated_at = $time4;
-        $playerSession->duration = (int) abs($now->diffInMinutes($time1));
+        $playerSession->duration = (int) $now->diffInMinutes($time1, true);
         $playerSession->save();
 
         $activity = new PlayerGameActivityService();
@@ -161,7 +161,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $session = $activity->sessions[0];
         $this->assertEquals(PlayerGameActivitySessionType::Reconstructed, $session['type']);
         $this->assertEquals($time2->timestamp, $session['startTime']->timestamp);
-        $this->assertEquals((int) abs($time3->diffInSeconds($time2)), $session['duration']);
+        $this->assertEquals((int) $time3->diffInSeconds($time2, true), $session['duration']);
         $this->assertEquals($time3->timestamp, $session['endTime']->timestamp);
         $this->assertEquals(3, count($session['events']));
         $this->assertUnlockEvent($session['events'][0], $ach1->id, $time2, true);
@@ -188,7 +188,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $session = $activity->sessions[0];
         $this->assertEquals(PlayerGameActivitySessionType::Reconstructed, $session['type']);
         $this->assertEquals($time2->timestamp, $session['startTime']->timestamp);
-        $this->assertEquals((int) abs($time3->diffInSeconds($time2)), $session['duration']);
+        $this->assertEquals((int) $time3->diffInSeconds($time2, true), $session['duration']);
         $this->assertEquals($time3->timestamp, $session['endTime']->timestamp);
         $this->assertEquals(3, count($session['events']));
         $this->assertUnlockEvent($session['events'][0], $ach1->id, $time2, true);
@@ -213,7 +213,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $summary = $activity->summarize();
         // first session is generated, so the achievement time will be the distance between achievements
         // second session has no unlocks, so will only be included in total time calculations.
-        $firstSessionDuration = (int) abs($time3->diffInSeconds($time2));
+        $firstSessionDuration = (int) $time3->diffInSeconds($time2, true);
         $adjustment = $firstSessionDuration / 3;
         $this->assertEquals($firstSessionDuration + $adjustment, $summary['achievementPlaytime']);
         $this->assertEquals(1, $summary['achievementSessionCount']);
@@ -234,7 +234,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $session = $activity->sessions[0];
         $this->assertEquals(PlayerGameActivitySessionType::Reconstructed, $session['type']);
         $this->assertEquals($time2->timestamp, $session['startTime']->timestamp);
-        $this->assertEquals((int) abs($time3->diffInSeconds($time2)), $session['duration']);
+        $this->assertEquals((int) $time3->diffInSeconds($time2, true), $session['duration']);
         $this->assertEquals($time3->timestamp, $session['endTime']->timestamp);
         $this->assertEquals(3, count($session['events']));
         $this->assertUnlockEvent($session['events'][0], $ach1->id, $time2, true);
@@ -250,7 +250,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $session = $activity->sessions[2];
         $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
         $this->assertEquals($time5->timestamp, $session['startTime']->timestamp);
-        $this->assertEquals((int) abs($time7->diffInSeconds($time5)), $session['duration']); // new session always has 1 minute duration
+        $this->assertEquals((int) $time7->diffInSeconds($time5, true), $session['duration']); // new session always has 1 minute duration
         $this->assertEquals($time7->timestamp, $session['endTime']->timestamp);
         $this->assertEquals(2, count($session['events']));
         $this->assertUnlockEvent($session['events'][0], $ach5->id, $time7, true);
@@ -260,14 +260,14 @@ class PlayerGameActivityServiceTest extends TestCase
         $summary = $activity->summarize();
         // first session is generated, so the achievement time will be the distance between achievements
         // second session has one unlocks, so will be included in both calculations.
-        $firstSessionDuration = (int) abs($time3->diffInSeconds($time2));
-        $secondSessionDuration = (int) abs($time7->diffInSeconds($time5));
+        $firstSessionDuration = (int) $time3->diffInSeconds($time2, true);
+        $secondSessionDuration = (int) $time7->diffInSeconds($time5, true);
         $totalDuration = $firstSessionDuration + $secondSessionDuration;
         $adjustment = $totalDuration / 4;
         $this->assertEquals($totalDuration + $adjustment, $summary['achievementPlaytime']);
         $this->assertEquals(2, $summary['achievementSessionCount']);
         $this->assertEquals($adjustment, $summary['generatedSessionAdjustment']);
-        $this->assertEquals((int) abs($time7->diffInSeconds($time2)), $summary['totalUnlockTime']);
+        $this->assertEquals((int) $time7->diffInSeconds($time2, true), $summary['totalUnlockTime']);
         $this->assertEquals($firstSessionDuration + $adjustment + $secondSessionDuration, $summary['totalPlaytime']);
     }
 
