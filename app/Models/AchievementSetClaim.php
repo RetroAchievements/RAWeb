@@ -77,12 +77,12 @@ class AchievementSetClaim extends BaseModel
 
     public function getMinutesActiveAttribute(): int
     {
-        return (int) $this->created_at->diffInMinutes(Carbon::now(), true);
+        return (int) $this->created_at->diffInMinutes(Carbon::now());
     }
 
     public function getMinutesLeftAttribute(): int
     {
-        return (int) $this->finished_at->diffInMinutes(Carbon::now(), true);
+        return (int) $this->finished_at->diffInMinutes(Carbon::now());
     }
 
     // TODO remove after rename from "SetType" to "set_type"
