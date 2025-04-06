@@ -7,7 +7,7 @@ import type { RouteName } from 'ziggy-js';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { BasePagination, BasePaginationContent } from '@/common/components/+vendor/BasePagination';
 
-import { useDataTablePrefetchPagination } from '../../hooks/useDataTablePrefetchPagination';
+import { useDataTablePrefetchPagination } from '../../../hooks/useDataTablePrefetchPagination';
 import { ManualPaginatorField } from './ManualPaginatorField';
 import { PageSizeSelect } from './PageSizeSelect';
 

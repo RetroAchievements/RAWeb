@@ -1,10 +1,10 @@
 import { render, screen } from '@/test';
 import { createZiggyProps } from '@/test/factories';
 
-import { useGameListInfiniteQuery } from '../../../hooks/useGameListInfiniteQuery';
+import { useGameListInfiniteQuery } from '../../../../hooks/useGameListInfiniteQuery';
 import DataTableMobileToolbar from './DataTableMobileToolbar';
 
-vi.mock('../../../hooks/useGameListInfiniteQuery');
+vi.mock('../../../../hooks/useGameListInfiniteQuery');
 
 describe('Component: DataTableMobileToolbar', () => {
   beforeEach(() => {

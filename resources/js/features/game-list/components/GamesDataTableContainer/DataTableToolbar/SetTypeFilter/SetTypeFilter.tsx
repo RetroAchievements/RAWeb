@@ -1,7 +1,7 @@
 import type { Column, Table } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 
-import { DataTableFacetedFilter } from '../../DataTableFacetedFilter';
+import { DataTableFacetedFilter } from '../../../DataTableFacetedFilter';
 
 interface SetTypeFilterProps<TData> {
   table: Table<TData>;

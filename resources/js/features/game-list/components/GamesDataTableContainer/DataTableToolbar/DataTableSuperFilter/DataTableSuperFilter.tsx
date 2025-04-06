@@ -27,8 +27,8 @@ import {
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { doesColumnExist } from '@/features/game-list/utils/doesColumnExist';
 
-import { useSortConfigs } from '../../../hooks/useSortConfigs';
-import type { SortConfigKind } from '../../../models';
+import { useSortConfigs } from '../../../../hooks/useSortConfigs';
+import type { SortConfigKind } from '../../../../models';
 import { DataTableSystemFilter } from '../DataTableSystemFilter';
 import { RandomGameButton } from '../RandomGameButton';
 import { MobileGameTypeFilterSelect } from './MobileGameTypeFilterSelect';
