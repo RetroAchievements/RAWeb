@@ -4,6 +4,7 @@ use App\Actions\FindUserByIdentifierAction;
 use App\Community\Enums\ActivityType;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
+use App\Connect\Actions\IdentifyGameHashAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameAndGameHashAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
@@ -246,7 +247,7 @@ switch ($requestType) {
                 'GameID' => 0,
             ];
         } else {
-            $response['GameID'] = getGameIDFromMD5($md5);
+            $response['GameID'] = (new IdentifyGameHashAction())->execute($md5);
         }
         break;
 
@@ -565,8 +566,13 @@ switch ($requestType) {
         }
 
         try {
-            $gameHash = $gameHashMd5 ? GameHash::whereMd5($gameHashMd5)->first() : null;
-            $game = $gameHashMd5 ? null : Game::find($gameID);
+            if ($gameID > IdentifyGameHashAction::IncompatibleIdBase) {
+                $gameHash = IdentifyGameHashAction::makeVirtualGameHash($gameID);
+                $game = null;
+            } else {
+                $gameHash = $gameHashMd5 ? GameHash::whereMd5($gameHashMd5)->first() : null;
+                $game = $gameHashMd5 ? null : Game::find($gameID);
+            }
 
             $response = (new BuildClientPatchDataAction())->execute(
                 gameHash: $gameHash,
@@ -611,6 +617,11 @@ switch ($requestType) {
         break;
 
     case "startsession":
+        if ($gameID > IdentifyGameHashAction::IncompatibleIdBase) {
+            $response['Success'] = true;
+            break;
+        }
+
         $game = Game::find($gameID);
         $gameHash = null;
 
@@ -745,6 +756,12 @@ switch ($requestType) {
         break;
 
     case "unlocks":
+        if ($gameID > IdentifyGameHashAction::IncompatibleIdBase) {
+            $response['UserUnlocks'] = [];
+            $response['Success'] = true;
+            break;
+        }
+
         $hardcoreMode = (int) request()->input('h', 0) === UnlockMode::Hardcore;
         $userModel = User::whereName($username)->first();
         $userUnlocks = getUserAchievementUnlocksForGame($userModel, (new ResolveRootGameIdFromGameIdAction())->execute($gameID));

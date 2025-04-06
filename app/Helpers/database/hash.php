@@ -45,13 +45,6 @@ function getHashListByGameID(int $gameId): array
     return $hashes->toArray();
 }
 
-function getGameIDFromMD5(string $md5): int
-{
-    $gameHash = GameHash::where('md5', $md5)->first(['game_id']);
-
-    return $gameHash ? $gameHash->game_id : 0;
-}
-
 /**
  * Gets the list of hashes and hash information from the database using the input offset and count.
  */

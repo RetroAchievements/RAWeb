@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
+use App\Connect\Actions\IdentifyGameHashAction;
+use App\Enums\GameHashCompatibility;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
@@ -30,6 +32,52 @@ class GameIdTest extends TestCase
         $game = $this->seedGame();
 
         $this->get($this->apiUrl('gameid', ['m' => $game->hashes()->first()->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'GameID' => $game->id,
+                'Success' => true,
+            ]);
+    }
+
+    public function testIncompatibleHash(): void
+    {
+        $game = $this->seedGame();
+        $gameHash = $game->hashes()->first();
+
+        $gameHash->compatibility = GameHashCompatibility::Incompatible;
+        $gameHash->save();
+
+        $this->get($this->apiUrl('gameid', ['m' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'GameID' => $game->id + IdentifyGameHashAction::IncompatibleIdBase,
+                'Success' => true,
+            ]);
+
+        $gameHash->compatibility = GameHashCompatibility::Untested;
+        $gameHash->save();
+
+        $this->get($this->apiUrl('gameid', ['m' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'GameID' => $game->id + IdentifyGameHashAction::UntestedIdBase,
+                'Success' => true,
+            ]);
+
+        $gameHash->compatibility = GameHashCompatibility::PatchRequired;
+        $gameHash->save();
+
+        $this->get($this->apiUrl('gameid', ['m' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'GameID' => $game->id + IdentifyGameHashAction::PatchRequiredIdBase,
+                'Success' => true,
+            ]);
+        
+        $gameHash->compatibility = GameHashCompatibility::Compatible;
+        $gameHash->save();
+    
+        $this->get($this->apiUrl('gameid', ['m' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'GameID' => $game->id,

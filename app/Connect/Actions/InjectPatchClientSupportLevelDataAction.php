@@ -57,29 +57,15 @@ class InjectPatchClientSupportLevelDataAction
      */
     private function buildClientSupportWarningAchievement(ClientSupportLevel $clientSupportLevel): array
     {
-        return [
-            'ID' => Achievement::CLIENT_WARNING_ID,
-            'MemAddr' => '1=1.300.', // pop after 5 seconds
-            'Title' => match ($clientSupportLevel) {
+        return (new CreateWarningAchievementAction())->execute(
+            title: match ($clientSupportLevel) {
                 ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
                 ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
                 default => 'Warning: Unknown Emulator',
             },
-            //            'Description' => 'Hardcore unlocks cannot be earned using this emulator.',
-            'Description' => ($clientSupportLevel === ClientSupportLevel::Outdated) ?
+            description: ($clientSupportLevel === ClientSupportLevel::Outdated) ?
                 'Hardcore unlocks cannot be earned using this version of this emulator.' :
-                'Hardcore unlocks cannot be earned using this emulator.',
-            'Points' => 0,
-            'Author' => '',
-            'Modified' => Carbon::now()->unix(),
-            'Created' => Carbon::now()->unix(),
-            'BadgeName' => '00000',
-            'Flags' => AchievementFlag::OfficialCore->value,
-            'Type' => null,
-            'Rarity' => 0.0,
-            'RarityHardcore' => 0.0,
-            'BadgeURL' => media_asset("Badge/00000.png"),
-            'BadgeLockedURL' => media_asset("Badge/00000_lock.png"),
-        ];
+                'Hardcore unlocks cannot be earned using this emulator.'
+        );
     }
 }

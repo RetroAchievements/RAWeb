@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\GameHashCompatibility;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameHashFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -46,6 +47,7 @@ class GameHash extends BaseModel
     ];
 
     protected $casts = [
+        'compatibility' => GameHashCompatibility::class,
         'file_names' => 'json',
         'regions' => 'json',
     ];
