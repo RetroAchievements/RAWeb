@@ -130,33 +130,35 @@ export const HashesMainRoot: FC = memo(() => {
                     }}
                     className="overflow-hidden"
                   >
-                    {patchRequiredHashes?.length ? (
-                      <div className="flex flex-col gap-1">
-                        <p>{t('These game file hashes require a patch to be compatible.')}</p>
+                    <div ref={contentRef} className="bg-embed p-4">
+                      {patchRequiredHashes?.length ? (
+                        <div className="flex flex-col gap-1">
+                          <p>{t('These game file hashes require a patch to be compatible.')}</p>
 
-                        <HashesList hashes={patchRequiredHashes} />
-                      </div>
-                    ) : null}
+                          <HashesList hashes={patchRequiredHashes} />
+                        </div>
+                      ) : null}
 
-                    {untestedHashes?.length ? (
-                      <div className="flex flex-col gap-1">
-                        <p>
-                          {t(
-                            'These game file hashes are recognized, but it is unknown whether or not they are compatible.',
-                          )}
-                        </p>
+                      {untestedHashes?.length ? (
+                        <div className="flex flex-col gap-1">
+                          <p>
+                            {t(
+                              'These game file hashes are recognized, but it is unknown whether or not they are compatible.',
+                            )}
+                          </p>
 
-                        <HashesList hashes={untestedHashes} />
-                      </div>
-                    ) : null}
+                          <HashesList hashes={untestedHashes} />
+                        </div>
+                      ) : null}
 
-                    {incompatibleHashes?.length ? (
-                      <div className="flex flex-col gap-1">
-                        <p>{t('These game file hashes are known to be incompatible.')}</p>
+                      {incompatibleHashes?.length ? (
+                        <div className="flex flex-col gap-1">
+                          <p>{t('These game file hashes are known to be incompatible.')}</p>
 
-                        <HashesList hashes={incompatibleHashes} />
-                      </div>
-                    ) : null}
+                          <HashesList hashes={incompatibleHashes} />
+                        </div>
+                      ) : null}
+                    </div>
                   </m.div>
                 </BaseCollapsibleContent>
               ) : null}
