@@ -11,6 +11,7 @@ class ExtractDynamicShortcodeEntitiesAction
         'achievementIds' => ['pattern' => '/\[ach=(\d+)\]/', 'isNumeric' => true],
         'gameIds' => ['pattern' => '/\[game=(\d+)\]/', 'isNumeric' => true],
         'hubIds' => ['pattern' => '/\[hub=(\d+)\]/', 'isNumeric' => true],
+        'eventIds' => ['pattern' => '/\[event=(\d+)\]/', 'isNumeric' => true],
         'ticketIds' => ['pattern' => '/\[ticket=(\d+)\]/', 'isNumeric' => true],
         'usernames' => ['pattern' => '/\[user=([^\]]+)\]/', 'isNumeric' => false],
     ];

@@ -4,6 +4,7 @@ import { FaGamepad, FaTicketAlt, FaUser } from 'react-icons/fa';
 import { ImTrophy } from 'react-icons/im';
 import {
   LuBold,
+  LuCalendarFold,
   LuCode,
   LuEyeOff,
   LuItalic,
@@ -32,6 +33,7 @@ export function useShortcodesList() {
     { icon: ImTrophy, t_label: t('Achievement'), start: '[ach=', end: ']' },
     { icon: FaGamepad, t_label: t('Game'), start: '[game=', end: ']' },
     { icon: LuNetwork, t_label: t('Hub'), start: '[hub=', end: ']' },
+    { icon: LuCalendarFold, t_label: t('Event'), start: '[event=', end: ']' },
     { icon: FaUser, t_label: t('User'), start: '[user=', end: ']' },
     { icon: FaTicketAlt, t_label: t('Ticket'), start: '[ticket=', end: ']' },
   ];

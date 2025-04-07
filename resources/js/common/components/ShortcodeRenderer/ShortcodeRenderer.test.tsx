@@ -3,6 +3,7 @@ import {
   createAchievement,
   createGame,
   createGameSet,
+  createRaEvent,
   createSystem,
   createTicket,
   createUser,
@@ -10,6 +11,7 @@ import {
 
 import {
   persistedAchievementsAtom,
+  persistedEventsAtom,
   persistedGamesAtom,
   persistedHubsAtom,
   persistedTicketsAtom,
@@ -163,6 +165,28 @@ describe('Component: ShortcodeRenderer', () => {
     expect(screen.getByRole('link')).toBeVisible();
     expect(screen.getByRole('img')).toBeVisible();
     expect(screen.getByText('[Central] (Hubs)')).toBeVisible();
+  });
+
+  it('given a body with an event tag and a found persisted event, renders the event shortcode component', () => {
+    // ARRANGE
+    const event = createRaEvent({
+      id: 1,
+      legacyGame: createGame({ title: 'Achievement of the Week 2025' }),
+    });
+
+    const body = '[event=1]';
+
+    render(<ShortcodeRenderer body={body} />, {
+      jotaiAtoms: [
+        [persistedEventsAtom, [event]],
+        //
+      ],
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link')).toBeVisible();
+    expect(screen.getByRole('img')).toBeVisible();
+    expect(screen.getByText('Achievement of the Week 2025 (Events)')).toBeVisible();
   });
 
   it('given a body with an achievement tag and a found persisted achievement, renders the ach shortcode component', () => {

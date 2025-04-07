@@ -38,6 +38,7 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
                 :beatenHardcoreCount="$totalBeatenHardcoreCount"
                 :completedCount="$totalCompletedCount"
                 :masteredCount="$totalMasteredCount"
+                :systems="$systems"
             />
         </div>
     @endif
@@ -52,6 +53,7 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
                 :beatenHardcoreCount="$consoleProgress[$topConsole]['beatenHardcoreCount'] ?? 0"
                 :completedCount="$consoleProgress[$topConsole]['completedCount'] ?? 0"
                 :masteredCount="$consoleProgress[$topConsole]['masteredCount'] ?? 0"
+                :systems="$systems"
             />
         </div>
     @endif
@@ -72,6 +74,7 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
                             :beatenHardcoreCount="$progress['beatenHardcoreCount']"
                             :completedCount="$progress['completedCount']"
                             :masteredCount="$progress['masteredCount']"
+                            :systems="$systems"
                         />
                     @endif
                 @endforeach

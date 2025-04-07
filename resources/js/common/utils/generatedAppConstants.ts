@@ -190,13 +190,6 @@ export const SubscriptionSubjectType = {
 } as const;
 
 
-export const UserGameListType = {
-    AchievementSetRequest: 'achievement_set_request',
-    Play: 'play',
-    Develop: 'develop',
-} as const;
-
-
 export const TicketState = {
     Closed: 0,
     Open: 1,

@@ -100,6 +100,7 @@ img {
 .header {
     padding: 25px 0;
     text-align: center;
+    border-bottom: 2px solid #f1f1f1;
 }
 
 .header a {
@@ -141,6 +142,7 @@ img {
     border-width: 1px;
     box-shadow: 0 2px 0 rgba(0, 0, 150, 0.025), 2px 4px 0 rgba(0, 0, 150, 0.015);
     margin: 0 auto;
+    margin-top: 24px;
     padding: 0;
     width: 570px;
 }
@@ -268,6 +270,7 @@ img {
     background-color: #edf2f7;
     color: #718096;
     padding: 16px;
+    word-break: break-word;
 }
 
 .panel-content p {

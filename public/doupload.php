@@ -6,6 +6,13 @@ $requestType = request()->input('r');
 $user = request()->input('u');
 $token = request()->input('t');
 
+if (!$token) {
+    return response()->json([
+        'Success' => false,
+        'Error' => "Missing Token",
+    ], Response::HTTP_UNAUTHORIZED);
+}
+
 if (!authenticateFromAppToken($user, $token, $permissions)) {
     return response()
         ->json([

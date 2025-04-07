@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Enums\AwardType;
 use App\Data\UserPermissionsData;
 use App\Models\Event;
+use App\Models\PlayerBadge;
 use App\Models\User;
 use App\Platform\Data\EventData;
 use App\Platform\Data\EventShowPagePropsData;
@@ -27,6 +29,15 @@ class BuildEventShowPagePropsAction
         ?User $user,
     ): EventShowPagePropsData {
         [$numMasters, $topAchievers] = $this->loadGameTopAchieversAction->execute($event->legacyGame);
+
+        // Some events have no promoted achievements and only have one award tier.
+        // If this is the case, we need to make an extra query to get the real
+        // mastery count of the event.
+        if ($numMasters === 0 && !$event->awards->count()) {
+            $numMasters = PlayerBadge::where('AwardType', AwardType::Event)
+                ->where('AwardData', $event->id)
+                ->count();
+        }
 
         $playerGame = $user
             ? $user->playerGames()->whereGameId($event->legacyGame->id)->first()

@@ -382,8 +382,6 @@ switch ($requestType) {
                 'Error' => 'This emulator is not supported',
             ];
             break;
-        } elseif ($clientSupportLevel !== ClientSupportLevel::Full && $hardcore) {
-            // TODO: convert to softcore
         }
 
         // ignore negative values and offsets greater than max. clamping offset will invalidate validationHash.
@@ -411,6 +409,11 @@ switch ($requestType) {
             $gameHash = null;
             if ($gameHashMd5) {
                 $gameHash = GameHash::whereMd5($gameHashMd5)->first();
+            }
+
+            // If client support is restricted, force the unlock to softcore
+            if ($clientSupportLevel !== ClientSupportLevel::Full && $hardcore) {
+                $hardcore = 0;
             }
 
             /**
@@ -692,8 +695,6 @@ switch ($requestType) {
                 'Error' => 'This emulator is not supported',
             ];
             break;
-        } elseif ($clientSupportLevel !== ClientSupportLevel::Full) {
-            // TODO: block submission
         }
 
         // ignore negative values and offsets greater than max. clamping offset will invalidate validationHash.
@@ -724,8 +725,7 @@ switch ($requestType) {
         }
 
         // TODO dispatch job or event/listener using an action
-
-        $response['Response'] = SubmitLeaderboardEntry($user, $foundLeaderboard, $score, $validationHash, $gameHash, Carbon::now()->subSeconds($offset));
+        $response['Response'] = SubmitLeaderboardEntry($user, $foundLeaderboard, $score, $validationHash, $gameHash, Carbon::now()->subSeconds($offset), $clientSupportLevel);
         $response['Success'] = $response['Response']['Success']; // Passthru
         if (!$response['Success']) {
             $response['Error'] = $response['Response']['Error'];

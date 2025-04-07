@@ -2,15 +2,17 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Mail\CommunityActivityMail;
+use App\Mail\ValidateUserEmailMail;
 use App\Models\Comment;
 use App\Models\User;
-use App\Support\Shortcode\Shortcode;
 use Aws\CommandPool;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Mail\Mailer;
 use Illuminate\Mail\Transport\SesTransport;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Mime\Email;
 
 function sendRAEmail(string $to, string $subject, string $body): bool
@@ -155,53 +157,10 @@ function sendValidationEmail(User $user, string $email): bool
 {
     // This generates and stores (and returns) a new email validation string in the DB.
     $strValidation = generateEmailVerificationToken($user);
-    $strEmailLink = config('app.url') . "/validateEmail.php?v=$strValidation";
 
-    // $subject = "RetroAchievements.org - Confirm Email: $user";
-    $subject = "Welcome to RetroAchievements.org, {$user->display_name}";
+    Mail::to($email)->queue(new ValidateUserEmailMail($user, $strValidation));
 
-    $msg = "You or someone using your email address has attempted to sign up for an account at <a href='" . config('app.url') . "'>RetroAchievements.org</a><br>" .
-        "<br>" .
-        "If this was you, please click the following link to confirm this email address and complete sign up:<br>" .
-        "<br>" .
-        "&nbsp; &nbsp; &nbsp; &nbsp; <a href='$strEmailLink'>$strEmailLink</a><br>" .
-        "<br>" .
-        "If this wasn't you, please ignore this email.<br>" .
-        "<br>" .
-        "Thanks! And hope to see you on the forums!<br>" .
-        "<br>" .
-        "-- Your friends at <a href='" . config('app.url') . "'>RetroAchievements.org</a><br>";
-
-    return mail_utf8($email, $subject, $msg);
-}
-
-function sendFriendEmail(string $user, string $email, int $type, string $friend): bool
-{
-    if ($user === $friend) {
-        return false;
-    }
-
-    if ($type == 0) { // Requesting to be your friend
-        $emailTitle = "$friend is now following you";
-        $emailReason = "started following you";
-        $link = "<a href='" . config('app.url') . "/user/$friend'>here</a>";
-    } elseif ($type == 1) { // Friend request confirmed
-        $emailTitle = "$friend is now following you";
-        $emailReason = "followed you back";
-        $link = "<a href='" . config('app.url') . "/user/$friend'>here</a>";
-    } else {
-        return false; // must break early! No nonsense emails please!
-    }
-
-    $msg = "Hello $user!<br>" .
-        "$friend on RetroAchievements has $emailReason!<br>" .
-        "Click $link to visit their user page!<br>" .
-        "<br>" .
-        "Thanks! And hope to see you on the forums!<br>" .
-        "<br>" .
-        "-- Your friends at RetroAchievements.org<br>";
-
-    return mail_utf8($email, $emailTitle, $msg);
+    return true;
 }
 
 function informAllSubscribersAboutActivity(
@@ -312,200 +271,24 @@ function sendActivityEmail(
     bool $threadInvolved = false,
     ?string $payload = null,
 ): bool {
-    if ($user === $activityCommenter || getUserPermissions($user) < Permissions::Unregistered) {
+    if (
+        $user === $activityCommenter
+        || getUserPermissions($user) < Permissions::Unregistered
+        || empty(trim($email))
+    ) {
         return false;
     }
 
-    if (!str_starts_with($urlTarget, "http")) {
-        $urlTarget = config('app.url') . "/$urlTarget";
-    }
+    Mail::to($email)->queue(new CommunityActivityMail(
+        $user,
+        $actID,
+        $activityCommenter,
+        $articleType,
+        $articleTitle,
+        $urlTarget,
+        $threadInvolved,
+        $payload,
+    ));
 
-    switch ($articleType) {
-        case ArticleType::Game:
-            $emailTitle = "New Game Wall Comment from $activityCommenter";
-            $activityDescription = "the game wall for $articleTitle";
-            break;
-
-        case ArticleType::Achievement:
-            $emailTitle = "New Achievement Comment from $activityCommenter";
-            $activityDescription = "the achievement wall for $articleTitle";
-            break;
-
-        case ArticleType::User:
-            $emailTitle = "New User Wall Comment from $activityCommenter";
-            $activityDescription = "your user wall";
-            if ($articleTitle !== $user) {
-                $activityDescription = "$articleTitle's user wall";
-            }
-            break;
-
-        case ArticleType::Leaderboard:
-            $emailTitle = "New Leaderboard Comment from $activityCommenter";
-            $activityDescription = "the leaderboard wall for $articleTitle";
-            break;
-
-        case ArticleType::Forum:
-            $emailTitle = "New Forum Comment from $activityCommenter";
-            $activityDescription = "the forum post \"$articleTitle\"";
-            break;
-
-        case ArticleType::AchievementTicket:
-            $emailTitle = "New Ticket Comment from $activityCommenter";
-            $activityDescription = "the ticket you reported for $articleTitle";
-            if ($threadInvolved) {
-                $activityDescription = "a ticket for $articleTitle";
-            }
-            break;
-
-        default:
-            // generic messages
-            $emailTitle = "New Activity Comment from $activityCommenter";
-            $link = "<a href='" . config('app.url') . "/feed.php?a=$actID'>here</a>";
-            $activityDescription = "your latest activity";
-            if ($threadInvolved) {
-                $activityDescription = "a thread you've commented in";
-            }
-            break;
-    }
-
-    $msg = "Hello $user!<br>" .
-        "$activityCommenter has commented on $activityDescription.";
-
-    if (!empty($payload)) {
-        $msg .= "<hr>$payload<hr>";
-    } else {
-        $msg .= "<br><br>";
-    }
-
-    $msg .=
-        "<a href=\"$urlTarget\">View post</a><br>" .
-        "<br>" .
-        "-- Your friends at RetroAchievements.org<br>";
-
-    return mail_utf8($email, $emailTitle, $msg);
-}
-
-function SendPrivateMessageEmail(
-    string $user,
-    string $email,
-    string $title,
-    string $contentIn,
-    string $fromUser
-): bool {
-    if ($user === $fromUser) {
-        return false;
-    }
-
-    $content = stripslashes(nl2br($contentIn));
-    $content = Shortcode::stripAndClamp($content, 1850, preserveWhitespace: true);
-
-    // Also used for Generic text:
-    $emailTitle = "New Private Message from $fromUser";
-    $link = "<a href='" . route('message-thread.index') . "'>here</a>";
-
-    $msg = "Hello $user!<br>" .
-        "You have received a new private message from $fromUser.<br><br>" .
-        "Title: $title<br>" .
-        "$content<br><br>" .
-        "Click $link to reply!<br>" .
-        "Thanks! And hope to see you on the forums!<br>" .
-        "<br>" .
-        "-- Your friends at RetroAchievements.org<br>";
-
-    return mail_utf8($email, $emailTitle, $msg);
-}
-
-function SendPasswordResetEmail(string $user, string $email, string $token): bool
-{
-    $emailTitle = "Password Reset Request";
-    $link = "<a href='" . config('app.url') . "/resetPassword.php?u=$user&amp;t=$token'>Reset your password</a>";
-
-    $msg = "Hello $user!<br>" .
-        "Your account has requested a password reset:<br>" .
-        "$link<br>" .
-        "Thanks!<br>" .
-        "-- Your friends at RetroAchievements.org<br>";
-
-    return mail_utf8($email, $emailTitle, $msg);
-}
-
-/**
- * Sends an email to all set requestors indicating new achievement have been
- * added when a set claim has been marked as complete.
- */
-function sendSetRequestEmail(string $user, string $email, int $gameID, string $gameTitle): bool
-{
-    $emailTitle = "New Achievements Released for " . $gameTitle;
-    $link = "<a href='" . config('app.url') . "/game/$gameID'>$gameTitle</a>";
-
-    $msg = "Hello $user,<br>" .
-        "A set that you have requested has received new achievements. Check out the new achievements added to $link.<br><br>" .
-        "Thanks!<br>" .
-        "-- Your friends at RetroAchievements.org<br>";
-
-    return mail_utf8($email, $emailTitle, $msg);
-}
-
-/**
- * Sends an email to all users who have mastered or completed a set when a revision set claim has been marked as complete.
- */
-function sendSetRevisionEmail(
-    string $user,
-    string $email,
-    bool $isHardcore,
-    int $gameId,
-    string $gameTitle,
-): bool {
-    $emailTitle = "Revision Completed for " . $gameTitle;
-    $link = "<a href='" . config('app.url') . "/game/$gameId'>$gameTitle</a>";
-    $awardLabel = $isHardcore ? 'mastered' : 'completed';
-
-    $msg = "Hello $user,<br>" .
-        "A set that you have previously $awardLabel has been revised. Check out the changes to $link.<br><br>" .
-        "Thanks!<br>" .
-        "-- Your friends at RetroAchievements.org<br>";
-
-    return mail_utf8($email, $emailTitle, $msg);
-}
-
-/**
- * Sends an email to a user informing them that their display name was successfully changed.
- */
-function sendDisplayNameChangeConfirmationEmail(
-    User $user,
-    string $newDisplayName,
-): bool {
-    $emailTitle = "Username Change Approved";
-    $profileLink = "<a href='" . route('user.show', ['user' => $newDisplayName]) . "'>here</a>";
-
-    $msg = "Hello,<br><br>" .
-        "Great news! Your username change request to {$newDisplayName} has been approved.<br><br>" .
-
-        "You can now use your new username to log in everywhere on RetroAchievements.org.<br><br>" .
-
-        "Check out your updated profile {$profileLink}.<br><br>" .
-
-        "-- Your friends at RetroAchievements.org<br>";
-
-    return mail_utf8($user->EmailAddress, $emailTitle, $msg);
-}
-
-/**
- * Sends an email to a user informing them that their display name change request was declined.
- */
-function sendDisplayNameChangeDeclineEmail(
-    User $user,
-    string $desiredDisplayName,
-): bool {
-    $emailTitle = "About Your Username Change Request";
-
-    $msg = "Hello,<br><br>" .
-        "We have reviewed your request to change your username to {$desiredDisplayName}, " .
-        "and have decided not to approve it at this time.<br><br>" .
-
-        "You are welcome to submit another request after a 30 day cooldown period has ended.<br><br> " .
-
-        "-- Your friends at RetroAchievements.org<br>";
-
-    return mail_utf8($user->EmailAddress, $emailTitle, $msg);
+    return true;
 }
