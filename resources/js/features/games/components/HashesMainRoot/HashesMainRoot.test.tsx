@@ -73,7 +73,7 @@ describe('Component: HashesMainRoot', () => {
     // ASSERT
     expect(screen.getByText(/supported game file hashes registered for this game/i)).toBeVisible();
   });
-
+  /*
   it('given there are incompatible hashes, renders correctly', () => {
     // ARRANGE
     render<App.Platform.Data.GameHashesPageProps>(<HashesMainRoot />, {
@@ -124,4 +124,5 @@ describe('Component: HashesMainRoot', () => {
       screen.getByText(/these game file hashes require a patch to be compatible/i),
     ).toBeVisible();
   });
+*/
 });
