@@ -931,7 +931,7 @@ class StartSessionTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
             ]);
-        
+
         // player session not created
         $playerSession = PlayerSession::firstWhere('user_id', $this->user->id);
         $this->assertNull($playerSession);

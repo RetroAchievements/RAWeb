@@ -73,10 +73,10 @@ class GameIdTest extends TestCase
                 'GameID' => $game->id + IdentifyGameHashAction::PatchRequiredIdBase,
                 'Success' => true,
             ]);
-        
+
         $gameHash->compatibility = GameHashCompatibility::Compatible;
         $gameHash->save();
-    
+
         $this->get($this->apiUrl('gameid', ['m' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([

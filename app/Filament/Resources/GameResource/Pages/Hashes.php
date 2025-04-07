@@ -62,8 +62,7 @@ class Hashes extends ManageRelatedRecords
 
                 Tables\Columns\TextColumn::make('compatibility')
                     ->label('Compatibility')
-                    ->formatStateUsing(function (GameHashCompatibility $state): string
-                    {
+                    ->formatStateUsing(function (GameHashCompatibility $state): string {
                         return $state->label();
                     }),
 

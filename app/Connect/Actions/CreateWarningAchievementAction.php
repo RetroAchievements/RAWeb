@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace App\Connect\Actions;
 
-use App\Enums\ClientSupportLevel;
 use App\Models\Achievement;
-use App\Models\Game;
-use App\Models\GameHash;
 use App\Platform\Enums\AchievementFlag;
 use Carbon\Carbon;
-use InvalidArgumentException;
 
 class CreateWarningAchievementAction
 {
-    public function execute(string $title, string $description): array {
+    public function execute(string $title, string $description): array
+    {
         return [
             'ID' => Achievement::CLIENT_WARNING_ID,
             'MemAddr' => '1=1.300.', // pop after 5 seconds

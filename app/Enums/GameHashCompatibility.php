@@ -18,17 +18,18 @@ enum GameHashCompatibility: string
     // players are not allowed to earn achievements with this hash until they apply a patch
     case PatchRequired = 'patch-required';
 
-    public function label(): string {
+    public function label(): string
+    {
         return static::getLabel($this);
     }
 
-    public static function getLabel(self $value): string {
+    public static function getLabel(self $value): string
+    {
         return match ($value) {
             GameHashCompatibility::Compatible => 'Compatible',
             GameHashCompatibility::Incompatible => 'Incompatible',
             GameHashCompatibility::Untested => 'Untested',
             GameHashCompatibility::PatchRequired => 'Patch required',
-            default => 'Invalid game hash compatibility',
         };
     }
 }

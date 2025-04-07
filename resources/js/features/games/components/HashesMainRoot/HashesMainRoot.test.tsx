@@ -73,4 +73,49 @@ describe('Component: HashesMainRoot', () => {
     // ASSERT
     expect(screen.getByText(/supported game file hashes registered for this game/i)).toBeVisible();
   });
+
+  it('given there are incompatible hashes, renders correctly', () => {
+    // ARRANGE
+    render<App.Platform.Data.GameHashesPageProps>(<HashesMainRoot />, {
+      pageProps: {
+        can: { manageGameHashes: true },
+        game: createGame({ forumTopicId: undefined }),
+        hashes: [createGameHash(), createGameHash()],
+        incompatibleHashes: [createGameHash()],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/these game file hashes are known to be incompatible/i)).toBeVisible();
+  });
+
+  it('given there are untested hashes, renders correctly', () => {
+    // ARRANGE
+    render<App.Platform.Data.GameHashesPageProps>(<HashesMainRoot />, {
+      pageProps: {
+        can: { manageGameHashes: true },
+        game: createGame({ forumTopicId: undefined }),
+        hashes: [createGameHash(), createGameHash()],
+        untestedHashes: [createGameHash()],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/these game file hashes are recognized, but it is unknown whether or not they are compatible/i)).toBeVisible();
+  });
+
+  it('given there are patch required hashes, renders correctly', () => {
+    // ARRANGE
+    render<App.Platform.Data.GameHashesPageProps>(<HashesMainRoot />, {
+      pageProps: {
+        can: { manageGameHashes: true },
+        game: createGame({ forumTopicId: undefined }),
+        hashes: [createGameHash(), createGameHash()],
+        patchRequiredHashes: [createGameHash()],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/these game file hashes require a patch to be compatible/i)).toBeVisible();
+  });
 });

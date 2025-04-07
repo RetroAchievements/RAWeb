@@ -1,16 +1,19 @@
 import type { FC } from 'react';
 
 import { Embed } from '@/common/components/Embed/Embed';
-import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { HashesListItem } from './HashesListItem';
 
 export const hashesListContainerTestId = 'hashes-list';
 
-export const HashesList: FC = () => {
-  const { hashes } = usePageProps<App.Platform.Data.GameHashesPageProps>();
+interface HashesListProps {
+  hashes: App.Platform.Data.GameHash[];
+}
 
-  if (!hashes.length) {
+export const HashesList: FC<HashesListProps> = ({
+  hashes
+}) => {
+  if (!hashes?.length) {
     return null;
   }
 

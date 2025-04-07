@@ -7,7 +7,6 @@ namespace App\Connect\Actions;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
 use App\Models\GameHash;
-use App\Platform\Services\UserAgentService;
 
 class IdentifyGameHashAction
 {
@@ -21,7 +20,7 @@ class IdentifyGameHashAction
         if (!$gameHash) {
             return 0;
         }
-        
+
         switch ($gameHash->compatibility) {
             case GameHashCompatibility::Compatible:
                 return $gameHash->game_id;
@@ -36,18 +35,17 @@ class IdentifyGameHashAction
         }
     }
 
-    public static function makeVirtualGameHash(int $gameId): GameHash {
+    public static function makeVirtualGameHash(int $gameId): ?GameHash
+    {
         $compatibility = GameHashCompatibility::Compatible;
 
         if ($gameId > IdentifyGameHashAction::PatchRequiredIdBase) {
             $gameId -= IdentifyGameHashAction::PatchRequiredIdBase;
             $compatibility = GameHashCompatibility::PatchRequired;
-        }
-        elseif ($gameId > IdentifyGameHashAction::UntestedIdBase) {
+        } elseif ($gameId > IdentifyGameHashAction::UntestedIdBase) {
             $gameId -= IdentifyGameHashAction::UntestedIdBase;
             $compatibility = GameHashCompatibility::Untested;
-        }
-        elseif ($gameId > IdentifyGameHashAction::IncompatibleIdBase) {
+        } elseif ($gameId > IdentifyGameHashAction::IncompatibleIdBase) {
             $gameId -= IdentifyGameHashAction::IncompatibleIdBase;
             $compatibility = GameHashCompatibility::Incompatible;
         }
@@ -57,7 +55,7 @@ class IdentifyGameHashAction
             return null;
         }
 
-        return GameHash::make([
+        return new GameHash([
             'game_id' => $gameId,
             'system_id' => $game->system_id,
             'compatibility' => $compatibility,
