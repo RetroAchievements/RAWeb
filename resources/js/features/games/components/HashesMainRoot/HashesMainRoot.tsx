@@ -11,7 +11,8 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { HashesList } from './HashesList';
 
 export const HashesMainRoot: FC = memo(() => {
-  const { can, game, hashes, incompatibleHashes, untestedHashes, patchRequiredHashes } = usePageProps<App.Platform.Data.GameHashesPageProps>();
+  const { can, game, hashes, incompatibleHashes, untestedHashes, patchRequiredHashes } =
+    usePageProps<App.Platform.Data.GameHashesPageProps>();
 
   const { t } = useTranslation();
 
@@ -80,33 +81,31 @@ export const HashesMainRoot: FC = memo(() => {
 
         {patchRequiredHashes?.length ? (
           <div className="flex flex-col gap-1">
-            <p>
-              {t("These game file hashes require a patch to be compatible.")}
-            </p>
+            <p>{t('These game file hashes require a patch to be compatible.')}</p>
 
             <HashesList hashes={patchRequiredHashes} />
           </div>
-        ): null}
+        ) : null}
 
         {untestedHashes?.length ? (
           <div className="flex flex-col gap-1">
             <p>
-              {t("These game file hashes are recognized, but it is unknown whether or not they are compatible.")}
+              {t(
+                'These game file hashes are recognized, but it is unknown whether or not they are compatible.',
+              )}
             </p>
 
             <HashesList hashes={untestedHashes} />
           </div>
-        ): null}
+        ) : null}
 
         {incompatibleHashes?.length ? (
           <div className="flex flex-col gap-1">
-            <p>
-              {t("These game file hashes are known to be incompatible.")}
-            </p>
+            <p>{t('These game file hashes are known to be incompatible.')}</p>
 
             <HashesList hashes={incompatibleHashes} />
           </div>
-        ): null}
+        ) : null}
       </div>
     </div>
   );

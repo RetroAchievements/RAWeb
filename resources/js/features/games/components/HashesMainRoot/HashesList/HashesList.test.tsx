@@ -8,9 +8,7 @@ import { HashesList, hashesListContainerTestId } from './HashesList';
 describe('Component: HashesList', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(
-      <HashesList hashes={[createGameHash()]} />
-    );
+    const { container } = render(<HashesList hashes={[createGameHash()]} />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -18,9 +16,7 @@ describe('Component: HashesList', () => {
 
   it('given there are no hashes, renders nothing', () => {
     // ARRANGE
-    render(
-      <HashesList hashes={[]} />
-    );
+    render(<HashesList hashes={[]} />);
 
     // ASSERT
     expect(screen.queryByTestId(hashesListContainerTestId)).not.toBeInTheDocument();
@@ -43,9 +39,7 @@ describe('Component: HashesList', () => {
       createGameHash({ name: null }),
     ];
 
-    render(
-      <HashesList hashes={hashes} />
-    );
+    render(<HashesList hashes={hashes} />);
 
     // ASSERT
     expect(screen.getAllByRole('listitem').length).toEqual(3);
@@ -55,9 +49,7 @@ describe('Component: HashesList', () => {
     // ARRANGE
     const hash = createGameHash({ name: faker.word.words(3) });
 
-    render(
-      <HashesList hashes={[hash]} />
-    );
+    render(<HashesList hashes={[hash]} />);
 
     // ASSERT
     expect(screen.getByText(hash.name as string)).toBeVisible();
@@ -68,9 +60,7 @@ describe('Component: HashesList', () => {
     // ARRANGE
     const hash = createGameHash({ patchUrl: faker.internet.url() });
 
-    render(
-      <HashesList hashes={[hash]} />
-    );
+    render(<HashesList hashes={[hash]} />);
 
     // ASSERT
     const linkEl = screen.getByRole('link', { name: /download patch file/i });
@@ -82,9 +72,7 @@ describe('Component: HashesList', () => {
     // ARRANGE
     const hash = createGameHash({ patchUrl: null });
 
-    render(
-      <HashesList hashes={[hash]} />
-    );
+    render(<HashesList hashes={[hash]} />);
 
     // ASSERT
     expect(screen.queryByRole('link', { name: /download patch file/i })).not.toBeInTheDocument();
@@ -98,9 +86,7 @@ describe('Component: HashesList', () => {
       labels: [label],
     });
 
-    render(
-      <HashesList hashes={[hash]} />
-    );
+    render(<HashesList hashes={[hash]} />);
 
     // ASSERT
     expect(screen.getByRole('img', { name: /redump/i })).toBeVisible();
@@ -114,9 +100,7 @@ describe('Component: HashesList', () => {
       labels: [label],
     });
 
-    render(
-      <HashesList hashes={[hash]} />
-    );
+    render(<HashesList hashes={[hash]} />);
 
     // ASSERT
     expect(screen.queryByRole('img', { name: /redump/i })).not.toBeInTheDocument();
@@ -128,9 +112,7 @@ describe('Component: HashesList', () => {
     const namedHashes: App.Platform.Data.GameHash[] = [];
     const unnamedHashes = [createGameHash({ name: null }), createGameHash({ name: null })];
 
-    render(
-      <HashesList hashes={[...namedHashes, ...unnamedHashes]} />
-    );
+    render(<HashesList hashes={[...namedHashes, ...unnamedHashes]} />);
 
     // ASSERT
     expect(screen.queryByTestId('named-hashes')).not.toBeInTheDocument();
@@ -145,9 +127,7 @@ describe('Component: HashesList', () => {
       createGameHash({ name: 'Breath of the Wild (USA)' }),
     ];
 
-    render(
-      <HashesList hashes={hashes} />
-    );
+    render(<HashesList hashes={hashes} />);
 
     // ASSERT
     const namedHashesList = screen.getByTestId('named-hashes');
@@ -168,9 +148,7 @@ describe('Component: HashesList', () => {
       createGameHash({ name: null, md5: '77057d9d14b99e465ea9e29783af0ae3' }),
     ];
 
-    render(
-      <HashesList hashes={hashes} />
-    );
+    render(<HashesList hashes={hashes} />);
 
     // ASSERT
     const unnamedHashesList = screen.getByTestId('unnamed-hashes');

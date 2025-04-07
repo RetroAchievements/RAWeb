@@ -7,12 +7,10 @@ import { HashesListItem } from './HashesListItem';
 export const hashesListContainerTestId = 'hashes-list';
 
 interface HashesListProps {
-  hashes: App.Platform.Data.GameHash[];
+  hashes?: App.Platform.Data.GameHash[];
 }
 
-export const HashesList: FC<HashesListProps> = ({
-  hashes
-}) => {
+export const HashesList: FC<HashesListProps> = ({ hashes }) => {
   if (!hashes?.length) {
     return null;
   }

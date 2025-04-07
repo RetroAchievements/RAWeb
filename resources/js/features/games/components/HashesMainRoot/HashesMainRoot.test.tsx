@@ -101,7 +101,11 @@ describe('Component: HashesMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/these game file hashes are recognized, but it is unknown whether or not they are compatible/i)).toBeVisible();
+    expect(
+      screen.getByText(
+        /these game file hashes are recognized, but it is unknown whether or not they are compatible/i,
+      ),
+    ).toBeVisible();
   });
 
   it('given there are patch required hashes, renders correctly', () => {
@@ -116,6 +120,8 @@ describe('Component: HashesMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/these game file hashes require a patch to be compatible/i)).toBeVisible();
+    expect(
+      screen.getByText(/these game file hashes require a patch to be compatible/i),
+    ).toBeVisible();
   });
 });
