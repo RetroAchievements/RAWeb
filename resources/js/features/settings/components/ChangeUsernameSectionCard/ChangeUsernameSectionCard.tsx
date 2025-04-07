@@ -151,7 +151,7 @@ const WaitAlert: FC = () => {
       <BaseAlertTitle>{t('Your username cannot be changed right now.')}</BaseAlertTitle>
       <BaseAlertDescription>
         {t(
-          "You can request another change after your previous request's 30-day cooldown period has ended.",
+          "You can request another change after your previous request's cooldown period has ended.",
         )}
       </BaseAlertDescription>
     </BaseAlert>
