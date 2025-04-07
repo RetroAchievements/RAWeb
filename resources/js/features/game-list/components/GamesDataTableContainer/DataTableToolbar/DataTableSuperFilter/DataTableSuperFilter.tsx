@@ -9,6 +9,7 @@ import {
   BaseDrawer,
   BaseDrawerClose,
   BaseDrawerContent,
+  BaseDrawerDescription,
   BaseDrawerFooter,
   BaseDrawerHeader,
   BaseDrawerTitle,
@@ -26,8 +27,8 @@ import {
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { doesColumnExist } from '@/features/game-list/utils/doesColumnExist';
 
-import { useSortConfigs } from '../../../hooks/useSortConfigs';
-import type { SortConfigKind } from '../../../models';
+import { useSortConfigs } from '../../../../hooks/useSortConfigs';
+import type { SortConfigKind } from '../../../../models';
 import { DataTableSystemFilter } from '../DataTableSystemFilter';
 import { RandomGameButton } from '../RandomGameButton';
 import { MobileGameTypeFilterSelect } from './MobileGameTypeFilterSelect';
@@ -98,6 +99,7 @@ export function DataTableSuperFilter<TData>({
         <div className="mx-auto w-full max-w-sm">
           <BaseDrawerHeader>
             <BaseDrawerTitle>{t('Customize View')}</BaseDrawerTitle>
+            <BaseDrawerDescription className="sr-only">{t('Customize View')}</BaseDrawerDescription>
           </BaseDrawerHeader>
 
           <div className="flex flex-col gap-4 p-4">

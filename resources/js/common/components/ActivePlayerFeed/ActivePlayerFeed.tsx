@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import * as motion from 'motion/react-m';
-import { type FC } from 'react';
+import type { FC, Ref } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuSearch } from 'react-icons/lu';
 
@@ -78,7 +78,10 @@ export const ActivePlayerFeed: FC<ActivePlayerFeedProps> = ({
         </motion.div>
       ) : null}
 
-      <div ref={scrollRef} className="z-50 h-[325px] w-full overflow-y-auto rounded bg-embed">
+      <div
+        ref={scrollRef as Ref<HTMLDivElement>}
+        className="z-50 h-[325px] w-full overflow-y-auto rounded bg-embed"
+      >
         {players.length ? (
           <ActivePlayerFeedList players={players} onLoadMore={loadMore} />
         ) : (

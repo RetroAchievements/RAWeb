@@ -98,23 +98,23 @@ class Event extends BaseModel
         }
 
         /**
+         * An event is concluded if:
+         * - The event's end date is before the current date, or
+         * - Every event achievement has an activeUntil date which is before the current date.
+         */
+        if (
+            $this->active_through?->isBefore($now)
+            || $this->achievements->every(fn ($a) => $a->active_until?->isBefore($now))
+        ) {
+            return EventState::Concluded;
+        }
+
+        /**
          * An event is evergreen (never expires) if:
          * - Every event achievement has a null activeUntil value, meaning they can be earned indefinitely.
          */
         if ($this->achievements->every(fn ($a) => !$a->active_until)) {
             return EventState::Evergreen;
-        }
-
-        /**
-         * An event is concluded if:
-         * - The event's end date is before the current date, and
-         * - Every event achievement has an activeUntil date which is before the current date.
-         */
-        if (
-            $this->active_through?->isBefore($now)
-            && $this->achievements->every(fn ($a) => $a->active_until?->isBefore($now))
-        ) {
-            return EventState::Concluded;
         }
 
         // This shouldn't happen.
