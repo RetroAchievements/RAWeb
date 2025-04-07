@@ -1,10 +1,11 @@
+import type { RefObject } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useScrolling } from 'react-use';
 
 export function useActivePlayerScrollObserver() {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLElement>(null);
 
-  const isScrolling = useScrolling(scrollRef);
+  const isScrolling = useScrolling(scrollRef as RefObject<HTMLElement>);
 
   const [hasScrolled, setHasScrolled] = useState(false);
 

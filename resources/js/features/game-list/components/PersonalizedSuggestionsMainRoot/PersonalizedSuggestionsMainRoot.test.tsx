@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { UserGameListType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import {
   createGame,
@@ -126,7 +125,7 @@ describe('Component: PersonalizedSuggestionsMainRoot', () => {
 
     // ASSERT
     expect(postSpy).toHaveBeenCalledWith(['api.user-game-list.store', mockGame.id], {
-      userGameListType: UserGameListType.Play,
+      userGameListType: 'play',
     });
   });
 
@@ -166,7 +165,7 @@ describe('Component: PersonalizedSuggestionsMainRoot', () => {
 
     // ASSERT
     expect(deleteSpy).toHaveBeenCalledWith(['api.user-game-list.destroy', mockGame.id], {
-      data: { userGameListType: UserGameListType.Play },
+      data: { userGameListType: 'play' },
     });
   });
 

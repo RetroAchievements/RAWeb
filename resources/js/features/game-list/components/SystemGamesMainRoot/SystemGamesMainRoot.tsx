@@ -12,11 +12,12 @@ import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableD
 import { useTableSync } from '../../hooks/useTableSync';
 import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
-import { SystemGamesDataTable } from '../SystemGamesDataTable';
+import { GamesDataTableContainer } from '../GamesDataTableContainer';
+import { useColumnDefinitions } from './useColumnDefinitions';
 import { useSystemGamesDefaultColumnState } from './useSystemGamesDefaultColumnState';
 
 export const SystemGamesMainRoot: FC = memo(() => {
-  const { defaultDesktopPageSize, system, paginatedGameListEntries } =
+  const { can, defaultDesktopPageSize, system, paginatedGameListEntries } =
     usePageProps<App.Platform.Data.SystemGameListPageProps>();
 
   const { t } = useTranslation();
@@ -38,6 +39,8 @@ export const SystemGamesMainRoot: FC = memo(() => {
     defaultColumnFilters,
     defaultColumnVisibility,
   });
+
+  const columnDefinitions = useColumnDefinitions({ canSeeOpenTicketsColumn: !!can.develop });
 
   const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
     columnFilters,
@@ -73,15 +76,24 @@ export const SystemGamesMainRoot: FC = memo(() => {
       </DataTablePaginationScrollTarget>
 
       <HydrationBoundary state={dehydrate(queryClientWithInitialData)}>
-        <SystemGamesDataTable
+        <GamesDataTableContainer
+          // Table state
           columnFilters={columnFilters}
           columnVisibility={columnVisibility}
           pagination={pagination}
+          sorting={sorting}
+          // State setters
           setColumnFilters={setColumnFilters}
           setColumnVisibility={setColumnVisibility}
           setPagination={setPagination}
           setSorting={setSorting}
-          sorting={sorting}
+          // Table configuration
+          defaultColumnFilters={defaultColumnFilters}
+          columnDefinitions={columnDefinitions}
+          // API configuration
+          apiRouteName="api.system.game.index"
+          apiRouteParams={{ systemId: system.id }}
+          randomGameApiRouteName="api.system.game.random"
         />
       </HydrationBoundary>
     </div>
