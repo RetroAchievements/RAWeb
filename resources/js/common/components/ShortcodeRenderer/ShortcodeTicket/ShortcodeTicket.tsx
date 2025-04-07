@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -12,7 +12,7 @@ interface ShortcodeTicketProps {
 }
 
 export const ShortcodeTicket: FC<ShortcodeTicketProps> = ({ ticketId }) => {
-  const [persistedTickets] = useAtom(persistedTicketsAtom);
+  const persistedTickets = useAtomValue(persistedTicketsAtom);
 
   const { t } = useTranslation();
 

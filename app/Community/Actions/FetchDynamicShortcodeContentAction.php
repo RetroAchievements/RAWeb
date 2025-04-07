@@ -7,11 +7,13 @@ namespace App\Community\Actions;
 use App\Community\Data\ShortcodeDynamicEntitiesData;
 use App\Data\UserData;
 use App\Models\Achievement;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Data\AchievementData;
+use App\Platform\Data\EventData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
 use App\Platform\Data\TicketData;
@@ -26,6 +28,7 @@ class FetchDynamicShortcodeContentAction
         array $achievementIds = [],
         array $gameIds = [],
         array $hubIds = [],
+        array $eventIds = [],
     ): ShortcodeDynamicEntitiesData {
         return new ShortcodeDynamicEntitiesData(
             users: $this->fetchUsers($usernames)->all(),
@@ -33,6 +36,7 @@ class FetchDynamicShortcodeContentAction
             achievements: $this->fetchAchievements($achievementIds)->all(),
             games: $this->fetchGames($gameIds)->all(),
             hubs: $this->fetchHubs($hubIds)->all(),
+            events: $this->fetchEvents($eventIds)->all(),
         );
     }
 
@@ -114,5 +118,21 @@ class FetchDynamicShortcodeContentAction
             ->where('type', GameSetType::Hub)
             ->get()
             ->map(fn (GameSet $gameSet) => GameSetData::fromGameSetWithCounts($gameSet)->include('gameId'));
+    }
+
+    /**
+     * @return Collection<int, EventData>
+     */
+    private function fetchEvents(array $eventIds): Collection
+    {
+        if (empty($eventIds)) {
+            return collect();
+        }
+
+        return Event::query()
+            ->with('legacyGame')
+            ->whereIn('id', $eventIds)
+            ->get()
+            ->map(fn (Event $event) => EventData::fromEvent($event)->include('legacyGame.badgeUrl'));
     }
 }

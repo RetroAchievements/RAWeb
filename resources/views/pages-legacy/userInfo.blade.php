@@ -90,6 +90,7 @@ $daysRecentProgressToShow = 14; // fortnight
 
 $userScoreData = getAwardedList(
     $userPageModel,
+    true,
     0,
     $daysRecentProgressToShow,
     date("Y-m-d H:i:s", time() - 60 * 60 * 24 * $daysRecentProgressToShow),

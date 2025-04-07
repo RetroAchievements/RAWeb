@@ -156,7 +156,7 @@ class AchievementPolicy
             return true;
         }
 
-        if ($user->hasRole(Role::EVENT_MANAGER)) {
+        if ($user->hasRole(Role::EVENT_MANAGER) && isset($achievement)) {
             if ($achievement->game->ConsoleID === System::Events) {
                 return true;
             }

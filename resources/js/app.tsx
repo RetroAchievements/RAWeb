@@ -1,4 +1,5 @@
 import { createInertiaApp } from '@inertiajs/react';
+import * as Sentry from '@sentry/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 
@@ -8,6 +9,25 @@ import { loadDayjsLocale } from './common/utils/l10n/loadDayjsLocale';
 import i18n from './i18n-client';
 
 const appName = import.meta.env.APP_NAME || 'RetroAchievements';
+
+// Initialize Sentry.
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration({
+      maskAllText: false,
+      blockAllMedia: false,
+    }),
+    Sentry.captureConsoleIntegration({ levels: ['warn', 'error'] }),
+  ],
+  environment: import.meta.env.APP_ENV,
+  release: import.meta.env.APP_VERSION,
+  tracesSampleRate: import.meta.env.SENTRY_TRACES_SAMPLE_RATE,
+  tracePropagationTargets: ['localhost', /^https:\/\/retroachievements\.org\/internal-api/],
+  replaysSessionSampleRate: import.meta.env.SENTRY_REPLAYS_SESSION_SAMPLE_RATE,
+  replaysOnErrorSampleRate: 1.0,
+});
 
 createInertiaApp({
   title: (title) => (title ? `${title} · ${appName}` : appName),
@@ -19,6 +39,13 @@ createInertiaApp({
   async setup({ el, App, props }) {
     const globalProps = props.initialPage.props as unknown as AppGlobalProps;
     const userLocale = globalProps.auth?.user.locale ?? 'en_US';
+
+    if (globalProps.auth?.user) {
+      Sentry.setUser({
+        id: globalProps.auth.user.id,
+        username: globalProps.auth.user.displayName,
+      });
+    }
 
     await Promise.all([i18n.changeLanguage(userLocale), loadDayjsLocale(userLocale)]);
 
