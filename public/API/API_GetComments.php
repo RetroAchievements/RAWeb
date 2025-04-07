@@ -15,7 +15,7 @@ use Illuminate\Validation\Rule;
 *    t : 1 = game, 2 = achievement, 3 = user
 *    o : offset - number of entries to skip (default: 0)
 *    c : count - number of entries to return (default: 100, max: 500)
-*    s : sortOrder - sort comments. 'submitted' = ascending, '-submitted' = descending (default: 'submitted')
+*    sort : sortOrder - sort comments. 'submitted' = ascending, '-submitted' = descending (default: 'submitted')
 *
 *  int         Count                       number of comment records returned in the response
 *  int         Total                       number of comment records the game/achievement/user actually has overall
@@ -50,7 +50,7 @@ $rules = [
     ],
     'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
     'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
-    's' => [
+    'sort' => [
         'sometimes',
         'string',
         Rule::in(array_keys($sortOptions)),
@@ -62,7 +62,7 @@ $input = Validator::validate(Arr::wrap($query), $rules);
 
 $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 100;
-$sortOrder = isset($input['s']) ? $input['s'] : 'submitted';
+$sortOrder = isset($input['sort']) ? $input['sort'] : 'submitted';
 
 $usernameOrUlid = null;
 $gameOrAchievementId = 0;

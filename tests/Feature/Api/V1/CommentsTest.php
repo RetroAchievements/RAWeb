@@ -39,11 +39,11 @@ class CommentsTest extends TestCase
         $this->get($this->apiUrl('GetComments', ['i' => 'not-an-integer', 't' => 1]))
             ->assertJsonValidationErrors(['i']);
 
-        $this->get($this->apiUrl('GetComments', ['i' => 1, 't' => 1, 's' => 'not-an-integer']))
-            ->assertJsonValidationErrors(['s']);
+        $this->get($this->apiUrl('GetComments', ['i' => 1, 't' => 1, 'sort' => 'not-an-integer']))
+            ->assertJsonValidationErrors(['sort']);
 
-        $this->get($this->apiUrl('GetComments', ['i' => 1, 't' => 1, 's' => 3]))
-            ->assertJsonValidationErrors(['s']);
+        $this->get($this->apiUrl('GetComments', ['i' => 1, 't' => 1, 'sort' => 3]))
+            ->assertJsonValidationErrors(['sort']);
 
         $this->get($this->apiUrl('GetComments', ['i' => null, 't' => 2]))
             ->assertJsonValidationErrors(['i']);
@@ -146,7 +146,7 @@ class CommentsTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get($this->apiUrl('GetComments', ['i' => $achievement->ID, 't' => 2, 's' => '-submitted']))
+        $response = $this->get($this->apiUrl('GetComments', ['i' => $achievement->ID, 't' => 2, 'sort' => '-submitted']))
             ->assertSuccessful();
 
         // Assert
@@ -301,18 +301,21 @@ class CommentsTest extends TestCase
             'ArticleType' => 3,
             'user_id' => $user2->ID,
             'Payload' => 'This is my first comment.',
+            'Submitted' => "2024-01-19T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
             'ArticleID' => $user->ID,
             'ArticleType' => 3,
             'user_id' => $user2->ID,
             'Payload' => 'This is my second comment.',
+            'Submitted' => "2024-01-19T15:01:04.000000Z",
         ]);
         $comment3 = Comment::factory()->create([
             'ArticleID' => $user->ID,
             'ArticleType' => 2,
             'user_id' => $bannedUser->ID,
             'Payload' => 'This comment is from a banned user!',
+            'Submitted' => "2024-01-19T15:01:04.000000Z",
         ]);
 
         // Act
