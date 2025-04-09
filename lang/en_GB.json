@@ -814,6 +814,7 @@
     "Unlicensed": "Unlicensed",
     "Demo": "Demo",
     "There aren't any achievements for this event.": "There aren't any achievements for this event.",
+    "Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester.": "Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester.",
     "supportedGameFilesCountLabel_one": "There is currently <1>{{count, number}}</1> supported game file hash registered for this game.",
     "supportedGameFilesCountLabel_other": "There are currently <1>{{count, number}}</1> supported game file hashes registered for this game.",
     "userCount_one": "<1>{{userCount, number}}</1> user is currently online.",

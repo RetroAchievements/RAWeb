@@ -814,6 +814,7 @@
     "Unlicensed": "Sem licença",
     "Demo": "Demo",
     "There aren't any achievements for this event.": "Não há nenhuma conquista para este evento.",
+    "Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester.": "Possui alguma sugestão de tradução ou hack de qualidade de vida que gostaria de ver suportada? Clique <1>aqui</1> para descobrir como se voluntariar como testador de compatibilidade.",
     "supportedGameFilesCountLabel_one": "Atualmente existe <1>{{count, number}}</1> hash de arquivo de jogo suportado registrado para este jogo.",
     "supportedGameFilesCountLabel_other": "Atualmente existem <1>{{count, number}}</1> hashes de arquivos de jogo suportados registrados para este jogo.",
     "userCount_one": "<1>{{userCount, number}}</1> usuário está atualmente online.",

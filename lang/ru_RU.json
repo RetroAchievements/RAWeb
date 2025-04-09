@@ -814,6 +814,7 @@
     "Unlicensed": "Нелицензированное",
     "Demo": "Демо",
     "There aren't any achievements for this event.": "Достижений для этого события нет.",
+    "Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester.": "Есть фанатский перевод или QoL мод, для которого вы хотели бы увидеть поддержку? Нажмите <1>здесь</1>, чтобы узнать как стать добровольным тестером совместимости.",
     "supportedGameFilesCountLabel_one": "На данный момент известен <1>{{count, number}}</1> поддерживаемый хэш ROM файлов для этой игры.",
     "supportedGameFilesCountLabel_few": "На данный момент известны <1>{{count, number}}</1> поддерживаемых хэша ROM файлов для этой игры.",
     "supportedGameFilesCountLabel_many": "На данный момент известны <1>{{count, number}}</1> поддерживаемый хэшей ROM файлов для этой игры.",
