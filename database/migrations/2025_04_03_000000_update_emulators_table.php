@@ -10,14 +10,14 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('emulators', function (Blueprint $table) {
-            $table->boolean('supports_toolkit')->after('active')->default(true);
+            $table->boolean('can_debug_triggers')->after('active')->default(true);
         });
     }
 
     public function down(): void
     {
         Schema::table('emulators', function (Blueprint $table) {
-            $table->dropColumn('supports_toolkit');
+            $table->dropColumn('can_debug_triggers');
         });
     }
 };

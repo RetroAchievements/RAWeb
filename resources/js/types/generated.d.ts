@@ -478,7 +478,7 @@ declare namespace App.Platform.Data {
   export type Emulator = {
     id: number;
     name: string;
-    supportsToolkit: boolean | null;
+    canDebugTriggers: boolean | null;
   };
   export type EventAchievement = {
     achievement?: App.Platform.Data.Achievement;

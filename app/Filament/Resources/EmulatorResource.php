@@ -117,7 +117,7 @@ class EmulatorResource extends Resource
                         Infolists\Components\IconEntry::make('active')
                             ->boolean(),
 
-                        Infolists\Components\IconEntry::make('supports_toolkit')
+                        Infolists\Components\IconEntry::make('can_debug_triggers')
                             ->boolean(),
                     ])->grow(false),
                 ])->from('md'),
@@ -177,7 +177,7 @@ class EmulatorResource extends Resource
                         ->schema([
                             Forms\Components\Toggle::make('active'),
 
-                            Forms\Components\Toggle::make('supports_toolkit'),
+                            Forms\Components\Toggle::make('can_debug_triggers'),
                         ]),
                 ])->from('md'),
             ]);
@@ -214,7 +214,8 @@ class EmulatorResource extends Resource
                     ->default(false)
                     ->alignCenter(),
 
-                Tables\Columns\IconColumn::make('supports_toolkit')
+                Tables\Columns\IconColumn::make('can_debug_triggers')
+                    ->label('Can Debug Triggers')
                     ->boolean()
                     ->default(false)
                     ->alignCenter(),

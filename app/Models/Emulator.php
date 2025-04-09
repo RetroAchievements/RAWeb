@@ -49,7 +49,7 @@ class Emulator extends BaseModel implements HasMedia
         'original_name',
         'description',
         'active',
-        'supports_toolkit',
+        'can_debug_triggers',
         'documentation_url',
         'download_url',
         'download_x64_url',
@@ -58,7 +58,7 @@ class Emulator extends BaseModel implements HasMedia
 
     protected $casts = [
         'active' => 'boolean',
-        'supports_toolkit' => 'boolean',
+        'can_debug_triggers' => 'boolean',
     ];
 
     protected static function newFactory(): EmulatorFactory

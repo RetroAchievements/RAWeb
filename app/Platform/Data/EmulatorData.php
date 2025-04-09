@@ -14,7 +14,7 @@ class EmulatorData extends Data
     public function __construct(
         public int $id,
         public string $name,
-        public ?bool $supportsToolkit = null,
+        public ?bool $canDebugTriggers = null,
     ) {
     }
 
@@ -23,7 +23,7 @@ class EmulatorData extends Data
         return new self(
             id: $emulator->id,
             name: $emulator->name,
-            supportsToolkit: $emulator->supports_toolkit,
+            canDebugTriggers: $emulator->can_debug_triggers,
         );
     }
 }
