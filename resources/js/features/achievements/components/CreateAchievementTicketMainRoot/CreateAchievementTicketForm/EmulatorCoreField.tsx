@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import {
   BaseFormControl,
+  BaseFormDescription,
   BaseFormField,
   BaseFormItem,
   BaseFormLabel,
@@ -35,6 +36,8 @@ export const EmulatorCoreField: FC = () => {
                 {...field}
               />
             </BaseFormControl>
+
+            <BaseFormDescription>{t('Optional.')}</BaseFormDescription>
           </div>
         </BaseFormItem>
       )}
