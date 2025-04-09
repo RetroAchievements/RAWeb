@@ -34,7 +34,7 @@ class UserClaimsTest extends TestCase
     public function testGetUserClaimsByName(): void
     {
         // Freeze time
-        Carbon::setTestNow(Carbon::now());
+        Carbon::setTestNow(Carbon::now()->startOfSecond());
 
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Developer]);
@@ -68,7 +68,7 @@ class UserClaimsTest extends TestCase
                     'Created' => $claim->Created->__toString(),
                     'DoneTime' => $claim->Finished->__toString(),
                     'Updated' => $claim->Updated->__toString(),
-                    'MinutesLeft' => Carbon::now()->diffInRealMinutes($claim->Finished),
+                    'MinutesLeft' => Carbon::now()->diffInMinutes($claim->Finished),
                 ],
             ]);
     }
@@ -76,7 +76,7 @@ class UserClaimsTest extends TestCase
     public function testGetUserClaimsByUlid(): void
     {
         // Freeze time
-        Carbon::setTestNow(Carbon::now());
+        Carbon::setTestNow(Carbon::now()->startOfSecond());
 
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Developer]);
@@ -110,7 +110,7 @@ class UserClaimsTest extends TestCase
                     'Created' => $claim->Created->__toString(),
                     'DoneTime' => $claim->Finished->__toString(),
                     'Updated' => $claim->Updated->__toString(),
-                    'MinutesLeft' => Carbon::now()->diffInRealMinutes($claim->Finished),
+                    'MinutesLeft' => Carbon::now()->diffInMinutes($claim->Finished),
                 ],
             ]);
     }

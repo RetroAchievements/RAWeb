@@ -76,7 +76,7 @@ class UserGameListEntry extends BaseModel
         }
 
         // adding the number of years the user is here
-        $requests['total'] += Carbon::now()->diffInYears($user->created_at);
+        $requests['total'] += ((int) Carbon::now()->diffInYears($user->created_at, true));
 
         // adding the number of event awards
         $requests['total'] += getUserEventAwardCount($user);
