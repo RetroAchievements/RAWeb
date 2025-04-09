@@ -68,7 +68,7 @@ describe('Component: EmulatorSelectField', () => {
   it('given the user selects an emulator that does not support the toolkit, pops a warning message', async () => {
     // ARRANGE
     const emulators = [
-      createEmulator({ name: 'RA2SNES', supportsToolkit: false }), // !!
+      createEmulator({ name: 'RA2SNES', canDebugTriggers: false }), // !!
       createEmulator({ name: 'RetroArch' }),
     ];
 

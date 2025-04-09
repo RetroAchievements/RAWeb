@@ -68,7 +68,7 @@ export const EmulatorSelectField: FC = () => {
                   ))}
                 </BaseSelectContent>
 
-                {selectedEmulator?.supportsToolkit === false ? (
+                {selectedEmulator?.canDebugTriggers === false ? (
                   <BaseFormMessage>
                     {t(
                       'Developers may not be able to easily debug issues with this emulator. Please be extremely detailed in your description, and provide a link to a save game or video if possible.',
