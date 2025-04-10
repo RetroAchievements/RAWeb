@@ -316,7 +316,6 @@ function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
     $topicTitle = $gameTitle;
 
     $urlSafeGameTitle = str_replace(" ", "+", "$gameTitle $consoleName");
-    $urlSafeGameTitle = str_replace("'", "''", $urlSafeGameTitle);
 
     $hashesURL = route('game.hashes.index', ['game' => $gameId]);
     $gameFAQsURL = "https://www.google.com/search?q=site:www.gamefaqs.com+$urlSafeGameTitle";
