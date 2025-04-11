@@ -54,6 +54,7 @@ class Emulator extends BaseModel implements HasMedia
         'download_url',
         'download_x64_url',
         'source_url',
+        'website_url',
     ];
 
     protected $casts = [
