@@ -9,6 +9,7 @@ import { GameHeading } from '@/common/components/GameHeading/GameHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { HashesList } from './HashesList';
+import { OtherHashesSection } from './OtherHashesSection';
 
 export const HashesMainRoot: FC = memo(() => {
   const { can, game, hashes } = usePageProps<App.Platform.Data.GameHashesPageProps>();
@@ -75,9 +76,13 @@ export const HashesMainRoot: FC = memo(() => {
             />
           </p>
 
-          <HashesList />
+          <HashesList hashes={hashes} />
+        </div>
 
-          <p className="mt-4 text-center text-neutral-500">
+        <OtherHashesSection />
+
+        <div>
+          <p className="text-center text-neutral-500">
             <Trans
               i18nKey="Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester."
               components={{

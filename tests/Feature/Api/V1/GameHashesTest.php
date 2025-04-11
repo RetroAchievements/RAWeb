@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Enums\GameHashCompatibility;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\System;
@@ -32,7 +33,7 @@ class GameHashesTest extends TestCase
 
     public function testItReturnsGameHashes(): void
     {
-        /** Set up a game with 2 hashes */
+        /** Set up a game with 3 hashes (one incompatible) */
 
         /** @var System $system */
         $system = System::factory()->create();
@@ -52,6 +53,13 @@ class GameHashesTest extends TestCase
             'game_id' => $game->id,
             'name' => 'bar',
             'labels' => 'nointro,redump',
+        ]);
+        /** @var GameHash $gameHashThree */
+        $gameHashThree = GameHash::factory()->create([
+            'game_id' => $game->id,
+            'name' => 'zoo',
+            'labels' => '',
+            'compatibility' => GameHashCompatibility::Untested,
         ]);
 
         $this->get($this->apiUrl('GetGameHashes', ['i' => $game->id]))

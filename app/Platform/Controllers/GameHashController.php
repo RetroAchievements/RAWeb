@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Data\UserPermissionsData;
+use App\Enums\GameHashCompatibility;
 use App\Http\Controller;
 use App\Models\Game;
 use App\Models\GameHash;
@@ -27,10 +28,13 @@ class GameHashController extends Controller
         $this->authorize('viewAny', $this->resourceClass());
 
         $gameData = GameData::fromGame($game)->include('badgeUrl', 'forumTopicId', 'system');
-        $hashes = GameHashData::fromCollection($game->hashes);
+        $hashes = GameHashData::fromCollection($game->hashes->where('compatibility', GameHashCompatibility::Compatible));
+        $incompatibleHashes = GameHashData::fromCollection($game->hashes->where('compatibility', GameHashCompatibility::Incompatible));
+        $untestedHashes = GameHashData::fromCollection($game->hashes->where('compatibility', GameHashCompatibility::Untested));
+        $patchRequiredHashes = GameHashData::fromCollection($game->hashes->where('compatibility', GameHashCompatibility::PatchRequired));
         $can = UserPermissionsData::fromUser($request->user())->include('manageGameHashes');
 
-        $props = new GameHashesPagePropsData($gameData, $hashes, $can);
+        $props = new GameHashesPagePropsData($gameData, $hashes, $incompatibleHashes, $untestedHashes, $patchRequiredHashes, $can);
 
         return Inertia::render('game/[game]/hashes', $props);
     }

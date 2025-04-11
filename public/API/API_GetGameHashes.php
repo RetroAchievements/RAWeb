@@ -14,7 +14,6 @@
  */
 
 use App\Models\Game;
-use App\Platform\Data\GameHashData;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -28,9 +27,7 @@ if (!$game) {
     return response()->json(['Results' => []], 404);
 }
 
-$hashes = GameHashData::fromCollection($game->hashes);
-
-$mappedHashes = $game->hashes->map(function ($hash) {
+$mappedHashes = $game->compatibleHashes->map(function ($hash) {
     return [
         'Name' => $hash->name,
         'MD5' => $hash->md5,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
+use App\Connect\Actions\IdentifyGameHashAction;
 use App\Models\Achievement;
 use App\Models\EventAchievement;
 use App\Models\Game;
@@ -276,6 +277,15 @@ class UnlocksTest extends TestCase
                     $achievement2->ID,
                     $bonusAchievement1->ID,
                 ],
+            ]);
+
+        // empty response when passing incompatible game id
+        $this->addHardcoreUnlock($this->user, $eventAchievement1, $now);
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('unlocks', ['g' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase, 'h' => 1]))
+            ->assertExactJson([
+                'Success' => true,
+                'UserUnlocks' => [],
             ]);
     }
 }

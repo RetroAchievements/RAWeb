@@ -1,9 +1,11 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Enums\GameHashCompatibility;
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadataAction;
 use App\Platform\Actions\UpsertTriggerVersionAction;
@@ -735,25 +737,18 @@ function submitNewGameTitleJSON(
     int $consoleID,
     ?string $description
 ): array {
-    $unsanitizedDescription = $description;
-    sanitize_sql_inputs($username, $md5, $description);
-
     $retVal = [];
-    $retVal['MD5'] = $md5;
-    $retVal['ConsoleID'] = $consoleID;
-    $retVal['GameID'] = $gameIDin;
-    $retVal['GameTitle'] = $titleIn;
-    $retVal['Success'] = true;
 
-    $userModel = User::whereName($username)->first();
-    $permissions = (int) $userModel->getAttribute('Permissions');
-    $userId = $userModel->id;
-    CauserResolver::setCauser($userModel);
-
-    if (!isset($username)) {
-        $retVal['Error'] = "User doesn't appear to be set or have permissions?";
+    $user = User::whereName($username)->first();
+    if (!$user) {
+        $retVal['Error'] = "Unknown user";
         $retVal['Success'] = false;
-    } elseif ($permissions < Permissions::Developer) {
+    }
+
+    $permissions = (int) $user->getAttribute('Permissions');
+    CauserResolver::setCauser($user);
+
+    if ($permissions < Permissions::Developer) {
         $retVal['Error'] = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
         $retVal['Success'] = false;
     } elseif (mb_strlen($md5) != 32) {
@@ -767,65 +762,53 @@ function submitNewGameTitleJSON(
         $retVal['Success'] = false;
     } else {
         if (!empty($gameIDin)) {
-            $game = getGameData($gameIDin);
+            $game = Game::find($gameIDin);
         }
         if (empty($game)) {
-            $game = getGameData(getGameIDFromTitle($titleIn, $consoleID));
+            $game = Game::where('title', $titleIn)->where('ConsoleID', $consoleID)->first();
         }
-        $gameID = (int) ($game['ID'] ?? 0);
-        if ($gameID == 0) {
-            /**
-             * New Game!
-             * The MD5 for this game doesn't yet exist in our DB. Insert a new game:
-             */
-            $game = createNewGame($titleIn, $consoleID);
-            $gameID = $game['ID'] ?? 0;
-            if ($gameID == 0) {
-                /*
-                 * cannot create game $title
-                 */
-                $retVal['Error'] = "Failed to create game title '$titleIn'";
-                $retVal['Success'] = false;
-            }
+        if (!$game) {
+            // new game
+            $game = new Game();
+            $game->Title = $titleIn;
+            $game->ConsoleID = $consoleID;
+            $game->ForumTopicID = null;
+            $game->Flags = 0;
+            $game->ImageIcon = '/Images/000001.png';
+            $game->ImageTitle = '/Images/000002.png';
+            $game->ImageIngame = '/Images/000002.png';
+            $game->ImageBoxArt = '/Images/000002.png';
+            $game->Publisher = null;
+            $game->Developer = null;
+            $game->Genre = null;
+            $game->RichPresencePatch = null;
+            $game->TotalTruePoints = 0;
+
+            $game->save();
         }
 
-        if ($gameID !== 0) {
-            $gameTitle = $game['Title'] ?? $titleIn;
+        $retVal['Success'] = true;
+        $retVal['GameID'] = $game->id;
 
-            $retVal['GameID'] = $gameID;
-            $retVal['GameTitle'] = $gameTitle;
-
-            /**
-             * Associate md5 to $gameID
-             */
-            $query = "INSERT INTO game_hashes (md5, game_id, user_id, name) VALUES( '$md5', '$gameID', '$userId', ";
+        if (!GameHash::where('game_id', $game->id)->where('md5', $md5)->exists()) {
+            // associate md5 to game
+            $gameHash = new GameHash([
+                'game_id' => $game->id,
+                'user_id' => $user->id,
+                'md5' => $md5,
+                'compatibility' => GameHashCompatibility::Compatible,
+            ]);
             if (!empty($description)) {
-                $query .= "'$description'";
-            } else {
-                $query .= "NULL";
+                $gameHash->name = $description;
             }
-            $query .= " )";
+            $gameHash->save();
 
-            $db = getMysqliConnection();
-            $dbResult = mysqli_query($db, $query);
-            if ($dbResult !== false) {
-                /*
-                 * $username added $md5, $gameID to game_hashes, and $gameID, $titleIn to GameData
-                 */
-
-                // Log hash linked
-                if (!empty($unsanitizedDescription)) {
-                    addArticleComment("Server", ArticleType::GameHash, $gameID, $md5 . " linked by " . $userModel->display_name . ". Description: \"" . $unsanitizedDescription . "\"");
-                } else {
-                    addArticleComment("Server", ArticleType::GameHash, $gameID, $md5 . " linked by " . $userModel->display_name);
-                }
-            } else {
-                /*
-                 * cannot insert duplicate md5 (already present?
-                 */
-                $retVal['Error'] = "Failed to add md5 for '$gameTitle' (already present?)";
-                $retVal['Success'] = false;
+            // log hash linked
+            $message = "$md5 linked by {$user->display_name}.";
+            if (!empty($description)) {
+                $message .= " Description: \"$description\"";
             }
+            addArticleComment("Server", ArticleType::GameHash, $game->id, $message);
         }
     }
 
