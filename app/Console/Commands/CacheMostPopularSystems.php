@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 class CacheMostPopularSystems extends Command
 {
     protected $signature = "ra:cache-most-popular-systems";
-    protected $description = "Calculate the top 10 systems by unique player count on the site and cache the value.";
+    protected $description = "Calculate the top systems by unique player count on the site and cache the value.";
 
     public function handle(): void
     {
