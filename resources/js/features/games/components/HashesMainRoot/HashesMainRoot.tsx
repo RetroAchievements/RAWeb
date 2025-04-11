@@ -1,40 +1,20 @@
-import { AnimatePresence } from 'motion/react';
-import * as m from 'motion/react-m';
-import { type FC, memo, useEffect, useRef, useState } from 'react';
+import { type FC, memo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { LuChevronDown, LuSave } from 'react-icons/lu';
+import { LuSave } from 'react-icons/lu';
 
-import { BaseButton, baseButtonVariants } from '@/common/components/+vendor/BaseButton';
-import {
-  BaseCollapsible,
-  BaseCollapsibleContent,
-  BaseCollapsibleTrigger,
-} from '@/common/components/+vendor/BaseCollapsible';
+import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { Embed } from '@/common/components/Embed/Embed';
 import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
 import { GameHeading } from '@/common/components/GameHeading/GameHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { cn } from '@/common/utils/cn';
 
 import { HashesList } from './HashesList';
+import { OtherHashesSection } from './OtherHashesSection';
 
 export const HashesMainRoot: FC = memo(() => {
-  const { can, game, hashes, incompatibleHashes, untestedHashes, patchRequiredHashes } =
-    usePageProps<App.Platform.Data.GameHashesPageProps>();
+  const { can, game, hashes } = usePageProps<App.Platform.Data.GameHashesPageProps>();
 
   const { t } = useTranslation();
-  const hasOtherHashes =
-    incompatibleHashes?.length || untestedHashes?.length || patchRequiredHashes?.length;
-
-  const [isOpen, setIsOpen] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [contentHeight, setContentHeight] = useState(0);
-
-  useEffect(() => {
-    if (contentRef.current) {
-      setContentHeight(contentRef.current.offsetHeight);
-    }
-  }, [isOpen]);
 
   return (
     <div>
@@ -99,72 +79,7 @@ export const HashesMainRoot: FC = memo(() => {
           <HashesList hashes={hashes} />
         </div>
 
-        {hasOtherHashes ? (
-          <BaseCollapsible open={isOpen} onOpenChange={setIsOpen}>
-            <BaseCollapsibleTrigger asChild>
-              <BaseButton
-                size="sm"
-                className={cn(isOpen ? 'rounded-b-none border-transparent bg-embed' : null)}
-              >
-                {t('Other Known Hashes')}
-
-                <LuChevronDown
-                  className={cn(
-                    'ml-1 size-4 transition-transform duration-300',
-                    isOpen ? 'rotate-180' : 'rotate-0',
-                  )}
-                />
-              </BaseButton>
-            </BaseCollapsibleTrigger>
-
-            <AnimatePresence initial={false}>
-              {isOpen ? (
-                <BaseCollapsibleContent forceMount asChild>
-                  <m.div
-                    initial={{ height: 0 }}
-                    animate={{ height: contentHeight }}
-                    exit={{ height: 0 }}
-                    transition={{
-                      duration: 0.3,
-                      ease: [0.4, 0, 0.2, 1], // Custom easing curve for natural motion.
-                    }}
-                    className="overflow-hidden"
-                  >
-                    <div ref={contentRef} className="bg-embed p-4">
-                      {patchRequiredHashes?.length ? (
-                        <div className="flex flex-col gap-1">
-                          <p>{t('These game file hashes require a patch to be compatible.')}</p>
-
-                          <HashesList hashes={patchRequiredHashes} />
-                        </div>
-                      ) : null}
-
-                      {untestedHashes?.length ? (
-                        <div className="flex flex-col gap-1">
-                          <p>
-                            {t(
-                              'These game file hashes are recognized, but it is unknown whether or not they are compatible.',
-                            )}
-                          </p>
-
-                          <HashesList hashes={untestedHashes} />
-                        </div>
-                      ) : null}
-
-                      {incompatibleHashes?.length ? (
-                        <div className="flex flex-col gap-1">
-                          <p>{t('These game file hashes are known to be incompatible.')}</p>
-
-                          <HashesList hashes={incompatibleHashes} />
-                        </div>
-                      ) : null}
-                    </div>
-                  </m.div>
-                </BaseCollapsibleContent>
-              ) : null}
-            </AnimatePresence>
-          </BaseCollapsible>
-        ) : null}
+        <OtherHashesSection />
 
         <div>
           <p className="text-center text-neutral-500">
