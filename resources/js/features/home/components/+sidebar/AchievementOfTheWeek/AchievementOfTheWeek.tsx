@@ -71,15 +71,15 @@ export const AchievementOfTheWeek: FC = () => {
                 <div className="flex w-full items-center justify-between">
                   <SystemChip {...system} className="bg-zinc-800" />
 
-                  {currentEventAchievement.activeThrough ? (
+                  {currentEventAchievement.activeUntil ? (
                     <span className="smalldate !min-w-fit self-end">
                       <Trans
                         i18nKey="Ends <1>{{when}}</1>"
-                        values={{ when: currentEventAchievement.activeThrough }}
+                        values={{ when: currentEventAchievement.activeUntil }}
                         components={{
                           1: (
                             <DiffTimestamp
-                              at={currentEventAchievement.activeThrough}
+                              at={currentEventAchievement.activeUntil}
                               asAbsoluteDate={auth?.user.preferences.prefersAbsoluteDates}
                             />
                           ),
