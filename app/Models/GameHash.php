@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\GameHashCompatibility;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameHashFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -203,4 +204,13 @@ class GameHash extends BaseModel
     }
 
     // == scopes
+
+    /**
+     * @param Builder<GameHash> $query
+     * @return Builder<GameHash>
+     */
+    public function scopeCompatible(Builder $query): Builder
+    {
+        return $query->where('compatibility', GameHashCompatibility::Compatible);
+    }
 }
