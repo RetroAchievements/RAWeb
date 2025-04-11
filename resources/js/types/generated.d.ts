@@ -491,6 +491,8 @@ declare namespace App.Platform.Data {
     websiteUrl?: string | null;
     documentationUrl?: string | null;
     sourceUrl?: string | null;
+    downloadUrl?: string | null;
+    downloadX64Url?: string | null;
     downloads?: Array<App.Platform.Data.EmulatorDownload> | null;
     platforms?: Array<App.Platform.Data.Platform> | null;
     systems?: Array<App.Platform.Data.System> | null;
