@@ -79,8 +79,8 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
             $schedule->command(DeleteOverdueUserAccounts::class)->daily();
 
-            $schedule->command(CacheMostPopularEmulators::class)->weekly();
-            $schedule->command(CacheMostPopularSystems::class)->weekly();
+            $schedule->command(CacheMostPopularEmulators::class)->weeklyOn(4, '8:00'); // Thursdays, ~3:00AM US Eastern
+            $schedule->command(CacheMostPopularSystems::class)->weeklyOn(4, '8:30'); // Thursdays, ~3:30AM US Eastern
         });
 
         Blade::if('hasfeature', function ($feature) {
