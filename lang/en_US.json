@@ -850,6 +850,8 @@
     "Demo": "Demo",
     "Other Known Hashes": "Other Known Hashes",
     "There aren't any achievements for this event.": "There aren't any achievements for this event.",
+    "Optional.": "Optional.",
+    "Developers may not be able to easily debug issues with this emulator. Please be extremely detailed in your description, and provide a link to a save game or video if possible.": "Developers may not be able to easily debug issues with this emulator. Please be extremely detailed in your description, and provide a link to a save game or video if possible.",
     "These game file hashes require a patch to be compatible.": "These game file hashes require a patch to be compatible.",
     "These game file hashes are recognized, but it is unknown whether or not they are compatible.": "These game file hashes are recognized, but it is unknown whether or not they are compatible.",
     "These game file hashes are known to be incompatible.": "These game file hashes are known to be incompatible.",

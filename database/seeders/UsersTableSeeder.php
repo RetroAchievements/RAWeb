@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Enums\Permissions;
+use App\Models\Role;
+use App\Models\User;
 use Carbon\Carbon;
 use Database\Seeders\Concerns\SeedsUsers;
 use Illuminate\Database\Seeder;
@@ -24,10 +26,26 @@ class UsersTableSeeder extends Seeder
         $this->seedUserByUsername('banned', ['banned_at' => Carbon::now(), 'Permissions' => Permissions::Banned]);
         $this->seedUserByUsername('spammer', ['banned_at' => Carbon::now(), 'Permissions' => Permissions::Spam]);
 
-        // if(app()->environment('local')) {
-        //     User::factory()->count(50)->create()->each(function ($user) {
-        //         // $user->achievements()->save(factory(Achievement::class)->make(rand(0, 1000)));
-        //     });
-        // }
+        // add a few developers (including juniors and retired developers)
+        User::factory()->count(random_int(10, 30))->make()->each(function (User $user) {
+            $user->setAttribute('Permissions', Permissions::Developer);
+            $user->assignRole(Role::DEVELOPER);
+            $user->save();
+        });
+
+        User::factory()->count(random_int(5, 10))->make()->each(function (User $user) {
+            $user->setAttribute('Permissions', Permissions::JuniorDeveloper);
+            $user->assignRole(Role::DEVELOPER_JUNIOR);
+            $user->save();
+        });
+
+        User::factory()->count(random_int(2, 5))->make()->each(function (User $user) {
+            $user->setAttribute('Permissions', Permissions::Registered);
+            $user->assignRole(Role::DEVELOPER_RETIRED);
+            $user->save();
+        });
+
+        // and a whole bunch of players
+        User::factory()->count(random_int(50, 200))->create();
     }
 }
