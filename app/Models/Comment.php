@@ -43,6 +43,7 @@ class Comment extends BaseModel
         'ArticleID',
         'Payload',
         'user_id',
+        'Submitted',
     ];
 
     protected static function newFactory(): CommentFactory
