@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EmulatorResource\Pages;
+use App\Filament\Resources\EmulatorResource\RelationManagers\EmulatorDownloadsRelationManager;
 use App\Filament\Resources\EmulatorResource\RelationManagers\EmulatorPlatformsRelationManager;
 use App\Filament\Resources\EmulatorResource\RelationManagers\EmulatorReleasesRelationManager;
 use App\Filament\Resources\EmulatorResource\RelationManagers\EmulatorUserAgentsRelationManager;
@@ -198,6 +199,12 @@ class EmulatorResource extends Resource
                     ->sortable()
                     ->grow(true),
 
+                Tables\Columns\TextColumn::make('user_agents_count')
+                    ->label('User Agents')
+                    ->counts('userAgents')
+                    ->numeric()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('latestRelease.version')
                     ->label('Latest Version'),
 
@@ -268,6 +275,7 @@ class EmulatorResource extends Resource
             EmulatorReleasesRelationManager::class,
             EmulatorUserAgentsRelationManager::class,
             EmulatorPlatformsRelationManager::class,
+            EmulatorDownloadsRelationManager::class,
         ];
     }
 
