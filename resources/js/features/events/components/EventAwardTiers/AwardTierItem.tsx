@@ -35,8 +35,8 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
       className={cn(
         'group rounded-lg p-1 light:bg-white',
         eventAward.earnedAt
-          ? 'bg-zinc-700/50 light:border light:border-yellow-500'
-          : 'bg-zinc-800/50',
+          ? 'bg-zinc-700/50 light:border light:border-yellow-500 light:bg-white'
+          : 'bg-zinc-800/50 light:bg-zinc-100',
       )}
     >
       <div className="relative flex items-center gap-3">
@@ -85,7 +85,7 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
               <BaseTooltipTrigger>
                 <div
                   data-testid="award-earned-checkmark"
-                  className="mr-1 flex size-6 items-center justify-center rounded-full bg-embed light:text-neutral-700"
+                  className="mr-1 flex size-6 items-center justify-center rounded-full bg-embed light:bg-neutral-200 light:text-neutral-700"
                 >
                   <LuCheck className="size-4" />
                 </div>

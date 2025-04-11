@@ -15,7 +15,7 @@
   }
   [data-scheme='light'] .zebra-list > *:nth-child(odd),
   [data-scheme='system'] .zebra-list > *:nth-child(odd) {
-    @apply bg-[rgba(80,80,80,0.09)];
+    @apply bg-[rgba(80,80,80,0.08)];
   }
   .zebra-list > *:hover:not(.no-hover) {
     @apply outline-[rgba(128,128,128,0.3)] bg-[rgba(128,128,128,0.2)];

@@ -41,8 +41,8 @@ export const TopEventPlayers: FC<TopEventParticipantsProps> = ({ event, numMaste
         {listKind === 'most-points-earned' ? t('Most Points Earned') : null}
       </h2>
 
-      <div className="flex flex-col gap-2 rounded-lg bg-embed p-2">
-        <BaseTable className="table-highlight overflow-hidden rounded-lg outline outline-1 outline-neutral-800">
+      <div className="flex flex-col gap-2 rounded-lg bg-embed p-2 light:border light:border-neutral-200 light:bg-white">
+        <BaseTable className="table-highlight overflow-hidden rounded-lg outline outline-1 outline-neutral-800 light:outline-white">
           <BaseTableHeader className="border-neutral-800">
             <BaseTableRow className="do-not-highlight text-menu-link">
               <BaseTableCell className="text-right">{'#'}</BaseTableCell>

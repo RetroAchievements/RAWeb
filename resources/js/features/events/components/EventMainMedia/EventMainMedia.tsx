@@ -22,7 +22,7 @@ export const EventMainMedia: FC<EventMainMediaProps> = ({ imageIngameUrl, imageT
     <div
       className={cn(
         'flex w-full items-center justify-around',
-        'border border-embed-highlight bg-zinc-900/50 light:bg-embed',
+        'border border-embed-highlight bg-zinc-900/50 light:bg-neutral-50',
         'gap-x-5 gap-y-1',
         'xl:mx-0 xl:min-h-[180px] xl:w-full xl:rounded-lg xl:px-4 xl:py-2',
       )}
