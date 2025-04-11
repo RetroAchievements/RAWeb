@@ -73,7 +73,7 @@ class CacheMostPopularEmulators extends Command
 
         // Cache with ID 0 to represent overall popularity.
         $cacheKey = "popular-emulators-for-system:0";
-        Cache::put($cacheKey, $overallPopularity, now()->addDay());
+        Cache::put($cacheKey, $overallPopularity, now()->addMonth());
 
         $this->info("Cached overall most popular emulators [" . implode(', ', $overallPopularity) . "].");
         $this->info('Done.');

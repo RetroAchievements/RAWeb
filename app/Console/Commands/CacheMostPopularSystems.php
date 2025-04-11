@@ -50,7 +50,7 @@ class CacheMostPopularSystems extends Command
         // Extract just the system IDs in order.
         $topSystemIds = array_map(fn ($row) => (int) $row->system_id, $results);
 
-        Cache::put('top-systems', $topSystemIds, now()->addDay());
+        Cache::put('top-systems', $topSystemIds, now()->addMonth());
 
         $this->newLine();
         $this->info("Done.");
