@@ -87,17 +87,21 @@ class EmulatorResource extends Resource
                                         ->label('Documentation link')
                                         ->helperText('Link to emulator documentation.'),
 
+                                    Infolists\Components\TextEntry::make('website_url')
+                                        ->label('Website link')
+                                        ->helperText('Link to emulator homepage.'),
+
+                                    Infolists\Components\TextEntry::make('source_url')
+                                        ->label('Source code link')
+                                        ->helperText('Link to emulator source code.'),
+
                                     Infolists\Components\TextEntry::make('download_url')
                                         ->label('Download link')
                                         ->helperText('Link to download the emulator.'),
 
                                     Infolists\Components\TextEntry::make('download_x64_url')
                                         ->label('x64 Download link')
-                                        ->helperText('Link to download the x64 version of the emulator.'),
-
-                                    Infolists\Components\TextEntry::make('source_url')
-                                        ->label('Source code link')
-                                        ->helperText('Link to emulator source code.'),
+                                        ->helperText('Link to download the Windows x64 version of the emulator.'),
                                 ]),
                         ]),
 
@@ -157,6 +161,16 @@ class EmulatorResource extends Resource
                                 ->url()
                                 ->helperText('Link to emulator documentation.'),
 
+                            Forms\Components\TextInput::make('website_url')
+                                ->label('Website link')
+                                ->url()
+                                ->helperText('Link to emulator homepage.'),
+
+                            Forms\Components\TextInput::make('source_url')
+                                ->label('Source code link')
+                                ->url()
+                                ->helperText('Link to emulator source code.'),
+
                             Forms\Components\TextInput::make('download_url')
                                 ->label('Download link')
                                 ->url()
@@ -165,12 +179,7 @@ class EmulatorResource extends Resource
                             Forms\Components\TextInput::make('download_x64_url')
                                 ->label('x64 Download link')
                                 ->url()
-                                ->helperText('Link to download the x64 version of the emulator.'),
-
-                            Forms\Components\TextInput::make('source_url')
-                                ->label('Source code link')
-                                ->url()
-                                ->helperText('Link to emulator source code.'),
+                                ->helperText('Link to download the Windows x64 version of the emulator.'),
                         ]),
 
                     Forms\Components\Section::make()
