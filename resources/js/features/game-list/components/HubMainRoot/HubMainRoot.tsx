@@ -1,5 +1,5 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { type FC, memo } from 'react';
 
 import { MatureContentWarningDialog } from '@/common/components/MatureContentWarningDialog';
@@ -10,14 +10,15 @@ import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableD
 import { useTableSync } from '../../hooks/useTableSync';
 import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
-import { HubGamesDataTable } from '../HubGamesDataTable';
+import { GamesDataTableContainer } from '../GamesDataTableContainer';
 import { HubBreadcrumbs } from './HubBreadcrumbs';
 import { HubHeading } from './HubHeading';
 import { RelatedHubs } from './RelatedHubs';
+import { useColumnDefinitions } from './useColumnDefinitions';
 import { useHubGamesDefaultColumnState } from './useHubGamesDefaultColumnState';
 
 export const HubMainRoot: FC = memo(() => {
-  const { breadcrumbs, defaultDesktopPageSize, hub, paginatedGameListEntries } =
+  const { breadcrumbs, can, defaultDesktopPageSize, hub, paginatedGameListEntries } =
     usePageProps<App.Platform.Data.HubPageProps>();
 
   const { defaultColumnFilters, defaultColumnSort, defaultColumnVisibility } =
@@ -38,6 +39,8 @@ export const HubMainRoot: FC = memo(() => {
     defaultColumnVisibility,
   });
 
+  const columnDefinitions = useColumnDefinitions({ canSeeOpenTicketsColumn: !!can.develop });
+
   const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
     columnFilters,
     pagination,
@@ -45,7 +48,7 @@ export const HubMainRoot: FC = memo(() => {
     paginatedData: paginatedGameListEntries,
   });
 
-  const [isCurrentlyPersistingView] = useAtom(isCurrentlyPersistingViewAtom);
+  const isCurrentlyPersistingView = useAtomValue(isCurrentlyPersistingViewAtom);
 
   useTableSync({
     columnFilters,
@@ -71,15 +74,24 @@ export const HubMainRoot: FC = memo(() => {
       <HydrationBoundary state={dehydrate(queryClientWithInitialData)}>
         <div className="flex flex-col gap-5">
           {paginatedGameListEntries.unfilteredTotal ? (
-            <HubGamesDataTable
+            <GamesDataTableContainer
+              // Table state
               columnFilters={columnFilters}
               columnVisibility={columnVisibility}
               pagination={pagination}
+              sorting={sorting}
+              // State setters
               setColumnFilters={setColumnFilters}
               setColumnVisibility={setColumnVisibility}
               setPagination={setPagination}
               setSorting={setSorting}
-              sorting={sorting}
+              // Table configuration
+              defaultColumnFilters={defaultColumnFilters}
+              columnDefinitions={columnDefinitions}
+              // API configuration
+              apiRouteName="api.hub.game.index"
+              apiRouteParams={{ gameSet: hub.id }}
+              randomGameApiRouteName="api.hub.game.random"
             />
           ) : null}
 

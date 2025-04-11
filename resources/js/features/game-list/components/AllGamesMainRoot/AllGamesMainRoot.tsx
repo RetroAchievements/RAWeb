@@ -1,5 +1,5 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -9,12 +9,13 @@ import { useGameListState } from '../../hooks/useGameListState';
 import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
 import { useTableSync } from '../../hooks/useTableSync';
 import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
-import { AllGamesDataTable } from '../AllGamesDataTable';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
+import { GamesDataTableContainer } from '../GamesDataTableContainer';
 import { useAllGamesDefaultColumnState } from './useAllGamesDefaultColumnState';
+import { useColumnDefinitions } from './useColumnDefinitions';
 
 export const AllGamesMainRoot: FC = memo(() => {
-  const { defaultDesktopPageSize, paginatedGameListEntries } =
+  const { can, defaultDesktopPageSize, paginatedGameListEntries } =
     usePageProps<App.Platform.Data.GameListPageProps>();
 
   const { t } = useTranslation();
@@ -37,6 +38,8 @@ export const AllGamesMainRoot: FC = memo(() => {
     defaultColumnVisibility,
   });
 
+  const columnDefinitions = useColumnDefinitions({ canSeeOpenTicketsColumn: !!can.develop });
+
   const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
     columnFilters,
     pagination,
@@ -44,7 +47,7 @@ export const AllGamesMainRoot: FC = memo(() => {
     paginatedData: paginatedGameListEntries,
   });
 
-  const [isCurrentlyPersistingView] = useAtom(isCurrentlyPersistingViewAtom);
+  const isCurrentlyPersistingView = useAtomValue(isCurrentlyPersistingViewAtom);
 
   useTableSync({
     columnFilters,
@@ -66,15 +69,20 @@ export const AllGamesMainRoot: FC = memo(() => {
       </DataTablePaginationScrollTarget>
 
       <HydrationBoundary state={dehydrate(queryClientWithInitialData)}>
-        <AllGamesDataTable
+        <GamesDataTableContainer
+          // Table state
           columnFilters={columnFilters}
           columnVisibility={columnVisibility}
           pagination={pagination}
+          sorting={sorting}
+          // State setters
           setColumnFilters={setColumnFilters}
           setColumnVisibility={setColumnVisibility}
           setPagination={setPagination}
           setSorting={setSorting}
-          sorting={sorting}
+          // Table configuration
+          defaultColumnFilters={defaultColumnFilters}
+          columnDefinitions={columnDefinitions}
         />
       </HydrationBoundary>
     </div>

@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { type FC, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCircleAlert } from 'react-icons/lu';
@@ -29,7 +29,7 @@ export const ChangeUsernameSectionCard: FC = () => {
 
   const { form, mutation, onSubmit } = useChangeUsernameForm();
 
-  const [requestedUsername] = useAtom(requestedUsernameAtom);
+  const requestedUsername = useAtomValue(requestedUsernameAtom);
 
   const visibleDisplayNameFieldId = useId();
   const requestedDisplayNameFieldId = useId();

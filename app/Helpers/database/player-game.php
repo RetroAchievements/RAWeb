@@ -100,31 +100,39 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
     }
 
     if ($numRecentAchievements >= 0) {
+        $achievementsQuery = Achievement::query()
+            ->published()
+            ->whereIn('GameID', $gameIDs)
+            ->with(['game'])
+            ->leftJoin('player_achievements', function ($join) use ($user) {
+                $join->on('player_achievements.achievement_id', '=', 'Achievements.ID');
+                $join->where('player_achievements.user_id', $user->id);
+            })
+            ->select(
+                'Achievements.*',
+                'player_achievements.unlocked_at',
+                'player_achievements.unlocked_hardcore_at'
+            )
+            ->orderBy('player_achievements.unlocked_at', 'desc');
+
+        // Only limit if we're not requesting all achievements.
+        if ($numRecentAchievements > 0) {
+            $achievementsQuery->whereNotNull('player_achievements.unlocked_at')
+                ->orderBy('player_achievements.unlocked_at', 'desc');
+        }
+
+        $allAchievements = $achievementsQuery->get();
+
+        // Group the results by game ID.
         $gameAchievementsMap = [];
         foreach ($gameIDs as $gameID) {
-            $achievementsQuery = Achievement::query()
-                ->published()
-                ->where('GameID', $gameID)
-                ->with(['game'])
-                ->leftJoin('player_achievements', function ($join) use ($user) {
-                    $join->on('player_achievements.achievement_id', '=', 'Achievements.ID');
-                    $join->where('player_achievements.user_id', $user->id);
-                })
-                ->select(
-                    'Achievements.*',
-                    'player_achievements.unlocked_at',
-                    'player_achievements.unlocked_hardcore_at'
-                )
-                ->orderBy('player_achievements.unlocked_at', 'desc');
+            $gameAchievements = $allAchievements->where('GameID', $gameID);
 
-            // Only limit if we're not requesting all achievements.
             if ($numRecentAchievements > 0) {
-                $achievementsQuery->whereNotNull('player_achievements.unlocked_at')
-                    ->orderBy('player_achievements.unlocked_at', 'desc')
-                    ->limit($numRecentAchievements);
+                $gameAchievements = $gameAchievements->take($numRecentAchievements);
             }
 
-            $gameAchievementsMap[$gameID] = $achievementsQuery->get();
+            $gameAchievementsMap[$gameID] = $gameAchievements;
         }
 
         foreach ($gameAchievementsMap as $gameID => $achievements) {

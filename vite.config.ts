@@ -1,5 +1,6 @@
 /// <reference types="vitest" />
 
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
 import { existsSync, readFileSync } from 'fs';
 import laravel from 'laravel-vite-plugin';
@@ -27,6 +28,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       outDir: isSsrBuild ? 'bootstrap/ssr' : `public/${env.VITE_BUILD_PATH}`,
       assetsDir: '',
       assetsInlineLimit: 4096,
+      sourcemap: true,
     },
 
     // https://vitejs.dev/config/#plugins
@@ -36,7 +38,14 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         ssr: 'resources/js/ssr.tsx',
         refresh: ['resources/views/**'],
       }),
+
       react(),
+
+      sentryVitePlugin({
+        org: 'retroachievementsorg',
+        project: 'raweb',
+        authToken: env.SENTRY_AUTH_TOKEN,
+      }),
     ],
 
     ssr: {
@@ -118,25 +127,27 @@ function detectServerConfig(env) {
   };
 
   const { host } = new URL(env.APP_URL);
+
   const keyPath = resolve(homedir(), `.config/valet/Certificates/${host}.key`);
   const certificatePath = resolve(homedir(), `.config/valet/Certificates/${host}.crt`);
+  const useDevSsl = env.VITE_USE_DEV_SSL === 'true';
 
-  if (!existsSync(keyPath) || !existsSync(certificatePath)) {
-    // NOTE do not set host, it defaults to either localhost or 0.0.0.0 for Docker
+  if (useDevSsl && existsSync(keyPath) && existsSync(certificatePath)) {
     return {
-      port: env.VITE_PORT,
+      host,
       watch,
+      hmr: { host },
+      https: {
+        key: readFileSync(keyPath),
+        cert: readFileSync(certificatePath),
+      },
+      port: env.VITE_PORT,
     };
   }
 
   return {
-    hmr: { host },
-    host,
-    port: env.VITE_PORT,
     watch,
-    https: {
-      key: readFileSync(keyPath),
-      cert: readFileSync(certificatePath),
-    },
+    cors: true,
+    port: env.VITE_PORT,
   };
 }

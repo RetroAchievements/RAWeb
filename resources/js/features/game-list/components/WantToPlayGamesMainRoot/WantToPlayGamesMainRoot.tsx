@@ -1,5 +1,5 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -11,11 +11,12 @@ import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableD
 import { useTableSync } from '../../hooks/useTableSync';
 import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
-import { WantToPlayGamesDataTable } from '../WantToPlayGamesDataTable';
+import { GamesDataTableContainer } from '../GamesDataTableContainer';
+import { useColumnDefinitions } from './useColumnDefinitions';
 import { useWantToPlayGamesDefaultColumnState } from './useWantToPlayGamesDefaultColumnState';
 
 export const WantToPlayGamesMainRoot: FC = memo(() => {
-  const { auth, defaultDesktopPageSize, paginatedGameListEntries } =
+  const { auth, can, defaultDesktopPageSize, paginatedGameListEntries } =
     usePageProps<App.Community.Data.UserGameListPageProps>();
 
   const { t } = useTranslation();
@@ -38,6 +39,8 @@ export const WantToPlayGamesMainRoot: FC = memo(() => {
     defaultColumnVisibility,
   });
 
+  const columnDefinitions = useColumnDefinitions({ canSeeOpenTicketsColumn: !!can.develop });
+
   const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
     columnFilters,
     pagination,
@@ -45,7 +48,7 @@ export const WantToPlayGamesMainRoot: FC = memo(() => {
     paginatedData: paginatedGameListEntries,
   });
 
-  const [isCurrentlyPersistingView] = useAtom(isCurrentlyPersistingViewAtom);
+  const isCurrentlyPersistingView = useAtomValue(isCurrentlyPersistingViewAtom);
 
   useTableSync({
     columnFilters,
@@ -69,15 +72,24 @@ export const WantToPlayGamesMainRoot: FC = memo(() => {
       </DataTablePaginationScrollTarget>
 
       <HydrationBoundary state={dehydrate(queryClientWithInitialData)}>
-        <WantToPlayGamesDataTable
+        <GamesDataTableContainer
+          // Table state
           columnFilters={columnFilters}
           columnVisibility={columnVisibility}
           pagination={pagination}
+          sorting={sorting}
+          // State setters
           setColumnFilters={setColumnFilters}
           setColumnVisibility={setColumnVisibility}
           setPagination={setPagination}
           setSorting={setSorting}
-          sorting={sorting}
+          // Table configuration
+          defaultColumnFilters={defaultColumnFilters}
+          columnDefinitions={columnDefinitions}
+          // API configuration
+          apiRouteName="api.user-game-list.index"
+          randomGameApiRouteName="api.user-game-list.random"
+          shouldHideItemIfNotInBacklog={true}
         />
       </HydrationBoundary>
     </div>

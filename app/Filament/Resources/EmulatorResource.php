@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EmulatorResource\Pages;
+use App\Filament\Resources\EmulatorResource\RelationManagers\EmulatorPlatformsRelationManager;
 use App\Filament\Resources\EmulatorResource\RelationManagers\EmulatorReleasesRelationManager;
 use App\Filament\Resources\EmulatorResource\RelationManagers\EmulatorUserAgentsRelationManager;
 use App\Filament\Resources\EmulatorResource\RelationManagers\SystemsRelationManager;
@@ -29,9 +30,9 @@ class EmulatorResource extends Resource
 
     protected static ?string $navigationIcon = 'fas-floppy-disk';
 
-    protected static ?string $navigationGroup = 'Platform';
+    protected static ?string $navigationGroup = 'Releases';
 
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 20;
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -72,38 +73,51 @@ class EmulatorResource extends Resource
                                     Infolists\Components\TextEntry::make('name')
                                         ->label('Name')
                                         ->helperText('Name of emulator'),
+
                                     Infolists\Components\TextEntry::make('original_name')
                                         ->label('Original name')
                                         ->helperText('Original name of emulator.'),
+
                                     Infolists\Components\TextEntry::make('description')
                                         ->label('Description')
                                         ->helperText('Additional text to display on the download page.'),
+
                                     Infolists\Components\TextEntry::make('documentation_url')
                                         ->label('Documentation link')
                                         ->helperText('Link to emulator documentation.'),
+
                                     Infolists\Components\TextEntry::make('download_url')
                                         ->label('Download link')
                                         ->helperText('Link to download the emulator.'),
+
                                     Infolists\Components\TextEntry::make('download_x64_url')
                                         ->label('x64 Download link')
                                         ->helperText('Link to download the x64 version of the emulator.'),
+
                                     Infolists\Components\TextEntry::make('source_url')
                                         ->label('Source code link')
                                         ->helperText('Link to emulator source code.'),
                                 ]),
                         ]),
+
                     Infolists\Components\Section::make([
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
+
                         Infolists\Components\TextEntry::make('Created')
                             ->label('Created at')
                             ->dateTime()
                             ->hidden(fn ($state) => !$state),
+
                         Infolists\Components\TextEntry::make('Updated')
                             ->label('Updated at')
                             ->dateTime()
                             ->hidden(fn ($state) => !$state),
+
                         Infolists\Components\IconEntry::make('active')
+                            ->boolean(),
+
+                        Infolists\Components\IconEntry::make('can_debug_triggers')
                             ->boolean(),
                     ])->grow(false),
                 ])->from('md'),
@@ -124,37 +138,46 @@ class EmulatorResource extends Resource
                                 ->required()
                                 ->maxLength(255)
                                 ->helperText('Name of emulator'),
+
                             Forms\Components\TextInput::make('original_name')
                                 ->label('Original name')
                                 ->required()
                                 ->maxLength(255)
                                 ->helperText('Original name of emulator.'),
+
                             Forms\Components\Textarea::make('description')
                                 ->label('Description')
                                 ->rules([new DisallowHtml()])
                                 ->rows(5)
                                 ->helperText('Additional text to display on the download page.'),
+
                             Forms\Components\TextInput::make('documentation_url')
                                 ->label('Documentation link')
                                 ->url()
                                 ->helperText('Link to emulator documentation.'),
+
                             Forms\Components\TextInput::make('download_url')
                                 ->label('Download link')
                                 ->url()
                                 ->helperText('Link to download the emulator.'),
+
                             Forms\Components\TextInput::make('download_x64_url')
                                 ->label('x64 Download link')
                                 ->url()
                                 ->helperText('Link to download the x64 version of the emulator.'),
+
                             Forms\Components\TextInput::make('source_url')
                                 ->label('Source code link')
                                 ->url()
                                 ->helperText('Link to emulator source code.'),
                         ]),
+
                     Forms\Components\Section::make()
                         ->grow(false)
                         ->schema([
                             Forms\Components\Toggle::make('active'),
+
+                            Forms\Components\Toggle::make('can_debug_triggers'),
                         ]),
                 ])->from('md'),
             ]);
@@ -168,31 +191,45 @@ class EmulatorResource extends Resource
                     ->label('ID')
                     ->sortable()
                     ->searchable(),
+
                 Tables\Columns\TextColumn::make('name')
                     ->label('Name')
                     ->searchable()
                     ->sortable()
                     ->grow(true),
+
                 Tables\Columns\TextColumn::make('latestRelease.version')
                     ->label('Latest Version'),
+
                 Tables\Columns\TextColumn::make('minimumSupportedRelease.version')
-                    ->label('Minimum Version'),
+                    ->label('Minimum Allowed Version'),
+
                 Tables\Columns\TextColumn::make('original_name')
                     ->label('Original Name')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\IconColumn::make('active')
                     ->boolean()
                     ->default(false)
                     ->alignCenter(),
+
+                Tables\Columns\IconColumn::make('can_debug_triggers')
+                    ->label('Can Debug Triggers')
+                    ->boolean()
+                    ->default(false)
+                    ->alignCenter(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -212,6 +249,7 @@ class EmulatorResource extends Resource
                         Tables\Actions\DeleteAction::make(),
                         Tables\Actions\RestoreAction::make(),
                     ])->dropdown(false),
+
                     Tables\Actions\Action::make('audit-log')
                         ->url(fn ($record) => EmulatorResource::getUrl('audit-log', ['record' => $record]))
                         ->icon('fas-clock-rotate-left'),
@@ -229,6 +267,7 @@ class EmulatorResource extends Resource
             SystemsRelationManager::class,
             EmulatorReleasesRelationManager::class,
             EmulatorUserAgentsRelationManager::class,
+            EmulatorPlatformsRelationManager::class,
         ];
     }
 

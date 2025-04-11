@@ -21,6 +21,7 @@ class ShortcodeApiController extends Controller
             achievementIds: $request->input('achievementIds'),
             gameIds: $request->input('gameIds'),
             hubIds: $request->input('hubIds'),
+            eventIds: $request->input('eventIds'),
         );
 
         return response()->json($entities);
