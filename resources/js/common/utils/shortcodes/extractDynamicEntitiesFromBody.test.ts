@@ -61,6 +61,17 @@ describe('Util: extractDynamicEntitiesFromBody', () => {
     expect(result.hubIds).toEqual([1, 2]);
   });
 
+  it('given the input contains event shortcodes, extracts and dedupes all event IDs', () => {
+    // ARRANGE
+    const input = 'I play in [event=1] and [event=2] and [event=1].';
+
+    // ACT
+    const result = extractDynamicEntitiesFromBody(input);
+
+    // ASSERT
+    expect(result.eventIds).toEqual([1, 2]);
+  });
+
   it('given the input contains invalid numeric IDs, ignores them', () => {
     // ARRANGE
     const input = '[ticket=abc] [ach=def] [game=xyz]';

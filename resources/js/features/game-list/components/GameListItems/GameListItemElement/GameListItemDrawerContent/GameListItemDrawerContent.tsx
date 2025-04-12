@@ -5,6 +5,7 @@ import type { IconType } from 'react-icons/lib';
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import {
   BaseDrawerContent,
+  BaseDrawerDescription,
   BaseDrawerFooter,
   BaseDrawerHeader,
   BaseDrawerTitle,
@@ -48,6 +49,7 @@ export const GameListItemDrawerContent: FC<GameListItemDrawerContentProps> = ({
       <div className="mx-auto w-full max-w-sm overflow-hidden">
         <BaseDrawerHeader>
           <BaseDrawerTitle>{t('Game Details')}</BaseDrawerTitle>
+          <BaseDrawerDescription className="sr-only">{game.title}</BaseDrawerDescription>
         </BaseDrawerHeader>
 
         <div className="flex flex-col gap-4 p-4">

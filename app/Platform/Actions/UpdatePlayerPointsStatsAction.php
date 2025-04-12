@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\PlayerStat;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
 use App\Platform\Events\PlayerPointsStatsUpdated;
@@ -41,7 +42,12 @@ class UpdatePlayerPointsStatsAction
         // 8 day window and throw some stuff away in a bit.
         $recentPlayerAchievements = $user->playerAchievements()
             ->whereBetween('unlocked_at', [Carbon::now()->subDays(8), Carbon::now()])
-            ->with('achievement')
+            ->with(['achievement.game' => function ($query) {
+                $query->where('ConsoleID', '!=', System::Events);
+            }])
+            ->whereHas('achievement.game', function ($query) {
+                $query->where('ConsoleID', '!=', System::Events);
+            })
             ->get();
 
         // Next, separate the hardcore earned achievements from the

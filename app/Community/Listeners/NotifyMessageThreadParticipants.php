@@ -7,6 +7,7 @@ namespace App\Community\Listeners;
 use App\Community\Actions\UpdateUnreadMessageCountAction;
 use App\Community\Events\MessageCreated;
 use App\Enums\UserPreference;
+use App\Mail\PrivateMessageReceivedMail;
 use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
@@ -14,6 +15,7 @@ use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class NotifyMessageThreadParticipants
 {
@@ -60,7 +62,14 @@ class NotifyMessageThreadParticipants
 
             // send email?
             if (BitSet($userTo->websitePrefs, UserPreference::EmailOn_PrivateMessage)) {
-                sendPrivateMessageEmail($userTo->display_name, $userTo->EmailAddress, $thread->title, $message->body, $userFrom->display_name);
+                if (!$userTo->is($userFrom)) {
+                    Mail::to($userTo)->queue(new PrivateMessageReceivedMail(
+                        $userTo,
+                        $userFrom,
+                        $thread,
+                        $message,
+                    ));
+                }
             }
 
             $this->forwardToDiscord($userFrom, $userTo, $thread, $message);

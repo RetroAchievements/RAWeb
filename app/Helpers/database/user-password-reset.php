@@ -1,6 +1,8 @@
 <?php
 
+use App\Mail\PasswordResetMail;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 /**
@@ -31,15 +33,13 @@ function isValidPasswordResetToken(string $usernameIn, string $passwordResetToke
 function RequestPasswordReset(User $user): bool
 {
     $username = $user->display_name;
-    $emailAddress = $user->EmailAddress;
-
     $newToken = Str::random(20);
 
     s_mysql_query("UPDATE UserAccounts AS ua
               SET ua.PasswordResetToken = '$newToken', Updated=NOW()
               WHERE ua.User='$username' OR ua.display_name='$username'");
 
-    SendPasswordResetEmail($username, $emailAddress, $newToken);
+    Mail::to($user)->queue(new PasswordResetMail($user, $newToken));
 
     return true;
 }

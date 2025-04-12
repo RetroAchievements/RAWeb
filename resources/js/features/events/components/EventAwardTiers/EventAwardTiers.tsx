@@ -12,7 +12,7 @@ interface EventAwardTiersProps {
 export const EventAwardTiers: FC<EventAwardTiersProps> = ({ event, numMasters }) => {
   const { t } = useTranslation();
 
-  if (!event.legacyGame?.badgeUrl || !event.eventAchievements?.length) {
+  if (!event.legacyGame?.badgeUrl || (!event.eventAchievements?.length && numMasters === 0)) {
     return null;
   }
 

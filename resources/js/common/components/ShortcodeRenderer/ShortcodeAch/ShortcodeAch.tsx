@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import type { FC } from 'react';
 
 import { persistedAchievementsAtom } from '../../../state/shortcode.atoms';
@@ -9,7 +9,7 @@ interface ShortcodeAchievementProps {
 }
 
 export const ShortcodeAch: FC<ShortcodeAchievementProps> = ({ achievementId }) => {
-  const [persistedAchievements] = useAtom(persistedAchievementsAtom);
+  const persistedAchievements = useAtomValue(persistedAchievementsAtom);
 
   const foundAchievement = persistedAchievements?.find(
     (achievement) => achievement.id === achievementId,
