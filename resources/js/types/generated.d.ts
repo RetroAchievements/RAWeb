@@ -352,6 +352,7 @@ declare namespace App.Data {
     createUsernameChangeRequest?: boolean;
     deleteForumTopic?: boolean;
     develop?: boolean;
+    manageEmulators?: boolean;
     manageForumTopicComments?: boolean;
     manageForumTopics?: boolean;
     manageEvents?: boolean;
@@ -403,6 +404,8 @@ declare namespace App.Http.Data {
     allSystems: Array<App.Platform.Data.System>;
     topSystemIds: Array<number>;
     popularEmulatorsBySystem: number[][];
+    userDetectedPlatformId: number | null;
+    can: App.Data.UserPermissions;
   };
   export type HomePageProps<TItems = App.Community.Data.ActivePlayer> = {
     staticData: App.Data.StaticData;

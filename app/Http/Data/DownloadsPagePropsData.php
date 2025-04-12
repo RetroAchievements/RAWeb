@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Data;
 
+use App\Data\UserPermissionsData;
 use App\Platform\Data\EmulatorData;
 use App\Platform\Data\PlatformData;
 use App\Platform\Data\SystemData;
@@ -28,6 +29,8 @@ class DownloadsPagePropsData extends Data
         public array $topSystemIds,
         #[LiteralTypeScriptType('number[][]')]
         public array $popularEmulatorsBySystem,
+        public ?int $userDetectedPlatformId,
+        public UserPermissionsData $can,
     ) {
     }
 }
