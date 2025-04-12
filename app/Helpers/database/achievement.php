@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
 use App\Platform\Actions\SyncEventAchievementMetadataAction;
@@ -84,7 +85,8 @@ function getAchievementsList(
             INNER JOIN UserAccounts AS ua ON ua.ID = ach.user_id
             INNER JOIN GameData AS gd ON gd.ID = ach.GameID
             INNER JOIN Console AS c ON c.ID = gd.ConsoleID
-            WHERE ach.Flags = :achievementFlag ";
+            WHERE gd.ConsoleID != " . System::Events . "
+            AND ach.Flags = :achievementFlag ";
 
     if ($developer) {
         $bindings['developerId'] = $developer->id;

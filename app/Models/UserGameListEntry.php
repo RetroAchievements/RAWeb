@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\UserGameListType;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\UserGameListEntryFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,6 +33,7 @@ class UserGameListEntry extends BaseModel
 
     protected $casts = [
         'GameID' => 'integer',
+        'type' => UserGameListType::class,
     ];
 
     protected static function newFactory(): UserGameListEntryFactory
