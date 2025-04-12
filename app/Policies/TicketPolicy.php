@@ -39,7 +39,8 @@ class TicketPolicy
             return false;
         }
 
-        return $user->playerGames()->where('time_taken', '>', 5)->exists();
+        return $user->playerSessions()->where('duration', '>', 5)->exists()
+                || $user->playerGames()->where('time_taken', '>', 5)->exists();
     }
 
     public function updateState(User $user): bool

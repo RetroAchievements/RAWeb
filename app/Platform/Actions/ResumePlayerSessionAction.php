@@ -10,6 +10,7 @@ use App\Models\PlayerSession;
 use App\Models\User;
 use App\Platform\Events\PlayerSessionResumed;
 use App\Platform\Events\PlayerSessionStarted;
+use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Carbon\Carbon;
 
 class ResumePlayerSessionAction
@@ -61,7 +62,26 @@ class ResumePlayerSessionAction
 
         // if the session is less than 10 minutes old, resume session
         if ($playerSession && $timestamp->diffInMinutes($playerSession->rich_presence_updated_at) < 10) {
-            $playerSession->duration = max(1, $timestamp->diffInMinutes($playerSession->created_at));
+            $newDuration = max(1, $timestamp->diffInMinutes($playerSession->created_at));
+
+            if (!$playerGame->playtime_total) {
+                // no playtime metrics exist - generate them
+                dispatch(new UpdatePlayerGameMetricsJob($user->id, $game->id));
+            } else {
+                // attempt to keep the playtime metrics up to date without doing a
+                // full regeneration. a full regeneration will occur after an unlock
+                $adjustment = ($newDuration - $playerSession->duration);
+                $playerGame->playtime_total += $adjustment;
+                if (!$playerGame->time_to_complete) {
+                    $playerGame->time_taken += $adjustment;
+                }
+                if ($playerSession->hardcore && !$playerGame->time_to_complete_hardcore) {
+                    $playerGame->time_taken_hardcore += $adjustment;
+                }
+                $playerGame->save();
+            }
+
+            $playerSession->duration = $newDuration;
 
             if ($presence) {
                 $playerSession->rich_presence = $presence;

@@ -9,6 +9,7 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\PlayerGameMetricsUpdated;
+use App\Platform\Services\PlayerGameActivityService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -69,9 +70,6 @@ class UpdatePlayerGameMetricsAction
             ->filter()
             ->max();
 
-        $timeTaken = $startedAt ? $startedAt->diffInSeconds($lastPlayedAt) : $playerGame->time_taken;
-        $timeTakenHardcore = $startedAt ? $startedAt->diffInSeconds($lastPlayedAt) : $playerGame->time_taken_hardcore;
-
         $session = $user->playerSessions()
             ->with('gameHash')
             ->where('game_id', $game->id)
@@ -88,9 +86,6 @@ class UpdatePlayerGameMetricsAction
             'achievements_unlocked_hardcore' => $achievementsUnlockedHardcoreCount,
             'achievements_unlocked_softcore' => $achievementsUnlockedSoftcoreCount,
             'last_played_at' => $lastPlayedAt,
-            // 'playtime_total' => $playtimeTotal,
-            'time_taken' => $timeTaken,
-            'time_taken_hardcore' => $timeTakenHardcore,
             'last_unlock_at' => $lastUnlockAt,
             'last_unlock_hardcore_at' => $lastUnlockHardcoreAt,
             'first_unlock_at' => $firstUnlockAt,
@@ -105,6 +100,8 @@ class UpdatePlayerGameMetricsAction
 
         $playerGame->fill($this->beatProgressMetrics($playerGame, $achievementsUnlocked));
         $playerGame->fill($this->completionProgressMetrics($playerGame));
+
+        $playerGame->fill($this->playTimeMetrics($playerGame));
 
         $playerGame->save();
 
@@ -248,5 +245,23 @@ class UpdatePlayerGameMetricsAction
         // if ($game && $response['achievementsRemaining'] == 0) {
         //     AchievementSetCompleted::dispatch($user, $game, $hardcore);
         // }
+    }
+
+    public function playtimeMetrics(PlayerGame $playerGame): array
+    {
+        $activityService = new PlayerGameActivityService();
+        $activityService->initialize($playerGame->user, $playerGame->game);
+        $summary = $activityService->analyze($playerGame);
+
+        return [
+            'playtime_total' => $summary['totalPlaytime'],
+            'time_taken' => $summary['achievementPlaytimeSoftcore'],
+            'time_taken_hardcore' => $summary['achievementPlaytimeHardcore'],
+            'time_to_beat' => $summary['beatPlaytimeSoftcore'],
+            'time_to_beat_hardcore' => $summary['beatPlaytimeHardcore'],
+            'time_to_complete' => $summary['completePlaytimeSoftcore'],
+            'time_to_complete_hardcore' => $summary['completePlaytimeHardcore'],
+            'playtime_estimated' => $summary['generatedSessionAdjustment'] != 0,
+        ];
     }
 }
