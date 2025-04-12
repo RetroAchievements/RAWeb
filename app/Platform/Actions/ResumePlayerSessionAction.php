@@ -70,13 +70,15 @@ class ResumePlayerSessionAction
             } else {
                 // attempt to keep the playtime metrics up to date without doing a
                 // full regeneration. a full regeneration will occur after an unlock
-                $adjustment = ($newDuration - $playerSession->duration);
+                $adjustment = ($newDuration - $playerSession->duration) * 60;
                 $playerGame->playtime_total += $adjustment;
                 if (!$playerGame->time_to_complete) {
                     $playerGame->time_taken += $adjustment;
                 }
-                if ($playerSession->hardcore && !$playerGame->time_to_complete_hardcore) {
-                    $playerGame->time_taken_hardcore += $adjustment;
+                if (!$playerGame->time_to_complete_hardcore) {
+                    if ($playerSession->hardcore || $user->RAPoints > $user->RASoftcorePoints) {
+                        $playerGame->time_taken_hardcore += $adjustment;
+                    }
                 }
                 $playerGame->save();
             }
