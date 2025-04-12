@@ -30,6 +30,7 @@ class DownloadsPagePropsData extends Data
         #[LiteralTypeScriptType('number[][]')]
         public array $popularEmulatorsBySystem,
         public ?int $userDetectedPlatformId,
+        public ?int $userSelectedSystemId,
         public UserPermissionsData $can,
     ) {
     }

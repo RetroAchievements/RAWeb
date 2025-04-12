@@ -405,6 +405,7 @@ declare namespace App.Http.Data {
     topSystemIds: Array<number>;
     popularEmulatorsBySystem: number[][];
     userDetectedPlatformId: number | null;
+    userSelectedSystemId: number | null;
     can: App.Data.UserPermissions;
   };
   export type HomePageProps<TItems = App.Community.Data.ActivePlayer> = {
