@@ -1,5 +1,5 @@
-import { t } from 'i18next';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuBookOpen, LuExternalLink, LuGitBranch } from 'react-icons/lu';
 
 import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
@@ -9,6 +9,8 @@ interface MetadataLinksProps {
 }
 
 export const MetadataLinks: FC<MetadataLinksProps> = ({ emulator }) => {
+  const { t } = useTranslation();
+
   if (!emulator.websiteUrl && !emulator.documentationUrl && !emulator.sourceUrl) {
     return null;
   }
