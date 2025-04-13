@@ -38,7 +38,7 @@ export const AchievementDistribution: FC<AchievementDistributionProps> = ({
     <div data-testid="achievement-distribution">
       <h2 className="mb-0 border-0 text-lg font-semibold">{t('Achievement Distribution')}</h2>
 
-      <div className="flex flex-col gap-3 rounded-lg bg-embed p-3">
+      <div className="flex flex-col gap-3 rounded-lg bg-embed p-3 light:border light:border-neutral-200 light:bg-white">
         <BaseChartContainer config={chartConfig} className="h-[260px] w-full">
           <BarChart accessibilityLayer data={buckets}>
             <CartesianGrid vertical={false} />
