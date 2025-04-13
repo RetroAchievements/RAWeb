@@ -241,41 +241,10 @@ function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, User $a
         $payload = nl2br(Shortcode::stripAndClamp($comment->body, previewLength: 1000, preserveWhitespace: true));
     }
 
-    $urlTarget = "viewtopic.php?t=$topicID&c=$commentID#$commentID";
+    $urlTarget = route('forum-topic.show', ['topic' => $topicID, 'comment' => $commentID]) . '#' . $commentID;
     foreach ($subscribers as $sub) {
         sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author->display_name, ArticleType::Forum, $topicTitle, $urlTarget, payload: $payload);
     }
-}
-
-function getTopicCommentCommentOffset(int $forumTopicID, int $commentID, int $count, ?int &$offset): bool
-{
-    // Focus on most recent comment
-    if ($commentID == -1) {
-        $commentID = 99_999_999;
-    }
-
-    $query = "SELECT COUNT(id) AS CommentOffset
-              FROM forum_topic_comments
-              WHERE created_at < (SELECT created_at FROM forum_topic_comments WHERE id = $commentID)
-              AND forum_topic_id = $forumTopicID";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-
-        $commentOffset = $data['CommentOffset'];
-        $pageOffset = 0;
-        while ($pageOffset <= $commentOffset) {
-            $pageOffset += $count;
-        }
-
-        $offset = $pageOffset - $count;
-
-        return true;
-    }
-    $offset = 0;
-
-    return false;
 }
 
 function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment

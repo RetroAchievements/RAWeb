@@ -62,7 +62,7 @@ class HubResource extends Resource
 
                         Infolists\Components\TextEntry::make('forumTopic.id')
                             ->label('Forum Topic ID')
-                            ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
+                            ->url(fn (?int $state) => route('forum-topic.show', ['topic' => $state]))
                             ->placeholder('none')
                             ->extraAttributes(fn (?int $state) => $state ? ['class' => 'underline'] : []),
 
