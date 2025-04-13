@@ -26,10 +26,13 @@ export const EmulatorSelectField: FC = () => {
   const { t } = useTranslation();
 
   const form = useFormContext<CreateAchievementTicketFormValues>();
+  const [emulator] = form.watch(['emulator']);
 
   const sortedEmulators = emulators.sort((a, b) =>
     a.name.startsWith('Other') ? 1 : b.name.startsWith('Other') ? -1 : a.name.localeCompare(b.name),
   );
+
+  const selectedEmulator = emulators.find((e) => e.name === emulator);
 
   return (
     <BaseFormField
@@ -64,6 +67,14 @@ export const EmulatorSelectField: FC = () => {
                     </BaseSelectItem>
                   ))}
                 </BaseSelectContent>
+
+                {selectedEmulator?.canDebugTriggers === false ? (
+                  <BaseFormMessage>
+                    {t(
+                      'Developers may not be able to easily debug issues with this emulator. Please be extremely detailed in your description, and provide a link to a save game or video if possible.',
+                    )}
+                  </BaseFormMessage>
+                ) : null}
 
                 <BaseFormMessage>
                   {form.formState.errors.emulator?.message === 'Required' ? t('Required') : null}

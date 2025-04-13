@@ -116,6 +116,9 @@ class EmulatorResource extends Resource
 
                         Infolists\Components\IconEntry::make('active')
                             ->boolean(),
+
+                        Infolists\Components\IconEntry::make('can_debug_triggers')
+                            ->boolean(),
                     ])->grow(false),
                 ])->from('md'),
             ]);
@@ -173,6 +176,8 @@ class EmulatorResource extends Resource
                         ->grow(false)
                         ->schema([
                             Forms\Components\Toggle::make('active'),
+
+                            Forms\Components\Toggle::make('can_debug_triggers'),
                         ]),
                 ])->from('md'),
             ]);
@@ -197,7 +202,7 @@ class EmulatorResource extends Resource
                     ->label('Latest Version'),
 
                 Tables\Columns\TextColumn::make('minimumSupportedRelease.version')
-                    ->label('Minimum Version'),
+                    ->label('Minimum Allowed Version'),
 
                 Tables\Columns\TextColumn::make('original_name')
                     ->label('Original Name')
@@ -205,6 +210,12 @@ class EmulatorResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\IconColumn::make('active')
+                    ->boolean()
+                    ->default(false)
+                    ->alignCenter(),
+
+                Tables\Columns\IconColumn::make('can_debug_triggers')
+                    ->label('Can Debug Triggers')
                     ->boolean()
                     ->default(false)
                     ->alignCenter(),
