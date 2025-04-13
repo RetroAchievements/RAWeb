@@ -40,7 +40,7 @@ class CacheMostPopularEmulators extends Command
 
             $popularEmulatorIds = $action->execute($system);
             $cacheKey = "popular-emulators-for-system:{$system->id}";
-            Cache::put($cacheKey, $popularEmulatorIds, now()->addDay());
+            Cache::put($cacheKey, $popularEmulatorIds, now()->addMonth());
 
             $this->info("Done. Cached [" . implode(', ', $popularEmulatorIds) . "].");
 
@@ -56,7 +56,7 @@ class CacheMostPopularEmulators extends Command
             try {
                 $popularEmulatorIds = $action->execute($system);
                 $cacheKey = "popular-emulators-for-system:{$system->id}";
-                Cache::put($cacheKey, $popularEmulatorIds, now()->addDay());
+                Cache::put($cacheKey, $popularEmulatorIds, now()->addMonth());
 
                 $this->newLine();
                 $this->info("Cached [" . implode(', ', $popularEmulatorIds) . "] for [{$system->id}:{$system->name}].");
