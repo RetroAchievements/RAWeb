@@ -34,11 +34,11 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
     <a
       href={news.link ?? '#'}
       className={cn(
-        'group -mx-2 cursor-pointer gap-6 rounded-xl p-1.5 sm:flex',
+        'group -mx-2 cursor-pointer gap-6 rounded-xl p-1.5',
         'hover:bg-neutral-950/30 hover:light:bg-neutral-100',
         'border-2 border-transparent',
 
-        ziggy.device === 'desktop' ? 'sm:bg-embed' : '',
+        ziggy.device === 'desktop' ? 'sm:flex sm:bg-embed' : '',
         ziggy.device === 'mobile' ? 'bg-embed' : '',
 
         news.pinnedAt ? 'border-amber-600' : '',
@@ -46,7 +46,9 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
         className,
       )}
     >
-      <div className="relative h-28 w-full sm:w-[197px]">
+      <div
+        className={cn('relative h-28 w-full', ziggy.device === 'desktop' ? 'sm:w-[197px]' : null)}
+      >
         {news.pinnedAt && ziggy.device === 'mobile' ? (
           <div className="absolute -right-2 -top-2 flex size-8 items-center justify-center rounded-bl rounded-tr-lg bg-amber-600">
             <LuPin className="mr-[2px] size-5 text-white" />
@@ -77,7 +79,12 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
           </BaseTooltip>
         ) : null}
 
-        <div className="mb-1 hidden text-2xs text-neutral-400/90 sm:block">
+        <div
+          className={cn(
+            'mb-1 hidden text-2xs text-neutral-400/90',
+            ziggy.device === 'desktop' ? 'sm:block' : null,
+          )}
+        >
           {isRecentPost ? (
             <BaseBadge className="mr-2 max-h-[16px] bg-stone-700 px-1 py-0 text-xs font-normal text-white light:bg-white light:text-neutral-700">
               {t('new')}
@@ -97,7 +104,12 @@ export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
           ) : null}
         </div>
 
-        <p className="mb-2 mt-2 text-balance text-base sm:mt-0 md:text-wrap">
+        <p
+          className={cn(
+            'mb-2 mt-2 text-balance text-base',
+            ziggy.device === 'desktop' ? 'sm:mt-0 md:text-wrap' : null,
+          )}
+        >
           {stripEmojis(news.title)}
         </p>
         <p className="line-clamp-3 text-text">{stripEmojis(stripHtml(news.body))}</p>
@@ -111,6 +123,8 @@ interface NewsCardImageProps {
 }
 
 const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
+  const { ziggy } = usePageProps();
+
   const [isImageValid, setIsImageValid] = useState(!!src);
 
   return (
@@ -128,19 +142,20 @@ const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
         <div
           role="img"
           aria-label="news post photo"
-          className="h-28 w-full rounded bg-cover bg-center sm:w-[197px]"
-          style={{
-            backgroundImage: `url(${src})`,
-            // TODO reintroduce (and adjust) linear gradient when tagLabel is used
-            // backgroundImage: `linear-gradient(297.68deg, rgba(0, 0, 0, 0.77) 3.95%, rgba(0, 0, 0, 0) 48.13%), url(${src})`,
-          }}
+          className={cn(
+            'h-28 w-full rounded bg-cover bg-center',
+            ziggy.device === 'desktop' ? 'sm:w-[197px]' : null,
+          )}
+          style={{ backgroundImage: `url(${src})` }}
         />
       ) : (
         <div
           className={cn(
-            'flex h-28 w-full items-center justify-center rounded bg-gradient-to-br sm:w-[197px]',
+            'flex h-28 w-full items-center justify-center rounded bg-gradient-to-br',
             'from-slate-800 to-zinc-950',
             'light:from-slate-100 light:to-slate-300',
+
+            ziggy.device === 'desktop' ? 'sm:w-[197px]' : null,
           )}
         >
           <img
