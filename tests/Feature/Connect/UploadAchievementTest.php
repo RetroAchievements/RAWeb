@@ -7,9 +7,11 @@ namespace Tests\Feature\Connect;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
+use App\Models\GameAchievementSet;
 use App\Models\System;
 use App\Models\Trigger;
 use App\Models\User;
+use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\TriggerableType;
 use App\Platform\Events\AchievementCreated;
@@ -1236,6 +1238,48 @@ class UploadAchievementTest extends TestCase
         $this->assertNotNull($trigger);
         $this->assertEquals('0xH0000=1', $trigger->conditions);
         $this->assertEquals(1, $trigger->version); // the trigger now is at version 1
+    }
+
+    public function testGameAchievementSetIdProvidedInsteadOfGameId(): void
+    {
+        // Arrange
+        $author = User::factory()->create([
+            'Permissions' => Permissions::Developer,
+            'appToken' => Str::random(16),
+        ]);
+        $game = $this->seedGame(withHash: false);
+
+        $achievement = Achievement::factory()->create([
+            'GameID' => $game->id,
+            'user_id' => $author->id,
+            'Flags' => AchievementFlag::OfficialCore->value,
+            'MemAddr' => '0xH0000=1',
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+        $gameAchievementSet = GameAchievementSet::first();
+
+        // Act
+        $response = $this->get($this->apiUrl('uploadachievement', [
+            'u' => $author->username,
+            't' => $author->appToken,
+            'g' => null, // !! no game id given
+            'n' => 'Changed Name',
+            'd' => 'Test Description',
+            'z' => 5,
+            'm' => '0xHaaaa=1',
+            'f' => AchievementFlag::OfficialCore->value,
+            'b' => 'test-badge',
+            'a' => $achievement->id,
+            's' => $gameAchievementSet->id, // !! game achievement set id given
+        ]));
+
+        // Assert
+        $this->assertArrayHasKey('Success', $response);
+        $this->assertTrue($response['Success']);
+
+        $achievement->refresh();
+        $this->assertEquals('Changed Name', $achievement->title);
     }
 
     public function testWhenEditingVersionedAchievementNewTriggerVersionIsCreated(): void

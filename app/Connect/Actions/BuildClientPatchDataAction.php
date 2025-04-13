@@ -172,6 +172,7 @@ class BuildClientPatchDataAction
 
                 $setGame = $games[$resolvedSet->core_game_id];
                 $sets[] = [
+                    'GameID' => $setGame->id,
                     'GameAchievementSetID' => $resolvedSet->id,
                     'SetTitle' => $resolvedSet->title,
                     'Type' => $resolvedSet->type->value,
@@ -258,13 +259,17 @@ class BuildClientPatchDataAction
     /**
      * Builds the basic game information needed by emulators.
      */
-    private function buildBaseGameData(Game $game, ?string $richPresencePatch, ?Game $titleGame): array
-    {
+    private function buildBaseGameData(
+        Game $game,
+        ?string $richPresencePatch,
+        ?Game $titleGame,
+    ): array {
         // If a title game is provided, use its title and image.
         $titleGame = $titleGame ?? $game;
 
         return [
             'ID' => $game->id,
+            'ParentID' => $titleGame->id,
             'Title' => $titleGame->title,
             'ImageIcon' => $titleGame->ImageIcon,
             'RichPresencePatch' => $richPresencePatch ?? $game->RichPresencePatch,

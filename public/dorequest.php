@@ -805,7 +805,8 @@ switch ($requestType) {
             flag: (int) request()->input('f', AchievementFlag::Unofficial->value),
             idInOut: $achievementID,
             badge: request()->input('b'),
-            errorOut: $errorOut
+            errorOut: $errorOut,
+            gameAchievementSetID: request()->input('s')
         );
         $response['AchievementID'] = $achievementID;
         $response['Error'] = $errorOut;
@@ -819,12 +820,24 @@ switch ($requestType) {
         $newSubmitMemString = request()->input('b');
         $newCancelMemString = request()->input('c');
         $newValueMemString = request()->input('l');
+        $gameAchievementSetID = request()->input('p');
         $newLowerIsBetter = (bool) request()->input('w', 0);
         $newFormat = request()->input('f');
         $newMemString = "STA:$newStartMemString::CAN:$newCancelMemString::SUB:$newSubmitMemString::VAL:$newValueMemString";
 
         $errorOut = "";
-        $response['Success'] = UploadNewLeaderboard($username, $gameID, $newTitle, $newDesc, $newFormat, $newLowerIsBetter, $newMemString, $leaderboardID, $errorOut);
+        $response['Success'] = UploadNewLeaderboard(
+            $username,
+            $gameID,
+            $newTitle,
+            $newDesc,
+            $newFormat,
+            $newLowerIsBetter,
+            $newMemString,
+            $leaderboardID,
+            $errorOut,
+            $gameAchievementSetID
+        );
         $response['LeaderboardID'] = $leaderboardID;
         $response['Error'] = $errorOut;
         break;
