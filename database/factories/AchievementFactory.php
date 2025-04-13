@@ -7,7 +7,6 @@ namespace Database\Factories;
 use App\Models\Achievement;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
 use App\Support\Database\Eloquent\Concerns\FakesUsername;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -29,6 +28,18 @@ class AchievementFactory extends Factory
     {
         $user = User::inRandomOrder()->first();
 
+        // pick a random point value (prefer 5 and 10, exclude 0 and 100)
+        $pointValues = [
+            1, 1,
+            2,
+            3, 3,
+            4,
+            5, 5, 5, 5, 5, 5, 5, 5,
+            10, 10, 10, 10,
+            25, 25,
+            50,
+        ];
+
         return [
             'GameID' => 0,
             'Title' => ucwords(fake()->words(2, true)),
@@ -37,7 +48,7 @@ class AchievementFactory extends Factory
             'user_id' => $user?->id ?? 1,
             'Flags' => AchievementFlag::Unofficial->value,
             'type' => null,
-            'Points' => array_rand(array_diff(AchievementPoints::cases(), [0])),
+            'Points' => fake()->randomElement($pointValues),
             'TrueRatio' => rand(1, 1000),
             'BadgeName' => '00001',
             'DateModified' => Carbon::now(),
