@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameHash;
@@ -39,7 +40,7 @@ class GameListTest extends TestCase
             'ImageIcon' => '/Images/123456.png',
             'ForumTopicID' => 123,
         ]);
-        $game1Achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game1->ID]);
+        $game1Achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game1->ID, 'DateModified' => '2024-02-03 11:10:09']);
         $game1Points = $game1Achievements->get(0)->Points +
                        $game1Achievements->get(1)->Points +
                        $game1Achievements->get(2)->Points;
@@ -56,8 +57,7 @@ class GameListTest extends TestCase
             'ConsoleID' => $system2->ID,
             'ImageIcon' => '/Images/327584.png',
         ]);
-        $game3Achievements = Achievement::factory()->published()->count(5)->create(['GameID' => $game3->ID]);
-        Achievement::factory()->create(['GameID' => $game3->ID]);
+        $game3Achievements = Achievement::factory()->published()->count(5)->create(['GameID' => $game3->ID, 'DateModified' => '2024-09-27 03:06:09']);
         $game3Points = $game3Achievements->get(0)->Points +
                        $game3Achievements->get(1)->Points +
                        $game3Achievements->get(2)->Points +
@@ -69,15 +69,17 @@ class GameListTest extends TestCase
             'ConsoleID' => $system2->ID,
             'ImageIcon' => '/Images/051283.png',
         ]);
-        $game4Achievements = Achievement::factory()->published()->count(4)->create(['GameID' => $game4->ID]);
+        $game4Achievements = Achievement::factory()->published()->count(4)->create(['GameID' => $game4->ID, 'DateModified' => '2024-07-18 23:45:17']);
         $game4Points = $game4Achievements->get(0)->Points +
                        $game4Achievements->get(1)->Points +
                        $game4Achievements->get(2)->Points +
                        $game4Achievements->get(3)->Points;
-        $hash1 = new GameHash(['game_id' => $game4->ID, 'md5' => 'abcdef0123456789']);
+        $hash1 = new GameHash(['game_id' => $game4->ID, 'md5' => 'abcdef0123456789', 'compatibility' => GameHashCompatibility::Compatible]);
         $game4->hashes()->save($hash1);
-        $hash2 = new GameHash(['game_id' => $game4->ID, 'md5' => 'deadbeefdeadbeef']);
+        $hash2 = new GameHash(['game_id' => $game4->ID, 'md5' => 'deadbeefdeadbeef', 'compatibility' => GameHashCompatibility::Compatible]);
         $game4->hashes()->save($hash2);
+        $hash3 = new GameHash(['game_id' => $game4->ID, 'md5' => '0000000000000000', 'compatibility' => GameHashCompatibility::Untested]);
+        $game4->hashes()->save($hash3);
 
         // ensure metrics are updated
         $action = new UpdateGameMetricsAction();
@@ -137,12 +139,13 @@ class GameListTest extends TestCase
         $this->get($this->apiUrl('GetGameList', ['i' => $system2->ID, 'f' => 1, 'h' => 1]))
             ->assertSuccessful()
             ->assertJsonCount(2)
-            ->assertJson([
+            ->assertExactJson([
                 [
                     'ID' => $game4->ID, /* Delta before Gamma */
                     'Title' => $game4->Title,
                     'ConsoleID' => $system2->ID,
                     'ConsoleName' => $system2->Name,
+                    'DateModified' => '2024-07-18 23:45:17',
                     'ImageIcon' => $game4->ImageIcon,
                     'NumAchievements' => 4,
                     'Points' => $game4Points,
@@ -158,6 +161,7 @@ class GameListTest extends TestCase
                     'Title' => $game3->Title,
                     'ConsoleID' => $system2->ID,
                     'ConsoleName' => $system2->Name,
+                    'DateModified' => '2024-09-27 03:06:09',
                     'ImageIcon' => $game3->ImageIcon,
                     'NumAchievements' => 5, /* does not include unofficial */
                     'Points' => $game3Points,
