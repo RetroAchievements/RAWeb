@@ -164,11 +164,7 @@ class Emulator extends BaseModel implements HasMedia
             }
 
             // Case 2: Emulator is active and doesn't have minimum versions.
-            if (
-                $this->active
-                && !$userAgent->minimum_allowed_version
-                && !$userAgent->minimum_hardcore_version
-            ) {
+            if ($this->active) {
                 return true;
             }
         }
