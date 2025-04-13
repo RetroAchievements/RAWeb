@@ -9,6 +9,7 @@ use App\Models\Leaderboard;
 use App\Models\Role;
 use App\Models\TriggerTicket;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class TriggerTicketPolicy
@@ -33,7 +34,7 @@ class TriggerTicketPolicy
     {
         return
             $user->hasVerifiedEmail()
-            && $user->created_at->diffInDays(now(), true) >= 1
+            && $user->created_at->diffInHours(Carbon::now(), true) >= 24
             && !$user->is_muted
             && !$user->banned_at
         ;

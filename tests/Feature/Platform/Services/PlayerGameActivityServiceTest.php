@@ -32,8 +32,8 @@ class PlayerGameActivityServiceTest extends TestCase
         $game = $this->seedGame(achievements: 5, withHash: false);
 
         // ==== Start session at time1 ====
-        $now = Carbon::now()->floorSeconds();
-        $time1 = $now->clone()->subMinutes(100)->startOfSecond();
+        $now = Carbon::now()->startOfSecond();
+        $time1 = $now->clone()->subMinutes(100);
         Carbon::setTestNow($time1);
         /** @var PlayerSession $playerSession */
         $playerSession = (new ResumePlayerSessionAction())->execute($user, $game);
