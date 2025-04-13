@@ -737,6 +737,7 @@ class PatchDataTest extends TestCase
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ParentID' => 1,
                     'RichPresencePatch' => $game->RichPresencePatch,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
