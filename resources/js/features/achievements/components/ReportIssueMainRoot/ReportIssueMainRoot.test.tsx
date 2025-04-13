@@ -292,8 +292,7 @@ describe('Component: ReportIssueMainRoot', () => {
     expect(screen.getByRole('link', { name: /report to writingteam/i })).toBeVisible();
 
     expect(screen.getByText(/achievement type/i)).toBeVisible();
-    expect(screen.getByText(/that is not described above/i)).toBeVisible();
-    expect(screen.getAllByRole('link', { name: /qateam/i }).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByRole('link', { name: /qateam/i }).length).toEqual(1);
 
     expect(screen.getByText(/unwelcome concept/i)).toBeVisible();
     expect(screen.getByRole('link', { name: /report to devcompliance/i })).toBeVisible();

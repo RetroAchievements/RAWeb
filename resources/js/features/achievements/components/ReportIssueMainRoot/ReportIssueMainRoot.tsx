@@ -60,16 +60,6 @@ export const ReportIssueMainRoot: FC = memo(() => {
         >
           {t('There is a spelling or grammatical error in the title or description.')}
         </ReportIssueOptionItem>
-
-        <ReportIssueOptionItem
-          t_buttonText={t('Message QATeam')}
-          href={route('message-thread.create', {
-            to: 'QATeam',
-            ...buildStructuredMessage(achievement, 'achievement-issue'),
-          })}
-        >
-          {t('I have an issue with this achievement that is not described above.')}
-        </ReportIssueOptionItem>
       </ul>
     </div>
   );
