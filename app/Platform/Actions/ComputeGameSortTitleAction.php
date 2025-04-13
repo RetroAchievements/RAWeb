@@ -164,7 +164,7 @@ class ComputeGameSortTitleAction
      */
     private function fixTagTildes(string $title): string
     {
-        if ($title[0] === '~') {
+        if (strlen($title) > 3 && $title[0] === '~') {
             $endOfFirstTilde = strpos($title, '~', 1);
             if ($endOfFirstTilde !== false) {
                 $tagContent = substr($title, 1, $endOfFirstTilde - 1);

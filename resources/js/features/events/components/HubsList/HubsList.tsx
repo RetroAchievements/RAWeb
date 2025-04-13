@@ -19,7 +19,7 @@ export const HubsList: FC<HubsListProps> = ({ hubs }) => {
     <div data-testid="hubs-list">
       <h2 className="mb-0 border-0 text-lg font-semibold">{t('Hubs')}</h2>
 
-      <div className="rounded-lg bg-embed p-1">
+      <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
         <ul className="zebra-list overflow-hidden rounded-lg">
           {hubs.map((hub) => (
             <li
