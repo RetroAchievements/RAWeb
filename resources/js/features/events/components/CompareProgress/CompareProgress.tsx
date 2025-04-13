@@ -45,7 +45,7 @@ export const CompareProgress: FC<CompareProgressProps> = ({ followedPlayerComple
     <div data-testid="compare-progress">
       <h2 className="mb-0 border-0 text-lg font-semibold">{t('Compare Progress')}</h2>
 
-      <div className="flex flex-col gap-3 rounded-lg bg-embed p-3">
+      <div className="flex flex-col gap-3 rounded-lg bg-embed p-3 light:border light:border-neutral-200 light:bg-white">
         <div className="flex flex-col">
           {canShowPlayerCompletions ? (
             <PopulatedPlayerCompletions

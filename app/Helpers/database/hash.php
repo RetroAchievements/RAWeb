@@ -1,11 +1,10 @@
 <?php
 
-use App\Models\Game;
 use App\Models\GameHash;
 
 function getMD5List(int $consoleId): array
 {
-    $query = GameHash::query()
+    $query = GameHash::compatible()
         ->select('game_hashes.md5', 'game_hashes.game_id')
         ->leftJoin('GameData as gd', 'gd.ID', '=', 'game_hashes.game_id')
         ->when($consoleId > 0, function ($q) use ($consoleId) {
@@ -14,42 +13,6 @@ function getMD5List(int $consoleId): array
         ->orderBy('game_hashes.game_id', 'asc');
 
     return $query->pluck('game_id', 'md5')->toArray();
-}
-
-function getHashListByGameID(int $gameId): array
-{
-    if ($gameId < 1) {
-        return [];
-    }
-
-    $game = Game::find($gameId);
-    if (!$game) {
-        return [];
-    }
-
-    $hashes = $game->hashes()
-        ->with('user')
-        ->select('md5', 'name', 'labels', 'user_id')
-        ->orderBy('name')
-        ->orderBy('md5')
-        ->get()
-        ->map(function ($hash) {
-            return [
-                'Hash' => $hash->md5,
-                'Name' => $hash->name,
-                'Labels' => $hash->labels,
-                'User' => $hash->user?->User,
-            ];
-        });
-
-    return $hashes->toArray();
-}
-
-function getGameIDFromMD5(string $md5): int
-{
-    $gameHash = GameHash::where('md5', $md5)->first(['game_id']);
-
-    return $gameHash ? $gameHash->game_id : 0;
 }
 
 /**

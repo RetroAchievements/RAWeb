@@ -43,9 +43,9 @@ class GameHashData extends Data
      */
     public static function fromCollection(Collection $gameHashes): array
     {
-        return array_map(
+        return array_values(array_map(
             fn ($gameHash) => self::fromGameHash($gameHash),
             $gameHashes->all()
-        );
+        ));
     }
 }

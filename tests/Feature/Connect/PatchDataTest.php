@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
+use App\Connect\Actions\IdentifyGameHashAction;
 use App\Enums\ClientSupportLevel;
+use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
 use App\Models\System;
@@ -46,20 +49,13 @@ class PatchDataTest extends TestCase
         ];
     }
 
-    private function getWarningAchievementPatchData(ClientSupportLevel $clientSupportLevel): array
+    private function getWarningAchievementPatchData(string $title, string $description): array
     {
         return [
             'ID' => Achievement::CLIENT_WARNING_ID,
             'MemAddr' => '1=1.300.',
-            'Title' => match ($clientSupportLevel) {
-                ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
-                ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
-                default => 'Warning: Unknown Emulator',
-            },
-            //            'Description' => 'Hardcore unlocks cannot be earned using this client.',
-            'Description' => ($clientSupportLevel === ClientSupportLevel::Outdated) ?
-                'Hardcore unlocks cannot be earned using this version of this emulator.' :
-                'Hardcore unlocks cannot be earned using this emulator.',
+            'Title' => $title,
+            'Description' => $description,
             'Points' => 0,
             'Author' => '',
             'Modified' => Carbon::now()->unix(),
@@ -72,6 +68,20 @@ class PatchDataTest extends TestCase
             'BadgeURL' => media_asset("Badge/00000.png"),
             'BadgeLockedURL' => media_asset("Badge/00000_lock.png"),
         ];
+    }
+
+    private function getClientWarningAchievementPatchData(ClientSupportLevel $clientSupportLevel): array
+    {
+        return $this->getWarningAchievementPatchData(
+            title: match ($clientSupportLevel) {
+                ClientSupportLevel::Outdated => 'Warning: Outdated Emulator (please update)',
+                ClientSupportLevel::Unsupported => 'Warning: Unsupported Emulator',
+                default => 'Warning: Unknown Emulator',
+            },
+            description: ($clientSupportLevel === ClientSupportLevel::Outdated) ?
+                'Hardcore unlocks cannot be earned using this version of this emulator.' :
+                'Hardcore unlocks cannot be earned using this emulator.',
+        );
     }
 
     private function getLeaderboardPatchData(Leaderboard $leaderboard): array
@@ -416,7 +426,7 @@ class PatchDataTest extends TestCase
                     'ImageIconURL' => media_asset($game->ImageIcon),
                     'RichPresencePatch' => $game->RichPresencePatch,
                     'Achievements' => [
-                        $this->getWarningAchievementPatchData(ClientSupportLevel::Unknown),
+                        $this->getClientWarningAchievementPatchData(ClientSupportLevel::Unknown),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
                         $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
@@ -442,7 +452,7 @@ class PatchDataTest extends TestCase
                     'ImageIconURL' => media_asset($game->ImageIcon),
                     'RichPresencePatch' => $game->RichPresencePatch,
                     'Achievements' => [
-                        $this->getWarningAchievementPatchData(ClientSupportLevel::Unknown),
+                        $this->getClientWarningAchievementPatchData(ClientSupportLevel::Unknown),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
                         $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
@@ -468,7 +478,7 @@ class PatchDataTest extends TestCase
                     'ImageIconURL' => media_asset($game->ImageIcon),
                     'RichPresencePatch' => $game->RichPresencePatch,
                     'Achievements' => [
-                        $this->getWarningAchievementPatchData(ClientSupportLevel::Outdated),
+                        $this->getClientWarningAchievementPatchData(ClientSupportLevel::Outdated),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
                         $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
@@ -493,7 +503,7 @@ class PatchDataTest extends TestCase
                     'ImageIconURL' => media_asset($game->ImageIcon),
                     'RichPresencePatch' => $game->RichPresencePatch,
                     'Achievements' => [
-                        $this->getWarningAchievementPatchData(ClientSupportLevel::Unsupported),
+                        $this->getClientWarningAchievementPatchData(ClientSupportLevel::Unsupported),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
                         $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
@@ -523,6 +533,206 @@ class PatchDataTest extends TestCase
                 'PatchData' => [
                     'ID' => $game->ID,
                     'ParentID' => $game->ID,
+                    'Title' => $game->Title,
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'Achievements' => [
+                        $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                        $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                        $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                        $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+    }
+
+    public function testUnsupportedHash(): void
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create([
+            'ConsoleID' => $system->ID,
+            'ImageIcon' => '/Images/000011.png',
+            'ImageTitle' => '/Images/000021.png',
+            'ImageIngame' => '/Images/000031.png',
+            'ImageBoxArt' => '/Images/000041.png',
+            'Publisher' => 'WePublishStuff',
+            'Developer' => 'WeDevelopStuff',
+            'Genre' => 'Action',
+            'released_at' => Carbon::parse('1989-01-15'),
+            'released_at_granularity' => 'month',
+            'RichPresencePatch' => 'Display:\nTest',
+        ]);
+
+        /** @var Achievement $achievement1 */
+        $achievement1 = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
+        /** @var Achievement $achievement2 */
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
+        /** @var Achievement $achievement3 */
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '34567', 'DisplayOrder' => 2]);
+        /** @var Achievement $achievement4 */
+        $achievement4 = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'BadgeName' => '45678', 'DisplayOrder' => 5]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        $this->seedEmulatorUserAgents();
+
+        // incompatible
+        $gameHash = GameHash::create([
+            'game_id' => $game->id,
+            'system_id' => $game->system_id,
+            'compatibility' => GameHashCompatibility::Incompatible,
+            'md5' => fake()->md5,
+            'name' => 'hash_' . $game->id,
+            'description' => 'hash_' . $game->id,
+        ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', ['m' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase,
+                    'Title' => 'Unsupported Game Version',
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'Achievements' => [
+                        $this->getWarningAchievementPatchData(
+                            title: 'Unsupported Game Version',
+                            description: 'This version of the game is known to not work with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                        ),
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', ['g' => $game->id + IdentifyGameHashAction::IncompatibleIdBase]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase,
+                    'Title' => 'Unsupported Game Version',
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'Achievements' => [
+                        $this->getWarningAchievementPatchData(
+                            title: 'Unsupported Game Version',
+                            description: 'This version of the game is known to not work with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                        ),
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        // untested
+        $gameHash->compatibility = GameHashCompatibility::Untested;
+        $gameHash->save();
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', ['m' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase,
+                    'Title' => 'Unsupported Game Version',
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'Achievements' => [
+                        $this->getWarningAchievementPatchData(
+                            title: 'Unsupported Game Version',
+                            description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                        ),
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', ['g' => $game->id + IdentifyGameHashAction::UntestedIdBase]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase,
+                    'Title' => 'Unsupported Game Version',
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'Achievements' => [
+                        $this->getWarningAchievementPatchData(
+                            title: 'Unsupported Game Version',
+                            description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                        ),
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        // patch required
+        $gameHash->compatibility = GameHashCompatibility::PatchRequired;
+        $gameHash->save();
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', ['m' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase,
+                    'Title' => 'Unsupported Game Version',
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'Achievements' => [
+                        $this->getWarningAchievementPatchData(
+                            title: 'Unsupported Game Version',
+                            description: 'This version of the game requires a patch to support achievements. See the Supported Game Files page for this game to find a compatible version.',
+                        ),
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', ['g' => $game->id + IdentifyGameHashAction::PatchRequiredIdBase]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase,
+                    'Title' => 'Unsupported Game Version',
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'Achievements' => [
+                        $this->getWarningAchievementPatchData(
+                            title: 'Unsupported Game Version',
+                            description: 'This version of the game requires a patch to support achievements. See the Supported Game Files page for this game to find a compatible version.',
+                        ),
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        // compatible
+        $gameHash->compatibility = GameHashCompatibility::Compatible;
+        $gameHash->save();
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', ['m' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
