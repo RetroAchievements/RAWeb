@@ -9,31 +9,16 @@ use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Facades\Cache;
 
-function RemoveComment(int $commentID, int $userID, int $permissions): bool
+function removeComment(Comment $comment, User $user): bool
 {
-    /** @var Comment $comment */
-    $comment = Comment::findOrFail($commentID);
-
-    $articleID = $comment->ArticleID;
-
-    $query = "DELETE FROM Comment WHERE ID = $commentID";
-
-    // if not UserWall's owner nor admin, check if it's the author
-    // TODO use policies to explicitly determine ability to delete a comment instead of piggy-backing query specificity
-    if ($articleID != $userID && $permissions < Permissions::Moderator) {
-        $query .= " AND user_id = $userID";
-    }
-
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
-
-    if (!$dbResult) {
-        log_sql_fail();
-
+    if (!$user->can('delete', $comment)) {
         return false;
     }
 
-    return mysqli_affected_rows($db) > 0;
+    $comment->timestamps = false;
+    $comment->delete();
+
+    return true;
 }
 
 function getIsCommentDoublePost(int $userID, array|int $articleID, string $commentPayload): bool
