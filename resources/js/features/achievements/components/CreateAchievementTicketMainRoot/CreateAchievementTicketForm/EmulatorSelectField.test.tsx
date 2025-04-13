@@ -64,4 +64,26 @@ describe('Component: EmulatorSelectField', () => {
       'Other (please specify)',
     ]);
   });
+
+  it('given the user selects an emulator that does not support the toolkit, pops a warning message', async () => {
+    // ARRANGE
+    const emulators = [
+      createEmulator({ name: 'RA2SNES', canDebugTriggers: false }), // !!
+      createEmulator({ name: 'RetroArch' }),
+    ];
+
+    render(
+      <Wrapper>
+        <EmulatorSelectField />
+      </Wrapper>,
+      { pageProps: { emulators } },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('combobox'));
+    await userEvent.click(screen.getByText(/ra2snes/i));
+
+    // ASSERT
+    expect(screen.getByText(/developers may not be able to easily debug issues/i)).toBeVisible();
+  });
 });

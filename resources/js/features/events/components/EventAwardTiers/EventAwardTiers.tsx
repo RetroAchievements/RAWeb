@@ -33,7 +33,7 @@ export const EventAwardTiers: FC<EventAwardTiersProps> = ({ event, numMasters })
     <div data-testid="award-tiers">
       <h2 className="mb-0 border-0 text-lg font-semibold">{t('Award Tiers')}</h2>
 
-      <div className="rounded-lg bg-embed p-2">
+      <div className="rounded-lg bg-embed p-2 light:border light:border-neutral-200 light:bg-white">
         <div className="flex flex-col gap-3">
           {sortedByPoints.map((eventAward) => (
             <AwardTierItem
