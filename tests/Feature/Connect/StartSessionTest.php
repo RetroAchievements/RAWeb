@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
+use App\Connect\Actions\IdentifyGameHashAction;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\EventAchievement;
@@ -907,5 +908,32 @@ class StartSessionTest extends TestCase
             'user_id' => $integrationUser->id,
             'game_id' => $bonusGameOne->id,
         ]);
+    }
+
+    public function testStartSessionIncompatibleId(): void
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var GameHash $gameHash */
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
+
+        // Create core set achievements.
+        $coreAchievements = Achievement::factory()->published()->count(3)->create([
+            'GameID' => $game->id,
+        ]);
+        $this->upsertGameCoreSetAction->execute($game);
+
+        $this->seedEmulatorUserAgents();
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('startsession', ['g' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase, 'm' => $gameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+            ]);
+
+        // player session not created
+        $playerSession = PlayerSession::firstWhere('user_id', $this->user->id);
+        $this->assertNull($playerSession);
     }
 }

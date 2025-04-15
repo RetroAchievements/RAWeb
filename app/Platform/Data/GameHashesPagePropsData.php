@@ -13,10 +13,16 @@ class GameHashesPagePropsData extends Data
 {
     /**
      * @param GameHashData[] $hashes
+     * @param GameHashData[] $incompatibleHashes
+     * @param GameHashData[] $untestedHashes
+     * @param GameHashData[] $patchRequiredHashes
      */
     public function __construct(
         public GameData $game,
         public array $hashes,
+        public array $incompatibleHashes,
+        public array $untestedHashes,
+        public array $patchRequiredHashes,
         public UserPermissionsData $can,
     ) {
     }
