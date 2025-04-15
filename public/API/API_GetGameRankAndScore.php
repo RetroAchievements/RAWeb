@@ -46,7 +46,7 @@ if (($type === 1 && $numMasteries >= 10) || ($type !== 1 && $numMasteries < 10))
             'ULID' => $playerGame['user_ulid'],
             'NumAchievements' => $playerGame['achievements_unlocked_hardcore'],
             'TotalScore' => $playerGame['points_hardcore'],
-            'LastAward' => Carbon::createFromTimestamp($playerGame['last_unlock_hardcore_at'])->format('Y-m-d H:i:s'),
+            'LastAward' => Carbon::createFromTimestampUTC($playerGame['last_unlock_hardcore_at'])->format('Y-m-d H:i:s'),
         ];
     }
 } else {

@@ -101,7 +101,7 @@ class PlayerAchievementsSeeder extends Seeder
 
                         $playerSession->rich_presence = ucfirst($faker->words(random_int(2, 10), true));
                         $playerSession->rich_presence_updated_at = $date;
-                        $playerSession->duration = $date->diffInMinutes($playerSession->created_at);
+                        $playerSession->duration = (int) $date->diffInMinutes($playerSession->created_at, true);
                         $playerSession->save();
 
                         $date = $date->addMinutes((int) sqrt(random_int(500 * 500, 100000 * 100000))); // 8 hours to three month break, weighted toward shorter period
@@ -120,7 +120,7 @@ class PlayerAchievementsSeeder extends Seeder
                 // finalize the session
                 $playerSession->rich_presence = ucfirst($faker->words(random_int(2, 10), true));
                 $playerSession->rich_presence_updated_at = $date;
-                $playerSession->duration = $date->diffInMinutes($playerSession->created_at);
+                $playerSession->duration = (int) $date->diffInMinutes($playerSession->created_at, true);
                 $playerSession->save();
 
                 // aggregate metrics for player

@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Enums\ArticleType;
+use App\Enums\GameHashCompatibility;
 use App\Platform\Actions\SyncGameTagsFromTitleAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Contracts\HasVersionedTrigger;
@@ -741,6 +742,14 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     public function hashes(): HasMany
     {
         return $this->hasMany(GameHash::class, 'game_id');
+    }
+
+    /**
+     * @return HasMany<GameHash>
+     */
+    public function compatibleHashes(): HasMany
+    {
+        return $this->hashes()->where('compatibility', GameHashCompatibility::Compatible);
     }
 
     /**

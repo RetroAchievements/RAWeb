@@ -592,6 +592,9 @@ declare namespace App.Platform.Data {
   export type GameHashesPageProps = {
     game: App.Platform.Data.Game;
     hashes: Array<App.Platform.Data.GameHash>;
+    incompatibleHashes: Array<App.Platform.Data.GameHash>;
+    untestedHashes: Array<App.Platform.Data.GameHash>;
+    patchRequiredHashes: Array<App.Platform.Data.GameHash>;
     can: App.Data.UserPermissions;
   };
   export type GameListEntry = {

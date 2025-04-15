@@ -4,6 +4,7 @@ use App\Actions\FindUserByIdentifierAction;
 use App\Community\Enums\ActivityType;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
+use App\Connect\Actions\IdentifyGameHashAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameAndGameHashAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
@@ -246,7 +247,7 @@ switch ($requestType) {
                 'GameID' => 0,
             ];
         } else {
-            $response['GameID'] = getGameIDFromMD5($md5);
+            $response['GameID'] = (new IdentifyGameHashAction())->execute($md5);
         }
         break;
 
@@ -565,8 +566,13 @@ switch ($requestType) {
         }
 
         try {
-            $gameHash = $gameHashMd5 ? GameHash::whereMd5($gameHashMd5)->first() : null;
-            $game = $gameHashMd5 ? null : Game::find($gameID);
+            if ($gameID > IdentifyGameHashAction::IncompatibleIdBase) {
+                $gameHash = IdentifyGameHashAction::makeVirtualGameHash($gameID);
+                $game = null;
+            } else {
+                $gameHash = $gameHashMd5 ? GameHash::whereMd5($gameHashMd5)->first() : null;
+                $game = $gameHashMd5 ? null : Game::find($gameID);
+            }
 
             $response = (new BuildClientPatchDataAction())->execute(
                 gameHash: $gameHash,
@@ -611,6 +617,11 @@ switch ($requestType) {
         break;
 
     case "startsession":
+        if ($gameID > IdentifyGameHashAction::IncompatibleIdBase) {
+            $response['Success'] = true;
+            break;
+        }
+
         $game = Game::find($gameID);
         $gameHash = null;
 
@@ -673,10 +684,12 @@ switch ($requestType) {
         $gameTitle = request()->input('i');
         $description = request()->input('d');
         $consoleID = request()->input('c');
-        $response['Response'] = submitNewGameTitleJSON($username, $md5, $gameID, $gameTitle, $consoleID, $description);
-        $response['Success'] = $response['Response']['Success']; // Passthru
-        if (isset($response['Response']['Error'])) {
-            $response['Error'] = $response['Response']['Error'];
+        $submitResponse = submitNewGameTitleJSON($username, $md5, $gameID, $gameTitle, $consoleID, $description);
+        $response['Success'] = $submitResponse['Success'];
+        if (isset($submitResponse['Error'])) {
+            $response['Error'] = $submitResponse['Error'];
+        } else {
+            $response['Response'] = ['GameID' => $submitResponse['GameID']];
         }
         break;
 
@@ -745,6 +758,12 @@ switch ($requestType) {
         break;
 
     case "unlocks":
+        if ($gameID > IdentifyGameHashAction::IncompatibleIdBase) {
+            $response['UserUnlocks'] = [];
+            $response['Success'] = true;
+            break;
+        }
+
         $hardcoreMode = (int) request()->input('h', 0) === UnlockMode::Hardcore;
         $userModel = User::whereName($username)->first();
         $userUnlocks = getUserAchievementUnlocksForGame($userModel, (new ResolveRootGameIdFromGameIdAction())->execute($gameID));
@@ -786,7 +805,8 @@ switch ($requestType) {
             flag: (int) request()->input('f', AchievementFlag::Unofficial->value),
             idInOut: $achievementID,
             badge: request()->input('b'),
-            errorOut: $errorOut
+            errorOut: $errorOut,
+            gameAchievementSetID: request()->input('s')
         );
         $response['AchievementID'] = $achievementID;
         $response['Error'] = $errorOut;
@@ -800,12 +820,24 @@ switch ($requestType) {
         $newSubmitMemString = request()->input('b');
         $newCancelMemString = request()->input('c');
         $newValueMemString = request()->input('l');
+        $gameAchievementSetID = request()->input('p');
         $newLowerIsBetter = (bool) request()->input('w', 0);
         $newFormat = request()->input('f');
         $newMemString = "STA:$newStartMemString::CAN:$newCancelMemString::SUB:$newSubmitMemString::VAL:$newValueMemString";
 
         $errorOut = "";
-        $response['Success'] = UploadNewLeaderboard($username, $gameID, $newTitle, $newDesc, $newFormat, $newLowerIsBetter, $newMemString, $leaderboardID, $errorOut);
+        $response['Success'] = UploadNewLeaderboard(
+            $username,
+            $gameID,
+            $newTitle,
+            $newDesc,
+            $newFormat,
+            $newLowerIsBetter,
+            $newMemString,
+            $leaderboardID,
+            $errorOut,
+            $gameAchievementSetID
+        );
         $response['LeaderboardID'] = $leaderboardID;
         $response['Error'] = $errorOut;
         break;
