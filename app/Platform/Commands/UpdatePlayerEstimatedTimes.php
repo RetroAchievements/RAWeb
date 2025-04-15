@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\System;
 use App\Platform\Services\PlayerGameActivityService;
 use Illuminate\Console\Command;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 class UpdatePlayerEstimatedTimes extends Command
 {
@@ -28,6 +25,7 @@ class UpdatePlayerEstimatedTimes extends Command
 
         $playerGames->with(['game.system', 'user'])
             ->chunkById(500, function ($playerGames) use ($progressBar) {
+                /** @var PlayerGame $playerGame */
                 foreach ($playerGames as $playerGame) {
                     if ($playerGame->game->achievements_published > 0
                       && System::isGameSystem($playerGame->game->system->id)) {

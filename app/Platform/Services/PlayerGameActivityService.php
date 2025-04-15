@@ -407,7 +407,11 @@ class PlayerGameActivityService
             }
         }
 
-        return (int) $totalTime;
+        if ($totalTime > 0) {
+            return (int) $totalTime;
+        }
+
+        return null;
     }
 
     // returns array of ['agents' => [], 'duration' => 0, 'durationPercentage' => 0.0]
