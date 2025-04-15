@@ -352,6 +352,7 @@ declare namespace App.Data {
     createUsernameChangeRequest?: boolean;
     deleteForumTopic?: boolean;
     develop?: boolean;
+    manageEmulators?: boolean;
     manageForumTopicComments?: boolean;
     manageForumTopics?: boolean;
     manageEvents?: boolean;
@@ -396,6 +397,16 @@ declare namespace App.Http.Data {
   export type AchievementOfTheWeekProps = {
     currentEventAchievement: App.Platform.Data.EventAchievement;
     doesUserHaveUnlock: boolean;
+  };
+  export type DownloadsPageProps = {
+    allEmulators: Array<App.Platform.Data.Emulator>;
+    allPlatforms: Array<App.Platform.Data.Platform>;
+    allSystems: Array<App.Platform.Data.System>;
+    topSystemIds: Array<number>;
+    popularEmulatorsBySystem: number[][];
+    userDetectedPlatformId: number | null;
+    userSelectedSystemId: number | null;
+    can: App.Data.UserPermissions;
   };
   export type HomePageProps<TItems = App.Community.Data.ActivePlayer> = {
     staticData: App.Data.StaticData;
@@ -479,6 +490,22 @@ declare namespace App.Platform.Data {
     id: number;
     name: string;
     canDebugTriggers: boolean | null;
+    originalName?: string | null;
+    hasOfficialSupport?: boolean | null;
+    websiteUrl?: string | null;
+    documentationUrl?: string | null;
+    sourceUrl?: string | null;
+    downloadUrl?: string | null;
+    downloadX64Url?: string | null;
+    downloads?: Array<App.Platform.Data.EmulatorDownload> | null;
+    platforms?: Array<App.Platform.Data.Platform> | null;
+    systems?: Array<App.Platform.Data.System> | null;
+  };
+  export type EmulatorDownload = {
+    id: number;
+    platformId: number;
+    label: string | null;
+    url: string;
   };
   export type EventAchievement = {
     achievement?: App.Platform.Data.Achievement;
@@ -655,6 +682,12 @@ declare namespace App.Platform.Data {
     integrationVersion: string | null;
     extra: Array<any> | null;
     clientVariation: string | null;
+  };
+  export type Platform = {
+    id: number;
+    name: string;
+    executionEnvironment: App.Platform.Enums.PlatformExecutionEnvironment | null;
+    orderColumn: number;
   };
   export type PlayerAchievementChartBucket = {
     start: number;

@@ -7,11 +7,16 @@ namespace App\Models;
 use App\Platform\Enums\PlatformExecutionEnvironment;
 use App\Support\Database\Eloquent\BaseModel;
 use App\Support\Database\Eloquent\BasePivot;
+use Database\Factories\PlatformFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Platform extends BaseModel
 {
+    /** @use HasFactory<PlatformFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'name',
         'execution_environment',
@@ -21,6 +26,11 @@ class Platform extends BaseModel
     protected $casts = [
         'execution_environment' => PlatformExecutionEnvironment::class,
     ];
+
+    protected static function newFactory(): PlatformFactory
+    {
+        return PlatformFactory::new();
+    }
 
     // == accessors
 
