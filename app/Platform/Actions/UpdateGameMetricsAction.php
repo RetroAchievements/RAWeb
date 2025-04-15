@@ -77,7 +77,7 @@ class UpdateGameMetricsAction
         }
         $pointsWeightedBeforeUpdate = $game->TotalTruePoints;
 
-        $beatenGames = PlayerGame::where('game_id', $game->id)->whereNotNull('time_to_beat');
+        $beatenGames = PlayerGame::where('game_id', $game->id)->whereNotNull('time_to_beat')->whereNull('time_to_beat_hardcore');
         $game->times_beaten = $beatenGames->count();
         if ($game->times_beaten > 0) {
             $game->median_time_to_beat = $beatenGames->orderBy('time_to_beat')->offset($game->times_beaten / 2)->first()->time_to_beat;
@@ -89,7 +89,7 @@ class UpdateGameMetricsAction
             $game->median_time_to_beat_hardcore = $beatenGames->orderBy('time_to_beat_hardcore')->offset($game->times_beaten_hardcore / 2)->first()->time_to_beat_hardcore;
         }
 
-        $beatenGames = PlayerGame::where('game_id', $game->id)->whereNotNull('time_to_complete');
+        $beatenGames = PlayerGame::where('game_id', $game->id)->whereNotNull('time_to_complete')->whereNull('time_to_complete_hardcore');
         $game->times_completed = $beatenGames->count();
         if ($game->times_completed > 0) {
             $game->median_time_to_complete = $beatenGames->orderBy('time_to_complete')->offset($game->times_completed / 2)->first()->time_to_complete;
