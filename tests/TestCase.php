@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameHash;
@@ -75,6 +76,7 @@ abstract class TestCase extends BaseTestCase
                 GameHash::create([
                     'game_id' => $game->id,
                     'system_id' => $game->system_id,
+                    'compatibility' => GameHashCompatibility::Compatible,
                     'md5' => fake()->md5,
                     'name' => 'hash_' . $game->id,
                     'description' => 'hash_' . $game->id,

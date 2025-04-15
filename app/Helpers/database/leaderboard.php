@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
+use App\Models\GameAchievementSet;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
@@ -314,15 +315,33 @@ function SubmitNewLeaderboard(int $gameID, ?int &$lbIDOut, User $user): bool
 
 function UploadNewLeaderboard(
     string $authorUsername,
-    int $gameID,
+    ?int $gameID,
     string $title,
     string $desc,
     string $format,
     bool $lowerIsBetter,
     string $mem,
     ?int &$idInOut,
-    ?string &$errorOut
+    ?string &$errorOut,
+    ?int $gameAchievementSetID
 ): bool {
+    if (!$gameAchievementSetID && !$gameID) {
+        $errorOut = "You must provide a game ID or a game achievement set ID.";
+
+        return false;
+    }
+
+    if ($gameAchievementSetID) {
+        $gameAchievementSet = GameAchievementSet::find($gameAchievementSetID);
+        if (!$gameAchievementSet) {
+            $errorOut = "Game achievement set not found.";
+
+            return false;
+        }
+
+        $gameID = $gameAchievementSet->game_id;
+    }
+
     $displayOrder = 0;
     $originalAuthor = null;
 

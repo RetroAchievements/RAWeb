@@ -159,16 +159,12 @@ class Emulator extends BaseModel implements HasMedia
         foreach ($this->userAgents as $userAgent) {
             // Case 1: Has minimum_hardcore_version. This implies there's at least one
             // version of the emulator out there which we fully support.
-            if ($userAgent->minimum_hardcore_version) {
+            if ($userAgent->minimum_hardcore_version || $userAgent->minimum_allowed_version) {
                 return true;
             }
 
-            // Case 2: Emulator is active and either doesn't have minimum version requirements
-            // or meets the minimum allowed version requirement.
-            if (
-                $this->active
-                && (!$userAgent->minimum_allowed_version || $userAgent->minimum_allowed_version)
-            ) {
+            // Case 2: Emulator is active and doesn't have minimum versions.
+            if ($this->active) {
                 return true;
             }
         }

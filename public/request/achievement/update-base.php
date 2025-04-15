@@ -39,7 +39,8 @@ if (UploadNewAchievement(
     flag: $achievement->Flags,
     idInOut: $achievementId,
     badge: $achievement->BadgeName,
-    errorOut: $errorOut
+    errorOut: $errorOut,
+    gameAchievementSetID: null
 )) {
     return response()->json(['message' => __('legacy.success.achievement_update')]);
 }

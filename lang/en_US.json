@@ -848,10 +848,10 @@
     "Prototype": "Prototype",
     "Unlicensed": "Unlicensed",
     "Demo": "Demo",
+    "Other Known Hashes": "Other Known Hashes",
     "There aren't any achievements for this event.": "There aren't any achievements for this event.",
     "Optional.": "Optional.",
     "Developers may not be able to easily debug issues with this emulator. Please be extremely detailed in your description, and provide a link to a save game or video if possible.": "Developers may not be able to easily debug issues with this emulator. Please be extremely detailed in your description, and provide a link to a save game or video if possible.",
-    "Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester.": "Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester.",
     "Downloads": "Downloads",
     "Select a Gaming System": "Select a Gaming System",
     "Select a Platform": "Select a Platform",
@@ -879,5 +879,9 @@
     "Name (A-Z)": "Name (A-Z)",
     "Download (x64)": "Download (x64)",
     "Download": "Download",
-    "Download for {{platformName}}": "Download for {{platformName}}"
+    "Download for {{platformName}}": "Download for {{platformName}}",
+    "These game file hashes require a patch to be compatible.": "These game file hashes require a patch to be compatible.",
+    "These game file hashes are recognized, but it is unknown whether or not they are compatible.": "These game file hashes are recognized, but it is unknown whether or not they are compatible.",
+    "These game file hashes are known to be incompatible.": "These game file hashes are known to be incompatible.",
+    "Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester.": "Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester."
 }

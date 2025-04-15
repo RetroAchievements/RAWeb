@@ -40,7 +40,7 @@
         "livewire/livewire": "^3.4",
         "livewire/volt": "^1.6",
         "matomo/device-detector": "^6.0",
-        "nesbot/carbon": "^2.72.2",
+        "nesbot/carbon": "^3.9",
         "opcodesio/log-viewer": "^3.1",
         "owenvoke/blade-fontawesome": "^2.9",
         "sentry/sentry-laravel": "^4.13",
