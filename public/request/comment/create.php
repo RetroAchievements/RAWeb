@@ -28,7 +28,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $articleID = (int) $input['commentable_id'];
 $articleType = (int) $input['commentable_type'];
 
-$commentable = match($articleType) {
+$commentable = match ($articleType) {
     ArticleType::AchievementTicket => Ticket::find($articleID),
     ArticleType::User, ArticleType::UserModeration => User::find($articleID),
     default => null,
