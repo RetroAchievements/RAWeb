@@ -1,8 +1,9 @@
 import { type FC, useId } from 'react';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
-import type { AuthenticatedUser, AvatarSize } from '@/common/models';
+import type { AvatarSize } from '@/common/models';
 import { cn } from '@/common/utils/cn';
+import { getUserIntlLocale } from '@/common/utils/getUserIntlLocale';
 
 import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
 import { UserAvatar } from '../UserAvatar';
@@ -86,7 +87,3 @@ export const UserAvatarStack: FC<UserAvatarStackProps> = ({ users, maxVisible = 
     </div>
   );
 };
-
-function getUserIntlLocale(user: AuthenticatedUser | undefined): string {
-  return user?.locale?.replace('_', '-') ?? 'en-us';
-}
