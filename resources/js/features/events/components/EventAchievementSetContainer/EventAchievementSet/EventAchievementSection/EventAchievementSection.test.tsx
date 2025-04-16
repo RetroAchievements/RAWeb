@@ -7,8 +7,8 @@ import { __UNSAFE_VERY_DANGEROUS_SLEEP, render, screen, waitFor } from '@/test';
 
 import { EventAchievementSection } from './EventAchievementSection';
 
-vi.mock('./useEventAchievementSectionAnimation', () => ({
-  useEventAchievementSectionAnimation: vi.fn(),
+vi.mock('@/common/hooks/useAchievementGroupAnimation', () => ({
+  useAchievementGroupAnimation: vi.fn(),
 }));
 
 describe('Component: EventAchievementSection', () => {
