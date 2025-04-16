@@ -60,9 +60,9 @@ class SubmitLeaderboardEntryTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var Game $game */
-        $game = Game::factory()->create();
+        $game = $this->seedGame();
         /** @var GameHash $gameHash */
-        $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
+        $gameHash = $game->hashes->first();
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
 
@@ -168,7 +168,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
 
         /** @var Game $game */
-        $game = Game::factory()->create();
+        $game = $this->seedGame();
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
 
@@ -529,7 +529,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
 
         /** @var Game $game */
-        $game = Game::factory()->create();
+        $game = $this->seedGame();
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id, 'Format' => ValueFormat::ValueUnsigned]);
 
@@ -726,9 +726,9 @@ class SubmitLeaderboardEntryTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var Game $game */
-        $game = Game::factory()->create();
+        $game = $this->seedGame();
         /** @var GameHash $gameHash */
-        $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
+        $gameHash = $game->hashes->first();
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
 
