@@ -71,7 +71,7 @@ use App\Platform\Enums\AchievementFlag;
                             <td>
                                 <span>&nbsp;</span>
                                 <span>{{ $event['when']->format("H:i:s") }}</span>
-                                <span class='smalltext text-muted'> (+{{ formatHms($event['when']->diffInSeconds($prevWhen)) }})</span>
+                                <span class='smalltext text-muted'> (+{{ formatHms((int) $event['when']->diffInSeconds($prevWhen, true)) }})</span>
                             </td>
                             <td>
                                 @if ($event['type'] === PlayerGameActivityEventType::Unlock)
@@ -107,7 +107,7 @@ use App\Platform\Enums\AchievementFlag;
                             <td>
                                 <span>&nbsp;</span>
                                 <span>{{ $session['endTime']->format("H:i:s") }}</span>
-                                <span class='smalltext text-muted'> (+{{ formatHms($session['endTime']->diffInSeconds($prevWhen)) }})</span>
+                                <span class='smalltext text-muted'> (+{{ formatHms((int) $session['endTime']->diffInSeconds($prevWhen, true)) }})</span>
                             </td>
                             <td class='text-muted'>End of session</td>
                         </tr>

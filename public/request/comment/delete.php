@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\Comment;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -12,8 +14,14 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'comment' => 'required|integer|exists:Comment,ID',
 ]);
 
-if (RemoveComment((int) $input['comment'], $userDetails['ID'], $permissions)) {
-    return response()->json(['message' => __('legacy.success.delete')]);
+$comment = Comment::findOrFail((int) $input['comment']);
+$user = User::find($userDetails['ID']);
+
+if (!$user->can('delete', $comment)) {
+    abort(400);
 }
 
-abort(400);
+$comment->timestamps = false;
+$comment->delete();
+
+return response()->json(['message' => __('legacy.success.delete')]);

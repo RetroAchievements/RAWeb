@@ -168,6 +168,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'ParentID' => $game->ID,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -199,6 +200,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'ParentID' => $game->ID,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -234,6 +236,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'ParentID' => $game->ID,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -276,6 +279,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game2->ID,
+                    'ParentID' => $game2->ID,
                     'Title' => $game2->Title,
                     'ConsoleID' => $game2->ConsoleID,
                     'ImageIcon' => $game2->ImageIcon,
@@ -332,6 +336,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'ParentID' => $game->ID,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -359,6 +364,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'ParentID' => $game->ID,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -413,6 +419,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'ParentID' => $game->ID,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -438,6 +445,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'ParentID' => $game->ID,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -463,6 +471,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'ParentID' => $game->ID,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -487,6 +496,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'ParentID' => $game->ID,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -522,6 +532,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
+                    'ParentID' => $game->ID,
                     'Title' => $game->Title,
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -726,6 +737,7 @@ class PatchDataTest extends TestCase
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ParentID' => 1,
                     'RichPresencePatch' => $game->RichPresencePatch,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1

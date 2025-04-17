@@ -7,6 +7,7 @@ namespace App\Policies;
 use App\Community\Enums\Rank;
 use App\Models\Role;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Spatie\Permission\Models\Role as SpatieRole;
 
@@ -201,7 +202,7 @@ class UserPolicy
             return true;
         }
 
-        $membershipDuration = now()->diffInDays($user->created_at ?? now());
+        $membershipDuration = Carbon::now()->diffInDays($user->created_at ?? Carbon::now(), true);
         if ($membershipDuration >= 14) {
             return true;
         }
