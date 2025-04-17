@@ -70,6 +70,8 @@ createServer(
         );
       },
     }),
-
-  inertiaDaemonPort,
+  {
+    cluster: true,
+    port: inertiaDaemonPort,
+  },
 );

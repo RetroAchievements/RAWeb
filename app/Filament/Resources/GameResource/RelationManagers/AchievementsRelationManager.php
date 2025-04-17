@@ -308,7 +308,7 @@ class AchievementsRelationManager extends RelationManager
 
                         $targetUser = User::find($data['user_id']);
                         $task = AchievementAuthorTask::from($data['task']);
-                        $backdate = Carbon::parse($data['created_at']) ?? now();
+                        $backdate = Carbon::parse($data['created_at']);
 
                         // Load all existing credit records in a single query.
                         $existingRecords = AchievementAuthor::withTrashed()
