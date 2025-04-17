@@ -39,6 +39,11 @@ class PlatformResource extends Resource
                     ->options(collect(PlatformExecutionEnvironment::cases())
                         ->mapWithKeys(fn ($case) => [$case->value => $case->label()]))
                     ->nullable(),
+
+                Forms\Components\TextInput::make('order_column')
+                    ->label('Display Order')
+                    ->numeric()
+                    ->required(),
             ]);
     }
 
@@ -61,6 +66,10 @@ class PlatformResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->formatStateUsing(fn ($state) => $state->label()),
+
+                Tables\Columns\TextColumn::make('order_column')
+                    ->label('Display Order')
+                    ->sortable(),
             ])
             ->filters([
 

@@ -46,8 +46,10 @@ class EmulatorUserAgentsRelationManager extends RelationManager
                     ->label('Client Identifier')
                     ->sortable()
                     ->searchable(),
+
                 Tables\Columns\TextColumn::make('minimum_allowed_version')
                     ->label('Minimum Allowed Version'),
+
                 Tables\Columns\TextColumn::make('minimum_hardcore_version')
                     ->label('Minimum Hardcore Version'),
             ])

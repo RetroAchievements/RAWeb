@@ -56,7 +56,7 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
       className={cn('gap-x-2 text-[0.63rem] text-neutral-400/70 light:text-neutral-500', className)}
     >
       {isActive && activeThrough ? (
-        <p className="text-green-400">
+        <p className="text-green-400 light:text-green-600">
           {t('Active through {{date}}', { date: formatDate(activeThrough, 'll') })}
         </p>
       ) : null}

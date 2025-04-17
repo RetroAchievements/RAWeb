@@ -7,6 +7,7 @@ namespace App\Policies;
 use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class TicketPolicy
@@ -35,7 +36,7 @@ class TicketPolicy
 
     public function create(User $user): bool
     {
-        if ($user->created_at->diffInDays() < 1 || $user->is_muted || $user->banned_at) {
+        if ($user->created_at->diffInHours(Carbon::now(), true) < 24 || $user->is_muted || $user->banned_at) {
             return false;
         }
 

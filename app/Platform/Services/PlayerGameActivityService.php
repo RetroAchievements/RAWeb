@@ -45,7 +45,7 @@ class PlayerGameActivityService
                 // being floored by the conversion to minutes.
                 if ($playerSession->rich_presence_updated_at > $session['endTime']) {
                     $session['endTime'] = $playerSession->rich_presence_updated_at;
-                    $session['duration'] = $session['endTime']->diffInSeconds($session['startTime']);
+                    $session['duration'] = (int) $session['endTime']->diffInSeconds($session['startTime'], true);
                 }
             }
 
@@ -203,10 +203,10 @@ class PlayerGameActivityService
 
                 if ($when < $session['startTime']) {
                     $session['startTime'] = $when;
-                    $session['duration'] = $session['endTime']->diffInSeconds($when);
+                    $session['duration'] = (int) $session['endTime']->diffInSeconds($when, true);
                 } elseif ($when > $session['endTime']) {
                     $session['endTime'] = $when;
-                    $session['duration'] = $when->diffInSeconds($session['startTime']);
+                    $session['duration'] = (int) $when->diffInSeconds($session['startTime'], true);
                 }
 
                 return $index;
@@ -309,7 +309,7 @@ class PlayerGameActivityService
             'generatedSessionAdjustment' => $sessionAdjustment,
             // distance between the first unlock and last unlock (includes time between sessions)
             'totalUnlockTime' => ($lastAchievementTime != null) ?
-                $lastAchievementTime->diffInSeconds($firstAchievementTime) : 0,
+                (int) $lastAchievementTime->diffInSeconds($firstAchievementTime, true) : 0,
             // total time from all sessions (including those before the first or after the last earned achievement)
             'totalPlaytime' => $totalTime,
         ];

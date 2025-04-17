@@ -6,6 +6,8 @@ namespace App\Providers;
 
 use App\Components\GeneralNotificationsIcon;
 use App\Components\TicketNotificationsIcon;
+use App\Console\Commands\CacheMostPopularEmulators;
+use App\Console\Commands\CacheMostPopularSystems;
 use App\Console\Commands\CleanupAvatars;
 use App\Console\Commands\DeleteExpiredEmailVerificationTokens;
 use App\Console\Commands\DeleteOverdueUserAccounts;
@@ -43,10 +45,12 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                LogUsersOnlineCount::class,
+                CacheMostPopularEmulators::class,
+                CacheMostPopularSystems::class,
                 DeleteExpiredEmailVerificationTokens::class,
                 DeleteOverdueUserAccounts::class,
                 GenerateTypeScript::class,
+                LogUsersOnlineCount::class,
 
                 // User Accounts
                 CleanupAvatars::class,
@@ -69,9 +73,14 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->booted(function () {
             $schedule = $this->app->make(Schedule::class);
+
             $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
+
             $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
             $schedule->command(DeleteOverdueUserAccounts::class)->daily();
+
+            $schedule->command(CacheMostPopularEmulators::class)->weeklyOn(4, '8:00'); // Thursdays, ~3:00AM US Eastern
+            $schedule->command(CacheMostPopularSystems::class)->weeklyOn(4, '8:30'); // Thursdays, ~3:30AM US Eastern
         });
 
         Blade::if('hasfeature', function ($feature) {

@@ -61,8 +61,8 @@ class ResumePlayerSessionAction
         }
 
         // if the session is less than 10 minutes old, resume session
-        if ($playerSession && $timestamp->diffInMinutes($playerSession->rich_presence_updated_at) < 10) {
-            $newDuration = max(1, $timestamp->diffInMinutes($playerSession->created_at));
+        if ($playerSession && $timestamp->diffInMinutes($playerSession->rich_presence_updated_at, true) < 10) {
+            $newDuration = max(1, (int) $timestamp->diffInMinutes($playerSession->created_at, true));
 
             if (!$playerGame->playtime_total) {
                 // no playtime metrics exist - generate them

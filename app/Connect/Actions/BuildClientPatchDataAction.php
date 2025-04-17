@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connect\Actions;
 
+use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -46,6 +47,11 @@ class BuildClientPatchDataAction
         // For legacy clients that don't provide a hash, just use the game directly.
         if (!$gameHash) {
             return $this->buildPatchData($game, null, $user, $flag);
+        }
+
+        // If the hash is not marked as compatible, return a dummy set that will inform the user.
+        if ($gameHash->compatibility !== GameHashCompatibility::Compatible) {
+            return $this->buildIncompatiblePatchData($game ?? $gameHash->game, $gameHash->compatibility, $user);
         }
 
         $rootGameId = (new ResolveRootGameIdFromGameAndGameHashAction())->execute($gameHash, $game, $user);
@@ -166,6 +172,7 @@ class BuildClientPatchDataAction
 
                 $setGame = $games[$resolvedSet->core_game_id];
                 $sets[] = [
+                    'GameID' => $setGame->id,
                     'GameAchievementSetID' => $resolvedSet->id,
                     'SetTitle' => $resolvedSet->title,
                     'Type' => $resolvedSet->type->value,
@@ -252,13 +259,17 @@ class BuildClientPatchDataAction
     /**
      * Builds the basic game information needed by emulators.
      */
-    private function buildBaseGameData(Game $game, ?string $richPresencePatch, ?Game $titleGame): array
-    {
+    private function buildBaseGameData(
+        Game $game,
+        ?string $richPresencePatch,
+        ?Game $titleGame,
+    ): array {
         // If a title game is provided, use its title and image.
         $titleGame = $titleGame ?? $game;
 
         return [
             'ID' => $game->id,
+            'ParentID' => $titleGame->id,
             'Title' => $titleGame->title,
             'ImageIcon' => $titleGame->ImageIcon,
             'RichPresencePatch' => $richPresencePatch ?? $game->RichPresencePatch,
@@ -322,5 +333,39 @@ class BuildClientPatchDataAction
         }
 
         return max(1, $gamePlayerCount);
+    }
+
+    /**
+     * @param Game $game The game to build root-level data for
+     * @param User|null $user The current user requesting the patch data (to support future testing role)
+     */
+    private function buildIncompatiblePatchData(
+        Game $game,
+        GameHashCompatibility $gameHashCompatibility,
+        ?User $user,
+    ): array {
+        $seeSupportedGameFiles = 'See the Supported Game Files page for this game to find a compatible version.';
+
+        return [
+            'Success' => true,
+            'PatchData' => [
+                'ID' => $game->id + IdentifyGameHashAction::IncompatibleIdBase,
+                'Title' => 'Unsupported Game Version',
+                'ConsoleID' => $game->ConsoleID,
+                'ImageIcon' => $game->ImageIcon,
+                'ImageIconURL' => media_asset($game->ImageIcon),
+                'Achievements' => [
+                    (new CreateWarningAchievementAction())->execute(
+                        title: 'Unsupported Game Version',
+                        description: match ($gameHashCompatibility) {
+                            GameHashCompatibility::Incompatible => "This version of the game is known to not work with the defined achievements. $seeSupportedGameFiles",
+                            GameHashCompatibility::Untested => "This version of the game has not been tested to see if it works with the defined achievements. $seeSupportedGameFiles",
+                            GameHashCompatibility::PatchRequired => "This version of the game requires a patch to support achievements. $seeSupportedGameFiles",
+                            default => $seeSupportedGameFiles,
+                        }),
+                ],
+                'Leaderboards' => [],
+            ],
+        ];
     }
 }

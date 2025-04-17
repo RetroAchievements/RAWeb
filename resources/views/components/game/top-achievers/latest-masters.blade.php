@@ -37,7 +37,7 @@ $users = User::whereIn('ID', $userIds)->get()->keyBy('ID')
                             continue;
                         }
 
-                        $masteryDate = Carbon::createFromTimestamp($mastery['last_unlock_hardcore_at']);
+                        $masteryDate = Carbon::createFromTimestampUTC($mastery['last_unlock_hardcore_at']);
                     @endphp
 
                     <x-game.top-achievers.mastery-row :rank="$rank" :masteryUser="$masteryUser" :masteryDate="$masteryDate" includeTime="false" />

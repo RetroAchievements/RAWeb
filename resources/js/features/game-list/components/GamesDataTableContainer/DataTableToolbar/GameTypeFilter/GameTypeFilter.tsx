@@ -37,7 +37,6 @@ export function GameTypeFilter<TData>({ table }: GameTypeFilterProps<TData>) {
       options={[
         {
           options: [
-            { t_label: t('All Games'), isDefaultOption: true },
             { t_label: t('Retail'), value: 'retail' },
             { t_label: t('Hack'), value: 'hack' },
             { t_label: t('Homebrew'), value: 'homebrew' },
@@ -48,7 +47,6 @@ export function GameTypeFilter<TData>({ table }: GameTypeFilterProps<TData>) {
         },
       ]}
       isSearchable={false}
-      isSingleSelect={true}
       column={virtualColumn}
     />
   );
