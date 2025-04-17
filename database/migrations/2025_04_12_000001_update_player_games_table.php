@@ -10,11 +10,13 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('player_games', function (Blueprint $table) {
-            // these columns aren't used (except time_taken, which is only looked at to determine if
-            // the player has spent at least five minutes in any game). rather than try to change the
+            // These columns aren't used (except time_taken, which is only looked at to determine if
+            // the player has spent at least five minutes in any game). Tather than try to change the
             // column type (which actually caused me to run out of space locally), just drop and
-            // recreate them. the "at least five minutes in any game" check will forcible recalculate
-            // one to validate the user. NOTE: rollback of this migration will not restore the data.
+            // recreate them. The "at least five minutes in any game" checks are modified to check for
+            // session durations instead of time_taken. The additional check can be removed after the
+            // time_taken column is repopulated.
+            // NOTE: rollback of this migration will not restore the data.
             $table->dropColumn([
                 'playtime_total',
                 'time_taken',
