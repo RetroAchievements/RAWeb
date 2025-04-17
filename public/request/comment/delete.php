@@ -17,8 +17,11 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $comment = Comment::findOrFail((int) $input['comment']);
 $user = User::find($userDetails['ID']);
 
-if (removeComment($comment, $user)) {
-    return response()->json(['message' => __('legacy.success.delete')]);
+if (!$user->can('delete', $comment)) {
+    abort(400);
 }
 
-abort(400);
+$comment->timestamps = false;
+$comment->delete();
+
+return response()->json(['message' => __('legacy.success.delete')]);

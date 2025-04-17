@@ -9,18 +9,6 @@ use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Facades\Cache;
 
-function removeComment(Comment $comment, User $user): bool
-{
-    if (!$user->can('delete', $comment)) {
-        return false;
-    }
-
-    $comment->timestamps = false;
-    $comment->delete();
-
-    return true;
-}
-
 function getIsCommentDoublePost(int $userID, array|int $articleID, string $commentPayload): bool
 {
     $lastComment = Comment::where('user_id', $userID)
