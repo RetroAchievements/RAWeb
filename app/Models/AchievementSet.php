@@ -41,6 +41,7 @@ class AchievementSet extends BaseModel
         'achievements_unpublished',
         'points_total',
         'points_weighted',
+        'image_asset_path',
         'created_at',
         'updated_at',
     ];

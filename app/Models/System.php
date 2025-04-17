@@ -115,6 +115,7 @@ class System extends BaseModel implements HasMedia
     public const Uzebox = 80;
     public const Hubs = 100;
     public const Events = 101;
+    public const Standalones = 102;
 
     public static function getHomebrewSystems(): array
     {
