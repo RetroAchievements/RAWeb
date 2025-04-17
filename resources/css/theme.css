@@ -110,11 +110,25 @@ a:hover {
   --link-color: rgb(204, 153, 0); /*#CC9900*/
   --text-color: rgb(44, 151, 250); /*#2C97FA*/
 }
-[data-theme=""][data-scheme="light"],
-[data-theme=""][data-scheme="system"] {
+
+[data-theme=""][data-scheme="light"] {
   --heading-color: #404040; /* neutral-700 */;
   --link-color: rgb(168, 126, 0);
   --text-color: #404040; /* neutral-700 */
+}
+
+[data-theme=""][data-scheme="system"] {
+  @media (prefers-color-scheme: light) {
+    --heading-color: #404040; /* neutral-700 */;
+    --link-color: rgb(168, 126, 0);
+    --text-color: #404040; /* neutral-700 */
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    --heading-color: rgb(44, 151, 250);
+    --link-color: rgb(204, 153, 0); /*#CC9900*/
+    --text-color: rgb(44, 151, 250); /*#2C97FA*/
+  }
 }
 
 [data-theme="slate"] {
