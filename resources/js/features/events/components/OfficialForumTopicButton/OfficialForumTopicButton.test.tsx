@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
@@ -69,7 +70,7 @@ describe('Component: OfficialForumTopicButton', () => {
     // ASSERT
     const link = screen.getByRole('link', { name: /official forum topic/i });
     expect(link).toBeVisible();
-    expect(link).toHaveAttribute('href', '/viewtopic.php?t=123');
+    expect(link).toHaveAttribute('href', expect.stringContaining('forum-topic.show'));
   });
 
   it('given the user clicks create but cancels the confirmation, does not make an API call', async () => {
@@ -92,13 +93,8 @@ describe('Component: OfficialForumTopicButton', () => {
 
   it('given the user confirms creating a forum topic, makes the API call and redirects on success', async () => {
     // ARRANGE
+    const visitSpy = vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
     vi.spyOn(window, 'confirm').mockImplementation(() => true);
-    const mockLocationAssign = vi.fn();
-    Object.defineProperty(window, 'location', {
-      value: { assign: mockLocationAssign },
-      writable: true,
-    });
-
     vi.spyOn(axios, 'post').mockResolvedValue({ data: { success: true, topicId: 456 } });
 
     const game = createGame({ id: 1, forumTopicId: undefined });
@@ -112,7 +108,7 @@ describe('Component: OfficialForumTopicButton', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(mockLocationAssign).toHaveBeenCalledWith('/viewtopic.php?t=456');
+      expect(visitSpy).toHaveBeenCalledWith(['forum-topic.show', { topic: 456 }]);
     });
   });
 });

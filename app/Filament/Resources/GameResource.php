@@ -98,7 +98,7 @@ class GameResource extends Resource
 
                         Infolists\Components\TextEntry::make('forumTopic.id')
                             ->label('Forum Topic ID')
-                            ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
+                            ->url(fn (?int $state) => route('forum-topic.show', ['topic' => $state]))
                             ->extraAttributes(['class' => 'underline']),
 
                         Infolists\Components\TextEntry::make('system')
@@ -424,7 +424,7 @@ class GameResource extends Resource
 
                 Tables\Columns\TextColumn::make('forumTopic.id')
                     ->label('Forum Topic')
-                    ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
+                    ->url(fn (?int $state) => route('forum-topic.show', ['topic' => $state]))
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('Publisher')
