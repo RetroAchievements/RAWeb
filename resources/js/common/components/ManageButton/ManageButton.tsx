@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuExternalLink } from 'react-icons/lu';
+import { LuWrench } from 'react-icons/lu';
 
 import { cn } from '@/common/utils/cn';
 
@@ -26,7 +26,7 @@ export const ManageButton: FC<ManageButtonProps> = ({ className, href }) => {
       target="_blank"
     >
       {t('Manage')}
-      <LuExternalLink className="size-4" />
+      <LuWrench className="size-4" />
     </a>
   );
 };

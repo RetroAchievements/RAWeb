@@ -11,9 +11,8 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useSearchInputHotkey } from '@/common/hooks/useSearchInputHotkey';
 import { cn } from '@/common/utils/cn';
-
-import { useSearchInputHotkey } from './useSearchInputHotkey';
 
 interface DataTableSearchInputProps<TData> {
   table: Table<TData>;

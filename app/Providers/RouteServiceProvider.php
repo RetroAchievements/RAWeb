@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Http\Concerns\HandlesPublicFileRequests;
 use App\Http\Controllers\Api\SearchApiController;
 use App\Http\Controllers\Api\UserApiController;
+use App\Http\Controllers\DownloadsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\UserController;
@@ -67,11 +68,12 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware(['inertia'])->group(function () {
                 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+                Route::get('downloads', [DownloadsController::class, 'index'])->name('download.index');
+
                 Route::get('contact', fn () => Inertia::render('contact'))->name('contact');
                 Route::get('rss', fn () => Inertia::render('rss'))->name('rss.index');
                 Route::get('terms', fn () => Inertia::render('terms'))->name('terms');
             });
-            // Route::get('downloads', [DownloadController::class, 'index'])->name('download.index');
             // Route::get('feed', [FeedController::class, 'index'])->name('feed.index');
             // Route::get('rss/{resource}', [RssController::class, 'show'])->name('rss.show');
             // Route::get('search', [SearchController::class, 'index'])->name('search');
