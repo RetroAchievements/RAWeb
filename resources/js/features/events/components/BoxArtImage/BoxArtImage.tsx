@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ZoomableImage } from '../ZoomableImage';
+import { ZoomableImage } from '@/common/components/ZoomableImage';
 
 interface BoxArtImageProps {
   event: App.Platform.Data.Event;
