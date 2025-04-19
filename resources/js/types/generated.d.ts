@@ -366,6 +366,7 @@ declare namespace App.Data {
 }
 declare namespace App.Enums {
   export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4;
+  export type GameHashCompatibility = 'compatible' | 'incompatible' | 'untested' | 'patch-required';
   export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'custom';
   export type PlayerGameActivitySessionType =
     | 'player-session'
@@ -472,6 +473,19 @@ declare namespace App.Platform.Data {
     unlocksHardcoreTotal?: number;
     unlocksTotal?: number;
   };
+  export type AchievementSet = {
+    id: number;
+    playersTotal: number;
+    playersHardcore: number;
+    achievementsPublished: number;
+    achievementsUnpublished: number;
+    pointsTotal: number;
+    pointsWeighted: number;
+    imageAssetPathUrl: string;
+    createdAt: string;
+    updatedAt: string;
+    achievements: Array<App.Platform.Data.Achievement>;
+  };
   export type CreateAchievementTicketPageProps = {
     achievement: App.Platform.Data.Achievement;
     emulators: Array<App.Platform.Data.Emulator>;
@@ -535,7 +549,7 @@ declare namespace App.Platform.Data {
     eventAwards?: Array<App.Platform.Data.EventAward>;
     state?: App.Platform.Enums.EventState;
   };
-  export type EventShowPagePropsData = {
+  export type EventShowPageProps = {
     event: App.Platform.Data.Event;
     can: App.Data.UserPermissions;
     hubs: Array<App.Platform.Data.GameSet>;
@@ -550,6 +564,15 @@ declare namespace App.Platform.Data {
     user: App.Data.User;
     playerGame: App.Platform.Data.PlayerGame;
   };
+  export type GameAchievementSet = {
+    id: number;
+    type: App.Platform.Enums.AchievementSetType;
+    title: string | null;
+    orderColumn: number;
+    createdAt: string;
+    updatedAt: string;
+    achievementSet: App.Platform.Data.AchievementSet;
+  };
   export type GameClaimant = {
     user: App.Data.User;
     claimType: string;
@@ -557,6 +580,9 @@ declare namespace App.Platform.Data {
   export type Game = {
     id: number;
     title: string;
+    developer?: string;
+    publisher?: string;
+    genre?: string;
     badgeUrl?: string;
     forumTopicId?: number;
     system?: App.Platform.Data.System;
@@ -564,7 +590,7 @@ declare namespace App.Platform.Data {
     pointsTotal?: number;
     pointsWeighted?: number;
     releasedAt?: string | null;
-    releasedAtGranularity?: string | null;
+    releasedAtGranularity?: App.Platform.Enums.ReleasedAtGranularity | null;
     playersHardcore?: number;
     playersTotal?: number;
     lastUpdated?: string;
@@ -576,6 +602,7 @@ declare namespace App.Platform.Data {
     imageTitleUrl?: string;
     isSubsetGame?: boolean;
     claimants?: Array<App.Platform.Data.GameClaimant>;
+    gameAchievementSets?: Array<App.Platform.Data.GameAchievementSet>;
   };
   export type GameHash = {
     id: number;
@@ -621,6 +648,15 @@ declare namespace App.Platform.Data {
     forumTopicId?: number | null;
     gameId?: number | null;
     hasMatureContent?: boolean;
+  };
+  export type GameShowPageProps = {
+    game: App.Platform.Data.Game;
+    hubs: Array<App.Platform.Data.GameSet>;
+    followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
+    playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
+    topAchievers: Array<App.Platform.Data.GameTopAchiever>;
+    playerGame: App.Platform.Data.PlayerGame | null;
+    playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
   };
   export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
