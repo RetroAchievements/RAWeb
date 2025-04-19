@@ -28,9 +28,14 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $articleID = (int) $input['commentable_id'];
 $articleType = (int) $input['commentable_type'];
 
+$commentable = match ($articleType) {
+    ArticleType::AchievementTicket => Ticket::find($articleID),
+    ArticleType::User, ArticleType::UserModeration => User::find($articleID),
+    default => null,
+};
+
 $userModel = User::find($userDetails['ID']);
-$ticketModel = Ticket::find($articleID);
-if (!$userModel->can('create', [Comment::class, $ticketModel])) {
+if (!$userModel->can('create', [Comment::class, $commentable, $articleType])) {
     return back()->withErrors(__('legacy.error.error'));
 }
 
@@ -38,8 +43,7 @@ if (addArticleComment($user, $articleType, $articleID, $input['body'])) {
     // if a user is responding to a ticket in the Request state,
     // automatically change the state back to Open
     if ($articleType === ArticleType::AchievementTicket) {
-        $ticketData = getTicket($articleID);
-        if ($ticketData['ReportState'] == TicketState::Request && $ticketData['ReportedBy'] == $user) {
+        if ($commentable->ReportState === TicketState::Request && $commentable->reporter_id === $userModel->id) {
             updateTicket($user, $articleID, TicketState::Open);
         }
     }

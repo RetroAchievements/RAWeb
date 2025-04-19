@@ -6,6 +6,7 @@ namespace App\Platform\Data;
 
 use App\Community\Enums\ClaimType;
 use App\Models\Game;
+use App\Platform\Enums\ReleasedAtGranularity;
 use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
@@ -17,6 +18,9 @@ class GameData extends Data
     public function __construct(
         public int $id,
         public string $title,
+        public Lazy|string $developer,
+        public Lazy|string $publisher,
+        public Lazy|string $genre,
         public Lazy|string $badgeUrl,
         public Lazy|int $forumTopicId,
         public Lazy|SystemData $system,
@@ -24,7 +28,7 @@ class GameData extends Data
         public Lazy|int $pointsTotal,
         public Lazy|int $pointsWeighted,
         public Lazy|Carbon|null $releasedAt,
-        public Lazy|string|null $releasedAtGranularity,
+        public Lazy|ReleasedAtGranularity|null $releasedAtGranularity,
         public Lazy|int $playersHardcore,
         public Lazy|int $playersTotal,
         public Lazy|Carbon $lastUpdated,
@@ -37,6 +41,8 @@ class GameData extends Data
         public Lazy|bool $isSubsetGame,
         /** @var Lazy|array<GameClaimantData> */
         public Lazy|array $claimants,
+        /** @var Lazy|array<GameAchievementSetData> */
+        public Lazy|array $gameAchievementSets,
     ) {
     }
 
@@ -45,6 +51,9 @@ class GameData extends Data
         return new self(
             id: $game->id,
             title: $game->title,
+            developer: Lazy::create(fn () => $game->Developer),
+            publisher: Lazy::create(fn () => $game->Publisher),
+            genre: Lazy::create(fn () => $game->Genre),
             achievementsPublished: Lazy::create(fn () => $game->achievements_published),
             badgeUrl: Lazy::create(fn () => $game->badge_url),
             forumTopicId: Lazy::create(fn () => $game->ForumTopicID),
@@ -63,12 +72,17 @@ class GameData extends Data
             releasedAt: Lazy::create(fn () => $game->released_at),
             releasedAtGranularity: Lazy::create(fn () => $game->released_at_granularity),
             system: Lazy::create(fn () => SystemData::fromSystem($game->system)),
+
             claimants: Lazy::create(fn () => $game->achievementSetClaims->map(
                 fn ($claim) => GameClaimantData::fromUser(
                     $claim->user,
                     $claim->ClaimType === ClaimType::Primary ? 'primary' : 'collaboration'
                 )
             )->all()),
+
+            gameAchievementSets: Lazy::create(fn () => $game->gameAchievementSets->map(
+                fn ($gameAchievementSet) => GameAchievementSetData::from($gameAchievementSet)
+            )->all())
         );
     }
 }

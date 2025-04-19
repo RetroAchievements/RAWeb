@@ -155,19 +155,7 @@ trait BuildsGameListQueries
              * only show games based on their tags
              */
             if ($filterKey === 'game-type' && !empty($filterValues)) {
-                if (in_array('retail', $filterValues)) {
-                    // Only return untagged games.
-                    $query->whereNotExists(function ($subquery) {
-                        $subquery->select(DB::raw(1))
-                            ->from('tags')
-                            ->join('taggables', 'tags.id', '=', 'taggables.tag_id')
-                            ->whereColumn('taggables.taggable_id', 'GameData.ID')
-                            ->where('taggables.taggable_type', 'game')
-                            ->where('tags.type', 'game');
-                    });
-                } else {
-                    $query->withAnyTags($filterValues, 'game');
-                }
+                $this->applyGameTypeFilter($query, $filterValues);
                 continue;
             }
 
@@ -448,6 +436,55 @@ trait BuildsGameListQueries
             case 'either':
             default:
                 break;
+        }
+    }
+
+    /**
+     * Filters games based on the presence (or lack thereof) of tags.
+     *
+     * @param Builder<Game> $query
+     */
+    private function applyGameTypeFilter(Builder $query, array $filterValues): void
+    {
+        // Bail early if necessary.
+        if (empty($filterValues)) {
+            return;
+        }
+
+        // Split filters into "retail" and non-retail tag filters.
+        $hasRetailFilter = in_array('retail', $filterValues);
+        $tagFilters = array_filter($filterValues, fn ($value) => $value !== 'retail');
+
+        if ($hasRetailFilter && empty($tagFilters)) {
+            // If retail is the only filter, only return untagged games.
+            $query->whereNotExists(function ($subquery) {
+                $subquery->select(DB::raw(1))
+                    ->from('tags')
+                    ->join('taggables', 'tags.id', '=', 'taggables.tag_id')
+                    ->whereColumn('taggables.taggable_id', 'GameData.ID')
+                    ->where('taggables.taggable_type', 'game')
+                    ->where('tags.type', 'game');
+            });
+        } elseif ($hasRetailFilter && !empty($tagFilters)) {
+            // If both retail and other tags are requested, return both
+            // untagged games and games with the specified tags.
+            $query->where(function ($query) use ($tagFilters) {
+                // Either the game has no tags...
+                $query->whereNotExists(function ($subquery) {
+                    $subquery->select(DB::raw(1))
+                        ->from('tags')
+                        ->join('taggables', 'tags.id', '=', 'taggables.tag_id')
+                        ->whereColumn('taggables.taggable_id', 'GameData.ID')
+                        ->where('taggables.taggable_type', 'game')
+                        ->where('tags.type', 'game');
+                })
+                // ... or it has at least one of the specified tags.
+                ->orWhere(function ($query) use ($tagFilters) {
+                    $query->withAnyTags($tagFilters, 'game');
+                });
+            });
+        } elseif (!empty($tagFilters)) {
+            $query->withAnyTags($tagFilters, 'game');
         }
     }
 

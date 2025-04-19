@@ -18,7 +18,7 @@ use Filament\Support\Enums\FontFamily;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
-use Livewire;
+use Livewire\Livewire;
 
 class Hashes extends ManageRelatedRecords
 {

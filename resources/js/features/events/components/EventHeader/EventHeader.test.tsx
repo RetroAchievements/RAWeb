@@ -19,7 +19,7 @@ describe('Component: EventHeader', () => {
     render(<EventHeader event={event} />);
 
     // ASSERT
-    expect(screen.queryByTestId('header-content')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('playable-header')).not.toBeInTheDocument();
   });
 
   it('given the event has a legacy game, renders all required elements', () => {

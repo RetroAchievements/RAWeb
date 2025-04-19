@@ -40,10 +40,10 @@ export const DeleteCommentButton: FC<DeleteCommentButtonProps> = ({
     <BaseTooltip>
       <BaseTooltipTrigger asChild>
         <BaseButton
-          aria-label="Delete comment"
+          aria-label={t('Delete comment')}
           variant="destructive"
           size="icon"
-          className="!h-5 !w-5"
+          className="size-5 border-none"
           onClick={handleClick}
         >
           <LuX className="h-4 w-4" />
