@@ -21,15 +21,18 @@ use Inertia\Response as InertiaResponse;
 
 class MessageThreadController extends Controller
 {
-    public function index(Request $request): InertiaResponse|RedirectResponse
+    public function index(Request $request, ?User $user = null): InertiaResponse|RedirectResponse
     {
-        $this->authorize('viewAny', MessageThread::class);
-
+        $teamAccount = $user; // alias to mitigate confusion
         /** @var User $user */
         $user = $request->user();
+
+        $this->authorize('viewAny', [MessageThread::class, $teamAccount]);
+
         $currentPage = (int) request()->input('page', 1);
 
         $actionResult = (new BuildMessageThreadIndexPagePropsAction())->execute(
+            $teamAccount ?? $user,
             $user,
             $currentPage
         );
@@ -68,9 +71,13 @@ class MessageThreadController extends Controller
         return Inertia::render('messages/[messageThread]', $actionResult['props']);
     }
 
-    public function create(Request $request): InertiaResponse
+    public function create(Request $request, ?User $user = null): InertiaResponse
     {
-        $this->authorize('create', MessageThread::class);
+        $teamAccount = $user; // alias to mitigate confusion
+        /** @var User $user */
+        $user = $request->user();
+
+        $this->authorize('create', [MessageThread::class, $teamAccount]);
 
         $toUser = null;
         $toUserData = null;
@@ -88,6 +95,7 @@ class MessageThreadController extends Controller
             templateKind: $request->input('templateKind')
                 ? MessageThreadTemplateKind::tryFrom($request->input('templateKind'))
                 : null,
+            senderUserDisplayName: $teamAccount?->display_name ?? $user->display_name,
         ));
     }
 

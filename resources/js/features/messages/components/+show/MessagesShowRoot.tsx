@@ -16,7 +16,7 @@ import { MessagesBreadcrumbs } from '../MessagesBreadcrumbs';
 import { ReadableMessageCard } from '../ReadableMessageCard';
 
 export const MessagesShowRoot: FC = () => {
-  const { canReply, messageThread, paginatedMessages } =
+  const { auth, canReply, messageThread, paginatedMessages, senderUserDisplayName } =
     usePageProps<App.Community.Data.MessageThreadShowPageProps>();
 
   const { t } = useTranslation();
@@ -24,6 +24,12 @@ export const MessagesShowRoot: FC = () => {
   const { initiatePreview, previewContent } = useShortcodeBodyPreview();
 
   const deleteMessageThreadMutation = useDeleteMessageThreadMutation();
+
+  if (!auth) {
+    return null;
+  }
+
+  const isDelegating = auth.user.displayName !== senderUserDisplayName;
 
   const handleDeleteClick = async () => {
     if (!confirm(t('Are you sure you want to delete this message thread?'))) {
@@ -36,7 +42,11 @@ export const MessagesShowRoot: FC = () => {
       error: 'Something went wrong.',
     });
 
-    router.visit(route('message-thread.index'));
+    router.visit(
+      isDelegating
+        ? route('message-thread.user.index', { user: senderUserDisplayName })
+        : route('message-thread.index'),
+    );
   };
 
   const handlePageSelectValueChange = (newPageValue: number) => {
@@ -51,7 +61,10 @@ export const MessagesShowRoot: FC = () => {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <MessagesBreadcrumbs t_currentPageLabel={messageThread.title as TranslatedString} />
+        <MessagesBreadcrumbs
+          delegatedUserDisplayName={isDelegating ? senderUserDisplayName : undefined}
+          t_currentPageLabel={messageThread.title as TranslatedString}
+        />
         <h1 className="text-h3 w-full self-end sm:mt-2.5 sm:!text-[2.0em]">
           {messageThread.title}
         </h1>

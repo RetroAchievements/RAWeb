@@ -501,13 +501,27 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "message-thread.index": [],
-    "message-thread.create": [],
     "message-thread.show": [
         {
             "name": "messageThread",
             "required": true,
             "binding": "id"
+        }
+    ],
+    "message-thread.index": [],
+    "message-thread.create": [],
+    "message-thread.user.index": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "message-thread.user.create": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "ID"
         }
     ],
     "settings.show": [],
