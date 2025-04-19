@@ -4,8 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
 
 interface WeightedPointsContainerProps {
-  children: ReactNode;
-
+  children?: ReactNode;
   isTooltipEnabled?: boolean;
 }
 
@@ -17,7 +16,7 @@ export const WeightedPointsContainer: FC<WeightedPointsContainerProps> = ({
 
   return (
     <BaseTooltip delayDuration={700} open={isTooltipEnabled ? undefined : false}>
-      <BaseTooltipTrigger className="cursor-default">
+      <BaseTooltipTrigger className="cursor-default" asChild>
         <span className="TrueRatio light:text-neutral-400">{children}</span>
       </BaseTooltipTrigger>
 

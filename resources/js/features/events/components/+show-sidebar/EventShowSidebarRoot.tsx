@@ -20,7 +20,7 @@ export const EventShowSidebarRoot: FC = () => {
     playerAchievementChartBuckets,
     playerGame,
     topAchievers,
-  } = usePageProps<App.Platform.Data.EventShowPagePropsData>();
+  } = usePageProps<App.Platform.Data.EventShowPageProps>();
 
   return (
     <div data-testid="sidebar" className="flex flex-col gap-6">
