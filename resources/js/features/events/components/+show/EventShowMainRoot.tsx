@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { PlayableHeader } from '@/common/components/PlayableHeader';
-import { PlayableMainMedia } from '@/common/components/PlayableMainMedia/PlayableMainMedia';
+import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
 import { PlayableMobileMediaCarousel } from '@/common/components/PlayableMobileMediaCarousel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 

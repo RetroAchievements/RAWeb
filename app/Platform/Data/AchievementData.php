@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
+use App\Data\UserData;
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
 use App\Platform\Enums\AchievementFlag;
@@ -24,11 +25,14 @@ class AchievementData extends Data
 
         public Lazy|Carbon $createdAt,
         public Lazy|string $description,
+        public Lazy|UserData $developer,
         public Lazy|AchievementFlag $flags,
         public Lazy|GameData $game,
         public Lazy|int $orderColumn,
         public Lazy|int $points,
         public Lazy|int $pointsWeighted,
+        #[LiteralTypeScriptType("'progression' | 'win_condition' | 'missable' | null")]
+        public Lazy|string $type,
         public Lazy|string $unlockedAt,
         public Lazy|string $unlockedHardcoreAt,
         #[LiteralTypeScriptType('string')]
@@ -52,11 +56,13 @@ class AchievementData extends Data
 
             createdAt: Lazy::create(fn () => $achievement->DateCreated),
             description: Lazy::create(fn () => $achievement->description),
+            developer: Lazy::create(fn () => UserData::from($achievement->developer)),
             flags: Lazy::create(fn () => AchievementFlag::from($achievement->Flags)),
             game: Lazy::create(fn () => GameData::fromGame($achievement->game)),
             orderColumn: Lazy::create(fn () => $achievement->DisplayOrder),
             points: Lazy::create(fn () => $achievement->points),
             pointsWeighted: Lazy::create(fn () => $achievement->points_weighted),
+            type: Lazy::create(fn () => $achievement->type),
             unlockedAt: Lazy::create(fn () => $playerAchievement?->unlocked_at ?? $achievement->player_unlocked_at ?? null),
             unlockedHardcoreAt: Lazy::create(fn () => $playerAchievement?->unlocked_hardcore_at ?? $achievement->player_unlocked_hardcore_at ?? null),
             unlockHardcorePercentage: Lazy::create(fn () => $achievement->unlock_hardcore_percentage),

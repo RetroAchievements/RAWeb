@@ -1,14 +1,14 @@
 import type { FC } from 'react';
 
+import { PlayableAchievementDistribution } from '@/common/components/PlayableAchievementDistribution';
+import { PlayableBoxArtImage } from '@/common/components/PlayableBoxArtImage';
+import { PlayableCompareProgress } from '@/common/components/PlayableCompareProgress';
+import { PlayableHubsList } from '@/common/components/PlayableHubsList';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-import { AchievementDistribution } from '../AchievementDistribution';
-import { BoxArtImage } from '../BoxArtImage';
-import { CompareProgress } from '../CompareProgress';
 import { EventAwardTiers } from '../EventAwardTiers';
 import { EventProgress } from '../EventProgress';
 import { EventSidebarFullWidthButtons } from '../EventSidebarFullWidthButtons';
-import { HubsList } from '../HubsList';
 import { TopEventPlayers } from '../TopEventPlayers';
 
 export const EventShowSidebarRoot: FC = () => {
@@ -24,16 +24,17 @@ export const EventShowSidebarRoot: FC = () => {
 
   return (
     <div data-testid="sidebar" className="flex flex-col gap-6">
-      <BoxArtImage event={event} />
+      <PlayableBoxArtImage src={event.legacyGame?.imageBoxArtUrl} />
       <EventSidebarFullWidthButtons event={event} />
       <EventProgress event={event} playerGame={playerGame} />
       <EventAwardTiers event={event} numMasters={numMasters} />
-      <HubsList hubs={hubs} />
-      <CompareProgress
+      <PlayableHubsList hubs={hubs} />
+      <PlayableCompareProgress
         followedPlayerCompletions={followedPlayerCompletions}
         game={event.legacyGame!}
+        variant="event"
       />
-      <AchievementDistribution
+      <PlayableAchievementDistribution
         buckets={playerAchievementChartBuckets}
         playerGame={playerGame}
         variant="event"

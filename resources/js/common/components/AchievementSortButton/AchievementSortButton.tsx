@@ -14,58 +14,39 @@ import {
 import type { AchievementSortOrder } from '@/common/models';
 import type { TranslatedString } from '@/types/i18next';
 
-interface SortOption {
-  value: AchievementSortOrder;
-  label: TranslatedString;
-  negativeLabel?: TranslatedString;
-}
-
 interface AchievementSortButtonProps {
-  value: AchievementSortOrder;
+  availableSortOrders: AchievementSortOrder[];
   onChange: (newValue: AchievementSortOrder) => void;
-
-  /**
-   * Whether or not the "Active" sort option (for events) should be displayed.
-   * Typically disabled for evergreen events and games.
-   */
-  includeActiveOption?: boolean;
+  value: AchievementSortOrder;
 }
 
 export const AchievementSortButton: FC<AchievementSortButtonProps> = ({
+  availableSortOrders,
   onChange,
   value,
-  includeActiveOption = false,
 }) => {
   const { t } = useTranslation();
 
-  const sortOptions: SortOption[] = [
-    {
-      value: 'displayOrder',
-      label: t('Display order (first)'),
-      negativeLabel: t('Display order (last)'),
-    },
-    {
-      value: 'wonBy',
-      label: t('Won by (most)'),
-      negativeLabel: t('Won by (least)'),
-    },
-  ];
+  const sortOptionsLabelMap: Record<AchievementSortOrder, TranslatedString> = {
+    active: t('Status'),
 
-  // If the active option is enabled, add it to the beginning of the sort options.
-  if (includeActiveOption) {
-    sortOptions.unshift({
-      value: 'active',
-      label: t('Status'),
-    });
-  }
+    '-normal': t('Display order (last)'),
+    normal: t('Display order (first)'),
 
-  const getCurrentLabel = () => {
-    const isNegative = value.startsWith('-');
-    const baseValue = isNegative ? value.slice(1) : value;
+    '-displayOrder': t('Display order (last)'),
+    displayOrder: t('Display order (first)'),
 
-    const option = sortOptions.find((opt) => opt.value === baseValue) as SortOption;
+    '-points': t('Points (least)'),
+    points: t('Points (most)'),
 
-    return isNegative ? option.negativeLabel : option.label;
+    '-title': t('Title (Z - A)'),
+    title: t('Title (A - Z)'),
+
+    '-type': t('Type (desc)'),
+    type: t('Type (asc)'),
+
+    '-wonBy': t('Won by (least)'),
+    wonBy: t('Won by (most)'),
   };
 
   return (
@@ -77,7 +58,7 @@ export const AchievementSortButton: FC<AchievementSortButtonProps> = ({
           ) : (
             <LuArrowUp data-testid="sort-ascending-icon" className="size-4" />
           )}
-          {getCurrentLabel()}
+          {sortOptionsLabelMap[value]}
         </BaseButton>
       </BaseDropdownMenuTrigger>
 
@@ -85,23 +66,14 @@ export const AchievementSortButton: FC<AchievementSortButtonProps> = ({
         <BaseDropdownMenuLabel>{t('Sort order')}</BaseDropdownMenuLabel>
         <BaseDropdownMenuSeparator />
 
-        {sortOptions.map((option) => (
-          <Fragment key={option.value}>
+        {availableSortOrders.map((sortOrder) => (
+          <Fragment key={`option-item-${sortOrder}`}>
             <BaseDropdownMenuCheckboxItem
-              checked={value === option.value}
-              onCheckedChange={() => onChange(option.value as AchievementSortOrder)}
+              checked={value === sortOrder}
+              onCheckedChange={() => onChange(sortOrder)}
             >
-              {option.label}
+              {sortOptionsLabelMap[sortOrder]}
             </BaseDropdownMenuCheckboxItem>
-
-            {option.negativeLabel ? (
-              <BaseDropdownMenuCheckboxItem
-                checked={value === `-${option.value}`}
-                onCheckedChange={() => onChange(`-${option.value}` as AchievementSortOrder)}
-              >
-                {option.negativeLabel}
-              </BaseDropdownMenuCheckboxItem>
-            ) : null}
           </Fragment>
         ))}
       </BaseDropdownMenuContent>

@@ -68,6 +68,7 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware(['web', 'inertia'])->group(function () {
                 Route::get('event/{event}', [EventController::class, 'show'])->name('event.show');
 
+                Route::get('game2/{game}', [GameController::class, 'show'])->name('game2.show');
                 Route::get('game/{game}/dev-interest', [GameController::class, 'devInterest'])->name('game.dev-interest');
                 Route::get('game/{game}/hashes', [GameHashController::class, 'index'])->name('game.hashes.index');
                 Route::get('game/{game}/top-achievers', [GameTopAchieversController::class, 'index'])->name('game.top-achievers.index');
@@ -101,7 +102,6 @@ class RouteServiceProvider extends ServiceProvider
             //     ->name('system.achievement.index');
 
             // Route::get('game/{game}{slug?}', [GameController::class, 'show'])->name('game.show');
-            // Route::get('games/popular', [GameController::class, 'popular'])->name('games.popular');
             // Route::get('game/{game}/badges', [GameBadgeController::class, 'index'])->name('game.badge.index');
             // Route::get('game/{game}/assets', [GameAssetsController::class, 'index'])->name('game.asset.index');
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
