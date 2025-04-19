@@ -141,11 +141,6 @@ name('demo');
             <x-fas-search class="h-6 w-6"/>
             <x-fas-paper-plane class="h-6 w-6"/>
         </p>
-        <p>
-            <x-flag-4x3-gb/>
-            <x-flag-4x3-us/>
-            <x-flag-4x3-br/>
-        </p>
     </x-section>
 
     <x-section class="mb-8">

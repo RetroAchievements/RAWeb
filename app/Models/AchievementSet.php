@@ -41,6 +41,7 @@ class AchievementSet extends BaseModel
         'achievements_unpublished',
         'points_total',
         'points_weighted',
+        'image_asset_path',
         'created_at',
         'updated_at',
     ];
@@ -103,6 +104,11 @@ class AchievementSet extends BaseModel
     }
 
     // == accessors
+
+    public function getImageAssetPathUrlAttribute(): string
+    {
+        return media_asset($this->image_asset_path);
+    }
 
     public function getTitleAttribute(): string
     {

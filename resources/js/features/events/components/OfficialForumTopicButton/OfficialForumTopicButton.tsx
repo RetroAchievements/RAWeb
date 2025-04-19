@@ -14,7 +14,7 @@ interface OfficialForumTopicButtonProps {
 }
 
 export const OfficialForumTopicButton: FC<OfficialForumTopicButtonProps> = ({ game }) => {
-  const { can } = usePageProps<App.Platform.Data.EventShowPagePropsData>();
+  const { can } = usePageProps<App.Platform.Data.EventShowPageProps>();
 
   const { t } = useTranslation();
 

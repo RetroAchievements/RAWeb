@@ -33,6 +33,7 @@ use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\SendClaimExpirationWarningEmails;
 use App\Platform\Commands\SyncAchievementAuthors;
 use App\Platform\Commands\SyncAchievements;
+use App\Platform\Commands\SyncAchievementSetImageAssetPaths;
 use App\Platform\Commands\SyncEvents;
 use App\Platform\Commands\SyncGameAchievementSets;
 use App\Platform\Commands\SyncGameHashes;
@@ -118,6 +119,7 @@ class AppServiceProvider extends ServiceProvider
                 // Sync
                 SyncAchievementAuthors::class,
                 SyncAchievements::class,
+                SyncAchievementSetImageAssetPaths::class,
                 SyncEvents::class,
                 SyncGameAchievementSets::class,
                 SyncGameHashes::class,

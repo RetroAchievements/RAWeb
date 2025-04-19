@@ -8,6 +8,7 @@ use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Enums\ArticleType;
 use App\Enums\GameHashCompatibility;
+use App\Platform\Actions\SyncAchievementSetImageAssetPathFromGameAction;
 use App\Platform\Actions\SyncGameTagsFromTitleAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Contracts\HasVersionedTrigger;
@@ -150,6 +151,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
         static::saved(function (Game $game) {
             $originalTitle = $game->getOriginal('title');
+            $originalImageIcon = $game->getOriginal('ImageIcon');
             $freshGame = $game->fresh(); // $game starts with stale values.
 
             // Handle game title changes.
@@ -168,6 +170,11 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
                     $originalTitle,
                     $freshGame->title
                 );
+            }
+
+            // Handle game badge changes.
+            if ($originalImageIcon !== $freshGame->ImageIcon) {
+                (new SyncAchievementSetImageAssetPathFromGameAction())->execute($freshGame);
             }
 
             // Keep game_sets in sync (only for title changes, not new "hub games").
