@@ -12,6 +12,7 @@ import {
   BaseFormProvider,
 } from '@/common/components/+vendor/BaseForm';
 import { ShortcodePanel } from '@/common/components/ShortcodePanel';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { getStringByteCount } from '@/common/utils/getStringByteCount';
 
 import { useCreateMessageReplyForm } from './useCreateMessageReplyForm';
@@ -21,10 +22,12 @@ interface CreateMessageReplyFormProps {
 }
 
 export const CreateMessageReplyForm: FC<CreateMessageReplyFormProps> = ({ onPreview }) => {
+  const { auth, senderUserDisplayName } =
+    usePageProps<App.Community.Data.MessageThreadShowPageProps>();
+
   const { t } = useTranslation();
 
   const { form, mutation, onSubmit } = useCreateMessageReplyForm();
-
   const [body] = form.watch(['body']);
 
   return (
@@ -68,7 +71,9 @@ export const CreateMessageReplyForm: FC<CreateMessageReplyFormProps> = ({ onPrev
               </BaseButton>
 
               <BaseButton type="submit" disabled={!form.formState.isValid || mutation.isPending}>
-                {t('Submit')}
+                {auth!.user.displayName === senderUserDisplayName
+                  ? t('Submit')
+                  : t('Submit (as {{username}})', { username: senderUserDisplayName })}
               </BaseButton>
             </div>
           </div>

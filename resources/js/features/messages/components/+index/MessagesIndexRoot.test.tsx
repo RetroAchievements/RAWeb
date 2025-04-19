@@ -21,11 +21,57 @@ describe('Component: MessagesIndexRoot', () => {
         auth: { user: createAuthenticatedUser() },
         paginatedMessageThreads: createPaginatedData([]),
         unreadMessageCount: 0,
+        selectableInboxDisplayNames: [],
       },
     });
 
     // ASSERT
     expect(container).toBeTruthy();
+  });
+
+  it('given the user is unauthenticated, renders nothing', () => {
+    // ARRANGE
+    render(<MessagesIndexRoot />, {
+      pageProps: {
+        auth: null, // !!
+        paginatedMessageThreads: createPaginatedData([]),
+        unreadMessageCount: 0,
+        selectableInboxDisplayNames: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/inbox/i)).not.toBeInTheDocument();
+  });
+
+  it('given the user can view multiple inboxes, shows a button to let them change the current inbox', () => {
+    // ARRANGE
+    render(<MessagesIndexRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        paginatedMessageThreads: createPaginatedData([]),
+        unreadMessageCount: 0,
+        selectableInboxDisplayNames: ['Scott', 'RAdmin'], // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /change inbox/i })).toBeVisible();
+  });
+
+  it('given the user cannot view multiple inboxes, does not show a change inbox button', () => {
+    // ARRANGE
+    render(<MessagesIndexRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        paginatedMessageThreads: createPaginatedData([]),
+        unreadMessageCount: 0,
+        selectableInboxDisplayNames: ['Scott'], // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /change inbox/i })).not.toBeInTheDocument();
   });
 
   it('displays breadcrumbs', () => {
@@ -35,13 +81,13 @@ describe('Component: MessagesIndexRoot', () => {
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
         paginatedMessageThreads: createPaginatedData([]),
         unreadMessageCount: 0,
+        selectableInboxDisplayNames: ['Scott'],
+        senderUserDisplayName: 'Scott',
       },
     });
 
     // ASSERT
-    expect(screen.getByRole('listitem', { name: /messages/i })).toBeVisible();
-    expect(screen.getByRole('listitem', { name: /scott/i })).toBeVisible();
-    expect(screen.getByRole('listitem', { name: /inbox/i })).toBeVisible();
+    expect(screen.getByRole('listitem', { name: /your inbox/i })).toBeVisible();
   });
 
   it('displays the correct message counts', () => {
@@ -53,6 +99,7 @@ describe('Component: MessagesIndexRoot', () => {
         auth: { user: createAuthenticatedUser() },
         paginatedMessageThreads: createPaginatedData(threads, { total: 2 }),
         unreadMessageCount: 1,
+        selectableInboxDisplayNames: [],
       },
     });
 
@@ -78,6 +125,7 @@ describe('Component: MessagesIndexRoot', () => {
           },
         }),
         unreadMessageCount: 0,
+        selectableInboxDisplayNames: [],
       },
     });
 
@@ -109,6 +157,7 @@ describe('Component: MessagesIndexRoot', () => {
           },
         ),
         unreadMessageCount: 0,
+        selectableInboxDisplayNames: [],
       },
     });
 
@@ -128,6 +177,7 @@ describe('Component: MessagesIndexRoot', () => {
         auth: { user: createAuthenticatedUser() },
         paginatedMessageThreads: createPaginatedData([]),
         unreadMessageCount: 0,
+        selectableInboxDisplayNames: [],
       },
     });
 

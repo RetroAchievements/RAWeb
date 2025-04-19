@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { useShortcodeBodyPreview } from '@/common/hooks/useShortcodeBodyPreview';
 
 import { CreateMessageThreadForm } from '../CreateMessageThreadForm';
@@ -8,13 +9,25 @@ import { MessagePreviewContent } from '../MessagePreviewContent';
 import { MessagesBreadcrumbs } from '../MessagesBreadcrumbs';
 
 export const MessagesCreateRoot: FC = () => {
+  const { auth, senderUserDisplayName } =
+    usePageProps<App.Community.Data.MessageThreadCreatePageProps>();
+
   const { t } = useTranslation();
 
   const { initiatePreview, previewContent } = useShortcodeBodyPreview();
 
+  if (!auth) {
+    return null;
+  }
+
+  const isDelegating = auth.user.displayName !== senderUserDisplayName;
+
   return (
     <div className="flex flex-col gap-4">
-      <MessagesBreadcrumbs t_currentPageLabel={t('Start new message thread')} />
+      <MessagesBreadcrumbs
+        delegatedUserDisplayName={isDelegating ? senderUserDisplayName : undefined}
+        t_currentPageLabel={t('Start new message thread')}
+      />
 
       <CreateMessageThreadForm onPreview={initiatePreview} />
 

@@ -119,9 +119,11 @@ class RouteServiceProvider extends ServiceProvider
                         Route::get('forums/{category}/{forum}/create', [ForumTopicController::class, 'create'])->name('forum-topic.create');
                         Route::get('forums/post/{comment}/edit', [ForumTopicCommentController::class, 'edit'])->name('forum-topic-comment.edit');
 
+                        Route::get('message-thread/{messageThread}', [MessageThreadController::class, 'show'])->name('message-thread.show');
                         Route::get('messages', [MessageThreadController::class, 'index'])->name('message-thread.index');
                         Route::get('messages/create', [MessageThreadController::class, 'create'])->name('message-thread.create');
-                        Route::get('message-thread/{messageThread}', [MessageThreadController::class, 'show'])->name('message-thread.show');
+                        Route::get('messages/{user}', [MessageThreadController::class, 'index'])->name('message-thread.user.index');
+                        Route::get('messages/{user}/create', [MessageThreadController::class, 'create'])->name('message-thread.user.create');
 
                         Route::get('settings', [UserSettingsController::class, 'show'])->name('settings.show');
                     });

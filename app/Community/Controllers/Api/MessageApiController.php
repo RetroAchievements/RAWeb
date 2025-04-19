@@ -10,8 +10,8 @@ use App\Community\Requests\MessageRequest;
 use App\Http\Controller;
 use App\Models\Message;
 use App\Models\MessageThread;
-use App\Models\MessageThreadParticipant;
 use App\Models\User;
+use App\Policies\MessageThreadPolicy;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Http\JsonResponse;
 
@@ -30,6 +30,8 @@ class MessageApiController extends Controller
         $body = normalize_shortcodes($input['body']);
         $body = Shortcode::convertUserShortcodesToUseIds($body);
 
+        $authorId = $user->id;
+
         $thread = null;
         if (array_key_exists('thread_id', $input) && $input['thread_id'] !== null) {
             $thread = MessageThread::firstWhere('id', $input['thread_id']);
@@ -37,34 +39,72 @@ class MessageApiController extends Controller
                 return response()->json(['error' => 'thread_not_found'], 400);
             }
 
-            $participant = MessageThreadParticipant::withTrashed()
-                ->where('thread_id', $input['thread_id'])
-                ->where('user_id', $user->id);
-            if (!$participant->exists()) {
-                return response()->json(['error' => 'not_participant'], 403);
+            $participants = $thread->participants;
+
+            // Is the current user a participant? If not, they may be replying while
+            // viewing a team account inbox they have permission to access.
+            $isUserParticipant = $participants->contains('ID', $user->ID);
+            if (!$isUserParticipant) {
+                $policy = new MessageThreadPolicy();
+                $accessibleTeamIds = $policy->getAccessibleTeamIds($user);
+
+                if (empty($accessibleTeamIds)) {
+                    return response()->json(['error' => 'not_participant'], 403);
+                }
+
+                // Check if any of those team accounts are participants.
+                $foundTeamParticipant = $thread->participants()
+                    ->whereIn('user_id', $accessibleTeamIds)
+                    ->first();
+
+                if (!$foundTeamParticipant) {
+                    return response()->json(['error' => 'not_participant'], 403);
+                }
+
+                $authorId = $foundTeamParticipant->id;
             }
 
+            $senderUser = User::firstWhere('ID', $authorId);
+
             foreach ($thread->users as $threadUser) {
-                if (!$threadUser->is($user) && !$user->can('sendToRecipient', [Message::class, $threadUser])) {
+                if (!$threadUser->is($senderUser) && !$senderUser->can('sendToRecipient', [Message::class, $threadUser])) {
                     return response()->json([
-                        'error' => $user->isMuted() ? 'muted_user' : 'cannot_message_user',
+                        'error' => $senderUser->isMuted() ? 'muted_user' : 'cannot_message_user',
                         403,
                     ]);
                 }
             }
 
-            (new AddToMessageThreadAction())->execute($thread, $user, $body);
+            (new AddToMessageThreadAction())->execute($thread, $senderUser, $body);
         } else {
             $recipient = User::whereName($input['recipient'])->first();
 
-            if (!$user->can('sendToRecipient', [Message::class, $recipient])) {
+            // Check if we're trying to send as a team account.
+            if (isset($input['senderUserDisplayName']) && !empty($input['senderUserDisplayName'])) {
+                $teamAccount = User::firstWhere('User', $input['senderUserDisplayName']);
+                if ($teamAccount) {
+                    // Verify via policy that the user can actually send from this team account.
+                    $policy = new MessageThreadPolicy();
+                    $canSend = $policy->create($user, $teamAccount);
+
+                    if (!$canSend) {
+                        return response()->json(['error' => 'cannot_message_user'], 403);
+                    }
+
+                    $authorId = $teamAccount->id;
+                }
+            }
+
+            $senderUser = User::firstWhere('ID', $authorId);
+
+            if (!$senderUser->can('sendToRecipient', [Message::class, $recipient])) {
                 return response()->json([
                     'error' => $user->isMuted() ? 'muted_user' : 'cannot_message_user',
                     403,
                 ]);
             }
 
-            $thread = (new CreateMessageThreadAction())->execute($user, $recipient, $input['title'], $body);
+            $thread = (new CreateMessageThreadAction())->execute($senderUser, $recipient, $input['title'], $body);
         }
 
         return response()->json(['success' => true, 'threadId' => $thread->id]);

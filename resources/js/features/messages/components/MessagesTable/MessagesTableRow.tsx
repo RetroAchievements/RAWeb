@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { BaseTableCell, BaseTableRow } from '@/common/components/+vendor/BaseTable';
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
@@ -26,7 +27,9 @@ export const MessagesTableRow: FC<MessagesTableRowProps> = ({ messageThread }) =
   return (
     <BaseTableRow className={cn(messageThread.isUnread ? 'font-bold' : null)}>
       <BaseTableCell>
-        <a href={route('message-thread.show', messageThread.id)}>{messageThread.title}</a>
+        <InertiaLink href={route('message-thread.show', messageThread.id)}>
+          {messageThread.title}
+        </InertiaLink>
       </BaseTableCell>
 
       <BaseTableCell>

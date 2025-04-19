@@ -11,6 +11,7 @@ use App\Data\PaginatedData;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
+use App\Policies\MessageThreadPolicy;
 
 class BuildMessageThreadShowPagePropsAction
 {
@@ -74,6 +75,7 @@ class BuildMessageThreadShowPagePropsAction
             ),
             dynamicEntities: $dynamicEntities,
             canReply: $this->getCanReply($messageThread, $user),
+            senderUserDisplayName: $this->getSenderUserDisplayName($messageThread, $user),
         );
 
         return ['props' => $props, 'redirectToPage' => null];
@@ -91,5 +93,30 @@ class BuildMessageThreadShowPagePropsAction
             ->exists();
 
         return $canReply;
+    }
+
+    private function getSenderUserDisplayName(MessageThread $thread, User $user): string
+    {
+        $isUserParticipant = $thread->participants->contains('ID', $user->id);
+        if (!$isUserParticipant) {
+            $policy = new MessageThreadPolicy();
+            $accessibleTeamIds = $policy->getAccessibleTeamIds($user);
+
+            if (empty($accessibleTeamIds)) {
+                return $user->display_name;
+            }
+
+            $foundTeamParticipant = $thread->participants()
+                ->whereIn('user_id', $accessibleTeamIds)
+                ->first();
+
+            if (!$foundTeamParticipant) {
+                return $user->display_name;
+            }
+
+            return User::firstWhere('ID', $foundTeamParticipant->id)->display_name;
+        }
+
+        return $user->display_name;
     }
 }
