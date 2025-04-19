@@ -13,6 +13,7 @@ use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Database\Eloquent\Collection;
 use InvalidArgumentException;
 
@@ -349,7 +350,7 @@ class BuildClientPatchDataAction
         return [
             'Success' => true,
             'PatchData' => [
-                'ID' => IdentifyGameHashAction::virtualizeGameId($game->id, $gameHashCompatibility),
+                'ID' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
                 'Title' => 'Unsupported Game Version',
                 'ConsoleID' => $game->ConsoleID,
                 'ImageIcon' => $game->ImageIcon,

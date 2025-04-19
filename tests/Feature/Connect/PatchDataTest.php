@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Connect\Actions\IdentifyGameHashAction;
 use App\Enums\ClientSupportLevel;
 use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
@@ -15,6 +14,7 @@ use App\Models\PlayerGame;
 use App\Models\System;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
@@ -597,7 +597,7 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase,
+                    'ID' => $game->ID + VirtualGameIdService::IncompatibleIdBase,
                     'Title' => 'Unsupported Game Version',
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -613,12 +613,12 @@ class PatchDataTest extends TestCase
             ]);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('patch', ['g' => $game->id + IdentifyGameHashAction::IncompatibleIdBase]))
+            ->get($this->apiUrl('patch', ['g' => $game->id + VirtualGameIdService::IncompatibleIdBase]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase,
+                    'ID' => $game->ID + VirtualGameIdService::IncompatibleIdBase,
                     'Title' => 'Unsupported Game Version',
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -642,7 +642,7 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + IdentifyGameHashAction::UntestedIdBase,
+                    'ID' => $game->ID + VirtualGameIdService::UntestedIdBase,
                     'Title' => 'Unsupported Game Version',
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -658,12 +658,12 @@ class PatchDataTest extends TestCase
             ]);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('patch', ['g' => $game->id + IdentifyGameHashAction::UntestedIdBase]))
+            ->get($this->apiUrl('patch', ['g' => $game->id + VirtualGameIdService::UntestedIdBase]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + IdentifyGameHashAction::UntestedIdBase,
+                    'ID' => $game->ID + VirtualGameIdService::UntestedIdBase,
                     'Title' => 'Unsupported Game Version',
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -687,7 +687,7 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + IdentifyGameHashAction::PatchRequiredIdBase,
+                    'ID' => $game->ID + VirtualGameIdService::PatchRequiredIdBase,
                     'Title' => 'Unsupported Game Version',
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -703,12 +703,12 @@ class PatchDataTest extends TestCase
             ]);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('patch', ['g' => $game->id + IdentifyGameHashAction::PatchRequiredIdBase]))
+            ->get($this->apiUrl('patch', ['g' => $game->id + VirtualGameIdService::PatchRequiredIdBase]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + IdentifyGameHashAction::PatchRequiredIdBase,
+                    'ID' => $game->ID + VirtualGameIdService::PatchRequiredIdBase,
                     'Title' => 'Unsupported Game Version',
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
