@@ -105,6 +105,11 @@ class AchievementSet extends BaseModel
 
     // == accessors
 
+    public function getImageAssetPathUrlAttribute(): string
+    {
+        return media_asset($this->image_asset_path);
+    }
+
     public function getTitleAttribute(): string
     {
         return $this->gameAchievementSets()->core()->first()->game->title;

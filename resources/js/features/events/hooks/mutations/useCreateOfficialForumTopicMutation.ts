@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -9,7 +10,7 @@ export function useCreateOfficialForumTopicMutation() {
       ),
 
     onSuccess: ({ data }) => {
-      window.location.assign(`/viewtopic.php?t=${data.topicId}`);
+      router.visit(route('forum-topic.show', { topic: data.topicId }));
     },
   });
 }

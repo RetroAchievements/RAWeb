@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -15,7 +16,8 @@ export const RecentForumPostItem: FC<RecentForumPostItemProps> = ({ post }) => {
   const { t } = useTranslation();
 
   const commentId = post.latestComment?.id;
-  const postUrl = `/viewtopic.php?t=${post.id}&c=${commentId}#${commentId}`;
+  const postUrl =
+    route('forum-topic.show', { topic: post.id, comment: commentId }) + `#${commentId}`;
 
   if (!post.latestComment?.user || !post.latestComment?.createdAt || !post.latestComment.body) {
     return null;
@@ -35,7 +37,7 @@ export const RecentForumPostItem: FC<RecentForumPostItemProps> = ({ post }) => {
           </span>
         </div>
 
-        <a href={postUrl}>{t('View')}</a>
+        <InertiaLink href={postUrl}>{t('View')}</InertiaLink>
       </div>
 
       <p>
@@ -43,7 +45,7 @@ export const RecentForumPostItem: FC<RecentForumPostItemProps> = ({ post }) => {
           i18nKey="in <1>{{forumTopicTitle}}</1>"
           values={{ forumTopicTitle: post.title }}
           components={{
-            1: <a href={postUrl} />,
+            1: <InertiaLink href={postUrl} />,
           }}
         />
       </p>

@@ -19,7 +19,7 @@ use App\Models\System;
  * - 'string': Routes that use a string parameter (eg: /user/username)
  * - 'model': Routes that can be accessed by ID or slug (eg: /game/123-sonic-3)
  * - 'nested': Routes with multiple ID-slug segments (eg: /forums/1-community/16-chit-chat/create-topic)
- * - 'legacy': Legacy routes that need special handling (eg: viewtopic.php?t=123)
+ * - 'legacy': Legacy routes that need special handling (eg: viewforum.php?f=24)
  */
 class ProcessPlausibleUrlAction
 {
@@ -45,7 +45,6 @@ class ProcessPlausibleUrlAction
 
         // Legacy routes that need special handling.
         $this->addLegacyRoute('leaderboardinfo.php', ['i' => 'id']);
-        $this->addLegacyRoute('viewtopic.php', ['t' => 'topicId']);
         $this->addLegacyRoute('viewforum.php', ['f' => 'forumId']);
         $this->addLegacyRoute('forum.php', ['c' => 'categoryId']);
 

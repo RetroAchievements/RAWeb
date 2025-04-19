@@ -4,6 +4,7 @@ import { LuMessageCircle } from 'react-icons/lu';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { GameAvatar } from '@/common/components/GameAvatar';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { ManageButton } from '@/common/components/ManageButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
@@ -38,8 +39,8 @@ export const HubHeading: FC = () => {
         {can.manageGameSets || hub.forumTopicId ? (
           <div className="flex gap-2">
             {hub.forumTopicId ? (
-              <a
-                href={`/viewtopic.php?t=${hub.forumTopicId}`}
+              <InertiaLink
+                href={route('forum-topic.show', { topic: hub.forumTopicId })}
                 className={baseButtonVariants({
                   size: 'sm',
                   className: 'gap-1',
@@ -47,7 +48,7 @@ export const HubHeading: FC = () => {
               >
                 <LuMessageCircle className="size-4" />
                 {t('View Forum Topic')}
-              </a>
+              </InertiaLink>
             ) : null}
 
             {can.manageGameSets ? <ManageButton href={`/manage/hubs/${hub.id}`} /> : null}

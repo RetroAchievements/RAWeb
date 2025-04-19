@@ -5,6 +5,7 @@ import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { DiffTimestamp } from '../DiffTimestamp';
+import { InertiaLink } from '../InertiaLink';
 import { RecentPostAggregateLinks } from '../RecentPostAggregateLinks';
 
 interface RecentPostsCardsProps {
@@ -49,8 +50,13 @@ export const RecentPostsCards: FC<RecentPostsCardsProps> = ({
                 values={{ forumTopicTitle: topic.title }}
                 components={{
                   1: (
-                    <a
-                      href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment?.id}#${topic.latestComment?.id}`}
+                    <InertiaLink
+                      href={
+                        route('forum-topic.show', {
+                          topic: topic.id,
+                          comment: topic.latestComment?.id,
+                        }) + `#${topic.latestComment?.id}`
+                      }
                     />
                   ),
                 }}

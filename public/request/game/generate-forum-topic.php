@@ -17,7 +17,7 @@ $userModel = User::whereName($user)->first();
 
 $forumTopicComment = generateGameForumTopic($userModel, (int) $input['game']);
 if ($forumTopicComment) {
-    return redirect(url("/viewtopic.php?t={$forumTopicComment->forumTopic->id}"))
+    return redirect(route('forum-topic.show', ['topic' => $forumTopicComment->forumTopic->id]))
         ->with('success', __('legacy.success.create'));
 }
 
