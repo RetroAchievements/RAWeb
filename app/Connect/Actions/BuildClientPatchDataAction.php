@@ -50,8 +50,10 @@ class BuildClientPatchDataAction
             return $this->buildPatchData($game, null, $user, $flag);
         }
 
-        // If the hash is not marked as compatible, return a dummy set that will inform the user.
-        if ($gameHash->compatibility !== GameHashCompatibility::Compatible) {
+        // If the hash is not marked as compatible, and the current user is not flagged to
+        // be testing the hash, return a dummy set that will inform the user.
+        if ($gameHash->compatibility !== GameHashCompatibility::Compatible
+                && $gameHash->compatibility_tester_id !== $user?->id) {
             return $this->buildIncompatiblePatchData($game ?? $gameHash->game, $gameHash->compatibility, $user);
         }
 

@@ -86,6 +86,11 @@ class GameHashResource extends Resource
                     ->default(0)
                     ->toggleable(isToggledHiddenByDefault: true),
 
+                Tables\Columns\TextColumn::make('compatibilityTester.display_name')
+                    ->label('Compatibility Tester')
+                    ->url(fn (GameHash $record): ?string => $record->user ? route('user.show', ['user' => $record->user]) : null)
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('user.display_name')
                     ->label('Linked By')
                     ->url(fn (GameHash $record): ?string => $record->user ? route('user.show', ['user' => $record->user]) : null)
@@ -97,7 +102,23 @@ class GameHashResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('compatibility_tester_id')
+                    ->label('Has Compatibility Tester')
+                    ->options(function () {
+                        return [
+                            'yes' => 'Yes',
+                            'no' => 'No',
+                        ];
+                    })
+                    ->query(function (Builder $query, $data) {
+                        $value = $data['value'] ?? null;
 
+                        if ($value === 'yes') {
+                            $query->whereNotNull('compatibility_tester_id');
+                        } elseif ($value === 'no') {
+                            $query->whereNull('compatibility_tester_id');
+                        }
+                    }),
             ])
             ->actions([
                 // TODO

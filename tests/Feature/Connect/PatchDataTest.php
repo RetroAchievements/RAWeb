@@ -12,6 +12,7 @@ use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
 use App\Models\System;
+use App\Models\User;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\VirtualGameIdService;
@@ -744,6 +745,105 @@ class PatchDataTest extends TestCase
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
                         $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
                         $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        // user is compatibility tester for hash
+        $gameHash->compatibility = GameHashCompatibility::Untested;
+        $gameHash->compatibility_tester_id = $this->user->id;
+        $gameHash->save();
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', ['m' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID,
+                    'Title' => $game->Title,
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ParentID' => 1,
+                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'Achievements' => [
+                        $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                        $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                        $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                        $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', ['g' => $game->id + VirtualGameIdService::UntestedIdBase]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID,
+                    'Title' => $game->Title,
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ParentID' => 1,
+                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'Achievements' => [
+                        $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                        $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                        $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                        $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        // user is not compatibility tester for hash
+        /** @var User $user2 */
+        $user2 = User::factory()->create();
+
+        $gameHash->compatibility = GameHashCompatibility::Untested;
+        $gameHash->compatibility_tester_id = $user2->id;
+        $gameHash->save();
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', ['m' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID + VirtualGameIdService::UntestedIdBase,
+                    'Title' => 'Unsupported Game Version',
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'Achievements' => [
+                        $this->getWarningAchievementPatchData(
+                            title: 'Unsupported Game Version',
+                            description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                        ),
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', ['g' => $game->id + VirtualGameIdService::UntestedIdBase]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID + VirtualGameIdService::UntestedIdBase,
+                    'Title' => 'Unsupported Game Version',
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'Achievements' => [
+                        $this->getWarningAchievementPatchData(
+                            title: 'Unsupported Game Version',
+                            description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
+                        ),
                     ],
                     'Leaderboards' => [],
                 ],
