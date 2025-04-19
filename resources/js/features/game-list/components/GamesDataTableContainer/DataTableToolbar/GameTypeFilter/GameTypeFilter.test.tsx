@@ -52,7 +52,6 @@ describe('Component: GameTypeFilter', () => {
     await userEvent.click(screen.getByRole('button', { name: /game type/i }));
 
     // ASSERT
-    expect(screen.getByText(/all games/i)).toBeVisible();
     expect(screen.getByText(/retail/i)).toBeVisible();
     expect(screen.getByText(/hack/i)).toBeVisible();
     expect(screen.getByText(/homebrew/i)).toBeVisible();
@@ -100,29 +99,5 @@ describe('Component: GameTypeFilter', () => {
 
     // ASSERT
     expect(screen.getAllByText(/homebrew/i)[0]).toBeVisible();
-  });
-
-  it('given the user selects the "All Games" option, clears the filter value', async () => {
-    // ARRANGE
-    const setFiltersSpy = vi.fn();
-    const mockTableWithSpy = createMockTable({
-      getState: vi.fn().mockReturnValue({
-        columnFilters: [{ id: 'game-type', value: ['retail'] }],
-      }),
-      setColumnFilters: setFiltersSpy,
-    });
-
-    render(<GameTypeFilter table={mockTableWithSpy as Table<any>} />);
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /game type/i }));
-    await userEvent.click(screen.getByText(/all games/i));
-
-    // ASSERT
-    expect(setFiltersSpy).toHaveBeenCalledWith(expect.any(Function));
-
-    const updateFn = setFiltersSpy.mock.calls[0][0];
-    const result = updateFn([{ id: 'otherFilter', value: 'someValue' }]);
-    expect(result).toEqual([{ id: 'otherFilter', value: 'someValue' }]);
   });
 });

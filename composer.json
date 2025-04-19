@@ -46,6 +46,7 @@
         "socialiteproviders/twitch": "^5.3",
         "socialiteproviders/twitter": "^4.1",
         "spatie/eloquent-sortable": "^4.0",
+        "spatie/enum": "^3.13",
         "spatie/laravel-activitylog": "^4.5",
         "spatie/laravel-csp": "^2.8",
         "spatie/laravel-data": "^4.7",
