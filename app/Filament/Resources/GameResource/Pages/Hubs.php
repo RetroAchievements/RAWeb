@@ -6,11 +6,10 @@ namespace App\Filament\Resources\GameResource\Pages;
 
 use App\Filament\Actions\ParseIdsFromCsvAction;
 use App\Filament\Resources\GameResource;
+use App\Filament\Resources\HubResource;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\User;
-use App\Platform\Actions\AttachGamesToGameSetAction;
-use App\Platform\Actions\DetachGamesFromGameSetAction;
 use App\Platform\Enums\GameSetType;
 use Filament\Forms;
 use Filament\Notifications\Notification;
@@ -53,6 +52,7 @@ class Hubs extends ManageRelatedRecords
 
                 Tables\Columns\TextColumn::make('id')
                     ->label('ID')
+                    ->url(fn (GameSet $record): string => HubResource::getUrl('view', ['record' => $record]))
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->where('game_sets.id', 'like', "%{$search}");
                     })
@@ -62,6 +62,7 @@ class Hubs extends ManageRelatedRecords
 
                 Tables\Columns\TextColumn::make('title')
                     ->label('Title')
+                    ->url(fn (GameSet $record): string => HubResource::getUrl('view', ['record' => $record]))
                     ->searchable()
                     ->sortable(),
             ])
@@ -127,7 +128,7 @@ class Hubs extends ManageRelatedRecords
                                 ->get();
 
                             foreach ($gameSets as $gameSet) {
-                                (new AttachGamesToGameSetAction())->execute($gameSet, [$game->id]);
+                                $gameSet->games()->attach([$game->id]);
                             }
 
                             return;
@@ -144,7 +145,7 @@ class Hubs extends ManageRelatedRecords
                                 ->get();
 
                             foreach ($gameSets as $gameSet) {
-                                (new AttachGamesToGameSetAction())->execute($gameSet, [$game->id]);
+                                $gameSet->games()->attach([$game->id]);
                             }
                         }
                     }),
@@ -161,7 +162,7 @@ class Hubs extends ManageRelatedRecords
                         /** @var Game $game */
                         $game = $this->getOwnerRecord();
 
-                        (new DetachGamesFromGameSetAction())->execute($gameSet, [$game->id]);
+                        $gameSet->games()->detach([$game->id]);
 
                         Notification::make()
                             ->success()
@@ -189,7 +190,7 @@ class Hubs extends ManageRelatedRecords
                         $game = $this->getOwnerRecord();
 
                         foreach ($gameSets as $gameSet) {
-                            (new DetachGamesFromGameSetAction())->execute($gameSet, [$game->id]);
+                            $gameSet->games()->detach([$game->id]);
                         }
 
                         $this->deselectAllTableRecords();
