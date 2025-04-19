@@ -64,15 +64,7 @@
         @else
             <div class="mb-2"></div>
 
-            @if ($isHub)
-                <x-card.info-row label="Links">
-                    {{ localized_number($altGamesCount) }}
-                </x-card.info-row>
-
-                <x-card.info-row label="Last Updated">
-                    {{ $lastUpdated->format('j F Y') }}
-                </x-card.info-row>
-            @elseif (count($activeDeveloperUsernames) === 0)
+            @if (count($activeDeveloperUsernames) === 0)
                 <p>
                     @if (mb_strpos($rawTitle, '~Z~') !== false)
                         This achievements set has been retired.

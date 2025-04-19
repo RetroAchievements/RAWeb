@@ -7,8 +7,6 @@ namespace App\Filament\Resources\EventResource\RelationManagers;
 use App\Filament\Resources\HubResource;
 use App\Models\Event;
 use App\Models\GameSet;
-use App\Platform\Actions\AttachGamesToGameSetAction;
-use App\Platform\Actions\DetachGamesFromGameSetAction;
 use App\Platform\Enums\GameSetType;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -100,7 +98,7 @@ class HubsRelationManager extends RelationManager
                         $event = $this->getOwnerRecord();
                         foreach ($data['hub_ids'] as $hubId) {
                             $gameSet = GameSet::find($hubId);
-                            (new AttachGamesToGameSetAction())->execute($gameSet, [$event->legacyGame->id]);
+                            $gameSet->games()->attach([$event->legacyGame->id]);
                         }
                     }),
             ])
@@ -116,7 +114,7 @@ class HubsRelationManager extends RelationManager
                         /** @var Event $event */
                         $event = $this->getOwnerRecord();
 
-                        (new DetachGamesFromGameSetAction())->execute($gameSetToDetach, [$event->legacyGame->id]);
+                        $gameSetToDetach->games()->detach([$event->legacyGame->id]);
                     }),
 
                 Tables\Actions\Action::make('visit')
@@ -138,7 +136,7 @@ class HubsRelationManager extends RelationManager
                         $event = $this->getOwnerRecord();
 
                         foreach ($gameSets as $gameSet) {
-                            (new DetachGamesFromGameSetAction())->execute($gameSet, [$event->legacyGame->id]);
+                            $gameSet->games()->detach([$event->legacyGame->id]);
                         }
 
                         $this->deselectAllTableRecords();

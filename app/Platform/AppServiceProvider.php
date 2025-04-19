@@ -38,9 +38,6 @@ use App\Platform\Commands\SyncEvents;
 use App\Platform\Commands\SyncGameAchievementSets;
 use App\Platform\Commands\SyncGameHashes;
 use App\Platform\Commands\SyncGames;
-use App\Platform\Commands\SyncGameSets;
-use App\Platform\Commands\SyncGameSetsHubForumTopicIds;
-use App\Platform\Commands\SyncGameSetsInternalNotes;
 use App\Platform\Commands\SyncLeaderboards;
 use App\Platform\Commands\SyncLegacyGameTags;
 use App\Platform\Commands\SyncMemoryNotes;
@@ -124,9 +121,6 @@ class AppServiceProvider extends ServiceProvider
                 SyncGameAchievementSets::class,
                 SyncGameHashes::class,
                 SyncGames::class,
-                SyncGameSets::class,
-                SyncGameSetsHubForumTopicIds::class,
-                SyncGameSetsInternalNotes::class,
                 SyncLeaderboards::class,
                 SyncLegacyGameTags::class,
                 SyncMemoryNotes::class,

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Game;
-use App\Models\GameAlternative;
 use App\Models\GameSet;
 use App\Platform\Enums\GameSetType;
 
@@ -13,19 +12,6 @@ class UnlinkSimilarGamesAction
 {
     public function execute(Game $parentGame, array $gameIdsToUnlink): void
     {
-        // Remove bidirectional alternative game links.
-        foreach ($gameIdsToUnlink as $gameId) {
-            GameAlternative::where([
-                'gameID' => $parentGame->id,
-                'gameIDAlt' => $gameId,
-            ])->delete();
-
-            GameAlternative::where([
-                'gameID' => $gameId,
-                'gameIDAlt' => $parentGame->id,
-            ])->delete();
-        }
-
         $parentSimilarGamesSet = GameSet::where([
             'type' => GameSetType::SimilarGames,
             'game_id' => $parentGame->id,
