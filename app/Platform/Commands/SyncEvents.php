@@ -508,6 +508,9 @@ class SyncEvents extends Command
                 [485510, 485516, 485522, 485528],
                 noWinners: true,
             ),
+
+            // ===== 2025 =====
+            33104 => new ConvertAprilFools('find-the-pixel-2025'),
         ];
 
         $id = $this->argument('gameId');
@@ -1135,6 +1138,14 @@ class ConvertAprilFools extends ConvertGame
                 'AwardData' => $event->id,
                 'AwardDataExtra' => 0,
             ]);
+    }
+
+    protected function process(Command $command, Event $event): void
+    {
+        foreach (Achievement::where('GameID', $event->legacyGame->id)->published()->get() as $achievement) {
+            PlayerAchievement::where('achievement_id', $achievement->id)->whereNull('unlocked_hardcore_at')->delete();
+            $this->createEventAchievement($command, $achievement);
+        }
     }
 }
 
