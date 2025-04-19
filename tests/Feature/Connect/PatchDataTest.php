@@ -642,7 +642,7 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase,
+                    'ID' => $game->ID + IdentifyGameHashAction::UntestedIdBase,
                     'Title' => 'Unsupported Game Version',
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -663,7 +663,7 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase,
+                    'ID' => $game->ID + IdentifyGameHashAction::UntestedIdBase,
                     'Title' => 'Unsupported Game Version',
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -687,7 +687,7 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase,
+                    'ID' => $game->ID + IdentifyGameHashAction::PatchRequiredIdBase,
                     'Title' => 'Unsupported Game Version',
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
@@ -708,7 +708,7 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase,
+                    'ID' => $game->ID + IdentifyGameHashAction::PatchRequiredIdBase,
                     'Title' => 'Unsupported Game Version',
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,

@@ -21,15 +21,20 @@ class IdentifyGameHashAction
             return 0;
         }
 
-        switch ($gameHash->compatibility) {
+        return IdentifyGameHashAction::virtualizeGameId($gameHash->game_id, $gameHash->compatibility);
+    }
+
+    public static function virtualizeGameId(int $gameId, GameHashCompatibility $compatibility): int
+    {
+        switch ($compatibility) {
             case GameHashCompatibility::Compatible:
-                return $gameHash->game_id;
+                return $gameId;
             case GameHashCompatibility::Incompatible:
-                return $gameHash->game_id + IdentifyGameHashAction::IncompatibleIdBase;
+                return $gameId + IdentifyGameHashAction::IncompatibleIdBase;
             case GameHashCompatibility::Untested:
-                return $gameHash->game_id + IdentifyGameHashAction::UntestedIdBase;
+                return $gameId + IdentifyGameHashAction::UntestedIdBase;
             case GameHashCompatibility::PatchRequired:
-                return $gameHash->game_id + IdentifyGameHashAction::PatchRequiredIdBase;
+                return $gameId + IdentifyGameHashAction::PatchRequiredIdBase;
             default:
                 return 0;
         }

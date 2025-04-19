@@ -349,7 +349,7 @@ class BuildClientPatchDataAction
         return [
             'Success' => true,
             'PatchData' => [
-                'ID' => $game->id + IdentifyGameHashAction::IncompatibleIdBase,
+                'ID' => IdentifyGameHashAction::virtualizeGameId($game->id, $gameHashCompatibility),
                 'Title' => 'Unsupported Game Version',
                 'ConsoleID' => $game->ConsoleID,
                 'ImageIcon' => $game->ImageIcon,
