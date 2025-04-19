@@ -1,5 +1,6 @@
 export * from './createAchievement';
 export * from './createAchievementGroup';
+export * from './createAchievementSet';
 export * from './createAchievementSetClaim';
 export * from './createActivePlayer';
 export * from './createComment';
@@ -12,6 +13,7 @@ export * from './createForumCategory';
 export * from './createForumTopic';
 export * from './createForumTopicComment';
 export * from './createGame';
+export * from './createGameAchievementSet';
 export * from './createGameClaimant';
 export * from './createGameHash';
 export * from './createGameHashLabel';
