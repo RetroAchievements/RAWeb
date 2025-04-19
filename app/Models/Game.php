@@ -112,6 +112,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     protected $casts = [
         'released_at' => 'datetime',
         'released_at_granularity' => ReleasedAtGranularity::class,
+        'achievements_published_at' => 'datetime',
         'last_achievement_update' => 'datetime',
     ];
 
@@ -136,6 +137,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         'Updated',
         'achievement_set_version_hash',
         'achievements_published',
+        'achievements_published_at',
         'points_total',
         'players_total',
     ];

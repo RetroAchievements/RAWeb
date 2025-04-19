@@ -8,6 +8,7 @@ use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameHash;
+use App\Models\PlayerGame;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Models\User;
@@ -53,6 +54,13 @@ class PingTest extends TestCase
         $this->assertEquals(1, $playerSession->duration);
         $this->assertEquals('Doing good', $playerSession->rich_presence);
         $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
+
+        // player game created
+        $playerGame = PlayerGame::where('game_id', $game->id)->where('user_id', $this->user->id)->first();
+        $this->assertNotNull($playerGame);
+        $this->assertEquals(0, $playerGame->playtime_total);
+        $this->assertEquals(0, $playerGame->time_taken);
+        $this->assertEquals(0, $playerGame->time_taken_hardcore);
 
         /** @var User $user1 */
         $user1 = User::whereName($this->user->User)->first();
@@ -417,5 +425,142 @@ class PingTest extends TestCase
                 "Code" => "access_denied",
                 "Status" => 403,
             ]);
+    }
+
+    public function testPingExtendsSession(): void
+    {
+        $now = Carbon::now()->startOfSecond()->subMinutes(30);
+        Carbon::setTestNow($now);
+
+        $game = $this->seedGame(achievements: 2);
+        $gameHash = $game->hashes->first();
+
+        // session is assumed to be hardcore if player has more hardcore points than
+        // softcore points. when the ping dispatches an UpdatePlayerGameMetrics job
+        // because playtime_total is null, the score will get recalculated, so we
+        // need to actually unlock an achievement.
+        $achievement = $this->seedAchievement();
+        $unlock = $this->user->playerAchievements()->create(['achievement_id' => $achievement->id, 'unlocked_at' => $now, 'unlocked_hardcore_at' => $now]);
+        $unlock->save();
+        $playerGame = new PlayerGame([
+            'game_id' => $achievement->game->id,
+            'user_id' => $this->user->id,
+            'points_hardcore' => $achievement->points,
+            'achievements_unlocked' => 1,
+        ]);
+        $playerGame->save();
+
+        // this API requires POST
+        $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->ID, 'm' => 'Doing good', 'x' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+            ]);
+
+        // player session created
+        $playerSession = PlayerSession::where('game_id', $game->id)->where('user_id', $this->user->id)->first();
+        $this->assertModelExists($playerSession);
+        $this->assertEquals(1, $playerSession->duration);
+        $this->assertEquals('Doing good', $playerSession->rich_presence);
+        $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
+
+        // player game created
+        $playerGame = PlayerGame::where('game_id', $game->id)->where('user_id', $this->user->id)->first();
+        $this->assertModelExists($playerGame);
+        $this->assertEquals(0, $playerGame->playtime_total);
+        $this->assertEquals(0, $playerGame->time_taken);
+        $this->assertEquals(0, $playerGame->time_taken_hardcore);
+
+        // second ping 30 second later
+        $now = $now->addSeconds(30);
+        Carbon::setTestNow($now);
+
+        $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->ID, 'm' => 'Title screen', 'x' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+            ]);
+
+        $playerSession->refresh();
+        $this->assertEquals(1, $playerSession->duration);
+        $this->assertEquals('Title screen', $playerSession->rich_presence);
+
+        // session duration in minutes, so times will be in 60 second increments
+        $playerGame->refresh();
+        $this->assertEquals(60, $playerGame->playtime_total);
+        $this->assertEquals(60, $playerGame->time_taken);
+        $this->assertEquals(60, $playerGame->time_taken_hardcore);
+
+        // third ping two minutes later
+        $now = $now->addMinutes(2);
+        Carbon::setTestNow($now);
+
+        $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->ID, 'm' => 'Level 1', 'x' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+            ]);
+
+        // total duration = 2.5 minutes, truncated down to 2 minutes
+        $playerSession->refresh();
+        $this->assertEquals(2, $playerSession->duration);
+        $this->assertEquals('Level 1', $playerSession->rich_presence);
+
+        $playerGame->refresh();
+        $this->assertEquals(120, $playerGame->playtime_total);
+        $this->assertEquals(120, $playerGame->time_taken);
+        $this->assertEquals(120, $playerGame->time_taken_hardcore);
+
+        // unlock all achievements in softcore
+        $playerGame->beaten_at = $playerGame->completed_at = $now->clone()->addSeconds(37);
+        $playerGame->time_taken += 37;
+        $playerGame->time_to_complete = $playerGame->time_taken;
+        $playerGame->save();
+
+        // ping two minutes later
+        $now = $now->addMinutes(2);
+        Carbon::setTestNow($now);
+
+        $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->ID, 'm' => 'Level 1', 'x' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+            ]);
+
+        // total duration = 4.5 minutes, truncated down to 4 minutes
+        $playerSession->refresh();
+        $this->assertEquals(4, $playerSession->duration);
+        $this->assertEquals('Level 1', $playerSession->rich_presence);
+
+        $playerGame->refresh();
+        $this->assertEquals(240, $playerGame->playtime_total);
+        $this->assertEquals(157, $playerGame->time_taken); // time_taken stops after game marked as completed
+        $this->assertEquals(240, $playerGame->time_taken_hardcore);
+
+        // unlock all achievements in hardcore
+        $playerGame->beaten_hardcore_at = $playerGame->completed_hardcore_at = $now->clone()->addSeconds(74);
+        $playerGame->time_taken_hardcore += 74;
+        $playerGame->time_to_complete_hardcore = $playerGame->time_taken_hardcore;
+        $playerGame->save();
+
+        // ping two minutes later
+        $now = $now->addMinutes(2);
+        Carbon::setTestNow($now);
+
+        $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->ID, 'm' => 'Level 1', 'x' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+            ]);
+
+        // total duration = 4.5 minutes, truncated down to 4 minutes
+        $playerSession->refresh();
+        $this->assertEquals(6, $playerSession->duration);
+        $this->assertEquals('Level 1', $playerSession->rich_presence);
+
+        $playerGame->refresh();
+        $this->assertEquals(360, $playerGame->playtime_total);
+        $this->assertEquals(157, $playerGame->time_taken);
+        $this->assertEquals(314, $playerGame->time_taken_hardcore); // time_taken_hardcore stops after game marked as completed hardcore
     }
 }
