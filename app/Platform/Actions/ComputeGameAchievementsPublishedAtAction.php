@@ -17,6 +17,10 @@ class ComputeGameAchievementsPublishedAtAction
     {
         $achievementIds = $game->achievements()->published()->get()->pluck('id')->toArray();
 
+        if (count($achievementIds) === 0) {
+            return null;
+        }
+
         // the most reliable way to identify when an achievement set was published
         // is to find the earliest achievement promotion audit comment. many
         // sets predate that, so we also need to check for the primary set claim

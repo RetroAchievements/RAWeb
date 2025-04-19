@@ -320,6 +320,18 @@ class PlayerGameActivityService
         $summary = $this->summarize();
         $adjustment = $summary['generatedSessionAdjustment'];
 
+        if ($playerGame->game->achievements_published === 0) {
+            $summary['achievementPlaytimeSoftcore'] = 0;
+            $summary['achievementPlaytimeHardcore'] = 0;
+            $summary['beatPlaytimeSoftcore'] = null;
+            $summary['beatPlaytimeHardcore'] = null;
+            $summary['completePlaytimeSoftcore'] = null;
+            $summary['completePlaytimeHardcore'] = null;
+            $summary['devTime'] = $summary['totalPlaytime'];
+
+            return $summary;
+        }
+
         if (!$playerGame->game->achievements_published_at) {
             $playerGame->game->achievements_published_at = (new ComputeGameAchievementsPublishedAtAction())->execute($playerGame->game);
             $playerGame->game->save();

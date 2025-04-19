@@ -27,9 +27,7 @@ class UpdatePlayerEstimatedTimes extends Command
             ->chunkById(500, function ($playerGames) use ($progressBar) {
                 /** @var PlayerGame $playerGame */
                 foreach ($playerGames as $playerGame) {
-                    if ($playerGame->game->achievements_published > 0
-                      && System::isGameSystem($playerGame->game->system->id)) {
-
+                    if (System::isGameSystem($playerGame->game->system->id)) {
                         $activityService = new PlayerGameActivityService();
                         $activityService->initialize($playerGame->user, $playerGame->game);
                         $summary = $activityService->analyze($playerGame);
