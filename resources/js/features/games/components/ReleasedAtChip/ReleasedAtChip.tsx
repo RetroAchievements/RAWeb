@@ -19,7 +19,10 @@ export const ReleasedAtChip: FC<ReleasedAtChipProps> = ({ game }) => {
   return (
     <BaseChip>
       <LuCalendar className="mr-0.5 size-4" />
-      <span>{t('Released:')}</span>
+      <span>
+        {t('Released')}
+        {':'}
+      </span>
       <span>{formatGameReleasedAt(game.releasedAt, game.releasedAtGranularity)}</span>
     </BaseChip>
   );
