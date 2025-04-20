@@ -1,5 +1,5 @@
 import { type FC, useMemo } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { Trans } from 'react-i18next';
 import { LuChevronDown } from 'react-icons/lu';
 
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
@@ -16,8 +16,6 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
   isOnlySetForGame,
   isOpen,
 }) => {
-  const { t } = useTranslation();
-
   const { achievementSet, title } = gameAchievementSet;
   const { achievements, imageAssetPathUrl } = achievementSet;
 
@@ -33,7 +31,8 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
           <img src={imageAssetPathUrl} width={52} height={52} className="rounded-sm" />
 
           <div className="flex flex-col items-start gap-0">
-            <span>{title ?? t('Base Set')}</span>
+            {/* Intentionally left untranslated. It would be weird if this title were translated and subset titles weren't. */}
+            <span>{title ?? 'Base Set'}</span>
 
             <span className="text-xs text-text">
               <Trans
