@@ -23,6 +23,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 
 class HubResource extends Resource
 {
@@ -58,11 +59,21 @@ class HubResource extends Resource
                             ->label('ID'),
 
                         Infolists\Components\TextEntry::make('title')
-                            ->label('Title'),
+                            ->label('Title')
+                            ->helperText(function (GameSet $record): ?HtmlString {
+                                $title = $record->title;
+
+                                // Check if the title starts with "[" and ends with "]".
+                                if (!str_starts_with($title, '[') || !str_ends_with($title, ']')) {
+                                    return new HtmlString('<span style="color: #f59e0b;">Missing wrapping square brackets!</span>');
+                                }
+
+                                return null;
+                            }),
 
                         Infolists\Components\TextEntry::make('forumTopic.id')
                             ->label('Forum Topic ID')
-                            ->url(fn (?int $state) => route('forum-topic.show', ['topic' => $state]))
+                            ->url(fn (?int $state) => $state ? route('forum-topic.show', ['topic' => $state]) : null)
                             ->placeholder('none')
                             ->extraAttributes(fn (?int $state) => $state ? ['class' => 'underline'] : []),
 
@@ -101,6 +112,7 @@ class HubResource extends Resource
                             ->required()
                             ->minLength(2)
                             ->maxLength(80)
+                            ->helperText('Be sure to wrap the hub title in square brackets like "[Genre - Action]".')
                             ->rules([new NoEmoji()]),
 
                         Forms\Components\TextInput::make('forum_topic_id')
