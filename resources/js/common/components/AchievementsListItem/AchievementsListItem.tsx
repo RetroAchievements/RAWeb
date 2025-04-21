@@ -6,6 +6,7 @@ import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 
+import { WeightedPointsContainer } from '../WeightedPointsContainer';
 import { AchievementDateMeta } from './AchievementDateMeta';
 import { AchievementGameTitle } from './AchievementGameTitle';
 import { ProgressBarMetaText } from './ProgressBarMetaText';
@@ -35,9 +36,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 
   const { title, description, game } = achievement;
 
-  const unlockHardcorePercentage = achievement.unlockHardcorePercentage
-    ? Number(achievement.unlockHardcorePercentage)
-    : 0;
+  const unlockPercentage = achievement.unlockPercentage ? Number(achievement.unlockPercentage) : 0;
 
   const unlocksHardcoreTotal = achievement.unlocksHardcoreTotal ?? 0;
   const unlocksTotal = achievement.unlocksTotal ?? 0;
@@ -71,19 +70,29 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
           <div className="mb-0.5 flex justify-between gap-x-2">
             {/* Title */}
             <div className="-mt-2 mb-0.5 md:mt-0">
-              <a href={route('achievement.show', { achievement })} className="font-medium">
-                {title}
-                {game?.title ? ' ' : null}
-              </a>
+              <span className="mr-2">
+                <a href={route('achievement.show', { achievement })} className="font-medium">
+                  {title}
+                  {game?.title ? ' ' : null}
+                </a>
 
-              {game?.title ? (
-                <Trans
-                  i18nKey="<1>from</1> <2>{{gameTitle}}</2>"
-                  components={{
-                    1: <span />,
-                    2: <AchievementGameTitle game={game} />,
-                  }}
-                />
+                {game?.title ? (
+                  <Trans
+                    i18nKey="<1>from</1> <2>{{gameTitle}}</2>"
+                    components={{
+                      1: <span />,
+                      2: <AchievementGameTitle game={game} />,
+                    }}
+                  />
+                ) : null}
+              </span>
+
+              {/* Points */}
+              {achievement.points && achievement.pointsWeighted ? (
+                <span className="inline-flex gap-1 text-[12px]">
+                  <span>{`(${achievement.points})`}</span>
+                  <WeightedPointsContainer>{`(${achievement.pointsWeighted})`}</WeightedPointsContainer>
+                </span>
               ) : null}
             </div>
 
@@ -114,7 +123,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 
             <p className="-mt-1.5 hidden text-center text-2xs md:block">
               {t('{{percentage}} unlock rate', {
-                percentage: formatPercentage(unlockHardcorePercentage),
+                percentage: formatPercentage(unlockPercentage),
               })}
             </p>
 
