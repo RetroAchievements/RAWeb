@@ -99,7 +99,14 @@ class GameResource extends Resource
                         Infolists\Components\TextEntry::make('forumTopic.id')
                             ->label('Forum Topic ID')
                             ->url(fn (?int $state) => $state ? route('forum-topic.show', ['topic' => $state]) : null)
-                            ->extraAttributes(['class' => 'underline']),
+                            ->placeholder('none')
+                            ->extraAttributes(function (Game $game): array {
+                                if ($game->forumTopic?->id) {
+                                    return ['class' => 'underline'];
+                                }
+
+                                return [];
+                            }),
 
                         Infolists\Components\TextEntry::make('system')
                             ->formatStateUsing(fn (System $state) => "[{$state->id}] {$state->name}")

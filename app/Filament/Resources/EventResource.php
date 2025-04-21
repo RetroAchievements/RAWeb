@@ -71,7 +71,14 @@ class EventResource extends Resource
                         Infolists\Components\TextEntry::make('legacyGame.forumTopic.id')
                             ->label('Forum Topic ID')
                             ->url(fn (?int $state) => $state ? route('forum-topic.show', ['topic' => $state]) : null)
-                            ->extraAttributes(['class' => 'underline']),
+                            ->placeholder('none')
+                            ->extraAttributes(function (Event $event): array {
+                                if ($event->legacyGame->forumTopic?->id) {
+                                    return ['class' => 'underline'];
+                                }
+
+                                return [];
+                            }),
 
                         Infolists\Components\TextEntry::make('active_from')
                             ->label('Active From')
