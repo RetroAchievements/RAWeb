@@ -15,13 +15,15 @@ export const PlayableHubsList: FC<PlayableHubsListProps> = ({ hubs }) => {
     return null;
   }
 
+  const sortedHubs = hubs.sort((a, b) => a.title!.localeCompare(b.title!));
+
   return (
     <div data-testid="hubs-list">
       <h2 className="mb-0 border-0 text-lg font-semibold">{t('Hubs')}</h2>
 
       <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
         <ul className="zebra-list overflow-hidden rounded-lg">
-          {hubs.map((hub) => (
+          {sortedHubs.map((hub) => (
             <li
               key={`hub-list-item-${hub.id}`}
               className="w-full p-2 first:rounded-t-lg last:rounded-b-lg"
