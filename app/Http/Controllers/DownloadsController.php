@@ -24,7 +24,10 @@ class DownloadsController extends Controller
 {
     public function index(Request $request): InertiaResponse
     {
-        $allEmulators = Emulator::with('userAgents', 'downloads', 'platforms', 'systems')->get();
+        $allEmulators = Emulator::query()
+            ->with('userAgents', 'downloads', 'platforms', 'systems')
+            ->whereNotIn('id', [Emulator::NonEmulator])
+            ->get();
         $emulatorsData = $allEmulators->map(function (Emulator $emulator) {
             return EmulatorData::fromEmulator($emulator)->include(
                 'documentationUrl',

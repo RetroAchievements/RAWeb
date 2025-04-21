@@ -63,7 +63,13 @@ export const DownloadableClientCard: FC<DownloadableClientCardProps> = ({ emulat
 
           <div className="flex flex-wrap items-center gap-1">
             {cardSystems.map((system) => (
-              <SystemChip key={`${emulator.id}-${system.id}`} {...system} />
+              <BaseTooltip key={`${emulator.id}-${system.id}`}>
+                <BaseTooltipTrigger>
+                  <SystemChip {...system} />
+                </BaseTooltipTrigger>
+
+                <BaseTooltipContent>{system.name}</BaseTooltipContent>
+              </BaseTooltip>
             ))}
 
             {tooltipSystems.length ? (
