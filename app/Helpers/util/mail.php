@@ -235,7 +235,8 @@ function informAllSubscribersAboutActivity(
             // we don't trust the user and shouldn't broadcast their message to all subscribers
             // as mass emails with junk content could get us flagged for spamming.
             if ($comment->user->created_at->diffInDays() >= 1
-                && $comment->user->playerGames()->where('time_taken', '>', 5)->exists()) {
+                && ($comment->user->playerSessions()->where('duration', '>', 5)->exists() ||
+                    $comment->user->playerAchievementSets()->where('time_taken', '>', 5)->exists())) {
                 $payload = nl2br($comment->Payload);
             }
         }
