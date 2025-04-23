@@ -13,6 +13,7 @@ use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Database\Eloquent\Collection;
 use InvalidArgumentException;
 
@@ -49,8 +50,10 @@ class BuildClientPatchDataAction
             return $this->buildPatchData($game, null, $user, $flag);
         }
 
-        // If the hash is not marked as compatible, return a dummy set that will inform the user.
-        if ($gameHash->compatibility !== GameHashCompatibility::Compatible) {
+        // If the hash is not marked as compatible, and the current user is not flagged to
+        // be testing the hash, return a dummy set that will inform the user.
+        if ($gameHash->compatibility !== GameHashCompatibility::Compatible
+                && $gameHash->compatibility_tester_id !== $user?->id) {
             return $this->buildIncompatiblePatchData($game ?? $gameHash->game, $gameHash->compatibility, $user);
         }
 
@@ -349,7 +352,7 @@ class BuildClientPatchDataAction
         return [
             'Success' => true,
             'PatchData' => [
-                'ID' => $game->id + IdentifyGameHashAction::IncompatibleIdBase,
+                'ID' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
                 'Title' => 'Unsupported Game Version',
                 'ConsoleID' => $game->ConsoleID,
                 'ImageIcon' => $game->ImageIcon,

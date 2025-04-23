@@ -7,8 +7,8 @@ namespace App\Platform\Components;
 use App\Community\Enums\ClaimStatus;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
-use App\Models\GameAlternative;
 use App\Models\PlayerBadge;
+use App\Models\System;
 use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Contracts\View\View;
@@ -20,8 +20,7 @@ use Illuminate\View\Component;
 class GameCard extends Component
 {
     private int $gameId;
-    private int $hubConsoleId = 100;
-    private int $eventConsoleId = 101;
+    private int $eventConsoleId = System::Events;
     private ?array $userHighestGameAward = null;
     private ?User $userContext;
 
@@ -98,18 +97,12 @@ class GameCard extends Component
                 $processedClaims[] = $processedClaim;
             }
 
-            $foundAltGames = [];
-            if ($foundGameConsoleId === $this->hubConsoleId) {
-                $foundAltGames = GameAlternative::where('gameID', $gameId)->get()->toArray();
-            }
-
             return array_merge(
                 $foundGame->toArray(), [
                     'ConsoleID' => $foundGameConsoleId,
                     'ConsoleName' => $foundGame->system->Name,
                     'Achievements' => $foundGameAchievements,
                     'Claims' => $processedClaims,
-                    'AltGames' => $foundAltGames,
                 ]
             );
         })();
@@ -164,9 +157,7 @@ class GameCard extends Component
         $gameSystemIconSrc = getSystemIconUrl($rawGameData['ConsoleID']);
         $consoleName = $rawGameData['ConsoleName'];
         $achievementsCount = count($rawGameData['Achievements']);
-        $isHub = $rawGameData['ConsoleID'] === $this->hubConsoleId;
         $isEvent = $rawGameData['ConsoleID'] === $this->eventConsoleId;
-        $altGamesCount = count($rawGameData['AltGames']);
 
         [$pointsSum, $retroPointsSum, $retroRatio, $lastUpdated] = $this->buildCardAchievementsData(
             $rawGameData['Achievements'],
@@ -187,14 +178,12 @@ class GameCard extends Component
             'achievementsCount',
             'activeDevelopersLabel',
             'activeDeveloperUsernames',
-            'altGamesCount',
             'badgeUrl',
             'consoleName',
             'gameSystemIconSrc',
             'highestProgressionAwardDate',
             'highestProgressionStatus',
             'isEvent',
-            'isHub',
             'lastUpdated',
             'pointsSum',
             'rawTitle',
