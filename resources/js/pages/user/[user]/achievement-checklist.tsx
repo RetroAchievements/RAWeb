@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
 import { BaseSelectAsync } from '@/common/components/+vendor/BaseSelectAsync';
+import { AchievementsListItem } from '@/common/components/AchievementsListItem';
 import { EmptyState } from '@/common/components/EmptyState';
 import { UserBreadcrumbs } from '@/common/components/UserBreadcrumbs';
 import { UserHeading } from '@/common/components/UserHeading';
@@ -9,8 +10,7 @@ import { useSearchQuery } from '@/common/hooks/queries/useSearchQuery';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
-import { AchievementsListItem } from '@/features/events/components/AchievementSet/AchievementsListItem';
-import { EventAchievementSection } from '@/features/events/components/AchievementSet/EventAchievementSection';
+import { EventAchievementSection } from '@/features/events/components/EventAchievementSetContainer/EventAchievementSet/EventAchievementSection';
 
 const UserAchievementChecklist: AppPage = () => {
   const { player, groups } = usePageProps<App.Community.Data.AchievementChecklistPageProps>();

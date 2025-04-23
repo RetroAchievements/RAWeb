@@ -12,7 +12,7 @@ interface EventSidebarFullWidthButtonsProps {
 }
 
 export const EventSidebarFullWidthButtons: FC<EventSidebarFullWidthButtonsProps> = ({ event }) => {
-  const { can } = usePageProps<App.Platform.Data.EventShowPagePropsData>();
+  const { can } = usePageProps<App.Platform.Data.EventShowPageProps>();
 
   const { t } = useTranslation();
 

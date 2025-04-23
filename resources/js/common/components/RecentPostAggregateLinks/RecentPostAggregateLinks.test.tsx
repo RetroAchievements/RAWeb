@@ -47,7 +47,8 @@ describe('Component: RecentPostAggregateLinks', () => {
 
     const dailyLinkEl = screen.getByRole('link', { name: /5 posts in the last 24 hours/i });
     expect(dailyLinkEl).toBeVisible();
-    expect(dailyLinkEl).toHaveAttribute('href', `/viewtopic.php?t=120&c=12345#12345`);
+    expect(dailyLinkEl).toHaveAttribute('href', expect.stringContaining('forum-topic.show'));
+    expect(dailyLinkEl).toHaveAttribute('href', expect.stringContaining('#12345'));
   });
 
   it('given there are more weekly posts than daily posts, shows both links', () => {
@@ -68,7 +69,8 @@ describe('Component: RecentPostAggregateLinks', () => {
 
     const weeklyLinkEl = screen.getByRole('link', { name: /8 posts in the last 7 days/i });
     expect(weeklyLinkEl).toBeVisible();
-    expect(weeklyLinkEl).toHaveAttribute('href', `/viewtopic.php?t=120&c=99999#99999`);
+    expect(weeklyLinkEl).toHaveAttribute('href', expect.stringContaining('forum-topic.show'));
+    expect(weeklyLinkEl).toHaveAttribute('href', expect.stringContaining('#99999'));
   });
 
   it('given there are no daily posts but there are weekly posts, shows the weekly link', () => {
@@ -89,6 +91,7 @@ describe('Component: RecentPostAggregateLinks', () => {
 
     const weeklyLinkEl = screen.getByRole('link', { name: /8 posts in the last 7 days/i });
     expect(weeklyLinkEl).toBeVisible();
-    expect(weeklyLinkEl).toHaveAttribute('href', `/viewtopic.php?t=120&c=99999#99999`);
+    expect(weeklyLinkEl).toHaveAttribute('href', expect.stringContaining('forum-topic.show'));
+    expect(weeklyLinkEl).toHaveAttribute('href', expect.stringContaining('#99999'));
   });
 });

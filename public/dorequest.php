@@ -4,7 +4,6 @@ use App\Actions\FindUserByIdentifierAction;
 use App\Community\Enums\ActivityType;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
-use App\Connect\Actions\IdentifyGameHashAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameAndGameHashAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
@@ -22,6 +21,7 @@ use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Services\UserAgentService;
+use App\Platform\Services\VirtualGameIdService;
 use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
@@ -247,7 +247,7 @@ switch ($requestType) {
                 'GameID' => 0,
             ];
         } else {
-            $response['GameID'] = (new IdentifyGameHashAction())->execute($md5);
+            $response['GameID'] = VirtualGameIdService::idFromHash($md5);
         }
         break;
 
@@ -566,8 +566,8 @@ switch ($requestType) {
         }
 
         try {
-            if ($gameID > IdentifyGameHashAction::IncompatibleIdBase) {
-                $gameHash = IdentifyGameHashAction::makeVirtualGameHash($gameID);
+            if (VirtualGameIdService::isVirtualGameId($gameID)) {
+                $gameHash = VirtualGameIdService::makeVirtualGameHash($gameID);
                 $game = null;
             } else {
                 $gameHash = $gameHashMd5 ? GameHash::whereMd5($gameHashMd5)->first() : null;
@@ -617,7 +617,7 @@ switch ($requestType) {
         break;
 
     case "startsession":
-        if ($gameID > IdentifyGameHashAction::IncompatibleIdBase) {
+        if (VirtualGameIdService::isVirtualGameId($gameID)) {
             $response['Success'] = true;
             break;
         }
@@ -758,7 +758,7 @@ switch ($requestType) {
         break;
 
     case "unlocks":
-        if ($gameID > IdentifyGameHashAction::IncompatibleIdBase) {
+        if (VirtualGameIdService::isVirtualGameId($gameID)) {
             $response['UserUnlocks'] = [];
             $response['Success'] = true;
             break;

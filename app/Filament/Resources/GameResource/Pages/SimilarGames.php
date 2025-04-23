@@ -21,7 +21,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Livewire;
+use Livewire\Livewire;
 
 class SimilarGames extends ManageRelatedRecords
 {
@@ -170,7 +170,6 @@ class SimilarGames extends ManageRelatedRecords
                         Notification::make()
                             ->success()
                             ->title('Success')
-                            ->body(count($gameIds) > 1 ? 'Added similar games.' : 'Added similar game.')
                             ->send();
                     }),
             ])

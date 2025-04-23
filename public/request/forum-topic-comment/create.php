@@ -29,4 +29,6 @@ if (!$forumTopic || !$userModel->can('create', [App\Models\ForumTopicComment::cl
 
 $newComment = submitTopicComment($userModel, $forumTopic->id, null, $input['body']);
 
-return redirect(url("/viewtopic.php?t={$forumTopic->id}&c={$newComment->id}"))->with('success', __('legacy.success.send'));
+return redirect(
+    route('forum-topic.show', ['topic' => $forumTopic->id, 'comment' => $newComment->id])
+)->with('success', __('legacy.success.send'));

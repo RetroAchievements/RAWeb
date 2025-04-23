@@ -1,8 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { SystemChip } from '@/common/components/SystemChip';
-
 import { EndDateChip } from './EndDateChip';
 import { IsPlayableChip } from './IsPlayableChip';
 import { StartDateChip } from './StartDateChip';
@@ -26,7 +24,7 @@ export const EventHeader: FC<EventHeaderProps> = ({ event }) => {
   }
 
   return (
-    <div className="flex flex-col gap-3" data-testid="header-content">
+    <div className="flex flex-col gap-3" data-testid="playable-header">
       <div className="flex gap-4 sm:gap-6">
         <img src={event.legacyGame.badgeUrl} className="size-16 rounded-sm sm:size-24" />
 
@@ -35,13 +33,11 @@ export const EventHeader: FC<EventHeaderProps> = ({ event }) => {
             <h1 className="text-h3 mb-0 border-b-0 text-lg sm:text-2xl">
               {event.legacyGame.title}
             </h1>
-            <SystemChip
-              id={101}
-              name={t('Event')}
-              iconUrl="/assets/images/system/events.png"
-              nameShort={t('Event')}
-              className="bg-transparent p-0 light:border-0"
-            />
+
+            <span className="flex items-center gap-1 whitespace-nowrap text-xs">
+              <img src="/assets/images/system/events.png" alt="icon" width={18} height={18} />
+              <span>{t('Event')}</span>
+            </span>
           </div>
 
           <div className="hidden flex-wrap gap-x-2 gap-y-1 text-neutral-300 light:text-neutral-700 sm:flex">

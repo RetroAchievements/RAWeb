@@ -15,7 +15,6 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\AttachPlayerGameAction;
-use App\Platform\Actions\DetachGamesFromGameSetAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
@@ -922,7 +921,7 @@ class ConvertGame
         }
 
         foreach ($game->gameSets as $gameSet) {
-            (new DetachGamesFromGameSetAction())->execute($gameSet, [$gameId]);
+            $gameSet->games()->detach([$gameId]);
         }
     }
 
