@@ -33,8 +33,14 @@ class EventAwardsRelationManager extends RelationManager
     {
         /** @var Event $event */
         $event = $this->getOwnerRecord();
+
         $minPoints = 1;
-        $maxPoints = $event->achievements()->count();
+        $maxPoints = $event->publishedAchievements()
+            ->get()
+            ->sum(function ($eventAchievement) {
+                return $eventAchievement->achievement->points;
+            });
+
         $isNew = true;
 
         if (!$event->awards()->exists()) {

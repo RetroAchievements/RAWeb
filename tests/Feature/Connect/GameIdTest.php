@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Connect\Actions\IdentifyGameHashAction;
 use App\Enums\GameHashCompatibility;
 use App\Models\User;
+use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
 use Tests\TestCase;
@@ -50,7 +50,7 @@ class GameIdTest extends TestCase
         $this->get($this->apiUrl('gameid', ['m' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
-                'GameID' => $game->id + IdentifyGameHashAction::IncompatibleIdBase,
+                'GameID' => $game->id + VirtualGameIdService::IncompatibleIdBase,
                 'Success' => true,
             ]);
 
@@ -60,7 +60,7 @@ class GameIdTest extends TestCase
         $this->get($this->apiUrl('gameid', ['m' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
-                'GameID' => $game->id + IdentifyGameHashAction::UntestedIdBase,
+                'GameID' => $game->id + VirtualGameIdService::UntestedIdBase,
                 'Success' => true,
             ]);
 
@@ -70,7 +70,7 @@ class GameIdTest extends TestCase
         $this->get($this->apiUrl('gameid', ['m' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
-                'GameID' => $game->id + IdentifyGameHashAction::PatchRequiredIdBase,
+                'GameID' => $game->id + VirtualGameIdService::PatchRequiredIdBase,
                 'Success' => true,
             ]);
 

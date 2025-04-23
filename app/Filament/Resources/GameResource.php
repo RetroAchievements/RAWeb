@@ -98,8 +98,15 @@ class GameResource extends Resource
 
                         Infolists\Components\TextEntry::make('forumTopic.id')
                             ->label('Forum Topic ID')
-                            ->url(fn (?int $state) => route('forum-topic.show', ['topic' => $state]))
-                            ->extraAttributes(['class' => 'underline']),
+                            ->url(fn (?int $state) => $state ? route('forum-topic.show', ['topic' => $state]) : null)
+                            ->placeholder('none')
+                            ->extraAttributes(function (Game $game): array {
+                                if ($game->forumTopic?->id) {
+                                    return ['class' => 'underline'];
+                                }
+
+                                return [];
+                            }),
 
                         Infolists\Components\TextEntry::make('system')
                             ->formatStateUsing(fn (System $state) => "[{$state->id}] {$state->name}")
@@ -424,7 +431,7 @@ class GameResource extends Resource
 
                 Tables\Columns\TextColumn::make('forumTopic.id')
                     ->label('Forum Topic')
-                    ->url(fn (?int $state) => route('forum-topic.show', ['topic' => $state]))
+                    ->url(fn (?int $state) => $state ? route('forum-topic.show', ['topic' => $state]) : null)
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('Publisher')
