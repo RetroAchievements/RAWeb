@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Connect\Actions\IdentifyGameHashAction;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\EventAchievement;
@@ -17,6 +16,7 @@ use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -927,7 +927,7 @@ class StartSessionTest extends TestCase
 
         $this->seedEmulatorUserAgents();
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('startsession', ['g' => $game->ID + IdentifyGameHashAction::IncompatibleIdBase, 'm' => $gameHash->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->ID + VirtualGameIdService::IncompatibleIdBase, 'm' => $gameHash->md5]))
             ->assertExactJson([
                 'Success' => true,
             ]);
