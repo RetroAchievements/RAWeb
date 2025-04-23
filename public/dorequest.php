@@ -566,12 +566,24 @@ switch ($requestType) {
         }
 
         try {
+            $game = null;
+            $gameHash = null;
             if (VirtualGameIdService::isVirtualGameId($gameID)) {
-                $gameHash = VirtualGameIdService::makeVirtualGameHash($gameID);
-                $game = null;
+                // we don't have a specific game hash. check to see if the user is selected for
+                // compatibility testing for any hash for the game. if so, load it.
+                if ($user) {
+                    [$realGameId, $compatibility] = VirtualGameIdService::decodeVirtualGameId($gameID);
+                    if (GameHash::where('game_id', $realGameId)->where('compatibility_tester_id', $user->id)->exists()) {
+                        $game = Game::find($realGameId);
+                    }
+                }
+                if (!$game) {
+                    $gameHash = VirtualGameIdService::makeVirtualGameHash($gameID);
+                }
+            } elseif ($gameHashMd5) {
+                $gameHash = GameHash::whereMd5($gameHashMd5)->first();
             } else {
-                $gameHash = $gameHashMd5 ? GameHash::whereMd5($gameHashMd5)->first() : null;
-                $game = $gameHashMd5 ? null : Game::find($gameID);
+                $game = Game::find($gameID);
             }
 
             $response = (new BuildClientPatchDataAction())->execute(
