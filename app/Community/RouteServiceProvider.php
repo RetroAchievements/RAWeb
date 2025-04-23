@@ -30,7 +30,6 @@ use App\Community\Controllers\GameCommentController;
 use App\Community\Controllers\GameHashesCommentController;
 use App\Community\Controllers\GameModificationsCommentController;
 use App\Community\Controllers\LeaderboardCommentController;
-use App\Community\Controllers\MessageController;
 use App\Community\Controllers\MessageThreadController;
 use App\Community\Controllers\UserAchievementChecklistController;
 use App\Community\Controllers\UserCommentController;
@@ -363,16 +362,6 @@ class RouteServiceProvider extends ServiceProvider
                     Route::post('game/{game}/claim/create', [AchievementSetClaimController::class, 'store'])->name('achievement-set-claim.create');
                     Route::post('game/{game}/claim/drop', [AchievementSetClaimController::class, 'delete'])->name('achievement-set-claim.delete');
                     Route::post('claim/{claim}/update', [AchievementSetClaimController::class, 'update'])->name('achievement-set-claim.update');
-                });
-
-                /*
-                 * messages
-                 */
-                Route::group([
-                    'middleware' => ['auth'], // TODO add 'verified' middleware
-                ], function () {
-                    Route::resource('message', MessageController::class)->only(['store']);
-                    Route::resource('message-thread', MessageThreadController::class)->parameter('message-thread', 'messageThread')->only(['destroy']);
                 });
 
                 /*

@@ -64,18 +64,18 @@ class MessageApiController extends Controller
                 $authorId = $foundTeamParticipant->id;
             }
 
-            $senderUser = User::firstWhere('ID', $authorId);
+            $userFrom = User::firstWhere('ID', $authorId);
 
             foreach ($thread->users as $threadUser) {
-                if (!$threadUser->is($senderUser) && !$senderUser->can('sendToRecipient', [Message::class, $threadUser])) {
+                if (!$threadUser->is($userFrom) && !$userFrom->can('sendToRecipient', [Message::class, $threadUser])) {
                     return response()->json([
-                        'error' => $senderUser->isMuted() ? 'muted_user' : 'cannot_message_user',
+                        'error' => $userFrom->isMuted() ? 'muted_user' : 'cannot_message_user',
                         403,
                     ]);
                 }
             }
 
-            (new AddToMessageThreadAction())->execute($thread, $senderUser, $body);
+            (new AddToMessageThreadAction())->execute($thread, $userFrom, $user, $body);
         } else {
             $recipient = User::whereName($input['recipient'])->first();
 
@@ -95,16 +95,16 @@ class MessageApiController extends Controller
                 }
             }
 
-            $senderUser = User::firstWhere('ID', $authorId);
+            $userFrom = User::firstWhere('ID', $authorId);
 
-            if (!$senderUser->can('sendToRecipient', [Message::class, $recipient])) {
+            if (!$userFrom->can('sendToRecipient', [Message::class, $recipient])) {
                 return response()->json([
                     'error' => $user->isMuted() ? 'muted_user' : 'cannot_message_user',
                     403,
                 ]);
             }
 
-            $thread = (new CreateMessageThreadAction())->execute($senderUser, $recipient, $input['title'], $body);
+            $thread = (new CreateMessageThreadAction())->execute($userFrom, $recipient, $user, $input['title'], $body);
         }
 
         return response()->json(['success' => true, 'threadId' => $thread->id]);

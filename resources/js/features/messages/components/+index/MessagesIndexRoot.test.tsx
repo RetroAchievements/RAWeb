@@ -141,7 +141,7 @@ describe('Component: MessagesIndexRoot', () => {
 
     render(<MessagesIndexRoot />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser() },
+        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
         paginatedMessageThreads: createPaginatedData(
           [createMessageThread(), createMessageThread()],
           {
@@ -156,6 +156,7 @@ describe('Component: MessagesIndexRoot', () => {
             },
           },
         ),
+        senderUserDisplayName: 'Scott',
         unreadMessageCount: 0,
         selectableInboxDisplayNames: [],
       },
@@ -168,6 +169,45 @@ describe('Component: MessagesIndexRoot', () => {
     // ASSERT
     expect(visitSpy).toHaveBeenCalledOnce();
     expect(visitSpy).toHaveBeenCalledWith(['message-thread.index', { _query: { page: 2 } }]);
+  });
+
+  it('given the user is delegating and selects a page number option, navigates them to that page with the correct URL', async () => {
+    // ARRANGE
+    const visitSpy = vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
+
+    render(<MessagesIndexRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        paginatedMessageThreads: createPaginatedData(
+          [createMessageThread(), createMessageThread()],
+          {
+            perPage: 1,
+            lastPage: 2,
+            currentPage: 1,
+            links: {
+              previousPageUrl: null,
+              firstPageUrl: null,
+              nextPageUrl: '#',
+              lastPageUrl: '#',
+            },
+          },
+        ),
+        senderUserDisplayName: 'RAdmin',
+        unreadMessageCount: 0,
+        selectableInboxDisplayNames: [],
+      },
+    });
+
+    // ACT
+    const paginatorCombobox = screen.getAllByRole('combobox')[0];
+    await userEvent.selectOptions(paginatorCombobox, ['2']);
+
+    // ASSERT
+    expect(visitSpy).toHaveBeenCalledOnce();
+    expect(visitSpy).toHaveBeenCalledWith([
+      'message-thread.user.index',
+      { user: 'RAdmin', _query: { page: 2 } },
+    ]);
   });
 
   it('displays a link to create a new message', () => {

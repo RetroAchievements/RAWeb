@@ -32,9 +32,14 @@ export const MessagesIndexRoot: FC = memo(() => {
 
   const handlePageSelectValueChange = (newPageValue: number) => {
     router.visit(
-      route('message-thread.index', {
-        _query: { page: newPageValue },
-      }),
+      isDelegating
+        ? route('message-thread.user.index', {
+            user: senderUserDisplayName,
+            _query: { page: newPageValue },
+          })
+        : route('message-thread.index', {
+            _query: { page: newPageValue },
+          }),
     );
   };
 

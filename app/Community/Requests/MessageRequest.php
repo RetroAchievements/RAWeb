@@ -21,7 +21,7 @@ class MessageRequest extends FormRequest
             'recipient' => 'required_without:thread_id|exists:UserAccounts,display_name',
             'thread_id' => 'nullable|integer',
             'title' => 'required_without:thread_id|string|max:255',
-            'senderUserDisplayName' => 'sometimes|string|exists:UserAccounts,User',
+            'senderUserDisplayName' => 'sometimes|string|exists:UserAccounts,display_name',
         ];
     }
 }

@@ -23,6 +23,7 @@ class Message extends BaseModel
     protected $fillable = [
         'thread_id',
         'author_id',
+        'sent_by_id',
         'body',
         'created_at',
     ];
