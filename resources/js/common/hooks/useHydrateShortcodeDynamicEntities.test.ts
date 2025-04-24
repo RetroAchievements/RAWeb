@@ -23,7 +23,7 @@ vi.mock('jotai/utils', async () => {
 describe('Hook: useHydrateShortcodeDynamicEntities', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const dynamicEntities = {
+    const initialDynamicEntities = {
       achievements: [],
       games: [],
       hubs: [],
@@ -33,7 +33,21 @@ describe('Hook: useHydrateShortcodeDynamicEntities', () => {
     };
 
     // ACT
-    const { result } = renderHook(() => useHydrateShortcodeDynamicEntities(dynamicEntities));
+    const { result } = renderHook(
+      () => useHydrateShortcodeDynamicEntities(initialDynamicEntities),
+      {
+        pageProps: {
+          dynamicEntities: {
+            achievements: [],
+            games: [],
+            hubs: [],
+            events: [],
+            tickets: [],
+            users: [],
+          },
+        },
+      },
+    );
 
     // ASSERT
     expect(result).toBeTruthy();
@@ -52,7 +66,18 @@ describe('Hook: useHydrateShortcodeDynamicEntities', () => {
     };
 
     // ACT
-    renderHook(() => useHydrateShortcodeDynamicEntities(dynamicEntities as any));
+    renderHook(() => useHydrateShortcodeDynamicEntities(dynamicEntities as any), {
+      pageProps: {
+        dynamicEntities: {
+          achievements: [],
+          games: [],
+          hubs: [],
+          events: [],
+          tickets: [],
+          users: [],
+        },
+      },
+    });
 
     // ASSERT
     expect(mockUseHydrateAtoms).toHaveBeenCalledWith([

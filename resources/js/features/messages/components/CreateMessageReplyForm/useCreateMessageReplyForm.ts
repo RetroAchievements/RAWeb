@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { router } from '@inertiajs/react';
 import { useMutation } from '@tanstack/react-query';
 import axios, { type AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
@@ -41,14 +42,15 @@ export function useCreateMessageReplyForm() {
     await toastMessage.promise(mutation.mutateAsync(formValues), {
       loading: t('Submitting...'),
       success: () => {
-        setTimeout(() => {
-          window.location.assign(
-            route('message-thread.show', {
-              messageThread: messageThread.id,
-              _query: { page: paginatedMessages.lastPage },
-            }),
-          );
-        }, 1000);
+        router.visit(
+          route('message-thread.show', {
+            messageThread: messageThread.id,
+            _query: { page: paginatedMessages.lastPage },
+          }),
+          {
+            preserveScroll: true,
+          },
+        );
 
         return t('Submitted!');
       },
