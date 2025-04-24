@@ -30,7 +30,7 @@ class UpdatePlayerGameMetricsAction
         }
 
         $activityService = new PlayerGameActivityService();
-        $activityService->initialize($playerGame->user, $playerGame->game);
+        $activityService->initialize($playerGame->user, $playerGame->game, withSubsets: true);
 
         $summary = $activityService->summarize();
         $playerGame->last_played_at = $activityService->lastPlayedAt();
@@ -121,37 +121,7 @@ class UpdatePlayerGameMetricsAction
             // update completion progress
             $numSetAchievements = count($setAchievementIds);
             if ($numSetAchievements > 0) {
-                $playerAchievementSet->completion_percentage = $playerAchievementSet->achievements_unlocked / $numSetAchievements;
-                $isCompleted = $playerAchievementSet->achievements_unlocked === $numSetAchievements;        
-                if ($isCompleted && !$playerAchievementSet->completed_at) {
-                    $playerAchievementSet->completed_at = $playerAchievementSet->last_unlock_at;
-                    $playerAchievementSet->completion_dates = (new Collection($playerAchievementSet->completion_dates))
-                        ->push($playerAchievementSet->completed_at)
-                        ->unique();
-
-                    if ($achievementSet === $coreAchievementSet) {
-                        $playerGame->completed_at = $playerAchievementSet->last_unlock_at;
-                        $playerGame->completion_dates = (new Collection($playerGame->completion_dates))
-                            ->push($playerGame->completed_at)
-                            ->unique();    
-                    }
-                }
-
-                $playerAchievementSet->completion_percentage_hardcore = $playerAchievementSet->achievements_unlocked_hardcore / $numSetAchievements;
-                $isCompletedHardcore = $playerAchievementSet->achievements_unlocked_hardcore === $numSetAchievements;
-                if ($isCompletedHardcore && !$playerAchievementSet->completed_hardcore_at) {
-                    $playerAchievementSet->completed_hardcore_at = $playerAchievementSet->last_unlock_hardcore_at;
-                    $playerAchievementSet->completion_dates_hardcore = (new Collection($playerAchievementSet->completion_dates_hardcore))
-                        ->push($playerAchievementSet->completed_hardcore_at)
-                        ->unique();
-
-                    if ($achievementSet === $coreAchievementSet) {
-                        $playerGame->completed_hardcore_at = $playerAchievementSet->last_unlock_hardcore_at;
-                        $playerGame->completion_dates_hardcore = (new Collection($playerGame->completion_dates_hardcore))
-                            ->push($playerGame->completed_hardcore_at)
-                            ->unique();
-                    }
-                }
+                $this->updateCompletionMetrics($playerAchievementSet, $playerGame, $numSetAchievements, $achievementSet === $coreAchievementSet);
             } else {
                 $playerAchievementSet->completion_percentage = 0.0;
                 $playerAchievementSet->completion_percentage_hardcore = 0.0;
@@ -198,6 +168,48 @@ class UpdatePlayerGameMetricsAction
         expireGameTopAchievers($game->id);
     }
 
+    private function updateCompletionMetrics(PlayerAchievementSet $playerAchievementSet, PlayerGame $playerGame, int $numSetAchievements, bool $isCoreSet): void
+    {
+        $completionDates = $playerAchievementSet->completion_dates ?? [];
+        $completionDatesHardcore = $playerAchievementSet->completion_dates_hardcore ?? [];
+        $gameCompletionDates = $playerGame->completion_dates ?? [];
+        $gameCompletionDatesHardcore = $playerGame->completion_dates_hardcore ?? [];
+
+        $playerAchievementSet->completion_percentage = $playerAchievementSet->achievements_unlocked / $numSetAchievements;
+        $isCompleted = $playerAchievementSet->achievements_unlocked === $numSetAchievements;        
+        if ($isCompleted && !$playerAchievementSet->completed_at) {
+            $playerAchievementSet->completed_at = $playerAchievementSet->last_unlock_at;
+            array_push($completionDates, $playerAchievementSet->completed_at);
+
+            if ($isCoreSet) {
+                $playerGame->completed_at = $playerAchievementSet->last_unlock_at;
+                array_push($gameCompletionDates, $playerGame->completed_at);
+            }
+        }
+        $playerAchievementSet->completion_dates = empty($completionDates) ? null : array_unique($completionDates);
+
+        $playerAchievementSet->completion_percentage_hardcore = $playerAchievementSet->achievements_unlocked_hardcore / $numSetAchievements;
+        $isCompletedHardcore = $playerAchievementSet->achievements_unlocked_hardcore === $numSetAchievements;
+        if ($isCompletedHardcore && !$playerAchievementSet->completed_hardcore_at) {
+            $playerAchievementSet->completed_hardcore_at = $playerAchievementSet->last_unlock_hardcore_at;
+            array_push($completionDatesHardcore, $playerAchievementSet->completed_hardcore_at);
+
+            if ($isCoreSet) {
+                $playerGame->completed_hardcore_at = $playerAchievementSet->last_unlock_hardcore_at;
+                if ($playerGame->completion_dates_hardcore === null) {
+                    $playerGame->completion_dates_hardcore = [];
+                }
+                array_push($gameCompletionDatesHardcore, $playerGame->completed_hardcore_at);
+            }
+        }
+        $playerAchievementSet->completion_dates_hardcore = empty($completionDatesHardcore) ? null : array_unique($completionDatesHardcore);
+
+        if ($isCoreSet) {
+            $playerAchievementSet->completion_dates = empty($gameCompletionDates) ? null : array_unique($gameCompletionDates);
+            $playerAchievementSet->completion_dates_hardcore = empty($gameCompletionDatesHardcore) ? null : array_unique($gameCompletionDatesHardcore);
+        }
+    }
+
     /**
      * @param Collection<int, Achievement> $achievementsUnlocked
      */
@@ -241,6 +253,7 @@ class UpdatePlayerGameMetricsAction
         $beatenHardcoreAt = $isBeatenHardcore ? $playerGame->beaten_hardcore_at : null;
         $beatenDates = $playerGame->beaten_dates;
         $beatenDatesHardcore = $playerGame->beaten_dates_hardcore;
+
         if (!$beatenAt && $isBeatenSoftcore) {
             $beatenAt = collect([
                 $progressionUnlocks->max('unlocked_at'),
@@ -248,8 +261,12 @@ class UpdatePlayerGameMetricsAction
             ])
                 ->filter()
                 ->max();
-            $beatenDates = (new Collection($beatenDates))->push($beatenAt);
+            array_push($beatenDates, $beatenAt);
         }
+        if ($beatenDates !== null) {
+            $beatenDates = array_unique($beatenDates);
+        }
+
         if (!$beatenHardcoreAt && $isBeatenHardcore) {
             $beatenHardcoreAt = collect([
                 $progressionUnlocksHardcore->max('unlocked_hardcore_at'),
@@ -257,7 +274,10 @@ class UpdatePlayerGameMetricsAction
             ])
                 ->filter()
                 ->max();
-            $beatenDatesHardcore = (new Collection($beatenDates))->push($beatenHardcoreAt);
+            array_push($beatenDatesHardcore, $beatenHardcoreAt);
+        }
+        if ($beatenDatesHardcore !== null) {
+            $beatenDatesHardcore = array_unique($beatenDatesHardcore);
         }
 
         return [

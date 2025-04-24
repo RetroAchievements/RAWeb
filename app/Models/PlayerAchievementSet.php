@@ -15,6 +15,8 @@ class PlayerAchievementSet extends BasePivot
     protected $casts = [
         'completed_at' => 'datetime',
         'completed_hardcore_at' => 'datetime',
+        'completion_dates' => 'json',
+        'completion_dates_hardcore' => 'json',
         'last_unlock_at' => 'datetime',
         'last_unlock_hardcore_at' => 'datetime',
     ];

@@ -46,6 +46,13 @@ return new class() extends Migration {
                 'playtime_total',
                 'time_to_beat',
                 'time_to_beat_hardcore',
+                'all_achievements_total',
+                'all_achievements_unlocked',
+                'all_achievements_unlocked_hardcore',
+                'all_points_total',
+                'all_points',
+                'all_points_hardcore',
+                'all_points_weighted',
             ]);
 
             $table->string('achievement_set_version_hash', 255)->nullable()->default(null)->after('game_hash_id');

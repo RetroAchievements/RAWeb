@@ -8,7 +8,11 @@
     <td class="whitespace-nowrap">{{ $label }}</td>
     <td class="whitespace-nowrap text-right">
         @if ($count < 5)
-            <span class="smalltext">More samples needed</span>
+            @if ($count == 0)
+                <span class="smalltext">No samples available</span>
+            @else
+                <span class="smalltext">More samples needed</span>
+            @endif
         @else
             @if ($value > 60 * 60)
                 {{ floor($value / (60 * 60)) }}h

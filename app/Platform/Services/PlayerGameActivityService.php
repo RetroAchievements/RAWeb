@@ -8,10 +8,13 @@ use App\Enums\PlayerGameActivityEventType;
 use App\Enums\PlayerGameActivitySessionType;
 use App\Models\AchievementSet;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\ComputeAchievementsSetPublishedAtAction;
+use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\UnlockMode;
 use Carbon\Carbon;
 
@@ -21,9 +24,46 @@ class PlayerGameActivityService
     public int $achievementsUnlocked = 0;
     private int $sessionAdjustment = 0;
 
-    public function initialize(User $user, Game $game): void
+    public function initialize(User $user, Game $game, bool $withSubsets = false): void
     {
-        $playerSessions = $user->playerSessions()->with('gameHash')->where('game_id', $game->id)->get();
+        $query = GameAchievementSet::where('game_id', $game->id)
+            ->with(['achievementSet.achievements' => 
+                fn ($q) => $q->where('Flags', AchievementFlag::OfficialCore)
+                            ->select(['Achievements.ID', 'type', 'Points', 'TrueRatio'])
+            ]);
+
+        if (!$withSubsets) {
+            $query->where('type', AchievementSetType::Core);
+        }
+        $gameAchievementSets = $query->get();
+
+        $achievementAchievementSets = [];
+        $achievementSetIds = [];
+        foreach ($gameAchievementSets as $gameAchievementSet) {
+            foreach ($gameAchievementSet->achievementSet->achievements as $achievement) {
+                $achievementAchievementSets[$achievement->id] = $gameAchievementSet->achievementSet->id;
+            }
+
+            $achievementSetIds[] = $gameAchievementSet->achievementSet->id;
+        }
+        $achievementIds = array_keys($achievementAchievementSets);
+
+        if ($withSubsets) {
+            $coreGameAchievementSetIds = [];
+            $coreGameAchievementSets = GameAchievementSet::whereIn('achievement_set_id', $achievementSetIds)
+                ->where('type', AchievementSetType::Core)
+                ->get();
+            foreach ($coreGameAchievementSets as $coreGameAchievementSet) {
+                $coreGameAchievementSetIds[$coreGameAchievementSet->game_id] = $coreGameAchievementSet->id;
+            }
+            $gameIds = array_keys($coreGameAchievementSetIds);
+            $achievementIds = array_unique($achievementIds);
+        } else {
+            $coreGameAchievementSetIds = [$game->id => $gameAchievementSets->first()->id];
+            $gameIds[] = $game->id;
+        }
+
+        $playerSessions = $user->playerSessions()->with('gameHash')->whereIn('game_id', $gameIds)->get();
 
         foreach ($playerSessions as $playerSession) {
             $session = [
@@ -35,6 +75,8 @@ class PlayerGameActivityService
                 'userAgent' => $playerSession->user_agent,
                 'events' => [],
             ];
+
+            $session['achievementSetId'] = $coreGameAchievementSetIds[$playerSession->game_id];
 
             if (!empty($playerSession->rich_presence)) {
                 $session['events'][] = [
@@ -57,7 +99,7 @@ class PlayerGameActivityService
 
         $playerAchievements = $user->playerAchievements()
             ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
-            ->where('Achievements.GameID', '=', $game->id)
+            ->whereIn('Achievements.ID', $achievementIds)
             ->orderBy('player_achievements.unlocked_at')
             ->select([
                 'player_achievements.*',
@@ -70,14 +112,15 @@ class PlayerGameActivityService
             ])
             ->get();
         foreach ($playerAchievements as $playerAchievement) {
+            $achievementSetId = $achievementAchievementSets[$playerAchievement->achievement_id] ?? $coreGameAchievementSetIds[$game->id];
             if ($playerAchievement->unlocked_hardcore_at) {
-                $this->addUnlockEvent($playerAchievement, $playerAchievement->unlocked_hardcore_at, true);
+                $this->addUnlockEvent($playerAchievement, $playerAchievement->unlocked_hardcore_at, $achievementSetId, true);
 
                 if ($playerAchievement->unlocked_hardcore_at != $playerAchievement->unlocked_at) {
-                    $this->addUnlockEvent($playerAchievement, $playerAchievement->unlocked_at, false);
+                    $this->addUnlockEvent($playerAchievement, $playerAchievement->unlocked_at, $achievementSetId, false);
                 }
             } else {
-                $this->addUnlockEvent($playerAchievement, $playerAchievement->unlocked_at, false);
+                $this->addUnlockEvent($playerAchievement, $playerAchievement->unlocked_at, $achievementSetId, false);
             }
 
             $this->achievementsUnlocked++;
@@ -90,7 +133,7 @@ class PlayerGameActivityService
         }
     }
 
-    private function addUnlockEvent(object $playerAchievement, Carbon $when, bool $hardcore): void
+    private function addUnlockEvent(object $playerAchievement, Carbon $when, int $achievementSetId, bool $hardcore): void
     {
         $event = [
             'type' => PlayerGameActivityEventType::Unlock,
@@ -123,9 +166,9 @@ class PlayerGameActivityService
         $existingSessionIndex = $this->findSession(PlayerGameActivitySessionType::Player, $when);
         if ($existingSessionIndex < 0) {
             if ($unlocker) {
-                $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::ManualUnlock, $when);
+                $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::ManualUnlock, $when, $achievementSetId);
             } else {
-                $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::Reconstructed, $when);
+                $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::Reconstructed, $when, $achievementSetId);
             }
         }
 
@@ -192,7 +235,7 @@ class PlayerGameActivityService
         return -1;
     }
 
-    private function generateSession(PlayerGameActivitySessionType $type, Carbon $when): int
+    private function generateSession(PlayerGameActivitySessionType $type, Carbon $when, ?int $achievementSetId = null): int
     {
         $mergeHours = ($type === PlayerGameActivitySessionType::ManualUnlock) ? 1 : 4;
         $whenBefore = $when->clone()->subHours($mergeHours);
@@ -202,7 +245,8 @@ class PlayerGameActivityService
         foreach ($this->sessions as &$session) {
             if ($session['type'] === PlayerGameActivitySessionType::Reconstructed
                 && $session['startTime'] >= $whenBefore
-                && $session['endTime'] <= $whenAfter) {
+                && $session['endTime'] <= $whenAfter
+                && ($achievementSetId === 0 || ($session['achievementSetId'] ?? 0) === $achievementSetId)) {
 
                 if ($when < $session['startTime']) {
                     $session['startTime'] = $when;
@@ -225,6 +269,10 @@ class PlayerGameActivityService
             'duration' => 0,
             'events' => [],
         ];
+
+        if ($achievementSetId > 0) {
+            $newSession['achievementSetId'] = $achievementSetId;
+        }
 
         $this->sessions[] = $newSession;
         usort($this->sessions, fn ($a, $b) => $a['startTime']->timestamp - $b['startTime']->timestamp);
@@ -361,6 +409,11 @@ class PlayerGameActivityService
         foreach ($this->sessions as $session) {
             if ($session['type'] !== PlayerGameActivitySessionType::Player
                 && $session['type'] !== PlayerGameActivitySessionType::Reconstructed) {
+                continue;
+            }
+
+            if (in_array('achievementSetId', $session)
+                && $session['achievementSetId'] != $playerAchievementSet->achievementSet->id) {
                 continue;
             }
 
