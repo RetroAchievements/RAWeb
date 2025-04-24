@@ -5,16 +5,18 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Game;
+use App\Models\GameAchievementSet;
+use App\Models\PlayerAchievementSet;
+use App\Models\PlayerGame;
 use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Jobs\UpdateGamePlayerGamesJob;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 
 class UpdateGameMetricsAction
 {
     public function execute(Game $game): void
     {
-        // TODO aggregate achievement sets' metrics as soon as those have been introduced
-
         $game->achievements_published = $game->achievements()->published()->count();
         $game->achievements_unpublished = $game->achievements()->unpublished()->count();
 
@@ -76,7 +78,38 @@ class UpdateGameMetricsAction
         }
         $pointsWeightedBeforeUpdate = $game->TotalTruePoints;
 
+        // get median time to beat
+        $query = PlayerGame::where('game_id', $game->id)
+            ->whereNotNull('time_to_beat')->whereNull('time_to_beat_hardcore');
+        [$game->times_beaten, $game->median_time_to_beat] = $this->getMedian($query, 'time_to_beat');
+
+        $query = PlayerGame::where('game_id', $game->id)
+            ->whereNotNull('time_to_beat_hardcore');
+        [$game->times_beaten_hardcore, $game->median_time_to_beat_hardcore] =
+             $this->getMedian($query, 'time_to_beat_hardcore');
+
         $game->save();
+
+        // get median time to complete for each associated set
+        $gameAchievementSets = GameAchievementSet::where('game_id', $game->id)
+            ->with('achievementSet')
+            ->get();
+        foreach ($gameAchievementSets as $gameAchievementSet) {
+            $achievementSet = $gameAchievementSet->achievementSet;
+
+            $query = PlayerAchievementSet::where('achievement_set_id', $achievementSet->id)
+                ->where('achievements_unlocked', '=', $achievementSet->achievements_published)
+                ->where('achievements_unlocked_hardcore', '!=', $achievementSet->achievements_published);
+            [$achievementSet->times_completed, $achievementSet->median_time_to_complete] =
+                $this->getMedian($query, 'time_taken');
+
+            $query = PlayerAchievementSet::where('achievement_set_id', $achievementSet->id)
+                ->where('achievements_unlocked_hardcore', '=', $achievementSet->achievements_published);
+            [$achievementSet->times_completed_hardcore, $achievementSet->median_time_to_complete_hardcore] =
+                $this->getMedian($query, 'time_taken_hardcore');
+
+            $achievementSet->save();
+        }
 
         app()->make(UpdateGameAchievementsMetricsAction::class)
             ->execute($game);
@@ -102,5 +135,30 @@ class UpdateGameMetricsAction
             dispatch(new UpdateGamePlayerGamesJob($game->id))
                 ->onQueue('game-player-games');
         }
+    }
+
+    private function getMedian(Builder $query, string $field): array
+    {
+        $count = $query->count();
+        if ($count === 0) {
+            return [0, null];
+        }
+
+        if (($count % 2) == 1) {
+            // odd. just get the middle item
+            if ($count !== 1) {
+                $query->offset((int) ($count / 2));
+            }
+            $median = $query->orderBy($field)->pluck($field)->first();
+        } else {
+            // even. get the two items in the middle and average them together
+            if ($count > 2) {
+                $query->offset((int) ($count / 2) - 1);
+            }
+            $values = $query->orderBy($field)->limit(2)->pluck($field)->toArray();
+            $median = ($values[0] + $values[1]) / 2;
+        }
+
+        return [$count, $median];
     }
 }
