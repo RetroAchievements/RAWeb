@@ -1,8 +1,6 @@
 import { processAllVideoUrls } from './processAllVideoUrls';
 import * as ProcessVideoUrlModule from './processVideoUrl';
 
-// vi.mock('./processVideoUrl');
-
 describe('Util: processAllVideoUrls', () => {
   it('is defined', () => {
     // ASSERT
