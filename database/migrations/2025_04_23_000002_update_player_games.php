@@ -21,11 +21,21 @@ return new class() extends Migration {
                 'time_taken',
                 'time_taken_hardcore',
                 'first_unlock_hardcore_at',
+                'points_weighted_total',
             ]);
 
             $table->integer('playtime_total')->nullable()->default(null)->after('last_played_at');
             $table->integer('time_to_beat')->nullable()->default(null)->after('playtime_total');
             $table->integer('time_to_beat_hardcore')->nullable()->default(null)->after('time_to_beat');
+
+            // temporary columns to simplify migration from only tracking core data to all subset data
+            $table->integer('all_achievements_total')->nullable()->default(null)->after('achievements_unlocked_softcore');
+            $table->integer('all_achievements_unlocked')->nullable()->default(null)->after('all_achievements_total');
+            $table->integer('all_achievements_unlocked_hardcore')->nullable()->default(null)->after('all_achievements_unlocked');
+            $table->integer('all_points_total')->nullable()->default(null)->after('all_achievements_unlocked_hardcore');
+            $table->integer('all_points')->nullable()->default(null)->after('all_points_total');
+            $table->integer('all_points_hardcore')->nullable()->default(null)->after('all_points');
+            $table->integer('all_points_weighted')->nullable()->default(null)->after('all_points_hardcore');
         });
     }
 
@@ -48,7 +58,7 @@ return new class() extends Migration {
             $table->bigInteger('time_taken')->nullable()->default(null)->after('playtime_total');
             $table->bigInteger('time_taken_hardcore')->nullable()->default(null)->after('time_taken');
             $table->dateTime('first_unlock_hardcore_at')->nullable()->default(null)->after('first_unlock_at');
-            $table->dateTime('last_unlock_hardcore_at')->nullable()->default(null)->after('last_unlock_at');
+            $table->integer('points_weighted_total')->nullable()->default(null)->after('points_hardcore');
         });
     }
 };

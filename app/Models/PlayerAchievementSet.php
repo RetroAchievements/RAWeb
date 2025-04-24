@@ -13,16 +13,10 @@ class PlayerAchievementSet extends BasePivot
     protected $table = 'player_achievement_sets';
 
     protected $casts = [
-        'last_played_at' => 'datetime',
         'completed_at' => 'datetime',
         'completed_hardcore_at' => 'datetime',
         'last_unlock_at' => 'datetime',
         'last_unlock_hardcore_at' => 'datetime',
-        'first_unlock_at' => 'datetime',
-        'first_unlock_hardcore_at' => 'datetime',
-        'started_at' => 'datetime',
-        'started_hardcore_at' => 'datetime',
-        'metrics_updated_at' => 'datetime',
     ];
 
     // == accessors

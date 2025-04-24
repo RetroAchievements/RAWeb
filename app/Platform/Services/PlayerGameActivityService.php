@@ -6,14 +6,20 @@ namespace App\Platform\Services;
 
 use App\Enums\PlayerGameActivityEventType;
 use App\Enums\PlayerGameActivitySessionType;
+use App\Models\AchievementSet;
 use App\Models\Game;
+use App\Models\PlayerAchievementSet;
+use App\Models\PlayerGame;
 use App\Models\User;
+use App\Platform\Actions\ComputeAchievementsSetPublishedAtAction;
+use App\Platform\Enums\UnlockMode;
 use Carbon\Carbon;
 
 class PlayerGameActivityService
 {
     public array $sessions = [];
     public int $achievementsUnlocked = 0;
+    private int $sessionAdjustment = 0;
 
     public function initialize(User $user, Game $game): void
     {
@@ -76,6 +82,8 @@ class PlayerGameActivityService
 
             $this->achievementsUnlocked++;
         }
+
+        // TODO: process claims
 
         foreach ($this->sessions as &$session) {
             $this->sortEvents($session['events']);
@@ -284,14 +292,14 @@ class PlayerGameActivityService
         // user's total known playtime by the number of achievements they've earned to get the
         // approximate time per achievement earned. add this value to each session to account
         // for time played after getting the last achievement of the session.
-        $sessionAdjustment = 0;
+        $this->sessionAdjustment = 0;
         if ($generatedSessionCount > 0 && $achievementsUnlocked > 0) {
-            $sessionAdjustment = $achievementsTime / $achievementsUnlocked;
+            $this->sessionAdjustment = (int) ($achievementsTime / $achievementsUnlocked);
 
-            $totalTime += $sessionAdjustment * $generatedSessionCount;
+            $totalTime += $this->sessionAdjustment * $generatedSessionCount;
 
             if ($generatedUnlockSessionCount > 0) {
-                $achievementsTime += $sessionAdjustment * $generatedUnlockSessionCount;
+                $achievementsTime += $this->sessionAdjustment * $generatedUnlockSessionCount;
             }
         }
 
@@ -301,13 +309,176 @@ class PlayerGameActivityService
             // number of sessions where achievements were earned
             'achievementSessionCount' => $unlockSessionCount,
             // adjustment applied to generated sessions
-            'generatedSessionAdjustment' => $sessionAdjustment,
+            'generatedSessionAdjustment' => $this->sessionAdjustment,
             // distance between the first unlock and last unlock (includes time between sessions)
             'totalUnlockTime' => ($lastAchievementTime != null) ?
                 (int) $lastAchievementTime->diffInSeconds($firstAchievementTime, true) : 0,
             // total time from all sessions (including those before the first or after the last earned achievement)
             'totalPlaytime' => $totalTime,
         ];
+    }
+
+    public function lastPlayedAt(): ?Carbon
+    {
+        $lastSession = null;
+        foreach ($this->sessions as $session) {
+            switch ($session['type']) {
+                case PlayerGameActivitySessionType::Player:
+                case PlayerGameActivitySessionType::Reconstructed:
+                    $lastSession = $session;
+                    break;
+            }
+        }
+
+        return $lastSession ? $lastSession['endTime'] : null;
+    }
+
+    public function getBeatProgressMetrics(AchievementSet $achievementSet, PlayerGame $playerGame): array
+    {
+        $achievementsPublishedAt = $achievementSet->achievements_published_at;
+
+        return [
+            'beatPlaytimeSoftcore' => $playerGame?->beaten_at ? $this->calculatePlaytime($achievementsPublishedAt, $playerGame->beaten_at, UnlockMode::Softcore) : null,
+            'beatPlaytimeHardcore' => $playerGame?->beaten_hardcore_at ? $this->calculatePlaytime($achievementsPublishedAt, $playerGame->beaten_hardcore_at, UnlockMode::Hardcore) : null,
+        ];
+    }
+
+    public function getAchievementSetMetrics(PlayerAchievementSet $playerAchievementSet): array
+    {
+        $summary['firstUnlockTimeSoftcore'] = null;
+        $summary['firstUnlockTimeHardcore'] = null;
+        $summary['lastUnlockTimeSoftcore'] = null;
+        $summary['lastUnlockTimeHardcore'] = null;
+
+        if ($playerAchievementSet->achievementSet->achievements_published === 0) {
+            $summary['achievementPlaytimeSoftcore'] = 0;
+            $summary['achievementPlaytimeHardcore'] = 0;
+            $summary['devTime'] = $summary['totalPlaytime'];
+
+            return $summary;
+        }
+
+        foreach ($this->sessions as $session) {
+            if ($session['type'] !== PlayerGameActivitySessionType::Player
+                && $session['type'] !== PlayerGameActivitySessionType::Reconstructed) {
+                continue;
+            }
+
+            foreach ($session['events'] as $event) {
+                if ($event['type'] !== PlayerGameActivityEventType::Unlock) {
+                    continue;
+                }
+
+                if (!$playerAchievementSet->achievementSet->achievements->contains('ID', $event['id'])) {
+                    // achievement not part of set, ignore
+                    continue;   
+                }
+
+                if ($event['hardcore']) {
+                    if (!$summary['firstUnlockTimeHardcore']) {
+                        $summary['firstUnlockTimeHardcore'] = $event['when']; 
+                    }
+                    $summary['lastUnlockTimeHardcore'] = $event['when'];
+                } else {
+                    if (!$summary['firstUnlockTimeSoftcore']) {
+                        $summary['firstUnlockTimeSoftcore'] = $event['when']; 
+                    }
+                    $summary['lastUnlockTimeSoftcore'] = $event['when'];
+                }
+            }
+        }
+
+        $summary['firstUnlockTimeSoftcore'] ??= $summary['firstUnlockTimeHardcore'];
+        $summary['lastUnlockTimeSoftcore'] ??= $summary['lastUnlockTimeHardcore'];
+
+        if (!$playerAchievementSet->achievementSet->achievements_published_at) {
+            $playerAchievementSet->achievementSet->achievements_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($playerAchievementSet->achievementSet);
+            $playerAchievementSet->achievementSet->save();
+        }
+        $achievementsPublishedAt = $playerAchievementSet->achievementSet->achievements_published_at;
+
+        $summary['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($achievementsPublishedAt, $summary['lastUnlockTimeSoftcore'], UnlockMode::Softcore);
+        $summary['achievementPlaytimeHardcore'] = $this->calculatePlaytime($achievementsPublishedAt, $summary['lastUnlockTimeHardcore'], UnlockMode::Hardcore);
+        $summary['devTime'] = $this->calculatePlaytime(null, $achievementsPublishedAt, 0, UnlockMode::Softcore);
+
+        return $summary;
+    }
+
+    private function calculatePlaytime(?Carbon $startTime, ?Carbon $endTime, int $unlockMode): ?int
+    {
+        $totalTime = null;
+
+        foreach ($this->sessions as $session) {
+            if ($session['type'] === PlayerGameActivitySessionType::ManualUnlock) {
+                continue;
+            }
+
+            if ($startTime && $startTime->gt($session['endTime'])) {
+                // before scan period
+                continue;
+            }
+
+            if ($endTime && $endTime->lt($session['startTime'])) {
+                // after scan period
+                break;
+            }
+
+            $sessionStartTime = ($startTime && $startTime->gt($session['startTime']))
+                ? $startTime : $session['startTime'];
+            $sessionEndTime = ($endTime && $endTime->lt($session['endTime']))
+                ? $endTime : $session['endTime'];
+
+            $keepSession = false;
+            $hasUnlocks = false;
+            $lastHardcore = false;
+            $firstNonHardcore = null;
+            foreach ($session['events'] as $event) {
+                if ($event['type'] === PlayerGameActivityEventType::Unlock) {
+                    $hasUnlocks = true;
+                    if ($event['when']->lt($sessionStartTime) || $event['when']->gt($sessionEndTime)) {
+                        // outside scan period
+                        continue;
+                    }
+
+                    if ($event['hardcore']) {
+                        $keepSession = true; // hardcore event also implies softcore
+
+                        if ($unlockMode === UnlockMode::Hardcore) {
+                            $lastHardcore = true;
+                            $firstNonHardcore = null;
+                        }
+                    } else {
+                        if ($unlockMode === UnlockMode::Softcore) {
+                            $keepSession = true;
+                            break;
+                        }
+
+                        if ($lastHardcore) {
+                            $firstNonHardcore = $event['when'];
+                            $lastHardcore = false;
+                        }
+                    }
+                }
+            }
+            if (!$keepSession && $hasUnlocks) {
+                continue;
+            }
+            if ($unlockMode === UnlockMode::Hardcore && $firstNonHardcore) {
+                $sessionEndTime = $firstNonHardcore;
+            }
+
+            $totalTime += $sessionStartTime->diffInSeconds($sessionEndTime, true);
+
+            if ($session['type'] === PlayerGameActivitySessionType::Reconstructed) {
+                $totalTime += $this->sessionAdjustment;
+            }
+        }
+
+        if ($totalTime > 0) {
+            return (int) $totalTime;
+        }
+
+        return null;
     }
 
     // returns array of ['agents' => [], 'duration' => 0, 'durationPercentage' => 0.0]

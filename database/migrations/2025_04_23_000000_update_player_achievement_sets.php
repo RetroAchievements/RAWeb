@@ -25,8 +25,6 @@ return new class() extends Migration {
                 'beaten_dates_hardcore',
                 'beaten_at',
                 'beaten_hardcore_at',
-                'completed_at',
-                'completed_hardcore_at',
                 'first_unlock_at',
                 'first_unlock_hardcore_at',
                 'points_total',
@@ -35,8 +33,6 @@ return new class() extends Migration {
 
             $table->integer('time_taken')->nullable()->default(null)->after('completion_percentage_hardcore');
             $table->integer('time_taken_hardcore')->nullable()->default(null)->after('time_taken');
-            $table->integer('time_to_complete')->nullable()->default(null)->after('time_taken_hardcore');
-            $table->integer('time_to_complete_hardcore')->nullable()->default(null)->after('time_to_complete');
         });
     }
 
@@ -44,8 +40,6 @@ return new class() extends Migration {
     {
         Schema::table('player_achievement_sets', function (Blueprint $table) {
             $table->dropColumn([
-                'time_to_complete',
-                'time_to_complete_hardcore',
                 'time_taken',
                 'time_taken_hardcore',
             ]);
@@ -64,8 +58,6 @@ return new class() extends Migration {
             $table->longText('beaten_dates_hardcore')->nullable()->default(null)->after('beaten_dates');
             $table->dateTime('beaten_at')->nullable()->default(null)->after('completion_dates_hardcore');
             $table->dateTime('beaten_hardcore_at')->nullable()->default(null)->after('beaten_at');
-            $table->dateTime('completed_at')->nullable()->default(null)->after('beaten_hardcore_at');
-            $table->dateTime('completed_hardcore_at')->nullable()->default(null)->after('completed_at');
             $table->dateTime('first_unlock_at')->nullable()->default(null)->after('last_unlock_hardcore_at');
             $table->dateTime('first_unlock_hardcore_at')->nullable()->default(null)->after('first_unlock_at');
             $table->integer('points_total')->nullable()->default(null)->after('first_unlock_hardcore_at');
