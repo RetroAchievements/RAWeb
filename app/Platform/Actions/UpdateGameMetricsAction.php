@@ -97,6 +97,8 @@ class UpdateGameMetricsAction
         foreach ($gameAchievementSets as $gameAchievementSet) {
             $achievementSet = $gameAchievementSet->achievementSet;
 
+            // NOTE: this only finds masters of the current set. it ignores users who may
+            //       have previously mastered it before a revision
             $query = PlayerAchievementSet::where('achievement_set_id', $achievementSet->id)
                 ->where('achievements_unlocked', '=', $achievementSet->achievements_published)
                 ->where('achievements_unlocked_hardcore', '!=', $achievementSet->achievements_published);
@@ -146,16 +148,12 @@ class UpdateGameMetricsAction
 
         if (($count % 2) == 1) {
             // odd. just get the middle item
-            if ($count !== 1) {
-                $query->offset((int) ($count / 2));
-            }
-            $median = $query->orderBy($field)->pluck($field)->first();
+            $median = $query->offset((int) ($count / 2))->limit(1)
+                ->orderBy($field)->pluck($field)->first();
         } else {
             // even. get the two items in the middle and average them together
-            if ($count > 2) {
-                $query->offset((int) ($count / 2) - 1);
-            }
-            $values = $query->orderBy($field)->limit(2)->pluck($field)->toArray();
+            $values = $query->offset((int) ($count / 2) - 1)->limit(2)
+                ->orderBy($field)->pluck($field)->toArray();
             $median = ($values[0] + $values[1]) / 2;
         }
 
