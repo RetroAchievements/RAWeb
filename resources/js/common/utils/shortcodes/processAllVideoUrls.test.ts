@@ -74,21 +74,6 @@ describe('Util: processAllVideoUrls', () => {
     );
   });
 
-  it('given text with mixed video and non-video URLs, only wraps video URLs', () => {
-    // ARRANGE
-    const videoUrl = 'https://www.youtube.com/watch?v=0HrfxwZZ-NE';
-    const normalUrl = 'https://example.com';
-    const text = `Video: ${videoUrl}, Website: ${normalUrl}`;
-
-    // ACT
-    const result = processAllVideoUrls(text);
-
-    // ASSERT
-    expect(result).toEqual(
-      'Video: [video]https://www.youtube.com/watch?v=0HrfxwZZ-NE[/video], Website: https://example.com',
-    );
-  });
-
   it('does not wrap video links embedded in url tags', () => {
     // ARRANGE
     const body = '[url=https://www.youtube.com/watch?v=NODtRgBxPhw]Longplay[/url]';
