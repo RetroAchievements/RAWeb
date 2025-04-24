@@ -48,6 +48,7 @@ class ForumTopicController extends Controller
     public function show(ForumTopic $topic, ShowForumTopicRequest $request): InertiaResponse|RedirectResponse
     {
         $this->authorize('view', $topic);
+        abort_if($topic->comments->isEmpty(), 404);
 
         $actionResult = (new BuildShowForumTopicPagePropsAction())->execute(
             topic: $topic,
