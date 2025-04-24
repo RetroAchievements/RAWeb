@@ -28,6 +28,8 @@ class BuildShowForumTopicPagePropsAction
             ->paginate($perPage, ['*'], 'page', $currentPage);
 
         $totalForumTopicComments = $paginatedForumTopicComments->total();
+        abort_if(!$totalForumTopicComments, 404);
+
         $lastPage = (int) ceil($totalForumTopicComments / $perPage);
 
         // Constrain the current page between 1 and the last page.
