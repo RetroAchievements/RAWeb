@@ -23,8 +23,6 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
-// TODO redirects, both for normal navigation and copied urls
-
 class ForumTopicController extends Controller
 {
     public function index(): void
