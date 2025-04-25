@@ -12,6 +12,7 @@ use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
 use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
+use Illuminate\Support\Facades\DB;
 
 class ResetPlayerProgressAction
 {
@@ -46,6 +47,31 @@ class ResetPlayerProgressAction
                 $authorUsernames->push($achievementData['Author']);
             }
             $affectedGames->push($achievementData['GameID']);
+        }
+
+        $maintainers = DB::select("
+            SELECT DISTINCT COALESCE(ua.display_name, ua.User) AS Username
+            FROM player_achievements pa
+            INNER JOIN Achievements ach ON ach.ID = pa.achievement_id
+            INNER JOIN achievement_maintainers m ON m.achievement_id = ach.ID
+            INNER JOIN UserAccounts ua ON ua.ID = m.user_id
+            WHERE ach.Flags = :flags
+                AND pa.user_id = :user_id
+                " . $clause . "
+                AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) >= m.effective_from
+                AND (
+                    m.effective_until IS NULL 
+                    OR COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) < m.effective_until
+                )
+                AND ua.ID != :user_id2
+        ", [
+            'flags' => AchievementFlag::OfficialCore->value,
+            'user_id' => $user->id,
+            'user_id2' => $user->id,
+        ]);
+
+        foreach ($maintainers as $maintainer) {
+            $authorUsernames->push($maintainer->Username);
         }
 
         if ($achievementID !== null) {
