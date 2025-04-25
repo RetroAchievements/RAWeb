@@ -4,6 +4,7 @@ import { renderHook } from '@/test';
 
 import {
   persistedAchievementsAtom,
+  persistedEventsAtom,
   persistedGamesAtom,
   persistedHubsAtom,
   persistedTicketsAtom,
@@ -60,6 +61,7 @@ describe('Hook: useHydrateShortcodeDynamicEntities', () => {
     const dynamicEntities = {
       achievements: [{ id: 1 }],
       games: [{ id: 2 }],
+      events: [{ id: 1 }],
       hubs: [{ id: 3 }],
       tickets: [{ id: 4 }],
       users: [{ id: 5 }],
@@ -83,6 +85,7 @@ describe('Hook: useHydrateShortcodeDynamicEntities', () => {
     expect(mockUseHydrateAtoms).toHaveBeenCalledWith([
       [persistedAchievementsAtom, dynamicEntities.achievements],
       [persistedGamesAtom, dynamicEntities.games],
+      [persistedEventsAtom, dynamicEntities.events],
       [persistedHubsAtom, dynamicEntities.hubs],
       [persistedTicketsAtom, dynamicEntities.tickets],
       [persistedUsersAtom, dynamicEntities.users],
