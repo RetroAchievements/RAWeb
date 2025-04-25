@@ -7,6 +7,7 @@ namespace Tests\Feature\Community\Controllers;
 use App\Models\Forum;
 use App\Models\ForumCategory;
 use App\Models\ForumTopic;
+use App\Models\ForumTopicComment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -67,6 +68,12 @@ class ForumTopicControllerTest extends TestCase
         $author = User::factory()->create();
 
         $topic = ForumTopic::factory()->create(['author_id' => $author->id, 'required_permissions' => 4]); // !! high permission requirement
+        ForumTopicComment::factory()->create([
+            'forum_topic_id' => $topic->id,
+            'author_id' => $author->id,
+            'is_authorized' => true,
+        ]);
+
         $user = User::factory()->create([
             'websitePrefs' => 63,
             'UnreadMessageCount' => 0,
@@ -87,6 +94,12 @@ class ForumTopicControllerTest extends TestCase
         $author = User::factory()->create();
 
         $topic = ForumTopic::factory()->create(['author_id' => $author->id, 'required_permissions' => 0]); // !! high permission requirement
+        ForumTopicComment::factory()->create([
+            'forum_topic_id' => $topic->id,
+            'author_id' => $author->id,
+            'is_authorized' => true,
+        ]);
+
         $user = User::factory()->create([
             'websitePrefs' => 63,
             'UnreadMessageCount' => 0,

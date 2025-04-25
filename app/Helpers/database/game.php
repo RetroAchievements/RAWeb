@@ -186,43 +186,6 @@ function getGameMetadata(
     return $numAchievements;
 }
 
-function getGameAlternatives(int $gameID, ?int $sortBy = null): array
-{
-    $orderBy = match ($sortBy) {
-        11 => "ORDER BY HasAchievements ASC, gd.Title DESC",
-        2 => "ORDER BY gd.TotalTruePoints DESC, gd.Title ASC ",
-        12 => "ORDER BY gd.TotalTruePoints, gd.Title ASC ",
-        // 1 or unspecified
-        default => "ORDER BY HasAchievements DESC, " . ifStatement("gd.Title LIKE '~%'", 1, 0) . ", SUBSTRING_INDEX(gd.Title, ' [', 1), c.Name, gd.Title ",
-    };
-
-    $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,
-              CASE
-                WHEN (SELECT COUNT(*) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementFlag::OfficialCore->value . ") > 0 THEN 1
-                ELSE 0
-              END AS HasAchievements,
-              (SELECT SUM(ach.Points) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementFlag::OfficialCore->value . ") AS Points,
-              gd.TotalTruePoints
-              FROM GameAlternatives AS ga
-              LEFT JOIN GameData AS gd ON gd.ID = ga.gameIDAlt
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE ga.gameID = $gameID
-              GROUP BY gd.ID, gd.Title
-              $orderBy";
-
-    $dbResult = s_mysql_query($query);
-
-    $results = [];
-
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $results[] = $data;
-        }
-    }
-
-    return $results;
-}
-
 function getGamesListByDev(
     ?User $dev,
     int $consoleID,

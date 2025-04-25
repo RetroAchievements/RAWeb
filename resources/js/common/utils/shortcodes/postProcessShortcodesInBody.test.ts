@@ -272,4 +272,28 @@ describe('Util: postProcessShortcodesInBody', () => {
     // ASSERT
     expect(result).toEqual('[text]{ach=}[/text]');
   });
+
+  it('handles correctly when bold tags wrap url tags', () => {
+    // ARRANGE
+    const body =
+      '[b][url=https://romhacking.com/hack/super-mario-and-the-monstrous-manor]Romhacking.com link (download)[/url][/b]';
+
+    // ACT
+    const result = postProcessShortcodesInBody(body);
+
+    // ASSERT
+    expect(result).toEqual(body);
+  });
+
+  it('handles correctly when url tags wrap bold tags', () => {
+    // ARRANGE
+    const body =
+      '[url=https://romhacking.com/hack/super-mario-and-the-monstrous-manor][b]Romhacking.com link (download)[/b][/url]';
+
+    // ACT
+    const result = postProcessShortcodesInBody(body);
+
+    // ASSERT
+    expect(result).toEqual(body);
+  });
 });

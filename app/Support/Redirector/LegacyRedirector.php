@@ -24,6 +24,11 @@ class LegacyRedirector implements Redirector
             return [];
         }
 
+        // Handle legacy viewtopic.php URLs.
+        if ($request->getPathInfo() === '/viewtopic.php' && $request->query->has('t')) {
+            return $this->handleViewTopicRedirect($request);
+        }
+
         // Handle the legacy create topic URL pattern.
         if (preg_match('#^/forums/forum/(\d+)/topic/create$#', $request->getPathInfo(), $matches)) {
             return $this->handleForumTopicCreateRedirect($matches[1]);
@@ -124,6 +129,39 @@ class LegacyRedirector implements Redirector
             );
 
             return [sprintf('/system/%s/games', $oldSlug) => $newUrl];
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    private function handleViewTopicRedirect(Request $request): array
+    {
+        try {
+            // Get the topic ID from the 't' parameter.
+            $topicId = $request->query->get('t');
+
+            if (!$topicId) {
+                return [];
+            }
+
+            // Start building the route parameters.
+            $routeParams = ['topic' => $topicId];
+
+            // Add the optional 'c' parameter if it exists.
+            if ($request->query->has('c')) {
+                $routeParams['comment'] = $request->query->get('c');
+            }
+
+            // Generate the base URL with route parameters.
+            $newUrl = route('forum-topic.show', $routeParams);
+
+            // Add the fragment identifier if 'c' parameter exists.
+            // This is the comment ID to scroll to.
+            if ($request->query->has('c')) {
+                $newUrl .= '#' . $request->query->get('c');
+            }
+
+            return ['/viewtopic.php' => $newUrl];
         } catch (Exception $e) {
             return [];
         }

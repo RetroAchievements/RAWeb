@@ -23,11 +23,30 @@ export function postProcessShortcodesInBody(body: string): string {
   // Convert remaining self-closing [img=url] to [img]url[/img] format.
   result = result.replace(/\[img=["']?([^"'\]]+)["']?\](?!\s*[^\n\[]*\[\/img\])/g, '[img]$1[/img]');
 
-  // Handle self-closing url tags.
-  result = result.replace(
-    /\[url=["']?([^"'\]]+)["']?\](?!\s*[^\n\[]*\[\/url\])/g,
-    '[url="$1"]$1[/url]',
-  );
+  // We need to be careful about what we consider a "self-closing" URL tag.
+  // First, check if the tag has a matching closing tag by finding all URL opening tags.
+  const urlOpenTagPattern = /\[url=["']?([^"'\]]+)["']?\]/g;
+  let match;
+  while ((match = urlOpenTagPattern.exec(result)) !== null) {
+    const openTag = match[0];
+    const url = match[1];
+    const startPos = match.index;
+    const endPos = startPos + openTag.length;
+
+    // Check if there's a matching closing tag for this opening tag.
+    const remainingText = result.slice(endPos);
+    const hasClosingTag = remainingText.includes('[/url]');
+
+    // If there's no closing tag, then replace with self-closing format.
+    if (!hasClosingTag) {
+      const beforeTag = result.slice(0, startPos);
+      const afterTag = result.slice(endPos);
+      result = beforeTag + `[url="${url}"]${url}[/url]` + afterTag;
+
+      // Reset the regex to continue from the new position.
+      urlOpenTagPattern.lastIndex = startPos + `[url="${url}"]${url}[/url]`.length;
+    }
+  }
 
   // Then, handle all other [tag=value] formats, excluding url and img tags.
   result = result.replace(

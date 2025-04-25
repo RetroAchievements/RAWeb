@@ -70,8 +70,15 @@ class EventResource extends Resource
 
                         Infolists\Components\TextEntry::make('legacyGame.forumTopic.id')
                             ->label('Forum Topic ID')
-                            ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
-                            ->extraAttributes(['class' => 'underline']),
+                            ->url(fn (?int $state) => $state ? route('forum-topic.show', ['topic' => $state]) : null)
+                            ->placeholder('none')
+                            ->extraAttributes(function (Event $event): array {
+                                if ($event->legacyGame->forumTopic?->id) {
+                                    return ['class' => 'underline'];
+                                }
+
+                                return [];
+                            }),
 
                         Infolists\Components\TextEntry::make('active_from')
                             ->label('Active From')
@@ -276,7 +283,7 @@ class EventResource extends Resource
 
                 Tables\Columns\TextColumn::make('legacyGame.forumTopic.id')
                     ->label('Forum Topic')
-                    ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
+                    ->url(fn (?int $state) => $state ? route('forum-topic.show', ['topic' => $state]) : null)
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('legacyGame.players_hardcore')

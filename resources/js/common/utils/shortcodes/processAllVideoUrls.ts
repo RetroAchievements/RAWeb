@@ -6,7 +6,7 @@ import { processVideoUrl } from './processVideoUrl';
  * Handles both YouTube and Twitch URLs, preserving any parameters.
  */
 export function processAllVideoUrls(text: string): string {
-  return text.replace(/https?:\/\/[^\s<>]+\b/g, (url, offset) => {
+  return text.replace(/https?:\/\/[^\s\[\]<>]+/g, (url, offset) => {
     const videoInfo = processVideoUrl(url);
 
     if (

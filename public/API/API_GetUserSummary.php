@@ -116,6 +116,7 @@ if (empty($retVal)) {
     ], 404);
 }
 
+$retVal['ULID'] = $userModel->ulid;
 $retVal['UserPic'] = "/UserPic/" . $userModel->username . ".png";
 $retVal['TotalRanked'] = countRankedUsers();
 

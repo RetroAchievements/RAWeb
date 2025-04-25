@@ -6,6 +6,7 @@ import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { Embed } from '@/common/components/Embed/Embed';
 import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
 import { GameHeading } from '@/common/components/GameHeading/GameHeading';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { HashesList } from './HashesList';
@@ -49,7 +50,9 @@ export const HashesMainRoot: FC = memo(() => {
             {game.forumTopicId ? (
               <Trans
                 i18nKey="Additional information for these hashes may be listed on <1>the game's official forum topic</1>."
-                components={{ 1: <a href={`/viewtopic.php?t=${game.forumTopicId}`} /> }}
+                components={{
+                  1: <InertiaLink href={route('forum-topic.show', { topic: game.forumTopicId })} />,
+                }}
               />
             ) : null}{' '}
             <Trans
