@@ -134,6 +134,13 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "game2.show": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.dev-interest": [
         {
             "name": "game",

@@ -892,5 +892,19 @@
     "Unlocking...": "Unlocking...",
     "Locked!": "Locked!",
     "Unlocked!": "Unlocked!",
-    "This topic is locked.": "This topic is locked."
+    "This topic is locked.": "This topic is locked.",
+    "Base Set": "Base Set",
+    "There aren't any achievements for this game yet.": "There aren't any achievements for this game yet.",
+    "Subset {{subsetNumber, number}}": "Subset {{subsetNumber, number}}",
+    "{{achievementsCount, number}} achievements worth {{pointsCount, number}} <1>({{retroPointsCount, number}})</1> points": "{{achievementsCount, number}} achievements worth {{pointsCount, number}} <1>({{retroPointsCount, number}})</1> points",
+    "Publisher": "Publisher",
+    "Genre": "Genre",
+    "Points (least)": "Points (least)",
+    "Points (most)": "Points (most)",
+    "Title (Z - A)": "Title (Z - A)",
+    "Title (A - Z)": "Title (A - Z)",
+    "Type (desc)": "Type (desc)",
+    "Type (asc)": "Type (asc)",
+    "Released": "Released",
+    "No one you follow has unlocked any achievements for this game.": "No one you follow has unlocked any achievements for this game."
 }

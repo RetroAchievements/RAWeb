@@ -465,11 +465,13 @@ declare namespace App.Platform.Data {
     title: string;
     createdAt?: string;
     description?: string;
+    developer?: App.Data.User;
     flags?: App.Platform.Enums.AchievementFlag;
     game?: App.Platform.Data.Game;
     orderColumn?: number;
     points?: number;
     pointsWeighted?: number;
+    type?: 'progression' | 'win_condition' | 'missable' | null;
     unlockedAt?: string;
     unlockedHardcoreAt?: string;
     unlockHardcorePercentage?: string;
