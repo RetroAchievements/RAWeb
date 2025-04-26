@@ -68,6 +68,6 @@ describe('Component: ForumBreadcrumbs', () => {
     // ASSERT
     const topicEl = screen.getByRole('link', { name: /dragon quest iii/i });
     expect(topicEl).toBeVisible();
-    expect(topicEl).toHaveAttribute('href', `/viewtopic.php?t=${topic.id}`);
+    expect(topicEl).toHaveAttribute('href', expect.stringContaining('forum-topic.show'));
   });
 });

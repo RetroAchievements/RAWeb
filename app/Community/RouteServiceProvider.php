@@ -190,8 +190,6 @@ class RouteServiceProvider extends ServiceProvider
                 //         ->name('forum-category.show');
                 //     Route::get('forum/{forum}{slug?}', [ForumController::class, 'show'])->name('forum.show');
                 //     Route::get('topics', [ForumTopicController::class, 'index'])->name('forum-topic.index');
-                //     Route::get('topic/{topic}{slug?}', [ForumTopicController::class, 'show'])
-                //         ->name('forum-topic.show');
 
                 //     Route::group(['prefix' => 'topics'], function () {
                 //         Route::resource('comment', ForumTopicCommentController::class)

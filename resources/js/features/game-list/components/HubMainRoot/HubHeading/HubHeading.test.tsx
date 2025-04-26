@@ -88,7 +88,7 @@ describe('Component: HubHeading', () => {
     const linkEl = screen.getByRole('link', { name: /view forum topic/i });
 
     expect(linkEl).toBeVisible();
-    expect(linkEl).toHaveAttribute('href', '/viewtopic.php?t=12345');
+    expect(linkEl).toHaveAttribute('href', expect.stringContaining('forum-topic.show'));
   });
 
   it('given the user can manage hubs, shows a Manage button', () => {

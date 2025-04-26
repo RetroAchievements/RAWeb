@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { router } from '@inertiajs/react';
 import { useMutation } from '@tanstack/react-query';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
@@ -53,8 +54,11 @@ export function useUpsertPostForm(
       loading: targetComment ? t('Updating...') : t('Submitting...'),
       success: ({ data }: AxiosResponse<{ commentId: number }>) => {
         if (targetComment) {
-          window.location.assign(
-            `/viewtopic.php?t=${targetComment.forumTopic!.id}&c=${targetComment.id}#${targetComment.id}`,
+          router.visit(
+            route('forum-topic.show', {
+              topic: targetComment.forumTopic!.id,
+              comment: targetComment.id,
+            }) + `#${targetComment.id}`,
           );
 
           return t('Updated.');

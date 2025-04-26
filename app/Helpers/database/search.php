@@ -103,7 +103,7 @@ function performSearch(
         $counts[] = "SELECT COUNT(*) AS Count FROM forum_topic_comments WHERE body LIKE '%$searchQuery%'";
         $parts[] = "
         SELECT " . SearchType::Forum . " AS Type, ua.User AS ID,
-               CONCAT( '/viewtopic.php?t=', ftc.forum_topic_id, '&c=', ftc.id, '#', ftc.id ) AS Target,
+               CONCAT( '/forums/topic/', ftc.forum_topic_id, '?comment=', ftc.id, '#', ftc.id ) AS Target,
                CASE WHEN CHAR_LENGTH(ftc.body) <= 64 THEN ftc.body ELSE
                CONCAT( '...', MID( ftc.body, GREATEST( LOCATE('$searchQuery', ftc.body)-25, 1), 60 ), '...' ) END AS Title
         FROM forum_topic_comments AS ftc

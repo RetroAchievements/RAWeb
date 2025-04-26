@@ -5,9 +5,7 @@ use App\Models\Comment;
 use App\Models\Forum;
 use App\Models\ForumCategory;
 use App\Models\Game;
-use App\Models\GameAlternative;
 use App\Models\GameHash;
-use App\Models\GameSetGame;
 use App\Models\Leaderboard;
 use App\Models\MemoryNote;
 use App\Models\Message;
@@ -146,23 +144,6 @@ return [
         //             'key' => 'title',
         //             'fixEncoding' => true,
         //         ],
-        //     ],
-        // ],
-
-        /*
-         * GameAlternatives       33k    incremental by Created
-         */
-        // TODO
-        // 'game_sets' => [
-        //     'model' => GameSetGame::class,
-        //     'strategy' => SyncStrategy::UPSERT,
-        //     'reference_model' => GameAlternative::class,
-        //     'reference_key' => 'Created',
-        //     'unique_key' => 'id',
-        //     'require' => [
-        //         'games',
-        //     ],
-        //     'map' => [
         //     ],
         // ],
 

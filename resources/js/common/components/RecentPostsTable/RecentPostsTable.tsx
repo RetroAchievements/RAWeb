@@ -5,6 +5,7 @@ import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { DiffTimestamp } from '../DiffTimestamp';
+import { InertiaLink } from '../InertiaLink';
 import { RecentPostAggregateLinks } from '../RecentPostAggregateLinks';
 
 interface RecentPostsTableProps {
@@ -50,11 +51,16 @@ export const RecentPostsTable: FC<RecentPostsTableProps> = ({
 
             <td className="py-2">
               <p className="flex items-center gap-x-2">
-                <a
-                  href={`/viewtopic.php?t=${topic.id}&c=${topic.latestComment?.id}#${topic.latestComment?.id}`}
+                <InertiaLink
+                  href={
+                    route('forum-topic.show', {
+                      topic: topic.id,
+                      comment: topic.latestComment?.id,
+                    }) + `#${topic.latestComment?.id}`
+                  }
                 >
                   {topic.title}
-                </a>
+                </InertiaLink>
 
                 {topic.latestComment?.createdAt ? (
                   <span className="smalldate" data-testid="smalldate">
