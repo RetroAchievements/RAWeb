@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
@@ -81,6 +82,8 @@ describe('Component: CreateTopicForm', () => {
 
   it('given the user submits the form, makes the correct POST call to the server', async () => {
     // ARRANGE
+    vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
+
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({
       data: { success: true, newTopicId: 789 },
     });
@@ -114,11 +117,7 @@ describe('Component: CreateTopicForm', () => {
 
   it('given the form submission succeeds, redirects to the new topic', async () => {
     // ARRANGE
-    const mockLocationAssign = vi.fn();
-    Object.defineProperty(window, 'location', {
-      value: { assign: mockLocationAssign },
-      writable: true,
-    });
+    const visitSpy = vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
 
     vi.spyOn(axios, 'post').mockResolvedValueOnce({
       data: { success: true, newTopicId: 789 },
@@ -141,7 +140,7 @@ describe('Component: CreateTopicForm', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(mockLocationAssign).toHaveBeenCalledWith('/viewtopic.php?t=789');
+      expect(visitSpy).toHaveBeenCalledWith(['forum-topic.show', { topic: 789 }]);
     });
   });
 

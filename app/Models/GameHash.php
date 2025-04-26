@@ -40,6 +40,7 @@ class GameHash extends BaseModel
         'labels',
         'md5',
         'compatibility',
+        'compatibility_tester_id',
         'name',
         'system_id',
         'user_id',
@@ -62,6 +63,7 @@ class GameHash extends BaseModel
                 'name',
                 'labels',
                 'compatibility',
+                'compatibility_tester_id',
                 'md5',
                 'patch_url',
                 'source',
@@ -201,6 +203,14 @@ class GameHash extends BaseModel
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'ID');
+    }
+
+    /**
+     * @return BelongsTo<User, GameHash>
+     */
+    public function compatibilityTester(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'compatibility_tester_id', 'ID');
     }
 
     // == scopes

@@ -11,6 +11,7 @@ import {
   BaseBreadcrumbPage,
   BaseBreadcrumbSeparator,
 } from '../+vendor/BaseBreadcrumb';
+import { InertiaLink } from '../InertiaLink';
 
 interface ForumBreadcrumbsProps {
   t_currentPageLabel: TranslatedString;
@@ -62,8 +63,10 @@ export const ForumBreadcrumbs: FC<ForumBreadcrumbsProps> = ({
             <>
               <BaseBreadcrumbSeparator />
               <BaseBreadcrumbItem aria-label={forumTopic.title}>
-                <BaseBreadcrumbLink href={`/viewtopic.php?t=${forumTopic.id}`}>
-                  {forumTopic.title}
+                <BaseBreadcrumbLink asChild>
+                  <InertiaLink href={route('forum-topic.show', { topic: forumTopic.id })}>
+                    {forumTopic.title}
+                  </InertiaLink>
                 </BaseBreadcrumbLink>
               </BaseBreadcrumbItem>
             </>

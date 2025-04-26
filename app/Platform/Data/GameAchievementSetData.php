@@ -17,8 +17,8 @@ class GameAchievementSetData extends Data
         public AchievementSetType $type,
         public ?string $title,
         public int $orderColumn,
-        public Carbon $createdAt,
-        public Carbon $updatedAt,
+        public ?Carbon $createdAt,
+        public ?Carbon $updatedAt,
         public AchievementSetData $achievementSet,
     ) {
     }

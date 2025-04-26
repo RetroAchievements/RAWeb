@@ -115,6 +115,8 @@ describe('Component: ForumPostCardTimestamps', () => {
 
   it('given a comment was edited, shows both creation and edit times', () => {
     // ARRANGE
+    vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
     const createdAt = dayjs.utc().subtract(2, 'days').toISOString();
     const updatedAt = dayjs.utc().subtract(1, 'day').toISOString();
 
@@ -127,6 +129,9 @@ describe('Component: ForumPostCardTimestamps', () => {
 
     // ASSERT
     expect(screen.getByText(/edited/i)).toBeVisible();
+
+    expect(screen.getByText(/Oct 23, 2023/i)).toBeVisible();
+    expect(screen.getByText(/Oct 24, 2023/i)).toBeVisible();
   });
 
   it('given a date is null, does not crash', () => {

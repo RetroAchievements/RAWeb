@@ -1,6 +1,8 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { InertiaLink } from '../InertiaLink';
+
 interface RecentPostAggregateLinksProps {
   topic: App.Data.ForumTopic;
 }
@@ -21,15 +23,25 @@ export const RecentPostAggregateLinks: FC<RecentPostAggregateLinksProps> = ({ to
     <div className="smalltext whitespace-nowrap">
       <div className="flex flex-col gap-y-1">
         {canShowDailyPostCount ? (
-          <a href={`/viewtopic.php?t=${id}&c=${oldestComment24hId}#${oldestComment24hId}`}>
+          <InertiaLink
+            href={
+              route('forum-topic.show', { topic: id, comment: oldestComment24hId }) +
+              `#${oldestComment24hId}`
+            }
+          >
             {t('{{count, number}} posts in the last 24 hours', { count: commentCount24h })}
-          </a>
+          </InertiaLink>
         ) : null}
 
         {canShowWeeklyPostCount ? (
-          <a href={`/viewtopic.php?t=${id}&c=${oldestComment7dId}#${oldestComment7dId}`}>
+          <InertiaLink
+            href={
+              route('forum-topic.show', { topic: id, comment: oldestComment7dId }) +
+              `#${oldestComment7dId}`
+            }
+          >
             {t('{{count, number}} posts in the last 7 days', { count: commentCount7d })}
-          </a>
+          </InertiaLink>
         ) : null}
       </div>
     </div>
