@@ -20,8 +20,8 @@ class AchievementSetData extends Data
         public int $pointsTotal,
         public int $pointsWeighted,
         public string $imageAssetPathUrl,
-        public Carbon $createdAt,
-        public Carbon $updatedAt,
+        public ?Carbon $createdAt,
+        public ?Carbon $updatedAt,
         /** @var AchievementData[] */
         public array $achievements,
     ) {

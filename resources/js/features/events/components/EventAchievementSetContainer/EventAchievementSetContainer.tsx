@@ -40,7 +40,7 @@ export const EventAchievementSetContainer: FC<EventAchievementSetContainerProps>
         <AchievementSortButton
           value={currentSort}
           onChange={(newValue) => setCurrentSort(newValue)}
-          includeActiveOption={event.state !== 'evergreen'}
+          availableSortOrders={getAvailableSortOrders(event)}
         />
       </div>
 
@@ -53,6 +53,18 @@ export const EventAchievementSetContainer: FC<EventAchievementSetContainerProps>
     </div>
   );
 };
+
+function getAvailableSortOrders(event: App.Platform.Data.Event): AchievementSortOrder[] {
+  const orders: AchievementSortOrder[] = [];
+
+  if (event.state !== 'evergreen') {
+    orders.push('active');
+  }
+
+  orders.push('displayOrder', '-displayOrder', 'wonBy', '-wonBy');
+
+  return orders;
+}
 
 function mapEventAchievementsToAchievements(
   eventAchievements: App.Platform.Data.EventAchievement[],
