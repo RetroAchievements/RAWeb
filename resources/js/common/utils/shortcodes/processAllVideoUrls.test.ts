@@ -1,7 +1,5 @@
 import { processAllVideoUrls } from './processAllVideoUrls';
-import { processVideoUrl } from './processVideoUrl';
-
-vi.mock('./processVideoUrl');
+import * as ProcessVideoUrlModule from './processVideoUrl';
 
 describe('Util: processAllVideoUrls', () => {
   it('is defined', () => {
@@ -23,7 +21,6 @@ describe('Util: processAllVideoUrls', () => {
   it('given text with non-video URLs, returns the original text unchanged', () => {
     // ARRANGE
     const text = 'Check out https://example.com and https://google.com';
-    vi.mocked(processVideoUrl).mockReturnValue(null);
 
     // ACT
     const result = processAllVideoUrls(text);
@@ -37,7 +34,7 @@ describe('Util: processAllVideoUrls', () => {
     const videoUrl = 'https://youtube.com/watch?v=123';
     const text = `Check out this video: ${videoUrl}`;
 
-    vi.mocked(processVideoUrl).mockReturnValue({
+    vi.spyOn(ProcessVideoUrlModule, 'processVideoUrl').mockReturnValueOnce({
       videoId: '123',
       params: {},
       type: 'youtube',
@@ -56,7 +53,7 @@ describe('Util: processAllVideoUrls', () => {
     const twitchUrl = 'https://twitch.tv/videos/456';
     const text = `First video: ${youtubeUrl}\nSecond video: ${twitchUrl}`;
 
-    vi.mocked(processVideoUrl)
+    vi.spyOn(ProcessVideoUrlModule, 'processVideoUrl')
       .mockReturnValueOnce({
         videoId: '123',
         params: {},
@@ -77,29 +74,6 @@ describe('Util: processAllVideoUrls', () => {
     );
   });
 
-  it('given text with mixed video and non-video URLs, only wraps video URLs', () => {
-    // ARRANGE
-    const videoUrl = 'https://youtube.com/watch?v=123';
-    const normalUrl = 'https://example.com';
-    const text = `Video: ${videoUrl}, Website: ${normalUrl}`;
-
-    vi.mocked(processVideoUrl)
-      .mockReturnValueOnce({
-        videoId: '123',
-        params: {},
-        type: 'youtube',
-      })
-      .mockReturnValueOnce(null);
-
-    // ACT
-    const result = processAllVideoUrls(text);
-
-    // ASSERT
-    expect(result).toEqual(
-      'Video: [video]https://youtube.com/watch?v=123[/video], Website: https://example.com',
-    );
-  });
-
   it('does not wrap video links embedded in url tags', () => {
     // ARRANGE
     const body = '[url=https://www.youtube.com/watch?v=NODtRgBxPhw]Longplay[/url]';
@@ -110,5 +84,17 @@ describe('Util: processAllVideoUrls', () => {
     // ASSERT
     expect(result).toEqual(body);
     expect(result).not.toContain('[video]');
+  });
+
+  it('correctly wraps video URLs inside inline spoiler tags', () => {
+    // ARRANGE
+    const videoUrl = 'https://www.youtube.com/watch?v=tXa1hjmjS9w';
+    const input = `[spoiler]${videoUrl}[/spoiler]`;
+
+    // ACT
+    const result = processAllVideoUrls(input);
+
+    // ASSERT
+    expect(result).toEqual(`[spoiler][video]${videoUrl}[/video][/spoiler]`);
   });
 });

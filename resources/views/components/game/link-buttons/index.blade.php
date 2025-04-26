@@ -41,7 +41,7 @@ if ($canSeeOpenTickets) {
         @if ($game->ForumTopicID)
             <x-game.link-buttons.game-link-button
                 icon="💬"
-                href="{{ '/viewtopic.php?t=' . $game->ForumTopicID }}"
+                href="{{ route('forum-topic.show', ['topic' => $game->ForumTopicID]) }}"
             >
                 Official Forum Topic
             </x-game.link-buttons.game-link-button>

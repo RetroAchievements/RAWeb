@@ -18,7 +18,7 @@ use Filament\Support\Enums\FontFamily;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
-use Livewire;
+use Livewire\Livewire;
 
 class Hashes extends ManageRelatedRecords
 {
@@ -117,6 +117,23 @@ class Hashes extends ManageRelatedRecords
                                                 GameHashCompatibility::Untested->value => GameHashCompatibility::Untested->label(),
                                                 GameHashCompatibility::PatchRequired->value => GameHashCompatibility::PatchRequired->label(),
                                             ]),
+
+                                        Forms\Components\Select::make('compatibility_tester_id')
+                                            ->label('Compatibility Tester')
+                                            ->searchable()
+                                            ->getSearchResultsUsing(function (string $search): array {
+                                                return User::where('display_name', 'like', "%{$search}%")
+                                                    ->limit(50)
+                                                    ->get()
+                                                    ->mapWithKeys(fn ($user) => [$user->id => "{$user->display_name}"])
+                                                    ->toArray();
+                                            })
+                                            ->getOptionLabelUsing(function (int $value): string {
+                                                $user = User::find($value);
+
+                                                return $user->display_name ?? '(unknown)';
+                                            }),
+
                                     ]),
 
                                 Forms\Components\TextInput::make('patch_url')

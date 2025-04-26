@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { router } from '@inertiajs/react';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
@@ -46,7 +47,7 @@ export function useCreateTopicForm() {
     toastMessage.promise(mutation.mutateAsync(formValues), {
       loading: t('Submitting...'),
       success: ({ data }) => {
-        window.location.assign(`/viewtopic.php?t=${data.newTopicId}`);
+        router.visit(route('forum-topic.show', { topic: data.newTopicId }));
 
         return t('Submitted!');
       },

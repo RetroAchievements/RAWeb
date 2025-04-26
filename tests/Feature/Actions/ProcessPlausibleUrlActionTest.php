@@ -254,15 +254,15 @@ class ProcessPlausibleUrlActionTest extends TestCase
         ], $result['props']);
     }
 
-    public function testItCorrectlyHandlesLegacyViewtopicUrls(): void
+    public function testItCorrectlyHandlesLegacyViewforumUrls(): void
     {
         // Act
-        $result = $this->action->execute('viewtopic.php', ['t' => '123'], $this->defaultProps);
+        $result = $this->action->execute('viewforum.php', ['f' => '24'], $this->defaultProps);
 
         // Assert
-        $this->assertEquals('/viewtopic.php', $result['redactedUrl']);
+        $this->assertEquals('/viewforum.php', $result['redactedUrl']);
         $this->assertEquals([
-            'topicId' => 123,
+            'forumId' => 24,
             'isAuthenticated' => true,
             'scheme' => 'dark',
             'theme' => 'default',

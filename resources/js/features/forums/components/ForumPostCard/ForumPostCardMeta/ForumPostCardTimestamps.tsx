@@ -33,7 +33,7 @@ export const ForumPostCardTimestamps: FC<ForumPostCardTimestampsProps> = ({ comm
     }
 
     return dayjs.utc(date).isAfter(dayjs.utc().subtract(24, 'hour'))
-      ? diffForHumans(comment.createdAt, dayjs.utc().toISOString())
+      ? diffForHumans(date, dayjs.utc().toISOString())
       : formatDate(date, 'lll');
   };
 

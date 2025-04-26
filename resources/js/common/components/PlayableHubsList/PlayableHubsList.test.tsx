@@ -46,4 +46,24 @@ describe('Component: HubsList', () => {
     expect(screen.queryByText(/\]/i)).not.toBeInTheDocument();
     expect(screen.getByText('Events - Achievement of the Week')).toBeVisible();
   });
+
+  it('sorts hub titles alphabetically', () => {
+    // ARRANGE
+    const mockHubs = [
+      createGameSet({ title: 'ZZZ' }),
+      createGameSet({ title: 'AAA' }),
+      createGameSet({ title: 'CCC' }),
+      createGameSet({ title: 'BBB' }),
+    ];
+
+    render(<PlayableHubsList hubs={mockHubs} />);
+
+    // ASSERT
+    const links = screen.getAllByRole('link');
+
+    expect(links[0]).toHaveTextContent(/aaa/i);
+    expect(links[1]).toHaveTextContent(/bbb/i);
+    expect(links[2]).toHaveTextContent(/ccc/i);
+    expect(links[3]).toHaveTextContent(/zzz/i);
+  });
 });
