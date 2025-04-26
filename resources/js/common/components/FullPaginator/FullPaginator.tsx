@@ -80,7 +80,7 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
         </BasePaginationItem>
 
         {/* Page number select */}
-        <BasePaginationItem>
+        <BasePaginationItem className="flex items-center">
           <BaseSelectNative
             value={internalValue}
             onChange={handlePageSelect}
@@ -92,6 +92,10 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
               </option>
             ))}
           </BaseSelectNative>
+
+          <span className="whitespace-nowrap pl-1.5 pr-1 text-neutral-500 light:text-neutral-700">
+            {t('of {{pageNumber, number}}', { pageNumber: lastPage })}
+          </span>
         </BasePaginationItem>
 
         {/* Next page button */}
