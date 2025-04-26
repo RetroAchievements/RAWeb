@@ -68,6 +68,7 @@ class BuildShowForumTopicPagePropsAction
         $props = new ShowForumTopicPagePropsData(
             can: UserPermissionsData::fromUser($user, forumTopic: $topic)->include(
                 'authorizeForumTopicComments',
+                'createForumTopicComments',
                 'deleteForumTopic',
                 'lockForumTopic',
                 'manageForumTopicComments',

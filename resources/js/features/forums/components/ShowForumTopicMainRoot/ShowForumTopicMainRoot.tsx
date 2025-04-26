@@ -92,13 +92,13 @@ export const ShowForumTopicMainRoot: FC = () => {
         ) : null}
 
         {forumTopic.lockedAt ? (
-          <div className="flex select-none items-center justify-center gap-1.5 bg-embed p-2 text-center text-neutral-600 transition hover:text-neutral-300">
+          <div className="flex select-none items-center justify-center gap-1.5 bg-embed p-2 text-center text-neutral-300 transition light:text-neutral-900">
             <LuLock className="size-4" />
             <p>{t('This topic is locked.')}</p>
           </div>
         ) : null}
 
-        {!auth?.user.isMuted && !auth?.user.mutedUntil && !forumTopic.lockedAt ? (
+        {can.createForumTopicComments ? (
           <div className="mt-4">
             <QuickReplyForm onPreview={initiatePreview} />
           </div>

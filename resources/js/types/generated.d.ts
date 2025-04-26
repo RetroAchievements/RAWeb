@@ -349,6 +349,7 @@ declare namespace App.Data {
   };
   export type UserPermissions = {
     authorizeForumTopicComments?: boolean;
+    createForumTopicComments?: boolean;
     createGameForumTopic?: boolean;
     createTriggerTicket?: boolean;
     createUsernameChangeRequest?: boolean;

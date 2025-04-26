@@ -58,9 +58,10 @@ class ForumTopicCommentPolicy
         }
 
         /*
-         * users may not reply to locked topics
+         * users may not reply to locked topics, unless they have
+         * the ability to lock/unlock topics themselves.
          */
-        if ($topic->is_locked) {
+        if ($topic->is_locked && !$user->can('lock', $topic)) {
             return false;
         }
 

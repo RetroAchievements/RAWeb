@@ -18,6 +18,7 @@ class UserPermissionsData extends Data
 {
     public function __construct(
         public Lazy|bool $authorizeForumTopicComments,
+        public Lazy|bool $createForumTopicComments,
         public Lazy|bool $createGameForumTopic,
         public Lazy|bool $createTriggerTicket,
         public Lazy|bool $createUsernameChangeRequest,
@@ -47,6 +48,10 @@ class UserPermissionsData extends Data
         return new self(
             authorizeForumTopicComments: Lazy::create(fn () => $user
                 ? $user->can('authorize', \App\Models\ForumTopicComment::class)
+                : false
+            ),
+            createForumTopicComments: Lazy::create(fn () => $user && $forumTopic 
+                ? $user->can('create', [\App\Models\ForumTopicComment::class, $forumTopic])
                 : false
             ),
             createGameForumTopic: Lazy::create(fn () => $user && $game
