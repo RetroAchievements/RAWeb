@@ -69,6 +69,7 @@ class BuildShowForumTopicPagePropsAction
             can: UserPermissionsData::fromUser($user, forumTopic: $topic)->include(
                 'authorizeForumTopicComments',
                 'deleteForumTopic',
+                'lockForumTopic',
                 'manageForumTopicComments',
                 'manageForumTopics',
                 'updateForumTopic',
@@ -77,6 +78,7 @@ class BuildShowForumTopicPagePropsAction
             forumTopic: ForumTopicData::from($topic)->include(
                 'forum',
                 'forum.category',
+                'lockedAt',
                 'requiredPermissions',
             ),
             isSubscribed: $user ? isUserSubscribedToForumTopic($topic->id, $user->id) : false,

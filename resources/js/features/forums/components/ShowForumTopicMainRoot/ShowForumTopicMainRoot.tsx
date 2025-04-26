@@ -1,5 +1,7 @@
 import { router } from '@inertiajs/react';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LuLock } from 'react-icons/lu';
 
 import { ForumBreadcrumbs } from '@/common/components/ForumBreadcrumbs';
 import { FullPaginator } from '@/common/components/FullPaginator';
@@ -17,6 +19,8 @@ import { TopicOptions } from '../TopicOptions';
 export const ShowForumTopicMainRoot: FC = () => {
   const { auth, can, forumTopic, isSubscribed, paginatedForumTopicComments, ziggy } =
     usePageProps<App.Data.ShowForumTopicPageProps>();
+
+  const { t } = useTranslation();
 
   const { initiatePreview, previewContent } = useShortcodeBodyPreview();
 
@@ -65,7 +69,9 @@ export const ShowForumTopicMainRoot: FC = () => {
             key={`comment-${comment.id}`}
             body={comment.body}
             canManage={can.manageForumTopicComments}
-            canUpdate={can.manageForumTopicComments || getCanUpdatePost(comment, auth?.user)}
+            canUpdate={
+              can.manageForumTopicComments || getCanUpdatePost(forumTopic, comment, auth?.user)
+            }
             comment={comment}
             isHighlighted={ziggy.query.comment === String(comment.id)}
             topic={forumTopic}
@@ -83,11 +89,20 @@ export const ShowForumTopicMainRoot: FC = () => {
       <div>
         {auth?.user.isMuted && auth.user.mutedUntil ? (
           <MutedMessage mutedUntil={auth.user.mutedUntil} />
-        ) : (
+        ) : null}
+
+        {forumTopic.lockedAt ? (
+          <div className="flex select-none items-center justify-center gap-1.5 bg-embed p-2 text-center text-neutral-600 transition hover:text-neutral-300">
+            <LuLock className="size-4" />
+            <p>{t('This topic is locked.')}</p>
+          </div>
+        ) : null}
+
+        {!auth?.user.isMuted && !auth?.user.mutedUntil && !forumTopic.lockedAt ? (
           <div className="mt-4">
             <QuickReplyForm onPreview={initiatePreview} />
           </div>
-        )}
+        ) : null}
 
         {!auth?.user ? <SignInMessage /> : null}
 
@@ -101,8 +116,12 @@ export const ShowForumTopicMainRoot: FC = () => {
   );
 };
 
-function getCanUpdatePost(post: App.Data.ForumTopicComment, user?: App.Data.User | null): boolean {
-  if (!user || user.isMuted) {
+function getCanUpdatePost(
+  topic: App.Data.ForumTopic,
+  post: App.Data.ForumTopicComment,
+  user?: App.Data.User | null,
+): boolean {
+  if (!user || user.isMuted || topic.lockedAt) {
     return false;
   }
 

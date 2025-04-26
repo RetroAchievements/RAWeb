@@ -309,4 +309,33 @@ describe('Component: ShowForumTopicMainRoot', () => {
     // ASSERT
     expect(screen.getByRole('link', { name: /edit/i })).toBeVisible();
   });
+
+  it('given the topic is locked, shows a message indicating it is locked and disables replying+editing', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({
+      displayName: 'TestUser',
+    });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const forumTopic = createForumTopic({ forum, lockedAt: new Date().toISOString() });
+
+    const comment = createForumTopicComment({ user: createUser({ displayName: 'TestUser' }) });
+    const paginatedForumTopicComments = createPaginatedData([comment]);
+
+    render(<ShowForumTopicMainRoot />, {
+      pageProps: {
+        auth: { user },
+        forumTopic,
+        paginatedForumTopicComments,
+        can: {},
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/this topic is locked/i)).toBeVisible();
+    expect(screen.queryByRole('link', { name: /edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  });
 });

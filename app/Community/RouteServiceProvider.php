@@ -80,6 +80,7 @@ class RouteServiceProvider extends ServiceProvider
                         Route::delete('forums/{topic}', [ForumTopicApiController::class, 'destroy'])->name('api.forum-topic.destroy');
                         Route::put('forums/{topic}', [ForumTopicApiController::class, 'update'])->name('api.forum-topic.update');
                         Route::put('forums/{topic}/gate', [ForumTopicApiController::class, 'gate'])->name('api.forum-topic.gate');
+                        Route::post('forums/{topic}/toggle-lock', [ForumTopicApiController::class, 'togglelock'])->name('api.forum-topic.toggle-lock');
 
                         Route::post('forums/{topic}/comment', [ForumTopicCommentApiController::class, 'store'])->name('api.forum-topic-comment.create');
                         Route::patch('forums/post/{comment}', [ForumTopicCommentApiController::class, 'update'])->name('api.forum-topic-comment.update');

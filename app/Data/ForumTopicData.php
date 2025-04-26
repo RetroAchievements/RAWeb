@@ -20,6 +20,8 @@ class ForumTopicData extends Data
         public Carbon $createdAt,
         public Lazy|ForumData|null $forum,
         public Lazy|int|null $requiredPermissions,
+        public Lazy|Carbon|null $lockedAt,
+        public Lazy|Carbon|null $pinnedAt,
         public Lazy|ForumTopicCommentData|null $latestComment, // TODO move to separate DTO
         public Lazy|int|null $commentCount24h, // TODO move to separate DTO
         public Lazy|int|null $oldestComment24hId, // TODO move to separate DTO
@@ -36,6 +38,8 @@ class ForumTopicData extends Data
             title: $topic->title,
             createdAt: $topic->created_at,
             forum: Lazy::create(fn () => ForumData::fromForum($topic->forum)),
+            lockedAt: Lazy::create(fn () => $topic->locked_at),
+            pinnedAt: Lazy::create(fn () => $topic->pinned_at),
             requiredPermissions: Lazy::create(fn () => $topic->required_permissions),
             user: UserData::from($topic->user),
 
@@ -55,6 +59,8 @@ class ForumTopicData extends Data
             createdAt: Carbon::parse($comment['PostedAt']),
 
             forum: null,
+            lockedAt: null,
+            pinnedAt: null,
             user: null,
             requiredPermissions: null,
 
@@ -82,6 +88,8 @@ class ForumTopicData extends Data
             createdAt: Carbon::parse($topic['PostedAt']),
 
             forum: null,
+            lockedAt: null,
+            pinnedAt: null,
             user: null,
             requiredPermissions: null,
 
@@ -113,6 +121,8 @@ class ForumTopicData extends Data
             createdAt: Carbon::parse($userPost['PostedAt']),
 
             forum: null,
+            lockedAt: null,
+            pinnedAt: null,
             user: null,
             requiredPermissions: null,
 

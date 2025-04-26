@@ -284,6 +284,13 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "api.forum-topic.toggle-lock": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "api.forum-topic-comment.create": [
         {
             "name": "topic",

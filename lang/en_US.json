@@ -883,5 +883,14 @@
     "These game file hashes require a patch to be compatible.": "These game file hashes require a patch to be compatible.",
     "These game file hashes are recognized, but it is unknown whether or not they are compatible.": "These game file hashes are recognized, but it is unknown whether or not they are compatible.",
     "These game file hashes are known to be incompatible.": "These game file hashes are known to be incompatible.",
-    "Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester.": "Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester."
+    "Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester.": "Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester.",
+    "Are you sure you want to unlock this topic?": "Are you sure you want to unlock this topic?",
+    "Are you sure you want to lock this topic?": "Are you sure you want to lock this topic?",
+    "Lock": "Lock",
+    "Unlock": "Unlock",
+    "Locking...": "Locking...",
+    "Unlocking...": "Unlocking...",
+    "Locked!": "Locked!",
+    "Unlocked!": "Unlocked!",
+    "This topic is locked.": "This topic is locked."
 }

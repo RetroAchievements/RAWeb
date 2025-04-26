@@ -14,6 +14,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 import { DeleteTopicButton } from './DeleteTopicButton';
+import { ToggleLockTopicButton } from './ToggleLockTopicButton';
 import { TopicManageForm } from './TopicManageForm';
 import { TopicOptionsForm } from './TopicOptionsForm';
 
@@ -72,11 +73,10 @@ export const TopicOptions: FC = () => {
 
                 {can.manageForumTopics ? <TopicManageForm /> : null}
 
-                {can.deleteForumTopic ? (
-                  <div>
-                    <DeleteTopicButton />
-                  </div>
-                ) : null}
+                <div className="flex gap-2">
+                  {can.lockForumTopic ? <ToggleLockTopicButton /> : null}
+                  {can.deleteForumTopic ? <DeleteTopicButton /> : null}
+                </div>
               </div>
             </m.div>
           </BaseCollapsibleContent>

@@ -47,13 +47,20 @@ class ForumTopicCommentPolicy
         return false;
     }
 
-    public function create(User $user, ?ForumTopic $commentable): bool
+    public function create(User $user, ForumTopic $topic): bool
     {
         /*
          * verified and unverified users may comment
          * muted, suspended, banned may not comment
          */
         if ($user->isMuted()) {
+            return false;
+        }
+
+        /*
+         * users may not reply to locked topics
+         */
+        if ($topic->is_locked) {
             return false;
         }
 
@@ -69,6 +76,12 @@ class ForumTopicCommentPolicy
         // Muted users might edit their existing comments to post abuse.
         // Therefore, we will not allow muted users to edit their comments.
         if ($user->isMuted() || $user->isBanned()) {
+            return false;
+        }
+
+        // Locked topics cannot have any of their posts edited, unless it's
+        // being edited by someone with authority.
+        if ($comment->forumTopic->is_locked && !$this->manage($user)) {
             return false;
         }
 
