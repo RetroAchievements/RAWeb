@@ -50,7 +50,7 @@ class UserPermissionsData extends Data
                 ? $user->can('authorize', \App\Models\ForumTopicComment::class)
                 : false
             ),
-            createForumTopicComments: Lazy::create(fn () => $user && $forumTopic 
+            createForumTopicComments: Lazy::create(fn () => $user && $forumTopic
                 ? $user->can('create', [\App\Models\ForumTopicComment::class, $forumTopic])
                 : false
             ),
