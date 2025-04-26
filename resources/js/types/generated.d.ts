@@ -300,6 +300,7 @@ declare namespace App.Data {
     forumTopic: App.Data.ForumTopic;
     isSubscribed: boolean;
     paginatedForumTopicComments: App.Data.PaginatedData<TItems>;
+    metaDescription: string;
   };
   export type StaticData = {
     numGames: number;
