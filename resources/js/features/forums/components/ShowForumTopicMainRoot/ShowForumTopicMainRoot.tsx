@@ -104,7 +104,7 @@ export const ShowForumTopicMainRoot: FC = () => {
           </div>
         ) : null}
 
-        {!auth?.user ? <SignInMessage /> : null}
+        {!auth?.user && !forumTopic.lockedAt ? <SignInMessage /> : null}
 
         {previewContent ? (
           <div data-testid="preview-content" className="mb-3 mt-7">
