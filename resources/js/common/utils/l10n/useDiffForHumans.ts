@@ -12,6 +12,9 @@ export function useDiffForHumans() {
     const seconds = Math.abs(diffInSeconds);
 
     // Very recent times are handled manually.
+    if (seconds === 0) {
+      return t('just now');
+    }
     if (seconds < 10) {
       return isPast ? t('just now') : t('in a few seconds');
     }
