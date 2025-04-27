@@ -27,9 +27,8 @@ class PlayerGameActivityService
     public function initialize(User $user, Game $game, bool $withSubsets = false): void
     {
         $query = GameAchievementSet::where('game_id', $game->id)
-            ->with(['achievementSet.achievements' => 
-                fn ($q) => $q->where('Flags', AchievementFlag::OfficialCore)
-                            ->select(['Achievements.ID', 'type', 'Points', 'TrueRatio'])
+            ->with(['achievementSet.achievements' => fn ($q) => $q->where('Flags', AchievementFlag::OfficialCore)
+                            ->select(['Achievements.ID', 'type', 'Points', 'TrueRatio']),
             ]);
 
         if (!$withSubsets) {
@@ -424,17 +423,17 @@ class PlayerGameActivityService
 
                 if (!$playerAchievementSet->achievementSet->achievements->contains('ID', $event['id'])) {
                     // achievement not part of set, ignore
-                    continue;   
+                    continue;
                 }
 
                 if ($event['hardcore']) {
                     if (!$summary['firstUnlockTimeHardcore']) {
-                        $summary['firstUnlockTimeHardcore'] = $event['when']; 
+                        $summary['firstUnlockTimeHardcore'] = $event['when'];
                     }
                     $summary['lastUnlockTimeHardcore'] = $event['when'];
                 } else {
                     if (!$summary['firstUnlockTimeSoftcore']) {
-                        $summary['firstUnlockTimeSoftcore'] = $event['when']; 
+                        $summary['firstUnlockTimeSoftcore'] = $event['when'];
                     }
                     $summary['lastUnlockTimeSoftcore'] = $event['when'];
                 }

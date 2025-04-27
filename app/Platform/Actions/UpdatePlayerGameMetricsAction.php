@@ -15,7 +15,6 @@ use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\PlayerGameMetricsUpdated;
 use App\Platform\Services\PlayerGameActivityService;
-use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class UpdatePlayerGameMetricsAction
@@ -37,9 +36,8 @@ class UpdatePlayerGameMetricsAction
         $playerGame->playtime_total = $summary['totalPlaytime'];
 
         $gameAchievementSets = GameAchievementSet::where('game_id', $game->id)
-            ->with(['achievementSet.achievements' => 
-                fn ($q) => $q->where('Flags', AchievementFlag::OfficialCore)
-                             ->select(['Achievements.ID', 'type', 'Points', 'TrueRatio'])
+            ->with(['achievementSet.achievements' => fn ($q) => $q->where('Flags', AchievementFlag::OfficialCore)
+                             ->select(['Achievements.ID', 'type', 'Points', 'TrueRatio']),
             ])
             ->get();
 
@@ -176,7 +174,7 @@ class UpdatePlayerGameMetricsAction
         $gameCompletionDatesHardcore = $playerGame->completion_dates_hardcore ?? [];
 
         $playerAchievementSet->completion_percentage = $playerAchievementSet->achievements_unlocked / $numSetAchievements;
-        $isCompleted = $playerAchievementSet->achievements_unlocked === $numSetAchievements;        
+        $isCompleted = $playerAchievementSet->achievements_unlocked === $numSetAchievements;
         if ($isCompleted && !$playerAchievementSet->completed_at) {
             $playerAchievementSet->completed_at = $playerAchievementSet->last_unlock_at;
             array_push($completionDates, $playerAchievementSet->completed_at);

@@ -61,7 +61,49 @@ class ResumePlayerSessionAction
 
         // if the session is less than 10 minutes old, resume session
         if ($playerSession && ($timestamp->diffInMinutes($playerSession->rich_presence_updated_at, true) < 10)) {
-            $playerSession->duration = max(1, (int) $timestamp->diffInMinutes($playerSession->created_at, true));
+            $newDuration = max(1, (int) $timestamp->diffInMinutes($playerSession->created_at, true));
+            // duration is in minutes, playtimes are in seconds.
+            $adjustment = ($newDuration - $playerSession->duration) * 60;
+            $playerSession->duration = $newDuration;
+
+            if (!$playerGame->playtime_total) {
+                // no playtime metrics exist - generate them
+                dispatch(new UpdatePlayerGameMetricsJob($user->id, $game->id));
+            } else {
+                // extending an existing session. attempt to keep the playtime metrics
+                // up to date without doing a full regeneration. a full regeneration
+                // will occur after the next unlock.
+
+                $playerGame->playtime_total += $adjustment;
+                $playerGame->save();
+
+                // also update related achievement_sets
+                $activeAchievementSets = [];
+                if ($gameHash) {
+                    $resolvedSets = (new ResolveAchievementSetsAction())->execute($gameHash, $user);
+                    foreach ($resolvedSets as $resolvedSet) {
+                        $activeAchievementSets[] = $resolvedSet->id;
+                    }
+                }
+                if (empty($resolvedSets)) {
+                    $coreSet = $game->gameAchievementSets->core->first();
+                    if ($coreSet) {
+                        $activeAchievementSets[] = $coreSet->id;
+                    }
+                }
+
+                if (!empty($activeAchievementSets)) {
+                    $playerAchievementSets = PlayerAchievementSet::whereIn('achievement_set_id', $activeAchievementSets)->get();
+                    foreach ($playerAchievementSets as $playerAchievementSet) {
+                        $playerAchievementSet->time_taken += $adjustment;
+
+                        if ($playerSession->hardcore || $user->RAPoints > $user->RASoftcorePoints) {
+                            $playerAchievementSet->time_taken_hardcore += $adjustment;
+                        }
+                    }
+                    $playerAchievementSets->save();
+                }
+            }
 
             if ($presence) {
                 $playerSession->rich_presence = $presence;
