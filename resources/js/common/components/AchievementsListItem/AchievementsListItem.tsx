@@ -6,9 +6,9 @@ import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 
-import { WeightedPointsContainer } from '../WeightedPointsContainer';
 import { AchievementDateMeta } from './AchievementDateMeta';
 import { AchievementGameTitle } from './AchievementGameTitle';
+import { AchievementPoints } from './AchievementPoints';
 import { ProgressBarMetaText } from './ProgressBarMetaText';
 
 interface AchievementsListItemProps {
@@ -87,13 +87,11 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
                 ) : null}
               </span>
 
-              {/* Points */}
-              {achievement.points && achievement.pointsWeighted ? (
-                <span className="inline-flex gap-1 text-[12px]">
-                  <span>{`(${achievement.points})`}</span>
-                  <WeightedPointsContainer>{`(${achievement.pointsWeighted})`}</WeightedPointsContainer>
-                </span>
-              ) : null}
+              <AchievementPoints
+                isEvent={!!eventAchievement}
+                points={achievement.points ?? 0}
+                pointsWeighted={achievement.pointsWeighted}
+              />
             </div>
 
             {/* Meta chips (Mobile) */}
