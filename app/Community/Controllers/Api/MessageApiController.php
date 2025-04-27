@@ -80,7 +80,11 @@ class MessageApiController extends Controller
             $recipient = User::whereName($input['recipient'])->first();
 
             // Check if we're trying to send as a team account.
-            if (isset($input['senderUserDisplayName']) && !empty($input['senderUserDisplayName'])) {
+            if (
+                isset($input['senderUserDisplayName'])
+                && !empty($input['senderUserDisplayName'])
+                && $user->display_name !== $input['senderUserDisplayName']
+            ) {
                 $teamAccount = User::firstWhere('User', $input['senderUserDisplayName']);
                 if ($teamAccount) {
                     // Verify via policy that the user can actually send from this team account.
