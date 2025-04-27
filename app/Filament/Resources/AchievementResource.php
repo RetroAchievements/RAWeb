@@ -523,6 +523,11 @@ class AchievementResource extends Resource
     public static function buildMaintainerForm(): array
     {
         return [
+            Forms\Components\Placeholder::make('ticket_info')
+                ->hiddenLabel()
+                ->content('The new maintainer will inherit any open tickets for this achievement.')
+                ->extraAttributes(['style' => 'color: oklch(82.8% 0.189 84.429)']), // amber-400 (https://tailwindcss.com/docs/colors#color-palette-reference)
+
             Forms\Components\Select::make('user_id')
                 ->label('Maintainer')
                 ->searchable()
@@ -570,6 +575,13 @@ class AchievementResource extends Resource
             'effective_from' => now(),
             'is_active' => true,
         ]);
+
+        // Reassign any open tickets for this achievement to the new maintainer.
+        $record->tickets()
+            ->unresolved()
+            ->update([
+                'ticketable_author_id' => $newMaintainerId,
+            ]);
 
         activity()
             ->performedOn($record)
