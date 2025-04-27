@@ -21,7 +21,7 @@ class AddToMessageThreadAction
         $message = new Message([
             'thread_id' => $thread->id,
             'author_id' => $userFrom->id,
-            'sent_by_id' => $trueSenderUser->id,
+            'sent_by_id' => !$userFrom->is($trueSenderUser) ? $trueSenderUser->id : null,
             'body' => $body,
             'created_at' => Carbon::now(),
         ]);

@@ -638,14 +638,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "message.store": [],
-    "message-thread.destroy": [
-        {
-            "name": "messageThread",
-            "required": true,
-            "binding": "id"
-        }
-    ],
     "api.settings.preferences.suppress-mature-content-warning": [],
     "api.settings.profile.update": [],
     "api.settings.locale.update": [],

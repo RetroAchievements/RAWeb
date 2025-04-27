@@ -864,5 +864,6 @@
     "You can view your own inbox or inboxes belonging to any of your teams' accounts.": "You can view your own inbox or inboxes belonging to any of your teams' accounts.",
     "Select an account": "Select an account",
     "Cancel": "Cancel",
-    "Confirm": "Confirm"
+    "Confirm": "Confirm",
+    "Sent by <1>{{username}}</1>": "Sent by <1>{{username}}</1>"
 }

@@ -73,6 +73,7 @@ declare namespace App.Community.Data {
     body: string;
     createdAt: string;
     author?: App.Data.User;
+    sentBy?: App.Data.User | null;
   };
   export type MessageThreadCreatePageProps = {
     toUser: App.Data.User | null;

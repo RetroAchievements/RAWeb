@@ -68,5 +68,13 @@ class Message extends BaseModel
         return $this->belongsTo(User::class, 'author_id', 'ID')->withTrashed();
     }
 
+    /**
+     * @return BelongsTo<User, Message>
+     */
+    public function sentBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'sent_by_id', 'ID')->withTrashed();
+    }
+
     // == scopes
 }
