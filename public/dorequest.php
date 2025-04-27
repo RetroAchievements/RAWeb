@@ -7,6 +7,7 @@ use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameAndGameHashAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
+use App\Connect\Commands\GetCodeNotes;
 use App\Connect\Commands\SubmitCodeNote;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
@@ -29,6 +30,7 @@ use Illuminate\Support\Carbon;
 
 $requestType = request()->input('r');
 $handler = match ($requestType) {
+    'codenotes2' => new GetCodeNotes(),
     'submitcodenote' => new SubmitCodeNote(),
     default => null,
 };
@@ -114,7 +116,6 @@ $credentialsOK = match ($requestType) {
     "postactivity",
     "richpresencepatch",
     "startsession",
-    "submitcodenote",
     "submitgametitle",
     "submitlbentry",
     "unlocks",
@@ -223,29 +224,6 @@ switch ($requestType) {
         // Used by RALibretro achievement editor
         $response['FirstBadge'] = 80;
         $response['NextBadge'] = (int) FilenameIterator::getBadgeIterator();
-        break;
-
-    // TODO: Deprecate - not used anymore
-    case "codenotes":
-        if (!getCodeNotes($gameID, $codeNotesOut)) {
-            return DoRequestError("FAILED!");
-        }
-        echo "OK:$gameID:";
-        foreach ($codeNotesOut as $codeNote) {
-            if (mb_strlen($codeNote['Note']) > 2) {
-                $noteAdj = str_replace("\n", "\r\n", $codeNote['Note']);
-                echo $codeNote['User'] . ':' . $codeNote['Address'] . ':' . $noteAdj . "#";
-            }
-        }
-        break;
-
-    case "codenotes2":
-        if (VirtualGameIdService::isVirtualGameId($gameID)) {
-            [$gameID, $compatibility] = VirtualGameIdService::decodeVirtualGameId($gameID);
-        }
-
-        $response['CodeNotes'] = getCodeNotesData($gameID);
-        $response['GameID'] = $gameID;
         break;
 
     case "gameid":
@@ -692,19 +670,6 @@ switch ($requestType) {
         }
 
         $response['ServerNow'] = Carbon::now()->timestamp;
-        break;
-
-    case "submitcodenote":
-        if (VirtualGameIdService::isVirtualGameId($gameID)) {
-            [$gameID, $compatibility] = VirtualGameIdService::decodeVirtualGameId($gameID);
-        }
-
-        $note = request()->input('n') ?? '';
-        $address = (int) request()->input('m', 0);
-        $response['Success'] = submitCodeNote2($username, $gameID, $address, $note);
-        $response['GameID'] = $gameID;     // Repeat this back to the caller?
-        $response['Address'] = $address;    // Repeat this back to the caller?
-        $response['Note'] = $note;      // Repeat this back to the caller?
         break;
 
     case "submitgametitle":

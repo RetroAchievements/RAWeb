@@ -28,13 +28,6 @@ function loadCodeNotes(int $gameId): ?array
     return null;
 }
 
-function getCodeNotesData(int $gameId): array
-{
-    $codeNotesOut = loadCodeNotes($gameId);
-
-    return $codeNotesOut !== null ? $codeNotesOut : [];
-}
-
 function getCodeNotes(int $gameId, ?array &$codeNotesOut): bool
 {
     $codeNotesOut = loadCodeNotes($gameId);

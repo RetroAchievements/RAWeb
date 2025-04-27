@@ -53,7 +53,7 @@ class SubmitCodeNote extends AuthenticatedApiHandlerBase
                     return $this->accessDenied();
                 }
 
-                if (!Game::find($this->gameId)) {
+                if (!Game::where('ID', $this->gameId)->exists()) {
                     return $this->gameNotFound();
                 }
 

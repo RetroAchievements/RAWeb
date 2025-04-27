@@ -1,6 +1,8 @@
 <?php
 
+use App\Connect\Commands\SubmitCodeNote;
 use App\Enums\Permissions;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -14,14 +16,16 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'note' => 'nullable|string',
 ]);
 
-$gameId = $input['gameId'];
-$address = $input['address'];
-$note = $input['note'] ?? "";
+$command = new SubmitCodeNote();
+$command->gameId = $input['gameId'];
+$command->address = $input['address'];
+$command->note = $input['note'] ?? '';
+$command->user = User::whereName($user)->first();
 
-$success = submitCodeNote2($user, $gameId, $address, $note);
+$result = $command->process();
 
-if (!$success) {
-    abort(400);
+if (!$result['Success']) {
+    abort($result['Status'] ?? 400);
 }
 
 return response()->json(['message' => __('legacy.success.ok')]);
