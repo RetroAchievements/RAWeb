@@ -10,6 +10,7 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('player_games', function (Blueprint $table) {
+            $table->dropIndex(['game_id', 'achievement_set_version_hash']);
             $table->dropColumn([
                 'achievement_set_version_hash',
                 'achievements_beat',
@@ -66,6 +67,8 @@ return new class() extends Migration {
             $table->bigInteger('time_taken_hardcore')->nullable()->default(null)->after('time_taken');
             $table->dateTime('first_unlock_hardcore_at')->nullable()->default(null)->after('first_unlock_at');
             $table->integer('points_weighted_total')->nullable()->default(null)->after('points_hardcore');
+
+            $table->createIndex(['game_id', 'achievement_set_version_hash']);
         });
     }
 };

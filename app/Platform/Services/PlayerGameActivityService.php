@@ -392,17 +392,22 @@ class PlayerGameActivityService
 
     public function getAchievementSetMetrics(PlayerAchievementSet $playerAchievementSet): array
     {
-        $summary['firstUnlockTimeSoftcore'] = null;
-        $summary['firstUnlockTimeHardcore'] = null;
-        $summary['lastUnlockTimeSoftcore'] = null;
-        $summary['lastUnlockTimeHardcore'] = null;
+        $metrics = [
+            'firstUnlockTimeSoftcore' => null,
+            'firstUnlockTimeHardcore' => null,
+            'lastUnlockTimeSoftcore' => null,
+            'lastUnlockTimeHardcore' => null,
+        ];
 
         if ($playerAchievementSet->achievementSet->achievements_published === 0) {
-            $summary['achievementPlaytimeSoftcore'] = 0;
-            $summary['achievementPlaytimeHardcore'] = 0;
-            $summary['devTime'] = $summary['totalPlaytime'];
+            $metrics['achievementPlaytimeSoftcore'] = 0;
+            $metrics['achievementPlaytimeHardcore'] = 0;
 
-            return $summary;
+            // assume entiry playtime has been doing development
+            $summary = $this->summarize();
+            $metrics['devTime'] = $summary['totalPlaytime'];
+
+            return $metrics;
         }
 
         foreach ($this->sessions as $session) {
@@ -427,21 +432,21 @@ class PlayerGameActivityService
                 }
 
                 if ($event['hardcore']) {
-                    if (!$summary['firstUnlockTimeHardcore']) {
-                        $summary['firstUnlockTimeHardcore'] = $event['when'];
+                    if (!$metrics['firstUnlockTimeHardcore']) {
+                        $metrics['firstUnlockTimeHardcore'] = $event['when'];
                     }
-                    $summary['lastUnlockTimeHardcore'] = $event['when'];
+                    $metrics['lastUnlockTimeHardcore'] = $event['when'];
                 } else {
-                    if (!$summary['firstUnlockTimeSoftcore']) {
-                        $summary['firstUnlockTimeSoftcore'] = $event['when'];
+                    if (!$metrics['firstUnlockTimeSoftcore']) {
+                        $metrics['firstUnlockTimeSoftcore'] = $event['when'];
                     }
-                    $summary['lastUnlockTimeSoftcore'] = $event['when'];
+                    $metrics['lastUnlockTimeSoftcore'] = $event['when'];
                 }
             }
         }
 
-        $summary['firstUnlockTimeSoftcore'] ??= $summary['firstUnlockTimeHardcore'];
-        $summary['lastUnlockTimeSoftcore'] ??= $summary['lastUnlockTimeHardcore'];
+        $metrics['firstUnlockTimeSoftcore'] ??= $metrics['firstUnlockTimeHardcore'];
+        $metrics['lastUnlockTimeSoftcore'] ??= $metrics['lastUnlockTimeHardcore'];
 
         if (!$playerAchievementSet->achievementSet->achievements_published_at) {
             $playerAchievementSet->achievementSet->achievements_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($playerAchievementSet->achievementSet);
@@ -449,11 +454,11 @@ class PlayerGameActivityService
         }
         $achievementsPublishedAt = $playerAchievementSet->achievementSet->achievements_published_at;
 
-        $summary['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($achievementsPublishedAt, $summary['lastUnlockTimeSoftcore'], UnlockMode::Softcore);
-        $summary['achievementPlaytimeHardcore'] = $this->calculatePlaytime($achievementsPublishedAt, $summary['lastUnlockTimeHardcore'], UnlockMode::Hardcore);
-        $summary['devTime'] = $this->calculatePlaytime(null, $achievementsPublishedAt, 0, UnlockMode::Softcore);
+        $metrics['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($achievementsPublishedAt, $metrics['lastUnlockTimeSoftcore'], UnlockMode::Softcore);
+        $metrics['achievementPlaytimeHardcore'] = $this->calculatePlaytime($achievementsPublishedAt, $metrics['lastUnlockTimeHardcore'], UnlockMode::Hardcore);
+        $metrics['devTime'] = $this->calculatePlaytime(null, $achievementsPublishedAt, 0, UnlockMode::Softcore);
 
-        return $summary;
+        return $metrics;
     }
 
     private function calculatePlaytime(?Carbon $startTime, ?Carbon $endTime, int $unlockMode): ?int

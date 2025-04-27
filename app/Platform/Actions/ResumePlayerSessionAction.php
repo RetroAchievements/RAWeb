@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Connect\Actions\ResolveAchievementSetsAction;
 use App\Models\Game;
 use App\Models\GameHash;
+use App\Models\PlayerAchievementSet;
 use App\Models\PlayerSession;
 use App\Models\User;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Events\PlayerSessionResumed;
 use App\Platform\Events\PlayerSessionStarted;
+use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Carbon\Carbon;
 
 class ResumePlayerSessionAction
@@ -86,7 +90,7 @@ class ResumePlayerSessionAction
                     }
                 }
                 if (empty($resolvedSets)) {
-                    $coreSet = $game->gameAchievementSets->core->first();
+                    $coreSet = $game->gameAchievementSets->where('type', AchievementSetType::Core)->first();
                     if ($coreSet) {
                         $activeAchievementSets[] = $coreSet->id;
                     }
@@ -100,8 +104,9 @@ class ResumePlayerSessionAction
                         if ($playerSession->hardcore || $user->RAPoints > $user->RASoftcorePoints) {
                             $playerAchievementSet->time_taken_hardcore += $adjustment;
                         }
+
+                        $playerAchievementSet->save();
                     }
-                    $playerAchievementSets->save();
                 }
             }
 

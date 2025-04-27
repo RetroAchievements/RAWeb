@@ -11,7 +11,6 @@ return new class() extends Migration {
     {
         Schema::table('achievement_sets', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
-            $table->dropColumn(['user_id']);
 
             $table->dateTime('achievements_published_at')->nullable()->default(null)->after('players_hardcore');
             $table->integer('times_completed')->default(0)->after('points_weighted');

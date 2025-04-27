@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use \ErrorException;
 use App\Models\Achievement;
 use App\Models\AchievementSet;
 use App\Models\GameAchievementSet;
@@ -53,6 +54,11 @@ class UpdatePlayerGameMetricsAction
                 $achievementIds[] = $achievement->id;
             }
         }
+
+        if (!$coreAchievementSet) {
+            throw new ErrorException("No core achievement set found for game $game->id");
+        }
+
         $achievementIds = array_unique($achievementIds);
 
         // get unlocks for all found achievements
@@ -183,6 +189,11 @@ class UpdatePlayerGameMetricsAction
                 $playerGame->completed_at = $playerAchievementSet->last_unlock_at;
                 array_push($gameCompletionDates, $playerGame->completed_at);
             }
+        } elseif (!$isCompleted) {
+            $playerAchievementSet->completed_at = null;
+            if ($isCoreSet) {
+                $playerGame->completed_at = null;
+            }
         }
         $playerAchievementSet->completion_dates = empty($completionDates) ? null : array_unique($completionDates);
 
@@ -198,6 +209,11 @@ class UpdatePlayerGameMetricsAction
                     $playerGame->completion_dates_hardcore = [];
                 }
                 array_push($gameCompletionDatesHardcore, $playerGame->completed_hardcore_at);
+            }
+        } elseif (!$isCompletedHardcore) {
+            $playerAchievementSet->completed_hardcore_at = null;
+            if ($isCoreSet) {
+                $playerGame->completed_hardcore_at = null;
             }
         }
         $playerAchievementSet->completion_dates_hardcore = empty($completionDatesHardcore) ? null : array_unique($completionDatesHardcore);
@@ -249,8 +265,8 @@ class UpdatePlayerGameMetricsAction
 
         $beatenAt = $isBeatenSoftcore ? $playerGame->beaten_at : null;
         $beatenHardcoreAt = $isBeatenHardcore ? $playerGame->beaten_hardcore_at : null;
-        $beatenDates = $playerGame->beaten_dates;
-        $beatenDatesHardcore = $playerGame->beaten_dates_hardcore;
+        $beatenDates = $playerGame->beaten_dates ?? [];
+        $beatenDatesHardcore = $playerGame->beaten_dates_hardcore ?? [];
 
         if (!$beatenAt && $isBeatenSoftcore) {
             $beatenAt = collect([
@@ -260,9 +276,6 @@ class UpdatePlayerGameMetricsAction
                 ->filter()
                 ->max();
             array_push($beatenDates, $beatenAt);
-        }
-        if ($beatenDates !== null) {
-            $beatenDates = array_unique($beatenDates);
         }
 
         if (!$beatenHardcoreAt && $isBeatenHardcore) {
@@ -274,13 +287,10 @@ class UpdatePlayerGameMetricsAction
                 ->max();
             array_push($beatenDatesHardcore, $beatenHardcoreAt);
         }
-        if ($beatenDatesHardcore !== null) {
-            $beatenDatesHardcore = array_unique($beatenDatesHardcore);
-        }
 
         return [
-            'beaten_dates' => $beatenDates,
-            'beaten_dates_hardcore' => $beatenDatesHardcore,
+            'beaten_dates' => empty($beatenDates) ? null : array_unique($beatenDates),
+            'beaten_dates_hardcore' => empty($beatenDatesHardcore) ? null : array_unique($beatenDatesHardcore),
             'beaten_at' => $beatenAt,
             'beaten_hardcore_at' => $beatenHardcoreAt,
         ];
