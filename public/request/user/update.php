@@ -36,8 +36,6 @@ if ($propertyType === UserAction::UpdatePermissions) {
             setAccountForumPostAuth($foundSourceUser, $permissions, $foundTargetUser, authorize: true);
         }
 
-        $shouldRemoveMaintainerships = $value <= Permissions::Developer;
-
         // Adjust attached roles.
         if ($value <= Permissions::Unregistered) {
             $foundTargetUser->roles()->detach();
