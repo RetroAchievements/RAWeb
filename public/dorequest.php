@@ -7,6 +7,7 @@ use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameAndGameHashAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
+use App\Connect\Commands\SubmitCodeNote;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
@@ -26,6 +27,15 @@ use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 
+$requestType = request()->input('r');
+$handler = match ($requestType) {
+    'submitcodenote' => new SubmitCodeNote(),
+    default => null,
+};
+if ($handler) {
+    return $handler->execute(request());
+}
+
 /**
  * @usage
  * dorequest.php?r=addfriend&<params> (Web)
@@ -37,7 +47,6 @@ $response = ['Success' => true];
  * AVOID A G O C - these are now strongly typed as INT!
  * Global RESERVED vars:
  */
-$requestType = request()->input('r');
 $username = request()->input('u');
 $token = request()->input('t');
 $delegateTo = request()->input('k');
@@ -231,6 +240,10 @@ switch ($requestType) {
         break;
 
     case "codenotes2":
+        if (VirtualGameIdService::isVirtualGameId($gameID)) {
+            [$gameID, $compatibility] = VirtualGameIdService::decodeVirtualGameId($gameID);
+        }
+
         $response['CodeNotes'] = getCodeNotesData($gameID);
         $response['GameID'] = $gameID;
         break;
@@ -682,6 +695,10 @@ switch ($requestType) {
         break;
 
     case "submitcodenote":
+        if (VirtualGameIdService::isVirtualGameId($gameID)) {
+            [$gameID, $compatibility] = VirtualGameIdService::decodeVirtualGameId($gameID);
+        }
+
         $note = request()->input('n') ?? '';
         $address = (int) request()->input('m', 0);
         $response['Success'] = submitCodeNote2($username, $gameID, $address, $note);
@@ -805,6 +822,10 @@ switch ($requestType) {
             break;
         }
 
+        if (VirtualGameIdService::isVirtualGameId($gameID)) {
+            [$gameID, $compatibility] = VirtualGameIdService::decodeVirtualGameId($gameID);
+        }
+
         $errorOut = "";
         $response['Success'] = UploadNewAchievement(
             authorUsername: $username,
@@ -825,6 +846,10 @@ switch ($requestType) {
         break;
 
     case "uploadleaderboard":
+        if (VirtualGameIdService::isVirtualGameId($gameID)) {
+            [$gameID, $compatibility] = VirtualGameIdService::decodeVirtualGameId($gameID);
+        }
+
         $leaderboardID = (int) request()->input('i', 0);
         $newTitle = request()->input('n');
         $newDesc = request()->input('d') ?? '';

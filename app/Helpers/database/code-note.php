@@ -1,7 +1,5 @@
 <?php
 
-use App\Enums\Permissions;
-use App\Models\MemoryNote;
 use App\Models\User;
 
 function loadCodeNotes(int $gameId): ?array
@@ -42,46 +40,6 @@ function getCodeNotes(int $gameId, ?array &$codeNotesOut): bool
     $codeNotesOut = loadCodeNotes($gameId);
 
     return $codeNotesOut !== null;
-}
-
-function submitCodeNote2(string $username, int $gameID, int $address, string $note): bool
-{
-    /** @var ?User $user */
-    $user = User::whereName($username)->first();
-
-    if (!$user?->can('create', MemoryNote::class)) {
-        return false;
-    }
-
-    $addressHex = '0x' . str_pad(dechex($address), 6, '0', STR_PAD_LEFT);
-    $currentNotes = getCodeNotesData($gameID);
-    $i = array_search($addressHex, array_column($currentNotes, 'Address'));
-
-    // TODO use Eloquent ORM to determine if the operation is an update, and
-    // if so, use MemoryNotePolicy::update() instead of a legacy Permissions check.
-    $permissions = (int) $user->getAttribute('Permissions');
-
-    if (
-        $i !== false
-        && $permissions <= Permissions::JuniorDeveloper
-        && $currentNotes[$i]['User'] !== $user->display_name
-        && !empty($currentNotes[$i]['Note'])
-    ) {
-        return false;
-    }
-
-    MemoryNote::updateOrCreate(
-        [
-            'game_id' => $gameID,
-            'address' => $address,
-        ],
-        [
-            'user_id' => $user->ID,
-            'body' => $note,
-        ]
-    );
-
-    return true;
 }
 
 /**
