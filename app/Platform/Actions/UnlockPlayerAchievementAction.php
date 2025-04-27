@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Achievement;
+use App\Models\AchievementMaintainerUnlock;
 use App\Models\GameHash;
 use App\Models\System;
 use App\Models\User;
@@ -25,7 +26,7 @@ class UnlockPlayerAchievementAction
     ): void {
         $timestamp ??= Carbon::now();
 
-        $achievement->loadMissing('game.system');
+        $achievement->loadMissing('activeMaintainer', 'game.system');
         if (!$achievement->game) {
             throw new Exception('Achievement does not belong to any game');
         }
@@ -97,6 +98,17 @@ class UnlockPlayerAchievementAction
         // commit the unlock
         if ($achievement->is_published) {
             $unlock->save();
+
+            // Check if this achievement is currently maintained by someone other than the author.
+            // If it is, create a maintainer unlock record for quick lookups for writing dev stats.
+            if ($achievement->activeMaintainer) {
+                AchievementMaintainerUnlock::create([
+                    'player_achievement_id' => $unlock->id,
+                    'user_id' => $user->id,
+                    'maintainer_id' => $achievement->activeMaintainer->user_id,
+                    'achievement_id' => $achievement->id,
+                ]);
+            }
 
             // post the unlock notification
             PlayerAchievementUnlocked::dispatch($user, $achievement, $hardcore);

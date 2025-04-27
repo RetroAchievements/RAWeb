@@ -4,6 +4,7 @@ namespace App\Platform\Actions;
 
 use App\Community\Enums\AwardType;
 use App\Models\Achievement;
+use App\Models\AchievementMaintainerUnlock;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
@@ -81,6 +82,9 @@ class ResetPlayerProgressAction
                 return;
             }
 
+            // Delete any maintainer unlock records related to this player_achievement entity.
+            AchievementMaintainerUnlock::where('player_achievement_id', $playerAchievement->id)->delete();
+
             $achievement = $playerAchievement->achievement;
             if ($achievement->isPublished) {
                 // resetting a published achievement removes the completion/mastery badge.
@@ -101,10 +105,23 @@ class ResetPlayerProgressAction
         } elseif ($gameID !== null) {
             $achievementIds = Achievement::where('GameID', $gameID)->pluck('ID');
 
+            // Delete any maintainer unlock records related to these player_achievement entities.
+            $playerAchievementIds = $user->playerAchievements()->whereIn('achievement_id', $achievementIds)->pluck('id');
+            if (!$playerAchievementIds->isEmpty()) {
+                AchievementMaintainerUnlock::whereIn('player_achievement_id', $playerAchievementIds)->delete();
+            }
+
             $user->playerAchievements()
                 ->whereIn('achievement_id', $achievementIds)
                 ->delete();
         } else {
+            // Delete all maintainer unlock records related to these player_achievement entities.
+            AchievementMaintainerUnlock::query()
+                ->whereIn('player_achievement_id', function ($query) use ($user) {
+                    $query->select('id')->from('player_achievements')->where('user_id', $user->id);
+                })
+                ->delete();
+
             // fulfill deletion request
             $user->playerGames()->forceDelete();
             $user->playerBadges()->delete();
