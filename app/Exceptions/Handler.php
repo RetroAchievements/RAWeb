@@ -49,6 +49,13 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $e): void
     {
+        // Filter out React errors caused by Google Translate modifying the DOM during SSR.
+        if ($e instanceof \Inertia\Ssr\SsrException
+            && preg_match('/React does not recognize|Invalid attribute name/', $e->getMessage())
+        ) {
+            return;
+        }
+
         parent::report($e);
     }
 
