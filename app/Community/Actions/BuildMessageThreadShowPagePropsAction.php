@@ -57,6 +57,7 @@ class BuildMessageThreadShowPagePropsAction
             ticketIds: $entities['ticketIds'],
             achievementIds: $entities['achievementIds'],
             gameIds: $entities['gameIds'],
+            eventIds: $entities['eventIds'],
             hubIds: $entities['hubIds'],
         );
 

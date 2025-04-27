@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
@@ -99,6 +100,8 @@ describe('Component: CreateMessageReplyForm', () => {
     const paginatedMessages = createPaginatedData([], { lastPage: 5 });
     const mockOnPreview = vi.fn();
 
+    vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
+
     vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: {} });
 
     render(<CreateMessageReplyForm onPreview={mockOnPreview} />, {
@@ -118,7 +121,7 @@ describe('Component: CreateMessageReplyForm', () => {
       expect(screen.getByText(/submitted/i)).toBeVisible();
     });
 
-    // vitest is very unhappy when it hits the setTimeout() for window.location.assign().
+    // vitest is very unhappy when it hits the setTimeout() for router.visit().
     await __UNSAFE_VERY_DANGEROUS_SLEEP(1100);
   });
 

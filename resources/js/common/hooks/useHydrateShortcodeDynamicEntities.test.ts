@@ -4,6 +4,7 @@ import { renderHook } from '@/test';
 
 import {
   persistedAchievementsAtom,
+  persistedEventsAtom,
   persistedGamesAtom,
   persistedHubsAtom,
   persistedTicketsAtom,
@@ -23,7 +24,7 @@ vi.mock('jotai/utils', async () => {
 describe('Hook: useHydrateShortcodeDynamicEntities', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const dynamicEntities = {
+    const initialDynamicEntities = {
       achievements: [],
       games: [],
       hubs: [],
@@ -33,7 +34,21 @@ describe('Hook: useHydrateShortcodeDynamicEntities', () => {
     };
 
     // ACT
-    const { result } = renderHook(() => useHydrateShortcodeDynamicEntities(dynamicEntities));
+    const { result } = renderHook(
+      () => useHydrateShortcodeDynamicEntities(initialDynamicEntities),
+      {
+        pageProps: {
+          dynamicEntities: {
+            achievements: [],
+            games: [],
+            hubs: [],
+            events: [],
+            tickets: [],
+            users: [],
+          },
+        },
+      },
+    );
 
     // ASSERT
     expect(result).toBeTruthy();
@@ -46,18 +61,31 @@ describe('Hook: useHydrateShortcodeDynamicEntities', () => {
     const dynamicEntities = {
       achievements: [{ id: 1 }],
       games: [{ id: 2 }],
+      events: [{ id: 1 }],
       hubs: [{ id: 3 }],
       tickets: [{ id: 4 }],
       users: [{ id: 5 }],
     };
 
     // ACT
-    renderHook(() => useHydrateShortcodeDynamicEntities(dynamicEntities as any));
+    renderHook(() => useHydrateShortcodeDynamicEntities(dynamicEntities as any), {
+      pageProps: {
+        dynamicEntities: {
+          achievements: [],
+          games: [],
+          hubs: [],
+          events: [],
+          tickets: [],
+          users: [],
+        },
+      },
+    });
 
     // ASSERT
     expect(mockUseHydrateAtoms).toHaveBeenCalledWith([
       [persistedAchievementsAtom, dynamicEntities.achievements],
       [persistedGamesAtom, dynamicEntities.games],
+      [persistedEventsAtom, dynamicEntities.events],
       [persistedHubsAtom, dynamicEntities.hubs],
       [persistedTicketsAtom, dynamicEntities.tickets],
       [persistedUsersAtom, dynamicEntities.users],

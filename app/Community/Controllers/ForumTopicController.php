@@ -23,8 +23,6 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
-// TODO redirects, both for normal navigation and copied urls
-
 class ForumTopicController extends Controller
 {
     public function index(): void
@@ -48,6 +46,7 @@ class ForumTopicController extends Controller
     public function show(ForumTopic $topic, ShowForumTopicRequest $request): InertiaResponse|RedirectResponse
     {
         $this->authorize('view', $topic);
+        abort_if($topic->comments->isEmpty(), 404);
 
         $actionResult = (new BuildShowForumTopicPagePropsAction())->execute(
             topic: $topic,

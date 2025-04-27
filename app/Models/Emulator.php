@@ -62,6 +62,8 @@ class Emulator extends BaseModel implements HasMedia
         'can_debug_triggers' => 'boolean',
     ];
 
+    public const NonEmulator = 22;
+
     protected static function newFactory(): EmulatorFactory
     {
         return EmulatorFactory::new();
