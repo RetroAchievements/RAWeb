@@ -1,22 +1,29 @@
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createGameTopAchiever } from '@/test/factories';
 
-import { TopEventPlayersRow } from './TopEventPlayersRow';
+import { PlayableTopPlayersRow } from './PlayableTopPlayersRow';
 
 // Suppress JSDOM errors from rendering rows without a table.
 // It only applies to our test environment.
 console.error = vi.fn();
 
-describe('Component: TopEventPlayersRow', () => {
+describe('Component: PlayableTopPlayersRow', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <TopEventPlayersRow
+      <PlayableTopPlayersRow
+        awardKind={null}
         listKind="latest-masters"
         numMasters={10}
-        player={createGameTopAchiever()}
+        player={createGameTopAchiever({ userDisplayName: 'Scott' })}
         playerIndex={0}
       />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        },
+      },
     );
 
     // ASSERT
@@ -26,7 +33,8 @@ describe('Component: TopEventPlayersRow', () => {
   it('given the list kind is latest-masters, shows the date of last unlock', () => {
     // ARRANGE
     render(
-      <TopEventPlayersRow
+      <PlayableTopPlayersRow
+        awardKind={null}
         listKind="latest-masters"
         numMasters={10}
         player={createGameTopAchiever({
@@ -44,7 +52,8 @@ describe('Component: TopEventPlayersRow', () => {
   it('given the list kind is most-points-earned, shows the points', () => {
     // ARRANGE
     render(
-      <TopEventPlayersRow
+      <PlayableTopPlayersRow
+        awardKind={null}
         listKind="most-points-earned"
         numMasters={10}
         player={createGameTopAchiever({
@@ -63,7 +72,8 @@ describe('Component: TopEventPlayersRow', () => {
   it('given the list kind is latest-masters, calculates row number by subtracting index from total masters', () => {
     // ARRANGE
     render(
-      <TopEventPlayersRow
+      <PlayableTopPlayersRow
+        awardKind={null}
         listKind="latest-masters"
         numMasters={10} // !!
         player={createGameTopAchiever()}

@@ -11,6 +11,7 @@ use App\Data\ShowForumTopicPagePropsData;
 use App\Data\UserPermissionsData;
 use App\Models\ForumTopic;
 use App\Models\User;
+use App\Support\Shortcode\Shortcode;
 
 class BuildShowForumTopicPagePropsAction
 {
@@ -88,6 +89,7 @@ class BuildShowForumTopicPagePropsAction
                 total: $paginatedForumTopicComments->total(),
                 items: $forumTopicComments
             ),
+            metaDescription: Shortcode::stripAndClamp($updatedBodies[0], 220),
         );
 
         return ['props' => $props, 'redirectToPage' => null];

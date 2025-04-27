@@ -2,11 +2,15 @@ import type { FC } from 'react';
 
 import { BaseTableCell, BaseTableRow } from '@/common/components/+vendor/BaseTable';
 import { UserAvatar } from '@/common/components/UserAvatar';
+import { usePageProps } from '@/common/hooks/usePageProps';
+import { cn } from '@/common/utils/cn';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 
-import type { TopPlayersListKind } from '../models/top-players-list-kind.model';
+import { AwardIndicator } from '../../AwardIndicator';
+import type { TopPlayersListKind } from '../models';
 
-interface TopEventPlayersRowProps {
+interface PlayableTopPlayersRowProps {
+  awardKind: 'mastery' | 'beaten-hardcore' | null;
   listKind: TopPlayersListKind;
   numMasters: number;
   player: App.Platform.Data.GameTopAchiever;
@@ -15,13 +19,16 @@ interface TopEventPlayersRowProps {
   calculatedRank?: number;
 }
 
-export const TopEventPlayersRow: FC<TopEventPlayersRowProps> = ({
+export const PlayableTopPlayersRow: FC<PlayableTopPlayersRowProps> = ({
+  awardKind,
   calculatedRank,
   listKind,
   numMasters,
   player,
   playerIndex,
 }) => {
+  const { auth } = usePageProps();
+
   const getRowNumber = (): number => {
     // For latest masters, we always use the reversed index.
     if (listKind === 'latest-masters') {
@@ -32,10 +39,12 @@ export const TopEventPlayersRow: FC<TopEventPlayersRowProps> = ({
     return calculatedRank as number;
   };
 
+  const isMe = player.userDisplayName === auth?.user?.displayName;
+
   return (
     <BaseTableRow
       key={`top-players-${player.userDisplayName}`}
-      className="last:rounded-b-lg [&>td]:py-[6px]"
+      className={cn('last:rounded-b-lg [&>td]:py-[6px]', isMe ? 'outline outline-text' : null)}
     >
       <BaseTableCell className="text-right">{getRowNumber()}</BaseTableCell>
 
@@ -52,7 +61,12 @@ export const TopEventPlayersRow: FC<TopEventPlayersRowProps> = ({
           {formatDate(player.lastUnlockHardcoreAt, 'll')}
         </BaseTableCell>
       ) : (
-        <BaseTableCell className="text-right">{player.pointsHardcore}</BaseTableCell>
+        <BaseTableCell>
+          <span className="flex items-center justify-end gap-1.5">
+            {awardKind ? <AwardIndicator awardKind={awardKind} /> : null}
+            {player.pointsHardcore}
+          </span>
+        </BaseTableCell>
       )}
     </BaseTableRow>
   );
