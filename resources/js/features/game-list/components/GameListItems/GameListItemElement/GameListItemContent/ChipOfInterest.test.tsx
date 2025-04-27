@@ -235,7 +235,7 @@ describe('Component: ChipOfInterest', () => {
 
     // ASSERT
     expect(screen.queryByText(/100/i)).not.toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /mastered indicator/i })).toBeVisible();
+    expect(screen.getByRole('img', { name: /mastered/i })).toBeVisible();
   });
 
   it('given the field is progress and the player has not started the game, renders nothing', () => {

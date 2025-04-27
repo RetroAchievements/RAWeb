@@ -461,11 +461,13 @@ declare namespace App.Platform.Data {
     title: string;
     createdAt?: string;
     description?: string;
+    developer?: App.Data.User;
     flags?: App.Platform.Enums.AchievementFlag;
     game?: App.Platform.Data.Game;
     orderColumn?: number;
     points?: number;
     pointsWeighted?: number;
+    type?: 'progression' | 'win_condition' | 'missable' | null;
     unlockedAt?: string;
     unlockedHardcoreAt?: string;
     unlockHardcorePercentage?: string;
@@ -654,6 +656,7 @@ declare namespace App.Platform.Data {
     hubs: Array<App.Platform.Data.GameSet>;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
+    numMasters: number;
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;

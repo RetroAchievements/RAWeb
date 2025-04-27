@@ -43,6 +43,7 @@ class EventAchievementData extends Data
             return new self(
                 achievement: Lazy::create(fn () => new AchievementData(
                     badgeLockedUrl: media_asset('Badge/00000_lock.png'),
+                    developer: Lazy::create(fn () => null),
                     badgeUnlockedUrl: media_asset('Badge/00000.png'),
                     id: $eventAchievement->achievement->id,
                     title: 'Upcoming Challenge',
@@ -53,6 +54,7 @@ class EventAchievementData extends Data
                     orderColumn: Lazy::create(fn () => $eventAchievement->achievement->DisplayOrder),
                     points: Lazy::create(fn () => $eventAchievement->achievement->points),
                     pointsWeighted: Lazy::create(fn () => $eventAchievement->achievement->points_weighted),
+                    type: Lazy::create(fn () => null),
                     unlockedAt: Lazy::create(fn () => $playerAchievement?->unlocked_at),
                     unlockedHardcoreAt: Lazy::create(fn () => $playerAchievement?->unlocked_hardcore_at),
                     unlockHardcorePercentage: Lazy::create(fn () => $eventAchievement->achievement->unlock_hardcore_percentage),
