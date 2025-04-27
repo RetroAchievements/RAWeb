@@ -22,6 +22,7 @@ class GameShowPagePropsData extends Data
         public array $hubs,
         public Collection $followedPlayerCompletions,
         public Collection $playerAchievementChartBuckets,
+        public int $numMasters,
         public Collection $topAchievers,
         public ?PlayerGameData $playerGame,
         public ?PlayerGameProgressionAwardsData $playerGameProgressionAwards,

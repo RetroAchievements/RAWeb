@@ -29,7 +29,7 @@ class ForumTopicCommentData extends Data
     {
         return new self(
             id: $comment->id,
-            body: $comment->body,
+            body: html_entity_decode($comment->body),
             createdAt: $comment->created_at,
             updatedAt: $comment->updated_at,
             user: UserData::from($comment->user),
