@@ -16,10 +16,7 @@ const formSchema = z.object({
 });
 type FormValues = z.infer<typeof formSchema>;
 
-export function useCreateMessageThreadForm(
-  defaultValues: Partial<FormValues>,
-  senderUserDisplayName: string,
-) {
+export function useCreateMessageThreadForm(defaultValues: Partial<FormValues>) {
   const { t } = useTranslation();
 
   const form = useForm<FormValues>({
@@ -36,7 +33,6 @@ export function useCreateMessageThreadForm(
     mutationFn: (formValues: FormValues) => {
       const normalizedPayload = {
         ...formValues,
-        senderUserDisplayName,
         body: preProcessShortcodesInBody(formValues.body),
       };
 

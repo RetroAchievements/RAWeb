@@ -2,7 +2,6 @@ import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
-import { createAuthenticatedUser } from '@/common/models';
 import { __UNSAFE_VERY_DANGEROUS_SLEEP, render, screen, waitFor } from '@/test';
 import { createMessageThread, createPaginatedData } from '@/test/factories';
 
@@ -22,7 +21,6 @@ describe('Component: CreateMessageReplyForm', () => {
       pageProps: {
         messageThread,
         paginatedMessages,
-        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -40,7 +38,6 @@ describe('Component: CreateMessageReplyForm', () => {
       pageProps: {
         messageThread,
         paginatedMessages,
-        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -59,7 +56,6 @@ describe('Component: CreateMessageReplyForm', () => {
       pageProps: {
         messageThread,
         paginatedMessages,
-        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -81,7 +77,6 @@ describe('Component: CreateMessageReplyForm', () => {
       pageProps: {
         messageThread,
         paginatedMessages,
-        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -108,7 +103,6 @@ describe('Component: CreateMessageReplyForm', () => {
       pageProps: {
         messageThread,
         paginatedMessages,
-        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -139,7 +133,6 @@ describe('Component: CreateMessageReplyForm', () => {
       pageProps: {
         messageThread,
         paginatedMessages,
-        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -167,7 +160,6 @@ describe('Component: CreateMessageReplyForm', () => {
       pageProps: {
         messageThread,
         paginatedMessages,
-        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -195,7 +187,6 @@ describe('Component: CreateMessageReplyForm', () => {
       pageProps: {
         messageThread,
         paginatedMessages,
-        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -219,7 +210,6 @@ describe('Component: CreateMessageReplyForm', () => {
       pageProps: {
         messageThread,
         paginatedMessages,
-        auth: { user: createAuthenticatedUser() },
       },
     });
 

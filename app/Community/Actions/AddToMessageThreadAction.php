@@ -12,16 +12,11 @@ use Illuminate\Support\Carbon;
 
 class AddToMessageThreadAction
 {
-    public function execute(
-        MessageThread $thread,
-        User $userFrom,
-        User $trueSenderUser,
-        string $body
-    ): void {
+    public function execute(MessageThread $thread, User $userFrom, string $body): void
+    {
         $message = new Message([
             'thread_id' => $thread->id,
-            'author_id' => $userFrom->id,
-            'sent_by_id' => !$userFrom->is($trueSenderUser) ? $trueSenderUser->id : null,
+            'author_id' => $userFrom->ID,
             'body' => $body,
             'created_at' => Carbon::now(),
         ]);

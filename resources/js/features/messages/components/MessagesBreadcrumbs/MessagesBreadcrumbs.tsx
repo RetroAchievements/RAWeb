@@ -9,61 +9,44 @@ import {
   BaseBreadcrumbPage,
   BaseBreadcrumbSeparator,
 } from '@/common/components/+vendor/BaseBreadcrumb';
-import { InertiaLink } from '@/common/components/InertiaLink';
 import type { TranslatedString } from '@/types/i18next';
 
 interface MessagesBreadcrumbsProps {
-  delegatedUserDisplayName?: string;
-  t_currentPageLabel?: TranslatedString;
-  shouldShowInboxLinkCrumb?: boolean;
+  t_currentPageLabel: TranslatedString;
+
+  user?: App.Data.User;
 }
 
-export const MessagesBreadcrumbs: FC<MessagesBreadcrumbsProps> = ({
-  delegatedUserDisplayName,
-  t_currentPageLabel,
-  shouldShowInboxLinkCrumb = true,
-}) => {
+export const MessagesBreadcrumbs: FC<MessagesBreadcrumbsProps> = ({ t_currentPageLabel, user }) => {
   const { t } = useTranslation();
 
   return (
     <div className="navpath mb-3 hidden sm:block">
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
-          {shouldShowInboxLinkCrumb ? (
-            <>
-              {delegatedUserDisplayName ? (
-                <BaseBreadcrumbItem
-                  aria-label={t("{{username}}'s Inbox", { username: delegatedUserDisplayName })}
-                >
-                  <BaseBreadcrumbLink asChild>
-                    <InertiaLink
-                      href={route('message-thread.user.index', { user: delegatedUserDisplayName })}
-                    >
-                      {t("{{username}}'s Inbox", { username: delegatedUserDisplayName })}
-                    </InertiaLink>
-                  </BaseBreadcrumbLink>
-                </BaseBreadcrumbItem>
-              ) : (
-                <BaseBreadcrumbItem aria-label={t('Your Inbox')}>
-                  <BaseBreadcrumbLink asChild>
-                    <InertiaLink href={route('message-thread.index')}>
-                      {t('Your Inbox')}
-                    </InertiaLink>
-                  </BaseBreadcrumbLink>
-                </BaseBreadcrumbItem>
-              )}
-            </>
-          ) : null}
+          <BaseBreadcrumbItem aria-label={t('Messages')}>
+            <BaseBreadcrumbLink href={route('message-thread.index')}>
+              {t('Messages')}
+            </BaseBreadcrumbLink>
+          </BaseBreadcrumbItem>
 
-          {t_currentPageLabel ? (
-            <>
-              {shouldShowInboxLinkCrumb ? <BaseBreadcrumbSeparator /> : null}
+          <BaseBreadcrumbSeparator />
 
-              <BaseBreadcrumbItem aria-label={t_currentPageLabel}>
-                <BaseBreadcrumbPage>{t_currentPageLabel}</BaseBreadcrumbPage>
+          {user ? (
+            <>
+              <BaseBreadcrumbItem aria-label={user.displayName}>
+                <BaseBreadcrumbLink href={route('user.show', user.displayName)}>
+                  {user.displayName}
+                </BaseBreadcrumbLink>
               </BaseBreadcrumbItem>
+
+              <BaseBreadcrumbSeparator />
             </>
           ) : null}
+
+          <BaseBreadcrumbItem aria-label={t_currentPageLabel}>
+            <BaseBreadcrumbPage>{t_currentPageLabel}</BaseBreadcrumbPage>
+          </BaseBreadcrumbItem>
         </BaseBreadcrumbList>
       </BaseBreadcrumb>
     </div>

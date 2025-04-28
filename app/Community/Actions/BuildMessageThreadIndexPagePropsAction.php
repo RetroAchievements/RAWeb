@@ -9,7 +9,6 @@ use App\Community\Data\MessageThreadIndexPagePropsData;
 use App\Data\PaginatedData;
 use App\Models\MessageThread;
 use App\Models\User;
-use App\Policies\MessageThreadPolicy;
 
 class BuildMessageThreadIndexPagePropsAction
 {
@@ -17,8 +16,7 @@ class BuildMessageThreadIndexPagePropsAction
      * @return array{props: ?MessageThreadIndexPagePropsData, redirectToPage: ?int}
      */
     public function execute(
-        User $inboxUser,
-        User $me,
+        User $user,
         int $currentPage = 1,
         int $perPage = 20,
     ): array {
@@ -30,7 +28,7 @@ class BuildMessageThreadIndexPagePropsAction
             ])
             ->join('message_thread_participants', 'message_thread_participants.thread_id', '=', 'message_threads.id')
             ->join('messages', 'messages.id', '=', 'message_threads.last_message_id')
-            ->where('message_thread_participants.user_id', $inboxUser->id)
+            ->where('message_thread_participants.user_id', $user->id)
             ->whereNull('message_thread_participants.deleted_at')
             ->with([
                 'messages',
@@ -61,19 +59,9 @@ class BuildMessageThreadIndexPagePropsAction
                 total: $paginatedMessageThreads->total(),
                 items: MessageThreadData::fromCollection($paginatedMessageThreads->getCollection())
             ),
-            unreadMessageCount: $inboxUser->UnreadMessageCount ?? 0,
-            senderUserDisplayName: $inboxUser->display_name,
-            selectableInboxDisplayNames: $this->getAccessibleInboxes($me),
+            unreadMessageCount: $user->UnreadMessageCount ?? 0,
         );
 
         return ['props' => $props, 'redirectToPage' => null];
-    }
-
-    private function getAccessibleInboxes(User $user): array
-    {
-        $policy = new MessageThreadPolicy();
-        $accessibleTeamInboxes = $policy->getAccessibleTeamInboxes($user);
-
-        return [$user->display_name, ...$accessibleTeamInboxes];
     }
 }

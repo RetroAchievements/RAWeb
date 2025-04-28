@@ -1,7 +1,6 @@
 import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 
-import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
 import { createMessage, createMessageThread, createPaginatedData } from '@/test/factories';
 
@@ -47,7 +46,6 @@ describe('Component: MessagesShowRoot', () => {
         messageThread,
         paginatedMessages,
         canReply: true, // !!
-        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -65,7 +63,6 @@ describe('Component: MessagesShowRoot', () => {
         messageThread,
         paginatedMessages,
         canReply: false, // !!
-        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -85,7 +82,6 @@ describe('Component: MessagesShowRoot', () => {
         messageThread,
         paginatedMessages,
         canReply: false,
-        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -104,7 +100,6 @@ describe('Component: MessagesShowRoot', () => {
         messageThread,
         paginatedMessages,
         canReply: true,
-        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -137,7 +132,6 @@ describe('Component: MessagesShowRoot', () => {
         messageThread,
         paginatedMessages,
         canReply: true,
-        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -167,8 +161,6 @@ describe('Component: MessagesShowRoot', () => {
         messageThread,
         paginatedMessages,
         canReply: true,
-        senderUserDisplayName: 'Scott',
-        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
       },
     });
 
@@ -178,33 +170,6 @@ describe('Component: MessagesShowRoot', () => {
     // ASSERT
     await waitFor(() => {
       expect(visitSpy).toHaveBeenCalledWith(route('message-thread.index'));
-    });
-  });
-
-  it('given the user confirms thread deletion while delegating, deletes the thread and redirects', async () => {
-    // ARRANGE
-    const visitSpy = vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
-
-    const messageThread = createMessageThread();
-    const paginatedMessages = createPaginatedData([createMessage()]);
-    confirmSpy.mockImplementationOnce(() => true);
-
-    render(<MessagesShowRoot />, {
-      pageProps: {
-        messageThread,
-        paginatedMessages,
-        canReply: true,
-        senderUserDisplayName: 'RAdmin',
-        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
-      },
-    });
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /delete/i }));
-
-    // ASSERT
-    await waitFor(() => {
-      expect(visitSpy).toHaveBeenCalledWith(route('message-thread.user.index', { user: 'RAdmin' }));
     });
   });
 
@@ -221,7 +186,6 @@ describe('Component: MessagesShowRoot', () => {
         messageThread,
         paginatedMessages,
         canReply: true,
-        auth: { user: createAuthenticatedUser() },
       },
     });
 

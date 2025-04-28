@@ -18,7 +18,6 @@ class MessageData extends Data
         public string $body,
         public Carbon $createdAt,
         public Lazy|UserData $author,
-        public Lazy|UserData|null $sentBy,
     ) {
     }
 
@@ -28,9 +27,6 @@ class MessageData extends Data
             body: $message->body,
             createdAt: $message->created_at,
             author: Lazy::create(fn () => UserData::fromUser($message->author)->include('deletedAt')),
-            sentBy: $message->sent_by_id
-                ? Lazy::create(fn () => UserData::fromUser($message->sentBy)->include('deletedAt'))
-                : null,
         );
     }
 }

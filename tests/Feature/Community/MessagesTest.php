@@ -36,7 +36,7 @@ class MessagesTest extends TestCase
 
         // user1 sends message to user2
         Mail::fake();
-        $thread = (new CreateMessageThreadAction())->execute($user1, $user2, $user1, 'This is a message', 'This is the message body.');
+        $thread = (new CreateMessageThreadAction())->execute($user1, $user2, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -84,7 +84,7 @@ class MessagesTest extends TestCase
         $now2 = $now->clone()->addMinutes(5);
         Carbon::setTestNow($now2);
 
-        (new AddToMessageThreadAction())->execute($thread, $user2, $user2, 'This is a response.');
+        (new AddToMessageThreadAction())->execute($thread, $user2, 'This is a response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -120,7 +120,7 @@ class MessagesTest extends TestCase
         $now3 = $now2->clone()->addMinutes(5);
         Carbon::setTestNow($now3);
 
-        (new AddToMessageThreadAction())->execute($thread, $user2, $user2, 'This is another response.');
+        (new AddToMessageThreadAction())->execute($thread, $user2, 'This is another response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -160,7 +160,7 @@ class MessagesTest extends TestCase
         $now4 = $now3->clone()->addMinutes(5);
         Carbon::setTestNow($now4);
 
-        (new AddToMessageThreadAction())->execute($thread, $user1, $user1, 'This is a third response.');
+        (new AddToMessageThreadAction())->execute($thread, $user1, 'This is a third response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -260,7 +260,7 @@ class MessagesTest extends TestCase
 
         // message from user2 is automatically marked as deleted by user1
         Mail::fake();
-        $thread = (new CreateMessageThreadAction())->execute($user2, $user1, $user2, 'This is a message', 'This is the message body.');
+        $thread = (new CreateMessageThreadAction())->execute($user2, $user1, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -295,7 +295,7 @@ class MessagesTest extends TestCase
         $now2 = $now->clone()->addMinutes(5);
         Carbon::setTestNow($now2);
 
-        (new AddToMessageThreadAction())->execute($thread, $user2, $user2, 'This is a response.');
+        (new AddToMessageThreadAction())->execute($thread, $user2, 'This is a response.');
 
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
@@ -330,7 +330,7 @@ class MessagesTest extends TestCase
         // message from user1 is delivered to user2
         Carbon::setTestNow($now);
 
-        $thread = (new CreateMessageThreadAction())->execute($user1, $user2, $user1, 'This is a message', 'This is the message body.');
+        $thread = (new CreateMessageThreadAction())->execute($user1, $user2, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 2,
             'title' => 'This is a message',
@@ -365,7 +365,7 @@ class MessagesTest extends TestCase
         // additional message from user1 is also delivered
         Carbon::setTestNow($now2);
 
-        (new AddToMessageThreadAction())->execute($thread, $user1, $user1, 'This is a response.');
+        (new AddToMessageThreadAction())->execute($thread, $user1, 'This is a response.');
 
         $this->assertDatabaseHas('message_threads', [
             'id' => 2,
@@ -402,7 +402,7 @@ class MessagesTest extends TestCase
         $now3 = $now2->clone()->addMinutes(5);
         Carbon::setTestNow($now3);
 
-        (new AddToMessageThreadAction())->execute($thread, $user2, $user2, 'This is another response.');
+        (new AddToMessageThreadAction())->execute($thread, $user2, 'This is another response.');
 
         $this->assertDatabaseHas('message_threads', [
             'id' => 2,
@@ -446,7 +446,7 @@ class MessagesTest extends TestCase
         $user2 = User::factory()->create(['websitePrefs' => (1 << UserPreference::EmailOn_PrivateMessage)]);
 
         // user1 sends message to user2
-        $thread = (new CreateMessageThreadAction())->execute($user1, $user2, $user1, 'This is a message', 'This is the message body.');
+        $thread = (new CreateMessageThreadAction())->execute($user1, $user2, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -478,7 +478,7 @@ class MessagesTest extends TestCase
         $now2 = $now->clone()->addMinutes(5);
         Carbon::setTestNow($now2);
 
-        (new AddToMessageThreadAction())->execute($thread, $user2, $user2, 'This is a response.');
+        (new AddToMessageThreadAction())->execute($thread, $user2, 'This is a response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -553,7 +553,7 @@ class MessagesTest extends TestCase
         $user1 = User::factory()->create(['websitePrefs' => (1 << UserPreference::EmailOn_PrivateMessage)]);
 
         // user1 sends message to user1
-        $thread = (new CreateMessageThreadAction())->execute($user1, $user1, $user1, 'This is a message', 'This is the message body.');
+        $thread = (new CreateMessageThreadAction())->execute($user1, $user1, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -578,7 +578,7 @@ class MessagesTest extends TestCase
         $now2 = $now->clone()->addMinutes(5);
         Carbon::setTestNow($now2);
 
-        (new AddToMessageThreadAction())->execute($thread, $user1, $user1, 'This is a response.');
+        (new AddToMessageThreadAction())->execute($thread, $user1, 'This is a response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',

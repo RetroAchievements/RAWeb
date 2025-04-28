@@ -11,14 +11,8 @@ use Illuminate\Support\Carbon;
 
 class CreateMessageThreadAction
 {
-    public function execute(
-        User $userFrom,
-        User $userTo,
-        User $trueSenderUser,
-        string $title,
-        string $body,
-        bool $isProxied = false
-    ): MessageThread {
+    public function execute(User $userFrom, User $userTo, string $title, string $body, bool $isProxied = false): MessageThread
+    {
         $thread = new MessageThread([
             'title' => $title,
         ]);
@@ -49,7 +43,7 @@ class CreateMessageThreadAction
             $participantTo->save();
         }
 
-        (new AddToMessageThreadAction())->execute($thread, $userFrom, $trueSenderUser, $body);
+        (new AddToMessageThreadAction())->execute($thread, $userFrom, $body);
 
         return $thread;
     }

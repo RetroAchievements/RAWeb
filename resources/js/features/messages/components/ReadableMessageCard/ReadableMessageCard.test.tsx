@@ -93,28 +93,4 @@ describe('Component: ReadableMessageCard', () => {
     expect(textEl).toBeVisible();
     expect(textEl).toHaveClass('codetags');
   });
-
-  it('given a message includes sentBy metadata, shows the real sender display name', () => {
-    // ARRANGE
-    const message = createMessage({
-      author: createUser({ displayName: 'RAdmin' }),
-      body: 'Hello world',
-      createdAt: '2024-01-01T00:00:00Z',
-      sentBy: createUser({ displayName: 'Scott' }),
-    });
-
-    render(<ReadableMessageCard message={message} />, {
-      pageProps: {
-        auth: {
-          user: createAuthenticatedUser({
-            preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
-          }),
-        },
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByText(/sent by/i)).toBeVisible();
-    expect(screen.getByRole('link', { name: /scott/i })).toBeVisible();
-  });
 });

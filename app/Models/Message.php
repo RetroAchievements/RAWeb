@@ -23,7 +23,6 @@ class Message extends BaseModel
     protected $fillable = [
         'thread_id',
         'author_id',
-        'sent_by_id',
         'body',
         'created_at',
     ];
@@ -66,14 +65,6 @@ class Message extends BaseModel
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id', 'ID')->withTrashed();
-    }
-
-    /**
-     * @return BelongsTo<User, Message>
-     */
-    public function sentBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'sent_by_id', 'ID')->withTrashed();
     }
 
     // == scopes

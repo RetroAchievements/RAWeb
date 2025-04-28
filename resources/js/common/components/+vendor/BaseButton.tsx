@@ -32,7 +32,7 @@ const baseButtonVariants = cva(
           'light:bg-neutral-200 light:text-neutral-900 bg-neutral-800 text-neutral-50 hover:bg-neutral-800/80',
         ghost:
           'light:hover:bg-neutral-100 light:hover:text-neutral-900 hover:bg-neutral-800 hover:text-neutral-50',
-        link: 'light:text-neutral-900 underline-offset-4 hover:underline text-link',
+        link: 'light:text-neutral-900 underline-offset-4 hover:underline text-neutral-50',
       },
       size: {
         default: 'h-9 px-4 py-2',

@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 
-import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
 
 import { MessagesCreateRoot } from './MessagesCreateRoot';
@@ -27,11 +26,7 @@ describe('Component: MessagesCreateRoot', () => {
 
   it('given the user previews their message, shows the preview content', async () => {
     // ARRANGE
-    render(<MessagesCreateRoot />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-      },
-    });
+    render(<MessagesCreateRoot />);
 
     // ACT
     await userEvent.type(screen.getByPlaceholderText(/don't ask for links/i), 'hello world');
@@ -45,34 +40,10 @@ describe('Component: MessagesCreateRoot', () => {
 
   it('has accessible breadcrumbs', () => {
     // ARRANGE
-    render(<MessagesCreateRoot />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
-        senderUserDisplayName: 'Scott',
-      },
-    });
+    render(<MessagesCreateRoot />);
 
     // ASSERT
     expect(screen.getByRole('navigation')).toBeVisible();
-    expect(screen.getByRole('link', { name: /your inbox/i })).toBeVisible();
     expect(screen.getByText(/start new message thread/i)).toBeVisible();
-  });
-
-  it('given the user is creating from a team account, shows the correct breadcrumbs', () => {
-    // ARRANGE
-    render(<MessagesCreateRoot />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
-        senderUserDisplayName: 'RAdmin',
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByRole('navigation')).toBeVisible();
-
-    expect(screen.getByRole('link', { name: "RAdmin's Inbox" })).toBeVisible();
-    expect(screen.getByText(/start new message thread/i)).toBeVisible();
-
-    expect(screen.queryByRole('link', { name: /your inbox/i })).not.toBeInTheDocument();
   });
 });

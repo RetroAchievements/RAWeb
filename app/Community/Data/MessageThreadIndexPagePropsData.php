@@ -14,9 +14,6 @@ class MessageThreadIndexPagePropsData extends Data
     public function __construct(
         public PaginatedData $paginatedMessageThreads,
         public int $unreadMessageCount,
-        public string $senderUserDisplayName,
-        /** @var string[] */
-        public array $selectableInboxDisplayNames,
     ) {
     }
 }
