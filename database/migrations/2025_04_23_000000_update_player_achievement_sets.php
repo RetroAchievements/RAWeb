@@ -31,6 +31,7 @@ return new class() extends Migration {
                 'points_weighted_total',
             ]);
 
+            $table->unsignedInteger('achievements_unlocked_softcore')->nullable()->default(null)->after('achievements_unlocked_hardcore');
             $table->integer('time_taken')->nullable()->default(null)->after('completion_percentage_hardcore');
             $table->integer('time_taken_hardcore')->nullable()->default(null)->after('time_taken');
         });
@@ -40,6 +41,7 @@ return new class() extends Migration {
     {
         Schema::table('player_achievement_sets', function (Blueprint $table) {
             $table->dropColumn([
+                'achievements_unlocked_softcore',
                 'time_taken',
                 'time_taken_hardcore',
             ]);

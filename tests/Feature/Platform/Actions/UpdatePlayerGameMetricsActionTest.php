@@ -68,7 +68,7 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $this->assertEquals(1, $playerGame->achievements_unlocked);
         $this->assertEquals(0, $playerGame->achievements_unlocked_hardcore);
         $this->assertEquals(1, $playerGame->achievements_unlocked_softcore);
-        $this->assertEquals($lastPlayedAt, $playerGame->last_played_at);
+        $this->assertEquals($lastUnlockAt, $playerGame->last_played_at);
         $this->assertEquals($lastUnlockAt, $playerGame->last_unlock_at);
         $this->assertEquals($lastUnlockHardcoreAt, $playerGame->last_unlock_hardcore_at);
         $this->assertEquals($firstUnlockAt, $playerGame->first_unlock_at);
@@ -140,7 +140,7 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $this->assertEquals(5, $playerGame->achievements_unlocked);
         $this->assertEquals(2, $playerGame->achievements_unlocked_hardcore);
         $this->assertEquals(3, $playerGame->achievements_unlocked_softcore);
-        $this->assertEquals($lastPlayedAt, $playerGame->last_played_at);
+        $this->assertEquals($lastUnlockAt, $playerGame->last_played_at);
         $this->assertEquals($lastUnlockAt, $playerGame->last_unlock_at);
         $this->assertEquals($lastUnlockHardcoreAt, $playerGame->last_unlock_hardcore_at);
         $this->assertEquals($firstUnlockAt, $playerGame->first_unlock_at);
@@ -202,7 +202,7 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $this->assertEquals(6, $playerGame->achievements_unlocked);
         $this->assertEquals(4, $playerGame->achievements_unlocked_hardcore);
         $this->assertEquals(2, $playerGame->achievements_unlocked_softcore);
-        $this->assertEquals($lastPlayedAt, $playerGame->last_played_at);
+        $this->assertEquals($lastUnlockAt, $playerGame->last_played_at);
         $this->assertEquals($beatenAt, $playerGame->last_unlock_at);
         $this->assertEquals($lastUnlockHardcoreAt, $playerGame->last_unlock_hardcore_at);
         $this->assertEquals($firstUnlockAt, $playerGame->first_unlock_at);

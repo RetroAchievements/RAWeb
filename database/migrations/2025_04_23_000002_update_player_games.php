@@ -11,7 +11,17 @@ return new class() extends Migration {
     {
         Schema::table('player_games', function (Blueprint $table) {
             $table->dropIndex(['game_id', 'achievement_set_version_hash']);
+            $table->dropForeign(['game_hash_id']);
+
+            // The SQLite dump has this weirdly named index that also needs
+            // to be dropped before the column can be dropped
+            // https://github.com/RetroAchievements/RAWeb/blob/de9ec20c6ff28d2f886ec0b18d2db7b675a0fc10/database/schema/sqlite-schema.sql#L113
+            if (DB::connection()->getDriverName() === 'sqlite') {
+                $table->dropIndex('IDX_40515077AABF27FD');
+            }
+
             $table->dropColumn([
+                'game_hash_id',
                 'achievement_set_version_hash',
                 'achievements_beat',
                 'achievements_beat_unlocked',
@@ -56,6 +66,12 @@ return new class() extends Migration {
                 'all_points_weighted',
             ]);
 
+            $table->unsignedBigInteger('game_hash_id')->nullable()->default(null)->after('game_id');
+            $table->foreign('game_hash_id')
+                ->references('id')
+                ->on('game_hashes')
+                ->onDelete('set null');
+
             $table->string('achievement_set_version_hash', 255)->nullable()->default(null)->after('game_hash_id');
             $table->integer('achievements_beat')->nullable()->default(null)->after('achievements_unlocked_softcore');
             $table->integer('achievements_beat_unlocked')->nullable()->default(null)->after('achievements_beat');
@@ -68,7 +84,7 @@ return new class() extends Migration {
             $table->dateTime('first_unlock_hardcore_at')->nullable()->default(null)->after('first_unlock_at');
             $table->integer('points_weighted_total')->nullable()->default(null)->after('points_hardcore');
 
-            $table->createIndex(['game_id', 'achievement_set_version_hash']);
+            $table->index(['game_id', 'achievement_set_version_hash']);
         });
     }
 };

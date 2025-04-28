@@ -11,6 +11,8 @@ return new class() extends Migration {
     {
         Schema::table('achievement_sets', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
+            $table->dropIndex(['user_id']);
+            $table->dropColumn('user_id');
 
             $table->dateTime('achievements_published_at')->nullable()->default(null)->after('players_hardcore');
             $table->integer('times_completed')->default(0)->after('points_weighted');
@@ -32,6 +34,7 @@ return new class() extends Migration {
             ]);
 
             $table->unsignedBigInteger('user_id')->nullable()->default(null)->after('id');
+            $table->index(['user_id']);
             $table->foreign('user_id')
                 ->references('ID')
                 ->on('UserAccounts')

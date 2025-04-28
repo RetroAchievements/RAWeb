@@ -116,9 +116,9 @@ class UpdatePlayerGameMetricsAction
             $playerAchievementSet->points_hardcore = $setAchievementsUnlockedHardcore->sum('Points');
             $playerAchievementSet->points_weighted = $setAchievementsUnlockedHardcore->sum('TrueRatio');
 
-            $summary = $activityService->getAchievementSetMetrics($playerAchievementSet);
-            $playerAchievementSet->time_taken = $summary['achievementPlaytimeSoftcore'];
-            $playerAchievementSet->time_taken_hardcore = $summary['achievementPlaytimeHardcore'];
+            $summary = $activityService->getAchievementSetMetrics($achievementSet);
+            $playerAchievementSet->time_taken = $summary['achievementPlaytimeSoftcore'] ?? 0;
+            $playerAchievementSet->time_taken_hardcore = $summary['achievementPlaytimeHardcore'] ?? 0;
             $playerAchievementSet->last_unlock_at = $summary['lastUnlockTimeSoftcore'];
             $playerAchievementSet->last_unlock_hardcore_at = $summary['lastUnlockTimeHardcore'];
 

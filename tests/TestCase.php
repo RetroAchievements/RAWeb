@@ -104,18 +104,7 @@ abstract class TestCase extends BaseTestCase
         });
 
         if ($achievementsAmount > 0) {
-            $games->each(function (Game $game) use ($achievementsAmount): bool {
-                $achievements = $this->seedAchievements($achievementsAmount, $game);
-
-                foreach ($achievements as $achievement) {
-                    $game->points_total += $achievement->Points;
-                }
-
-                $game->achievements_published = $achievementsAmount;
-                $game->save();
-
-                return true;
-            });
+            $games->each(fn (Game $game) => (bool) $this->seedAchievements($achievementsAmount, $game));
         }
 
         return $games;

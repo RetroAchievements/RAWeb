@@ -62,7 +62,7 @@ class PlayerGameActivityService
             $gameIds[] = $game->id;
         }
 
-        $playerSessions = $user->playerSessions()->with('gameHash')->whereIn('game_id', $gameIds)->get();
+        $playerSessions = $user->playerSessions()->with('gameHash')->whereIn('game_id', $gameIds)->orderBy('created_at')->get();
 
         foreach ($playerSessions as $playerSession) {
             $session = [
@@ -94,6 +94,23 @@ class PlayerGameActivityService
             }
 
             $this->sessions[] = $session;
+        }
+
+        // player_games records have more granular end times. try to merge them in
+        $playerGames = PlayerGame::where('user_id', $user->id)->whereIn('game_id', $gameIds)->get();
+        foreach ($playerGames as $playerGame) {
+            if ($playerGame->last_played_at) {
+                $whenBefore = $playerGame->last_played_at->clone()->subMinutes(5);
+                $whenAfter = $playerGame->last_played_at->clone()->addMinutes(5);
+        
+                $index = 0;
+                foreach ($this->sessions as &$session) {
+                    if ($session['endTime'] >= $whenBefore && $session['endTime'] <= $whenAfter) {
+                        $session['endTime'] = $playerGame->last_played_at;
+                        break;
+                    }
+                }
+            }
         }
 
         $playerAchievements = $user->playerAchievements()
@@ -382,6 +399,10 @@ class PlayerGameActivityService
 
     public function getBeatProgressMetrics(AchievementSet $achievementSet, PlayerGame $playerGame): array
     {
+        if (!$achievementSet->achievements_published_at) {
+            $achievementSet->achievements_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($achievementSet);
+            $achievementSet->save();
+        }
         $achievementsPublishedAt = $achievementSet->achievements_published_at;
 
         return [
@@ -390,7 +411,7 @@ class PlayerGameActivityService
         ];
     }
 
-    public function getAchievementSetMetrics(PlayerAchievementSet $playerAchievementSet): array
+    public function getAchievementSetMetrics(AchievementSet $achievementSet): array
     {
         $metrics = [
             'firstUnlockTimeSoftcore' => null,
@@ -399,7 +420,7 @@ class PlayerGameActivityService
             'lastUnlockTimeHardcore' => null,
         ];
 
-        if ($playerAchievementSet->achievementSet->achievements_published === 0) {
+        if ($achievementSet->achievements_published === 0) {
             $metrics['achievementPlaytimeSoftcore'] = 0;
             $metrics['achievementPlaytimeHardcore'] = 0;
 
@@ -417,7 +438,7 @@ class PlayerGameActivityService
             }
 
             if (in_array('achievementSetId', $session)
-                && $session['achievementSetId'] != $playerAchievementSet->achievementSet->id) {
+                && $session['achievementSetId'] != $achievementSet->id) {
                 continue;
             }
 
@@ -426,7 +447,7 @@ class PlayerGameActivityService
                     continue;
                 }
 
-                if (!$playerAchievementSet->achievementSet->achievements->contains('ID', $event['id'])) {
+                if (!$achievementSet->achievements->contains('ID', $event['id'])) {
                     // achievement not part of set, ignore
                     continue;
                 }
@@ -448,11 +469,11 @@ class PlayerGameActivityService
         $metrics['firstUnlockTimeSoftcore'] ??= $metrics['firstUnlockTimeHardcore'];
         $metrics['lastUnlockTimeSoftcore'] ??= $metrics['lastUnlockTimeHardcore'];
 
-        if (!$playerAchievementSet->achievementSet->achievements_published_at) {
-            $playerAchievementSet->achievementSet->achievements_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($playerAchievementSet->achievementSet);
-            $playerAchievementSet->achievementSet->save();
+        if (!$achievementSet->achievements_published_at) {
+            $achievementSet->achievements_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($achievementSet);
+            $achievementSet->save();
         }
-        $achievementsPublishedAt = $playerAchievementSet->achievementSet->achievements_published_at;
+        $achievementsPublishedAt = $achievementSet->achievements_published_at;
 
         $metrics['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($achievementsPublishedAt, $metrics['lastUnlockTimeSoftcore'], UnlockMode::Softcore);
         $metrics['achievementPlaytimeHardcore'] = $this->calculatePlaytime($achievementsPublishedAt, $metrics['lastUnlockTimeHardcore'], UnlockMode::Hardcore);
