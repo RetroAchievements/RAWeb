@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Connect\Commands;
+namespace App\Connect\Support;
 
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-abstract class AuthenticatedApiHandlerBase extends ApiHandlerBase
+abstract class BaseAuthenticatedApiAction extends BaseApiAction
 {
-    public User $user;
+    protected User $user;
 
-    public function execute(Request $request): JsonResponse
+    public function handleRequest(Request $request): JsonResponse
     {
         if (!$this->authenticate($request)) {
             return $this->buildResponse($this->accessDenied());
         }
 
-        return parent::execute($request);
+        return parent::handleRequest($request);
     }
 
     private function authenticate(Request $request): bool

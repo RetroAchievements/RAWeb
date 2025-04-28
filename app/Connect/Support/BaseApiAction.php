@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Connect\Commands;
+namespace App\Connect\Support;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-abstract class ApiHandlerBase
+abstract class BaseApiAction
 {
-    abstract public function initialize(Request $request): ?array;
+    abstract protected function initialize(Request $request): ?array;
 
-    abstract public function process(): array;
+    abstract protected function process(): array;
 
-    public function execute(Request $request): JsonResponse
+    public function handleRequest(Request $request): JsonResponse
     {
         $result = $this->initialize($request);
 

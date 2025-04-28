@@ -2,20 +2,32 @@
 
 declare(strict_types=1);
 
-namespace App\Connect\Commands;
+namespace App\Connect\Actions;
 
+use App\Connect\Support\BaseAuthenticatedApiAction;
 use App\Models\Game;
 use App\Models\MemoryNote;
+use App\Models\User;
 use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Http\Request;
 
-class SubmitCodeNote extends AuthenticatedApiHandlerBase
+class SubmitCodeNoteAction extends BaseAuthenticatedApiAction
 {
-    public int $gameId;
-    public int $address;
-    public string $note;
+    protected int $gameId;
+    protected int $address;
+    protected string $note;
 
-    public function initialize(Request $request): ?array
+    public function execute(int $gameId, int $address, string $note, User $user): array
+    {
+        $this->gameId = $gameId;
+        $this->address = $address;
+        $this->note = $note;
+        $this->user = $user;
+
+        return $this->process();
+    }
+
+    protected function initialize(Request $request): ?array
     {
         if (!$request->has(['g', 'm', 'n'])) {
             return $this->missingParameters();
@@ -28,7 +40,7 @@ class SubmitCodeNote extends AuthenticatedApiHandlerBase
         return null;
     }
 
-    public function process(): array
+    protected function process(): array
     {
         if (VirtualGameIdService::isVirtualGameId($this->gameId)) {
             [$this->gameId, $compatibility] = VirtualGameIdService::decodeVirtualGameId($this->gameId);

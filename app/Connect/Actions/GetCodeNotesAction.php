@@ -2,18 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Connect\Commands;
+namespace App\Connect\Actions;
 
+use App\Connect\Support\BaseApiAction;
 use App\Models\Game;
 use App\Models\MemoryNote;
 use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Http\Request;
 
-class GetCodeNotes extends ApiHandlerBase
+class GetCodeNotesAction extends BaseApiAction
 {
-    public int $gameId;
+    protected int $gameId;
 
-    public function initialize(Request $request): ?array
+    public function execute(int $gameId): array
+    {
+        $this->gameId = $gameId;
+
+        return $this->process();
+    }
+
+    protected function initialize(Request $request): ?array
     {
         if (!$request->has(['g'])) {
             return $this->missingParameters();
@@ -24,7 +32,7 @@ class GetCodeNotes extends ApiHandlerBase
         return null;
     }
 
-    public function process(): array
+    protected function process(): array
     {
         if (VirtualGameIdService::isVirtualGameId($this->gameId)) {
             [$this->gameId, $compatibility] = VirtualGameIdService::decodeVirtualGameId($this->gameId);

@@ -4,11 +4,11 @@ use App\Actions\FindUserByIdentifierAction;
 use App\Community\Enums\ActivityType;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
+use App\Connect\Actions\GetCodeNotesAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameAndGameHashAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
-use App\Connect\Commands\GetCodeNotes;
-use App\Connect\Commands\SubmitCodeNote;
+use App\Connect\Actions\SubmitCodeNoteAction;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
@@ -30,12 +30,12 @@ use Illuminate\Support\Carbon;
 
 $requestType = request()->input('r');
 $handler = match ($requestType) {
-    'codenotes2' => new GetCodeNotes(),
-    'submitcodenote' => new SubmitCodeNote(),
+    'codenotes2' => new GetCodeNotesAction(),
+    'submitcodenote' => new SubmitCodeNoteAction(),
     default => null,
 };
 if ($handler) {
-    return $handler->execute(request());
+    return $handler->handleRequest(request());
 }
 
 /**
