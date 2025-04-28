@@ -260,6 +260,8 @@ declare namespace App.Data {
     createdAt: string;
     forum?: App.Data.Forum | null;
     requiredPermissions?: number | null;
+    lockedAt?: string | null;
+    pinnedAt?: string | null;
     latestComment?: App.Data.ForumTopicComment | null;
     commentCount24h?: number | null;
     oldestComment24hId?: number | null;
@@ -353,11 +355,13 @@ declare namespace App.Data {
   };
   export type UserPermissions = {
     authorizeForumTopicComments?: boolean;
+    createForumTopicComments?: boolean;
     createGameForumTopic?: boolean;
     createTriggerTicket?: boolean;
     createUsernameChangeRequest?: boolean;
     deleteForumTopic?: boolean;
     develop?: boolean;
+    lockForumTopic?: boolean;
     manageEmulators?: boolean;
     manageForumTopicComments?: boolean;
     manageForumTopics?: boolean;
