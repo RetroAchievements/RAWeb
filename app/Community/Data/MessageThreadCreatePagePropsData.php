@@ -17,6 +17,7 @@ class MessageThreadCreatePagePropsData extends Data
         public ?string $message,
         public ?string $subject,
         public ?MessageThreadTemplateKind $templateKind,
+        public string $senderUserDisplayName,
     ) {
     }
 }

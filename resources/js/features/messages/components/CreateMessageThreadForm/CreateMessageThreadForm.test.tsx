@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
 import { createUser } from '@/test/factories';
 
@@ -19,11 +20,48 @@ describe('Component: CreateMessageThreadForm', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(<CreateMessageThreadForm onPreview={() => {}} />, {
-      pageProps: { message: '', subject: '', templateKind: null },
+      pageProps: {
+        message: '',
+        subject: '',
+        templateKind: null,
+        auth: { user: createAuthenticatedUser() },
+      },
     });
 
     // ASSERT
     expect(container).toBeTruthy();
+  });
+
+  it('given the user is sending a message as themselves, shows the correct submit button label', () => {
+    // ARRANGE
+    render(<CreateMessageThreadForm onPreview={() => {}} />, {
+      pageProps: {
+        message: null,
+        subject: null,
+        templateKind: null,
+        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) }, // !!
+        senderUserDisplayName: 'Scott', // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: 'Submit' })).toBeVisible();
+  });
+
+  it('given the user is sending a message on behalf of a team, shows the correct submit button label', () => {
+    // ARRANGE
+    render(<CreateMessageThreadForm onPreview={() => {}} />, {
+      pageProps: {
+        message: null,
+        subject: null,
+        templateKind: null,
+        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) }, // !!
+        senderUserDisplayName: 'RAdmin', // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: 'Submit (as RAdmin)' })).toBeVisible();
   });
 
   it('given the form is submitted with valid data, posts to the API and redirects on success', async () => {
@@ -47,7 +85,12 @@ describe('Component: CreateMessageThreadForm', () => {
     const routerSpy = vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
 
     render(<CreateMessageThreadForm onPreview={() => {}} />, {
-      pageProps: { message: null, subject: null, templateKind: null },
+      pageProps: {
+        message: null,
+        subject: null,
+        templateKind: null,
+        auth: { user: createAuthenticatedUser() },
+      },
     });
 
     // ACT
@@ -106,7 +149,12 @@ describe('Component: CreateMessageThreadForm', () => {
     });
 
     render(<CreateMessageThreadForm onPreview={() => {}} />, {
-      pageProps: { message: null, subject: null, templateKind: null },
+      pageProps: {
+        message: null,
+        subject: null,
+        templateKind: null,
+        auth: { user: createAuthenticatedUser() },
+      },
     });
 
     // ACT
@@ -154,7 +202,12 @@ describe('Component: CreateMessageThreadForm', () => {
     });
 
     render(<CreateMessageThreadForm onPreview={() => {}} />, {
-      pageProps: { message: null, subject: null, templateKind: null },
+      pageProps: {
+        message: null,
+        subject: null,
+        templateKind: null,
+        auth: { user: createAuthenticatedUser() },
+      },
     });
 
     // ACT
@@ -186,7 +239,12 @@ describe('Component: CreateMessageThreadForm', () => {
     const previewHandler = vi.fn();
 
     render(<CreateMessageThreadForm onPreview={previewHandler} />, {
-      pageProps: { message: null, subject: null, templateKind: null },
+      pageProps: {
+        message: null,
+        subject: null,
+        templateKind: null,
+        auth: { user: createAuthenticatedUser() },
+      },
     });
 
     // ACT
@@ -214,6 +272,7 @@ describe('Component: CreateMessageThreadForm', () => {
         subject: null,
         templateKind: null,
         toUser: mockUser,
+        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -228,6 +287,7 @@ describe('Component: CreateMessageThreadForm', () => {
         message: null,
         subject: 'pre-filled subject',
         templateKind: null,
+        auth: { user: createAuthenticatedUser() },
       },
     });
 
@@ -256,7 +316,12 @@ describe('Component: CreateMessageThreadForm', () => {
     });
 
     render(<CreateMessageThreadForm onPreview={() => {}} />, {
-      pageProps: { message: null, subject: null, templateKind: null },
+      pageProps: {
+        message: null,
+        subject: null,
+        templateKind: null,
+        auth: { user: createAuthenticatedUser() },
+      },
     });
 
     // ACT
@@ -290,6 +355,7 @@ describe('Component: CreateMessageThreadForm', () => {
         message: null,
         subject: null,
         templateKind: 'manual-unlock',
+        auth: { user: createAuthenticatedUser() },
       },
     });
 

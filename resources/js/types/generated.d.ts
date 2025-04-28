@@ -73,12 +73,14 @@ declare namespace App.Community.Data {
     body: string;
     createdAt: string;
     author?: App.Data.User;
+    sentBy?: App.Data.User | null;
   };
   export type MessageThreadCreatePageProps = {
     toUser: App.Data.User | null;
     message: string | null;
     subject: string | null;
     templateKind: App.Community.Enums.MessageThreadTemplateKind | null;
+    senderUserDisplayName: string;
   };
   export type MessageThread = {
     id: number;
@@ -92,12 +94,15 @@ declare namespace App.Community.Data {
   export type MessageThreadIndexPageProps<TItems = App.Community.Data.MessageThread> = {
     paginatedMessageThreads: App.Data.PaginatedData<TItems>;
     unreadMessageCount: number;
+    senderUserDisplayName: string;
+    selectableInboxDisplayNames: Array<string>;
   };
   export type MessageThreadShowPageProps<TItems = App.Community.Data.Message> = {
     messageThread: App.Community.Data.MessageThread;
     paginatedMessages: App.Data.PaginatedData<TItems>;
     dynamicEntities: App.Community.Data.ShortcodeDynamicEntities;
     canReply: boolean;
+    senderUserDisplayName: string;
   };
   export type RecentLeaderboardEntry = {
     leaderboard: App.Platform.Data.Leaderboard;
