@@ -6,13 +6,11 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\BuildMessageThreadIndexPagePropsAction;
 use App\Community\Actions\BuildMessageThreadShowPagePropsAction;
-use App\Community\Actions\DeleteMessageThreadAction;
 use App\Community\Data\MessageThreadCreatePagePropsData;
 use App\Community\Enums\MessageThreadTemplateKind;
 use App\Data\UserData;
 use App\Http\Controller;
 use App\Models\MessageThread;
-use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,15 +19,18 @@ use Inertia\Response as InertiaResponse;
 
 class MessageThreadController extends Controller
 {
-    public function index(Request $request): InertiaResponse|RedirectResponse
+    public function index(Request $request, ?User $user = null): InertiaResponse|RedirectResponse
     {
-        $this->authorize('viewAny', MessageThread::class);
-
+        $teamAccount = $user; // alias to mitigate confusion
         /** @var User $user */
         $user = $request->user();
+
+        $this->authorize('viewAny', [MessageThread::class, $teamAccount]);
+
         $currentPage = (int) request()->input('page', 1);
 
         $actionResult = (new BuildMessageThreadIndexPagePropsAction())->execute(
+            $teamAccount ?? $user,
             $user,
             $currentPage
         );
@@ -68,9 +69,13 @@ class MessageThreadController extends Controller
         return Inertia::render('messages/[messageThread]', $actionResult['props']);
     }
 
-    public function create(Request $request): InertiaResponse
+    public function create(Request $request, ?User $user = null): InertiaResponse
     {
-        $this->authorize('create', MessageThread::class);
+        $teamAccount = $user; // alias to mitigate confusion
+        /** @var User $user */
+        $user = $request->user();
+
+        $this->authorize('create', [MessageThread::class, $teamAccount]);
 
         $toUser = null;
         $toUserData = null;
@@ -88,24 +93,7 @@ class MessageThreadController extends Controller
             templateKind: $request->input('templateKind')
                 ? MessageThreadTemplateKind::tryFrom($request->input('templateKind'))
                 : null,
+            senderUserDisplayName: $teamAccount?->display_name ?? $user->display_name,
         ));
-    }
-
-    public function destroy(Request $request, MessageThread $messageThread): RedirectResponse
-    {
-        /** @var User $user */
-        $user = $request->user();
-
-        $participating = MessageThreadParticipant::where('thread_id', $messageThread->id)
-            ->where('user_id', $user->ID)
-            ->exists();
-
-        if (!$participating) {
-            return back()->withErrors(__('legacy.error.error'));
-        }
-
-        (new DeleteMessageThreadAction())->execute($messageThread, $user);
-
-        return redirect(route('message-thread.index'))->with('success', __('legacy.success.message_delete'));
     }
 }
