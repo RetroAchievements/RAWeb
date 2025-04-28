@@ -5,8 +5,6 @@ export * from './fetcher';
 export * from './handleLeaderboardTabClick';
 export * from './helpers';
 export * from './initializeTextareaCounter';
-export * from './injectShortcode';
-export * from './loadPostPreview';
 export * from './safeRequestIdleCallback';
 export * from './theme';
 export * from './toggleUserCompletedSetsVisibility';

@@ -9,26 +9,32 @@ import {
   BaseTableRow,
 } from '@/common/components/+vendor/BaseTable';
 
-import type { PlayerWithRank } from './models';
-import type { TopPlayersListKind } from './models/top-players-list-kind.model';
-import { TopEventPlayersRow } from './TopEventPlayersRow';
+import { InertiaLink } from '../InertiaLink';
+import type { PlayerWithRank, TopPlayersListKind } from './models';
+import { PlayableTopPlayersRow } from './PlayableTopPlayersRow';
 
-interface TopEventParticipantsProps {
-  event: App.Platform.Data.Event;
+interface PlayableTopPlayersProps {
+  achievements: App.Platform.Data.Achievement[];
+  game: App.Platform.Data.Game;
   numMasters: number;
   players: App.Platform.Data.GameTopAchiever[];
+  variant: 'game' | 'event';
 }
 
-export const TopEventPlayers: FC<TopEventParticipantsProps> = ({ event, numMasters, players }) => {
+export const PlayableTopPlayers: FC<PlayableTopPlayersProps> = ({
+  achievements,
+  game,
+  numMasters,
+  players,
+  variant,
+}) => {
   const { t } = useTranslation();
 
   if (!players.length) {
     return null;
   }
 
-  const areAllAchievementsOnePoint = !!event.eventAchievements?.every(
-    (ea) => ea.achievement?.points && ea.achievement.points === 1,
-  );
+  const areAllAchievementsOnePoint = !!achievements.every((a) => a?.points && a.points === 1);
 
   const listKind = getListKind(areAllAchievementsOnePoint, numMasters);
   const playersWithRanks = calculatePlayerRanks(players, listKind);
@@ -61,8 +67,11 @@ export const TopEventPlayers: FC<TopEventParticipantsProps> = ({ event, numMaste
 
           <BaseTableBody>
             {playersWithRanks.map((player) => (
-              <TopEventPlayersRow
+              <PlayableTopPlayersRow
                 key={`top-players-${player.userDisplayName}`}
+                awardKind={
+                  variant === 'game' ? calculateAwardKind(player, achievements.length) : null
+                }
                 calculatedRank={player.calculatedRank}
                 listKind={listKind}
                 numMasters={numMasters}
@@ -73,20 +82,36 @@ export const TopEventPlayers: FC<TopEventParticipantsProps> = ({ event, numMaste
           </BaseTableBody>
         </BaseTable>
 
-        {(event.legacyGame?.playersHardcore ?? 0) > 10 ? (
+        {(game?.playersHardcore ?? 0) > 10 ? (
           <div className="flex w-full justify-end">
-            <a
-              href={route('game.top-achievers.index', { game: event.legacyGame!.id })}
+            <InertiaLink
+              href={route('game.top-achievers.index', { game: game.id })}
               className="text-2xs"
+              prefetch="desktop-hover-only"
             >
               {t('See more')}
-            </a>
+            </InertiaLink>
           </div>
         ) : null}
       </div>
     </div>
   );
 };
+
+function calculateAwardKind(
+  playerWithRank: PlayerWithRank,
+  achievementsTotal: number,
+): 'mastery' | 'beaten-hardcore' | null {
+  if (playerWithRank.achievementsUnlockedHardcore === achievementsTotal) {
+    return 'mastery';
+  }
+
+  if (playerWithRank.beatenHardcoreAt) {
+    return 'beaten-hardcore';
+  }
+
+  return null;
+}
 
 /**
  * Calculate ranks for Most Points/Achievements Earned, handling ties appropriately.

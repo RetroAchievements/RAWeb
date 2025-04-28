@@ -1,7 +1,6 @@
 <?php
 
 use App\Platform\Enums\AchievementType;
-use App\Support\Shortcode\Shortcode;
 
 ?>
 <x-app-layout>
@@ -9,17 +8,6 @@ use App\Support\Shortcode\Shortcode;
 
     <h3>User</h3>
     <div class="flex justify-between">
-        <div class="mb-3">
-            <div>
-                {!! Shortcode::render("[user=Scott]") !!}
-            </div>
-            <div>
-                {!! Shortcode::render("[user=Jamiras]") !!}
-            </div>
-            <div>
-                {!! Shortcode::render("[user=luchaos]") !!}
-            </div>
-        </div>
         <div class="mb-3">
             <div>Label & Icon</div>
             <div>
@@ -69,9 +57,6 @@ use App\Support\Shortcode\Shortcode;
     <div class="flex justify-between">
         <div>
             <div class="mb-3">
-                {!! Shortcode::render("[ach=1]") !!}
-            </div>
-            <div class="mb-3">
                 {!! achievementAvatar(1, context: 'Scott') !!}
             </div>
             <div class="mb-3">
@@ -114,10 +99,6 @@ use App\Support\Shortcode\Shortcode;
     <h3>Game</h3>
     <div class="grid">
         <div>
-            <div class="mb-3">
-                {!! Shortcode::render('[game=1]') !!}
-                {!! Shortcode::render('[game=17953]') !!}
-            </div>
             <div class="mb-3">
                 {!! gameAvatar(1) !!}
             </div>
@@ -163,9 +144,6 @@ use App\Support\Shortcode\Shortcode;
     <h3>Ticket</h3>
     <div class="flex justify-between">
         <div>
-            <div class="mb-3">
-                {!! Shortcode::render("[ticket=1]") !!}
-            </div>
             <div class="mb-3">
                 {!! ticketAvatar(1) !!}
             </div>
