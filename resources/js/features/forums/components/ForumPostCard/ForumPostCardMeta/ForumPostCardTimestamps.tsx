@@ -37,14 +37,14 @@ export const ForumPostCardTimestamps: FC<ForumPostCardTimestampsProps> = ({ comm
       : formatDate(date, 'lll');
   };
 
-  // Check if an edit was made at least 5 minutes after creation.
+  // Check if an edit was made at least 2 minutes after creation.
   // We won't show "last edited" labels for an edit that happens right
   // after a post is made, because it's usually to fix something like a
   // spelling mistake or typo.
   const hasReceivedSignificantEdit =
     comment.updatedAt &&
     comment.createdAt &&
-    dayjs.utc(comment.updatedAt).diff(dayjs.utc(comment.createdAt), 'minute') >= 5;
+    dayjs.utc(comment.updatedAt).diff(dayjs.utc(comment.createdAt), 'minute') >= 2;
 
   const createdLabel = formatTime(comment.createdAt);
   const editedLabel = hasReceivedSignificantEdit ? formatTime(comment.updatedAt) : null;

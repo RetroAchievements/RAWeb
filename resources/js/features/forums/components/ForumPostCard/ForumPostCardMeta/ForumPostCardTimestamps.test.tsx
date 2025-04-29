@@ -113,7 +113,7 @@ describe('Component: ForumPostCardTimestamps', () => {
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
-  it('given a comment was edited at least 5 minutes after the create date, shows both creation and edit times', () => {
+  it('given a comment was edited at least 2 minutes after the create date, shows both creation and edit times', () => {
     // ARRANGE
     vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
 
@@ -134,7 +134,7 @@ describe('Component: ForumPostCardTimestamps', () => {
     expect(screen.getByText(/Oct 24, 2023/i)).toBeVisible();
   });
 
-  it('given a comment was not edited at least 5 minutes after the create date, shows both creation and edit times', () => {
+  it('given a comment was not edited at least 2 minutes after the create date, shows both creation and edit times', () => {
     // ARRANGE
     vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
 
