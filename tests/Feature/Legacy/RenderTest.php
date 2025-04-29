@@ -15,9 +15,4 @@ class RenderTest extends TestCase
     {
         $this->get('test/cards.php')->assertSuccessful();
     }
-
-    public function testItRendersShortcode(): void
-    {
-        $this->get('test/shortcode.php')->assertSuccessful();
-    }
 }

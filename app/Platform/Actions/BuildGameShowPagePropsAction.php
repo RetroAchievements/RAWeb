@@ -91,6 +91,7 @@ class BuildGameShowPagePropsAction
             hubs: $game->hubs->map(fn ($hub) => GameSetData::from($hub))->all(),
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $game),
             playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($game, $user),
+            numMasters: $numMasters,
             topAchievers: $topAchievers,
             playerGame: $playerGame ? PlayerGameData::fromPlayerGame($playerGame) : null,
             playerGameProgressionAwards: $user

@@ -17,6 +17,7 @@ class ShowForumTopicPagePropsData extends Data
         public ForumTopicData $forumTopic,
         public bool $isSubscribed,
         public PaginatedData $paginatedForumTopicComments,
+        public string $metaDescription,
     ) {
     }
 }
