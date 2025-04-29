@@ -1,11 +1,12 @@
 import type { Table } from '@tanstack/react-table';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuArrowLeft, LuArrowLeftToLine, LuArrowRight, LuArrowRightToLine } from 'react-icons/lu';
+import { LuChevronFirst, LuChevronLast, LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 import type { RouteName } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { BasePagination, BasePaginationContent } from '@/common/components/+vendor/BasePagination';
+import { cn } from '@/common/utils/cn';
 
 import { useDataTablePrefetchPagination } from '../../../hooks/useDataTablePrefetchPagination';
 import { ManualPaginatorField } from './ManualPaginatorField';
@@ -107,6 +108,11 @@ export function DataTablePagination<TData>({
     table.setPagination({ pageIndex: 0, pageSize: newPageSize });
   };
 
+  const buttonClassNames = cn(
+    'border-none hover:outline hover:outline-1 hover:outline-neutral-300 hover:light:outline-neutral-200',
+    'aria-disabled:pointer-events-none aria-disabled:opacity-50',
+  );
+
   return (
     <div className="flex items-center justify-center sm:justify-between">
       {/* TODO X of Y rows selected */}
@@ -126,7 +132,8 @@ export function DataTablePagination<TData>({
 
           <BasePaginationContent className="gap-2" role="group">
             <BaseButton
-              className="size-8 p-0"
+              size="sm"
+              className={buttonClassNames}
               onClick={() => handlePageChange(0, ['next'])}
               onMouseEnter={() =>
                 prefetchPagination({ newPageIndex: 0, newPageSize: pagination.pageSize })
@@ -134,11 +141,12 @@ export function DataTablePagination<TData>({
               disabled={!table.getCanPreviousPage()}
               aria-label={t('Go to first page')}
             >
-              <LuArrowLeftToLine className="size-4" aria-hidden={true} />
+              <LuChevronFirst className="size-4" aria-hidden={true} />
             </BaseButton>
 
             <BaseButton
-              className="size-8 p-0"
+              size="sm"
+              className={buttonClassNames}
               onClick={() => handlePageChange(pagination.pageIndex - 1, ['previous'])}
               onMouseEnter={() =>
                 prefetchPagination({
@@ -149,11 +157,12 @@ export function DataTablePagination<TData>({
               disabled={!table.getCanPreviousPage()}
               aria-label={t('Go to previous page')}
             >
-              <LuArrowLeft className="size-4" aria-hidden={true} />
+              <LuChevronLeft className="size-4" aria-hidden={true} />
             </BaseButton>
 
             <BaseButton
-              className="size-8 p-0"
+              size="sm"
+              className={buttonClassNames}
               onClick={() => handlePageChange(pagination.pageIndex + 1, ['next'])}
               onMouseEnter={() =>
                 prefetchPagination({
@@ -164,11 +173,12 @@ export function DataTablePagination<TData>({
               disabled={!table.getCanNextPage()}
               aria-label={t('Go to next page')}
             >
-              <LuArrowRight className="size-4" aria-hidden={true} />
+              <LuChevronRight className="size-4" aria-hidden={true} />
             </BaseButton>
 
             <BaseButton
-              className="size-8 p-0"
+              size="sm"
+              className={buttonClassNames}
               onClick={() => handlePageChange(table.getPageCount() - 1, ['previous'])}
               onMouseEnter={() =>
                 prefetchPagination({
@@ -179,7 +189,7 @@ export function DataTablePagination<TData>({
               disabled={!table.getCanNextPage()}
               aria-label={t('Go to last page')}
             >
-              <LuArrowRightToLine className="size-4" aria-hidden={true} />
+              <LuChevronLast className="size-4" aria-hidden={true} />
             </BaseButton>
           </BasePaginationContent>
         </BasePagination>
