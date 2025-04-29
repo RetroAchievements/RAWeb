@@ -104,7 +104,6 @@ class UnlockPlayerAchievementAction
             if ($achievement->activeMaintainer) {
                 AchievementMaintainerUnlock::create([
                     'player_achievement_id' => $unlock->id,
-                    'user_id' => $user->id,
                     'maintainer_id' => $achievement->activeMaintainer->user_id,
                     'achievement_id' => $achievement->id,
                 ]);

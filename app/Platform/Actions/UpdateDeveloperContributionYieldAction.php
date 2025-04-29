@@ -41,9 +41,9 @@ class UpdateDeveloperContributionYieldAction
             JOIN player_achievements pa ON pa.achievement_id = a.ID
             LEFT JOIN achievement_maintainer_unlocks amu ON amu.player_achievement_id = pa.id
             WHERE a.user_id = :user_id
-              AND a.Flags = :flags
-              AND pa.user_id != :user_id2
-              AND amu.id IS NULL
+                AND a.Flags = :flags
+                AND pa.user_id != :user_id2
+                AND amu.id IS NULL
         SQL;
         $authorResults = DB::select($authorSql, [
             'user_id' => $user->id,
