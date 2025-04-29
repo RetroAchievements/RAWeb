@@ -121,7 +121,7 @@ class AchievementResource extends Resource
                                         Infolists\Components\Actions\Action::make('setMaintainer')
                                             ->label('Change Maintainer')
                                             ->icon('heroicon-o-user')
-                                            ->form(static::buildMaintainerForm())
+                                            ->form(fn (Achievement $record) => static::buildMaintainerForm($record))
                                             ->action(function (Achievement $record, array $data): void {
                                                 static::handleSetMaintainer($record, $data);
 
@@ -252,7 +252,7 @@ class AchievementResource extends Resource
                                         Forms\Components\Actions\Action::make('setMaintainer')
                                             ->label('Change Maintainer')
                                             ->icon('heroicon-o-user')
-                                            ->form(static::buildMaintainerForm())
+                                            ->form(fn (Achievement $record) => static::buildMaintainerForm($record))
                                             ->action(function (Achievement $record, array $data): void {
                                                 static::handleSetMaintainer($record, $data);
 
@@ -520,7 +520,7 @@ class AchievementResource extends Resource
             ->with(['activeMaintainer.user', 'game']);
     }
 
-    public static function buildMaintainerForm(): array
+    public static function buildMaintainerForm(Achievement $record): array
     {
         return [
             Forms\Components\Placeholder::make('ticket_info')
@@ -531,13 +531,18 @@ class AchievementResource extends Resource
             Forms\Components\Select::make('user_id')
                 ->label('Maintainer')
                 ->searchable()
-                ->getSearchResultsUsing(function (string $search): array {
-                    return User::query()
+                ->getSearchResultsUsing(function (string $search) use ($record): array {
+                    $query = User::query()
                         ->whereHas('roles', function ($query) {
                             $query->where('name', Role::DEVELOPER);
                         })
-                        ->where('display_name', 'LIKE', "%{$search}%")
-                        ->limit(50)
+                        ->where('display_name', 'LIKE', "%{$search}%");
+
+                    if ($record && $record->user_id) {
+                        $query->orWhere('id', $record->user_id);
+                    }
+
+                    return $query->limit(50)
                         ->pluck('display_name', 'id')
                         ->toArray();
                 })

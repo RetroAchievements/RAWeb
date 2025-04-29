@@ -165,7 +165,7 @@ class AchievementsRelationManager extends RelationManager
                     Action::make('assign-maintainer')
                         ->label('Assign Maintainer')
                         ->icon('heroicon-o-user')
-                        ->form(AchievementResource::buildMaintainerForm())
+                        ->form(fn (Achievement $record) => AchievementResource::buildMaintainerForm($record))
                         ->action(function (Achievement $record, array $data): void {
                             AchievementResource::handleSetMaintainer($record, $data);
 
@@ -371,7 +371,7 @@ class AchievementsRelationManager extends RelationManager
                 Tables\Actions\BulkAction::make('set-maintainer')
                     ->label('Assign maintainer')
                     ->color('gray')
-                    ->form(AchievementResource::buildMaintainerForm())
+                    ->form(fn (Achievement $record) => AchievementResource::buildMaintainerForm($record))
                     ->action(function (Collection $records, array $data) {
                         $records->each(function (Achievement $record) use ($data) {
                             AchievementResource::handleSetMaintainer($record, $data);
