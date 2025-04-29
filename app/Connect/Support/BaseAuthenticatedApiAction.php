@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 abstract class BaseAuthenticatedApiAction extends BaseApiAction
 {
-    protected User $user;
+    protected ?User $user;
 
     public function handleRequest(Request $request): JsonResponse
     {

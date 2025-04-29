@@ -35,6 +35,24 @@ class SubmitCodeNoteTest extends TestCase
         $game = $this->seedGame();
 
         // ----------------------------
+        // invalid credentials
+        $this->post('dorequest.php', $this->apiParams('submitcodenote', [
+            't' => 'IvalidToken',
+            'g' => $game->ID,
+            'm' => 0x1234,
+            'n' => 'This is a note',
+        ]))
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Error' => 'Access denied.',
+            ]);
+
+        $note = $game->memoryNotes->where('address', 0x1234)->first();
+        $this->assertNull($note);
+
+        // ----------------------------
         // new note for valid game
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
             'g' => $game->ID,
@@ -43,6 +61,7 @@ class SubmitCodeNoteTest extends TestCase
         ]))
             ->assertExactJson(['Success' => true]);
 
+        $game->refresh();
         $note = $game->memoryNotes->where('address', 0x1234)->first();
         $this->assertNotNull($note);
         $this->assertEquals('This is a note', $note->body);
@@ -84,7 +103,7 @@ class SubmitCodeNoteTest extends TestCase
                 'Success' => false,
                 'Status' => 404,
                 'Code' => 'not_found',
-                'Error' => 'Unknown game',
+                'Error' => 'Unknown game.',
             ]);
 
         // ----------------------------

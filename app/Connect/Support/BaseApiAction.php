@@ -64,7 +64,7 @@ abstract class BaseApiAction
             'Success' => false,
             'Status' => 404,
             'Code' => 'not_found',
-            'Error' => 'Unknown game',
+            'Error' => 'Unknown game.',
         ];
     }
 }

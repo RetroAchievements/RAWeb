@@ -128,6 +128,27 @@ class GetCodeNotesTest extends TestCase
             ]);
 
         // ----------------------------
+        // unauthenticated
+        $this->post('dorequest.php', $this->apiParams('codenotes2', [
+            'g' => $game->ID,
+        ], credentials: false))
+            ->assertExactJson([
+                'Success' => true,
+                'CodeNotes' => [
+                    [
+                        'User' => $otherUser->display_name,
+                        'Address' => '0x000bed',
+                        'Note' => 'Useful?',
+                    ],
+                    [
+                        'User' => $this->user->display_name,
+                        'Address' => '0x001235',
+                        'Note' => 'This is another note',
+                    ],
+                ],
+            ]);
+
+        // ----------------------------
         // virtualized game id
         $this->post('dorequest.php', $this->apiParams('codenotes2', [
             'g' => VirtualGameIdService::encodeVirtualGameId($game->ID, GameHashCompatibility::Untested),
@@ -158,7 +179,7 @@ class GetCodeNotesTest extends TestCase
                 'Success' => false,
                 'Status' => 404,
                 'Code' => 'not_found',
-                'Error' => 'Unknown game',
+                'Error' => 'Unknown game.',
             ]);
 
     }
