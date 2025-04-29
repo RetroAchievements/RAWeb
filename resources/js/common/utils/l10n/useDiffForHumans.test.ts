@@ -24,6 +24,20 @@ describe('Hook: useDiffForHumans', () => {
     expect(result.current.diffForHumans).toBeDefined();
   });
 
+  it('given seconds is 0, always displays "just now"', () => {
+    // ARRANGE
+    const mockDate = dayjs.utc('2023-10-25').toDate();
+    vi.setSystemTime(mockDate);
+
+    const { result } = renderHook(() => useDiffForHumans());
+
+    // ACT
+    const diff = result.current.diffForHumans(mockDate.toISOString());
+
+    // ASSERT
+    expect(diff).toEqual('just now');
+  });
+
   describe('Past', () => {
     it('given less than 10 seconds ago, formats correctly', () => {
       // ARRANGE

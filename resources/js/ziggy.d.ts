@@ -134,6 +134,13 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "game2.show": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.dev-interest": [
         {
             "name": "game",
@@ -278,6 +285,13 @@ declare module 'ziggy-js' {
         }
     ],
     "api.forum-topic.gate": [
+        {
+            "name": "topic",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "api.forum-topic.toggle-lock": [
         {
             "name": "topic",
             "required": true,
@@ -501,13 +515,27 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "message-thread.index": [],
-    "message-thread.create": [],
     "message-thread.show": [
         {
             "name": "messageThread",
             "required": true,
             "binding": "id"
+        }
+    ],
+    "message-thread.index": [],
+    "message-thread.create": [],
+    "message-thread.user.index": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "message-thread.user.create": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "ID"
         }
     ],
     "settings.show": [],
@@ -622,14 +650,6 @@ declare module 'ziggy-js' {
             "name": "claim",
             "required": true,
             "binding": "ID"
-        }
-    ],
-    "message.store": [],
-    "message-thread.destroy": [
-        {
-            "name": "messageThread",
-            "required": true,
-            "binding": "id"
         }
     ],
     "api.settings.preferences.suppress-mature-content-warning": [],

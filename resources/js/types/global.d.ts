@@ -18,8 +18,6 @@ import type {
 import type { fetcher as Fetcher } from '@/tall-stack/utils/fetcher';
 import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/tall-stack/utils/handleLeaderboardTabClick';
 import type { initializeTextareaCounter as InitializeTextareaCounter } from '@/tall-stack/utils/initializeTextareaCounter';
-import type { injectShortcode as InjectShortcode } from '@/tall-stack/utils/injectShortcode';
-import type { loadPostPreview as LoadPostPreview } from '@/tall-stack/utils/loadPostPreview';
 import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibility } from '@/tall-stack/utils/toggleUserCompletedSetsVisibility';
 import type { updateUrlParameter as UpdateUrlParameter } from '@/tall-stack/utils/updateUrlParameter';
 
@@ -44,8 +42,6 @@ declare global {
   var getStringByteCount: typeof GetStringByteCount;
   var handleLeaderboardTabClick: typeof HandleLeaderboardTabClick;
   var initializeTextareaCounter: typeof InitializeTextareaCounter;
-  var injectShortcode: typeof InjectShortcode;
-  var loadPostPreview: typeof LoadPostPreview;
   var modalComponent: typeof ModalComponent;
   var navbarSearchComponent: typeof NavbarSearchComponent;
   var setCookie: typeof SetCookie;
