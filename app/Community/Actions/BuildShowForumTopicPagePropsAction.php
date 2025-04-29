@@ -11,6 +11,7 @@ use App\Data\ShowForumTopicPagePropsData;
 use App\Data\UserPermissionsData;
 use App\Models\ForumTopic;
 use App\Models\User;
+use App\Support\Shortcode\Shortcode;
 
 class BuildShowForumTopicPagePropsAction
 {
@@ -68,7 +69,9 @@ class BuildShowForumTopicPagePropsAction
         $props = new ShowForumTopicPagePropsData(
             can: UserPermissionsData::fromUser($user, forumTopic: $topic)->include(
                 'authorizeForumTopicComments',
+                'createForumTopicComments',
                 'deleteForumTopic',
+                'lockForumTopic',
                 'manageForumTopicComments',
                 'manageForumTopics',
                 'updateForumTopic',
@@ -77,6 +80,7 @@ class BuildShowForumTopicPagePropsAction
             forumTopic: ForumTopicData::from($topic)->include(
                 'forum',
                 'forum.category',
+                'lockedAt',
                 'requiredPermissions',
             ),
             isSubscribed: $user ? isUserSubscribedToForumTopic($topic->id, $user->id) : false,
@@ -85,6 +89,7 @@ class BuildShowForumTopicPagePropsAction
                 total: $paginatedForumTopicComments->total(),
                 items: $forumTopicComments
             ),
+            metaDescription: Shortcode::stripAndClamp($updatedBodies[0], 220),
         );
 
         return ['props' => $props, 'redirectToPage' => null];

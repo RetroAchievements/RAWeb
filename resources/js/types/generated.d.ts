@@ -73,12 +73,14 @@ declare namespace App.Community.Data {
     body: string;
     createdAt: string;
     author?: App.Data.User;
+    sentBy?: App.Data.User | null;
   };
   export type MessageThreadCreatePageProps = {
     toUser: App.Data.User | null;
     message: string | null;
     subject: string | null;
     templateKind: App.Community.Enums.MessageThreadTemplateKind | null;
+    senderUserDisplayName: string;
   };
   export type MessageThread = {
     id: number;
@@ -92,12 +94,15 @@ declare namespace App.Community.Data {
   export type MessageThreadIndexPageProps<TItems = App.Community.Data.MessageThread> = {
     paginatedMessageThreads: App.Data.PaginatedData<TItems>;
     unreadMessageCount: number;
+    senderUserDisplayName: string;
+    selectableInboxDisplayNames: Array<string>;
   };
   export type MessageThreadShowPageProps<TItems = App.Community.Data.Message> = {
     messageThread: App.Community.Data.MessageThread;
     paginatedMessages: App.Data.PaginatedData<TItems>;
     dynamicEntities: App.Community.Data.ShortcodeDynamicEntities;
     canReply: boolean;
+    senderUserDisplayName: string;
   };
   export type RecentLeaderboardEntry = {
     leaderboard: App.Platform.Data.Leaderboard;
@@ -255,6 +260,8 @@ declare namespace App.Data {
     createdAt: string;
     forum?: App.Data.Forum | null;
     requiredPermissions?: number | null;
+    lockedAt?: string | null;
+    pinnedAt?: string | null;
     latestComment?: App.Data.ForumTopicComment | null;
     commentCount24h?: number | null;
     oldestComment24hId?: number | null;
@@ -300,6 +307,7 @@ declare namespace App.Data {
     forumTopic: App.Data.ForumTopic;
     isSubscribed: boolean;
     paginatedForumTopicComments: App.Data.PaginatedData<TItems>;
+    metaDescription: string;
   };
   export type StaticData = {
     numGames: number;
@@ -347,11 +355,13 @@ declare namespace App.Data {
   };
   export type UserPermissions = {
     authorizeForumTopicComments?: boolean;
+    createForumTopicComments?: boolean;
     createGameForumTopic?: boolean;
     createTriggerTicket?: boolean;
     createUsernameChangeRequest?: boolean;
     deleteForumTopic?: boolean;
     develop?: boolean;
+    lockForumTopic?: boolean;
     manageEmulators?: boolean;
     manageForumTopicComments?: boolean;
     manageForumTopics?: boolean;
@@ -656,6 +666,7 @@ declare namespace App.Platform.Data {
     hubs: Array<App.Platform.Data.GameSet>;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
+    numMasters: number;
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;

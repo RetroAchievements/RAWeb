@@ -18,11 +18,13 @@ class UserPermissionsData extends Data
 {
     public function __construct(
         public Lazy|bool $authorizeForumTopicComments,
+        public Lazy|bool $createForumTopicComments,
         public Lazy|bool $createGameForumTopic,
         public Lazy|bool $createTriggerTicket,
         public Lazy|bool $createUsernameChangeRequest,
         public Lazy|bool $deleteForumTopic,
         public Lazy|bool $develop,
+        public Lazy|bool $lockForumTopic,
         public Lazy|bool $manageEmulators,
         public Lazy|bool $manageForumTopicComments,
         public Lazy|bool $manageForumTopics,
@@ -48,6 +50,10 @@ class UserPermissionsData extends Data
                 ? $user->can('authorize', \App\Models\ForumTopicComment::class)
                 : false
             ),
+            createForumTopicComments: Lazy::create(fn () => $user && $forumTopic
+                ? $user->can('create', [\App\Models\ForumTopicComment::class, $forumTopic])
+                : false
+            ),
             createGameForumTopic: Lazy::create(fn () => $user && $game
                 ? $user->can('createForumTopic', $game)
                 : false
@@ -59,6 +65,7 @@ class UserPermissionsData extends Data
             createUsernameChangeRequest: Lazy::create(fn () => $user ? $user->can('create', \App\Models\UserUsername::class) : false),
             deleteForumTopic: Lazy::create(fn () => $user && $forumTopic ? $user->can('delete', $forumTopic) : false),
             develop: Lazy::create(fn () => $user ? $user->can('develop') : false),
+            lockForumTopic: Lazy::create(fn () => $user && $forumTopic ? $user->can('lock', $forumTopic) : false),
             manageEmulators: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\Emulator::class) : false),
             manageForumTopicComments: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\ForumTopicComment::class) : false),
             manageForumTopics: Lazy::create(fn () => $user ? $user->can('manage', ForumTopic::class) : false),

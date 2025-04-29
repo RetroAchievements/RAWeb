@@ -88,4 +88,9 @@ class ForumTopicPolicy
     {
         return $this->manage($user);
     }
+
+    public function lock(User $user, ForumTopic $topic): bool
+    {
+        return $this->manage($user);
+    }
 }

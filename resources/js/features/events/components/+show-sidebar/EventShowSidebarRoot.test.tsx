@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 
 import { render, screen } from '@/test';
-import { createRaEvent } from '@/test/factories';
+import { createEventAchievement, createRaEvent } from '@/test/factories';
 
 import { EventShowSidebarRoot } from './EventShowSidebarRoot';
 
@@ -26,5 +26,17 @@ describe('Component: EventShowSidebarRoot', () => {
     // ASSERT
     expect(container).toBeTruthy();
     expect(screen.getByTestId('sidebar')).toBeVisible();
+  });
+
+  it('given there are event achievements, does not crash', () => {
+    // ARRANGE
+    const event = createRaEvent({ eventAchievements: [createEventAchievement()] });
+
+    const { container } = render(<EventShowSidebarRoot />, {
+      pageProps: { event, playerAchievementChartBuckets: [], topAchievers: [], can: {} },
+    });
+
+    // ASSERT
+    expect(container).toBeTruthy();
   });
 });

@@ -7,17 +7,14 @@ import { ShowForumTopicMainRoot } from '@/features/forums/components/ShowForumTo
 import type { TranslatedString } from '@/types/i18next';
 
 const ShowForumTopic: AppPage = () => {
-  const { dynamicEntities, forumTopic, paginatedForumTopicComments } =
+  const { dynamicEntities, forumTopic, metaDescription } =
     usePageProps<App.Data.ShowForumTopicPageProps>();
 
   useHydrateShortcodeDynamicEntities(dynamicEntities);
 
-  const currentPageFirstPost = paginatedForumTopicComments.items[0].body;
-  const description = `${currentPageFirstPost.slice(0, 160)}${currentPageFirstPost.length > 160 ? '...' : ''}`;
-
   return (
     <>
-      <SEO title={forumTopic.title as TranslatedString} description={description} />
+      <SEO title={forumTopic.title as TranslatedString} description={metaDescription} />
 
       <AppLayout.Main>
         <ShowForumTopicMainRoot />
