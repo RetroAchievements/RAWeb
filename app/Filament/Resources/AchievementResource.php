@@ -538,7 +538,7 @@ class AchievementResource extends Resource
                         })
                         ->where('display_name', 'LIKE', "%{$search}%");
 
-                    if ($record?->user_id) {
+                    if ($record->user_id) {
                         $query->orWhere('id', $record->user_id);
                     }
 
