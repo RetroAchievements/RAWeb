@@ -532,15 +532,23 @@ class AchievementResource extends Resource
                 ->label('Maintainer')
                 ->searchable()
                 ->getSearchResultsUsing(function (string $search) use ($record): array {
-                    $query = User::query()
-                        ->whereHas('roles', function ($query) {
-                            $query->where('name', Role::DEVELOPER);
-                        })
-                        ->where('display_name', 'LIKE', "%{$search}%");
+                    $query = User::query();
 
-                    if ($record->user_id) {
-                        $query->orWhere('id', $record->user_id);
-                    }
+                    // Bypass role checks for the original achievement author.
+                    $query->where(function ($q) use ($search, $record) {
+                        $q->where(function ($inner) use ($search) {
+                            $inner
+                                ->where('display_name', 'LIKE', "%{$search}%")
+                                ->whereHas('roles', function ($roleQuery) {
+                                    $roleQuery->where('name', Role::DEVELOPER);
+                                });
+                        })
+                        ->orWhere(function ($inner) use ($search, $record) {
+                            $inner
+                                ->where('id', $record->user_id)
+                                ->where('display_name', 'LIKE', "%{$search}%");
+                        });
+                    });
 
                     return $query->limit(50)
                         ->pluck('display_name', 'id')
