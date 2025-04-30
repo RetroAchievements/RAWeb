@@ -24,7 +24,7 @@ export const TopLinks: FC = () => {
   return (
     <div className="flex flex-col gap-2.5">
       <a
-        href="/download.php"
+        href={route('download.index')}
         className={cn(
           baseButtonVariants({ size: 'sm' }),
           buildTrackingClassNames('Click Top Link Download Emulator'),
