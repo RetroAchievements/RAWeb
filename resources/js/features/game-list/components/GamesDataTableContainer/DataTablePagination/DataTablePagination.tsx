@@ -128,9 +128,7 @@ export function DataTablePagination<TData>({
         />
 
         <BasePagination className="flex items-center gap-6 lg:gap-8">
-          <ManualPaginatorField table={table} onPageChange={handlePageChange} />
-
-          <BasePaginationContent className="gap-2" role="group">
+          <BasePaginationContent className="flex items-center gap-2" role="group">
             <BaseButton
               size="sm"
               className={buttonClassNames}
@@ -159,6 +157,8 @@ export function DataTablePagination<TData>({
             >
               <LuChevronLeft className="size-4" aria-hidden={true} />
             </BaseButton>
+
+            <ManualPaginatorField table={table} onPageChange={handlePageChange} />
 
             <BaseButton
               size="sm"
