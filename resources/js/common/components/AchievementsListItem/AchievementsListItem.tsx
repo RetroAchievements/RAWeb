@@ -8,6 +8,7 @@ import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 
 import { AchievementDateMeta } from './AchievementDateMeta';
 import { AchievementGameTitle } from './AchievementGameTitle';
+import { AchievementPoints } from './AchievementPoints';
 import { ProgressBarMetaText } from './ProgressBarMetaText';
 
 interface AchievementsListItemProps {
@@ -35,9 +36,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 
   const { title, description, game } = achievement;
 
-  const unlockHardcorePercentage = achievement.unlockHardcorePercentage
-    ? Number(achievement.unlockHardcorePercentage)
-    : 0;
+  const unlockPercentage = achievement.unlockPercentage ? Number(achievement.unlockPercentage) : 0;
 
   const unlocksHardcoreTotal = achievement.unlocksHardcoreTotal ?? 0;
   const unlocksTotal = achievement.unlocksTotal ?? 0;
@@ -71,20 +70,28 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
           <div className="mb-0.5 flex justify-between gap-x-2">
             {/* Title */}
             <div className="-mt-2 mb-0.5 md:mt-0">
-              <a href={route('achievement.show', { achievement })} className="font-medium">
-                {title}
-                {game?.title ? ' ' : null}
-              </a>
+              <span className="mr-2">
+                <a href={route('achievement.show', { achievement })} className="font-medium">
+                  {title}
+                  {game?.title ? ' ' : null}
+                </a>
 
-              {game?.title ? (
-                <Trans
-                  i18nKey="<1>from</1> <2>{{gameTitle}}</2>"
-                  components={{
-                    1: <span />,
-                    2: <AchievementGameTitle game={game} />,
-                  }}
-                />
-              ) : null}
+                {game?.title ? (
+                  <Trans
+                    i18nKey="<1>from</1> <2>{{gameTitle}}</2>"
+                    components={{
+                      1: <span />,
+                      2: <AchievementGameTitle game={game} />,
+                    }}
+                  />
+                ) : null}
+              </span>
+
+              <AchievementPoints
+                isEvent={!!eventAchievement}
+                points={achievement.points ?? 0}
+                pointsWeighted={achievement.pointsWeighted}
+              />
             </div>
 
             {/* Meta chips (Mobile) */}
@@ -114,7 +121,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 
             <p className="-mt-1.5 hidden text-center text-2xs md:block">
               {t('{{percentage}} unlock rate', {
-                percentage: formatPercentage(unlockHardcorePercentage),
+                percentage: formatPercentage(unlockPercentage),
               })}
             </p>
 
