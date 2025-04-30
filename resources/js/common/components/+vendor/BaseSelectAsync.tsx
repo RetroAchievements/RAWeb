@@ -144,6 +144,7 @@ export function BaseSelectAsync<T>({
               value={localSearchTerm}
               onChange={(e) => setLocalSearchTerm(e.target.value)}
               className="flex-1 rounded-b-none border-none pl-8 focus-visible:ring-0"
+              autoComplete="off"
             />
             {query.isFetching && (
               <div className="absolute right-2 top-1/2 flex -translate-y-1/2 transform items-center">
