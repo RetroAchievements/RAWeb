@@ -130,12 +130,14 @@ function sendInitialTicketEmailToAssignee(Ticket $ticket, Game $game, Achievemen
         $achievement,
     );
 
-    if ($achievement->developer && BitSet($achievement->developer->websitePrefs, UserPreference::EmailOn_TicketActivity)) {
-        $emailBody = "Hi, {$achievement->developer->display_name}!
+    $maintainer = $achievement->getMaintainerAt(now());
+
+    if ($maintainer && BitSet($maintainer->websitePrefs, UserPreference::EmailOn_TicketActivity)) {
+        $emailBody = "Hi, {$maintainer->display_name}!
 
 {$ticket->reporter->display_name} would like to report a bug with an achievement you've created:
 $bugReportDetails";
-        sendRAEmail($achievement->developer->EmailAddress, $emailHeader, $emailBody);
+        sendRAEmail($maintainer->EmailAddress, $emailHeader, $emailBody);
     }
 }
 
@@ -168,17 +170,18 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
     }
 
     $hardcoreValue = $hardcore === null ? 'NULL' : (string) $hardcore;
+    $maintainer = $achievement->getMaintainerAt(now());
 
     $newTicket = Ticket::create([
         'AchievementID' => $achievement->id,
         'reporter_id' => $user->id,
-        'ticketable_author_id' => $achievement->developer->id,
+        'ticketable_author_id' => $maintainer->id,
         'ReportType' => $reportType,
         'Hardcore' => $hardcoreValue,
         'ReportNotes' => $note,
     ]);
 
-    expireUserTicketCounts($achievement->developer->username);
+    expireUserTicketCounts($maintainer->username);
 
     sendInitialTicketEmailToAssignee($newTicket, $achievement->game, $achievement);
 

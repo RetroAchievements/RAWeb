@@ -6,6 +6,7 @@ namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Enums\Permissions;
 use App\Filament\Resources\UserResource;
+use App\Models\AchievementMaintainer;
 use App\Models\Role;
 use App\Models\User;
 use Filament\Resources\Pages\ManageRelatedRecords;
@@ -125,6 +126,18 @@ class Roles extends ManageRelatedRecords
                         if ($currentPermissions < Permissions::Moderator) {
                             $targetUser->setAttribute('Permissions', Permissions::Registered);
                             $targetUser->save();
+                        }
+
+                        // If the user is losing their developer role, also expire any active maintainerships.
+                        if ($record->name === Role::DEVELOPER) {
+                            AchievementMaintainer::query()
+                                ->where('user_id', $targetUser->id)
+                                ->where('is_active', true)
+                                ->whereNull('effective_until')
+                                ->update([
+                                    'is_active' => false,
+                                    'effective_until' => now(),
+                                ]);
                         }
                     }),
             ])
