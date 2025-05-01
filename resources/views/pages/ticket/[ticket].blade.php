@@ -121,7 +121,13 @@ $permissions = $user->getAttribute('Permissions');
                 <div class="relative w-full p-2 bg-embed rounded">
                     <x-ticket.stat-element label="Achievement">{!! achievementAvatar($ticket->achievement, iconSize: 16) !!}</x-ticket.stat-element>
                     <x-ticket.stat-element label="Game">{!! gameAvatar($ticket->achievement->game, iconSize: 16) !!}</x-ticket.stat-element>
-                    <x-ticket.stat-element label="Author">{!! userAvatar($ticket->author ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
+                    @php
+                        $authorLabel = 'Author';
+                        if (!$ticket->author->is($ticket->achievement->developer)) {
+                            $authorLabel = 'Maintainer';
+                        }
+                    @endphp
+                    <x-ticket.stat-element label="{{ $authorLabel }}">{!! userAvatar($ticket->author ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
         
                     @if ($ticket->achievement->type)
                         <x-ticket.stat-element label="Type">{{ __('achievement-type.' . $ticket->achievement->type) }}</x-ticket.stat-element>

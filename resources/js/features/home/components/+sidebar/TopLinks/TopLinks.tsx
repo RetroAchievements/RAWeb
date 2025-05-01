@@ -12,6 +12,7 @@ import { PiMedalFill } from 'react-icons/pi';
 import { SiDiscord, SiPatreon } from 'react-icons/si';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 import { cn } from '@/common/utils/cn';
@@ -23,16 +24,17 @@ export const TopLinks: FC = () => {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <a
-        href="/download.php"
+      <InertiaLink
+        href={route('download.index')}
         className={cn(
           baseButtonVariants({ size: 'sm' }),
           buildTrackingClassNames('Click Top Link Download Emulator'),
         )}
+        prefetch="desktop-hover-only"
       >
         <LuDownload className="mr-2 h-4 w-4 text-sky-400" />
         {t('Download Emulator')}
-      </a>
+      </InertiaLink>
 
       <div className="flex flex-col gap-2.5 sm:grid sm:grid-cols-2 lg:flex">
         <a
