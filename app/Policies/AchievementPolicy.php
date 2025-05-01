@@ -164,4 +164,12 @@ class AchievementPolicy
 
         return false;
     }
+
+    public function assignMaintainer(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::DEV_COMPLIANCE,
+        ]);
+    }
 }
