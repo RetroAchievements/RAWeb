@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Role;
 use App\Models\Ticket;
 use App\Platform\Services\TicketViewService;
 use App\Platform\Services\UserAgentService;
@@ -262,7 +263,7 @@ $permissions = $user->getAttribute('Permissions');
                         :payload="$ticketNotes"
                     />
                     @php $numArticleComments = getRecentArticleComments(ArticleType::AchievementTicket, $ticket->ID, $commentData) @endphp
-                    @php $allowDelete = $permissions >= Permissions::Moderator @endphp
+                    @php $allowDelete = $user->hasRole(Role::MODERATOR) @endphp
                     @foreach ($commentData as $comment)
                         @php
                             $when = Carbon::createFromTimestampUTC($comment['Submitted']);
