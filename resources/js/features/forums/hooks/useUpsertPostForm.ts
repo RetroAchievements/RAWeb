@@ -64,7 +64,7 @@ export function useUpsertPostForm(
           return t('Updated.');
         }
 
-        window.location.assign(
+        router.visit(
           route('forum-topic.show', {
             topic: targetTopic!.id,
             _query: { comment: data.commentId },

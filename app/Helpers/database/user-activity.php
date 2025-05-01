@@ -123,7 +123,7 @@ function getArticleComments(
                      UNIX_TIMESTAMP(c.Submitted) AS Submitted, c.Edited
               FROM Comment AS c
               LEFT JOIN UserAccounts AS ua ON ua.ID = c.user_id
-              WHERE c.ArticleType=$articleTypeID AND c.ArticleID=$articleID
+              WHERE c.ArticleType=$articleTypeID AND c.ArticleID=$articleID AND c.deleted_at IS NULL
               ORDER BY c.Submitted$order, c.ID$order
               LIMIT $offset, $count";
 

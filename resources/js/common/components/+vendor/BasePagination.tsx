@@ -52,6 +52,7 @@ const BasePaginationLink = ({
       'text-xs',
       className,
     )}
+    aria-disabled={props['aria-disabled']}
   >
     {props.children}
   </InertiaLink>

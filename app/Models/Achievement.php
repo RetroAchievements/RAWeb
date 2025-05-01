@@ -235,6 +235,19 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         );
     }
 
+    public function getMaintainerAt(Carbon $timestamp): ?User
+    {
+        $maintainer = $this->maintainers()
+            ->where('effective_from', '<=', $timestamp)
+            ->where(function ($query) use ($timestamp) {
+                $query->whereNull('effective_until')
+                    ->orWhere('effective_until', '>', $timestamp);
+            })
+            ->first();
+
+        return $maintainer ? $maintainer->user : $this->developer;
+    }
+
     public function unlockValidationHash(User $user, int $hardcore, int $offset = 0): string
     {
         $data = $this->id . $user->username . $hardcore . $this->id;
@@ -395,6 +408,23 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     {
         return $this->hasMany(Comment::class, 'ArticleID', 'ID')
             ->where('ArticleType', ArticleType::Achievement);
+    }
+
+    /**
+     * @return HasMany<AchievementMaintainer>
+     */
+    public function maintainers(): HasMany
+    {
+        return $this->hasMany(AchievementMaintainer::class, 'achievement_id', 'ID');
+    }
+
+    /**
+     * @return HasOne<AchievementMaintainer>
+     */
+    public function activeMaintainer(): HasOne
+    {
+        return $this->hasOne(AchievementMaintainer::class, 'achievement_id', 'ID')
+            ->where('is_active', true);
     }
 
     /**

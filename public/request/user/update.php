@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\UserAction;
 use App\Enums\Permissions;
+use App\Models\AchievementMaintainer;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Arr;
@@ -58,6 +59,18 @@ if ($propertyType === UserAction::UpdatePermissions) {
             $foundTargetUser->removeRole(Role::MODERATOR);
 
             $foundTargetUser->assignRole(Role::DEVELOPER);
+        }
+
+        // If the developer is demoted, maintainership goes back to the original author(s).
+        if ($value <= Permissions::Developer) {
+            AchievementMaintainer::query()
+                ->where('user_id', $foundTargetUser->id)
+                ->where('is_active', true)
+                ->whereNull('effective_until')
+                ->update([
+                    'is_active' => false,
+                    'effective_until' => now(),
+                ]);
         }
     }
 

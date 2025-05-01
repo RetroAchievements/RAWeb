@@ -9,6 +9,7 @@ use App\Platform\Events\AchievementUnpublished;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Carbon;
 
 class DispatchUpdateDeveloperContributionYieldJob implements ShouldQueue
 {
@@ -22,8 +23,13 @@ class DispatchUpdateDeveloperContributionYieldJob implements ShouldQueue
             case AchievementPointsChanged::class:
             case PlayerAchievementUnlocked::class:
                 $achievement = $event->achievement;
-                $achievement->loadMissing('developer');
-                $user = $achievement->developer;
+
+                $user = $achievement->getMaintainerAt(Carbon::now());
+                if (!$user) {
+                    $achievement->loadMissing('developer');
+                    $user = $achievement->developer;
+                }
+
                 break;
         }
 

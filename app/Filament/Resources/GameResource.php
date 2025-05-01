@@ -658,6 +658,7 @@ class GameResource extends Resource
                         Tables\Actions\ViewAction::make(),
                         Tables\Actions\EditAction::make(),
                     ])->dropdown(false),
+
                     Tables\Actions\Action::make('audit-log')
                         ->url(fn ($record) => GameResource::getUrl('audit-log', ['record' => $record]))
                         ->icon('fas-clock-rotate-left'),
