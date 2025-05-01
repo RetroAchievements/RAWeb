@@ -67,4 +67,21 @@ class ForumTopicApiController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function toggleLock(ForumTopic $topic): JsonResponse
+    {
+        $this->authorize('lock', $topic);
+
+        // If the topic is already locked, unlock it.
+        // Otherwise, lock it.
+        if ($topic->is_locked) {
+            $topic->locked_at = null;
+        } else {
+            $topic->locked_at = now();
+        }
+
+        $topic->save();
+
+        return response()->json(['success' => true]);
+    }
 }

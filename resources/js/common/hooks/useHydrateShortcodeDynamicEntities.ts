@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 
 import {
   persistedAchievementsAtom,
+  persistedEventsAtom,
   persistedGamesAtom,
   persistedHubsAtom,
   persistedTicketsAtom,
@@ -22,6 +23,7 @@ export function useHydrateShortcodeDynamicEntities(
   useHydrateAtoms([
     [persistedAchievementsAtom, initialDynamicEntities.achievements],
     [persistedGamesAtom, initialDynamicEntities.games],
+    [persistedEventsAtom, initialDynamicEntities.events],
     [persistedHubsAtom, initialDynamicEntities.hubs],
     [persistedTicketsAtom, initialDynamicEntities.tickets],
     [persistedUsersAtom, initialDynamicEntities.users],
@@ -30,6 +32,7 @@ export function useHydrateShortcodeDynamicEntities(
   // These setters are only used for client-side updates.
   const setPersistedAchievements = useSetAtom(persistedAchievementsAtom);
   const setPersistedGames = useSetAtom(persistedGamesAtom);
+  const setPersistedEvents = useSetAtom(persistedEventsAtom);
   const setPersistedHubs = useSetAtom(persistedHubsAtom);
   const setPersistedTickets = useSetAtom(persistedTicketsAtom);
   const setPersistedUsers = useSetAtom(persistedUsersAtom);
@@ -37,6 +40,7 @@ export function useHydrateShortcodeDynamicEntities(
   useEffect(() => {
     setPersistedAchievements(propsDynamicEntities.achievements);
     setPersistedGames(propsDynamicEntities.games);
+    setPersistedEvents(propsDynamicEntities.events);
     setPersistedHubs(propsDynamicEntities.hubs);
     setPersistedTickets(propsDynamicEntities.tickets);
     setPersistedUsers(propsDynamicEntities.users);
@@ -44,6 +48,7 @@ export function useHydrateShortcodeDynamicEntities(
     propsDynamicEntities,
     setPersistedAchievements,
     setPersistedGames,
+    setPersistedEvents,
     setPersistedHubs,
     setPersistedTickets,
     setPersistedUsers,

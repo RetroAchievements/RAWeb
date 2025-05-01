@@ -50,13 +50,14 @@ class FetchDynamicShortcodeContentAction
         }
 
         $users = User::query()
+            ->withTrashed()
             ->where(function ($query) use ($usernames) {
                 $query->whereIn('User', $usernames)
                     ->orWhereIn('display_name', $usernames);
             })
             ->get();
 
-        return $users->map(fn (User $user) => UserData::fromUser($user));
+        return $users->map(fn (User $user) => UserData::fromUser($user)->include('deletedAt'));
     }
 
     /**

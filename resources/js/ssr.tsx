@@ -71,7 +71,7 @@ createServer(
       },
     }),
   {
-    cluster: true,
+    cluster: false, // enabling this seems to hurt perf more than help it on prod
     port: inertiaDaemonPort,
   },
 );
