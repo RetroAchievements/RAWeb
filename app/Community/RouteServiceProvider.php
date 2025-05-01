@@ -30,7 +30,6 @@ use App\Community\Controllers\GameCommentController;
 use App\Community\Controllers\GameHashesCommentController;
 use App\Community\Controllers\GameModificationsCommentController;
 use App\Community\Controllers\LeaderboardCommentController;
-use App\Community\Controllers\MessageController;
 use App\Community\Controllers\MessageThreadController;
 use App\Community\Controllers\UserAchievementChecklistController;
 use App\Community\Controllers\UserCommentController;
@@ -80,6 +79,7 @@ class RouteServiceProvider extends ServiceProvider
                         Route::delete('forums/{topic}', [ForumTopicApiController::class, 'destroy'])->name('api.forum-topic.destroy');
                         Route::put('forums/{topic}', [ForumTopicApiController::class, 'update'])->name('api.forum-topic.update');
                         Route::put('forums/{topic}/gate', [ForumTopicApiController::class, 'gate'])->name('api.forum-topic.gate');
+                        Route::post('forums/{topic}/toggle-lock', [ForumTopicApiController::class, 'togglelock'])->name('api.forum-topic.toggle-lock');
 
                         Route::post('forums/{topic}/comment', [ForumTopicCommentApiController::class, 'store'])->name('api.forum-topic-comment.create');
                         Route::patch('forums/post/{comment}', [ForumTopicCommentApiController::class, 'update'])->name('api.forum-topic-comment.update');
@@ -119,9 +119,11 @@ class RouteServiceProvider extends ServiceProvider
                         Route::get('forums/{category}/{forum}/create', [ForumTopicController::class, 'create'])->name('forum-topic.create');
                         Route::get('forums/post/{comment}/edit', [ForumTopicCommentController::class, 'edit'])->name('forum-topic-comment.edit');
 
+                        Route::get('message-thread/{messageThread}', [MessageThreadController::class, 'show'])->name('message-thread.show');
                         Route::get('messages', [MessageThreadController::class, 'index'])->name('message-thread.index');
                         Route::get('messages/create', [MessageThreadController::class, 'create'])->name('message-thread.create');
-                        Route::get('message-thread/{messageThread}', [MessageThreadController::class, 'show'])->name('message-thread.show');
+                        Route::get('messages/{user}', [MessageThreadController::class, 'index'])->name('message-thread.user.index');
+                        Route::get('messages/{user}/create', [MessageThreadController::class, 'create'])->name('message-thread.user.create');
 
                         Route::get('settings', [UserSettingsController::class, 'show'])->name('settings.show');
                     });
@@ -359,16 +361,6 @@ class RouteServiceProvider extends ServiceProvider
                     Route::post('game/{game}/claim/create', [AchievementSetClaimController::class, 'store'])->name('achievement-set-claim.create');
                     Route::post('game/{game}/claim/drop', [AchievementSetClaimController::class, 'delete'])->name('achievement-set-claim.delete');
                     Route::post('claim/{claim}/update', [AchievementSetClaimController::class, 'update'])->name('achievement-set-claim.update');
-                });
-
-                /*
-                 * messages
-                 */
-                Route::group([
-                    'middleware' => ['auth'], // TODO add 'verified' middleware
-                ], function () {
-                    Route::resource('message', MessageController::class)->only(['store']);
-                    Route::resource('message-thread', MessageThreadController::class)->parameter('message-thread', 'messageThread')->only(['destroy']);
                 });
 
                 /*

@@ -9,6 +9,7 @@ use App\Filament\Resources\AchievementResource\Pages;
 use App\Filament\Resources\AchievementResource\RelationManagers\AuthorshipCreditsRelationManager;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
@@ -18,6 +19,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -64,6 +66,9 @@ class AchievementResource extends Resource
 
     public static function infolist(Infolist $infolist): Infolist
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $infolist
             ->columns(1)
             ->schema([
@@ -101,8 +106,33 @@ class AchievementResource extends Resource
                                     Infolists\Components\TextEntry::make('canonical_url')
                                         ->label('Canonical URL')
                                         ->url(fn (Achievement $record): string => $record->getCanonicalUrlAttribute()),
+
                                     Infolists\Components\TextEntry::make('permalink')
                                         ->url(fn (Achievement $record): string => $record->getPermalinkAttribute()),
+
+                                    Infolists\Components\TextEntry::make('activeMaintainer.user.display_name')
+                                        ->label('Current Maintainer')
+                                        ->placeholder(fn (Achievement $record) => $record->developer->display_name . ' (original developer)')
+                                        ->formatStateUsing(fn ($state, Achievement $record) => $state . ' (since ' .
+                                            ($record->activeMaintainer?->effective_from?->format('Y-m-d') ?? 'N/A') . ')')
+                                        ->extraAttributes(['class' => 'font-medium']),
+
+                                    Infolists\Components\Actions::make([
+                                        Infolists\Components\Actions\Action::make('setMaintainer')
+                                            ->label('Change Maintainer')
+                                            ->icon('heroicon-o-user')
+                                            ->form(fn (Achievement $record) => static::buildMaintainerForm($record))
+                                            ->action(function (Achievement $record, array $data): void {
+                                                static::handleSetMaintainer($record, $data);
+
+                                                Notification::make()
+                                                    ->success()
+                                                    ->title('Success')
+                                                    ->body('Set achievement maintainer.')
+                                                    ->send();
+                                            }),
+                                    ])
+                                        ->visible(fn (): bool => $user->can('assignMaintainer', [Achievement::class])),
                                 ]),
                         ]),
 
@@ -204,6 +234,38 @@ class AchievementResource extends Resource
                                 ->getOptionLabelFromRecordUsing(fn (Model $record) => "[{$record->ID}] {$record->Title}")
                                 ->required()
                                 ->disabled(!$user->can('updateField', [$form->model, 'GameID'])),
+
+                            Forms\Components\Section::make('Maintainer')
+                                ->schema([
+                                    Forms\Components\Placeholder::make('current_maintainer')
+                                        ->label('Current Maintainer')
+                                        ->content(function (Achievement $record) {
+                                            if ($record->activeMaintainer?->user) {
+                                                return $record->activeMaintainer->user->display_name . ' (since ' .
+                                                    $record->activeMaintainer->effective_from->format('Y-m-d') . ')';
+                                            }
+
+                                            return $record->developer->display_name . ' (original developer)';
+                                        }),
+
+                                    Forms\Components\Actions::make([
+                                        Forms\Components\Actions\Action::make('setMaintainer')
+                                            ->label('Change Maintainer')
+                                            ->icon('heroicon-o-user')
+                                            ->form(fn (Achievement $record) => static::buildMaintainerForm($record))
+                                            ->action(function (Achievement $record, array $data): void {
+                                                static::handleSetMaintainer($record, $data);
+
+                                                Notification::make()
+                                                    ->success()
+                                                    ->title('Success')
+                                                    ->body('Set achievement maintainer.')
+                                                    ->send();
+                                            }),
+                                    ]),
+                                ])
+                                ->columns(1)
+                                ->visible(fn (): bool => $user->can('assignMaintainer', [Achievement::class])),
                         ]),
 
                     Forms\Components\Section::make()
@@ -407,6 +469,7 @@ class AchievementResource extends Resource
                         Tables\Actions\DeleteAction::make(),
                         Tables\Actions\RestoreAction::make(),
                     ])->dropdown(false),
+
                     Tables\Actions\Action::make('audit-log')
                         ->url(fn ($record) => AchievementResource::getUrl('audit-log', ['record' => $record]))
                         ->icon('fas-clock-rotate-left'),
@@ -454,6 +517,103 @@ class AchievementResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
-            ->with(['game']);
+            ->with(['activeMaintainer.user', 'game']);
+    }
+
+    public static function buildMaintainerForm(Achievement $record): array
+    {
+        return [
+            Forms\Components\Placeholder::make('ticket_info')
+                ->hiddenLabel()
+                ->content('The new maintainer will inherit any open tickets for this achievement.')
+                ->extraAttributes(['style' => 'color: oklch(82.8% 0.189 84.429)']), // amber-400 (https://tailwindcss.com/docs/colors#color-palette-reference)
+
+            Forms\Components\Select::make('user_id')
+                ->label('Maintainer')
+                ->searchable()
+                ->getSearchResultsUsing(function (string $search) use ($record): array {
+                    $query = User::query();
+
+                    // Bypass role checks for the original achievement author.
+                    $query->where(function ($q) use ($search, $record) {
+                        $q->where(function ($inner) use ($search) {
+                            $inner
+                                ->where('display_name', 'LIKE', "%{$search}%")
+                                ->whereHas('roles', function ($roleQuery) {
+                                    $roleQuery->where('name', Role::DEVELOPER);
+                                });
+                        })
+                        ->orWhere(function ($inner) use ($search, $record) {
+                            $inner
+                                ->where('id', $record->user_id)
+                                ->where('display_name', 'LIKE', "%{$search}%");
+                        });
+                    });
+
+                    return $query->limit(50)
+                        ->pluck('display_name', 'id')
+                        ->toArray();
+                })
+                ->getOptionLabelUsing(fn ($value): ?string => User::find($value)?->display_name)
+                ->required(),
+        ];
+    }
+
+    public static function handleSetMaintainer(Achievement $record, array $data): void
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        if (!$user->can('assignMaintainer', $record)) {
+            return;
+        }
+
+        $record->loadMissing('activeMaintainer');
+
+        $oldMaintainer = $record->activeMaintainer?->user;
+        $newMaintainerId = $data['user_id'];
+        $newMaintainer = User::find($newMaintainerId);
+
+        // Deactivate any existing maintainers.
+        $record->maintainers()
+            ->where('is_active', true)
+            ->whereNull('effective_until')
+            ->update([
+                'is_active' => false,
+                'effective_until' => now(),
+            ]);
+
+        // Create a new maintainer record.
+        $record->maintainers()->create([
+            'user_id' => $newMaintainerId,
+            'effective_from' => now(),
+            'is_active' => true,
+        ]);
+
+        // Reassign any open tickets for this achievement to the new maintainer.
+        $record->tickets()
+            ->unresolved()
+            ->update([
+                'ticketable_author_id' => $newMaintainerId,
+            ]);
+
+        activity()
+            ->performedOn($record)
+            ->causedBy($user)
+            ->withProperties([
+                'attributes' => [
+                    'activeMaintainer' => [
+                        'username' => $newMaintainer->username,
+                        'display_name' => $newMaintainer->display_name,
+                    ],
+                ],
+                'old' => [
+                    'activeMaintainer' => [
+                        'username' => $oldMaintainer?->username,
+                        'display_name' => $oldMaintainer?->display_name,
+                    ],
+                ],
+            ])
+            ->event('updated')
+            ->log('updated');
     }
 }

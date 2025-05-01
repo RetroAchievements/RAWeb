@@ -53,6 +53,21 @@ describe('Component: TopicOptions', () => {
 
     // ASSERT
     expect(screen.getByRole('button', { name: /delete/i })).toBeVisible();
+    expect(screen.queryByRole('button', { name: /lock/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user has permission to lock forum topics, shows the lock button', async () => {
+    // ARRANGE
+    render(<TopicOptions />, {
+      pageProps: { can: { lockForumTopic: true }, forumTopic: createForumTopic() },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /options/i }));
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /lock/i })).toBeVisible();
+    expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
   });
 
   it('given the user lacks permissions, hides the management options', async () => {

@@ -62,6 +62,8 @@ class Emulator extends BaseModel implements HasMedia
         'can_debug_triggers' => 'boolean',
     ];
 
+    public const NonEmulator = 22;
+
     protected static function newFactory(): EmulatorFactory
     {
         return EmulatorFactory::new();
@@ -151,8 +153,9 @@ class Emulator extends BaseModel implements HasMedia
 
     public function getHasOfficialSupportAttribute(): bool
     {
-        // Officially supported emulators have at least one user agent registered in the DB.
-        if ($this->userAgents->isEmpty()) {
+        // Officially supported emulators must be set to active and
+        // have at least one user agent registered in the DB.
+        if (!$this->active || $this->userAgents->isEmpty()) {
             return false;
         }
 

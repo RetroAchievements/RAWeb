@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\GameResource\RelationManagers;
 
 use App\Filament\Resources\AchievementAuthorshipCreditFormSchema;
+use App\Filament\Resources\AchievementResource;
 use App\Models\Achievement;
 use App\Models\AchievementAuthor;
 use App\Models\Game;
@@ -62,6 +63,7 @@ class AchievementsRelationManager extends RelationManager
 
         return $table
             ->recordTitleAttribute('title')
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('activeMaintainer.user'))
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
@@ -104,6 +106,13 @@ class AchievementsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('DisplayOrder')
                     ->toggleable(),
+
+                Tables\Columns\TextColumn::make('activeMaintainer')
+                    ->label('Maintainer')
+                    ->formatStateUsing(function (Achievement $record) {
+                        return $record->activeMaintainer?->user?->display_name ?? $record->developer?->display_name;
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Filters\SelectFilter::make('Flags')
@@ -152,7 +161,23 @@ class AchievementsRelationManager extends RelationManager
 
             ])
             ->actions([
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Action::make('assign-maintainer')
+                        ->label('Assign Maintainer')
+                        ->icon('heroicon-o-user')
+                        ->form(fn (Achievement $record) => AchievementResource::buildMaintainerForm($record))
+                        ->action(function (Achievement $record, array $data): void {
+                            AchievementResource::handleSetMaintainer($record, $data);
+
+                            Notification::make()
+                                ->title('Success')
+                                ->body('Successfully assigned maintainer to selected achievement.')
+                                ->success()
+                                ->send();
+                        }),
+
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -342,6 +367,23 @@ class AchievementsRelationManager extends RelationManager
                             ->send();
                     })
                     ->visible(fn (): bool => $user->can('create', [AchievementAuthor::class])),
+
+                Tables\Actions\BulkAction::make('set-maintainer')
+                    ->label('Assign maintainer')
+                    ->color('gray')
+                    ->form(fn (Achievement $record) => AchievementResource::buildMaintainerForm($record))
+                    ->action(function (Collection $records, array $data) {
+                        $records->each(function (Achievement $record) use ($data) {
+                            AchievementResource::handleSetMaintainer($record, $data);
+                        });
+
+                        Notification::make()
+                            ->title('Success')
+                            ->body('Successfully assigned maintainer to selected achievements.')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn (): bool => $user->can('assignMaintainer', [Achievement::class])),
             ])
             ->recordUrl(function (Achievement $record): string {
                 /** @var User $user */
