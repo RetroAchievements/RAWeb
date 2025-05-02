@@ -79,10 +79,10 @@ class DownloadsController extends Controller
             $platformId = $allPlatforms->where('name', 'Windows')->first()->id;
         } elseif ($agent->is('OS X') && !$agent->isMobile()) {
             $platformId = $allPlatforms->where('name', 'macOS')->first()->id;
-        } elseif ($agent->is('Debian') || $agent->is('Ubuntu') || $agent->is('OpenBSD') || $agent->is('Linux')) {
-            $platformId = $allPlatforms->where('name', 'Linux')->first()->id;
         } elseif ($agent->is('AndroidOS')) {
             $platformId = $allPlatforms->where('name', 'Android')->first()->id;
+        } elseif ($agent->is('Debian') || $agent->is('Ubuntu') || $agent->is('OpenBSD') || $agent->is('Linux')) {
+            $platformId = $allPlatforms->where('name', 'Linux')->first()->id;
         } elseif ($agent->is('iOS')) {
             $platformId = $allPlatforms->where('name', 'iOS')->first()->id;
         }
