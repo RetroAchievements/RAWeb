@@ -28,6 +28,8 @@ class BuildShowForumTopicPagePropsAction
             ->orderBy('created_at')
             ->paginate($perPage, ['*'], 'page', $currentPage);
 
+        abort_if($paginatedForumTopicComments->total() === 0, 404);
+
         $totalForumTopicComments = $paginatedForumTopicComments->total();
         $lastPage = (int) ceil($totalForumTopicComments / $perPage);
 
