@@ -15,16 +15,16 @@ class MessageThreadPolicy
     use HandlesAuthorization;
 
     /**
-     * Role => display_name
+     * Inbox display_name => [Roles]
      */
-    protected const ROLE_INBOX_MAP = [
-        Role::ADMINISTRATOR => 'RAdmin',
-        Role::DEV_COMPLIANCE => 'DevCompliance',
-        Role::QUALITY_ASSURANCE => 'QATeam',
-        Role::ARTIST => 'RAArtTeam',
-        Role::CHEAT_INVESTIGATOR => 'RACheats',
-        Role::WRITER => 'WritingTeam',
-        Role::EVENT_MANAGER => 'RAEvents',
+    protected const INBOX_ROLES_MAP = [
+        'DevCompliance' => [Role::DEV_COMPLIANCE],
+        'QATeam' => [Role::QUALITY_ASSURANCE],
+        'RAArtTeam' => [Role::ARTIST],
+        'RACheats' => [Role::CHEAT_INVESTIGATOR],
+        'RAdmin' => [Role::ADMINISTRATOR, Role::MODERATOR],
+        'RAEvents' => [Role::EVENT_MANAGER],
+        'WritingTeam' => [Role::WRITER],
     ];
 
     public function manage(User $user): bool
@@ -58,9 +58,12 @@ class MessageThreadPolicy
         if ($user && $teamAccount) {
             $teamDisplayName = $teamAccount->display_name;
 
-            foreach (static::ROLE_INBOX_MAP as $role => $inboxDisplayName) {
-                if ($inboxDisplayName === $teamDisplayName && $user->hasRole($role)) {
-                    return true;
+            if (isset(static::INBOX_ROLES_MAP[$teamDisplayName])) {
+                $allowedRoles = static::INBOX_ROLES_MAP[$teamDisplayName];
+                foreach ($allowedRoles as $role) {
+                    if ($user->hasRole($role)) {
+                        return true;
+                    }
                 }
             }
 
@@ -77,9 +80,12 @@ class MessageThreadPolicy
         if ($teamAccount) {
             $teamDisplayName = $teamAccount->display_name;
 
-            foreach (static::ROLE_INBOX_MAP as $role => $inboxDisplayName) {
-                if ($inboxDisplayName === $teamDisplayName && $user->hasRole($role)) {
-                    return true;
+            if (isset(static::INBOX_ROLES_MAP[$teamDisplayName])) {
+                $allowedRoles = static::INBOX_ROLES_MAP[$teamDisplayName];
+                foreach ($allowedRoles as $role) {
+                    if ($user->hasRole($role)) {
+                        return true;
+                    }
                 }
             }
 
@@ -136,9 +142,13 @@ class MessageThreadPolicy
     {
         $accessibleInboxes = [];
 
-        foreach (static::ROLE_INBOX_MAP as $role => $inboxDisplayName) {
-            if ($user->hasRole($role)) {
-                $accessibleInboxes[] = $inboxDisplayName;
+        foreach (static::INBOX_ROLES_MAP as $inboxDisplayName => $roles) {
+            foreach ($roles as $role) {
+                if ($user->hasRole($role)) {
+                    $accessibleInboxes[] = $inboxDisplayName;
+
+                    break;
+                }
             }
         }
 
