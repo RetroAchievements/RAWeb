@@ -4,7 +4,7 @@ import { LuChevronLeft, LuChevronRight, LuEllipsis } from 'react-icons/lu';
 
 import { cn } from '@/common/utils/cn';
 
-import { InertiaLink } from '../InertiaLink';
+import { InertiaLink, type InertiaLinkProps } from '../InertiaLink';
 import { type BaseButtonProps, baseButtonVariants } from './BaseButton';
 
 const BasePagination = ({ className, ...props }: ComponentProps<'nav'>) => (
@@ -33,13 +33,14 @@ type BasePaginationLinkProps = {
   href: string;
   isActive?: boolean;
 } & Pick<BaseButtonProps, 'size'> &
-  ComponentProps<'a'>;
+  ComponentProps<'a'> & { prefetch: InertiaLinkProps['prefetch'] };
 
 const BasePaginationLink = ({
   className,
   isActive,
-  size = 'icon',
   href,
+  prefetch = 'desktop-hover-only',
+  size = 'icon',
   ...props
 }: BasePaginationLinkProps) => (
   <InertiaLink
@@ -53,6 +54,7 @@ const BasePaginationLink = ({
       className,
     )}
     aria-disabled={props['aria-disabled']}
+    prefetch={prefetch}
   >
     {props.children}
   </InertiaLink>
