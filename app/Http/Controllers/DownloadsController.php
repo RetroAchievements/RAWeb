@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Http\Data\DownloadsPagePropsData;
+use App\Models\DownloadsPopularityMetric;
 use App\Models\Emulator;
 use App\Models\Platform;
 use App\Models\System;
@@ -15,7 +16,6 @@ use App\Platform\Data\PlatformData;
 use App\Platform\Data\SystemData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use Jenssegers\Agent\Agent;
@@ -99,20 +99,15 @@ class DownloadsController extends Controller
         $popularEmulatorsBySystem = [];
 
         // Check for overall popular emulators (ID 0).
-        $overallCacheKey = "popular-emulators-for-system:0";
-        if (Cache::has($overallCacheKey)) {
-            $popularEmulatorsBySystem[0] = Cache::get($overallCacheKey);
-        } else {
-            $popularEmulatorsBySystem[0] = [];
-        }
+        $overallKey = "popular-emulators-for-system:0";
+        $overallMetric = DownloadsPopularityMetric::where('key', $overallKey)->first();
+        $popularEmulatorsBySystem[0] = $overallMetric ? $overallMetric->ordered_ids : [];
 
         foreach ($allSystems as $system) {
-            $cacheKey = "popular-emulators-for-system:{$system->id}";
+            $key = "popular-emulators-for-system:{$system->id}";
 
-            $popularEmulatorsBySystem[$system->id] = [];
-            if (Cache::has($cacheKey)) {
-                $popularEmulatorsBySystem[$system->id] = Cache::get($cacheKey);
-            }
+            $metric = DownloadsPopularityMetric::where('key', $key)->first();
+            $popularEmulatorsBySystem[$system->id] = $metric ? $metric->ordered_ids : [];
         }
 
         return $popularEmulatorsBySystem;
@@ -123,10 +118,11 @@ class DownloadsController extends Controller
      */
     private function getTopSystemIds(): array
     {
-        $topSystemIds = Cache::get('top-systems');
+        // Try to load cached popularity metrics from the DB.
+        $metric = DownloadsPopularityMetric::where('key', 'top-systems')->first();
+        $topSystemIds = $metric ? $metric->ordered_ids : null;
 
-        // If we don't have any cached top systems at the moment,
-        // use a reasonable fallback.
+        // If we don't have data in the database, use a reasonable fallback.
         if (!isset($topSystemIds)) {
             $topSystemIds = [
                 21, // PlayStation 2
