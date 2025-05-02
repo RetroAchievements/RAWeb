@@ -140,18 +140,15 @@ class MessageThreadPolicy
      */
     public function getAccessibleTeamInboxes(User $user): array
     {
-        // Get all roles this user has.
-        $userRoles = collect($user->roles()->pluck('name')->toArray());
-        
-        // Filter the inbox map to only include roles the user has.
-        $accessibleInboxes = collect(static::ROLE_INBOX_MAP)
-            ->filter(function ($inboxName, $role) use ($userRoles) {
-                return $userRoles->contains($role);
-            })
-            ->values()
-            ->unique()
-            ->toArray();
-            
+        $userRoles = $user->roles()->pluck('name')->toArray();
+        $accessibleInboxes = [];
+
+        foreach (static::INBOX_ROLES_MAP as $inboxDisplayName => $roles) {
+            if (count(array_intersect($userRoles, $roles)) > 0) {
+                $accessibleInboxes[] = $inboxDisplayName;
+            }
+        }
+
         return $accessibleInboxes;
     }
 }
