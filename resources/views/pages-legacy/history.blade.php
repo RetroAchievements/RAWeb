@@ -134,9 +134,14 @@ $userScoreData = getAwardedList($userDetails);
 
     function selectHandlerBestDays(e) {
       if (chartBestDays.getSelection().length >= 1) {
-        var dateAbbr = dataBestDays.getFormattedValue(chartBestDays.getSelection()[0].row, 0);
-        var dateParsed = Date.parse(dateAbbr) / 1000;
-        window.location = '/historyexamine.php?d=' + dateParsed + '&u=<?= $userPage ?>';
+        var dateFormatted = dataBestDays.getFormattedValue(chartBestDays.getSelection()[0].row, 0);
+
+        var d = new Date(Date.parse(dateFormatted));
+        var dAdj = new Date(d.getTime() + 60000 * 60 * 12);	// Adjusted by 60000 (min) times 60 (hour) times 12 (middle of day)
+
+        var nUnix = parseInt(dAdj.getTime() / 1000);
+
+        window.location = '/historyexamine.php?d=' + nUnix + '&u=<?= $userPage ?>';
       }
     }
 
@@ -149,7 +154,7 @@ $userScoreData = getAwardedList($userDetails);
 
         var nUnix = parseInt(dAdj.getTime() / 1000);
 
-        window.location = '/historyexamine.php?d=' + nUnix + '&u=' + <?php echo "'$userPage'"; ?>;
+        window.location = '/historyexamine.php?d=' + nUnix + '&u=<?= $userPage ?>';
       }
     }
 
