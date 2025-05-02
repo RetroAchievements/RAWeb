@@ -33,7 +33,7 @@ type BasePaginationLinkProps = {
   href: string;
   isActive?: boolean;
 } & Pick<BaseButtonProps, 'size'> &
-  ComponentProps<'a'> & { prefetch: InertiaLinkProps['prefetch'] };
+  ComponentProps<'a'> & { prefetch?: InertiaLinkProps['prefetch'] };
 
 const BasePaginationLink = ({
   className,
