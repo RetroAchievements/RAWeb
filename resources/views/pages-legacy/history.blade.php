@@ -246,7 +246,7 @@ $userScoreData = getAwardedList($userDetails);
         $nextNumAwarded = $dayInfo['NumAwarded'];
         $nextTotalPointsEarned = $dayInfo['TotalPointsEarned'];
         $date = Carbon::parse($dayInfo['Date']);
-        $dateUnix = $date->unix();
+        $dateUnix = $date->setTime(12, 0, 0)->unix();
         $dateStr = $date->format("d M Y");
 
         echo "<tr>";
