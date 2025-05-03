@@ -132,26 +132,13 @@ $userScoreData = getAwardedList($userDetails);
     var chartBestDays;
     var chartScoreProgress;
 
-    function selectHandlerBestDays(e) {
-      if (chartBestDays.getSelection().length >= 1) {
-        var dateFormatted = dataBestDays.getFormattedValue(chartBestDays.getSelection()[0].row, 0);
-
+    function selectDateHandler(chart, data) {
+      if (chart.getSelection().length >= 1) {
+        var dateFormatted = data.getFormattedValue(chart.getSelection()[0].row, 0);
+    
         var d = new Date(Date.parse(dateFormatted));
-        var dAdj = new Date(d.getTime() + 60000 * 60 * 12);	// Adjusted by 60000 (min) times 60 (hour) times 12 (middle of day)
-
-        var nUnix = parseInt(dAdj.getTime() / 1000);
-
-        window.location = '/historyexamine.php?d=' + nUnix + '&u=<?= $userPage ?>';
-      }
-    }
-
-    function selectHandlerScoreProgress(e) {
-      if (chartScoreProgress.getSelection().length >= 1) {
-        var dateFormatted = dataTotalScore.getFormattedValue(chartScoreProgress.getSelection()[0].row, 0);
-
-        var d = new Date(Date.parse(dateFormatted));
-        var dAdj = new Date(d.getTime() + 60000 * 60 * 12);	// Adjusted by 60000 (min) times 60 (hour) times 12 (middle of day)
-
+        var dAdj = new Date(d.getTime() + 60000 * 60 * 12); // Adjusted by 60000 (min) times 60 (hour) times 12 (middle of day)
+    
         var nUnix = parseInt(dAdj.getTime() / 1000);
 
         window.location = '/historyexamine.php?d=' + nUnix + '&u=<?= $userPage ?>';
@@ -165,8 +152,12 @@ $userScoreData = getAwardedList($userDetails);
       chartScoreProgress = new google.visualization.AreaChart(document.getElementById('chart_scoreprogress'));
       chartScoreProgress.draw(dataTotalScore, optionsTotalScore);
 
-      google.visualization.events.addListener(chartBestDays, 'select', selectHandlerBestDays);
-      google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress);
+      google.visualization.events.addListener(chartBestDays, 'select', function() {
+        selectDateHandler(chartBestDays, dataBestDays);
+      });
+      google.visualization.events.addListener(chartScoreProgress, 'select', function() {
+        selectDateHandler(chartScoreProgress, dataTotalScore);
+      });
     }
 
     window.onload = resize();
