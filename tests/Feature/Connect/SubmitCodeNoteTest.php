@@ -79,7 +79,7 @@ class SubmitCodeNoteTest extends TestCase
         $this->assertEquals('This is a new note', $note->body);
 
         // ----------------------------
-        // delete note
+        // delete note by setting to empty
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
             'g' => $game->ID,
             'm' => 0x1234,
@@ -134,6 +134,18 @@ class SubmitCodeNoteTest extends TestCase
         $game->refresh();
         $newNote = $game->memoryNotes->where('address', 0x1235)->first();
         $this->assertNotNull($newNote);
+        $this->assertEquals('This "note" is $pec!al', $newNote->body);
+
+        // ----------------------------
+        // delete note by setting to null
+        $this->post('dorequest.php', $this->apiParams('submitcodenote', [
+            'g' => $game->ID,
+            'm' => 0x1235,
+        ]))
+            ->assertExactJson(['Success' => true]);
+
+        $newNote->refresh();
+        $this->assertTrue($newNote->trashed());
         $this->assertEquals('This "note" is $pec!al', $newNote->body);
 
     }
