@@ -2,30 +2,22 @@
 
 use App\Models\User;
 
-function loadCodeNotes(int $gameId): ?array
+function loadCodeNotes(int $gameId): array
 {
-    $query = "SELECT ua.display_name AS User, mn.address AS Address, mn.body AS Note
-              FROM memory_notes AS mn
-              LEFT JOIN UserAccounts AS ua ON ua.ID = mn.user_id
-              WHERE mn.game_id = '$gameId'
-              ORDER BY mn.Address ";
+    $codeNotes = App\Models\MemoryNote::with('user')
+        ->where('game_id', $gameId)
+        ->orderBy('address')
+        ->get()
+        ->map(function ($note) {
+            return [
+                'User' => $note->user->display_name,
+                'Address' => $note->address_hex,
+                'Note' => $note->body,
+            ];
+        })
+        ->toArray();
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $codeNotesOut = [];
-
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            // Seamless :)
-            $db_entry['Address'] = sprintf("0x%06x", $db_entry['Address']);
-            $codeNotesOut[] = $db_entry;
-        }
-
-        return $codeNotesOut;
-    }
-
-    log_sql_fail();
-
-    return null;
+    return empty($codeNotes) ? [] : $codeNotes;
 }
 
 function getCodeNotes(int $gameId, ?array &$codeNotesOut): bool
