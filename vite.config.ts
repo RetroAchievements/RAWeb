@@ -68,7 +68,6 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       alias: {
         '@': resolve(__dirname, './resources/js'),
         livewire: resolve(__dirname, './vendor/livewire/livewire/dist/livewire.esm'),
-        'ziggy-js': resolve(__dirname, './vendor/tightenco/ziggy'),
       },
     },
 
