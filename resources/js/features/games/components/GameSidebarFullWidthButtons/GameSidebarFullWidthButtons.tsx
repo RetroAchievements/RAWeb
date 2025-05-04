@@ -61,7 +61,7 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
             {t('Find Similar Games')}
           </PlayableSidebarButton>
 
-          {game.system?.active ? (
+          {can.manageGames || game.system?.active ? (
             <div className="grid grid-cols-2 gap-1">
               <PlayableSidebarButton
                 href={`/codenotes.php?g=${game.id}`}
