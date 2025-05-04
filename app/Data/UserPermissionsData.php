@@ -72,7 +72,7 @@ class UserPermissionsData extends Data
             manageForumTopics: Lazy::create(fn () => $user ? $user->can('manage', ForumTopic::class) : false),
             manageEvents: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\Event::class) : false),
             manageGameHashes: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameHash::class) : false),
-            manageGames: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\Game::class) : false),
+            manageGames: Lazy::create(fn () => $user ? $user->can('manage', Game::class) : false),
             manageGameSets: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameSet::class) : false),
             manipulateApiKeys: Lazy::create(fn () => $user ? $user->can('manipulateApiKeys', $user) : false),
             updateAvatar: Lazy::create(fn () => $user ? $user->can('updateAvatar', $user) : false),
