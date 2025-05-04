@@ -148,6 +148,17 @@ class SubmitCodeNoteTest extends TestCase
         $this->assertTrue($newNote->trashed());
         $this->assertEquals('This "note" is $pec!al', $newNote->body);
 
+        // ----------------------------
+        // delete deleted note
+        $this->post('dorequest.php', $this->apiParams('submitcodenote', [
+            'g' => $game->ID,
+            'm' => 0x1235,
+        ]))
+            ->assertExactJson(['Success' => true]);
+
+        $newNote->refresh();
+        $this->assertTrue($newNote->trashed());
+        $this->assertEquals('This "note" is $pec!al', $newNote->body);
     }
 
     public function testSubmitCodeNoteJuniorDeveloper(): void
