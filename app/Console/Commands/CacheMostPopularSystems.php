@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Models\DownloadsPopularityMetric;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class CacheMostPopularSystems extends Command
@@ -50,7 +50,11 @@ class CacheMostPopularSystems extends Command
         // Extract just the system IDs in order.
         $topSystemIds = array_map(fn ($row) => (int) $row->system_id, $results);
 
-        Cache::put('top-systems', $topSystemIds, now()->addMonth());
+        // Store the ordered IDs in the database.
+        DownloadsPopularityMetric::updateOrCreate(
+            ['key' => 'top-systems'],
+            ['ordered_ids' => $topSystemIds]
+        );
 
         $this->newLine();
         $this->info("Done.");
