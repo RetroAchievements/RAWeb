@@ -137,7 +137,6 @@ $userScoreData = getAwardedList($userDetails);
         var dateFormatted = data.getFormattedValue(chart.getSelection()[0].row, 0);
     
         var d = new Date(Date.parse(dateFormatted));
-        var dAdj = new Date(d.getTime() + 60000 * 60 * 12); // Adjusted by 60000 (min) times 60 (hour) times 12 (middle of day)
     
         var nUnix = parseInt(dAdj.getTime() / 1000);
 
@@ -246,7 +245,7 @@ $userScoreData = getAwardedList($userDetails);
         $nextNumAwarded = $dayInfo['NumAwarded'];
         $nextTotalPointsEarned = $dayInfo['TotalPointsEarned'];
         $date = Carbon::parse($dayInfo['Date']);
-        $dateUnix = $date->setTime(12, 0, 0)->unix();
+        $dateUnix = $date->unix();
         $dateStr = $date->format("d M Y");
 
         echo "<tr>";
