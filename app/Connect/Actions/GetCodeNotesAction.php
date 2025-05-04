@@ -45,7 +45,9 @@ class GetCodeNotesAction extends BaseApiAction
         $notes = [];
 
         $memoryNotes = MemoryNote::where('game_id', $this->gameId)
-            ->with('user')
+            ->with(['user' => function ($query) {
+                $query->withTrashed();
+            }])
             ->orderBy('address')
             ->get();
         foreach ($memoryNotes as $memoryNote) {

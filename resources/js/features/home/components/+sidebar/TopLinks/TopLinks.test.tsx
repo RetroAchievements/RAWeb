@@ -19,7 +19,7 @@ describe('Component: TopLinks', () => {
     const linkEl = screen.getByRole('link', { name: /download emulator/i });
 
     expect(linkEl).toBeVisible();
-    expect(linkEl).toHaveAttribute('href', '/download.php');
+    expect(linkEl).toHaveAttribute('href', 'download.index');
   });
 
   it('displays an accessible link to the global points ranking', () => {

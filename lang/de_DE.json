@@ -218,7 +218,7 @@
     "Open Game": "Öffne Spiele",
     "Open game details": "Öffne Spieldetails",
     "Our web pages and their contents are subject to copyright law. Unless expressly permitted by law, every form of utilizing, reproducing or processing works subject to copyright protection on our web pages requires the prior consent of the respective owner of the rights. Individual reproductions of a work are allowed only for private use. The company names, product names, service names and logotypes on this web site are for identification purposes only. All trademarks and registered trademarks are the property of their respective owners.": "Unsere Webseiten und deren Inhalte unterliegen dem Urheberrecht. Jede Form der Verwertung, Vervielfältigung oder Bearbeitung von urheberrechtlich geschützten Werken auf unseren Webseiten bedarf, soweit nicht ausdrücklich gesetzlich erlaubt, der vorherigen Zustimmung des jeweiligen Rechteinhabers. Einzelne Vervielfältigungen eines Werkes sind nur für den privaten Gebrauch gestattet. Die auf dieser Website verwendeten Firmen-, Produkt- und Dienstleistungsbezeichnungen sowie Logos dienen lediglich der Identifikation. Alle Warenzeichen und eingetragenen Warenzeichen sind Eigentum der jeweiligen Inhaber.",
-    "Page": "Seite",
+    "Page {{pageNumber, number}}": "Seite {{pageNumber, number}}",
     "Page <1></1> of {{totalPages, number}}": "Seite <1></1> von {{totalPages, number}}",
     "Page {{currentPage, number}} of {{totalPages, number}}": "Seite {{currentPage, number}} von {{totalPages, number}}",
     "Passwords must match.": "Passwörter müssen übereinstimmen.",
