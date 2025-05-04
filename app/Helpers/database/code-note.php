@@ -1,10 +1,14 @@
 <?php
 
+use App\Models\MemoryNote;
 use App\Models\User;
 
 function loadCodeNotes(int $gameId): array
 {
-    $codeNotes = App\Models\MemoryNote::with('user')
+    $codeNotes = MemoryNote::query()
+        ->with(['user' => function ($query) {
+            $query->withTrashed();
+        }])
         ->where('game_id', $gameId)
         ->orderBy('address')
         ->get()
