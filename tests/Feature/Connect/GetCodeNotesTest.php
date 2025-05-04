@@ -128,6 +128,28 @@ class GetCodeNotesTest extends TestCase
             ]);
 
         // ----------------------------
+        // user name still returned for deleted user
+        $otherUser->delete();
+        $this->post('dorequest.php', $this->apiParams('codenotes2', [
+            'g' => $game->ID,
+        ]))
+            ->assertExactJson([
+                'Success' => true,
+                'CodeNotes' => [
+                    [
+                        'User' => $otherUser->display_name,
+                        'Address' => '0x000bed',
+                        'Note' => 'Useful?',
+                    ],
+                    [
+                        'User' => $this->user->display_name,
+                        'Address' => '0x001235',
+                        'Note' => 'This is another note',
+                    ],
+                ],
+            ]);
+
+        // ----------------------------
         // unauthenticated
         $this->post('dorequest.php', $this->apiParams('codenotes2', [
             'g' => $game->ID,

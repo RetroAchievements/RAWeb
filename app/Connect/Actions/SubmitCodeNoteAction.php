@@ -29,7 +29,7 @@ class SubmitCodeNoteAction extends BaseAuthenticatedApiAction
 
     protected function initialize(Request $request): ?array
     {
-        if (!$request->has(['g', 'm', 'n'])) {
+        if (!$request->has(['g', 'm'])) {
             return $this->missingParameters();
         }
 
