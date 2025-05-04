@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Game;
+
 return [
 
     /*
@@ -15,7 +17,7 @@ return [
     |
     */
 
-    'driver' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'database' : env('SCOUT_DRIVER', 'database'),
+    'driver' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'meilisearch' : env('SCOUT_DRIVER', 'database'),
 
     /*
     |--------------------------------------------------------------------------
@@ -41,7 +43,10 @@ return [
     |
     */
 
-    'queue' => env('SCOUT_QUEUE', false),
+    'queue' => [
+        'connection' => 'redis',
+        'queue' => 'scout',
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -133,9 +138,10 @@ return [
         'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
-            // 'users' => [
-            //     'filterableAttributes'=> ['id', 'name', 'email'],
-            // ],
+            Game::class => [
+                'filterableAttributes' => ['id', 'title', 'sort_title', 'achievements_published'],
+                'sortableAttributes' => ['id', 'title', 'sort_title', 'achievements_published'],
+            ],
         ],
     ],
 
