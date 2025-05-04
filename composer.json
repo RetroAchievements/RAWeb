@@ -149,7 +149,7 @@
         "stan": "@php vendor/bin/phpstan analyse --memory-limit 768M --ansi",
         "stan-clear": "@php vendor/bin/phpstan clear-result-cache",
         "start": "@php artisan serve --port=64000",
-        "test": "@php artisan test",
+        "test": "@php artisan test --env=testing",
         "types": [
             "@php artisan typescript:generate",
             "@php artisan ziggy:generate --types-only"
