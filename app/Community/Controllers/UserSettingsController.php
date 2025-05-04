@@ -134,6 +134,7 @@ class UserSettingsController extends Controller
         // The user will need to reconfirm their email address.
         $user->EmailAddress = $data->newEmail;
         $user->setAttribute('Permissions', Permissions::Unregistered);
+        $user->roles()->detach();
         $user->email_verified_at = null;
         $user->save();
 
