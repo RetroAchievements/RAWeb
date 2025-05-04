@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import { BaseSelectAsync } from '@/common/components/+vendor/BaseSelectAsync';
 import { AchievementsListItem } from '@/common/components/AchievementsListItem';

@@ -150,7 +150,7 @@
         "test": "@php artisan test",
         "types": [
             "@php artisan typescript:generate",
-            "@php artisan ziggy:generate --types-only"
+            "@php artisan ziggy:generate --types"
         ]
     },
     "scripts-descriptions": {

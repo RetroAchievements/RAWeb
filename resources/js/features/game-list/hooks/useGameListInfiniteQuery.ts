@@ -2,6 +2,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import type { ColumnFiltersState, PaginationState, SortingState } from '@tanstack/react-table';
 import axios from 'axios';
 import type { RouteName } from 'ziggy-js';
+import { route } from 'ziggy-js';
 
 import { buildGameListQueryFilterParams } from '../utils/buildGameListQueryFilterParams';
 import { buildGameListQuerySortParam } from '../utils/buildGameListQuerySortParam';

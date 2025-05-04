@@ -1,6 +1,5 @@
 import type { Alpine } from 'alpinejs';
 import type { IconType } from 'react-icons/lib';
-import type { route as routeFn } from 'ziggy-js';
 
 import type { getStringByteCount as GetStringByteCount } from '@/common/utils/getStringByteCount';
 import type {
@@ -52,9 +51,6 @@ declare global {
   var tooltipComponent: typeof TooltipComponent;
   var updateUrlParameter: typeof UpdateUrlParameter;
 
-  // Inertia
-  var route: typeof routeFn;
-
   // Plausible
   var plausible: ((eventName: string, options?: PlausibleEventOptions) => void) | undefined;
 }
@@ -68,4 +64,8 @@ declare module '@tanstack/react-table' {
     Icon?: IconType;
     sortType?: 'default' | 'date' | 'quantity' | 'boolean';
   }
+}
+
+declare module 'ziggy-js' {
+  // use ziggy.d.ts
 }

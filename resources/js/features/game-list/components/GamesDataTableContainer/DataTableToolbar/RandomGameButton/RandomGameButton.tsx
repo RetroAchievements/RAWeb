@@ -3,6 +3,7 @@ import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuDices } from 'react-icons/lu';
 import type { RouteName } from 'ziggy-js';
+import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { usePageProps } from '@/common/hooks/usePageProps';

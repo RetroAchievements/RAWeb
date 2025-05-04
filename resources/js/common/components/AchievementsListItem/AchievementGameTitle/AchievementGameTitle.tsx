@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { route } from 'ziggy-js';
 
 import { GameTitle } from '@/common/components/GameTitle';
 import { useCardTooltip } from '@/common/hooks/useCardTooltip';

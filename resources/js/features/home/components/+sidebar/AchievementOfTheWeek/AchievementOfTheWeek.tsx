@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';

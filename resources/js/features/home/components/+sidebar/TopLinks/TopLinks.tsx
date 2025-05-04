@@ -10,6 +10,7 @@ import {
 } from 'react-icons/lu';
 import { PiMedalFill } from 'react-icons/pi';
 import { SiDiscord, SiPatreon } from 'react-icons/si';
+import { route } from 'ziggy-js';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { InertiaLink } from '@/common/components/InertiaLink';

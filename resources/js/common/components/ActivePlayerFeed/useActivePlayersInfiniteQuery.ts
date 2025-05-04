@@ -1,5 +1,6 @@
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { route } from 'ziggy-js';
 
 interface UseActivePlayersInfiniteQueryProps {
   isEnabled: boolean;

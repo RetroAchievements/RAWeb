@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
+import { route } from 'ziggy-js';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
