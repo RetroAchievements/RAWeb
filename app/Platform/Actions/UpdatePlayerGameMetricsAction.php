@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use \ErrorException;
 use App\Models\Achievement;
 use App\Models\AchievementSet;
 use App\Models\GameAchievementSet;
@@ -16,6 +15,7 @@ use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\PlayerGameMetricsUpdated;
 use App\Platform\Services\PlayerGameActivityService;
+use ErrorException;
 use Illuminate\Support\Collection;
 
 class UpdatePlayerGameMetricsAction

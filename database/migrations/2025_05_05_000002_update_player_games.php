@@ -29,7 +29,7 @@ return new class() extends Migration {
                 'beaten_percentage',
                 'beaten_percentage_hardcore',
                 'playtime_total',
-//                'time_taken',
+                //                'time_taken',
                 'time_taken_hardcore',
                 'first_unlock_hardcore_at',
                 'points_weighted_total',
@@ -79,7 +79,7 @@ return new class() extends Migration {
             $table->decimal('beaten_percentage', 10, 9)->nullable()->default(null)->after('achievements_beat_unlocked_hardcore');
             $table->decimal('beaten_percentage_hardcore', 10, 9)->nullable()->default(null)->after('beaten_percentage');
             $table->bigInteger('playtime_total')->nullable()->default(null)->after('last_played_at');
-            //$table->bigInteger('time_taken')->nullable()->default(null)->after('playtime_total');
+            // $table->bigInteger('time_taken')->nullable()->default(null)->after('playtime_total');
             $table->bigInteger('time_taken_hardcore')->nullable()->default(null)->after('time_taken');
             $table->dateTime('first_unlock_hardcore_at')->nullable()->default(null)->after('first_unlock_at');
             $table->integer('points_weighted_total')->nullable()->default(null)->after('points_hardcore');

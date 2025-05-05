@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders\Concerns;
 
-use App\Enums\Permissions;
 use App\Models\Role;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 trait SeedsUsers

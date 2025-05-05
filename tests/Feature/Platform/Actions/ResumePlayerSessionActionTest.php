@@ -8,8 +8,6 @@ use App\Models\Achievement;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
-use App\Models\System;
-use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Actions\UnlockPlayerAchievementAction;
 use App\Platform\Enums\AchievementSetType;
@@ -169,7 +167,7 @@ class ResumePlayerSessionActionTest extends TestCase
         $playerAchievementSet->refresh();
         $this->assertEquals(255, $playerAchievementSet->time_taken); // ping adjustments always rounded to nearest minute. will be fixed on next unlock
         $this->assertEquals(0, $playerAchievementSet->time_taken_hardcore); // hardcore assumed
-       
+
         // ===== softcore unlock 72 seconds later =====
         $achievement = $game->achievements->skip(1)->first();
         $secondUnlockAt = $thirdPingAt->clone()->addSeconds(72);

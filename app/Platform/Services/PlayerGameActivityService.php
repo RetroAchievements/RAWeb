@@ -9,7 +9,6 @@ use App\Enums\PlayerGameActivitySessionType;
 use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
-use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\ComputeAchievementsSetPublishedAtAction;
@@ -102,7 +101,7 @@ class PlayerGameActivityService
             if ($playerGame->last_played_at) {
                 $whenBefore = $playerGame->last_played_at->clone()->subMinutes(5);
                 $whenAfter = $playerGame->last_played_at->clone()->addMinutes(5);
-        
+
                 $index = 0;
                 foreach ($this->sessions as &$session) {
                     if ($session['endTime'] >= $whenBefore && $session['endTime'] <= $whenAfter) {
