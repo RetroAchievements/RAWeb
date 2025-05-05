@@ -298,6 +298,15 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         ];
     }
 
+    public function shouldBeSearchable(): bool
+    {
+        if ($this->ConsoleID === System::Hubs || $this->ConsoleID === System::Events) {
+            return false;
+        }
+
+        return true;
+    }
+
     // TODO refactor when game_achievement_sets is ready
     public function getParentGame(): ?Game
     {

@@ -314,8 +314,8 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     public function toSearchableArray(): array
     {
         return [
-            'id' => (int) $this->ID,
             'display_name' => $this->display_name,
+            'username' => $this->username,
         ];
     }
 

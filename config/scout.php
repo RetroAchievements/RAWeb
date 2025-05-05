@@ -139,8 +139,9 @@ return [
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
             Game::class => [
-                'filterableAttributes' => ['id', 'title', 'sort_title', 'achievements_published'],
-                'sortableAttributes' => ['id', 'title', 'sort_title', 'achievements_published'],
+                'filterableAttributes' => ['id', 'title'],
+                'searchableAttributes' => ['title', 'id'],
+                'sortableAttributes' => ['id', 'title'],
             ],
         ],
     ],
