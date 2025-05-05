@@ -180,7 +180,6 @@ name('demo');
                     <x-base.form.input.checkbox>
                         Checkbox with long label text<br>a break<br>and a <x-link href="{{ route('demo') }}">Link</x-link>
                     </x-input.checkbox>
-                    <x-base.form.input.code label="Code" />
                     <x-base.form.input.date label="Date" value="2024-12-31" :fullWidth="false" />
                     <x-base.form.input.datetime-local label="Datetime local" value="2024-12-31 00:00:00" :fullWidth="false" />
                     <x-base.form.input.email label="Email" value="test@example.com" :fullWidth="false" />
@@ -219,7 +218,6 @@ name('demo');
                 <x-base.form.user-select requiredSilent inline help="Search user" />
                 <x-base.form.input type="hidden" name="email" requiredSilent inline />
                 <x-base.form.select label="Select with preselected value" :options="[5 => 'Integer value 5', 4 => 'Integer value 4', '3' => 'String value 3', '2' => 'String value 2']" value="3" inline :fullWidth="false" />
-                <x-base.form.textarea label="{{ __res('message', 1) }}" requiredSilent inline maxlength="20" help="Some helpful text describing this input" />
                 <x-base.form.input.checkbox label="Checkbox" checked inline requiredSilent />
                 <x-base.form-actions inline />
             </div>
@@ -238,8 +236,6 @@ name('demo');
                 </x-slot>
             </x-section-header>
             <div class="flex flex-col gap-y-3">
-                <x-base.form.textarea name="message" required richText maxlength="20000" help="Textarea with rich-text controls" />
-                <x-base.form.textarea name="body" richText maxlength="60000" help="Textarea with rich-text controls" />
                 <x-base.form-actions hasRequiredFields />
             </div>
         </x-section>

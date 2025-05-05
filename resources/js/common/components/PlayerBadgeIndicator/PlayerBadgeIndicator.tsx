@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 
-import { useGetAwardLabelFromPlayerBadge } from '@/common/hooks/useGetAwardLabelFromPlayerBadge';
-import { cn } from '@/common/utils/cn';
 import { AwardType } from '@/common/utils/generatedAppConstants';
+
+import { AwardIndicator } from '../AwardIndicator';
 
 interface PlayerBadgeIndicatorProps {
   playerBadge: App.Platform.Data.PlayerBadge;
@@ -11,27 +11,17 @@ interface PlayerBadgeIndicatorProps {
 }
 
 export const PlayerBadgeIndicator: FC<PlayerBadgeIndicatorProps> = ({ playerBadge, className }) => {
-  const { getAwardLabelFromPlayerBadge } = useGetAwardLabelFromPlayerBadge();
-
-  const label = getAwardLabelFromPlayerBadge(playerBadge);
-
   const { awardType, awardDataExtra } = playerBadge;
 
-  return (
-    <div
-      role="img"
-      aria-label={`${label} indicator`}
-      className={cn(
-        'h-2 w-2 rounded-full',
+  let indicator: 'mastery' | 'completion' | 'beaten-hardcore' | 'beaten-softcore' =
+    'beaten-softcore';
+  if (awardType === AwardType.Mastery && awardDataExtra) {
+    indicator = 'mastery';
+  } else if (awardType === AwardType.Mastery && !awardDataExtra) {
+    indicator = 'completion';
+  } else if (awardType === AwardType.GameBeaten && awardDataExtra) {
+    indicator = 'beaten-hardcore';
+  }
 
-        awardType === AwardType.Mastery && awardDataExtra ? 'bg-[gold] light:bg-yellow-600' : '', // Mastered
-        awardType === AwardType.Mastery && !awardDataExtra ? 'border border-yellow-600' : '', // Completed
-
-        awardType === AwardType.GameBeaten && awardDataExtra ? 'bg-zinc-300' : '', // Beaten
-        awardType === AwardType.GameBeaten && !awardDataExtra ? 'border border-zinc-400' : '', // Beaten (softcore)
-
-        className,
-      )}
-    />
-  );
+  return <AwardIndicator awardKind={indicator} className={className} />;
 };

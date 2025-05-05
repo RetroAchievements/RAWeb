@@ -1,7 +1,13 @@
 import { faker } from '@faker-js/faker';
 
 import { render } from '@/test';
-import { createGame, createGameSet, createSystem } from '@/test/factories';
+import {
+  createAchievementSet,
+  createGame,
+  createGameAchievementSet,
+  createGameSet,
+  createSystem,
+} from '@/test/factories';
 
 import { GameShowSidebarRoot } from './GameShowSidebarRoot';
 
@@ -16,6 +22,11 @@ describe('Component: GameShowSidebarRoot', () => {
       system: createSystem({
         iconUrl: 'icon.jpg',
       }),
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet(),
+        }),
+      ],
     });
 
     const { container } = render(<GameShowSidebarRoot />, {
@@ -23,6 +34,7 @@ describe('Component: GameShowSidebarRoot', () => {
         game,
         hubs: [createGameSet()],
         playerAchievementChartBuckets: [],
+        topAchievers: [],
       },
     });
 

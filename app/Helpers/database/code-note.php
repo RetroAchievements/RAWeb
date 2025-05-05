@@ -1,40 +1,27 @@
 <?php
 
-use App\Enums\Permissions;
 use App\Models\MemoryNote;
 use App\Models\User;
 
-function loadCodeNotes(int $gameId): ?array
+function loadCodeNotes(int $gameId): array
 {
-    $query = "SELECT ua.display_name AS User, mn.address AS Address, mn.body AS Note
-              FROM memory_notes AS mn
-              LEFT JOIN UserAccounts AS ua ON ua.ID = mn.user_id
-              WHERE mn.game_id = '$gameId'
-              ORDER BY mn.Address ";
+    $codeNotes = MemoryNote::query()
+        ->with(['user' => function ($query) {
+            $query->withTrashed();
+        }])
+        ->where('game_id', $gameId)
+        ->orderBy('address')
+        ->get()
+        ->map(function ($note) {
+            return [
+                'User' => $note->user->display_name,
+                'Address' => $note->address_hex,
+                'Note' => $note->body,
+            ];
+        })
+        ->toArray();
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $codeNotesOut = [];
-
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            // Seamless :)
-            $db_entry['Address'] = sprintf("0x%06x", $db_entry['Address']);
-            $codeNotesOut[] = $db_entry;
-        }
-
-        return $codeNotesOut;
-    }
-
-    log_sql_fail();
-
-    return null;
-}
-
-function getCodeNotesData(int $gameId): array
-{
-    $codeNotesOut = loadCodeNotes($gameId);
-
-    return $codeNotesOut !== null ? $codeNotesOut : [];
+    return empty($codeNotes) ? [] : $codeNotes;
 }
 
 function getCodeNotes(int $gameId, ?array &$codeNotesOut): bool
@@ -42,46 +29,6 @@ function getCodeNotes(int $gameId, ?array &$codeNotesOut): bool
     $codeNotesOut = loadCodeNotes($gameId);
 
     return $codeNotesOut !== null;
-}
-
-function submitCodeNote2(string $username, int $gameID, int $address, string $note): bool
-{
-    /** @var ?User $user */
-    $user = User::whereName($username)->first();
-
-    if (!$user?->can('create', MemoryNote::class)) {
-        return false;
-    }
-
-    $addressHex = '0x' . str_pad(dechex($address), 6, '0', STR_PAD_LEFT);
-    $currentNotes = getCodeNotesData($gameID);
-    $i = array_search($addressHex, array_column($currentNotes, 'Address'));
-
-    // TODO use Eloquent ORM to determine if the operation is an update, and
-    // if so, use MemoryNotePolicy::update() instead of a legacy Permissions check.
-    $permissions = (int) $user->getAttribute('Permissions');
-
-    if (
-        $i !== false
-        && $permissions <= Permissions::JuniorDeveloper
-        && $currentNotes[$i]['User'] !== $user->display_name
-        && !empty($currentNotes[$i]['Note'])
-    ) {
-        return false;
-    }
-
-    MemoryNote::updateOrCreate(
-        [
-            'game_id' => $gameID,
-            'address' => $address,
-        ],
-        [
-            'user_id' => $user->ID,
-            'body' => $note,
-        ]
-    );
-
-    return true;
 }
 
 /**

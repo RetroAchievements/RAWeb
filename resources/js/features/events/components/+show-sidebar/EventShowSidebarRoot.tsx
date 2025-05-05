@@ -4,12 +4,12 @@ import { PlayableAchievementDistribution } from '@/common/components/PlayableAch
 import { PlayableBoxArtImage } from '@/common/components/PlayableBoxArtImage';
 import { PlayableCompareProgress } from '@/common/components/PlayableCompareProgress';
 import { PlayableHubsList } from '@/common/components/PlayableHubsList';
+import { PlayableTopPlayers } from '@/common/components/PlayableTopPlayers';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { EventAwardTiers } from '../EventAwardTiers';
 import { EventProgress } from '../EventProgress';
 import { EventSidebarFullWidthButtons } from '../EventSidebarFullWidthButtons';
-import { TopEventPlayers } from '../TopEventPlayers';
 
 export const EventShowSidebarRoot: FC = () => {
   const {
@@ -21,6 +21,10 @@ export const EventShowSidebarRoot: FC = () => {
     playerGame,
     topAchievers,
   } = usePageProps<App.Platform.Data.EventShowPageProps>();
+
+  const achievements = event.eventAchievements?.map(
+    (ea) => ea.achievement,
+  ) as App.Platform.Data.Achievement[];
 
   return (
     <div data-testid="sidebar" className="flex flex-col gap-6">
@@ -39,7 +43,13 @@ export const EventShowSidebarRoot: FC = () => {
         playerGame={playerGame}
         variant="event"
       />
-      <TopEventPlayers event={event} numMasters={numMasters} players={topAchievers} />
+      <PlayableTopPlayers
+        achievements={achievements}
+        game={event.legacyGame!}
+        numMasters={numMasters}
+        players={topAchievers}
+        variant="event"
+      />
     </div>
   );
 };

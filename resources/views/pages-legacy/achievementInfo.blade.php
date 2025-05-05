@@ -1,9 +1,10 @@
 <?php
 
-// TODO migrate to AchievementController::show() pages/achievement/show.blade.php
+// TODO migrate to AchievementController::show()
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Achievement;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
@@ -26,6 +27,8 @@ $achievementID = (int) request('achievement');
 if (empty($achievementID)) {
     abort(404);
 }
+
+$achievementModel = Achievement::find($achievementID);
 
 $dataOut = GetAchievementData($achievementID);
 if (empty($dataOut)) {
@@ -273,7 +276,16 @@ if ($game->system->id === System::Events) {
         if ($achFlags === AchievementFlag::Unofficial->value) {
             echo "<b>Unofficial Achievement</b><br>";
         }
-        echo "Created by " . userAvatar($author, icon: false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+        echo "Created by " . userAvatar($author, icon: false) . " on: $niceDateCreated<br>";
+
+        if (isset($achievementModel->activeMaintainer) && $author !== $achievementModel->activeMaintainer?->user?->display_name) {
+            $maintainer = $achievementModel->activeMaintainer;
+            $niceMaintainerStart = date("d M, Y H:i", strtotime($maintainer->effective_from));
+            echo "Maintained by " . userAvatar($maintainer->user, icon: false) . " since: $niceMaintainerStart<br>";
+        }
+
+        echo "Last modified: $niceDateModified<br>";
+
         echo "</small>";
         echo "</p>";
 

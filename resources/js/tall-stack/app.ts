@@ -25,8 +25,6 @@ import {
   getCookie,
   handleLeaderboardTabClick,
   initializeTextareaCounter,
-  injectShortcode,
-  loadPostPreview,
   setCookie,
   themeChange,
   toggleUserCompletedSetsVisibility,
@@ -50,8 +48,6 @@ window.getCookie = getCookie;
 window.getStringByteCount = getStringByteCount;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.initializeTextareaCounter = initializeTextareaCounter;
-window.injectShortcode = injectShortcode;
-window.loadPostPreview = loadPostPreview;
 window.setCookie = setCookie;
 window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
 window.updateUrlParameter = updateUrlParameter;

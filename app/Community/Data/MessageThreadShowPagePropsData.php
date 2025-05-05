@@ -16,6 +16,7 @@ class MessageThreadShowPagePropsData extends Data
         public PaginatedData $paginatedMessages,
         public ShortcodeDynamicEntitiesData $dynamicEntities,
         public bool $canReply,
+        public string $senderUserDisplayName,
     ) {
     }
 }

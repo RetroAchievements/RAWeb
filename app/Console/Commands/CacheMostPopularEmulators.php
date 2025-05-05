@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Models\DownloadsPopularityMetric;
 use App\Models\System;
 use App\Platform\Actions\GetPopularEmulatorIdsAction;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class CacheMostPopularEmulators extends Command
@@ -36,32 +36,40 @@ class CacheMostPopularEmulators extends Command
                 return;
             }
 
-            $this->info("Caching emulator popularity for {$system->name}...");
+            $this->info("Calculating emulator popularity for {$system->name}...");
 
             $popularEmulatorIds = $action->execute($system);
-            $cacheKey = "popular-emulators-for-system:{$system->id}";
-            Cache::put($cacheKey, $popularEmulatorIds, now()->addMonth());
+            $key = "popular-emulators-for-system:{$system->id}";
 
-            $this->info("Done. Cached [" . implode(', ', $popularEmulatorIds) . "].");
+            DownloadsPopularityMetric::updateOrCreate(
+                ['key' => $key],
+                ['ordered_ids' => $popularEmulatorIds]
+            );
+
+            $this->info("Done. Stored [" . implode(', ', $popularEmulatorIds) . "].");
 
             return;
         }
 
         // Process all active systems.
-        $this->info('Caching emulator popularity for all active systems...');
+        $this->info('Calculating emulator popularity for all active systems...');
 
         $activeSystems = System::active()->whereNotIn('ID', [System::Hubs, System::Events, System::Standalones])->get();
 
         foreach ($activeSystems as $system) {
             try {
                 $popularEmulatorIds = $action->execute($system);
-                $cacheKey = "popular-emulators-for-system:{$system->id}";
-                Cache::put($cacheKey, $popularEmulatorIds, now()->addMonth());
+                $key = "popular-emulators-for-system:{$system->id}";
+
+                DownloadsPopularityMetric::updateOrCreate(
+                    ['key' => $key],
+                    ['ordered_ids' => $popularEmulatorIds]
+                );
 
                 $this->newLine();
-                $this->info("Cached [" . implode(', ', $popularEmulatorIds) . "] for [{$system->id}:{$system->name}].");
+                $this->info("Stored [" . implode(', ', $popularEmulatorIds) . "] for [{$system->id}:{$system->name}].");
             } catch (Exception $e) {
-                Log::error("Error caching emulator popularity for system {$system->name}: " . $e->getMessage());
+                Log::error("Error calculating emulator popularity for system {$system->name}: " . $e->getMessage());
             }
         }
 
@@ -71,11 +79,15 @@ class CacheMostPopularEmulators extends Command
         $this->info('Calculating overall most popular emulators...');
         $overallPopularity = $action->execute();
 
-        // Cache with ID 0 to represent overall popularity.
-        $cacheKey = "popular-emulators-for-system:0";
-        Cache::put($cacheKey, $overallPopularity, now()->addMonth());
+        // Store with ID 0 to represent overall popularity.
+        $key = "popular-emulators-for-system:0";
 
-        $this->info("Cached overall most popular emulators [" . implode(', ', $overallPopularity) . "].");
+        DownloadsPopularityMetric::updateOrCreate(
+            ['key' => $key],
+            ['ordered_ids' => $overallPopularity]
+        );
+
+        $this->info("Stored overall most popular emulators [" . implode(', ', $overallPopularity) . "].");
         $this->info('Done.');
     }
 }

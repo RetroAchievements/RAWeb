@@ -8,7 +8,7 @@ import { useInView } from 'react-intersection-observer';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import type { LinkPrefetchBehavior } from '@/common/models';
 
-type InertiaLinkProps = Omit<OriginalInertiaLinkProps, 'prefetch'> & {
+export type InertiaLinkProps = Omit<OriginalInertiaLinkProps, 'prefetch'> & {
   /**
    * Controls prefetch behavior:
    * - never: Default. Do not prefetch this link under any circumstance.

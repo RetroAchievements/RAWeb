@@ -153,25 +153,9 @@ class Emulator extends BaseModel implements HasMedia
 
     public function getHasOfficialSupportAttribute(): bool
     {
-        // Officially supported emulators have at least one user agent registered in the DB.
-        if ($this->userAgents->isEmpty()) {
-            return false;
-        }
-
-        foreach ($this->userAgents as $userAgent) {
-            // Case 1: Has minimum_hardcore_version. This implies there's at least one
-            // version of the emulator out there which we fully support.
-            if ($userAgent->minimum_hardcore_version || $userAgent->minimum_allowed_version) {
-                return true;
-            }
-
-            // Case 2: Emulator is active and doesn't have minimum versions.
-            if ($this->active) {
-                return true;
-            }
-        }
-
-        return false;
+        // Officially supported emulators must be set to active and
+        // have at least one user agent registered in the DB.
+        return $this->active && !$this->userAgents->isEmpty();
     }
 
     // == mutators
