@@ -58,7 +58,7 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
             isInertiaLink={true}
             IconComponent={LuSearch}
           >
-            {t('Find Similar Games')}
+            {t('Find Related Games')}
           </PlayableSidebarButton>
 
           {can.manageGames || game.system?.active ? (
