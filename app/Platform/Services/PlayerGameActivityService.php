@@ -405,8 +405,8 @@ class PlayerGameActivityService
         $achievementsPublishedAt = $achievementSet->achievements_published_at;
 
         return [
-            'beatPlaytimeSoftcore' => $playerGame?->beaten_at ? $this->calculatePlaytime($achievementsPublishedAt, $playerGame->beaten_at, UnlockMode::Softcore) : null,
-            'beatPlaytimeHardcore' => $playerGame?->beaten_hardcore_at ? $this->calculatePlaytime($achievementsPublishedAt, $playerGame->beaten_hardcore_at, UnlockMode::Hardcore) : null,
+            'beatPlaytimeSoftcore' => $playerGame->beaten_at ? $this->calculatePlaytime($achievementsPublishedAt, $playerGame->beaten_at, UnlockMode::Softcore) : null,
+            'beatPlaytimeHardcore' => $playerGame->beaten_hardcore_at ? $this->calculatePlaytime($achievementsPublishedAt, $playerGame->beaten_hardcore_at, UnlockMode::Hardcore) : null,
         ];
     }
 
@@ -476,7 +476,7 @@ class PlayerGameActivityService
 
         $metrics['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($achievementsPublishedAt, $metrics['lastUnlockTimeSoftcore'], UnlockMode::Softcore);
         $metrics['achievementPlaytimeHardcore'] = $this->calculatePlaytime($achievementsPublishedAt, $metrics['lastUnlockTimeHardcore'], UnlockMode::Hardcore);
-        $metrics['devTime'] = $this->calculatePlaytime(null, $achievementsPublishedAt, 0, UnlockMode::Softcore);
+        $metrics['devTime'] = $this->calculatePlaytime(null, $achievementsPublishedAt, UnlockMode::Softcore);
 
         return $metrics;
     }

@@ -139,6 +139,9 @@ class UpdateGameMetricsAction
         }
     }
 
+    /**
+     * @param Builder<PlayerGame>|Builder<PlayerAchievementSet> $query 
+     */
     private function getMedian(Builder $query, string $field): array
     {
         $count = $query->count();
@@ -149,7 +152,7 @@ class UpdateGameMetricsAction
         if (($count % 2) == 1) {
             // odd. just get the middle item
             $median = $query->offset((int) ($count / 2))->limit(1)
-                ->orderBy($field)->pluck($field)->first();
+                ->orderBy($field)->first()->pluck($field);
         } else {
             // even. get the two items in the middle and average them together
             $values = $query->offset((int) ($count / 2) - 1)->limit(2)

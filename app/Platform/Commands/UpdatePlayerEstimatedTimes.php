@@ -49,7 +49,7 @@ class UpdatePlayerEstimatedTimes extends Command
 
                         $activityService = new PlayerGameActivityService();
                         $activityService->initialize($playerGame->user, $game);
-                        $summary = $activityService->summarize($playerGame);
+                        $summary = $activityService->summarize();
                         $beatSummary = $activityService->getBeatProgressMetrics($coreAchievementSet, $playerGame);
 
                         $playerGame->fill([
