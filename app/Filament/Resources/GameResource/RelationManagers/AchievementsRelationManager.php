@@ -174,7 +174,8 @@ class AchievementsRelationManager extends RelationManager
                                 ->body('Successfully assigned maintainer to selected achievement.')
                                 ->success()
                                 ->send();
-                        }),
+                        })
+                        ->visible(fn () => $user->can('assignMaintainer', Achievement::class)),
 
                     Tables\Actions\DeleteAction::make(),
                 ]),

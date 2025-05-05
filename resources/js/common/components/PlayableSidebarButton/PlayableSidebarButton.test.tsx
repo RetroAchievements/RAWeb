@@ -1,4 +1,5 @@
 import { LuWrench } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import { render, screen } from '@/test';
 

@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdClose } from 'react-icons/md';
 import { RxDotsVertical } from 'react-icons/rx';
+import { route } from 'ziggy-js';
 
 import { BaseDrawerTrigger } from '@/common/components/+vendor/BaseDrawer';
 import { GameAvatar } from '@/common/components/GameAvatar';

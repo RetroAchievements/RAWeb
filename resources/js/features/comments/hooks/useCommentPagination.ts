@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useCallback } from 'react';
 import type { RouteName } from 'ziggy-js';
+import { route } from 'ziggy-js';
 
 import type { ArticleType } from '@/common/utils/generatedAppConstants';
 

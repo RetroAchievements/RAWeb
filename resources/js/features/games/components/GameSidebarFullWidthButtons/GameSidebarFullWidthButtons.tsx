@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuBookText, LuFileCode, LuFileText, LuSearch, LuTickets, LuWrench } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import { GameCreateForumTopicButton } from '@/common/components/GameCreateForumTopicButton';
 import { PlayableOfficialForumTopicButton } from '@/common/components/PlayableOfficialForumTopicButton';
