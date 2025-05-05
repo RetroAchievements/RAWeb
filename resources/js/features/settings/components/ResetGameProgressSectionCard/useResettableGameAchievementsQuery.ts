@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { route } from 'ziggy-js';
 
 export function useResettableGameAchievementsQuery(gameId: string) {
   return useQuery({

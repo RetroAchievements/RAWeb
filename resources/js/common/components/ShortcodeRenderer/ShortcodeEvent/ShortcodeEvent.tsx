@@ -1,6 +1,7 @@
 import { useAtomValue } from 'jotai';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import { persistedEventsAtom } from '@/common/state/shortcode.atoms';
 

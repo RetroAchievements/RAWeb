@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { type FC, type FormEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuRefreshCcw } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {

@@ -1,3 +1,5 @@
+import { route } from 'ziggy-js';
+
 import { render, screen } from '@/test';
 
 import { ShortcodeUrl } from './ShortcodeUrl';

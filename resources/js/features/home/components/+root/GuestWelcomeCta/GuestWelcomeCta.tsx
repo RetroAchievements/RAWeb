@@ -1,6 +1,7 @@
 import { type FC, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuCircleAlert } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import {
   BaseAlert,

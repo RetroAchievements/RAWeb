@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import { EmptyState } from '@/common/components/EmptyState';
 import { usePageProps } from '@/common/hooks/usePageProps';

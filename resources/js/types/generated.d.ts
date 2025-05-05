@@ -494,8 +494,8 @@ declare namespace App.Platform.Data {
     pointsTotal: number;
     pointsWeighted: number;
     imageAssetPathUrl: string;
-    createdAt: string;
-    updatedAt: string;
+    createdAt: string | null;
+    updatedAt: string | null;
     achievements: Array<App.Platform.Data.Achievement>;
   };
   export type CreateAchievementTicketPageProps = {
@@ -581,8 +581,8 @@ declare namespace App.Platform.Data {
     type: App.Platform.Enums.AchievementSetType;
     title: string | null;
     orderColumn: number;
-    createdAt: string;
-    updatedAt: string;
+    createdAt: string | null;
+    updatedAt: string | null;
     achievementSet: App.Platform.Data.AchievementSet;
   };
   export type GameClaimant = {

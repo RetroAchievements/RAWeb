@@ -666,7 +666,6 @@ declare module 'ziggy-js' {
     "logout": [],
     "password.confirmation": [],
     "password.confirm": [],
-    "download.index": [],
     "user.show": [
         {
             "name": "user",
@@ -704,6 +703,7 @@ declare module 'ziggy-js' {
         }
     ],
     "home": [],
+    "download.index": [],
     "contact": [],
     "rss.index": [],
     "terms": [],

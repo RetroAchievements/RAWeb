@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import { BaseTableCell, BaseTableRow } from '@/common/components/+vendor/BaseTable';
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';

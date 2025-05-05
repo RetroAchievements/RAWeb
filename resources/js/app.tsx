@@ -7,6 +7,11 @@ import { AppProviders } from './common/components/AppProviders';
 import type { AppGlobalProps } from './common/models';
 import { loadDayjsLocale } from './common/utils/l10n/loadDayjsLocale';
 import i18n from './i18n-client';
+// @ts-expect-error -- this isn't a real ts module
+import { Ziggy } from './ziggy';
+
+// @ts-expect-error -- we're injecting this on purpose
+globalThis.Ziggy = Ziggy;
 
 const appName = import.meta.env.APP_NAME || 'RetroAchievements';
 

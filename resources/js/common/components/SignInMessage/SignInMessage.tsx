@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { Trans } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 export const SignInMessage: FC = () => {
   return (
