@@ -167,10 +167,14 @@ class ResumePlayerSessionAction
         if (!empty($activeAchievementSets)) {
             $playerAchievementSets = PlayerAchievementSet::whereIn('achievement_set_id', $activeAchievementSets)->get();
             foreach ($playerAchievementSets as $playerAchievementSet) {
-                $playerAchievementSet->time_taken += $adjustment;
+                if (!$playerAchievementSet->completed_at) {
+                    $playerAchievementSet->time_taken += $adjustment;
+                }
 
-                if ($playerSession->hardcore || $playerGame->user->RAPoints > $playerGame->user->RASoftcorePoints) {
-                    $playerAchievementSet->time_taken_hardcore += $adjustment;
+                if (!$playerAchievementSet->completed_hardcore_at) {
+                    if ($playerSession->hardcore || $playerGame->user->RAPoints > $playerGame->user->RASoftcorePoints) {
+                        $playerAchievementSet->time_taken_hardcore += $adjustment;
+                    }
                 }
 
                 $playerAchievementSet->save();

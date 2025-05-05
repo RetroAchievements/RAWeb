@@ -187,7 +187,7 @@ class ResumePlayerSessionActionTest extends TestCase
         $this->assertEquals(342, $playerAchievementSet->time_taken);
         $this->assertEquals(0, $playerAchievementSet->time_taken_hardcore); // eliminate hardcore assumption
 
-        // ===== fourth ping two second after third =====
+        // ===== fourth ping two minutes after third =====
         $fourthPingAt = $thirdPingAt->clone()->addMinutes(2);
         Carbon::setTestNow($fourthPingAt);
         $action = new ResumePlayerSessionAction();
@@ -206,5 +206,42 @@ class ResumePlayerSessionActionTest extends TestCase
         $this->assertEquals(402, $playerAchievementSet->time_taken); // ping adjustments always rounded to nearest minute. will be fixed on next unlock
         $this->assertEquals(0, $playerAchievementSet->time_taken_hardcore); // hardcore assumed
 
+        // ===== softcore unlock 41 seconds later =====
+        $achievement = $game->achievements->skip(2)->first();
+        $thirdUnlockAt = $fourthPingAt->clone()->addSeconds(41);
+        Carbon::setTestNow($thirdUnlockAt);
+        (new UnlockPlayerAchievementAction())->execute($user, $achievement, false, $thirdUnlockAt, null, $gameHash);
+
+        $playerGame->refresh();
+        $this->assertEquals($thirdUnlockAt, $playerGame->last_played_at);
+        $this->assertEquals(431, $playerGame->playtime_total);
+
+        $playerSession->refresh();
+        $this->assertEquals('Level 2', $playerSession->rich_presence);
+        $this->assertEquals($thirdUnlockAt, $playerSession->rich_presence_updated_at);
+        $this->assertEquals(7, $playerSession->duration); // session duration, in minutes
+
+        $playerAchievementSet->refresh();
+        $this->assertEquals(431, $playerAchievementSet->time_taken); // ping adjustments always rounded to nearest minute. will be fixed on next unlock
+        $this->assertEquals(0, $playerAchievementSet->time_taken_hardcore); // hardcore assumed
+
+        // ===== achievement set stops tracking time when beaten =====
+        $fifthPingAt = $fourthPingAt->clone()->addMinutes(2);
+        Carbon::setTestNow($fifthPingAt);
+        $action = new ResumePlayerSessionAction();
+        $action->execute($user, $game, $gameHash, 'Victory');
+
+        $playerGame->refresh();
+        $this->assertEquals($fifthPingAt, $playerGame->last_played_at);
+        $this->assertEquals(491, $playerGame->playtime_total); // ping adjustments always rounded to nearest minute. will be fixed on next unlock
+
+        $playerSession->refresh();
+        $this->assertEquals('Victory', $playerSession->rich_presence);
+        $this->assertEquals($fifthPingAt, $playerSession->rich_presence_updated_at);
+        $this->assertEquals(8, $playerSession->duration); // session duration, in minutes
+
+        $playerAchievementSet->refresh();
+        $this->assertEquals(431, $playerAchievementSet->time_taken); // set tracking stops when completed
+        $this->assertEquals(0, $playerAchievementSet->time_taken_hardcore); // hardcore assumed
     }
 }
