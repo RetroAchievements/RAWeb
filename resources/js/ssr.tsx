@@ -38,7 +38,7 @@ createServer(
 
       render: ReactDOMServer.renderToString,
 
-      title: (title) => (title ? `${title} · ${appName}` : appName),
+      title: (title) => (title && title !== appName ? `${title} · ${appName}` : appName),
 
       resolve: (name) =>
         resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
