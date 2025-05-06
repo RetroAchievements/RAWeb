@@ -244,4 +244,155 @@ class ResumePlayerSessionActionTest extends TestCase
         $this->assertEquals(431, $playerAchievementSet->time_taken); // set tracking stops when completed
         $this->assertEquals(0, $playerAchievementSet->time_taken_hardcore); // hardcore assumed
     }
+
+    public function testResumeDeveloperSession(): void
+    {
+        $sessionStartAt = Carbon::parse('2025-04-01 12:34:56');
+        Carbon::setTestNow($sessionStartAt);
+
+        $user = $this->seedUser();
+        $game = $this->seedGame();
+        $gameHash = $game->hashes->first();
+        $coreAchievementSet = $game->achievementSets()->where('type', AchievementSetType::Core)->first();
+
+        // ===== new session =====
+        $action = new ResumePlayerSessionAction();
+        $action->execute($user, $game, $gameHash);
+
+        $playerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $game->id)->first();
+        $this->assertNotNull($playerGame);
+        $this->assertEquals(0, $playerGame->achievements_unlocked);
+        $this->assertEquals(0, $playerGame->achievements_unlocked_hardcore);
+        $this->assertEquals(0, $playerGame->completion_percentage);
+        $this->assertEquals(0, $playerGame->completion_percentage_hardcore);
+        $this->assertEquals($sessionStartAt, $playerGame->last_played_at);
+        $this->assertEquals(0, $playerGame->playtime_total);
+        $this->assertEquals(0, $playerGame->time_to_beat);
+        $this->assertEquals(0, $playerGame->time_to_beat_hardcore);
+        $this->assertEquals(null, $playerGame->beaten_dates);
+        $this->assertEquals(null, $playerGame->beaten_dates_hardcore);
+        $this->assertEquals(null, $playerGame->completion_dates);
+        $this->assertEquals(null, $playerGame->completion_dates_hardcore);
+        $this->assertEquals(null, $playerGame->beaten_at);
+        $this->assertEquals(null, $playerGame->beaten_hardcore_at);
+        $this->assertEquals(null, $playerGame->completed_at);
+        $this->assertEquals(null, $playerGame->completed_hardcore_at);
+        $this->assertEquals(null, $playerGame->last_unlock_at); // used as tiebreaker for game rankings; returned by API_GetUserCompletionProgress
+        $this->assertEquals(null, $playerGame->last_unlock_hardcore_at); // used as tiebreaker for game rankings
+        $this->assertEquals(null, $playerGame->first_unlock_at); // returned by API_GetUserCompletionProgress
+        $this->assertEquals(0, $playerGame->points);
+        $this->assertEquals(0, $playerGame->points_hardcore);
+        $this->assertEquals(0, $playerGame->points_weighted);
+
+        $playerSession = PlayerSession::where('user_id', $user->id)->where('game_id', $game->id)->first();
+        $this->assertNotNull($playerSession);
+        $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
+        $this->assertEquals(0, $playerSession->hardcore);
+        $this->assertEquals('Playing ' . $game->title, $playerSession->rich_presence);
+        $this->assertEquals($sessionStartAt, $playerSession->rich_presence_updated_at);
+        $this->assertEquals(1, $playerSession->duration); // initial session always 1 minute
+
+        $playerAchievementSet = PlayerAchievementSet::where('user_id', $user->id)
+            ->where('achievement_set_id', $coreAchievementSet->id)
+            ->first();
+        $this->assertNotNull($playerAchievementSet);
+        $this->assertEquals(0, $playerAchievementSet->achievements_unlocked);
+        $this->assertEquals(0, $playerAchievementSet->achievements_unlocked_hardcore);
+        $this->assertEquals(0, $playerAchievementSet->achievements_unlocked_softcore); // (unlocked - unlocked_hardcore); denormalized for distribution graph
+        $this->assertEquals(0, $playerAchievementSet->completion_percentage);
+        $this->assertEquals(0, $playerAchievementSet->completion_percentage_hardcore);
+        $this->assertEquals(0, $playerAchievementSet->time_taken);
+        $this->assertEquals(0, $playerAchievementSet->time_taken_hardcore);
+        $this->assertEquals(null, $playerAchievementSet->completed_at);
+        $this->assertEquals(null, $playerAchievementSet->completed_hardcore_at);
+        $this->assertEquals(null, $playerAchievementSet->completion_dates);
+        $this->assertEquals(null, $playerAchievementSet->completion_dates_hardcore);
+        $this->assertEquals(null, $playerAchievementSet->last_unlock_at); // used as tiebreaker for game rankings; returned by API_GetUserCompletionProgress
+        $this->assertEquals(null, $playerAchievementSet->last_unlock_hardcore_at); // used as tiebreaker for game rankings
+        $this->assertEquals(0, $playerAchievementSet->points);
+        $this->assertEquals(0, $playerAchievementSet->points_hardcore);
+        $this->assertEquals(0, $playerAchievementSet->points_weighted);
+
+        // ===== first ping at 30 seconds (less than a minute has elapsed, no playtime will be captured) =====
+        $firstPingAt = $sessionStartAt->clone()->addSeconds(30);
+        Carbon::setTestNow($firstPingAt);
+        $action = new ResumePlayerSessionAction();
+        $action->execute($user, $game, $gameHash, 'Developing Achievements');
+
+        $playerGame->refresh();
+        $this->assertEquals($firstPingAt, $playerGame->last_played_at);
+        $this->assertEquals(0, $playerGame->playtime_total);
+
+        $playerSession->refresh();
+        $this->assertEquals('Developing Achievements', $playerSession->rich_presence);
+        $this->assertEquals($firstPingAt, $playerSession->rich_presence_updated_at);
+        $this->assertEquals(1, $playerSession->duration);
+
+        $playerAchievementSet->refresh();
+        $this->assertEquals(0, $playerAchievementSet->time_taken);
+        $this->assertEquals(0, $playerAchievementSet->time_taken_hardcore);
+
+        // ===== second ping two minutes later, playtime will start to accumulate =====
+        $secondPingAt = $firstPingAt->clone()->addMinutes(2);
+        Carbon::setTestNow($secondPingAt);
+        $action = new ResumePlayerSessionAction();
+        $action->execute($user, $game, $gameHash, 'Developing Achievements');
+
+        $playerGame->refresh();
+        $this->assertEquals($secondPingAt, $playerGame->last_played_at);
+        $this->assertEquals(120, $playerGame->playtime_total); // session duration, in seconds
+
+        $playerSession->refresh();
+        $this->assertEquals('Developing Achievements', $playerSession->rich_presence);
+        $this->assertEquals($secondPingAt, $playerSession->rich_presence_updated_at);
+        $this->assertEquals(2, $playerSession->duration); // session duration, in minutes
+
+        $playerAchievementSet->refresh();
+        $this->assertEquals(0, $playerAchievementSet->time_taken); // no time logged on set until achievements published
+        $this->assertEquals(0, $playerAchievementSet->time_taken_hardcore);
+
+        // ===== third ping two minutes after second =====
+        $thirdPingAt = $secondPingAt->clone()->addMinutes(2);
+        Carbon::setTestNow($thirdPingAt);
+        $action = new ResumePlayerSessionAction();
+        $action->execute($user, $game, $gameHash, 'Developing Achievements');
+
+        $playerGame->refresh();
+        $this->assertEquals($thirdPingAt, $playerGame->last_played_at);
+        $this->assertEquals(240, $playerGame->playtime_total); // ping adjustments always rounded to nearest minute. will be fixed on next unlock
+
+        $playerSession->refresh();
+        $this->assertEquals('Developing Achievements', $playerSession->rich_presence);
+        $this->assertEquals($thirdPingAt, $playerSession->rich_presence_updated_at);
+        $this->assertEquals(4, $playerSession->duration); // session duration, in minutes
+
+        $playerAchievementSet->refresh();
+        $this->assertEquals(0, $playerAchievementSet->time_taken);
+        $this->assertEquals(0, $playerAchievementSet->time_taken_hardcore);
+
+        // ===== simulate achievements published (no achievements actually exist) =====
+        $publishedAt = $thirdPingAt->clone()->addSeconds(21);
+        Carbon::setTestNow($publishedAt);
+        $coreAchievementSet->achievements_published_at = $publishedAt;
+        $coreAchievementSet->save();
+
+        // ===== fourth ping two minutes after third (player achievement set should start tracking time now) =====
+        $fourthPingAt = $thirdPingAt->clone()->addMinutes(2);
+        Carbon::setTestNow($fourthPingAt);
+        $action = new ResumePlayerSessionAction();
+        $action->execute($user, $game, $gameHash, 'Developing Achievements');
+
+        $playerGame->refresh();
+        $this->assertEquals($fourthPingAt, $playerGame->last_played_at);
+        $this->assertEquals(360, $playerGame->playtime_total);
+
+        $playerSession->refresh();
+        $this->assertEquals('Developing Achievements', $playerSession->rich_presence);
+        $this->assertEquals($fourthPingAt, $playerSession->rich_presence_updated_at);
+        $this->assertEquals(6, $playerSession->duration); // session duration, in minutes
+
+        $playerAchievementSet->refresh();
+        $this->assertEquals(120, $playerAchievementSet->time_taken); // ping adjustments always rounded to nearest minute.
+        $this->assertEquals(0, $playerAchievementSet->time_taken_hardcore);
+    }
 }

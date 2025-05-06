@@ -165,7 +165,12 @@ class ResumePlayerSessionAction
         }
 
         if (!empty($activeAchievementSets)) {
-            $playerAchievementSets = PlayerAchievementSet::whereIn('achievement_set_id', $activeAchievementSets)->get();
+            $playerAchievementSets = PlayerAchievementSet::query()
+                ->whereIn('achievement_set_id', $activeAchievementSets)
+                ->whereHas('achievementSet', function ($query) {
+                    $query->whereNotNull('achievements_published_at');
+                })
+                ->get();
             foreach ($playerAchievementSets as $playerAchievementSet) {
                 if (!$playerAchievementSet->completed_at) {
                     $playerAchievementSet->time_taken += $adjustment;

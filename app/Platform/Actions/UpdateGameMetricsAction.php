@@ -140,7 +140,7 @@ class UpdateGameMetricsAction
     }
 
     /**
-     * @param Builder<PlayerGame>|Builder<PlayerAchievementSet> $query 
+     * @param Builder<PlayerGame>|Builder<PlayerAchievementSet> $query
      */
     private function getMedian(Builder $query, string $field): array
     {
