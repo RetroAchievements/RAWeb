@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useState } from 'react';
+import { route } from 'ziggy-js';
 
 /**
  * TODO in the future, support multiple kinds of searches.

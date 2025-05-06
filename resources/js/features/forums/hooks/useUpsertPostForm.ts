@@ -5,6 +5,7 @@ import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';

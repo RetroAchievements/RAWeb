@@ -1,6 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { resetIntersectionMocking } from 'react-intersection-observer/test-utils';
+import { route } from 'ziggy-js';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';

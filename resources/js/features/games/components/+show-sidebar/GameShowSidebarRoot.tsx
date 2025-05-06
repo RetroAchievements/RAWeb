@@ -7,6 +7,8 @@ import { PlayableHubsList } from '@/common/components/PlayableHubsList';
 import { PlayableTopPlayers } from '@/common/components/PlayableTopPlayers';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { GameSidebarFullWidthButtons } from '../GameSidebarFullWidthButtons';
+
 export const GameShowSidebarRoot: FC = () => {
   const {
     followedPlayerCompletions,
@@ -27,6 +29,7 @@ export const GameShowSidebarRoot: FC = () => {
   return (
     <div data-testid="sidebar" className="flex flex-col gap-6">
       <PlayableBoxArtImage src={game.imageBoxArtUrl} />
+      <GameSidebarFullWidthButtons game={game} />
       <PlayableHubsList hubs={hubs} />
       <PlayableCompareProgress
         followedPlayerCompletions={followedPlayerCompletions}

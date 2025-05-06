@@ -3,6 +3,7 @@ import type { ColumnFiltersState } from '@tanstack/react-table';
 import axios from 'axios';
 import { useRef } from 'react';
 import type { RouteName } from 'ziggy-js';
+import { route } from 'ziggy-js';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildGameListQueryFilterParams } from '@/features/game-list/utils/buildGameListQueryFilterParams';
