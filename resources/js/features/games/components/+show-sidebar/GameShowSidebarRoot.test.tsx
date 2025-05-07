@@ -32,6 +32,7 @@ describe('Component: GameShowSidebarRoot', () => {
     const { container } = render(<GameShowSidebarRoot />, {
       pageProps: {
         game,
+        can: {},
         hubs: [createGameSet()],
         playerAchievementChartBuckets: [],
         topAchievers: [],
