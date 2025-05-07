@@ -94,7 +94,7 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
           >
             {pageOptions.map((pageNumber) => (
               <Fragment key={`page-value-${pageNumber}`}>
-                {ziggy.device === 'desktop' ? (
+                {ziggy && ziggy.device === 'desktop' ? (
                   <option value={pageNumber.toString()}>
                     {t('Page {{pageNumber, number}}', { pageNumber })}
                   </option>
