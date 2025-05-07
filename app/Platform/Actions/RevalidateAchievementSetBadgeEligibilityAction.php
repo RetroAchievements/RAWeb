@@ -20,7 +20,6 @@ class RevalidateAchievementSetBadgeEligibilityAction
     public function execute(PlayerGame $playerGame): void
     {
         // TODO do this for each player_achievement_set as soon as achievement set separation is introduced
-        //      AchievementSetCompleted::dispatch($user, $achievementSet, $hardcore);
 
         if (!$playerGame->user) {
             return;
