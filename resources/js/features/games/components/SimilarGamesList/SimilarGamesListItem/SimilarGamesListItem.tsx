@@ -72,9 +72,7 @@ export const SimilarGamesListItem: FC<SimilarGamesListItemProps> = ({ game }) =>
         <p
           className={cn(
             'flex items-center gap-1 text-2xs',
-            game.achievementsPublished === 0
-              ? 'text-neutral-600 light:text-neutral-400'
-              : 'text-neutral-300 light:text-neutral-700',
+            game.achievementsPublished === 0 ? 'text-neutral-600 light:text-neutral-400' : null,
           )}
         >
           {t('{{val, number}} points', {
