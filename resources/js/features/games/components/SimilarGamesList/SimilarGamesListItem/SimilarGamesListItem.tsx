@@ -61,7 +61,9 @@ export const SimilarGamesListItem: FC<SimilarGamesListItemProps> = ({ game }) =>
         <p
           className={cn(
             'flex items-center gap-1 text-xs',
-            game.achievementsPublished === 0 ? 'text-neutral-600' : 'text-neutral-300',
+            game.achievementsPublished === 0
+              ? 'text-neutral-600 light:text-neutral-400'
+              : 'text-neutral-300 light:text-neutral-700',
           )}
         >
           <FaTrophy /> {game.achievementsPublished}
@@ -70,7 +72,9 @@ export const SimilarGamesListItem: FC<SimilarGamesListItemProps> = ({ game }) =>
         <p
           className={cn(
             'flex items-center gap-1 text-2xs',
-            game.achievementsPublished === 0 ? 'text-neutral-600' : null,
+            game.achievementsPublished === 0
+              ? 'text-neutral-600 light:text-neutral-400'
+              : 'text-neutral-300 light:text-neutral-700',
           )}
         >
           {t('{{val, number}} points', {
