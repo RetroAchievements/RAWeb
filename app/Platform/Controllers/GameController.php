@@ -96,8 +96,6 @@ class GameController extends Controller
         $game = $loadGameWithRelationsAction->execute($game, AchievementFlag::OfficialCore);
         $props = $buildGameShowPagePropsAction->execute($game, $user);
 
-        // dd(json_encode($props, JSON_PRETTY_PRINT));
-
         return Inertia::render('game/[game]', $props);
     }
 
