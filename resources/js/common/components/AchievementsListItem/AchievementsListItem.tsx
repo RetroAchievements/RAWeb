@@ -45,7 +45,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 
   return (
     <motion.li
-      className="flex w-full gap-x-3 px-2 py-3 odd:bg-[rgba(50,50,50,0.4)] light:odd:bg-neutral-100 md:py-1"
+      className="flex w-full gap-x-3.5 px-2 py-3 odd:bg-[rgba(50,50,50,0.4)] light:odd:bg-neutral-100 md:gap-x-3 md:py-1"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
@@ -56,7 +56,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
           : Math.min(index * 0.015, 0.2), // Cap at 200ms for small lists
       }}
     >
-      <div className="flex flex-col gap-y-1 self-center">
+      <div className="flex flex-col gap-y-1 md:mt-1">
         <AchievementAvatar
           {...achievement}
           showLabel={false}
@@ -66,12 +66,12 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
         />
       </div>
 
-      <div className="mt-1 grid w-full gap-x-5 gap-y-1.5 leading-4 md:grid-cols-6">
+      <div className="grid w-full gap-x-5 gap-y-1.5 leading-4 md:grid-cols-6">
         {/* Title and description area */}
         <div className="md:col-span-4">
           <div className="mb-0.5 flex justify-between gap-x-2">
             {/* Title */}
-            <div className="-mt-2 mb-0.5 md:mt-0">
+            <div className="-mt-1 mb-0.5 md:mt-0">
               <span className="mr-2">
                 <a href={route('achievement.show', { achievement })} className="font-medium">
                   {title}
@@ -119,7 +119,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 
         {/* Progress bar and stats area */}
         {playersTotal !== null ? (
-          <div className="md:col-span-2 md:flex md:flex-col-reverse md:justify-end md:gap-y-1 md:pt-1">
+          <div className="mt-1 md:col-span-2 md:flex md:flex-col-reverse md:justify-end md:gap-y-1 md:pt-1">
             {/* Meta chips (Desktop) */}
             {type ? (
               <div className="hidden items-center justify-end gap-x-1 md:flex">
