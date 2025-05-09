@@ -10,6 +10,7 @@ import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 import { AchievementDateMeta } from './AchievementDateMeta';
 import { AchievementGameTitle } from './AchievementGameTitle';
 import { AchievementPoints } from './AchievementPoints';
+import { AchievementTypeIndicator } from './AchievementTypeIndicator';
 import { ProgressBarMetaText } from './ProgressBarMetaText';
 
 interface AchievementsListItemProps {
@@ -35,7 +36,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const { title, description, game } = achievement;
+  const { description, game, title, type } = achievement;
 
   const unlockPercentage = achievement.unlockPercentage ? Number(achievement.unlockPercentage) : 0;
 
@@ -96,11 +97,13 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
             </div>
 
             {/* Meta chips (Mobile) */}
-            {/* <div className="-mt-1.5 flex items-center gap-x-1 md:hidden">
-              <div className="-mt-1.5">
-
+            {type ? (
+              <div className="-mt-1.5 flex items-center gap-x-1 md:hidden">
+                <div className="-mt-1.5">
+                  <AchievementTypeIndicator type={type} />
+                </div>
               </div>
-            </div> */}
+            ) : null}
           </div>
 
           {/* Description */}
@@ -117,8 +120,12 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
         {/* Progress bar and stats area */}
         {playersTotal !== null ? (
           <div className="md:col-span-2 md:flex md:flex-col-reverse md:justify-end md:gap-y-1 md:pt-1">
-            {/* Meta chips */}
-            {/* <div className="hidden items-center justify-end gap-x-1 md:flex"></div> */}
+            {/* Meta chips (Desktop) */}
+            {type ? (
+              <div className="hidden items-center justify-end gap-x-1 md:flex">
+                <AchievementTypeIndicator type={type} />
+              </div>
+            ) : null}
 
             <p className="-mt-1.5 hidden text-center text-2xs md:block">
               {t('{{percentage}} unlock rate', {
