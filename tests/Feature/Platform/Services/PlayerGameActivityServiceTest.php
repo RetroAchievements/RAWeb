@@ -148,7 +148,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
         $this->assertEquals($time5->timestamp, $session['startTime']->timestamp);
         $this->assertEquals(60, $session['duration']); // new session always has 1 minute duration
-        $this->assertEquals($time5->clone()->addMinutes(1)->timestamp, $session['endTime']->timestamp);
+        $this->assertEquals($time5->timestamp, $session['endTime']->timestamp); // actual duration captured by last_played_at - start time
         $this->assertEquals(1, count($session['events']));
         $this->assertRichPresenceEvent($session['events'][0], $playerSession2->rich_presence, $time5);
 
@@ -171,7 +171,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
         $this->assertEquals($time5->timestamp, $session['startTime']->timestamp);
         $this->assertEquals(60, $session['duration']); // new session always has 1 minute duration
-        $this->assertEquals($time5->clone()->addMinutes(1)->timestamp, $session['endTime']->timestamp);
+        $this->assertEquals($time5->timestamp, $session['endTime']->timestamp);
         $this->assertEquals(1, count($session['events']));
         $this->assertRichPresenceEvent($session['events'][0], $playerSession2->rich_presence, $time5);
 
@@ -205,7 +205,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
         $this->assertEquals($time5->timestamp, $session['startTime']->timestamp);
         $this->assertEquals(60, $session['duration']); // new session always has 1 minute duration
-        $this->assertEquals($time5->clone()->addMinutes(1)->timestamp, $session['endTime']->timestamp);
+        $this->assertEquals($time5->timestamp, $session['endTime']->timestamp);
         $this->assertEquals(1, count($session['events']));
         $this->assertRichPresenceEvent($session['events'][0], $playerSession2->rich_presence, $time5);
 

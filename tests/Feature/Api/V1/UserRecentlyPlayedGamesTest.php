@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
-use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\PlayerGame;
-use App\Models\System;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -42,33 +40,38 @@ class UserRecentlyPlayedGamesTest extends TestCase
 
     public function testGetUserRecentlyPlayedGames(): void
     {
-        /** @var System $system */
-        $system = System::factory()->create();
-        /** @var Game $game */
-        $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+        $game = $this->seedGame(achievements: 3);
+        $game->fill([
             'ImageIcon' => '/Images/001234.png',
             'ImageTitle' => '/Images/000002.png',
             'ImageIngame' => '/Images/000003.png',
             'ImageBoxArt' => '/Images/000004.png',
         ]);
-        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
-        /** @var Game $game2 */
-        $game2 = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+        $game->save();
+        $publishedAchievements = $game->achievements;
+        $game2 = $this->seedGame();
+        $game2->fill([
             'ImageTitle' => '/Images/000005.png',
             'ImageIngame' => '/Images/000006.png',
             'ImageBoxArt' => '/Images/000007.png',
         ]);
+        $game2->save();
         /** @var User $user */
         $user = User::factory()->create();
 
+        $unlockTime = Carbon::now()->subDays(1);
         $hardcoreAchievement = $publishedAchievements->get(0);
-        $this->addHardcoreUnlock($user, $hardcoreAchievement, Carbon::now()->subDays(1));
+        $this->addHardcoreUnlock($user, $hardcoreAchievement, $unlockTime);
         $softcoreAchievement = $publishedAchievements->get(1);
-        $this->addSoftcoreUnlock($user, $softcoreAchievement, Carbon::now()->subDays(1));
+        $this->addSoftcoreUnlock($user, $softcoreAchievement, $unlockTime);
+
+        $playerSession = $user->playerSessions()->where('game_id', $game->id)->first();
+        $playerSession->rich_presence_updated_at = $unlockTime;
+        $playerSession->save();
 
         $playerGame = $user->playerGame($game);
+        $playerGame->last_played_at = $unlockTime;
+        $playerGame->save();
 
         // addHardcoreUnlock will create a player_game for game. need to manually create one for game2
         $playerGame2 = new PlayerGame([
@@ -85,8 +88,8 @@ class UserRecentlyPlayedGamesTest extends TestCase
                 [
                     'GameID' => $game2->ID,
                     'Title' => $game2->Title,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
+                    'ConsoleID' => $game2->system->ID,
+                    'ConsoleName' => $game2->system->Name,
                     'ImageIcon' => $game2->ImageIcon,
                     'ImageTitle' => $game2->ImageTitle,
                     'ImageIngame' => $game2->ImageIngame,
@@ -102,8 +105,8 @@ class UserRecentlyPlayedGamesTest extends TestCase
                 [
                     'GameID' => $game->ID,
                     'Title' => $game->Title,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
+                    'ConsoleID' => $game->system->ID,
+                    'ConsoleName' => $game->system->Name,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageTitle' => $game->ImageTitle,
                     'ImageIngame' => $game->ImageIngame,

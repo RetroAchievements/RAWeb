@@ -6,10 +6,13 @@ namespace Tests;
 
 use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
+use App\Models\AchievementSet;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\GameHash;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Enums\AchievementSetType;
 use Database\Seeders\Concerns\SeedsUsers;
 use Database\Seeders\RolesTableSeeder;
 use Database\Seeders\UsersTableSeeder;
@@ -86,6 +89,20 @@ abstract class TestCase extends BaseTestCase
             });
         }
 
+        $games->each(function (Game $game): bool {
+            $achievementSet = new AchievementSet();
+            $achievementSet->save();
+            $gameAchievementSet = new GameAchievementSet([
+                'game_id' => $game->id,
+                'achievement_set_id' => $achievementSet->id,
+                'type' => AchievementSetType::Core,
+                'title' => $game->title,
+            ]);
+            $gameAchievementSet->save();
+
+            return true;
+        });
+
         if ($achievementsAmount > 0) {
             $games->each(fn (Game $game) => (bool) $this->seedAchievements($achievementsAmount, $game));
         }
@@ -111,6 +128,16 @@ abstract class TestCase extends BaseTestCase
         $achievements = $game->achievements()->saveMany(Achievement::factory()->published()->count($amount)->create());
 
         $game->achievements_published += $amount;
+
+        $achievementSet = GameAchievementSet::where('game_id', $game->id)->first()->achievementSet;
+        $achievementSet->achievements_published += $amount;
+
+        foreach ($achievements as $achievement) {
+            $achievementSet->achievements()->attach($achievement->id);
+            $game->points_total += $achievement->points;
+        }
+        $achievementSet->save();
+
         $game->save();
 
         return $achievements;

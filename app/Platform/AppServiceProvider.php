@@ -54,6 +54,7 @@ use App\Platform\Commands\UpdateGameMetrics;
 use App\Platform\Commands\UpdateGamePlayerGames;
 use App\Platform\Commands\UpdateLeaderboardMetrics;
 use App\Platform\Commands\UpdatePlayerBeatenGamesStats;
+use App\Platform\Commands\UpdatePlayerEstimatedTimes;
 use App\Platform\Commands\UpdatePlayerGameMetrics;
 use App\Platform\Commands\UpdatePlayerMetrics;
 use App\Platform\Commands\UpdatePlayerPointsStats;
@@ -94,6 +95,7 @@ class AppServiceProvider extends ServiceProvider
                 // Players
                 ResetPlayerAchievement::class,
                 UnlockPlayerAchievement::class,
+                UpdatePlayerEstimatedTimes::class,
                 UpdatePlayerGameMetrics::class,
                 UpdatePlayerMetrics::class,
 
