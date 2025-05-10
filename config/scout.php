@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Game;
+use App\Models\User;
 
 return [
 
@@ -142,6 +143,12 @@ return [
                 'filterableAttributes' => ['id', 'title'],
                 'searchableAttributes' => ['title', 'id'],
                 'sortableAttributes' => ['id', 'title'],
+            ],
+
+            User::class => [
+                'searchableAttributes' => ['display_name', 'username'],
+                'sortableAttributes' => ['display_name', 'username'],
+                'filterableAttributes' => ['display_name', 'username'],
             ],
         ],
     ],
