@@ -152,7 +152,7 @@
         "test": "@php artisan test --env=testing",
         "types": [
             "@php artisan typescript:generate",
-            "@php artisan ziggy:generate --types-only"
+            "@php artisan ziggy:generate --types"
         ]
     },
     "scripts-descriptions": {

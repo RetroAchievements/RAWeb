@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
+import { route } from 'ziggy-js';
 
 import { render, screen, waitFor } from '@/test';
 import { createForum, createForumCategory } from '@/test/factories';

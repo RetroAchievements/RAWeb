@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { route } from 'ziggy-js';
 
 import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';

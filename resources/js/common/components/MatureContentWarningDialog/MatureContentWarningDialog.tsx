@@ -1,5 +1,6 @@
 import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 

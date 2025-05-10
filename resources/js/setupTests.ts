@@ -5,7 +5,11 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 
 import { loadFaker } from './test/createFactory';
+// @ts-expect-error -- this isn't a real ts module
+import { Ziggy } from './ziggy';
 
+// @ts-expect-error -- we're injecting this on purpose
+globalThis.Ziggy = Ziggy;
 process.env.TZ = 'UTC';
 
 beforeAll(async () => {
@@ -38,9 +42,10 @@ beforeAll(() => {
 
 beforeEach(() => {
   // We'll directly dump all arguments given to Ziggy's route() function.
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tests are ok
-  (global.route as any) = vi.fn((...args: any[]) => args);
+  vi.mock('ziggy-js', () => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tests are ok
+    route: vi.fn((...args: any[]) => args),
+  }));
 });
 
 // window.matchMedia is undefined by default in JSDOM.

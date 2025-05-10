@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuMessageCircle } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { GameAvatar } from '@/common/components/GameAvatar';

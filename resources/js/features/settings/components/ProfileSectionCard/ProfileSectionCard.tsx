@@ -3,6 +3,7 @@ import axios from 'axios';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCircleAlert } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {

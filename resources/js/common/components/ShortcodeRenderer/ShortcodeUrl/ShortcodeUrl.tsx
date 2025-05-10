@@ -1,5 +1,6 @@
 import type { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 interface ShortcodeUrlProps {
   children: ReactNode;

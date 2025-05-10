@@ -363,10 +363,11 @@ declare namespace App.Data {
     develop?: boolean;
     lockForumTopic?: boolean;
     manageEmulators?: boolean;
+    manageEvents?: boolean;
     manageForumTopicComments?: boolean;
     manageForumTopics?: boolean;
-    manageEvents?: boolean;
     manageGameHashes?: boolean;
+    manageGames?: boolean;
     manageGameSets?: boolean;
     manipulateApiKeys?: boolean;
     updateAvatar?: boolean;
@@ -494,8 +495,8 @@ declare namespace App.Platform.Data {
     pointsTotal: number;
     pointsWeighted: number;
     imageAssetPathUrl: string;
-    createdAt: string;
-    updatedAt: string;
+    createdAt: string | null;
+    updatedAt: string | null;
     achievements: Array<App.Platform.Data.Achievement>;
   };
   export type CreateAchievementTicketPageProps = {
@@ -581,8 +582,8 @@ declare namespace App.Platform.Data {
     type: App.Platform.Enums.AchievementSetType;
     title: string | null;
     orderColumn: number;
-    createdAt: string;
-    updatedAt: string;
+    createdAt: string | null;
+    updatedAt: string | null;
     achievementSet: App.Platform.Data.AchievementSet;
   };
   export type GameClaimant = {
@@ -597,6 +598,7 @@ declare namespace App.Platform.Data {
     genre?: string;
     badgeUrl?: string;
     forumTopicId?: number;
+    guideUrl?: string;
     system?: App.Platform.Data.System;
     achievementsPublished?: number;
     pointsTotal?: number;
@@ -663,10 +665,13 @@ declare namespace App.Platform.Data {
   };
   export type GameShowPageProps = {
     game: App.Platform.Data.Game;
+    can: App.Data.UserPermissions;
     hubs: Array<App.Platform.Data.GameSet>;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
+    numCompatibleHashes: number;
     numMasters: number;
+    numOpenTickets: number;
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
@@ -842,6 +847,7 @@ declare namespace App.Platform.Data {
   export type System = {
     id: number;
     name: string;
+    active?: boolean;
     manufacturer?: string;
     nameFull?: string;
     nameShort?: string;
