@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Data\CommentData;
+use App\Community\Enums\ArticleType;
 use App\Data\UserPermissionsData;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
@@ -14,6 +16,7 @@ use App\Platform\Data\GameSetData;
 use App\Platform\Data\GameShowPagePropsData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
+use Illuminate\Support\Collection;
 
 class BuildGameShowPagePropsAction
 {
@@ -63,6 +66,7 @@ class BuildGameShowPagePropsAction
 
         return new GameShowPagePropsData(
             can: UserPermissionsData::fromUser($user, game: $game)->include(
+                'createGameComments',
                 'createGameForumTopic',
                 'manageGames',
             ),
@@ -98,11 +102,14 @@ class BuildGameShowPagePropsAction
                 'system',
             ),
             hubs: $game->hubs->map(fn ($hub) => GameSetData::from($hub))->all(),
+            isSubscribedToComments: $user ? isUserSubscribedToArticleComments(ArticleType::Game, $game->id, $user->id) : false,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $game),
             playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($game, $user),
+            numComments: $game->visibleComments($user)->count(),
             numCompatibleHashes: $game->hashes->where('compatibility', GameHashCompatibility::Compatible)->count(),
             numMasters: $numMasters,
             numOpenTickets: Ticket::forGame($game)->unresolved()->count(),
+            recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($game->visibleComments))),
             topAchievers: $topAchievers,
             playerGame: $playerGame ? PlayerGameData::fromPlayerGame($playerGame) : null,
             playerGameProgressionAwards: $user

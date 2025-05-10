@@ -922,5 +922,8 @@
     "Find Related Games": "Find Related Games",
     "Memory": "Memory",
     "Guide": "Guide",
-    "Event Details": "Event Details"
+    "Event Details": "Event Details",
+    "Recent comments:": "Recent comments:",
+    "(<1>all {{numComments, number}}</1>)": "(<1>all {{numComments, number}}</1>)",
+    "Comments:": "Comments:"
 }
