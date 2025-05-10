@@ -94,6 +94,7 @@ class UpdateGameMetricsAction
         $gameAchievementSets = GameAchievementSet::where('game_id', $game->id)
             ->with('achievementSet')
             ->get();
+
         foreach ($gameAchievementSets as $gameAchievementSet) {
             $achievementSet = $gameAchievementSet->achievementSet;
 
@@ -149,14 +150,16 @@ class UpdateGameMetricsAction
             return [0, null];
         }
 
+        $query->select($field)->orderBy($field);
+
         if (($count % 2) == 1) {
             // odd. just get the middle item
-            $median = $query->offset((int) ($count / 2))->limit(1)
-                ->orderBy($field)->first()->pluck($field);
+            $query->offset((int) ($count / 2))->limit(1);
+            $median = $query->value($field);
         } else {
             // even. get the two items in the middle and average them together
-            $values = $query->offset((int) ($count / 2) - 1)->limit(2)
-                ->orderBy($field)->pluck($field)->toArray();
+            $query->offset((int) ($count / 2) - 1)->limit(2);
+            $values = $query->pluck($field)->toArray();
             $median = ($values[0] + $values[1]) / 2;
         }
 
