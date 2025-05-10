@@ -5,12 +5,9 @@ import axios from 'axios';
 import { render, screen, waitFor } from '@/test';
 import { createGame } from '@/test/factories';
 
-import { OfficialForumTopicButton } from './OfficialForumTopicButton';
+import { GameCreateForumTopicButton } from './GameCreateForumTopicButton';
 
-// Suppress expected error logs.
-console.error = vi.fn();
-
-describe('Component: OfficialForumTopicButton', () => {
+describe('Component: GameCreateForumTopicButton', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -19,7 +16,7 @@ describe('Component: OfficialForumTopicButton', () => {
     // ARRANGE
     const game = createGame({ id: 1 });
 
-    const { container } = render(<OfficialForumTopicButton game={game} />, {
+    const { container } = render(<GameCreateForumTopicButton game={game} />, {
       pageProps: { can: {} },
     });
 
@@ -27,50 +24,48 @@ describe('Component: OfficialForumTopicButton', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given the event has no associated legacy game, renders nothing', () => {
-    // ARRANGE
-    render(<OfficialForumTopicButton game={undefined as any} />, {
-      pageProps: { can: {} },
-    });
-
-    // ASSERT
-    expect(screen.queryByText(/topic/i)).not.toBeInTheDocument();
-  });
-
-  it('given the game has no forum topic and the user can create forum topics, shows the create button', () => {
+  it('given the user cannot create game official forum topics, renders nothing', () => {
     // ARRANGE
     const game = createGame({ id: 1, forumTopicId: undefined });
 
-    render(<OfficialForumTopicButton game={game} />, {
+    render(<GameCreateForumTopicButton game={game} />, {
+      pageProps: {
+        can: {
+          createGameForumTopic: false, // !!
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('given the game already has a forum topic, renders nothing', () => {
+    // ARRANGE
+    const game = createGame({ id: 1, forumTopicId: 123 });
+
+    render(<GameCreateForumTopicButton game={game} />, {
+      pageProps: {
+        can: {
+          createGameForumTopic: true,
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('given the game has no forum topic and the user can create forum topics, shows the button', () => {
+    // ARRANGE
+    const game = createGame({ id: 1, forumTopicId: undefined });
+
+    render(<GameCreateForumTopicButton game={game} />, {
       pageProps: { can: { createGameForumTopic: true } },
     });
 
     // ASSERT
     expect(screen.getByRole('button', { name: /create new forum topic/i })).toBeVisible();
-  });
-
-  it('given the game has no forum topic and the user cannot create forum topics, does not show a create button', () => {
-    // ARRANGE
-    const game = createGame({ id: 1, forumTopicId: undefined });
-
-    render(<OfficialForumTopicButton game={game} />, {
-      pageProps: { can: { createGameForumTopic: false } },
-    });
-
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
-  });
-
-  it('given the game has a forum topic, shows a link to it', () => {
-    // ARRANGE
-    const game = createGame({ id: 1, forumTopicId: 123 });
-
-    render(<OfficialForumTopicButton game={game} />);
-
-    // ASSERT
-    const link = screen.getByRole('link', { name: /official forum topic/i });
-    expect(link).toBeVisible();
-    expect(link).toHaveAttribute('href', expect.stringContaining('forum-topic.show'));
   });
 
   it('given the user clicks create but cancels the confirmation, does not make an API call', async () => {
@@ -80,7 +75,7 @@ describe('Component: OfficialForumTopicButton', () => {
 
     const game = createGame({ id: 1, forumTopicId: undefined });
 
-    render(<OfficialForumTopicButton game={game} />, {
+    render(<GameCreateForumTopicButton game={game} />, {
       pageProps: { can: { createGameForumTopic: true } },
     });
 
@@ -99,7 +94,7 @@ describe('Component: OfficialForumTopicButton', () => {
 
     const game = createGame({ id: 1, forumTopicId: undefined });
 
-    render(<OfficialForumTopicButton game={game} />, {
+    render(<GameCreateForumTopicButton game={game} />, {
       pageProps: { can: { createGameForumTopic: true } },
     });
 

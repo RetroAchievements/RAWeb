@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { IconType } from 'react-icons/lib';
+import { route } from 'ziggy-js';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import {

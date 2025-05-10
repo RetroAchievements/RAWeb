@@ -1,6 +1,7 @@
 import './GlowingImage.css';
 
 import type { ComponentPropsWithoutRef, CSSProperties, FC, ImgHTMLAttributes } from 'react';
+import { route } from 'ziggy-js';
 
 import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';

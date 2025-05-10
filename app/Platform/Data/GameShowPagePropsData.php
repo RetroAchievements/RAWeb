@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
+use App\Data\UserPermissionsData;
 use Illuminate\Support\Collection;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -18,11 +19,14 @@ class GameShowPagePropsData extends Data
      */
     public function __construct(
         public GameData $game,
+        public UserPermissionsData $can,
         /** @var GameSetData[] */
         public array $hubs,
         public Collection $followedPlayerCompletions,
         public Collection $playerAchievementChartBuckets,
+        public int $numCompatibleHashes,
         public int $numMasters,
+        public int $numOpenTickets,
         public Collection $topAchievers,
         public ?PlayerGameData $playerGame,
         public ?PlayerGameProgressionAwardsData $playerGameProgressionAwards,

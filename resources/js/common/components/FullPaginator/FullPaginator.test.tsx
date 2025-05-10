@@ -17,6 +17,9 @@ describe('Component: FullPaginator', () => {
     // ARRANGE
     const { container } = render(
       <FullPaginator onPageSelectValueChange={vi.fn()} paginatedData={createPaginatedData([])} />,
+      {
+        pageProps: { ziggy: { device: 'desktop' } as any },
+      },
     );
 
     // ASSERT
@@ -27,6 +30,9 @@ describe('Component: FullPaginator', () => {
     // ARRANGE
     render(
       <FullPaginator onPageSelectValueChange={vi.fn()} paginatedData={createPaginatedData([])} />,
+      {
+        pageProps: { ziggy: { device: 'desktop' } as any },
+      },
     );
 
     // ASSERT
@@ -49,7 +55,9 @@ describe('Component: FullPaginator', () => {
       },
     });
 
-    render(<FullPaginator onPageSelectValueChange={vi.fn()} paginatedData={paginatedData} />);
+    render(<FullPaginator onPageSelectValueChange={vi.fn()} paginatedData={paginatedData} />, {
+      pageProps: { ziggy: { device: 'desktop' } as any },
+    });
 
     // ASSERT
     const firstPageLink = screen.getByLabelText('Go to first page').querySelector('a');
@@ -79,7 +87,9 @@ describe('Component: FullPaginator', () => {
       },
     });
 
-    render(<FullPaginator onPageSelectValueChange={vi.fn()} paginatedData={paginatedData} />);
+    render(<FullPaginator onPageSelectValueChange={vi.fn()} paginatedData={paginatedData} />, {
+      pageProps: { ziggy: { device: 'desktop' } as any },
+    });
 
     // ASSERT
     const firstPageLink = screen.getByLabelText('Go to first page').querySelector('a');
@@ -116,6 +126,9 @@ describe('Component: FullPaginator', () => {
         onPageSelectValueChange={onPageSelectValueChange}
         paginatedData={paginatedData}
       />,
+      {
+        pageProps: { ziggy: { device: 'desktop' } as any },
+      },
     );
 
     // ACT
@@ -123,5 +136,28 @@ describe('Component: FullPaginator', () => {
 
     // ASSERT
     expect(onPageSelectValueChange).toHaveBeenCalledWith(2);
+  });
+
+  it('given the user is on a mobile device, uses condensed option labels', () => {
+    // ARRANGE
+    const paginatedData = createPaginatedData([createGame(), createGame()], {
+      perPage: 1,
+      lastPage: 2,
+      currentPage: 1,
+      links: {
+        previousPageUrl: null,
+        firstPageUrl: null,
+        nextPageUrl: '#',
+        lastPageUrl: '#',
+      },
+    });
+
+    render(<FullPaginator onPageSelectValueChange={vi.fn()} paginatedData={paginatedData} />, {
+      pageProps: { ziggy: { device: 'mobile' } as any },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('option', { name: '1' })).toBeVisible();
+    expect(screen.queryByRole('option', { name: /page/i })).not.toBeInTheDocument();
   });
 });

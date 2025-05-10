@@ -1,4 +1,4 @@
-import { type ChangeEvent, type FC, useState } from 'react';
+import { type ChangeEvent, type FC, Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronFirst, LuChevronLast, LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 
@@ -8,6 +8,8 @@ import {
   BasePaginationItem,
   BasePaginationLink,
 } from '@/common/components/+vendor/BasePagination';
+import { useFormatNumber } from '@/common/hooks/useFormatNumber';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 import { baseButtonVariants } from '../+vendor/BaseButton';
@@ -22,7 +24,11 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
   onPageSelectValueChange,
   paginatedData,
 }) => {
+  const { ziggy } = usePageProps();
+
   const { t } = useTranslation();
+
+  const { formatNumber } = useFormatNumber();
 
   const {
     currentPage,
@@ -87,9 +93,15 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
             className="h-8 min-w-[70px] text-xs leading-5"
           >
             {pageOptions.map((pageNumber) => (
-              <option key={`page-value-${pageNumber}`} value={pageNumber.toString()}>
-                {t('Page {{pageNumber, number}}', { pageNumber })}
-              </option>
+              <Fragment key={`page-value-${pageNumber}`}>
+                {ziggy && ziggy.device === 'desktop' ? (
+                  <option value={pageNumber.toString()}>
+                    {t('Page {{pageNumber, number}}', { pageNumber })}
+                  </option>
+                ) : (
+                  <option value={pageNumber.toString()}>{formatNumber(pageNumber)}</option>
+                )}
+              </Fragment>
             ))}
           </BaseSelectNative>
 

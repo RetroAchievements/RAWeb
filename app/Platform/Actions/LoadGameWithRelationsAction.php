@@ -28,6 +28,7 @@ class LoadGameWithRelationsAction
             'gameAchievementSets' => function ($query) use ($excludeSetTypes) {
                 $query->whereNotIn('type', $excludeSetTypes);
             },
+            'hashes',
         ]);
 
         // Then load the related achievements for the filtered sets.

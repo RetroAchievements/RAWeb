@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { Table } from '@tanstack/react-table';
 import axios from 'axios';
 import type { RouteName } from 'ziggy-js';
+import { route } from 'ziggy-js';
 
 import { buildGameListQueryFilterParams } from '../utils/buildGameListQueryFilterParams';
 import { buildGameListQueryPaginationParams } from '../utils/buildGameListQueryPaginationParams';

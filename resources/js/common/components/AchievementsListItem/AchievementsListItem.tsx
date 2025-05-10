@@ -1,6 +1,7 @@
 import * as motion from 'motion/react-m';
 import { type FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';

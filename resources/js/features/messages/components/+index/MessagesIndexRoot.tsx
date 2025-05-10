@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuSend } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { FullPaginator } from '@/common/components/FullPaginator';
