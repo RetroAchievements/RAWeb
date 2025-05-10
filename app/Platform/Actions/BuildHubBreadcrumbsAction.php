@@ -9,6 +9,7 @@ use App\Platform\Data\GameSetData;
 use App\Platform\Enums\GameSetType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Spatie\LaravelData\Lazy;
 
 /**
  * Builds breadcrumb navigation paths for hub (game set) hierarchies.
@@ -167,6 +168,7 @@ class BuildHubBreadcrumbsAction
                 forumTopicId: null,
                 updatedAt: new Carbon($data['updated_at']),
                 gameId: 0,
+                game: Lazy::create(fn () => null),
                 hasMatureContent: false, // doesn't matter, this is just a breadcrumb
             ),
             $cachedData ?? [],

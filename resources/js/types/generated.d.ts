@@ -660,6 +660,7 @@ declare namespace App.Platform.Data {
     linkCount: number;
     updatedAt: string;
     forumTopicId?: number | null;
+    game?: App.Platform.Data.Game;
     gameId?: number | null;
     hasMatureContent?: boolean;
   };
@@ -672,6 +673,7 @@ declare namespace App.Platform.Data {
     numCompatibleHashes: number;
     numMasters: number;
     numOpenTickets: number;
+    similarGames: Array<App.Platform.Data.Game>;
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
