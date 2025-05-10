@@ -925,5 +925,9 @@
     "Event Details": "Event Details",
     "Recent comments:": "Recent comments:",
     "(<1>all {{numComments, number}}</1>)": "(<1>all {{numComments, number}}</1>)",
-    "Comments:": "Comments:"
+    "Comments:": "Comments:",
+    "Similar Games": "Similar Games",
+    "Progression": "Progression",
+    "Win Condition": "Win Condition",
+    "Missable": "Missable"
 }

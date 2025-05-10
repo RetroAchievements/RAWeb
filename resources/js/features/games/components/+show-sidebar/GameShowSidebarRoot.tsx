@@ -8,6 +8,7 @@ import { PlayableTopPlayers } from '@/common/components/PlayableTopPlayers';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { GameSidebarFullWidthButtons } from '../GameSidebarFullWidthButtons';
+import { SimilarGamesList } from '../SimilarGamesList';
 
 export const GameShowSidebarRoot: FC = () => {
   const {
@@ -17,6 +18,7 @@ export const GameShowSidebarRoot: FC = () => {
     playerAchievementChartBuckets,
     playerGame,
     numMasters,
+    similarGames,
     topAchievers,
   } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
@@ -30,6 +32,7 @@ export const GameShowSidebarRoot: FC = () => {
     <div data-testid="sidebar" className="flex flex-col gap-6">
       <PlayableBoxArtImage src={game.imageBoxArtUrl} />
       <GameSidebarFullWidthButtons game={game} />
+      <SimilarGamesList similarGames={similarGames} />
       <PlayableHubsList hubs={hubs} />
       <PlayableCompareProgress
         followedPlayerCompletions={followedPlayerCompletions}

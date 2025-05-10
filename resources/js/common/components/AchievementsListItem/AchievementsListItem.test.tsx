@@ -154,4 +154,25 @@ describe('Component: AchievementsListItem', () => {
     await __UNSAFE_VERY_DANGEROUS_SLEEP(100); // let any animations finish up
     expect(screen.queryByText(/100/i)).not.toBeInTheDocument();
   });
+
+  it('given an achievement has a type, displays a type indicator', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      type: 'progression',
+    });
+
+    render(
+      <AchievementsListItem
+        achievement={achievement}
+        index={0}
+        isLargeList={false}
+        playersTotal={null}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByLabelText(/progression/i)).toBeVisible();
+    });
+  });
 });

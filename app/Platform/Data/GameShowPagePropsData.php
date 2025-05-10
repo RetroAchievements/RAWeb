@@ -32,6 +32,8 @@ class GameShowPagePropsData extends Data
         public int $numMasters,
         public int $numOpenTickets,
         public Collection $recentVisibleComments,
+        /** @var GameData[] */
+        public array $similarGames,
         public Collection $topAchievers,
         public ?PlayerGameData $playerGame,
         public ?PlayerGameProgressionAwardsData $playerGameProgressionAwards,
