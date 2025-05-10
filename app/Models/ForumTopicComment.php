@@ -11,13 +11,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Scout\Searchable;
 
 class ForumTopicComment extends BaseModel
 {
     /** @use HasFactory<ForumTopicCommentFactory> */
     use HasFactory;
-    use Searchable;
     use SoftDeletes;
 
     // TODO drop is_authorized, migrate to authorized_at
@@ -39,22 +37,6 @@ class ForumTopicComment extends BaseModel
     protected static function newFactory(): ForumTopicCommentFactory
     {
         return ForumTopicCommentFactory::new();
-    }
-
-    // == search
-
-    public function toSearchableArray(): array
-    {
-        return $this->only([
-            'id',
-            'body',
-        ]);
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        // TODO return true;
-        return false;
     }
 
     // == accessors

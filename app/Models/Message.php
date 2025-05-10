@@ -8,13 +8,11 @@ use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\MessageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Laravel\Scout\Searchable;
 
 class Message extends BaseModel
 {
     /** @use HasFactory<MessageFactory> */
     use HasFactory;
-    use Searchable;
 
     protected $table = 'messages';
 
@@ -35,23 +33,6 @@ class Message extends BaseModel
     protected static function newFactory(): MessageFactory
     {
         return MessageFactory::new();
-    }
-
-    // == search
-
-    public function toSearchableArray(): array
-    {
-        return $this->only([
-            'id',
-            'title',
-            'body',
-        ]);
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        // TODO return true;
-        return false;
     }
 
     // == accessors

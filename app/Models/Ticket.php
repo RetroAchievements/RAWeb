@@ -12,13 +12,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Scout\Searchable;
 
 class Ticket extends BaseModel
 {
     /** @use HasFactory<TicketFactory> */
     use HasFactory;
-    use Searchable;
     use SoftDeletes;
 
     // TODO rename Ticket table to trigger_tickets
@@ -55,22 +53,6 @@ class Ticket extends BaseModel
     protected static function newFactory(): TicketFactory
     {
         return TicketFactory::new();
-    }
-
-    // == search
-
-    public function toSearchableArray(): array
-    {
-        return $this->only([
-            'ID',
-            'ReportNotes',
-        ]);
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        // TODO return true;
-        return false;
     }
 
     // == accessors

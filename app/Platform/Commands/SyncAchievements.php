@@ -28,8 +28,6 @@ class SyncAchievements extends Command
      */
     public function handle(): void
     {
-        Achievement::disableSearchSyncing();
-
         $this->sync('achievements');
     }
 

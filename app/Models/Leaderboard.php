@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -36,7 +35,6 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
     /** @use HasFactory<LeaderboardFactory> */
     use HasFactory;
 
-    use Searchable;
     use SoftDeletes;
 
     use LogsActivity {
@@ -89,23 +87,6 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
-    }
-
-    // == search
-
-    public function toSearchableArray(): array
-    {
-        return $this->only([
-            'ID',
-            'Title',
-            'Description',
-        ]);
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        // TODO return true;
-        return false;
     }
 
     // == accessors

@@ -33,8 +33,6 @@ class SyncGames extends Command
      */
     public function handle(): void
     {
-        Game::disableSearchSyncing();
-
         $this->sync('games');
     }
 

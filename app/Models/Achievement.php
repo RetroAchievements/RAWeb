@@ -33,7 +33,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -56,7 +55,6 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     /** @use HasFactory<AchievementFactory> */
     use HasFactory;
 
-    use Searchable;
     use SoftDeletes;
 
     use CausesActivity;
@@ -188,25 +186,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
 
     public const CLIENT_WARNING_ID = 101000001;
 
-    // search
-
-    public function toSearchableArray(): array
-    {
-        return $this->only([
-            'id',
-            'title',
-            'description',
-        ]);
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        // TODO return $this->isPublished();
-        // TODO return true;
-        return false;
-    }
-
-    // audit activity log
+    // == logging
 
     public function getActivitylogOptions(): LogOptions
     {

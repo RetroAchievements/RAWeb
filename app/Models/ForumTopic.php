@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -22,7 +21,6 @@ class ForumTopic extends BaseModel
 {
     /** @use HasFactory<ForumTopicFactory> */
     use HasFactory;
-    use Searchable;
     use SoftDeletes;
 
     use LogsActivity {
@@ -67,22 +65,6 @@ class ForumTopic extends BaseModel
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
-    }
-
-    // == search
-
-    public function toSearchableArray(): array
-    {
-        return $this->only([
-            'id',
-            'title',
-        ]);
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        // TODO return true;
-        return false;
     }
 
     // == accessors

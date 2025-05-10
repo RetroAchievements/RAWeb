@@ -167,13 +167,6 @@ class AppServiceProvider extends ServiceProvider
             'system' => System::class,
         ]);
 
-        Achievement::disableSearchSyncing();
-        Badge::disableSearchSyncing();
-        Game::disableSearchSyncing();
-        GameHash::disableSearchSyncing();
-        Leaderboard::disableSearchSyncing();
-        System::disableSearchSyncing();
-
         Blade::component('game-card', GameCard::class);
         Blade::component('game-title', GameTitle::class);
 

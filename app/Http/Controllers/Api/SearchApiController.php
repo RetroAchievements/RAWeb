@@ -21,7 +21,7 @@ class SearchApiController extends Controller
             return response()->json([]);
         }
 
-        $users = User::search($keyword)->get();
+        $users = User::sqlSearch($keyword)->get();
 
         $mappedUsers = $users->map(fn ($user) => UserData::fromUser($user));
 

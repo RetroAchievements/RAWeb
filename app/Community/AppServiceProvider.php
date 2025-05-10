@@ -89,20 +89,6 @@ class AppServiceProvider extends ServiceProvider
             'user-relation' => UserRelation::class,
         ]);
 
-        AchievementComment::disableSearchSyncing();
-        Comment::disableSearchSyncing();
-        Forum::disableSearchSyncing();
-        ForumCategory::disableSearchSyncing();
-        ForumTopic::disableSearchSyncing();
-        ForumTopicComment::disableSearchSyncing();
-        GameComment::disableSearchSyncing();
-        Message::disableSearchSyncing();
-        News::disableSearchSyncing();
-        NewsComment::disableSearchSyncing();
-        Ticket::disableSearchSyncing();
-        TriggerTicketComment::disableSearchSyncing();
-        UserComment::disableSearchSyncing();
-
         Blade::component('developer-game-stats-table', DeveloperGameStatsTable::class);
         Blade::component('forum-recent-activity', ForumRecentActivity::class);
         Blade::component('user-card', UserCard::class);
