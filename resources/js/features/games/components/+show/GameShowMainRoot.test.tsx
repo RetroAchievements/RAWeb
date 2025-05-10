@@ -31,7 +31,9 @@ describe('Component: GameShowMainRoot', () => {
     const { container } = render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        can: {},
         hubs: [createGameSet()],
+        recentVisibleComments: [],
       },
     });
 
@@ -51,7 +53,9 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        can: {},
         hubs: [],
+        recentVisibleComments: [],
       },
     });
 
@@ -78,7 +82,9 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        can: {},
         hubs: [],
+        recentVisibleComments: [],
       },
     });
 
@@ -100,7 +106,9 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        can: {},
         hubs: [],
+        recentVisibleComments: [],
       },
     });
 

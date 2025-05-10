@@ -29,6 +29,13 @@ class LoadGameWithRelationsAction
                 $query->whereNotIn('type', $excludeSetTypes);
             },
             'hashes',
+            'visibleComments' => function ($query) {
+                $query->latest('Submitted')
+                    ->limit(20)
+                    ->with(['user' => function ($userQuery) {
+                        $userQuery->withTrashed();
+                    }]);
+            },
         ]);
 
         // Then load the related achievements for the filtered sets.

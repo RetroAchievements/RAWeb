@@ -56,6 +56,7 @@ export function useSubmitCommentForm({
       loading: t('Submitting...'),
       success: () => {
         onSubmitSuccess?.();
+        form.reset();
 
         return t('Submitted!');
       },
