@@ -9,6 +9,7 @@ use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Actions\RecalculateLeaderboardTopEntryAction;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -167,6 +168,14 @@ class GameLeaderboardsTest extends TestCase
             'user_id' => $userEight->ID,
             'score' => 2,
         ]);
+
+        // Force recalculation of denormalized data in leaderboards.
+        $action = new RecalculateLeaderboardTopEntryAction();
+        $action->execute($leaderboardOne->ID);
+        $action->execute($leaderboardTwo->ID);
+        $action->execute($leaderboardThree->ID);
+        $action->execute($leaderboardFour->ID);
+        $action->execute($leaderboardFive->ID);
 
         $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->ID]))
             ->assertSuccessful()
