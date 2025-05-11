@@ -19,7 +19,7 @@ class UpdateLastLogin
 
         if ($user) {
             $user->LastLogin = Carbon::now();
-            $user->save();
+            $user->saveQuietly(); // don't trigger search reindexing
         }
 
         return $next($request);
