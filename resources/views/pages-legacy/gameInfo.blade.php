@@ -929,7 +929,16 @@ if ($isFullyFeaturedGame) {
         echo "</div>";
 
         if ($isFullyFeaturedGame) {
-            $recentPlayerData = getGameRecentPlayers($gameID, 10);
+            $freshTtl = 3 * 60; // 3 minutes
+            $staleTtl = 7 * 60; // 7 minutes
+            $recentPlayerData = Cache::flexible(
+                "game-recent-players:{$gameID}:10",
+                [$freshTtl, $staleTtl],
+                function () use ($gameID) {
+                    return getGameRecentPlayers($gameID, 10);
+                }
+            );
+
             if (!empty($recentPlayerData)) {
                 echo "<div class='mt-6 mb-8'>";
                 ?>
