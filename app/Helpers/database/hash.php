@@ -2,19 +2,6 @@
 
 use App\Models\GameHash;
 
-function getMD5List(int $consoleId): array
-{
-    $query = GameHash::compatible()
-        ->select('game_hashes.md5', 'game_hashes.game_id')
-        ->leftJoin('GameData as gd', 'gd.ID', '=', 'game_hashes.game_id')
-        ->when($consoleId > 0, function ($q) use ($consoleId) {
-            $q->where('gd.ConsoleID', $consoleId);
-        })
-        ->orderBy('game_hashes.game_id', 'asc');
-
-    return $query->pluck('game_id', 'md5')->toArray();
-}
-
 /**
  * Gets the list of hashes and hash information from the database using the input offset and count.
  */
