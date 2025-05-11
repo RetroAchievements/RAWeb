@@ -1,4 +1,5 @@
 import { Trans, useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import { SEO } from '@/common/components/SEO';
 import { AppLayout } from '@/common/layouts/AppLayout';

@@ -26,6 +26,7 @@ services:
         depends_on:
             - mariadb
             - redis
+            - meilisearch
             - minio
     nginx:
         image: 'nginx:1.18'
@@ -77,6 +78,27 @@ services:
             - '${FORWARD_PHPMYADMIN_PORT:-8081}:80'
         networks:
             - raweb
+    meilisearch:
+        image: 'getmeili/meilisearch:latest'
+        ports:
+            - '${FORWARD_MEILISEARCH_PORT:-7700}:7700'
+        environment:
+            MEILI_LOG_LEVEL: 'WARN' # meilisearch spams the log with background tasks
+            MEILI_NO_ANALYTICS: '${MEILISEARCH_NO_ANALYTICS:-false}'
+            MEILI_MASTER_KEY: '${MEILISEARCH_KEY}'
+        volumes:
+            - 'meilisearch-data:/data'
+        networks:
+            - raweb
+        healthcheck:
+            test:
+                - CMD
+                - wget
+                - '--no-verbose'
+                - '--spider'
+                - 'http://127.0.0.1:7700/health'
+            retries: 3
+            timeout: 5s
     mailpit:
         image: 'axllent/mailpit:latest'
         ports:
@@ -129,4 +151,6 @@ volumes:
     minio-data:
         driver: local
     redis-data:
+        driver: local
+    meilisearch-data:
         driver: local

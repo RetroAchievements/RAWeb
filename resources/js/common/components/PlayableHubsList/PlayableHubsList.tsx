@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';

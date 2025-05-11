@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuLock } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import { ForumBreadcrumbs } from '@/common/components/ForumBreadcrumbs';
 import { FullPaginator } from '@/common/components/FullPaginator';
