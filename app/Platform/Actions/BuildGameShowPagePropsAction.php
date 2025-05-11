@@ -61,11 +61,19 @@ class BuildGameShowPagePropsAction
             }
         }
 
+        $similarGames = $game
+            ->similarGamesList
+            ->filter(
+                fn ($game) => !str_contains($game->title, '[Subset')
+            )
+            ->sortBy('sort_title');
+
         return new GameShowPagePropsData(
             can: UserPermissionsData::fromUser($user, game: $game)->include(
                 'createGameForumTopic',
                 'manageGames',
             ),
+
             game: GameData::fromGame($game)->include(
                 'achievementsPublished',
                 'badgeUrl',
@@ -97,6 +105,16 @@ class BuildGameShowPagePropsAction
                 'system.nameShort',
                 'system',
             ),
+
+            similarGames: $similarGames->map(fn ($game) => GameData::fromGame($game)->include(
+                'achievementsPublished',
+                'badgeUrl',
+                'system.iconUrl',
+                'system.nameShort',
+                'pointsTotal',
+                'pointsWeighted',
+            ))->values()->all(),
+
             hubs: $game->hubs->map(fn ($hub) => GameSetData::from($hub))->all(),
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $game),
             playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($game, $user),
