@@ -146,9 +146,26 @@ return [
             ],
 
             User::class => [
+                'filterableAttributes' => [
+                    'banned_at',
+                    'deleted_at',
+                    'display_name',
+                    'username',
+                ],
+                'rankingRules' => [
+                    'exactness',
+                    'words',
+                    'proximity',
+                    'attribute',
+                    'typo',
+                    'sort',
+                ],
                 'searchableAttributes' => ['display_name', 'username'],
-                'sortableAttributes' => ['display_name', 'username'],
-                'filterableAttributes' => ['display_name', 'username'],
+                'sortableAttributes' => [
+                    'display_name',
+                    'last_activity_at',
+                    'username',
+                ],
             ],
         ],
     ],
