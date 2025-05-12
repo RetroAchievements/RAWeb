@@ -28,7 +28,7 @@ class ResumePlayerSessionActionTest extends TestCase
         $game = $this->seedGame(achievements: 3);
         $gameHash = $game->hashes->first();
         $coreAchievementSet = $game->achievementSets()->where('type', AchievementSetType::Core)->first();
-        $coreAchievementSet->achievements_published_at = $sessionStartAt->clone()->subDays(5);
+        $coreAchievementSet->achievements_first_published_at = $sessionStartAt->clone()->subDays(5);
         $coreAchievementSet->save();
 
         // ===== new session =====
@@ -373,7 +373,7 @@ class ResumePlayerSessionActionTest extends TestCase
         // ===== simulate achievements published (no achievements actually exist) =====
         $publishedAt = $thirdPingAt->clone()->addSeconds(21);
         Carbon::setTestNow($publishedAt);
-        $coreAchievementSet->achievements_published_at = $publishedAt;
+        $coreAchievementSet->achievements_first_published_at = $publishedAt;
         $coreAchievementSet->save();
 
         // ===== fourth ping two minutes after third (player achievement set should start tracking time now) =====

@@ -37,7 +37,7 @@ class AchievementSet extends BaseModel
         'user_id',
         'players_total',
         'players_hardcore',
-        'achievements_published_at',
+        'achievements_first_published_at',
         'achievements_published',
         'achievements_unpublished',
         'points_total',
@@ -48,7 +48,7 @@ class AchievementSet extends BaseModel
     ];
 
     protected $casts = [
-        'achievements_published_at' => 'datetime',
+        'achievements_first_published_at' => 'datetime',
     ];
 
     protected static function newFactory(): AchievementSetFactory

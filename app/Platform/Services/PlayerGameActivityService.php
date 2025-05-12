@@ -398,11 +398,11 @@ class PlayerGameActivityService
 
     public function getBeatProgressMetrics(AchievementSet $achievementSet, PlayerGame $playerGame): array
     {
-        if (!$achievementSet->achievements_published_at) {
-            $achievementSet->achievements_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($achievementSet);
+        if (!$achievementSet->achievements_first_published_at) {
+            $achievementSet->achievements_first_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($achievementSet);
             $achievementSet->save();
         }
-        $achievementsPublishedAt = $achievementSet->achievements_published_at;
+        $achievementsPublishedAt = $achievementSet->achievements_first_published_at;
 
         return [
             'beatPlaytimeSoftcore' => $playerGame->beaten_at ? $this->calculatePlaytime($achievementsPublishedAt, $playerGame->beaten_at, UnlockMode::Softcore) : null,
@@ -468,11 +468,11 @@ class PlayerGameActivityService
         $metrics['firstUnlockTimeSoftcore'] ??= $metrics['firstUnlockTimeHardcore'];
         $metrics['lastUnlockTimeSoftcore'] ??= $metrics['lastUnlockTimeHardcore'];
 
-        if (!$achievementSet->achievements_published_at) {
-            $achievementSet->achievements_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($achievementSet);
+        if (!$achievementSet->achievements_first_published_at) {
+            $achievementSet->achievements_first_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($achievementSet);
             $achievementSet->save();
         }
-        $achievementsPublishedAt = $achievementSet->achievements_published_at;
+        $achievementsPublishedAt = $achievementSet->achievements_first_published_at;
 
         $metrics['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($achievementsPublishedAt, $metrics['lastUnlockTimeSoftcore'], UnlockMode::Softcore);
         $metrics['achievementPlaytimeHardcore'] = $this->calculatePlaytime($achievementsPublishedAt, $metrics['lastUnlockTimeHardcore'], UnlockMode::Hardcore);

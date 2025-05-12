@@ -183,11 +183,15 @@ class UpdatePlayerGameMetricsAction
         $isCompleted = $playerAchievementSet->achievements_unlocked === $numSetAchievements;
         if ($isCompleted && !$playerAchievementSet->completed_at) {
             $playerAchievementSet->completed_at = $playerAchievementSet->last_unlock_at;
-            array_push($completionDates, $playerAchievementSet->completed_at);
+            if ($playerAchievementSet->completed_at !== null) {
+                array_push($completionDates, $playerAchievementSet->completed_at->toJSON());
+            }
 
             if ($isCoreSet) {
                 $playerGame->completed_at = $playerAchievementSet->last_unlock_at;
-                array_push($gameCompletionDates, $playerGame->completed_at);
+                if ($playerGame->completed_at !== null) {
+                    array_push($gameCompletionDates, $playerGame->completed_at->toJSON());
+                }
             }
         } elseif (!$isCompleted) {
             $playerAchievementSet->completed_at = null;
@@ -201,14 +205,18 @@ class UpdatePlayerGameMetricsAction
         $isCompletedHardcore = $playerAchievementSet->achievements_unlocked_hardcore === $numSetAchievements;
         if ($isCompletedHardcore && !$playerAchievementSet->completed_hardcore_at) {
             $playerAchievementSet->completed_hardcore_at = $playerAchievementSet->last_unlock_hardcore_at;
-            array_push($completionDatesHardcore, $playerAchievementSet->completed_hardcore_at);
+            if ($playerAchievementSet->completed_hardcore_at !== null) {
+                array_push($completionDatesHardcore, $playerAchievementSet->completed_hardcore_at->toJSON());
+            }
 
             if ($isCoreSet) {
                 $playerGame->completed_hardcore_at = $playerAchievementSet->last_unlock_hardcore_at;
                 if ($playerGame->completion_dates_hardcore === null) {
                     $playerGame->completion_dates_hardcore = [];
                 }
-                array_push($gameCompletionDatesHardcore, $playerGame->completed_hardcore_at);
+                if ($playerAchievementSet->last_unlock_hardcore_at !== null) {
+                    array_push($gameCompletionDatesHardcore, $playerGame->completed_hardcore_at->toJSON());
+                }
             }
         } elseif (!$isCompletedHardcore) {
             $playerAchievementSet->completed_hardcore_at = null;
@@ -219,8 +227,8 @@ class UpdatePlayerGameMetricsAction
         $playerAchievementSet->completion_dates_hardcore = empty($completionDatesHardcore) ? null : array_unique($completionDatesHardcore);
 
         if ($isCoreSet) {
-            $playerAchievementSet->completion_dates = empty($gameCompletionDates) ? null : array_unique($gameCompletionDates);
-            $playerAchievementSet->completion_dates_hardcore = empty($gameCompletionDatesHardcore) ? null : array_unique($gameCompletionDatesHardcore);
+            $playerGame->completion_dates = empty($gameCompletionDates) ? null : array_unique($gameCompletionDates);
+            $playerGame->completion_dates_hardcore = empty($gameCompletionDatesHardcore) ? null : array_unique($gameCompletionDatesHardcore);
         }
     }
 
@@ -275,7 +283,9 @@ class UpdatePlayerGameMetricsAction
             ])
                 ->filter()
                 ->max();
-            array_push($beatenDates, $beatenAt);
+            if ($beatenAt !== null) {
+                array_push($beatenDates, $beatenAt->toJSON());
+            }
         }
 
         if (!$beatenHardcoreAt && $isBeatenHardcore) {
@@ -285,7 +295,9 @@ class UpdatePlayerGameMetricsAction
             ])
                 ->filter()
                 ->max();
-            array_push($beatenDatesHardcore, $beatenHardcoreAt);
+            if ($beatenHardcoreAt !== null) {
+                array_push($beatenDatesHardcore, $beatenHardcoreAt->toJSON());
+            }
         }
 
         return [

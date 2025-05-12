@@ -168,7 +168,7 @@ class ResumePlayerSessionAction
             $playerAchievementSets = PlayerAchievementSet::query()
                 ->whereIn('achievement_set_id', $activeAchievementSets)
                 ->whereHas('achievementSet', function ($query) {
-                    $query->whereNotNull('achievements_published_at');
+                    $query->whereNotNull('achievements_first_published_at');
                 })
                 ->get();
             foreach ($playerAchievementSets as $playerAchievementSet) {

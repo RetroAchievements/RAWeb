@@ -14,7 +14,7 @@ return new class() extends Migration {
             $table->dropIndex(['user_id']);
             $table->dropColumn('user_id');
 
-            $table->dateTime('achievements_published_at')->nullable()->default(null)->after('players_hardcore');
+            $table->dateTime('achievements_first_published_at')->nullable()->default(null)->after('players_hardcore');
             $table->integer('times_completed')->default(0)->after('points_weighted');
             $table->integer('times_completed_hardcore')->default(0)->after('times_completed');
             $table->integer('median_time_to_complete')->nullable()->default(null)->after('times_completed_hardcore');
@@ -26,7 +26,7 @@ return new class() extends Migration {
     {
         Schema::table('achievement_sets', function (Blueprint $table) {
             $table->dropColumn([
-                'achievements_published_at',
+                'achievements_first_published_at',
                 'times_completed',
                 'times_completed_hardcore',
                 'median_time_to_complete',
