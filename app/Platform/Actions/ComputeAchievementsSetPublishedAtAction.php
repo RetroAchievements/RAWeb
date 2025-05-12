@@ -12,6 +12,7 @@ use App\Models\PlayerGame;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use Carbon\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 class ComputeAchievementsSetPublishedAtAction
 {
@@ -24,23 +25,40 @@ class ComputeAchievementsSetPublishedAtAction
         }
 
         // the most reliable way to identify when an achievement set was published
-        // is to find the earliest achievement promotion audit comment. many
+        // is to find the earliest achievement promotion audit log or comment. many
         // sets predate that, so we also need to check for the primary set claim
         // completion timestamp and the first unlocked achievement timestamp.
-        $firstPromotionComment = Comment::where('ArticleType', ArticleType::Achievement)
+        $firstPromotionComment = Comment::query()
+            ->where('ArticleType', ArticleType::Achievement)
             ->whereIn('ArticleID', $achievementIds)
             ->automated()
             ->whereLike('Payload', '%promoted%')
             ->first();
         $publishedAt = $firstPromotionComment?->Submitted;
 
+        $promotionLogs = Activity::query()
+            ->where('subject_type', (new Achievement())->getMorphClass())
+            ->whereIn('subject_id', $achievementIds)
+            ->whereLike('properties', '%"Flags":3%"Flags":5%') // Flags changed from 5 (unofficial) to 3 (core)
+            ->orderBy('created_at')
+            ->select('created_at');
+        if ($publishedAt) {
+            $promotionLogs->where('created_at', '<', $publishedAt);
+        }
+        $firstPromotionLog = $promotionLogs->first();
+        if ($firstPromotionLog) {
+            $publishedAt = $firstPromotionLog->created_at;
+        }
+
+        // then check the player_games records to find the oldest unlock
         $gameAchievementSet = $achievementSet->gameAchievementSets()->where('type', AchievementSetType::Core)->first();
         if (!$gameAchievementSet) {
             return $publishedAt;
         }
         $game = $gameAchievementSet->game;
 
-        $playerGames = PlayerGame::where('game_id', $game->id)
+        $playerGames = PlayerGame::query()
+            ->where('game_id', $game->id)
             ->whereNotNull('first_unlock_at')
             ->orderBy('first_unlock_at');
         if ($publishedAt) {
@@ -51,6 +69,7 @@ class ComputeAchievementsSetPublishedAtAction
             $publishedAt = $firstPlayerAchievement->first_unlock_at;
         }
 
+        // and finally, check for any completed claims
         $claims = $game->achievementSetClaims()
             ->newSet()
             ->primaryClaim()
