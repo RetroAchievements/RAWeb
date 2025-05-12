@@ -1,5 +1,6 @@
 import { type FC, Fragment } from 'react';
 import type { IconType } from 'react-icons/lib';
+import { route } from 'ziggy-js';
 
 import { BaseChip } from '@/common/components/+vendor/BaseChip';
 import type { TranslatedString } from '@/types/i18next';

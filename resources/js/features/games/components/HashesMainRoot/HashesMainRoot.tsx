@@ -1,6 +1,7 @@
 import { type FC, memo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuSave } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { Embed } from '@/common/components/Embed/Embed';

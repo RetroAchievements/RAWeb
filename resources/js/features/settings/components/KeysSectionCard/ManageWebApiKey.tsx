@@ -5,6 +5,7 @@ import { type FC, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuCircleAlert, LuCopy } from 'react-icons/lu';
 import { useCopyToClipboard, useMedia } from 'react-use';
+import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';

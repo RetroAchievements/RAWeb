@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
+import { route } from 'ziggy-js';
 
 import * as UseShortcodeBodyPreviewModule from '@/common/hooks/useShortcodeBodyPreview';
 import { createAuthenticatedUser } from '@/common/models';

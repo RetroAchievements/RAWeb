@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import { FullPaginator } from '@/common/components/FullPaginator';
 import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';

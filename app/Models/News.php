@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use Laravel\Scout\Searchable;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -28,7 +27,6 @@ class News extends BaseModel implements HasComments, HasMedia
     use HasFactory;
     use InteractsWithMedia;
 
-    use Searchable;
     use SoftDeletes;
 
     // TODO drop image_asset_path, migrate to media
@@ -53,24 +51,6 @@ class News extends BaseModel implements HasComments, HasMedia
         'unpublish_at' => 'datetime',
         'pinned_at' => 'datetime',
     ];
-
-    // == search
-
-    public function toSearchableArray(): array
-    {
-        return $this->only([
-            'id',
-            'title',
-            'lead',
-            // 'body',
-        ]);
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        // TODO return $this->isPublished();
-        return false;
-    }
 
     // == media
 

@@ -13,11 +13,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Scout\Searchable;
 
 class Comment extends BaseModel
 {
-    use Searchable;
     use SoftDeletes;
     /** @use HasFactory<CommentFactory> */
     use HasFactory;
@@ -49,24 +47,6 @@ class Comment extends BaseModel
     protected static function newFactory(): CommentFactory
     {
         return CommentFactory::new();
-    }
-
-    // == search
-
-    public function toSearchableArray(): array
-    {
-        return $this->only([
-            'ID',
-            // 'body', // TODO: doable? might be a bit extreme with some of those posts...
-        ]);
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        /*
-         * TODO: which comments should be indexed?
-         */
-        return false;
     }
 
     // == accessors
