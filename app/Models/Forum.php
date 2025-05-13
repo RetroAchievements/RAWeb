@@ -12,14 +12,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Scout\Searchable;
 
 class Forum extends BaseModel
 {
     /** @use HasFactory<ForumFactory> */
     use HasFactory;
     use HasSelfHealingUrls;
-    use Searchable;
     use SoftDeletes;
 
     // TODO drop latest_comment_id -> derived
@@ -34,23 +32,6 @@ class Forum extends BaseModel
     protected static function newFactory(): ForumFactory
     {
         return ForumFactory::new();
-    }
-
-    // == search
-
-    public function toSearchableArray(): array
-    {
-        return $this->only([
-            'id',
-            'title',
-            'description',
-        ]);
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        // TODO return true;
-        return false;
     }
 
     // == accessors

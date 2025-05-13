@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -22,7 +21,6 @@ class GameHash extends BaseModel
 {
     /** @use HasFactory<GameHashFactory> */
     use HasFactory;
-    use Searchable;
     use SoftDeletes;
 
     use LogsActivity {
@@ -70,25 +68,6 @@ class GameHash extends BaseModel
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
-    }
-
-    // == search
-
-    public function toSearchableArray(): array
-    {
-        return $this->only([
-            'id',
-            'hash',
-            'name',
-            'md5',
-            'description',
-        ]);
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        // TODO return true;
-        return false;
     }
 
     // == actions

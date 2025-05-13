@@ -292,17 +292,19 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
     public function toSearchableArray(): array
     {
-        return $this->only([
-            'ID',
-            'Title',
-        ]);
+        return [
+            'id' => (int) $this->ID,
+            'title' => $this->title,
+        ];
     }
 
     public function shouldBeSearchable(): bool
     {
-        // TODO return $this->isPublished();
-        // TODO return true;
-        return false;
+        if ($this->ConsoleID === System::Hubs || $this->ConsoleID === System::Events) {
+            return false;
+        }
+
+        return true;
     }
 
     // TODO refactor when game_achievement_sets is ready
