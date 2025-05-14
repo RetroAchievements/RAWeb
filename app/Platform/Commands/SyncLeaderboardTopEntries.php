@@ -32,11 +32,9 @@ class SyncLeaderboardTopEntries extends Command
         $bar->start();
 
         $query->chunkById(5000, function ($leaderboards) use ($bar) {
+            /** @var Leaderboard $leaderboard */
             foreach ($leaderboards as $leaderboard) {
-                /** @var Leaderboard $safeLb */
-                $safeLb = $leaderboard;
-
-                (new RecalculateLeaderboardTopEntryAction())->execute($safeLb);
+                (new RecalculateLeaderboardTopEntryAction())->execute($leaderboard);
                 $bar->advance();
             }
         }, 'ID');

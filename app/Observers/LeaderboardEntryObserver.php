@@ -65,12 +65,12 @@ class LeaderboardEntryObserver
                 return;
             }
 
-            // Check if the new entry is better than the current top entry.
-            $isNewEntryBetter = $leaderboard->isBetterScore($leaderboardEntry->score, $currentTopEntry->score);
-
+            // Determine if the new entry should be the top entry.
             // If scores are tied, the earlier entry wins.
-            if ($leaderboardEntry->score === $currentTopEntry->score && $leaderboardEntry->updated_at < $currentTopEntry->updated_at) {
-                $isNewEntryBetter = true;
+            if ($leaderboardEntry->score === $currentTopEntry->score) {
+                $isNewEntryBetter = $leaderboardEntry->updated_at < $currentTopEntry->updated_at;
+            } else {
+                $isNewEntryBetter = $leaderboard->isBetterScore($leaderboardEntry->score, $currentTopEntry->score);
             }
 
             if ($isNewEntryBetter) {

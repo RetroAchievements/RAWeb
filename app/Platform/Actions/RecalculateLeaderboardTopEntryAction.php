@@ -39,14 +39,7 @@ class RecalculateLeaderboardTopEntryAction
 
     private function recalculateForLeaderboard(Leaderboard $leaderboard): void
     {
-        $topEntry = $leaderboard->sortedEntries()
-            ->with('user')
-            ->whereHas('user', function ($query) {
-                $query->where('Untracked', 0)
-                      ->whereNull('unranked_at')
-                      ->whereNull('banned_at');
-            })
-            ->first();
+        $topEntry = $leaderboard->sortedEntries()->with('user')->first();
 
         if ($topEntry) {
             $leaderboard->top_entry_id = $topEntry->id;
