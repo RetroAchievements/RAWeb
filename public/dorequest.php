@@ -540,8 +540,9 @@ switch ($requestType) {
             GetLeaderboardData($leaderboard, User::whereName($username)->first(), $count, $offset, nearby: true) : [];
         break;
 
+    case "achievementsets":
     case "patch":
-        $version = (int) request()->input('v', 1);
+        $version = $requestType === 'achievementsets' ? 2 : 1;
         $flag = (int) request()->input('f', 0);
         $gameHashMd5 = request()->input('m');
 
