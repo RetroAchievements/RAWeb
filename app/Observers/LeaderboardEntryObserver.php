@@ -76,9 +76,6 @@ class LeaderboardEntryObserver
             if ($isNewEntryBetter) {
                 // This is a new top entry - update the leaderboard.
                 $leaderboard->top_entry_id = $leaderboardEntry->id;
-                $leaderboard->top_user_id = $leaderboardEntry->user_id;
-                $leaderboard->top_score = $leaderboardEntry->score;
-                $leaderboard->top_entry_updated_at = $leaderboardEntry->updated_at;
                 $leaderboard->save();
             }
         } else {

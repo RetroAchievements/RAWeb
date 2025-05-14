@@ -20,7 +20,9 @@ class RecalculateLeaderboardTopEntryAction
     {
         // If user is provided, find all leaderboards where they have the top entry.
         if ($user !== null) {
-            $leaderboards = Leaderboard::where('top_user_id', $user->id)->get();
+            $leaderboards = Leaderboard::whereHas('topEntry', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->get();
 
             foreach ($leaderboards as $leaderboard) {
                 $this->recalculateForLeaderboard($leaderboard->id);
@@ -53,16 +55,10 @@ class RecalculateLeaderboardTopEntryAction
 
         if ($topEntry) {
             $leaderboard->top_entry_id = $topEntry->id;
-            $leaderboard->top_user_id = $topEntry->user_id;
-            $leaderboard->top_score = $topEntry->score;
-            $leaderboard->top_entry_updated_at = $topEntry->updated_at;
             $leaderboard->save();
         } else {
             // No valid entries found, clear the top entry.
             $leaderboard->top_entry_id = null;
-            $leaderboard->top_user_id = null;
-            $leaderboard->top_score = null;
-            $leaderboard->top_entry_updated_at = null;
             $leaderboard->save();
         }
     }
