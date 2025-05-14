@@ -13,10 +13,10 @@ class RecalculateLeaderboardTopEntryAction
      * Recalculate the top entry for a specific leaderboard or
      * recalculate all leaderboards for a specific user.
      *
-     * @param Leaderboard|null $leaderboard if provided, only recalculate the top entry for this leaderboard
+     * @param int|null $leaderboardId if provided, only recalculate the top entry for this leaderboard
      * @param User|null $user if provided, recalculate all leaderboards where this user is the top entry
      */
-    public function execute(?Leaderboard $leaderboard = null, ?User $user = null): void
+    public function execute(?int $leaderboardId = null, ?User $user = null): void
     {
         // If user is provided, find all leaderboards where they have the top entry.
         if ($user !== null) {
@@ -32,7 +32,8 @@ class RecalculateLeaderboardTopEntryAction
         }
 
         // If leaderboardId is provided, recalculate just that one.
-        if ($leaderboard !== null) {
+        if ($leaderboardId !== null) {
+            $leaderboard = Leaderboard::find($leaderboardId);
             $this->recalculateForLeaderboard($leaderboard);
         }
     }

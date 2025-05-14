@@ -89,7 +89,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
         // After the update is complete, recalculate the top entry if LowerIsBetter changed.
         static::updated(function (Leaderboard $leaderboard) {
             if ($leaderboard->wasChanged('LowerIsBetter')) {
-                (new RecalculateLeaderboardTopEntryAction())->execute($leaderboard);
+                (new RecalculateLeaderboardTopEntryAction())->execute($leaderboard->id);
             }
         });
     }
