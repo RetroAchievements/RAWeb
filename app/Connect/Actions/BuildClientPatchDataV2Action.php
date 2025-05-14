@@ -14,27 +14,11 @@ use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Services\VirtualGameIdService;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
-class BuildClientPatchDataAction
+class BuildClientPatchDataV2Action
 {
-    /**
-     * Assembles a patch data package of all components needed by emulators:
-     * - Basic game information (title, system, etc.)
-     * - Achievement definitions and unlock conditions
-     * - Leaderboard configurations
-     * - Rich presence script
-     *
-     * Modern rcheevos integrations send the game hash. Legacy integrations send only
-     * the game. We need to support constructing the patch data package for both situations.
-     *
-     * @param GameHash|null $gameHash The game hash to build patch data for
-     * @param Game|null $game The game to build patch data for
-     * @param User|null $user The current user requesting the patch data (for player count calculations)
-     * @param AchievementFlag|null $flag Optional flag to filter the achievements by (eg: only official achievements)
-     * @throws InvalidArgumentException when neither $gameHash nor $game is provided
-     */
     public function execute(
         ?GameHash $gameHash = null,
         ?Game $game = null,
@@ -45,49 +29,51 @@ class BuildClientPatchDataAction
             throw new InvalidArgumentException('Either gameHash or game must be provided to build patch data.');
         }
 
-        // For legacy clients that don't provide a hash, just use the game directly.
         if (!$gameHash) {
             return $this->buildPatchData($game, null, $user, $flag);
         }
 
-        // If the hash is not marked as compatible, and the current user is not flagged to
-        // be testing the hash, return a dummy set that will inform the user.
-        if ($gameHash->compatibility !== GameHashCompatibility::Compatible
-                && $gameHash->compatibility_tester_id !== $user?->id) {
+        if (
+            $gameHash->compatibility !== GameHashCompatibility::Compatible
+            && $gameHash->compatibility_tester_id !== $user?->id
+        ) {
             return $this->buildIncompatiblePatchData($game ?? $gameHash->game, $gameHash->compatibility, $user);
         }
 
-        $rootGame = (new ResolveRootGameFromGameAndGameHashAction())->execute($gameHash, $game, $user);
+        $actualLoadedGame = (new ResolveRootGameFromGameAndGameHashAction())->execute($gameHash, $game, $user);
 
         // If multiset is disabled or there's no user, just use the game directly.
         if (!$user || $user->is_globally_opted_out_of_subsets) {
-            return $this->buildPatchData($rootGame, null, $user, $flag);
+            return $this->buildPatchData($actualLoadedGame, null, $user, $flag);
         }
 
         // Resolve sets once - we'll use this for building the full patch data.
         $resolvedSets = (new ResolveAchievementSetsAction())->execute($gameHash, $user);
         if ($resolvedSets->isEmpty()) {
-            return $this->buildPatchData($rootGame, null, $user, $flag);
+            return $this->buildPatchData($actualLoadedGame, null, $user, $flag);
         }
 
         // Get the core game from the first resolved set.
-        $coreSet = $resolvedSets->first();
-        $coreGame = Game::find($coreSet->game_id) ?? $rootGame;
+        $derivedCoreSet = $resolvedSets->first();
+        $derivedCoreGame = Game::find($derivedCoreSet->game_id) ?? $actualLoadedGame;
 
-        $richPresencePatch = $coreGame->RichPresencePatch;
+        // What type of set is the user loading? "core", "bonus", "specialty", or "exclusive".
+        $loadedSetType = $this->determineLoadedHashSetType($gameHash, $resolvedSets);
 
-        // For specialty/exclusive sets, we use:
-        // - The root game's ID and achievements (already determined by ResolveRootGameIdFromGameAndGameHashAction).
-        // - The core game's title and image.
-        // - The root game's RP if present, otherwise fall back to core game's RP.
-        if ($rootGame->id === $gameHash->game->id) {
-            $richPresencePatch = $gameHash->game->RichPresencePatch ?: $richPresencePatch;
+        [$richPresenceGameId, $richPresencePatch] = $this->buildRichPresenceData(
+            $actualLoadedGame,
+            $derivedCoreGame,
+            $loadedSetType
+        );
 
-            return $this->buildPatchData($rootGame, $resolvedSets, $user, $flag, $richPresencePatch, $coreGame);
-        }
-
-        // For all other cases (including bonus sets), we use the core game's data.
-        return $this->buildPatchData($coreGame, $resolvedSets, $user, $flag, $richPresencePatch);
+        return $this->buildPatchData(
+            $derivedCoreGame,
+            $resolvedSets,
+            $user,
+            $flag,
+            $richPresenceGameId,
+            $richPresencePatch
+        );
     }
 
     /**
@@ -95,107 +81,73 @@ class BuildClientPatchDataAction
      * @param Collection<int, GameAchievementSet>|null $resolvedSets The sets to send to the client/emulator
      * @param User|null $user The current user requesting the patch data (for player count calculations)
      * @param AchievementFlag|null $flag Optional flag to filter the achievements by (eg: only official achievements)
-     * @param string|null $richPresencePatch The RP patch code that the client should use
-     * @param Game|null $titleGame Optional game to use for title and image (for specialty/exclusive sets)
+     * @param int|null $richPresenceGameId the game ID where the RP patch code comes from
+     * @param string|null $richPresencePatch the RP patch code that the client should use
      */
     private function buildPatchData(
         Game $game,
         ?Collection $resolvedSets,
         ?User $user,
         ?AchievementFlag $flag,
+        ?int $richPresenceGameId = null,
         ?string $richPresencePatch = null,
-        ?Game $titleGame = null
     ): array {
         $gamePlayerCount = $this->calculateGamePlayerCount($game, $user);
 
-        $coreAchievementSet = GameAchievementSet::where('game_id', $game->id)
-            ->core()
-            ->with('achievementSet.achievements.developer')
-            ->first();
-
-        // Don't fetch the games in the loop if we have sets. Grab them all in a single query.
         $sets = [];
         if ($resolvedSets?->isNotEmpty()) {
-            $coreGameIds = $resolvedSets->pluck('core_game_id')->unique();
-            $achievementSetIds = $resolvedSets->pluck('achievement_set_id')->unique();
-
             // Preload all games.
+            $coreGameIds = $resolvedSets->pluck('core_game_id')->unique();
             $games = Game::whereIn('ID', $coreGameIds)->get()->keyBy('ID');
 
-            // Preload all GameAchievementSet entities we'll need.
-            $gameAchievementSets = GameAchievementSet::where(function ($query) use ($game, $achievementSetIds) {
-                $query->where('game_id', $game->id)->whereIn('achievement_set_id', $achievementSetIds);
-            })->orWhere(function ($query) use ($resolvedSets) {
-                $query
-                    ->whereIn('game_id', $resolvedSets->pluck('game_id'))
-                    ->whereIn('achievement_set_id', $resolvedSets->pluck('achievement_set_id'));
-            })->get();
-
             foreach ($resolvedSets as $resolvedSet) {
-                // We don't want to include sets in the list that are duplicative
-                // with the root-level data in the response (for achievements & leaderboards).
-                if ($resolvedSet->game_id === $game->id && $resolvedSet->type === AchievementSetType::Core) {
-                    continue;
-                }
-
-                // For specialty/exclusive sets, instead of looking up how this game's
-                // achievement set is attached, look up how the resolved set's achievement
-                // set is attached to its parent.
-                $setAttachment = $gameAchievementSets->first(function ($attachment) use ($resolvedSet) {
-                    return
-                        $attachment->game_id === $resolvedSet->game_id
-                        && $attachment->achievement_set_id === $resolvedSet->achievement_set_id
-                    ;
-                });
-
-                // Get the achievement set for the current game.
-                $gameAchievementSet = $gameAchievementSets->first(function ($attachment) use ($game, $resolvedSet) {
-                    return
-                        $attachment->game_id === $game->id
-                        && $attachment->achievement_set_id === $resolvedSet->achievement_set_id
-                    ;
-                });
-
-                // Skip if this is a specialty/exclusive set that we're directly loading a hash for.
-                if (
-                    $setAttachment
-                    && in_array($setAttachment->type, [AchievementSetType::Specialty, AchievementSetType::Exclusive])
-                    && $gameAchievementSet !== null
-                ) {
-                    continue;
-                }
-
-                // Get the achievements for this set. If there are no published
-                // achievements, we won't bother sending the set to the client.
-                $achievements = $this->buildAchievementsData($resolvedSet, $gamePlayerCount, $flag);
-                if (empty($achievements)) {
-                    continue;
-                }
-
                 $setGame = $games[$resolvedSet->core_game_id];
+
+                $achievements = $this->buildAchievementsData($resolvedSet, $gamePlayerCount, $flag);
+                $leaderboards = $this->buildLeaderboardsData($setGame);
+                if (empty($achievements) && empty($leaderboards)) {
+                    continue;
+                }
+
                 $sets[] = [
-                    'GameID' => $setGame->id,
-                    'GameAchievementSetID' => $resolvedSet->id,
-                    'SetTitle' => $resolvedSet->title,
+                    'Title' => $resolvedSet->title,
                     'Type' => $resolvedSet->type->value,
-                    'ImageIcon' => $setGame->ImageIcon,
-                    'ImageIconURL' => media_asset($setGame->ImageIcon),
+                    'AchievementSetId' => $resolvedSet->achievementSet->id,
+                    'GameId' => $resolvedSet->core_game_id,
+                    'ImageIconUrl' => media_asset($setGame->ImageIcon),
                     'Achievements' => $achievements,
-                    'Leaderboards' => $this->buildLeaderboardsData($setGame),
+                    'Leaderboards' => $leaderboards,
                 ];
             }
+        } else {
+            $coreAchievementSet = GameAchievementSet::where('game_id', $game->id)
+                ->core()
+                ->with('achievementSet.achievements.developer')
+                ->first();
+
+            $achievements = $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $flag);
+            $leaderboards = $this->buildLeaderboardsData($coreAchievementSet->game);
+
+            $sets[] = [
+                'Title' => $coreAchievementSet->title,
+                'Type' => $coreAchievementSet->type->value,
+                'AchievementSetId' => $coreAchievementSet->achievementSet->id,
+                'GameId' => $coreAchievementSet->game_id,
+                'ImageIconUrl' => media_asset($coreAchievementSet->game->ImageIcon),
+                'Achievements' => $achievements,
+                'Leaderboards' => $leaderboards,
+            ];
         }
 
         return [
             'Success' => true,
-            'PatchData' => [
-                ...$this->buildBaseGameData($game, $richPresencePatch, $titleGame),
-                'Achievements' => $coreAchievementSet
-                    ? $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $flag)
-                    : [],
-                'Leaderboards' => $this->buildLeaderboardsData($game),
-                ...(!empty($sets) ? ['Sets' => $sets] : []),
-            ],
+            'GameId' => $game->id,
+            'Title' => $game->title,
+            'ImageIconUrl' => media_asset($game->ImageIcon),
+            'RichPresenceGameId' => $richPresenceGameId ?? $game->id,
+            'RichPresencePatch' => $richPresencePatch ?? $game->RichPresencePatch,
+            'ConsoleId' => $game->system->id,
+            'Sets' => $sets,
         ];
     }
 
@@ -259,28 +211,6 @@ class BuildClientPatchDataAction
     }
 
     /**
-     * Builds the basic game information needed by emulators.
-     */
-    private function buildBaseGameData(
-        Game $game,
-        ?string $richPresencePatch,
-        ?Game $titleGame,
-    ): array {
-        // If a title game is provided, use its title and image.
-        $titleGame = $titleGame ?? $game;
-
-        return [
-            'ID' => $game->id,
-            'ParentID' => $titleGame->id,
-            'Title' => $titleGame->title,
-            'ImageIcon' => $titleGame->ImageIcon,
-            'RichPresencePatch' => $richPresencePatch ?? $game->RichPresencePatch,
-            'ConsoleID' => $game->ConsoleID,
-            'ImageIconURL' => media_asset($titleGame->ImageIcon),
-        ];
-    }
-
-    /**
      * Builds leaderboard information needed by emulators.
      */
     private function buildLeaderboardsData(Game $game): array
@@ -306,6 +236,31 @@ class BuildClientPatchDataAction
         }
 
         return $leaderboardsData;
+    }
+
+    /**
+     * If the user loads a core set hash, always send the core game's RP.
+     * If the user loads a bonus set hash, always send the core game's RP.
+     * If the user loads a specialty set hash, always send the specialty game's RP if available.
+     *   Fall back to the core game's RP if there's no specialty game RP.
+     * If the user loads an exclusive set hash, always send the exclusive game's RP if available.
+     *   Fall back to the core game's RP if there's no exclusive game RP.
+     */
+    private function buildRichPresenceData(Game $actualLoadedGame, Game $derivedCoreGame, AchievementSetType $loadedSetType): array
+    {
+        $doesLoadedGameHaveRp =
+            !empty($actualLoadedGame->RichPresencePatch)
+            && !is_null($actualLoadedGame->RichPresencePatch);
+
+        $didUserLoadSpecialtyOrExclusive =
+            $loadedSetType === AchievementSetType::Specialty
+            || $loadedSetType === AchievementSetType::Exclusive;
+
+        if ($doesLoadedGameHaveRp && $didUserLoadSpecialtyOrExclusive) {
+            return [$actualLoadedGame->id, $actualLoadedGame->RichPresencePatch];
+        }
+
+        return [$derivedCoreGame->id, $derivedCoreGame->RichPresencePatch];
     }
 
     /**
@@ -337,10 +292,6 @@ class BuildClientPatchDataAction
         return max(1, $gamePlayerCount);
     }
 
-    /**
-     * @param Game $game The game to build root-level data for
-     * @param User|null $user The current user requesting the patch data (to support future testing role)
-     */
     private function buildIncompatiblePatchData(
         Game $game,
         GameHashCompatibility $gameHashCompatibility,
@@ -350,12 +301,16 @@ class BuildClientPatchDataAction
 
         return [
             'Success' => true,
-            'PatchData' => [
-                'ID' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
-                'Title' => 'Unsupported Game Version',
-                'ConsoleID' => $game->ConsoleID,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageIconURL' => media_asset($game->ImageIcon),
+            'GameId' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
+            'Title' => 'Unsupported Game Version',
+            'ImageIconUrl' => media_asset($game->ImageIcon),
+            'ConsoleId' => $game->ConsoleID,
+            'Sets' => [
+                'Title' => null,
+                'Type' => AchievementSetType::Core->value,
+                'AchievementSetId' => 0,
+                'GameId' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
+                'ImageIconUrl' => media_asset($game->ImageIcon),
                 'Achievements' => [
                     (new CreateWarningAchievementAction())->execute(
                         title: 'Unsupported Game Version',
@@ -369,5 +324,34 @@ class BuildClientPatchDataAction
                 'Leaderboards' => [],
             ],
         ];
+    }
+
+    /**
+     * @param Collection<int, GameAchievementSet> $resolvedAchievementSets
+     */
+    private function determineLoadedHashSetType(
+        GameHash $gameHash,
+        Collection $resolvedAchievementSets
+    ): AchievementSetType {
+        $loadedHashId = $gameHash->game->id;
+        $loadedAchievementSetId = null;
+        $setType = null;
+
+        // First get the achievement set ID for the loaded hash.
+        $loadedHashSets = GameAchievementSet::where('game_id', $loadedHashId)->get();
+        if ($loadedHashSets->isNotEmpty()) {
+            // Get the achievement set ID from the hash's game.
+            $loadedAchievementSetId = $loadedHashSets->first()->achievement_set_id;
+
+            // Now, find how this set is used in the resolved sets.
+            foreach ($resolvedAchievementSets as $set) {
+                if ($set->achievement_set_id === $loadedAchievementSetId) {
+                    $setType = $set->type;
+                    break;
+                }
+            }
+        }
+
+        return $setType;
     }
 }

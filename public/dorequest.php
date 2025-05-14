@@ -3,11 +3,12 @@
 use App\Actions\FindUserByIdentifierAction;
 use App\Community\Enums\ActivityType;
 use App\Connect\Actions\BuildClientPatchDataAction;
+use App\Connect\Actions\BuildClientPatchDataV2Action;
 use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\GetCodeNotesAction;
 use App\Connect\Actions\GetHashLibraryAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
-use App\Connect\Actions\ResolveRootGameIdFromGameAndGameHashAction;
+use App\Connect\Actions\ResolveRootGameFromGameAndGameHashAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
 use App\Connect\Actions\SubmitCodeNoteAction;
 use App\Enums\ClientSupportLevel;
@@ -326,8 +327,7 @@ switch ($requestType) {
 
             // If multiset is enabled, resolve the root game ID.
             if (config('feature.enable_multiset')) {
-                $rootGameId = (new ResolveRootGameIdFromGameAndGameHashAction())->execute($gameHash, $game, $user);
-                $game = Game::find($rootGameId);
+                $game = (new ResolveRootGameFromGameAndGameHashAction())->execute($gameHash, $game, $user);
             }
 
             PlayerSessionHeartbeat::dispatch($user, $game, $activityMessage, $gameHash);
@@ -541,6 +541,7 @@ switch ($requestType) {
         break;
 
     case "patch":
+        $version = (int) request()->input('v', 1);
         $flag = (int) request()->input('f', 0);
         $gameHashMd5 = request()->input('m');
 
@@ -574,7 +575,11 @@ switch ($requestType) {
                 $game = Game::find($gameID);
             }
 
-            $response = (new BuildClientPatchDataAction())->execute(
+            $buildDataAction = $version === 2
+                ? (new BuildClientPatchDataV2Action())
+                : (new BuildClientPatchDataAction());
+
+            $response = $buildDataAction->execute(
                 gameHash: $gameHash,
                 game: $game,
                 user: $user,
