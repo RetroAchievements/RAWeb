@@ -314,8 +314,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     public function toSearchableArray(): array
     {
         return [
-            'banned_at' => $this->banned_at,
-            'deleted_at' => $this->Deleted,
             'display_name' => $this->display_name,
             'last_activity_at' => $this->LastLogin,
             'username' => $this->username,
@@ -324,7 +322,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     public function shouldBeSearchable(): bool
     {
-        if ($this->banned_at) {
+        if ($this->Deleted || $this->banned_at) {
             return false;
         }
 

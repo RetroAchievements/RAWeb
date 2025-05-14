@@ -147,8 +147,6 @@ return [
 
             User::class => [
                 'filterableAttributes' => [
-                    'banned_at',
-                    'deleted_at',
                     'display_name',
                     'username',
                 ],

@@ -22,8 +22,6 @@ class SearchApiController extends Controller
         }
 
         $searchResults = User::search($keyword)
-            ->where('deleted_at', null)
-            ->where('banned_at', null)
             ->orderBy('last_activity_at', 'desc')
             ->take(20)
             ->get();
