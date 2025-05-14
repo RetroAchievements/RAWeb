@@ -105,9 +105,6 @@ class BuildClientPatchDataV2Action
 
                 $achievements = $this->buildAchievementsData($resolvedSet, $gamePlayerCount, $flag);
                 $leaderboards = $this->buildLeaderboardsData($setGame);
-                if (empty($achievements) && empty($leaderboards)) {
-                    continue;
-                }
 
                 $sets[] = [
                     'Title' => $resolvedSet->title,
