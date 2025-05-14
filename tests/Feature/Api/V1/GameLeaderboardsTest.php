@@ -171,11 +171,11 @@ class GameLeaderboardsTest extends TestCase
 
         // Force recalculation of denormalized data in leaderboards.
         $action = new RecalculateLeaderboardTopEntryAction();
-        $action->execute($leaderboardOne->ID);
-        $action->execute($leaderboardTwo->ID);
-        $action->execute($leaderboardThree->ID);
-        $action->execute($leaderboardFour->ID);
-        $action->execute($leaderboardFive->ID);
+        $action->execute($leaderboardOne);
+        $action->execute($leaderboardTwo);
+        $action->execute($leaderboardThree);
+        $action->execute($leaderboardFour);
+        $action->execute($leaderboardFive);
 
         $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->ID]))
             ->assertSuccessful()

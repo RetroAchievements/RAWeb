@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Community\Enums\ArticleType;
+use App\Platform\Actions\RecalculateLeaderboardTopEntryAction;
 use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\ValueFormat;
 use App\Support\Database\Eloquent\BaseModel;
@@ -72,6 +73,25 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
     protected static function newFactory(): LeaderboardFactory
     {
         return LeaderboardFactory::new();
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        // When the LowerIsBetter flag changes, clear the top entry.
+        static::updating(function (Leaderboard $leaderboard) {
+            if ($leaderboard->isDirty('LowerIsBetter')) {
+                $leaderboard->top_entry_id = null;
+            }
+        });
+
+        // After the update is complete, recalculate the top entry if LowerIsBetter changed.
+        static::updated(function (Leaderboard $leaderboard) {
+            if ($leaderboard->wasChanged('LowerIsBetter')) {
+                (new RecalculateLeaderboardTopEntryAction())->execute($leaderboard);
+            }
+        });
     }
 
     // == logging

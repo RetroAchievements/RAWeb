@@ -36,7 +36,7 @@ class SyncLeaderboardTopEntries extends Command
                 /** @var Leaderboard $safeLb */
                 $safeLb = $leaderboard;
 
-                (new RecalculateLeaderboardTopEntryAction())->execute($safeLb->id);
+                (new RecalculateLeaderboardTopEntryAction())->execute($safeLb);
                 $bar->advance();
             }
         }, 'ID');

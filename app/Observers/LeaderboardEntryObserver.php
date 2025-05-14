@@ -21,7 +21,7 @@ class LeaderboardEntryObserver
 
     public function deleted(LeaderboardEntry $leaderboardEntry): void
     {
-        (new RecalculateLeaderboardTopEntryAction())->execute($leaderboardEntry->leaderboard_id);
+        (new RecalculateLeaderboardTopEntryAction())->execute($leaderboardEntry->leaderboard);
     }
 
     public function restored(LeaderboardEntry $leaderboardEntry): void
@@ -31,7 +31,7 @@ class LeaderboardEntryObserver
 
     public function forceDeleted(LeaderboardEntry $leaderboardEntry): void
     {
-        (new RecalculateLeaderboardTopEntryAction())->execute($leaderboardEntry->leaderboard_id);
+        (new RecalculateLeaderboardTopEntryAction())->execute($leaderboardEntry->leaderboard);
     }
 
     public function updateLeaderboardTopEntry(LeaderboardEntry $leaderboardEntry): void
@@ -60,7 +60,7 @@ class LeaderboardEntryObserver
                 || $currentTopEntry->user->unranked_at
                 || $currentTopEntry->user->banned_at
             ) {
-                (new RecalculateLeaderboardTopEntryAction())->execute($leaderboard->id);
+                (new RecalculateLeaderboardTopEntryAction())->execute($leaderboard);
 
                 return;
             }
@@ -80,7 +80,7 @@ class LeaderboardEntryObserver
             }
         } else {
             // No top entry set yet, so do a recalculation.
-            (new RecalculateLeaderboardTopEntryAction())->execute($leaderboard->id);
+            (new RecalculateLeaderboardTopEntryAction())->execute($leaderboard);
         }
     }
 }

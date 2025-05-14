@@ -13,10 +13,10 @@ class RecalculateLeaderboardTopEntryAction
      * Recalculate the top entry for a specific leaderboard or
      * recalculate all leaderboards for a specific user.
      *
-     * @param int|null $leaderboardId if provided, only recalculate the top entry for this leaderboard
+     * @param Leaderboard|null $leaderboard if provided, only recalculate the top entry for this leaderboard
      * @param User|null $user if provided, recalculate all leaderboards where this user is the top entry
      */
-    public function execute(?int $leaderboardId = null, ?User $user = null): void
+    public function execute(?Leaderboard $leaderboard = null, ?User $user = null): void
     {
         // If user is provided, find all leaderboards where they have the top entry.
         if ($user !== null) {
@@ -25,25 +25,20 @@ class RecalculateLeaderboardTopEntryAction
             })->get();
 
             foreach ($leaderboards as $leaderboard) {
-                $this->recalculateForLeaderboard($leaderboard->id);
+                $this->recalculateForLeaderboard($leaderboard);
             }
 
             return;
         }
 
         // If leaderboardId is provided, recalculate just that one.
-        if ($leaderboardId !== null) {
-            $this->recalculateForLeaderboard($leaderboardId);
+        if ($leaderboard !== null) {
+            $this->recalculateForLeaderboard($leaderboard);
         }
     }
 
-    private function recalculateForLeaderboard(int $leaderboardId): void
+    private function recalculateForLeaderboard(Leaderboard $leaderboard): void
     {
-        $leaderboard = Leaderboard::find($leaderboardId);
-        if (!$leaderboard) {
-            return;
-        }
-
         $topEntry = $leaderboard->sortedEntries()
             ->with('user')
             ->whereHas('user', function ($query) {
