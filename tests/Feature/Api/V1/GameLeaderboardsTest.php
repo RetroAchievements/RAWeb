@@ -93,7 +93,7 @@ class GameLeaderboardsTest extends TestCase
             'user_id' => $userTwo->ID,
             'score' => 1,
         ]);
-        $bannedUser = User::factory()->create(['User' => 'bannedUser', "banned_at" => Carbon::now()]);
+        $bannedUser = User::factory()->create(['User' => 'bannedUser', "banned_at" => Carbon::now(), 'unranked_at' => Carbon::now()]);
         $bannedLeaderboardEntry = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboardTwo->ID,
             'user_id' => $bannedUser->ID,
