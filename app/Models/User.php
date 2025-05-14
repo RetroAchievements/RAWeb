@@ -322,7 +322,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     public function shouldBeSearchable(): bool
     {
-        if ($this->Deleted || $this->banned_at) {
+        if (isset($this->Deleted) || isset($this->banned_at)) {
             return false;
         }
 
