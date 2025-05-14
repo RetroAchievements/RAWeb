@@ -296,6 +296,11 @@ class BuildClientPatchDataV2Action
     ): array {
         $seeSupportedGameFiles = 'See the Supported Game Files page for this game to find a compatible version.';
 
+        $coreAchievementSet = GameAchievementSet::where('game_id', $game->id)
+            ->core()
+            ->first();
+        $achievementSetId = $coreAchievementSet ? $coreAchievementSet->achievement_set_id : 0;
+
         return [
             'Success' => true,
             'GameId' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
@@ -305,7 +310,7 @@ class BuildClientPatchDataV2Action
             'Sets' => [
                 'Title' => null,
                 'Type' => AchievementSetType::Core->value,
-                'AchievementSetId' => 0,
+                'AchievementSetId' => $achievementSetId,
                 'GameId' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
                 'ImageIconUrl' => media_asset($game->ImageIcon),
                 'Achievements' => [
