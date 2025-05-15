@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
-import { type FC, useEffect, useRef, useState } from 'react';
+import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronDown } from 'react-icons/lu';
 
@@ -10,6 +10,7 @@ import {
   BaseCollapsibleContent,
   BaseCollapsibleTrigger,
 } from '@/common/components/+vendor/BaseCollapsible';
+import { useAnimatedCollapse } from '@/common/hooks/useAnimatedCollapse';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
@@ -23,16 +24,7 @@ export const TopicOptions: FC = () => {
 
   const { t } = useTranslation();
 
-  const [isOpen, setIsOpen] = useState(false);
-
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [contentHeight, setContentHeight] = useState(0);
-
-  useEffect(() => {
-    if (contentRef.current) {
-      setContentHeight(contentRef.current.offsetHeight);
-    }
-  }, [isOpen]);
+  const { contentHeight, contentRef, isOpen, setIsOpen } = useAnimatedCollapse();
 
   return (
     <BaseCollapsible open={isOpen} onOpenChange={setIsOpen}>
