@@ -7,7 +7,6 @@ namespace Tests\Feature\Connect;
 use App\Community\Enums\ActivityType;
 use App\Models\Game;
 use App\Models\PlayerSession;
-use App\Models\System;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -24,10 +23,8 @@ class PostActivityTest extends TestCase
     {
         Carbon::setTestNow(Carbon::now());
 
-        /** @var System $system */
-        $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = $this->seedGame();
 
         // this is the legacy start_session API call
         $this->get($this->apiUrl('postactivity', ['a' => ActivityType::StartedPlaying, 'm' => $game->ID]))

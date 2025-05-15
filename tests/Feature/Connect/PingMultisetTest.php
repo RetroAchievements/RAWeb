@@ -50,8 +50,8 @@ class PingMultisetTest extends TestCase
         Carbon::setTestNow(Carbon::now());
 
         $system = System::factory()->create();
-        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
-        $bonusGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $baseGame = $this->seedGame(system: $system);
+        $bonusGame = $this->seedGame(system: $system);
 
         Achievement::factory()->published()->count(2)->create(['GameID' => $baseGame->id]);
         Achievement::factory()->published()->count(2)->create(['GameID' => $bonusGame->id]);
@@ -101,8 +101,8 @@ class PingMultisetTest extends TestCase
         Carbon::setTestNow(Carbon::now());
 
         $system = System::factory()->create();
-        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
-        $specialtyGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $baseGame = $this->seedGame(system: $system);
+        $specialtyGame = $this->seedGame(system: $system);
 
         Achievement::factory()->published()->count(2)->create(['GameID' => $baseGame->id]);
         Achievement::factory()->published()->count(2)->create(['GameID' => $specialtyGame->id]);
@@ -150,7 +150,7 @@ class PingMultisetTest extends TestCase
         Carbon::setTestNow(Carbon::now());
 
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = $this->seedGame(system: $system, withHash: false);
         $gameHash = GameHash::factory()->create([
             'game_id' => $game->id,
             'name' => 'Game Title (Disc 2)', // !! will be detected as multi-disc

@@ -7,7 +7,6 @@ namespace Tests\Feature\Connect;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Game;
-use App\Models\GameHash;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Models\User;
@@ -27,12 +26,9 @@ class PingTest extends TestCase
     {
         Carbon::setTestNow(Carbon::now());
 
-        /** @var System $system */
-        $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        /** @var GameHash $gameHash */
-        $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
+        $game = $this->seedGame();
+        $gameHash = $game->hashes->first();
 
         $this->user->LastGameID = $game->ID;
         $this->user->save();
@@ -118,10 +114,8 @@ class PingTest extends TestCase
 
     public function testPingInvalidUser(): void
     {
-        /** @var System $system */
-        $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = $this->seedGame();
 
         $params = [
             'u' => 'UnknownUser',
@@ -182,10 +176,8 @@ class PingTest extends TestCase
         // While a separate test case is desirable, the overhead or refreshing the database
         // is not desirable, which is why most of the test cases are lumped in singular functions.
 
-        /** @var System $system */
-        $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = $this->seedGame();
 
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Unregistered, 'appToken' => Str::random(16)]);
@@ -218,10 +210,8 @@ class PingTest extends TestCase
         // While a separate test case is desirable, the overhead or refreshing the database
         // is not desirable, which is why most of the test cases are lumped in singular functions.
 
-        /** @var System $system */
-        $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = $this->seedGame();
 
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
@@ -337,7 +327,7 @@ class PingTest extends TestCase
         /** @var System $standalonesSystem */
         $standalonesSystem = System::factory()->create(['ID' => 102]);
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $gameOne = $this->seedGame(system: $standalonesSystem);
 
         /** @var User $integrationUser */
         $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);

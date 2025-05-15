@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Models\Game;
 use App\Models\Leaderboard;
-use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -23,10 +21,7 @@ class LeaderboardInfoTest extends TestCase
         $now = Carbon::now();
         Carbon::setTestNow($now);
 
-        /** @var System $system */
-        $system = System::factory()->create();
-        /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = $this->seedGame();
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
             'GameID' => $game->id,

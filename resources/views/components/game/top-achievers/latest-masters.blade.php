@@ -15,7 +15,7 @@ $users = User::whereIn('ID', $userIds)->get()->keyBy('ID')
 
 ?>
 
-<div class="component">
+<div>
     <h2 class="text-h3">Latest Masters</h2>
 
     <div class="max-h-[980px] overflow-y-auto">

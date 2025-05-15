@@ -111,7 +111,6 @@ class AwardAchievementTest extends TestCase
         $playerGame = PlayerGame::where([
             'user_id' => $this->user->id,
             'game_id' => $achievement3->game_id,
-            'game_hash_id' => $gameHash->id,
         ])->first();
         $this->assertModelExists($playerGame);
         $this->assertNotNull($playerGame->last_played_at);
@@ -724,7 +723,6 @@ class AwardAchievementTest extends TestCase
         $playerGame = PlayerGame::where([
             'user_id' => $this->user->id,
             'game_id' => $achievement3->game_id,
-            'game_hash_id' => $gameHash->id,
         ])->first();
         $this->assertModelExists($playerGame);
         $this->assertNotNull($playerGame->last_played_at);

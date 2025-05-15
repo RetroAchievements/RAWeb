@@ -14,7 +14,6 @@ use App\Models\System;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
@@ -33,11 +32,15 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
     public function testBadgeUpgrade(): void
     {
         $user = User::factory()->create();
-        System::factory()->create(['ID' => System::Events]);
-        $game = Game::factory()->create(['ConsoleID' => System::Events, 'achievements_published' => 8, 'points_total' => 8]);
-        /** @var Collection<int, Achievement> $achievements */
-        $achievements = $game->achievements()->saveMany(Achievement::factory()->published()
-            ->count(8)->create(['Points' => 1]));
+        $system = System::factory()->create(['ID' => System::Events]);
+        $game = $this->seedGame(system: $system);
+        $achievements = $this->seedAchievements(8, $game);
+        foreach ($achievements as $achievement) {
+            $achievement->Points = 1;
+            $achievement->save();
+        }
+        $game->points_total = 8;
+        $game->save();
         $event = Event::create(['legacy_game_id' => $game->id]);
         EventAward::create(['event_id' => $event->id, 'tier_index' => 1, 'label' => 'Bronze', 'points_required' => 2, 'image_asset_path' => '/Images/000001.png']);
         EventAward::create(['event_id' => $event->id, 'tier_index' => 2, 'label' => 'Silver', 'points_required' => 4, 'image_asset_path' => '/Images/000002.png']);
@@ -170,8 +173,8 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
     public function testNonTieredEvent(): void
     {
         $user = User::factory()->create();
-        System::factory()->create(['ID' => System::Events]);
-        $game = Game::factory()->create(['ConsoleID' => System::Events]);
+        $eventSystem = System::factory()->create(['ID' => System::Events]);
+        $game = $this->seedGame(system: $eventSystem);
         $achievements = $this->seedAchievements(3, $game);
         $event = Event::create(['legacy_game_id' => $game->id]);
 
