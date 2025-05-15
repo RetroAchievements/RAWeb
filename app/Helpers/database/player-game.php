@@ -392,19 +392,19 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
     // determine the most recent session for each user who has played the game
     $subquery = PlayerSession::where('game_id', $gameID)
         ->groupBy('user_id')
-        ->select([DB::raw('MAX(rich_presence_updated_at) as max_rich_presence_updated_at'), 'user_id']);
+        ->select([DB::raw('MAX(rich_presence_updated_at) as rich_presence_updated_at'), 'user_id']);
 
     // and use that information to get the recent session data for each user
     $sessions = PlayerSession::where('game_id', $gameID)
         ->join(DB::raw('(' . $subquery->toSql() . ') as subq'), function ($join) use ($subquery) {
             $join->on('player_sessions.user_id', '=', 'subq.user_id')
-                 ->on('player_sessions.rich_presence_updated_at', '=', 'subq.max_rich_presence_updated_at')
+                 ->on('player_sessions.rich_presence_updated_at', '=', 'subq.rich_presence_updated_at')
                  ->addBinding($subquery->getBindings());
         })
         ->join('UserAccounts', 'UserAccounts.ID', '=', 'player_sessions.user_id')
         ->where('UserAccounts.Permissions', '>=', Permissions::Unregistered)
-        ->orderBy('player_sessions.rich_presence_updated_at', 'DESC')
-        ->select(['player_sessions.user_id', 'display_name', 'player_sessions.rich_presence', 'player_sessions.rich_presence_updated_at as rich_presence_updated_at']);
+        ->orderBy('rich_presence_updated_at', 'DESC')
+        ->select(['player_sessions.user_id', 'display_name', 'player_sessions.rich_presence', 'player_sessions.rich_presence_updated_at']);
 
     if ($maximum_results) {
         $sessions = $sessions->limit($maximum_results);
