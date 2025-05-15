@@ -23,7 +23,7 @@ class UpdatePlayerMetricsAction
         $user->RASoftcorePoints = $playerGames->sum('points') - $user->RAPoints;
         $user->TrueRAPoints = $playerGames->sum('points_weighted');
 
-        $user->save();
+        $user->saveQuietly();
 
         PlayerMetricsUpdated::dispatch($user);
     }

@@ -32,7 +32,7 @@ class RequestAccountDeletionAction
         }
 
         $user->DeleteRequested = Carbon::now();
-        $user->save();
+        $user->saveQuietly();
 
         addArticleComment('Server', ArticleType::UserModeration, $user->ID,
             $user->display_name . ' requested account deletion'
