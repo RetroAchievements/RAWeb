@@ -929,11 +929,14 @@ if ($isFullyFeaturedGame) {
         echo "</div>";
 
         if ($isFullyFeaturedGame) {
-            $freshTtl = 3 * 60; // 3 minutes
-            $staleTtl = 7 * 60; // 7 minutes
-            $recentPlayerData = Cache::flexible(
+            /**
+             * Cache data for up to 1 week.
+             * The cache is automatically invalidated when a player 
+             * starts the game or pings the server with an ongoing session.
+             */
+            $recentPlayerData = Cache::remember(
                 "game-recent-players:{$gameID}:10",
-                [$freshTtl, $staleTtl],
+                7 * 24 * 60 * 60, // 1 week
                 function () use ($gameID) {
                     return getGameRecentPlayers($gameID, 10);
                 }
