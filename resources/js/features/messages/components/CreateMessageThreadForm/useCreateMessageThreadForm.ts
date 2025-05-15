@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import axios, { type AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
@@ -16,7 +17,10 @@ const formSchema = z.object({
 });
 type FormValues = z.infer<typeof formSchema>;
 
-export function useCreateMessageThreadForm(defaultValues: Partial<FormValues>) {
+export function useCreateMessageThreadForm(
+  defaultValues: Partial<FormValues>,
+  senderUserDisplayName: string,
+) {
   const { t } = useTranslation();
 
   const form = useForm<FormValues>({
@@ -33,6 +37,7 @@ export function useCreateMessageThreadForm(defaultValues: Partial<FormValues>) {
     mutationFn: (formValues: FormValues) => {
       const normalizedPayload = {
         ...formValues,
+        senderUserDisplayName,
         body: preProcessShortcodesInBody(formValues.body),
       };
 

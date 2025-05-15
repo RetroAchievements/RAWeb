@@ -1,3 +1,5 @@
+/* eslint-disable testing-library/no-node-access */
+
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
@@ -15,6 +17,9 @@ describe('Component: FullPaginator', () => {
     // ARRANGE
     const { container } = render(
       <FullPaginator onPageSelectValueChange={vi.fn()} paginatedData={createPaginatedData([])} />,
+      {
+        pageProps: { ziggy: { device: 'desktop' } as any },
+      },
     );
 
     // ASSERT
@@ -25,15 +30,18 @@ describe('Component: FullPaginator', () => {
     // ARRANGE
     render(
       <FullPaginator onPageSelectValueChange={vi.fn()} paginatedData={createPaginatedData([])} />,
+      {
+        pageProps: { ziggy: { device: 'desktop' } as any },
+      },
     );
 
     // ASSERT
-    expect(screen.queryByRole('pagination')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
     expect(screen.queryByText(/page/i)).not.toBeInTheDocument();
   });
 
-  it('given the user is on the first page, does not render buttons to go back to previous pages', () => {
+  it('given the user is on the first page, renders disabled buttons to go back to previous pages', () => {
     // ARRANGE
     const paginatedData = createPaginatedData([createGame(), createGame()], {
       perPage: 1,
@@ -47,19 +55,25 @@ describe('Component: FullPaginator', () => {
       },
     });
 
-    render(<FullPaginator onPageSelectValueChange={vi.fn()} paginatedData={paginatedData} />);
+    render(<FullPaginator onPageSelectValueChange={vi.fn()} paginatedData={paginatedData} />, {
+      pageProps: { ziggy: { device: 'desktop' } as any },
+    });
 
     // ASSERT
-    expect(screen.queryByRole('listitem', { name: /go to first page/i })).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('listitem', { name: /go to previous page/i }),
-    ).not.toBeInTheDocument();
+    const firstPageLink = screen.getByLabelText('Go to first page').querySelector('a');
+    const prevPageLink = screen.getByLabelText('Go to previous page').querySelector('a');
 
-    expect(screen.getByRole('listitem', { name: /go to next page/i })).toBeVisible();
-    expect(screen.getByRole('listitem', { name: /go to last page/i })).toBeVisible();
+    expect(firstPageLink).toHaveAttribute('aria-disabled', 'true');
+    expect(prevPageLink).toHaveAttribute('aria-disabled', 'true');
+
+    const nextPageLink = screen.getByLabelText('Go to next page').querySelector('a');
+    const lastPageLink = screen.getByLabelText('Go to last page').querySelector('a');
+
+    expect(nextPageLink).not.toHaveAttribute('aria-disabled');
+    expect(lastPageLink).not.toHaveAttribute('aria-disabled');
   });
 
-  it('given the user is on the last page, does not render buttons to go on to next pages', () => {
+  it('given the user is on the last page, renders disabled buttons to go to next pages', () => {
     // ARRANGE
     const paginatedData = createPaginatedData([createGame(), createGame()], {
       perPage: 1,
@@ -73,14 +87,22 @@ describe('Component: FullPaginator', () => {
       },
     });
 
-    render(<FullPaginator onPageSelectValueChange={vi.fn()} paginatedData={paginatedData} />);
+    render(<FullPaginator onPageSelectValueChange={vi.fn()} paginatedData={paginatedData} />, {
+      pageProps: { ziggy: { device: 'desktop' } as any },
+    });
 
     // ASSERT
-    expect(screen.getByRole('listitem', { name: /go to first page/i })).toBeVisible();
-    expect(screen.getByRole('listitem', { name: /go to previous page/i })).toBeVisible();
+    const firstPageLink = screen.getByLabelText('Go to first page').querySelector('a');
+    const prevPageLink = screen.getByLabelText('Go to previous page').querySelector('a');
 
-    expect(screen.queryByRole('listitem', { name: /go to next page/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('listitem', { name: /go to last page/i })).not.toBeInTheDocument();
+    expect(firstPageLink).not.toHaveAttribute('aria-disabled');
+    expect(prevPageLink).not.toHaveAttribute('aria-disabled');
+
+    const nextPageLink = screen.getByLabelText('Go to next page').querySelector('a');
+    const lastPageLink = screen.getByLabelText('Go to last page').querySelector('a');
+
+    expect(nextPageLink).toHaveAttribute('aria-disabled', 'true');
+    expect(lastPageLink).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('given the user manually selects a page, emits an event', async () => {
@@ -104,6 +126,9 @@ describe('Component: FullPaginator', () => {
         onPageSelectValueChange={onPageSelectValueChange}
         paginatedData={paginatedData}
       />,
+      {
+        pageProps: { ziggy: { device: 'desktop' } as any },
+      },
     );
 
     // ACT
@@ -111,5 +136,28 @@ describe('Component: FullPaginator', () => {
 
     // ASSERT
     expect(onPageSelectValueChange).toHaveBeenCalledWith(2);
+  });
+
+  it('given the user is on a mobile device, uses condensed option labels', () => {
+    // ARRANGE
+    const paginatedData = createPaginatedData([createGame(), createGame()], {
+      perPage: 1,
+      lastPage: 2,
+      currentPage: 1,
+      links: {
+        previousPageUrl: null,
+        firstPageUrl: null,
+        nextPageUrl: '#',
+        lastPageUrl: '#',
+      },
+    });
+
+    render(<FullPaginator onPageSelectValueChange={vi.fn()} paginatedData={paginatedData} />, {
+      pageProps: { ziggy: { device: 'mobile' } as any },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('option', { name: '1' })).toBeVisible();
+    expect(screen.queryByRole('option', { name: /page/i })).not.toBeInTheDocument();
   });
 });

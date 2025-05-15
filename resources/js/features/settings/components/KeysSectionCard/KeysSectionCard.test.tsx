@@ -1,6 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import * as ReactUseModule from 'react-use';
+import { route } from 'ziggy-js';
 
 import { render, screen } from '@/test';
 import { createUser } from '@/test/factories';

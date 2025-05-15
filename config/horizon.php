@@ -191,15 +191,16 @@ return [
         'supervisor-1' => [
             'connection' => 'redis',
             'queue' => [
+                'default',
+                'developer-metrics',
+                'game-metrics',
                 'player-achievements',
                 'player-beaten-games-stats',
+                'player-game-metrics',
                 'player-metrics',
                 'player-points-stats',
                 'player-sessions',
-                'default',
-                'player-game-metrics',
-                'game-metrics',
-                'developer-metrics',
+                'scout',
             ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'size',
@@ -216,8 +217,8 @@ return [
         'supervisor-2' => [
             'connection' => 'redis',
             'queue' => [
-                'player-game-metrics-batch',
                 'game-player-games',
+                'player-game-metrics-batch',
             ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',

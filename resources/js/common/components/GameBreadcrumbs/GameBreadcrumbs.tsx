@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import type { TranslatedString } from '@/types/i18next';
 
@@ -15,10 +16,9 @@ import { GameTitle } from '../GameTitle';
 import { InertiaLink } from '../InertiaLink';
 
 interface GameBreadcrumbsProps {
-  t_currentPageLabel: TranslatedString;
-
   game?: App.Platform.Data.Game;
   system?: App.Platform.Data.System;
+  t_currentPageLabel?: TranslatedString;
 }
 
 export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({ t_currentPageLabel, game, system }) => {
@@ -39,8 +39,10 @@ export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({ t_currentPageLabel, 
               <BaseBreadcrumbSeparator />
 
               <BaseBreadcrumbItem aria-label={system.name}>
-                <BaseBreadcrumbLink href={route('system.game.index', system.id)}>
-                  {system.name}
+                <BaseBreadcrumbLink asChild>
+                  <InertiaLink href={route('system.game.index', system.id)}>
+                    {system.name}
+                  </InertiaLink>
                 </BaseBreadcrumbLink>
               </BaseBreadcrumbItem>
             </>
@@ -49,19 +51,30 @@ export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({ t_currentPageLabel, 
           {game ? (
             <>
               <BaseBreadcrumbSeparator />
+
               <BaseBreadcrumbItem aria-label={game.title}>
-                <BaseBreadcrumbLink href={route('game.show', { game: game.id })}>
-                  <GameTitle title={game.title} />
-                </BaseBreadcrumbLink>
+                {t_currentPageLabel ? (
+                  <BaseBreadcrumbLink href={route('game.show', { game: game.id })}>
+                    <GameTitle title={game.title} />
+                  </BaseBreadcrumbLink>
+                ) : (
+                  <BaseBreadcrumbPage>
+                    <GameTitle title={game.title} />
+                  </BaseBreadcrumbPage>
+                )}
               </BaseBreadcrumbItem>
             </>
           ) : null}
 
-          <BaseBreadcrumbSeparator />
+          {t_currentPageLabel ? (
+            <>
+              <BaseBreadcrumbSeparator />
 
-          <BaseBreadcrumbItem aria-label={t_currentPageLabel}>
-            <BaseBreadcrumbPage>{t_currentPageLabel}</BaseBreadcrumbPage>
-          </BaseBreadcrumbItem>
+              <BaseBreadcrumbItem aria-label={t_currentPageLabel}>
+                <BaseBreadcrumbPage>{t_currentPageLabel}</BaseBreadcrumbPage>
+              </BaseBreadcrumbItem>
+            </>
+          ) : null}
         </BaseBreadcrumbList>
       </BaseBreadcrumb>
     </div>

@@ -1,5 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
+import { route } from 'ziggy-js';
 
 import { render, screen, waitFor } from '@/test';
 import { createForumTopic, createForumTopicComment } from '@/test/factories';

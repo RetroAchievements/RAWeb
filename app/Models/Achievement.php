@@ -33,7 +33,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -56,7 +55,6 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     /** @use HasFactory<AchievementFactory> */
     use HasFactory;
 
-    use Searchable;
     use SoftDeletes;
 
     use CausesActivity;
@@ -188,25 +186,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
 
     public const CLIENT_WARNING_ID = 101000001;
 
-    // search
-
-    public function toSearchableArray(): array
-    {
-        return $this->only([
-            'id',
-            'title',
-            'description',
-        ]);
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        // TODO return $this->isPublished();
-        // TODO return true;
-        return false;
-    }
-
-    // audit activity log
+    // == logging
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -233,6 +213,19 @@ class Achievement extends BaseModel implements HasVersionedTrigger
             ['user_id' => $user->id, 'task' => $task->value],
             ['created_at' => $backdate ?? now(), 'updated_at' => now()]
         );
+    }
+
+    public function getMaintainerAt(Carbon $timestamp): ?User
+    {
+        $maintainer = $this->maintainers()
+            ->where('effective_from', '<=', $timestamp)
+            ->where(function ($query) use ($timestamp) {
+                $query->whereNull('effective_until')
+                    ->orWhere('effective_until', '>', $timestamp);
+            })
+            ->first();
+
+        return $maintainer ? $maintainer->user : $this->developer;
     }
 
     public function unlockValidationHash(User $user, int $hardcore, int $offset = 0): string
@@ -395,6 +388,23 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     {
         return $this->hasMany(Comment::class, 'ArticleID', 'ID')
             ->where('ArticleType', ArticleType::Achievement);
+    }
+
+    /**
+     * @return HasMany<AchievementMaintainer>
+     */
+    public function maintainers(): HasMany
+    {
+        return $this->hasMany(AchievementMaintainer::class, 'achievement_id', 'ID');
+    }
+
+    /**
+     * @return HasOne<AchievementMaintainer>
+     */
+    public function activeMaintainer(): HasOne
+    {
+        return $this->hasOne(AchievementMaintainer::class, 'achievement_id', 'ID')
+            ->where('is_active', true);
     }
 
     /**

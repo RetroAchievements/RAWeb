@@ -14,6 +14,11 @@ import { AppProviders } from './common/components/AppProviders';
 import type { AppGlobalProps } from './common/models';
 import { loadDayjsLocale } from './common/utils/l10n/loadDayjsLocale';
 import { createServerI18nInstance } from './i18n-server';
+// @ts-expect-error -- this isn't a real ts module
+import { Ziggy } from './ziggy';
+
+// @ts-expect-error -- we're injecting this on purpose
+globalThis.Ziggy = Ziggy;
 
 const appName = import.meta.env.APP_NAME ?? 'RetroAchievements';
 const inertiaDaemonPort = import.meta.env.VITE_INERTIA_SSR_PORT ?? 13714;
@@ -33,7 +38,7 @@ createServer(
 
       render: ReactDOMServer.renderToString,
 
-      title: (title) => (title ? `${title} · ${appName}` : appName),
+      title: (title) => (title && title !== appName ? `${title} · ${appName}` : appName),
 
       resolve: (name) =>
         resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),

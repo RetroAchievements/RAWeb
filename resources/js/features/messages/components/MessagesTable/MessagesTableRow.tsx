@@ -1,8 +1,10 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import { BaseTableCell, BaseTableRow } from '@/common/components/+vendor/BaseTable';
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
@@ -13,20 +15,23 @@ interface MessagesTableRowProps {
 }
 
 export const MessagesTableRow: FC<MessagesTableRowProps> = ({ messageThread }) => {
-  const { auth } = usePageProps();
+  const { auth, senderUserDisplayName } =
+    usePageProps<App.Community.Data.MessageThreadIndexPageProps>();
 
   const { t } = useTranslation();
 
   // Find who we're chatting with in order to populate the "With" column.
   const otherParticipant =
     (messageThread.participants?.find(
-      (p) => p.displayName !== auth?.user.displayName,
+      (p) => p.displayName !== senderUserDisplayName,
     ) as App.Data.User) ?? messageThread.participants?.[0];
 
   return (
     <BaseTableRow className={cn(messageThread.isUnread ? 'font-bold' : null)}>
       <BaseTableCell>
-        <a href={route('message-thread.show', messageThread.id)}>{messageThread.title}</a>
+        <InertiaLink href={route('message-thread.show', messageThread.id)}>
+          {messageThread.title}
+        </InertiaLink>
       </BaseTableCell>
 
       <BaseTableCell>

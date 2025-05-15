@@ -6,6 +6,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
+use App\Models\Role;
 use Illuminate\Support\Facades\Auth;
 
 ?>
@@ -227,7 +228,7 @@ function completeClaim() {
 @endif
 
 <!-- If the author is a jr. dev and the current user is a full dev, allow the set to be changed to Review status -->
-@if ($primaryClaimUser && $userPermissions >= Permissions::Moderator && $primaryClaimUser !== $user?->User)
+@if ($primaryClaimUser && $primaryClaimUser !== $user?->User && $user->hasRole(Role::CODE_REVIEWER))
     <?php $primaryClaimUserPermissions = getUserPermissions($primaryClaimUser); ?>
     @if ($primaryClaimUserPermissions < Permissions::Developer)
         @if ($primaryClaimStatus !== ClaimStatus::InReview)

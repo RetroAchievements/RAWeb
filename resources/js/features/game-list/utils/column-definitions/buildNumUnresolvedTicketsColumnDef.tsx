@@ -1,5 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
+import { route } from 'ziggy-js';
 
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import type { TranslatedString } from '@/types/i18next';

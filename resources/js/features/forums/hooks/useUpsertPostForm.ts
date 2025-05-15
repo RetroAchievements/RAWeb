@@ -5,6 +5,7 @@ import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
@@ -64,7 +65,7 @@ export function useUpsertPostForm(
           return t('Updated.');
         }
 
-        window.location.assign(
+        router.visit(
           route('forum-topic.show', {
             topic: targetTopic!.id,
             _query: { comment: data.commentId },

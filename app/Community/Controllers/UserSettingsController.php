@@ -134,8 +134,9 @@ class UserSettingsController extends Controller
         // The user will need to reconfirm their email address.
         $user->EmailAddress = $data->newEmail;
         $user->setAttribute('Permissions', Permissions::Unregistered);
+        $user->roles()->detach();
         $user->email_verified_at = null;
-        $user->save();
+        $user->saveQuietly();
 
         // TODO move this to an action, use Fortify, do something else.
         // sendValidationEmail cannot be invoked while under test.
@@ -173,7 +174,7 @@ class UserSettingsController extends Controller
         $user = $request->user();
 
         $user->locale = $data->locale;
-        $user->save();
+        $user->saveQuietly();
 
         return response()->json(['success' => true]);
     }
@@ -188,7 +189,7 @@ class UserSettingsController extends Controller
         $newPreferences = $currentPreferences | (1 << UserPreference::Site_SuppressMatureContentWarning);
 
         $user->websitePrefs = $newPreferences;
-        $user->save();
+        $user->saveQUietly();
 
         return response()->json(['success' => true]);
     }

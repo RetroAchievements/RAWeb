@@ -1,7 +1,9 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
@@ -35,12 +37,12 @@ export const MessagesCard: FC<MessagesCardProps> = ({ messageThread }) => {
         </div>
 
         <div>
-          <a
+          <InertiaLink
             href={route('message-thread.show', messageThread.id)}
             className={cn(messageThread.isUnread ? 'font-bold' : null)}
           >
             {messageThread.title}
-          </a>
+          </InertiaLink>
 
           <p>
             {t('messageCount', { count: messageThread.numMessages })}{' '}

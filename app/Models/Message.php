@@ -8,13 +8,11 @@ use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\MessageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Laravel\Scout\Searchable;
 
 class Message extends BaseModel
 {
     /** @use HasFactory<MessageFactory> */
     use HasFactory;
-    use Searchable;
 
     protected $table = 'messages';
 
@@ -23,6 +21,7 @@ class Message extends BaseModel
     protected $fillable = [
         'thread_id',
         'author_id',
+        'sent_by_id',
         'body',
         'created_at',
     ];
@@ -34,23 +33,6 @@ class Message extends BaseModel
     protected static function newFactory(): MessageFactory
     {
         return MessageFactory::new();
-    }
-
-    // == search
-
-    public function toSearchableArray(): array
-    {
-        return $this->only([
-            'id',
-            'title',
-            'body',
-        ]);
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        // TODO return true;
-        return false;
     }
 
     // == accessors
@@ -65,6 +47,14 @@ class Message extends BaseModel
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id', 'ID')->withTrashed();
+    }
+
+    /**
+     * @return BelongsTo<User, Message>
+     */
+    public function sentBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'sent_by_id', 'ID')->withTrashed();
     }
 
     // == scopes

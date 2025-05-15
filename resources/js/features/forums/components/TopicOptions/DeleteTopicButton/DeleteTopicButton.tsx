@@ -2,6 +2,8 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuTrash } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
@@ -34,6 +36,7 @@ export const DeleteTopicButton: FC = () => {
 
   return (
     <BaseButton variant="destructive" size="sm" onClick={handleClick}>
+      <LuTrash className="mr-1.5 size-4" />
       {t('Delete Permanently')}
     </BaseButton>
   );

@@ -4,6 +4,7 @@ namespace App\Platform\Actions;
 
 use App\Community\Enums\AwardType;
 use App\Models\Achievement;
+use App\Models\AchievementMaintainerUnlock;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
@@ -12,6 +13,7 @@ use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
 use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
+use Illuminate\Support\Facades\DB;
 
 class ResetPlayerProgressAction
 {
@@ -48,12 +50,40 @@ class ResetPlayerProgressAction
             $affectedGames->push($achievementData['GameID']);
         }
 
+        $maintainers = DB::select("
+            SELECT DISTINCT COALESCE(ua.display_name, ua.User) AS Username
+            FROM player_achievements pa
+            INNER JOIN Achievements ach ON ach.ID = pa.achievement_id
+            INNER JOIN achievement_maintainers m ON m.achievement_id = ach.ID
+            INNER JOIN UserAccounts ua ON ua.ID = m.user_id
+            WHERE ach.Flags = :flags
+                AND pa.user_id = :user_id
+                " . $clause . "
+                AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) >= m.effective_from
+                AND (
+                    m.effective_until IS NULL 
+                    OR COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) < m.effective_until
+                )
+                AND ua.ID != :user_id2
+        ", [
+            'flags' => AchievementFlag::OfficialCore->value,
+            'user_id' => $user->id,
+            'user_id2' => $user->id,
+        ]);
+
+        foreach ($maintainers as $maintainer) {
+            $authorUsernames->push($maintainer->Username);
+        }
+
         if ($achievementID !== null) {
             $playerAchievement = $user->playerAchievements()->where('achievement_id', $achievementID)->first();
             if (!$playerAchievement) {
                 // already deleted? do nothing.
                 return;
             }
+
+            // Delete any maintainer unlock records related to this player_achievement entity.
+            AchievementMaintainerUnlock::where('player_achievement_id', $playerAchievement->id)->delete();
 
             $achievement = $playerAchievement->achievement;
             if ($achievement->isPublished) {
@@ -75,10 +105,23 @@ class ResetPlayerProgressAction
         } elseif ($gameID !== null) {
             $achievementIds = Achievement::where('GameID', $gameID)->pluck('ID');
 
+            // Delete any maintainer unlock records related to these player_achievement entities.
+            $playerAchievementIds = $user->playerAchievements()->whereIn('achievement_id', $achievementIds)->pluck('id');
+            if (!$playerAchievementIds->isEmpty()) {
+                AchievementMaintainerUnlock::whereIn('player_achievement_id', $playerAchievementIds)->delete();
+            }
+
             $user->playerAchievements()
                 ->whereIn('achievement_id', $achievementIds)
                 ->delete();
         } else {
+            // Delete all maintainer unlock records related to these player_achievement entities.
+            AchievementMaintainerUnlock::query()
+                ->whereIn('player_achievement_id', function ($query) use ($user) {
+                    $query->select('id')->from('player_achievements')->where('user_id', $user->id);
+                })
+                ->delete();
+
             // fulfill deletion request
             $user->playerGames()->forceDelete();
             $user->playerBadges()->delete();
@@ -89,7 +132,7 @@ class ResetPlayerProgressAction
             $user->TrueRAPoints = null;
             $user->ContribCount = 0;
             $user->ContribYield = 0;
-            $user->save();
+            $user->saveQuietly();
         }
 
         $authors = User::query()
@@ -116,6 +159,6 @@ class ResetPlayerProgressAction
 
         dispatch(new UpdatePlayerBeatenGamesStatsJob($user->id));
 
-        $user->save();
+        $user->saveQuietly();
     }
 }

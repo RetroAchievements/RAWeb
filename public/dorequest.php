@@ -4,9 +4,12 @@ use App\Actions\FindUserByIdentifierAction;
 use App\Community\Enums\ActivityType;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
+use App\Connect\Actions\GetCodeNotesAction;
+use App\Connect\Actions\GetHashLibraryAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameAndGameHashAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
+use App\Connect\Actions\SubmitCodeNoteAction;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
@@ -26,6 +29,17 @@ use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 
+$requestType = request()->input('r');
+$handler = match ($requestType) {
+    'codenotes2' => new GetCodeNotesAction(),
+    'hashlibrary' => new GetHashLibraryAction(),
+    'submitcodenote' => new SubmitCodeNoteAction(),
+    default => null,
+};
+if ($handler) {
+    return $handler->handleRequest(request());
+}
+
 /**
  * @usage
  * dorequest.php?r=addfriend&<params> (Web)
@@ -37,7 +51,6 @@ $response = ['Success' => true];
  * AVOID A G O C - these are now strongly typed as INT!
  * Global RESERVED vars:
  */
-$requestType = request()->input('r');
 $username = request()->input('u');
 $token = request()->input('t');
 $delegateTo = request()->input('k');
@@ -105,7 +118,6 @@ $credentialsOK = match ($requestType) {
     "postactivity",
     "richpresencepatch",
     "startsession",
-    "submitcodenote",
     "submitgametitle",
     "submitlbentry",
     "unlocks",
@@ -216,25 +228,6 @@ switch ($requestType) {
         $response['NextBadge'] = (int) FilenameIterator::getBadgeIterator();
         break;
 
-    // TODO: Deprecate - not used anymore
-    case "codenotes":
-        if (!getCodeNotes($gameID, $codeNotesOut)) {
-            return DoRequestError("FAILED!");
-        }
-        echo "OK:$gameID:";
-        foreach ($codeNotesOut as $codeNote) {
-            if (mb_strlen($codeNote['Note']) > 2) {
-                $noteAdj = str_replace("\n", "\r\n", $codeNote['Note']);
-                echo $codeNote['User'] . ':' . $codeNote['Address'] . ':' . $noteAdj . "#";
-            }
-        }
-        break;
-
-    case "codenotes2":
-        $response['CodeNotes'] = getCodeNotesData($gameID);
-        $response['GameID'] = $gameID;
-        break;
-
     case "gameid":
         $md5 = request()->input('m') ?? '';
         $userAgentService = new UserAgentService();
@@ -268,11 +261,6 @@ switch ($requestType) {
         }
         $response['Response'] = Game::whereIn('ID', explode(',', $gamesCSV, 100))
             ->select('Title', 'ID', 'ImageIcon')->get()->toArray();
-        break;
-
-    case "hashlibrary":
-        $consoleID = (int) request()->input('c', 0);
-        $response['MD5List'] = getMD5List($consoleID);
         break;
 
     case "latestclient":
@@ -681,15 +669,6 @@ switch ($requestType) {
         $response['ServerNow'] = Carbon::now()->timestamp;
         break;
 
-    case "submitcodenote":
-        $note = request()->input('n') ?? '';
-        $address = (int) request()->input('m', 0);
-        $response['Success'] = submitCodeNote2($username, $gameID, $address, $note);
-        $response['GameID'] = $gameID;     // Repeat this back to the caller?
-        $response['Address'] = $address;    // Repeat this back to the caller?
-        $response['Note'] = $note;      // Repeat this back to the caller?
-        break;
-
     case "submitgametitle":
         $md5 = request()->input('m');
         $gameID = request()->input('g');
@@ -805,6 +784,10 @@ switch ($requestType) {
             break;
         }
 
+        if (VirtualGameIdService::isVirtualGameId($gameID)) {
+            [$gameID, $compatibility] = VirtualGameIdService::decodeVirtualGameId($gameID);
+        }
+
         $errorOut = "";
         $response['Success'] = UploadNewAchievement(
             authorUsername: $username,
@@ -825,6 +808,10 @@ switch ($requestType) {
         break;
 
     case "uploadleaderboard":
+        if (VirtualGameIdService::isVirtualGameId($gameID)) {
+            [$gameID, $compatibility] = VirtualGameIdService::decodeVirtualGameId($gameID);
+        }
+
         $leaderboardID = (int) request()->input('i', 0);
         $newTitle = request()->input('n');
         $newDesc = request()->input('d') ?? '';

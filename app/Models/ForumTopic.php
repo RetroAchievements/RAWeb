@@ -14,14 +14,18 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Laravel\Scout\Searchable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ForumTopic extends BaseModel
 {
     /** @use HasFactory<ForumTopicFactory> */
     use HasFactory;
-    use Searchable;
     use SoftDeletes;
+
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
 
     // TODO refactor required_permissions to use RBAC
     // TODO populate body from the first forum topic comment
@@ -33,6 +37,13 @@ class ForumTopic extends BaseModel
         'author_id',
         'latest_comment_id',
         'required_permissions',
+        'pinned_at',
+        'locked_at',
+    ];
+
+    protected $casts = [
+        'pinned_at' => 'datetime',
+        'locked_at' => 'datetime',
     ];
 
     protected $dispatchesEvents = [
@@ -41,20 +52,19 @@ class ForumTopic extends BaseModel
 
     protected $observables = [];
 
-    // == search
+    // == logging
 
-    public function toSearchableArray(): array
+    public function getActivitylogOptions(): LogOptions
     {
-        return $this->only([
-            'id',
-            'title',
-        ]);
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        // TODO return true;
-        return false;
+        return LogOptions::defaults()
+            ->logOnly([
+                'required_permissions',
+                'pinned_at',
+                'locked_at',
+                'deleted_at',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     // == accessors
@@ -72,6 +82,11 @@ class ForumTopic extends BaseModel
     public function getEditLinkAttribute(): string
     {
         return route('forum-topic.edit', $this);
+    }
+
+    public function getIsLockedAttribute(): bool
+    {
+        return !empty($this->locked_at);
     }
 
     public function getSlugAttribute(): string

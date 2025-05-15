@@ -12,18 +12,19 @@ use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\BuildGameInterestedDevelopersDataAction;
 use App\Platform\Actions\BuildGameListAction;
+use App\Platform\Actions\BuildGameShowPagePropsAction;
 use App\Platform\Actions\GetRandomGameAction;
+use App\Platform\Actions\LoadGameWithRelationsAction;
 use App\Platform\Data\DeveloperInterestPagePropsData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameListPagePropsData;
 use App\Platform\Data\GameSuggestPagePropsData;
 use App\Platform\Data\SystemData;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\GameListSetTypeFilterValue;
 use App\Platform\Enums\GameListSortField;
 use App\Platform\Enums\GameListType;
 use App\Platform\Requests\GameListRequest;
-use App\Platform\Requests\GameRequest;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -31,11 +32,6 @@ use Inertia\Response as InertiaResponse;
 
 class GameController extends Controller
 {
-    protected function resourceName(): string
-    {
-        return 'game';
-    }
-
     public function index(GameListRequest $request): InertiaResponse
     {
         /** @var ?User $user */
@@ -86,76 +82,21 @@ class GameController extends Controller
         return Inertia::render('games', $props);
     }
 
-    public function popular(): void
-    {
-        $this->authorize('viewAny', $this->resourceClass());
-
-        // return view('game.popular');
-    }
-
-    public function create(): void
-    {
-        $this->authorize('store', $this->resourceClass());
-    }
-
-    public function store(Request $request): void
-    {
-        $this->authorize('store', $this->resourceClass());
-    }
-
-    public function show(Request $request, Game $game, ?string $slug = null): View|RedirectResponse
-    {
+    public function show(
+        Request $request,
+        Game $game,
+        LoadGameWithRelationsAction $loadGameWithRelationsAction,
+        BuildGameShowPagePropsAction $buildGameShowPagePropsAction
+    ): InertiaResponse {
         $this->authorize('view', $game);
 
-        if (!$this->resolvesToSlug($game->slug, $slug)) {
-            return redirect($game->canonicalUrl);
-        }
+        /** @var ?User $user */
+        $user = $request->user();
 
-        /**
-         * add user context
-         */
-        $playerGame = $request->user() ? $request->user()->games()->where('games.id', $game->id)->first() : null;
+        $game = $loadGameWithRelationsAction->execute($game, AchievementFlag::OfficialCore);
+        $props = $buildGameShowPagePropsAction->execute($game, $user);
 
-        $game = $playerGame ?? $game;
-
-        $game->load([
-            'achievements' => function ($query) use ($playerGame) {
-                // $query->with('game');
-
-                // $query->published();
-
-                /*
-                 * add user context
-                 */
-                if ($playerGame) {
-                    $query->withUnlocksByUser(request()->user());
-                    $query->orderByDesc('unlocked_hardcore_at');
-                    $query->orderByDesc('unlocked_at');
-                }
-            },
-            'leaderboards',
-            'forumTopic',
-        ]);
-
-        // $game->achievements->each->setRelation('game', $game);
-
-        return view($this->resourceName() . '.show')->with('game', $game);
-    }
-
-    public function edit(Game $game): View
-    {
-        $this->authorize('update', $game);
-
-        return view($this->resourceName() . '.edit')->with('game', $game);
-    }
-
-    public function update(GameRequest $request, Game $game): RedirectResponse
-    {
-        $this->authorize('update', $game);
-
-        $game->fill($request->validated())->save();
-
-        return back()->with('success', $this->resourceActionSuccessMessage('game', 'update'));
+        return Inertia::render('game/[game]', $props);
     }
 
     public function destroy(Game $game): void

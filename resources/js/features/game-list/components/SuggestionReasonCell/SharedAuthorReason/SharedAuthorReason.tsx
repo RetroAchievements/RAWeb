@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { Trans } from 'react-i18next';
 import { LuWrench } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import { BaseChip } from '@/common/components/+vendor/BaseChip';
 import { GameAvatar } from '@/common/components/GameAvatar';

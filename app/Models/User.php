@@ -32,6 +32,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -49,6 +50,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     /** @use HasFactory<UserFactory> */
     use HasFactory;
     use Notifiable;
+    use Searchable;
 
     use SoftDeletes;
 
@@ -280,38 +282,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         return $this->display_name;
     }
 
-    // search
-
-    public function toSearchableArray(): array
-    {
-        $searchable = $this->only([
-            'ID',
-            'User',
-            'display_name',
-        ]);
-
-        /*
-         * add trigrams of the username to the index to have partial matches show up as well
-         */
-
-        // $searchable['usernameNgrams'] = utf8_encode((new TNTIndexer())->buildTrigrams($this->username));
-
-        return $searchable;
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        // TODO check privacy setting
-
-        if ($this->banned_at) {
-            return false;
-        }
-
-        // TODO return true;
-        return false;
-    }
-
-    // audit activity log
+    // == logging
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -336,6 +307,25 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    // == search
+
+    public function toSearchableArray(): array
+    {
+        return [
+            'display_name' => $this->display_name,
+            'username' => $this->username,
+        ];
+    }
+
+    public function shouldBeSearchable(): bool
+    {
+        if ($this->banned_at) {
+            return false;
+        }
+
+        return true;
     }
 
     // == media
@@ -600,8 +590,10 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     /**
      * @param Builder<User> $query
      * @return Builder<User>
+     *
+     * @deprecated move to ::search() / Scout instead
      */
-    public function scopeSearch(Builder $query, string $keyword): Builder
+    public function scopeSqlSearch(Builder $query, string $keyword): Builder
     {
         // Just return the base query if the keyword is empty.
         if (empty($keyword)) {

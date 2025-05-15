@@ -136,10 +136,29 @@ describe('Component: MessagesTableRow', () => {
     render(<MessagesTableRow messageThread={thread} />, {
       pageProps: {
         auth: { user: authUser },
+        senderUserDisplayName: firstParticipant.displayName,
       },
     });
 
     // ASSERT
     expect(screen.getByRole('img', { name: /first user/i })).toBeVisible();
+  });
+
+  it("correctly falls back to the first participant if the other one isn't found", () => {
+    // ARRANGE
+    const sameNameUser = createUser({ displayName: 'Same Name' });
+    const thread = createMessageThread({
+      participants: [sameNameUser, createUser({ displayName: 'Same Name' })],
+    });
+
+    render(<MessagesTableRow messageThread={thread} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        senderUserDisplayName: 'Same Name',
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('img', { name: /same name/i })).toBeVisible();
   });
 });

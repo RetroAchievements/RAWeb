@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
+import { route } from 'ziggy-js';
 
 import * as UseShortcodeBodyPreviewModule from '@/common/hooks/useShortcodeBodyPreview';
 import { createAuthenticatedUser } from '@/common/models';
@@ -308,5 +309,92 @@ describe('Component: ShowForumTopicMainRoot', () => {
 
     // ASSERT
     expect(screen.getByRole('link', { name: /edit/i })).toBeVisible();
+  });
+
+  it('given the topic is locked, shows a message indicating it is locked', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({
+      displayName: 'TestUser',
+    });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const forumTopic = createForumTopic({ forum, lockedAt: new Date().toISOString() });
+
+    const comment = createForumTopicComment({ user: createUser({ displayName: 'TestUser' }) });
+    const paginatedForumTopicComments = createPaginatedData([comment]);
+
+    render(<ShowForumTopicMainRoot />, {
+      pageProps: {
+        auth: { user },
+        forumTopic,
+        paginatedForumTopicComments,
+        can: {},
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/this topic is locked/i)).toBeVisible();
+    expect(screen.queryByRole('link', { name: /edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  });
+
+  it('given the user cannot create forum topic comments, does not display the quick reply form', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({
+      displayName: 'TestUser',
+    });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const forumTopic = createForumTopic({ forum, lockedAt: new Date().toISOString() });
+
+    const comment = createForumTopicComment({ user: createUser({ displayName: 'TestUser' }) });
+    const paginatedForumTopicComments = createPaginatedData([comment]);
+
+    render(<ShowForumTopicMainRoot />, {
+      pageProps: {
+        auth: { user },
+        forumTopic,
+        paginatedForumTopicComments,
+        can: {
+          createForumTopicComments: false, // !!
+        },
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  });
+
+  it('given the user can create forum topic comments, displays the quick reply form', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({
+      displayName: 'TestUser',
+    });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const forumTopic = createForumTopic({ forum, lockedAt: new Date().toISOString() });
+
+    const comment = createForumTopicComment({ user: createUser({ displayName: 'TestUser' }) });
+    const paginatedForumTopicComments = createPaginatedData([comment]);
+
+    render(<ShowForumTopicMainRoot />, {
+      pageProps: {
+        auth: { user },
+        forumTopic,
+        paginatedForumTopicComments,
+        can: {
+          createForumTopicComments: true, // !!
+        },
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('textbox')).toBeVisible();
   });
 });

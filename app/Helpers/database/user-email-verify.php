@@ -59,7 +59,7 @@ function validateEmailVerificationToken(string $emailCookie, ?string &$user): bo
         static_addnewregistereduser($user->username);
 
         $user->email_verified_at = Carbon::now();
-        $user->save();
+        $user->saveQuietly();
 
         generateAPIKey($user->username);
 
