@@ -94,7 +94,7 @@ class Roles extends ManageRelatedRecords
                         $currentPermissions = (int) $targetUser->getAttribute('Permissions');
                         if ($currentPermissions < Permissions::Moderator) {
                             $targetUser->setAttribute('Permissions', $newPermissions);
-                            $targetUser->save();
+                            $targetUser->saveQuietly();
                         }
                     }),
             ])
@@ -125,7 +125,7 @@ class Roles extends ManageRelatedRecords
                         // Don't strip moderation power away if the user already has it.
                         if ($currentPermissions < Permissions::Moderator) {
                             $targetUser->setAttribute('Permissions', Permissions::Registered);
-                            $targetUser->save();
+                            $targetUser->saveQuietly();
                         }
 
                         // If the user is losing their developer role, also expire any active maintainerships.
