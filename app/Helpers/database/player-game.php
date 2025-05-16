@@ -362,7 +362,7 @@ function getUsersCompletedGamesAndMax(string $user): array
     $minAchievementsForCompletion = 5;
 
     $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID,
-            gd.ImageIcon, gd.Title, gd.achievements_published as MaxPossible,
+            gd.ImageIcon, gd.Title, gd.sort_title as SortTitle, gd.achievements_published as MaxPossible,
             pg.first_unlock_at AS FirstWonDate, pg.last_unlock_at AS MostRecentWonDate,
             pg.achievements_unlocked AS NumAwarded, pg.achievements_unlocked_hardcore AS NumAwardedHC, " .
             floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published') . " AS PctWon, " .
