@@ -2,12 +2,9 @@
 
 /*
  *  API_GetClaims - returns information about 1000 max set claims, sorted by latest `Created` date.
- *    o : offset - number of entries to skip (default: 0)
- *    c : count - number of entries to return (default: 100, max: 500)
  *    k : claim kind - 1 for completed, 2 for dropped, 3 for expired (default: 1)
- *  int        Count                number of claims returned in the response
- *  int        Total                number of claims that actually exist
- *  array      Results
+ *
+ *  array
  *   object     [value]
  *    int        ID                 unique ID of the claim
  *    string     User               user who made the claim
@@ -32,7 +29,6 @@
  */
 
 use App\Community\Enums\ClaimFilters;
-use App\Models\AchievementSetClaim;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -42,8 +38,6 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
         'nullable',
         Rule::in(['1', '2', '3']),
     ],
-    'o' => 'nullable|integer|min:0',
-    'c' => 'nullable|integer|min:1|max:500',
 ], [
     'k.in' => 'k must be set to one of the following values: :values',
 ]);
@@ -53,8 +47,6 @@ $droppedClaims = '2';
 $expiredClaims = '3';
 
 $claimKind = request()->query('k', $completedClaims);
-$offset = $input['o'] ?? 0;
-$count = $input['c'] ?? 100;
 
 $claimFilter = ClaimFilters::AllCompletedPrimaryClaims;
 if ($claimKind === $droppedClaims) {
@@ -63,41 +55,14 @@ if ($claimKind === $droppedClaims) {
     $claimFilter = ClaimFilters::AllActiveClaims;
 }
 
-$claimsResults = getFilteredClaims(
-    claimFilter: $claimFilter,
-    offset: $offset,
-    limit: $count
-);
+$claimsResults = getFilteredClaims(claimFilter: $claimFilter)->take(1000);
 
 if ($claimKind === $expiredClaims) {
-    // For expired claims, we need to fetch all results first to filter by MinutesLeft < 0.
-    $allResults = getFilteredClaims(claimFilter: $claimFilter);
-
-    $onlyFullyExpired = $allResults->filter(function ($claim) {
+    $onlyFullyExpired = $claimsResults->filter(function ($claim) {
         return $claim['MinutesLeft'] < 0;
-    })->values();
+    })->toArray();
 
-    $totalExpiredClaims = $onlyFullyExpired->count();
-
-    // Apply pagination manually after filtering.
-    $paginatedResults = $onlyFullyExpired->slice($offset, $count)->values();
-
-    return response()->json([
-        'Count' => count($paginatedResults),
-        'Total' => $totalExpiredClaims,
-        'Results' => $paginatedResults->toArray(),
-    ]);
+    return response()->json($onlyFullyExpired);
 }
 
-$totalClaims = 0;
-if ($claimFilter === ClaimFilters::AllCompletedPrimaryClaims) {
-    $totalClaims = AchievementSetClaim::complete()->primaryClaim()->count();
-} elseif ($claimFilter === ClaimFilters::AllDroppedClaims) {
-    $totalClaims = AchievementSetClaim::dropped()->count();
-}
-
-return response()->json([
-    'Count' => count($claimsResults),
-    'Total' => $totalClaims,
-    'Results' => $claimsResults->toArray(),
-]);
+return response()->json($claimsResults);
