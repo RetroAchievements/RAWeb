@@ -56,28 +56,24 @@ class AchievementSetClaimTest extends TestCase
         $this->get($this->apiUrl('GetClaims', ['k' => '1']))
             ->assertSuccessful()
             ->assertJson([
-                'Count' => 1,
-                'Total' => 1,
-                'Results' => [
-                    [
-                        'ClaimType' => ClaimType::Primary,
-                        'ConsoleName' => $system->Name,
-                        'Created' => $claim->Created->__toString(),
-                        'DoneTime' => $claim->Finished->__toString(),
-                        'Extension' => 0,
-                        'GameID' => $game->ID,
-                        'GameIcon' => '/Images/000001.png',
-                        'GameTitle' => $game->Title,
-                        'ID' => $claim->ID,
-                        'MinutesLeft' => Carbon::now()->diffInMinutes($claim->Finished),
-                        'SetType' => ClaimSetType::NewSet,
-                        'Special' => ClaimSpecial::None,
-                        'Status' => ClaimStatus::Complete,
-                        'Updated' => $claim->Updated->__toString(),
-                        'User' => $user->User,
-                        'ULID' => $user->ulid,
-                        'UserIsJrDev' => 0,
-                    ],
+                [
+                    'ClaimType' => ClaimType::Primary,
+                    'ConsoleName' => $system->Name,
+                    'Created' => $claim->Created->__toString(),
+                    'DoneTime' => $claim->Finished->__toString(),
+                    'Extension' => 0,
+                    'GameID' => $game->ID,
+                    'GameIcon' => '/Images/000001.png',
+                    'GameTitle' => $game->Title,
+                    'ID' => $claim->ID,
+                    'MinutesLeft' => Carbon::now()->diffInMinutes($claim->Finished),
+                    'SetType' => ClaimSetType::NewSet,
+                    'Special' => ClaimSpecial::None,
+                    'Status' => ClaimStatus::Complete,
+                    'Updated' => $claim->Updated->__toString(),
+                    'User' => $user->User,
+                    'ULID' => $user->ulid,
+                    'UserIsJrDev' => 0,
                 ],
             ]);
     }
@@ -103,28 +99,24 @@ class AchievementSetClaimTest extends TestCase
         $this->get($this->apiUrl('GetClaims', ['k' => '2']))
             ->assertSuccessful()
             ->assertJson([
-                'Count' => 1,
-                'Total' => 1,
-                'Results' => [
-                    [
-                        'ClaimType' => ClaimType::Primary,
-                        'ConsoleName' => $system->Name,
-                        'Created' => $claim->Created->__toString(),
-                        'DoneTime' => $claim->Finished->__toString(),
-                        'Extension' => 0,
-                        'GameID' => $game->ID,
-                        'GameIcon' => '/Images/000001.png',
-                        'GameTitle' => $game->Title,
-                        'ID' => $claim->ID,
-                        'MinutesLeft' => Carbon::now()->diffInMinutes($claim->Finished),
-                        'SetType' => ClaimSetType::NewSet,
-                        'Special' => ClaimSpecial::None,
-                        'Status' => ClaimStatus::Dropped,
-                        'Updated' => $claim->Updated->__toString(),
-                        'User' => $user->User,
-                        'ULID' => $user->ulid,
-                        'UserIsJrDev' => 1,
-                    ],
+                [
+                    'ClaimType' => ClaimType::Primary,
+                    'ConsoleName' => $system->Name,
+                    'Created' => $claim->Created->__toString(),
+                    'DoneTime' => $claim->Finished->__toString(),
+                    'Extension' => 0,
+                    'GameID' => $game->ID,
+                    'GameIcon' => '/Images/000001.png',
+                    'GameTitle' => $game->Title,
+                    'ID' => $claim->ID,
+                    'MinutesLeft' => Carbon::now()->diffInMinutes($claim->Finished),
+                    'SetType' => ClaimSetType::NewSet,
+                    'Special' => ClaimSpecial::None,
+                    'Status' => ClaimStatus::Dropped,
+                    'Updated' => $claim->Updated->__toString(),
+                    'User' => $user->User,
+                    'ULID' => $user->ulid,
+                    'UserIsJrDev' => 1,
                 ],
             ]);
     }
@@ -143,10 +135,7 @@ class AchievementSetClaimTest extends TestCase
         $response = $this->get($this->apiUrl('GetClaims', ['k' => '3']))
             ->assertSuccessful();
 
-        $responseData = $response->json();
-        $this->assertEquals(1, $responseData['Count']);
-        $this->assertEquals(1, $responseData['Total']);
-        $this->assertCount(1, $responseData['Results']);
+        $this->assertCount(1, $response->json());
     }
 
     public function testGetUserClaims(): void
