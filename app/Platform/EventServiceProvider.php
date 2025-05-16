@@ -34,6 +34,7 @@ use App\Platform\Listeners\DispatchUpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerGameMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerPointsStatsJob;
+use App\Platform\Listeners\RecalculateLeaderboardTopEntriesForUser;
 use App\Platform\Listeners\ResetPlayerProgress;
 use App\Platform\Listeners\ResumePlayerSession;
 use App\Platform\Listeners\UpdateTotalGamesCount;
@@ -117,12 +118,14 @@ class EventServiceProvider extends ServiceProvider
             // TODO Notify player
             DispatchUpdatePlayerBeatenGamesStatsJob::class, // dispatches PlayerBeatenGamesStatsUpdated
             DispatchUpdatePlayerPointsStatsJob::class, // dispatches PlayerPointsStatsUpdated
+            RecalculateLeaderboardTopEntriesForUser::class,
         ],
         PlayerBeatenGamesStatsUpdated::class => [
         ],
         PlayerPointsStatsUpdated::class => [
         ],
         UserDeleted::class => [
+            RecalculateLeaderboardTopEntriesForUser::class,
             ResetPlayerProgress::class, // dispatches PlayerGameMetricsUpdated
         ],
     ];
