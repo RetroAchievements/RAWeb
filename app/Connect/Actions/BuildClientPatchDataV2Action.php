@@ -308,20 +308,22 @@ class BuildClientPatchDataV2Action
             'ImageIconUrl' => media_asset($game->ImageIcon),
             'ConsoleId' => $game->ConsoleID,
             'Sets' => [
-                'Title' => null,
-                'Type' => AchievementSetType::Core->value,
-                'AchievementSetId' => $achievementSetId,
-                'GameId' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
-                'ImageIconUrl' => media_asset($game->ImageIcon),
-                'Achievements' => [
-                    (new CreateWarningAchievementAction())->execute(
-                        title: 'Unsupported Game Version',
-                        description: match ($gameHashCompatibility) {
-                            GameHashCompatibility::Incompatible => "This version of the game is known to not work with the defined achievements. $seeSupportedGameFiles",
-                            GameHashCompatibility::Untested => "This version of the game has not been tested to see if it works with the defined achievements. $seeSupportedGameFiles",
-                            GameHashCompatibility::PatchRequired => "This version of the game requires a patch to support achievements. $seeSupportedGameFiles",
-                            default => $seeSupportedGameFiles,
-                        }),
+                [
+                    'Title' => null,
+                    'Type' => AchievementSetType::Core->value,
+                    'AchievementSetId' => $achievementSetId,
+                    'GameId' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
+                    'ImageIconUrl' => media_asset($game->ImageIcon),
+                    'Achievements' => [
+                        (new CreateWarningAchievementAction())->execute(
+                            title: 'Unsupported Game Version',
+                            description: match ($gameHashCompatibility) {
+                                GameHashCompatibility::Incompatible => "This version of the game is known to not work with the defined achievements. $seeSupportedGameFiles",
+                                GameHashCompatibility::Untested => "This version of the game has not been tested to see if it works with the defined achievements. $seeSupportedGameFiles",
+                                GameHashCompatibility::PatchRequired => "This version of the game requires a patch to support achievements. $seeSupportedGameFiles",
+                                default => $seeSupportedGameFiles,
+                            }),
+                    ],
                 ],
                 'Leaderboards' => [],
             ],
