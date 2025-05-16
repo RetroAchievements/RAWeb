@@ -10,6 +10,7 @@ use App\Models\PlayerSession;
 use App\Models\User;
 use App\Platform\Events\PlayerSessionResumed;
 use App\Platform\Events\PlayerSessionStarted;
+use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -142,7 +143,7 @@ class ResumePlayerSessionAction
      */
     private function regenerateRecentPlayersCache(int $gameId): void
     {
-        $cacheKey = "game-recent-players:{$gameId}:10";
+        $cacheKey = CacheKey::buildGameRecentPlayersCacheKey($gameId);
 
         // Before we do anything, delete the existing cache entry.
         Cache::forget($cacheKey);
