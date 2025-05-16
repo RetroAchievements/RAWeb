@@ -40,7 +40,7 @@ class RecalculateLeaderboardTopEntryAction
 
     private function recalculateForLeaderboard(Leaderboard $leaderboard): void
     {
-        $topEntry = $leaderboard->sortedEntries()->with('user')->first();
+        $topEntry = $leaderboard->sortedEntries()->first();
 
         if ($topEntry) {
             $leaderboard->top_entry_id = $topEntry->id;
