@@ -32,7 +32,7 @@ class UpdateUserTimezone
         // }
 
         if ($user->isDirty()) {
-            $user->save();
+            $user->saveQuietly();
             // request()->session()->flash('success', $this->resourceActionSuccessMessage('user.timezone', 'update-to', $geoIpInfo['timezone']));
         }
     }
