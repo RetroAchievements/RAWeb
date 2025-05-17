@@ -57,8 +57,7 @@ class BuildClientPatchDataAction
             return $this->buildIncompatiblePatchData($game ?? $gameHash->game, $gameHash->compatibility, $user);
         }
 
-        $rootGameId = (new ResolveRootGameIdFromGameAndGameHashAction())->execute($gameHash, $game, $user);
-        $rootGame = Game::find($rootGameId);
+        $rootGame = (new ResolveRootGameFromGameAndGameHashAction())->execute($gameHash, $game, $user);
 
         // If multiset is disabled or there's no user, just use the game directly.
         if (!$user || $user->is_globally_opted_out_of_subsets) {
@@ -81,7 +80,7 @@ class BuildClientPatchDataAction
         // - The root game's ID and achievements (already determined by ResolveRootGameIdFromGameAndGameHashAction).
         // - The core game's title and image.
         // - The root game's RP if present, otherwise fall back to core game's RP.
-        if ($rootGameId === $gameHash->game->id) {
+        if ($rootGame->id === $gameHash->game->id) {
             $richPresencePatch = $gameHash->game->RichPresencePatch ?: $richPresencePatch;
 
             return $this->buildPatchData($rootGame, $resolvedSets, $user, $flag, $richPresencePatch, $coreGame);
