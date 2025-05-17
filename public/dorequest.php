@@ -5,6 +5,7 @@ use App\Community\Enums\ActivityType;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\GetCodeNotesAction;
+use App\Connect\Actions\GetHashLibraryAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameAndGameHashAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
@@ -31,6 +32,7 @@ use Illuminate\Support\Carbon;
 $requestType = request()->input('r');
 $handler = match ($requestType) {
     'codenotes2' => new GetCodeNotesAction(),
+    'hashlibrary' => new GetHashLibraryAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
     default => null,
 };
@@ -259,11 +261,6 @@ switch ($requestType) {
         }
         $response['Response'] = Game::whereIn('ID', explode(',', $gamesCSV, 100))
             ->select('Title', 'ID', 'ImageIcon')->get()->toArray();
-        break;
-
-    case "hashlibrary":
-        $consoleID = (int) request()->input('c', 0);
-        $response['MD5List'] = getMD5List($consoleID);
         break;
 
     case "latestclient":

@@ -58,7 +58,7 @@ class ResumePlayerSessionAction
             expireRecentlyPlayedGames($user->User);
             // TODO deprecated, read from last player_sessions entry where needed
             $user->LastGameID = $game->id;
-            $user->save();
+            $user->saveQuietly();
         }
 
         // if the session is less than 10 minutes old, resume session
@@ -71,7 +71,7 @@ class ResumePlayerSessionAction
                 // TODO deprecated, read from last player_sessions entry where needed
                 $user->RichPresenceMsg = utf8_sanitize($presence);
                 $user->RichPresenceMsgDate = Carbon::now();
-                $user->save();
+                $user->saveQuietly();
             }
             $playerSession->rich_presence_updated_at = $timestamp > $playerSession->rich_presence_updated_at ? $timestamp : $playerSession->rich_presence_updated_at;
 
@@ -105,7 +105,7 @@ class ResumePlayerSessionAction
         // TODO deprecated, read from last player_sessions entry where needed
         $user->RichPresenceMsg = utf8_sanitize($presence);
         $user->RichPresenceMsgDate = Carbon::now();
-        $user->save();
+        $user->saveQuietly();
 
         // create new session
         $playerSession = new PlayerSession([

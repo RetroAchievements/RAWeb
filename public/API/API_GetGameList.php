@@ -26,6 +26,8 @@
  *     string     [value]          RetroAchievements hash associated to the game
  */
 
+use App\Models\GameHash;
+
 $consoleID = (int) request()->query('i');
 if ($consoleID <= 0) {
     return response()->json(['success' => false]);
@@ -89,10 +91,13 @@ foreach ($queryResponse as $game) {
 }
 
 if ($withHashes) {
-    foreach (getMD5List($consoleID) as $hash => $gameID) {
+    $hashes = GameHash::compatible()
+        ->select('game_id', 'md5')
+        ->whereIn('game_id', array_column($response, 'ID'));
+    foreach ($hashes->get() as $hash) {
         foreach ($response as &$entry) {
-            if ($entry['ID'] == $gameID) {
-                $entry['Hashes'][] = $hash;
+            if ($entry['ID'] == $hash->game_id) {
+                $entry['Hashes'][] = $hash->md5;
                 break;
             }
         }

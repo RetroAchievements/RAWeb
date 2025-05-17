@@ -1,7 +1,11 @@
 @use('App\Models\Game')
 @use('App\Models\User')
+@use('Illuminate\Support\Facades\Auth')
 
 @php
+    $me = Auth::user();
+    abort_if(!$me || !$me->can('manage', \App\Models\User::class), 404);
+
     // Get search terms from query params or use defaults.
     $gameSearch = request()->query('game_search', 'poke');
     $userSearch = request()->query('user_search', 'scott');

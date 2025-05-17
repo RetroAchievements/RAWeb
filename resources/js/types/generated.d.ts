@@ -356,6 +356,7 @@ declare namespace App.Data {
   export type UserPermissions = {
     authorizeForumTopicComments?: boolean;
     createForumTopicComments?: boolean;
+    createGameComments?: boolean;
     createGameForumTopic?: boolean;
     createTriggerTicket?: boolean;
     createUsernameChangeRequest?: boolean;
@@ -668,11 +669,14 @@ declare namespace App.Platform.Data {
     game: App.Platform.Data.Game;
     can: App.Data.UserPermissions;
     hubs: Array<App.Platform.Data.GameSet>;
+    isSubscribedToComments: boolean;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
+    numComments: number;
     numCompatibleHashes: number;
     numMasters: number;
     numOpenTickets: number;
+    recentVisibleComments: Array<App.Community.Data.Comment>;
     similarGames: Array<App.Platform.Data.Game>;
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
