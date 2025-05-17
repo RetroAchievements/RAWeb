@@ -245,9 +245,11 @@ class TicketListService
 
             case 'inactive':
                 $tickets->whereHas('achievement', function ($query) {
-                    $query->whereHas('developer', function ($query2) {
-                        $query2->where('Permissions', '<', Permissions::JuniorDeveloper);
-                    });
+                    $query
+                        ->whereDoesntHave('activeMaintainer')
+                        ->whereHas('developer', function ($query2) {
+                            $query2->where('Permissions', '<', Permissions::JuniorDeveloper);
+                        });
                 });
                 break;
         }
