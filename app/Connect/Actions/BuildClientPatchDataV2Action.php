@@ -324,8 +324,8 @@ class BuildClientPatchDataV2Action
                                 default => $seeSupportedGameFiles,
                             }),
                     ],
+                    'Leaderboards' => [],
                 ],
-                'Leaderboards' => [],
             ],
         ];
     }
