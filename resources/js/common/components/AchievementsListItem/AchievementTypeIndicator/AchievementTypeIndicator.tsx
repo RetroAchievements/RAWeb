@@ -31,6 +31,7 @@ export const AchievementTypeIndicator: FC<AchievementTypeIndicatorProps> = ({ ty
     <BaseTooltip>
       <BaseTooltipTrigger asChild>
         <div
+          data-testid={`type-${type}`}
           className={cn(
             'group flex items-center rounded-full border bg-embed p-1',
             'text-neutral-200 light:border-neutral-300 light:bg-neutral-50 light:text-neutral-500',
