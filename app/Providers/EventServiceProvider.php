@@ -9,9 +9,11 @@ use App\Listeners\SendUserRegistrationNotification;
 use App\Models\EventAchievement;
 use App\Models\GameSet;
 use App\Models\GameSetLink;
+use App\Models\LeaderboardEntry;
 use App\Observers\EventAchievementObserver;
 use App\Observers\GameSetLinkObserver;
 use App\Observers\GameSetObserver;
+use App\Observers\LeaderboardEntryObserver;
 use App\Platform\Events\SiteBadgeAwarded;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Registered;
@@ -76,6 +78,8 @@ class EventServiceProvider extends ServiceProvider
 
         GameSetLink::observe(GameSetLinkObserver::class);
         GameSet::observe(GameSetObserver::class);
+
+        LeaderboardEntry::observe(LeaderboardEntryObserver::class);
     }
 
     /**

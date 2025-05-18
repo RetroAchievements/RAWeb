@@ -39,6 +39,7 @@ use App\Platform\Commands\SyncGameAchievementSets;
 use App\Platform\Commands\SyncGameHashes;
 use App\Platform\Commands\SyncGames;
 use App\Platform\Commands\SyncLeaderboards;
+use App\Platform\Commands\SyncLeaderboardTopEntries;
 use App\Platform\Commands\SyncLegacyGameTags;
 use App\Platform\Commands\SyncMemoryNotes;
 use App\Platform\Commands\SyncPlayerBadges;
@@ -122,6 +123,7 @@ class AppServiceProvider extends ServiceProvider
                 SyncGameHashes::class,
                 SyncGames::class,
                 SyncLeaderboards::class,
+                SyncLeaderboardTopEntries::class,
                 SyncLegacyGameTags::class,
                 SyncMemoryNotes::class,
                 SyncPlayerBadges::class,
