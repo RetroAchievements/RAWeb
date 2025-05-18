@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -27,6 +28,7 @@ class GameSet extends BaseModel
     use HasFactory;
 
     use PivotEventTrait;
+    use Searchable;
     use SoftDeletes;
 
     protected $table = 'game_sets';
@@ -186,6 +188,22 @@ class GameSet extends BaseModel
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    // == search
+
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => (int) $this->id,
+            'title' => $this->title,
+            'games_count' => $this->games->count(),
+        ];
+    }
+
+    public function shouldBeSearchable(): bool
+    {
+        return $this->type === GameSetType::Hub;
     }
 
     // == constants

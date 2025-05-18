@@ -11,11 +11,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
 
 class ForumTopicComment extends BaseModel
 {
     /** @use HasFactory<ForumTopicCommentFactory> */
     use HasFactory;
+    use Searchable;
     use SoftDeletes;
 
     // TODO drop is_authorized, migrate to authorized_at
@@ -37,6 +39,42 @@ class ForumTopicComment extends BaseModel
     protected static function newFactory(): ForumTopicCommentFactory
     {
         return ForumTopicCommentFactory::new();
+    }
+
+    // == search
+
+    public function toSearchableArray(): array
+    {
+        $body = $this->body;
+
+        // As of 2025-05-18, ~0.23% of payload bodies are extremely large (>20KB).
+        // We'll truncate those.
+        if (mb_strlen($body) > 20000) {
+            $body = mb_substr($body, 0, 20000);
+        }
+
+        return [
+            'id' => $this->id,
+            'forum_topic_id' => $this->forum_topic_id,
+            'author_id' => $this->author_id,
+            'created_at' => $this->created_at,
+            'body' => $body,
+        ];
+    }
+
+    public function shouldBeSearchable(): bool
+    {
+        // Don't index deleted comments.
+        if ($this->deleted_at) {
+            return false;
+        }
+
+        // Don't index unauthorized comments.
+        if (!$this->is_authorized) {
+            return false;
+        }
+
+        return true;
     }
 
     // == accessors

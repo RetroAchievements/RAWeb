@@ -68,11 +68,11 @@ class UpdateGameAchievementsMetricsAction
             $achievement->unlock_percentage = $playersTotal ? $unlocksCount / $playersTotal : 0;
             $achievement->unlock_hardcore_percentage = $playersHardcore ? $unlocksHardcoreCount / $playersHardcore : 0;
             $achievement->TrueRatio = $pointsWeighted;
-            $achievement->save();
+            $achievement->saveQuietly();
         }
 
         $game->TotalTruePoints = $pointsWeightedTotal;
-        $game->save();
+        $game->saveQuietly();
 
         // TODO GameAchievementSetMetricsUpdated::dispatch($game);
     }
