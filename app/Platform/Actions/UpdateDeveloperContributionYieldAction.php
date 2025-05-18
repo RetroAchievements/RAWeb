@@ -27,7 +27,7 @@ class UpdateDeveloperContributionYieldAction
 
         $user->ContribYield = $newContribYield;
         $user->ContribCount = $newContribCount;
-        $user->save();
+        $user->saveQuietly();
     }
 
     private function calculateContributions(User $user): array

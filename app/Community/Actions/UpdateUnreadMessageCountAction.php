@@ -16,6 +16,6 @@ class UpdateUnreadMessageCountAction
             ->sum('num_unread');
 
         $user->UnreadMessageCount = $totalUnread;
-        $user->save();
+        $user->saveQuietly();
     }
 }

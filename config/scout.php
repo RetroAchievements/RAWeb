@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Game;
+use App\Models\User;
+
 return [
 
     /*
@@ -15,7 +18,7 @@ return [
     |
     */
 
-    'driver' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'database' : env('SCOUT_DRIVER', 'database'),
+    'driver' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'meilisearch' : env('SCOUT_DRIVER', 'database'),
 
     /*
     |--------------------------------------------------------------------------
@@ -41,7 +44,10 @@ return [
     |
     */
 
-    'queue' => env('SCOUT_QUEUE', false),
+    'queue' => env('SCOUT_QUEUE', false) ? [
+        'connection' => 'redis',
+        'queue' => 'scout',
+    ] : false,
 
     /*
     |--------------------------------------------------------------------------
@@ -133,9 +139,32 @@ return [
         'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
-            // 'users' => [
-            //     'filterableAttributes'=> ['id', 'name', 'email'],
-            // ],
+            Game::class => [
+                'filterableAttributes' => ['id', 'title'],
+                'searchableAttributes' => ['title', 'id'],
+                'sortableAttributes' => ['id', 'title'],
+            ],
+
+            User::class => [
+                'filterableAttributes' => [
+                    'display_name',
+                    'username',
+                ],
+                'rankingRules' => [
+                    'exactness',
+                    'words',
+                    'proximity',
+                    'attribute',
+                    'typo',
+                    'sort',
+                ],
+                'searchableAttributes' => ['display_name', 'username'],
+                'sortableAttributes' => [
+                    'display_name',
+                    'last_activity_at',
+                    'username',
+                ],
+            ],
         ],
     ],
 

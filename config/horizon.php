@@ -191,15 +191,15 @@ return [
         'supervisor-1' => [
             'connection' => 'redis',
             'queue' => [
+                'default',
+                'developer-metrics',
+                'game-metrics',
                 'player-achievements',
                 'player-beaten-games-stats',
+                'player-game-metrics',
                 'player-metrics',
                 'player-points-stats',
                 'player-sessions',
-                'default',
-                'player-game-metrics',
-                'game-metrics',
-                'developer-metrics',
             ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'size',
@@ -216,8 +216,8 @@ return [
         'supervisor-2' => [
             'connection' => 'redis',
             'queue' => [
-                'player-game-metrics-batch',
                 'game-player-games',
+                'player-game-metrics-batch',
             ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
@@ -227,6 +227,20 @@ return [
             'memory' => 128,
             'tries' => 1,
             'timeout' => 600, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value
+            'nice' => 0,
+        ],
+        'supervisor-3' => [
+            'connection' => 'redis',
+            'queue' => [
+                'scout',
+            ],
+            'balance' => 'simple',
+            'processes' => 1, // Fixed at exactly 1 process.
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 128,
+            'tries' => 1,
+            'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value.
             'nice' => 0,
         ],
     ],

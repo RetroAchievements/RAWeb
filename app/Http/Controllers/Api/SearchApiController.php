@@ -21,9 +21,17 @@ class SearchApiController extends Controller
             return response()->json([]);
         }
 
-        $users = User::search($keyword)->get();
+        $searchResults = User::search($keyword)
+            ->orderBy('last_activity_at', 'desc')
+            ->take(20)
+            ->get();
 
-        $mappedUsers = $users->map(fn ($user) => UserData::fromUser($user));
+        $filteredUsers = $searchResults
+            // Scout's query builder doesn't let us do a "not null" filter.
+            ->filter(fn ($user) => $user->email_verified_at !== null)
+            ->take(10);
+
+        $mappedUsers = $filteredUsers->map(fn ($user) => UserData::fromUser($user));
 
         return response()->json(['users' => $mappedUsers]);
     }

@@ -97,7 +97,7 @@ trait AuthRequests
                 } else {
                     // refresh token
                     $user->connect_token_expires_at = $now->addDays(ConnectApiController::TOKEN_EXPIRY_DAYS);
-                    $user->save();
+                    $user->saveQuietly();
 
                     // NOTE: token authenticator does not raise a Login event
                 }
@@ -124,7 +124,7 @@ trait AuthRequests
                  * refresh token
                  */
                 $user->connect_token_expires_at = Carbon::now()->addDays(ConnectApiController::TOKEN_EXPIRY_DAYS);
-                $user->save();
+                $user->saveQuietly();
             }
         }
 

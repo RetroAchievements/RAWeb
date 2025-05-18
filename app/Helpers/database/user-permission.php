@@ -108,7 +108,7 @@ function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User 
         // This user is a spam user. Remove all their posts and set their account as banned.
         $targetUser->ManuallyVerified = 0;
         $targetUser->forum_verified_at = null;
-        $targetUser->save();
+        $targetUser->saveQuietly();
 
         // Purge all of the spammer's unauthorized posts.
         $targetUser->forumPosts()->where(function ($query) {
@@ -126,7 +126,7 @@ function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User 
     // This user is not a spam user. Authorize all their posts and set their account to verified.
     $targetUser->ManuallyVerified = 1;
     $targetUser->forum_verified_at = now();
-    $targetUser->save();
+    $targetUser->saveQuietly();
 
     authorizeAllForumPostsForUser($targetUser);
 

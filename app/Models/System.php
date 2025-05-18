@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -56,7 +55,6 @@ class System extends BaseModel implements HasMedia
      * Searching, Filtering, and Routing Traits
      */
     use HasSelfHealingUrls;
-    use Searchable;
 
     // TODO rename Console table to systems
     // TODO rename ID column to id, remove getIdAttribute()
@@ -175,29 +173,6 @@ class System extends BaseModel implements HasMedia
                     ->format('png')
                     ->fit(Fit::Max, 64, 64);
             });
-    }
-
-    // == search
-
-    public function toSearchableArray(): array
-    {
-        return $this->only([
-            'id',
-            'name',
-            'name_full',
-            'name_short',
-            'manufacturer',
-        ]);
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        if (!$this->active) {
-            return false;
-        }
-
-        // TODO return true;
-        return false;
     }
 
     // == accessors

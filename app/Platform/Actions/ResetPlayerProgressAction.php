@@ -132,7 +132,7 @@ class ResetPlayerProgressAction
             $user->TrueRAPoints = null;
             $user->ContribCount = 0;
             $user->ContribYield = 0;
-            $user->save();
+            $user->saveQuietly();
         }
 
         $authors = User::query()
@@ -159,6 +159,6 @@ class ResetPlayerProgressAction
 
         dispatch(new UpdatePlayerBeatenGamesStatsJob($user->id));
 
-        $user->save();
+        $user->saveQuietly();
     }
 }

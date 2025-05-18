@@ -47,10 +47,6 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
         ->where('game_id', $achievement->GameID)
         ->first();
 
-    if ($playerGame && $gameHash) {
-        $playerGame->game_hash_id = $gameHash->id;
-    }
-
     if (!$alreadyAwarded) {
         // The client is expecting to receive the number of AchievementsRemaining in the response, and if
         // it's 0, a mastery placard will be shown. Multiple achievements may be unlocked by the client at

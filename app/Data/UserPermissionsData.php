@@ -9,6 +9,7 @@ use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
+use App\Policies\GameCommentPolicy;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -19,6 +20,7 @@ class UserPermissionsData extends Data
     public function __construct(
         public Lazy|bool $authorizeForumTopicComments,
         public Lazy|bool $createForumTopicComments,
+        public Lazy|bool $createGameComments,
         public Lazy|bool $createGameForumTopic,
         public Lazy|bool $createTriggerTicket,
         public Lazy|bool $createUsernameChangeRequest,
@@ -53,6 +55,10 @@ class UserPermissionsData extends Data
             ),
             createForumTopicComments: Lazy::create(fn () => $user && $forumTopic
                 ? $user->can('create', [\App\Models\ForumTopicComment::class, $forumTopic])
+                : false
+            ),
+            createGameComments: Lazy::create(fn () => $user && $game
+                ? (new GameCommentPolicy())->create($user, $game)
                 : false
             ),
             createGameForumTopic: Lazy::create(fn () => $user && $game

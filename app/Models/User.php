@@ -32,6 +32,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -49,6 +50,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     /** @use HasFactory<UserFactory> */
     use HasFactory;
     use Notifiable;
+    use Searchable;
 
     use SoftDeletes;
 
@@ -280,38 +282,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         return $this->display_name;
     }
 
-    // search
-
-    public function toSearchableArray(): array
-    {
-        $searchable = $this->only([
-            'ID',
-            'User',
-            'display_name',
-        ]);
-
-        /*
-         * add trigrams of the username to the index to have partial matches show up as well
-         */
-
-        // $searchable['usernameNgrams'] = utf8_encode((new TNTIndexer())->buildTrigrams($this->username));
-
-        return $searchable;
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        // TODO check privacy setting
-
-        if ($this->banned_at) {
-            return false;
-        }
-
-        // TODO return true;
-        return false;
-    }
-
-    // audit activity log
+    // == logging
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -336,6 +307,26 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    // == search
+
+    public function toSearchableArray(): array
+    {
+        return [
+            'display_name' => $this->display_name,
+            'last_activity_at' => $this->LastLogin,
+            'username' => $this->username,
+        ];
+    }
+
+    public function shouldBeSearchable(): bool
+    {
+        if (isset($this->Deleted) || isset($this->banned_at)) {
+            return false;
+        }
+
+        return true;
     }
 
     // == media
@@ -515,58 +506,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     // == relations
 
-    // public function requestContext(Request $request)
-    // {
-    //     $this->sortBy = $request->get('sort');
-    //     $this->sortDirection = $request->get('order');
-    //     $this->page = (int)$request->get('page');
-    //     $this->perPage = (int)$request->get('per_page', $this->perPage);
-    //
-    //     /**
-    //      * translate legacy sort and order parameters
-    //      * TODO: remove after release cooldown
-    //      */
-    //     if ($request->has('s')) {
-    //         switch ($request->get('s')) {
-    //             case 1:
-    //                 $this->sortBy = 'username';
-    //                 $this->sortDirection = 'asc';
-    //                 break;
-    //             case 4:
-    //                 $this->sortBy = 'username';
-    //                 $this->sortDirection = 'desc';
-    //                 break;
-    //             case 2:
-    //                 $this->sortBy = 'points';
-    //                 $this->sortDirection = 'desc';
-    //                 break;
-    //             case 5:
-    //                 $this->sortBy = 'points';
-    //                 $this->sortDirection = 'asc';
-    //                 break;
-    //             case 3:
-    //                 $this->sortBy = 'achievements';
-    //                 $this->sortDirection = 'desc';
-    //                 break;
-    //             case 6:
-    //                 $this->sortBy = 'achievements';
-    //                 $this->sortDirection = 'asc';
-    //                 break;
-    //         }
-    //     }
-    //
-    //     /**
-    //      * translate legacy offset parameter
-    //      * TODO: remove after release cooldown
-    //      */
-    //     $offset = $request->get('o', 0);
-    //     if ($offset) {
-    //         $this->page = (int)(($offset - 1) / $this->perPage) + 1;
-    //     }
-    //
-    //     return $this;
-    // }
-
     // == scopes
 
     /**
@@ -595,57 +534,5 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     public function scopeTracked(Builder $query): Builder
     {
         return $query->where('Untracked', false); // TODO: use unranked_at=NULL?
-    }
-
-    /**
-     * @param Builder<User> $query
-     * @return Builder<User>
-     */
-    public function scopeSearch(Builder $query, string $keyword): Builder
-    {
-        // Just return the base query if the keyword is empty.
-        if (empty($keyword)) {
-            return $query->whereNotNull('email_verified_at')
-                ->whereNull('Deleted')
-                ->whereNull('banned_at');
-        }
-
-        $keyword = trim($keyword);
-
-        /**
-         * Search users and rank results by:
-         * 1. Exact display_name match (100 points).
-         * 2. display_name prefix match (90 points).
-         * 3. display_name contains match (80 points).
-         * 4. Exact username match (70 points).
-         * 5. username contains match (60 points).
-         *
-         * Finally, sort equally-ranked results by last login date.
-         */
-        return $query->whereNotNull('email_verified_at')
-            ->whereNull('Deleted')
-            ->whereNull('banned_at')
-            ->where(function ($query) use ($keyword) {
-                $query->where('display_name', 'LIKE', '%' . $keyword . '%')
-                      ->orWhere('User', 'LIKE', '%' . $keyword . '%');
-            })
-            ->orderByRaw("
-                CASE 
-                    WHEN display_name = ? THEN 100
-                    WHEN display_name LIKE ? THEN 90
-                    WHEN display_name LIKE ? THEN 80
-                    WHEN User = ? THEN 70
-                    WHEN User LIKE ? THEN 60
-                END DESC",
-                [
-                    $keyword,
-                    $keyword . '%',
-                    '%' . $keyword . '%',
-                    $keyword,
-                    '%' . $keyword . '%',
-                ]
-            )
-            ->orderBy('LastLogin', 'desc')
-            ->limit(10);
     }
 }
