@@ -26,7 +26,7 @@ class BuildClientPatchDataV2Action
         ?AchievementFlag $flag = null,
     ): array {
         if (!$gameHash && !$game) {
-            throw new InvalidArgumentException('Either gameHash or game must be provided to build patch data.');
+            throw new InvalidArgumentException('Either gameHash or game must be provided to build achievementsets data.');
         }
 
         if (!$gameHash) {
@@ -35,7 +35,7 @@ class BuildClientPatchDataV2Action
 
         if (
             $gameHash->compatibility !== GameHashCompatibility::Compatible
-            && $gameHash->compatibility_tester_id !== $user?->id
+            && (!$user || $gameHash->compatibility_tester_id !== $user->id)
         ) {
             return $this->buildIncompatiblePatchData($game ?? $gameHash->game, $gameHash->compatibility, $user);
         }
@@ -58,7 +58,7 @@ class BuildClientPatchDataV2Action
         $derivedCoreGame = Game::find($derivedCoreSet->game_id) ?? $actualLoadedGame;
 
         // What type of set is the user loading? "core", "bonus", "specialty", or "exclusive".
-        $loadedSetType = $this->determineLoadedHashSetType($gameHash, $resolvedSets);
+        $loadedSetType = $this->determineLoadedHashSetType($gameHash, $derivedCoreGame->gameAchievementSets);
 
         [$richPresenceGameId, $richPresencePatch] = $this->buildRichPresenceData(
             $actualLoadedGame,
@@ -122,15 +122,19 @@ class BuildClientPatchDataV2Action
                 ->with('achievementSet.achievements.developer')
                 ->first();
 
-            $achievements = $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $flag);
-            $leaderboards = $this->buildLeaderboardsData($coreAchievementSet->game);
+            $achievements = $coreAchievementSet
+                ? $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $flag)
+                : [];
+            $leaderboards = $coreAchievementSet
+                ? $this->buildLeaderboardsData($coreAchievementSet->game)
+                : [];
 
             $sets[] = [
-                'Title' => $coreAchievementSet->title,
-                'Type' => $coreAchievementSet->type->value,
-                'AchievementSetId' => $coreAchievementSet->achievementSet->id,
-                'GameId' => $coreAchievementSet->game_id,
-                'ImageIconUrl' => media_asset($coreAchievementSet->game->ImageIcon),
+                'Title' => $coreAchievementSet?->title ?? $game->title,
+                'Type' => $coreAchievementSet?->type->value ?? AchievementSetType::Core->value,
+                'AchievementSetId' => $coreAchievementSet?->achievementSet->id ?? 0,
+                'GameId' => $coreAchievementSet?->game_id ?? $game->id,
+                'ImageIconUrl' => media_asset($coreAchievementSet?->game->ImageIcon ?? $game->ImageIcon),
                 'Achievements' => $achievements,
                 'Leaderboards' => $leaderboards,
             ];
@@ -173,7 +177,6 @@ class BuildClientPatchDataV2Action
         }
 
         $achievementsData = [];
-
         foreach ($achievements as $achievement) {
             // If an achievement has an invalid flag, skip it.
             if (!AchievementFlag::tryFrom($achievement->Flags)) {
