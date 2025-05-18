@@ -52,42 +52,49 @@ class EventResource extends Resource
                     ->label('')
                     ->size(config('media.icon.lg.width')),
 
-                Infolists\Components\Section::make('Primary Details')
-                    ->icon('heroicon-m-key')
-                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
-                    ->schema([
-                        Infolists\Components\TextEntry::make('legacyGame.title')
-                            ->label('Title'),
+                Infolists\Components\Split::make([
+                    Infolists\Components\Section::make('Primary Details')
+                        ->icon('heroicon-m-key')
+                        ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                        ->schema([
+                            Infolists\Components\TextEntry::make('legacyGame.title')
+                                ->label('Title'),
 
+                            Infolists\Components\TextEntry::make('permalink')
+                                ->formatStateUsing(fn () => 'Here')
+                                ->url(fn (Event $record): string => $record->getPermalinkAttribute())
+                                ->extraAttributes(['class' => 'underline'])
+                                ->openUrlInNewTab(),
+
+                            Infolists\Components\TextEntry::make('legacyGame.forumTopic.id')
+                                ->label('Forum Topic ID')
+                                ->url(fn (?int $state) => $state ? route('forum-topic.show', ['topic' => $state]) : null)
+                                ->placeholder('none')
+                                ->extraAttributes(function (Event $event): array {
+                                    if ($event->legacyGame->forumTopic?->id) {
+                                        return ['class' => 'underline'];
+                                    }
+
+                                    return [];
+                                }),
+
+                            Infolists\Components\TextEntry::make('active_from')
+                                ->label('Active From')
+                                ->date(),
+
+                            Infolists\Components\TextEntry::make('active_through')
+                            ->label('Active Through')
+                            ->date(),
+                        ]),
+                    Infolists\Components\Section::make([
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
 
-                        Infolists\Components\TextEntry::make('permalink')
-                            ->formatStateUsing(fn () => 'Here')
-                            ->url(fn (Event $record): string => $record->getPermalinkAttribute())
-                            ->extraAttributes(['class' => 'underline'])
-                            ->openUrlInNewTab(),
+                        Infolists\Components\IconEntry::make('gives_site_award')
+                            ->boolean(),
 
-                        Infolists\Components\TextEntry::make('legacyGame.forumTopic.id')
-                            ->label('Forum Topic ID')
-                            ->url(fn (?int $state) => $state ? route('forum-topic.show', ['topic' => $state]) : null)
-                            ->placeholder('none')
-                            ->extraAttributes(function (Event $event): array {
-                                if ($event->legacyGame->forumTopic?->id) {
-                                    return ['class' => 'underline'];
-                                }
-
-                                return [];
-                            }),
-
-                        Infolists\Components\TextEntry::make('active_from')
-                            ->label('Active From')
-                            ->date(),
-
-                        Infolists\Components\TextEntry::make('active_through')
-                        ->label('Active Through')
-                        ->date(),
-                    ]),
+                        ])->grow(false),
+                    ])->from('md'),
 
                 Infolists\Components\Section::make('Metrics')
                     ->icon('heroicon-s-arrow-trending-up')
@@ -113,21 +120,29 @@ class EventResource extends Resource
 
         return $form
             ->schema([
-                Forms\Components\Section::make()
-                    ->relationship('legacyGame')
-                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
-                    ->schema([
-                        Forms\Components\TextInput::make('Title')
-                            ->label('Title')
-                            ->unique(ignoreRecord: true)
-                            ->required()
-                            ->minLength(2)
-                            ->maxLength(80),
+                Forms\Components\Split::make([
+                    Forms\Components\Section::make()
+                        ->relationship('legacyGame')
+                        ->columns(2)
+                        ->schema([
+                            Forms\Components\TextInput::make('Title')
+                                ->label('Title')
+                                ->unique(ignoreRecord: true)
+                                ->required()
+                                ->minLength(2)
+                                ->maxLength(80),
 
-                        Forms\Components\TextInput::make('ForumTopicID')
-                            ->label('Forum Topic ID')
-                            ->numeric()
-                            ->rules([new ExistsInForumTopics()]),
+                            Forms\Components\TextInput::make('ForumTopicID')
+                                ->label('Forum Topic ID')
+                                ->numeric()
+                                ->rules([new ExistsInForumTopics()]),
+                        ]),
+
+                    Forms\Components\Section::make()
+                        ->grow(false)
+                        ->schema([
+                            Forms\Components\Toggle::make('gives_site_award'),
+                        ]),
                     ]),
 
                 Forms\Components\Section::make()
