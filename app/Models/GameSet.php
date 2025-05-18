@@ -194,10 +194,12 @@ class GameSet extends BaseModel
 
     public function toSearchableArray(): array
     {
+        $this->loadCount('games');
+
         return [
             'id' => (int) $this->id,
             'title' => $this->title,
-            'games_count' => $this->games->count(),
+            'games_count' => $this->games_count,
         ];
     }
 
