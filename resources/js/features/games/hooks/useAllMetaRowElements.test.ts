@@ -166,31 +166,6 @@ describe('Hook: useAllMetaRowElements', () => {
     ]);
   });
 
-  it('given RA feature hubs, keeps prefixes for specific types', () => {
-    // ARRANGE
-    const game = createGame();
-    const devJamHub = createGameSet({
-      id: 123,
-      title: '[DevJam - Winter 2024]',
-      type: 'hub',
-    });
-    const rolloutHub = createGameSet({
-      id: 456,
-      title: '[Rollout Sets - GBA Collection]',
-      type: 'hub',
-    });
-    const allGameHubs = [devJamHub, rolloutHub];
-
-    // ACT
-    const { result } = renderHook(() => useAllMetaRowElements(game, allGameHubs));
-
-    // ASSERT
-    expect(result.current.raFeatureRowElements).toEqual([
-      { label: 'DevJam - Winter 2024', hubId: 123, href: ['hub.show', 123] },
-      { label: 'Rollout Sets - GBA Collection', hubId: 456, href: ['hub.show', 456] },
-    ]);
-  });
-
   it('properly collects all used hub IDs', () => {
     // ARRANGE
     const game = createGame();
@@ -298,50 +273,6 @@ describe('Hook: useAllMetaRowElements', () => {
     expect(result.current.raFeatureRowElements).toEqual([
       { label: 'Regular Feature', hubId: 456, href: ['hub.show', 456] },
       { label: 'Special Feature', hubId: 123, href: ['hub.show', 123] },
-    ]);
-  });
-
-  it('handles various shouldKeepPrefix conditions for RA feature elements', () => {
-    // ARRANGE
-    const game = createGame();
-    const consoleWarsHub = createGameSet({
-      id: 111,
-      title: '[Console Wars - SNES vs Genesis]',
-      type: 'hub',
-    });
-    const devJamHub = createGameSet({
-      id: 222,
-      title: '[DevJam - Summer 2024]',
-      type: 'hub',
-    });
-    const challengeLeagueHub = createGameSet({
-      id: 333,
-      title: '[Challenge League - Season 5]',
-      type: 'hub',
-    });
-    const rolloutSetsHub = createGameSet({
-      id: 444,
-      title: '[Rollout Sets - GBC Collection]',
-      type: 'hub',
-    });
-    const metaHub = createGameSet({
-      id: 555,
-      title: '[Meta - Regular Feature]',
-      type: 'hub',
-    });
-
-    const allGameHubs = [consoleWarsHub, devJamHub, challengeLeagueHub, rolloutSetsHub, metaHub];
-
-    // ACT
-    const { result } = renderHook(() => useAllMetaRowElements(game, allGameHubs));
-
-    // ASSERT
-    expect(result.current.raFeatureRowElements).toEqual([
-      { label: 'Challenge League - Season 5', hubId: 333, href: ['hub.show', 333] },
-      { label: 'Console Wars - SNES vs Genesis', hubId: 111, href: ['hub.show', 111] },
-      { label: 'DevJam - Summer 2024', hubId: 222, href: ['hub.show', 222] },
-      { label: 'Regular Feature', hubId: 555, href: ['hub.show', 555] },
-      { label: 'Rollout Sets - GBC Collection', hubId: 444, href: ['hub.show', 444] },
     ]);
   });
 });

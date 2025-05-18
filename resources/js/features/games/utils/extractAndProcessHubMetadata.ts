@@ -1,17 +1,3 @@
-/**
- * Processes game hub metadata to extract standardized labels and IDs. Used to normalize
- * hub titles that follow patterns like "[Category - Label]" into consistent formats
- * for a sidebar metadata display component.
- *
- * @see GameMetadata.tsx
- * @see useAllMetaRowElements.ts
- *
- * - Extracts labels from hub titles matching specified patterns (eg: "[Primary - My Hub]").
- * - Supports primary and alternative label categories with optional marking (*).
- * - Can preserve certain prefixes in the final label.
- * - Provides fallback values when no matching hubs are found.
- * - Handles special case normalization (e.g. "Hacks" to "Hack").
- */
 export function extractAndProcessHubMetadata(
   hubs: App.Platform.Data.GameSet[],
   primaryLabel: string,
@@ -26,13 +12,6 @@ export function extractAndProcessHubMetadata(
   // Stores unique labels with their metadata. Using a Map ensures we don't duplicate labels
   // and allows us to prefer hubs with IDs over those without.
   const metaMap = new Map<string, { label: string; hubId?: number; isAlt?: boolean }>();
-
-  // Start with any provided fallback values.
-  if (fallbackValue) {
-    for (const value of fallbackValue.split(',').map((v) => v.trim())) {
-      metaMap.set(value, { label: value });
-    }
-  }
 
   if (hubPatterns.length > 0) {
     // Filter hubs to only those matching our include patterns but not exclude patterns.
@@ -79,10 +58,23 @@ export function extractAndProcessHubMetadata(
           value = `${value}*`;
         }
 
-        const existing = metaMap.get(value);
-        if (!existing || (!existing.hubId && hub.id)) {
-          metaMap.set(value, { label: value, hubId: hub.id, isAlt });
-        }
+        // Always prefer hub entries over fallback values
+        metaMap.set(value, { label: value, hubId: hub.id, isAlt });
+      }
+    }
+  }
+
+  // Start with any provided fallback values, but only add them if we don't already have a matching entry.
+  if (fallbackValue) {
+    for (const value of fallbackValue.split(',').map((v) => v.trim())) {
+      // Check if this fallback value matches any hub pattern (eg: "Hacker - Kaze Emanuar").
+      const matchesHubPattern = hubPatterns.some((pattern) =>
+        value.toLowerCase().includes(pattern.toLowerCase()),
+      );
+
+      // Only add if we don't have a hub with this exact label already.
+      if (!metaMap.has(value) && !matchesHubPattern) {
+        metaMap.set(value, { label: value });
       }
     }
   }

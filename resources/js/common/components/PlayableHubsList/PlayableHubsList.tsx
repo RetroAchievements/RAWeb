@@ -25,6 +25,11 @@ export const PlayableHubsList: FC<PlayableHubsListProps> = ({ hubs, excludeHubId
     canManageGames: can.manageGames,
     excludeIds: excludeHubIds,
   });
+
+  if (!filteredHubs.length) {
+    return null;
+  }
+
   const sortedHubs = filteredHubs.sort((a, b) => a.title!.localeCompare(b.title!));
 
   return (

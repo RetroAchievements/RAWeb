@@ -36,13 +36,19 @@ export const GameShowSidebarRoot: FC = () => {
   return (
     <div data-testid="sidebar" className="flex flex-col gap-6">
       <PlayableBoxArtImage src={game.imageBoxArtUrl} />
-      <GameMetadata allMetaRowElements={allMetaRowElements} game={game} />
+      <GameMetadata allMetaRowElements={allMetaRowElements} game={game} hubs={hubs} />
       <GameSidebarFullWidthButtons game={game} />
 
       <BaseSeparator className="mb-8" />
 
       <SimilarGamesList similarGames={similarGames} />
-      <PlayableHubsList hubs={hubs} excludeHubIds={allMetaRowElements.allUsedHubIds} />
+      <PlayableHubsList
+        hubs={hubs}
+        excludeHubIds={[
+          ...allMetaRowElements.allUsedHubIds,
+          ...hubs.filter((h) => h.isEventHub).map((h) => h.id), // event hubs are handled in the metadata component
+        ]}
+      />
       <PlayableCompareProgress
         followedPlayerCompletions={followedPlayerCompletions}
         game={game}

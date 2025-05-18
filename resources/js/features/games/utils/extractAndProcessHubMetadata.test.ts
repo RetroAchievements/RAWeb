@@ -281,4 +281,40 @@ describe('Util: extractAndProcessHubMetadata', () => {
       { label: 'Z Hub', hubId: 123 },
     ]);
   });
+
+  it('given a fallback value matches a hub pattern, it gets excluded', () => {
+    // ARRANGE
+    const hubs: App.Platform.Data.GameSet[] = [];
+    const fallbackValue = 'hub Test Value';
+
+    // ACT
+    const result = extractAndProcessHubMetadata(hubs, 'Primary', [], ['hub'], [], fallbackValue);
+
+    // ASSERT
+    expect(result).toEqual([]);
+  });
+
+  it('given a fallback value with multiple values where one matches a hub pattern, only includes non-matching values', () => {
+    // ARRANGE
+    const hubs: App.Platform.Data.GameSet[] = [];
+    const fallbackValue = 'Normal Value, hub Special Value';
+
+    // ACT
+    const result = extractAndProcessHubMetadata(hubs, 'Primary', [], ['hub'], [], fallbackValue);
+
+    // ASSERT
+    expect(result).toEqual([{ label: 'Normal Value' }]);
+  });
+
+  it('given a fallback value that contains a hub pattern in uppercase, still correctly excludes it (case insensitive check)', () => {
+    // ARRANGE
+    const hubs: App.Platform.Data.GameSet[] = [];
+    const fallbackValue = 'HUB Test Value, Normal Value';
+
+    // ACT
+    const result = extractAndProcessHubMetadata(hubs, 'Primary', [], ['hub'], [], fallbackValue);
+
+    // ASSERT
+    expect(result).toEqual([{ label: 'Normal Value' }]);
+  });
 });

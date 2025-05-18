@@ -23,12 +23,21 @@ export function useAllMetaRowElements(
     () =>
       buildMetaRowElements({
         hubs: allGameHubs,
-        hubTitleIncludes: ['Publisher - ', 'Hacks -'],
+        hubTitleIncludes: ['Publisher - '],
         primaryLabel: 'Publisher',
-        altLabels: ['Hacks'],
         fallbackValue: game.publisher,
       }),
     [allGameHubs, game.publisher],
+  );
+
+  const hackOfRowElements = useMemo(
+    () =>
+      buildMetaRowElements({
+        hubs: allGameHubs,
+        hubTitleIncludes: ['Hacks - '],
+        primaryLabel: 'Hacks',
+      }),
+    [allGameHubs],
   );
 
   const genreRowElements = useMemo(
@@ -148,98 +157,109 @@ export function useAllMetaRowElements(
     [allGameHubs],
   );
 
+  const eventsRowElements = useMemo(
+    () =>
+      buildMetaRowElements({
+        hubs: allGameHubs,
+        hubTitleIncludes: ['AotW -', 'Console Wars'],
+        primaryLabel: 'AotW',
+        altLabels: ['Console Wars I'],
+        keepPrefixFor: ['Console Wars I'],
+      }),
+    [allGameHubs],
+  );
+
   const raFeatureRowElements = useMemo(
     () =>
       buildMetaRowElements({
         hubs: allGameHubs,
-        hubTitleIncludes: [
-          'Meta -',
-          'Rollout Sets -',
-          'AotW -',
-          'RANews -',
-          'RA Awards -',
-          'Custom Awards -',
-          'Console Wars',
-          'DevJam',
-          'Challenge League',
-        ],
+        hubTitleIncludes: ['Meta -', 'RANews -', 'Custom Awards -'],
         hubTitleExcludes: ['Meta - Language'],
         primaryLabel: 'Meta',
-        altLabels: [
-          'AotW',
-          'Rollout Sets',
-          'RANews',
-          'RA Awards',
-          'Custom Awards',
-          'Console Wars',
-          'DevJam',
-          'Challenge League',
-        ],
-        keepPrefixFor: ['Rollout Sets', 'DevJam', 'Challenge League', 'Console Wars'],
+        altLabels: ['RANews', 'Custom Awards'],
+      }),
+    [allGameHubs],
+  );
+
+  const formatRowElements = useMemo(
+    () =>
+      buildMetaRowElements({
+        hubs: allGameHubs,
+        hubTitleIncludes: ['Format -'],
+        primaryLabel: 'Format',
       }),
     [allGameHubs],
   );
 
   const allUsedHubIds = useMemo(() => {
     const allRows = [
-      ...developerRowElements,
-      ...publisherRowElements,
-      ...genreRowElements,
-      ...languageRowElements,
-      ...themeRowElements,
-      ...perspectiveRowElements,
-      ...featureRowElements,
       ...creditRowElements,
-      ...technicalRowElements,
+      ...developerRowElements,
+      ...eventsRowElements,
+      ...featureRowElements,
+      ...formatRowElements,
+      ...genreRowElements,
+      ...hackOfRowElements,
+      ...languageRowElements,
       ...miscRowElements,
+      ...perspectiveRowElements,
       ...protagonistRowElements,
-      ...settingRowElements,
-      ...regionalRowElements,
+      ...publisherRowElements,
       ...raFeatureRowElements,
+      ...regionalRowElements,
+      ...settingRowElements,
+      ...technicalRowElements,
+      ...themeRowElements,
     ];
 
     return [...new Set(allRows.map((row) => row.hubId).filter(Boolean))] as number[];
   }, [
-    developerRowElements,
-    publisherRowElements,
-    genreRowElements,
-    languageRowElements,
-    themeRowElements,
-    perspectiveRowElements,
-    featureRowElements,
     creditRowElements,
-    technicalRowElements,
+    developerRowElements,
+    eventsRowElements,
+    featureRowElements,
+    formatRowElements,
+    genreRowElements,
+    hackOfRowElements,
+    languageRowElements,
     miscRowElements,
+    perspectiveRowElements,
     protagonistRowElements,
-    settingRowElements,
-    regionalRowElements,
+    publisherRowElements,
     raFeatureRowElements,
+    regionalRowElements,
+    settingRowElements,
+    technicalRowElements,
+    themeRowElements,
   ]);
 
   return {
     allUsedHubIds,
-    developerRowElements,
-    publisherRowElements,
-    genreRowElements,
-    languageRowElements,
-    themeRowElements,
-    perspectiveRowElements,
-    featureRowElements,
     creditRowElements,
-    technicalRowElements,
+    developerRowElements,
+    eventsRowElements,
+    featureRowElements,
+    formatRowElements,
+    genreRowElements,
+    hackOfRowElements,
+    languageRowElements,
     miscRowElements,
+    perspectiveRowElements,
     protagonistRowElements,
-    settingRowElements,
-    regionalRowElements,
+    publisherRowElements,
     raFeatureRowElements,
+    regionalRowElements,
+    settingRowElements,
+    technicalRowElements,
+    themeRowElements,
   };
 }
 
 function buildMetaRowElements(props: {
   hubs: App.Platform.Data.GameSet[];
+  hubTitleIncludes: string[];
   primaryLabel: string;
   altLabels?: string[];
-  hubTitleIncludes?: string[];
   hubTitleExcludes?: string[];
   altLabelsLast?: boolean;
   markAltLabels?: boolean;
@@ -248,7 +268,7 @@ function buildMetaRowElements(props: {
 }): Array<{ label: string; hubId?: number; href?: string }> {
   const {
     hubs,
-    hubTitleIncludes = [],
+    hubTitleIncludes,
     hubTitleExcludes = [],
     primaryLabel,
     altLabels = [],

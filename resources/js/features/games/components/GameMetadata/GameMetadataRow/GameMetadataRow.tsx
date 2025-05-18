@@ -12,7 +12,7 @@ interface GameMetadataRowProps {
 export const GameMetadataRow: FC<GameMetadataRowProps> = memo(({ rowHeading, elements }) => {
   const { auth } = usePageProps();
 
-  if (!elements.length) {
+  if (!elements?.length) {
     return null;
   }
 
