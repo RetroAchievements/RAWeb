@@ -84,7 +84,7 @@ function getUsersSiteAwards(?User $user): array
                 ))
         UNION
         -- event awards
-        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.user_id, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, " . System::Events . ", NULL, NULL, NULL
+        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.user_id, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, " . System::Events . ", 'Events', NULL, e.image_asset_path
             FROM SiteAwards AS saw
             LEFT JOIN events e ON e.id = saw.AwardData
             LEFT JOIN GameData gd ON gd.id = e.legacy_game_id
