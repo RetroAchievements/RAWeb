@@ -3,7 +3,6 @@
 use App\Community\Enums\AwardType;
 use App\Models\Event;
 use App\Models\EventAward;
-use App\Models\GameSet;
 use App\Models\PlayerBadge;
 
 function SeparateAwards(array $userAwards): array

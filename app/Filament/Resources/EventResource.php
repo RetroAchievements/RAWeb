@@ -93,8 +93,8 @@ class EventResource extends Resource
                         Infolists\Components\IconEntry::make('gives_site_award')
                             ->boolean(),
 
-                        ])->grow(false),
-                    ])->from('md'),
+                    ])->grow(false),
+                ])->from('md'),
 
                 Infolists\Components\Section::make('Metrics')
                     ->icon('heroicon-s-arrow-trending-up')
@@ -143,7 +143,7 @@ class EventResource extends Resource
                         ->schema([
                             Forms\Components\Toggle::make('gives_site_award'),
                         ]),
-                    ]),
+                ]),
 
                 Forms\Components\Section::make()
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
