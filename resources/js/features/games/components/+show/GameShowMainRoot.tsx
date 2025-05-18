@@ -9,6 +9,7 @@ import { PlayableMobileMediaCarousel } from '@/common/components/PlayableMobileM
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { GameAchievementSetsContainer } from '../GameAchievementSetsContainer';
+import { GameCommentList } from '../GameCommentList';
 import { PrimaryMetadataChip } from '../PrimaryMetadataChip';
 import { ReleasedAtChip } from '../ReleasedAtChip';
 
@@ -78,7 +79,10 @@ export const GameShowMainRoot: FC = () => {
         />
       </div>
 
-      <GameAchievementSetsContainer game={game} />
+      <div className="flex flex-col gap-6">
+        <GameAchievementSetsContainer game={game} />
+        <GameCommentList />
+      </div>
     </div>
   );
 };
