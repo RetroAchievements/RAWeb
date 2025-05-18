@@ -13,6 +13,11 @@ class CacheKey
         return self::buildNormalizedCacheKey("game", $gameId, "card-data");
     }
 
+    public static function buildGameRecentPlayersCacheKey(int $gameId): string
+    {
+        return self::buildNormalizedCacheKey("game", $gameId, 'recent-players', [10]); // 10 players cached
+    }
+
     public static function buildUserLastLoginCacheKey(string $username): string
     {
         return self::buildNormalizedUserCacheKey($username, "last-login");

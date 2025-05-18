@@ -10,7 +10,9 @@ use App\Models\PlayerSession;
 use App\Models\User;
 use App\Platform\Events\PlayerSessionResumed;
 use App\Platform\Events\PlayerSessionStarted;
+use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class ResumePlayerSessionAction
 {
@@ -56,7 +58,7 @@ class ResumePlayerSessionAction
             expireRecentlyPlayedGames($user->User);
             // TODO deprecated, read from last player_sessions entry where needed
             $user->LastGameID = $game->id;
-            $user->save();
+            $user->saveQuietly();
         }
 
         // if the session is less than 10 minutes old, resume session
@@ -69,7 +71,7 @@ class ResumePlayerSessionAction
                 // TODO deprecated, read from last player_sessions entry where needed
                 $user->RichPresenceMsg = utf8_sanitize($presence);
                 $user->RichPresenceMsgDate = Carbon::now();
-                $user->save();
+                $user->saveQuietly();
             }
             $playerSession->rich_presence_updated_at = $timestamp > $playerSession->rich_presence_updated_at ? $timestamp : $playerSession->rich_presence_updated_at;
 
@@ -87,6 +89,9 @@ class ResumePlayerSessionAction
 
             $playerSession->save(['touch' => true]);
 
+            // Regenerate the recent players cache so it's primed on the next game page load.
+            $this->regenerateRecentPlayersCache($game->id);
+
             PlayerSessionResumed::dispatch($user, $game, $presence);
 
             return $playerSession;
@@ -100,7 +105,7 @@ class ResumePlayerSessionAction
         // TODO deprecated, read from last player_sessions entry where needed
         $user->RichPresenceMsg = utf8_sanitize($presence);
         $user->RichPresenceMsgDate = Carbon::now();
-        $user->save();
+        $user->saveQuietly();
 
         // create new session
         $playerSession = new PlayerSession([
@@ -118,8 +123,36 @@ class ResumePlayerSessionAction
 
         $user->playerSessions()->save($playerSession);
 
+        // Regenerate the recent players cache so it's primed on the next game page load.
+        $this->regenerateRecentPlayersCache($game->id);
+
         PlayerSessionStarted::dispatch($user, $game, $presence);
 
         return $playerSession;
+    }
+
+    /**
+     * Invalidate and pre-warm the recent players cache for a game.
+     *
+     * When a player starts/pings for a game session, we:
+     * 1. Remove the existing cached data.
+     * 2. Pre-warm the cache with fresh data that includes the current player.
+     *
+     * This ensures the game page shows current data without causing a
+     * cache miss for the next visitor.
+     */
+    private function regenerateRecentPlayersCache(int $gameId): void
+    {
+        $cacheKey = CacheKey::buildGameRecentPlayersCacheKey($gameId);
+
+        // Before we do anything, delete the existing cache entry.
+        Cache::forget($cacheKey);
+
+        // Now, pre-warm the cache with fresh data (player list including the current player).
+        Cache::put(
+            $cacheKey,
+            getGameRecentPlayers($gameId, 10),
+            7 * 24 * 60 * 60, // 1 week
+        );
     }
 }

@@ -62,7 +62,7 @@ function authenticateForConnect(?string $username, ?string $pass = null, ?string
             // appToken has expired. Generate a new one and force the user to log in again.
             $user->appToken = newAppToken();
             $user->appTokenExpiry = Carbon::now()->clone()->addDays(14);
-            $user->save();
+            $user->saveQuietly();
 
             return [
                 'Success' => false,
@@ -78,7 +78,7 @@ function authenticateForConnect(?string $username, ?string $pass = null, ?string
 
     // update appTokenExpiry
     $user->appTokenExpiry = Carbon::now()->clone()->addDays(14);
-    $user->save();
+    $user->saveQuietly();
 
     return [
         'Success' => true,
@@ -153,7 +153,7 @@ function changePassword(string $username, string $password): string
     $user->Password = $hashedPassword;
     $user->SaltedPass = '';
     $user->PasswordResetToken = '';
-    $user->save();
+    $user->saveQuietly();
 
     return $hashedPassword;
 }
@@ -247,7 +247,7 @@ function generateAppToken(string $username, ?string &$tokenOut): bool
 
     $user->appToken = $tokenOut = newAppToken();
     $user->appTokenExpiry = Carbon::now()->clone()->addDays(14);
-    $user->save();
+    $user->saveQuietly();
 
     return true;
 }
@@ -272,7 +272,7 @@ function generateAPIKey(string $username): string
     $newKey = Str::random(32);
 
     $user->APIKey = $newKey;
-    $user->save();
+    $user->saveQuietly();
 
     return $newKey;
 }
