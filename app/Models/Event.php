@@ -36,11 +36,13 @@ class Event extends BaseModel
         'active_from',
         'active_until',
         'active_through',
+        'gives_site_award',
     ];
 
     protected $casts = [
         'active_from' => 'date',
         'active_until' => 'date',
+        'gives_site_award' => 'boolean',
     ];
 
     protected $appends = [
