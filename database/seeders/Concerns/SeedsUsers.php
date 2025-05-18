@@ -6,9 +6,7 @@ namespace Database\Seeders\Concerns;
 
 use App\Models\Role;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 trait SeedsUsers
@@ -25,23 +23,7 @@ trait SeedsUsers
             $safeRoleName = str_replace('-', '', $role['name']);
         }
 
-        $user = User::updateOrCreate(
-            [
-                'User' => $safeUsername,
-            ],
-            array_merge([
-                'EmailAddress' => config('mail.from.address'),
-                'email_verified_at' => Carbon::now(),
-                'APIKey' => $username . '-secret',
-                'Motto' => 'I am ' . $username,
-                'RAPoints' => 1000,
-                'Password' => Hash::make($safeUsername),
-                'TrueRAPoints' => 1010,
-                'User' => $safeUsername,
-                'display_name' => $safeUsername,
-            ], $attributes)
-        );
-
+        $user = User::factory()->create(array_merge(['User' => $safeUsername], $attributes));
         $user->rollConnectToken();
 
         // set the connect token expiry back a few minutes so we can detect if it gets
