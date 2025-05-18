@@ -9,6 +9,7 @@ use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Actions\RecalculateLeaderboardTopEntryAction;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -92,7 +93,7 @@ class GameLeaderboardsTest extends TestCase
             'user_id' => $userTwo->ID,
             'score' => 1,
         ]);
-        $bannedUser = User::factory()->create(['User' => 'bannedUser', "banned_at" => Carbon::now()]);
+        $bannedUser = User::factory()->create(['User' => 'bannedUser', "banned_at" => Carbon::now(), 'unranked_at' => Carbon::now()]);
         $bannedLeaderboardEntry = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboardTwo->ID,
             'user_id' => $bannedUser->ID,
@@ -167,6 +168,14 @@ class GameLeaderboardsTest extends TestCase
             'user_id' => $userEight->ID,
             'score' => 2,
         ]);
+
+        // Force recalculation of denormalized data in leaderboards.
+        $action = new RecalculateLeaderboardTopEntryAction();
+        $action->execute($leaderboardOne->id);
+        $action->execute($leaderboardTwo->id);
+        $action->execute($leaderboardThree->id);
+        $action->execute($leaderboardFour->id);
+        $action->execute($leaderboardFive->id);
 
         $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->ID]))
             ->assertSuccessful()

@@ -362,7 +362,7 @@ function getUsersCompletedGamesAndMax(string $user): array
     $minAchievementsForCompletion = 5;
 
     $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID,
-            gd.ImageIcon, gd.Title, gd.achievements_published as MaxPossible,
+            gd.ImageIcon, gd.Title, gd.sort_title as SortTitle, gd.achievements_published as MaxPossible,
             pg.first_unlock_at AS FirstWonDate, pg.last_unlock_at AS MostRecentWonDate,
             pg.achievements_unlocked AS NumAwarded, pg.achievements_unlocked_hardcore AS NumAwardedHC, " .
             floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published') . " AS PctWon, " .
@@ -380,6 +380,13 @@ function getUsersCompletedGamesAndMax(string $user): array
 
 function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
 {
+    // For multiple reasons (MySQL specific query details + legacyDbFetch),
+    // this function explodes while under test.
+    // For now, while under test, return an empty array.
+    if (app()->environment('testing')) {
+        return [];
+    }
+
     $retval = [];
 
     // determine the most recent session for each user who has played the game
