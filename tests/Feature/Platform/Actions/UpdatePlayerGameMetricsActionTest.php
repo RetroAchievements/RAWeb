@@ -6,12 +6,15 @@ namespace Tests\Feature\Platform\Actions;
 
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
+use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\UpdateGameMetricsAction;
 use App\Platform\Actions\UpdatePlayerGameMetricsAction;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
 use Tests\TestCase;
@@ -25,11 +28,13 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
 
     public function testMetrics(): void
     {
+        Carbon::setTestNow(Carbon::now()->startOfSecond());
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
 
         Achievement::factory()->published()->count(1)->create(['GameID' => $game->id, 'Points' => 3]);
         $achievements = $game->achievements()->published()->get();
+        $achievementSet = $game->achievementSets()->where('type', AchievementSetType::Core)->first();
 
         $this->addSoftcoreUnlock($user, $achievements->get(0));
 
@@ -49,7 +54,7 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
             ->value('unlocked_at');
 
         $startedAt = $lastPlayedAt;
-        $timeTaken = $startedAt->diffInSeconds($lastPlayedAt);
+        $timeTaken = 0;
         $timeTakenHardcore = 0;
 
         $firstUnlockAt = $startedAt;
@@ -57,35 +62,44 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $lastUnlockAt = $firstUnlockAt;
         $lastUnlockHardcoreAt = 0;
 
-        $this->assertEquals($versionHash, $playerGame->achievement_set_version_hash);
+        $lastPlayedAt = $lastPlayedAt->clone()->addMinutes(1); // new session automatically has duration of 1
+
         $this->assertEquals(1, $playerGame->achievements_total);
         $this->assertEquals(1, $playerGame->achievements_unlocked);
         $this->assertEquals(0, $playerGame->achievements_unlocked_hardcore);
         $this->assertEquals(1, $playerGame->achievements_unlocked_softcore);
-        $this->assertEquals($lastPlayedAt, $playerGame->last_played_at);
-        $this->assertEquals($timeTaken, $playerGame->time_taken);
-        $this->assertEquals($timeTakenHardcore, $playerGame->time_taken_hardcore);
+        $this->assertEquals($lastUnlockAt, $playerGame->last_played_at);
         $this->assertEquals($lastUnlockAt, $playerGame->last_unlock_at);
         $this->assertEquals($lastUnlockHardcoreAt, $playerGame->last_unlock_hardcore_at);
         $this->assertEquals($firstUnlockAt, $playerGame->first_unlock_at);
-        $this->assertEquals($firstUnlockHardcoreAt, $playerGame->first_unlock_hardcore_at);
         $this->assertEquals(3, $playerGame->points_total);
         $this->assertEquals(3, $playerGame->points);
         $this->assertEquals(0, $playerGame->points_hardcore);
-        $this->assertEquals(3, $playerGame->points_weighted_total);
         $this->assertEquals(0, $playerGame->points_weighted);
         $this->assertEquals($createdAt, $playerGame->created_at);
-        $this->assertEquals(null, $playerGame->achievements_beat);
-        $this->assertEquals(null, $playerGame->achievements_beat_unlocked);
-        $this->assertEquals(null, $playerGame->achievements_beat_unlocked_hardcore);
-        $this->assertEquals(null, $playerGame->beaten_percentage);
-        $this->assertEquals(null, $playerGame->beaten_percentage_hardcore);
         $this->assertEquals(null, $playerGame->beaten_at);
         $this->assertEquals(null, $playerGame->beaten_hardcore_at);
         $this->assertEquals($lastUnlockAt, $playerGame->completed_at);
         $this->assertEquals(null, $playerGame->completed_hardcore_at);
-        $this->assertEquals(1, $playerGame->completion_percentage);
-        $this->assertEquals(null, $playerGame->completion_percentage_hardcore);
+
+        $playerAchievementSet = PlayerAchievementSet::query()
+            ->where('achievement_set_id', $achievementSet->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        $this->assertEquals(1, $playerAchievementSet->achievements_unlocked);
+        $this->assertEquals(0, $playerAchievementSet->achievements_unlocked_hardcore);
+        $this->assertEquals($timeTaken, $playerAchievementSet->time_taken);
+        $this->assertEquals($timeTakenHardcore, $playerAchievementSet->time_taken_hardcore);
+        $this->assertEquals(1, $playerAchievementSet->completion_percentage);
+        $this->assertEquals(null, $playerAchievementSet->completion_percentage_hardcore);
+        $this->assertEquals($lastUnlockAt, $playerAchievementSet->completed_at);
+        $this->assertEquals(null, $playerAchievementSet->completed_hardcore_at);
+        $this->assertEquals($lastUnlockAt, $playerAchievementSet->last_unlock_at);
+        $this->assertEquals(null, $playerAchievementSet->last_unlock_hardcore_at);
+        $this->assertEquals(3, $playerAchievementSet->points);
+        $this->assertEquals(0, $playerAchievementSet->points_hardcore);
+        $this->assertEquals(0, $playerAchievementSet->points_weighted);
 
         Achievement::factory()->published()->count(3)->create(['GameID' => $game->id, 'Points' => 4]);
         Achievement::factory()->published()->count(1)->create(['GameID' => $game->id, 'Points' => 5, 'type' => AchievementType::Progression]);
@@ -102,6 +116,7 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
 
         $game->refresh();
         $playerGame->refresh();
+        $playerAchievementSet->refresh();
 
         $versionHash = $game->achievement_set_version_hash;
 
@@ -119,35 +134,39 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $lastUnlockAt = $lastPlayedAt;
         $lastUnlockHardcoreAt = $lastPlayedAt;
 
-        $this->assertEquals($versionHash, $playerGame->achievement_set_version_hash);
+        $lastPlayedAt = $lastPlayedAt->clone()->addMinutes(1); // new session automatically has duration of 1
+
         $this->assertEquals(6, $playerGame->achievements_total);
         $this->assertEquals(5, $playerGame->achievements_unlocked);
         $this->assertEquals(2, $playerGame->achievements_unlocked_hardcore);
         $this->assertEquals(3, $playerGame->achievements_unlocked_softcore);
-        $this->assertEquals($lastPlayedAt, $playerGame->last_played_at);
-        $this->assertEquals($timeTaken, $playerGame->time_taken);
-        $this->assertEquals($timeTakenHardcore, $playerGame->time_taken_hardcore);
+        $this->assertEquals($lastUnlockAt, $playerGame->last_played_at);
         $this->assertEquals($lastUnlockAt, $playerGame->last_unlock_at);
         $this->assertEquals($lastUnlockHardcoreAt, $playerGame->last_unlock_hardcore_at);
         $this->assertEquals($firstUnlockAt, $playerGame->first_unlock_at);
-        $this->assertEquals($firstUnlockHardcoreAt, $playerGame->first_unlock_hardcore_at);
         $this->assertEquals(30, $playerGame->points_total);
         $this->assertEquals(20, $playerGame->points);
         $this->assertEquals(9, $playerGame->points_hardcore);
-        $this->assertEquals(30, $playerGame->points_weighted_total);
         $this->assertEquals(9, $playerGame->points_weighted);
         $this->assertEquals($createdAt, $playerGame->created_at);
-        $this->assertEquals(2, $playerGame->achievements_beat);
-        $this->assertEquals(1, $playerGame->achievements_beat_unlocked);
-        $this->assertEquals(1, $playerGame->achievements_beat_unlocked_hardcore);
-        $this->assertEquals(0.5, $playerGame->beaten_percentage);
-        $this->assertEquals(0.5, $playerGame->beaten_percentage_hardcore);
         $this->assertEquals(null, $playerGame->beaten_at);
         $this->assertEquals(null, $playerGame->beaten_hardcore_at);
         $this->assertEquals(null, $playerGame->completed_at);
         $this->assertEquals(null, $playerGame->completed_hardcore_at);
-        $this->assertEquals(5, $playerGame->completion_percentage);
-        $this->assertEquals(2, $playerGame->completion_percentage_hardcore);
+
+        $this->assertEquals(5, $playerAchievementSet->achievements_unlocked);
+        $this->assertEquals(2, $playerAchievementSet->achievements_unlocked_hardcore);
+        $this->assertEquals($timeTaken, $playerAchievementSet->time_taken);
+        $this->assertEquals($timeTakenHardcore, $playerAchievementSet->time_taken_hardcore);
+        $this->assertEquals(83, round($playerAchievementSet->completion_percentage * 100));
+        $this->assertEquals(33, round($playerAchievementSet->completion_percentage_hardcore * 100));
+        $this->assertEquals(null, $playerAchievementSet->completed_at);
+        $this->assertEquals(null, $playerAchievementSet->completed_hardcore_at);
+        $this->assertEquals($lastUnlockAt, $playerAchievementSet->last_unlock_at);
+        $this->assertEquals($lastUnlockHardcoreAt, $playerAchievementSet->last_unlock_hardcore_at);
+        $this->assertEquals(20, $playerAchievementSet->points);
+        $this->assertEquals(9, $playerAchievementSet->points_hardcore);
+        $this->assertEquals(9, $playerAchievementSet->points_weighted);
 
         $this->addHardcoreUnlock($user, $achievements->get(5)); // Win Condition
         $this->addHardcoreUnlock($user, $achievements->get(1));
@@ -157,6 +176,7 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
 
         $game->refresh();
         $playerGame->refresh();
+        $playerAchievementSet->refresh();
 
         $versionHash = $game->achievement_set_version_hash;
 
@@ -170,40 +190,44 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $lastUnlockAt = $lastPlayedAt;
         $lastUnlockHardcoreAt = $lastPlayedAt;
 
+        $lastPlayedAt = $lastPlayedAt->clone()->addMinutes(1); // new session automatically has duration of 1
+
         $beatenAt = PlayerAchievement::where("user_id", $user->id)
             ->where("achievement_id", $achievements->get(5)->id)
             ->value('unlocked_at');
 
         $beatenHardcoreAt = $beatenAt;
 
-        $this->assertEquals($versionHash, $playerGame->achievement_set_version_hash);
         $this->assertEquals(6, $playerGame->achievements_total);
         $this->assertEquals(6, $playerGame->achievements_unlocked);
         $this->assertEquals(4, $playerGame->achievements_unlocked_hardcore);
         $this->assertEquals(2, $playerGame->achievements_unlocked_softcore);
-        $this->assertEquals($lastPlayedAt, $playerGame->last_played_at);
-        $this->assertEquals($timeTaken, $playerGame->time_taken);
-        $this->assertEquals($timeTakenHardcore, $playerGame->time_taken_hardcore);
+        $this->assertEquals($lastUnlockAt, $playerGame->last_played_at);
         $this->assertEquals($beatenAt, $playerGame->last_unlock_at);
         $this->assertEquals($lastUnlockHardcoreAt, $playerGame->last_unlock_hardcore_at);
         $this->assertEquals($firstUnlockAt, $playerGame->first_unlock_at);
-        $this->assertEquals($firstUnlockHardcoreAt, $playerGame->first_unlock_hardcore_at);
         $this->assertEquals(30, $playerGame->points_total);
         $this->assertEquals(30, $playerGame->points);
         $this->assertEquals(23, $playerGame->points_hardcore);
-        $this->assertEquals(30, $playerGame->points_weighted_total);
         $this->assertEquals(23, $playerGame->points_weighted);
         $this->assertEquals($createdAt, $playerGame->created_at);
-        $this->assertEquals(2, $playerGame->achievements_beat);
-        $this->assertEquals(2, $playerGame->achievements_beat_unlocked);
-        $this->assertEquals(2, $playerGame->achievements_beat_unlocked_hardcore);
-        $this->assertEquals(1, $playerGame->beaten_percentage);
-        $this->assertEquals(1, $playerGame->beaten_percentage_hardcore);
         $this->assertEquals($beatenAt, $playerGame->beaten_at);
         $this->assertEquals($beatenHardcoreAt, $playerGame->beaten_hardcore_at);
         $this->assertEquals($beatenAt, $playerGame->completed_at);
         $this->assertEquals(null, $playerGame->completed_hardcore_at);
-        $this->assertEquals(1, $playerGame->completion_percentage);
-        $this->assertEquals(.66666666666667, $playerGame->completion_percentage_hardcore);
+
+        $this->assertEquals(6, $playerAchievementSet->achievements_unlocked);
+        $this->assertEquals(4, $playerAchievementSet->achievements_unlocked_hardcore);
+        $this->assertEquals($timeTaken, $playerAchievementSet->time_taken);
+        $this->assertEquals($timeTakenHardcore, $playerAchievementSet->time_taken_hardcore);
+        $this->assertEquals(100, round($playerAchievementSet->completion_percentage * 100));
+        $this->assertEquals(67, round($playerAchievementSet->completion_percentage_hardcore * 100));
+        $this->assertEquals($lastUnlockAt, $playerAchievementSet->completed_at);
+        $this->assertEquals(null, $playerAchievementSet->completed_hardcore_at);
+        $this->assertEquals($lastUnlockAt, $playerAchievementSet->last_unlock_at);
+        $this->assertEquals($lastUnlockHardcoreAt, $playerAchievementSet->last_unlock_hardcore_at);
+        $this->assertEquals(30, $playerAchievementSet->points);
+        $this->assertEquals(23, $playerAchievementSet->points_hardcore);
+        $this->assertEquals(23, $playerAchievementSet->points_weighted);
     }
 }

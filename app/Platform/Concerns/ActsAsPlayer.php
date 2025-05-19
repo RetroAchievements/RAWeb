@@ -10,6 +10,7 @@ use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievement;
+use App\Models\PlayerAchievementSet;
 use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
@@ -146,6 +147,14 @@ trait ActsAsPlayer
     public function playerGames(): HasMany
     {
         return $this->hasMany(PlayerGame::class, 'user_id');
+    }
+
+    /**
+     * @return HasMany<PlayerAchievementSet>
+     */
+    public function playerAchievementSets(): HasMany
+    {
+        return $this->hasMany(PlayerAchievementSet::class, 'user_id');
     }
 
     /**

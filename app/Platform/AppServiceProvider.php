@@ -39,6 +39,7 @@ use App\Platform\Commands\SyncGameAchievementSets;
 use App\Platform\Commands\SyncGameHashes;
 use App\Platform\Commands\SyncGames;
 use App\Platform\Commands\SyncLeaderboards;
+use App\Platform\Commands\SyncLeaderboardTopEntries;
 use App\Platform\Commands\SyncLegacyGameTags;
 use App\Platform\Commands\SyncMemoryNotes;
 use App\Platform\Commands\SyncPlayerBadges;
@@ -54,6 +55,7 @@ use App\Platform\Commands\UpdateGameMetrics;
 use App\Platform\Commands\UpdateGamePlayerGames;
 use App\Platform\Commands\UpdateLeaderboardMetrics;
 use App\Platform\Commands\UpdatePlayerBeatenGamesStats;
+use App\Platform\Commands\UpdatePlayerEstimatedTimes;
 use App\Platform\Commands\UpdatePlayerGameMetrics;
 use App\Platform\Commands\UpdatePlayerMetrics;
 use App\Platform\Commands\UpdatePlayerPointsStats;
@@ -94,6 +96,7 @@ class AppServiceProvider extends ServiceProvider
                 // Players
                 ResetPlayerAchievement::class,
                 UnlockPlayerAchievement::class,
+                UpdatePlayerEstimatedTimes::class,
                 UpdatePlayerGameMetrics::class,
                 UpdatePlayerMetrics::class,
 
@@ -122,6 +125,7 @@ class AppServiceProvider extends ServiceProvider
                 SyncGameHashes::class,
                 SyncGames::class,
                 SyncLeaderboards::class,
+                SyncLeaderboardTopEntries::class,
                 SyncLegacyGameTags::class,
                 SyncMemoryNotes::class,
                 SyncPlayerBadges::class,
