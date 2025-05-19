@@ -79,6 +79,10 @@ class SubmitCodeNoteAction extends BaseAuthenticatedApiAction
                 }
 
                 $memoryNote->restore();
+            } elseif (empty($memoryNote->body)) { // empty body is legacy deleted note
+                if (!$this->user->can('create', MemoryNote::class)) {
+                    return $this->accessDenied();
+                }
             } else {
                 if (!$this->user->can('update', $memoryNote)) {
                     return $this->accessDenied();

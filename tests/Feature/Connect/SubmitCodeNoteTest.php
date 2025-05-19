@@ -272,5 +272,23 @@ class SubmitCodeNoteTest extends TestCase
 
         $note->refresh();
         $this->assertEquals('This is an overwritten note', $note->body);
+        $this->assertNull($note->deleted_at);
+
+        // ----------------------------
+        // update legacy delected developer note
+        $note->body = '';
+        $note->user_id = $developer->id;
+        $note->save();
+
+        $this->post('dorequest.php', $this->apiParams('submitcodenote', [
+            'g' => $game->ID,
+            'm' => 0x1234,
+            'n' => 'This is a different note',
+        ]))
+            ->assertExactJson(['Success' => true]);
+
+        $note->refresh();
+        $this->assertEquals('This is a different note', $note->body);
+        $this->assertNull($note->deleted_at);
     }
 }
