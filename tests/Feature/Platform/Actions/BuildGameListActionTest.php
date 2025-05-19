@@ -310,8 +310,24 @@ class BuildGameListActionTest extends TestCase
         $this->seedGamesForLists();
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
-        Achievement::factory()->create(['GameID' => 1001, 'DateModified' => Carbon::parse('2015-06-01')]);
-        Achievement::factory()->create(['GameID' => 1003, 'DateModified' => Carbon::parse('2024-03-02')]);
+        // ... ensure all games have explicit update timestamps to avoid test flakiness due to GameTitle touches ...
+        $dates = [
+            1000 => '2020-01-01',
+            1001 => '2015-06-01', // earliest - will be first
+            1002 => '2023-01-01',
+            1003 => '2024-03-02', // latest - will be last
+            1004 => '2022-01-01',
+            1005 => '2021-01-01',
+        ];
+
+        Achievement::factory()->create(['GameID' => 1001, 'DateModified' => Carbon::parse($dates[1001])]);
+        Achievement::factory()->create(['GameID' => 1003, 'DateModified' => Carbon::parse($dates[1003])]);
+
+        foreach ($dates as $gameId => $date) {
+            $game = Game::find($gameId);
+            $game->Updated = Carbon::parse($date);
+            $game->save(['timestamps' => false]); // prevent updated_at from being set to now
+        }
 
         // Act
         $result = (new BuildGameListAction())->execute(

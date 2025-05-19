@@ -11,6 +11,7 @@ use App\Filament\Resources\GameResource\RelationManagers\AchievementsRelationMan
 use App\Filament\Resources\GameResource\RelationManagers\CoreSetAuthorshipCreditsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\LeaderboardsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\MemoryNotesRelationManager;
+use App\Filament\Resources\GameResource\RelationManagers\TitlesRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
 use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
@@ -249,6 +250,7 @@ class GameResource extends Resource
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
                         Forms\Components\TextInput::make('Title')
+                            ->label('Canonical Title')
                             ->required()
                             ->minLength(2)
                             ->maxLength(80)
@@ -676,6 +678,7 @@ class GameResource extends Resource
         return [
             AchievementsRelationManager::class,
             AchievementSetsRelationManager::class,
+            TitlesRelationManager::class,
             LeaderboardsRelationManager::class,
             MemoryNotesRelationManager::class,
             CoreSetAuthorshipCreditsRelationManager::class,
