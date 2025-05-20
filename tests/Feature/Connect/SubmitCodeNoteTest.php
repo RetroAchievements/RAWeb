@@ -272,5 +272,6 @@ class SubmitCodeNoteTest extends TestCase
 
         $note->refresh();
         $this->assertEquals('This is an overwritten note', $note->body);
+        $this->assertNull($note->deleted_at);
     }
 }

@@ -68,6 +68,7 @@ class Event extends BaseModel
                 'image_asset_path',
                 'active_from',
                 'active_until',
+                'gives_site_award',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
