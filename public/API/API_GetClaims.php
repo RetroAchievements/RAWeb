@@ -55,7 +55,7 @@ if ($claimKind === $droppedClaims) {
     $claimFilter = ClaimFilters::AllActiveClaims;
 }
 
-$claimsResults = getFilteredClaims(claimFilter: $claimFilter)->take(1000);
+$claimsResults = getFilteredClaims(claimFilter: $claimFilter, limit: 1000);
 
 if ($claimKind === $expiredClaims) {
     $onlyFullyExpired = $claimsResults->filter(function ($claim) {
