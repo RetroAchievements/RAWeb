@@ -56,11 +56,11 @@ class EventResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('id')
-                            ->label('ID'),
-
                         Infolists\Components\TextEntry::make('legacyGame.title')
                             ->label('Title'),
+
+                        Infolists\Components\TextEntry::make('id')
+                            ->label('ID'),
 
                         Infolists\Components\TextEntry::make('permalink')
                             ->formatStateUsing(fn () => 'Here')
