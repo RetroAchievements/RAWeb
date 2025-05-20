@@ -85,8 +85,8 @@ class EventResource extends Resource
                             ->date(),
 
                         Infolists\Components\TextEntry::make('active_through')
-                        ->label('Active Through')
-                        ->date(),
+                            ->label('Active Through')
+                            ->date(),
 
                         Infolists\Components\IconEntry::make('gives_site_award')
                             ->boolean(),
@@ -146,7 +146,8 @@ class EventResource extends Resource
                             ->native(false)
                             ->date(),
 
-                        Forms\Components\Toggle::make('gives_site_award'),
+                        Forms\Components\Toggle::make('gives_site_award')
+                            ->inline(false),
                     ]),
 
                 Forms\Components\Section::make('Achievements')
