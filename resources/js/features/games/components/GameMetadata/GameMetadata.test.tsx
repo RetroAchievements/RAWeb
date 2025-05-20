@@ -9,7 +9,6 @@ describe('Component: GameMetadata', () => {
   const createMockMetaRowElements = (overrides = {}) => ({
     creditRowElements: [{ label: 'Credit 1' }],
     developerRowElements: [{ label: 'Developer 1' }, { label: 'Developer 2' }],
-    eventsRowElements: [],
     featureRowElements: [{ label: 'Feature 1' }],
     genreRowElements: [{ label: 'Genre 1', href: '/genres/1' }],
     hackOfRowElements: [],

@@ -157,18 +157,6 @@ export function useAllMetaRowElements(
     [allGameHubs],
   );
 
-  const eventsRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: allGameHubs,
-        hubTitleIncludes: ['AotW -', 'Console Wars'],
-        primaryLabel: 'AotW',
-        altLabels: ['Console Wars I'],
-        keepPrefixFor: ['Console Wars I'],
-      }),
-    [allGameHubs],
-  );
-
   const raFeatureRowElements = useMemo(
     () =>
       buildMetaRowElements({
@@ -195,7 +183,6 @@ export function useAllMetaRowElements(
     const allRows = [
       ...creditRowElements,
       ...developerRowElements,
-      ...eventsRowElements,
       ...featureRowElements,
       ...formatRowElements,
       ...genreRowElements,
@@ -216,7 +203,6 @@ export function useAllMetaRowElements(
   }, [
     creditRowElements,
     developerRowElements,
-    eventsRowElements,
     featureRowElements,
     formatRowElements,
     genreRowElements,
@@ -237,7 +223,6 @@ export function useAllMetaRowElements(
     allUsedHubIds,
     creditRowElements,
     developerRowElements,
-    eventsRowElements,
     featureRowElements,
     formatRowElements,
     genreRowElements,

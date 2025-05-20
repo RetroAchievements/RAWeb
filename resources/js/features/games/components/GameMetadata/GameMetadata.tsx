@@ -46,7 +46,12 @@ export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game, 
 
   const eventHubs = hubs.filter((h) => h.isEventHub);
   const eventRowElements = eventHubs.map((h) => ({
-    label: cleanHubTitle(h.title!, h.title!.includes('AotW') || h.title!.includes('RA Awards')),
+    label: cleanHubTitle(
+      h.title!,
+      h.title!.includes('AotW') ||
+        h.title!.includes('RA Awards') ||
+        h.title!.includes('Dev Events'),
+    ),
     hubId: h.id,
     href: route('hub.show', { gameSet: h.id }),
   }));
@@ -152,15 +157,11 @@ export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game, 
                 row.elements?.length > 0 ? (
                   <GameMetadataRow
                     key={`meta-${row.key}`}
-                    rowHeading={
-                      row.key === 'raFeature'
-                        ? 'RA'
-                        : t(
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- intentional
-                            `meta${row.key.charAt(0).toUpperCase()}${row.key.slice(1)}` as any,
-                            row.countInHeading ? { count: row.elements.length } : undefined,
-                          )
-                    }
+                    rowHeading={t(
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- intentional
+                      `meta${row.key.charAt(0).toUpperCase()}${row.key.slice(1)}` as any,
+                      row.countInHeading ? { count: row.elements.length } : undefined,
+                    )}
                     elements={row.elements}
                   />
                 ) : null,
