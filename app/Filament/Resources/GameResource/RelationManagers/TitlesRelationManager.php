@@ -8,7 +8,7 @@ use App\Filament\Resources\GameResource;
 use App\Models\Game;
 use App\Models\GameTitle;
 use App\Models\User;
-use App\Platform\Enums\GameTitleRegion;
+use App\Platform\Enums\GameReleaseRegion;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -48,23 +48,23 @@ class TitlesRelationManager extends RelationManager
                     ->searchable()
                     ->options([
                         'Common Regions' => [
-                            GameTitleRegion::NorthAmerica->value => GameTitleRegion::NorthAmerica->label(),
-                            GameTitleRegion::Japan->value => GameTitleRegion::Japan->label(),
-                            GameTitleRegion::Europe->value => GameTitleRegion::Europe->label(),
-                            GameTitleRegion::Worldwide->value => GameTitleRegion::Worldwide->label(),
+                            GameReleaseRegion::NorthAmerica->value => GameReleaseRegion::NorthAmerica->label(),
+                            GameReleaseRegion::Japan->value => GameReleaseRegion::Japan->label(),
+                            GameReleaseRegion::Europe->value => GameReleaseRegion::Europe->label(),
+                            GameReleaseRegion::Worldwide->value => GameReleaseRegion::Worldwide->label(),
                         ],
-                        'Other Regions' => collect(GameTitleRegion::cases())
-                            ->filter(fn (GameTitleRegion $region) => !in_array($region, [
-                                GameTitleRegion::NorthAmerica,
-                                GameTitleRegion::Japan,
-                                GameTitleRegion::Europe,
-                                GameTitleRegion::Worldwide,
-                                GameTitleRegion::Other,
+                        'Other Regions' => collect(GameReleaseRegion::cases())
+                            ->filter(fn (GameReleaseRegion $region) => !in_array($region, [
+                                GameReleaseRegion::NorthAmerica,
+                                GameReleaseRegion::Japan,
+                                GameReleaseRegion::Europe,
+                                GameReleaseRegion::Worldwide,
+                                GameReleaseRegion::Other,
                             ]))
-                            ->mapWithKeys(fn (GameTitleRegion $region) => [$region->value => $region->label()])
+                            ->mapWithKeys(fn (GameReleaseRegion $region) => [$region->value => $region->label()])
                             ->toArray(),
                         'Special' => [
-                            GameTitleRegion::Other->value => GameTitleRegion::Other->label(),
+                            GameReleaseRegion::Other->value => GameReleaseRegion::Other->label(),
                         ],
                     ])
                     ->label('Region'),
@@ -91,11 +91,11 @@ class TitlesRelationManager extends RelationManager
                             return null;
                         }
 
-                        if ($state instanceof GameTitleRegion) {
+                        if ($state instanceof GameReleaseRegion) {
                             return $state->label();
                         }
 
-                        return GameTitleRegion::tryFrom($state)?->label() ?? $state;
+                        return GameReleaseRegion::tryFrom($state)?->label() ?? $state;
                     })
                     ->searchable()
                     ->sortable(),

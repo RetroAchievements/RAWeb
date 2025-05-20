@@ -6,7 +6,7 @@ namespace App\Platform\Commands;
 
 use App\Models\Game;
 use App\Models\GameTitle;
-use App\Platform\Enums\GameTitleRegion;
+use App\Platform\Enums\GameReleaseRegion;
 use Illuminate\Console\Command;
 
 class SyncGameTitles extends Command
@@ -33,7 +33,7 @@ class SyncGameTitles extends Command
                         'game_id' => $game->id,
                         'title' => $game->title,
                         'is_canonical' => true,
-                        'region' => GameTitleRegion::Worldwide,
+                        'region' => GameReleaseRegion::Worldwide,
                     ]);
                 }
 

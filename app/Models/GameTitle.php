@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Platform\Enums\GameTitleRegion;
+use App\Platform\Enums\GameReleaseRegion;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameTitleFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,7 +30,7 @@ class GameTitle extends BaseModel
     ];
 
     protected $casts = [
-        'region' => GameTitleRegion::class,
+        'region' => GameReleaseRegion::class,
         'is_canonical' => 'boolean',
     ];
 

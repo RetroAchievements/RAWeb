@@ -6,7 +6,7 @@ namespace Database\Factories;
 
 use App\Models\Game;
 use App\Models\GameTitle;
-use App\Platform\Enums\GameTitleRegion;
+use App\Platform\Enums\GameReleaseRegion;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,13 +23,13 @@ class GameTitleFactory extends Factory
     {
         $game = Game::inRandomOrder()->first();
         $regions = [
-            GameTitleRegion::NorthAmerica,
-            GameTitleRegion::Japan,
-            GameTitleRegion::Europe,
-            GameTitleRegion::Australia,
-            GameTitleRegion::SouthKorea,
-            GameTitleRegion::China,
-            GameTitleRegion::Worldwide,
+            GameReleaseRegion::NorthAmerica,
+            GameReleaseRegion::Japan,
+            GameReleaseRegion::Europe,
+            GameReleaseRegion::Australia,
+            GameReleaseRegion::Korea,
+            GameReleaseRegion::China,
+            GameReleaseRegion::Worldwide,
         ];
 
         return [
