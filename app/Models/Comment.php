@@ -86,6 +86,12 @@ class Comment extends BaseModel
             return false;
         }
 
+        // Don't index empty or extremely short comments (3 chars or less).
+        $trimmedPayload = trim($this->Payload);
+        if (empty($trimmedPayload) || mb_strlen($trimmedPayload) <= 3) {
+            return false;
+        }
+
         return true;
     }
 

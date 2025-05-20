@@ -151,8 +151,8 @@ return [
                     'created_at',
                     'user_id',
                 ],
-                'sortableAttributes' => ['created_at'],
                 'searchableAttributes' => ['body'],
+                'sortableAttributes' => ['created_at'],
             ],
 
             ForumTopicComment::class => [
@@ -161,8 +161,8 @@ return [
                     'author_id',
                     'created_at',
                 ],
-                'sortableAttributes' => ['created_at'],
                 'searchableAttributes' => ['body'],
+                'sortableAttributes' => ['created_at'],
             ],
 
             Game::class => [
