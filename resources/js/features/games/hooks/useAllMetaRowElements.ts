@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { route } from 'ziggy-js';
 
+import { buildMiscRowElements } from '../utils/buildMiscRowElements';
 import { extractAndProcessHubMetadata } from '../utils/extractAndProcessHubMetadata';
 
 export function useAllMetaRowElements(
@@ -117,16 +118,6 @@ export function useAllMetaRowElements(
     [allGameHubs],
   );
 
-  const miscRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: allGameHubs,
-        hubTitleIncludes: ['Misc. -'],
-        primaryLabel: 'Misc.',
-      }),
-    [allGameHubs],
-  );
-
   const protagonistRowElements = useMemo(
     () =>
       buildMetaRowElements({
@@ -177,6 +168,53 @@ export function useAllMetaRowElements(
         primaryLabel: 'Format',
       }),
     [allGameHubs],
+  );
+
+  // Calculate used hub IDs from all other categories (excluding misc).
+  const usedHubIdsFromOtherCategories = useMemo(() => {
+    const allRows = [
+      ...creditRowElements,
+      ...developerRowElements,
+      ...featureRowElements,
+      ...formatRowElements,
+      ...genreRowElements,
+      ...hackOfRowElements,
+      ...languageRowElements,
+      ...perspectiveRowElements,
+      ...protagonistRowElements,
+      ...publisherRowElements,
+      ...raFeatureRowElements,
+      ...regionalRowElements,
+      ...settingRowElements,
+      ...technicalRowElements,
+      ...themeRowElements,
+    ];
+
+    return new Set(allRows.map((row) => row.hubId).filter((id): id is number => Boolean(id)));
+  }, [
+    creditRowElements,
+    developerRowElements,
+    featureRowElements,
+    formatRowElements,
+    genreRowElements,
+    hackOfRowElements,
+    languageRowElements,
+    perspectiveRowElements,
+    protagonistRowElements,
+    publisherRowElements,
+    raFeatureRowElements,
+    regionalRowElements,
+    settingRowElements,
+    technicalRowElements,
+    themeRowElements,
+  ]);
+
+  const miscRowElements = useMemo(
+    () =>
+      buildMiscRowElements(allGameHubs, usedHubIdsFromOtherCategories, {
+        keepPrefixFor: ['Fangames'],
+      }),
+    [allGameHubs, usedHubIdsFromOtherCategories],
   );
 
   const allUsedHubIds = useMemo(() => {

@@ -38,7 +38,7 @@ export const GameMetadataRow: FC<GameMetadataRowProps> = memo(({ rowHeading, ele
 
   return (
     <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
-      <BaseTableCell className="whitespace-nowrap text-right align-top">{rowHeading}</BaseTableCell>
+      <BaseTableCell className="text-right align-top">{rowHeading}</BaseTableCell>
       <BaseTableCell>
         {parts.map((part, index) => {
           if (part.type === 'element') {
