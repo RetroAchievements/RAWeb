@@ -151,19 +151,13 @@ class PlayerCompletionProgressPageService
 
         if ($sortOrder === 'game_title') {
             usort($filteredAndJoinedGamesList, function ($a, $b) {
-                $titleA = $this->removeGameTitlePrefix($a['Title']);
-                $titleB = $this->removeGameTitlePrefix($b['Title']);
-
-                return strcmp($titleA, $titleB);
+                return strcmp($a['SortTitle'], $b['SortTitle']);
             });
         }
 
         if ($sortOrder === '-game_title') {
             usort($filteredAndJoinedGamesList, function ($a, $b) {
-                $titleA = $this->removeGameTitlePrefix($a['Title']);
-                $titleB = $this->removeGameTitlePrefix($b['Title']);
-
-                return strcmp($titleB, $titleA);
+                return strcmp($b['SortTitle'], $a['SortTitle']);
             });
         }
 
@@ -346,17 +340,5 @@ class PlayerCompletionProgressPageService
         $allAvailableConsoleIds = array_filter($allAvailableConsoleIds, fn ($value) => !is_null($value));
 
         return $allAvailableConsoleIds;
-    }
-
-    private function removeGameTitlePrefix(string $gameTitle): string
-    {
-        if (substr($gameTitle, 0, 1) === '~') {
-            $endOfPrefixPos = strpos($gameTitle, '~', 1);
-            if ($endOfPrefixPos !== false) {
-                $gameTitle = substr($gameTitle, $endOfPrefixPos + 1);
-            }
-        }
-
-        return trim($gameTitle);
     }
 }

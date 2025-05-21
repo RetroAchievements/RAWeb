@@ -13,7 +13,7 @@ use InvalidArgumentException;
 class InjectPatchClientSupportLevelDataAction
 {
     /**
-     * @param array $constructedPatchData Return value of BuildClientPatchDataAction::execute()
+     * @param array $constructedPatchData Return value of BuildClientPatchDataAction::execute() or BuildClientPatchDataV2Action::execute()
      * @param ClientSupportLevel $clientSupportLevel The current support level of the user's client/emulator
      * @param GameHash|null $gameHash The game hash patch data was possibly built for
      * @param Game|null $game The game patch data was possibly built for
@@ -32,11 +32,25 @@ class InjectPatchClientSupportLevelDataAction
         $canAddWarningAchievement = $coreGame->achievements_published > 0;
 
         if ($clientSupportLevel !== ClientSupportLevel::Full && $canAddWarningAchievement) {
-            // We intentionally place the warning achievement at the top of the list.
-            $constructedPatchData['PatchData']['Achievements'] = [
-                $this->buildClientSupportWarningAchievement($clientSupportLevel),
-                ...$constructedPatchData['PatchData']['Achievements'],
-            ];
+            // Determine if this is the V1 ("patch") or V2 ("achievementsets") response format.
+            $isV2Format = isset($constructedPatchData['Sets']);
+
+            if ($isV2Format) {
+                if (!empty($constructedPatchData['Sets'])) {
+                    $warningAchievement = $this->buildClientSupportWarningAchievement($clientSupportLevel);
+
+                    // For the V2 format, if there are sets, add the warning to the first set.
+                    $constructedPatchData['Sets'][0]['Achievements'] = [
+                        $warningAchievement,
+                        ...$constructedPatchData['Sets'][0]['Achievements'] ?? [],
+                    ];
+                }
+            } else {
+                $constructedPatchData['PatchData']['Achievements'] = [
+                    $this->buildClientSupportWarningAchievement($clientSupportLevel),
+                    ...$constructedPatchData['PatchData']['Achievements'],
+                ];
+            }
         }
 
         if ($clientSupportLevel === ClientSupportLevel::Unknown) {
