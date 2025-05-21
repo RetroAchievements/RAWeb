@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Models\Game;
-use App\Models\GameTitle;
+use App\Models\GameRelease;
 use App\Platform\Enums\GameReleaseRegion;
 use Illuminate\Console\Command;
 
-class SyncGameTitles extends Command
+class SyncGameReleases extends Command
 {
-    protected $signature = 'ra:sync:game-titles';
-    protected $description = 'Syncs all GameData.Title entries to the game_titles table as canonical titles';
+    protected $signature = 'ra:sync:game-releases';
+    protected $description = 'Syncs all GameData title and release date entries to the game_releases table';
 
     public function handle(): void
     {
-        $this->info('Starting game title sync...');
+        $this->info('Starting game releases sync...');
 
         $total = Game::count();
         $bar = $this->output->createProgressBar($total);
@@ -24,15 +24,22 @@ class SyncGameTitles extends Command
 
         Game::chunk(1000, function ($games) use ($bar) {
             foreach ($games as $game) {
-                $exists = GameTitle::where('game_id', $game->id)
-                    ->where('is_canonical', true)
+                $exists = GameRelease::where('game_id', $game->id)
+                    ->where('is_canonical_game_title', true)
                     ->exists();
 
                 if (!$exists) {
-                    GameTitle::create([
+                    GameRelease::create([
                         'game_id' => $game->id,
+
                         'title' => $game->title,
-                        'is_canonical' => true,
+
+                        'released_at' => $game->released_at,
+                        'released_at_granularity' => $game->released_at && $game->released_at_granularity
+                                ? $game->released_at_granularity
+                                : null,
+
+                        'is_canonical_game_title' => true, // everything will initially be canonical
                         'region' => GameReleaseRegion::Worldwide,
                     ]);
                 }

@@ -171,9 +171,9 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
                     $freshGame->title
                 );
 
-                // Update the canonical title in game_titles.
+                // Update the canonical title in game_releases.
                 if (!$game->wasRecentlyCreated) {
-                    $canonicalTitle = $freshGame->titles()->where('is_canonical', true)->first();
+                    $canonicalTitle = $freshGame->releases()->where('is_canonical_game_title', true)->first();
                     if ($canonicalTitle) {
                         $canonicalTitle->title = $freshGame->title;
                         $canonicalTitle->save();
@@ -301,12 +301,12 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
     public function toSearchableArray(): array
     {
-        if (!$this->relationLoaded('titles')) {
-            $this->load('titles');
+        if (!$this->relationLoaded('releases')) {
+            $this->load('releases');
         }
 
-        $altTitles = $this->titles
-            ->where('is_canonical', false)
+        $altTitles = $this->releases
+            ->where('is_canonical_game_title', false)
             ->pluck('title')
             ->toArray();
 
@@ -696,11 +696,11 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<GameTitle>
+     * @return HasMany<GameRelease>
      */
-    public function titles(): HasMany
+    public function releases(): HasMany
     {
-        return $this->hasMany(GameTitle::class, 'game_id', 'ID');
+        return $this->hasMany(GameRelease::class, 'game_id', 'ID');
     }
 
     /**

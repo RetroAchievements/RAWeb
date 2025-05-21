@@ -11,17 +11,15 @@ use App\Filament\Resources\GameResource\RelationManagers\AchievementsRelationMan
 use App\Filament\Resources\GameResource\RelationManagers\CoreSetAuthorshipCreditsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\LeaderboardsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\MemoryNotesRelationManager;
-use App\Filament\Resources\GameResource\RelationManagers\TitlesRelationManager;
+use App\Filament\Resources\GameResource\RelationManagers\ReleasesRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
 use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\ReleasedAtGranularity;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
@@ -31,7 +29,6 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class GameResource extends Resource
@@ -152,43 +149,6 @@ class GameResource extends Resource
                             ->limit(30),
                     ]),
 
-                Infolists\Components\Section::make('Earliest Release Date')
-                    ->icon('heroicon-c-calendar-days')
-                    ->description("
-                        The game's earliest known release date. This is used to improve searching,
-                        sorting, and filtering on the site.
-                    ")
-                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
-                    ->schema([
-                        Infolists\Components\TextEntry::make('released_at')
-                            ->label('Earliest Release Date')
-                            ->placeholder('unknown')
-                            ->formatStateUsing(function (Game $game): string {
-                                $releasedAt = $game->released_at;
-                                $releasedAtGranularity = $game->released_at_granularity;
-
-                                if (!$releasedAt) {
-                                    return 'No release date.';
-                                }
-
-                                switch ($releasedAtGranularity) {
-                                    case 'year':
-                                        return Carbon::parse($releasedAt)->format('Y');
-
-                                    case 'month':
-                                        return Carbon::parse($releasedAt)->format('F Y');
-
-                                    default:
-                                        return Carbon::parse($releasedAt)->format('F j, Y');
-                                }
-                            }),
-
-                        Infolists\Components\TextEntry::make('released_at_granularity')
-                            ->label('Release Date Precision')
-                            ->placeholder('none')
-                            ->formatStateUsing(fn (ReleasedAtGranularity $state): string => ucfirst($state->value)),
-                    ]),
-
                 Infolists\Components\Section::make('Metrics')
                     ->icon('heroicon-s-arrow-trending-up')
                     ->description("
@@ -297,63 +257,6 @@ class GameResource extends Resource
                             ->rules([new IsAllowedGuideUrl()])
                             ->suffixIcon('heroicon-m-globe-alt')
                             ->disabled(!$user->can('updateField', [$form->model, 'GuideURL'])),
-                    ]),
-
-                Forms\Components\Section::make('Earliest Release Date')
-                    ->icon('heroicon-c-calendar-days')
-                    ->description("
-                        Provide the game's earliest known release date to improve searching, sorting, and filtering on the site.
-                        Use the Precision control to specify if the release day or month are unknown.
-                    ")
-                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
-                    ->schema([
-                        Forms\Components\Placeholder::make('released_at_display')
-                            ->label('Preview')
-                            ->columnSpan(['md' => 2, 'xl' => 3, '2xl' => 4])
-                            ->content(function (Get $get): string {
-                                $releasedAt = $get('released_at');
-                                $releasedAtGranularity = $get('released_at_granularity');
-
-                                if (!$releasedAt) {
-                                    return 'No release date.';
-                                }
-
-                                switch ($releasedAtGranularity) {
-                                    case 'year':
-                                        return Carbon::parse($releasedAt)->format('Y');
-
-                                    case 'month':
-                                        return Carbon::parse($releasedAt)->format('F Y');
-
-                                    default:
-                                        return Carbon::parse($releasedAt)->format('F j, Y');
-                                }
-                            }),
-
-                        Forms\Components\DatePicker::make('released_at')
-                            ->label('Earliest Release Date')
-                            ->native(false)
-                            ->minDate('1970-01-01')
-                            ->maxDate(now())
-                            ->displayFormat('F j, Y')
-                            ->reactive()
-                            ->afterStateUpdated(function (callable $set, $state) {
-                                // Set the granularity to 'day' if this is the first time released_at is set.
-                                if (!empty($state)) {
-                                    $set('released_at_granularity', 'day');
-                                }
-                            }),
-
-                        Forms\Components\ToggleButtons::make('released_at_granularity')
-                            ->label('Release Date Precision')
-                            ->options([
-                                'day' => 'Day',
-                                'month' => 'Month',
-                                'year' => 'Year',
-                            ])
-                            ->inline()
-                            ->reactive()
-                            ->required(fn (callable $get) => !empty($get('released_at'))),
                     ]),
 
                 Forms\Components\Section::make('Media')
@@ -678,7 +581,7 @@ class GameResource extends Resource
         return [
             AchievementsRelationManager::class,
             AchievementSetsRelationManager::class,
-            TitlesRelationManager::class,
+            ReleasesRelationManager::class,
             LeaderboardsRelationManager::class,
             MemoryNotesRelationManager::class,
             CoreSetAuthorshipCreditsRelationManager::class,

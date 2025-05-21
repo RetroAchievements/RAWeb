@@ -37,8 +37,8 @@ use App\Platform\Commands\SyncAchievementSetImageAssetPaths;
 use App\Platform\Commands\SyncEvents;
 use App\Platform\Commands\SyncGameAchievementSets;
 use App\Platform\Commands\SyncGameHashes;
+use App\Platform\Commands\SyncGameReleases;
 use App\Platform\Commands\SyncGames;
-use App\Platform\Commands\SyncGameTitles;
 use App\Platform\Commands\SyncLeaderboards;
 use App\Platform\Commands\SyncLeaderboardTopEntries;
 use App\Platform\Commands\SyncLegacyGameTags;
@@ -123,7 +123,7 @@ class AppServiceProvider extends ServiceProvider
                 SyncGameAchievementSets::class,
                 SyncGameHashes::class,
                 SyncGames::class,
-                SyncGameTitles::class,
+                SyncGameReleases::class,
                 SyncLeaderboards::class,
                 SyncLeaderboardTopEntries::class,
                 SyncLegacyGameTags::class,

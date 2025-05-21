@@ -9,12 +9,14 @@ use Illuminate\Support\Facades\Schema;
 return new class() extends Migration {
     public function up(): void
     {
-        Schema::create('game_titles', function (Blueprint $table) {
+        Schema::create('game_releases', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('game_id');
+            $table->timestamp('released_at')->nullable(); // matches GameData.released_at
+            $table->string('released_at_granularity')->nullable(); // matches GameData.released_at_granularity
             $table->string('title', 80); // matches GameData.Title
             $table->string('region', 20)->nullable();
-            $table->boolean('is_canonical')->default(false);
+            $table->boolean('is_canonical_game_title')->default(false);
             $table->timestamps();
             $table->softDeletes();
 
@@ -29,6 +31,6 @@ return new class() extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('game_titles');
+        Schema::dropIfExists('game_releases');
     }
 };

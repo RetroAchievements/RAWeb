@@ -51,10 +51,10 @@ class GameFactory extends Factory
             }
 
             // Create a canonical title if one doesn't already exist.
-            if (!$game->titles()->where('is_canonical', true)->exists()) {
-                $game->titles()->create([
+            if (!$game->releases()->where('is_canonical_game_title', true)->exists()) {
+                $game->releases()->create([
                     'title' => $game->title,
-                    'is_canonical' => true,
+                    'is_canonical_game_title' => true,
                 ]);
             }
         });

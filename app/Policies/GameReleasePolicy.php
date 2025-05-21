@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Models\Game;
-use App\Models\GameTitle;
+use App\Models\GameRelease;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class GameTitlePolicy
+class GameReleasePolicy
 {
     use HandlesAuthorization;
 
@@ -29,7 +29,7 @@ class GameTitlePolicy
         return true;
     }
 
-    public function view(?User $user, GameTitle $gameTitle): bool
+    public function view(?User $user, GameRelease $gameRelease): bool
     {
         return true;
     }
@@ -56,7 +56,7 @@ class GameTitlePolicy
         return false;
     }
 
-    public function update(User $user, GameTitle $gameTitle): bool
+    public function update(User $user, GameRelease $gameRelease): bool
     {
         $canAlwaysUpdate = $user->hasAnyRole([
             Role::DEVELOPER,
@@ -72,18 +72,18 @@ class GameTitlePolicy
         // on the game or be the sole author of its achievements to be able to
         // update any of its metadata.
         if ($user->hasRole(Role::DEVELOPER_JUNIOR)) {
-            $gameTitle->loadMissing('game');
+            $gameRelease->loadMissing('game');
 
-            return GamePolicy::canDeveloperJuniorUpdateGame($user, $gameTitle->game);
+            return GamePolicy::canDeveloperJuniorUpdateGame($user, $gameRelease->game);
         }
 
         return false;
     }
 
-    public function delete(User $user, GameTitle $gameTitle): bool
+    public function delete(User $user, GameRelease $gameRelease): bool
     {
         // The canonical title can be changed, but cannot be deleted.
-        if ($gameTitle->is_canonical) {
+        if ($gameRelease->is_canonical_game_title) {
             return false;
         }
 
@@ -98,20 +98,20 @@ class GameTitlePolicy
         }
 
         if ($user->hasRole(Role::DEVELOPER_JUNIOR)) {
-            $gameTitle->loadMissing('game');
+            $gameRelease->loadMissing('game');
 
-            return GamePolicy::canDeveloperJuniorUpdateGame($user, $gameTitle->game);
+            return GamePolicy::canDeveloperJuniorUpdateGame($user, $gameRelease->game);
         }
 
         return false;
     }
 
-    public function restore(User $user, GameTitle $gameTitle): bool
+    public function restore(User $user, GameRelease $gameRelease): bool
     {
         return false;
     }
 
-    public function forceDelete(User $user, GameTitle $gameTitle): bool
+    public function forceDelete(User $user, GameRelease $gameRelease): bool
     {
         return false;
     }

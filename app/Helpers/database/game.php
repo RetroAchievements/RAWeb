@@ -632,8 +632,8 @@ function modifyGameTitle(string $username, int $gameId, string $value): bool
     if ($game->isDirty()) {
         $game->save();
 
-        // Update the canonical title in game_titles.
-        $canonicalTitle = $game->titles()->where('is_canonical', true)->first();
+        // Update the canonical title in game_releases.
+        $canonicalTitle = $game->releases()->where('is_canonical_game_title', true)->first();
         if ($canonicalTitle) {
             $canonicalTitle->title = $value;
             $canonicalTitle->save();
@@ -726,10 +726,10 @@ function submitNewGameTitleJSON(
 
             $game->save();
 
-            // Create the initial canonical title in game_titles.
-            $game->titles()->create([
+            // Create the initial canonical title in game_releases.
+            $game->releases()->create([
                 'title' => $titleIn,
-                'is_canonical' => true,
+                'is_canonical_game_title' => true,
             ]);
         }
 
