@@ -88,7 +88,7 @@ class UpdateGameMetricsAction
         [$game->times_beaten_hardcore, $game->median_time_to_beat_hardcore] =
              $this->getMedian($query, 'time_to_beat_hardcore');
 
-        $game->save();
+        $game->saveQuietly();
 
         // get median time to complete for each associated set
         $gameAchievementSets = GameAchievementSet::where('game_id', $game->id)
