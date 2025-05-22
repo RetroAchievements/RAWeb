@@ -111,11 +111,8 @@ class UserSummaryTest extends TestCase
 
     public function testGetUserSummary(): void
     {
-        /** @var System $system */
-        $system = System::factory()->create();
-        /** @var Game $game */
-        $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+        $game = $this->seedGame(achievements: 3);
+        $game->fill([
             'ForumTopicID' => 222334,
             'Publisher' => 'WeSellGames',
             'Developer' => 'WeMakeGames',
@@ -125,6 +122,7 @@ class UserSummaryTest extends TestCase
             'ImageIngame' => '/Images/001236.png',
             'ImageBoxArt' => '/Images/001237.png',
         ]);
+        $game->save();
 
         GameRelease::factory()->create([
             'game_id' => $game->ID,
@@ -135,7 +133,7 @@ class UserSummaryTest extends TestCase
             'is_canonical_game_title' => true,
         ]);
 
-        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
+        $publishedAchievements = $game->achievements;
         (new UpdateGameMetricsAction())->execute($game);
 
         /** @var User $user */
@@ -147,9 +145,8 @@ class UserSummaryTest extends TestCase
             'Created' => Carbon::now()->subMonths(2),
             'LastLogin' => Carbon::now()->subDays(5),
         ]);
-        /** @var Game $game2 */
-        $game2 = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+        $game2 = $this->seedGame();
+        $game2->fill([
             'ForumTopicID' => 23543,
             'Publisher' => 'WeAlsoSellGames',
             'Developer' => 'WeAlsoMakeGames',
@@ -159,6 +156,7 @@ class UserSummaryTest extends TestCase
             'ImageIngame' => '/Images/002347.png',
             'ImageBoxArt' => '/Images/002348.png',
         ]);
+        $game2->save();
 
         GameRelease::factory()->create([
             'game_id' => $game2->ID,
@@ -175,7 +173,13 @@ class UserSummaryTest extends TestCase
         $unlockTime = Carbon::now()->subDays(5);
         $this->addHardcoreUnlock($user, $earnedAchievement, $unlockTime);
 
+        $playerSession = $user->playerSessions()->where('game_id', $game->id)->first();
+        $playerSession->rich_presence_updated_at = $unlockTime;
+        $playerSession->save();
+
         $playerGame = $user->playerGame($game);
+        $playerGame->last_played_at = $unlockTime;
+        $playerGame->save();
 
         // addHardcoreUnlock will create a player_game for game. need to manually create one for game2
         $playerGame2 = new PlayerGame([
@@ -255,8 +259,8 @@ class UserSummaryTest extends TestCase
                 'LastGame' => [
                     'ID' => $game->ID,
                     'Title' => $game->Title,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
+                    'ConsoleID' => $game->system->ID,
+                    'ConsoleName' => $game->system->Name,
                     'ForumTopicID' => $game->ForumTopicID,
                     'Flags' => 0,
                     'ImageIcon' => $game->ImageIcon,
@@ -275,24 +279,26 @@ class UserSummaryTest extends TestCase
                     [
                         'GameID' => $game2->ID,
                         'Title' => $game2->Title,
-                        'ConsoleID' => $system->ID,
-                        'ConsoleName' => $system->Name,
+                        'ConsoleID' => $game2->system->ID,
+                        'ConsoleName' => $game2->system->Name,
                         'ImageIcon' => $game2->ImageIcon,
                         'ImageTitle' => $game2->ImageTitle,
                         'ImageIngame' => $game2->ImageIngame,
                         'ImageBoxArt' => $game2->ImageBoxArt,
                         'LastPlayed' => $playerGame2->last_played_at->__toString(),
+                        'AchievementsTotal' => 0,
                     ],
                     [
                         'GameID' => $game->ID,
                         'Title' => $game->Title,
-                        'ConsoleID' => $system->ID,
-                        'ConsoleName' => $system->Name,
+                        'ConsoleID' => $game->system->ID,
+                        'ConsoleName' => $game->system->Name,
                         'ImageIcon' => $game->ImageIcon,
                         'ImageTitle' => $game->ImageTitle,
                         'ImageIngame' => $game->ImageIngame,
                         'ImageBoxArt' => $game->ImageBoxArt,
                         'LastPlayed' => $playerGame->last_played_at->__toString(),
+                        'AchievementsTotal' => 3,
                     ],
                 ],
                 'LastActivity' => [
@@ -366,8 +372,8 @@ class UserSummaryTest extends TestCase
                 'LastGame' => [
                     'ID' => $game->ID,
                     'Title' => $game->Title,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
+                    'ConsoleID' => $game->system->ID,
+                    'ConsoleName' => $game->system->Name,
                     'ForumTopicID' => $game->ForumTopicID,
                     'Flags' => 0,
                     'ImageIcon' => $game->ImageIcon,
@@ -386,8 +392,8 @@ class UserSummaryTest extends TestCase
                     [
                         'GameID' => $game2->ID,
                         'Title' => $game2->Title,
-                        'ConsoleID' => $system->ID,
-                        'ConsoleName' => $system->Name,
+                        'ConsoleID' => $game2->system->ID,
+                        'ConsoleName' => $game2->system->Name,
                         'ImageIcon' => $game2->ImageIcon,
                         'ImageTitle' => $game2->ImageTitle,
                         'ImageIngame' => $game2->ImageIngame,

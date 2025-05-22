@@ -8,6 +8,7 @@ use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadataAction;
+use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Actions\UpsertTriggerVersionAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
@@ -731,6 +732,9 @@ function submitNewGameTitleJSON(
                 'title' => $titleIn,
                 'is_canonical_game_title' => true,
             ]);
+
+            // Create an empty GameAchievementSet and AchievementSet.
+            (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
         }
 
         $retVal['Success'] = true;

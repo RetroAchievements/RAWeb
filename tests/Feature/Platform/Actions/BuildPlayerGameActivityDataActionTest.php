@@ -29,7 +29,7 @@ class BuildPlayerGameActivityDataActionTest extends TestCase
         parent::setUp();
 
         $this->system = System::factory()->create();
-        $this->game = Game::factory()->create(['ConsoleID' => $this->system->id]);
+        $this->game = $this->seedGame(system: $this->system);
         $this->user = User::factory()->create();
 
         $this->action = new BuildPlayerGameActivityDataAction(
