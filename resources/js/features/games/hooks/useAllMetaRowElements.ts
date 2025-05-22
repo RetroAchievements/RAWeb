@@ -212,7 +212,7 @@ export function useAllMetaRowElements(
   const miscRowElements = useMemo(
     () =>
       buildMiscRowElements(allGameHubs, usedHubIdsFromOtherCategories, {
-        keepPrefixFor: ['Fangames'],
+        keepPrefixFor: ['Clones', 'Fangames'],
       }),
     [allGameHubs, usedHubIdsFromOtherCategories],
   );

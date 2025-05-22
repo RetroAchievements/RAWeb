@@ -7,8 +7,10 @@ export function buildMiscRowElements(
 ): Array<{ label: string; hubId?: number; href?: string }> {
   const { keepPrefixFor } = options;
 
+  const nonEventHubs = allGameHubs.filter((hub) => !hub.isEventHub);
+
   // Get all hubs that haven't been categorized yet.
-  const uncategorizedHubs = allGameHubs.filter((hub) => {
+  const uncategorizedHubs = nonEventHubs.filter((hub) => {
     const title = hub.title!.toLowerCase();
 
     // Exclude Series hubs and Meta team hubs from misc categorization.
