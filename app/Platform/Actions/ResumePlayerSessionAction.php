@@ -174,6 +174,7 @@ class ResumePlayerSessionAction
 
         if (!empty($activeAchievementSets)) {
             $baseQuery = PlayerAchievementSet::query()
+                ->where('user_id', $playerGame->user_id)
                 ->whereIn('achievement_set_id', $activeAchievementSets)
                 ->whereHas('achievementSet', function ($query) {
                     $query->whereNotNull('achievements_first_published_at');
