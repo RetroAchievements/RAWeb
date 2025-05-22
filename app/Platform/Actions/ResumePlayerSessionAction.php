@@ -173,24 +173,20 @@ class ResumePlayerSessionAction
         }
 
         if (!empty($activeAchievementSets)) {
-            $playerAchievementSets = PlayerAchievementSet::query()
+            $baseQuery = PlayerAchievementSet::query()
                 ->whereIn('achievement_set_id', $activeAchievementSets)
                 ->whereHas('achievementSet', function ($query) {
                     $query->whereNotNull('achievements_first_published_at');
-                })
-                ->get();
-            foreach ($playerAchievementSets as $playerAchievementSet) {
-                if (!$playerAchievementSet->completed_at) {
-                    $playerAchievementSet->time_taken += $adjustment;
-                }
+                });
 
-                if (!$playerAchievementSet->completed_hardcore_at) {
-                    if ($playerSession->hardcore || $playerGame->user->RAPoints > $playerGame->user->RASoftcorePoints) {
-                        $playerAchievementSet->time_taken_hardcore += $adjustment;
-                    }
-                }
+            $baseQuery->clone()
+                ->whereNull('completed_at')
+                ->increment('time_taken', $adjustment);
 
-                $playerAchievementSet->save();
+            if ($playerSession->hardcore || $playerGame->user->RAPoints > $playerGame->user->RASoftcorePoints) {
+                $baseQuery->clone()
+                    ->whereNull('completed_hardcore_at')
+                    ->increment('time_taken_hardcore', $adjustment);
             }
         }
     }
