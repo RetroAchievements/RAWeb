@@ -36,11 +36,18 @@ class UpdatePlayerGameMetricsAction
         $playerGame->last_played_at = $activityService->lastPlayedAt();
         $playerGame->playtime_total = $summary['totalPlaytime'];
 
-        $gameAchievementSets = GameAchievementSet::where('game_id', $game->id)
-            ->with(['achievementSet.achievements' => fn ($q) => $q->where('Flags', AchievementFlag::OfficialCore)
-                             ->select(['Achievements.ID', 'type', 'Points', 'TrueRatio']),
-            ])
-            ->get();
+        $gameAchievementSetsQuery = GameAchievementSet::where('game_id', $game->id)
+            ->with(['achievementSet.achievements' => function ($q) {
+                $q->where('Flags', AchievementFlag::OfficialCore)
+                  ->select(['Achievements.ID', 'type', 'Points', 'TrueRatio']);
+            }]);
+        $gameAchievementSets = $gameAchievementSetsQuery->get();
+
+        if ($gameAchievementSets->count() === 0) {
+            // create an empty GameAchievementSet and AchievementSet
+            (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+            $gameAchievementSets = $gameAchievementSetsQuery->get();
+        }
 
         // find all achievements for all sets
         $achievementIds = [];
