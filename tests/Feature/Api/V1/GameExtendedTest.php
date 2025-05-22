@@ -8,9 +8,12 @@ use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
+use App\Models\GameRelease;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\GameReleaseRegion;
+use App\Platform\Enums\ReleasedAtGranularity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
@@ -46,9 +49,17 @@ class GameExtendedTest extends TestCase
             'Publisher' => 'WePublishStuff',
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
-            'released_at' => $releasedAt,
-            'released_at_granularity' => 'day',
         ]);
+
+        GameRelease::factory()->create([
+            'game_id' => $game->ID,
+            'title' => $game->Title,
+            'released_at' => $releasedAt,
+            'released_at_granularity' => ReleasedAtGranularity::Day,
+            'region' => GameReleaseRegion::NorthAmerica,
+            'is_canonical_game_title' => true,
+        ]);
+
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
         /** @var Achievement $achievement2 */
@@ -191,8 +202,15 @@ class GameExtendedTest extends TestCase
             'Publisher' => 'WePublishStuff',
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
+        ]);
+
+        GameRelease::factory()->create([
+            'game_id' => $game->ID,
+            'title' => $game->Title,
             'released_at' => $releasedAt,
-            'released_at_granularity' => 'day',
+            'released_at_granularity' => ReleasedAtGranularity::Day,
+            'region' => GameReleaseRegion::NorthAmerica,
+            'is_canonical_game_title' => true,
         ]);
 
         /** @var User $user2 */

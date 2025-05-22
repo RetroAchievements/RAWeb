@@ -7,10 +7,13 @@ namespace Tests\Feature\Api\V1;
 use App\Community\Enums\Rank;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameRelease;
 use App\Models\PlayerGame;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\UpdateGameMetricsAction;
+use App\Platform\Enums\GameReleaseRegion;
+use App\Platform\Enums\ReleasedAtGranularity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
@@ -113,8 +116,6 @@ class UserSummaryTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create([
             'ConsoleID' => $system->ID,
-            'released_at' => '1992-05-06',
-            'released_at_granularity' => 'day',
             'ForumTopicID' => 222334,
             'Publisher' => 'WeSellGames',
             'Developer' => 'WeMakeGames',
@@ -124,6 +125,16 @@ class UserSummaryTest extends TestCase
             'ImageIngame' => '/Images/001236.png',
             'ImageBoxArt' => '/Images/001237.png',
         ]);
+
+        GameRelease::factory()->create([
+            'game_id' => $game->ID,
+            'title' => $game->Title,
+            'released_at' => '1992-05-06',
+            'released_at_granularity' => ReleasedAtGranularity::Day,
+            'region' => GameReleaseRegion::NorthAmerica,
+            'is_canonical_game_title' => true,
+        ]);
+
         $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
         (new UpdateGameMetricsAction())->execute($game);
 
@@ -139,8 +150,6 @@ class UserSummaryTest extends TestCase
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
             'ConsoleID' => $system->ID,
-            'released_at' => '1994-05-07',
-            'released_at_granularity' => 'day',
             'ForumTopicID' => 23543,
             'Publisher' => 'WeAlsoSellGames',
             'Developer' => 'WeAlsoMakeGames',
@@ -150,6 +159,16 @@ class UserSummaryTest extends TestCase
             'ImageIngame' => '/Images/002347.png',
             'ImageBoxArt' => '/Images/002348.png',
         ]);
+
+        GameRelease::factory()->create([
+            'game_id' => $game2->ID,
+            'title' => $game2->Title,
+            'released_at' => '1994-05-07',
+            'released_at_granularity' => ReleasedAtGranularity::Day,
+            'region' => GameReleaseRegion::NorthAmerica,
+            'is_canonical_game_title' => true,
+        ]);
+
         (new UpdateGameMetricsAction())->execute($game2);
 
         $earnedAchievement = $publishedAchievements->get(0);

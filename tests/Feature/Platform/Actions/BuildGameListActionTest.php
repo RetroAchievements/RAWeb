@@ -10,6 +10,7 @@ use App\Community\Enums\TicketState;
 use App\Community\Enums\UserGameListType;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameRelease;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
 use App\Models\Role;
@@ -20,6 +21,8 @@ use App\Platform\Actions\BuildGameListAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\GameListProgressFilterValue;
 use App\Platform\Enums\GameListType;
+use App\Platform\Enums\GameReleaseRegion;
+use App\Platform\Enums\ReleasedAtGranularity;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -981,13 +984,11 @@ class BuildGameListActionTest extends TestCase
         $systemGb = System::factory()->create(['ID' => 1, 'name' => 'Game Boy', 'name_short' => 'GB']);
         $systemNes = System::factory()->create(['ID' => 2, 'name' => 'NES/Famicom', 'name_short' => 'NES']);
 
-        Game::factory()->create([
+        $game1000 = Game::factory()->create([
             'ID' => 1000,
             'ConsoleID' => $systemGb->id,
             'Title' => 'A-Mazing Tater | Puzzle Boy II',
             'ImageIcon' => '/Images/090884.png',
-            'released_at' => '1991-08-02 00:55:29',
-            'released_at_granularity' => 'day',
             'players_total' => 969,
             'players_hardcore' => 641,
             'achievements_published' => 45,
@@ -995,14 +996,20 @@ class BuildGameListActionTest extends TestCase
             'TotalTruePoints' => 813,
             'Updated' => Carbon::parse('2023-06-06'),
         ]);
+        GameRelease::factory()->create([
+            'game_id' => $game1000->id,
+            'title' => 'A-Mazing Tater | Puzzle Boy II',
+            'released_at' => '1991-08-02 00:55:29',
+            'released_at_granularity' => ReleasedAtGranularity::Day,
+            'region' => GameReleaseRegion::NorthAmerica,
+            'is_canonical_game_title' => true,
+        ]);
 
-        Game::factory()->create([
+        $game1001 = Game::factory()->create([
             'ID' => 1001,
             'ConsoleID' => $systemGb->id,
             'Title' => '~Hack~ Twitch Plays Pokemon: Anniversary Red',
             'ImageIcon' => '/Images/094381.png',
-            'released_at' => '2015-01-01 00:00:00',
-            'released_at_granularity' => 'year',
             'players_total' => 120,
             'players_hardcore' => 97,
             'achievements_published' => 47,
@@ -1010,14 +1017,20 @@ class BuildGameListActionTest extends TestCase
             'TotalTruePoints' => 363,
             'Updated' => Carbon::parse('2023-06-06'),
         ]);
+        GameRelease::factory()->create([
+            'game_id' => $game1001->id,
+            'title' => '~Hack~ Twitch Plays Pokemon: Anniversary Red',
+            'released_at' => '2015-01-01 00:00:00',
+            'released_at_granularity' => ReleasedAtGranularity::Year,
+            'region' => GameReleaseRegion::NorthAmerica,
+            'is_canonical_game_title' => true,
+        ]);
 
-        Game::factory()->create([
+        $game1002 = Game::factory()->create([
             'ID' => 1002,
             'ConsoleID' => $systemNes->id,
             'Title' => 'Final Fantasy [Subset - Solo Class]',
             'ImageIcon' => '/Images/071115.png',
-            'released_at' => '1987-12-18 00:55:31',
-            'released_at_granularity' => 'day',
             'players_total' => 2856,
             'players_hardcore' => 2054,
             'achievements_published' => 144,
@@ -1025,14 +1038,20 @@ class BuildGameListActionTest extends TestCase
             'TotalTruePoints' => 35962,
             'Updated' => Carbon::parse('2023-06-06'),
         ]);
+        GameRelease::factory()->create([
+            'game_id' => $game1002->id,
+            'title' => 'Final Fantasy [Subset - Solo Class]',
+            'released_at' => '1987-12-18 00:55:31',
+            'released_at_granularity' => ReleasedAtGranularity::Day,
+            'region' => GameReleaseRegion::NorthAmerica,
+            'is_canonical_game_title' => true,
+        ]);
 
-        Game::factory()->create([
+        $game1003 = Game::factory()->create([
             'ID' => 1003,
             'ConsoleID' => $systemNes->id,
             'Title' => 'Dragon Quest III | Dragon Warrior III',
             'ImageIcon' => '/Images/026797.png',
-            'released_at' => '1992-10-15 00:00:00',
-            'released_at_granularity' => 'month',
             'players_total' => 826,
             'players_hardcore' => 623,
             'achievements_published' => 50,
@@ -1040,8 +1059,16 @@ class BuildGameListActionTest extends TestCase
             'TotalTruePoints' => 548,
             'Updated' => Carbon::parse('2023-06-06'),
         ]);
+        GameRelease::factory()->create([
+            'game_id' => $game1003->id,
+            'title' => 'Dragon Quest III | Dragon Warrior III',
+            'released_at' => '1992-10-15 00:00:00',
+            'released_at_granularity' => ReleasedAtGranularity::Month,
+            'region' => GameReleaseRegion::NorthAmerica,
+            'is_canonical_game_title' => true,
+        ]);
 
-        Game::factory()->create([
+        $game1004 = Game::factory()->create([
             'ID' => 1004,
             'ConsoleID' => $systemNes->id,
             'Title' => 'Cycle Race: Road Man',
@@ -1056,19 +1083,25 @@ class BuildGameListActionTest extends TestCase
             'Updated' => Carbon::parse('2023-06-06'),
         ]);
 
-        Game::factory()->create([
+        $game1005 = Game::factory()->create([
             'ID' => 1005,
             'ConsoleID' => $systemNes->id,
             'Title' => 'Double Moon Densetsu',
             'ImageIcon' => '/Images/071237.png',
-            'released_at' => '1992-10-14 00:00:00',
-            'released_at_granularity' => 'day',
             'players_total' => 18,
             'players_hardcore' => 17,
             'achievements_published' => 38,
             'points_total' => 240,
             'TotalTruePoints' => 282,
             'Updated' => Carbon::parse('2023-06-06'),
+        ]);
+        GameRelease::factory()->create([
+            'game_id' => $game1005->id,
+            'title' => 'Double Moon Densetsu',
+            'released_at' => '1992-10-14 00:00:00',
+            'released_at_granularity' => ReleasedAtGranularity::Day,
+            'region' => GameReleaseRegion::NorthAmerica,
+            'is_canonical_game_title' => true,
         ]);
     }
 
