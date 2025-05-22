@@ -142,10 +142,10 @@ class ReleasesRelationManager extends RelationManager
                         }
 
                         switch ($releasedAtGranularity) {
-                            case ReleasedAtGranularity::Year->value:
+                            case ReleasedAtGranularity::Year:
                                 return Carbon::parse($releasedAt)->format('Y');
 
-                            case ReleasedAtGranularity::Month->value:
+                            case ReleasedAtGranularity::Month:
                                 return Carbon::parse($releasedAt)->format('F Y');
 
                             default:
