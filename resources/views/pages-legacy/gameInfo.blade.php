@@ -21,7 +21,6 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
-use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Gate;
 
@@ -930,19 +929,7 @@ if ($isFullyFeaturedGame) {
         echo "</div>";
 
         if ($isFullyFeaturedGame) {
-            /**
-             * Cache data for up to 1 week.
-             * The cache is automatically invalidated when a player 
-             * starts the game or pings the server with an ongoing session.
-             */
-            $recentPlayerData = Cache::remember(
-                CacheKey::buildGameRecentPlayersCacheKey($gameID),
-                7 * 24 * 60 * 60, // 1 week
-                function () use ($gameID) {
-                    return getGameRecentPlayers($gameID, 10);
-                }
-            );
-
+            $recentPlayerData = getGameRecentPlayers($gameID, 10);
             if (!empty($recentPlayerData)) {
                 echo "<div class='mt-6 mb-8'>";
                 ?>
