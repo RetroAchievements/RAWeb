@@ -1,19 +1,13 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Enums\GameHashCompatibility;
-use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\Game;
-use App\Models\GameHash;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadataAction;
-use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Actions\UpsertTriggerVersionAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
-use Illuminate\Support\Facades\Log;
-use Spatie\Activitylog\Facades\CauserResolver;
 
 function getGameData(int $gameID): ?array
 {
@@ -668,101 +662,6 @@ function modifyGameForumTopic(string $username, int $gameId, int $newForumTopicI
     addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the forum topic");
 
     return true;
-}
-
-function submitNewGameTitleJSON(
-    string $username,
-    string $md5,
-    ?int $gameIDin,
-    string $titleIn,
-    int $consoleID,
-    ?string $description
-): array {
-    $retVal = [];
-
-    $user = User::whereName($username)->first();
-    if (!$user) {
-        $retVal['Error'] = "Unknown user";
-        $retVal['Success'] = false;
-    }
-
-    $permissions = (int) $user->getAttribute('Permissions');
-    CauserResolver::setCauser($user);
-
-    if ($permissions < Permissions::Developer) {
-        $retVal['Error'] = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
-        $retVal['Success'] = false;
-    } elseif (mb_strlen($md5) != 32) {
-        $retVal['Error'] = "MD5 provided ($md5) doesn't appear to be exactly 32 characters, this request is invalid.";
-        $retVal['Success'] = false;
-    } elseif (mb_strlen($titleIn) < 2) {
-        $retVal['Error'] = "Cannot submit game title given as '$titleIn'";
-        $retVal['Success'] = false;
-    } elseif ($consoleID < 1 || (!isValidConsoleId($consoleID) && $permissions < Permissions::Moderator)) {
-        $retVal['Error'] = "Cannot submit game title for unknown ConsoleID $consoleID";
-        $retVal['Success'] = false;
-    } else {
-        if (!empty($gameIDin)) {
-            $game = Game::find($gameIDin);
-        }
-        if (empty($game)) {
-            $game = Game::where('title', $titleIn)->where('ConsoleID', $consoleID)->first();
-        }
-        if (!$game) {
-            // new game
-            $game = new Game();
-            $game->Title = $titleIn;
-            $game->ConsoleID = $consoleID;
-            $game->ForumTopicID = null;
-            $game->Flags = 0;
-            $game->ImageIcon = '/Images/000001.png';
-            $game->ImageTitle = '/Images/000002.png';
-            $game->ImageIngame = '/Images/000002.png';
-            $game->ImageBoxArt = '/Images/000002.png';
-            $game->Publisher = null;
-            $game->Developer = null;
-            $game->Genre = null;
-            $game->RichPresencePatch = null;
-            $game->TotalTruePoints = 0;
-
-            $game->save();
-
-            // Create the initial canonical title in game_releases.
-            $game->releases()->create([
-                'title' => $titleIn,
-                'is_canonical_game_title' => true,
-            ]);
-
-            // Create an empty GameAchievementSet and AchievementSet.
-            (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
-        }
-
-        $retVal['Success'] = true;
-        $retVal['GameID'] = $game->id;
-
-        if (!GameHash::where('game_id', $game->id)->where('md5', $md5)->exists()) {
-            // associate md5 to game
-            $gameHash = new GameHash([
-                'game_id' => $game->id,
-                'user_id' => $user->id,
-                'md5' => $md5,
-                'compatibility' => GameHashCompatibility::Compatible,
-            ]);
-            if (!empty($description)) {
-                $gameHash->name = $description;
-            }
-            $gameHash->save();
-
-            // log hash linked
-            $message = "$md5 linked by {$user->display_name}.";
-            if (!empty($description)) {
-                $message .= " Description: \"$description\"";
-            }
-            addArticleComment("Server", ArticleType::GameHash, $game->id, $message);
-        }
-    }
-
-    return $retVal;
 }
 
 function modifyGameRichPresence(User $user, int $gameId, string $dataIn): bool
