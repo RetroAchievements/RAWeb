@@ -68,7 +68,6 @@ class ReleasesRelationManager extends RelationManager
                                 GameReleaseRegion::Japan,
                                 GameReleaseRegion::Europe,
                                 GameReleaseRegion::Worldwide,
-                                GameReleaseRegion::Other,
                             ]))
                             ->mapWithKeys(fn (GameReleaseRegion $region) => [$region->value => $region->label()])
                             ->toArray(),
