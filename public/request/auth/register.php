@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Permissions;
 use App\Models\User;
 use App\Support\Rules\ValidNewUsername;
 use Illuminate\Support\Arr;
@@ -42,24 +43,29 @@ if (config('services.google.recaptcha_secret')) {
     }
 }
 
-$ulid = (string) Str::ulid();
-$hashedPassword = Hash::make($pass);
-
-$query = "INSERT INTO UserAccounts (ulid, User, display_name, Password, SaltedPass, EmailAddress, Permissions, RAPoints, fbUser, fbPrefs, cookie, appToken, appTokenExpiry, websitePrefs, LastLogin, LastActivityID, Motto, ContribCount, ContribYield, APIKey, APIUses, LastGameID, RichPresenceMsg, RichPresenceMsgDate, ManuallyVerified, UnreadMessageCount, TrueRAPoints, UserWallActive, PasswordResetToken, Untracked, email_backup)
-VALUES ('$ulid', '$username', '$username', '$hashedPassword', '', '$email', 0, 0, 0, 0, '', '', NULL, 127, null, 0, '', 0, 0, '', 0, 0, '', NULL, 0, 0, 0, 1, NULL, false, '$email')";
-$dbResult = s_mysql_query($query);
-
-if (!$dbResult) {
-    log_sql_fail();
-
-    return back()->withErrors(__('legacy.error.error'));
-}
+$userModel = new User([
+    'User' => $username,
+    'display_name' => $username,
+    'EmailAddress' => $email,
+    'Permissions' => Permissions::Unregistered,
+    'websitePrefs' => 127,
+    'RAPoints' => 0,
+    'RASoftcorePoints' => 0,
+    'TrueRAPoints' => 0,
+]);
+// these fields are not fillable, so we have to set them after initializing the User model
+$userModel->Password = Hash::make($pass);
+$userModel->ulid = (string) Str::ulid();
+$userModel->email_backup = $email;
+$userModel->fbUser = 0;
+$userModel->fbPrefs = 0;
+$userModel->UnreadMessageCount = 0;
+$userModel->save();
 
 // TODO let the framework handle registration events (sending out validation email, triggering notifications, ...)
 // Registered::dispatch($user);
 
 // Create an email validation token and send an email
-$userModel = User::whereName($username)->first();
 sendValidationEmail($userModel, $email);
 
 return back()->with('message', __('legacy.email_validate'));
