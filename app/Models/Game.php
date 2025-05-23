@@ -301,11 +301,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
     public function toSearchableArray(): array
     {
-        if (!$this->relationLoaded('releases')) {
-            $this->load('releases');
-        }
-
-        $altTitles = $this->releases
+        $altTitles = $this->releases()
             ->where('is_canonical_game_title', false)
             ->pluck('title')
             ->toArray();
