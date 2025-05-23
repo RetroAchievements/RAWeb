@@ -123,6 +123,7 @@ class HubResource extends Resource
 
                         Forms\Components\Toggle::make('has_mature_content')
                             ->label('Has Mature Content')
+                            ->inline(false)
                             ->helperText('CAUTION: If this is enabled, players will get a warning when opening any game in the hub!')
                             ->default(false)
                             ->visible(fn ($record) => $user->can('toggleHasMatureContent', $record)),
