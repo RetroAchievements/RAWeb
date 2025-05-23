@@ -1,6 +1,9 @@
 <?php
 
+use App\Models\Comment;
+use App\Models\ForumTopicComment;
 use App\Models\Game;
+use App\Models\GameSet;
 use App\Models\User;
 
 return [
@@ -139,10 +142,39 @@ return [
         'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
+            Comment::class => [
+                'filterableAttributes' => [
+                    'ArticleID',
+                    'ArticleType',
+                    'commentable_id',
+                    'commentable_type',
+                    'created_at',
+                    'user_id',
+                ],
+                'searchableAttributes' => ['body'],
+                'sortableAttributes' => ['created_at'],
+            ],
+
+            ForumTopicComment::class => [
+                'filterableAttributes' => [
+                    'forum_topic_id',
+                    'author_id',
+                    'created_at',
+                ],
+                'searchableAttributes' => ['body'],
+                'sortableAttributes' => ['created_at'],
+            ],
+
             Game::class => [
                 'filterableAttributes' => ['id', 'title'],
                 'searchableAttributes' => ['title', 'id'],
                 'sortableAttributes' => ['id', 'title'],
+            ],
+
+            GameSet::class => [
+                'filterableAttributes' => ['id', 'games_count', 'title'],
+                'searchableAttributes' => ['title', 'id'],
+                'sortableAttributes' => ['id', 'games_count', 'title'],
             ],
 
             User::class => [

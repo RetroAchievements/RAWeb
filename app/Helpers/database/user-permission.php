@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Comment;
 use App\Models\User;
 use App\Platform\Events\PlayerRankedStatusChanged;
 
@@ -174,6 +175,9 @@ function banAccountByUsername(string $username, int $permissions): void
     $user->Updated = now();
 
     $user->save();
+
+    $userComments = Comment::where('user_id', $user->id)->get();
+    $userComments->unsearchable();
 
     removeAvatar($username);
     $user->subscriptions()->delete();
