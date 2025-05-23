@@ -69,7 +69,17 @@ foreach ($userAwards as $userAward) {
 
 foreach ($userAwards as &$userAward) {
     $userAward['AwardedAt'] = Carbon::createFromTimestampUTC($userAward['AwardedAt'])->toIso8601String();
-    $userAward['AwardType'] = AwardType::toString((int) $userAward['AwardType']);
+
+    $awardType = (int) $userAward['AwardType'];
+    $userAward['AwardType'] = AwardType::toString($awardType);
+    if ($awardType === AwardType::Event) {
+        foreach ($siteAwards as $siteAward) {
+            if ($siteAward['AwardData'] === $userAward['AwardData']) {
+                $userAward['AwardType'] = 'Site Event';
+                break;
+            }
+        }
+    }
 
     // A user's hidden awards are not exposed to scrapers on their profile,
     // so we should not expose them via the API either.
