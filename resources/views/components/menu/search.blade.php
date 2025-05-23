@@ -54,7 +54,7 @@ if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
         id="search-listbox"
         role="listbox"
         aria-label="Search"
-        class="p-0.5 w-fit absolute top-0 left-0 rounded-lg bg-yellow-100 z-20"
+        class="p-0.5 w-fit absolute top-0 left-0 rounded-lg bg-yellow-100 z-30"
         x-ref="searchListbox"
         x-show="showSearchResults"
         x-cloak
