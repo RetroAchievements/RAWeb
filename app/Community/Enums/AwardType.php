@@ -55,6 +55,7 @@ abstract class AwardType
             AwardType::PatreonSupporter => 'Patreon Supporter',
             AwardType::CertifiedLegend => 'Certified Legend',
             AwardType::GameBeaten => 'Game Beaten',
+            AwardType::Event => 'Event',
             default => 'Invalid or deprecated award type',
         };
     }

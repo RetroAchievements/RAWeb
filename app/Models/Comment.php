@@ -13,10 +13,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
 
 class Comment extends BaseModel
 {
     use SoftDeletes;
+    use Searchable;
     /** @use HasFactory<CommentFactory> */
     use HasFactory;
 
@@ -49,6 +51,50 @@ class Comment extends BaseModel
         return CommentFactory::new();
     }
 
+    // == search
+
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => $this->ID,
+            'user_id' => $this->user_id,
+            'ArticleType' => $this->ArticleType,
+            'ArticleID' => $this->ArticleID,
+            'commentable_type' => $this->commentable_type,
+            'commentable_id' => $this->commentable_id,
+            'body' => $this->Payload, // this is fine, as of 2025-05-18, 99.88% of comments are <1KB
+            'created_at' => $this->Submitted,
+        ];
+    }
+
+    public function shouldBeSearchable(): bool
+    {
+        // Don't index deleted comments.
+        if ($this->deleted_at) {
+            return false;
+        }
+
+        // Don't index automated system comments.
+        if ($this->user_id === self::SYSTEM_USER_ID) {
+            return false;
+        }
+
+        // Don't index comments from banned users.
+        $this->loadMissing('userWithTrashed');
+        $user = $this->userWithTrashed;
+        if ($user->banned_at !== null) {
+            return false;
+        }
+
+        // Don't index empty or extremely short comments (3 chars or less).
+        $trimmedPayload = trim($this->Payload);
+        if (empty($trimmedPayload) || mb_strlen($trimmedPayload) <= 3) {
+            return false;
+        }
+
+        return true;
+    }
+
     // == accessors
 
     public function getEditLinkAttribute(): string
@@ -72,8 +118,6 @@ class Comment extends BaseModel
     {
         throw new Exception('Use derived comment model class in the comments() morphTo() relationship instead of ' . Comment::class . '. Add link attribute getters to the derived class. Use A dedicated controller for it and use the prepared actions.');
     }
-
-    // == accessors
 
     public function getIsAutomatedAttribute(): bool
     {
