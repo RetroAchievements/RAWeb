@@ -102,7 +102,7 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
         if (preg_match('/(.+)(\[Subset - .+\])/', $gameTitle, $matches)) {
             $mainTitle = trim($matches[1]);
             $subset = $matches[2];
-            $mainID = getGameIDFromTitle($mainTitle, $consoleID);
+            $mainID = Game::find($gameID)->parentGameId;
             $subsetID = $gameID;
             $renderedSubset = Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $subset]);
         }
