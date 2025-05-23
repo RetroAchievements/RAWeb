@@ -156,6 +156,7 @@ class PlayerProgressionService
                         'ConsoleID' => $award['ConsoleID'],
                         'ConsoleName' => $award['ConsoleName'],
                         'Title' => $award['Title'],
+                        'SortTitle' => $award['Title'],
                         'HighestAwardKind' => $awardKind,
                         'HighestAwardDate' => $awardsDateLookup[$gameId],
                         'AllAwardKinds' => $allAwardsByGameId[$gameId],
