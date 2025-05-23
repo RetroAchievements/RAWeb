@@ -18,12 +18,6 @@ export function GameTypeFilter<TData>({ table }: GameTypeFilterProps<TData>) {
       table.getState().columnFilters.find((f) => f.id === 'game-type')?.value ?? [],
 
     setFilterValue: (value) => {
-      if (value === undefined) {
-        table.setColumnFilters((prev) => [...prev.filter((f) => f.id !== 'game-type')]);
-
-        return;
-      }
-
       table.setColumnFilters((prev) => [
         ...prev.filter((f) => f.id !== 'game-type'),
         { id: 'game-type', value },

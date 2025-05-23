@@ -170,6 +170,7 @@ class BuildHubBreadcrumbsAction
                 gameId: 0,
                 game: Lazy::create(fn () => null),
                 hasMatureContent: false, // doesn't matter, this is just a breadcrumb
+                isEventHub: false, // doesn't matter, this is just a breadcrumb
             ),
             $cachedData ?? [],
         );

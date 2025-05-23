@@ -24,7 +24,13 @@ describe('Component: HubsList', () => {
     // ARRANGE
     const mockHubs = [createGameSet({ title: 'AAAAA' }), createGameSet({ title: 'BBBBB' })];
 
-    render(<PlayableHubsList hubs={mockHubs} />);
+    render(<PlayableHubsList hubs={mockHubs} />, {
+      pageProps: {
+        can: {
+          manageGames: false,
+        },
+      },
+    });
 
     // ASSERT
     expect(screen.getByTestId('hubs-list')).toBeVisible();
@@ -39,7 +45,13 @@ describe('Component: HubsList', () => {
     // ARRANGE
     const mockHubs = [createGameSet({ title: '[Events - Achievement of the Week]' })];
 
-    render(<PlayableHubsList hubs={mockHubs} />);
+    render(<PlayableHubsList hubs={mockHubs} />, {
+      pageProps: {
+        can: {
+          manageGames: false,
+        },
+      },
+    });
 
     // ASSERT
     expect(screen.queryByText(/\[/i)).not.toBeInTheDocument();
@@ -56,7 +68,13 @@ describe('Component: HubsList', () => {
       createGameSet({ title: 'BBB' }),
     ];
 
-    render(<PlayableHubsList hubs={mockHubs} />);
+    render(<PlayableHubsList hubs={mockHubs} />, {
+      pageProps: {
+        can: {
+          manageGames: false,
+        },
+      },
+    });
 
     // ASSERT
     const links = screen.getAllByRole('link');
@@ -65,5 +83,63 @@ describe('Component: HubsList', () => {
     expect(links[1]).toHaveTextContent(/bbb/i);
     expect(links[2]).toHaveTextContent(/ccc/i);
     expect(links[3]).toHaveTextContent(/zzz/i);
+  });
+
+  it('given the user cannot manage games, does not display meta team hubs', () => {
+    // ARRANGE
+    const mockHubs = [createGameSet({ title: 'Meta|QA - Noncompliant Writing' })];
+
+    render(<PlayableHubsList hubs={mockHubs} />, {
+      pageProps: {
+        can: {
+          manageGames: false, // !!
+        },
+      },
+    });
+
+    // ASSERT
+    const links = screen.queryAllByRole('link');
+    expect(links.length).toEqual(0);
+  });
+
+  it('given the user can manage games, displays meta team hubs', () => {
+    // ARRANGE
+    const mockHubs = [createGameSet({ title: 'Meta|QA - Noncompliant Writing' })];
+
+    render(<PlayableHubsList hubs={mockHubs} />, {
+      pageProps: {
+        can: {
+          manageGames: true, // !!
+        },
+      },
+    });
+
+    // ASSERT
+    const links = screen.getAllByRole('link');
+    expect(links.length).toEqual(1);
+  });
+
+  it('given some hub IDs are marked for exclusion, does not display their links', () => {
+    const mockHubs = [
+      createGameSet({ title: 'ZZZ', id: 1 }),
+      createGameSet({ title: 'AAA', id: 2 }), // !! only this one should be visible
+      createGameSet({ title: 'CCC', id: 3 }),
+      createGameSet({ title: 'BBB', id: 4 }),
+    ];
+
+    render(<PlayableHubsList hubs={mockHubs} excludeHubIds={[1, 3, 4]} />, {
+      pageProps: {
+        can: {
+          manageGames: false,
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /zzz/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /ccc/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /bbb/i })).not.toBeInTheDocument();
+
+    expect(screen.getByRole('link', { name: /aaa/i })).toBeVisible();
   });
 });

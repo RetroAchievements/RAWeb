@@ -658,6 +658,7 @@ declare namespace App.Platform.Data {
     title: string | null;
     badgeUrl: string | null;
     gameCount: number;
+    isEventHub?: boolean;
     linkCount: number;
     updatedAt: string;
     forumTopicId?: number | null;
