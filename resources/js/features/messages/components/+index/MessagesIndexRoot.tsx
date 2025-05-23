@@ -7,6 +7,7 @@ import { route } from 'ziggy-js';
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { FullPaginator } from '@/common/components/FullPaginator';
 import { InertiaLink } from '@/common/components/InertiaLink';
+import { UserHeading } from '@/common/components/UserHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { ChangeInboxButton } from '../ChangeInboxButton';
@@ -19,7 +20,7 @@ export const MessagesIndexRoot: FC = memo(() => {
     auth,
     paginatedMessageThreads,
     selectableInboxDisplayNames,
-    senderUserDisplayName,
+    senderUser,
     unreadMessageCount,
   } = usePageProps<App.Community.Data.MessageThreadIndexPageProps>();
 
@@ -29,13 +30,13 @@ export const MessagesIndexRoot: FC = memo(() => {
     return null;
   }
 
-  const isDelegating = auth.user.displayName !== senderUserDisplayName;
+  const isDelegating = auth.user.displayName !== senderUser?.displayName;
 
   const handlePageSelectValueChange = (newPageValue: number) => {
     router.visit(
       isDelegating
         ? route('message-thread.user.index', {
-            user: senderUserDisplayName,
+            user: senderUser?.displayName,
             _query: { page: newPageValue },
           })
         : route('message-thread.index', {
@@ -51,18 +52,18 @@ export const MessagesIndexRoot: FC = memo(() => {
           shouldShowInboxLinkCrumb={false}
           t_currentPageLabel={
             isDelegating
-              ? t("{{username}}'s Inbox", { username: senderUserDisplayName })
+              ? t("{{username}}'s Inbox", { username: senderUser?.displayName })
               : t('Your Inbox')
           }
         />
-        <h1 className="text-h3 w-full self-end sm:mt-2.5 sm:!text-[2.0em]">
+        <UserHeading user={senderUser ?? auth.user} wrapperClassName="!mb-1">
           {t('Messages Inbox')}
-        </h1>
+        </UserHeading>
 
         <p>
           {isDelegating
             ? t('delegatedUnreadMessages', {
-                username: senderUserDisplayName,
+                username: senderUser?.displayName,
                 unreadCount: unreadMessageCount,
                 threadCount: paginatedMessageThreads.total,
               })
@@ -78,7 +79,7 @@ export const MessagesIndexRoot: FC = memo(() => {
           <InertiaLink
             href={
               isDelegating
-                ? route('message-thread.user.create', { user: senderUserDisplayName })
+                ? route('message-thread.user.create', { user: senderUser?.displayName })
                 : route('message-thread.create')
             }
             className={baseButtonVariants({ size: 'sm' })}

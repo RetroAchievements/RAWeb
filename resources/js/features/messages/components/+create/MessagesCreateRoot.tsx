@@ -9,8 +9,7 @@ import { MessagePreviewContent } from '../MessagePreviewContent';
 import { MessagesBreadcrumbs } from '../MessagesBreadcrumbs';
 
 export const MessagesCreateRoot: FC = () => {
-  const { auth, senderUserDisplayName } =
-    usePageProps<App.Community.Data.MessageThreadCreatePageProps>();
+  const { auth, senderUser } = usePageProps<App.Community.Data.MessageThreadCreatePageProps>();
 
   const { t } = useTranslation();
 
@@ -20,12 +19,12 @@ export const MessagesCreateRoot: FC = () => {
     return null;
   }
 
-  const isDelegating = auth.user.displayName !== senderUserDisplayName;
+  const isDelegating = auth.user.displayName !== senderUser?.displayName;
 
   return (
     <div className="flex flex-col gap-4">
       <MessagesBreadcrumbs
-        delegatedUserDisplayName={isDelegating ? senderUserDisplayName : undefined}
+        delegatedUserDisplayName={isDelegating ? senderUser?.displayName : undefined}
         t_currentPageLabel={t('Start new message thread')}
       />
 

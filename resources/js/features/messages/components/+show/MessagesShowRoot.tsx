@@ -17,7 +17,7 @@ import { MessagesBreadcrumbs } from '../MessagesBreadcrumbs';
 import { ReadableMessageCard } from '../ReadableMessageCard';
 
 export const MessagesShowRoot: FC = () => {
-  const { auth, canReply, messageThread, paginatedMessages, senderUserDisplayName } =
+  const { auth, canReply, messageThread, paginatedMessages, senderUser } =
     usePageProps<App.Community.Data.MessageThreadShowPageProps>();
 
   const { t } = useTranslation();
@@ -30,7 +30,7 @@ export const MessagesShowRoot: FC = () => {
     return null;
   }
 
-  const isDelegating = auth.user.displayName !== senderUserDisplayName;
+  const isDelegating = auth.user.displayName !== senderUser?.displayName;
 
   const handleDeleteClick = async () => {
     if (!confirm(t('Are you sure you want to delete this message thread?'))) {
@@ -45,7 +45,7 @@ export const MessagesShowRoot: FC = () => {
 
     router.visit(
       isDelegating
-        ? route('message-thread.user.index', { user: senderUserDisplayName })
+        ? route('message-thread.user.index', { user: senderUser.displayName })
         : route('message-thread.index'),
     );
   };
@@ -63,7 +63,7 @@ export const MessagesShowRoot: FC = () => {
     <div className="flex flex-col gap-4">
       <div>
         <MessagesBreadcrumbs
-          delegatedUserDisplayName={isDelegating ? senderUserDisplayName : undefined}
+          delegatedUserDisplayName={isDelegating ? senderUser?.displayName : undefined}
           t_currentPageLabel={messageThread.title as TranslatedString}
         />
         <h1 className="text-h3 w-full self-end sm:mt-2.5 sm:!text-[2.0em]">

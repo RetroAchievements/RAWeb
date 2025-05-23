@@ -20,12 +20,12 @@ import { BaseSelectNative } from '@/common/components/+vendor/BaseSelectNative';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 export const ChangeInboxButton: FC = () => {
-  const { auth, selectableInboxDisplayNames, senderUserDisplayName } =
+  const { auth, selectableInboxDisplayNames, senderUser } =
     usePageProps<App.Community.Data.MessageThreadIndexPageProps>();
 
   const { t } = useTranslation();
 
-  const [selectedDisplayName, setSelectedDisplayName] = useState(senderUserDisplayName);
+  const [selectedDisplayName, setSelectedDisplayName] = useState(senderUser?.displayName);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

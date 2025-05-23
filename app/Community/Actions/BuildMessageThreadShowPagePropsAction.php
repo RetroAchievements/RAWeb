@@ -8,6 +8,7 @@ use App\Community\Data\MessageData;
 use App\Community\Data\MessageThreadData;
 use App\Community\Data\MessageThreadShowPagePropsData;
 use App\Data\PaginatedData;
+use App\Data\UserData;
 use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
@@ -83,7 +84,7 @@ class BuildMessageThreadShowPagePropsAction
             ),
             dynamicEntities: $dynamicEntities,
             canReply: $this->getCanReply($messageThread, $user),
-            senderUserDisplayName: $this->getSenderUserDisplayName($messageThread, $user),
+            senderUser: UserData::from($this->getSenderUser($messageThread, $user)),
         );
 
         return ['props' => $props, 'redirectToPage' => null];
@@ -103,7 +104,7 @@ class BuildMessageThreadShowPagePropsAction
         return $canReply;
     }
 
-    private function getSenderUserDisplayName(MessageThread $thread, User $user): string
+    private function getSenderUser(MessageThread $thread, User $user): User
     {
         $isUserParticipant = $thread->participants->contains('ID', $user->id);
         if (!$isUserParticipant) {
@@ -111,7 +112,7 @@ class BuildMessageThreadShowPagePropsAction
             $accessibleTeamIds = $policy->getAccessibleTeamIds($user);
 
             if (empty($accessibleTeamIds)) {
-                return $user->display_name;
+                return $user;
             }
 
             $foundTeamParticipant = $thread->participants()
@@ -119,13 +120,13 @@ class BuildMessageThreadShowPagePropsAction
                 ->first();
 
             if (!$foundTeamParticipant) {
-                return $user->display_name;
+                return $user;
             }
 
-            return User::firstWhere('ID', $foundTeamParticipant->id)->display_name;
+            return User::firstWhere('ID', $foundTeamParticipant->id);
         }
 
-        return $user->display_name;
+        return $user;
     }
 
     /**

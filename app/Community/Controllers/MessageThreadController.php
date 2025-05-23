@@ -93,7 +93,7 @@ class MessageThreadController extends Controller
             templateKind: $request->input('templateKind')
                 ? MessageThreadTemplateKind::tryFrom($request->input('templateKind'))
                 : null,
-            senderUserDisplayName: $teamAccount?->display_name ?? $user->display_name,
+            senderUser: $teamAccount ? UserData::from($teamAccount) : UserData::from($user),
         ));
     }
 }

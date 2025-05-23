@@ -136,7 +136,7 @@ describe('Component: MessagesTableRow', () => {
     render(<MessagesTableRow messageThread={thread} />, {
       pageProps: {
         auth: { user: authUser },
-        senderUserDisplayName: firstParticipant.displayName,
+        senderUser: createUser({ displayName: firstParticipant.displayName }),
       },
     });
 
@@ -154,7 +154,7 @@ describe('Component: MessagesTableRow', () => {
     render(<MessagesTableRow messageThread={thread} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        senderUserDisplayName: 'Same Name',
+        senderUser: createUser({ displayName: 'Same Name' }),
       },
     });
 

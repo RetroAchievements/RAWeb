@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
+import { createUser } from '@/test/factories';
 
 import { ChangeInboxButton } from './ChangeInboxButton';
 
@@ -13,7 +14,7 @@ describe('Component: ChangeInboxButton', () => {
       pageProps: {
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
         selectableInboxDisplayNames: ['Scott', 'RAdmin'],
-        senderUserDisplayName: 'Scott',
+        senderUser: createUser({ displayName: 'Scott' }),
       },
     });
 
@@ -27,7 +28,7 @@ describe('Component: ChangeInboxButton', () => {
       pageProps: {
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
         selectableInboxDisplayNames: ['Scott', 'RAdmin'],
-        senderUserDisplayName: 'Scott',
+        senderUser: createUser({ displayName: 'Scott' }),
       },
     });
 
@@ -46,7 +47,7 @@ describe('Component: ChangeInboxButton', () => {
       pageProps: {
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
         selectableInboxDisplayNames: ['Scott', 'RAdmin'],
-        senderUserDisplayName: 'Scott', // !! currently in Scott's inbox, not RAdmin's
+        senderUser: createUser({ displayName: 'Scott' }), // !! currently in Scott's inbox, not RAdmin's
       },
     });
 
@@ -68,7 +69,7 @@ describe('Component: ChangeInboxButton', () => {
       pageProps: {
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
         selectableInboxDisplayNames: ['Scott', 'RAdmin'],
-        senderUserDisplayName: 'RAdmin', // !! currently in RAdmin's inbox, not Scott's
+        senderUser: createUser({ displayName: 'RAdmin' }), // !! currently in RAdmin's inbox, not Scott's
       },
     });
 

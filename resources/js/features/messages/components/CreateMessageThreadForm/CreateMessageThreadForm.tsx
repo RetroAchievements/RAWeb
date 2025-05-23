@@ -25,7 +25,7 @@ interface CreateMessageThreadFormProps {
 }
 
 export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPreview }) => {
-  const { auth, message, subject, templateKind, senderUserDisplayName, toUser } =
+  const { auth, message, subject, templateKind, senderUser, toUser } =
     usePageProps<App.Community.Data.MessageThreadCreatePageProps>();
 
   const { t } = useTranslation();
@@ -36,7 +36,7 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
       body: message ?? '',
       recipient: toUser?.displayName,
     },
-    senderUserDisplayName,
+    senderUser?.displayName,
   );
   const [body] = form.watch(['body']);
 
@@ -143,9 +143,9 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
               </BaseButton>
 
               <BaseButton type="submit" disabled={!form.formState.isValid || mutation.isPending}>
-                {auth!.user.displayName === senderUserDisplayName
+                {auth!.user.displayName === senderUser?.displayName
                   ? t('Submit')
-                  : t('Submit (as {{username}})', { username: senderUserDisplayName })}
+                  : t('Submit (as {{username}})', { username: senderUser?.displayName })}
               </BaseButton>
             </div>
           </div>
