@@ -49,6 +49,14 @@ class GameFactory extends Factory
             if ($game->sort_title === null) {
                 $game->sort_title = (new ComputeGameSortTitleAction())->execute($game->title);
             }
+
+            // Create a canonical title if one doesn't already exist.
+            if (!$game->releases()->where('is_canonical_game_title', true)->exists()) {
+                $game->releases()->create([
+                    'title' => $game->title,
+                    'is_canonical_game_title' => true,
+                ]);
+            }
         });
     }
 }

@@ -661,7 +661,7 @@ if ($isFullyFeaturedGame) {
                     echo csrf_field();
                     echo "<input type='hidden' name='game' value='$gameID' />";
                     echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
-                    echo "<label for='game_title'>Name</label>";
+                    echo "<label for='game_title'>Canonical Title</label>";
                     echo "<input type='text' name='title' id='game_title' value='$escapedGameTitle' maxlength='80' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                     echo "</div>";

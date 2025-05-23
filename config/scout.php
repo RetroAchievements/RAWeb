@@ -167,7 +167,7 @@ return [
 
             Game::class => [
                 'filterableAttributes' => ['id', 'title'],
-                'searchableAttributes' => ['title', 'id'],
+                'searchableAttributes' => ['title', 'alt_titles', 'id'],
                 'sortableAttributes' => ['id', 'title'],
             ],
 

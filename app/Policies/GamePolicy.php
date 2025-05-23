@@ -165,7 +165,7 @@ class GamePolicy
         ]);
     }
 
-    private function canDeveloperJuniorUpdateGame(User $user, Game $game): bool
+    public static function canDeveloperJuniorUpdateGame(User $user, Game $game): bool
     {
         // If the user has a DEVELOPER_JUNIOR role, they need to have a claim
         // on the game or be the sole author of its achievements to be able to
