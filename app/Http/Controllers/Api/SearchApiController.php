@@ -31,7 +31,7 @@ class SearchApiController extends Controller
             ->filter(fn ($user) => $user->email_verified_at !== null)
             ->take(10);
 
-        $mappedUsers = $filteredUsers->map(fn ($user) => UserData::fromUser($user));
+        $mappedUsers = $filteredUsers->map(fn ($user) => UserData::fromUser($user))->values();
 
         return response()->json(['users' => $mappedUsers]);
     }
