@@ -31,7 +31,7 @@ class UpdateGameMetricsAction
         $game->points_total = $game->achievements()->published()->sum('points');
         // NOTE $game->TotalTruePoints are updated separately
 
-        $parentGame = getParentGameFromGameTitle($game->Title, $game->system_id);
+        $parentGame = $game->parentGame();
         if ($parentGame) {
             // NOTE: This assumes everyone who plays a child set also plays the parent set.
             //       These counts should technically be the union of users from both sets.

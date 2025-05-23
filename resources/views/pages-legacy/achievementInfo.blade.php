@@ -62,7 +62,6 @@ $achievementDescriptionRaw = $dataOut['Description'];
 $gameTitleRaw = $dataOut['GameTitle'];
 
 $game = Game::find($dataOut['GameID']);
-$parentGame = $game->getParentGame() ?? null;
 $isEventGame = $game->ConsoleID === System::Events;
 
 sanitize_outputs(
@@ -83,7 +82,6 @@ $unlocks = getAchievementUnlocksData(
     $numWinners,
     $numWinnersHardcore,
     $numPossibleWinners,
-    $parentGame?->id,
     0,
     50
 );

@@ -30,18 +30,6 @@ function getGameData(int $gameID): ?array
     ]);
 }
 
-// If the game is a subset, identify its parent game.
-function getParentGameFromGameTitle(string $title, int $consoleId): ?Game
-{
-    if (mb_strpos($title, '[Subset') !== false) {
-        $foundGame = Game::where('Title', $title)->where('ConsoleID', $consoleId)->first();
-
-        return $foundGame->getParentGame() ?? null;
-    }
-
-    return null;
-}
-
 function getGameMetadata(
     int $gameID,
     ?User $user,
@@ -102,14 +90,7 @@ function getGameMetadata(
     }
 
     $metricsColumns = '';
-    $metricsJoin = '';
-    $metricsBindings = [];
     if ($metrics) {
-        $parentGame = getParentGameFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
-        $numDistinctPlayersSelector = $parentGame?->players_total ?: getGameData($gameID)['NumDistinctPlayers'];
-        $gameDataOut['ParentGameID'] = $parentGame?->id;
-        $gameDataOut['NumDistinctPlayers'] = $numDistinctPlayersSelector ?? 0;
-
         $metricsColumns = 'ach.unlocks_total AS NumAwarded, ach.unlocks_hardcore_total AS NumAwardedHardcore,';
     }
 
@@ -131,14 +112,13 @@ function getGameMetadata(
         ach.type
     FROM Achievements AS ach
     LEFT JOIN UserAccounts AS ua ON ach.user_id = ua.ID
-    $metricsJoin
     WHERE ach.GameID = :gameId AND ach.Flags = :achievementFlag AND ach.deleted_at IS NULL
     $orderBy";
 
-    $achievementDataOut = legacyDbFetchAll($query, array_merge([
+    $achievementDataOut = legacyDbFetchAll($query, [
         'gameId' => $gameID,
         'achievementFlag' => $flag->value,
-    ], $metricsBindings))
+    ])
         ->keyBy('ID')
         ->toArray();
 
