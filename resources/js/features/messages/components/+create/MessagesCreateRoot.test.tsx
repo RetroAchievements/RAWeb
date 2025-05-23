@@ -2,6 +2,7 @@ import userEvent from '@testing-library/user-event';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
+import { createUser } from '@/test/factories';
 
 import { MessagesCreateRoot } from './MessagesCreateRoot';
 
@@ -48,7 +49,7 @@ describe('Component: MessagesCreateRoot', () => {
     render(<MessagesCreateRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
-        senderUserDisplayName: 'Scott',
+        senderUser: createUser({ displayName: 'Scott' }),
       },
     });
 
@@ -63,7 +64,7 @@ describe('Component: MessagesCreateRoot', () => {
     render(<MessagesCreateRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
-        senderUserDisplayName: 'RAdmin',
+        senderUser: createUser({ displayName: 'RAdmin' }),
       },
     });
 
