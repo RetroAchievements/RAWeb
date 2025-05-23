@@ -24,7 +24,11 @@ $alternateReleases = GameRelease::query()
     ->where('is_canonical_game_title', false)
     ->orderBy('title')
     ->select('title')
-    ->pluck('title')
+    ->get()
+    ->map(function($gameRelease) {
+        $tagIndex = strrpos($gameRelease->title, '~');
+        return $tagIndex ? trim(substr($gameRelease->title, $tagIndex + 1)) : $gameRelease->title;
+    })
     ->toArray();
 $alternateTitles = implode(', ', $alternateReleases);
 ?>
