@@ -348,22 +348,24 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
     public function getParentGameIdAttribute(): ?int
     {
-        // Get all achievement sets associated with this game.
-        $achievementSets = GameAchievementSet::where('game_id', $this->id)
-            ->pluck('achievement_set_id');
+        return once(function () {
+            // Get all achievement sets associated with this game.
+            $achievementSets = GameAchievementSet::where('game_id', $this->id)
+                ->pluck('achievement_set_id');
 
-        if ($achievementSets->isEmpty()) {
-            return null;
-        }
+            if ($achievementSets->isEmpty()) {
+                return null;
+            }
 
-        // Check if any of these achievement sets are used in other games with non-core types.
-        $nonCoreUsage = GameAchievementSet::whereIn('achievement_set_id', $achievementSets)
-            ->where('game_id', '!=', $this->id)
-            ->where('type', '!=', AchievementSetType::Core)
-            ->select('game_id')
-            ->first();
+            // Check if any of these achievement sets are used in other games with non-core types.
+            $nonCoreUsage = GameAchievementSet::whereIn('achievement_set_id', $achievementSets)
+                ->where('game_id', '!=', $this->id)
+                ->where('type', '!=', AchievementSetType::Core)
+                ->select('game_id')
+                ->first();
 
-        return $nonCoreUsage?->game_id;
+            return $nonCoreUsage?->game_id;
+        });
     }
 
     public function getIsSubsetGameAttribute(): bool
