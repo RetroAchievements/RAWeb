@@ -22,6 +22,7 @@ $iconUrl = getSystemIconUrl($consoleId);
 $alternateReleases = GameRelease::query()
     ->where('game_id', $gameId)
     ->where('is_canonical_game_title', false)
+    ->orderBy('title')
     ->select('title')
     ->pluck('title')
     ->toArray();
