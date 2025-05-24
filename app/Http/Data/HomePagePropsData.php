@@ -12,6 +12,7 @@ use App\Data\NewsData;
 use App\Data\PaginatedData;
 use App\Data\StaticDataData;
 use App\Data\StaticGameAwardData;
+use App\Platform\Data\GameData;
 use Illuminate\Support\Collection;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -39,6 +40,7 @@ class HomePagePropsData extends Data
         public Collection $newClaims,
         public Collection $recentForumPosts,
         public ?string $persistedActivePlayersSearch,
+        public ?GameData $userCurrentGame = null,
     ) {
     }
 }

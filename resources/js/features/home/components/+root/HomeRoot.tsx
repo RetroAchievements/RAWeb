@@ -11,13 +11,16 @@ import { NewUserCta } from './NewUserCta';
 import { RecentForumPosts } from './RecentForumPosts';
 import { SetsInProgressList } from './SetsInProgressList';
 import { TrendingRightNow } from './TrendingRightNow';
+import { UserCurrentGame } from './UserCurrentGame';
 
 export const HomeRoot: FC = memo(() => {
-  const { auth } = usePageProps<App.Http.Data.HomePageProps>();
+  const { auth, userCurrentGame } = usePageProps<App.Http.Data.HomePageProps>();
 
   return (
     <div className="flex flex-col gap-6">
       {!auth?.user ? <GuestWelcomeCta /> : null}
+
+      {userCurrentGame ? <UserCurrentGame /> : null}
 
       {auth?.user?.isNew ? <NewUserCta /> : null}
 
