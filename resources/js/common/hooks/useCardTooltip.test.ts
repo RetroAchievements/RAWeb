@@ -34,25 +34,37 @@ describe('Hook: useCardTooltip', () => {
       'x-on:mouseover': 'showTooltip($event)',
       'x-on:mouseleave': 'hideTooltip',
       'x-on:mousemove': 'trackMouseMovement($event)',
+      ref: expect.any(Function),
     });
   });
 
   it('given dynamicId changes, then Alpine is reinitialized with the new element', async () => {
     // ARRANGE
-    document.body.innerHTML = `<div x-data="tooltipComponent($el, {dynamicType: 'user', dynamicId: '123', dynamicContext: 'profile'})"></div>`;
+    const mockElement = document.createElement('div');
+    mockElement.setAttribute(
+      'x-data',
+      "tooltipComponent($el, {dynamicType: 'user', dynamicId: '123', dynamicContext: 'profile'})",
+    );
 
-    const initialArgs = { dynamicId: 1, dynamicType: 'game' };
+    const initialArgs = { dynamicId: 1, dynamicType: 'game' as const };
 
-    const { rerender } = renderHook(({ args }) => useCardTooltip(args as any), {
+    const { result, rerender } = renderHook(({ args }) => useCardTooltip(args), {
       initialProps: { args: initialArgs },
     });
 
+    // ... simulate the ref callback being called with the mock element ...
+    result.current.cardTooltipProps.ref(mockElement as any);
+
     // ACT
-    rerender({ args: { dynamicId: 2, dynamicType: 'game' } });
+    rerender({ args: { dynamicId: 2, dynamicType: 'game' as const } });
 
     // ASSERT
     await waitFor(() => {
-      expect(window.Alpine.initTree).toHaveBeenCalled();
+      expect(window.Alpine.destroyTree).toHaveBeenCalledWith(mockElement);
+    });
+
+    await waitFor(() => {
+      expect(window.Alpine.initTree).toHaveBeenCalledWith(mockElement);
     });
   });
 });

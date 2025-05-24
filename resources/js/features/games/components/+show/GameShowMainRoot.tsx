@@ -14,9 +14,7 @@ import { PrimaryMetadataChip } from '../PrimaryMetadataChip';
 import { ReleasedAtChip } from '../ReleasedAtChip';
 
 export const GameShowMainRoot: FC = () => {
-  const { game, hubs, similarGames } = usePageProps<App.Platform.Data.GameShowPageProps>();
-
-  console.log(similarGames);
+  const { game, hubs } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
 
