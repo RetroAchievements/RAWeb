@@ -1,10 +1,11 @@
 @props([
     'achievements' => [],
     'beatenGameCreditDialogContext' => 's:|h:',
-    'totalPlayerCount' => 0,
     'isCreditDialogEnabled' => true,
-    'showAuthorNames' => false,
     'separateUnlockedAchievements' => true,
+    'shouldHideUnlocked' => false,
+    'showAuthorNames' => false,
+    'totalPlayerCount' => 0,
 ])
 
 <?php
@@ -29,6 +30,7 @@ if ($separateUnlockedAchievements) {
                 :achievement="$achievement"
                 :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
                 :isCreditDialogEnabled="$isCreditDialogEnabled"
+                :shouldHideUnlocked="$shouldHideUnlocked"
                 :showAuthorName="$showAuthorNames"
                 :totalPlayerCount="$totalPlayerCount"
             />
@@ -39,6 +41,7 @@ if ($separateUnlockedAchievements) {
                 :achievement="$achievement"
                 :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
                 :isCreditDialogEnabled="$isCreditDialogEnabled"
+                :shouldHideUnlocked="$shouldHideUnlocked"
                 :showAuthorName="$showAuthorNames"
                 :totalPlayerCount="$totalPlayerCount"
             />

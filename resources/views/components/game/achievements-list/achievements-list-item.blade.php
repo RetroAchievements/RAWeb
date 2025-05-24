@@ -9,6 +9,7 @@ use Illuminate\Support\Carbon;
     'isCreditDialogEnabled' => true,
     'isUnlocked' => false,
     'isUnlockedHardcore' => false,
+    'shouldHideUnlocked' => false,
     'showAuthorName' => false,
     'totalPlayerCount' => 0,
     'useMinimalLayout' => false,
@@ -44,7 +45,7 @@ $renderedAchievementAvatar = achievementAvatar(
 );
 ?>
 
-<li class="flex gap-x-3 odd:bg-[rgba(50,50,50,0.4)] light:odd:bg-neutral-200  px-2 py-3 md:py-1 w-full {{ $isUnlocked ? 'unlocked-row' : '' }} {{ $achievement['type'] === 'missable' ? 'missable-row' : '' }}">
+<li class="flex gap-x-3 odd:bg-[rgba(50,50,50,0.4)] light:odd:bg-neutral-200  px-2 py-3 md:py-1 w-full {{ $isUnlocked ? 'unlocked-row' : '' }} {{ $achievement['type'] === 'missable' ? 'missable-row' : '' }} {{ ($shouldHideUnlocked && $isUnlocked) ? 'hidden' : '' }}">
     <div class="flex flex-col gap-y-1">
         {!! $renderedAchievementAvatar !!}
     </div>
