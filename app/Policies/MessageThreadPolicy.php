@@ -18,6 +18,7 @@ class MessageThreadPolicy
      * Inbox display_name => [Roles]
      */
     protected const INBOX_ROLES_MAP = [
+        'CodeReviewTeam' => [Role::CODE_REVIEWER],
         'DevCompliance' => [Role::DEV_COMPLIANCE],
         'QATeam' => [Role::QUALITY_ASSURANCE],
         'RAArtTeam' => [Role::ARTIST],

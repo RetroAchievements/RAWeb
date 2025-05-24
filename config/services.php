@@ -36,6 +36,10 @@ return [
             'sentry' => env('DISCORD_WEBHOOK_MOD_SENTRY'),
         ],
         'inbox_webhook' => [
+            'CodeReviewTeam' => [
+                'url' => env('DISCORD_WEBHOOK_CODEREVIEWERS'),
+                'is_forum' => true,
+            ],
             'DevCompliance' => [
                 'url' => env('DISCORD_WEBHOOK_DEVCOMPLIANCE'),
                 'is_forum' => true,
