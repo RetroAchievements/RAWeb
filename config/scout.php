@@ -145,6 +145,15 @@ return [
         'index-settings' => [
             Achievement::class => [
                 'filterableAttributes' => ['id', 'title'],
+                'rankingRules' => [
+                    'words',
+                    'typo',
+                    'unlocks_total:desc',
+                    'proximity',
+                    'attribute',
+                    'exactness',
+                    'sort'
+                ],
                 'searchableAttributes' => ['title', 'description', 'id'],
                 'sortableAttributes' => [
                     'id',

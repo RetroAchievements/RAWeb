@@ -216,7 +216,6 @@ class Achievement extends BaseModel implements HasVersionedTrigger
             'title' => $this->title,
             'description' => $this->description,
             'unlocks_total' => $this->unlocks_total,
-            'unlocks_hardcore_total' => $this->unlocks_hardcore_total,
         ];
     }
 
