@@ -152,7 +152,7 @@ return [
                     'proximity',
                     'attribute',
                     'exactness',
-                    'sort'
+                    'sort',
                 ],
                 'searchableAttributes' => ['title', 'description', 'id'],
                 'sortableAttributes' => [
