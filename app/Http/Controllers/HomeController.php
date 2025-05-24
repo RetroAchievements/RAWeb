@@ -16,6 +16,7 @@ use App\Http\Actions\BuildCurrentlyOnlineDataAction;
 use App\Http\Actions\BuildHomePageClaimsDataAction;
 use App\Http\Actions\BuildMostRecentGameAwardDataAction;
 use App\Http\Actions\BuildNewsDataAction;
+use App\Http\Actions\BuildUserCurrentGameDataAction;
 use App\Http\Controller;
 use App\Http\Data\HomePagePropsData;
 use App\Models\StaticData;
@@ -37,6 +38,7 @@ class HomeController extends Controller
         BuildTrendingGamesAction $buildTrendingGames,
         BuildHomePageClaimsDataAction $buildHomePageClaimsData,
         BuildThinRecentForumPostsDataAction $buildThinRecentForumPostsData,
+        BuildUserCurrentGameDataAction $buildUserCurrentGameData,
     ): InertiaResponse {
         /** @var ?User $user */
         $user = Auth::user();
@@ -74,6 +76,7 @@ class HomeController extends Controller
             trendingGames: $trendingGames,
             recentForumPosts: $recentForumPosts,
             persistedActivePlayersSearch: $persistedActivePlayersSearch,
+            userCurrentGame: $buildUserCurrentGameData->execute($user),
         );
 
         return Inertia::render('index', $props);
