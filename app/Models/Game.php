@@ -310,6 +310,9 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
             'id' => (int) $this->ID,
             'title' => $this->title,
             'alt_titles' => $altTitles,
+            'players_total' => $this->players_total,
+            'players_hardcore' => $this->players_hardcore,
+            'is_subset' => str_contains($this->title, '[Subset') ? 1 : 0,
         ];
     }
 
