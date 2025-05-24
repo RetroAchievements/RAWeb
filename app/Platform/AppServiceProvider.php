@@ -60,6 +60,7 @@ use App\Platform\Commands\UpdatePlayerEstimatedTimes;
 use App\Platform\Commands\UpdatePlayerGameMetrics;
 use App\Platform\Commands\UpdatePlayerMetrics;
 use App\Platform\Commands\UpdatePlayerPointsStats;
+use App\Platform\Commands\UpdateSearchIndexForQueuedEntities;
 use App\Platform\Commands\UpdateTotalGamesCount;
 use App\Platform\Commands\VerifyAchievementSetIntegrity;
 use App\Platform\Commands\WriteGameSortTitles;
@@ -110,6 +111,9 @@ class AppServiceProvider extends ServiceProvider
                 UpdateAwardsStaticData::class,
                 UpdateTotalGamesCount::class,
 
+                // Search
+                UpdateSearchIndexForQueuedEntities::class,
+
                 // Developer
                 SendClaimExpirationWarningEmails::class,
                 UpdateDeveloperContributionYield::class,
@@ -144,8 +148,9 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
             $schedule->command(BackfillPlaytimeTotal::class)->everyFifteenMinutes();
             $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
-            $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
             $schedule->command(SendClaimExpirationWarningEmails::class)->hourly();
+            $schedule->command(UpdateSearchIndexForQueuedEntities::class)->twiceDaily(1, 13); // 1AM and 1PM
+            $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
         });
 
         $this->loadMigrationsFrom([database_path('migrations/platform')]);

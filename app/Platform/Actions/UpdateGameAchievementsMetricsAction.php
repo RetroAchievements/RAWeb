@@ -6,6 +6,7 @@ namespace App\Platform\Actions;
 
 use App\Models\Game;
 use App\Models\PlayerAchievement;
+use App\Platform\Services\SearchIndexingService;
 
 class UpdateGameAchievementsMetricsAction
 {
@@ -48,6 +49,8 @@ class UpdateGameAchievementsMetricsAction
             $hardcoreUnlockCounts[$stat->achievement_id] = $stat->hardcore_unlocks;
         }
 
+        $searchIndexingService = app()->make(SearchIndexingService::class);
+
         $pointsWeightedTotal = 0;
 
         foreach ($achievements as $achievement) {
@@ -68,11 +71,15 @@ class UpdateGameAchievementsMetricsAction
             $achievement->unlock_percentage = $playersTotal ? $unlocksCount / $playersTotal : 0;
             $achievement->unlock_hardcore_percentage = $playersHardcore ? $unlocksHardcoreCount / $playersHardcore : 0;
             $achievement->TrueRatio = $pointsWeighted;
+
             $achievement->saveQuietly();
+            $searchIndexingService->queueAchievementForIndexing($achievement->ID);
         }
 
         $game->TotalTruePoints = $pointsWeightedTotal;
+
         $game->saveQuietly();
+        $searchIndexingService->queueGameForIndexing($game->id);
 
         // TODO GameAchievementSetMetricsUpdated::dispatch($game);
     }

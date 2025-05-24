@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
@@ -77,8 +78,8 @@ return [
     */
 
     'chunk' => [
-        'searchable' => 500,
-        'unsearchable' => 500,
+        'searchable' => 100,
+        'unsearchable' => 100,
     ],
 
     /*
@@ -142,6 +143,17 @@ return [
         'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
+            Achievement::class => [
+                'filterableAttributes' => ['id', 'title'],
+                'searchableAttributes' => ['title', 'description', 'id'],
+                'sortableAttributes' => [
+                    'id',
+                    'title',
+                    'unlocks_total',
+                    'unlocks_hardcore_total',
+                ],
+            ],
+
             Comment::class => [
                 'filterableAttributes' => [
                     'ArticleID',
@@ -166,9 +178,25 @@ return [
             ],
 
             Game::class => [
-                'filterableAttributes' => ['id', 'title'],
+                'filterableAttributes' => ['id', 'title', 'players_total', 'is_subset'],
+                'rankingRules' => [
+                    'words',
+                    'typo',
+                    'is_subset:asc',
+                    'players_total:desc',
+                    'proximity',
+                    'attribute',
+                    'exactness',
+                    'sort',
+                ],
                 'searchableAttributes' => ['title', 'alt_titles', 'id'],
-                'sortableAttributes' => ['id', 'title'],
+                'sortableAttributes' => [
+                    'id',
+                    'title',
+                    'players_total',
+                    'players_hardcore',
+                    'is_subset',
+                ],
             ],
 
             GameSet::class => [
