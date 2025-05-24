@@ -22,7 +22,7 @@ export const UserCurrentGame: FC = () => {
         'group lg:hover:bg-neutral-950/30 lg:hover:light:bg-neutral-100',
         '-mx-4 -mt-4 w-[calc(100%+2rem)] bg-embed px-4 py-2',
         'md:-mx-6 md:mt-[-2.3rem] md:w-[calc(100%+3rem)]',
-        'lg:-mx-2 lg:-mb-2 lg:mt-0 lg:w-[calc(100%+1rem)] lg:rounded-lg',
+        '-mb-4 lg:-mx-2 lg:-mb-2 lg:mt-0 lg:w-[calc(100%+1rem)] lg:rounded-lg',
         'flex items-center justify-between gap-2',
       )}
     >
