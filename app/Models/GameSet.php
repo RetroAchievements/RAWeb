@@ -276,6 +276,15 @@ class GameSet extends BaseModel
         return media_asset($this->image_asset_path);
     }
 
+    public function getIsEventHubAttribute(): bool
+    {
+        $eventHubIds = [self::CommunityEventsHubId, self::DeveloperEventsHubId];
+
+        return $this->children->contains(function ($child) use ($eventHubIds) {
+            return in_array($child->id, $eventHubIds) || str_contains($child->title, 'Events -');
+        });
+    }
+
     public function getPermalinkAttribute(): string
     {
         return route('hub.show', $this);

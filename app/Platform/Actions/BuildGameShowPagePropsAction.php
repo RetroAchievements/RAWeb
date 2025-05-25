@@ -85,7 +85,7 @@ class BuildGameShowPagePropsAction
 
                 return $user->can('view', $hub);
             })
-            ->map(fn ($hub) => GameSetData::from($hub))
+            ->map(fn ($hub) => GameSetData::from($hub)->include('isEventHub'))
             ->values()
             ->all();
 
@@ -114,12 +114,14 @@ class BuildGameShowPagePropsAction
                 'gameAchievementSets.achievementSet.achievements.unlockPercentage',
                 'gameAchievementSets.achievementSet.achievements.unlocksHardcoreTotal',
                 'gameAchievementSets.achievementSet.achievements.unlocksTotal',
+                'genre',
                 'guideUrl',
                 'imageBoxArtUrl',
                 'imageIngameUrl',
                 'imageTitleUrl',
                 'playersHardcore',
                 'pointsTotal',
+                'publisher',
                 'releasedAt',
                 'releasedAtGranularity',
                 'system.active',
