@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V1;
 
 use App\Models\Game;
+use App\Models\GameRelease;
 use App\Models\System;
+use App\Platform\Enums\GameReleaseRegion;
+use App\Platform\Enums\ReleasedAtGranularity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -40,8 +43,14 @@ class GameTest extends TestCase
             'Publisher' => 'WePublishStuff',
             'Developer' => 'WeDevelopStuff',
             'Genre' => 'Action',
+        ]);
+        GameRelease::factory()->create([
+            'game_id' => $gameOne->ID,
+            'title' => $gameOne->Title,
             'released_at' => $releasedAt,
-            'released_at_granularity' => 'day',
+            'released_at_granularity' => ReleasedAtGranularity::Day,
+            'region' => GameReleaseRegion::NorthAmerica,
+            'is_canonical_game_title' => true,
         ]);
 
         // Ensure that null released_at values are properly handled.

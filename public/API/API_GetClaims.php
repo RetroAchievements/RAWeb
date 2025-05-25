@@ -1,9 +1,5 @@
 <?php
 
-use App\Community\Enums\ClaimFilters;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
-
 /*
  *  API_GetClaims - returns information about 1000 max set claims, sorted by latest `Created` date.
  *    k : claim kind - 1 for completed, 2 for dropped, 3 for expired (default: 1)
@@ -32,6 +28,11 @@ use Illuminate\Validation\Rule;
  *    int        MinutesLeft        time in minutes left until the claim expires
  */
 
+use App\Community\Enums\ClaimFilters;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'k' => [
         'nullable',
@@ -54,7 +55,7 @@ if ($claimKind === $droppedClaims) {
     $claimFilter = ClaimFilters::AllActiveClaims;
 }
 
-$claimsResults = getFilteredClaims(claimFilter: $claimFilter);
+$claimsResults = getFilteredClaims(claimFilter: $claimFilter, limit: 1000);
 
 if ($claimKind === $expiredClaims) {
     $onlyFullyExpired = $claimsResults->filter(function ($claim) {

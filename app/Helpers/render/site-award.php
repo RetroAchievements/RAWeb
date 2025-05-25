@@ -3,7 +3,6 @@
 use App\Community\Enums\AwardType;
 use App\Models\Event;
 use App\Models\EventAward;
-use App\Models\GameSet;
 use App\Models\PlayerBadge;
 
 function SeparateAwards(array $userAwards): array
@@ -20,34 +19,20 @@ function SeparateAwards(array $userAwards): array
         }
     }
 
-    if (!empty($awardEventIds)) {
-        $awardEventGameIds = array_merge($awardEventGameIds,
-            Event::whereIn('id', $awardEventIds)->pluck('legacy_game_id')->toArray()
+    if (!empty($awardEventGameIds)) {
+        $awardEventIds = array_merge($awardEventIds,
+            Event::whereIn('legacy_game_id', $awardEventIds)->select('id')->pluck('id')->toArray()
         );
     }
 
     $devEventIds = [];
-    $devEventGameIds = [];
-    if (!empty($awardEventGameIds)) {
-        $awardEventGameIds = array_unique($awardEventGameIds);
-
-        // Get all dev event game IDs in a single optimized query.
-        $devEventGameIds = GameSet::query()
-            ->whereHas('games', fn ($q) => $q->whereIn('game_id', $awardEventGameIds))
-            ->where(fn ($q) => $q->where('id', GameSet::DeveloperEventsHubId)
-                    ->orWhere('title', 'LIKE', '[Dev Events - %')
-            )
-            ->with(['games' => fn ($q) => $q->select('GameData.ID')])
-            ->get()
-            ->pluck('games.*.ID')
-            ->flatten()
-            ->unique()
-            ->values()
-            ->all();
-
-        if (!empty($awardEventIds)) {
-            $devEventIds = Event::whereIn('legacy_game_id', $devEventGameIds)->pluck('id')->toArray();
-        }
+    if (!empty($awardEventIds)) {
+        $devEventIds = Event::query()
+            ->whereIn('id', $awardEventIds)
+            ->where('gives_site_award', true)
+            ->select('id')
+            ->pluck('id')
+            ->toArray();
     }
 
     $gameAwards = []; // Mastery awards that aren't Events.
@@ -59,9 +44,7 @@ function SeparateAwards(array $userAwards): array
         $id = (int) $award['AwardData'];
 
         if (AwardType::isGame($type)) {
-            if (in_array($id, $devEventGameIds)) {
-                $siteAwards[] = $award;
-            } elseif ($award['ConsoleName'] === 'Events') {
+            if ($award['ConsoleName'] === 'Events') {
                 $eventAwards[] = $award;
             } elseif ($award['AwardType'] !== AwardType::GameBeaten) {
                 $gameAwards[] = $award;

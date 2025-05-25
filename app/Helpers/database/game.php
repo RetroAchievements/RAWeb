@@ -632,6 +632,14 @@ function modifyGameTitle(string $username, int $gameId, string $value): bool
 
     if ($game->isDirty()) {
         $game->save();
+
+        // Update the canonical title in game_releases.
+        $canonicalTitle = $game->releases()->where('is_canonical_game_title', true)->first();
+        if ($canonicalTitle) {
+            $canonicalTitle->title = $value;
+            $canonicalTitle->save();
+        }
+
         addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the game name");
     }
 
@@ -660,37 +668,6 @@ function modifyGameForumTopic(string $username, int $gameId, int $newForumTopicI
     addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the forum topic");
 
     return true;
-}
-
-function createNewGame(string $title, int $systemId): ?array
-{
-    try {
-        $game = new Game();
-        $game->Title = $title;
-        $game->ConsoleID = $systemId;
-        $game->ForumTopicID = null;
-        $game->Flags = 0;
-        $game->ImageIcon = '/Images/000001.png';
-        $game->ImageTitle = '/Images/000002.png';
-        $game->ImageIngame = '/Images/000002.png';
-        $game->ImageBoxArt = '/Images/000002.png';
-        $game->Publisher = null;
-        $game->Developer = null;
-        $game->Genre = null;
-        $game->RichPresencePatch = null;
-        $game->TotalTruePoints = 0;
-
-        $game->save();
-
-        return [
-            'ID' => $game->id,
-            'Title' => $title,
-        ];
-    } catch (Exception $e) {
-        Log::error('Failed to create new game', ['error' => $e->getMessage()]);
-
-        return null;
-    }
 }
 
 function submitNewGameTitleJSON(
@@ -749,7 +726,14 @@ function submitNewGameTitleJSON(
             $game->TotalTruePoints = 0;
 
             $game->save();
-            // create an empty GameAchievementSet and AchievementSet
+
+            // Create the initial canonical title in game_releases.
+            $game->releases()->create([
+                'title' => $titleIn,
+                'is_canonical_game_title' => true,
+            ]);
+
+            // Create an empty GameAchievementSet and AchievementSet.
             (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
         }
 
