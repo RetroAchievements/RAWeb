@@ -50,6 +50,13 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
 
     public function handle(): void
     {
+        // PHPUnit implodes if it encounters the Redis facade.
+        if (app()->environment('testing')) {
+            $this->processJob();
+
+            return;
+        }
+
         /**
          * This action is very prone to causing CPU spikes and high
          * DB load in production if it's left to run wild on its own.
