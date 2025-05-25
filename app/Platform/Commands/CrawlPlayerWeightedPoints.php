@@ -174,6 +174,7 @@ class CrawlPlayerWeightedPoints extends Command
                     if ($playerSet->points_weighted !== $setWeightedPoints) {
                         $playerSet->points_weighted = $setWeightedPoints;
                         $playerSet->saveQuietly();
+
                         $this->numUpdatedPlayerSets++;
                     }
                 }
