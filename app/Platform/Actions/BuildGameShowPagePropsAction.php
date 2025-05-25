@@ -71,6 +71,24 @@ class BuildGameShowPagePropsAction
             )
             ->sortBy('sort_title');
 
+        /**
+         * If the user doesn't have permission to view a related hub,
+         * we should filter it out of the list.
+         * @see GameSetPolicy.php
+         */
+        $relatedHubs = $game->hubs
+            ->filter(function ($hub) use ($user) {
+                // If the user is a guest, only show hubs without view restrictions.
+                if (!$user) {
+                    return !$hub->has_view_role_requirement;
+                }
+
+                return $user->can('view', $hub);
+            })
+            ->map(fn ($hub) => GameSetData::from($hub))
+            ->values()
+            ->all();
+
         return new GameShowPagePropsData(
             can: UserPermissionsData::fromUser($user, game: $game)->include(
                 'createGameComments',
@@ -119,7 +137,7 @@ class BuildGameShowPagePropsAction
                 'pointsWeighted',
             ))->values()->all(),
 
-            hubs: $game->hubs->map(fn ($hub) => GameSetData::from($hub))->all(),
+            hubs: $relatedHubs,
             isSubscribedToComments: $user ? isUserSubscribedToArticleComments(ArticleType::Game, $game->id, $user->id) : false,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $game),
             playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($game, $user),
