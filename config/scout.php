@@ -187,24 +187,52 @@ return [
             ],
 
             Game::class => [
-                'filterableAttributes' => ['id', 'title', 'players_total', 'is_subset'],
+                'filterableAttributes' => [
+                    'id',
+                    'title',
+                    'players_total',
+                    'is_subset',
+                    'has_players',
+                    'is_tagged',
+                    'popularity_score',
+                ],
+
+                /** @see Game::toSearchableArray() for a detailed explanation on game ranking rules */
                 'rankingRules' => [
-                    'words',
-                    'typo',
-                    'is_subset:asc',
-                    'players_total:desc',
-                    'proximity',
-                    'attribute',
-                    'exactness',
+                    'words',                   // Word matching first.
+                    'typo',                    // Allow small typos.
+                    'is_subset:asc',           // Non-subsets rank MUCH higher than subset games.
+                    'popularity_score:desc',   // Very popular games.
+                    'has_players:desc',        // Games with ANY players.
+                    'attribute',               // Consider attribute importance (title > search_titles > alt_titles).
+                    'proximity',               // Words close together rank higher.
+                    'is_tagged:asc',           // Non-tagged (original) games rank higher than games with tags.
+                    'players_total:desc',      // For games within the same popularity tier, sort by exact player counts.
+                    'exactness',               // Finally, consider exact matches.
                     'sort',
                 ],
-                'searchableAttributes' => ['title', 'alt_titles', 'id'],
+
+                'searchableAttributes' => [
+                    'title',
+                    'search_titles',
+                    'alt_titles',
+                    'id',
+                ],
                 'sortableAttributes' => [
                     'id',
                     'title',
                     'players_total',
-                    'players_hardcore',
                     'is_subset',
+                    'has_players',
+                    'is_tagged',
+                    'popularity_score',
+                ],
+                'typoTolerance' => [
+                    'enabled' => true,
+                    'minWordSizeForTypos' => [
+                        'oneTypo' => 4,
+                        'twoTypos' => 8,
+                    ],
                 ],
             ],
 
