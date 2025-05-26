@@ -63,6 +63,8 @@ class HomeController extends Controller
             permissions: $permissions,
         );
 
+        $userCurrentGameData = $buildUserCurrentGameData->execute($user);
+        
         $props = new HomePagePropsData(
             staticData: $staticDataData,
             achievementOfTheWeek: $achievementOfTheWeek,
@@ -76,7 +78,8 @@ class HomeController extends Controller
             trendingGames: $trendingGames,
             recentForumPosts: $recentForumPosts,
             persistedActivePlayersSearch: $persistedActivePlayersSearch,
-            userCurrentGame: $buildUserCurrentGameData->execute($user),
+            userCurrentGame: $userCurrentGameData[0] ?? null,
+            userCurrentGameMinutesAgo: $userCurrentGameData[1] ?? null,
         );
 
         return Inertia::render('index', $props);

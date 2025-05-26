@@ -7,13 +7,16 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 export const UserCurrentGame: FC = () => {
-  const { userCurrentGame } = usePageProps<App.Http.Data.HomePageProps>();
+  const { userCurrentGame, userCurrentGameMinutesAgo } =
+    usePageProps<App.Http.Data.HomePageProps>();
 
   const { t } = useTranslation();
 
-  if (!userCurrentGame) {
+  if (!userCurrentGame || userCurrentGameMinutesAgo === null) {
     return null;
   }
+
+  const treatmentKind: 'active' | 'recent' = userCurrentGameMinutesAgo < 5 ? 'active' : 'recent';
 
   return (
     <a
@@ -30,12 +33,18 @@ export const UserCurrentGame: FC = () => {
       <div className="flex items-center gap-2">
         <div className="relative">
           <img src={userCurrentGame.badgeUrl} width={20} height={20} className="rounded-sm" />
-          <div className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-green-500" />
+
+          {treatmentKind === 'active' ? (
+            <div className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-green-500" />
+          ) : null}
         </div>
 
         <div className="flex gap-2">
           <span className="text-neutral-400">
-            {t('In game:', { keySeparator: '>', nsSeparator: '>' })}
+            {t(treatmentKind === 'active' ? 'In game:' : 'Recently played:', {
+              keySeparator: '>',
+              nsSeparator: '>',
+            })}
           </span>
           <span className="line-clamp-1 lg:group-hover:text-link-hover">
             {userCurrentGame.title}

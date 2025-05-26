@@ -10,7 +10,10 @@ use Carbon\Carbon;
 
 class BuildUserCurrentGameDataAction
 {
-    public function execute(?User $user): ?GameData
+    /**
+     * @return array{0: GameData, 1: int}|null
+     */
+    public function execute(?User $user): ?array
     {
         if (!$user) {
             return null;
@@ -22,17 +25,22 @@ class BuildUserCurrentGameDataAction
             ->orderByDesc('created_at')
             ->first();
 
-        // Check if it's within the last 10 minutes.
+        // Check if it's within the last 15 minutes.
         // We should do this filtering outside of the query. Filtering at the
         // query level for player_sessions is far too slow.
         if (
             !$recentSession
             || !$recentSession->game
-            || $recentSession->updated_at < Carbon::now()->subMinutes(10)
+            || $recentSession->updated_at < Carbon::now()->subMinutes(15)
         ) {
             return null;
         }
 
-        return GameData::fromGame($recentSession->game)->include('badgeUrl');
+        $minutesAgo = (int) $recentSession->updated_at->diffInMinutes(Carbon::now());
+
+        return [
+            GameData::fromGame($recentSession->game)->include('badgeUrl'),
+            $minutesAgo,
+        ];
     }
 }

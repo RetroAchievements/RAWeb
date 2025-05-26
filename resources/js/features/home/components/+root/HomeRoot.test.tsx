@@ -98,6 +98,7 @@ describe('Component: HomeRoot', () => {
         ...createHomePageProps(),
         auth: { user: createAuthenticatedUser({ isNew: false }) },
         userCurrentGame: null, // !!
+        userCurrentGameMinutesAgo: null, // !!
         ziggy: createZiggyProps(),
       },
     });
@@ -113,6 +114,7 @@ describe('Component: HomeRoot', () => {
         ...createHomePageProps(),
         auth: { user: createAuthenticatedUser({ isNew: false }) },
         userCurrentGame: createGame({ title: 'Super Mario Bros.' }), // !!
+        userCurrentGameMinutesAgo: 1, // !!
         ziggy: createZiggyProps(),
       },
     });

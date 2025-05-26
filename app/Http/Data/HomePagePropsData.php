@@ -41,6 +41,7 @@ class HomePagePropsData extends Data
         public Collection $recentForumPosts,
         public ?string $persistedActivePlayersSearch,
         public ?GameData $userCurrentGame = null,
+        public ?int $userCurrentGameMinutesAgo = null,
     ) {
     }
 }

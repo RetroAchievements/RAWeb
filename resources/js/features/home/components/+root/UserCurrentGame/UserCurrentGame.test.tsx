@@ -24,14 +24,32 @@ describe('Component: UserCurrentGame', () => {
     expect(screen.queryByRole('link', { name: /in game/i })).not.toBeInTheDocument();
   });
 
-  it('given there is a current game, displays the game information', () => {
+  it('given there is a current active game, displays the game information', () => {
     // ARRANGE
     render(<UserCurrentGame />, {
-      pageProps: { userCurrentGame: createGame({ title: 'Super Mario Bros.' }) },
+      pageProps: {
+        userCurrentGame: createGame({ title: 'Super Mario Bros.' }),
+        userCurrentGameMinutesAgo: 0,
+      },
     });
 
     // ASSERT
     expect(screen.getByRole('link', { name: /in game/i })).toBeVisible();
+    expect(screen.getByText('Super Mario Bros.')).toBeVisible();
+    expect(screen.getByRole('img')).toBeVisible();
+  });
+
+  it('given there is a recent active game, displays the game information', () => {
+    // ARRANGE
+    render(<UserCurrentGame />, {
+      pageProps: {
+        userCurrentGame: createGame({ title: 'Super Mario Bros.' }),
+        userCurrentGameMinutesAgo: 10,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /recently played/i })).toBeVisible();
     expect(screen.getByText('Super Mario Bros.')).toBeVisible();
     expect(screen.getByRole('img')).toBeVisible();
   });

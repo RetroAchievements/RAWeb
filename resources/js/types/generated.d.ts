@@ -435,6 +435,7 @@ declare namespace App.Http.Data {
     recentForumPosts: Array<App.Data.ForumTopic>;
     persistedActivePlayersSearch: string | null;
     userCurrentGame: App.Platform.Data.Game | null;
+    userCurrentGameMinutesAgo: number | null;
   };
 }
 declare namespace App.Models {
