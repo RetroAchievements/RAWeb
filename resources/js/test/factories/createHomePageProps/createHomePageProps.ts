@@ -65,5 +65,6 @@ export const createHomePageProps = createFactory<App.Http.Data.HomePageProps>((f
     ],
 
     userCurrentGame: null,
+    userCurrentGameMinutesAgo: null,
   };
 });
