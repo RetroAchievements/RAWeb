@@ -183,8 +183,15 @@ class HubResource extends Resource
                             ->label('Roles required to view')
                             ->relationship('viewRoles', 'name')
                             ->getOptionLabelFromRecordUsing(fn (Role $record) => __('permission.role.' . $record->name))
-                            ->multiple()
+                            ->options(function () {
+                                return Role::all()
+                                    ->mapWithKeys(fn (Role $role) => [$role->id => __('permission.role.' . $role->name)])
+                                    ->sort()
+                                    ->toArray();
+                            })
+                            ->searchable()
                             ->preload()
+                            ->multiple()
                             ->pivotData(['permission' => GameSetRolePermission::View->value])
                             ->helperText('If set, only users with at least one of these roles can view the hub.'),
 
@@ -192,8 +199,15 @@ class HubResource extends Resource
                             ->label('Roles required to update')
                             ->relationship('updateRoles', 'name')
                             ->getOptionLabelFromRecordUsing(fn (Role $record) => __('permission.role.' . $record->name))
-                            ->multiple()
+                            ->options(function () {
+                                return Role::all()
+                                    ->mapWithKeys(fn (Role $role) => [$role->id => __('permission.role.' . $role->name)])
+                                    ->sort()
+                                    ->toArray();
+                            })
+                            ->searchable()
                             ->preload()
+                            ->multiple()
                             ->pivotData(['permission' => GameSetRolePermission::Update->value])
                             ->helperText('If set, only users with at least one of these roles can update the hub. Otherwise, default permissions apply.'),
                     ])

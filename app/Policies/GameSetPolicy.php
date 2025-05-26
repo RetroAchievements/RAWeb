@@ -34,14 +34,14 @@ class GameSetPolicy
 
         // If the hub has view role requirements, check them.
         if ($gameSet->has_view_role_requirement) {
-            // Admins can always view hubs.
-            if ($user->hasRole(Role::ADMINISTRATOR)) {
-                return true;
-            }
-
             // If user is not authenticated, they cannot view the hub.
             if (!$user) {
                 return false;
+            }
+
+            // Admins can always view hubs.
+            if ($user->hasRole(Role::ADMINISTRATOR)) {
+                return true;
             }
 
             $requiredRoleNames = $gameSet->viewRoles()->pluck('name')->toArray();
