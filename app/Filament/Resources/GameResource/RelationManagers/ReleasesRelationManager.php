@@ -8,8 +8,10 @@ use App\Filament\Resources\GameResource;
 use App\Models\Game;
 use App\Models\GameRelease;
 use App\Models\User;
+use App\Platform\Actions\FormatGameReleaseDateAction;
 use App\Platform\Enums\GameReleaseRegion;
 use App\Platform\Enums\ReleasedAtGranularity;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -18,7 +20,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 
@@ -116,16 +117,10 @@ class ReleasesRelationManager extends RelationManager
                             return 'No release date.';
                         }
 
-                        switch ($releasedAtGranularity) {
-                            case 'year':
-                                return Carbon::parse($releasedAt)->format('Y');
-
-                            case 'month':
-                                return Carbon::parse($releasedAt)->format('F Y');
-
-                            default:
-                                return Carbon::parse($releasedAt)->format('F j, Y');
-                        }
+                        return (new FormatGameReleaseDateAction())->execute(
+                            Carbon::parse($releasedAt),
+                            ReleasedAtGranularity::tryFrom($releasedAtGranularity)
+                        );
                     }),
             ]);
     }
@@ -139,23 +134,7 @@ class ReleasesRelationManager extends RelationManager
                     ->label('Release Date')
                     ->placeholder('unknown')
                     ->formatStateUsing(function (GameRelease $gameRelease): ?string {
-                        $releasedAt = $gameRelease->released_at;
-                        $releasedAtGranularity = $gameRelease->released_at_granularity;
-
-                        if (!$releasedAt) {
-                            return null;
-                        }
-
-                        switch ($releasedAtGranularity) {
-                            case ReleasedAtGranularity::Year:
-                                return Carbon::parse($releasedAt)->format('Y');
-
-                            case ReleasedAtGranularity::Month:
-                                return Carbon::parse($releasedAt)->format('F Y');
-
-                            default:
-                                return Carbon::parse($releasedAt)->format('F j, Y');
-                        }
+                        return $gameRelease->formatted_release_date;
                     })
                     ->sortable(query: function ($query, string $direction): Builder {
                         return $query
