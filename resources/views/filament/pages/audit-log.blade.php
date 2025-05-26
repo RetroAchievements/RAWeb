@@ -32,7 +32,16 @@ use \Illuminate\Support\Js;
                     /** @var \Spatie\Activitylog\Models\Activity $auditLogItem */
                     $properties = json_decode($auditLogItem->properties, true);
                     $changes = collect($properties);
+
+                    $releaseIdentifier = data_get($properties, 'release_identifier');
                 @endphp
+
+                @if ($releaseIdentifier)
+                    <div class="px-4 py-2 text-sm text-gray-600 bg-gray-50 border-b dark:text-gray-400 dark:bg-gray-800 dark:border-gray-700">
+                        <strong>Release:</strong> {{ $releaseIdentifier }}
+                    </div>
+                @endif
+                
                 @if ($changes->isNotEmpty())
                     <x-filament-tables::table class="w-full overflow-hidden text-sm">
                         <x-slot:header>
