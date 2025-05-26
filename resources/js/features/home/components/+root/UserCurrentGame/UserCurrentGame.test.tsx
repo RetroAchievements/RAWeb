@@ -21,7 +21,7 @@ describe('Component: UserCurrentGame', () => {
     });
 
     // ASSERT
-    expect(screen.queryByRole('link', { name: /playing/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /in game/i })).not.toBeInTheDocument();
   });
 
   it('given there is a current game, displays the game information', () => {
@@ -31,7 +31,7 @@ describe('Component: UserCurrentGame', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('link', { name: /playing/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /in game/i })).toBeVisible();
     expect(screen.getByText('Super Mario Bros.')).toBeVisible();
     expect(screen.getByRole('img')).toBeVisible();
   });

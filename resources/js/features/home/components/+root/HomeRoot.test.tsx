@@ -103,7 +103,7 @@ describe('Component: HomeRoot', () => {
     });
 
     // ASSERT
-    expect(screen.queryByRole('link', { name: /playing/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /in game/i })).not.toBeInTheDocument();
   });
 
   it('given the user has a current game, displays the current game', () => {
@@ -118,6 +118,6 @@ describe('Component: HomeRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('link', { name: /playing/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /in game/i })).toBeVisible();
   });
 });
