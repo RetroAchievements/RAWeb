@@ -21,6 +21,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 
 class ReleasesRelationManager extends RelationManager
 {
@@ -44,6 +45,11 @@ class ReleasesRelationManager extends RelationManager
     {
         return $form
             ->schema([
+                Forms\Components\Placeholder::make('guidelines')
+                    ->hiddenLabel()
+                    ->columnSpan(2)
+                    ->content(new HtmlString('🔴 For detailed guidelines, see the <a href="https://docs.retroachievements.org/guidelines/content/game-info-and-hub-guidelines.html#regional-titles" target="_blank" class="underline">documentation</a>.')),
+
                 Forms\Components\TextInput::make('title')
                     ->required()
                     ->maxLength(80)

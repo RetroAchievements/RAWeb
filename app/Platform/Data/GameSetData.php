@@ -20,6 +20,7 @@ class GameSetData extends Data
         public ?string $title,
         public ?string $badgeUrl,
         public int $gameCount,
+        public Lazy|bool $isEventHub,
         public int $linkCount,
         public Carbon $updatedAt,
         public Lazy|int|null $forumTopicId,
@@ -46,6 +47,7 @@ class GameSetData extends Data
             game: Lazy::create(fn () => $gameSet->game),
             gameId: Lazy::create(fn () => $gameSet->game_id),
             hasMatureContent: Lazy::create(fn () => $gameSet->has_mature_content),
+            isEventHub: Lazy::create(fn () => $gameSet->is_event_hub),
         );
     }
 }
