@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'motion/react';
 import * as motion from 'motion/react-m';
-import { type FC, useEffect, useRef, useState } from 'react';
+import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronDown } from 'react-icons/lu';
 import { route } from 'ziggy-js';
@@ -13,6 +13,7 @@ import {
 } from '@/common/components/+vendor/BaseCollapsible';
 import { PlayerGameProgressBar } from '@/common/components/PlayerGameProgressBar';
 import { UserAvatar } from '@/common/components/UserAvatar';
+import { useAnimatedCollapse } from '@/common/hooks/useAnimatedCollapse';
 import { cn } from '@/common/utils/cn';
 
 interface PopulatedPlayerCompletionsProps {
@@ -26,16 +27,12 @@ export const PopulatedPlayerCompletions: FC<PopulatedPlayerCompletionsProps> = (
 }) => {
   const { t } = useTranslation();
 
-  const [isRemainingContentOpen, setIsRemainingContentOpen] = useState(false);
-
-  const remainingContentRef = useRef<HTMLDivElement>(null);
-  const [remainingContentHeight, setRemainingContentHeight] = useState(0);
-
-  useEffect(() => {
-    if (remainingContentRef.current) {
-      setRemainingContentHeight(remainingContentRef.current.offsetHeight);
-    }
-  }, [isRemainingContentOpen]);
+  const {
+    contentHeight: remainingContentHeight,
+    contentRef: remainingContentRef,
+    isOpen: isRemainingContentOpen,
+    setIsOpen: setIsRemainingContentOpen,
+  } = useAnimatedCollapse();
 
   // If there are 11 total players (10 + 1), show all of them at once.
   const shouldShowAllAtOnce = followedPlayerCompletions.length === 11;
