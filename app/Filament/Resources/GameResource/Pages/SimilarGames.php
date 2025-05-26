@@ -54,6 +54,7 @@ class SimilarGames extends ManageRelatedRecords
 
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
+                    ->url(fn (Game $record): string => GameResource::getUrl('view', ['record' => $record]))
                     ->sortable(query: function (Builder $query, string $direction): Builder {
                         return $query->orderBy('GameData.ID', $direction);
                     })
@@ -62,6 +63,7 @@ class SimilarGames extends ManageRelatedRecords
                     }),
 
                 Tables\Columns\TextColumn::make('Title')
+                    ->url(fn (Game $record): string => GameResource::getUrl('view', ['record' => $record]))
                     ->sortable(query: function (Builder $query, string $direction): Builder {
                         return $query->orderBy('GameData.Title', $direction);
                     })
