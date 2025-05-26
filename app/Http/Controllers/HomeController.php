@@ -64,7 +64,7 @@ class HomeController extends Controller
         );
 
         $userCurrentGameData = $buildUserCurrentGameData->execute($user);
-        
+
         $props = new HomePagePropsData(
             staticData: $staticDataData,
             achievementOfTheWeek: $achievementOfTheWeek,
