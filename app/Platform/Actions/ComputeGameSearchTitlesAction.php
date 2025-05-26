@@ -79,6 +79,11 @@ class ComputeGameSearchTitlesAction
             $variations[] = $seriesName;
         }
 
+        // Simple check for Professor Oak Challenge subset.
+        if (stripos($title, 'Professor Oak Challenge') !== false) {
+            $variations[] = 'poc';
+        }
+
         // Create simplified titles that don't have any special characters.
         $simplifiedTitle = $this->simplifyTitle($title);
         if ($simplifiedTitle !== $title) {
