@@ -102,7 +102,6 @@ class PlayerGameActivityService
                 $whenBefore = $playerGame->last_played_at->clone()->subMinutes(5);
                 $whenAfter = $playerGame->last_played_at->clone()->addMinutes(5);
 
-                $index = 0;
                 foreach ($this->sessions as &$session) {
                     if ($session['endTime'] >= $whenBefore && $session['endTime'] <= $whenAfter) {
                         $session['endTime'] = $playerGame->last_played_at;
@@ -126,29 +125,58 @@ class PlayerGameActivityService
                 'Achievements.type',
             ])
             ->get();
+
+        // Pre-load all unlockers to avoid N+1 queries.
+        $unlockerIds = $playerAchievements->pluck('unlocker_id')->filter()->unique();
+        $unlockers = [];
+        if ($unlockerIds->isNotEmpty()) {
+            $unlockers = User::whereIn('id', $unlockerIds)->get()->keyBy('id');
+        }
+
         foreach ($playerAchievements as $playerAchievement) {
+            // Pass the pre-loaded unlocker.
+            $unlocker = $unlockers[$playerAchievement->unlocker_id] ?? null;
+
             $achievementSetId = $achievementAchievementSets[$playerAchievement->achievement_id] ?? $coreGameAchievementSetIds[$game->id];
             if ($playerAchievement->unlocked_hardcore_at) {
-                $this->addUnlockEvent($playerAchievement, $playerAchievement->unlocked_hardcore_at, $achievementSetId, true);
+                $this->addUnlockEvent(
+                    $playerAchievement,
+                    $playerAchievement->unlocked_hardcore_at,
+                    $achievementSetId,
+                    true,
+                    $unlocker
+                );
 
                 if ($playerAchievement->unlocked_hardcore_at != $playerAchievement->unlocked_at) {
-                    $this->addUnlockEvent($playerAchievement, $playerAchievement->unlocked_at, $achievementSetId, false);
+                    $this->addUnlockEvent(
+                        $playerAchievement,
+                        $playerAchievement->unlocked_at,
+                        $achievementSetId,
+                        false,
+                        $unlocker
+                    );
                 }
             } else {
-                $this->addUnlockEvent($playerAchievement, $playerAchievement->unlocked_at, $achievementSetId, false);
+                $this->addUnlockEvent(
+                    $playerAchievement,
+                    $playerAchievement->unlocked_at,
+                    $achievementSetId,
+                    false,
+                    $unlocker
+                );
             }
 
             $this->achievementsUnlocked++;
         }
 
-        // TODO: process claims
+        // TODO: process claims in another queue
 
         foreach ($this->sessions as &$session) {
             $this->sortEvents($session['events']);
         }
     }
 
-    private function addUnlockEvent(object $playerAchievement, Carbon $when, int $achievementSetId, bool $hardcore): void
+    private function addUnlockEvent(object $playerAchievement, Carbon $when, int $achievementSetId, bool $hardcore, ?User $unlocker = null): void
     {
         $event = [
             'type' => PlayerGameActivityEventType::Unlock,
@@ -166,12 +194,8 @@ class PlayerGameActivityService
             ],
         ];
 
-        $unlocker = null;
-        if ($playerAchievement->unlocker_id) {
-            $unlocker = User::firstWhere('id', $playerAchievement->unlocker_id);
-            if ($unlocker) {
-                $event['unlocker'] = $unlocker;
-            }
+        if ($unlocker) {
+            $event['unlocker'] = $unlocker;
         }
 
         if (!$hardcore && $when < $playerAchievement->unlocked_hardcore_at) {
