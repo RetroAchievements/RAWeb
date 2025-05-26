@@ -361,6 +361,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
             $nonCoreUsage = GameAchievementSet::whereIn('achievement_set_id', $achievementSets)
                 ->where('game_id', '!=', $this->id)
                 ->where('type', '!=', AchievementSetType::Core)
+                ->orderBy('created_at') // if more than one parent exists, take the first associated
                 ->select('game_id')
                 ->first();
 
@@ -492,7 +493,9 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
     public function parentGame(): ?Game
     {
-        return $this->parentGameId ? Game::find($this->parentGameId) : null;
+        return once(function (): ?Game {
+            return $this->parentGameId ? Game::find($this->parentGameId) : null;
+        });
     }
 
     /**
