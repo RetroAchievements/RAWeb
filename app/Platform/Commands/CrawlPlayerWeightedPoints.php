@@ -5,25 +5,22 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Community\Enums\Rank;
-use App\Models\PlayerAchievementSet;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 class CrawlPlayerWeightedPoints extends Command
 {
     protected $signature = 'ra:platform:player:crawl-weighted-points 
-                            {--batch=20 : Number of users to process per run} 
+                            {--batch=100 : Number of users to process per run} 
                             {--user= : Update a specific user ID}
                             {--reset : Reset the crawler to start from the beginning}';
-    protected $description = 'Crawl through users to incrementally update weighted points for users and their achievement sets';
+    protected $description = 'Crawl through users to incrementally update weighted points';
 
     private const CACHE_KEY = 'weighted_points_crawler_last_user_id';
     private const CACHE_TTL = 60 * 60 * 24 * 90; // 90 days
 
     private int $numUpdatedUsers = 0;
-    private int $numUpdatedPlayerSets = 0;
 
     public function handle(): void
     {
@@ -71,7 +68,7 @@ class CrawlPlayerWeightedPoints extends Command
 
         $lastUserId = 0;
         foreach ($users as $user) {
-            $this->updateUserAndAchievementSets($user);
+            $this->updateUserWeightedPoints($user);
             $lastUserId = $user->id;
 
             unset($user); // use as little memory as possible ... free up memory after each user
@@ -82,7 +79,6 @@ class CrawlPlayerWeightedPoints extends Command
 
         $this->info("Batch completed. Processed up to user ID: {$lastUserId}.");
         $this->info("Updated {$this->numUpdatedUsers} users' weighted points.");
-        $this->info("Updated {$this->numUpdatedPlayerSets} player achievement sets.");
 
         // Check if there are any more users to process.
         $remainingCount = User::query()
@@ -108,21 +104,14 @@ class CrawlPlayerWeightedPoints extends Command
         $this->info("Updating user [{$user->id}:{$user->display_name}].");
         $this->info("Current weighted points: {$user->TrueRAPoints}.");
 
-        $this->updateUserAndAchievementSets($user);
+        $this->updateUserWeightedPoints($user);
 
         if ($this->numUpdatedUsers > 0) {
             $user->refresh();
             $this->info("New weighted points: {$user->TrueRAPoints}.");
         }
 
-        $this->info("Updated {$this->numUpdatedUsers} users.");
-        $this->info("Updated {$this->numUpdatedPlayerSets} player achievement sets.");
-    }
-
-    private function updateUserAndAchievementSets(User $user): void
-    {
-        $this->updateUserWeightedPoints($user);
-        $this->updateUserAchievementSets($user);
+        $this->info("Done.");
     }
 
     private function updateUserWeightedPoints(User $user): void
@@ -134,6 +123,7 @@ class CrawlPlayerWeightedPoints extends Command
             ->whereNotNull('player_achievements.unlocked_hardcore_at')
             ->sum('Achievements.TrueRatio');
 
+        // ->sum() returns a mixed type. Force it to be an integer.
         $weightedPointsSum = (int) $weightedPointsSum;
 
         // Only update if the value has changed.
@@ -143,41 +133,5 @@ class CrawlPlayerWeightedPoints extends Command
 
             $this->numUpdatedUsers++;
         }
-    }
-
-    private function updateUserAchievementSets(User $user): void
-    {
-        // Process each player achievement set one at a time to minimize memory usage.
-        PlayerAchievementSet::where('user_id', $user->id)
-            ->chunkById(10, function ($playerAchievementSets) use ($user) {
-                /** @var PlayerAchievementSet $playerSet */
-                foreach ($playerAchievementSets as $playerSet) {
-                    // Get achievement IDs for this set without loading all achievement models.
-                    $achievementIds = DB::table('achievement_set_achievements')
-                        ->where('achievement_set_id', $playerSet->achievement_set_id)
-                        ->pluck('achievement_id');
-
-                    if ($achievementIds->isEmpty()) {
-                        continue;
-                    }
-
-                    // Calculate the sum using a direct query to minimize memory usage.
-                    $setWeightedPoints = $user->playerAchievements()
-                        ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
-                        ->whereIn('player_achievements.achievement_id', $achievementIds)
-                        ->whereNotNull('player_achievements.unlocked_hardcore_at')
-                        ->sum('Achievements.TrueRatio');
-
-                    $setWeightedPoints = (int) $setWeightedPoints;
-
-                    // Only update if the value has changed.
-                    if ($playerSet->points_weighted !== $setWeightedPoints) {
-                        $playerSet->points_weighted = $setWeightedPoints;
-                        $playerSet->saveQuietly();
-
-                        $this->numUpdatedPlayerSets++;
-                    }
-                }
-            });
     }
 }
