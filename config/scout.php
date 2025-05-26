@@ -148,9 +148,9 @@ return [
                 'rankingRules' => [
                     'words',
                     'typo',
+                    'attribute',
                     'unlocks_total:desc',
                     'proximity',
-                    'attribute',
                     'exactness',
                     'sort',
                 ],
