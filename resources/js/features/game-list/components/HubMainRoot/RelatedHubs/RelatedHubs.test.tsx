@@ -47,7 +47,7 @@ describe('Component: RelatedHubs', () => {
 
   it('given a related hub, displays its game and link counts', () => {
     // ARRANGE
-    const hub = createGameSet();
+    const hub = createGameSet({ gameCount: 50, linkCount: 40 });
 
     render<App.Platform.Data.HubPageProps>(<RelatedHubs />, {
       pageProps: { relatedHubs: [hub] },
