@@ -112,19 +112,16 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
         }
 
         // associate the new hash if it doesn't already exist
-        if (!GameHash::where('game_id', $game->id)->where('md5', $this->hash)->exists()) {
-            // associate hash to game
-            $gameHash = new GameHash([
-                'game_id' => $game->id,
-                'user_id' => $this->user->id,
-                'md5' => $this->hash,
-                'compatibility' => GameHashCompatibility::Compatible,
-            ]);
-            if (!empty($this->hashDescription)) {
-                $gameHash->name = $this->hashDescription;
-            }
-            $gameHash->save();
+        $gameHash = GameHash::firstOrCreate([
+            'game_id' => $game->id,
+            'md5' => $this->hash,
+        ], [
+            'name' => !empty($this->hashDescription) ? $this->hashDescription : null,
+            'compatibility' => GameHashCompatibility::Compatible,
+            'user_id' => $this->user->id,
+        ]);
 
+        if ($gameHash->wasRecentlyCreated) {
             // log hash linked
             $message = "$this->hash linked by {$this->user->display_name}.";
             if (!empty($this->hashDescription)) {
