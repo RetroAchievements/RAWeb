@@ -31,6 +31,7 @@ class SubmitGameTitleTest extends TestCase
         /** @var Game $game1 */
         $game1 = Game::factory()->create(['ConsoleID' => $system2->id]);
 
+        $this->seed(RolesTableSeeder::class);
         $this->addServerUser();
 
         $md5 = fake()->md5;
@@ -53,7 +54,7 @@ class SubmitGameTitleTest extends TestCase
                 'Success' => false,
             ]);
 
-        $this->user->setAttribute('Permissions', Permissions::JuniorDeveloper);
+        $this->user->assignRole(Role::DEVELOPER_JUNIOR);
         $this->user->save();
 
         /* junior developer */
@@ -71,7 +72,8 @@ class SubmitGameTitleTest extends TestCase
             ]);
 
         /* new game */
-        $this->user->setAttribute('Permissions', Permissions::Developer);
+        $this->user->removeRole(Role::DEVELOPER_JUNIOR);
+        $this->user->assignRole(Role::DEVELOPER);
         $this->user->save();
 
         $this->get($this->apiUrl('submitgametitle', [
@@ -193,6 +195,7 @@ class SubmitGameTitleTest extends TestCase
         $this->assertEquals(1, $game->hashes->count());
         $oldTitle = $game->title;
 
+        $this->seed(RolesTableSeeder::class);
         $this->addServerUser();
 
         $md5 = fake()->md5;
@@ -217,7 +220,7 @@ class SubmitGameTitleTest extends TestCase
             ]);
 
         /* new md5 for existing game */
-        $this->user->setAttribute('Permissions', Permissions::Developer);
+        $this->user->assignRole(Role::DEVELOPER);
         $this->user->save();
 
         $this->get($this->apiUrl('submitgametitle', [
@@ -258,7 +261,7 @@ class SubmitGameTitleTest extends TestCase
         $title = ucwords(fake()->words(2, true));
 
         /* new game */
-        $this->user->setAttribute('Permissions', Permissions::Developer);
+        $this->user->assignRole(Role::DEVELOPER);
         $this->user->save();
 
         $this->get($this->apiUrl('submitgametitle', [

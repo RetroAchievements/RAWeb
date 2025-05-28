@@ -57,12 +57,7 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
     protected function process(): array
     {
         if (!$this->user->can('create', Game::class)) {
-            // TODO: Developers are currently allowed to create new titles,
-            //       but the policy doesn't allow it.
-            $permissions = (int) $this->user->getAttribute('Permissions');
-            if ($permissions < Permissions::Developer) {
-                return $this->accessDenied('You must be a developer to perform this action.');
-            }
+            return $this->accessDenied('You must be a developer to perform this action.');
         }
 
         if (mb_strlen($this->hash) != 32) {
