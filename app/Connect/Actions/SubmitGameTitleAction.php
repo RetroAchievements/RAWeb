@@ -7,7 +7,6 @@ namespace App\Connect\Actions;
 use App\Community\Enums\ArticleType;
 use App\Connect\Support\BaseAuthenticatedApiAction;
 use App\Enums\GameHashCompatibility;
-use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\GameRelease;
