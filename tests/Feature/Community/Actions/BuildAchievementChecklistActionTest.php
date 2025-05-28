@@ -242,6 +242,7 @@ class BuildAchievementChecklistActionTest extends TestCase
             'unlockedHardcoreAt' => $hardcoreUnlock ? $hardcoreUnlock->format('c') : null,
             'unlocksTotal' => $achievement->unlocks_total,
             'unlocksHardcoreTotal' => $achievement->unlocks_hardcore_total,
+            'unlockPercentage' => $achievement->unlock_percentage,
             'unlockHardcorePercentage' => $achievement->unlock_hardcore_percentage,
             'game' => [
                 'id' => $achievement->game->id,
