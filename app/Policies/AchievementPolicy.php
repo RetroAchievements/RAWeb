@@ -61,18 +61,7 @@ class AchievementPolicy
 
     public function update(User $user, Achievement $achievement): bool
     {
-        // If the user has a DEVELOPER_JUNIOR role, they need to have a claim
-        // on the game and the achievement must not be promoted to Core/Official.
-        if ($user->hasRole(Role::DEVELOPER_JUNIOR)) {
-            return !$achievement->is_published && $user->hasActiveClaimOnGameId($achievement->game->id);
-        }
-
-        return $user->hasAnyRole([
-            /*
-             * moderators may remove unfit content from achievements
-             */
-            // Role::MODERATOR,
-
+        $canEditAnyAchievement = $user->hasAnyRole([
             /*
              * developers may at least upload new achievements to the server, create code notes, etc
              */
@@ -88,6 +77,25 @@ class AchievementPolicy
              */
             Role::WRITER,
         ]);
+
+        if ($canEditAnyAchievement) {
+            return true;
+        }
+
+        // Junior Developers have additional specific criteria that must be satisfied
+        // before they are allowed to edit achievement fields.
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR)) {
+            return $this->juniorDeveloperCanUpdate($user, $achievement);
+        }
+
+        return false;
+    }
+
+    private function juniorDeveloperCanUpdate(User $user, Achievement $achievement): bool
+    {
+        // If the user has a DEVELOPER_JUNIOR role, they need to have a claim
+        // on the game and the achievement must not be promoted to Core/Official.
+        return !$achievement->is_published && $user->hasActiveClaimOnGameId($achievement->game->id);
     }
 
     public function delete(User $user, Achievement $achievement): bool
@@ -133,22 +141,22 @@ class AchievementPolicy
 
         // Aggregate the allowed fields for all roles the user has.
         $allowedFieldsForUser = collect($roleFieldPermissions)
-            ->filter(function ($fields, $role) use ($userRoles) {
-                return $userRoles->contains($role);
+            ->filter(function ($fields, $role) use ($userRoles, $user, $achievement) {
+                if (!$userRoles->contains($role)) {
+                    return false;
+                }
+
+                // Junior Developers have additional specific criteria that must be satisfied
+                // before they are allowed to edit achievement fields.
+                if ($role === Role::DEVELOPER_JUNIOR) {
+                    return isset($achievement) && $this->juniorDeveloperCanUpdate($user, $achievement);
+                }
+
+                return true;
             })
             ->collapse()
             ->unique()
             ->all();
-
-        // Junior Developers have additional specific criteria that must be satisfied
-        // before they are allowed to edit achievement fields.
-        if (
-            isset($achievement)
-            && $user->hasRole(Role::DEVELOPER_JUNIOR)
-            && !$this->update($user, $achievement)
-        ) {
-            return false;
-        }
 
         // If any of the user's roles allow updating the specified field, return true.
         // Otherwise, they can't edit the field.
