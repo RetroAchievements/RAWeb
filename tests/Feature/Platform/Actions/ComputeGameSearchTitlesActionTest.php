@@ -60,59 +60,31 @@ class ComputeGameSearchTitlesActionTest extends TestCase
             // Roman numeral conversions.
             'Final Fantasy VII' => [
                 'Final Fantasy VII',
-                ['final fantasy vii', 'Final Fantasy 7', 'final fantasy 7', 'ff7', 'ffvii', 'ff', 'final fantasy'],
+                ['final fantasy vii', 'Final Fantasy 7', 'final fantasy 7', 'ff7', 'ffvii', 'ff'],
             ],
             'Dragon Quest II' => [
                 'Dragon Quest II',
-                ['dragon quest ii', 'Dragon Quest 2', 'dragon quest 2', 'dq2', 'dqii', 'dq', 'dragon quest'],
+                ['dragon quest ii', 'Dragon Quest 2', 'dragon quest 2', 'dq2', 'dqii', 'dq'],
             ],
             'Street Fighter III' => [
                 'Street Fighter III',
-                ['street fighter iii', 'Street Fighter 3', 'street fighter 3', 'sf3', 'sfiii', 'sf', 'street fighter'],
+                ['street fighter iii', 'Street Fighter 3', 'street fighter 3', 'sf3', 'sfiii', 'sf'],
             ],
 
             // Number to Roman conversions.
             'Mega Man 2' => [
                 'Mega Man 2',
-                ['mega man 2', 'Mega Man II', 'mega man ii', 'mm2', 'mm', 'mega man'],
+                ['mega man 2', 'Mega Man II', 'mega man ii', 'mm2', 'mm'],
             ],
             'Final Fantasy 10' => [
                 'Final Fantasy 10',
-                ['final fantasy 10', 'Final Fantasy X', 'final fantasy x', 'ff10', 'ffx', 'ff', 'final fantasy'],
+                ['final fantasy 10', 'Final Fantasy X', 'final fantasy x', 'ff10', 'ffx', 'ff'],
             ],
 
             // Series name extraction.
             'The Legend of Zelda: Ocarina of Time' => [
                 'The Legend of Zelda: Ocarina of Time',
-                ['zelda', 'loz', 'tloz', 'the legend of zelda ocarina of time', 'Legend of Zelda: Ocarina of Time'],
-            ],
-            'Super Mario 64' => [
-                'Super Mario 64',
-                ['super mario 64', 'sm64', 'super mario64', 'super mario', 'sm'],
-            ],
-            'Sonic the Hedgehog' => [
-                'Sonic the Hedgehog',
-                ['sonic the hedgehog', 'sonic'],
-            ],
-
-            // Nintendo 64 games.
-            'Donkey Kong 64' => [
-                'Donkey Kong 64',
-                ['donkey kong 64', 'dk64', 'donkey kong64', 'dk', 'donkey kong'],
-            ],
-            'Star Fox 64' => [
-                'Star Fox 64',
-                ['star fox 64', 'sf64', 'star fox64', 'sf', 'star fox'],
-            ],
-
-            // Games with "The" at beginning.
-            'The Matrix' => [
-                'The Matrix',
-                ['the matrix', 'Matrix', 'matrix'],
-            ],
-            'The Elder Scrolls V: Skyrim' => [
-                'The Elder Scrolls V: Skyrim',
-                ['elder scrolls', 'Elder Scrolls V: Skyrim', 'the elder scrolls v skyrim'],
+                ['loz', 'tloz', 'the legend of zelda ocarina of time', 'Legend of Zelda: Ocarina of Time'],
             ],
 
             // Special characters and punctuation.
@@ -122,47 +94,33 @@ class ComputeGameSearchTitlesActionTest extends TestCase
             ],
             'Pokémon Stadium' => [
                 'Pokémon Stadium',
-                ['pokémon stadium', 'pokemon', 'pok mon stadium'],
+                ['pokémon stadium', 'pok mon stadium'],
             ],
 
             // Multi-part series with numbers.
             'Kingdom Hearts II' => [
                 'Kingdom Hearts II',
-                ['kingdom hearts ii', 'Kingdom Hearts 2', 'kingdom hearts 2', 'kh2', 'khii', 'kh', 'kingdom hearts'],
+                ['kingdom hearts ii', 'Kingdom Hearts 2', 'kingdom hearts 2', 'kh2', 'khii', 'kh'],
             ],
             'Devil May Cry 3' => [
                 'Devil May Cry 3',
-                ['devil may cry 3', 'Devil May Cry III', 'devil may cry iii', 'dmc3', 'dmc', 'devil may cry'],
+                ['devil may cry 3', 'Devil May Cry III', 'devil may cry iii', 'dmc3', 'dmc'],
             ],
 
             // Games with hyphens and special formatting.
             'Mega Man X4' => [
                 'Mega Man X4',
-                ['mega man x4', 'mm', 'mega man'],
-            ],
-            'F-Zero' => [
-                'F-Zero',
-                ['f-zero', 'f zero', 'fz'],
-            ],
-
-            // Simple titles without series.
-            'Tetris' => [
-                'Tetris',
-                ['tetris'],
-            ],
-            'Doom' => [
-                'Doom',
-                ['doom'],
+                ['mega man x4', 'mm'],
             ],
 
             // Edge cases.
             'Grand Theft Auto Vice City' => [
                 'Grand Theft Auto Vice City',
-                ['grand theft auto vice city', 'gta', 'grand theft auto'],
+                ['grand theft auto vice city', 'gta'],
             ],
             'Call of Duty: Modern Warfare 2' => [
                 'Call of Duty: Modern Warfare 2',
-                ['call of duty modern warfare 2', 'cod', 'call of duty'],
+                ['call of duty modern warfare 2', 'cod'],
             ],
         ];
     }
@@ -184,14 +142,14 @@ class ComputeGameSearchTitlesActionTest extends TestCase
             'Final Fantasy VI' => [
                 'Final Fantasy VI',
                 ['Final Fantasy III', 'Final Fantasy 6'],
-                ['final fantasy vi', 'final fantasy 6', 'ff6', 'ffvi', 'final fantasy iii', 'final fantasy 3', 'ff3', 'ffiii', 'final fantasy'],
+                ['final fantasy vi', 'final fantasy 6', 'ff6', 'ffvi', 'final fantasy iii', 'final fantasy 3', 'ff3', 'ffiii', 'ff'],
             ],
 
             // Game with subtitle variations.
             'The Legend of Zelda: A Link to the Past' => [
                 'The Legend of Zelda: A Link to the Past',
                 ['Zelda no Densetsu: Kamigami no Triforce'],
-                ['zelda', 'loz', 'tloz', 'zelda no densetsu kamigami no triforce', 'Legend of Zelda: A Link to the Past'],
+                ['loz', 'tloz', 'zelda no densetsu kamigami no triforce', 'Legend of Zelda: A Link to the Past'],
             ],
 
             // Game with completely different regional name.

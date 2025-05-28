@@ -73,12 +73,6 @@ class ComputeGameSearchTitlesAction
             $variations[] = $abbreviation;
         }
 
-        // Extract series names for partial matching like "zelda" or "mario".
-        $seriesNames = $this->extractSeriesNames($title);
-        foreach ($seriesNames as $seriesName) {
-            $variations[] = $seriesName;
-        }
-
         // Simple check for Professor Oak Challenge subset.
         if (stripos($title, 'Professor Oak Challenge') !== false) {
             $variations[] = 'poc';
@@ -157,28 +151,29 @@ class ComputeGameSearchTitlesAction
         // It doesn't matter if some of these overlap, and these aren't case-sensitive.
         // This is just a way we can influence how heavily Meilisearch weighs certain terms.
         $seriesAbbreviationMap = [
+            'Breath of Fire' => ['BoF'],
             'Call of Duty' => ['CoD'],
             'Castlevania' => ['CV'],
             'Devil May Cry' => ['DMC'],
             'Donkey Kong' => ['DK'],
             'Dragon Quest' => ['DQ'],
             'Dragon Warrior' => ['DW'],
-            'F-Zero' => ['FZ'],
             'Final Fantasy' => ['FF'],
             'God of War' => ['GoW'],
+            'Gran Turismo' => ['GT'],
             'Grand Theft Auto' => ['GTA'],
+            'King of Fighters' => ['KOF'],
             'Kingdom Hearts' => ['KH'],
-            'Legend of Zelda' => ['Zelda', 'LoZ'],
+            'Legend of Zelda' => ['LoZ', 'TLoZ'],
             'Mega Man' => ['MM'],
-            'Metal Gear' => ['MG'],
+            'Metal Gear Solid' => ['MGS'],
             'Mortal Kombat' => ['MK'],
             'Need for Speed' => ['NFS'],
             'Resident Evil' => ['RE'],
+            'Shin Megami Tensei' => ['SMT'],
             'Silent Hill' => ['SH'],
-            'Star Fox' => ['SF'],
             'Street Fighter' => ['SF'],
             'Super Mario' => ['SM'],
-            'The Legend of Zelda' => ['Zelda', 'LoZ', 'TLoZ'],
         ];
 
         // Check each series for matches.
@@ -202,9 +197,6 @@ class ComputeGameSearchTitlesAction
                 }
             }
         }
-
-        // Special handling for Nintendo 64 games.
-        $this->handleNintendo64Abbreviations($title, $abbreviations);
 
         // Handle games ending with numbers.
         $this->handleNumericSuffixAbbreviations($title, $seriesAbbreviationMap, $abbreviations);
@@ -236,49 +228,6 @@ class ComputeGameSearchTitlesAction
     }
 
     /**
-     * Handle special abbreviations for Nintendo 64 games.
-     *
-     * Creates variations like "SM64" for "Super Mario 64" and handles the common
-     * pattern of removing spaces before "64" in search queries.
-     */
-    private function handleNintendo64Abbreviations(string $title, array &$abbreviations): void
-    {
-        if (!preg_match('/\b64\b/', $title)) {
-            return;
-        }
-
-        // Create version without spaces before "64".
-        $titleNoSpace64 = preg_replace('/\s+64\b/', '64', $title);
-        if ($titleNoSpace64 !== $title) {
-            $abbreviations[] = mb_strtolower($titleNoSpace64);
-        }
-
-        // Create initials version for games ending in 64.
-        $titleWithout64 = preg_replace('/\s*64\s*/', '', $title);
-        $words = preg_split('/\s+/', $titleWithout64);
-        $initials = '';
-
-        foreach ($words as $word) {
-            // Skip common words and special characters.
-            $skipWords = ['the', 'of', 'and', 'in', 'at', 'to', 'a', '~hack~', '~homebrew~'];
-            if (strlen($word) > 0 && !in_array(mb_strtolower($word), $skipWords)) {
-                if (!preg_match('/[^a-zA-Z0-9]/', $word)) {
-                    $initials .= mb_strtoupper(mb_substr($word, 0, 1));
-                }
-            }
-        }
-
-        if ($initials && strlen($initials) > 1) {
-            $abbreviations[] = mb_strtolower($initials . '64');
-        }
-
-        // Hardcoded special case for Super Mario 64.
-        if (stripos($title, 'Super Mario 64') !== false) {
-            $abbreviations[] = 'sm64';
-        }
-    }
-
-    /**
      * Handle abbreviations for games ending with numbers.
      *
      * Creates variations like "MM2" for "Mega Man 2" by combining series
@@ -304,67 +253,6 @@ class ComputeGameSearchTitlesAction
                 }
             }
         }
-    }
-
-    /**
-     * Extract series names from game titles to improve search relevance.
-     *
-     * This method identifies and extracts base series names from full game titles,
-     * allowing users to find games by searching just the series name. For example,
-     * users often search for "zelda" instead of "The Legend of Zelda", or "final fantasy"
-     * instead of the full title. By explicitly adding these series names as search terms,
-     * we ensure better search results when users search by series.
-     */
-    private function extractSeriesNames(string $title): array
-    {
-        $seriesNames = [];
-
-        // Map of title patterns to their common search terms.
-        // This was picked very naively - we can expand this at any time.
-        $seriesPatternMap = [
-            '/^(Assassin\'s Creed)\s*/i' => 'assassins creed',
-            '/^(Call of Duty)\s*/i' => 'call of duty',
-            '/^(Castlevania)\s*/i' => 'castlevania',
-            '/^(Devil May Cry)\s*/i' => 'devil may cry',
-            '/^(Donkey Kong)\s*/i' => 'donkey kong',
-            '/^(Dragon Quest)\s*/i' => 'dragon quest',
-            '/^(Dragon Warrior)\s*/i' => 'dragon warrior',
-            '/^(Elder Scrolls)\s*/i' => 'elder scrolls',
-            '/^(F-Zero)\s*/i' => 'f-zero',
-            '/^(Final Fantasy)\s*/i' => 'final fantasy',
-            '/^(Fire Emblem)\s*/i' => 'fire emblem',
-            '/^(God of War)\s*/i' => 'god of war',
-            '/^(Grand Theft Auto)\s*/i' => 'grand theft auto',
-            '/^(Halo)\s*/i' => 'halo',
-            '/^(Kingdom Hearts)\s*/i' => 'kingdom hearts',
-            '/^(Kirby)\s*/i' => 'kirby',
-            '/^(Legend of Zelda)[:;]?\s*/i' => 'zelda',
-            '/^(Mario Kart)\s*/i' => 'mario kart',
-            '/^(Mario Party)\s*/i' => 'mario party',
-            '/^(Mega Man)\s*/i' => 'mega man',
-            '/^(Metal Gear)\s*/i' => 'metal gear',
-            '/^(Metroid)\s*/i' => 'metroid',
-            '/^(Mortal Kombat)\s*/i' => 'mortal kombat',
-            '/^(Pokemon|Pokémon)\s*/i' => 'pokemon',
-            '/^(Resident Evil)\s*/i' => 'resident evil',
-            '/^(Silent Hill)\s*/i' => 'silent hill',
-            '/^(Sonic the Hedgehog)\s*/i' => 'sonic',
-            '/^(Sonic)\s*/i' => 'sonic',
-            '/^(Star Fox)\s*/i' => 'star fox',
-            '/^(Street Fighter)\s*/i' => 'street fighter',
-            '/^(Super Mario)\s*/i' => 'super mario',
-            '/^(The Elder Scrolls)\s*/i' => 'elder scrolls',
-            '/^(The Legend of Zelda)[:;]?\s*/i' => 'zelda',
-            '/^(Zelda)\s*/i' => 'zelda',
-        ];
-
-        foreach ($seriesPatternMap as $pattern => $searchTerm) {
-            if (preg_match($pattern, $title)) {
-                $seriesNames[] = mb_strtolower($searchTerm);
-            }
-        }
-
-        return array_unique($seriesNames);
     }
 
     /**
