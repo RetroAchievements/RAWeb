@@ -16,6 +16,11 @@ class AuditLog extends ResourceAuditLog
 
         $fieldLabelMap['ImageIcon'] = 'Badge';
 
+        $fieldLabelMap['release_title'] = 'Release Title';
+        $fieldLabelMap['release_region'] = 'Release Region';
+        $fieldLabelMap['release_date'] = 'Release Date';
+        $fieldLabelMap['release_is_canonical'] = 'Is Canonical Title';
+
         return $fieldLabelMap;
     }
 }
