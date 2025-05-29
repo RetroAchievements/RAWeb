@@ -29,6 +29,7 @@ class LoadGameWithRelationsAction
                 $query->whereNotIn('type', $excludeSetTypes);
             },
             'hashes',
+            'hubs.children',
             'visibleComments' => function ($query) {
                 $query->latest('Submitted')
                     ->limit(20)

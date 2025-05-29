@@ -124,7 +124,18 @@ $beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAch
 
 $allSimilarGames = $gameModel->similarGamesList;
 $allGameHubSets = $gameModel->hubs;
-$gameHubs = $allGameHubSets->map($mapGameHubToAlt)->values()->sortBy('Title')->all();
+
+// Filter hubs based on user's view permissions.
+$visibleHubs = $allGameHubSets->filter(function ($hub) use ($userModel) {
+    // If the user is a guest, only show hubs without view restrictions.
+    if (!$userModel) {
+        return !$hub->has_view_role_requirement;
+    }
+
+    return $userModel->can('view', $hub);
+});
+
+$gameHubs = $visibleHubs->map($mapGameHubToAlt)->values()->sortBy('Title')->all();
 
 $v = requestInputSanitized('v', 0, 'integer');
 $gate = false;
