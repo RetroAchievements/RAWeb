@@ -41,7 +41,7 @@ class GamePolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
-            // Role::DEVELOPER,
+            Role::DEVELOPER,
         ]);
     }
 
