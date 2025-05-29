@@ -11,6 +11,7 @@ use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\ResolveRootGameFromGameAndGameHashAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
 use App\Connect\Actions\SubmitCodeNoteAction;
+use App\Connect\Actions\SubmitGameTitleAction;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
@@ -35,6 +36,7 @@ $handler = match ($requestType) {
     'codenotes2' => new GetCodeNotesAction(),
     'hashlibrary' => new GetHashLibraryAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
+    'submitgametitle' => new SubmitGameTitleAction(),
     default => null,
 };
 if ($handler) {
@@ -673,21 +675,6 @@ switch ($requestType) {
         }
 
         $response['ServerNow'] = Carbon::now()->timestamp;
-        break;
-
-    case "submitgametitle":
-        $md5 = request()->input('m');
-        $gameID = request()->input('g');
-        $gameTitle = request()->input('i');
-        $description = request()->input('d');
-        $consoleID = request()->input('c');
-        $submitResponse = submitNewGameTitleJSON($username, $md5, $gameID, $gameTitle, $consoleID, $description);
-        $response['Success'] = $submitResponse['Success'];
-        if (isset($submitResponse['Error'])) {
-            $response['Error'] = $submitResponse['Error'];
-        } else {
-            $response['Response'] = ['GameID' => $submitResponse['GameID']];
-        }
         break;
 
     case "submitlbentry":
