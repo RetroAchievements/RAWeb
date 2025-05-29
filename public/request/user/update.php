@@ -27,6 +27,10 @@ $value = (int) $input['value'];
 $foundSourceUser = User::whereName($user)->first();
 $foundTargetUser = User::whereName($targetUsername)->first();
 
+if (!$foundSourceUser || !$foundTargetUser) {
+    return back()->withErrors(__('legacy.error.error'));
+}
+
 if ($propertyType === UserAction::UpdatePermissions) {
     $response = SetAccountPermissionsJSON($foundSourceUser->display_name, $permissions, $targetUsername, $value);
 
@@ -87,14 +91,12 @@ if ($propertyType === UserAction::PatreonBadge) {
     $hasBadge = HasPatreonBadge($foundTargetUser);
     SetPatreonSupporter($foundTargetUser, !$hasBadge);
 
-    if ($foundTargetUser) {
-        addArticleComment(
-            'Server',
-            ArticleType::UserModeration,
-            $foundTargetUser->id,
-            $foundSourceUser->display_name . ($hasBadge ? ' revoked' : ' awarded') . ' Patreon badge'
-        );
-    }
+    addArticleComment(
+        'Server',
+        ArticleType::UserModeration,
+        $foundTargetUser->id,
+        $foundSourceUser->display_name . ($hasBadge ? ' revoked' : ' awarded') . ' Patreon badge'
+    );
 
     return back()->with('success', __('legacy.success.ok'));
 }
@@ -103,29 +105,25 @@ if ($propertyType === UserAction::LegendBadge) {
     $hasBadge = HasCertifiedLegendBadge($foundTargetUser);
     SetCertifiedLegend($foundTargetUser, !$hasBadge);
 
-    if ($foundTargetUser) {
-        addArticleComment(
-            'Server',
-            ArticleType::UserModeration,
-            $foundTargetUser->id,
-            $foundSourceUser->display_name . ($hasBadge ? ' revoked' : ' awarded') . ' Certified Legend badge'
-        );
-    }
+    addArticleComment(
+        'Server',
+        ArticleType::UserModeration,
+        $foundTargetUser->id,
+        $foundSourceUser->display_name . ($hasBadge ? ' revoked' : ' awarded') . ' Certified Legend badge'
+    );
 
     return back()->with('success', __('legacy.success.ok'));
 }
 
 if ($propertyType === UserAction::TrackedStatus) {
-    SetUserUntrackedStatus($foundTargetUser, $value);
+    SetUserUntrackedStatus($foundTargetUser, (bool) $value);
 
-    if ($foundTargetUser) {
-        addArticleComment(
-            'Server',
-            ArticleType::UserModeration,
-            $foundTargetUser->id,
-            $foundSourceUser->display_name . ' set status to ' . ($value ? 'Untracked' : 'Tracked')
-        );
-    }
+    addArticleComment(
+        'Server',
+        ArticleType::UserModeration,
+        $foundTargetUser->id,
+        $foundSourceUser->display_name . ' set status to ' . ($value ? 'Untracked' : 'Tracked')
+    );
 
     return back()->with('success', __('legacy.success.ok'));
 }
