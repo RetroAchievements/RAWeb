@@ -65,8 +65,10 @@ class UpdatePlayerPointsStats extends Command
                 });
             }
 
-            $baseUserQuery = $baseUserQuery->orWhereHas('playerStats', function ($query) use ($relevantPlayerStatTypes) {
-                $query->whereIn('type', $relevantPlayerStatTypes);
+            $baseUserQuery = $baseUserQuery->orWhere(function ($query) use ($relevantPlayerStatTypes) {
+                $query->whereHas('playerStats', function ($subQuery) use ($relevantPlayerStatTypes) {
+                    $subQuery->whereIn('type', $relevantPlayerStatTypes);
+                })->where('LastLogin', '>=', Carbon::now()->subDays(32));
             });
 
             $distinctUserCount = $baseUserQuery->count();

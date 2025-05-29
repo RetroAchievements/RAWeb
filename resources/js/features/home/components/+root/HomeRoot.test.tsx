@@ -2,7 +2,7 @@ import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
-import { createHomePageProps, createZiggyProps } from '@/test/factories';
+import { createGame, createHomePageProps, createZiggyProps } from '@/test/factories';
 
 import { HomeRoot } from './HomeRoot';
 
@@ -89,5 +89,37 @@ describe('Component: HomeRoot', () => {
 
     // ASSERT
     expect(screen.queryByRole('heading', { name: /getting started/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user has no current game, does not display a current game', () => {
+    // ARRANGE
+    render<App.Http.Data.HomePageProps>(<HomeRoot />, {
+      pageProps: {
+        ...createHomePageProps(),
+        auth: { user: createAuthenticatedUser({ isNew: false }) },
+        userCurrentGame: null, // !!
+        userCurrentGameMinutesAgo: null, // !!
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /in game/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user has a current game, displays the current game', () => {
+    // ARRANGE
+    render<App.Http.Data.HomePageProps>(<HomeRoot />, {
+      pageProps: {
+        ...createHomePageProps(),
+        auth: { user: createAuthenticatedUser({ isNew: false }) },
+        userCurrentGame: createGame({ title: 'Super Mario Bros.' }), // !!
+        userCurrentGameMinutesAgo: 1, // !!
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /in game/i })).toBeVisible();
   });
 });

@@ -603,7 +603,6 @@ class GameResource extends Resource
     {
         return [
             'index' => Pages\Index::route('/'),
-            'create' => Pages\Create::route('/create'),
             'view' => Pages\Details::route('/{record}'),
             'edit' => Pages\Edit::route('/{record}/edit'),
             'hubs' => Pages\Hubs::route('/{record}/hubs'),

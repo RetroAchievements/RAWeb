@@ -73,8 +73,8 @@ const Contact: AppPage = () => {
                   <li>{t('Reporting a broken set, leaderboard, or rich presence.')}</li>
                   <li>{t('Requesting a set be playtested.')}</li>
                   <li>{t('Hash compatibility questions.')}</li>
-                  <li>{t('Hub organizational questions.')}</li>
-                  <li>{t('Getting involved in a QA sub-team.')}</li>
+                  {/* <li>{t('Hub organizational questions.')}</li>
+                  <li>{t('Getting involved in a QA sub-team.')}</li> */}
                 </ul>
               </div>
             </div>

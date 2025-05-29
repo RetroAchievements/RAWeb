@@ -434,6 +434,8 @@ declare namespace App.Http.Data {
     newClaims: Array<App.Data.AchievementSetClaim>;
     recentForumPosts: Array<App.Data.ForumTopic>;
     persistedActivePlayersSearch: string | null;
+    userCurrentGame: App.Platform.Data.Game | null;
+    userCurrentGameMinutesAgo: number | null;
   };
 }
 declare namespace App.Models {
@@ -658,6 +660,7 @@ declare namespace App.Platform.Data {
     title: string | null;
     badgeUrl: string | null;
     gameCount: number;
+    isEventHub?: boolean;
     linkCount: number;
     updatedAt: string;
     forumTopicId?: number | null;
@@ -881,6 +884,14 @@ declare namespace App.Platform.Enums {
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
   export type AchievementFlag = 3 | 5;
   export type AchievementSetAuthorTask = 'artwork';
+  export type AchievementSetType =
+    | 'core'
+    | 'bonus'
+    | 'specialty'
+    | 'exclusive'
+    | 'will_be_bonus'
+    | 'will_be_specialty'
+    | 'will_be_exclusive';
   export type EventState = 'active' | 'concluded' | 'evergreen';
   export type GameListProgressFilterValue =
     | 'unstarted'
@@ -894,15 +905,6 @@ declare namespace App.Platform.Enums {
     | 'eq_mastered'
     | 'revised'
     | 'neq_mastered';
-  export type UnlockMode = 0 | 1;
-  export type AchievementSetType =
-    | 'core'
-    | 'bonus'
-    | 'specialty'
-    | 'exclusive'
-    | 'will_be_bonus'
-    | 'will_be_specialty'
-    | 'will_be_exclusive';
   export type GameListSetTypeFilterValue = 'only-games' | 'only-subsets';
   export type GameListSortField =
     | 'title'
@@ -917,6 +919,18 @@ declare namespace App.Platform.Enums {
     | 'numVisibleLeaderboards'
     | 'numUnresolvedTickets'
     | 'progress';
+  export type GameReleaseRegion =
+    | 'as'
+    | 'au'
+    | 'br'
+    | 'cn'
+    | 'eu'
+    | 'jp'
+    | 'kr'
+    | 'nz'
+    | 'na'
+    | 'worldwide'
+    | 'other';
   export type GameSetType = 'hub' | 'similar-games';
   export type GameSuggestionReason =
     | 'common-players'
@@ -935,8 +949,9 @@ declare namespace App.Platform.Enums {
     | 'embedded'
     | 'web';
   export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
-  export type ReleasedAtGranularity = 'day' | 'month' | 'year';
   export type TicketableType = 'achievement' | 'leaderboard' | 'rich-presence';
+  export type UnlockMode = 0 | 1;
+  export type ReleasedAtGranularity = 'day' | 'month' | 'year';
   export type TriggerableType = 'achievement' | 'leaderboard' | 'game';
 }
 declare namespace App.Platform.Services.GameSuggestions.Enums {

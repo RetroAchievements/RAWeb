@@ -62,7 +62,6 @@ $achievementDescriptionRaw = $dataOut['Description'];
 $gameTitleRaw = $dataOut['GameTitle'];
 
 $game = Game::find($dataOut['GameID']);
-$parentGame = $game->getParentGame() ?? null;
 $isEventGame = $game->ConsoleID === System::Events;
 
 sanitize_outputs(
@@ -83,7 +82,6 @@ $unlocks = getAchievementUnlocksData(
     $numWinners,
     $numWinnersHardcore,
     $numPossibleWinners,
-    $parentGame?->id,
     0,
     50
 );
@@ -318,6 +316,12 @@ if ($game->system->id === System::Events) {
         echo "</div></div>";
     }
     echo "<br>";
+
+    if ($userModel && $userModel->can('update', $achievementModel)) {
+        echo '<a class="btn mb-1" href="' . route('filament.admin.resources.achievements.edit', ['record' => $achievementModel->id]) . '">Manage</a>';
+    } elseif ($userModel && $userModel->can('manage', $achievementModel)) {
+        echo '<a class="btn mb-1" href="' . route('filament.admin.resources.achievements.view', ['record' => $achievementModel->id]) . '">Manage</a>';
+    }
 
     if (isset($user) && $permissions >= Permissions::JuniorDeveloper && !$isEventGame) {
         echo "<div class='devbox mb-3'>";

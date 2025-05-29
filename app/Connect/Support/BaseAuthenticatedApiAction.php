@@ -7,21 +7,35 @@ namespace App\Connect\Support;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Spatie\Activitylog\Facades\CauserResolver;
 
 abstract class BaseAuthenticatedApiAction extends BaseApiAction
 {
     protected ?User $user;
 
+    protected function authenticate(): bool
+    {
+        // NOTE: CauserResolver not needed here. audit log entries
+        // are correctly associated to the logged in user.
+        $this->user = auth()->user();
+
+        return $this->user !== null;
+    }
+
     public function handleRequest(Request $request): JsonResponse
     {
-        if (!$this->authenticate($request)) {
+        if (!$this->authenticateFromRequest($request)) {
             return $this->buildResponse($this->accessDenied());
         }
+
+        // without this, audit log entries created by the request
+        // are not associated to a user.
+        CauserResolver::setCauser($this->user);
 
         return parent::handleRequest($request);
     }
 
-    private function authenticate(Request $request): bool
+    private function authenticateFromRequest(Request $request): bool
     {
         $username = request()->input('u');
         if (!$username) {

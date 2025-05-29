@@ -22,6 +22,10 @@ trait BootstrapsConnect
 
     protected function apiParams(string $method, array $params = [], bool $credentials = true): array
     {
+        // Laravel caches the authenticated user for the duration of the test.
+        // Forcibly clear it out any time we generate new API params.
+        auth()->forgetGuards();
+
         if ($credentials) {
             $params = array_merge(['u' => $this->user->User, 't' => $this->user->appToken], $params);
         }
