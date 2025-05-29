@@ -1,5 +1,5 @@
 import type { ElementWithXAttributes } from 'alpinejs';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export function useCardTooltip(args: {
   dynamicType: 'user' | 'game' | 'hub' | 'achievement' | 'ticket';
@@ -8,12 +8,18 @@ export function useCardTooltip(args: {
 }) {
   const { dynamicId, dynamicType } = args;
 
+  const elementRef = useRef<ElementWithXAttributes | null>(null);
+
   // TODO migrate this out of Alpine.js
   const cardTooltipProps = {
     'x-data': `tooltipComponent($el, {dynamicType: '${dynamicType}', dynamicId: '${dynamicId}', dynamicContext: '${args.dynamicContext}'})`,
     'x-on:mouseover': 'showTooltip($event)',
     'x-on:mouseleave': 'hideTooltip',
     'x-on:mousemove': 'trackMouseMovement($event)',
+
+    ref: (el: ElementWithXAttributes | null) => {
+      elementRef.current = el;
+    },
   };
 
   /**
@@ -26,11 +32,11 @@ export function useCardTooltip(args: {
    * This is because Alpine.js is not coupled to React's change detection mechanism.
    */
   useEffect(() => {
-    const element = document.querySelector<ElementWithXAttributes>(
-      `[x-data*="tooltipComponent"][x-data*="${dynamicId}"]`,
-    );
+    const element = elementRef.current;
 
     if (element && typeof window !== 'undefined' && window.Alpine) {
+      window.Alpine.destroyTree(element);
+
       requestAnimationFrame(() => {
         window.Alpine.initTree(element);
       });

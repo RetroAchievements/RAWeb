@@ -55,6 +55,7 @@
  */
 
 use App\Actions\FindUserByIdentifierAction;
+use App\Models\Game;
 use App\Models\PlayerBadge;
 use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
