@@ -235,7 +235,7 @@ return [
                 'scout',
             ],
             'balance' => 'simple',
-            'processes' => 1, // Fixed at exactly 1 process.
+            'processes' => 2, // Fixed at exactly 2 processes.
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,

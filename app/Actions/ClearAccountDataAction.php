@@ -60,6 +60,7 @@ class ClearAccountDataAction
             forum_verified_at = null,
             Motto = '',
             Untracked = 1,
+            unranked_at = :now2,
             APIKey = null,
             UserWallActive = 0,
             LastGameID = 0,
@@ -73,6 +74,7 @@ class ClearAccountDataAction
                 'permissions' => min($user->Permissions, Permissions::Unregistered),
                 'userId' => $user->ID,
                 'now' => Carbon::now(),
+                'now2' => Carbon::now(),
             ]
         );
 
