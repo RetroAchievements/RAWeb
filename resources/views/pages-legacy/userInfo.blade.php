@@ -1,6 +1,6 @@
 <?php
 
-// TODO migrate to UserController::show() pages/user.blade.php
+// TODO migrate to UserController::show()
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimFilters;

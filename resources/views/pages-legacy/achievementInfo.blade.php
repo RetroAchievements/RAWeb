@@ -317,6 +317,12 @@ if ($game->system->id === System::Events) {
     }
     echo "<br>";
 
+    if ($userModel && $userModel->can('update', $achievementModel)) {
+        echo '<a class="btn mb-1" href="' . route('filament.admin.resources.achievements.edit', ['record' => $achievementModel->id]) . '">Manage</a>';
+    } elseif ($userModel && $userModel->can('manage', $achievementModel)) {
+        echo '<a class="btn mb-1" href="' . route('filament.admin.resources.achievements.view', ['record' => $achievementModel->id]) . '">Manage</a>';
+    }
+
     if (isset($user) && $permissions >= Permissions::JuniorDeveloper && !$isEventGame) {
         echo "<div class='devbox mb-3'>";
         echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";

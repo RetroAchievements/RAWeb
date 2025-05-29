@@ -23,14 +23,23 @@ $alternateReleases = GameRelease::query()
     ->where('game_id', $gameId)
     ->where('is_canonical_game_title', false)
     ->orderBy('title')
-    ->select('title')
-    ->get()
-    ->map(function($gameRelease) {
-        $tagIndex = strrpos($gameRelease->title, '~');
-        return $tagIndex ? trim(substr($gameRelease->title, $tagIndex + 1)) : $gameRelease->title;
+    ->pluck('title')
+    ->map(function($title) {
+        $tagIndex = strrpos($title, '~');
+        return $tagIndex ? trim(substr($title, $tagIndex + 1)) : $title;
     })
+    ->filter(function($title) use ($gameTitle) {
+        return $title !== $gameTitle && !empty($title);
+    })
+    ->unique()
+    ->values()
     ->toArray();
-$alternateTitles = implode(', ', $alternateReleases);
+$alternateTitles = match(count($alternateReleases)) {
+    0 => '',
+    1 => $alternateReleases[0],
+    2 => $alternateReleases[0] . ' and ' . $alternateReleases[1],
+    default => implode(', ', array_slice($alternateReleases, 0, -1)) . ', and ' . end($alternateReleases)
+};
 ?>
 
 <h1 class="text-h3">
@@ -39,7 +48,7 @@ $alternateTitles = implode(', ', $alternateReleases);
     </span>
 
     @if ($alternateTitles)
-    <span class="block mb-1 smalltext">Also known as {{ $alternateTitles }}</span>
+        <span class="block mb-2 mt-1 smalltext">Also known as {{ $alternateTitles }}</span>
     @endif
 
     <div class="flex justify-between">

@@ -14,6 +14,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Redis;
 
 class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
@@ -48,6 +49,31 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
     }
 
     public function handle(): void
+    {
+        // PHPUnit implodes if it encounters the Redis facade.
+        if (app()->environment('testing')) {
+            $this->processJob();
+
+            return;
+        }
+
+        /**
+         * This action is very prone to causing CPU spikes and high
+         * DB load in production if it's left to run wild on its own.
+         * We'll cap the number of jobs that can be executed per second
+         * to keep load at a reasonable level.
+         */
+        Redis::throttle('player-game-metrics')
+            ->allow(30) // 30 jobs ...
+            ->every(1)  // ... per second
+            ->then(function () {
+                $this->processJob();
+            }, function () {
+                $this->release(1);
+            });
+    }
+
+    private function processJob(): void
     {
         if ($this->batch()?->cancelled()) {
             return;
