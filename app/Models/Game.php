@@ -322,27 +322,6 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         return true;
     }
 
-    // TODO refactor when game_achievement_sets is ready
-    public function getParentGame(): ?Game
-    {
-        // Use regular expression to check if the title includes a subset pattern and extract the base title.
-        if (preg_match('/(.+)\[Subset - .+\]/', $this->Title, $matches)) {
-            // Trim to ensure no leading/trailing spaces.
-            $baseSetTitle = trim($matches[1]);
-
-            // Attempt to find a game with the base title and the same console ID.
-            $game = Game::where('Title', $baseSetTitle)
-                ->where('ConsoleID', $this->ConsoleID)
-                ->first();
-
-            // If a matching game is found, return its model.
-            return $game ?? null;
-        }
-
-        // Return null if the title does not match the subset pattern or no game is found.
-        return null;
-    }
-
     // == actions
 
     // == accessors
@@ -367,27 +346,32 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         return media_asset($this->ImageIngame);
     }
 
+    public function getParentGameIdAttribute(): ?int
+    {
+        return once(function () {
+            // Get all achievement sets associated with this game.
+            $achievementSets = GameAchievementSet::where('game_id', $this->id)
+                ->pluck('achievement_set_id');
+
+            if ($achievementSets->isEmpty()) {
+                return null;
+            }
+
+            // Check if any of these achievement sets are used in other games with non-core types.
+            $nonCoreUsage = GameAchievementSet::whereIn('achievement_set_id', $achievementSets)
+                ->where('game_id', '!=', $this->id)
+                ->where('type', '!=', AchievementSetType::Core)
+                ->orderBy('created_at') // if more than one parent exists, take the first associated
+                ->select('game_id')
+                ->first();
+
+            return $nonCoreUsage?->game_id;
+        });
+    }
+
     public function getIsSubsetGameAttribute(): bool
     {
-        if (str_contains($this->title, "[Subset")) {
-            return true;
-        }
-
-        // Get all achievement sets associated with this game.
-        $achievementSets = GameAchievementSet::where('game_id', $this->id)
-            ->pluck('achievement_set_id');
-
-        if ($achievementSets->isEmpty()) {
-            return false;
-        }
-
-        // Check if any of these achievement sets are used in other games with non-core types.
-        $hasNonCoreUsages = GameAchievementSet::whereIn('achievement_set_id', $achievementSets)
-            ->where('game_id', '!=', $this->id)
-            ->where('type', '!=', AchievementSetType::Core)
-            ->exists();
-
-        return $hasNonCoreUsages;
+        return $this->parentGameId !== null;
     }
 
     public function getCanHaveBeatenTypes(): bool
@@ -505,6 +489,13 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     public function achievementSetClaims(): HasMany
     {
         return $this->hasMany(AchievementSetClaim::class, 'game_id');
+    }
+
+    public function parentGame(): ?Game
+    {
+        return once(function (): ?Game {
+            return $this->parentGameId ? Game::find($this->parentGameId) : null;
+        });
     }
 
     /**

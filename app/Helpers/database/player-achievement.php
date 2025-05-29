@@ -125,7 +125,6 @@ function getAchievementUnlocksData(
     ?int &$numWinners,
     ?int &$numWinnersHardcore,
     ?int &$numPossibleWinners,
-    ?int $parentGameId = null,
     int $offset = 0,
     int $limit = 50
 ): Collection {
