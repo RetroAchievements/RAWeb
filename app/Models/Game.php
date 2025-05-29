@@ -8,6 +8,7 @@ use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Enums\ArticleType;
 use App\Enums\GameHashCompatibility;
+use App\Platform\Actions\ComputeGameSearchTitlesAction;
 use App\Platform\Actions\SyncAchievementSetImageAssetPathFromGameAction;
 use App\Platform\Actions\SyncGameTagsFromTitleAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
@@ -301,15 +302,70 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
     public function toSearchableArray(): array
     {
+        // Get alternative titles from the game's list of releases.
         $altTitles = $this->releases()
             ->where('is_canonical_game_title', false)
             ->pluck('title')
             ->toArray();
 
+        // Generate all search titles (main title + alternative titles).
+        $searchTitles = (new ComputeGameSearchTitlesAction())->execute($this->title, $altTitles);
+
+        // Check if game has any tags - we rank these lower.
+        // Otherwise stuff like "~Hack~ SM64: Whatever" might actually rank higher than "Super Mario 64".
+        $isTagged = $this->tags()
+            ->whereType('game')
+            ->whereIn('name->en', ['Demo', 'Hack', 'Homebrew', 'Prototype', 'Test Kit', 'Unlicensed'])
+            ->exists() ? 1 : 0;
+
+        /**
+         * Calculate a naive popularity score based on player count.
+         * We actually use a three-tier approach for ranking games in search, relying on
+         * `has_players`, `players_total`, and `popularity_score`.
+         *
+         * `has_players` is binary: 0 or 1.
+         * It's a super-quick filter to separate games with ANY players from those with none.
+         * This allows Meilisearch to efficiently group all games with players above those
+         * without any players at all.
+         * EXAMPLE: A game with 1 player ranks higher than a game with 0 players.
+         *
+         * `players_total` is an exact count: 0, 1, 2, 3... 20000... 40000...)
+         * This gives us fine-grained sorting within games that have players.
+         * Among games with players, we want those with more players to rank higher.
+         * EXAMPLE: A game with 50,000 players ranks higher than one with 100 players.
+         *
+         * `popularity_score` is tiered: 0, 1, 2, 3, 4, or 5.
+         * This creates popularity buckets to group games by popularity ranges in the same
+         * search request. This is needed to prevent minor player count differences from
+         * dominating search relevance.
+         *
+         * Without popularity_score, if we only use players_total, a game with 10,001 players
+         * will always rank higher than one with 10,000 players, even if the second game is
+         * a much better text match for the search query.
+         *
+         * The intention is for popularity to provide a baseline ranking. It shouldn't
+         * completely override text relevance for games of similar popularity.
+         */
+        $playersTotal = $this->players_total ?? 0;
+        $popularityScore = match (true) {
+            $playersTotal >= 10000 => 5, // Very popular.
+            $playersTotal >= 5000 => 4,  // Popular.
+            $playersTotal >= 1000 => 3,  // Moderately popular.
+            $playersTotal >= 100 => 2,   // Some players.
+            $playersTotal > 0 => 1,      // Few players.
+            default => 0,                // No players.
+        };
+
         return [
             'id' => (int) $this->ID,
             'title' => $this->title,
             'alt_titles' => $altTitles,
+            'search_titles' => $searchTitles,
+            'players_total' => $playersTotal,
+            'is_subset' => str_contains($this->title, '[Subset') ? 1 : 0,
+            'has_players' => $playersTotal > 0 ? 1 : 0,
+            'is_tagged' => $isTagged,
+            'popularity_score' => $popularityScore,
         ];
     }
 
