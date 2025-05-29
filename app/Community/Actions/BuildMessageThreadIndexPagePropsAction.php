@@ -7,6 +7,7 @@ namespace App\Community\Actions;
 use App\Community\Data\MessageThreadData;
 use App\Community\Data\MessageThreadIndexPagePropsData;
 use App\Data\PaginatedData;
+use App\Data\UserData;
 use App\Models\MessageThread;
 use App\Models\User;
 use App\Policies\MessageThreadPolicy;
@@ -62,7 +63,7 @@ class BuildMessageThreadIndexPagePropsAction
                 items: MessageThreadData::fromCollection($paginatedMessageThreads->getCollection())
             ),
             unreadMessageCount: $inboxUser->UnreadMessageCount ?? 0,
-            senderUserDisplayName: $inboxUser->display_name,
+            senderUser: UserData::from($inboxUser),
             selectableInboxDisplayNames: $this->getAccessibleInboxes($me),
         );
 

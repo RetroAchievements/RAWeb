@@ -4,7 +4,12 @@ import { route } from 'ziggy-js';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
-import { createMessage, createMessageThread, createPaginatedData } from '@/test/factories';
+import {
+  createMessage,
+  createMessageThread,
+  createPaginatedData,
+  createUser,
+} from '@/test/factories';
 
 import { MessagesShowRoot } from './MessagesShowRoot';
 
@@ -168,7 +173,7 @@ describe('Component: MessagesShowRoot', () => {
         messageThread,
         paginatedMessages,
         canReply: true,
-        senderUserDisplayName: 'Scott',
+        senderUser: createUser({ displayName: 'Scott' }),
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
       },
     });
@@ -195,7 +200,7 @@ describe('Component: MessagesShowRoot', () => {
         messageThread,
         paginatedMessages,
         canReply: true,
-        senderUserDisplayName: 'RAdmin',
+        senderUser: createUser({ displayName: 'RAdmin' }),
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
       },
     });

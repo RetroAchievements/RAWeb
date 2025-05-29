@@ -15,15 +15,14 @@ interface MessagesTableRowProps {
 }
 
 export const MessagesTableRow: FC<MessagesTableRowProps> = ({ messageThread }) => {
-  const { auth, senderUserDisplayName } =
-    usePageProps<App.Community.Data.MessageThreadIndexPageProps>();
+  const { auth, senderUser } = usePageProps<App.Community.Data.MessageThreadIndexPageProps>();
 
   const { t } = useTranslation();
 
   // Find who we're chatting with in order to populate the "With" column.
   const otherParticipant =
     (messageThread.participants?.find(
-      (p) => p.displayName !== senderUserDisplayName,
+      (p) => p.displayName !== senderUser?.displayName,
     ) as App.Data.User) ?? messageThread.participants?.[0];
 
   return (
