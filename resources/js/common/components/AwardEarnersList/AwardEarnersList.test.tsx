@@ -1,9 +1,5 @@
 import { render, screen } from '@/test';
-import {
-  createPaginatedData,
-  createAwardEarner,
-  createUser,
-} from '@/test/factories';
+import { createAwardEarner, createPaginatedData, createUser } from '@/test/factories';
 
 import { AwardEarnersList } from './AwardEarnersList';
 
@@ -11,9 +7,7 @@ describe('Component: AwardEarnersList', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const paginatedUsers = createPaginatedData([createAwardEarner()]);
-    const { container } = render(
-      <AwardEarnersList paginatedUsers={paginatedUsers}/>
-    );
+    const { container } = render(<AwardEarnersList paginatedUsers={paginatedUsers} />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -22,7 +16,7 @@ describe('Component: AwardEarnersList', () => {
   it('given there are no earners, renders nothing', () => {
     // ARRANGE
     const paginatedUsers = createPaginatedData([]);
-    render(<AwardEarnersList paginatedUsers={paginatedUsers}/>);
+    render(<AwardEarnersList paginatedUsers={paginatedUsers} />);
 
     // ASSERT
     expect(screen.queryByText('User')).not.toBeInTheDocument();
@@ -36,7 +30,7 @@ describe('Component: AwardEarnersList', () => {
       createAwardEarner({ user: user1, dateEarned: '2024-11-01 05:55:55' }),
       createAwardEarner({ user: user2, dateEarned: '2024-12-17 19:31:18' }),
     ]);
-    render(<AwardEarnersList paginatedUsers={paginatedUsers}/>);
+    render(<AwardEarnersList paginatedUsers={paginatedUsers} />);
 
     // ASSERT
     expect(screen.getByText(user1.displayName)).toBeVisible();

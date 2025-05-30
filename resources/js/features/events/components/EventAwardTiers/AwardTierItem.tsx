@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCheck } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import {
   BaseTooltip,
@@ -11,7 +12,6 @@ import { cn } from '@/common/utils/cn';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { cleanEventAwardLabel } from '../../utils/cleanEventAwardLabel';
-import { route } from 'ziggy-js';
 
 interface AwardTierItemProps {
   event: App.Platform.Data.Event;
@@ -31,9 +31,13 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
     (ea) => ea.achievement?.points && ea.achievement.points === 1,
   );
 
-  const awardEarnersLink = eventAward.tierIndex > 0 ?
-    route('event.award-earners.index', { event: eventAward.eventId, tier: eventAward.tierIndex }) :
-    route('event.award-earners.index', { event: eventAward.eventId });
+  const awardEarnersLink =
+    eventAward.tierIndex > 0
+      ? route('event.award-earners.index', {
+          event: eventAward.eventId,
+          tier: eventAward.tierIndex,
+        })
+      : route('event.award-earners.index', { event: eventAward.eventId });
 
   return (
     <div

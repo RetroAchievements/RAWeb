@@ -5,7 +5,7 @@ export const createAwardEarner = createFactory<App.Platform.Data.AwardEarner>((f
   const user = createUser({ id: faker.number.int({ min: 1, max: 9999 }) });
 
   return {
-    user: user,
+    user,
     dateEarned: faker.date.recent().toISOString(),
   };
 });

@@ -2,8 +2,6 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
-import type { TranslatedString } from '@/types/i18next';
-
 import {
   BaseBreadcrumb,
   BaseBreadcrumbItem,
@@ -13,6 +11,7 @@ import {
   BaseBreadcrumbSeparator,
 } from '@/common/components/+vendor/BaseBreadcrumb';
 import { InertiaLink } from '@/common/components/InertiaLink';
+import type { TranslatedString } from '@/types/i18next';
 
 interface EventBreadcrumbsProps {
   event: App.Platform.Data.Event;

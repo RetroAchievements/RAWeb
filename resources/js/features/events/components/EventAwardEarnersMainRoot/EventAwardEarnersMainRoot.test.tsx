@@ -3,11 +3,11 @@ import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
 import {
+  createAwardEarner,
   createEvent,
   createEventAward,
   createGame,
   createPaginatedData,
-  createAwardEarner,
   createSystem,
   createUser,
 } from '@/test/factories';
@@ -78,7 +78,7 @@ describe('Component: EventAwardEarnersMainRoot', () => {
       pageProps: {
         event: createEvent(),
         eventAward: createEventAward(),
-        paginatedUsers: paginatedUsers,
+        paginatedUsers,
       },
     });
 
@@ -163,5 +163,4 @@ describe('Component: EventAwardEarnersMainRoot', () => {
     // ASSERT
     expect(screen.getAllByText(/5 players have earned this/i)[1]).toBeVisible();
   });
-  
 });
