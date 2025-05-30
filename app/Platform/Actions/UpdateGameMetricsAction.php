@@ -45,14 +45,12 @@ class UpdateGameMetricsAction
 
         if (!$parentGame) {
             $game->players_total = $game->playerGames()
-                ->join('UserAccounts as user', 'user.ID', '=', 'player_games.user_id')
-                ->where('player_games.achievements_unlocked', '>', 0)
-                ->where('user.Untracked', false)
+                ->where('achievements_unlocked', '>', 0)
+                ->whereHas('user', function ($query) { $query->tracked(); })
                 ->count();
             $game->players_hardcore = $game->playerGames()
-                ->join('UserAccounts as user', 'user.ID', '=', 'player_games.user_id')
-                ->where('player_games.achievements_unlocked_hardcore', '>', 0)
-                ->where('user.Untracked', false)
+                ->where('achievements_unlocked_hardcore', '>', 0)
+                ->whereHas('user', function ($query) { $query->tracked(); })
                 ->count();
         }
 

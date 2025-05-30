@@ -30,9 +30,8 @@ class UpdateGameAchievementsMetricsAction
 
         // Get both total and hardcore counts in a single query.
         $unlockStats = PlayerAchievement::query()
-            ->leftJoin('UserAccounts as user', 'user.ID', '=', 'player_achievements.user_id')
             ->whereIn('player_achievements.achievement_id', $achievementIds)
-            ->where('user.Untracked', false)
+            ->whereHas('user', function ($query) { $query->tracked(); })
             ->groupBy('player_achievements.achievement_id')
             ->selectRaw('
                 player_achievements.achievement_id,
