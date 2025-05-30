@@ -11,9 +11,9 @@ use App\Http\Controller;
 use App\Models\Event;
 use App\Models\EventAward;
 use App\Platform\Data\AwardEarnerData;
-use App\Platform\Data\EventData;
 use App\Platform\Data\EventAwardData;
 use App\Platform\Data\EventAwardEarnersPagePropsData;
+use App\Platform\Data\EventData;
 use App\Platform\Services\AwardEarnersService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -46,7 +46,7 @@ class EventAwardEarnersController extends Controller
         } else {
             $eventAward = $event->awards()->where('tier_index', $tier)->first();
             if (!$eventAward) {
-                abort(404); 
+                abort(404);
             }
         }
 
@@ -65,17 +65,12 @@ class EventAwardEarnersController extends Controller
             ]);
         }
 
-        $paginatedUsers = $awardEarnersService->allEarners()
-            ->paginate($perPage);
+        $paginatedUsers = $awardEarnersService->allEarners()->paginate($perPage);
         if ($tier !== 0) {
             $paginatedUsers->appends(['tier' => $tier]);
         }
 
         $items = [];
-        $rank = 0;
-        $rankScore = -1;
-        $firstRank = 0;
-        $nextRank = 0;
         foreach ($paginatedUsers->items() as $playerBadge) {
             $items[] = new AwardEarnerData(
                 user: UserData::fromUser($playerBadge->user),

@@ -4,13 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
-use App\Models\Game;
 use App\Models\PlayerBadge;
-use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Cache;
 
 class AwardEarnersService
 {
@@ -26,7 +21,7 @@ class AwardEarnersService
     }
 
     /**
-     * @return Builder<PlayerGame>
+     * @return Builder<PlayerBadge>
      */
     private function baseQuery(): Builder
     {
@@ -45,7 +40,7 @@ class AwardEarnersService
     }
 
     /**
-     * @return Collection<int, PlayerGame>
+     * @return Builder<PlayerBadge>
      */
     public function allEarners(int $offset = 0, int $count = 10): Builder
     {
