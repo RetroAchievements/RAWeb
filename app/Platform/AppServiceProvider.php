@@ -53,6 +53,7 @@ use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameAchievementsMetrics;
 use App\Platform\Commands\UpdateGameMetrics;
+use App\Platform\Commands\UpdateGamePlayerCount;
 use App\Platform\Commands\UpdateGamePlayerGames;
 use App\Platform\Commands\UpdateLeaderboardMetrics;
 use App\Platform\Commands\UpdatePlayerBeatenGamesStats;
@@ -81,6 +82,7 @@ class AppServiceProvider extends ServiceProvider
                 TrimGameMetadata::class,
                 UpdateGameMetrics::class,
                 UpdateGameAchievementsMetrics::class,
+                UpdateGamePlayerCount::class,
                 UpdateGamePlayerGames::class,
                 VerifyAchievementSetIntegrity::class,
                 WriteGameSortTitles::class,

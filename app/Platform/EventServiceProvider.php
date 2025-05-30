@@ -47,15 +47,18 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
         AchievementMoved::class => [
+            DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
         AchievementPublished::class => [
+            DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
             UpdateTotalGamesCount::class,
             // TODO Notify player/developer when moved to AchievementSetPublished event
         ],
         AchievementUnpublished::class => [
+            DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
             UpdateTotalGamesCount::class,
