@@ -11,6 +11,7 @@ import { cn } from '@/common/utils/cn';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { cleanEventAwardLabel } from '../../utils/cleanEventAwardLabel';
+import { route } from 'ziggy-js';
 
 interface AwardTierItemProps {
   event: App.Platform.Data.Event;
@@ -30,6 +31,10 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
     (ea) => ea.achievement?.points && ea.achievement.points === 1,
   );
 
+  const awardEarnersLink = eventAward.tierIndex > 0 ?
+    route('event.award-earners.index', { event: eventAward.eventId, tier: eventAward.tierIndex }) :
+    route('event.award-earners.index', { event: eventAward.eventId });
+
   return (
     <div
       className={cn(
@@ -39,67 +44,69 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
           : 'bg-zinc-800/50 light:bg-zinc-100',
       )}
     >
-      <div className="relative flex items-center gap-3">
-        <div className="relative">
-          <img
-            src={eventAward.badgeUrl}
-            alt={eventAward.label}
-            className={cn(
-              'size-12 rounded-sm transition',
-              eventAward.earnedAt
-                ? 'opacity-100 outline outline-2 outline-offset-1 outline-[gold]'
-                : 'opacity-50 group-hover:opacity-100',
-            )}
-          />
-        </div>
-
-        <div className="flex w-full items-center justify-between gap-2">
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              {!hasVirtualTier ? (
-                <>
-                  <p data-testid="award-tier-label" className="flex gap-2 text-xs font-medium">
-                    {cleanedAwardLabel}
-                  </p>
-
-                  <span className="whitespace-nowrap rounded bg-white/5 px-1.5 text-2xs text-neutral-400 light:bg-neutral-100 light:text-neutral-600">
-                    {t(
-                      areAllAchievementsOnePoint
-                        ? '{{val, number}} achievements'
-                        : '{{val, number}} points',
-                      {
-                        val: eventAward.pointsRequired,
-                        count: eventAward.pointsRequired,
-                      },
-                    )}
-                  </span>
-                </>
-              ) : null}
-            </div>
-
-            <p className="text-2xs text-neutral-500">{earnersMessage}</p>
+      <a href={awardEarnersLink}>
+        <div className="relative flex items-center gap-3">
+          <div className="relative">
+            <img
+              src={eventAward.badgeUrl}
+              alt={eventAward.label}
+              className={cn(
+                'size-12 rounded-sm transition',
+                eventAward.earnedAt
+                  ? 'opacity-100 outline outline-2 outline-offset-1 outline-[gold]'
+                  : 'opacity-50 group-hover:opacity-100',
+              )}
+            />
           </div>
 
-          {eventAward.earnedAt ? (
-            <BaseTooltip>
-              <BaseTooltipTrigger>
-                <div
-                  data-testid="award-earned-checkmark"
-                  className="mr-1 flex size-6 items-center justify-center rounded-full bg-embed light:bg-neutral-200 light:text-neutral-700"
-                >
-                  <LuCheck className="size-4" />
-                </div>
-              </BaseTooltipTrigger>
+          <div className="flex w-full items-center justify-between gap-2">
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                {!hasVirtualTier ? (
+                  <>
+                    <p data-testid="award-tier-label" className="flex gap-2 text-xs font-medium">
+                      {cleanedAwardLabel}
+                    </p>
 
-              <BaseTooltipContent>
-                {t('Awarded {{awardedDate}}', {
-                  awardedDate: formatDate(eventAward.earnedAt, 'lll'),
-                })}
-              </BaseTooltipContent>
-            </BaseTooltip>
-          ) : null}
+                    <span className="whitespace-nowrap rounded bg-white/5 px-1.5 text-2xs text-neutral-400 light:bg-neutral-100 light:text-neutral-600">
+                      {t(
+                        areAllAchievementsOnePoint
+                          ? '{{val, number}} achievements'
+                          : '{{val, number}} points',
+                        {
+                          val: eventAward.pointsRequired,
+                          count: eventAward.pointsRequired,
+                        },
+                      )}
+                    </span>
+                  </>
+                ) : null}
+              </div>
+
+              <p className="text-2xs text-neutral-500">{earnersMessage}</p>
+            </div>
+
+            {eventAward.earnedAt ? (
+              <BaseTooltip>
+                <BaseTooltipTrigger>
+                  <div
+                    data-testid="award-earned-checkmark"
+                    className="mr-1 flex size-6 items-center justify-center rounded-full bg-embed light:bg-neutral-200 light:text-neutral-700"
+                  >
+                    <LuCheck className="size-4" />
+                  </div>
+                </BaseTooltipTrigger>
+
+                <BaseTooltipContent>
+                  {t('Awarded {{awardedDate}}', {
+                    awardedDate: formatDate(eventAward.earnedAt, 'lll'),
+                  })}
+                </BaseTooltipContent>
+              </BaseTooltip>
+            ) : null}
+          </div>
         </div>
-      </div>
+      </a>
     </div>
   );
 };

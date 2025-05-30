@@ -9,6 +9,7 @@ use App\Data\PaginatedData;
 use App\Data\UserData;
 use App\Http\Controller;
 use App\Models\Event;
+use App\Models\EventAward;
 use App\Platform\Data\AwardEarnerData;
 use App\Platform\Data\EventData;
 use App\Platform\Data\EventAwardData;
@@ -30,9 +31,23 @@ class EventAwardEarnersController extends Controller
         $currentPage = (int) request()->input('page', 1);
         $tier = (int) request()->input('tier', 0);
 
-        $eventAward = $event->awards()->where('tier_index', $tier)->first();
-        if (!$eventAward) {
-            abort(404); 
+        if ($tier === 0) {
+            if ($event->awards()->count() !== 0) {
+                abort(404);
+            }
+            $eventAward = new EventAward([
+                'event_id' => $event->id,
+                'tier_index' => 0,
+                'label' => $event->title,
+                'points_required' => $event->publishedAchievements->count(),
+                'image_asset_path' => $event->image_asset_path,
+            ]);
+            $eventAward->id = 0;
+        } else {
+            $eventAward = $event->awards()->where('tier_index', $tier)->first();
+            if (!$eventAward) {
+                abort(404); 
+            }
         }
 
         $awardEarnersService->initialize(AwardType::Event, $event->id, $tier);

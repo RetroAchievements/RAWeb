@@ -47,6 +47,8 @@
         <x-slot name="sidebar">
             {{ $sidebar ?? '' }}
         </x-slot>
+        <a class="btn mb-1" href="{{ route('event.award-earners.index', ['event' => 1, 'tier' => 1]) }}">Manage</a>
+
         {{ $slot ?? '' }}
         {{--            {!! $main ?? '' !!}--}}
     </x-main>
