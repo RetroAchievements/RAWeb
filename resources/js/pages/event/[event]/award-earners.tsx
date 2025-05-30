@@ -6,10 +6,7 @@ import { SEO } from '@/common/components/SEO';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 
-import { EventBreadcrumbs } from '@/features/events/components/EventBreadcrumbs';
-import { FullPaginator } from '@/common/components/FullPaginator';
-import { PlayableHeader } from '@/common/components/PlayableHeader';
-import { AwardEarnersList } from '@/common/components/AwardEarnersList';
+import { EventAwardEarnersMainRoot } from '@/features/events/components/EventAwardEarnersMainRoot/EventAwardEarnersMainRoot';
 
 const AwardEarners: AppPage<App.Platform.Data.EventAwardEarnersPageProps> = ({ event, eventAward, paginatedUsers }) => {
   const { t } = useTranslation();
@@ -32,36 +29,7 @@ const AwardEarners: AppPage<App.Platform.Data.EventAwardEarnersPageProps> = ({ e
       />
 
       <AppLayout.Main>
-        <div>
-          <EventBreadcrumbs event={event} t_currentPageLabel={t('{{awardLabel}}', { awardLabel: eventAward.label })} />
-          <PlayableHeader
-            badgeUrl={eventAward.badgeUrl}
-            systemLabel={event.legacyGame?.title ?? 'Event'}
-            systemIconUrl="/assets/images/system/events.png"
-            title={eventAward.label}
-          >
-            <span>{t('{{val, number}} players have earned this', {
-              val: eventAward.badgeCount,
-              count: eventAward.badgeCount,
-            })}</span>
-          </PlayableHeader>
-
-          <div className="mb-3 mt-3 flex w-full justify-between">
-            <FullPaginator
-              onPageSelectValueChange={handlePageSelectValueChange}
-              paginatedData={paginatedUsers}
-            />
-          </div>
-
-          <AwardEarnersList paginatedUsers={paginatedUsers} />
-
-          <div className="mt-8 flex justify-center sm:mt-3 sm:justify-start">
-            <FullPaginator
-              onPageSelectValueChange={handlePageSelectValueChange}
-              paginatedData={paginatedUsers}
-            />
-          </div>
-        </div>
+        <EventAwardEarnersMainRoot />
       </AppLayout.Main>
     </>
   );
