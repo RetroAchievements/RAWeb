@@ -114,7 +114,7 @@ class UpdateGameAchievementsMetricsAction
                     'unlock_percentage' => $unlockPercentage,
                     'unlock_hardcore_percentage' => $unlockHardcorePercentage,
                     'TrueRatio' => $pointsWeighted,
-                    'DateModified' => now(),
+                    'Updated' => now(),
                 ];
 
                 // Reindex the achievement in Meilisearch.
@@ -163,7 +163,7 @@ class UpdateGameAchievementsMetricsAction
          *   TrueRatio = CASE ID
          *     WHEN X THEN Y
          *   END,
-         *   DateModified = "..."
+         *   Updated = "..."
          * WHERE
          *   ID IN ( ... );
          */
@@ -196,8 +196,8 @@ class UpdateGameAchievementsMetricsAction
             $sql .= "END";
         }
 
-        // Add DateModified.
-        $sql .= ", DateModified = ? ";
+        // Add Updated.
+        $sql .= ", Updated = ? ";
         $bindings[] = now();
 
         // Add the WHERE clause.

@@ -95,6 +95,11 @@ class GameExtendedTest extends TestCase
         $this->addHardcoreUnlock($user4, $achievement1);
         $this->addHardcoreUnlock($user4, $achievement2);
 
+        $achievement1->refresh();
+        $achievement2->refresh();
+        $achievement3->refresh();
+        $achievement4->refresh();
+
         $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID]))
             ->assertSuccessful()
             ->assertJson([

@@ -94,6 +94,10 @@ class GameInfoAndUserProgressTest extends TestCase
         $this->addHardcoreUnlock($user4, $achievement1);
         $this->addHardcoreUnlock($user4, $achievement2);
 
+        $achievement1->refresh();
+        $achievement2->refresh();
+        $achievement3->refresh();
+
         $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->ID, 'u' => $user3->User])) // !! name
             ->assertSuccessful()
             ->assertJson([
@@ -227,6 +231,10 @@ class GameInfoAndUserProgressTest extends TestCase
         // user4 only has two achievements unlocked
         $this->addHardcoreUnlock($user4, $achievement1);
         $this->addHardcoreUnlock($user4, $achievement2);
+
+        $achievement1->refresh();
+        $achievement2->refresh();
+        $achievement3->refresh();
 
         $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->ID, 'u' => $user3->ulid])) // !! ulid
             ->assertSuccessful()
@@ -422,6 +430,10 @@ class GameInfoAndUserProgressTest extends TestCase
 
         // user4 has only one achievement unlocked and no award
         $this->addHardcoreUnlock($user4, $achievement2);
+
+        $achievement1->refresh();
+        $achievement2->refresh();
+        $achievement3->refresh();
 
         // make the API call for $this->user
         $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->ID, 'u' => $this->user->User, 'a' => 1]))
