@@ -10,7 +10,7 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('player_games', function (Blueprint $table) {
-            $table->boolean('user_is_tracked')->after('game_id')->nullable()->index();
+            $table->boolean('user_is_tracked')->after('user_id')->nullable()->index();
         });
 
         Schema::table('player_games', function (Blueprint $table) {
