@@ -421,7 +421,23 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
                 ->select('game_id')
                 ->first();
 
-            return $nonCoreUsage?->game_id;
+            if ($nonCoreUsage) {
+                return $nonCoreUsage->game_id;
+            }
+
+            // If no mapping exists, but title includes "[Subset", try to find the parent by name
+            $index = strpos($this->title, '[Subset - ');
+            if ($index !== false) {
+                // Trim to ensure no leading/trailing spaces.
+                $baseSetTitle = trim(substr($this->title, 0, $index));
+
+                // Attempt to find a game with the base title and the same console ID.
+                return Game::where('Title', $baseSetTitle)
+                    ->where('ConsoleID', $this->ConsoleID)
+                    ->value('ID');
+            }
+
+            return null;
         });
     }
 
