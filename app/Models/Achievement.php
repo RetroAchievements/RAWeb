@@ -110,6 +110,8 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         'GameID' => 'integer',
         'Points' => 'integer',
         'TrueRatio' => 'integer',
+        'unlock_percentage' => 'double',
+        'unlock_hardcore_percentage' => 'double',
     ];
 
     protected $visible = [
