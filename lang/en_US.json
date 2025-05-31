@@ -426,6 +426,8 @@
     "userCount_other": "<1>{{userCount, number}}</1> users are currently online.",
     "{{achievementTitle}} ({{achievementPoints, number}} points)": "{{achievementTitle}} ({{achievementPoints, number}} points)",
     "{{achievementTitle}} - Report Issue": "{{achievementTitle}} - Report Issue",
+    "{{awardLabel}}": "{{awardLabel}}",
+    "{{awardLabel}} Award Earners ({{eventTitle}})": "{{awardLabel}} Award Earners ({{eventTitle}})",
     "{{awardLabel}} on {{awardDate}}": "{{awardLabel}} on {{awardDate}}",
     "{{claimType}}, {{timeAgo}}": "{{claimType}}, {{timeAgo}}",
     "{{count, number}} posts in the last 24 hours": "{{count, number}} posts in the last 24 hours",
