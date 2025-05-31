@@ -123,6 +123,7 @@ class PlayerGame extends BasePivot
      */
     public function scopeWhereAllAchievementsUnlocked(Builder $query): Builder
     {
-        return $query->whereColumn('achievements_unlocked', '=', 'achievements_total');
+        return $query->whereColumn('achievements_unlocked', '=', 'achievements_total')
+            ->where('achievements_unlocked', '>', '0');
     }
 }
