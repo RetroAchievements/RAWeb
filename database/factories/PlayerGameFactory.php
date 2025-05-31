@@ -27,6 +27,7 @@ class PlayerGameFactory extends Factory
         return [
             'user_id' => $user?->id ?? 1,
             'game_id' => $game?->id ?? 1,
+            'user_is_tracked' => $user ? ($user->unranked_at === null) : true,
         ];
     }
 }

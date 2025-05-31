@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\PlayerAchievementSet;
@@ -44,13 +45,16 @@ class UpdateGameMetricsAction
         }
 
         if (!$parentGame) {
-            $game->players_total = $game->playerGames()
+            $game->players_total = PlayerGame::query()
+                ->where('game_id', $game->id)
                 ->where('achievements_unlocked', '>', 0)
-                ->whereHas('user', function ($query) { $query->tracked(); })
+                ->where('user_is_tracked', true)
                 ->count();
-            $game->players_hardcore = $game->playerGames()
+
+            $game->players_hardcore = PlayerGame::query()
+                ->where('game_id', $game->id)
                 ->where('achievements_unlocked_hardcore', '>', 0)
-                ->whereHas('user', function ($query) { $query->tracked(); })
+                ->where('user_is_tracked', true)
                 ->count();
         }
 
@@ -93,6 +97,14 @@ class UpdateGameMetricsAction
             ->with('achievementSet')
             ->get();
 
+        // Ensure original values are loaded for dirty checking comparison.
+        $gameAchievementSets->each(function ($gas) {
+            if ($gas->achievementSet) {
+                $gas->achievementSet->syncOriginal();
+            }
+        });
+
+        $achievementSetUpdates = [];
         foreach ($gameAchievementSets as $gameAchievementSet) {
             $achievementSet = $gameAchievementSet->achievementSet;
 
@@ -101,15 +113,38 @@ class UpdateGameMetricsAction
             $query = PlayerAchievementSet::where('achievement_set_id', $achievementSet->id)
                 ->where('achievements_unlocked', '=', $achievementSet->achievements_published)
                 ->where('achievements_unlocked_hardcore', '!=', $achievementSet->achievements_published);
-            [$achievementSet->times_completed, $achievementSet->median_time_to_complete] =
-                $this->getMedian($query, 'time_taken');
+            [$timesCompleted, $medianTimeToComplete] = $this->getMedian($query, 'time_taken');
 
             $query = PlayerAchievementSet::where('achievement_set_id', $achievementSet->id)
                 ->where('achievements_unlocked_hardcore', '=', $achievementSet->achievements_published);
-            [$achievementSet->times_completed_hardcore, $achievementSet->median_time_to_complete_hardcore] =
+            [$timesCompletedHardcore, $medianTimeToCompleteHardcore] =
                 $this->getMedian($query, 'time_taken_hardcore');
 
-            $achievementSet->save();
+            // Update the model instance for consistency.
+            $achievementSet->times_completed = $timesCompleted;
+            $achievementSet->median_time_to_complete = $medianTimeToComplete;
+            $achievementSet->times_completed_hardcore = $timesCompletedHardcore;
+            $achievementSet->median_time_to_complete_hardcore = $medianTimeToCompleteHardcore;
+
+            // We'll only do a DB write if values have actually changed
+            $isDirty =
+                $achievementSet->times_completed !== $achievementSet->getOriginal('times_completed')
+                || $achievementSet->median_time_to_complete !== $achievementSet->getOriginal('median_time_to_complete')
+                || $achievementSet->times_completed_hardcore !== $achievementSet->getOriginal('times_completed_hardcore')
+                || $achievementSet->median_time_to_complete_hardcore !== $achievementSet->getOriginal('median_time_to_complete_hardcore');
+            if ($isDirty) {
+                $achievementSetUpdates[] = [
+                    'id' => $achievementSet->id,
+                    'times_completed' => $timesCompleted,
+                    'median_time_to_complete' => $medianTimeToComplete,
+                    'times_completed_hardcore' => $timesCompletedHardcore,
+                    'median_time_to_complete_hardcore' => $medianTimeToCompleteHardcore,
+                ];
+            }
+        }
+
+        if (!empty($achievementSetUpdates)) {
+            $this->batchUpdateAchievementSets($achievementSetUpdates);
         }
 
         app()->make(UpdateGameAchievementsMetricsAction::class)
@@ -162,5 +197,27 @@ class UpdateGameMetricsAction
         }
 
         return [$count, $median];
+    }
+
+    private function batchUpdateAchievementSets(array $updates): void
+    {
+        if (empty($updates)) {
+            return;
+        }
+
+        foreach ($updates as &$update) {
+            $update['updated_at'] = now();
+        }
+
+        AchievementSet::upsert(
+            $updates,
+            ['id'], // unique key
+            [
+                'times_completed',
+                'median_time_to_complete',
+                'times_completed_hardcore',
+                'median_time_to_complete_hardcore', 'updated_at',
+            ]
+        );
     }
 }

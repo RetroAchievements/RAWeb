@@ -31,9 +31,7 @@ class GameTopAchieversService
     private function baseQuery(): Builder
     {
         return PlayerGame::where('game_id', $this->gameId)
-            ->whereHas('user', function ($query) {
-                return $query->tracked();
-            });
+            ->where('user_is_tracked', true);
     }
 
     /**

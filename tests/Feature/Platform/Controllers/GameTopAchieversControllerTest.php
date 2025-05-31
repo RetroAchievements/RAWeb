@@ -20,7 +20,10 @@ class GameTopAchieversControllerTest extends TestCase
 
     private function addMastery(User $user, Game $game, Carbon $when): void
     {
-        PlayerGame::factory()->create(['user_id' => $user->id,
+        PlayerGame::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'user_is_tracked' => $user->unranked_at === null,
             'achievements_unlocked_hardcore' => $game->achievements_published,
             'points_hardcore' => $game->points_total,
             'beaten_hardcore_at' => $when->clone()->subMinutes(5),
@@ -31,7 +34,10 @@ class GameTopAchieversControllerTest extends TestCase
 
     private function addBeaten(User $user, Game $game, Carbon $when, int $missingPoints): void
     {
-        PlayerGame::factory()->create(['user_id' => $user->id,
+        PlayerGame::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'user_is_tracked' => $user->unranked_at === null,
             'achievements_unlocked_hardcore' => $game->achievements_published - 1,
             'points_hardcore' => $game->points_total - $missingPoints,
             'beaten_hardcore_at' => $when,
@@ -41,7 +47,10 @@ class GameTopAchieversControllerTest extends TestCase
 
     private function addNotBeaten(User $user, Game $game, Carbon $when, int $missingPoints): void
     {
-        PlayerGame::factory()->create(['user_id' => $user->id,
+        PlayerGame::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'user_is_tracked' => $user->unranked_at === null,
             'achievements_unlocked_hardcore' => $game->achievements_published - 1,
             'points_hardcore' => $game->points_total - $missingPoints,
             'last_unlock_hardcore_at' => $when,
@@ -50,7 +59,10 @@ class GameTopAchieversControllerTest extends TestCase
 
     private function addCompleted(User $user, Game $game, Carbon $when): void
     {
-        PlayerGame::factory()->create(['user_id' => $user->id,
+        PlayerGame::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'user_is_tracked' => $user->unranked_at === null,
             'achievements_unlocked' => $game->achievements_published,
             'points' => $game->points_total,
             'beaten_at' => $when->clone()->subMinutes(5),
@@ -102,6 +114,8 @@ class GameTopAchieversControllerTest extends TestCase
 
         $game->players_hardcore = 6; // user1+user2+user3+user5+user7+user8
         $game->save();
+
+        $game->refresh();
 
         // expected:
         //  1 $user5 $date2 mastered
