@@ -47,6 +47,7 @@ use App\Platform\Commands\SyncPlayerBadges;
 use App\Platform\Commands\SyncPlayerRichPresence;
 use App\Platform\Commands\SyncPlayerSession;
 use App\Platform\Commands\SyncTriggers;
+use App\Platform\Commands\SyncUnrankedUsers;
 use App\Platform\Commands\TrimGameMetadata;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
@@ -142,6 +143,7 @@ class AppServiceProvider extends ServiceProvider
                 SyncPlayerRichPresence::class,
                 SyncPlayerSession::class,
                 SyncTriggers::class,
+                SyncUnrankedUsers::class,
             ]);
         }
 
