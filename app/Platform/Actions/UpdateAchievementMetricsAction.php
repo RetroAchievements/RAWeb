@@ -77,19 +77,30 @@ class UpdateAchievementMetricsAction
                 + $achievement->points * (($playersHardcoreCalc / $unlocksHardcoreCalc) * $weight)
             );
 
-            $bulkUpdates[] = [
-                'ID' => $achievement->ID,
-                'unlocks_total' => $unlocksCount,
-                'unlocks_hardcore_total' => $unlocksHardcoreCount,
-                'unlock_percentage' => $playersTotal ? $unlocksCount / $playersTotal : 0,
-                'unlock_hardcore_percentage' => $playersHardcore ? $unlocksHardcoreCount / $playersHardcore : 0,
-                'TrueRatio' => $pointsWeighted,
-            ];
+            $unlockPercentage = $playersTotal ? $unlocksCount / $playersTotal : 0;
+            $unlockHardcorePercentage = $playersHardcore ? $unlocksHardcoreCount / $playersHardcore : 0;
 
-            // Also update the model instance for the sum calculation later.
+            // We'll optimistically set attributes on the model to leverage Laravel's dirty checking.
+            // This doesn't necessarily mean we'll be doing a save for the model, though.
+            $achievement->unlocks_total = $unlocksCount;
+            $achievement->unlocks_hardcore_total = $unlocksHardcoreCount;
+            $achievement->unlock_percentage = $unlockPercentage;
+            $achievement->unlock_hardcore_percentage = $unlockHardcorePercentage;
             $achievement->TrueRatio = $pointsWeighted;
 
-            $searchIndexingService->queueAchievementForIndexing($achievement->ID);
+            // Only actually add the achievement to the bulk updates list if the model has changed.
+            if ($achievement->isDirty()) {
+                $bulkUpdates[] = [
+                    'ID' => $achievement->ID,
+                    'unlocks_total' => $unlocksCount,
+                    'unlocks_hardcore_total' => $unlocksHardcoreCount,
+                    'unlock_percentage' => $unlockPercentage,
+                    'unlock_hardcore_percentage' => $unlockHardcorePercentage,
+                    'TrueRatio' => $pointsWeighted,
+                ];
+
+                $searchIndexingService->queueAchievementForIndexing($achievement->ID);
+            }
         }
 
         if (!empty($bulkUpdates)) {
