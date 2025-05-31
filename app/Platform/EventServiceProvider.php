@@ -80,16 +80,16 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateGamePlayerCountJob::class,
         ],
         PlayerAchievementLocked::class => [
+            DispatchUpdateAchievementMetricsJob::class,
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
-            DispatchUpdateAchievementMetricsJob::class,
         ],
         PlayerAchievementUnlocked::class => [
             // dispatches PlayerGameAttached
             // NOTE ResumePlayerSessionAction is executed synchronously during PlayerAchievementUnlockAction
+            DispatchUpdateAchievementMetricsJob::class,
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
-            DispatchUpdateAchievementMetricsJob::class,
         ],
         PlayerBadgeAwarded::class => [
             // TODO Notify player
