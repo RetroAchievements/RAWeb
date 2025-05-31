@@ -24,7 +24,6 @@ use App\Platform\Events\PlayerGameCompleted;
 use App\Platform\Events\PlayerGameMetricsUpdated;
 use App\Platform\Events\PlayerGameRemoved;
 use App\Platform\Events\PlayerMetricsUpdated;
-use App\Platform\Events\PlayerPointsStatsUpdated;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Listeners\DispatchUpdateAchievementMetricsJob;
@@ -119,7 +118,7 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdatePlayerMetricsJob::class, // dispatches PlayerMetricsUpdated
         ],
         PlayerMetricsUpdated::class => [
-            DispatchUpdatePlayerPointsStatsJob::class, // dispatches PlayerPointsStatsUpdated
+            DispatchUpdatePlayerPointsStatsJob::class,
         ],
         PlayerSessionHeartbeat::class => [
             ResumePlayerSession::class, // dispatches PlayerGameAttached for new entries
@@ -128,12 +127,10 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateGameMetricsForGamesPlayedByUserJob::class,
             // TODO Notify player
             DispatchUpdatePlayerBeatenGamesStatsJob::class, // dispatches PlayerBeatenGamesStatsUpdated
-            DispatchUpdatePlayerPointsStatsJob::class, // dispatches PlayerPointsStatsUpdated
+            DispatchUpdatePlayerPointsStatsJob::class,
             RecalculateLeaderboardTopEntriesForUser::class,
         ],
         PlayerBeatenGamesStatsUpdated::class => [
-        ],
-        PlayerPointsStatsUpdated::class => [
         ],
         UserDeleted::class => [
             RecalculateLeaderboardTopEntriesForUser::class,
