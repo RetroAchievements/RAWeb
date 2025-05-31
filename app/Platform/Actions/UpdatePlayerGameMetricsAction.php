@@ -92,7 +92,7 @@ class UpdatePlayerGameMetricsAction
 
         // process each set
         $playerAchievementSets = [];
-        $newPlayerGameIds = [];
+        $possiblePlayerCountChangeGameIds = [];
         foreach ($gameAchievementSets as $gameAchievementSet) {
             $achievementSet = $gameAchievementSet->achievementSet;
             $playerAchievementSet = PlayerAchievementSet::where('user_id', $playerGame->user->id)
@@ -125,10 +125,14 @@ class UpdatePlayerGameMetricsAction
             $playerAchievementSet->points_hardcore = $setAchievementsUnlockedHardcore->sum('Points');
             $playerAchievementSet->points_weighted = $setAchievementsUnlockedHardcore->sum('TrueRatio');
 
-            // if it's the first unlock for a set, we need to update the game player count
+            // if the player went from 0 unlocks to non-zero unlocks, they're considered a player for the set.
+            // similarly, if they went fro non-zero unlocks to zero unlocks, they're no longer considered a
+            // player for the set. in both cases, we need to update the game player count
             if (($playerAchievementSet->achievements_unlocked > 0 && $playerAchievementSet->getOriginal('achievements_unlocked') < 1)
-                || ($playerAchievementSet->achievements_unlocked_hardcore > 0 && $playerAchievementSet->getOriginal('achievements_unlocked_hardcore') < 1)) {
-                $newPlayerGameIds[] = $gameAchievementSet->game_id;
+                || ($playerAchievementSet->achievements_unlocked_hardcore > 0 && $playerAchievementSet->getOriginal('achievements_unlocked_hardcore') > 0)
+                || ($playerAchievementSet->achievements_unlocked < 1 && $playerAchievementSet->getOriginal('achievements_unlocked') > 0)
+                || ($playerAchievementSet->achievements_unlocked_hardcore < 1 && $playerAchievementSet->getOriginal('achievements_unlocked_hardcore') > 0)) {
+                $possiblePlayerCountChangeGameIds[] = $gameAchievementSet->game_id;
             }
 
             $summary = $activityService->getAchievementSetMetrics($achievementSet);
@@ -182,7 +186,7 @@ class UpdatePlayerGameMetricsAction
             PlayerGameMetricsUpdated::dispatch($user, $game);
         }
 
-        foreach ($newPlayerGameIds as $gameId) {
+        foreach ($possiblePlayerCountChangeGameIds as $gameId) {
             dispatch(new UpdateGamePlayerCountJob($gameId))->onQueue('game-player-count');
         }
 
