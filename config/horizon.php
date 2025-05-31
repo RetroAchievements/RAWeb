@@ -193,6 +193,7 @@ return [
             'queue' => [
                 'default',
                 'developer-metrics',
+                'game-award-metrics',
                 'game-metrics',
                 'player-achievements',
                 'player-beaten-games-stats',
