@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Game;
-use App\Models\PlayerAchievement;
-use App\Platform\Actions\UpdateAchievementMetricsAction;
 use App\Platform\Services\SearchIndexingService;
 
 class UpdateGameAchievementsMetricsAction

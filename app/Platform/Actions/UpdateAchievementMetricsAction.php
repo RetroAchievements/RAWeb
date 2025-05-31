@@ -7,10 +7,8 @@ namespace App\Platform\Actions;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
-use App\Platform\Jobs\UpdateGamePlayerGamesJob;
 use App\Platform\Services\SearchIndexingService;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 class UpdateAchievementMetricsAction
 {
@@ -19,7 +17,9 @@ class UpdateAchievementMetricsAction
         $this->update($achievement->game, collect([$achievement]));
     }
 
-    /** @var Collection<int, Achievement> $achievements */
+    /**
+     * @param Collection<int, Achievement> $achievements
+     */
     public function update(Game $game, Collection $achievements): void
     {
         // NOTE if game has a parent game it contains the parent game's players metrics
