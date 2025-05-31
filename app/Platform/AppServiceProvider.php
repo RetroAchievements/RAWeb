@@ -52,6 +52,7 @@ use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameAchievementsMetrics;
+use App\Platform\Commands\UpdateGameBeatenMetrics;
 use App\Platform\Commands\UpdateGameMetrics;
 use App\Platform\Commands\UpdateGamePlayerCount;
 use App\Platform\Commands\UpdateGamePlayerGames;
@@ -80,8 +81,9 @@ class AppServiceProvider extends ServiceProvider
             $this->commands([
                 // Games
                 TrimGameMetadata::class,
-                UpdateGameMetrics::class,
                 UpdateGameAchievementsMetrics::class,
+                UpdateGameBeatenMetrics::class,
+                UpdateGameMetrics::class,
                 UpdateGamePlayerCount::class,
                 UpdateGamePlayerGames::class,
                 VerifyAchievementSetIntegrity::class,
