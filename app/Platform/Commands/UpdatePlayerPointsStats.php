@@ -78,7 +78,7 @@ class UpdatePlayerPointsStats extends Command
             $progressBar = $this->output->createProgressBar($distinctUserCount);
             $progressBar->start();
 
-            // Retrieve ALL user IDs first (more efficient).
+            // Retrieve all user IDs first.
             $this->info('Collecting user IDs...');
             $allUserIds = $baseUserQuery->pluck('ID')->toArray();
 
