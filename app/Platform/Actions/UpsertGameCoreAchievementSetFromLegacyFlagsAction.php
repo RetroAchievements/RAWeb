@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\AchievementSet;
+use App\Models\AchievementSetAchievement;
 use App\Models\Game;
 use App\Platform\Enums\AchievementSetType;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class UpsertGameCoreAchievementSetFromLegacyFlagsAction
@@ -74,6 +77,7 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
     {
         // For now, we assume if a game has core sets, there's only one.
         // This may change in the future.
+        /** @var AchievementSet $coreSet */
         $coreSet = $game->gameAchievementSets()->core()->first()->achievementSet;
 
         list($officialAchievements, $unofficialAchievements) = $game->achievements->partition(function ($achievement) {
@@ -103,6 +107,46 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
                 ],
             ];
         });
-        $coreSet->achievements()->sync($syncData);
+
+        $this->syncAchievementSetAchievements($coreSet, $syncData);
+    }
+
+    /**
+     * Sync the set's achievement_set_achievements entities with a single SQL query.
+     *
+     * @param Collection<int, array{created_at: Carbon|string, updated_at: Carbon|string, order_column: int}> $syncData
+     */
+    private function syncAchievementSetAchievements(AchievementSet $coreSet, Collection $syncData): void
+    {
+        if ($syncData->isEmpty()) {
+            return;
+        }
+
+        $achievementIds = array_keys($syncData->toArray());
+
+        // Delete achievements that are no longer in the set.
+        AchievementSetAchievement::where('achievement_set_id', $coreSet->id)
+            ->whereNotIn('achievement_id', $achievementIds)
+            ->delete();
+
+        // Prepare data for the upsert.
+        $upsertData = [];
+        foreach ($syncData as $achievementId => $pivotData) {
+            $upsertData[] = [
+                'achievement_set_id' => $coreSet->id,
+                'achievement_id' => $achievementId,
+                'order_column' => $pivotData['order_column'],
+                'created_at' => $pivotData['created_at'],
+                'updated_at' => $pivotData['updated_at'],
+            ];
+        }
+
+        if (!empty($upsertData)) {
+            AchievementSetAchievement::upsert(
+                $upsertData,
+                ['achievement_set_id', 'achievement_id'], // unique keys
+                ['order_column', 'updated_at'] // columns to update if exists
+            );
+        }
     }
 }
