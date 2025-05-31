@@ -191,9 +191,11 @@ return [
         'supervisor-1' => [
             'connection' => 'redis',
             'queue' => [
+                'achievement-metrics',
                 'default',
                 'developer-metrics',
                 'game-metrics',
+                'game-player-count',
                 'player-achievements',
                 'player-beaten-games-stats',
                 'player-game-metrics',
@@ -216,6 +218,7 @@ return [
         'supervisor-2' => [
             'connection' => 'redis',
             'queue' => [
+                'game-beaten-metrics',
                 'game-player-games',
                 'player-game-metrics-batch',
             ],

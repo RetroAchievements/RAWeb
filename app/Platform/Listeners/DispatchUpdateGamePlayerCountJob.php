@@ -39,12 +39,12 @@ class DispatchUpdateGamePlayerCountJob implements ShouldQueue
 
         if ($game instanceof Game) {
             dispatch(new UpdateGamePlayerCountJob($game->id))
-                ->onQueue('game-metrics');
+                ->onQueue('game-player-count');
         }
 
         if ($originalGame instanceof Game) {
             dispatch(new UpdateGamePlayerCountJob($originalGame->id))
-                ->onQueue('game-metrics');
+                ->onQueue('game-player-count');
         }
     }
 }

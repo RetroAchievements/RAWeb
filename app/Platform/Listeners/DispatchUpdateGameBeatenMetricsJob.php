@@ -40,7 +40,7 @@ class DispatchUpdateGameBeatenMetricsJob implements ShouldQueue
 
         if ($game instanceof Game) {
             dispatch(new UpdateGameBeatenMetricsJob($game->id))
-                ->onQueue('game-metrics');
+                ->onQueue('game-beaten-metrics');
         }
     }
 }

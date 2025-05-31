@@ -183,7 +183,7 @@ class UpdatePlayerGameMetricsAction
         }
 
         foreach ($newPlayerGameIds as $gameId) {
-            dispatch(new UpdateGamePlayerCountJob($gameId))->onQueue('game-metrics');
+            dispatch(new UpdateGamePlayerCountJob($gameId))->onQueue('game-player-count');
         }
 
         app()->make(RevalidateAchievementSetBadgeEligibilityAction::class)->execute($playerGame);

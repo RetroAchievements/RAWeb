@@ -155,7 +155,7 @@ class ResetPlayerProgressAction
 
             // if all achievements for a game were reset, the user is no longer considered a
             // player of the game. will be a no-op if they still have achievements for the game.
-            dispatch(new UpdateGamePlayerCountJob($affectedGameID));
+            dispatch(new UpdateGamePlayerCountJob($affectedGameID))->onQueue('game-player-count');
         }
 
         dispatch(new UpdatePlayerBeatenGamesStatsJob($user->id));

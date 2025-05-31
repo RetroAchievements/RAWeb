@@ -32,7 +32,7 @@ class UpdateGameMetricsForGamesPlayedByUserAction
                         fn (PlayerGame $playerGame) => new UpdateGamePlayerCountJob($playerGame->game_id)
                     )
                 )
-                    ->onQueue('game-metrics')
+                    ->onQueue('game-player-count')
                     ->name('player-played-games ' . $user->id . ' ' . $page)
                     ->allowFailures()
                     ->finally(function (Batch $batch) {
