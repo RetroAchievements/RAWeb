@@ -29,6 +29,8 @@ class UpdatePlayerGameMetricsAction
             return;
         }
 
+        $playerGame->user_is_tracked = $user->unranked_at === null;
+
         $activityService = new PlayerGameActivityService();
         $activityService->initialize($playerGame->user, $playerGame->game, withSubsets: true);
 

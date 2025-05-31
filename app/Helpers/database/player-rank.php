@@ -14,6 +14,8 @@ function SetUserUntrackedStatus(User $user, bool $isUntracked): void
     $user->unranked_at = $isUntracked ? now() : null;
     $user->save();
 
+    $user->playerGames()->update(['user_is_tracked' => !$isUntracked]);
+
     PlayerRankedStatusChanged::dispatch($user, $isUntracked);
 }
 

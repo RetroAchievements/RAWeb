@@ -6,6 +6,7 @@ namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
 use App\Models\User;
+use App\Platform\Events\PlayerRankedStatusChanged;
 use Carbon\Carbon;
 use Filament\Resources\Pages\EditRecord;
 
@@ -26,6 +27,10 @@ class Edit extends EditRecord
 
         if ((bool) $record->Untracked !== $data['Untracked']) {
             $data['unranked_at'] = $data['Untracked'] ? Carbon::now() : null;
+
+            $record->playerGames()->update(['user_is_tracked' => !$data['Untracked']]);
+
+            PlayerRankedStatusChanged::dispatch($record, $data['Untracked']);
         }
 
         return $data;

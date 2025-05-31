@@ -22,6 +22,7 @@ class PlayerGame extends BasePivot
     protected $table = 'player_games';
 
     protected $casts = [
+        'user_is_tracked' => 'boolean',
         'last_played_at' => 'datetime',
         'beaten_at' => 'datetime',
         'beaten_hardcore_at' => 'datetime',
