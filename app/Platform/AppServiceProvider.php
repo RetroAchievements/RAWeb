@@ -44,6 +44,7 @@ use App\Platform\Commands\SyncLeaderboardTopEntries;
 use App\Platform\Commands\SyncLegacyGameTags;
 use App\Platform\Commands\SyncMemoryNotes;
 use App\Platform\Commands\SyncPlayerBadges;
+use App\Platform\Commands\SyncPlayerGamesTrackedStatus;
 use App\Platform\Commands\SyncPlayerRichPresence;
 use App\Platform\Commands\SyncPlayerSession;
 use App\Platform\Commands\SyncTriggers;
@@ -135,6 +136,7 @@ class AppServiceProvider extends ServiceProvider
                 SyncLegacyGameTags::class,
                 SyncMemoryNotes::class,
                 SyncPlayerBadges::class,
+                SyncPlayerGamesTrackedStatus::class,
                 SyncPlayerRichPresence::class,
                 SyncPlayerSession::class,
                 SyncTriggers::class,
