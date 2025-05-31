@@ -129,7 +129,7 @@ class UpdatePlayerGameMetricsAction
             // similarly, if they went fro non-zero unlocks to zero unlocks, they're no longer considered a
             // player for the set. in both cases, we need to update the game player count
             if (($playerAchievementSet->achievements_unlocked > 0 && $playerAchievementSet->getOriginal('achievements_unlocked') < 1)
-                || ($playerAchievementSet->achievements_unlocked_hardcore > 0 && $playerAchievementSet->getOriginal('achievements_unlocked_hardcore') > 0)
+                || ($playerAchievementSet->achievements_unlocked_hardcore > 0 && $playerAchievementSet->getOriginal('achievements_unlocked_hardcore') < 1)
                 || ($playerAchievementSet->achievements_unlocked < 1 && $playerAchievementSet->getOriginal('achievements_unlocked') > 0)
                 || ($playerAchievementSet->achievements_unlocked_hardcore < 1 && $playerAchievementSet->getOriginal('achievements_unlocked_hardcore') > 0)) {
                 $possiblePlayerCountChangeGameIds[] = $gameAchievementSet->game_id;
