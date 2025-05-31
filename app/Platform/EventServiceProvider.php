@@ -70,6 +70,7 @@ class EventServiceProvider extends ServiceProvider
         AchievementPointsChanged::class => [
             DispatchUpdateGameMetricsJob::class,
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
+            DispatchUpdateAchievementMetricsJob::class,
         ],
         AchievementTypeChanged::class => [
             DispatchUpdateGameMetricsJob::class,

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Game;
-use App\Platform\Services\SearchIndexingService;
 
 class UpdateGameAchievementsMetricsAction
 {
@@ -21,14 +20,6 @@ class UpdateGameAchievementsMetricsAction
 
         $action = new UpdateAchievementMetricsAction();
         $action->update($game, $achievements);
-
-        $game->TotalTruePoints = $achievements->sum('TrueRatio');
-        if ($game->isDirty()) {
-            $game->saveQuietly();
-
-            $searchIndexingService = app()->make(SearchIndexingService::class);
-            $searchIndexingService->queueGameForIndexing($game->id);
-        }
 
         // TODO GameAchievementSetMetricsUpdated::dispatch($game);
     }

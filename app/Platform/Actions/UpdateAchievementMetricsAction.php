@@ -71,5 +71,12 @@ class UpdateAchievementMetricsAction
             $achievement->saveQuietly();
             $searchIndexingService->queueAchievementForIndexing($achievement->ID);
         }
+
+        $game->TotalTruePoints = $achievements->sum('TrueRatio');
+        if ($game->isDirty()) {
+            $game->saveQuietly();
+
+            $searchIndexingService->queueGameForIndexing($game->id);
+        }
     }
 }
