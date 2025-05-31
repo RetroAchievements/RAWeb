@@ -151,10 +151,11 @@ class ResetPlayerProgressAction
             if (!$isFullReset) {
                 // update the player game metrics, which will cascade into the game metrics
                 dispatch(new UpdatePlayerGameMetricsJob($user->id, $affectedGameID));
-            } else {
-                // update the game metrics directly
-                dispatch(new UpdateGamePlayerCountJob($affectedGameID));
             }
+
+            // if all achievements for a game were reset, the user is no longer considered a
+            // player of the game. will be a no-op if they still have achievements for the game.
+            dispatch(new UpdateGamePlayerCountJob($affectedGameID));
         }
 
         dispatch(new UpdatePlayerBeatenGamesStatsJob($user->id));

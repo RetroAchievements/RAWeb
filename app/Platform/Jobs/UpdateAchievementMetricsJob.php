@@ -29,7 +29,7 @@ class UpdateAchievementMetricsJob implements ShouldQueue, ShouldBeUniqueUntilPro
 
     public function uniqueId(): string
     {
-        return config('queue.default') === 'sync' ? '' : $this->gameId;
+        return config('queue.default') === 'sync' ? '' : $this->achievementId;
     }
 
     /**
