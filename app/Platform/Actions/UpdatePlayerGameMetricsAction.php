@@ -14,6 +14,7 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\PlayerGameMetricsUpdated;
+use App\Platform\Jobs\UpdateGamePlayerCountJob;
 use App\Platform\Services\PlayerGameActivityService;
 use ErrorException;
 use Illuminate\Support\Collection;

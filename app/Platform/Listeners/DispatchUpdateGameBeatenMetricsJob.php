@@ -2,6 +2,7 @@
 
 namespace App\Platform\Listeners;
 
+use App\Community\Enums\AwardType;
 use App\Models\Game;
 use App\Platform\Events\PlayerBadgeAwarded;
 use App\Platform\Events\PlayerBadgeLost;
