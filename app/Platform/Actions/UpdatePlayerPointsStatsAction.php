@@ -7,23 +7,12 @@ namespace App\Platform\Actions;
 use App\Models\PlayerStat;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\PlayerStatType;
+use App\Platform\Actions\Concerns\CalculatesPlayerPointsStats;
 use Illuminate\Support\Carbon;
 
 class UpdatePlayerPointsStatsAction
 {
-    private const PERIOD_MAP = [
-        'day' => [
-            'hardcore' => PlayerStatType::PointsHardcoreDay,
-            'softcore' => PlayerStatType::PointsSoftcoreDay,
-            'weighted' => PlayerStatType::PointsWeightedDay,
-        ],
-        'week' => [
-            'hardcore' => PlayerStatType::PointsHardcoreWeek,
-            'softcore' => PlayerStatType::PointsSoftcoreWeek,
-            'weighted' => PlayerStatType::PointsWeightedWeek,
-        ],
-    ];
+    use CalculatesPlayerPointsStats;
 
     public function execute(User $user): void
     {
@@ -49,50 +38,18 @@ class UpdatePlayerPointsStatsAction
             })
             ->get();
 
-        // Next, separate the hardcore earned achievements from the
-        // softcore earned achievements.
-        $hardcoreAchievements = $recentPlayerAchievements->filter(function ($playerAchievement) {
-            return $playerAchievement->unlocked_hardcore_at !== null;
-        });
-        $softcoreAchievements = $recentPlayerAchievements->filter(function ($playerAchievement) {
-            return $playerAchievement->unlocked_hardcore_at === null;
-        });
+        // Separate achievements by type.
+        ['hardcore' => $hardcoreAchievements, 'softcore' => $softcoreAchievements] =
+            $this->separateAchievementsByType($recentPlayerAchievements);
 
-        // "day" will be the beginning of the day (server time).
-        // "week" will be the beginning of the week (server time).
-        $statIntervals = [
-            'day' => Carbon::now()->startOfDay(),
-            'week' => Carbon::now()->startOfWeek(),
-        ];
+        $statIntervals = $this->getStatIntervals();
 
-        foreach ($statIntervals as $key => $statInterval) {
-            $hardcorePoints = $this->calculatePointsForPlayerAchievementsOfInterval($hardcoreAchievements, $statInterval);
-            $softcorePoints = $this->calculatePointsForPlayerAchievementsOfInterval($softcoreAchievements, $statInterval);
+        foreach ($statIntervals as $period => $interval) {
+            $hardcorePoints = $this->calculatePointsForInterval($hardcoreAchievements, $interval);
+            $softcorePoints = $this->calculatePointsForInterval($softcoreAchievements, $interval);
 
-            $this->upsertAllPlayerPointsStats($user, $hardcorePoints, $softcorePoints, $key);
+            $this->upsertAllPlayerPointsStats($user, $hardcorePoints, $softcorePoints, $period);
         }
-    }
-
-    private function calculatePointsForPlayerAchievementsOfInterval(
-        mixed $playerAchievements,
-        Carbon $interval,
-    ): array {
-        $playerAchievementsOfInterval = $playerAchievements->filter(function ($playerAchievement) use ($interval) {
-            return $playerAchievement->unlocked_at >= $interval;
-        });
-
-        $sumPoints = $playerAchievementsOfInterval->sum(function ($playerAchievement) {
-            return $playerAchievement->achievement->points;
-        });
-
-        $sumPointsWeighted = $playerAchievementsOfInterval->sum(function ($playerAchievement) {
-            return $playerAchievement->achievement->points_weighted;
-        });
-
-        return [
-            'points' => $sumPoints ?? 0,
-            'points_weighted' => $sumPointsWeighted ?? 0,
-        ];
     }
 
     private function clearExistingUntrackedStats(User $user): void
@@ -106,23 +63,23 @@ class UpdatePlayerPointsStatsAction
         array $softcorePoints,
         string $period,
     ): void {
-        $statTypes = self::PERIOD_MAP[$period];
+        $statTypes = static::PERIOD_MAP[$period];
 
-        // Hardcore points
+        // Hardcore points.
         $this->writePlayerPointsStat(
             $user,
             $statTypes['hardcore'],
             $hardcorePoints['points'],
         );
 
-        // Weighted Points
+        // Weighted points.
         $this->writePlayerPointsStat(
             $user,
             $statTypes['weighted'],
             $hardcorePoints['points_weighted'],
         );
 
-        // Softcore Points
+        // Softcore points.
         $this->writePlayerPointsStat(
             $user,
             $statTypes['softcore'],

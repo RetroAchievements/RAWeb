@@ -221,6 +221,7 @@ return [
                 'game-beaten-metrics',
                 'game-player-games',
                 'player-game-metrics-batch',
+                'player-points-stats-batch',
             ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
