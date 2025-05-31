@@ -37,6 +37,15 @@ class UpdateGamePlayerCountAction
         if ($game->isDirty()) {
             $game->saveQuietly();
 
+            // copy the new player counts to the achievement set
+            $coreGameAchievementSet = $game->gameAchievementSets()->core()->first();
+            if ($coreGameAchievementSet) {
+                $coreSet = $coreGameAchievementSet->achievementSet;
+                $coreSet->players_hardcore = $game->players_hardcore;
+                $coreSet->players_total = $game->players_total;
+                $coreSet->save();
+            }
+
             // if the player count changed, update unlock percentages and weighted points for all achievements in the set
             app()->make(UpdateGameAchievementsMetricsAction::class)
                 ->execute($game);

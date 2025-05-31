@@ -76,6 +76,14 @@ class UpdateAchievementMetricsAction
         if ($game->isDirty()) {
             $game->saveQuietly();
 
+            // copy the new weighted points to the achievement set
+            $coreGameAchievementSet = $game->gameAchievementSets()->core()->first();
+            if ($coreGameAchievementSet) {
+                $coreSet = $coreGameAchievementSet->achievementSet;
+                $coreSet->points_weighted = $game->TotalTruePoints;
+                $coreSet->save();
+            }
+
             $searchIndexingService->queueGameForIndexing($game->id);
         }
     }
