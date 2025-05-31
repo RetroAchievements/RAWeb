@@ -77,8 +77,10 @@ class UpdateAchievementMetricsAction
                 + $achievement->points * (($playersHardcoreCalc / $unlocksHardcoreCalc) * $weight)
             );
 
-            $unlockPercentage = $playersTotal ? $unlocksCount / $playersTotal : 0;
-            $unlockHardcorePercentage = $playersHardcore ? $unlocksHardcoreCount / $playersHardcore : 0;
+            // Round percentages to 9 decimal places to match the exact database column precision (decimal(10,9)).
+            // This prevents unnecessary updates due to precision differences in PHP.
+            $unlockPercentage = round($playersTotal ? $unlocksCount / $playersTotal : 0, 9);
+            $unlockHardcorePercentage = round($playersHardcore ? $unlocksHardcoreCount / $playersHardcore : 0, 9);
 
             // We'll optimistically set attributes on the model to leverage Laravel's dirty checking.
             // This doesn't necessarily mean we'll be doing a save for the model, though.
