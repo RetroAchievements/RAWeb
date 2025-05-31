@@ -29,7 +29,7 @@ class DispatchUpdateAchievementMetricsJob implements ShouldQueue
 
         if ($achievement instanceof Achievement) {
             dispatch(new UpdateAchievementMetricsJob($achievement->id))
-                ->onQueue('game-metrics');
+                ->onQueue('achievement-metrics');
         }
     }
 }
