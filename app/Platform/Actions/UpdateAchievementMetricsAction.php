@@ -109,7 +109,7 @@ class UpdateAchievementMetricsAction
             $this->performBulkUpdate($bulkUpdates);
         }
 
-        $game->TotalTruePoints = $achievements->sum('TrueRatio');
+        $game->TotalTruePoints = $game->achievements()->published()->sum('TrueRatio');
         if ($game->isDirty()) {
             $game->saveQuietly();
 
