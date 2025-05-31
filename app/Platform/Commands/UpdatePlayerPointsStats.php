@@ -7,7 +7,8 @@ namespace App\Platform\Commands;
 use App\Models\User;
 use App\Platform\Actions\UpdatePlayerPointsStatsAction;
 use App\Platform\Enums\PlayerStatType;
-use App\Platform\Jobs\UpdatePlayerPointsStatsJob;
+use App\Platform\Jobs\UpdatePlayerPointsStatsBatchJob;
+use Illuminate\Bus\BatchRepository;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
@@ -77,17 +78,37 @@ class UpdatePlayerPointsStats extends Command
             $progressBar = $this->output->createProgressBar($distinctUserCount);
             $progressBar->start();
 
-            // Retrieve user IDs in chunks and create jobs.
-            $baseUserQuery->chunk(100, function ($users) use ($progressBar, $mockCurrentDate) {
-                $jobs = $users->map(function ($user) use ($mockCurrentDate) {
-                    return new UpdatePlayerPointsStatsJob($user->id, $mockCurrentDate);
-                })->all();
+            // Retrieve all user IDs first.
+            $this->info('Collecting user IDs...');
+            $allUserIds = $baseUserQuery->pluck('ID')->toArray();
 
-                // Dispatch jobs for the current chunk.
-                Bus::batch($jobs)->onQueue('player-points-stats')->dispatch();
+            // Now create batch jobs from the user IDs.
+            $this->info('Creating batch jobs...');
+            $jobs = [];
+            $chunks = array_chunk($allUserIds, 200);
 
-                $progressBar->advance(count($users));
-            });
+            foreach ($chunks as $userIdChunk) {
+                $jobs[] = new UpdatePlayerPointsStatsBatchJob(
+                    $userIdChunk,
+                    $mockCurrentDate
+                );
+                $progressBar->advance(count($userIdChunk));
+            }
+
+            // Dispatch all jobs as a batch.
+            if (!empty($jobs)) {
+                Bus::batch($jobs)
+                    ->name('player-points-stats-batch')
+                    ->onQueue('player-points-stats-batch')
+                    ->allowFailures()
+                    ->finally(function ($batch) {
+                        // mark batch as finished even if jobs failed
+                        if (!$batch->finished()) {
+                            resolve(BatchRepository::class)->markAsFinished($batch->id);
+                        }
+                    })
+                    ->dispatch();
+            }
 
             $progressBar->finish();
 

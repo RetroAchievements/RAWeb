@@ -193,4 +193,41 @@ class UpdatePlayerPointsStatsActionTest extends TestCase
         $userStats = PlayerStat::where('user_id', $user->id)->get();
         $this->assertCount(0, $userStats);
     }
+
+    public function testItSkipsUpdateWhenValueIsUnchanged(): void
+    {
+        // Arrange
+        Carbon::setTestNow(Carbon::create(2023, 11, 18, 15, 0, 0));
+
+        $user = User::factory()->create();
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
+
+        $this->addHardcoreUnlock($user, $achievement, Carbon::now()->subMinutes(10));
+
+        // Act
+        // ... create the stats ...
+        (new UpdatePlayerPointsStatsAction())->execute($user);
+
+        // ... get the current updated_at timestamp ...
+        $dailyHardcorePointsBefore = PlayerStat::where('user_id', $user->id)
+            ->where('type', PlayerStatType::PointsHardcoreDay)
+            ->first();
+        $updatedAtBefore = $dailyHardcorePointsBefore->updated_at;
+
+        // ... wait a second to ensure timestamp would change on update ...
+        Carbon::setTestNow(Carbon::now()->addSeconds(1));
+
+        // ... now execute again with the same data (this should be skipped) ...
+        (new UpdatePlayerPointsStatsAction())->execute($user);
+
+        // Assert
+        $dailyHardcorePointsAfter = PlayerStat::where('user_id', $user->id)
+            ->where('type', PlayerStatType::PointsHardcoreDay)
+            ->first();
+
+        $this->assertEquals($updatedAtBefore->toDateTimeString(), $dailyHardcorePointsAfter->updated_at->toDateTimeString());
+        $this->assertEquals(10, $dailyHardcorePointsAfter->value);
+    }
 }
