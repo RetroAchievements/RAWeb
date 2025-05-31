@@ -10,7 +10,6 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
-use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Illuminate\Support\Facades\DB;
@@ -153,7 +152,7 @@ class ResetPlayerProgressAction
                 dispatch(new UpdatePlayerGameMetricsJob($user->id, $affectedGameID));
             } else {
                 // update the game metrics directly
-                dispatch(new UpdateGameMetricsJob($affectedGameID));
+                dispatch(new UpdateGamePlayerCountJob($affectedGameID));
             }
         }
 

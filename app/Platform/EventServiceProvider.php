@@ -74,9 +74,10 @@ class EventServiceProvider extends ServiceProvider
         GameMetricsUpdated::class => [
         ],
         GamePlayerGameMetricsUpdated::class => [
-            DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+            DispatchUpdateGamePlayerCountJob::class,
         ],
         PlayerAchievementLocked::class => [
+            DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
         ],
         PlayerAchievementUnlocked::class => [
@@ -87,10 +88,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         PlayerBadgeAwarded::class => [
             // TODO Notify player
+            DispatchUpdateGameBeatenMetricsJob::class,
             DispatchUpdatePlayerBeatenGamesStatsJob::class, // dispatches PlayerBeatenGamesStatsUpdated
         ],
         PlayerBadgeLost::class => [
             // TODO Notify player
+            DispatchUpdateGameBeatenMetricsJob::class,
             DispatchUpdatePlayerBeatenGamesStatsJob::class, // dispatches PlayerBeatenGamesStatsUpdated
         ],
         PlayerGameAttached::class => [
@@ -108,7 +111,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         PlayerGameMetricsUpdated::class => [
             DispatchUpdatePlayerMetricsJob::class, // dispatches PlayerMetricsUpdated
-            DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
         PlayerMetricsUpdated::class => [
             DispatchUpdatePlayerPointsStatsJob::class, // dispatches PlayerPointsStatsUpdated

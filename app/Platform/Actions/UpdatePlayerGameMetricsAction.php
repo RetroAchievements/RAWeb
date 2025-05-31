@@ -91,6 +91,7 @@ class UpdatePlayerGameMetricsAction
 
         // process each set
         $playerAchievementSets = [];
+        $newPlayerGameIds = [];
         foreach ($gameAchievementSets as $gameAchievementSet) {
             $achievementSet = $gameAchievementSet->achievementSet;
             $playerAchievementSet = PlayerAchievementSet::where('user_id', $playerGame->user->id)
@@ -122,6 +123,12 @@ class UpdatePlayerGameMetricsAction
             $playerAchievementSet->points = $setAchievementsUnlocked->sum('Points');
             $playerAchievementSet->points_hardcore = $setAchievementsUnlockedHardcore->sum('Points');
             $playerAchievementSet->points_weighted = $setAchievementsUnlockedHardcore->sum('TrueRatio');
+
+            // if it's the first unlock for a set, we need to update the game player count
+            if (($playerAchievementSet->achievements_unlocked > 0 && $playerAchievementSet->getOriginal('achievements_unlocked') < 1)
+                || ($playerAchievementSet->achievements_unlocked_hardcore > 0 && $playerAchievementSet->getOriginal('achievements_unlocked_hardcore') < 1)) {
+                $newPlayerGameIds[] = $gameAchievementSet->game_id;
+            }
 
             $summary = $activityService->getAchievementSetMetrics($achievementSet);
             $playerAchievementSet->time_taken = $summary['achievementPlaytimeSoftcore'] ?? 0;
@@ -172,6 +179,10 @@ class UpdatePlayerGameMetricsAction
 
         if (!$silent) {
             PlayerGameMetricsUpdated::dispatch($user, $game);
+        }
+
+        foreach ($newPlayerGameIds as $gameId) {
+            dispatch(new UpdateGamePlayerCountJob($gameId))->onQueue('game-metrics');
         }
 
         app()->make(RevalidateAchievementSetBadgeEligibilityAction::class)->execute($playerGame);

@@ -4,7 +4,6 @@ namespace App\Platform\Jobs;
 
 use App\Models\Game;
 use App\Platform\Actions\UpdateGameBeatenMetricsAction;
-use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;

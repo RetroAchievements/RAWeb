@@ -6,7 +6,6 @@ namespace App\Platform\Commands;
 
 use App\Models\Game;
 use App\Platform\Actions\UpdateGamePlayerCountAction;
-use App\Platform\Jobs\UpdateGamePlayerCountJob;
 use Illuminate\Console\Command;
 
 class UpdateGamePlayerCount extends Command

@@ -5,13 +5,8 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Game;
-use App\Models\GameAchievementSet;
-use App\Models\PlayerAchievementSet;
-use App\Models\PlayerGame;
-use App\Platform\Jobs\UpdateGameMetricsJob;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Log;
 
+// Recalculates the number of players for a game.
 class UpdateGamePlayerCountAction
 {
     public function execute(Game $game): void
@@ -42,8 +37,9 @@ class UpdateGamePlayerCountAction
         if ($game->isDirty()) {
             $game->saveQuietly();
 
-            dispatch(new UpdateGameMetricsJob($game->id))
-                ->onQueue('game-metrics');
+            // if the player count changed, update unlock percentages and weighted points for all achievements in the set
+            app()->make(UpdateGameAchievementsMetricsAction::class)
+                ->execute($game);
         }
     }
 }

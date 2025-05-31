@@ -97,15 +97,6 @@ class UnlockPlayerAchievementAction
 
         // commit the unlock
         if ($achievement->is_published) {
-            // if it's the first unlock for the player in this game, update the player count for the game
-            $unlockedAchievementCount = $user->playerGames()
-                ->where('game_id', $achievement->GameID)
-                ->value('achievements_unlocked');
-            if ($unlockedAchievementCount === 0) {
-                dispatch(new UpdateGamePlayerCountJob($originalGame->id))
-                    ->onQueue('game-metrics');
-            }
-
             $unlock->save();
 
             // Check if this achievement is currently maintained by someone other than the author.

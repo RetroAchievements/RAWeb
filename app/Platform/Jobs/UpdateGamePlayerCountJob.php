@@ -14,6 +14,7 @@ use Illuminate\Queue\SerializesModels;
 
 class UpdateGamePlayerCountJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
+    use Batchable;
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
@@ -43,6 +44,10 @@ class UpdateGamePlayerCountJob implements ShouldQueue, ShouldBeUniqueUntilProces
 
     public function handle(): void
     {
+        if ($this->batch()?->cancelled()) {
+            return;
+        }
+
         app()->make(UpdateGamePlayerCountAction::class)
             ->execute(Game::findOrFail($this->gameId));
     }

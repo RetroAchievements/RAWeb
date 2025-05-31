@@ -8,9 +8,7 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
-use App\Platform\Jobs\UpdateGameMetricsJob;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Log;
 
 class UpdateGameBeatenMetricsAction
 {

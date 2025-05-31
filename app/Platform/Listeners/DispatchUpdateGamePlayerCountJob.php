@@ -3,14 +3,10 @@
 namespace App\Platform\Listeners;
 
 use App\Models\Game;
-use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementMoved;
-use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPublished;
-use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpublished;
 use App\Platform\Events\GamePlayerGameMetricsUpdated;
-use App\Platform\Events\PlayerGameMetricsUpdated;
 use App\Platform\Jobs\UpdateGamePlayerCountJob;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -35,6 +31,9 @@ class DispatchUpdateGamePlayerCountJob implements ShouldQueue
                 $achievement = $event->achievement;
                 $game = $achievement->game;
                 $originalGame = $event->originalGame;
+                break;
+            case GamePlayerGameMetricsUpdated::class:
+                $game = $event->game;
                 break;
         }
 
