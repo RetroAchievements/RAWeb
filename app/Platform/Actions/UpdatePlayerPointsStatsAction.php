@@ -8,7 +8,6 @@ use App\Models\PlayerStat;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
-use App\Platform\Events\PlayerPointsStatsUpdated;
 use Illuminate\Support\Carbon;
 
 class UpdatePlayerPointsStatsAction
@@ -145,11 +144,14 @@ class UpdatePlayerPointsStatsAction
         $existingPlayerStat = PlayerStat::where($attributes)->first();
 
         if ($existingPlayerStat) {
+            // Skip the update if the value hasn't changed.
+            if ($existingPlayerStat->value === $points) {
+                return;
+            }
+
             $existingPlayerStat->update(['value' => $points]);
         } elseif ($points !== 0) {
             PlayerStat::create(array_merge($attributes, ['value' => $points]));
         }
-
-        PlayerPointsStatsUpdated::dispatch($user);
     }
 }
