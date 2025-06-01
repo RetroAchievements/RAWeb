@@ -42,10 +42,10 @@ class UpdateGameMetricsAction
             Log::info("Hash change detected for game [" . $game->id . "]. Queueing all outdated player games.");
             dispatch(new UpdateGamePlayerGamesJob($game->id))
                 ->onQueue('game-player-games');
-
-            // one or more achievements was added/removed/modified. sync to achievement set
-            app()->make(UpsertGameCoreAchievementSetFromLegacyFlagsAction::class)
-                ->execute($game);
         }
+
+        // sync to achievement set
+        app()->make(UpsertGameCoreAchievementSetFromLegacyFlagsAction::class)
+            ->execute($game);
     }
 }

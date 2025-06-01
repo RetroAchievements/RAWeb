@@ -79,6 +79,18 @@ export function toggleAchievementRowsComponent(
     isUsingOnlyShowMissables: false,
 
     init(): void {
+      // Check if all achievements are unlocked.
+      const allRows = document.querySelectorAll<HTMLLIElement>('#set-achievements-list > li');
+      const unlockedRows = document.querySelectorAll<HTMLLIElement>(
+        '#set-achievements-list > li.unlocked-row',
+      );
+
+      // If all achievements are unlocked, disable the hide unlocked filter.
+      if (allRows.length > 0 && allRows.length === unlockedRows.length) {
+        this.isUsingHideUnlockedAchievements = false;
+        toggleGameInHiddenList(false);
+      }
+
       // Respect whatever the initial state from the server is.
       if (this.isUsingHideUnlockedAchievements) {
         this.updateRowsVisibility();
