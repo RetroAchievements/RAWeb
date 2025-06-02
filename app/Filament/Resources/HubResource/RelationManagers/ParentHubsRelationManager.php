@@ -145,7 +145,11 @@ class ParentHubsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\Action::make('remove')
-                    ->visible(fn (): bool => $user->can('update', $gameSet))
+                    ->visible(function ($record) use ($user, $gameSet) {
+                        // You need to be able to update both hubs to
+                        // unlink them from each other.
+                        return $user->can('update', $gameSet) && $user->can('update', $record);
+                    })
                     ->tooltip('Remove')
                     ->icon('heroicon-o-trash')
                     ->iconButton()

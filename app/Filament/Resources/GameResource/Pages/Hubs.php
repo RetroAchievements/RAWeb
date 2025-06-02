@@ -44,7 +44,11 @@ class Hubs extends ManageRelatedRecords
 
     public function table(Table $table): Table
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $table
+            ->checkIfRecordIsSelectableUsing(fn (GameSet $record): bool => $user->can('update', $record))
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
@@ -152,6 +156,7 @@ class Hubs extends ManageRelatedRecords
             ])
             ->actions([
                 Tables\Actions\Action::make('remove')
+                    ->visible(fn ($record): bool => $user->can('update', $record))
                     ->tooltip('Remove')
                     ->icon('heroicon-o-trash')
                     ->iconButton()
