@@ -44,13 +44,14 @@ Guest Additions provide drivers for interacting more directly with the host syst
 This enables the ability to copy/paste between the VM and the host machine, and sets up ports allowing access to the web server from the host machine.
 
 Go into the virtual machine settings 
-  * General > Advanced > Shared Clipboard = Bidrectional
-  * Network > Adapter 1 > Port Forwarding > Add (three times)
+  * General > Advanced > Shared Clipboard = Bidirectional
+  * Network > Adapter 1 > Port Forwarding > Add (four times)
       | Name | Protocol | Host IP | Host Port | Guest IP | Guest Port |
       | ---- | -------- | ------- | --------- | -------- | ---------- |
       | Web Server | TCP |  | 64000 | | 64000 |
       | Mailpit    | TCP |  | 64050 | | 64050 |
-      | VITE       | TCP |  | 64011 | | 64011 |
+      | VITE       | TCP |  | 64009 | | 64009 |
+      | VITE (alt) | TCP |  | 64009 | | 64009 |
 
 ## Set up the development environment
 Start the VM.  You should be able to maximize the VM window now to get a fullscreen Ubuntu desktop.
