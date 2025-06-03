@@ -8,9 +8,9 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { cn } from '@/common/utils/cn';
 import { formatDate } from '@/common/utils/l10n/formatDate';
-import { InertiaLink } from '@/common/components/InertiaLink';
 
 import { cleanEventAwardLabel } from '../../utils/cleanEventAwardLabel';
 

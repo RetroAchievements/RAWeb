@@ -4,10 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { render, screen } from '@/test';
 import {
   createAwardEarner,
-  createRaEvent,
   createEventAward,
   createGame,
   createPaginatedData,
+  createRaEvent,
   createSystem,
   createUser,
 } from '@/test/factories';
