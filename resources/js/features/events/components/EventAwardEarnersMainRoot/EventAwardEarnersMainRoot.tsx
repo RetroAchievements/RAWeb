@@ -8,12 +8,15 @@ import { FullPaginator } from '@/common/components/FullPaginator';
 import { PlayableHeader } from '@/common/components/PlayableHeader';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { EventBreadcrumbs } from '@/features/events/components/EventBreadcrumbs';
+import { cleanEventAwardLabel } from '@/features/events/utils/cleanEventAwardLabel';
 
 export const EventAwardEarnersMainRoot: FC = memo(() => {
   const { event, eventAward, paginatedUsers } =
     usePageProps<App.Platform.Data.EventAwardEarnersPageProps>();
 
   const { t } = useTranslation();
+
+  const cleanAwardLabel = cleanEventAwardLabel(eventAward.label, event);
 
   const handlePageSelectValueChange = (newPageValue: number) => {
     router.visit(
@@ -29,13 +32,13 @@ export const EventAwardEarnersMainRoot: FC = memo(() => {
     <div>
       <EventBreadcrumbs
         event={event}
-        t_currentPageLabel={t('{{awardLabel}}', { awardLabel: eventAward.label })}
+        t_currentPageLabel={t('{{awardLabel}}', { awardLabel: cleanAwardLabel })}
       />
       <PlayableHeader
         badgeUrl={eventAward.badgeUrl}
         systemLabel={event.legacyGame?.title ?? 'Event'}
         systemIconUrl="/assets/images/system/events.png"
-        title={eventAward.label}
+        title={cleanAwardLabel}
       >
         <span>
           {t('{{val, number}} players have earned this', {
