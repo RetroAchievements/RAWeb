@@ -11,9 +11,9 @@ import {
 import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { SelectableChip } from '../../../../common/components/SelectableChip';
 import { selectedPlatformIdAtom } from '../../state/downloads.atoms';
 import { environmentIconMap } from '../../utils/environmentIconMap';
-import { SelectableChip } from '../../../../common/components/SelectableChip';
 
 export const PlatformSelector: FC = () => {
   const { allPlatforms, userDetectedPlatformId } = usePageProps<App.Http.Data.DownloadsPageProps>();
