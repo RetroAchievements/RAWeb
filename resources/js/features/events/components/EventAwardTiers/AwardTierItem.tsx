@@ -10,6 +10,7 @@ import {
 } from '@/common/components/+vendor/BaseTooltip';
 import { cn } from '@/common/utils/cn';
 import { formatDate } from '@/common/utils/l10n/formatDate';
+import { InertiaLink } from '@/common/components/InertiaLink';
 
 import { cleanEventAwardLabel } from '../../utils/cleanEventAwardLabel';
 
@@ -48,7 +49,7 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
           : 'bg-zinc-800/50 light:bg-zinc-100',
       )}
     >
-      <a href={awardEarnersLink}>
+      <InertiaLink href={awardEarnersLink}>
         <div className="relative flex items-center gap-3">
           <div className="relative">
             <img
@@ -110,7 +111,7 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
             ) : null}
           </div>
         </div>
-      </a>
+      </InertiaLink>
     </div>
   );
 };
