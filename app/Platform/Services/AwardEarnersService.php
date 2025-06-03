@@ -29,8 +29,10 @@ class AwardEarnersService
             ->where('AwardType', $this->awardType)
             ->where('AwardData', $this->awardId)
             ->where('AwardDataExtra', $this->awardExtra)
-            ->whereHas('user', function ($query) {
-                return $query->tracked();
+            ->whereNotExists(function ($query) {
+                $query->select('user_id')
+                    ->from('unranked_users')
+                    ->whereColumn('unranked_users.user_id', 'SiteAwards.user_id');
             });
     }
 
@@ -42,11 +44,9 @@ class AwardEarnersService
     /**
      * @return Builder<PlayerBadge>
      */
-    public function allEarners(int $offset = 0, int $count = 10): Builder
+    public function allEarners(): Builder
     {
         return $this->baseQuery()->with('user')
-            ->orderBy('AwardDate')
-            ->offset($offset)
-            ->limit($count);
+            ->orderBy('AwardDate');
     }
 }
