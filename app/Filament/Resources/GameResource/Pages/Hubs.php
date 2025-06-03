@@ -88,10 +88,7 @@ class Hubs extends ManageRelatedRecords
                         Forms\Components\Select::make('hub_ids')
                             ->label('Hubs')
                             ->multiple()
-                            ->options(function () {
-                                /** @var User $user */
-                                $user = Auth::user();
-
+                            ->options(function () use ($user) {
                                 return GameSet::whereType(GameSetType::Hub)
                                     ->whereNotIn('id', $this->getOwnerRecord()->hubs->pluck('id'))
                                     ->limit(50)
@@ -107,10 +104,7 @@ class Hubs extends ManageRelatedRecords
                                     ->toArray();
                             })
                             ->searchable()
-                            ->getSearchResultsUsing(function (string $search) {
-                                /** @var User $user */
-                                $user = Auth::user();
-
+                            ->getSearchResultsUsing(function (string $search) use ($user) {
                                 return GameSet::whereType(GameSetType::Hub)
                                     ->whereNotIn('id', $this->getOwnerRecord()->hubs->pluck('id'))
                                     ->where(function ($query) use ($search) {
@@ -129,12 +123,9 @@ class Hubs extends ManageRelatedRecords
                     ])
                     ->modalHeading('Add hubs to game')
                     ->modalAutofocus(false)
-                    ->action(function (array $data): void {
+                    ->action(function (array $data) use ($user): void {
                         /** @var Game $game */
                         $game = $this->getOwnerRecord();
-
-                        /** @var User $user */
-                        $user = Auth::user();
 
                         // Handle select field input.
                         if (!empty($data['hub_ids'])) {
