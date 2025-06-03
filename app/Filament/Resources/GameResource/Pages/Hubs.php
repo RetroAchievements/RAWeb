@@ -89,10 +89,14 @@ class Hubs extends ManageRelatedRecords
                             ->label('Hubs')
                             ->multiple()
                             ->options(function () {
+                                /** @var User $user */
+                                $user = Auth::user();
+
                                 return GameSet::whereType(GameSetType::Hub)
                                     ->whereNotIn('id', $this->getOwnerRecord()->hubs->pluck('id'))
                                     ->limit(50)
                                     ->get()
+                                    ->filter(fn ($hub) => $user->can('update', $hub))
                                     ->mapWithKeys(fn ($hub) => [$hub->id => "[{$hub->id}] {$hub->title}"]);
                             })
                             ->getOptionLabelsUsing(function (array $values): array {
@@ -104,6 +108,9 @@ class Hubs extends ManageRelatedRecords
                             })
                             ->searchable()
                             ->getSearchResultsUsing(function (string $search) {
+                                /** @var User $user */
+                                $user = Auth::user();
+
                                 return GameSet::whereType(GameSetType::Hub)
                                     ->whereNotIn('id', $this->getOwnerRecord()->hubs->pluck('id'))
                                     ->where(function ($query) use ($search) {
@@ -112,6 +119,7 @@ class Hubs extends ManageRelatedRecords
                                     })
                                     ->limit(50)
                                     ->get()
+                                    ->filter(fn ($hub) => $user->can('update', $hub))
                                     ->mapWithKeys(fn ($hub) => [$hub->id => "[{$hub->id}] {$hub->title}"]);
                             })
                             ->hidden(fn (Forms\Get $get): bool => filled($get('hub_ids_csv')))
@@ -125,14 +133,30 @@ class Hubs extends ManageRelatedRecords
                         /** @var Game $game */
                         $game = $this->getOwnerRecord();
 
+                        /** @var User $user */
+                        $user = Auth::user();
+
                         // Handle select field input.
                         if (!empty($data['hub_ids'])) {
                             $gameSets = GameSet::whereType(GameSetType::Hub)
                                 ->whereIn('id', $data['hub_ids'])
                                 ->get();
 
+                            $unauthorizedHubs = [];
                             foreach ($gameSets as $gameSet) {
-                                $gameSet->games()->attach([$game->id]);
+                                if ($user->can('update', $gameSet)) {
+                                    $gameSet->games()->attach([$game->id]);
+                                } else {
+                                    $unauthorizedHubs[] = $gameSet->title;
+                                }
+                            }
+
+                            if (!empty($unauthorizedHubs)) {
+                                Notification::make()
+                                    ->warning()
+                                    ->title('Some hubs were not added')
+                                    ->body('You do not have permission to update: ' . implode(', ', $unauthorizedHubs))
+                                    ->send();
                             }
 
                             return;
@@ -148,8 +172,21 @@ class Hubs extends ManageRelatedRecords
                                 ->whereNotIn('id', $this->getOwnerRecord()->hubs->pluck('id'))
                                 ->get();
 
+                            $unauthorizedHubs = [];
                             foreach ($gameSets as $gameSet) {
-                                $gameSet->games()->attach([$game->id]);
+                                if ($user->can('update', $gameSet)) {
+                                    $gameSet->games()->attach([$game->id]);
+                                } else {
+                                    $unauthorizedHubs[] = $gameSet->title;
+                                }
+                            }
+
+                            if (!empty($unauthorizedHubs)) {
+                                Notification::make()
+                                    ->warning()
+                                    ->title('Some hubs were not added')
+                                    ->body('You do not have permission to update: ' . implode(', ', $unauthorizedHubs))
+                                    ->send();
                             }
                         }
                     }),
