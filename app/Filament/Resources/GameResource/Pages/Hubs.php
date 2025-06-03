@@ -133,6 +133,9 @@ class Hubs extends ManageRelatedRecords
                                 ->whereIn('id', $data['hub_ids'])
                                 ->get();
 
+                            // We still need to check these as a security measure
+                            // because Livewire doesn't actually stop the user from
+                            // directly manipulating the form value via browser devtools.
                             $unauthorizedHubs = [];
                             foreach ($gameSets as $gameSet) {
                                 if ($user->can('update', $gameSet)) {
@@ -140,14 +143,6 @@ class Hubs extends ManageRelatedRecords
                                 } else {
                                     $unauthorizedHubs[] = $gameSet->title;
                                 }
-                            }
-
-                            if (!empty($unauthorizedHubs)) {
-                                Notification::make()
-                                    ->warning()
-                                    ->title('Some hubs were not added')
-                                    ->body('You do not have permission to update: ' . implode(', ', $unauthorizedHubs))
-                                    ->send();
                             }
 
                             return;
