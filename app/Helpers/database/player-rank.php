@@ -2,6 +2,7 @@
 
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
+use App\Models\UnrankedUser;
 use App\Models\User;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Support\Cache\CacheKey;
@@ -13,6 +14,12 @@ function SetUserUntrackedStatus(User $user, bool $isUntracked): void
     $user->Untracked = $isUntracked;
     $user->unranked_at = $isUntracked ? now() : null;
     $user->save();
+
+    if ($isUntracked) {
+        UnrankedUser::firstOrCreate(['user_id' => $user->id]);
+    } else {
+        UnrankedUser::where('user_id', $user->id)->delete();
+    }
 
     PlayerRankedStatusChanged::dispatch($user, $isUntracked);
 }
