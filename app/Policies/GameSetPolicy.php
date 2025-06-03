@@ -65,9 +65,9 @@ class GameSetPolicy
     public function update(User $user, GameSet $gameSet): bool
     {
         // Admins can always edit hubs.
-        // if ($user->hasRole(Role::ADMINISTRATOR)) {
-        //     return true;
-        // }
+        if ($user->hasRole(Role::ADMINISTRATOR)) {
+            return true;
+        }
 
         // If the hub has update role requirements, check them.
         if ($gameSet->has_update_role_requirement) {
