@@ -17,7 +17,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 
-class SendClaimExpirationWarningEmailsAction
+class ProcessExpiringClaimsAction
 {
     public function execute(): void
     {
