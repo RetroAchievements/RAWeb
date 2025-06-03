@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { SEO } from '@/common/components/SEO';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
-import { EventAwardEarnersMainRoot } from '@/features/events/components/EventAwardEarnersMainRoot/EventAwardEarnersMainRoot';
+import { EventAwardEarnersMainRoot } from '@/features/events/components/EventAwardEarnersMainRoot';
 
 const AwardEarners: AppPage<App.Platform.Data.EventAwardEarnersPageProps> = ({
   event,

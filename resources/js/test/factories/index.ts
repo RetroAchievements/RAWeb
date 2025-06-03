@@ -7,7 +7,6 @@ export * from './createAwardEarner';
 export * from './createComment';
 export * from './createDownloadsPageProps';
 export * from './createEmulator';
-export * from './createEvent';
 export * from './createEventAchievement';
 export * from './createEventAward';
 export * from './createFollowedPlayerCompletion';

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { render, screen } from '@/test';
 import {
   createAwardEarner,
-  createEvent,
+  createRaEvent,
   createEventAward,
   createGame,
   createPaginatedData,
@@ -26,7 +26,7 @@ describe('Component: EventAwardEarnersMainRoot', () => {
       <EventAwardEarnersMainRoot />,
       {
         pageProps: {
-          event: createEvent(),
+          event: createRaEvent(),
           eventAward: createEventAward(),
           paginatedUsers: createPaginatedData([]),
         },
@@ -41,7 +41,7 @@ describe('Component: EventAwardEarnersMainRoot', () => {
     // ARRANGE
     const system = createSystem({ name: 'Events' });
     const legacyGame = createGame({ system });
-    const event = createEvent({ legacyGame });
+    const event = createRaEvent({ legacyGame });
     const eventAward = createEventAward();
 
     render<App.Platform.Data.EventAwardEarnersPageProps>(<EventAwardEarnersMainRoot />, {
@@ -76,7 +76,7 @@ describe('Component: EventAwardEarnersMainRoot', () => {
 
     render<App.Platform.Data.EventAwardEarnersPageProps>(<EventAwardEarnersMainRoot />, {
       pageProps: {
-        event: createEvent(),
+        event: createRaEvent(),
         eventAward: createEventAward(),
         paginatedUsers,
       },
@@ -94,7 +94,7 @@ describe('Component: EventAwardEarnersMainRoot', () => {
     const user2 = createUser();
     render<App.Platform.Data.EventAwardEarnersPageProps>(<EventAwardEarnersMainRoot />, {
       pageProps: {
-        event: createEvent(),
+        event: createRaEvent(),
         eventAward: createEventAward(),
         paginatedUsers: createPaginatedData([
           createAwardEarner({ user: user1 }),
@@ -112,7 +112,7 @@ describe('Component: EventAwardEarnersMainRoot', () => {
     // ARRANGE
     const visitSpy = vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
 
-    const event = createEvent();
+    const event = createRaEvent();
     const eventAward = createEventAward({ tierIndex: 2 });
 
     const paginatedUsers = createPaginatedData([createAwardEarner()], {
@@ -149,7 +149,7 @@ describe('Component: EventAwardEarnersMainRoot', () => {
 
   it('shows the correct earners message', () => {
     // ARRANGE
-    const event = createEvent();
+    const event = createRaEvent();
     const eventAward = createEventAward({ badgeCount: 5 });
 
     render<App.Platform.Data.EventAwardEarnersPageProps>(<EventAwardEarnersMainRoot />, {
