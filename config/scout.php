@@ -238,6 +238,15 @@ return [
 
             GameSet::class => [
                 'filterableAttributes' => ['id', 'games_count', 'title'],
+                'rankingRules' => [
+                    'exactness',
+                    'words',
+                    'typo',
+                    'attribute',
+                    'proximity',
+                    'games_count:desc',
+                    'sort',
+                ],
                 'searchableAttributes' => ['title', 'id'],
                 'sortableAttributes' => ['id', 'games_count', 'title'],
             ],

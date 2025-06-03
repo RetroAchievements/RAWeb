@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { selectedSystemIdAtom } from '../../state/downloads.atoms';
-import { SelectableChip } from '../SelectableChip';
+import { SelectableChip } from '../../../../common/components/SelectableChip';
 
 interface SelectableSystemChipProps {
   system?: App.Platform.Data.System;

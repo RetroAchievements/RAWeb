@@ -77,6 +77,10 @@ class ComputeGameSearchTitlesAction
         if (stripos($title, 'Professor Oak Challenge') !== false) {
             $variations[] = 'poc';
         }
+        // OoT is another popular query.
+        if (stripos($title, 'Ocarina of Time') !== false) {
+            $variations[] = 'oot';
+        }
 
         // Create simplified titles that don't have any special characters.
         $simplifiedTitle = $this->simplifyTitle($title);

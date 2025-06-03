@@ -337,6 +337,7 @@ declare namespace App.Data {
     isEmailVerified?: boolean;
     isMuted?: boolean;
     isNew?: boolean;
+    lastActivityAt?: string | null;
     legacyPermissions?: number | null;
     locale?: string | null;
     motto?: string;
@@ -385,6 +386,7 @@ declare namespace App.Enums {
     | 'reconstructed'
     | 'manual-unlock'
     | 'ticket-created';
+  export type UserPlatform = 'Android' | 'iOS' | 'Linux' | 'macOS' | 'Windows';
   export type UserPreference =
     | 0
     | 1

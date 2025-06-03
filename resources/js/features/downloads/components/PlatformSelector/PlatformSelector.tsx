@@ -13,7 +13,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { selectedPlatformIdAtom } from '../../state/downloads.atoms';
 import { environmentIconMap } from '../../utils/environmentIconMap';
-import { SelectableChip } from '../SelectableChip';
+import { SelectableChip } from '../../../../common/components/SelectableChip';
 
 export const PlatformSelector: FC = () => {
   const { allPlatforms, userDetectedPlatformId } = usePageProps<App.Http.Data.DownloadsPageProps>();
