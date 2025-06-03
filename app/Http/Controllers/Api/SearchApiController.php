@@ -167,7 +167,6 @@ class SearchApiController extends Controller
             ->filter(fn ($user) => $user->email_verified_at !== null)
             ->take(self::MAX_RESULTS_PER_SCOPE);
 
-        // Convert to DTOs without re-ranking (trust Meilisearch order).
         $results = $filteredUsers->map(function ($user) {
             return UserData::fromUser($user)->include('lastActivityAt', 'points', 'pointsSoftcore');
         });
