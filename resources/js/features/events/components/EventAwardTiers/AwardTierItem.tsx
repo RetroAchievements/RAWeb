@@ -69,7 +69,10 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
               <div className="flex items-center gap-2">
                 {!hasVirtualTier ? (
                   <>
-                    <p data-testid="award-tier-label" className="flex gap-2 text-xs font-medium">
+                    <p
+                      data-testid="award-tier-label"
+                      className="flex gap-2 text-xs font-medium transition group-hover:text-link-hover"
+                    >
                       {cleanedAwardLabel}
                     </p>
 
