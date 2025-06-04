@@ -108,6 +108,9 @@ class GameSuggestionEngineTest extends TestCase
 
         // Act
         $engine = new GameSuggestionEngine($user);
+        $engine->dangerouslySetFixedStrategyForTesting(
+            new WantToPlayStrategy($user)
+        );
         $suggestions = $engine->selectSuggestions(limit: 5); // we'll ask for 5 but expect fewer
 
         // Assert
