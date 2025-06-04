@@ -386,7 +386,7 @@ declare namespace App.Enums {
     | 'reconstructed'
     | 'manual-unlock'
     | 'ticket-created';
-  export type UserPlatform = 'Android' | 'iOS' | 'Linux' | 'macOS' | 'Windows';
+  export type UserOS = 'Android' | 'iOS' | 'Linux' | 'macOS' | 'Windows';
   export type UserPreference =
     | 0
     | 1

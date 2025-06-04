@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Data\UserPermissionsData;
-use App\Http\Actions\DetectUserPlatformAction;
+use App\Http\Actions\DetectUserOSAction;
 use App\Http\Controller;
 use App\Http\Data\DownloadsPagePropsData;
 use App\Models\DownloadsPopularityMetric;
@@ -71,13 +71,13 @@ class DownloadsController extends Controller
      */
     private function detectUserPlatformId(Collection $allPlatforms): ?int
     {
-        $userPlatform = (new DetectUserPlatformAction())->execute();
+        $userOS = (new DetectUserOSAction())->execute();
 
-        if ($userPlatform === null) {
+        if ($userOS === null) {
             return null;
         }
 
-        $platform = $allPlatforms->where('name', $userPlatform->value)->first();
+        $platform = $allPlatforms->where('name', $userOS->value)->first();
 
         return $platform?->id;
     }

@@ -1,8 +1,8 @@
-@use('App\Http\Actions\DetectUserPlatformAction')
+@use('App\Http\Actions\DetectUserOSAction')
 
 @php
-    $userPlatform = (new DetectUserPlatformAction())->execute();
-    $metaKey = in_array($userPlatform?->value, ['macOS', 'iOS']) ? '⌘' : 'Ctrl';
+    $userOS = (new DetectUserOSAction())->execute();
+    $metaKey = in_array($userOS?->value, ['macOS', 'iOS']) ? '⌘' : 'Ctrl';
 @endphp
 
 <button

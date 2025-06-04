@@ -14,7 +14,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
  * conditionally based on whatever we detect.
  */
 #[TypeScript]
-enum UserPlatform: string
+enum UserOS: string
 {
     case Android = 'Android';
     case IOS = 'iOS';
