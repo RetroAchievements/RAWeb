@@ -39,11 +39,14 @@ class UpdateDeveloperContributionYieldAction
                 COUNT(*) as author_count
             FROM Achievements a
             JOIN player_achievements pa ON pa.achievement_id = a.ID
-            LEFT JOIN achievement_maintainer_unlocks amu ON amu.player_achievement_id = pa.id
             WHERE a.user_id = :user_id
                 AND a.Flags = :flags
                 AND pa.user_id != :user_id2
-                AND amu.id IS NULL
+                AND NOT EXISTS (
+                    SELECT 1 
+                    FROM achievement_maintainer_unlocks amu 
+                    WHERE amu.player_achievement_id = pa.id
+                )
         SQL;
         $authorResults = DB::select($authorSql, [
             'user_id' => $user->id,
@@ -59,9 +62,11 @@ class UpdateDeveloperContributionYieldAction
             FROM achievement_maintainer_unlocks amu
             JOIN Achievements a ON a.ID = amu.achievement_id
             WHERE amu.maintainer_id = :user_id
+                AND a.Flags = :flags
         SQL;
         $maintainerResults = DB::select($maintainerSql, [
             'user_id' => $user->id,
+            'flags' => AchievementFlag::OfficialCore->value,
         ]);
 
         // Calculate totals.
@@ -88,11 +93,14 @@ class UpdateDeveloperContributionYieldAction
                 COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) as unlock_date
             FROM Achievements a
             JOIN player_achievements pa ON pa.achievement_id = a.ID
-            LEFT JOIN achievement_maintainer_unlocks amu ON amu.player_achievement_id = pa.id
             WHERE a.user_id = :user_id
             AND a.Flags = :flags
             AND pa.user_id != :user_id2
-            AND amu.id IS NULL
+            AND NOT EXISTS (
+                SELECT 1 
+                FROM achievement_maintainer_unlocks amu 
+                WHERE amu.player_achievement_id = pa.id
+            )
             UNION ALL
             
             -- Maintainer unlocks.
@@ -103,6 +111,7 @@ class UpdateDeveloperContributionYieldAction
             JOIN player_achievements pa ON pa.id = amu.player_achievement_id
             JOIN Achievements a ON a.ID = amu.achievement_id
             WHERE amu.maintainer_id = :user_id3
+                AND a.Flags = :flags
             ORDER BY unlock_date
             LIMIT :limit OFFSET :offset
         SQL;
