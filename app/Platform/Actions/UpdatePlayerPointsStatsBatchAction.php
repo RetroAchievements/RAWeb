@@ -9,7 +9,6 @@ use App\Models\PlayerStat;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\Concerns\CalculatesPlayerPointsStats;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class UpdatePlayerPointsStatsBatchAction
@@ -27,17 +26,19 @@ class UpdatePlayerPointsStatsBatchAction
             return;
         }
 
+        $now = now();
+
         // Get users and handle untracked users.
-        $users = User::whereIn('id', $userIds)->get()->keyBy('id');
+        $users = User::whereIn('id', $userIds)->get();
 
         // Wipe stats for untracked users.
-        $untrackedUserIds = $users->where('Untracked', true)->pluck('id')->toArray();
+        $untrackedUserIds = $users->whereNotNull('unranked_at')->pluck('id')->toArray();
         if (!empty($untrackedUserIds)) {
             PlayerStat::whereIn('user_id', $untrackedUserIds)->delete();
         }
 
         // Process tracked users.
-        $trackedUsers = $users->where('Untracked', false);
+        $trackedUsers = $users->whereNull('unranked_at');
         if ($trackedUsers->isEmpty()) {
             return;
         }
@@ -46,10 +47,10 @@ class UpdatePlayerPointsStatsBatchAction
 
         // Fetch all player achievements for tracked users in the time window.
         $allAchievements = PlayerAchievement::whereIn('player_achievements.user_id', $trackedUserIds)
-            ->whereBetween('player_achievements.unlocked_at', [Carbon::now()->subDays(8), Carbon::now()])
+            ->whereBetween('player_achievements.unlocked_at', [$now->subDays(8), $now])
             ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
             ->join('GameData', 'Achievements.GameID', '=', 'GameData.ID')
-            ->where('GameData.ConsoleID', '!=', System::Events)
+            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
             ->select(
                 'player_achievements.user_id',
                 'player_achievements.unlocked_at',
@@ -80,8 +81,8 @@ class UpdatePlayerPointsStatsBatchAction
                 // Add timestamps for bulk insert.
                 foreach ($periodStats as $stat) {
                     $bulkStats[] = array_merge($stat, [
-                        'created_at' => now(),
-                        'updated_at' => now(),
+                        'created_at' => $now,
+                        'updated_at' => $now,
                     ]);
                 }
             }

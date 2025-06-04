@@ -19,7 +19,7 @@ class UpdatePlayerPointsStatsAction
         // If the user is untracked, wipe any stats they
         // already have and then immediately bail. If/when
         // they're retracked, we can regenerate their stats.
-        if ($user->Untracked) {
+        if ($user->is_unranked) {
             $this->clearExistingUntrackedStats($user);
 
             return;
