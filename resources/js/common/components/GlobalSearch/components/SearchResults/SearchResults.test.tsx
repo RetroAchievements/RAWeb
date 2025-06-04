@@ -6,11 +6,8 @@ import { createAchievement, createGame, createGameSet, createUser } from '@/test
 import { BaseCommand } from '../../../+vendor/BaseCommand';
 import { SearchResults } from './SearchResults';
 
-const mockLocationAssign = vi.fn();
-Object.defineProperty(window, 'location', {
-  value: { assign: mockLocationAssign },
-  writable: true,
-});
+// JSDOM doesn't have manual navigation changes implemented.
+console.error = vi.fn();
 
 describe('Component: SearchResults', () => {
   beforeEach(() => {

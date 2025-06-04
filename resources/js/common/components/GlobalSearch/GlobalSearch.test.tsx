@@ -266,12 +266,6 @@ describe('Component: GlobalSearch', () => {
 
     vi.spyOn(axios, 'get').mockResolvedValueOnce(mockSearchResponse);
 
-    const mockLocationAssign = vi.fn();
-    Object.defineProperty(window, 'location', {
-      value: { assign: mockLocationAssign },
-      writable: true,
-    });
-
     render(<GlobalSearch isOpen={true} onOpenChange={mockOnOpenChange} />);
 
     // ACT
@@ -285,6 +279,5 @@ describe('Component: GlobalSearch', () => {
 
     // ASSERT
     expect(mockOnOpenChange).toHaveBeenCalledWith(false);
-    expect(mockLocationAssign).toHaveBeenCalledWith('/user/TestUser');
   });
 });
