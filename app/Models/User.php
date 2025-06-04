@@ -253,6 +253,13 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
                     ->log('pivotDetached');
             }
         });
+
+        // When a user is restored, check if they should remain unranked.
+        static::restored(function (User $user) {
+            if ($user->unranked_at === null) {
+                UnrankedUser::where('user_id', $user->id)->delete();
+            }
+        });
     }
 
     protected static function newFactory(): UserFactory

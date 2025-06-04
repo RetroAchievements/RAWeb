@@ -44,10 +44,12 @@ class RecalculateLeaderboardTopEntryAction
 
         if ($topEntry) {
             $leaderboard->top_entry_id = $topEntry->id;
+            $leaderboard->timestamps = false;
             $leaderboard->save();
         } else {
             // No valid entries found, clear the top entry.
             $leaderboard->top_entry_id = null;
+            $leaderboard->timestamps = false;
             $leaderboard->save();
         }
     }
