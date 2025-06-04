@@ -328,7 +328,6 @@ describe('Component: SearchResults', () => {
     await userEvent.click(screen.getByText('JohnDoe'));
 
     // ASSERT
-    expect(mockLocationAssign).toHaveBeenCalledWith('/user/JohnDoe');
     expect(mockOnClose).toHaveBeenCalled();
   });
 
@@ -361,7 +360,6 @@ describe('Component: SearchResults', () => {
     await userEvent.click(screen.getByText(/test game/i));
 
     // ASSERT
-    expect(mockLocationAssign).toHaveBeenCalledWith('/game/123');
     expect(mockOnClose).toHaveBeenCalled();
   });
 
@@ -394,7 +392,6 @@ describe('Component: SearchResults', () => {
     await userEvent.click(screen.getByText(/mario series/i));
 
     // ASSERT
-    expect(mockLocationAssign).toHaveBeenCalledWith('/hub/456');
     expect(mockOnClose).toHaveBeenCalled();
   });
 
@@ -427,7 +424,6 @@ describe('Component: SearchResults', () => {
     await userEvent.click(screen.getByText(/first blood/i));
 
     // ASSERT
-    expect(mockLocationAssign).toHaveBeenCalledWith('/achievement/789');
     expect(mockOnClose).toHaveBeenCalled();
   });
 });

@@ -63,14 +63,10 @@ export const SearchResults: FC<SearchResultsProps> = ({
         const safeUser = user as App.Data.User;
 
         return (
-          <BaseCommandItem
-            key={`user-${safeUser.displayName}`}
-            onSelect={() => {
-              window.location.assign(`/user/${safeUser.displayName}`);
-              onClose();
-            }}
-          >
-            <UserResultDisplay user={safeUser} />
+          <BaseCommandItem key={`user-${safeUser.displayName}`} asChild={true} onSelect={onClose}>
+            <a href={`/user/${safeUser.displayName}`}>
+              <UserResultDisplay user={safeUser} />
+            </a>
           </BaseCommandItem>
         );
       },
@@ -86,13 +82,13 @@ export const SearchResults: FC<SearchResultsProps> = ({
       render: (game) => (
         <BaseCommandItem
           key={`game-${game.id}`}
+          asChild={true}
           className="group"
-          onSelect={() => {
-            window.location.assign(`/game/${game.id}`);
-            onClose();
-          }}
+          onSelect={onClose}
         >
-          <GameResultDisplay game={game as App.Platform.Data.Game} />
+          <a href={`/game/${game.id}`}>
+            <GameResultDisplay game={game as App.Platform.Data.Game} />
+          </a>
         </BaseCommandItem>
       ),
     },
@@ -105,14 +101,10 @@ export const SearchResults: FC<SearchResultsProps> = ({
       icon: LuNetwork,
 
       render: (hub) => (
-        <BaseCommandItem
-          key={`hub-${hub.id}`}
-          onSelect={() => {
-            window.location.assign(`/hub/${hub.id}`);
-            onClose();
-          }}
-        >
-          <HubResultDisplay hub={hub as App.Platform.Data.GameSet} />
+        <BaseCommandItem key={`hub-${hub.id}`} asChild={true} onSelect={onClose}>
+          <a href={`/hub/${hub.id}`}>
+            <HubResultDisplay hub={hub as App.Platform.Data.GameSet} />
+          </a>
         </BaseCommandItem>
       ),
     },
@@ -125,14 +117,10 @@ export const SearchResults: FC<SearchResultsProps> = ({
       icon: ImTrophy,
 
       render: (achievement) => (
-        <BaseCommandItem
-          key={`achievement-${achievement.id}`}
-          onSelect={() => {
-            window.location.assign(`/achievement/${achievement.id}`);
-            onClose();
-          }}
-        >
-          <AchievementResultDisplay achievement={achievement as App.Platform.Data.Achievement} />
+        <BaseCommandItem key={`achievement-${achievement.id}`} asChild={true} onSelect={onClose}>
+          <a href={`/achievement/${achievement.id}`}>
+            <AchievementResultDisplay achievement={achievement as App.Platform.Data.Achievement} />
+          </a>
         </BaseCommandItem>
       ),
     },

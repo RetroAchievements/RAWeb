@@ -155,7 +155,7 @@ return [
                     'exactness',
                     'sort',
                 ],
-                'searchableAttributes' => ['title', 'description', 'id'],
+                'searchableAttributes' => ['title', 'id'],
                 'sortableAttributes' => [
                     'id',
                     'title',
