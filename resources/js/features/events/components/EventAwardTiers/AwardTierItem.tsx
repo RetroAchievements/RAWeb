@@ -33,12 +33,15 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
   );
 
   const awardEarnersLink =
+    eventAward.badgeCount! < 1 ? '' :
     eventAward.tierIndex > 0
       ? route('event.award-earners.index', {
           event: eventAward.eventId,
           tier: eventAward.tierIndex,
         })
       : route('event.award-earners.index', { event: eventAward.eventId });
+
+  const ConditionalLink = (awardEarnersLink != '') ? InertiaLink : 'div';
 
   return (
     <div
@@ -49,7 +52,7 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
           : 'bg-zinc-800/50 light:bg-zinc-100',
       )}
     >
-      <InertiaLink href={awardEarnersLink}>
+      <ConditionalLink href={awardEarnersLink}>
         <div className="relative flex items-center gap-3">
           <div className="relative">
             <img
@@ -114,7 +117,7 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
             ) : null}
           </div>
         </div>
-      </InertiaLink>
+      </ConditionalLink>
     </div>
   );
 };
