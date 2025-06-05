@@ -1,7 +1,13 @@
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
-import { createAchievement, createGame, createGameSet, createUser } from '@/test/factories';
+import {
+  createAchievement,
+  createGame,
+  createGameSet,
+  createRaEvent,
+  createUser,
+} from '@/test/factories';
 
 import { BaseCommand } from '../../../+vendor/BaseCommand';
 import { SearchResults } from './SearchResults';
@@ -270,11 +276,12 @@ describe('Component: SearchResults', () => {
         users: [createUser()],
         games: [createGame()],
         hubs: [createGameSet()],
+        events: [createRaEvent({ state: 'active' })],
         achievements: [createAchievement()],
       },
       query: 'test',
-      scopes: ['users', 'games', 'hubs', 'achievements'],
-      scopeRelevance: { users: 0.5, games: 0.5, hubs: 0.5, achievements: 0.5 },
+      scopes: ['users', 'games', 'hubs', 'events', 'achievements'],
+      scopeRelevance: { users: 0.5, games: 0.5, hubs: 0.5, events: 0.5, achievements: 0.5 },
     };
 
     render(
@@ -288,12 +295,13 @@ describe('Component: SearchResults', () => {
     );
 
     // ASSERT
-    // ... default order: games, hubs, users, achievements ...
+    // ... default order: games, hubs, users, events, achievements ...
     const sectionTexts = screen.getAllByTestId('search-results');
     expect(sectionTexts[0]).toHaveTextContent(/games/i);
     expect(sectionTexts[1]).toHaveTextContent(/hubs/i);
     expect(sectionTexts[2]).toHaveTextContent(/users/i);
-    expect(sectionTexts[3]).toHaveTextContent(/achievements/i);
+    expect(sectionTexts[3]).toHaveTextContent(/events/i);
+    expect(sectionTexts[4]).toHaveTextContent(/achievements/i);
   });
 
   it('given the user clicks on a user result, navigates to user page and closes', async () => {
@@ -304,6 +312,7 @@ describe('Component: SearchResults', () => {
         users: [createUser({ displayName: 'JohnDoe' })],
         games: [],
         hubs: [],
+        events: [],
         achievements: [],
       },
       query: 'john',
@@ -336,6 +345,7 @@ describe('Component: SearchResults', () => {
         users: [],
         games: [createGame({ id: 123, title: 'Test Game' })],
         hubs: [],
+        events: [],
         achievements: [],
       },
       query: 'test',
@@ -367,6 +377,7 @@ describe('Component: SearchResults', () => {
       results: {
         users: [],
         games: [],
+        events: [],
         hubs: [createGameSet({ id: 456, title: 'Mario Series' })],
         achievements: [],
       },
@@ -400,6 +411,7 @@ describe('Component: SearchResults', () => {
         users: [],
         games: [],
         hubs: [],
+        events: [],
         achievements: [createAchievement({ id: 789, title: 'First Blood' })],
       },
       query: 'first',
@@ -419,6 +431,44 @@ describe('Component: SearchResults', () => {
 
     // ACT
     await userEvent.click(screen.getByText(/first blood/i));
+
+    // ASSERT
+    expect(mockOnClose).toHaveBeenCalled();
+  });
+
+  it('given the user clicks on an event result, navigates to event page and closes', async () => {
+    // ARRANGE
+    const mockOnClose = vi.fn();
+    const mockSearchResults = {
+      results: {
+        users: [],
+        games: [],
+        hubs: [],
+        achievements: [],
+        events: [
+          createRaEvent({
+            state: 'active',
+            legacyGame: createGame({ title: 'Achievement of the Week' }),
+          }),
+        ],
+      },
+      query: 'first',
+      scopes: ['events'],
+      scopeRelevance: { users: 0, games: 0, hubs: 0, events: 0.5, achievements: 0 },
+    };
+
+    render(
+      <BaseCommand>
+        <SearchResults
+          currentSearchMode="all"
+          searchResults={mockSearchResults as any}
+          onClose={mockOnClose}
+        />
+      </BaseCommand>,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByText(/achievement of the week/i));
 
     // ASSERT
     expect(mockOnClose).toHaveBeenCalled();

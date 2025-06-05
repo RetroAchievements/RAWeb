@@ -970,5 +970,6 @@
     "{{val, number}} results_one": "{{val, number}} result",
     "{{val, number}} results_other": "{{val, number}} results",
     "Browse": "Browse",
-    "Search": "Search"
+    "Search": "Search",
+    "Events": "Events"
 }

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useState } from 'react';
 import { route } from 'ziggy-js';
 
-type SearchScope = 'users' | 'games' | 'hubs' | 'achievements';
+type SearchScope = 'users' | 'games' | 'hubs' | 'achievements' | 'events';
 
 interface SearchQueryResponse {
   results: {
@@ -11,6 +11,7 @@ interface SearchQueryResponse {
     games?: App.Platform.Data.Game[];
     hubs?: App.Platform.Data.GameSet[];
     achievements?: App.Platform.Data.Achievement[];
+    events?: App.Platform.Data.Event[];
   };
   query: string;
   scopes: SearchScope[];
@@ -19,6 +20,7 @@ interface SearchQueryResponse {
     games?: number;
     hubs?: number;
     achievements?: number;
+    events?: number;
   };
 }
 

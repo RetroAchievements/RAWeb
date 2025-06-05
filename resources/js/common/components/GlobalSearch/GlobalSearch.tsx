@@ -43,7 +43,8 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
   } = useSearchQuery({
     // This is required for global search to work in Blade contexts.
     route: '/internal-api/search',
-    scopes: searchMode === 'all' ? ['users', 'games', 'hubs', 'achievements'] : [searchMode],
+    scopes:
+      searchMode === 'all' ? ['users', 'games', 'hubs', 'events', 'achievements'] : [searchMode],
   });
 
   useGlobalSearchDebounce({ rawQuery, setSearchTerm });
@@ -65,6 +66,7 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
     !searchResults.results?.users?.length &&
     !searchResults.results?.games?.length &&
     !searchResults.results?.hubs?.length &&
+    !searchResults.results?.events?.length &&
     !searchResults.results?.achievements?.length;
 
   return (

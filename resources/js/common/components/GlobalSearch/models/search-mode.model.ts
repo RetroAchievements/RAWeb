@@ -1,1 +1,1 @@
-export type SearchMode = 'all' | 'games' | 'achievements' | 'users' | 'hubs';
+export type SearchMode = 'all' | 'games' | 'achievements' | 'users' | 'events' | 'hubs';

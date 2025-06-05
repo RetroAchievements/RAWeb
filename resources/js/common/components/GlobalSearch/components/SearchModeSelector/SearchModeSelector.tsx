@@ -31,6 +31,10 @@ export const SearchModeSelector: FC<SearchModeSelectorProps> = ({ onChange, sele
         {t('Users')}
       </SelectableChip>
 
+      <SelectableChip isSelected={selectedMode === 'events'} onClick={() => onChange('events')}>
+        {t('Events')}
+      </SelectableChip>
+
       <SelectableChip
         isSelected={selectedMode === 'achievements'}
         onClick={() => onChange('achievements')}

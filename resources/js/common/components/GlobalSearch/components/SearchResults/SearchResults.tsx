@@ -3,13 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { FaGamepad } from 'react-icons/fa';
 import { ImTrophy } from 'react-icons/im';
 import type { IconType } from 'react-icons/lib';
-import { LuNetwork, LuUsers } from 'react-icons/lu';
+import { LuCalendar, LuNetwork, LuUsers } from 'react-icons/lu';
 
 import { BaseCommandGroup, BaseCommandItem } from '@/common/components/+vendor/BaseCommand';
 import type { useSearchQuery } from '@/common/hooks/queries/useSearchQuery';
 
 import type { SearchMode } from '../../models/search-mode.model';
 import { AchievementResultDisplay } from './AchievementResultDisplay';
+import { EventResultDisplay } from './EventResultDisplay';
 import { GameResultDisplay } from './GameResultDisplay';
 import { HubResultDisplay } from './HubResultDisplay';
 import { UserResultDisplay } from './UserResultDisplay';
@@ -21,7 +22,8 @@ type SearchResult =
   | App.Data.User
   | App.Platform.Data.Game
   | App.Platform.Data.Achievement
-  | App.Platform.Data.GameSet;
+  | App.Platform.Data.GameSet
+  | App.Platform.Data.Event;
 
 interface SearchSection {
   key: string;
@@ -71,6 +73,7 @@ export const SearchResults: FC<SearchResultsProps> = ({
         );
       },
     },
+
     {
       key: 'games',
       heading: t('Games'),
@@ -92,6 +95,7 @@ export const SearchResults: FC<SearchResultsProps> = ({
         </BaseCommandItem>
       ),
     },
+
     {
       key: 'hubs',
       heading: t('Hubs'),
@@ -108,6 +112,7 @@ export const SearchResults: FC<SearchResultsProps> = ({
         </BaseCommandItem>
       ),
     },
+
     {
       key: 'achievements',
       heading: t('Achievements'),
@@ -120,6 +125,23 @@ export const SearchResults: FC<SearchResultsProps> = ({
         <BaseCommandItem key={`achievement-${achievement.id}`} asChild={true} onSelect={onClose}>
           <a href={`/achievement/${achievement.id}`}>
             <AchievementResultDisplay achievement={achievement as App.Platform.Data.Achievement} />
+          </a>
+        </BaseCommandItem>
+      ),
+    },
+
+    {
+      key: 'events',
+      heading: t('Events'),
+      results: searchResults.results.events || [],
+      relevance: searchResults.scopeRelevance.events || 0,
+      limit: 4,
+      icon: LuCalendar,
+
+      render: (event) => (
+        <BaseCommandItem key={`event-${event.id}`} asChild={true} onSelect={onClose}>
+          <a href={`/event/${event.id}`}>
+            <EventResultDisplay event={event as App.Platform.Data.Event} />
           </a>
         </BaseCommandItem>
       ),
@@ -141,7 +163,8 @@ export const SearchResults: FC<SearchResultsProps> = ({
       games: 1,
       hubs: 2,
       users: 3,
-      achievements: 4,
+      events: 4,
+      achievements: 5,
     };
 
     return (defaultOrder[a.key] as number) - (defaultOrder[b.key] as number);

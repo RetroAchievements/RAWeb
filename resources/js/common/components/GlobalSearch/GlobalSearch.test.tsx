@@ -207,7 +207,7 @@ describe('Component: GlobalSearch', () => {
       data: {
         results: {},
         query: 'test',
-        scopes: ['users', 'games', 'hubs', 'achievements'],
+        scopes: ['users', 'games', 'hubs', 'events', 'achievements'],
         scopeRelevance: {},
       },
     });
@@ -220,7 +220,7 @@ describe('Component: GlobalSearch', () => {
     // ASSERT
     await waitFor(() => {
       expect(axiosSpy).toHaveBeenCalledWith(
-        expect.stringContaining('scope=users%2Cgames%2Chubs%2Cachievements'),
+        expect.stringContaining('scope=users%2Cgames%2Chubs%2Cevents%2Cachievements'),
       );
     });
   });

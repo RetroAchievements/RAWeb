@@ -7,10 +7,12 @@ namespace App\Http\Controllers\Api;
 use App\Data\UserData;
 use App\Http\Controller;
 use App\Models\Achievement;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\User;
 use App\Platform\Data\AchievementData;
+use App\Platform\Data\EventData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
 use Illuminate\Http\JsonResponse;
@@ -19,7 +21,7 @@ use Illuminate\Http\Request;
 class SearchApiController extends Controller
 {
     private const DEFAULT_SCOPES = ['users'];
-    private const VALID_SCOPES = ['users', 'games', 'hubs', 'achievements'];
+    private const VALID_SCOPES = ['users', 'games', 'hubs', 'events', 'achievements'];
     private const MIN_QUERY_LENGTH = 3;
     private const MAX_RESULTS_PER_SCOPE = 10;
 
@@ -51,6 +53,7 @@ class SearchApiController extends Controller
             'users' => fn () => $this->searchUsers($keyword),
             'games' => fn () => $this->searchGames($keyword),
             'hubs' => fn () => $this->searchHubs($keyword),
+            'events' => fn () => $this->searchEvents($keyword),
             'achievements' => fn () => $this->searchAchievements($keyword),
         ];
 
@@ -237,6 +240,32 @@ class SearchApiController extends Controller
             }
 
             return $relevanceScore;
+        })->avg();
+
+        return [
+            'results' => $results->values(),
+            'avgRelevance' => $avgRelevance,
+        ];
+    }
+
+    private function searchEvents(string $keyword): array
+    {
+        $events = Event::search($keyword)
+            ->take(self::MAX_RESULTS_PER_SCOPE)
+            ->get();
+
+        $events->load('achievements', 'legacyGame');
+
+        $results = $events->map(function ($event) {
+            return EventData::fromEvent($event)->include(
+                'legacyGame.badgeUrl',
+                'state',
+            );
+        });
+
+        // Calculate average relevance for UI section ordering.
+        $avgRelevance = $events->isEmpty() ? 0 : $events->map(function ($event) use ($keyword) {
+            return $this->calculateTitleRelevance($keyword, $event->legacyGame->title);
         })->avg();
 
         return [
