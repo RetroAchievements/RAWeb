@@ -383,6 +383,8 @@ class PatchDataTest extends TestCase
 
     public function testUserAgent(): void
     {
+        Carbon::setTestNow(Carbon::now());
+
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -552,6 +554,8 @@ class PatchDataTest extends TestCase
 
     public function testUnsupportedHash(): void
     {
+        Carbon::setTestNow(Carbon::now());
+
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
