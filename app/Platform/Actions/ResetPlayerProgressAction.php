@@ -83,10 +83,37 @@ class ResetPlayerProgressAction
                 return;
             }
 
+            $achievement = $playerAchievement->achievement;
+
+            // Handle decrement for developer contribution credit before player_achievement deletion.
+            if ($achievement->isPublished && $achievement->Flags === AchievementFlag::OfficialCore->value) {
+                // Check if there's a maintainer unlock record.
+                $maintainerUnlock = AchievementMaintainerUnlock::query()
+                    ->where('player_achievement_id', $playerAchievement->id)
+                    ->first();
+
+                if ($maintainerUnlock) {
+                    // Credit was given to the maintainer.
+                    $developer = User::find($maintainerUnlock->maintainer_id);
+                } else {
+                    // Credit was given to the original author.
+                    $developer = $achievement->developer;
+                }
+
+                if ($developer && $developer->id !== $user->id) {
+                    // Perform a quick incremental decrement.
+                    app(IncrementDeveloperContributionYieldAction::class)->execute(
+                        $developer,
+                        $achievement,
+                        $playerAchievement,
+                        isUnlock: false
+                    );
+                }
+            }
+
             // Delete any maintainer unlock records related to this player_achievement entity.
             AchievementMaintainerUnlock::where('player_achievement_id', $playerAchievement->id)->delete();
 
-            $achievement = $playerAchievement->achievement;
             if ($achievement->isPublished) {
                 // resetting a published achievement removes the completion/mastery badge.
                 // RevalidateAchievementSetBadgeEligibilityAction will be called indirectly
@@ -136,14 +163,18 @@ class ResetPlayerProgressAction
             $user->saveQuietly();
         }
 
-        $authors = User::query()
-            ->where(function ($query) use ($authorUsernames) {
-                $query->whereIn('User', $authorUsernames->unique())
-                    ->orWhereIn('display_name', $authorUsernames->unique());
-            })
-            ->get('ID');
-        foreach ($authors as $author) {
-            dispatch(new UpdateDeveloperContributionYieldJob($author->id));
+        // For game-wide or full resets, we need to do full recalculation of affected dev stats.
+        // For single achievement resets, we've already handled it incrementally above.
+        if ($achievementID === null) {
+            $authors = User::query()
+                ->where(function ($query) use ($authorUsernames) {
+                    $query->whereIn('User', $authorUsernames->unique())
+                        ->orWhereIn('display_name', $authorUsernames->unique());
+                })
+                ->get('ID');
+            foreach ($authors as $author) {
+                dispatch(new UpdateDeveloperContributionYieldJob($author->id));
+            }
         }
 
         $isFullReset = $achievementID === null && $gameID === null;
