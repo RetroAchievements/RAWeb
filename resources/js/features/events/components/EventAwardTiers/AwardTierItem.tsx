@@ -33,15 +33,16 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
   );
 
   const awardEarnersLink =
-    eventAward.badgeCount! < 1 ? '' :
-    eventAward.tierIndex > 0
-      ? route('event.award-earners.index', {
-          event: eventAward.eventId,
-          tier: eventAward.tierIndex,
-        })
-      : route('event.award-earners.index', { event: eventAward.eventId });
+    eventAward.badgeCount! < 1
+      ? ''
+      : eventAward.tierIndex > 0
+        ? route('event.award-earners.index', {
+            event: eventAward.eventId,
+            tier: eventAward.tierIndex,
+          })
+        : route('event.award-earners.index', { event: eventAward.eventId });
 
-  const ConditionalLink = (awardEarnersLink != '') ? InertiaLink : 'div';
+  const ConditionalLink = awardEarnersLink !== '' ? InertiaLink : 'div';
 
   return (
     <div
