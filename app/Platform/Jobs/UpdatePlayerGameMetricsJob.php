@@ -14,7 +14,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Redis;
 
 class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
@@ -27,6 +26,7 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
     public function __construct(
         private readonly int $userId,
         private readonly int $gameId,
+        private readonly ?string $expectedVersionHash = null,
     ) {
     }
 
@@ -50,33 +50,20 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
 
     public function handle(): void
     {
-        // PHPUnit implodes if it encounters the Redis facade.
-        if (app()->environment('testing')) {
-            $this->processJob();
-
+        if ($this->batch()?->cancelled()) {
             return;
         }
 
-        /**
-         * This action is very prone to causing CPU spikes and high
-         * DB load in production if it's left to run wild on its own.
-         * We'll cap the number of jobs that can be executed per second
-         * to keep load at a reasonable level.
-         */
-        Redis::throttle('player-game-metrics')
-            ->allow(30) // 30 jobs ...
-            ->every(1)  // ... per second
-            ->then(function () {
-                $this->processJob();
-            }, function () {
-                $this->release(1);
-            });
-    }
+        // Check if the achievement set has changed since this job was queued.
+        // If it has, we'll skip processing the job.
+        if ($this->expectedVersionHash !== null) {
+            $currentHash = Game::where('id', $this->gameId)
+                ->value('achievement_set_version_hash');
 
-    private function processJob(): void
-    {
-        if ($this->batch()?->cancelled()) {
-            return;
+            if ($currentHash !== $this->expectedVersionHash) {
+                // Achievement set has changed, skip this outdated job.
+                return;
+            }
         }
 
         $playerGame = PlayerGame::where('user_id', '=', $this->userId)
