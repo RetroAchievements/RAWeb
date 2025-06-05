@@ -70,14 +70,16 @@ describe('Component: SearchModeSelector', () => {
     await userEvent.click(screen.getByRole('button', { name: /hubs/i }));
     await userEvent.click(screen.getByRole('button', { name: /users/i }));
     await userEvent.click(screen.getByRole('button', { name: /achievements/i }));
+    await userEvent.click(screen.getByRole('button', { name: /events/i }));
     await userEvent.click(screen.getByRole('button', { name: /all/i }));
 
     // ASSERT
     expect(mockOnChange).toHaveBeenNthCalledWith(1, 'hubs');
     expect(mockOnChange).toHaveBeenNthCalledWith(2, 'users');
     expect(mockOnChange).toHaveBeenNthCalledWith(3, 'achievements');
-    expect(mockOnChange).toHaveBeenNthCalledWith(4, 'all');
-    expect(mockOnChange).toHaveBeenCalledTimes(4);
+    expect(mockOnChange).toHaveBeenNthCalledWith(4, 'events');
+    expect(mockOnChange).toHaveBeenNthCalledWith(5, 'all');
+    expect(mockOnChange).toHaveBeenCalledTimes(5);
   });
 
   it('renders all chips as accessible buttons', () => {
@@ -89,6 +91,6 @@ describe('Component: SearchModeSelector', () => {
     const buttons = screen.getAllByRole('button');
 
     // ASSERT
-    expect(buttons).toHaveLength(5);
+    expect(buttons).toHaveLength(6);
   });
 });
