@@ -260,7 +260,7 @@ if ($gameIDSpecified) {
         <x-developer.inspector-toolbox
             :canHaveBeatenTypes="$canHaveBeatenTypes"
             :gameId="$gameID"
-            :isManagingCoreAchievements="$flag === AchievementFlag::OfficialCore->value"
+            :isManagingCoreAchievements="$flag === AchievementFlag::OfficialCore"
             :modificationLevel="$modificationLevel"
         />
     </div>
