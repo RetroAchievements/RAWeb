@@ -111,7 +111,7 @@ class UpdateDeveloperContributionYieldAction
             JOIN player_achievements pa ON pa.id = amu.player_achievement_id
             JOIN Achievements a ON a.ID = amu.achievement_id
             WHERE amu.maintainer_id = :user_id3
-                AND a.Flags = :flags
+                AND a.Flags = :flags2
             ORDER BY unlock_date
             LIMIT :limit OFFSET :offset
         SQL;
@@ -121,6 +121,7 @@ class UpdateDeveloperContributionYieldAction
             'user_id2' => $user->id,
             'user_id3' => $user->id,
             'flags' => AchievementFlag::OfficialCore->value,
+            'flags2' => AchievementFlag::OfficialCore->value,
             'limit' => $limit,
             'offset' => $offset,
         ]);
