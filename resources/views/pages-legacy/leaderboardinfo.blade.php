@@ -102,6 +102,12 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
         echo "</small>";
         echo "</p>";
 
+        if ($userModel && $userModel->can('update', $leaderboard)) {
+            echo '<a class="btn mb-1" href="' . route('filament.admin.resources.leaderboards.edit', ['record' => $leaderboard->id]) . '">Manage</a>';
+        } elseif ($userModel && $userModel->can('manage', $leaderboard)) {
+            echo '<a class="btn mb-1" href="' . route('filament.admin.resources.leaderboards.view', ['record' => $leaderboard->id]) . '">Manage</a>';
+        }
+
         if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
             echo "<div>";
             echo "<button class='btn' id='devboxbutton' onclick=\"toggleExpander('devboxbutton', 'devboxcontent');\">Dev ▼</button>";
