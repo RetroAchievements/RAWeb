@@ -98,7 +98,14 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
                 $game = $release->game;
             } else {
                 // no title match, it's a new game
-                $game = Game::create(['Title' => $this->gameTitle, 'ConsoleID' => $this->systemId]);
+                $game = new Game(['Title' => $this->gameTitle, 'ConsoleID' => $this->systemId]);
+                // these properties are not fillable, so have to be set manually
+                $game->players_total = 0;
+                $game->players_hardcore = 0;
+                $game->points_total = 0;
+                $game->achievements_published = 0;
+                $game->achievements_unpublished = 0;
+                $game->save();
 
                 // Create the initial canonical title in game_releases.
                 $game->releases()->create([
