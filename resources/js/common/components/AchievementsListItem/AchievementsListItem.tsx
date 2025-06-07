@@ -72,7 +72,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
           {/* Decorator */}
           {decorator ? (
             <div className="-mt-1">
-              <span className="smalltext">{ decorator }</span>
+              <span className="smalltext">{decorator}</span>
             </div>
           ) : null}
 
