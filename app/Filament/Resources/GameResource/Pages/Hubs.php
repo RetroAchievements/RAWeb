@@ -88,12 +88,11 @@ class Hubs extends ManageRelatedRecords
                         Forms\Components\Select::make('hub_ids')
                             ->label('Hubs')
                             ->multiple()
-                            ->options(function () use ($user) {
+                            ->options(function () {
                                 return GameSet::whereType(GameSetType::Hub)
                                     ->whereNotIn('id', $this->getOwnerRecord()->hubs->pluck('id'))
                                     ->limit(50)
                                     ->get()
-                                    ->filter(fn ($hub) => $user->can('update', $hub))
                                     ->mapWithKeys(fn ($hub) => [$hub->id => "[{$hub->id}] {$hub->title}"]);
                             })
                             ->getOptionLabelsUsing(function (array $values): array {
@@ -104,7 +103,7 @@ class Hubs extends ManageRelatedRecords
                                     ->toArray();
                             })
                             ->searchable()
-                            ->getSearchResultsUsing(function (string $search) use ($user) {
+                            ->getSearchResultsUsing(function (string $search) {
                                 return GameSet::whereType(GameSetType::Hub)
                                     ->whereNotIn('id', $this->getOwnerRecord()->hubs->pluck('id'))
                                     ->where(function ($query) use ($search) {
@@ -113,8 +112,12 @@ class Hubs extends ManageRelatedRecords
                                     })
                                     ->limit(50)
                                     ->get()
-                                    ->filter(fn ($hub) => $user->can('update', $hub))
                                     ->mapWithKeys(fn ($hub) => [$hub->id => "[{$hub->id}] {$hub->title}"]);
+                            })
+                            ->disableOptionWhen(function (string $value) use ($user): bool {
+                                $hub = GameSet::find($value);
+
+                                return !$user->can('update', $hub);
                             })
                             ->hidden(fn (Forms\Get $get): bool => filled($get('hub_ids_csv')))
                             ->disabled(fn (Forms\Get $get): bool => filled($get('hub_ids_csv')))
