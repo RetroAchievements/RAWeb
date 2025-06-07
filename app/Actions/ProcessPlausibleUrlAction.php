@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Models\Achievement;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\System;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * For Plausible page views, we want to aggregate like-pages into single groups.
@@ -36,6 +38,7 @@ class ProcessPlausibleUrlAction
         $this->addModelRoute('achievement', Achievement::class, 'title');
         $this->addModelRoute('hub', GameSet::class, 'title');
         $this->addModelRoute('system', System::class, 'name');
+        $this->addModelRoute('event', Event::class, 'legacyGame.title');
 
         // Routes that just use a string parameter.
         $this->addStringRoute('user', 'username');
@@ -97,9 +100,16 @@ class ProcessPlausibleUrlAction
 
                 $id = $this->extractId($param);
                 if ($id && $model = $route['model']::find($id)) {
+                    $titleValue = $this->getNestedValue($model, $route['titleField']);
+
+                    // Extract just the final property name for the props key.
+                    $propName = str_contains($route['titleField'], '.')
+                        ? substr($route['titleField'], strrpos($route['titleField'], '.') + 1)
+                        : $route['titleField'];
+
                     $props = [
                         'id' => $id,
-                        strtolower($route['titleField']) => $model->{$route['titleField']},
+                        strtolower($propName) => $titleValue,
                     ];
                 } elseif ($id) {
                     $props = ['id' => $id];
@@ -230,5 +240,20 @@ class ProcessPlausibleUrlAction
 
         // Fall back to direct ID if it's numeric.
         return is_numeric($param) ? (int) $param : null;
+    }
+
+    /**
+     * Gets a value from a model relationship.
+     */
+    private function getNestedValue(Model $model, string $path): string
+    {
+        $parts = explode('.', $path);
+        $value = $model;
+
+        foreach ($parts as $part) {
+            $value = $value->{$part};
+        }
+
+        return $value;
     }
 }
