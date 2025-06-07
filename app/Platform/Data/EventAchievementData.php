@@ -49,6 +49,7 @@ class EventAchievementData extends Data
                     title: 'Upcoming Challenge',
                     createdAt: Lazy::create(fn () => $eventAchievement->achievement->DateCreated),
                     description: Lazy::create(fn () => '?????'),
+                    decorator: Lazy::create(fn () => $eventAchievement->decorator),
                     flags: Lazy::create(fn () => AchievementFlag::from($eventAchievement->achievement->Flags)),
                     game: Lazy::create(fn () => GameData::fromGame($eventAchievement->achievement->game)),
                     orderColumn: Lazy::create(fn () => $eventAchievement->achievement->DisplayOrder),
@@ -72,10 +73,15 @@ class EventAchievementData extends Data
         }
 
         return new self(
-            achievement: Lazy::create(fn () => AchievementData::fromAchievement(
-                $eventAchievement->achievement,
-                $playerAchievement
-            )),
+            achievement: Lazy::create(function () use ($eventAchievement, $playerAchievement) {
+                $achievement = AchievementData::fromAchievement(
+                    $eventAchievement->achievement,
+                    $playerAchievement
+                );
+                $achievement->decorator = $eventAchievement->decorator;
+
+                return $achievement;
+            }),
             sourceAchievement: Lazy::create(fn () => $eventAchievement->sourceAchievement
                 ? AchievementData::fromAchievement($eventAchievement->sourceAchievement)
                 : null

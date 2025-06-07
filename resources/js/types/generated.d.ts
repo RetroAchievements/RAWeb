@@ -477,6 +477,7 @@ declare namespace App.Platform.Data {
     title: string;
     createdAt?: string;
     description?: string;
+    decorator?: string;
     developer?: App.Data.User;
     flags?: App.Platform.Enums.AchievementFlag;
     game?: App.Platform.Data.Game;

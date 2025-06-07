@@ -36,6 +36,7 @@ class EventAchievementResource extends Resource
                 Infolists\Components\Section::make()
                     ->schema([
                         Infolists\Components\TextEntry::make('source_achievement_id')
+                            ->columnSpan(2)
                             ->label('Source Achievement')
                             ->formatStateUsing(function (int $state): string {
                                 $achievement = Achievement::find($state);
@@ -48,6 +49,9 @@ class EventAchievementResource extends Resource
                         Infolists\Components\TextEntry::make('active_through')
                             ->label('Active Through')
                             ->date(),
+                        Infolists\Components\TextEntry::make('decorator')
+                            ->columnSpan(2)
+                            ->label('Decorator'),
                         Infolists\Components\TextEntry::make('achievement.Points')
                             ->label('Points'),
                     ])
@@ -156,6 +160,10 @@ class EventAchievementResource extends Resource
                             ->label('Active Through')
                             ->native(false)
                             ->date(),
+
+                        Forms\Components\TextInput::make('decorator')
+                            ->columnSpan(2)
+                            ->maxLength(96),
 
                         Forms\Components\Group::make()
                             ->relationship('achievement')

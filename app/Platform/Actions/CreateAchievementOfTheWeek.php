@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
 
 class CreateAchievementOfTheWeek
 {
-    public function execute(Carbon $startDate, ?array $achievementIds = null): Game
+    public function execute(Carbon $startDate, ?array $achievementIds = null): Event
     {
         $achievementIds ??= [];
 
@@ -27,12 +27,19 @@ class CreateAchievementOfTheWeek
 
         $eventGame = Game::firstWhere('Title', '=', $eventTitle);
         if (!$eventGame) {
-            $eventGame = Game::create([
+            $eventGame = new Game([
                 'Title' => $eventTitle,
                 'sort_title' => (new ComputeGameSortTitleAction())->execute($eventTitle),
                 'Publisher' => 'RetroAchievements',
                 'ConsoleID' => System::Events,
             ]);
+            // these properties are not fillable, so have to be set manually
+            $eventGame->players_total = 0;
+            $eventGame->players_hardcore = 0;
+            $eventGame->points_total = 0;
+            $eventGame->achievements_published = 0;
+            $eventGame->achievements_unpublished = 0;
+            $eventGame->save();
 
             $nextDate = $startDate->clone()->addWeeks(52);
             while ($nextDate->year === $date->year) {
@@ -81,8 +88,9 @@ class CreateAchievementOfTheWeek
         $date = $startDate;
         while ($achievementCount < 64) {
             $achievementCount++;
+            $monthLabel = $date->format('F');
             $achievement = Achievement::create([
-                'Title' => $date->format('F') . ' Achievement of the Month',
+                'Title' => $monthLabel . ' Achievement of the Month',
                 'Description' => 'TBD',
                 'MemAddr' => '0=1',
                 'Points' => 1,
@@ -102,6 +110,7 @@ class CreateAchievementOfTheWeek
                 [
                     'achievement_id' => $achievement->id,
                     'source_achievement_id' => null,
+                    'decorator' => $monthLabel,
                     'active_from' => $date,
                     'active_until' => $nextDate,
                 ],
@@ -113,7 +122,7 @@ class CreateAchievementOfTheWeek
         // update metrics and sync to game_achievement_set
         dispatch(new UpdateGameMetricsJob($eventGame->id))->onQueue('game-metrics');
 
-        return $eventGame;
+        return $eventGame->event;
     }
 
     /**
@@ -134,6 +143,7 @@ class CreateAchievementOfTheWeek
             ['achievement_id' => $achievement->id],
             [
                 'source_achievement_id' => $sourceAchievement?->id,
+                'decorator' => 'Week ' . ($week + 1),
                 'active_from' => $date,
                 'active_until' => $nextDate,
             ],

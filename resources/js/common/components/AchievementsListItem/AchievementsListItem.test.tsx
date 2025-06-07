@@ -175,4 +175,29 @@ describe('Component: AchievementsListItem', () => {
       expect(screen.getAllByLabelText(/progression/i)[0]).toBeVisible();
     });
   });
+
+  it('given an achievement has a decorator, displays the decorator', async () => {
+    // ARRANGE
+    const title = 'Master Collector';
+    const description = 'Find all hidden gems in the game';
+    const achievement = createAchievement({
+      title,
+      description,
+      decorator: 'Decorator',
+    });
+
+    render(
+      <AchievementsListItem
+        achievement={achievement}
+        index={0}
+        isLargeList={false}
+        playersTotal={100}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/decorator/i)).toBeVisible();
+    });
+  });
 });
