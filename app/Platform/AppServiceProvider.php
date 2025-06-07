@@ -29,8 +29,8 @@ use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
 use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
+use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\ResetPlayerAchievement;
-use App\Platform\Commands\SendClaimExpirationWarningEmails;
 use App\Platform\Commands\SyncAchievementAuthors;
 use App\Platform\Commands\SyncAchievements;
 use App\Platform\Commands\SyncAchievementSetImageAssetPaths;
@@ -119,7 +119,7 @@ class AppServiceProvider extends ServiceProvider
                 UpdateSearchIndexForQueuedEntities::class,
 
                 // Developer
-                SendClaimExpirationWarningEmails::class,
+                ProcessExpiringClaims::class,
                 UpdateDeveloperContributionYield::class,
 
                 // Events
@@ -152,7 +152,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
             $schedule->command(BackfillPlaytimeTotal::class)->everyFifteenMinutes();
             $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
-            $schedule->command(SendClaimExpirationWarningEmails::class)->hourly();
+            $schedule->command(ProcessExpiringClaims::class)->hourly();
             $schedule->command(UpdateSearchIndexForQueuedEntities::class)->twiceDaily(1, 13); // 1AM and 1PM UTC
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
             $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
