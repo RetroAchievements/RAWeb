@@ -153,9 +153,9 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(BackfillPlaytimeTotal::class)->everyFifteenMinutes();
             $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
             $schedule->command(SendClaimExpirationWarningEmails::class)->hourly();
-            $schedule->command(UpdateSearchIndexForQueuedEntities::class)->twiceDaily(1, 13); // 1AM and 1PM
+            $schedule->command(UpdateSearchIndexForQueuedEntities::class)->twiceDaily(1, 13); // 1AM and 1PM UTC
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
-            $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '3:00'); // Tuesdays at 3AM
+            $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
         });
 
         $this->loadMigrationsFrom([database_path('migrations/platform')]);
