@@ -52,6 +52,16 @@ export const SearchResults: FC<SearchResultsProps> = ({
     return null;
   }
 
+  const handleCommandItemSelect = (destinationHref: string) => {
+    onClose();
+
+    /**
+     * Because this component has to be used in Blade and Inertia contexts,
+     * we can't use type-safe routes and have to hardcode them instead.
+     */
+    window.location.assign(destinationHref);
+  };
+
   const sections: SearchSection[] = [
     {
       key: 'users',
@@ -63,10 +73,15 @@ export const SearchResults: FC<SearchResultsProps> = ({
 
       render: (user) => {
         const safeUser = user as App.Data.User;
+        const destinationHref = `/user/${safeUser.displayName}`;
 
         return (
-          <BaseCommandItem key={`user-${safeUser.displayName}`} asChild={true} onSelect={onClose}>
-            <a href={`/user/${safeUser.displayName}`}>
+          <BaseCommandItem
+            key={`user-${safeUser.displayName}`}
+            asChild={true}
+            onSelect={() => handleCommandItemSelect(destinationHref)}
+          >
+            <a href={destinationHref}>
               <UserResultDisplay user={safeUser} />
             </a>
           </BaseCommandItem>
@@ -82,18 +97,22 @@ export const SearchResults: FC<SearchResultsProps> = ({
       limit: 6,
       icon: FaGamepad,
 
-      render: (game) => (
-        <BaseCommandItem
-          key={`game-${game.id}`}
-          asChild={true}
-          className="group"
-          onSelect={onClose}
-        >
-          <a href={`/game/${game.id}`}>
-            <GameResultDisplay game={game as App.Platform.Data.Game} />
-          </a>
-        </BaseCommandItem>
-      ),
+      render: (game) => {
+        const destinationHref = `/game/${game.id}`;
+
+        return (
+          <BaseCommandItem
+            key={`game-${game.id}`}
+            asChild={true}
+            className="group"
+            onSelect={() => handleCommandItemSelect(destinationHref)}
+          >
+            <a href={destinationHref}>
+              <GameResultDisplay game={game as App.Platform.Data.Game} />
+            </a>
+          </BaseCommandItem>
+        );
+      },
     },
 
     {
@@ -104,13 +123,21 @@ export const SearchResults: FC<SearchResultsProps> = ({
       limit: 4,
       icon: LuNetwork,
 
-      render: (hub) => (
-        <BaseCommandItem key={`hub-${hub.id}`} asChild={true} onSelect={onClose}>
-          <a href={`/hub/${hub.id}`}>
-            <HubResultDisplay hub={hub as App.Platform.Data.GameSet} />
-          </a>
-        </BaseCommandItem>
-      ),
+      render: (hub) => {
+        const destinationHref = `/hub/${hub.id}`;
+
+        return (
+          <BaseCommandItem
+            key={`hub-${hub.id}`}
+            asChild={true}
+            onSelect={() => handleCommandItemSelect(destinationHref)}
+          >
+            <a href={destinationHref}>
+              <HubResultDisplay hub={hub as App.Platform.Data.GameSet} />
+            </a>
+          </BaseCommandItem>
+        );
+      },
     },
 
     {
@@ -121,13 +148,23 @@ export const SearchResults: FC<SearchResultsProps> = ({
       limit: 3,
       icon: ImTrophy,
 
-      render: (achievement) => (
-        <BaseCommandItem key={`achievement-${achievement.id}`} asChild={true} onSelect={onClose}>
-          <a href={`/achievement/${achievement.id}`}>
-            <AchievementResultDisplay achievement={achievement as App.Platform.Data.Achievement} />
-          </a>
-        </BaseCommandItem>
-      ),
+      render: (achievement) => {
+        const destinationHref = `/achievement/${achievement.id}`;
+
+        return (
+          <BaseCommandItem
+            key={`achievement-${achievement.id}`}
+            asChild={true}
+            onSelect={() => handleCommandItemSelect(destinationHref)}
+          >
+            <a href={destinationHref}>
+              <AchievementResultDisplay
+                achievement={achievement as App.Platform.Data.Achievement}
+              />
+            </a>
+          </BaseCommandItem>
+        );
+      },
     },
 
     {
@@ -138,13 +175,21 @@ export const SearchResults: FC<SearchResultsProps> = ({
       limit: 4,
       icon: LuCalendar,
 
-      render: (event) => (
-        <BaseCommandItem key={`event-${event.id}`} asChild={true} onSelect={onClose}>
-          <a href={`/event/${event.id}`}>
-            <EventResultDisplay event={event as App.Platform.Data.Event} />
-          </a>
-        </BaseCommandItem>
-      ),
+      render: (event) => {
+        const destinationHref = `/event/${event.id}`;
+
+        return (
+          <BaseCommandItem
+            key={`event-${event.id}`}
+            asChild={true}
+            onSelect={() => handleCommandItemSelect(destinationHref)}
+          >
+            <a href={destinationHref}>
+              <EventResultDisplay event={event as App.Platform.Data.Event} />
+            </a>
+          </BaseCommandItem>
+        );
+      },
     },
   ];
 
