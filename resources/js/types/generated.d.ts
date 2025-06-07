@@ -337,6 +337,7 @@ declare namespace App.Data {
     isEmailVerified?: boolean;
     isMuted?: boolean;
     isNew?: boolean;
+    lastActivityAt?: string | null;
     legacyPermissions?: number | null;
     locale?: string | null;
     motto?: string;
@@ -385,6 +386,7 @@ declare namespace App.Enums {
     | 'reconstructed'
     | 'manual-unlock'
     | 'ticket-created';
+  export type UserOS = 'Android' | 'iOS' | 'Linux' | 'macOS' | 'Windows';
   export type UserPreference =
     | 0
     | 1
@@ -502,6 +504,10 @@ declare namespace App.Platform.Data {
     updatedAt: string | null;
     achievements: Array<App.Platform.Data.Achievement>;
   };
+  export type AwardEarner = {
+    user: any;
+    dateEarned: any;
+  };
   export type CreateAchievementTicketPageProps = {
     achievement: App.Platform.Data.Achievement;
     emulators: Array<App.Platform.Data.Emulator>;
@@ -564,6 +570,11 @@ declare namespace App.Platform.Data {
     eventAchievements?: Array<App.Platform.Data.EventAchievement>;
     eventAwards?: Array<App.Platform.Data.EventAward>;
     state?: App.Platform.Enums.EventState;
+  };
+  export type EventAwardEarnersPageProps<TItems = App.Platform.Data.AwardEarner> = {
+    event: App.Platform.Data.Event;
+    eventAward: App.Platform.Data.EventAward;
+    paginatedUsers: App.Data.PaginatedData<TItems>;
   };
   export type EventShowPageProps = {
     event: App.Platform.Data.Event;

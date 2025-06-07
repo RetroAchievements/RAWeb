@@ -60,7 +60,7 @@ describe('Component: GameShowMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('game-show')).not.toBeInTheDocument();
   });
 
   it('given the game has all required media, shows an accessible heading', () => {

@@ -36,38 +36,7 @@ class CreateGameClaimAction
         if ($primaryClaim !== null) {
             if ($primaryClaim->user->is($currentUser)) {
                 // renewing claim
-                $primaryClaim->Finished = $primaryClaim->Finished->addMonths(3);
-                $primaryClaim->Extension++;
-                $primaryClaim->save();
-
-                Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($currentUser->User));
-                addArticleComment("Server", ArticleType::SetClaim, $game->ID, "Claim extended by " . $currentUser->display_name);
-
-                $webhookUrl = config('services.discord.webhook.claims');
-                if (!empty($webhookUrl)) {
-                    $payload = [
-                        'username' => 'Claim Bot',
-                        'avatar_url' => media_asset('UserPic/QATeam.png'),
-                        'content' => route('game.show', $game) . "\n:timer: " .
-                                 "Claim extended by " . $currentUser->display_name,
-                    ];
-                    (new Client())->post($webhookUrl, ['json' => $payload]);
-                }
-
-                $collaborationClaims = $game->achievementSetClaims()
-                    ->activeOrInReview()
-                    ->collaborationClaim()
-                    ->with('user')
-                    ->get();
-                foreach ($collaborationClaims as $collaborationClaim) {
-                    $collaborationClaim->Finished = $primaryClaim->Finished;
-                    $collaborationClaim->Extension++;
-                    $collaborationClaim->save();
-
-                    Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($collaborationClaim->user->User));
-                    addArticleComment("Server", ArticleType::SetClaim, $game->ID,
-                        $collaborationClaim->user->display_name . "'s collaboration claim extended by " . $currentUser->display_name);
-                }
+                (new ExtendGameClaimAction())->execute($primaryClaim, $currentUser);
 
                 return $primaryClaim;
             }

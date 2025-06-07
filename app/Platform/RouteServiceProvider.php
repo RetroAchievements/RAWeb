@@ -11,6 +11,7 @@ use App\Platform\Controllers\Api\GameApiController;
 use App\Platform\Controllers\Api\HubApiController;
 use App\Platform\Controllers\Api\SystemApiController;
 use App\Platform\Controllers\Api\TriggerTicketApiController;
+use App\Platform\Controllers\EventAwardEarnersController;
 use App\Platform\Controllers\EventController;
 use App\Platform\Controllers\GameController;
 use App\Platform\Controllers\GameHashController;
@@ -67,6 +68,7 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware(['web', 'inertia'])->group(function () {
                 Route::get('event/{event}', [EventController::class, 'show'])->name('event.show');
+                Route::get('event/{event}/award-earners', [EventAwardEarnersController::class, 'index'])->name('event.award-earners.index');
 
                 Route::get('game2/{game}', [GameController::class, 'show'])->name('game2.show');
                 Route::get('game/{game}/dev-interest', [GameController::class, 'devInterest'])->name('game.dev-interest');
