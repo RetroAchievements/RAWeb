@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Community\Enums\Rank;
+use App\Models\System;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class CrawlPlayerWeightedPoints extends Command
 {
@@ -21,6 +23,7 @@ class CrawlPlayerWeightedPoints extends Command
     private const CACHE_TTL = 60 * 60 * 24 * 90; // 90 days
 
     private int $numUpdatedUsers = 0;
+    private int $numUpdatedPlayerGames = 0;
 
     public function handle(): void
     {
@@ -79,6 +82,7 @@ class CrawlPlayerWeightedPoints extends Command
 
         $this->info("Batch completed. Processed up to user ID: {$lastUserId}.");
         $this->info("Updated {$this->numUpdatedUsers} users' weighted points.");
+        $this->info("Updated {$this->numUpdatedPlayerGames} player_games records.");
 
         // Check if there are any more users to process.
         $remainingCount = User::query()
@@ -116,19 +120,47 @@ class CrawlPlayerWeightedPoints extends Command
 
     private function updateUserWeightedPoints(User $user): void
     {
-        // Calculate the sum of weighted points for all hardcore achievements unlocked by the user.
-        // Use a direct query to avoid loading all achievements into memory.
-        $weightedPointsSum = $user->playerAchievements()
-            ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
-            ->whereNotNull('player_achievements.unlocked_hardcore_at')
-            ->sum('Achievements.TrueRatio');
+        // Update all player_games.points_weighted values in a single query.
+        // This calculates the sum of TrueRatio for all hardcore achievements per game.
+        $updatedRows = DB::statement(<<<SQL
+            UPDATE player_games pg
+            LEFT JOIN (
+                SELECT
+                    pa.user_id,
+                    ach.GameID as game_id,
+                    SUM(ach.TrueRatio) as weighted_points
+                FROM player_achievements pa
+                INNER JOIN Achievements ach ON ach.ID = pa.achievement_id
+                WHERE
+                    pa.user_id = ?
+                    AND pa.unlocked_hardcore_at IS NOT NULL
+                GROUP BY pa.user_id, ach.GameID
+            ) AS calculated ON pg.user_id = calculated.user_id AND pg.game_id = calculated.game_id
+            SET pg.points_weighted = COALESCE(calculated.weighted_points, 0)
+            WHERE
+                pg.user_id = ?
+                AND pg.points_weighted != COALESCE(calculated.weighted_points, 0)
+        SQL, [$user->id, $user->id]);
+
+        if ($updatedRows > 0) {
+            $this->numUpdatedPlayerGames += $updatedRows;
+        }
+
+        // Now update the user's total TrueRAPoints by summing all player_games.points_weighted.
+        // This follows the same pattern as UpdatePlayerMetricsAction.
+        $totalWeightedPoints = DB::table('player_games')
+            ->join('GameData', 'GameData.ID', '=', 'player_games.game_id')
+            ->whereNotIn('GameData.ConsoleID', [System::Events, System::Hubs])
+            ->where('player_games.user_id', $user->id)
+            ->where('player_games.achievements_unlocked', '>', 0)
+            ->sum('player_games.points_weighted');
 
         // ->sum() returns a mixed type. Force it to be an integer.
-        $weightedPointsSum = (int) $weightedPointsSum;
+        $totalWeightedPoints = (int) $totalWeightedPoints;
 
         // Only update if the value has changed.
-        if ($user->TrueRAPoints !== $weightedPointsSum) {
-            $user->TrueRAPoints = $weightedPointsSum;
+        if ($user->TrueRAPoints !== $totalWeightedPoints) {
+            $user->TrueRAPoints = $totalWeightedPoints;
             $user->saveQuietly();
 
             $this->numUpdatedUsers++;
