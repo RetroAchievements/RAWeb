@@ -134,6 +134,13 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "event.award-earners.index": [
+        {
+            "name": "event",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "game2.show": [
         {
             "name": "game",
