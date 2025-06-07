@@ -265,4 +265,65 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $this->assertEquals(5, $author->ContribCount);
         $this->assertEquals(500, $author->ContribYield);
     }
+
+    public function testItIgnoresSoftcoreToHardcoreUpgrades(): void
+    {
+        // Arrange
+        $developer = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
+        $player = User::factory()->create();
+
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->published()->create([
+            'GameID' => $game->id,
+            'Points' => 50,
+            'user_id' => $developer->id,
+        ]);
+
+        // ... player already has a softcore unlock ...
+        $playerAchievement = PlayerAchievement::create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::now()->subHour(),
+            'unlocked_hardcore_at' => Carbon::now(), // !! hardcore upgrade
+        ]);
+
+        // Act
+        $this->action->execute($developer, $achievement, $playerAchievement, true, true);
+        $developer->refresh();
+
+        // Assert
+        $this->assertEquals(5, $developer->ContribCount); // !! unchanged
+        $this->assertEquals(500, $developer->ContribYield); // !! unchanged
+    }
+
+    public function testItCountsDirectHardcoreUnlocks(): void
+    {
+        // Arrange
+        $developer = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
+        $player = User::factory()->create();
+
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->published()->create([
+            'GameID' => $game->id,
+            'Points' => 50,
+            'user_id' => $developer->id,
+        ]);
+
+        // ... player unlocked directly in hardcore (both timestamps are the same) ...
+        $now = Carbon::now();
+        $playerAchievement = PlayerAchievement::create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => $now,
+            'unlocked_hardcore_at' => $now,
+        ]);
+
+        // Act
+        $this->action->execute($developer, $achievement, $playerAchievement, true, true);
+        $developer->refresh();
+
+        // Assert
+        $this->assertEquals(6, $developer->ContribCount); // !! incremented
+        $this->assertEquals(550, $developer->ContribYield); // !! incremented
+    }
 }

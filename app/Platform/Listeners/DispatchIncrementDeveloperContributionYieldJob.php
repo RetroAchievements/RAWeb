@@ -18,18 +18,24 @@ class DispatchIncrementDeveloperContributionYieldJob implements ShouldQueue
         $user = null;
         $achievement = null;
         $isUnlock = true;
+        $isHardcore = false;
 
         switch ($event::class) {
             case PlayerAchievementUnlocked::class:
                 $user = $event->user;
                 $achievement = $event->achievement;
                 $isUnlock = true;
+                $isHardcore = $event->hardcore;
                 break;
 
             case PlayerAchievementLocked::class:
                 $user = $event->user;
                 $achievement = $event->achievement;
                 $isUnlock = false;
+
+                // Resets don't have a hardcore flag.
+                // We're just setting the value again here for consistency.
+                $isHardcore = false;
                 break;
         }
 
@@ -68,7 +74,8 @@ class DispatchIncrementDeveloperContributionYieldJob implements ShouldQueue
             $developer->id,
             $achievement->id,
             $playerAchievement->id,
-            $isUnlock
+            $isUnlock,
+            $isHardcore
         ))->onQueue('developer-metrics');
     }
 }

@@ -86,7 +86,7 @@ class ResetPlayerProgressAction
             $achievement = $playerAchievement->achievement;
 
             // Handle decrement for developer contribution credit before player_achievement deletion.
-            if ($achievement->isPublished && $achievement->Flags === AchievementFlag::OfficialCore->value) {
+            if ($achievement->Flags === AchievementFlag::OfficialCore->value) {
                 // Check if there's a maintainer unlock record.
                 $maintainerUnlock = AchievementMaintainerUnlock::query()
                     ->where('player_achievement_id', $playerAchievement->id)
@@ -102,7 +102,9 @@ class ResetPlayerProgressAction
 
                 if ($developer && $developer->id !== $user->id) {
                     // Perform a quick incremental decrement.
-                    app(IncrementDeveloperContributionYieldAction::class)->execute(
+                    // For resets, we don't need to worry about the
+                    // isHardcore flag since we're removing the unlock entirely.
+                    (new IncrementDeveloperContributionYieldAction())->execute(
                         $developer,
                         $achievement,
                         $playerAchievement,

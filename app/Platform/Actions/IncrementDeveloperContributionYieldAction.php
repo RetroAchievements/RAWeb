@@ -22,7 +22,8 @@ class IncrementDeveloperContributionYieldAction
         User $developer,
         Achievement $achievement,
         PlayerAchievement $playerAchievement,
-        bool $isUnlock = true
+        bool $isUnlock = true,
+        bool $isHardcore = false
     ): void {
         // If we somehow made it here for an unofficial achievement, bail.
         if ($achievement->Flags !== AchievementFlag::OfficialCore->value) {
@@ -34,17 +35,30 @@ class IncrementDeveloperContributionYieldAction
             return;
         }
 
-        $delta = $isUnlock ? 1 : -1;
-        $pointsDelta = $achievement->Points * $delta;
+        // If this is a hardcore unlock, check if it's just an upgrade of an existing softcore unlock.
+        if ($isUnlock && $isHardcore) {
+            // If the player already had a softcore unlock, this is an upgrade - don't count it again.
+            // Bail.
+            if (
+                $playerAchievement->unlocked_at !== null
+                && $playerAchievement->unlocked_at != $playerAchievement->unlocked_hardcore_at
+            ) {
+                return;
+            }
+        }
 
-        // Store old values before incrementing.
         $oldContribCount = $developer->ContribCount;
         $oldContribYield = $developer->ContribYield;
 
-        // Update user stats incrementally.
-        $developer->ContribCount += $delta;
-        $developer->ContribYield += $pointsDelta;
-        $developer->saveQuietly();
+        if ($isUnlock) {
+            $developer->increment('ContribCount');
+            $developer->increment('ContribYield', $achievement->Points);
+        } else {
+            $developer->decrement('ContribCount');
+            $developer->decrement('ContribYield', $achievement->Points);
+        }
+
+        $developer->refresh();
 
         // Only check for new badges if incrementing.
         if ($isUnlock) {

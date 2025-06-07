@@ -9,13 +9,12 @@ use App\Models\PlayerAchievement;
 use App\Models\User;
 use App\Platform\Actions\IncrementDeveloperContributionYieldAction;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class IncrementDeveloperContributionYieldJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
+class IncrementDeveloperContributionYieldJob implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -27,16 +26,8 @@ class IncrementDeveloperContributionYieldJob implements ShouldQueue, ShouldBeUni
         private readonly int $achievementId,
         private readonly int $playerAchievementId,
         private readonly bool $isUnlock,
+        private readonly bool $isHardcore = false,
     ) {
-    }
-
-    public int $uniqueFor = 3600;
-
-    public function uniqueId(): string
-    {
-        return config('queue.default') === 'sync'
-            ? ''
-            : "{$this->developerId}-{$this->achievementId}-{$this->playerAchievementId}-{$this->isUnlock}";
     }
 
     /**
@@ -72,7 +63,8 @@ class IncrementDeveloperContributionYieldJob implements ShouldQueue, ShouldBeUni
             $developer,
             $achievement,
             $playerAchievement,
-            $this->isUnlock
+            $this->isUnlock,
+            $this->isHardcore
         );
     }
 }
