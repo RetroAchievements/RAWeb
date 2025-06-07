@@ -155,6 +155,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(SendClaimExpirationWarningEmails::class)->hourly();
             $schedule->command(UpdateSearchIndexForQueuedEntities::class)->twiceDaily(1, 13); // 1AM and 1PM
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
+            $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '3:00'); // Tuesdays at 3AM
         });
 
         $this->loadMigrationsFrom([database_path('migrations/platform')]);
