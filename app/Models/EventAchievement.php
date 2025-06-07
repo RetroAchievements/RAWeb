@@ -59,6 +59,7 @@ class EventAchievement extends BaseModel
         return LogOptions::defaults()
             ->logOnly([
                 'source_achievement_id',
+                'decorator',
                 'active_from',
                 'active_until',
             ])
