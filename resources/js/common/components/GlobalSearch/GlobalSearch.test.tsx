@@ -116,11 +116,12 @@ describe('Component: GlobalSearch', () => {
           users: [],
           games: [],
           hubs: [],
+          events: [],
           achievements: [],
         },
         query: 'xyz',
-        scopes: ['users', 'games', 'hubs', 'achievements'],
-        scopeRelevance: { users: 0, games: 0, hubs: 0, achievements: 0 },
+        scopes: ['users', 'games', 'hubs', 'events', 'achievements'],
+        scopeRelevance: { users: 0, games: 0, hubs: 0, events: 0, achievements: 0 },
       },
     };
 
