@@ -77,7 +77,7 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
                       data-testid="award-tier-label"
                       className={cn([
                         'flex gap-2 text-xs font-medium',
-                        awardEarnersLink !== null ? 'transition group-hover:text-link-hover' : null,
+                        awardEarnersLink !== '' ? 'transition group-hover:text-link-hover' : null,
                       ])}
                     >
                       {cleanedAwardLabel}
