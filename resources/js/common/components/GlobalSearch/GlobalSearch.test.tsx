@@ -280,4 +280,19 @@ describe('Component: GlobalSearch', () => {
     // ASSERT
     expect(mockOnOpenChange).toHaveBeenCalledWith(false);
   });
+
+  it('given the user presses Space while typing, inserts a space character without scrolling', async () => {
+    // ARRANGE
+    render(<GlobalSearch isOpen={true} onOpenChange={vi.fn()} />);
+
+    const searchInput = screen.getByPlaceholderText(/search/i);
+
+    // ACT
+    await userEvent.type(searchInput, 'hello');
+    await userEvent.keyboard(' ');
+    await userEvent.type(searchInput, 'world');
+
+    // ASSERT
+    expect(searchInput).toHaveValue('hello world');
+  });
 });

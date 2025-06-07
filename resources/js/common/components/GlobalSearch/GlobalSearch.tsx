@@ -1,4 +1,4 @@
-import { type FC, useState } from 'react';
+import { type FC, type KeyboardEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronRight, LuLoaderCircle, LuSearch } from 'react-icons/lu';
 
@@ -51,6 +51,35 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
   useGlobalSearchHotkey({ onOpenChange });
   const scrollContainerRef = useScrollToTopOnSearchResults({ searchResults, isLoading });
 
+  /**
+   * Handles keyboard events for the Command component.
+   *
+   * The cmdk library has built-in keyboard navigation that intercepts the Space key
+   * to scroll selected items into view. This causes an unwanted scroll jump when
+   * users are typing in the search input and press Space. This handler prevents
+   * that default behavior and manually inserts the space character instead.
+   */
+  const handleCommandKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    // Prevent Space from causing scroll jumps when input is focused.
+    if (event.key === ' ' && document.activeElement?.tagName === 'INPUT') {
+      event.preventDefault();
+
+      // Manually insert a space at the cursor position.
+      const input = document.activeElement as HTMLInputElement;
+      const start = input.selectionStart as number;
+      const end = input.selectionEnd as number;
+      const value = input.value;
+      const newValue = value.substring(0, start) + ' ' + value.substring(end);
+
+      setRawQuery(newValue);
+
+      // Restore the cursor position at the end of the event queue.
+      setTimeout(() => {
+        input.selectionStart = input.selectionEnd = start + 1;
+      });
+    }
+  };
+
   const handleOnOpenChange = (open: boolean) => {
     onOpenChange(open);
 
@@ -87,6 +116,7 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
             '[&_[cmdk-item]]:cursor-pointer [&_[cmdk-item]]:px-2',
             '[&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5',
           ])}
+          onKeyDown={handleCommandKeyDown}
         >
           <BaseCommandInput
             placeholder={t('Search')}
