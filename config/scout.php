@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Achievement;
 use App\Models\Comment;
+use App\Models\Event;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
 use App\Models\GameSet;
@@ -77,8 +79,8 @@ return [
     */
 
     'chunk' => [
-        'searchable' => 500,
-        'unsearchable' => 500,
+        'searchable' => 100,
+        'unsearchable' => 100,
     ],
 
     /*
@@ -142,6 +144,26 @@ return [
         'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
+            Achievement::class => [
+                'filterableAttributes' => ['id', 'title'],
+                'rankingRules' => [
+                    'words',
+                    'typo',
+                    'attribute',
+                    'unlocks_total:desc',
+                    'proximity',
+                    'exactness',
+                    'sort',
+                ],
+                'searchableAttributes' => ['title', 'id'],
+                'sortableAttributes' => [
+                    'id',
+                    'title',
+                    'unlocks_total',
+                    'unlocks_hardcore_total',
+                ],
+            ],
+
             Comment::class => [
                 'filterableAttributes' => [
                     'ArticleID',
@@ -155,6 +177,21 @@ return [
                 'sortableAttributes' => ['created_at'],
             ],
 
+            Event::class => [
+                'filterableAttributes' => ['title', 'players_total'],
+                'rankingRules' => [
+                    'words',
+                    'typo',
+                    'attribute',
+                    'unlocks_total:desc',
+                    'proximity',
+                    'exactness',
+                    'sort',
+                ],
+                'searchableAttributes' => ['title', 'id'],
+                'sortableAttributes' => ['id', 'title', 'players_total'],
+            ],
+
             ForumTopicComment::class => [
                 'filterableAttributes' => [
                     'forum_topic_id',
@@ -166,13 +203,66 @@ return [
             ],
 
             Game::class => [
-                'filterableAttributes' => ['id', 'title'],
-                'searchableAttributes' => ['title', 'alt_titles', 'id'],
-                'sortableAttributes' => ['id', 'title'],
+                'filterableAttributes' => [
+                    'id',
+                    'title',
+                    'players_total',
+                    'is_subset',
+                    'has_players',
+                    'is_tagged',
+                    'popularity_score',
+                ],
+
+                /** @see Game::toSearchableArray() for a detailed explanation on game ranking rules */
+                'rankingRules' => [
+                    'words',                   // Word matching first.
+                    'typo',                    // Allow small typos.
+                    'is_subset:asc',           // Non-subsets rank MUCH higher than subset games.
+                    'popularity_score:desc',   // Very popular games.
+                    'has_players:desc',        // Games with ANY players.
+                    'attribute',               // Consider attribute importance (title > search_titles > alt_titles).
+                    'proximity',               // Words close together rank higher.
+                    'is_tagged:asc',           // Non-tagged (original) games rank higher than games with tags.
+                    'players_total:desc',      // For games within the same popularity tier, sort by exact player counts.
+                    'exactness',               // Finally, consider exact matches.
+                    'sort',
+                ],
+
+                'searchableAttributes' => [
+                    'title',
+                    'search_titles',
+                    'alt_titles',
+                    'id',
+                ],
+                'sortableAttributes' => [
+                    'id',
+                    'title',
+                    'players_total',
+                    'is_subset',
+                    'has_players',
+                    'is_tagged',
+                    'popularity_score',
+                ],
+                'typoTolerance' => [
+                    'enabled' => true,
+                    'minWordSizeForTypos' => [
+                        'oneTypo' => 4,
+                        'twoTypos' => 8,
+                    ],
+                ],
             ],
 
             GameSet::class => [
                 'filterableAttributes' => ['id', 'games_count', 'title'],
+                'rankingRules' => [
+                    'exactness',
+                    'words',
+                    'typo',
+                    'attribute',
+                    'proximity',
+                    'games_count:desc',
+                    'sort',
+                ],
                 'searchableAttributes' => ['title', 'id'],
                 'sortableAttributes' => ['id', 'games_count', 'title'],
             ],

@@ -14,6 +14,7 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\PlayerGameMetricsUpdated;
+use App\Platform\Jobs\UpdateGamePlayerCountJob;
 use App\Platform\Services\PlayerGameActivityService;
 use ErrorException;
 use Illuminate\Support\Collection;
@@ -91,6 +92,7 @@ class UpdatePlayerGameMetricsAction
 
         // process each set
         $playerAchievementSets = [];
+        $possiblePlayerCountChangeGameIds = [];
         foreach ($gameAchievementSets as $gameAchievementSet) {
             $achievementSet = $gameAchievementSet->achievementSet;
             $playerAchievementSet = PlayerAchievementSet::where('user_id', $playerGame->user->id)
@@ -122,6 +124,16 @@ class UpdatePlayerGameMetricsAction
             $playerAchievementSet->points = $setAchievementsUnlocked->sum('Points');
             $playerAchievementSet->points_hardcore = $setAchievementsUnlockedHardcore->sum('Points');
             $playerAchievementSet->points_weighted = $setAchievementsUnlockedHardcore->sum('TrueRatio');
+
+            // if the player went from 0 unlocks to non-zero unlocks, they're considered a player for the set.
+            // similarly, if they went fro non-zero unlocks to zero unlocks, they're no longer considered a
+            // player for the set. in both cases, we need to update the game player count
+            if (($playerAchievementSet->achievements_unlocked > 0 && $playerAchievementSet->getOriginal('achievements_unlocked') < 1)
+                || ($playerAchievementSet->achievements_unlocked_hardcore > 0 && $playerAchievementSet->getOriginal('achievements_unlocked_hardcore') < 1)
+                || ($playerAchievementSet->achievements_unlocked < 1 && $playerAchievementSet->getOriginal('achievements_unlocked') > 0)
+                || ($playerAchievementSet->achievements_unlocked_hardcore < 1 && $playerAchievementSet->getOriginal('achievements_unlocked_hardcore') > 0)) {
+                $possiblePlayerCountChangeGameIds[] = $gameAchievementSet->game_id;
+            }
 
             $summary = $activityService->getAchievementSetMetrics($achievementSet);
             $playerAchievementSet->time_taken = $summary['achievementPlaytimeSoftcore'] ?? 0;
@@ -172,6 +184,10 @@ class UpdatePlayerGameMetricsAction
 
         if (!$silent) {
             PlayerGameMetricsUpdated::dispatch($user, $game);
+        }
+
+        foreach ($possiblePlayerCountChangeGameIds as $gameId) {
+            dispatch(new UpdateGamePlayerCountJob($gameId))->onQueue('game-player-count');
         }
 
         app()->make(RevalidateAchievementSetBadgeEligibilityAction::class)->execute($playerGame);

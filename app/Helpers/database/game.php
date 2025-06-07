@@ -20,7 +20,7 @@ function getGameData(int $gameID): ?array
     return !$game ? null : array_merge($game->toArray(), [
         'ConsoleID' => $game->system->ID,
         'ConsoleName' => $game->system->Name,
-        'NumDistinctPlayers' => $game->players_total,
+        'NumDistinctPlayers' => $game->players_total ?? 0,
     ]);
 }
 
@@ -86,7 +86,6 @@ function getGameMetadata(
     $metricsColumns = '';
     if ($metrics) {
         $metricsColumns = 'ach.unlocks_total AS NumAwarded, ach.unlocks_hardcore_total AS NumAwardedHardcore,';
-        $gameDataOut['ParentGameID'] = Game::find($gameID)->parentGameId;
     }
 
     $query = "

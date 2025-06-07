@@ -33,6 +33,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -55,6 +56,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     /** @use HasFactory<AchievementFactory> */
     use HasFactory;
 
+    use Searchable;
     use SoftDeletes;
 
     use CausesActivity;
@@ -108,6 +110,8 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         'GameID' => 'integer',
         'Points' => 'integer',
         'TrueRatio' => 'integer',
+        'unlock_percentage' => 'double',
+        'unlock_hardcore_percentage' => 'double',
     ];
 
     protected $visible = [
@@ -203,6 +207,27 @@ class Achievement extends BaseModel implements HasVersionedTrigger
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    // == search
+
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => (int) $this->ID,
+            'title' => $this->title,
+            'description' => $this->description,
+            'unlocks_total' => $this->unlocks_total,
+        ];
+    }
+
+    public function shouldBeSearchable(): bool
+    {
+        if ($this->Flags !== AchievementFlag::OfficialCore->value) {
+            return false;
+        }
+
+        return true;
     }
 
     // == helpers

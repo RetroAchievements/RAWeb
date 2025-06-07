@@ -5,9 +5,14 @@ import { renderHook } from '@/test';
 
 import { useActivePlayerScrollObserver } from './useActivePlayerScrollObserver';
 
-vi.mock('react-use', () => ({
-  useScrolling: vi.fn(),
-}));
+vi.mock('react-use', async (importOriginaol) => {
+  const originalModule = await importOriginaol();
+
+  return {
+    ...(originalModule as any),
+    useScrolling: vi.fn(),
+  };
+});
 
 describe('Hook: useActivePlayerScrollObserver', () => {
   beforeEach(() => {

@@ -927,7 +927,11 @@ if ($isFullyFeaturedGame) {
                 // Check if unlocked achievements should be hidden (for server-side rendering)
                 $hideUnlockedCookie = request()->cookie('hide_unlocked_achievements_games', '');
                 $hiddenGameIds = array_filter(array_map('intval', explode(',', $hideUnlockedCookie)));
-                $shouldHideUnlockedAchievements = in_array($gameID, $hiddenGameIds);
+
+                // Don't hide unlocked achievements if user has a completion or mastery.
+                $hasCompletionOrMastery = ($numEarnedCasual === $numAchievements) || ($numEarnedHardcore === $numAchievements);
+
+                $shouldHideUnlockedAchievements = !$hasCompletionOrMastery && in_array($gameID, $hiddenGameIds);
                 ?>
                     <x-game.achievements-list.root
                         :achievements="$achievementData"

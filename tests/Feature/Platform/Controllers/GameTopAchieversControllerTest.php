@@ -7,6 +7,7 @@ namespace Tests\Feature\Platform\Controllers;
 use App\Community\Enums\AwardType;
 use App\Models\Game;
 use App\Models\PlayerGame;
+use App\Models\UnrankedUser;
 use App\Models\User;
 use App\Platform\Actions\UpdateGameMetricsAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -82,6 +83,10 @@ class GameTopAchieversControllerTest extends TestCase
         $user6 = User::factory()->create(['Untracked' => true, 'unranked_at' => $date2]);
         $user7 = User::factory()->create();
         $user8 = User::factory()->create();
+
+        UnrankedUser::create([
+            'user_id' => $user6->id,
+        ]);
 
         // user1 mastery
         $this->addMastery($user1, $game, $date4);

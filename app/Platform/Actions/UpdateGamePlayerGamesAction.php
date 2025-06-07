@@ -22,16 +22,24 @@ class UpdateGamePlayerGamesAction
             return;
         }
 
+        // Get the current achievement set version hash.
+        // Jobs will check this to ensure they're not wasting compute on processing outdated data.
+        $versionHash = $game->achievement_set_version_hash;
+
         // Ad-hoc updates for player games metrics and player metrics after achievement set version changes
         // Note: this might dispatch multiple thousands of jobs depending on a game's players count
         // add all affected player games to the update queue in batches
         $game->playerGames()
-            ->chunkById(1000, function (Collection $chunk, $page) use ($game) {
+            ->chunkById(1000, function (Collection $chunk, $page) use ($game, $versionHash) {
                 // map and dispatch this chunk as a batch of jobs
                 Bus::batch(
-                    $chunk->map(
-                        fn (PlayerGame $playerGame) => new UpdatePlayerGameMetricsJob($playerGame->user_id, $playerGame->game_id)
-                    )
+                    $chunk->map(function (PlayerGame $playerGame) use ($versionHash) {
+                        return new UpdatePlayerGameMetricsJob(
+                            $playerGame->user_id,
+                            $playerGame->game_id,
+                            $versionHash
+                        );
+                    })
                 )
                     ->onQueue('player-game-metrics-batch')
                     ->name('player-game-metrics ' . $game->id . ' ' . $page)

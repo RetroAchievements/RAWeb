@@ -31,8 +31,10 @@ class GameTopAchieversService
     private function baseQuery(): Builder
     {
         return PlayerGame::where('game_id', $this->gameId)
-            ->whereHas('user', function ($query) {
-                return $query->tracked();
+            ->whereNotExists(function ($query) {
+                $query->select('user_id')
+                    ->from('unranked_users')
+                    ->whereColumn('unranked_users.user_id', 'player_games.user_id');
             });
     }
 

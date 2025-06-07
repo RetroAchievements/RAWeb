@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -27,6 +28,8 @@ class Event extends BaseModel
     }
 
     use HasSelfHealingUrls;
+
+    use Searchable;
 
     protected $table = 'events';
 
@@ -72,6 +75,24 @@ class Event extends BaseModel
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    // == search
+
+    public function toSearchableArray(): array
+    {
+        $this->load('legacyGame');
+
+        return [
+            'id' => (int) $this->id,
+            'title' => $this->legacyGame->title,
+            'players_total' => $this->legacyGame->players_total,
+        ];
+    }
+
+    public function shouldBeSearchable(): bool
+    {
+        return true;
     }
 
     // == accessors
