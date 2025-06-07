@@ -2,7 +2,6 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCheck, LuCircleCheck } from 'react-icons/lu';
 
 import { BaseChip } from '@/common/components/+vendor/BaseChip';
 import {
@@ -10,6 +9,7 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
+import { useEventStateMeta } from '@/common/hooks/useEventStateMeta';
 
 dayjs.extend(utc);
 
@@ -20,9 +20,13 @@ interface IsPlayableChipProps {
 export const IsPlayableChip: FC<IsPlayableChipProps> = ({ event }) => {
   const { t } = useTranslation();
 
+  const { eventStateMeta } = useEventStateMeta();
+
   if (!event.eventAchievements) {
     return null;
   }
+
+  const { label, icon: Icon } = eventStateMeta[event.state!];
 
   if (event.state === 'active') {
     return (
@@ -32,8 +36,8 @@ export const IsPlayableChip: FC<IsPlayableChipProps> = ({ event }) => {
             className="text-green-400 light:border light:border-neutral-300 light:text-green-700"
             data-testid="playable"
           >
-            <LuCheck className="size-4" />
-            {t('Active')}
+            <Icon className="size-4" />
+            {label}
           </BaseChip>
         </BaseTooltipTrigger>
 
@@ -51,8 +55,8 @@ export const IsPlayableChip: FC<IsPlayableChipProps> = ({ event }) => {
       <BaseTooltip>
         <BaseTooltipTrigger>
           <BaseChip className="text-green-400" data-testid="playable">
-            <LuCheck className="size-4" />
-            {t('No Time Limit')}
+            <Icon className="size-4" />
+            {label}
           </BaseChip>
         </BaseTooltipTrigger>
 
@@ -69,8 +73,8 @@ export const IsPlayableChip: FC<IsPlayableChipProps> = ({ event }) => {
     <BaseTooltip>
       <BaseTooltipTrigger>
         <BaseChip data-testid="playable">
-          <LuCircleCheck className="size-4" />
-          {t('Concluded')}
+          <Icon className="size-4" />
+          {label}
         </BaseChip>
       </BaseTooltipTrigger>
 

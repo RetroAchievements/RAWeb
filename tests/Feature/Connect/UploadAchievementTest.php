@@ -1331,4 +1331,101 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals(2, $newTrigger->version); // previous version was 1, so we're on 2 now.
         $this->assertEquals($trigger->id, $newTrigger->parent_id); // we also have a stable link to the previous version.
     }
+
+    public function testSyncToAchievementSet(): void
+    {
+        /** @var User $author */
+        $author = User::factory()->create([
+            'Permissions' => Permissions::Developer,
+            'appToken' => Str::random(16),
+            'ContribCount' => 0,
+            'ContribYield' => 0,
+        ]);
+        $game = $this->seedGame(withHash: false);
+
+        /** @var Achievement $achievement1 */
+        $achievement1 = Achievement::factory()->create(['user_id' => $author->id]);
+
+        AchievementSetClaim::factory()->create([
+            'user_id' => $author->id,
+            'game_id' => $game->id,
+        ]);
+
+        // ====================================================
+        // create an achievement
+        $params = [
+            'u' => $author->User,
+            't' => $author->appToken,
+            'g' => $game->ID,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => 5, // Unofficial - hardcode for test to prevent false success if enum changes
+            'b' => '001234',
+        ];
+
+        $this->get($this->apiUrl('uploadachievement', $params))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement1->ID + 1,
+                'Error' => '',
+            ]);
+
+        $game->refresh();
+        $coreSet = $game->gameAchievementSets()->core()->first()->achievementSet;
+        $this->assertEquals(1, $coreSet->achievements()->count());
+        $this->assertEquals($achievement1->ID + 1, $coreSet->achievements()->first()->ID);
+        $this->assertEquals(0, $coreSet->achievements_published);
+        $this->assertEquals(1, $coreSet->achievements_unpublished);
+        $this->assertEquals(0, $coreSet->points_total);
+
+        // ====================================================
+        // create another achievement
+        $params = [
+            'u' => $author->User,
+            't' => $author->appToken,
+            'g' => $game->ID,
+            'n' => 'Title2',
+            'd' => 'Description2',
+            'z' => 10,
+            'm' => '0xH0000=1',
+            'f' => 5, // Unofficial - hardcode for test to prevent false success if enum changes
+            'b' => '001234',
+        ];
+
+        $this->get($this->apiUrl('uploadachievement', $params))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement1->ID + 2,
+                'Error' => '',
+            ]);
+
+        $coreSet->refresh();
+        $this->assertEquals(2, $coreSet->achievements()->count());
+        $this->assertEquals($achievement1->ID + 1, $coreSet->achievements()->first()->ID);
+        $this->assertEquals($achievement1->ID + 2, $coreSet->achievements()->skip(1)->first()->ID);
+        $this->assertEquals(0, $coreSet->achievements_published);
+        $this->assertEquals(2, $coreSet->achievements_unpublished);
+        $this->assertEquals(0, $coreSet->points_total);
+
+        // ====================================================
+        // publish achievement
+        $params['a'] = $achievement1->ID + 2;
+        $params['f'] = 3; // Official - hardcode for test to prevent false success if enum changes
+        $this->get($this->apiUrl('uploadachievement', $params))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement1->ID + 2,
+                'Error' => '',
+            ]);
+
+        $coreSet->refresh();
+        $this->assertEquals(2, $coreSet->achievements()->count());
+        $this->assertEquals($achievement1->ID + 1, $coreSet->achievements()->first()->ID);
+        $this->assertEquals($achievement1->ID + 2, $coreSet->achievements()->skip(1)->first()->ID);
+        $this->assertEquals(1, $coreSet->achievements_published);
+        $this->assertEquals(1, $coreSet->achievements_unpublished);
+        $this->assertEquals(10, $coreSet->points_total);
+    }
 }

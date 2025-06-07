@@ -34,7 +34,12 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     // https://vitejs.dev/config/#plugins
     plugins: [
       laravel({
-        input: ['resources/css/app.css', 'resources/js/tall-stack/app.ts', 'resources/js/app.tsx'],
+        input: [
+          'resources/css/app.css',
+          'resources/js/tall-stack/app.ts',
+          'resources/js/app.tsx',
+          'resources/js/global-search-standalone.tsx',
+        ],
         ssr: 'resources/js/ssr.tsx',
         refresh: ['resources/views/**'],
       }),
@@ -97,6 +102,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         ],
         exclude: [
           'resources/js/common/components/+vendor', // shadcn/ui lib code
+          'resources/js/common/components/GlobalSearchProvider', // has to pierce the global window context
           'resources/js/common/utils/+vendor', // 3rd party utils
           '**/index.ts',
           '**/*.model.ts',

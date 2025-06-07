@@ -4,7 +4,6 @@ import type { IconType } from 'react-icons/lib';
 import type { getStringByteCount as GetStringByteCount } from '@/common/utils/getStringByteCount';
 import type {
   modalComponent as ModalComponent,
-  navbarSearchComponent as NavbarSearchComponent,
   toggleAchievementRowsComponent as ToggleAchievementRowsComponent,
   tooltipComponent as TooltipComponent,
 } from '@/tall-stack/alpine';
@@ -42,7 +41,6 @@ declare global {
   var handleLeaderboardTabClick: typeof HandleLeaderboardTabClick;
   var initializeTextareaCounter: typeof InitializeTextareaCounter;
   var modalComponent: typeof ModalComponent;
-  var navbarSearchComponent: typeof NavbarSearchComponent;
   var setCookie: typeof SetCookie;
   var showStatusFailure: (message: string) => void;
   var showStatusSuccess: (message: string) => void;

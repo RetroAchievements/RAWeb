@@ -498,8 +498,15 @@ class PlayerGameActivityService
         }
         $achievementsPublishedAt = $achievementSet->achievements_first_published_at;
 
-        $metrics['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($achievementsPublishedAt, $metrics['lastUnlockTimeSoftcore'], UnlockMode::Softcore);
-        $metrics['achievementPlaytimeHardcore'] = $this->calculatePlaytime($achievementsPublishedAt, $metrics['lastUnlockTimeHardcore'], UnlockMode::Hardcore);
+        if ($achievementsPublishedAt) {
+            $metrics['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($achievementsPublishedAt, $metrics['lastUnlockTimeSoftcore'], UnlockMode::Softcore);
+            $metrics['achievementPlaytimeHardcore'] = $this->calculatePlaytime($achievementsPublishedAt, $metrics['lastUnlockTimeHardcore'], UnlockMode::Hardcore);
+        } else {
+            // don't count any playtime if achievements haven't been published yet
+            $metrics['achievementPlaytimeSoftcore'] = 0;
+            $metrics['achievementPlaytimeHardcore'] = 0;
+        }
+
         $metrics['devTime'] = $this->calculatePlaytime(null, $achievementsPublishedAt, UnlockMode::Softcore);
 
         return $metrics;

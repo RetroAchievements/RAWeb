@@ -31,6 +31,7 @@ class UserData extends Data
         public Lazy|bool $isEmailVerified = false,
         public Lazy|bool $isMuted = false,
         public Lazy|bool $isNew = false,
+        public Lazy|Carbon|null $lastActivityAt = null,
         public Lazy|int|null $legacyPermissions = null,
         public Lazy|string|null $locale = null,
         public Lazy|string $motto = '',
@@ -84,6 +85,7 @@ class UserData extends Data
             isEmailVerified: Lazy::create(fn () => $user->isEmailVerified()),
             isMuted: Lazy::create(fn () => $user->isMuted()),
             isNew: Lazy::create(fn () => $user->isNew()),
+            lastActivityAt: Lazy::create(fn () => $user->LastLogin),
             legacyPermissions: Lazy::create(fn () => (int) $user->getAttribute('Permissions')),
             locale: Lazy::create(fn () => $user->locale === 'en' ? 'en_US' : $user->locale), // TODO remove conditional after renaming "en" to "en_US"
             motto: Lazy::create(fn () => $user->Motto),

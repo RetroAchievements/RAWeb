@@ -48,13 +48,23 @@ abstract class BaseApiAction
         ];
     }
 
-    protected function accessDenied(): array
+    protected function invalidParameter(string $message): array
+    {
+        return [
+            'Success' => false,
+            'Status' => 400,
+            'Code' => 'invalid_parameter',
+            'Error' => $message,
+        ];
+    }
+
+    protected function accessDenied(string $message = 'Access denied.'): array
     {
         return [
             'Success' => false,
             'Status' => 403,
             'Code' => 'access_denied',
-            'Error' => 'Access denied.',
+            'Error' => $message,
         ];
     }
 

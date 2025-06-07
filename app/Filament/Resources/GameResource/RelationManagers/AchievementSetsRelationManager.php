@@ -140,7 +140,10 @@ class AchievementSetsRelationManager extends RelationManager
                                     ->options(
                                         Game::where('Title', 'like', "%[Subset -%")
                                             ->where('ConsoleID', $game->ConsoleID)
-                                            ->where('achievements_published', '>', 0)
+                                            ->where(function ($query) {
+                                                $query->where('achievements_published', '>', 0)
+                                                    ->orWhere('achievements_unpublished', '>', 0);
+                                            })
                                             ->whereDoesntHave('gameAchievementSets', function ($query) use ($attachedAchievementSetIds) {
                                                 $query->core()->whereIn('achievement_set_id', $attachedAchievementSetIds);
                                             })

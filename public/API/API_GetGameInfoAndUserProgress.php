@@ -24,9 +24,10 @@
  *    int        ID                       unique identifier of the achievement
  *    string     Title                    title of the achievement
  *    string     Description              description of the achievement
- *    string     Points                   number of points the achievement is worth
- *    string     TrueRatio                number of RetroPoints ("white points") the achievement is worth
+ *    int        Points                   number of points the achievement is worth
+ *    int        TrueRatio                number of RetroPoints ("white points") the achievement is worth
  *    string     BadgeName                unique identifier of the badge image for the achievement
+ *    string?    Type                     "progression", "win_condition", "missable" or null
  *    int        NumAwarded               number of times the achievement has been awarded
  *    int        NumAwardedHardcore       number of times the achievement has been awarded in hardcore
  *    int        DisplayOrder             field used for determining which order to display the achievements
@@ -55,10 +56,12 @@
  */
 
 use App\Actions\FindUserByIdentifierAction;
+use App\Models\Achievement;
+use App\Models\Game;
 use App\Models\PlayerBadge;
+use App\Platform\Enums\AchievementFlag;
 use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
@@ -66,71 +69,95 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', new ValidUserIdentifier()],
 ]);
 
-$gameID = (int) $input['g'];
-
 $targetUser = (new FindUserByIdentifierAction())->execute($input['u']);
 if (!$targetUser) {
     return response()->json([]);
 }
 
-getGameMetadata($gameID, $targetUser, $achData, $gameData, metrics: true);
-
-if ($gameData === null) {
+$gameId = (int) $input['g'];
+$game = Game::where('ID', $gameId)->with('system')->first();
+if (!$game) {
     return response()->json([]);
 }
 
-if (empty($achData)) {
-    $gameData['Achievements'] = new ArrayObject(); // issue #484 - force serialization to {}
+$playerGame = $targetUser->playerGames()->where('game_id', $gameId)->first();
+
+$gameData = [
+    'ID' => $game->id,
+    'Title' => $game->title,
+    'ConsoleID' => $game->system->id,
+    'ConsoleName' => $game->system->name,
+    'ParentGameID' => $game->parentGameId,
+    'NumDistinctPlayers' => $game->players_total,
+    'NumDistinctPlayersCasual' => $game->players_total,
+    'NumDistinctPlayersHardcore' => $game->players_total,
+    'NumAchievements' => $game->achievements_published,
+    'NumAwardedToUser' => $playerGame->achievements_unlocked ?? 0,
+    'NumAwardedToUserHardcore' => $playerGame->achievements_unlocked_hardcore ?? 0,
+    'UserCompletion' => sprintf("%01.2f%%", ($playerGame->completion_percentage ?? 0) * 100),
+    'UserCompletionHardcore' => sprintf("%01.2f%%", ($playerGame->completion_percentage_hardcore ?? 0) * 100),
+    'ForumTopicID' => $game->ForumTopicID,
+    'Flags' => 0,
+    'ImageIcon' => $game->ImageIcon,
+    'ImageTitle' => $game->ImageTitle,
+    'ImageIngame' => $game->ImageIngame,
+    'ImageBoxArt' => $game->ImageBoxArt,
+    'Publisher' => $game->Publisher,
+    'Developer' => $game->Developer,
+    'Genre' => $game->Genre,
+    'Released' => $game->released_at ? $game->released_at->format('Y-m-d') : null,
+    'ReleasedAtGranularity' => $game->released_at_granularity,
+    'IsFinal' => false,
+    'RichPresencePatch' => md5($game->RichPresencePatch),
+];
+
+if (!$game->achievements_published) {
+    $gameData['Achievements'] = new stdClass(); // issue #484 - force serialization to {}
 } else {
-    foreach ($achData as &$achievement) {
-        $achievement['MemAddr'] = md5($achievement['MemAddr'] ?? null);
+    $achievements = [];
+
+    $publishedAchievements = Achievement::query()
+        ->where('GameID', $gameId)
+        ->where('Flags', AchievementFlag::OfficialCore->value)
+        ->with('developer')
+        ->orderBy('DisplayOrder')
+        ->get();
+    foreach ($publishedAchievements as $achievement) {
+        $achievements[strval($achievement->ID)] = [
+            'ID' => $achievement->ID,
+            'Title' => $achievement->Title,
+            'Description' => $achievement->Description,
+            'Points' => $achievement->Points,
+            'TrueRatio' => $achievement->TrueRatio,
+            'Type' => $achievement->type,
+            'BadgeName' => $achievement->BadgeName,
+            'NumAwarded' => $achievement->unlocks_total,
+            'NumAwardedHardcore' => $achievement->unlocks_hardcore_total,
+            'DisplayOrder' => $achievement->DisplayOrder,
+            'Author' => $achievement->developer->display_name,
+            'AuthorULID' => $achievement->developer->ulid,
+            'DateCreated' => $achievement->DateCreated->format('Y-m-d H:i:s'),
+            'DateModified' => $achievement->DateModified->format('Y-m-d H:i:s'),
+            'MemAddr' => md5($achievement->MemAddr),
+        ];
     }
-    $gameData['Achievements'] = $achData;
-}
 
-$gameData['RichPresencePatch'] = md5($gameData['RichPresencePatch'] ?? null);
+    $playerAchievements = $targetUser->playerAchievements()->whereIn('achievement_id', array_keys($achievements))->get();
+    foreach ($playerAchievements as $playerAchievement) {
+        $idStr = strval($playerAchievement->achievement_id);
 
-$gameData['NumAwardedToUser'] = 0;
-$gameData['NumAwardedToUserHardcore'] = 0;
-
-$gameData['NumDistinctPlayersCasual'] = $gameData['NumDistinctPlayers'];
-$gameData['NumDistinctPlayersHardcore'] = $gameData['NumDistinctPlayers'];
-
-$gameData['Released'] = $gameData['released_at'] ? Carbon::parse($gameData['released_at'])->format('Y-m-d') : null;
-$gameData['ReleasedAtGranularity'] = $gameData['released_at_granularity'];
-
-if (!empty($achData)) {
-    foreach ($achData as $nextAch) {
-        if (isset($nextAch['DateEarned'])) {
-            $gameData['NumAwardedToUser']++;
-        }
-        if (isset($nextAch['DateEarnedHardcore'])) {
-            $gameData['NumAwardedToUserHardcore']++;
+        $achievements[$idStr]['DateEarned'] = $playerAchievement->unlocked_at->format('Y-m-d H:i:s');
+        if ($playerAchievement->unlocked_hardcore_at) {
+            $achievements[$idStr]['DateEarnedHardcore'] = $playerAchievement->unlocked_hardcore_at->format('Y-m-d H:i:s');
         }
     }
-}
 
-// Don't expose these values.
-// TODO stop using getGameMetadata helper
-unset($gameData['achievement_set_version_hash']);
-unset($gameData['achievements_published']);
-unset($gameData['players_total']);
-unset($gameData['points_total']);
-unset($gameData['released_at_granularity']);
-unset($gameData['released_at']);
-unset($gameData['system']);
-unset($gameData['Updated']);
-
-$gameData['UserCompletion'] = '0.00%';
-$gameData['UserCompletionHardcore'] = '0.00%';
-if ($gameData['NumAchievements'] ?? false) {
-    $gameData['UserCompletion'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUser'] / $gameData['NumAchievements']) * 100.0);
-    $gameData['UserCompletionHardcore'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUserHardcore'] / $gameData['NumAchievements']) * 100.0);
+    $gameData['Achievements'] = $achievements;
 }
 
 $includeAwardMetadata = request()->query('a', '0');
 if ($includeAwardMetadata == '1') {
-    $highestAwardMetadata = PlayerBadge::getHighestUserAwardForGameId($targetUser, $gameID);
+    $highestAwardMetadata = PlayerBadge::getHighestUserAwardForGameId($targetUser, $gameId);
 
     if ($highestAwardMetadata) {
         $gameData['HighestAwardKind'] = $highestAwardMetadata['highestAwardKind'];
@@ -140,7 +167,5 @@ if ($includeAwardMetadata == '1') {
         $gameData['HighestAwardDate'] = null;
     }
 }
-
-$gameData['IsFinal'] = false;
 
 return response()->json($gameData);

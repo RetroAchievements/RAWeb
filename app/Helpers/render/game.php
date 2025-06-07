@@ -102,7 +102,7 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
         if (preg_match('/(.+)(\[Subset - .+\])/', $gameTitle, $matches)) {
             $mainTitle = trim($matches[1]);
             $subset = $matches[2];
-            $mainID = getGameIDFromTitle($mainTitle, $consoleID);
+            $mainID = Game::find($gameID)->parentGameId;
             $subsetID = $gameID;
             $renderedSubset = Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $subset]);
         }
@@ -119,10 +119,13 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
         if ($renderedMain !== $mainTitle) {
             // In the rare case of a same-console derived game sharing identical
             // title with a base one, include category to solve ambiguity
-            $baseTitle = trim(substr($mainTitle, strrpos($mainTitle, '~') + 1));
-            $baseID = getGameIDFromTitle($baseTitle, $consoleID);
-            if ($baseID) {
-                $renderedMain = Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $mainTitle]);
+            $index = strrpos($mainTitle, '~');
+            if ($index !== false) {
+                $baseTitle = trim(substr($mainTitle, $index + 1));
+                $baseID = getGameIDFromTitle($baseTitle, $consoleID);
+                if ($baseID) {
+                    $renderedMain = Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $mainTitle]);
+                }
             }
         }
 

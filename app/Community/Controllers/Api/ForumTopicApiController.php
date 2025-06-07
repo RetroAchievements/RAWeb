@@ -11,6 +11,7 @@ use App\Http\Controller;
 use App\Models\Forum;
 use App\Models\ForumCategory;
 use App\Models\ForumTopic;
+use App\Models\Game;
 use Illuminate\Http\JsonResponse;
 
 class ForumTopicApiController extends Controller
@@ -52,6 +53,14 @@ class ForumTopicApiController extends Controller
         $this->authorize('delete', $topic);
 
         $topic->delete();
+
+        // if this was the official forum topic for a game, clear out the association
+        // so another forum topic can be created - soft deletes don't cascade update
+        // the field to null. this also creates an audit log entry on the game.
+        foreach (Game::where('ForumTopicID', $topic->id)->get() as $game) {
+            $game->ForumTopicID = null;
+            $game->save();
+        }
 
         return response()->json(['success' => true]);
     }

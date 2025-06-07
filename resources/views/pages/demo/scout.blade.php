@@ -1,4 +1,6 @@
+@use('App\Models\Achievement')
 @use('App\Models\Comment')
+@use('App\Models\Event')
 @use('App\Models\ForumTopicComment')
 @use('App\Models\Game')
 @use('App\Models\GameSet')
@@ -11,14 +13,20 @@
 
     // Get search terms from query params.
     $gameSearch = request()->query('game_search');
+    $achievementSearch = request()->query('achievement_search');
     $userSearch = request()->query('user_search');
     $commentSearch = request()->query('comment_search');
     $gameSetSearch = request()->query('game_set_search');
     $forumCommentSearch = request()->query('forum_comment_search');
-    
+    $eventSearch = request()->query('event_search');
+
     // Search using the terms (default or provided).
     $games = !empty($gameSearch)
         ? Game::search($gameSearch)->get()
+        : collect();
+
+    $achievements = !empty($achievementSearch)
+        ? Achievement::search($achievementSearch)->get()
         : collect();
 
     $users = !empty($userSearch)
@@ -36,6 +44,10 @@
     $forumComments = !empty($forumCommentSearch) 
         ? ForumTopicComment::search($forumCommentSearch)->take(20)->get() 
         : collect();
+
+    $events = !empty($eventSearch)
+        ? Event::search($eventSearch)->take(10)->get()
+        : collect();
 @endphp
 
 <x-app-layout>
@@ -49,6 +61,18 @@
                     name="game_search" 
                     value="{{ $gameSearch }}" 
                     placeholder="Search games"
+                    class="rounded border px-2 py-1 w-full"
+                >
+            </div>
+
+            <div>
+                <label for="achievement_search" class="block text-sm mb-1">Achievement Search</label>
+                <input
+                    type="text"
+                    id="achievement_search"
+                    name="achievement_search"
+                    value="{{ $achievementSearch }}"
+                    placeholder="Search achievements"
                     class="rounded border px-2 py-1 w-full"
                 >
             </div>
@@ -78,13 +102,13 @@
             </div>
             
             <div>
-                <label for="game_set_search" class="block text-sm mb-1">Game Set Search</label>
+                <label for="game_set_search" class="block text-sm mb-1">Hub Search</label>
                 <input 
                     type="text" 
                     id="game_set_search"
                     name="game_set_search" 
                     value="{{ $gameSetSearch }}" 
-                    placeholder="Search game sets"
+                    placeholder="Search hubs"
                     class="rounded border px-2 py-1 w-full"
                 >
             </div>
@@ -97,6 +121,18 @@
                     name="forum_comment_search" 
                     value="{{ $forumCommentSearch }}" 
                     placeholder="Search forum comments"
+                    class="rounded border px-2 py-1 w-full"
+                >
+            </div>
+
+            <div>
+                <label for="forum_comment_search" class="block text-sm mb-1">Event Search</label>
+                <input 
+                    type="text" 
+                    id="event_search"
+                    name="event_search" 
+                    value="{{ $eventSearch }}" 
+                    placeholder="Search events"
                     class="rounded border px-2 py-1 w-full"
                 >
             </div>
@@ -114,16 +150,25 @@
         <div class="space-y-8">
             <div>
                 <h2 class="text-lg font-bold mb-2">Games ({{ $games->count() }})</h2>
-                @if($games->isNotEmpty())
-                    @dump($games->toArray())
+                @if ($games->isNotEmpty())
+                    @dump($games->pluck('Title', 'ID')->toArray())
                 @else
                     <p class="text-gray-500">{{ $commentSearch ? 'No game results found' : 'Enter a search term to find games' }}</p>
                 @endif
             </div>
 
             <div>
+                <h2 class="text-lg font-bold mb-2">Achievements ({{ $achievements->count() }})</h2>
+                @if ($achievements->isNotEmpty())
+                    @dump($achievements->toArray())
+                @else
+                    <p class="text-gray-500">{{ $achievementSearch ? 'No achievement results found' : 'Enter a search term to find achievements' }}</p>
+                @endif
+            </div>
+
+            <div>
                 <h2 class="text-lg font-bold mb-2">Users ({{ $users->count() }})</h2>
-                @if($users->isNotEmpty())
+                @if ($users->isNotEmpty())
                     @dump($users->toArray())
                 @else
                     <p class="text-gray-500">{{ $commentSearch ? 'No user results found' : 'Enter a search term to find users' }}</p>
@@ -132,7 +177,7 @@
             
             <div>
                 <h2 class="text-lg font-bold mb-2">Comments ({{ $comments->count() }})</h2>
-                @if($comments->isNotEmpty())
+                @if ($comments->isNotEmpty())
                     @dump($comments->toArray())
                 @else
                     <p class="text-gray-500">{{ $commentSearch ? 'No comment results found' : 'Enter a search term to find comments' }}</p>
@@ -140,20 +185,29 @@
             </div>
             
             <div>
-                <h2 class="text-lg font-bold mb-2">Game Sets ({{ $gameSets->count() }})</h2>
-                @if($gameSets->isNotEmpty())
+                <h2 class="text-lg font-bold mb-2">Hubs ({{ $gameSets->count() }})</h2>
+                @if ($gameSets->isNotEmpty())
                     @dump($gameSets->toArray())
                 @else
-                    <p class="text-gray-500">{{ $gameSetSearch ? 'No game set results found' : 'Enter a search term to find game sets' }}</p>
+                    <p class="text-gray-500">{{ $gameSetSearch ? 'No hub results found' : 'Enter a search term to find hubs' }}</p>
                 @endif
             </div>
             
             <div>
                 <h2 class="text-lg font-bold mb-2">Forum Comments ({{ $forumComments->count() }})</h2>
-                @if($forumComments->isNotEmpty())
+                @if ($forumComments->isNotEmpty())
                     @dump($forumComments->toArray())
                 @else
                     <p class="text-gray-500">{{ $forumCommentSearch ? 'No forum comment results found' : 'Enter a search term to find forum comments' }}</p>
+                @endif
+            </div>
+
+            <div>
+                <h2 class="text-lg font-bold mb-2">Events ({{ $events->count() }})</h2>
+                @if ($events->isNotEmpty())
+                    @dump($events->toArray())
+                @else
+                    <p class="text-gray-500">{{ $events ? 'No event results found' : 'Enter a search term to find events' }}</p>
                 @endif
             </div>
         </div>
