@@ -235,7 +235,6 @@ class BuildAchievementChecklistActionTest extends TestCase
             'id' => $achievement->ID,
             'title' => $achievement->Title,
             'description' => $achievement->Description,
-            'decorator' => null,
             'points' => $achievement->Points,
             'badgeUnlockedUrl' => $achievement->badgeUnlockedUrl,
             'badgeLockedUrl' => $achievement->badgeLockedUrl,

@@ -25,7 +25,7 @@ class AchievementData extends Data
 
         public Lazy|Carbon $createdAt,
         public Lazy|string $description,
-        public Lazy|string $decorator,
+        public Lazy|string|null $decorator,
         public Lazy|UserData $developer,
         public Lazy|AchievementFlag $flags,
         public Lazy|GameData $game,
