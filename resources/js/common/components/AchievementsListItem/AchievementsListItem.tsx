@@ -36,7 +36,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const { description, game, title, type } = achievement;
+  const { description, game, title, type, decorator } = achievement;
 
   const unlockPercentage = achievement.unlockPercentage ? Number(achievement.unlockPercentage) : 0;
 
@@ -69,6 +69,13 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
       <div className="grid w-full gap-x-5 gap-y-1.5 leading-4 md:grid-cols-6">
         {/* Title and description area */}
         <div className="md:col-span-4">
+          {/* Decorator */}
+          {decorator ? (
+            <div className="-mt-1">
+              <span className="smalltext">{ decorator }</span>
+            </div>
+          ) : null}
+
           <div className="mb-0.5 flex justify-between gap-x-2">
             {/* Title */}
             <div className="-mt-1 mb-0.5 md:mt-0">
