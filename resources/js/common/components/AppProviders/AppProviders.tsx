@@ -7,6 +7,7 @@ import { I18nextProvider, type I18nextProviderProps } from 'react-i18next';
 
 import { BaseToaster } from '../+vendor/BaseToaster';
 import { BaseTooltipProvider } from '../+vendor/BaseTooltip';
+import { GlobalSearchProvider } from '../GlobalSearchProvider';
 import { useAppQueryClient } from './useAppQueryClient';
 
 interface AppProvidersProps {
@@ -23,16 +24,18 @@ export const AppProviders: FC<AppProvidersProps> = ({ children, i18n }) => {
         <JotaiProvider>
           <LazyMotion features={domAnimation}>
             <BaseTooltipProvider delayDuration={300}>
-              {children}
+              <GlobalSearchProvider>
+                {children}
 
-              <BaseToaster richColors={true} duration={4000} />
+                <BaseToaster richColors={true} duration={4000} />
 
-              {/* Everything below this line is excluded from prod builds. */}
-              {import.meta.env.VITE_REACT_QUERY_DEVTOOLS_ENABLED === 'true' ? (
-                <div className="hidden text-lg sm:block" data-testid="query-devtools">
-                  <ReactQueryDevtools />
-                </div>
-              ) : null}
+                {/* Everything below this line is excluded from prod builds. */}
+                {import.meta.env.VITE_REACT_QUERY_DEVTOOLS_ENABLED === 'true' ? (
+                  <div className="hidden text-lg sm:block" data-testid="query-devtools">
+                    <ReactQueryDevtools />
+                  </div>
+                ) : null}
+              </GlobalSearchProvider>
             </BaseTooltipProvider>
           </LazyMotion>
         </JotaiProvider>

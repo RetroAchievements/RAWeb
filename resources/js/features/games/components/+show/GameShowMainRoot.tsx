@@ -17,7 +17,7 @@ export const GameShowMainRoot: FC = () => {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div data-testid="game-show" className="flex flex-col gap-3">
       <GameBreadcrumbs game={game} system={game.system} />
       <PlayableHeader
         badgeUrl={game.badgeUrl}

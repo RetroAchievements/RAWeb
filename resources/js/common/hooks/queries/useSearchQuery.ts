@@ -3,36 +3,63 @@ import axios from 'axios';
 import { useState } from 'react';
 import { route } from 'ziggy-js';
 
-/**
- * TODO in the future, support multiple kinds of searches.
- * right now, this just searches for users.
- *
- * @see SearchApiController.php
- */
+type SearchScope = 'users' | 'games' | 'hubs' | 'achievements' | 'events';
 
-export interface SearchQueryResponse {
-  users: App.Data.User[];
+interface SearchQueryResponse {
+  results: {
+    users?: App.Data.User[];
+    games?: App.Platform.Data.Game[];
+    hubs?: App.Platform.Data.GameSet[];
+    achievements?: App.Platform.Data.Achievement[];
+    events?: App.Platform.Data.Event[];
+  };
+  query: string;
+  scopes: SearchScope[];
+  scopeRelevance: {
+    users?: number;
+    games?: number;
+    hubs?: number;
+    achievements?: number;
+    events?: number;
+  };
 }
 
-export function useSearchQuery(options: { initialSearchTerm: string } = { initialSearchTerm: '' }) {
-  const [searchTerm, setSearchTerm] = useState(options.initialSearchTerm);
+interface UseSearchQueryOptions {
+  initialSearchTerm?: string;
+
+  /** Blade contexts don't have access to Ziggy routes. */
+  route?: string;
+
+  scopes?: SearchScope[];
+}
+
+export function useSearchQuery(options: UseSearchQueryOptions = {}) {
+  const { initialSearchTerm = '', scopes = ['users'], route: customRoute } = options;
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
 
   return {
     searchTerm,
     setSearchTerm,
-    ...useQuery<App.Data.User[]>({
-      queryKey: ['search', searchTerm],
+    ...useQuery<SearchQueryResponse>({
+      queryKey: ['search', searchTerm, scopes, customRoute],
 
       queryFn: async () => {
-        const response = await axios.get<SearchQueryResponse>(
-          route('api.search.index', { q: searchTerm }),
-        );
+        const params = new URLSearchParams({
+          q: searchTerm,
+        });
 
-        return response.data.users;
+        if (scopes.length > 0) {
+          params.append('scope', scopes.join(','));
+        }
+
+        const url = customRoute || route('api.search.index');
+        const response = await axios.get<SearchQueryResponse>(url + '?' + params.toString());
+
+        return response.data;
       },
 
       enabled: searchTerm.length >= 3,
-      placeholderData: keepPreviousData,
+      placeholderData: searchTerm.length >= 3 ? keepPreviousData : undefined,
       refetchInterval: false,
     }),
   };
