@@ -32,7 +32,11 @@ class LoadEventWithRelationsAction
                 }
             },
             'awards' => function ($query) use ($user, $event) {
-                $query->withCount('playerBadges as badge_count');
+                $query->withCount(['playerBadges as badge_count' => function ($query) {
+                    $query->whereHas('user', function ($userQuery) {
+                        $userQuery->tracked();
+                    });
+                }]);
 
                 if ($user) {
                     $query->with(['playerBadges' => function ($query) use ($user, $event) {

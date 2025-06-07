@@ -30,6 +30,9 @@ class EventAward extends BaseModel
             ->where('AwardType', AwardType::Event)
             ->where('AwardData', $this->event_id)
             ->where('AwardDataExtra', $this->tier_index)
+            ->whereHas('user', function ($query) {
+                $query->tracked();
+            })
             ->count();
     }
 
