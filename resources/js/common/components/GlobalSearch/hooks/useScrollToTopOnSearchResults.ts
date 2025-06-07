@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- we don't even care about the results type */
+
 import { useEffect, useRef } from 'react';
 
 interface UseScrollToTopOnSearchResultsProps {
-  searchResults: unknown;
+  searchResults: any;
   isLoading: boolean;
 }
 
@@ -14,13 +16,14 @@ export function useScrollToTopOnSearchResults({
   isLoading,
 }: UseScrollToTopOnSearchResultsProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const previousResultsRef = useRef(searchResults);
+  const previousIdsRef = useRef<string>('');
 
   useEffect(() => {
-    // Only scroll to top when we have new results and we're not loading.
-    if (!isLoading && searchResults && searchResults !== previousResultsRef.current) {
+    const resultsKey = searchResults ? JSON.stringify(searchResults) : '';
+
+    if (!isLoading && searchResults && resultsKey !== previousIdsRef.current) {
       scrollContainerRef.current?.scrollTo({ top: 0 });
-      previousResultsRef.current = searchResults;
+      previousIdsRef.current = resultsKey;
     }
   }, [searchResults, isLoading]);
 
