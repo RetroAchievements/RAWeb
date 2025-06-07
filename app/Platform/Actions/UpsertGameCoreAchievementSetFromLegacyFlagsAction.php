@@ -41,7 +41,7 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
     private function createNewAchievementSetFromGame(Game $game): AchievementSet
     {
         list($officialAchievements, $unofficialAchievements) = $game->achievements->partition(function ($achievement) {
-            return $achievement->isPublished;
+            return $achievement->is_published;
         });
         $allAchievements = $officialAchievements->merge($unofficialAchievements);
 
@@ -81,7 +81,7 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
         $coreSet = $game->gameAchievementSets()->core()->first()->achievementSet;
 
         list($officialAchievements, $unofficialAchievements) = $game->achievements->partition(function ($achievement) {
-            return $achievement->isPublished;
+            return $achievement->is_published;
         });
         $allAchievements = $officialAchievements->merge($unofficialAchievements);
 
