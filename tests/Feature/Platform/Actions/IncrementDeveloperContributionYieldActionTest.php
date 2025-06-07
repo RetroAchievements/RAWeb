@@ -326,4 +326,70 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $this->assertEquals(6, $developer->ContribCount); // !! incremented
         $this->assertEquals(550, $developer->ContribYield); // !! incremented
     }
+
+    public function testItDoesNotReAwardBadgeAfterDippingBelowThreshold(): void
+    {
+        // Arrange
+        $developer = User::factory()->create(['ContribCount' => 10, 'ContribYield' => 1050]);
+        $player1 = User::factory()->create();
+        $player2 = User::factory()->create();
+
+        // ... developer already has the 1000 point yield badge ...
+        PlayerBadge::create([
+            'user_id' => $developer->id,
+            'AwardType' => AwardType::AchievementPointsYield,
+            'AwardData' => 0, // First tier (1000 points)
+            'DisplayOrder' => 1,
+        ]);
+
+        $game = $this->seedGame(withHash: false);
+
+        // ... an achievement worth 100 points which will soon be reset ...
+        $achievement1 = Achievement::factory()->published()->create([
+            'GameID' => $game->id,
+            'Points' => 100,
+            'user_id' => $developer->id,
+        ]);
+
+        // ... an achievement worth 50 points that will be unlocked later ...
+        $achievement2 = Achievement::factory()->published()->create([
+            'GameID' => $game->id,
+            'Points' => 50,
+            'user_id' => $developer->id,
+        ]);
+
+        $playerAchievement1 = PlayerAchievement::create([
+            'user_id' => $player1->id,
+            'achievement_id' => $achievement1->id,
+            'unlocked_at' => Carbon::now(),
+        ]);
+
+        // Act
+        // ... reset the 100 point achievement. this should drop yield to 950 ...
+        $this->action->execute($developer, $achievement1, $playerAchievement1, false);
+        $developer->refresh();
+
+        $this->assertEquals(950, $developer->ContribYield); // !! 950 yield
+
+        // ... unlock the 50 point achievement. this should increase yield to 1000 ...
+        $playerAchievement2 = PlayerAchievement::create([
+            'user_id' => $player2->id,
+            'achievement_id' => $achievement2->id,
+            'unlocked_at' => Carbon::now(),
+        ]);
+
+        $this->action->execute($developer, $achievement2, $playerAchievement2, true);
+        $developer->refresh();
+
+        // Assert
+        $this->assertEquals(1000, $developer->ContribYield);
+
+        // ... should still only have ONE badge, no duplicates ...
+        $badgeCount = PlayerBadge::where('user_id', $developer->id)
+            ->where('AwardType', AwardType::AchievementPointsYield)
+            ->where('AwardData', 0)
+            ->count();
+
+        $this->assertEquals(1, $badgeCount);
+    }
 }

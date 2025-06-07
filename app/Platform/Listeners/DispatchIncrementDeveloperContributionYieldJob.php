@@ -57,10 +57,10 @@ class DispatchIncrementDeveloperContributionYieldJob implements ShouldQueue
             ->first();
 
         if ($maintainerUnlock) {
-            // Credit goes to the maintainer.
+            // Mutation occurs on the maintainer.
             $developer = User::find($maintainerUnlock->maintainer_id);
         } else {
-            // Credit goes to the original author.
+            // Mutation occurs on the original author.
             $achievement->loadMissing('developer');
             $developer = $achievement->developer;
         }

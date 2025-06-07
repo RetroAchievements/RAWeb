@@ -86,7 +86,7 @@ class ResetPlayerProgressAction
             $achievement = $playerAchievement->achievement;
 
             // Handle decrement for developer contribution credit before player_achievement deletion.
-            if ($achievement->Flags === AchievementFlag::OfficialCore->value) {
+            if ($achievement->is_published) {
                 // Check if there's a maintainer unlock record.
                 $maintainerUnlock = AchievementMaintainerUnlock::query()
                     ->where('player_achievement_id', $playerAchievement->id)
@@ -116,7 +116,7 @@ class ResetPlayerProgressAction
             // Delete any maintainer unlock records related to this player_achievement entity.
             AchievementMaintainerUnlock::where('player_achievement_id', $playerAchievement->id)->delete();
 
-            if ($achievement->isPublished) {
+            if ($achievement->is_published) {
                 // resetting a published achievement removes the completion/mastery badge.
                 // RevalidateAchievementSetBadgeEligibilityAction will be called indirectly
                 // from the UpdatePlayerGameMetricsJob, but it does not revoke badges unless

@@ -9,8 +9,8 @@ use App\Models\Achievement;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerBadge;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Events\SiteBadgeAwarded;
+use Illuminate\Support\Facades\DB;
 
 class IncrementDeveloperContributionYieldAction
 {
@@ -26,7 +26,7 @@ class IncrementDeveloperContributionYieldAction
         bool $isHardcore = false
     ): void {
         // If we somehow made it here for an unofficial achievement, bail.
-        if ($achievement->Flags !== AchievementFlag::OfficialCore->value) {
+        if (!$achievement->is_published) {
             return;
         }
 
@@ -51,11 +51,19 @@ class IncrementDeveloperContributionYieldAction
         $oldContribYield = $developer->ContribYield;
 
         if ($isUnlock) {
-            $developer->increment('ContribCount');
-            $developer->increment('ContribYield', $achievement->Points);
+            DB::table('UserAccounts')
+                ->where('ID', $developer->id)
+                ->update([
+                    'ContribCount' => DB::raw('ContribCount + 1'),
+                    'ContribYield' => DB::raw('ContribYield + ' . $achievement->Points),
+                ]);
         } else {
-            $developer->decrement('ContribCount');
-            $developer->decrement('ContribYield', $achievement->Points);
+            DB::table('UserAccounts')
+                ->where('ID', $developer->id)
+                ->update([
+                    'ContribCount' => DB::raw('ContribCount - 1'),
+                    'ContribYield' => DB::raw('ContribYield - ' . $achievement->Points),
+                ]);
         }
 
         $developer->refresh();
