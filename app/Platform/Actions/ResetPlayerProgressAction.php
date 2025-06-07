@@ -9,8 +9,9 @@ use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeLost;
+use App\Platform\Jobs\UpdateAchievementMetricsJob;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
-use App\Platform\Jobs\UpdateGameMetricsJob;
+use App\Platform\Jobs\UpdateGamePlayerCountJob;
 use App\Platform\Jobs\UpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Illuminate\Support\Facades\DB;
@@ -149,12 +150,21 @@ class ResetPlayerProgressAction
         $affectedGames = $affectedGames->unique();
         foreach ($affectedGames as $affectedGameID) {
             if (!$isFullReset) {
-                // update the player game metrics, which will cascade into the game metrics
+                // update the player game metrics. if the player's unlocked achievement
+                // count drops to zero, that will trigger an UpdateGamePlayerCountJob.
                 dispatch(new UpdatePlayerGameMetricsJob($user->id, $affectedGameID));
             } else {
-                // update the game metrics directly
-                dispatch(new UpdateGameMetricsJob($affectedGameID));
+                // if doing a full reset, explicitly update the player count for the game
+                // as the player games records were deleted and thus implicitly zeroed out.
+                dispatch(new UpdateGamePlayerCountJob($affectedGameID))->onQueue('game-player-count');
             }
+        }
+
+        if ($achievementID !== null) {
+            // when resetting a single achievement, the player count won't change, so the
+            // metrics for each achievement won't be recalculated. we really only need to
+            // recalculate the affected achievement anyway, so do that now.
+            dispatch(new UpdateAchievementMetricsJob($achievementID))->onQueue('achievement-metrics');
         }
 
         dispatch(new UpdatePlayerBeatenGamesStatsJob($user->id));

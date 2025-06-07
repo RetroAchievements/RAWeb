@@ -166,13 +166,13 @@ describe('Component: AchievementsListItem', () => {
         achievement={achievement}
         index={0}
         isLargeList={false}
-        playersTotal={null}
+        playersTotal={100}
       />,
     );
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByLabelText(/progression/i)).toBeVisible();
+      expect(screen.getAllByLabelText(/progression/i)[0]).toBeVisible();
     });
   });
 });

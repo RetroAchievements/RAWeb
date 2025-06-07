@@ -887,10 +887,17 @@ if ($isFullyFeaturedGame) {
 
                 $hasCompletionOrMastery = ($numEarnedCasual === $numAchievements) || ($numEarnedHardcore === $numAchievements);
                 $canShowHideUnlockedAchievements = $user && ($numEarnedCasual > 0 || $numEarnedHardcore > 0) && !$hasCompletionOrMastery;
+                
+                // Check if the user wants this game's unlocked achievements to be hidden by default.
+                $hideUnlockedCookie = request()->cookie('hide_unlocked_achievements_games', '');
+                $hiddenGameIds = array_filter(array_map('intval', explode(',', $hideUnlockedCookie)));
+                $shouldHideUnlocked = in_array($gameID, $hiddenGameIds);
                 ?>
                     <x-game.achievements-list-filters
                         :canShowHideUnlockedAchievements="$canShowHideUnlockedAchievements"
                         :numMissableAchievements="$gameMetaBindings['numMissableAchievements']"
+                        :gameId="$gameID"
+                        :shouldHideUnlocked="$shouldHideUnlocked"
                     />
                 <?php
                 RenderGameSort($gameModel->ConsoleID, $flagParam?->value, $officialFlag->value, $gameID, $sortBy, canSortByType: $isGameBeatable);
@@ -906,6 +913,14 @@ if ($isFullyFeaturedGame) {
 
         if ($isFullyFeaturedGame || $isEventGame) {
             if (isset($achievementData)) {
+                // Check if unlocked achievements should be hidden (for server-side rendering)
+                $hideUnlockedCookie = request()->cookie('hide_unlocked_achievements_games', '');
+                $hiddenGameIds = array_filter(array_map('intval', explode(',', $hideUnlockedCookie)));
+
+                // Don't hide unlocked achievements if user has a completion or mastery.
+                $hasCompletionOrMastery = ($numEarnedCasual === $numAchievements) || ($numEarnedHardcore === $numAchievements);
+
+                $shouldHideUnlockedAchievements = !$hasCompletionOrMastery && in_array($gameID, $hiddenGameIds);
                 ?>
                     <x-game.achievements-list.root
                         :achievements="$achievementData"
@@ -914,6 +929,7 @@ if ($isFullyFeaturedGame) {
                         :showAuthorNames="!$isOfficial && isset($user) && $permissions >= Permissions::JuniorDeveloper"
                         :totalPlayerCount="$numDistinctPlayers"
                         :separateUnlockedAchievements="!$isEventGame"
+                        :shouldHideUnlocked="$shouldHideUnlockedAchievements"
                     />
                 <?php
             }

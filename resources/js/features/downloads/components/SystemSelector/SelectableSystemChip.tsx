@@ -2,8 +2,8 @@ import { useAtom } from 'jotai';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { SelectableChip } from '../../../../common/components/SelectableChip';
 import { selectedSystemIdAtom } from '../../state/downloads.atoms';
-import { SelectableChip } from '../SelectableChip';
 
 interface SelectableSystemChipProps {
   system?: App.Platform.Data.System;

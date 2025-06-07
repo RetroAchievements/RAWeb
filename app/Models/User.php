@@ -253,6 +253,13 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
                     ->log('pivotDetached');
             }
         });
+
+        // When a user is restored, check if they should remain unranked.
+        static::restored(function (User $user) {
+            if ($user->unranked_at === null) {
+                UnrankedUser::where('user_id', $user->id)->delete();
+            }
+        });
     }
 
     protected static function newFactory(): UserFactory
@@ -525,14 +532,5 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     public function scopeVerified(Builder $query): Builder
     {
         return $query->where('Permissions', '>', 0);
-    }
-
-    /**
-     * @param Builder<User> $query
-     * @return Builder<User>
-     */
-    public function scopeTracked(Builder $query): Builder
-    {
-        return $query->where('Untracked', false); // TODO: use unranked_at=NULL?
     }
 }

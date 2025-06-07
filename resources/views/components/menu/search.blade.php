@@ -1,81 +1,35 @@
-{{--@if(!Route::is('search'))
-    <div class="lg:hidden">
-        <x-nav-item :href="route('search')">
-            <x-fas-search/>
-        </x-nav-item>
-    </div>
-    <div class="hidden lg:block">
-        <livewire:supersearch dropdown/>
-    </div>
-@endif--}}
+@use('App\Http\Actions\DetectUserOSAction')
 
-<?php
+@php
+    $userOS = (new DetectUserOSAction())->execute();
+    $metaKey = in_array($userOS?->value, ['macOS', 'iOS']) ? '⌘' : 'Ctrl';
+@endphp
 
-$searchQuery = null;
-if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
-    $searchQuery = attributeEscape(request()->query('s'));
-}
-
-?>
-
-<div
-    x-data="navbarSearchComponent"
-    class="searchbox-container"
-    x-init="init($refs.searchForm,$refs.searchListbox)"
-    @click.outside="showSearchResults = false"
+<button
+    @class([
+        'flex h-9 items-center justify-between gap-2 rounded-md bg-neutral-800/40 px-3 py-1 text-sm',
+        'text-neutral-400/50 transition-all hover:bg-neutral-800/60 hover:text-neutral-400',
+        'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-600',
+        'light:bg-white light:text-neutral-600 light:hover:bg-neutral-50 light:hover:text-neutral-900',
+    ])
+    onclick="window.openGlobalSearch ? window.openGlobalSearch() : window.dispatchEvent(new CustomEvent('open-global-search'))"
+    type="button"
 >
-    <form class="flex searchbox-top" x-ref="searchForm" action="/searchresults.php">
-        <input
-            name="s"
-            type="text"
-            role="combobox"
-            class="flex-1 searchboxinput"
-            placeholder=" {{ __('Search') }}"
-            x-model="searchText"
-            @keydown.up="handleUp"
-            @keydown.down="handleDown"
-            @keydown.enter="$event.preventDefault()"
-            @keyup.enter="handleEnter"
-            @keyup.escape="handleEscape"
-            @keyup.debounce="handleKeyUp($event)"
-            @blur="showSearchResults = false"
-            autocomplete="off"
-            aria-autocomplete="list"
-            aria-controls="search-listbox"
-            :aria-expanded="showSearchResults"
-            :aria-activedescendant="activeDescendentId"
-        >
-        <button class="nav-link" title="Search">
-            <x-fas-search />
-        </button>
-    </form>
+    <span class="flex items-center gap-2">
+        <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+        </svg>
+        <span>Search...</span>
+    </span>
 
-    <ul
-        id="search-listbox"
-        role="listbox"
-        aria-label="Search"
-        class="p-0.5 w-fit absolute top-0 left-0 rounded-lg bg-yellow-100 z-20"
-        x-ref="searchListbox"
-        x-show="showSearchResults"
-        x-cloak
+    <kbd
+        @class([
+            'pointer-events-none hidden h-5 select-none items-center gap-1 rounded border border-neutral-700',
+            'bg-neutral-800 px-1.5 font-mono text-[10px] font-medium text-neutral-400',
+            'light:border-neutral-300 light:bg-white light:text-neutral-600',
+            'sm:flex',
+        ])
     >
-        <template x-for="(result, i) in results">
-            <li
-                :id="getOptionId(result)"
-                role="option"
-                tabindex="-1"
-                class="text-sm cursor-pointer"
-                :class="selectedIndex === i ? 'rounded-lg bg-amber-200 border-2 border-yellow-700 py-[1px] px-[4px]' : 'py-[3px] px-[6px] hover:rounded-lg hover:bg-amber-200 hover:border-2 hover:border-yellow-700 hover:py-[1px] hover:px-[4px]'"
-                :aria-selected="selectedIndex === i"
-                @click="handleClickSearchResult(result.label, result.mylink)"
-                @mouseDown="$event.preventDefault()"
-            >
-                <a
-                   class="text-black hover:text-black flex"
-                   :href="result.mylink"
-                   x-text="result.label"
-                ></a>
-            </li>
-        </template>
-    </ul>
-</div>
+        <span @if ($metaKey === '⌘') class="text-[16px] mt-0.5" @endif>{{ $metaKey }}</span>K
+    </kbd>
+</button>

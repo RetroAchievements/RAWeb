@@ -30,8 +30,8 @@ use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
 use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
+use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\ResetPlayerAchievement;
-use App\Platform\Commands\SendClaimExpirationWarningEmails;
 use App\Platform\Commands\SyncAchievementAuthors;
 use App\Platform\Commands\SyncAchievements;
 use App\Platform\Commands\SyncAchievementSetImageAssetPaths;
@@ -53,7 +53,9 @@ use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameAchievementsMetrics;
+use App\Platform\Commands\UpdateGameBeatenMetrics;
 use App\Platform\Commands\UpdateGameMetrics;
+use App\Platform\Commands\UpdateGamePlayerCount;
 use App\Platform\Commands\UpdateGamePlayerGames;
 use App\Platform\Commands\UpdateLeaderboardMetrics;
 use App\Platform\Commands\UpdatePlayerBeatenGamesStats;
@@ -61,6 +63,7 @@ use App\Platform\Commands\UpdatePlayerEstimatedTimes;
 use App\Platform\Commands\UpdatePlayerGameMetrics;
 use App\Platform\Commands\UpdatePlayerMetrics;
 use App\Platform\Commands\UpdatePlayerPointsStats;
+use App\Platform\Commands\UpdateSearchIndexForQueuedEntities;
 use App\Platform\Commands\UpdateTotalGamesCount;
 use App\Platform\Commands\VerifyAchievementSetIntegrity;
 use App\Platform\Commands\WriteGameSortTitles;
@@ -79,8 +82,10 @@ class AppServiceProvider extends ServiceProvider
             $this->commands([
                 // Games
                 TrimGameMetadata::class,
-                UpdateGameMetrics::class,
                 UpdateGameAchievementsMetrics::class,
+                UpdateGameBeatenMetrics::class,
+                UpdateGameMetrics::class,
+                UpdateGamePlayerCount::class,
                 UpdateGamePlayerGames::class,
                 VerifyAchievementSetIntegrity::class,
                 WriteGameSortTitles::class,
@@ -112,8 +117,11 @@ class AppServiceProvider extends ServiceProvider
                 UpdateAwardsStaticData::class,
                 UpdateTotalGamesCount::class,
 
+                // Search
+                UpdateSearchIndexForQueuedEntities::class,
+
                 // Developer
-                SendClaimExpirationWarningEmails::class,
+                ProcessExpiringClaims::class,
                 UpdateDeveloperContributionYield::class,
 
                 // Events
@@ -147,8 +155,9 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(CrawlPlayerWeightedPoints::class)->everyFiveMinutes();
             $schedule->command(BackfillPlaytimeTotal::class)->everyFifteenMinutes();
             $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
+            $schedule->command(ProcessExpiringClaims::class)->hourly();
+            $schedule->command(UpdateSearchIndexForQueuedEntities::class)->twiceDaily(1, 13); // 1AM and 1PM
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
-            $schedule->command(SendClaimExpirationWarningEmails::class)->hourly();
         });
 
         $this->loadMigrationsFrom([database_path('migrations/platform')]);

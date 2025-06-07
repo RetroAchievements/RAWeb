@@ -337,6 +337,7 @@ declare namespace App.Data {
     isEmailVerified?: boolean;
     isMuted?: boolean;
     isNew?: boolean;
+    lastActivityAt?: string | null;
     legacyPermissions?: number | null;
     locale?: string | null;
     motto?: string;
@@ -385,6 +386,7 @@ declare namespace App.Enums {
     | 'reconstructed'
     | 'manual-unlock'
     | 'ticket-created';
+  export type UserOS = 'Android' | 'iOS' | 'Linux' | 'macOS' | 'Windows';
   export type UserPreference =
     | 0
     | 1
@@ -434,6 +436,8 @@ declare namespace App.Http.Data {
     newClaims: Array<App.Data.AchievementSetClaim>;
     recentForumPosts: Array<App.Data.ForumTopic>;
     persistedActivePlayersSearch: string | null;
+    userCurrentGame: App.Platform.Data.Game | null;
+    userCurrentGameMinutesAgo: number | null;
   };
 }
 declare namespace App.Models {
@@ -500,6 +504,10 @@ declare namespace App.Platform.Data {
     updatedAt: string | null;
     achievements: Array<App.Platform.Data.Achievement>;
   };
+  export type AwardEarner = {
+    user: any;
+    dateEarned: any;
+  };
   export type CreateAchievementTicketPageProps = {
     achievement: App.Platform.Data.Achievement;
     emulators: Array<App.Platform.Data.Emulator>;
@@ -562,6 +570,11 @@ declare namespace App.Platform.Data {
     eventAchievements?: Array<App.Platform.Data.EventAchievement>;
     eventAwards?: Array<App.Platform.Data.EventAward>;
     state?: App.Platform.Enums.EventState;
+  };
+  export type EventAwardEarnersPageProps<TItems = App.Platform.Data.AwardEarner> = {
+    event: App.Platform.Data.Event;
+    eventAward: App.Platform.Data.EventAward;
+    paginatedUsers: App.Data.PaginatedData<TItems>;
   };
   export type EventShowPageProps = {
     event: App.Platform.Data.Event;
@@ -658,6 +671,7 @@ declare namespace App.Platform.Data {
     title: string | null;
     badgeUrl: string | null;
     gameCount: number;
+    isEventHub?: boolean;
     linkCount: number;
     updatedAt: string;
     forumTopicId?: number | null;
@@ -881,6 +895,14 @@ declare namespace App.Platform.Enums {
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
   export type AchievementFlag = 3 | 5;
   export type AchievementSetAuthorTask = 'artwork';
+  export type AchievementSetType =
+    | 'core'
+    | 'bonus'
+    | 'specialty'
+    | 'exclusive'
+    | 'will_be_bonus'
+    | 'will_be_specialty'
+    | 'will_be_exclusive';
   export type EventState = 'active' | 'concluded' | 'evergreen';
   export type GameListProgressFilterValue =
     | 'unstarted'
@@ -894,15 +916,6 @@ declare namespace App.Platform.Enums {
     | 'eq_mastered'
     | 'revised'
     | 'neq_mastered';
-  export type UnlockMode = 0 | 1;
-  export type AchievementSetType =
-    | 'core'
-    | 'bonus'
-    | 'specialty'
-    | 'exclusive'
-    | 'will_be_bonus'
-    | 'will_be_specialty'
-    | 'will_be_exclusive';
   export type GameListSetTypeFilterValue = 'only-games' | 'only-subsets';
   export type GameListSortField =
     | 'title'
@@ -917,6 +930,18 @@ declare namespace App.Platform.Enums {
     | 'numVisibleLeaderboards'
     | 'numUnresolvedTickets'
     | 'progress';
+  export type GameReleaseRegion =
+    | 'as'
+    | 'au'
+    | 'br'
+    | 'cn'
+    | 'eu'
+    | 'jp'
+    | 'kr'
+    | 'nz'
+    | 'na'
+    | 'worldwide'
+    | 'other';
   export type GameSetType = 'hub' | 'similar-games';
   export type GameSuggestionReason =
     | 'common-players'
@@ -935,8 +960,9 @@ declare namespace App.Platform.Enums {
     | 'embedded'
     | 'web';
   export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
-  export type ReleasedAtGranularity = 'day' | 'month' | 'year';
   export type TicketableType = 'achievement' | 'leaderboard' | 'rich-presence';
+  export type UnlockMode = 0 | 1;
+  export type ReleasedAtGranularity = 'day' | 'month' | 'year';
   export type TriggerableType = 'achievement' | 'leaderboard' | 'game';
 }
 declare namespace App.Platform.Services.GameSuggestions.Enums {

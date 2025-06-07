@@ -2,20 +2,26 @@
 
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
+use App\Models\UnrankedUser;
 use App\Models\User;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
-function SetUserUntrackedStatus(User $user, int $isUntracked): void
+function SetUserUntrackedStatus(User $user, bool $isUntracked): void
 {
     $user->Untracked = $isUntracked;
+    $user->unranked_at = $isUntracked ? now() : null;
     $user->save();
 
-    PlayerRankedStatusChanged::dispatch($user, (bool) $isUntracked);
+    if ($isUntracked) {
+        UnrankedUser::firstOrCreate(['user_id' => $user->id]);
+    } else {
+        UnrankedUser::where('user_id', $user->id)->delete();
+    }
 
-    // TODO update games that are affected by this user's library
+    PlayerRankedStatusChanged::dispatch($user, $isUntracked);
 }
 
 function countRankedUsers(int $type = RankType::Hardcore): int

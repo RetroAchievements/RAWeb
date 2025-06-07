@@ -7,6 +7,7 @@ namespace App\Actions;
 use App\Community\Actions\DeleteMessageThreadAction;
 use App\Enums\Permissions;
 use App\Events\UserDeleted;
+use App\Models\UnrankedUser;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -60,6 +61,7 @@ class ClearAccountDataAction
             forum_verified_at = null,
             Motto = '',
             Untracked = 1,
+            unranked_at = :now2,
             APIKey = null,
             UserWallActive = 0,
             LastGameID = 0,
@@ -73,6 +75,7 @@ class ClearAccountDataAction
                 'permissions' => min($user->Permissions, Permissions::Unregistered),
                 'userId' => $user->ID,
                 'now' => Carbon::now(),
+                'now2' => Carbon::now(),
             ]
         );
 
@@ -80,6 +83,7 @@ class ClearAccountDataAction
         removeAvatar($user->User);
 
         UserDeleted::dispatch($user);
+        UnrankedUser::firstOrCreate(['user_id' => $user->ID]);
 
         Log::info("Cleared account data: {$user->User} [{$user->ID}]");
     }

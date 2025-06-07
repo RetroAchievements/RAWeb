@@ -26,6 +26,7 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
     public function __construct(
         private readonly int $userId,
         private readonly int $gameId,
+        private readonly ?string $expectedVersionHash = null,
     ) {
     }
 
@@ -51,6 +52,18 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
     {
         if ($this->batch()?->cancelled()) {
             return;
+        }
+
+        // Check if the achievement set has changed since this job was queued.
+        // If it has, we'll skip processing the job.
+        if ($this->expectedVersionHash !== null) {
+            $currentHash = Game::where('id', $this->gameId)
+                ->value('achievement_set_version_hash');
+
+            if ($currentHash !== $this->expectedVersionHash) {
+                // Achievement set has changed, skip this outdated job.
+                return;
+            }
         }
 
         $playerGame = PlayerGame::where('user_id', '=', $this->userId)

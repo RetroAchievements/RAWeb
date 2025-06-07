@@ -125,7 +125,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 5, 'TrueRatio' => 7, 'user_id' => $user->id]);
 
         $this->addHardcoreUnlock($user, $achievement);
-        $achievement->refresh();
+        $achievement->refresh(); // achievement unlock may adjust weighted points
 
         $this->assertHasSoftcoreUnlock($user, $achievement);
         $this->assertHasHardcoreUnlock($user, $achievement);

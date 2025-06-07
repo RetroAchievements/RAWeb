@@ -132,6 +132,7 @@ class UserSummaryTest extends TestCase
             'region' => GameReleaseRegion::NorthAmerica,
             'is_canonical_game_title' => true,
         ]);
+        $game->refresh(); // pick up released_at sync'd from GameRelease
 
         $publishedAchievements = $game->achievements;
         (new UpdateGameMetricsAction())->execute($game);
