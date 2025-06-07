@@ -146,4 +146,28 @@ describe('Component: AwardTierItem', () => {
     // ASSERT
     expect(screen.queryByTestId('award-tier-label')).not.toBeInTheDocument();
   });
+
+  it('given an earn count, shows a link to earners', () => {
+    // ARRANGE
+    const event = createRaEvent();
+    const eventAward = createEventAward({ badgeCount: 10, label: 'Bronze' });
+
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
+
+    // ASSERT
+    const linkEl = screen.getByRole('link', { name: /bronze/i });
+    expect(linkEl).toBeVisible();
+  });
+
+  it('given no earn count, does not show a link to earners', () => {
+    // ARRANGE
+    const event = createRaEvent();
+    const eventAward = createEventAward({ badgeCount: 0, label: 'Bronze' });
+
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
+
+    // ASSERT
+    const linkEl = screen.queryByRole('link', { name: /bronze/i });
+    expect(linkEl).not.toBeInTheDocument();
+  });
 });
