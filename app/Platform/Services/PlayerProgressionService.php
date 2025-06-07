@@ -6,6 +6,7 @@ namespace App\Platform\Services;
 
 use App\Community\Enums\AwardType;
 use App\Models\System;
+use App\Platform\Actions\GetAwardTimeTakenAction;
 use App\Platform\Enums\UnlockMode;
 
 class PlayerProgressionService
@@ -47,7 +48,7 @@ class PlayerProgressionService
         return $metrics;
     }
 
-    public function filterAndJoinGames(array $gamesList, array $siteAwards, bool $allowEvents = false): array
+    public function filterAndJoinGames(array $gamesList, array $siteAwards, int $userId, bool $allowEvents = false): array
     {
         /**
          * We need to append the most prestigious award kind+date to the game entities,
@@ -97,8 +98,10 @@ class PlayerProgressionService
         }
 
         $validConsoleIds = getValidConsoleIds();
+        $usedConsoleIds = [];
 
         // [B] Iterate once while appending the entities with constant time O(1).
+        $awardGames = [];
         $filteredAndJoined = [];
         foreach ($gamesList as &$game) {
             $canUseGame = (
@@ -108,6 +111,10 @@ class PlayerProgressionService
             );
 
             if ($canUseGame) {
+                if (!in_array($game['ConsoleID'], $usedConsoleIds)) {
+                    $usedConsoleIds[] = $game['ConsoleID'];
+                }
+
                 if (isset($awardsLookup[$game['GameID']])) {
                     $game['HighestAwardKind'] = $awardsLookup[$game['GameID']];
                     $game['HighestAwardDate'] = $awardsDateLookup[$game['GameID']];
@@ -121,6 +128,11 @@ class PlayerProgressionService
                     ) {
                         $game['HasNoAssociatedMasteryAward'] = true;
                     }
+
+                    if (!array_key_exists($game['HighestAwardKind'], $awardGames)) {
+                        $awardGames[$game['HighestAwardKind']] = [];
+                    }
+                    $awardGames[$game['HighestAwardKind']][] = $game['GameID'];
                 }
 
                 $filteredAndJoined[] = $game;
@@ -128,10 +140,31 @@ class PlayerProgressionService
             }
         }
 
-        // [C] Add rows for games with awards but no progress.
+        // [C] Add in console names
+        $systems = System::whereIn('id', $usedConsoleIds)->get();
+        foreach ($filteredAndJoined as &$game) {
+            $system = $systems->where('id', $game['ConsoleID'])->first();
+            if ($system) {
+                $game['ConsoleName'] = $system->name;
+                $game['ConsoleNameShort'] = $system->name_short;
+            }
+        }
+
+        // [D] Add in times to earn awards
+        foreach ($awardGames as $kind => $gameIds) {
+            $times = (new GetAwardTimeTakenAction())->execute($userId, $gameIds, $kind);
+
+            foreach ($filteredAndJoined as &$game) {
+                if (array_key_exists('HighestAwardKind', $game) && $game['HighestAwardKind'] === $kind) {
+                    $game['HighestAwardTimeTaken'] = $times[$game['GameID']] ?? null;
+                }
+            }
+        }
+
+        // [E] Add rows for games with awards but no progress.
         foreach ($awardsLookup as $gameId => $awardKind) {
             $alreadyProcessed = false;
-            foreach ($gamesList as $game) {
+            foreach ($gamesList as &$game) {
                 if ($game['GameID'] == $gameId) {
                     $alreadyProcessed = true;
                     break;
@@ -151,10 +184,16 @@ class PlayerProgressionService
                     && ($allowEvents ? true : $award['ConsoleID'] !== System::Events)
                     && in_array($award['ConsoleID'], $validConsoleIds)
                 ) {
+                    $system = $systems->where('id', $award['ConsoleID'])->first();
+                    if (!$system) {
+                        $system = System::find($award['ConsoleID']);
+                    }
+
                     $newGame = [
                         'GameID' => $gameId,
                         'ConsoleID' => $award['ConsoleID'],
-                        'ConsoleName' => $award['ConsoleName'],
+                        'ConsoleName' => $system?->name,
+                        'ConsoleNameShort' => $system?->name_short,
                         'Title' => $award['Title'],
                         'SortTitle' => $award['Title'],
                         'HighestAwardKind' => $awardKind,
