@@ -1,4 +1,4 @@
-import { type FC, type KeyboardEvent, useState } from 'react';
+import { type FC, type KeyboardEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronRight, LuLoaderCircle, LuSearch } from 'react-icons/lu';
 
@@ -37,8 +37,9 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
   const [rawQuery, setRawQuery] = useState('');
 
   const {
-    setSearchTerm,
     isLoading,
+    setSearchTerm,
+    setShouldUsePlaceholderData,
     data: searchResults,
   } = useSearchQuery({
     // This is required for global search to work in Blade contexts.
@@ -80,12 +81,24 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
     }
   };
 
+  useEffect(() => {
+    if (!isLoading) {
+      // Turn `placeholderData` in the query back on. With it enabled,
+      // users won't see a flash of empty state in between search queries.
+      setShouldUsePlaceholderData(true);
+    }
+  }, [isLoading, setShouldUsePlaceholderData]);
+
   const handleOnOpenChange = (open: boolean) => {
     onOpenChange(open);
 
     if (!open) {
       setRawQuery('');
       setSearchTerm('');
+
+      // If we don't do this, if the user reopens the dialog on the same
+      // page and makes a new search, they'll see a flash of previous results.
+      setShouldUsePlaceholderData(false);
     }
   };
 
