@@ -25,7 +25,7 @@ class AchievementData extends Data
 
         public Lazy|Carbon $createdAt,
         public Lazy|string $description,
-        public Lazy|string|null $decorator,
+        public Lazy|string $decorator,
         public Lazy|UserData $developer,
         public Lazy|AchievementFlag $flags,
         public Lazy|GameData $game,
@@ -57,7 +57,7 @@ class AchievementData extends Data
 
             createdAt: Lazy::create(fn () => $achievement->DateCreated),
             description: Lazy::create(fn () => $achievement->description),
-            decorator: null,
+            decorator: Lazy::create(fn () => null),
             developer: Lazy::create(fn () => UserData::from($achievement->developer)),
             flags: Lazy::create(fn () => AchievementFlag::from($achievement->Flags)),
             game: Lazy::create(fn () => GameData::fromGame($achievement->game)),

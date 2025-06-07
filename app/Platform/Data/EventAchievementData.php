@@ -73,7 +73,7 @@ class EventAchievementData extends Data
         }
 
         return new self(
-            achievement: Lazy::create(function() use ($eventAchievement, $playerAchievement) {
+            achievement: Lazy::create(function () use ($eventAchievement, $playerAchievement) {
                 $achievement = AchievementData::fromAchievement(
                     $eventAchievement->achievement,
                     $playerAchievement
