@@ -36,7 +36,7 @@ export const EventAwardEarnersMainRoot: FC = memo(() => {
       />
       <PlayableHeader
         badgeUrl={eventAward.badgeUrl}
-        systemLabel={event.legacyGame?.title ?? 'Event'}
+        systemLabel={event.legacyGame!.title}
         systemIconUrl="/assets/images/system/events.png"
         title={cleanAwardLabel}
       >

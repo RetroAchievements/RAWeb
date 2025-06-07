@@ -170,4 +170,22 @@ describe('Component: AwardTierItem', () => {
     const linkEl = screen.queryByRole('link', { name: /bronze/i });
     expect(linkEl).not.toBeInTheDocument();
   });
+
+  it('given a tierIndex greater than 0, displays a link', () => {
+    // ARRANGE
+    const event = createRaEvent({ id: 123 });
+    const eventAward = createEventAward({
+      badgeCount: 10,
+      label: 'Gold',
+      eventId: 123,
+      tierIndex: 2,
+    });
+
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
+
+    // ASSERT
+    const linkEl = screen.getByRole('link', { name: /gold/i });
+    expect(linkEl).toBeVisible();
+    expect(linkEl).toHaveAttribute('href', expect.stringContaining('event.award-earners.index'));
+  });
 });
