@@ -60,20 +60,24 @@ describe('Component: GlobalSearch', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('displays the search input with placeholder text', () => {
+  it('displays the search input with placeholder text', async () => {
     // ARRANGE
     render(<GlobalSearch isOpen={true} onOpenChange={vi.fn()} />);
 
     // ASSERT
-    expect(screen.getByPlaceholderText(/search/i)).toBeVisible();
+    await waitFor(() => expect(screen.getAllByPlaceholderText(/search/i)[0]).toBeVisible());
   });
 
-  it('displays initial state when no search has been performed', () => {
+  it('displays initial state when no search has been performed', async () => {
     // ARRANGE
     render(<GlobalSearch isOpen={true} onOpenChange={vi.fn()} />);
 
     // ASSERT
-    expect(screen.getByText(/search for games, hubs, users, and achievements/i)).toBeVisible();
+    await waitFor(() => {
+      expect(
+        screen.getByText(/search for games, hubs, users, events, and achievements/i),
+      ).toBeVisible();
+    });
     expect(screen.getByText(/type at least 3 characters to begin/i)).toBeVisible();
   });
 
@@ -98,7 +102,7 @@ describe('Component: GlobalSearch', () => {
     render(<GlobalSearch isOpen={true} onOpenChange={vi.fn()} />);
 
     // ACT
-    await userEvent.type(screen.getByPlaceholderText(/search/i), 'test');
+    await userEvent.type(screen.getAllByPlaceholderText(/search/i)[0], 'test');
 
     // ASSERT
     await waitFor(() => {
@@ -129,7 +133,7 @@ describe('Component: GlobalSearch', () => {
     render(<GlobalSearch isOpen={true} onOpenChange={vi.fn()} />);
 
     // ACT
-    await userEvent.type(screen.getByPlaceholderText(/search/i), 'xyz');
+    await userEvent.type(screen.getAllByPlaceholderText(/search/i)[1], 'xyz');
 
     // ASSERT
     await waitFor(() => {
@@ -152,7 +156,7 @@ describe('Component: GlobalSearch', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /games/i }));
-    await userEvent.type(screen.getByPlaceholderText(/search/i), 'test');
+    await userEvent.type(screen.getAllByPlaceholderText(/search/i)[0], 'test');
 
     // ASSERT
     await waitFor(() => {
@@ -166,7 +170,7 @@ describe('Component: GlobalSearch', () => {
     const { rerender } = render(<GlobalSearch isOpen={true} onOpenChange={mockOnOpenChange} />);
 
     // ... populate the search field ...
-    await userEvent.type(screen.getByPlaceholderText(/search/i), 'test');
+    await userEvent.type(screen.getAllByPlaceholderText(/search/i)[0], 'test');
 
     // ... simulate closing the dialog ...
     const closeButton = screen.getByRole('button', { name: /close/i });
@@ -177,7 +181,7 @@ describe('Component: GlobalSearch', () => {
     rerender(<GlobalSearch isOpen={true} onOpenChange={mockOnOpenChange} />);
 
     // ASSERT
-    expect(screen.getByPlaceholderText(/search/i)).toHaveValue('');
+    expect(screen.getAllByPlaceholderText(/search/i)[0]).toHaveValue('');
   });
 
   it('displays the browse link with search query', async () => {
@@ -185,19 +189,19 @@ describe('Component: GlobalSearch', () => {
     render(<GlobalSearch isOpen={true} onOpenChange={vi.fn()} />);
 
     // ACT
-    await userEvent.type(screen.getByPlaceholderText(/search/i), 'mario');
+    await userEvent.type(screen.getAllByPlaceholderText(/search/i)[0], 'mario');
 
     // ASSERT
-    const browseLink = screen.getByRole('link', { name: /browse/i });
+    const [browseLink] = await screen.findAllByRole('link', { name: /browse/i });
     expect(browseLink).toHaveAttribute('href', '/searchresults.php?s=mario');
   });
 
-  it('displays the browse link without query when search is empty', () => {
+  it('displays the browse link without query when search is empty', async () => {
     // ARRANGE
     render(<GlobalSearch isOpen={true} onOpenChange={vi.fn()} />);
 
     // ASSERT
-    const browseLink = screen.getByRole('link', { name: /browse/i });
+    const [browseLink] = await screen.findAllByRole('link', { name: /browse/i });
     expect(browseLink).toHaveAttribute('href', '/searchresults.php');
   });
 
@@ -215,7 +219,7 @@ describe('Component: GlobalSearch', () => {
     render(<GlobalSearch isOpen={true} onOpenChange={vi.fn()} />);
 
     // ACT
-    await userEvent.type(screen.getByPlaceholderText(/search/i), 'test');
+    await userEvent.type(screen.getAllByPlaceholderText(/search/i)[0], 'test');
 
     // ASSERT
     await waitFor(() => {
@@ -239,7 +243,7 @@ describe('Component: GlobalSearch', () => {
     render(<GlobalSearch isOpen={true} onOpenChange={vi.fn()} />);
 
     // ACT
-    await userEvent.type(screen.getByPlaceholderText(/search/i), 'test');
+    await userEvent.type(screen.getAllByPlaceholderText(/search/i)[0], 'test');
 
     // ASSERT
     await waitFor(() => {
@@ -269,7 +273,7 @@ describe('Component: GlobalSearch', () => {
     render(<GlobalSearch isOpen={true} onOpenChange={mockOnOpenChange} />);
 
     // ACT
-    await userEvent.type(screen.getByPlaceholderText(/search/i), 'test');
+    await userEvent.type(screen.getAllByPlaceholderText(/search/i)[0], 'test');
 
     await waitFor(() => {
       expect(screen.getByText('TestUser')).toBeVisible();
@@ -285,7 +289,7 @@ describe('Component: GlobalSearch', () => {
     // ARRANGE
     render(<GlobalSearch isOpen={true} onOpenChange={vi.fn()} />);
 
-    const searchInput = screen.getByPlaceholderText(/search/i);
+    const searchInput = screen.getAllByPlaceholderText(/search/i)[0];
 
     // ACT
     await userEvent.type(searchInput, 'hello');
