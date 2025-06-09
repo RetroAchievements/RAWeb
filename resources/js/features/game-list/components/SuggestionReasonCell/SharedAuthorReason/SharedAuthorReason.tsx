@@ -18,6 +18,9 @@ export const SharedAuthorReason: FC<SharedAuthorReasonProps> = ({ relatedAuthor,
     dynamicId: relatedAuthor.displayName,
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- extract ref from cardTooltipProps to avoid React 19 <Trans /> bug
+  const { ref, ...cardTooltipPropsWithoutRef } = cardTooltipProps;
+
   return (
     <BaseChip
       data-testid="shared-author-reason"
@@ -31,7 +34,7 @@ export const SharedAuthorReason: FC<SharedAuthorReasonProps> = ({ relatedAuthor,
           1: (
             <a
               href={route('user.show', { user: relatedAuthor.displayName })}
-              {...cardTooltipProps}
+              {...cardTooltipPropsWithoutRef}
             />
           ),
         }}

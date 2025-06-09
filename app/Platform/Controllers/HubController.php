@@ -105,7 +105,7 @@ class HubController extends Controller
                 'title',
                 'updatedAt',
             ),
-            relatedHubs: (new BuildGameSetRelatedHubsAction())->execute($gameSet),
+            relatedHubs: (new BuildGameSetRelatedHubsAction())->execute($gameSet, $user),
             breadcrumbs: (new BuildHubBreadcrumbsAction())->execute($gameSet),
             paginatedGameListEntries: $paginatedData,
             filterableSystemOptions: $filterableSystemOptions,

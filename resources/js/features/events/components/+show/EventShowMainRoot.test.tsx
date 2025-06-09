@@ -55,6 +55,7 @@ describe('Component: EventShowMainRoot', () => {
     // ARRANGE
     const event = createRaEvent({
       legacyGame: createGame({
+        title: 'Achievement of the Week 2025',
         imageIngameUrl: 'test.jpg',
         imageTitleUrl: 'test.jpg',
       }),

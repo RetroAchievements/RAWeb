@@ -11,7 +11,9 @@ use App\Filament\Resources\HubResource\RelationManagers\GamesRelationManager;
 use App\Filament\Resources\HubResource\RelationManagers\ParentHubsRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
 use App\Models\GameSet;
+use App\Models\Role;
 use App\Models\User;
+use App\Platform\Enums\GameSetRolePermission;
 use App\Platform\Enums\GameSetType;
 use App\Support\Rules\NoEmoji;
 use Filament\Forms;
@@ -94,6 +96,23 @@ class HubResource extends Resource
                             ->hiddenLabel()
                             ->placeholder('none'),
                     ]),
+
+                Infolists\Components\Section::make('Role-Based Access Control')
+                    ->icon('heroicon-s-lock-closed')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('viewRoles.name')
+                            ->label('Roles required to view')
+                            ->badge()
+                            ->formatStateUsing(fn ($state) => __('permission.role.' . $state))
+                            ->placeholder('none (public access)'),
+
+                        Infolists\Components\TextEntry::make('updateRoles.name')
+                            ->label('Roles required to update')
+                            ->badge()
+                            ->formatStateUsing(fn ($state) => __('permission.role.' . $state))
+                            ->placeholder('none (default permissions)'),
+                    ])
+                    ->visible(fn (GameSet $record): bool => $record->has_view_role_requirement || $record->has_update_role_requirement),
             ]);
     }
 
@@ -155,6 +174,44 @@ class HubResource extends Resource
                             ->previewable(false),
                     ])
                     ->columns(2),
+
+                Forms\Components\Section::make('Role-Based Access Control')
+                    ->icon('heroicon-s-lock-closed')
+                    ->description('Restrict access to this hub by requiring specific roles. Leave empty to allow public access.')
+                    ->schema([
+                        Forms\Components\Select::make('viewRoles')
+                            ->label('Roles required to view')
+                            ->relationship('viewRoles', 'name')
+                            ->getOptionLabelFromRecordUsing(fn (Role $record) => __('permission.role.' . $record->name))
+                            ->options(function () {
+                                return Role::all()
+                                    ->mapWithKeys(fn (Role $role) => [$role->id => __('permission.role.' . $role->name)])
+                                    ->sort()
+                                    ->toArray();
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->multiple()
+                            ->pivotData(['permission' => GameSetRolePermission::View->value])
+                            ->helperText('If set, only users with at least one of these roles can view the hub.'),
+
+                        Forms\Components\Select::make('updateRoles')
+                            ->label('Roles required to update')
+                            ->relationship('updateRoles', 'name')
+                            ->getOptionLabelFromRecordUsing(fn (Role $record) => __('permission.role.' . $record->name))
+                            ->options(function () {
+                                return Role::all()
+                                    ->mapWithKeys(fn (Role $role) => [$role->id => __('permission.role.' . $role->name)])
+                                    ->sort()
+                                    ->toArray();
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->multiple()
+                            ->pivotData(['permission' => GameSetRolePermission::Update->value])
+                            ->helperText('If set, only users with at least one of these roles can update the hub. Otherwise, default permissions apply.'),
+                    ])
+                    ->visible(fn ($record) => $user->can('manageRoleRequirements', $record ?? GameSet::class)),
             ]);
     }
 
