@@ -176,7 +176,17 @@ class SearchApiController extends Controller
 
         // Calculate average relevance for section ordering.
         $avgRelevance = $filteredUsers->isEmpty() ? 0 : $filteredUsers->map(function ($user) use ($keyword) {
-            return $this->calculateTitleRelevance($keyword, $user->display_name);
+            $relevance = $this->calculateTitleRelevance($keyword, $user->display_name);
+
+            // If the query contains multiple words, it's less likely to be a username.
+            // Usernames are always single words (eg: "PokemonRedVersion").
+            $wordCount = str_word_count($keyword);
+            if ($wordCount > 1 && $relevance < 1.0) {
+                // Reduce relevance for multi-word queries that aren't exact matches.
+                $relevance *= 0.7;
+            }
+
+            return $relevance;
         })->avg();
 
         return [
@@ -206,7 +216,16 @@ class SearchApiController extends Controller
 
         // Calculate average relevance just for section ordering.
         $avgRelevance = $games->isEmpty() ? 0 : $games->map(function ($game) use ($keyword) {
-            return $this->calculateTitleRelevance($keyword, $game->title);
+            $relevance = $this->calculateTitleRelevance($keyword, $game->title);
+
+            // Apply a small boost for multi-word queries since game titles often have multiple words.
+            $wordCount = str_word_count($keyword);
+            if ($wordCount > 1 && $relevance > 0.5) {
+                // Boost relevance for multi-word queries with good matches.
+                $relevance = min(1.0, $relevance * 1.2);
+            }
+
+            return $relevance;
         })->avg();
 
         return [
@@ -237,6 +256,13 @@ class SearchApiController extends Controller
             // Apply hub intent boost if necessary.
             if ($hasHubIntent && $relevanceScore > 0) {
                 $relevanceScore = min(1.0, $relevanceScore * 1.5);
+            }
+
+            // Apply a small boost for multi-word queries since hub titles often have multiple words.
+            $wordCount = str_word_count($keyword);
+            if ($wordCount > 1 && $relevanceScore > 0.5) {
+                // Boost relevance for multi-word queries with good matches.
+                $relevanceScore = min(1.0, $relevanceScore * 1.2);
             }
 
             return $relevanceScore;
