@@ -155,7 +155,7 @@ return [
                     'exactness',
                     'sort',
                 ],
-                'searchableAttributes' => ['title', 'description', 'id'],
+                'searchableAttributes' => ['title', 'id'],
                 'sortableAttributes' => [
                     'id',
                     'title',
@@ -254,6 +254,15 @@ return [
 
             GameSet::class => [
                 'filterableAttributes' => ['id', 'games_count', 'title'],
+                'rankingRules' => [
+                    'exactness',
+                    'words',
+                    'typo',
+                    'attribute',
+                    'proximity',
+                    'games_count:desc',
+                    'sort',
+                ],
                 'searchableAttributes' => ['title', 'id'],
                 'sortableAttributes' => ['id', 'games_count', 'title'],
             ],

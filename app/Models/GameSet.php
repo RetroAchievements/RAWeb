@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Platform\Enums\GameSetRolePermission;
 use App\Platform\Enums\GameSetType;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameSetFactory;
@@ -61,6 +62,31 @@ class GameSet extends BaseModel
         parent::boot();
 
         static::pivotAttached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes) {
+            if ($relationName === 'viewRoles' || $relationName === 'updateRoles') {
+                /** @var User $user */
+                $user = Auth::user();
+
+                $attachedRoles = Role::whereIn('id', $pivotIds)
+                    ->select(['id', 'name'])
+                    ->get();
+
+                $permission = $relationName === 'viewRoles'
+                    ? GameSetRolePermission::View->value
+                    : GameSetRolePermission::Update->value;
+
+                activity()->causedBy($user)->performedOn($model)
+                    ->withProperty('old', [$relationName => null])
+                    ->withProperty('attributes', [$relationName => $attachedRoles
+                        ->map(fn ($role) => [
+                            'id' => $role->id,
+                            'name' => $role->name,
+                            'permission' => $permission,
+                        ]),
+                    ])
+                    ->event('pivotAttached')
+                    ->log('pivotAttached');
+            }
+
             if ($relationName === 'games') {
                 /** @var User $user */
                 $user = Auth::user();
@@ -118,6 +144,31 @@ class GameSet extends BaseModel
         });
 
         static::pivotDetached(function ($model, $relationName, $pivotIds) {
+            if ($relationName === 'viewRoles' || $relationName === 'updateRoles') {
+                /** @var User $user */
+                $user = Auth::user();
+
+                $detachedRoles = Role::whereIn('id', $pivotIds)
+                    ->select(['id', 'name'])
+                    ->get();
+
+                $permission = $relationName === 'viewRoles'
+                    ? GameSetRolePermission::View->value
+                    : GameSetRolePermission::Update->value;
+
+                activity()->causedBy($user)->performedOn($model)
+                    ->withProperty('old', [$relationName => $detachedRoles
+                        ->map(fn ($role) => [
+                            'id' => $role->id,
+                            'name' => $role->name,
+                            'permission' => $permission,
+                        ]),
+                    ])
+                    ->withProperty('attributes', [$relationName => null])
+                    ->event('pivotDetached')
+                    ->log('pivotDetached');
+            }
+
             if ($relationName === 'games') {
                 /** @var User $user */
                 $user = Auth::user();
@@ -185,6 +236,8 @@ class GameSet extends BaseModel
                 'image_asset_path',
                 'internal_notes',
                 'title',
+                'viewRoles',
+                'updateRoles',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
@@ -237,6 +290,16 @@ class GameSet extends BaseModel
         return route('hub.show', $this);
     }
 
+    public function getHasViewRoleRequirementAttribute(): bool
+    {
+        return $this->viewRoles()->exists();
+    }
+
+    public function getHasUpdateRoleRequirementAttribute(): bool
+    {
+        return $this->updateRoles()->exists();
+    }
+
     // == mutators
 
     // == relations
@@ -285,6 +348,26 @@ class GameSet extends BaseModel
     public function forumTopic(): BelongsTo
     {
         return $this->belongsTo(ForumTopic::class);
+    }
+
+    /**
+     * @return BelongsToMany<Role>
+     */
+    public function viewRoles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'game_set_roles')
+            ->withTimestamps()
+            ->wherePivot('permission', GameSetRolePermission::View->value);
+    }
+
+    /**
+     * @return BelongsToMany<Role>
+     */
+    public function updateRoles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'game_set_roles')
+            ->withTimestamps()
+            ->wherePivot('permission', GameSetRolePermission::Update->value);
     }
 
     // == scopes

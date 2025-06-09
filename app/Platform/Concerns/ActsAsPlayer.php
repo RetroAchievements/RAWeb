@@ -189,13 +189,7 @@ trait ActsAsPlayer
      */
     public function scopeTracked(Builder $query): Builder
     {
-        $query->where(function ($query) {
-            /* @var Builder $query */
-            $query->where('Untracked', false);
-            if (request()->user()) {
-                $query->orWhere('User', '=', request()->user()->username);
-            }
-        });
+        $query->whereNull('unranked_at');
 
         return $query;
     }
