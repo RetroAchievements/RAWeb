@@ -10,7 +10,7 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('event_achievements', function (Blueprint $table) {
-            $table->string('decorator', 96)->nullable()->after('active_until');
+            $table->string('decorator', 40)->nullable()->after('active_until');
         });
     }
 
