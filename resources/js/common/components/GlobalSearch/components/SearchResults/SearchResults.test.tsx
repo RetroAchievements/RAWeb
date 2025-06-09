@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '@/test';
+import { render, screen, waitFor } from '@/test';
 import {
   createAchievement,
   createGame,
@@ -55,7 +55,7 @@ describe('Component: SearchResults', () => {
     expect(screen.queryByTestId('search-results')).not.toBeInTheDocument();
   });
 
-  it('given search results with users, displays the users section', () => {
+  it('given search results with users, displays the users section', async () => {
     // ARRANGE
     const mockSearchResults = {
       results: {
@@ -80,11 +80,13 @@ describe('Component: SearchResults', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/users/i)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/users/i)).toBeVisible();
+    });
     expect(screen.getByText('TestUser')).toBeVisible();
   });
 
-  it('given search results with games, displays the games section', () => {
+  it('given search results with games, displays the games section', async () => {
     // ARRANGE
     const mockSearchResults = {
       results: {
@@ -109,11 +111,13 @@ describe('Component: SearchResults', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/games/i)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/games/i)).toBeVisible();
+    });
     expect(screen.getByText(/super mario bros/i)).toBeVisible();
   });
 
-  it('given empty sections, does not display those sections', () => {
+  it('given empty sections, does not display those sections', async () => {
     // ARRANGE
     const mockSearchResults = {
       results: {
@@ -138,13 +142,15 @@ describe('Component: SearchResults', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/users/i)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/users/i)).toBeVisible();
+    });
     expect(screen.queryByText(/games/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/hubs/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/achievements/i)).not.toBeInTheDocument();
   });
 
-  it('given search mode is "all", limits results per section', () => {
+  it('given search mode is "all", limits results per section', async () => {
     // ARRANGE
     const mockSearchResults = {
       results: {
@@ -175,12 +181,14 @@ describe('Component: SearchResults', () => {
 
     // ASSERT
     // ... users limit is 3 in "all" mode ...
-    expect(screen.getByText(/3 results/i)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/3 results/i)).toBeVisible();
+    });
     // ... games limit is 6 in "all" mode ...
     expect(screen.getByText(/6 results/i)).toBeVisible();
   });
 
-  it('given search mode is not "all", shows up to 10 results per section', () => {
+  it('given search mode is not "all", shows up to 10 results per section', async () => {
     // ARRANGE
     const mockSearchResults = {
       results: {
@@ -205,7 +213,9 @@ describe('Component: SearchResults', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/10 results/i)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/10 results/i)).toBeVisible();
+    });
   });
 
   it('given sections with significantly different relevance scores, sorts by relevance', () => {

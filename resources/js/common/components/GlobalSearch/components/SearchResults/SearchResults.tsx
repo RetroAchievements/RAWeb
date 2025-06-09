@@ -1,3 +1,4 @@
+import { motion } from 'motion/react';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaGamepad } from 'react-icons/fa';
@@ -226,23 +227,44 @@ export const SearchResults: FC<SearchResultsProps> = ({
         );
 
         return (
-          <BaseCommandGroup
+          <motion.div
             key={section.key}
-            data-testid="search-results"
-            heading={
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-1.5 light:text-neutral-800">
-                  <section.icon className="size-4" />
-                  {section.heading}
-                </span>
-                <span className="text-muted-foreground text-xs light:text-neutral-800">
-                  {t('{{val, number}} results', { val: results.length, count: results.length })}
-                </span>
-              </div>
-            }
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.2,
+              delay: sectionsWithResults.indexOf(section) * 0.05,
+            }}
           >
-            {results.map(section.render)}
-          </BaseCommandGroup>
+            <BaseCommandGroup
+              data-testid="search-results"
+              heading={
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 light:text-neutral-800">
+                    <section.icon className="size-4" />
+                    {section.heading}
+                  </span>
+                  <span className="text-xs light:text-neutral-800">
+                    {t('{{val, number}} results', { val: results.length, count: results.length })}
+                  </span>
+                </div>
+              }
+            >
+              {results.map((item, index) => (
+                <motion.div
+                  key={`${section.key}-result-${index}`}
+                  initial={{ opacity: 0, x: -5 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    duration: 0.15,
+                    delay: sectionsWithResults.indexOf(section) * 0.05 + index * 0.02,
+                  }}
+                >
+                  {section.render(item)}
+                </motion.div>
+              ))}
+            </BaseCommandGroup>
+          </motion.div>
         );
       })}
     </>
