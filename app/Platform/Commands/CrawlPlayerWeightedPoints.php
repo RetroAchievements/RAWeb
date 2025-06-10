@@ -23,7 +23,7 @@ class CrawlPlayerWeightedPoints extends Command
     private const CACHE_TTL = 60 * 60 * 24 * 90; // 90 days
 
     private int $numUpdatedUsers = 0;
-    private int $numUpdatedPlayerGames = 0;
+    private int $numProcessedPlayerGames = 0;
 
     public function handle(): void
     {
@@ -81,8 +81,8 @@ class CrawlPlayerWeightedPoints extends Command
         Cache::put(self::CACHE_KEY, $lastUserId, self::CACHE_TTL);
 
         $this->info("Batch completed. Processed up to user ID: {$lastUserId}.");
-        $this->info("Updated {$this->numUpdatedUsers} users' weighted points.");
-        $this->info("Updated {$this->numUpdatedPlayerGames} player_games records.");
+        $this->info("Updated {$this->numUpdatedUsers} users' TrueRAPoints values.");
+        $this->info("Processed {$this->numProcessedPlayerGames} player_games records.");
 
         // Check if there are any more users to process.
         $remainingCount = User::query()
@@ -122,7 +122,7 @@ class CrawlPlayerWeightedPoints extends Command
     {
         // Update all player_games.points_weighted values in a single query.
         // This calculates the sum of TrueRatio for all hardcore achievements per game.
-        $updatedRows = DB::statement(<<<SQL
+        $updatedRows = DB::update(<<<SQL
             UPDATE player_games pg
             LEFT JOIN (
                 SELECT
@@ -139,11 +139,10 @@ class CrawlPlayerWeightedPoints extends Command
             SET pg.points_weighted = COALESCE(calculated.weighted_points, 0)
             WHERE
                 pg.user_id = ?
-                AND pg.points_weighted != COALESCE(calculated.weighted_points, 0)
         SQL, [$user->id, $user->id]);
 
         if ($updatedRows > 0) {
-            $this->numUpdatedPlayerGames += $updatedRows;
+            $this->numProcessedPlayerGames += $updatedRows;
         }
 
         // Now update the user's total TrueRAPoints by summing all player_games.points_weighted.
