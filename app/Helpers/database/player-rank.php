@@ -21,7 +21,7 @@ function SetUserUntrackedStatus(User $user, bool $isUntracked): void
         UnrankedUser::where('user_id', $user->id)->delete();
     }
 
-    PlayerRankedStatusChanged::dispatch($user, $isUntracked);
+    PlayerRankedStatusChanged::dispatch($user, !$isUntracked);
 }
 
 function countRankedUsers(int $type = RankType::Hardcore): int

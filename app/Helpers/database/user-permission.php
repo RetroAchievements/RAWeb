@@ -182,5 +182,5 @@ function banAccountByUsername(string $username, int $permissions): void
     removeAvatar($username);
     $user->subscriptions()->delete();
 
-    PlayerRankedStatusChanged::dispatch($user, true);
+    PlayerRankedStatusChanged::dispatch($user, false);
 }
