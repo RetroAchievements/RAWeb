@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+/**
+ * $systemName and $systemNameShort are passed in as separate string
+ * args so we don't need to worry about instantiating real `System`
+ * objects during tests.
+ */
+
 class ComputeGameSearchTitlesAction
 {
     /**
@@ -17,8 +23,12 @@ class ComputeGameSearchTitlesAction
         'XVI' => '16', 'XVII' => '17', 'XVIII' => '18', 'XIX' => '19', 'XX' => '20',
     ];
 
-    public function execute(string $gameTitle, array $altTitles = []): array
-    {
+    public function execute(
+        string $gameTitle,
+        string $systemName,
+        string $systemNameShort,
+        array $altTitles = []
+    ): array {
         $searchTitles = [];
 
         // Process the main title first.
@@ -31,7 +41,11 @@ class ComputeGameSearchTitlesAction
             $searchTitles = array_merge($searchTitles, $altTitleVariations);
         }
 
-        // Remove duplicates and empty values to keep the index clean.
+        // Then, add system-based variations so searches such as "donkey kong arcade" return relevant results.
+        $systemVariations = $this->generateSystemVariations($gameTitle, $altTitles, $systemName, $systemNameShort);
+        $searchTitles = array_merge($searchTitles, $systemVariations);
+
+        // Finally, remove duplicates and empty values to keep the index clean.
         $searchTitles = array_values(array_unique(array_filter($searchTitles)));
 
         return $searchTitles;
@@ -229,6 +243,36 @@ class ComputeGameSearchTitlesAction
             $romanNumeral = $numberToRomanMap[$numberOrNumeral];
             $abbreviations[] = mb_strtolower($abbreviation . mb_strtolower($romanNumeral));
         }
+    }
+
+    /**
+     * Generate search variations that include the system name.
+     *
+     * This allows users to search with system names like "donkey kong arcade"
+     * to find games from specific systems.
+     */
+    private function generateSystemVariations(
+        string $gameTitle,
+        array $altTitles,
+        string $systemName,
+        string $systemNameShort
+    ): array {
+        $variations = [];
+
+        // Process main title and alt titles.
+        $titles = array_merge([$gameTitle], $altTitles);
+
+        foreach ($titles as $title) {
+            // Add a variation with the standard system name.
+            $variations[] = mb_strtolower($title . ' ' . $systemName);
+
+            // Add a variation with the short system name (if it's different from full name).
+            if (mb_strtolower($systemNameShort) !== mb_strtolower($systemName)) {
+                $variations[] = mb_strtolower($title . ' ' . $systemNameShort);
+            }
+        }
+
+        return array_unique($variations);
     }
 
     /**
