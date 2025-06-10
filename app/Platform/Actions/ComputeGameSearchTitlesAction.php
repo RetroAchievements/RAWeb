@@ -9,7 +9,6 @@ namespace App\Platform\Actions;
  * args so we don't need to worry about instantiating real `System`
  * objects during tests.
  */
-
 class ComputeGameSearchTitlesAction
 {
     /**
