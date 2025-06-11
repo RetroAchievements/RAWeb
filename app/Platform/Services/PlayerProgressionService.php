@@ -60,6 +60,12 @@ class PlayerProgressionService
         $processedGameIds = [];
         $allAwardsByGameId = [];
 
+        $usedConsoleIds = [];
+        $validConsoleIds = getValidConsoleIds();
+        if (!$allowEvents) {
+            $validConsoleIds = array_diff($validConsoleIds, [System::Events]);
+        }
+
         // [A] Prepare the lookup tables.
         $awardsLookup = [];
         $awardsDateLookup = [];
@@ -95,10 +101,11 @@ class PlayerProgressionService
             if ($awardKind !== '') {
                 $allAwardsByGameId[$key][] = $awardKind;
             }
-        }
 
-        $validConsoleIds = getValidConsoleIds();
-        $usedConsoleIds = [];
+            if (!in_array($award['ConsoleID'], $usedConsoleIds) && in_array($award['ConsoleID'], $validConsoleIds)) {
+                $usedConsoleIds[] = $award['ConsoleID'];
+            }
+        }
 
         // [B] Iterate once while appending the entities with constant time O(1).
         $awardGames = [];
@@ -106,7 +113,6 @@ class PlayerProgressionService
         foreach ($gamesList as &$game) {
             $canUseGame = (
                 $game['NumAwarded'] !== 0
-                && ($allowEvents ? true : $game['ConsoleID'] !== System::Events)
                 && in_array($game['ConsoleID'], $validConsoleIds)
             );
 
@@ -179,16 +185,8 @@ class PlayerProgressionService
                     $award = current($searchResults);
                 }
 
-                if (
-                    $award
-                    && ($allowEvents ? true : $award['ConsoleID'] !== System::Events)
-                    && in_array($award['ConsoleID'], $validConsoleIds)
-                ) {
+                if ($award && in_array($award['ConsoleID'], $validConsoleIds)) {
                     $system = $systems->where('id', $award['ConsoleID'])->first();
-                    if (!$system) {
-                        $system = System::find($award['ConsoleID']);
-                    }
-
                     $newGame = [
                         'GameID' => $gameId,
                         'ConsoleID' => $award['ConsoleID'],
