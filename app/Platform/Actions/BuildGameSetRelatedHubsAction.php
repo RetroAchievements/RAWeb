@@ -6,6 +6,7 @@ namespace App\Platform\Actions;
 
 use App\Models\GameSet;
 use App\Models\System;
+use App\Models\User;
 use App\Platform\Data\GameSetData;
 use App\Platform\Enums\GameSetType;
 
@@ -14,9 +15,9 @@ class BuildGameSetRelatedHubsAction
     /**
      * @return GameSetData[]
      */
-    public function execute(GameSet $gameSet): array
+    public function execute(GameSet $gameSet, ?User $user = null): array
     {
-        return GameSet::whereHas('children', function ($query) use ($gameSet) {
+        $relatedHubs = GameSet::whereHas('children', function ($query) use ($gameSet) {
             $query->where('child_game_set_id', $gameSet->id);
         })
             ->whereType(GameSetType::Hub)
@@ -38,7 +39,23 @@ class BuildGameSetRelatedHubsAction
                 },
             ])
             ->orderBy('title')
-            ->get()
+            ->get();
+
+        /**
+         * If the user doesn't have permission to view a related hub,
+         * we should filter it out of the list.
+         * @see GameSetPolicy.php
+         */
+        $visibleHubs = $relatedHubs->filter(function ($hub) use ($user) {
+            // If the user is a guest, only show hubs without view restrictions.
+            if (!$user) {
+                return !$hub->has_view_role_requirement;
+            }
+
+            return $user->can('view', $hub);
+        });
+
+        return $visibleHubs
             ->map(fn (GameSet $hub) => GameSetData::fromGameSetWithCounts($hub))
             ->values()
             ->all();
