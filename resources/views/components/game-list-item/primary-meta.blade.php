@@ -53,15 +53,16 @@ if ($highestAwardKind && !$isEvent && ($highestAwardTimeTaken || $highestAwardDa
 
     if ($highestAwardTimeTaken) { // actual playtime (when available)
         $datesDiff = CarbonInterval::seconds($highestAwardTimeTaken)->cascade();
-
         $timeParts = [];
-        if ($datesDiff->totalHours > 0) { // don't report months/days for more than 24 hours of playtime
+
+        // don't break hours into months/days/hours. just report total hours played
+        if ($datesDiff->totalHours >= 1.0) {
             $hours = floor($datesDiff->totalHours);
             $timeParts[] = "$hours " . Str::plural($timeUnits['h'], $hours);
         }
 
         foreach (['i','s'] as $unit) {
-            if ($datesDiff->$unit) {
+            if ($datesDiff->$unit > 0) {
                 $timeParts[] = "{$datesDiff->$unit} " . Str::plural($timeUnits[$unit], $datesDiff->$unit);
             }
         }
@@ -72,10 +73,21 @@ if ($highestAwardKind && !$isEvent && ($highestAwardTimeTaken || $highestAwardDa
     if ($highestAwardDate) { // distance from first unlock to last unlock
         $highestAwardedAt = Carbon::createFromTimestampUTC($highestAwardDate);
         $datesDiff = $highestAwardedAt->diff($firstUnlockDate, true);
-        if (!$highestAwardTimeTaken || $datesDiff->totalSeconds > $highestAwardTimeTaken * 1.5) {
+
+        // if the award took more than 36 hours of playtime to earn, and the elapsed wall time
+        // is less than double the total playtime, assume the player left the emulator running
+        // overnight and only report the wall time.
+        if ($highestAwardTimeTaken > 36 * 60 * 60 && $datesDiff->totalSeconds < $highestAwardTimeTaken * 2.0) {
+            $timeToSiteAwardLabelPartTwo = '';
+            $highestAwardTimeTaken = null;
+        }
+
+        // if we're not reporting actual playtime or the wall clock time is more than 36 hours,
+        // also report the wall clock time.
+        if (!$highestAwardTimeTaken || $datesDiff->totalSeconds > 36 * 60 * 60) {
             $timeParts = [];
             foreach ($timeUnits as $unit => $text) {
-                if ($datesDiff->$unit) {
+                if ($datesDiff->$unit > 0) {
                     $timeParts[] = "{$datesDiff->$unit} " . Str::plural($text, $datesDiff->$unit);
                 }
             }
