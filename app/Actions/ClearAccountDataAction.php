@@ -95,9 +95,9 @@ class ClearAccountDataAction
         UnrankedUser::firstOrCreate(['user_id' => $user->ID]);
 
         // Recalculate top entries for leaderboards that were affected by the deletion.
-        $recalculateAction = new RecalculateLeaderboardTopEntryAction();
+        $recalculateLeaderboardTopEntryAction = new RecalculateLeaderboardTopEntryAction();
         foreach ($affectedLeaderboardIds as $leaderboardId) {
-            $recalculateAction->execute($leaderboardId);
+            $recalculateLeaderboardTopEntryAction->execute($leaderboardId);
         }
 
         Log::info("Cleared account data: {$user->User} [{$user->ID}]");
