@@ -162,8 +162,9 @@ class EventAchievementResource extends Resource
                             ->date(),
 
                         Forms\Components\TextInput::make('decorator')
+                            ->helperText('Short text blurb to describe how the achievement fits into the event (i.e. "Week 1" or "Scott\'s Choice")')
                             ->columnSpan(2)
-                            ->maxLength(96),
+                            ->maxLength(40),
 
                         Forms\Components\Group::make()
                             ->relationship('achievement')
