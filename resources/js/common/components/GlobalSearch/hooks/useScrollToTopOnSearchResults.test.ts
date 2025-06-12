@@ -97,10 +97,11 @@ describe('Hook: useScrollToTopOnSearchResults', () => {
 
     result.current.current = mockElement;
 
-    // ACT - Results arrive but still loading.
+    // ACT
+    // ... results arrive but we're still loading ...
     rerender({ searchResults: newResults, isLoading: true } as any);
 
-    expect(mockScrollTo).not.toHaveBeenCalled(); // no scroll yet
+    expect(mockScrollTo).not.toHaveBeenCalled(); // !! no scroll yet
 
     rerender({ searchResults: newResults, isLoading: false } as any);
 

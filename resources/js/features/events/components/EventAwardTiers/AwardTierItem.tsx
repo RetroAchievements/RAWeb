@@ -32,17 +32,9 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
     (ea) => ea.achievement?.points && ea.achievement.points === 1,
   );
 
-  const awardEarnersLink =
-    eventAward.badgeCount! < 1
-      ? ''
-      : eventAward.tierIndex > 0
-        ? route('event.award-earners.index', {
-            event: eventAward.eventId,
-            tier: eventAward.tierIndex,
-          })
-        : route('event.award-earners.index', { event: eventAward.eventId });
+  const awardEarnersLink = getAwardEarnersLink(eventAward);
 
-  const ConditionalLink = awardEarnersLink !== '' ? InertiaLink : 'div';
+  const ConditionalLink = awardEarnersLink !== undefined ? InertiaLink : 'div';
 
   return (
     <div
@@ -53,7 +45,7 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
           : 'bg-zinc-800/50 light:bg-zinc-100',
       )}
     >
-      <ConditionalLink href={awardEarnersLink}>
+      <ConditionalLink href={awardEarnersLink as string}>
         <div className="relative flex items-center gap-3">
           <div className="relative">
             <img
@@ -77,7 +69,9 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
                       data-testid="award-tier-label"
                       className={cn([
                         'flex gap-2 text-xs font-medium',
-                        awardEarnersLink !== '' ? 'transition group-hover:text-link-hover' : null,
+                        awardEarnersLink !== undefined
+                          ? 'transition group-hover:text-link-hover'
+                          : null,
                       ])}
                     >
                       {cleanedAwardLabel}
@@ -106,7 +100,13 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
                 <BaseTooltipTrigger>
                   <div
                     data-testid="award-earned-checkmark"
-                    className="mr-1 flex size-6 items-center justify-center rounded-full bg-embed light:bg-neutral-200 light:text-neutral-700"
+                    className={cn([
+                      'mr-1 flex size-6 items-center justify-center rounded-full bg-embed',
+                      'light:bg-neutral-200 light:text-neutral-700',
+                      awardEarnersLink !== undefined
+                        ? 'transition group-hover:text-link-hover'
+                        : null,
+                    ])}
                   >
                     <LuCheck className="size-4" />
                   </div>
@@ -125,6 +125,21 @@ export const AwardTierItem: FC<AwardTierItemProps> = ({ event, eventAward, hasVi
     </div>
   );
 };
+
+function getAwardEarnersLink(eventAward: App.Platform.Data.EventAward): string | undefined {
+  if (eventAward.badgeCount! < 1) {
+    return;
+  }
+
+  if (eventAward.tierIndex > 0) {
+    return route('event.award-earners.index', {
+      event: eventAward.eventId,
+      tier: eventAward.tierIndex,
+    });
+  }
+
+  return route('event.award-earners.index', { event: eventAward.eventId });
+}
 
 function useEarnersMessage(didCurrentUserEarn: boolean, totalEarners: number): string {
   const { t } = useTranslation();

@@ -81,7 +81,7 @@
     "devDependencies": {
         "@crowdin/crowdin-api-client": "^1.41.4",
         "@faker-js/faker": "^9.6.0",
-        "@sentry/vite-plugin": "^3.3.1",
+        "@sentry/vite-plugin": "^3.5.0",
         "@tailwindcss/aspect-ratio": "^0.4.2",
         "@tailwindcss/container-queries": "^0.1.1",
         "@tailwindcss/forms": "^0.5.3",
@@ -102,8 +102,8 @@
         "@typescript-eslint/eslint-plugin": "^8.24.0",
         "@typescript-eslint/parser": "^8.24.0",
         "@vitejs/plugin-react": "^4.3.4",
-        "@vitest/coverage-v8": "^3.1.1",
-        "@vitest/ui": "^3.1.1",
+        "@vitest/coverage-v8": "^3.2.3",
+        "@vitest/ui": "^3.2.3",
         "alpinejs": "^3.12.2",
         "autoprefixer": "^10.4.14",
         "chokidar": "^4.0.1",
@@ -124,7 +124,7 @@
         "laravel-echo": "^1.15.1",
         "laravel-vite-plugin": "^1.2.0",
         "nock": "^14.0.0-beta.14",
-        "postcss": "^8.4.31",
+        "postcss": "^8.5.4",
         "postcss-nesting": "^12.1.5",
         "prettier": "3.3.3",
         "prettier-plugin-tailwindcss": "^0.6.9",
@@ -134,8 +134,8 @@
         "tsx": "^4.19.3",
         "type-fest": "^4.39.1",
         "typescript": "5.7.3",
-        "vite": "^6.2.5",
-        "vitest": "^3.1.1"
+        "vite": "^6.3.5",
+        "vitest": "^3.2.3"
     },
     "engines": {
         "node": "20.x",

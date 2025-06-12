@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '@/test';
+import { render, screen, waitFor } from '@/test';
 
 import { SearchModeSelector } from './SearchModeSelector';
 
@@ -9,31 +9,33 @@ describe('Component: SearchModeSelector', () => {
     // ARRANGE
     const mockOnChange = vi.fn();
 
-    const { container } = render(<SearchModeSelector onChange={mockOnChange} selectedMode="all" />);
+    const { container } = render(
+      <SearchModeSelector onChange={mockOnChange} rawQuery="" selectedMode="all" />,
+    );
 
     // ASSERT
     expect(container).toBeTruthy();
   });
 
-  it('displays all search mode options', () => {
+  it('displays all search mode options', async () => {
     // ARRANGE
     const mockOnChange = vi.fn();
 
-    render(<SearchModeSelector onChange={mockOnChange} selectedMode="all" />);
+    render(<SearchModeSelector onChange={mockOnChange} rawQuery="" selectedMode="all" />);
 
     // ASSERT
-    expect(screen.getByText(/all/i)).toBeVisible();
-    expect(screen.getByText(/games/i)).toBeVisible();
-    expect(screen.getByText(/hubs/i)).toBeVisible();
-    expect(screen.getByText(/users/i)).toBeVisible();
-    expect(screen.getByText(/achievements/i)).toBeVisible();
+    await waitFor(() => expect(screen.getByText(/all/i)).toBeVisible());
+    await waitFor(() => expect(screen.getByText(/games/i)).toBeVisible());
+    await waitFor(() => expect(screen.getByText(/hubs/i)).toBeVisible());
+    await waitFor(() => expect(screen.getByText(/users/i)).toBeVisible());
+    await waitFor(() => expect(screen.getByText(/achievements/i)).toBeVisible());
   });
 
   it('given a selected mode, marks the correct chip as selected', () => {
     // ARRANGE
     const mockOnChange = vi.fn();
 
-    render(<SearchModeSelector onChange={mockOnChange} selectedMode="games" />);
+    render(<SearchModeSelector onChange={mockOnChange} rawQuery="" selectedMode="games" />);
 
     // ACT
     const gamesButton = screen.getByRole('button', { name: /games/i });
@@ -50,7 +52,7 @@ describe('Component: SearchModeSelector', () => {
     // ARRANGE
     const mockOnChange = vi.fn();
 
-    render(<SearchModeSelector onChange={mockOnChange} selectedMode="all" />);
+    render(<SearchModeSelector onChange={mockOnChange} rawQuery="" selectedMode="all" />);
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /games/i }));
@@ -64,7 +66,7 @@ describe('Component: SearchModeSelector', () => {
     // ARRANGE
     const mockOnChange = vi.fn();
 
-    render(<SearchModeSelector onChange={mockOnChange} selectedMode="all" />);
+    render(<SearchModeSelector onChange={mockOnChange} rawQuery="" selectedMode="all" />);
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /hubs/i }));
@@ -85,12 +87,24 @@ describe('Component: SearchModeSelector', () => {
   it('renders all chips as accessible buttons', () => {
     // ARRANGE
     const mockOnChange = vi.fn();
-    render(<SearchModeSelector onChange={mockOnChange} selectedMode="all" />);
+    render(<SearchModeSelector onChange={mockOnChange} rawQuery="" selectedMode="all" />);
 
     // ACT
     const buttons = screen.getAllByRole('button');
 
     // ASSERT
     expect(buttons).toHaveLength(6);
+  });
+
+  it('given a raw query string, renders the correct "Browse" url', () => {
+    // ARRANGE
+    const mockOnChange = vi.fn();
+
+    render(<SearchModeSelector onChange={mockOnChange} rawQuery="mario" selectedMode="all" />);
+
+    // ASSERT
+    const browseLink = screen.getByRole('link', { name: /browse/i });
+
+    expect(browseLink).toHaveAttribute('href', expect.stringContaining('mario'));
   });
 });
