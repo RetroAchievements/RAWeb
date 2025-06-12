@@ -36,7 +36,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const { description, game, title, type } = achievement;
+  const { description, game, title, type, decorator } = achievement;
 
   const unlockPercentage = achievement.unlockPercentage ? Number(achievement.unlockPercentage) : 0;
 
@@ -107,7 +107,10 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
           </div>
 
           {/* Description */}
-          <p className="leading-4">{description}</p>
+          <p className="leading-4">
+            {decorator ? `${decorator}: ` : null}
+            {description}
+          </p>
 
           {/* Dates */}
           <AchievementDateMeta
