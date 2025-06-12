@@ -392,4 +392,60 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
 
         $this->assertEquals(1, $badgeCount);
     }
+
+    public function testItPreventsUnderflowWhenDecrementingFromZero(): void
+    {
+        // Arrange
+        $developer = User::factory()->create(['ContribCount' => 0, 'ContribYield' => 0]);
+        $player = User::factory()->create();
+
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->published()->create([
+            'GameID' => $game->id,
+            'Points' => 50,
+            'user_id' => $developer->id,
+        ]);
+
+        $playerAchievement = PlayerAchievement::create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::now(),
+        ]);
+
+        // Act
+        $this->action->execute($developer, $achievement, $playerAchievement, false);
+        $developer->refresh();
+
+        // Assert
+        $this->assertEquals(0, $developer->ContribCount);
+        $this->assertEquals(0, $developer->ContribYield);
+    }
+
+    public function testItPreventsPartialUnderflowWhenDecrementingYield(): void
+    {
+        // Arrange
+        $developer = User::factory()->create(['ContribCount' => 1, 'ContribYield' => 25]);
+        $player = User::factory()->create();
+
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->published()->create([
+            'GameID' => $game->id,
+            'Points' => 50, // !! more points than current yield
+            'user_id' => $developer->id,
+        ]);
+
+        $playerAchievement = PlayerAchievement::create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::now(),
+        ]);
+
+        // Act
+        $this->action->execute($developer, $achievement, $playerAchievement, false);
+        $developer->refresh();
+
+        // Assert
+        $this->assertEquals(0, $developer->ContribCount);
+        $this->assertEquals(0, $developer->ContribYield); // Should be 0, not negative
+    }
 }

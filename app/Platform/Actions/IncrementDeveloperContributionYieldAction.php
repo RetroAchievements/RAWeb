@@ -61,8 +61,8 @@ class IncrementDeveloperContributionYieldAction
             DB::table('UserAccounts')
                 ->where('ID', $developer->id)
                 ->update([
-                    'ContribCount' => DB::raw('ContribCount - 1'),
-                    'ContribYield' => DB::raw('ContribYield - ' . $achievement->Points),
+                    'ContribCount' => DB::raw('CASE WHEN ContribCount > 0 THEN ContribCount - 1 ELSE 0 END'),
+                    'ContribYield' => DB::raw('CASE WHEN ContribYield >= ' . $achievement->Points . ' THEN ContribYield - ' . $achievement->Points . ' ELSE 0 END'),
                 ]);
         }
 
