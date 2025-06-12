@@ -29,6 +29,8 @@ class ReleasesRelationManager extends RelationManager
 
     protected static ?string $recordTitleAttribute = 'title';
 
+    protected static ?string $icon = 'heroicon-c-shopping-bag';
+
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
         /** @var User $user */
@@ -39,6 +41,16 @@ class ReleasesRelationManager extends RelationManager
         }
 
         return false;
+    }
+
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        /** @var Game $game */
+        $game = $ownerRecord;
+
+        $count = $game->releases()->count();
+
+        return $count > 0 ? "{$count}" : null;
     }
 
     public function form(Form $form): Form

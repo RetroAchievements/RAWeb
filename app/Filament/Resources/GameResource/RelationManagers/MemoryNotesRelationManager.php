@@ -14,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class MemoryNotesRelationManager extends RelationManager
 {
@@ -21,12 +22,21 @@ class MemoryNotesRelationManager extends RelationManager
 
     protected static ?string $title = 'Code Notes';
 
+    protected static ?string $icon = 'fas-note-sticky';
+
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
 
         return $user->can('manage', MemoryNote::class);
+    }
+
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        $count = $ownerRecord->memoryNotes->count();
+
+        return $count > 0 ? "{$count}" : null;
     }
 
     public function form(Form $form): Form
@@ -92,7 +102,7 @@ class MemoryNotesRelationManager extends RelationManager
                         })
                         ->modalDescription(function (MemoryNote $memoryNote): ?string {
                             /** @var User $user */
-                            $user = auth()->user();
+                            $user = Auth::user();
 
                             if ($user->is($memoryNote->user)) {
                                 return null;
@@ -102,7 +112,7 @@ class MemoryNotesRelationManager extends RelationManager
                         })
                         ->modalSubmitActionLabel(function (MemoryNote $memoryNote): string {
                             /** @var User $user */
-                            $user = auth()->user();
+                            $user = Auth::user();
 
                             if ($user->is($memoryNote->user)) {
                                 return "Save changes";
@@ -112,7 +122,7 @@ class MemoryNotesRelationManager extends RelationManager
                         })
                         ->mutateFormDataUsing(function (array $data): array {
                             /** @var User $user */
-                            $user = auth()->user();
+                            $user = Auth::user();
 
                             // The code note will always be "owned" by whoever last edited it.
                             $data['user_id'] = $user->id;
@@ -131,7 +141,7 @@ class MemoryNotesRelationManager extends RelationManager
                         ->modalDescription('Are you sure you want to delete this note? It will be irreversibly lost.')
                         ->action(function (MemoryNote $memoryNote): void {
                             /** @var User $user */
-                            $user = auth()->user();
+                            $user = Auth::user();
 
                             if (!$user->can('delete', $memoryNote)) {
                                 return;
@@ -143,7 +153,7 @@ class MemoryNotesRelationManager extends RelationManager
                         })
                         ->visible(function (MemoryNote $memoryNote): bool {
                             /** @var User $user */
-                            $user = auth()->user();
+                            $user = Auth::user();
 
                             return $user->can('delete', $memoryNote);
                         }),
