@@ -7,8 +7,10 @@ namespace App\Actions;
 use App\Community\Actions\DeleteMessageThreadAction;
 use App\Enums\Permissions;
 use App\Events\UserDeleted;
+use App\Models\Leaderboard;
 use App\Models\UnrankedUser;
 use App\Models\User;
+use App\Platform\Actions\RecalculateLeaderboardTopEntryAction;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -34,6 +36,13 @@ class ClearAccountDataAction
         $user->gameListEntries()->delete();
         $user->playerBadges()->delete();
         $user->playerStats()->delete();
+
+        // Find leaderboards where this user currently has the top entry.
+        // We'll need to reset those denormalized top entries.
+        $affectedLeaderboardIds = Leaderboard::whereHas('topEntry', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->pluck('ID');
+
         $user->leaderboardEntries()->delete();
         $user->subscriptions()->delete();
 
@@ -84,6 +93,12 @@ class ClearAccountDataAction
 
         UserDeleted::dispatch($user);
         UnrankedUser::firstOrCreate(['user_id' => $user->ID]);
+
+        // Recalculate top entries for leaderboards that were affected by the deletion.
+        $recalculateLeaderboardTopEntryAction = new RecalculateLeaderboardTopEntryAction();
+        foreach ($affectedLeaderboardIds as $leaderboardId) {
+            $recalculateLeaderboardTopEntryAction->execute($leaderboardId);
+        }
 
         Log::info("Cleared account data: {$user->User} [{$user->ID}]");
     }

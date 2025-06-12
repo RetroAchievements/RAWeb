@@ -134,7 +134,6 @@ class EventServiceProvider extends ServiceProvider
         PlayerBeatenGamesStatsUpdated::class => [
         ],
         UserDeleted::class => [
-            RecalculateLeaderboardTopEntriesForUser::class,
             ResetPlayerProgress::class, // dispatches PlayerGameMetricsUpdated
         ],
     ];
