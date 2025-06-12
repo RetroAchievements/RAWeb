@@ -25,6 +25,7 @@ use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Platform\Commands\BackfillPlaytimeTotal;
+use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
 use App\Platform\Commands\MigrateMissableAchievementsToType;
@@ -100,6 +101,7 @@ class AppServiceProvider extends ServiceProvider
 
                 // Players
                 BackfillPlaytimeTotal::class,
+                CrawlPlayerWeightedPoints::class,
                 ResetPlayerAchievement::class,
                 UnlockPlayerAchievement::class,
                 UpdatePlayerEstimatedTimes::class,
@@ -150,11 +152,13 @@ class AppServiceProvider extends ServiceProvider
             $schedule = $this->app->make(Schedule::class);
 
             $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
-            $schedule->command(BackfillPlaytimeTotal::class)->everyFifteenMinutes();
+            $schedule->command(CrawlPlayerWeightedPoints::class)->everyFiveMinutes();
+            $schedule->command(BackfillPlaytimeTotal::class)->everyTenMinutes();
             $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
             $schedule->command(ProcessExpiringClaims::class)->hourly();
-            $schedule->command(UpdateSearchIndexForQueuedEntities::class)->twiceDaily(1, 13); // 1AM and 1PM
+            $schedule->command(UpdateSearchIndexForQueuedEntities::class)->twiceDaily(1, 13); // 1AM and 1PM UTC
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
+            $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
         });
 
         $this->loadMigrationsFrom([database_path('migrations/platform')]);

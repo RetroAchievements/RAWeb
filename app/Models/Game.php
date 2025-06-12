@@ -308,8 +308,15 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
             ->pluck('title')
             ->toArray();
 
-        // Generate all search titles (main title + alternative titles).
-        $searchTitles = (new ComputeGameSearchTitlesAction())->execute($this->title, $altTitles);
+        $this->loadMissing('system');
+
+        // Generate all search titles (main title + alternative titles + system variations).
+        $searchTitles = (new ComputeGameSearchTitlesAction())->execute(
+            $this->title,
+            $this->system->name,
+            $this->system->name_short,
+            $altTitles
+        );
 
         // Check if game has any tags - we rank these lower.
         // Otherwise stuff like "~Hack~ SM64: Whatever" might actually rank higher than "Super Mario 64".

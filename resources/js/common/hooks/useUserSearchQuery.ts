@@ -48,9 +48,8 @@ export function useUserSearchQuery(options: UseUserSearchQueryOptions = {}): Use
     refetchInterval: false,
   });
 
-  return {
-    ...query,
+  return Object.assign(query, {
     searchTerm,
     setSearchTerm,
-  };
+  });
 }

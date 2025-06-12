@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPublished;
 use App\Platform\Events\AchievementUnpublished;
-use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Carbon;
@@ -21,7 +20,6 @@ class DispatchUpdateDeveloperContributionYieldJob implements ShouldQueue
             case AchievementPublished::class:
             case AchievementUnpublished::class:
             case AchievementPointsChanged::class:
-            case PlayerAchievementUnlocked::class:
                 $achievement = $event->achievement;
 
                 $user = $achievement->getMaintainerAt(Carbon::now());

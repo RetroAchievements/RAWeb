@@ -9,6 +9,7 @@ use App\Filament\Resources\UserResource;
 use App\Models\AchievementMaintainer;
 use App\Models\Role;
 use App\Models\User;
+use Filament\Forms;
 use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -61,6 +62,55 @@ class Roles extends ManageRelatedRecords
                         }
 
                         return $query;
+                    })
+                    ->form(function ($form) {
+                        /** @var User $targetUser */
+                        $targetUser = $this->getRecord();
+
+                        $query = Role::query();
+
+                        $query->whereIn('name', Auth::user()->assignableRoles);
+
+                        // If trying to assign staff developer roles, ensure the user has Role::DEVELOPER.
+                        $staffRoles = [Role::QUALITY_ASSURANCE, Role::DEV_COMPLIANCE, Role::CODE_REVIEWER];
+                        if (!$targetUser->hasRole(Role::DEVELOPER)) {
+                            $query->whereNotIn('name', $staffRoles);
+                        }
+
+                        // Get all matching roles and sort by translated label.
+                        $options = $query->get()
+                            ->mapWithKeys(fn (Role $role) => [$role->id => __('permission.role.' . $role->name)])
+                            ->sort()
+                            ->toArray();
+
+                        return [
+                            Forms\Components\Select::make('recordId')
+                                ->label('Role')
+                                ->options($options)
+                                ->required()
+                                ->searchable()
+                                ->getSearchResultsUsing(function (string $search) {
+                                    /** @var User $targetUser */
+                                    $targetUser = $this->getRecord();
+
+                                    $query = Role::query();
+
+                                    $query->whereIn('name', Auth::user()->assignableRoles);
+
+                                    // If trying to assign staff developer roles, ensure the user has Role::DEVELOPER.
+                                    $staffRoles = [Role::QUALITY_ASSURANCE, Role::DEV_COMPLIANCE, Role::CODE_REVIEWER];
+                                    if (!$targetUser->hasRole(Role::DEVELOPER)) {
+                                        $query->whereNotIn('name', $staffRoles);
+                                    }
+
+                                    // Get all roles and filter by translated label.
+                                    return $query->get()
+                                        ->mapWithKeys(fn (Role $role) => [$role->id => __('permission.role.' . $role->name)])
+                                        ->filter(fn ($label) => str_contains(strtolower($label), strtolower($search)))
+                                        ->sort()
+                                        ->toArray();
+                                }),
+                        ];
                     })
                     ->after(function ($data) {
                         /** @var User $targetUser */

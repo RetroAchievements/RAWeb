@@ -17,12 +17,10 @@ $hasAward = isset($game['HighestAwardKind']);
 $hardcoreCompletionPercentage = floor($game['PctWonHC'] * 100);
 $totalCompletionPercentage = floor($game['PctWon'] * 100);
 
-// TODO: pass $game model with system child to avoid fetching system for every row
 $consoleId = $game['ConsoleID'];
-$system = System::find($game['ConsoleID']);
-$consoleName = $system->name;
-$consoleShortName = $system->name_short;
-$gameSystemIconSrc = getSystemIconUrl($system);
+$consoleName = $game['ConsoleName'];
+$consoleShortName = $game['ConsoleNameShort'];
+$gameSystemIconSrc = getSystemIconUrl($consoleShortName);
 
 $doesGameHaveAchievements = !!$game['MaxPossible'];
 ?>
@@ -67,6 +65,7 @@ $doesGameHaveAchievements = !!$game['MaxPossible'];
                 :mostRecentWonDate="$game['MostRecentWonDate']"
                 :highestAwardKind="$game['HighestAwardKind'] ?? null"
                 :highestAwardDate="$game['HighestAwardDate'] ?? null"
+                :highestAwardTimeTaken="$game['HighestAwardTimeTaken'] ?? null"
                 :variant="$variant"
             />
         </div>
