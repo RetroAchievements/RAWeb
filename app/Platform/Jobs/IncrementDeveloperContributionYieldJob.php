@@ -44,7 +44,7 @@ class IncrementDeveloperContributionYieldJob implements ShouldQueue
 
     public function handle(): void
     {
-        $developer = User::withTrashed()->find($this->developerId);
+        $developer = User::find($this->developerId);
         if (!$developer) {
             return;
         }
