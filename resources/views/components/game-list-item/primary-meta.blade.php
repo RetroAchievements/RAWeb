@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\System;
+use Carbon\CarbonInterval;
 use Illuminate\Support\Carbon;
 ?>
 
@@ -9,6 +10,7 @@ use Illuminate\Support\Carbon;
     'gameId' => 0,
     'consoleId' => 0,
     'gameTitle' => '',
+    'highestAwardTimeTaken' => null,
     'highestAwardDate' => null,
     'highestAwardKind' => null, // null | 'beaten-softcore' | 'beaten-hardcore' | 'completed' | 'mastered'
     'mostRecentWonDate' => '',
@@ -28,10 +30,9 @@ $mostRecentUnlockDate = $mostRecentWonDate ? Carbon::parse($mostRecentWonDate) :
 
 $timeToSiteAwardLabelPartOne = '';
 $timeToSiteAwardLabelPartTwo = '';
+$timeToSiteAwardLabelPartThree = '';
 $mostRecentUnlockDateLabel = $mostRecentUnlockDate?->format('F j Y');
-if ($highestAwardKind && $highestAwardDate && !$isEvent) {
-    $highestAwardedAt = Carbon::createFromTimestampUTC($highestAwardDate);
-
+if ($highestAwardKind && !$isEvent && ($highestAwardTimeTaken || $highestAwardDate)) {
     $awardLabelMap = [
         'beaten-softcore' => 'Beaten',
         'beaten-hardcore' => 'Beaten',
@@ -41,7 +42,6 @@ if ($highestAwardKind && $highestAwardDate && !$isEvent) {
 
     $timeToSiteAwardLabelPartOne = $awardLabelMap[$highestAwardKind];
 
-    $datesDiff = $highestAwardedAt->diff($firstUnlockDate);
     $timeUnits = [
         'y' => 'year',
         'm' => 'month',
@@ -51,14 +51,50 @@ if ($highestAwardKind && $highestAwardDate && !$isEvent) {
         's' => 'second',
     ];
 
-    $timeParts = [];
-    foreach ($timeUnits as $unit => $text) {
-        if ($datesDiff->$unit) {
-            $timeParts[] = "{$datesDiff->$unit} " . ($datesDiff->$unit === 1 ? $text : $text . 's');
+    if ($highestAwardTimeTaken) { // actual playtime (when available)
+        $datesDiff = CarbonInterval::seconds($highestAwardTimeTaken)->cascade();
+        $timeParts = [];
+
+        // don't break hours into months/days/hours. just report total hours played
+        if ($datesDiff->totalHours >= 1.0) {
+            $hours = floor($datesDiff->totalHours);
+            $timeParts[] = "$hours " . Str::plural($timeUnits['h'], $hours);
         }
+
+        foreach (['i','s'] as $unit) {
+            if ($datesDiff->$unit > 0) {
+                $timeParts[] = "{$datesDiff->$unit} " . Str::plural($timeUnits[$unit], $datesDiff->$unit);
+            }
+        }
+
+        $timeToSiteAwardLabelPartTwo = implode(', ', array_slice($timeParts, 0, 2));
     }
 
-    $timeToSiteAwardLabelPartTwo .= implode(', ', array_slice($timeParts, 0, 2));
+    if ($highestAwardDate) { // distance from first unlock to last unlock
+        $highestAwardedAt = Carbon::createFromTimestampUTC($highestAwardDate);
+        $datesDiff = $highestAwardedAt->diff($firstUnlockDate, true);
+
+        // if the award took more than 36 hours of playtime to earn, and the elapsed wall time
+        // is less than double the total playtime, assume the player left the emulator running
+        // overnight and only report the wall time.
+        if ($highestAwardTimeTaken > 36 * 60 * 60 && $datesDiff->totalSeconds < $highestAwardTimeTaken * 2.0) {
+            $timeToSiteAwardLabelPartTwo = '';
+            $highestAwardTimeTaken = null;
+        }
+
+        // if we're not reporting actual playtime or the wall clock time is more than 36 hours,
+        // also report the wall clock time.
+        if (!$highestAwardTimeTaken || $datesDiff->totalSeconds > 36 * 60 * 60) {
+            $timeParts = [];
+            foreach ($timeUnits as $unit => $text) {
+                if ($datesDiff->$unit > 0) {
+                    $timeParts[] = "{$datesDiff->$unit} " . Str::plural($text, $datesDiff->$unit);
+                }
+            }
+
+            $timeToSiteAwardLabelPartThree = implode(', ', array_slice($timeParts, 0, 2));
+        }
+    }
 }
 ?>
 
@@ -123,14 +159,23 @@ if ($highestAwardKind && $highestAwardDate && !$isEvent) {
                 </p>
             @endif
 
-            @if ($timeToSiteAwardLabelPartOne && $timeToSiteAwardLabelPartTwo)
+            @if ($timeToSiteAwardLabelPartOne && ($timeToSiteAwardLabelPartTwo || $timeToSiteAwardLabelPartThree))
                 <p>
                     <span class="hidden md:inline lg:hidden">•</span>
                     {{ $timeToSiteAwardLabelPartOne }}
                     
                     @if ($numPossibleAchievements > 0)
-                        in
-                        <span class="font-bold">{{ $timeToSiteAwardLabelPartTwo }}</span>
+                        @if ($timeToSiteAwardLabelPartTwo)
+                            in
+                            <span class="font-bold">{{ $timeToSiteAwardLabelPartTwo }}</span>
+
+                            @if ($timeToSiteAwardLabelPartThree)
+                                over {{ $timeToSiteAwardLabelPartThree }}
+                            @endif
+                        @elseif ($timeToSiteAwardLabelPartThree)
+                            over
+                            <span class="font-bold">{{ $timeToSiteAwardLabelPartThree }}</span>
+                        @endif
                     @endif
                 </p>
             @endif

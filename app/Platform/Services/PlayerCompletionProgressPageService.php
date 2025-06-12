@@ -63,6 +63,7 @@ class PlayerCompletionProgressPageService
         $filteredAndJoinedGamesList = $this->playerProgressionService->filterAndJoinGames(
             $userGamesList,
             $userSiteAwards,
+            $foundTargetUser->id,
             allowEvents: $targetSystemId === System::Events,
         );
         $primaryCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics($filteredAndJoinedGamesList);

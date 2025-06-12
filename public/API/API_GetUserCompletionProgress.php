@@ -42,14 +42,18 @@ $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 100;
 
 $userModel = (new FindUserByIdentifierAction())->execute($input['u']);
+if (!$userModel) {
+    return response()->json(['Count' => 0, 'Total' => 0, 'Results' => []]);
+}
 
 $playerProgressionService = new PlayerProgressionService();
 
-$userGamesList = getUsersCompletedGamesAndMax($userModel?->username ?? "");
+$userGamesList = getUsersCompletedGamesAndMax($userModel->username ?? "");
 $userSiteAwards = getUsersSiteAwards($userModel);
 $filteredAndJoinedGamesList = $playerProgressionService->filterAndJoinGames(
     $userGamesList,
     $userSiteAwards,
+    $userModel->id,
 );
 
 // Sort the results by MostRecentAwardedDate
