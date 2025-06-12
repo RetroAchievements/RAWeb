@@ -100,7 +100,7 @@ class ResetPlayerProgressAction
                     $developer = $achievement->developer;
                 }
 
-                if ($developer && $developer->id !== $user->id) {
+                if ($developer && $developer->id !== $user->id && !$developer->trashed()) {
                     // Perform a quick incremental decrement.
                     // For resets, we don't need to worry about the
                     // isHardcore flag since we're removing the unlock entirely.
