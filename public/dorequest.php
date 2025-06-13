@@ -6,6 +6,7 @@ use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\BuildClientPatchDataV2Action;
 use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\GetCodeNotesAction;
+use App\Connect\Actions\GetFriendListAction;
 use App\Connect\Actions\GetHashLibraryAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\ResolveRootGameFromGameAndGameHashAction;
@@ -34,6 +35,7 @@ use Illuminate\Support\Carbon;
 $requestType = request()->input('r');
 $handler = match ($requestType) {
     'codenotes2' => new GetCodeNotesAction(),
+    'getfriendlist' => new GetFriendListAction(),
     'hashlibrary' => new GetHashLibraryAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
     'submitgametitle' => new SubmitGameTitleAction(),
@@ -527,10 +529,6 @@ switch ($requestType) {
         $response['ExistingIDs'] = $alreadyAwardedIds;
         $response['SuccessfulIDs'] = $newAwardedIds;
 
-        break;
-
-    case "getfriendlist":
-        $response['Friends'] = GetFriendList($user);
         break;
 
     case "lbinfo":
