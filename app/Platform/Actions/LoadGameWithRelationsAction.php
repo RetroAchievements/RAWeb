@@ -30,6 +30,7 @@ class LoadGameWithRelationsAction
             },
             'hashes',
             'hubs.children',
+            'releases',
             'visibleComments' => function ($query) {
                 $query->latest('Submitted')
                     ->limit(20)
