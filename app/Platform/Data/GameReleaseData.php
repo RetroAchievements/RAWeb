@@ -6,19 +6,19 @@ namespace App\Platform\Data;
 
 use App\Platform\Enums\GameReleaseRegion;
 use App\Platform\Enums\ReleasedAtGranularity;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript('GameRelease')]
 class GameReleaseData extends Data
 {
     public function __construct(
         public int $id,
-        public Carbon|null $releasedAt,
-        public ReleasedAtGranularity|null $releasedAtGranularity,
+        public ?Carbon $releasedAt,
+        public ?ReleasedAtGranularity $releasedAtGranularity,
         public string $title,
-        public GameReleaseRegion|null $region,
+        public ?GameReleaseRegion $region,
         public bool $isCanonicalGameTitle,
     ) {
     }
