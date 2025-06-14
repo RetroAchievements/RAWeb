@@ -846,7 +846,7 @@ $response['Success'] = (bool) $response['Success'];
 // explicit Content-Type, Content-Length, and Cache-Control headers, we inform Cloudflare
 // that these responses are immutable and should be passed straight through.
 $jsonContent = json_encode($response);
-$contentLength = strlen($jsonContent);
+$contentLength = (string) strlen($jsonContent);
 
 if (array_key_exists('Status', $response)) {
     $status = $response['Status'];
