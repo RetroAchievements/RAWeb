@@ -28,7 +28,7 @@ export const GameReleaseDatesRow: FC<GameReleaseDatesRowProps> = ({ releases }) 
       </BaseTableCell>
 
       <BaseTableCell>
-        <div className="flex flex-col">
+        <span className="flex flex-col">
           {sortedReleases.map((release) => {
             // Treat "other" and null as "Worldwide" for now.
             const displayRegion =
@@ -48,7 +48,7 @@ export const GameReleaseDatesRow: FC<GameReleaseDatesRowProps> = ({ releases }) 
               </span>
             );
           })}
-        </div>
+        </span>
       </BaseTableCell>
     </BaseTableRow>
   );
