@@ -477,7 +477,7 @@ declare namespace App.Platform.Data {
     title: string;
     createdAt?: string;
     description?: string;
-    decorator?: string;
+    decorator?: string | null;
     developer?: App.Data.User;
     flags?: App.Platform.Enums.AchievementFlag;
     game?: App.Platform.Data.Game;
@@ -506,8 +506,8 @@ declare namespace App.Platform.Data {
     achievements: Array<App.Platform.Data.Achievement>;
   };
   export type AwardEarner = {
-    user: any;
-    dateEarned: any;
+    user: App.Data.User;
+    dateEarned: string;
   };
   export type CreateAchievementTicketPageProps = {
     achievement: App.Platform.Data.Achievement;
@@ -563,6 +563,11 @@ declare namespace App.Platform.Data {
     earnedAt: string | null;
     badgeCount?: number;
   };
+  export type EventAwardEarnersPageProps<TItems = App.Platform.Data.AwardEarner> = {
+    event: App.Platform.Data.Event;
+    eventAward: App.Platform.Data.EventAward;
+    paginatedUsers: App.Data.PaginatedData<TItems>;
+  };
   export type Event = {
     id: number;
     activeFrom: string | null;
@@ -571,11 +576,6 @@ declare namespace App.Platform.Data {
     eventAchievements?: Array<App.Platform.Data.EventAchievement>;
     eventAwards?: Array<App.Platform.Data.EventAward>;
     state?: App.Platform.Enums.EventState;
-  };
-  export type EventAwardEarnersPageProps<TItems = App.Platform.Data.AwardEarner> = {
-    event: App.Platform.Data.Event;
-    eventAward: App.Platform.Data.EventAward;
-    paginatedUsers: App.Data.PaginatedData<TItems>;
   };
   export type EventShowPageProps = {
     event: App.Platform.Data.Event;
@@ -632,6 +632,7 @@ declare namespace App.Platform.Data {
     isSubsetGame?: boolean;
     claimants?: Array<App.Platform.Data.GameClaimant>;
     gameAchievementSets?: Array<App.Platform.Data.GameAchievementSet>;
+    releases?: Array<App.Platform.Data.GameRelease>;
   };
   export type GameHash = {
     id: number;
@@ -665,6 +666,14 @@ declare namespace App.Platform.Data {
     persistenceCookieName: string;
     persistedViewPreferences: Record<string, any> | null;
     defaultDesktopPageSize: number;
+  };
+  export type GameRelease = {
+    id: number;
+    releasedAt: string | null;
+    releasedAtGranularity: App.Platform.Enums.ReleasedAtGranularity | null;
+    title: string;
+    region: App.Platform.Enums.GameReleaseRegion | null;
+    isCanonicalGameTitle: boolean;
   };
   export type GameSet = {
     id: number;
@@ -943,6 +952,7 @@ declare namespace App.Platform.Enums {
     | 'na'
     | 'worldwide'
     | 'other';
+  export type GameSetRolePermission = 'view' | 'update';
   export type GameSetType = 'hub' | 'similar-games';
   export type GameSuggestionReason =
     | 'common-players'

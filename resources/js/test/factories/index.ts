@@ -20,6 +20,7 @@ export * from './createGameClaimant';
 export * from './createGameHash';
 export * from './createGameHashLabel';
 export * from './createGameListEntry';
+export * from './createGameRelease';
 export * from './createGameSet';
 export * from './createGameSuggestionEntry';
 export * from './createGameTopAchiever';
