@@ -29,7 +29,9 @@ class LoadGameWithRelationsAction
                 $query->whereNotIn('type', $excludeSetTypes);
             },
             'hashes',
-            'hubs.children',
+            'hubs' => function ($query) {
+                $query->with(['children', 'viewRoles']);
+            },
             'releases',
             'visibleComments' => function ($query) {
                 $query->latest('Submitted')
