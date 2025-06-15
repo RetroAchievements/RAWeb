@@ -9,7 +9,7 @@ enum GameReleaseRegion: string
     case Asia = 'as';
     case Australia = 'au';
     case Brazil = 'br';
-    case China = 'cn';
+    case China = 'ch';
     case Europe = 'eu';
     case Japan = 'jp';
     case Korea = 'kr';
@@ -25,7 +25,7 @@ enum GameReleaseRegion: string
             self::Asia => 'Asia (AS)',
             self::Australia => 'Australia (AU)',
             self::Brazil => 'Brazil (BR)',
-            self::China => 'China (CN)',
+            self::China => 'China (CH)',
             self::Europe => 'Europe (EU)',
             self::Japan => 'Japan (JP)',
             self::Korea => 'Korea (KR)',

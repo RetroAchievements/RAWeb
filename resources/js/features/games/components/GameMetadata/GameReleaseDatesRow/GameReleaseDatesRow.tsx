@@ -4,6 +4,11 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { BaseTableCell, BaseTableRow } from '@/common/components/+vendor/BaseTable';
+import {
+  BaseTooltip,
+  BaseTooltipContent,
+  BaseTooltipTrigger,
+} from '@/common/components/+vendor/BaseTooltip';
 import { formatGameReleasedAt } from '@/common/utils/formatGameReleasedAt';
 
 dayjs.extend(utc);
@@ -42,7 +47,16 @@ export const GameReleaseDatesRow: FC<GameReleaseDatesRowProps> = ({ releases }) 
             return (
               <span key={release.id}>
                 {shouldShowRegion ? (
-                  <span className="mr-1.5 font-mono uppercase">{displayRegion}</span>
+                  <BaseTooltip>
+                    <BaseTooltipTrigger asChild>
+                      <span className="mr-1.5 font-mono uppercase">{displayRegion}</span>
+                    </BaseTooltipTrigger>
+
+                    <BaseTooltipContent>
+                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any -- the key is dynamic */}
+                      {t(`region_${displayRegion}`.toLowerCase() as any)}
+                    </BaseTooltipContent>
+                  </BaseTooltip>
                 ) : null}
                 {formatGameReleasedAt(release.releasedAt, release.releasedAtGranularity)}
               </span>

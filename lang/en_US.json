@@ -974,5 +974,15 @@
     "{{val, number}} results_other": "{{val, number}} results",
     "Browse": "Browse",
     "Search": "Search",
-    "Events": "Events"
+    "Events": "Events",
+    "region_as": "Asia",
+    "region_au": "Australia",
+    "region_br": "Brazil",
+    "region_ch": "China",
+    "region_eu": "Europe",
+    "region_jp": "Japan",
+    "region_kr": "Korea",
+    "region_nz": "New Zealand",
+    "region_na": "North America",
+    "region_ww": "Worldwide"
 }
