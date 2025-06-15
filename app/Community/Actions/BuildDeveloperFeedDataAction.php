@@ -71,6 +71,10 @@ class BuildDeveloperFeedDataAction
         // window function instead of a self-join improves performance from 130-180ms
         // down to ~40ms.
 
+        if (empty($gameIds)) {
+            return 0;
+        }
+
         return DB::table(DB::raw('(
             SELECT *,
                 ROW_NUMBER() OVER (
