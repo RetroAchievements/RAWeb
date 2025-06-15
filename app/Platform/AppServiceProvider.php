@@ -153,7 +153,7 @@ class AppServiceProvider extends ServiceProvider
 
             $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
             $schedule->command(CrawlPlayerWeightedPoints::class)->everyFiveMinutes();
-            $schedule->command(BackfillPlaytimeTotal::class)->everyFifteenMinutes();
+            $schedule->command(BackfillPlaytimeTotal::class)->everyTenMinutes();
             $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
             $schedule->command(ProcessExpiringClaims::class)->hourly();
             $schedule->command(UpdateSearchIndexForQueuedEntities::class)->twiceDaily(1, 13); // 1AM and 1PM UTC

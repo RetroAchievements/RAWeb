@@ -26,7 +26,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         /** @var System $eventSystem */
         $eventSystem = System::factory()->create(['ID' => System::Events]);
 
-        $event = (new CreateAchievementOfTheWeek())->execute(Carbon::parse('2023-01-02'));
+        $event = (new CreateAchievementOfTheWeek())->execute(Carbon::parse('2023-01-02'))->legacyGame;
 
         $this->assertEquals('Achievement of the Week 2023', $event->title);
         $this->assertEquals(System::Events, $event->system->id);
@@ -123,7 +123,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $player1->LastLogin = $lastLogin;
         $player1->save();
 
-        $event = (new CreateAchievementOfTheWeek())->execute(Carbon::parse('2024-01-01'), [$sourceAchievement1->id, $sourceAchievement2->id]);
+        $event = (new CreateAchievementOfTheWeek())->execute(Carbon::parse('2024-01-01'), [$sourceAchievement1->id, $sourceAchievement2->id])->legacyGame;
 
         $this->assertEquals('Achievement of the Week 2024', $event->title);
         $this->assertEquals(System::Events, $event->system->id);
@@ -186,7 +186,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals(3, $game->players_total);
 
         // existing event should be returned if trying to recreate
-        $event2 = (new CreateAchievementOfTheWeek())->execute(Carbon::parse('2024-01-01'), [$sourceAchievement1->id, $sourceAchievement2->id]);
+        $event2 = (new CreateAchievementOfTheWeek())->execute(Carbon::parse('2024-01-01'), [$sourceAchievement1->id, $sourceAchievement2->id])->legacyGame;
 
         $this->assertEquals($event->id, $event2->id);
         $this->assertEquals(64, $event2->achievements()->count());
