@@ -24,12 +24,21 @@ class LeaderboardsRelationManager extends RelationManager
 {
     protected static string $relationship = 'leaderboards';
 
+    protected static ?string $icon = 'fas-bars-staggered';
+
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
         /** @var User $user */
         $user = Auth::user();
 
         return $user->can('manage', Leaderboard::class);
+    }
+
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        $count = $ownerRecord->leaderboards->count();
+
+        return $count > 0 ? "{$count}" : null;
     }
 
     public function form(Form $form): Form
