@@ -36,10 +36,12 @@ interface UseSearchQueryOptions {
 export function useSearchQuery(options: UseSearchQueryOptions = {}) {
   const { initialSearchTerm = '', scopes = ['users'], route: customRoute } = options;
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
+  const [shouldUsePlaceholderData, setShouldUsePlaceholderData] = useState(true);
 
   return {
     searchTerm,
     setSearchTerm,
+    setShouldUsePlaceholderData,
     ...useQuery<SearchQueryResponse>({
       queryKey: ['search', searchTerm, scopes, customRoute],
 
@@ -59,7 +61,8 @@ export function useSearchQuery(options: UseSearchQueryOptions = {}) {
       },
 
       enabled: searchTerm.length >= 3,
-      placeholderData: searchTerm.length >= 3 ? keepPreviousData : undefined,
+      placeholderData:
+        searchTerm.length >= 3 && shouldUsePlaceholderData ? keepPreviousData : undefined,
       refetchInterval: false,
     }),
   };
