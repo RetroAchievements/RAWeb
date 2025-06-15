@@ -32,6 +32,7 @@ class LoadGameWithRelationsAction
             'hubs' => function ($query) {
                 $query->with(['children', 'viewRoles']);
             },
+            'releases',
             'visibleComments' => function ($query) {
                 $query->latest('Submitted')
                     ->limit(20)
