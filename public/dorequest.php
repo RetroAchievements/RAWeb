@@ -4,6 +4,7 @@ use App\Actions\FindUserByIdentifierAction;
 use App\Community\Enums\ActivityType;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\BuildClientPatchDataV2Action;
+use App\Connect\Actions\GetAchievementUnlocksAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\GetCodeNotesAction;
 use App\Connect\Actions\GetFriendListAction;
@@ -34,6 +35,7 @@ use Illuminate\Support\Carbon;
 
 $requestType = request()->input('r');
 $handler = match ($requestType) {
+    'achievementwondata' => new GetAchievementUnlocksAction(),
     'codenotes2' => new GetCodeNotesAction(),
     'getfriendlist' => new GetFriendListAction(),
     'hashlibrary' => new GetHashLibraryAction(),
@@ -114,10 +116,8 @@ $credentialsOK = match ($requestType) {
     /*
      * Registration required and user=local
      */
-    "achievementwondata",
     "awardachievement",
     "awardachievements",
-    "getfriendlist",
     "patch",
     "ping",
     "postactivity",
@@ -338,15 +338,6 @@ switch ($requestType) {
 
             $response['Success'] = true;
         }
-        break;
-
-    case "achievementwondata":
-        $friendsOnly = (bool) request()->input('f', 0);
-        $response['Offset'] = $offset;
-        $response['Count'] = $count;
-        $response['FriendsOnly'] = $friendsOnly;
-        $response['AchievementID'] = $achievementID;
-        $response['Response'] = getRecentUnlocksPlayersData($achievementID, $offset, $count, $username, $friendsOnly);
         break;
 
     case "awardachievement":

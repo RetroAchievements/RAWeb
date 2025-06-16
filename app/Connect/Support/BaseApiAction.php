@@ -77,4 +77,14 @@ abstract class BaseApiAction
             'Error' => 'Unknown game.',
         ];
     }
+
+    protected function achievementNotFound(): array
+    {
+        return [
+            'Success' => false,
+            'Status' => 404,
+            'Code' => 'not_found',
+            'Error' => 'Unknown achievement.',
+        ];
+    }
 }
