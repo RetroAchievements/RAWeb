@@ -6,6 +6,7 @@ namespace App\Exceptions;
 
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
@@ -168,10 +169,21 @@ class Handler extends ExceptionHandler
                 ], 403);
             }
             if ($request->is('dorequest.php')) {
+                $message = $e->getMessage();
+
                 // strip out any queries in the exception, the client won't know what to do with
                 // them, and we don't want to expose anything sensitive that might be in the query.
-                $message = $e->getMessage();
-                $index = strpos($message, '(SQL:');
+                if ($e instanceof QueryException) {
+                    // format should be "${previous->message} (Connection: $name, SQL: $sql)"
+                    // https://github.com/laravel/framework/blob/b6f2ea681b9411a86c9a70c8bfb6ff890a457187/src/Illuminate/Database/QueryException.php#L67
+                    // so capture the previous message if it's available
+                    $previous = $e->getPrevious();
+                    if ($previous) {
+                        $message = $previous->getMessage();
+                    }
+                }
+                // look for possible SQL queries coming from other exception types
+                $index = strpos($message, 'SQL:');
                 if ($index !== false) {
                     $message = trim(substr($message, 0, $index));
                 }

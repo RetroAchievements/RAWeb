@@ -9,8 +9,10 @@ use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\PlayerSession;
 use App\Models\User;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class GetFriendListTest extends TestCase
@@ -217,5 +219,34 @@ class GetFriendListTest extends TestCase
                     ],
                 ],
             ]);
+    }
+
+    public function testSqlLeak(): void
+    {
+        // change the column name to force a query failure
+        Schema::table('UserAccounts', function (Blueprint $table) {
+            $table->renameColumn('RichPresenceMsg', 'broken');
+        });
+
+        $response = $this->get($this->apiUrl('getfriendlist'))
+            ->assertStatus(500)
+            ->assertJson([
+                'Success' => false,
+                'Status' => 500,
+            ]);
+
+        $jsonResponse = json_decode($response->getContent());
+        $errorMessage = $jsonResponse->Error;
+
+        // Error message should be similar to "SQLSTATE[HY000]: General error: 1 no such column ..."
+        // check for "error" to ensure it's not empty
+        $this->assertStringContainsString('error', $errorMessage);
+
+        // Then make sure there's no SQL-like text in the message
+        $this->assertStringNotContainsStringIgnoringCase('SELECT', $errorMessage);
+        $this->assertStringNotContainsStringIgnoringCase('UPDATE', $errorMessage);
+        $this->assertStringNotContainsStringIgnoringCase('INSERT', $errorMessage);
+        $this->assertStringNotContainsStringIgnoringCase('FROM', $errorMessage);
+        $this->assertStringNotContainsStringIgnoringCase('WHERE', $errorMessage);
     }
 }
