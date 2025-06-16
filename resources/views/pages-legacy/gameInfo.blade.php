@@ -60,7 +60,7 @@ if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
 }
 
 $numAchievements = getGameMetadata($gameID, $userModel, $achievementData, $gameData, $sortBy, null, $flagParam, metrics: true);
-$gameModel = Game::find($gameID);
+$gameModel = Game::with(['hubs.viewRoles'])->find($gameID);
 
 if (!$gameModel) {
     abort(404);

@@ -292,12 +292,16 @@ class GameSet extends BaseModel
 
     public function getHasViewRoleRequirementAttribute(): bool
     {
-        return $this->viewRoles()->exists();
+        return $this->relationLoaded('viewRoles')
+            ? $this->viewRoles->isNotEmpty()
+            : $this->viewRoles()->exists();
     }
 
     public function getHasUpdateRoleRequirementAttribute(): bool
     {
-        return $this->updateRoles()->exists();
+        return $this->relationLoaded('updateRoles')
+            ? $this->updateRoles->isNotEmpty()
+            : $this->updateRoles()->exists();
     }
 
     // == mutators
