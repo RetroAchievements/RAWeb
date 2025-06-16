@@ -10,7 +10,10 @@ use App\Models\Role;
 use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Actions\UpdateDeveloperContributionYieldAction;
+use App\Platform\Actions\UpdateGameAchievementsMetricsAction;
+use App\Platform\Actions\UpdateGameBeatenMetricsAction;
 use App\Platform\Actions\UpdateGameMetricsAction;
+use App\Platform\Actions\UpdateGamePlayerCountAction;
 use App\Platform\Actions\UpdatePlayerGameMetricsAction;
 use App\Platform\Actions\UpdatePlayerMetricsAction;
 use App\Platform\Enums\AchievementType;
@@ -135,6 +138,9 @@ class PlayerAchievementsSeeder extends Seeder
 
             // update player count and unlock metrics
             (new UpdateGameMetricsAction())->execute($game);
+            (new UpdateGamePlayerCountAction())->execute($game);
+            (new UpdateGameBeatenMetricsAction())->execute($game);
+            (new UpdateGameAchievementsMetricsAction())->execute($game);
         });
 
         // update player metrics
