@@ -12,34 +12,6 @@ function GetUserData(string $username): ?array
     return User::whereName($username)->first()?->toArray();
 }
 
-function getAccountDetails(?string &$username = null, ?array &$dataOut = []): bool
-{
-    if (empty($username) || !isValidUsername($username)) {
-        return false;
-    }
-
-    $query = "SELECT ID, User, EmailAddress, Permissions, RAPoints, RASoftcorePoints, TrueRAPoints,
-                     cookie, websitePrefs, UnreadMessageCount, Motto, UserWallActive,
-                     APIKey, ContribCount, ContribYield,
-                     RichPresenceMsg, LastGameID, LastLogin, LastActivityID,
-                     Created, DeleteRequested, Untracked
-                FROM UserAccounts
-                WHERE User = :username
-                AND Deleted IS NULL";
-
-    $dataOut = legacyDbFetch($query, [
-        'username' => $username,
-    ]);
-
-    if (!$dataOut) {
-        return false;
-    }
-
-    $username = $dataOut['User'];
-
-    return true;
-}
-
 function getUserIDFromUser(?string $user): int
 {
     if (!$user) {

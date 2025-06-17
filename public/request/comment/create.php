@@ -44,7 +44,7 @@ if (addArticleComment($user, $articleType, $articleID, $input['body'])) {
     // automatically change the state back to Open
     if ($articleType === ArticleType::AchievementTicket) {
         if ($commentable->ReportState === TicketState::Request && $commentable->reporter_id === $userModel->id) {
-            updateTicket($user, $articleID, TicketState::Open);
+            updateTicket($userModel, $articleID, TicketState::Open);
         }
     }
 
