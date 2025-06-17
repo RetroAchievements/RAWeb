@@ -3,6 +3,7 @@
 use App\Community\Enums\TicketAction;
 use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -89,9 +90,12 @@ if (
     $ticketState !== null && $ticketState !== (int) $ticketData['ReportState']
     && ($permissions >= Permissions::Developer || $username == $ticketData['ReportedBy'])
 ) {
-    updateTicket($username, $ticketId, $ticketState, $reason);
+    $userModel = User::whereName($username)->first();
+    if ($userModel) {
+        updateTicket($userModel, $ticketId, $ticketState, $reason);
 
-    return back()->with('success', __('legacy.success.update'));
+        return back()->with('success', __('legacy.success.update'));
+    }
 }
 
 return back()->withErrors(__('legacy.error.error'));
