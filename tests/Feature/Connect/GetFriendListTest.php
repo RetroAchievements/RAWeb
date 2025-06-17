@@ -42,6 +42,7 @@ class GetFriendListTest extends TestCase
 
         // no followed users
         $this->get($this->apiUrl('getfriendlist'))
+            ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Friends' => [],
@@ -58,6 +59,7 @@ class GetFriendListTest extends TestCase
         changeFriendStatus($this->user, $user2, UserRelationship::Following);
 
         $this->get($this->apiUrl('getfriendlist'))
+            ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Friends' => [
@@ -103,6 +105,7 @@ class GetFriendListTest extends TestCase
         changeFriendStatus($this->user, $user4, UserRelationship::Following);
 
         $this->get($this->apiUrl('getfriendlist'))
+            ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Friends' => [
@@ -147,6 +150,7 @@ class GetFriendListTest extends TestCase
         changeFriendStatus($this->user, $user6, UserRelationship::Following);
 
         $this->get($this->apiUrl('getfriendlist'))
+            ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Friends' => [
@@ -197,6 +201,7 @@ class GetFriendListTest extends TestCase
         changeFriendStatus($this->user, $user3, UserRelationship::NotFollowing);
 
         $this->get($this->apiUrl('getfriendlist'))
+            ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Friends' => [
