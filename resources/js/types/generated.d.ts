@@ -705,6 +705,7 @@ declare namespace App.Platform.Data {
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
+    seriesHub: App.Platform.Data.SeriesHub | null;
   };
   export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -874,6 +875,14 @@ declare namespace App.Platform.Data {
     extra: string | null;
     can: App.Data.UserPermissions;
   };
+  export type SeriesHub = {
+    hub: App.Platform.Data.GameSet;
+    totalGameCount: number;
+    achievementsPublished: number;
+    pointsTotal: number;
+    topGames: Array<App.Platform.Data.Game>;
+    additionalGameCount: number;
+  };
   export type System = {
     id: number;
     name: string;
@@ -944,7 +953,7 @@ declare namespace App.Platform.Enums {
     | 'as'
     | 'au'
     | 'br'
-    | 'cn'
+    | 'ch'
     | 'eu'
     | 'jp'
     | 'kr'
