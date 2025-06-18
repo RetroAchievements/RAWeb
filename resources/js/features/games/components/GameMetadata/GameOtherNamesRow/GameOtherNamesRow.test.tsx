@@ -1,3 +1,4 @@
+import { BaseTable, BaseTableBody } from '@/common/components/+vendor/BaseTable';
 import { render, screen } from '@/test';
 
 import { GameOtherNamesRow } from './GameOtherNamesRow';
@@ -5,7 +6,13 @@ import { GameOtherNamesRow } from './GameOtherNamesRow';
 describe('Component: GameOtherNamesRow', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<GameOtherNamesRow nonCanonicalTitles={[]} />);
+    const { container } = render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameOtherNamesRow nonCanonicalTitles={[]} />
+        </BaseTableBody>
+      </BaseTable>,
+    );
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -15,8 +22,13 @@ describe('Component: GameOtherNamesRow', () => {
     // ARRANGE
     const titles = ['Zelda II: The Adventure of Link'];
 
-    // ACT
-    render(<GameOtherNamesRow nonCanonicalTitles={titles} />);
+    render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameOtherNamesRow nonCanonicalTitles={titles} />
+        </BaseTableBody>
+      </BaseTable>,
+    );
 
     // ASSERT
     expect(screen.getByText(/zelda ii: the adventure of link/i)).toBeVisible();
@@ -26,8 +38,13 @@ describe('Component: GameOtherNamesRow', () => {
     // ARRANGE
     const titles = ['Super Mario Bros.', 'Super Mario Brothers', 'SMB'];
 
-    // ACT
-    render(<GameOtherNamesRow nonCanonicalTitles={titles} />);
+    render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameOtherNamesRow nonCanonicalTitles={titles} />
+        </BaseTableBody>
+      </BaseTable>,
+    );
 
     // ASSERT
     expect(screen.getByText(/super mario bros\./i)).toBeVisible();
