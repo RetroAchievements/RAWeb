@@ -47,7 +47,7 @@ class UpdatePlayerPointsStatsBatchAction
 
         // Fetch all player achievements for tracked users in the time window.
         $allAchievements = PlayerAchievement::whereIn('player_achievements.user_id', $trackedUserIds)
-            ->whereBetween('player_achievements.unlocked_at', [$now->subDays(8), $now])
+            ->whereBetween('player_achievements.unlocked_at', [$now->copy()->subDays(8), $now])
             ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
             ->join('GameData', 'Achievements.GameID', '=', 'GameData.ID')
             ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
@@ -88,20 +88,47 @@ class UpdatePlayerPointsStatsBatchAction
             }
         }
 
-        // Get existing stats to check for changes.
+        // Get existing stats to check for needed changes and/or deletions.
+        $statTypes = array_merge(
+            array_values(static::PERIOD_MAP['day']),
+            array_values(static::PERIOD_MAP['week'])
+        );
+
         $existingStats = PlayerStat::whereIn('user_id', $trackedUserIds)
-            ->whereIn('type', array_merge(
-                array_values(static::PERIOD_MAP['day']),
-                array_values(static::PERIOD_MAP['week'])
-            ))
-            ->get()
-            ->mapWithKeys(fn ($stat) => ["{$stat->user_id}:{$stat->type}" => $stat->value]);
+            ->whereIn('type', $statTypes)
+            ->get();
 
-        // Filter out unchanged stats.
-        $statsToUpsert = collect($bulkStats)->filter(function ($stat) use ($existingStats) {
+        $existingStatsMap = $existingStats->mapWithKeys(fn ($stat) => ["{$stat->user_id}:{$stat->type}" => $stat]);
+
+        // Build a map of stats that should exist (non-zero values).
+        $expectedStatsMap = collect($bulkStats)->mapWithKeys(fn ($stat) => ["{$stat['user_id']}:{$stat['type']}" => $stat]);
+
+        // Find stats to delete (already existing records, but should now be 0).
+        $statsToDelete = [];
+        foreach ($trackedUserIds as $userId) {
+            foreach ($statTypes as $statType) {
+                $key = "{$userId}:{$statType}";
+                if ($existingStatsMap->has($key) && !$expectedStatsMap->has($key)) {
+                    $statsToDelete[] = ['user_id' => $userId, 'type' => $statType];
+                }
+            }
+        }
+
+        // Delete stats that should now be 0.
+        if (!empty($statsToDelete)) {
+            foreach ($statsToDelete as $stat) {
+                PlayerStat::where('user_id', $stat['user_id'])
+                    ->where('type', $stat['type'])
+                    ->delete();
+            }
+        }
+
+        // Filter out unchanged stats for upsert.
+        $statsToUpsert = collect($bulkStats)->filter(function ($stat) use ($existingStatsMap) {
             $key = "{$stat['user_id']}:{$stat['type']}";
+            $existing = $existingStatsMap->get($key);
 
-            return !$existingStats->has($key) || $existingStats->get($key) !== $stat['value'];
+            return !$existing || $existing->value !== $stat['value'];
         })->values()->toArray();
 
         // Perform the bulk upsert.

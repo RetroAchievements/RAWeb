@@ -230,4 +230,51 @@ class UpdatePlayerPointsStatsActionTest extends TestCase
         $this->assertEquals($updatedAtBefore->toDateTimeString(), $dailyHardcorePointsAfter->updated_at->toDateTimeString());
         $this->assertEquals(10, $dailyHardcorePointsAfter->value);
     }
+
+    public function testItDeletesStatsWhenPointsReachZero(): void
+    {
+        // Arrange
+        Carbon::setTestNow(Carbon::create(2023, 11, 18, 15, 0, 0)); // !! saturday
+
+        $user = User::factory()->create();
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 50]);
+
+        $this->addHardcoreUnlock($user, $achievement, Carbon::now()->subHours(2)); // !! earlier today
+
+        // ... create initial stats ...
+        (new UpdatePlayerPointsStatsAction())->execute($user);
+
+        // ... verify stats exist for both day and week ...
+        $initialStats = PlayerStat::where('user_id', $user->id)->get();
+        $this->assertCount(4, $initialStats); // !! hardcore day, hardcore week, weighted day, weighted week
+        $this->assertEquals(50, $initialStats->where('type', PlayerStatType::PointsHardcoreDay)->first()->value);
+        $this->assertEquals(50, $initialStats->where('type', PlayerStatType::PointsHardcoreWeek)->first()->value);
+        $this->assertNotNull($initialStats->where('type', PlayerStatType::PointsWeightedDay)->first());
+        $this->assertNotNull($initialStats->where('type', PlayerStatType::PointsWeightedWeek)->first());
+
+        // Act
+        // ... move forward to the next day (Sunday) - daily stats should reset ...
+        Carbon::setTestNow(Carbon::create(2023, 11, 19, 10, 0, 0));
+        (new UpdatePlayerPointsStatsAction())->execute($user);
+
+        // Assert
+        $afterDayRollover = PlayerStat::where('user_id', $user->id)->get();
+
+        // ... daily stats should be deleted ...
+        $this->assertNull($afterDayRollover->where('type', PlayerStatType::PointsHardcoreDay)->first());
+        $this->assertNull($afterDayRollover->where('type', PlayerStatType::PointsWeightedDay)->first());
+
+        // ... weekly stats should still exist ...
+        $this->assertEquals(50, $afterDayRollover->where('type', PlayerStatType::PointsHardcoreWeek)->first()->value);
+
+        // ... move forward to the next week (Monday) - weekly stats should also reset ...
+        Carbon::setTestNow(Carbon::create(2023, 11, 20, 10, 0, 0));
+        (new UpdatePlayerPointsStatsAction())->execute($user);
+
+        // ... all stats should now be deleted ...
+        $afterWeekRollover = PlayerStat::where('user_id', $user->id)->get();
+        $this->assertCount(0, $afterWeekRollover);
+    }
 }
