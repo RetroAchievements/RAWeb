@@ -64,15 +64,16 @@ function SubmitLeaderboardEntry(
         } elseif ($existingLeaderboardEntry->trashed()
             || $leaderboard->isBetterScore($newEntry, $existingLeaderboardEntry->score)) {
 
-            if ($existingLeaderboardEntry->trashed()) {
-                $existingLeaderboardEntry->restore();
-            }
-
-            // Update the player's entry.
+            // Update the score first before saving/restoring to avoid race conditions with observers.
             $existingLeaderboardEntry->score = $newEntry;
             $existingLeaderboardEntry->player_session_id = $playerSession->id;
             $existingLeaderboardEntry->updated_at = $timestamp;
-            $existingLeaderboardEntry->save();
+
+            if ($existingLeaderboardEntry->trashed()) {
+                $existingLeaderboardEntry->restore();
+            } else {
+                $existingLeaderboardEntry->save();
+            }
 
             $retVal['BestScore'] = $newEntry;
         } else {
