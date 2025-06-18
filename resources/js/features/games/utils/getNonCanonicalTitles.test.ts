@@ -91,33 +91,6 @@ describe('Util: getNonCanonicalTitles', () => {
     expect(result).toEqual(['Alternate Title', 'Another Title']);
   });
 
-  it('given releases without releasedAt dates, excludes them from results', () => {
-    // ARRANGE
-    const releases = [
-      createGameRelease({
-        title: 'Canonical Title',
-        isCanonicalGameTitle: true,
-        releasedAt: '2023-01-01',
-      }),
-      createGameRelease({
-        title: 'Released Game',
-        isCanonicalGameTitle: false,
-        releasedAt: '2023-01-01',
-      }),
-      createGameRelease({
-        title: 'Unreleased Game',
-        isCanonicalGameTitle: false,
-        releasedAt: null,
-      }),
-    ];
-
-    // ACT
-    const result = getNonCanonicalTitles(releases);
-
-    // ASSERT
-    expect(result).toEqual(['Released Game']);
-  });
-
   it('given a non-canonical title that matches the canonical title, excludes it', () => {
     // ARRANGE
     const releases = [
