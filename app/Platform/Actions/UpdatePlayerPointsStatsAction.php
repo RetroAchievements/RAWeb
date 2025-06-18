@@ -89,8 +89,9 @@ class UpdatePlayerPointsStatsAction
 
     /**
      * This function will either perform a create, edit, or delete:
-     * - If no record exists, we'll create.
-     * - If a record already exists, has a non-zero value, and is receiving a new non-zero value, we'll update.
+     * - If no record exists and points > 0, we'll create.
+     * - If a record exists and points > 0, we'll update.
+     * - If a record exists and points = 0, we'll delete.
      */
     private function writePlayerPointsStat(
         User $user,
@@ -101,8 +102,12 @@ class UpdatePlayerPointsStatsAction
         $existingPlayerStat = PlayerStat::where($attributes)->first();
 
         if ($existingPlayerStat) {
-            $existingPlayerStat->value = $points;
-            $existingPlayerStat->save();
+            if ($points === 0) {
+                $existingPlayerStat->delete();
+            } else {
+                $existingPlayerStat->value = $points;
+                $existingPlayerStat->save();
+            }
         } elseif ($points !== 0) {
             PlayerStat::create(array_merge($attributes, ['value' => $points]));
         }
