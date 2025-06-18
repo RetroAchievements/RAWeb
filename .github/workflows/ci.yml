@@ -35,30 +35,6 @@ jobs:
               - 'tailwind.config.json'
               - 'lang/**/*.json'
 
-  php-setup:
-    needs: changes
-    runs-on: ubuntu-22.04
-    name: PHP Setup
-    steps:
-      - name: Checkout code
-        if: ${{ needs.changes.outputs.php == 'true' }}
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup PHP
-        if: ${{ needs.changes.outputs.php == 'true' }}
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.2
-          extensions: mbstring, :psr
-          tools: composer:v2
-          coverage: none
-
-      - name: Install
-        if: ${{ needs.changes.outputs.php == 'true' }}
-        run: composer install --prefer-dist
-
   node-setup:
     needs: changes
     runs-on: ubuntu-22.04
@@ -83,7 +59,8 @@ jobs:
           node-version: '20'
 
   php-checks:
-    needs: [changes, php-setup]
+    needs: changes
+    if: ${{ needs.changes.outputs.php == 'true' }}
     runs-on: ubuntu-22.04
     name: PHP Checks
     strategy:
