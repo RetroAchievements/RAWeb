@@ -931,6 +931,8 @@
     "Missable": "Missable",
     "In game:": "In game:",
     "Recently played:": "Recently played:",
+    "metaOtherName_other": "Other Names",
+    "metaOtherName_one": "Other Name",
     "metaDeveloper_other": "Developers",
     "metaDeveloper_one": "Developer",
     "metaPublisher_other": "Publishers",

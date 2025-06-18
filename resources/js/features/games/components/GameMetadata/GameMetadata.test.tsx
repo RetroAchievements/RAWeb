@@ -277,4 +277,23 @@ describe('Component: GameMetadata', () => {
 
     expect(screen.queryByRole('button', { name: /see more/i })).not.toBeInTheDocument();
   });
+
+  it('given the game has unique non-canonical titles, displays a row for them', () => {
+    // ARRANGE
+    const releases = [
+      createGameRelease({ title: 'Final Fantasy VII', isCanonicalGameTitle: true }),
+      createGameRelease({ title: 'FF7', isCanonicalGameTitle: false }),
+    ];
+
+    render(
+      <GameMetadata
+        allMetaRowElements={createMockMetaRowElements() as any}
+        game={createGame({ releases })}
+        hubs={[]}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/other name/i)).toBeVisible();
+  });
 });
