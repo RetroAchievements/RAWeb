@@ -39,8 +39,6 @@ jobs:
     needs: changes
     runs-on: ubuntu-22.04
     name: PHP Setup
-    outputs:
-      cache-key: ${{ steps.cache-key.outputs.value }}
     steps:
       - name: Checkout code
         if: ${{ needs.changes.outputs.php == 'true' }}
@@ -57,25 +55,8 @@ jobs:
           tools: composer:v2
           coverage: none
 
-      - name: Generate a cache key
-        if: ${{ needs.changes.outputs.php == 'true' }}
-        id: cache-key
-        run: echo "value=${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}" >> $GITHUB_OUTPUT
-
-      - name: Cache composer packages
-        if: ${{ needs.changes.outputs.php == 'true' }}
-        id: composer-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.composer/cache
-            vendor
-          key: ${{ steps.cache-key.outputs.value }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-            
       - name: Install
-        if: ${{ needs.changes.outputs.php == 'true' && steps.composer-cache.outputs.cache-hit != 'true' }}
+        if: ${{ needs.changes.outputs.php == 'true' }}
         run: composer install --prefer-dist
 
   node-setup:
@@ -135,16 +116,9 @@ jobs:
           coverage: none
           ini-values: memory_limit=1G
 
-      - name: Load composer packages
+      - name: Install composer packages
         if: ${{ needs.changes.outputs.php == 'true' }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.composer/cache
-            vendor
-          key: ${{ needs.php-setup.outputs.cache-key }}
-          restore-keys: |
-            ${{ runner.os }}-php-
+        run: composer install --prefer-dist
 
       - name: Restore PHPStan result cache
         if: ${{ needs.changes.outputs.php == 'true' && matrix.check == 'analyse' }}
