@@ -878,10 +878,9 @@ declare namespace App.Platform.Data {
   export type SeriesHub = {
     hub: App.Platform.Data.GameSet;
     totalGameCount: number;
+    gamesWithAchievementsCount: number;
     achievementsPublished: number;
     pointsTotal: number;
-    topGames: Array<App.Platform.Data.Game>;
-    additionalGameCount: number;
   };
   export type System = {
     id: number;

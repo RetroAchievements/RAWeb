@@ -992,5 +992,5 @@
     "region_na": "North America",
     "region_ww": "Worldwide",
     "Series": "Series",
-    "+{{val, number}}": "+{{val, number}}"
+    "({{val, number}} with achievements)": "({{val, number}} with achievements)"
 }

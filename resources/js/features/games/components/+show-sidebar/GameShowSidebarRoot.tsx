@@ -44,7 +44,7 @@ export const GameShowSidebarRoot: FC = () => {
 
       <BaseSeparator className="mb-4" />
 
-      {seriesHub ? <SeriesHubDisplay game={game} seriesHub={seriesHub} /> : null}
+      {seriesHub ? <SeriesHubDisplay seriesHub={seriesHub} /> : null}
 
       <SimilarGamesList similarGames={similarGames} />
       <PlayableHubsList
