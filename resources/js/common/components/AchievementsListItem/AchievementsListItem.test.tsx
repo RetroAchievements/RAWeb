@@ -52,7 +52,7 @@ describe('Component: AchievementsListItem', () => {
 
   it('given an achievement with a game (probably an event achievement), displays the game title', async () => {
     // ARRANGE
-    const gameTitle = 'Super Adventure Game';
+    const gameTitle = 'SuperAdventureGame';
     const achievement = createAchievement({
       game: createGame({ title: gameTitle }),
     });
@@ -68,7 +68,7 @@ describe('Component: AchievementsListItem', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByText(/super adventure game/i)).toBeVisible();
+      expect(screen.getByText(/superadventuregame/i)).toBeVisible();
     });
   });
 
