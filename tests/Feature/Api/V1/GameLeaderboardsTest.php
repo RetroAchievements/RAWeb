@@ -195,6 +195,8 @@ class GameLeaderboardsTest extends TestCase
                             "Score" => $leaderboardEntryOne->score,
                             "FormattedScore" => ValueFormat::format($leaderboardEntryOne->score, $leaderboardOne->Format),
                         ],
+                        "Developer" => $leaderboardOne->developer->display_name,
+                        "DeveloperULID" => $leaderboardOne->developer->ulid,
                     ],
                     [
                         "ID" => $leaderboardTwo->ID,
@@ -208,6 +210,8 @@ class GameLeaderboardsTest extends TestCase
                             "Score" => $leaderboardEntryTwo->score,
                             "FormattedScore" => ValueFormat::format($leaderboardEntryTwo->score, $leaderboardTwo->Format),
                         ],
+                        "Developer" => $leaderboardTwo->developer->display_name,
+                        "DeveloperULID" => $leaderboardTwo->developer->ulid,
                     ],
                     [
                         "ID" => $leaderboardThree->ID,
@@ -221,6 +225,8 @@ class GameLeaderboardsTest extends TestCase
                             "Score" => $leaderboardEntryFour->score,
                             "FormattedScore" => ValueFormat::format($leaderboardEntryFour->score, $leaderboardThree->Format),
                         ],
+                        "Developer" => $leaderboardThree->developer->display_name,
+                        "DeveloperULID" => $leaderboardThree->developer->ulid,
                     ],
                     [
                         "ID" => $leaderboardFour->ID,
@@ -229,6 +235,8 @@ class GameLeaderboardsTest extends TestCase
                         "Description" => $leaderboardFour->Description,
                         "Format" => $leaderboardFour->Format,
                         "TopEntry" => [],
+                        "Developer" => $leaderboardFour->developer->display_name,
+                        "DeveloperULID" => $leaderboardFour->developer->ulid,
                     ],
                     [
                         "ID" => $leaderboardFive->ID,
@@ -242,6 +250,8 @@ class GameLeaderboardsTest extends TestCase
                             "Score" => $leaderboardEntrySix->score,
                             "FormattedScore" => ValueFormat::format($leaderboardEntrySix->score, $leaderboardFive->Format),
                         ],
+                        "Developer" => $leaderboardFive->developer->display_name,
+                        "DeveloperULID" => $leaderboardFive->developer->ulid,
                     ],
                 ],
             ]);
@@ -259,6 +269,8 @@ class GameLeaderboardsTest extends TestCase
                             "Description" => $leaderboardFour->Description,
                             "Format" => $leaderboardFour->Format,
                             "TopEntry" => [],
+                            "Developer" => $leaderboardFour->developer->display_name,
+                            "DeveloperULID" => $leaderboardFour->developer->ulid,
                         ],
                         [
                             "ID" => $leaderboardFive->ID,
@@ -272,6 +284,8 @@ class GameLeaderboardsTest extends TestCase
                                 "Score" => $leaderboardEntrySix->score,
                                 "FormattedScore" => ValueFormat::format($leaderboardEntrySix->score, $leaderboardFive->Format),
                             ],
+                            "Developer" => $leaderboardFive->developer->display_name,
+                            "DeveloperULID" => $leaderboardFive->developer->ulid,
                         ],
                     ],
                 ]);
@@ -294,6 +308,8 @@ class GameLeaderboardsTest extends TestCase
                                 "Score" => $leaderboardEntryOne->score,
                                 "FormattedScore" => ValueFormat::format($leaderboardEntryOne->score, $leaderboardOne->Format),
                             ],
+                            "Developer" => $leaderboardOne->developer->display_name,
+                            "DeveloperULID" => $leaderboardOne->developer->ulid,
                         ],
                         [
                             "ID" => $leaderboardTwo->ID,
@@ -307,6 +323,8 @@ class GameLeaderboardsTest extends TestCase
                                 "Score" => $leaderboardEntryTwo->score,
                                 "FormattedScore" => ValueFormat::format($leaderboardEntryTwo->score, $leaderboardTwo->Format),
                             ],
+                            "Developer" => $leaderboardTwo->developer->display_name,
+                            "DeveloperULID" => $leaderboardTwo->developer->ulid,
                         ],
                     ],
                 ]);
@@ -329,6 +347,8 @@ class GameLeaderboardsTest extends TestCase
                                 "Score" => $leaderboardEntryTwo->score,
                                 "FormattedScore" => ValueFormat::format($leaderboardEntryTwo->score, $leaderboardTwo->Format),
                             ],
+                            "Developer" => $leaderboardTwo->developer->display_name,
+                            "DeveloperULID" => $leaderboardTwo->developer->ulid,
                         ],
                         [
                             "ID" => $leaderboardThree->ID,
@@ -342,6 +362,8 @@ class GameLeaderboardsTest extends TestCase
                                 "Score" => $leaderboardEntryFour->score,
                                 "FormattedScore" => ValueFormat::format($leaderboardEntryFour->score, $leaderboardThree->Format),
                             ],
+                            "Developer" => $leaderboardThree->developer->display_name,
+                            "DeveloperULID" => $leaderboardThree->developer->ulid,
                         ],
                     ],
                 ]);
