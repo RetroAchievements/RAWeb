@@ -68,7 +68,7 @@ describe('Component: AchievementsListItem', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByText(/super/i)).toBeVisible();
+      expect(screen.getByText(/super adventure game/i)).toBeVisible();
     });
   });
 

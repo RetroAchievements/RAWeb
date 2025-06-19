@@ -64,10 +64,18 @@ export function useGameBacklogState({
       };
 
       if (shouldShowToasts) {
+        const gameTitle = game.title;
+        const addMessage =
+          userGameListType === 'play'
+            ? t('Added {{gameTitle}} to playlist!', { gameTitle })
+            : t('Added {{gameTitle}}!', { gameTitle });
+        const removeMessage =
+          userGameListType === 'play'
+            ? t('Removed {{gameTitle}} from playlist!', { gameTitle })
+            : t('Removed {{gameTitle}}!', { gameTitle });
+
         // Add the success message when toasts are enabled.
-        mutationOptions.t_successMessage = newBacklogState
-          ? t('Added {{gameTitle}} to playlist!', { gameTitle: game.title })
-          : t('Removed {{gameTitle}} from playlist!', { gameTitle: game.title });
+        mutationOptions.t_successMessage = newBacklogState ? addMessage : removeMessage;
 
         // Add the undo callback only when removing from backlog and toasts are enabled.
         if (!newBacklogState) {
