@@ -693,6 +693,8 @@ declare namespace App.Platform.Data {
     game: App.Platform.Data.Game;
     can: App.Data.UserPermissions;
     hubs: Array<App.Platform.Data.GameSet>;
+    isOnWantToDevList: boolean;
+    isOnWantToPlayList: boolean;
     isSubscribedToComments: boolean;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
@@ -944,7 +946,7 @@ declare namespace App.Platform.Enums {
     | 'as'
     | 'au'
     | 'br'
-    | 'cn'
+    | 'ch'
     | 'eu'
     | 'jp'
     | 'kr'
