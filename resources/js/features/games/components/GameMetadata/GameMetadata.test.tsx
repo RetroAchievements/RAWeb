@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
-import { createGame, createGameSet } from '@/test/factories';
+import { createGame, createGameRelease, createGameSet } from '@/test/factories';
 
 import { GameMetadata } from './GameMetadata';
 
@@ -63,11 +63,10 @@ describe('Component: GameMetadata', () => {
     expect(screen.queryByText(/setting 1/i)).not.toBeInTheDocument();
   });
 
-  it('given the game has a release date, shows it in the metadata', () => {
+  it('given the game has releases with dates, shows the releases row', () => {
     // ARRANGE
     const game = createGame({
-      releasedAt: '2023-01-01',
-      releasedAtGranularity: 'day',
+      releases: [createGameRelease(), createGameRelease()],
     });
 
     render(
@@ -79,7 +78,7 @@ describe('Component: GameMetadata', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/jan 1, 2023/i)).toBeVisible();
+    expect(screen.getByText(/release/i)).toBeVisible();
   });
 
   it('given the game has no release date, does not show the release date row', () => {

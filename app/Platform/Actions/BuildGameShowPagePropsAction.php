@@ -124,6 +124,7 @@ class BuildGameShowPagePropsAction
                 'publisher',
                 'releasedAt',
                 'releasedAtGranularity',
+                'releases',
                 'system.active',
                 'system.iconUrl',
                 'system.nameShort',
