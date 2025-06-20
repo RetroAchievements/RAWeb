@@ -74,9 +74,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->booted(function () {
             $schedule = $this->app->make(Schedule::class);
 
-            if (app()->environment() === 'production') {
-                $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
+            $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
 
+            if (app()->environment() === 'production') {
                 $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
                 $schedule->command(DeleteOverdueUserAccounts::class)->daily();
 
