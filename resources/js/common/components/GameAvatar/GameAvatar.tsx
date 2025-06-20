@@ -93,18 +93,22 @@ export const GameAvatar: FC<GameAvatarProps> = ({
         </>
       ) : null}
 
-      <div
-        className={cn(
-          variant === 'base' ? 'flex flex-col gap-0.5' : null,
-          variant === 'inline' ? 'inline-block' : null,
-        )}
-      >
-        {title && showLabel ? <GameTitle title={gameTitle} className={gameTitleClassName} /> : null}
+      {(title && showLabel) || (system && showSystemChip) ? (
+        <div
+          className={cn(
+            variant === 'base' ? 'flex flex-col gap-0.5' : null,
+            variant === 'inline' ? 'inline-block' : null,
+          )}
+        >
+          {title && showLabel ? (
+            <GameTitle title={gameTitle} className={gameTitleClassName} />
+          ) : null}
 
-        {system && showSystemChip ? (
-          <SystemChip {...system} className="text-text hover:text-text" />
-        ) : null}
-      </div>
+          {system && showSystemChip ? (
+            <SystemChip {...system} className="text-text hover:text-text" />
+          ) : null}
+        </div>
+      ) : null}
     </Wrapper>
   );
 };

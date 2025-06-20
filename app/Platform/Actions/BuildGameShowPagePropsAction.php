@@ -24,6 +24,7 @@ class BuildGameShowPagePropsAction
         protected BuildFollowedPlayerCompletionAction $buildFollowedPlayerCompletionAction,
         protected BuildGameAchievementDistributionAction $buildGameAchievementDistributionAction,
         protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
+        protected BuildSeriesHubDataAction $buildSeriesHubDataAction,
     ) {
     }
 
@@ -154,6 +155,7 @@ class BuildGameShowPagePropsAction
             playerGameProgressionAwards: $user
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($game->id, $user))
                 : null,
+            seriesHub: $this->buildSeriesHubDataAction->execute($game),
         );
     }
 }
