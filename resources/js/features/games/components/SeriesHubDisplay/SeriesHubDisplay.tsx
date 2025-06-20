@@ -56,11 +56,13 @@ export const SeriesHubDisplay: FC<SeriesHubDisplayProps> = ({ seriesHub }) => {
                 </span>
               </div>
 
-              <p className="text-2xs">
-                {t('({{val, number}} with achievements)', {
-                  val: seriesHub.gamesWithAchievementsCount,
-                })}
-              </p>
+              {seriesHub.totalGameCount !== seriesHub.gamesWithAchievementsCount ? (
+                <p className="text-2xs">
+                  {t('({{val, number}} with achievements)', {
+                    val: seriesHub.gamesWithAchievementsCount,
+                  })}
+                </p>
+              ) : null}
             </div>
           </div>
 
