@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 class BackfillPlaytimeTotal extends Command
 {
     protected $signature = 'ra:platform:player:backfill-playtime-total
-                            {count=750 : The number of playtime_total entries to backfill}';
+                            {count=1000 : The number of playtime_total entries to backfill}';
     protected $description = 'Find player_game records without a playtime_total and calculate it for them';
 
     public function handle(): void

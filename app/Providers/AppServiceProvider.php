@@ -74,13 +74,15 @@ class AppServiceProvider extends ServiceProvider
         $this->app->booted(function () {
             $schedule = $this->app->make(Schedule::class);
 
-            $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
+            if (app()->environment() === 'production') {
+                $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
 
-            $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
-            $schedule->command(DeleteOverdueUserAccounts::class)->daily();
+                $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
+                $schedule->command(DeleteOverdueUserAccounts::class)->daily();
 
-            $schedule->command(CacheMostPopularEmulators::class)->weeklyOn(4, '8:00'); // Thursdays, ~3:00AM US Eastern
-            $schedule->command(CacheMostPopularSystems::class)->weeklyOn(4, '8:30'); // Thursdays, ~3:30AM US Eastern
+                $schedule->command(CacheMostPopularEmulators::class)->weeklyOn(4, '8:00'); // Thursdays, ~3:00AM US Eastern
+                $schedule->command(CacheMostPopularSystems::class)->weeklyOn(4, '8:30'); // Thursdays, ~3:30AM US Eastern
+            }
         });
 
         Blade::if('hasfeature', function ($feature) {
