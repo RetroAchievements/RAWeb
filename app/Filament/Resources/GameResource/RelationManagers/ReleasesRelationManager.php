@@ -65,7 +65,15 @@ class ReleasesRelationManager extends RelationManager
                 Forms\Components\TextInput::make('title')
                     ->required()
                     ->maxLength(80)
-                    ->label('Title'),
+                    ->label('Title')
+                    ->rules([
+                        fn (Get $get) => function ($attribute, $value, $fail) use ($get) {
+                            // If this is not a canonical title and it has a tag prefix, fail validation.
+                            if (!$get('is_canonical_game_title') && preg_match('/^~[^~]+~/', $value)) {
+                                $fail('Only canonical titles can have tag prefixes like "Unlicensed" or "Homebrew".');
+                            }
+                        },
+                    ]),
 
                 Forms\Components\Toggle::make('is_canonical_game_title')
                     ->label('Is Canonical Title')
