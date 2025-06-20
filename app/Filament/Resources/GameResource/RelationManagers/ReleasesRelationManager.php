@@ -219,9 +219,19 @@ class ReleasesRelationManager extends RelationManager
                     ->mutateFormDataUsing(function (array $data) {
                         // If this is marked as canonical, unmark any other canonical titles.
                         if ($data['is_canonical_game_title'] ?? false) {
-                            GameRelease::where('game_id', $this->getOwnerRecord()->id)
+                            // Find existing canonical titles and remove their canonical status.
+                            $existingCanonical = GameRelease::where('game_id', $this->getOwnerRecord()->id)
                                 ->where('is_canonical_game_title', true)
-                                ->update(['is_canonical_game_title' => false]);
+                                ->get();
+
+                            foreach ($existingCanonical as $release) {
+                                // Strip any tag prefixes when removing the canonical status.
+                                $titleWithoutTag = preg_replace('/^~[^~]+~\s*/', '', $release->title);
+                                $release->update([
+                                    'is_canonical_game_title' => false,
+                                    'title' => $titleWithoutTag,
+                                ]);
+                            }
                         }
 
                         return $data;
@@ -244,10 +254,20 @@ class ReleasesRelationManager extends RelationManager
                     ->mutateFormDataUsing(function (array $data, GameRelease $record) {
                         // If this is now marked as canonical and wasn't before, unmark any other canonical titles.
                         if (($data['is_canonical_game_title'] ?? false) && !$record->is_canonical_game_title) {
-                            GameRelease::where('game_id', $this->getOwnerRecord()->id)
+                            // Find existing canonical titles and remove their canonical status.
+                            $existingCanonical = GameRelease::where('game_id', $this->getOwnerRecord()->id)
                                 ->where('id', '!=', $record->id)
                                 ->where('is_canonical_game_title', true)
-                                ->update(['is_canonical_game_title' => false]);
+                                ->get();
+
+                            foreach ($existingCanonical as $release) {
+                                // Strip any tag prefixes when removing the canonical status.
+                                $titleWithoutTag = preg_replace('/^~[^~]+~\s*/', '', $release->title);
+                                $release->update([
+                                    'is_canonical_game_title' => false,
+                                    'title' => $titleWithoutTag,
+                                ]);
+                            }
                         }
 
                         return $data;
