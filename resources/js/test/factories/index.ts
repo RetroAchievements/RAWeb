@@ -47,6 +47,7 @@ export * from './createRecentActiveForumTopic';
 export * from './createRecentLeaderboardEntry';
 export * from './createRecentPlayerBadge';
 export * from './createRecentUnlock';
+export * from './createSeriesHub';
 export * from './createSubscription';
 export * from './createSystem';
 export * from './createTicket';
