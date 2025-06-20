@@ -447,6 +447,12 @@
     "{{val, number}} Systems_other": "{{val, number}} Systems",
     "{{val, number}} games_one": "{{val, number}} game",
     "{{val, number}} games_other": "{{val, number}} games",
+    "<1>{{val, number}}</1> games_one": "<1>{{val, number}}</1> game",
+    "<1>{{val, number}}</1> games_other": "<1>{{val, number}}</1> games",
+    "<1>{{val, number}}</1> achievements_one": "<1>{{val, number}}</1> achievement",
+    "<1>{{val, number}}</1> achievements_other": "<1>{{val, number}}</1> achievements",
+    "<1>{{val, number}}</1> points_one": "<1>{{val, number}}</1> point",
+    "<1>{{val, number}}</1> points_other": "<1>{{val, number}}</1> points",
     "{{visible, number}} of {{total, number}} games_one": "{{visible, number}} of {{total, number}} game",
     "{{visible, number}} of {{total, number}} games_other": "{{visible, number}} of {{total, number}} games",
     "playerCount_one": "{{val, number}} player",
@@ -984,5 +990,7 @@
     "region_kr": "Korea",
     "region_nz": "New Zealand",
     "region_na": "North America",
-    "region_ww": "Worldwide"
+    "region_ww": "Worldwide",
+    "Series": "Series",
+    "({{val, number}} with achievements)": "({{val, number}} with achievements)"
 }

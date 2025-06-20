@@ -37,6 +37,7 @@ class GameShowPagePropsData extends Data
         public Collection $topAchievers,
         public ?PlayerGameData $playerGame,
         public ?PlayerGameProgressionAwardsData $playerGameProgressionAwards,
+        public ?SeriesHubData $seriesHub,
     ) {
     }
 }
