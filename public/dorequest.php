@@ -838,13 +838,31 @@ switch ($requestType) {
 
 $response['Success'] = (bool) $response['Success'];
 
+// Convert the response to a JSON string in order to calculate the exact Content-Length.
+// Cloudflare is manipulating the headers of dorequest.php responses, and some clients
+// are unable to gracefully handle this (ie: RetroArch 1.20.0 and below). By adding
+// explicit Content-Type, Content-Length, and Cache-Control headers, we inform Cloudflare
+// that these responses are immutable and should be passed straight through.
+$jsonContent = json_encode($response);
+$contentLength = (string) strlen($jsonContent);
+
 if (array_key_exists('Status', $response)) {
     $status = $response['Status'];
     if ($status === 401) {
-        return response()->json($response, $status)->header('WWW-Authenticate', 'Bearer');
+        return response($jsonContent, $status)
+            ->header('Content-Type', 'application/json')
+            ->header('Content-Length', $contentLength)
+            ->header('Cache-Control', 'no-transform, private, must-revalidate')
+            ->header('WWW-Authenticate', 'Bearer');
     }
 
-    return response()->json($response, $status);
+    return response($jsonContent, $status)
+        ->header('Content-Type', 'application/json')
+        ->header('Content-Length', $contentLength)
+        ->header('Cache-Control', 'no-transform, private, must-revalidate');
 }
 
-return response()->json($response);
+return response($jsonContent)
+    ->header('Content-Type', 'application/json')
+    ->header('Content-Length', $contentLength)
+    ->header('Cache-Control', 'no-transform, private, must-revalidate');
