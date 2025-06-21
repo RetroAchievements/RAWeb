@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Leaderboard;
+use App\Models\LeaderboardEntry;
 use App\Models\User;
 
 class RecalculateLeaderboardTopEntryAction
@@ -23,9 +24,11 @@ class RecalculateLeaderboardTopEntryAction
         // 1. If the user becomes untracked: we update leaderboards where they're currently on top.
         // 2. If the user becomes retracked: we update all leaderboards where they might need to now be on top.
         if ($user !== null) {
-            $leaderboards = Leaderboard::whereHas('entries', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })->get();
+            $leaderboardIds = LeaderboardEntry::where('user_id', $user->id)
+                ->pluck('leaderboard_id')
+                ->unique();
+
+            $leaderboards = Leaderboard::whereIn('id', $leaderboardIds)->get();
 
             foreach ($leaderboards as $leaderboard) {
                 $this->recalculateForLeaderboard($leaderboard);
