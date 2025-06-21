@@ -146,4 +146,22 @@ describe('Component: SidebarDevelopmentSection', () => {
       'false',
     );
   });
+
+  it('given the game already has achievements published, changes the button label to mention revisions instead', () => {
+    // ARRANGE
+    const game = createGame({ id: 123, title: 'Super Mario World', achievementsPublished: 80 });
+    const user = createAuthenticatedUser();
+    const pageProps = {
+      auth: { user },
+      game,
+      isOnWantToDevList: false,
+      ziggy: createZiggyProps(),
+    };
+
+    render(<SidebarDevelopmentSection />, { pageProps });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /want to develop/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /want to revise/i })).toBeVisible();
+  });
 });

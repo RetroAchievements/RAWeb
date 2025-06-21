@@ -28,7 +28,7 @@ export const SidebarDevelopmentSection: FC = () => {
       onClick={() => toggleWantToDevelop()}
       aria-pressed={isOnWantToDevList}
     >
-      {t('Want to Develop')}
+      {game.achievementsPublished ? t('Want to Revise') : t('Want to Develop')}
     </PlayableSidebarButton>
   );
 };
