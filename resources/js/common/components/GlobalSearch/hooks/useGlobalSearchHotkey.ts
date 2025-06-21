@@ -10,7 +10,7 @@ interface UseGlobalSearchHotkeyProps {
 export function useGlobalSearchHotkey({ onOpenChange }: UseGlobalSearchHotkeyProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.code === 'KeyK') {
         e.preventDefault();
         onOpenChange(true);
       }

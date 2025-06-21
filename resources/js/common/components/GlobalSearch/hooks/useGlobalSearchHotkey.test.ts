@@ -40,7 +40,7 @@ describe('Hook: useGlobalSearchHotkey', () => {
     // ACT
     act(() => {
       const event = new KeyboardEvent('keydown', {
-        key: 'k',
+        code: 'KeyK',
         metaKey: true,
       });
       document.dispatchEvent(event);
@@ -58,7 +58,7 @@ describe('Hook: useGlobalSearchHotkey', () => {
     // ACT
     act(() => {
       const event = new KeyboardEvent('keydown', {
-        key: 'k',
+        code: 'KeyK',
         ctrlKey: true,
       });
       document.dispatchEvent(event);
@@ -75,7 +75,7 @@ describe('Hook: useGlobalSearchHotkey', () => {
 
     // ACT
     const event = new KeyboardEvent('keydown', {
-      key: 'k',
+      code: 'KeyK',
       metaKey: true,
     });
     const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
@@ -96,7 +96,7 @@ describe('Hook: useGlobalSearchHotkey', () => {
     // ACT
     act(() => {
       const event = new KeyboardEvent('keydown', {
-        key: 'k',
+        code: 'KeyK',
       });
       document.dispatchEvent(event);
     });
@@ -113,7 +113,7 @@ describe('Hook: useGlobalSearchHotkey', () => {
     // ACT
     act(() => {
       const event = new KeyboardEvent('keydown', {
-        key: 'j',
+        code: 'KeyJ',
         metaKey: true,
       });
       document.dispatchEvent(event);
@@ -131,7 +131,7 @@ describe('Hook: useGlobalSearchHotkey', () => {
     // ACT
     act(() => {
       const event = new KeyboardEvent('keydown', {
-        key: 'k',
+        code: 'KeyK',
         metaKey: true,
         ctrlKey: true,
       });
