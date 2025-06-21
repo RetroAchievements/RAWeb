@@ -7,12 +7,8 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useGameBacklogState } from '@/features/game-list/components/GameListItems/useGameBacklogState';
 
 export const GameHeaderSlotContent: FC = () => {
-  const {
-    auth,
-    game,
-    isOnWantToDevList: isInitiallyOnWantToDevList,
-    isOnWantToPlayList: isInitiallyOnWantToPlayList,
-  } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { game, isOnWantToPlayList: isInitiallyOnWantToPlayList } =
+    usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
 
@@ -22,15 +18,6 @@ export const GameHeaderSlotContent: FC = () => {
       isInitiallyInBacklog: isInitiallyOnWantToPlayList,
       userGameListType: 'play',
     });
-
-  const { toggleBacklog: toggleWantToDevelop, isInBacklogMaybeOptimistic: isOnWantToDevList } =
-    useGameBacklogState({
-      game,
-      isInitiallyInBacklog: isInitiallyOnWantToDevList,
-      userGameListType: 'develop',
-    });
-
-  const isDeveloper = auth?.user.roles.includes('developer');
 
   return (
     <div className="flex items-center gap-2">
@@ -43,18 +30,6 @@ export const GameHeaderSlotContent: FC = () => {
         {isOnWantToPlayList ? <LuCheck className="size-4" /> : <LuPlus className="size-4" />}
         {t('Want to Play')}
       </BaseButton>
-
-      {isDeveloper ? (
-        <BaseButton
-          onClick={() => toggleWantToDevelop()}
-          className="flex items-center gap-1 rounded-full !py-0 !text-xs"
-          size="sm"
-          aria-pressed={isOnWantToDevList}
-        >
-          {isOnWantToDevList ? <LuCheck className="size-4" /> : <LuPlus className="size-4" />}
-          {t('Want to Develop')}
-        </BaseButton>
-      ) : null}
     </div>
   );
 };

@@ -48,7 +48,7 @@ describe('Component: GameHeaderSlotContent', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given the user is not authenticated, shows only the Want to Play button', () => {
+  it('given the user is not authenticated, still shows the Want to Play button', () => {
     // ARRANGE
     const game = createGame();
     const pageProps = {
@@ -63,45 +63,6 @@ describe('Component: GameHeaderSlotContent', () => {
 
     // ASSERT
     expect(screen.getByRole('button', { name: /want to play/i })).toBeVisible();
-    expect(screen.queryByRole('button', { name: /want to develop/i })).not.toBeInTheDocument();
-  });
-
-  it('given the user is authenticated but not a developer, shows only the Want to Play button', () => {
-    // ARRANGE
-    const game = createGame();
-    const user = createAuthenticatedUser({ roles: [] });
-    const pageProps = {
-      auth: { user },
-      game,
-      isOnWantToPlayList: false,
-      isOnWantToDevList: false,
-      ziggy: createZiggyProps(),
-    };
-
-    render(<GameHeaderSlotContent />, { pageProps });
-
-    // ASSERT
-    expect(screen.getByRole('button', { name: /want to play/i })).toBeVisible();
-    expect(screen.queryByRole('button', { name: /want to develop/i })).not.toBeInTheDocument();
-  });
-
-  it('given the user is authenticated and is a developer, shows both buttons', () => {
-    // ARRANGE
-    const game = createGame();
-    const user = createAuthenticatedUser({ roles: ['developer'] });
-    const pageProps = {
-      game,
-      auth: { user },
-      isOnWantToPlayList: false,
-      isOnWantToDevList: false,
-      ziggy: createZiggyProps(),
-    };
-
-    render(<GameHeaderSlotContent />, { pageProps });
-
-    // ASSERT
-    expect(screen.getByRole('button', { name: /want to play/i })).toBeVisible();
-    expect(screen.getByRole('button', { name: /want to develop/i })).toBeVisible();
   });
 
   it('given the game is not on the want to play list, the button indicates it is not pressed', () => {
@@ -236,76 +197,6 @@ describe('Component: GameHeaderSlotContent', () => {
 
     // ... the button should optimistically update to show the plus icon ...
     expect(screen.getByRole('button', { name: /want to play/i })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    );
-  });
-
-  it('given a developer clicks Want to Develop when the game is not in the list, adds it to the list', async () => {
-    // ARRANGE
-    const game = createGame({ id: 789, title: 'Mega Man' });
-    const user = createAuthenticatedUser({ roles: ['developer'] });
-    const pageProps = {
-      game,
-      auth: { user },
-      isOnWantToPlayList: false,
-      isOnWantToDevList: false,
-      ziggy: createZiggyProps(),
-    };
-
-    render(<GameHeaderSlotContent />, { pageProps });
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /want to develop/i }));
-
-    // ASSERT
-    await waitFor(() => {
-      expect(mockAddToGameList).toHaveBeenCalledWith(
-        789,
-        'Mega Man',
-        expect.objectContaining({
-          userGameListType: 'develop',
-        }),
-      );
-    });
-
-    // ... the button should optimistically update to show the check icon ...
-    expect(screen.getByRole('button', { name: /want to develop/i })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
-  });
-
-  it('given a developer clicks Want to Develop when the game is in the list, removes it from the list', async () => {
-    // ARRANGE
-    const game = createGame({ id: 999, title: 'Castlevania' });
-    const user = createAuthenticatedUser({ roles: ['developer'] });
-    const pageProps = {
-      game,
-      auth: { user },
-      isOnWantToPlayList: false,
-      isOnWantToDevList: true,
-      ziggy: createZiggyProps(),
-    };
-
-    render(<GameHeaderSlotContent />, { pageProps });
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /want to develop/i }));
-
-    // ASSERT
-    await waitFor(() => {
-      expect(mockRemoveFromGameList).toHaveBeenCalledWith(
-        999,
-        'Castlevania',
-        expect.objectContaining({
-          userGameListType: 'develop',
-        }),
-      );
-    });
-
-    // ... the button should optimistically update to show the plus icon ...
-    expect(screen.getByRole('button', { name: /want to develop/i })).toHaveAttribute(
       'aria-pressed',
       'false',
     );
