@@ -707,6 +707,7 @@ declare namespace App.Platform.Data {
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
+    seriesHub: App.Platform.Data.SeriesHub | null;
   };
   export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -875,6 +876,13 @@ declare namespace App.Platform.Data {
     ticketType: number;
     extra: string | null;
     can: App.Data.UserPermissions;
+  };
+  export type SeriesHub = {
+    hub: App.Platform.Data.GameSet;
+    totalGameCount: number;
+    gamesWithAchievementsCount: number;
+    achievementsPublished: number;
+    pointsTotal: number;
   };
   export type System = {
     id: number;
