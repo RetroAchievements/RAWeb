@@ -20,6 +20,8 @@
  *      string     ULID                     queryable stable unique identifier of the current leader
  *      int        Score                    raw value of current leader's score
  *      string     FormattedScore           formatted string value of current leader's score
+ *    string     Author                     user responsible for the leaderboard's trigger code
+ *    string     AuthorULID                 queryable stable unique identifier of the author
  */
 
 use App\Models\Game;
@@ -77,6 +79,8 @@ foreach ($leaderboards as $leaderboard) {
         'Description' => $leaderboard->Description,
         'Format' => $leaderboard->Format,
         'TopEntry' => $topEntry,
+        'Author' => $leaderboard->developer->display_name,
+        'AuthorULID' => $leaderboard->developer->ulid,
     ];
 }
 
