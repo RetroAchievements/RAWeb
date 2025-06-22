@@ -6,18 +6,16 @@ import { useAddToGameListMutation } from '@/common/hooks/mutations/useAddToGameL
 import { useRemoveFromGameListMutation } from '@/common/hooks/mutations/useRemoveFromGameListMutation';
 import type { TranslatedString } from '@/types/i18next';
 
-export function useWantToPlayGamesList() {
+export function useAddOrRemoveFromUserGameList() {
   const { t } = useTranslation();
 
   const queryClient = useQueryClient();
+  const addToGameListMutation = useAddToGameListMutation();
+  const removeFromGameListMutation = useRemoveFromGameListMutation();
 
-  const addToBacklogMutation = useAddToGameListMutation();
+  const isPending = addToGameListMutation.isPending || removeFromGameListMutation.isPending;
 
-  const removeFromBacklogMutation = useRemoveFromGameListMutation();
-
-  const isPending = addToBacklogMutation.isPending || removeFromBacklogMutation.isPending;
-
-  const addToWantToPlayGamesList = (
+  const addToGameList = (
     gameId: number,
     gameTitle: string,
     options?: Partial<{
@@ -25,9 +23,13 @@ export function useWantToPlayGamesList() {
       shouldEnableToast: boolean;
       shouldInvalidateCachedQueries?: boolean;
       t_successMessage?: TranslatedString;
+      userGameListType?: App.Community.Enums.UserGameListType;
     }>,
   ) => {
-    const mutationPromise = addToBacklogMutation.mutateAsync(gameId);
+    const mutationPromise = addToGameListMutation.mutateAsync({
+      gameId,
+      userGameListType: options?.userGameListType ?? 'play',
+    });
 
     if (options?.shouldInvalidateCachedQueries) {
       mutationPromise.then(() => {
@@ -53,17 +55,21 @@ export function useWantToPlayGamesList() {
     return mutationPromise;
   };
 
-  const removeFromWantToPlayGamesList = (
+  const removeFromGameList = (
     gameId: number,
     gameTitle: string,
     options?: Partial<{
       shouldEnableToast: boolean;
+      onUndo?: () => void;
       shouldInvalidateCachedQueries?: boolean;
       t_successMessage?: TranslatedString;
-      onUndo?: () => void;
+      userGameListType?: App.Community.Enums.UserGameListType;
     }>,
   ) => {
-    const mutationPromise = removeFromBacklogMutation.mutateAsync(gameId);
+    const mutationPromise = removeFromGameListMutation.mutateAsync({
+      gameId,
+      userGameListType: options?.userGameListType ?? 'play',
+    });
 
     if (options?.shouldInvalidateCachedQueries) {
       mutationPromise.then(() => {
@@ -79,7 +85,7 @@ export function useWantToPlayGamesList() {
           onClick: () => {
             options?.onUndo?.();
 
-            return addToWantToPlayGamesList(gameId, gameTitle, {
+            return addToGameList(gameId, gameTitle, {
               isUndo: true,
               shouldInvalidateCachedQueries: options?.shouldInvalidateCachedQueries,
             });
@@ -96,5 +102,5 @@ export function useWantToPlayGamesList() {
     return mutationPromise;
   };
 
-  return { addToWantToPlayGamesList, isPending, removeFromWantToPlayGamesList };
+  return { addToGameList, isPending, removeFromGameList };
 }
