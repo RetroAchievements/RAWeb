@@ -4,6 +4,7 @@ import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { GameShowMainRoot } from '@/features/games/components/+show';
 import { GameShowSidebarRoot } from '@/features/games/components/+show-sidebar';
+import { buildGameMetaDescription } from '@/features/games/utils/buildGameMetaDescription';
 import type { TranslatedString } from '@/types/i18next';
 
 const GameShow: AppPage = () => {
@@ -13,7 +14,11 @@ const GameShow: AppPage = () => {
 
   return (
     <>
-      <SEO title={title as TranslatedString} description="TODO" ogImage={game!.badgeUrl} />
+      <SEO
+        title={title as TranslatedString}
+        description={buildGameMetaDescription(game)}
+        ogImage={game!.badgeUrl}
+      />
 
       <AppLayout.Main>
         <GameShowMainRoot />
