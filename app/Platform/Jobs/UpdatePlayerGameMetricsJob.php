@@ -7,6 +7,7 @@ use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\UpdatePlayerGameMetricsAction;
 use App\Platform\Actions\UpdatePlayerMetricsAction;
+use App\Platform\Services\PlayerGameActivityService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -91,12 +92,19 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
                 })
                 ->exists();
 
-            // If they don't have any unlocks, we'll run a lightweight job just to calculate
-            // the player's playtime, and we'll skip processing all the heavy stuff.
+            // If they don't have any unlocks, we'll just update their playtime inline
+            // and skip processing all the heavy stuff.
             if (!$hasAnyUnlocks) {
-                // Always update playtime for players with no achievements.
-                dispatch(new UpdatePlayerGamePlaytimeJob($this->userId, $this->gameId))
-                    ->onQueue('player-game-metrics-batch');
+                // Update playtime inline to avoid dispatching another job
+                $activityService = new PlayerGameActivityService();
+                $activityService->initialize($playerGame->user, $playerGame->game);
+                $summary = $activityService->summarize();
+
+                // Only save if playtime actually changed.
+                if ($playerGame->playtime_total !== $summary['totalPlaytime']) {
+                    $playerGame->playtime_total = $summary['totalPlaytime'];
+                    $playerGame->save();
+                }
 
                 return;
             }
