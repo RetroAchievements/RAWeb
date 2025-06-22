@@ -76,6 +76,17 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
             return;
         }
 
+        // Skip processing if player has never unlocked any achievements.
+        if ($playerGame->achievements_unlocked === 0 && $playerGame->all_achievements_unlocked === 0) {
+            // Only update playtime if the player has some recorded.
+            if ($playerGame->playtime_total > 0) {
+                dispatch(new UpdatePlayerGamePlaytimeJob($this->userId, $this->gameId))
+                    ->onQueue('player-game-metrics-batch');
+            }
+
+            return;
+        }
+
         $isBatched = $this->batchId !== null;
 
         app()->make(UpdatePlayerGameMetricsAction::class)
