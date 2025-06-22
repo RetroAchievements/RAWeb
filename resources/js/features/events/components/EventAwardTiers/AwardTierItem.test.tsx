@@ -188,4 +188,20 @@ describe('Component: AwardTierItem', () => {
     expect(linkEl).toBeVisible();
     expect(linkEl).toHaveAttribute('href', expect.stringContaining('event.award-earners.index'));
   });
+
+  it('given an earned award with no earners, does not apply hover styles to checkmark', () => {
+    // ARRANGE
+    const event = createRaEvent();
+    const eventAward = createEventAward({
+      earnedAt: '2023-01-01',
+      badgeCount: 0,
+    });
+
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
+
+    // ASSERT
+    const checkmark = screen.getByTestId('award-earned-checkmark');
+    expect(checkmark).toBeVisible();
+    expect(checkmark).not.toHaveClass('group-hover:text-link-hover');
+  });
 });

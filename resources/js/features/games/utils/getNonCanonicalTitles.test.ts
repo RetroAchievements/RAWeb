@@ -118,4 +118,36 @@ describe('Util: getNonCanonicalTitles', () => {
     // ASSERT
     expect(result).toEqual(['FF7']);
   });
+
+  it('given releases with tag prefixes, strips tags and deduplicates properly', () => {
+    // ARRANGE
+    const releases = [
+      createGameRelease({
+        title: '~Unlicensed~ Digimon Ruby',
+        isCanonicalGameTitle: true, // !! canonical has tag prefix
+        releasedAt: '2023-01-01',
+      }),
+      createGameRelease({
+        title: 'Digimon Ruby',
+        isCanonicalGameTitle: false, // !! same title without tag
+        releasedAt: '2023-01-01',
+      }),
+      createGameRelease({
+        title: '~Prototype~ Digimon Ruby',
+        isCanonicalGameTitle: false, // !! different tag, same base title
+        releasedAt: '2023-01-01',
+      }),
+      createGameRelease({
+        title: 'Digimon Sapphire',
+        isCanonicalGameTitle: false, // !! different title
+        releasedAt: '2023-01-01',
+      }),
+    ];
+
+    // ACT
+    const result = getNonCanonicalTitles(releases);
+
+    // ASSERT
+    expect(result).toEqual(['Digimon Sapphire']); // !! only unique non-canonical title after stripping tags
+  });
 });
