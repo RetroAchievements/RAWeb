@@ -6,11 +6,12 @@ export function getNonCanonicalTitles(
   }
 
   const canonicalTitle = releases.find((r) => r.isCanonicalGameTitle)?.title;
+  const canonicalTitleWithoutTags = canonicalTitle?.replace(/^~[^~]+~\s*/, '');
 
   return releases
     .filter((r) => !r.isCanonicalGameTitle)
-    .map((r) => r.title)
-    .filter((title) => title !== canonicalTitle)
+    .map((r) => r.title.replace(/^~[^~]+~\s*/, ''))
+    .filter((title) => title !== canonicalTitle && title !== canonicalTitleWithoutTags)
     .filter((title, index, self) => self.indexOf(title) === index)
     .sort((a, b) => a.localeCompare(b));
 }
