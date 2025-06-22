@@ -19,17 +19,22 @@ use App\Enums\Permissions;
 $addToListType = UserGameListType::Play;
 $iconUrl = getSystemIconUrl($consoleId);
 
+// Strip tags from the canonical title for comparison.
+// "~Unlicensed~ Foo" -> "Foo".
+$canonicalTitleWithoutTags = preg_replace('/^~[^~]+~\s*/', '', $gameTitle);
+
 $alternateReleases = GameRelease::query()
     ->where('game_id', $gameId)
     ->where('is_canonical_game_title', false)
     ->orderBy('title')
     ->pluck('title')
     ->map(function($title) {
-        $tagIndex = strrpos($title, '~');
-        return $tagIndex ? trim(substr($title, $tagIndex + 1)) : $title;
+        // Remove tag prefix if present (eg: "~Unlicensed~ Foo" becomes "Foo").
+        return preg_replace('/^~[^~]+~\s*/', '', $title);
     })
-    ->filter(function($title) use ($gameTitle) {
-        return $title !== $gameTitle && !empty($title);
+    ->filter(function($title) use ($gameTitle, $canonicalTitleWithoutTags) {
+        // Filter out titles that match either the full canonical title or the canonical title without tags.
+        return $title !== $gameTitle && $title !== $canonicalTitleWithoutTags && !empty($title);
     })
     ->unique()
     ->values()
