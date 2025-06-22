@@ -4,14 +4,14 @@ import axios from 'axios';
 import i18n from '@/i18n-client';
 import { renderHook, screen, waitFor } from '@/test';
 
-import { useWantToPlayGamesList } from './useWantToPlayGamesList';
+import { useAddOrRemoveFromUserGameList } from './useAddOrRemoveFromUserGameList';
 
 window.HTMLElement.prototype.setPointerCapture = vi.fn();
 
-describe('Hook: useWantToPlayGamesList', () => {
+describe('Hook: useAddOrRemoveFromUserGameList', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { result } = renderHook(() => useWantToPlayGamesList());
+    const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ASSERT
     expect(result).toBeDefined();
@@ -19,22 +19,22 @@ describe('Hook: useWantToPlayGamesList', () => {
 
   it('exposes an add and remove function to the consumer, as well as a loading state', () => {
     // ARRANGE
-    const { result } = renderHook(() => useWantToPlayGamesList());
+    const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ASSERT
-    expect(result.current.addToWantToPlayGamesList).toBeDefined();
+    expect(result.current.addToGameList).toBeDefined();
     expect(result.current.isPending).toBeDefined();
-    expect(result.current.removeFromWantToPlayGamesList).toBeDefined();
+    expect(result.current.removeFromGameList).toBeDefined();
   });
 
   it("allows the consumer to make a call to add a game to the user's backlog", async () => {
     // ARRANGE
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
 
-    const { result } = renderHook(() => useWantToPlayGamesList());
+    const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    const response = await result.current.addToWantToPlayGamesList(1, 'Sonic the Hedgehog', {
+    const response = await result.current.addToGameList(1, 'Sonic the Hedgehog', {
       shouldEnableToast: true,
     });
 
@@ -50,10 +50,10 @@ describe('Hook: useWantToPlayGamesList', () => {
     // ARRANGE
     vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
 
-    const { result } = renderHook(() => useWantToPlayGamesList());
+    const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    await result.current.addToWantToPlayGamesList(1, 'Sonic the Hedgehog');
+    await result.current.addToGameList(1, 'Sonic the Hedgehog');
 
     // ASSERT
     await waitFor(() => {
@@ -65,10 +65,10 @@ describe('Hook: useWantToPlayGamesList', () => {
     // ARRANGE
     vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
 
-    const { result } = renderHook(() => useWantToPlayGamesList());
+    const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    await result.current.addToWantToPlayGamesList(1, 'Sonic the Hedgehog', { isUndo: true });
+    await result.current.addToGameList(1, 'Sonic the Hedgehog', { isUndo: true });
 
     // ASSERT
     await waitFor(() => {
@@ -80,10 +80,10 @@ describe('Hook: useWantToPlayGamesList', () => {
     // ARRANGE
     vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
 
-    const { result } = renderHook(() => useWantToPlayGamesList());
+    const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    await result.current.addToWantToPlayGamesList(1, 'Sonic the Hedgehog', {
+    await result.current.addToGameList(1, 'Sonic the Hedgehog', {
       t_successMessage: i18n.t('Added {{gameTitle}}!'),
     });
 
@@ -95,10 +95,10 @@ describe('Hook: useWantToPlayGamesList', () => {
     // ARRANGE
     const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
 
-    const { result } = renderHook(() => useWantToPlayGamesList());
+    const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    const response = await result.current.removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog', {
+    const response = await result.current.removeFromGameList(1, 'Sonic the Hedgehog', {
       shouldEnableToast: true,
     });
 
@@ -116,10 +116,10 @@ describe('Hook: useWantToPlayGamesList', () => {
     // ARRANGE
     vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
 
-    const { result } = renderHook(() => useWantToPlayGamesList());
+    const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    await result.current.removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog');
+    await result.current.removeFromGameList(1, 'Sonic the Hedgehog');
 
     // ASSERT
     await waitFor(() => {
@@ -133,10 +133,10 @@ describe('Hook: useWantToPlayGamesList', () => {
     // ARRANGE
     vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
 
-    const { result } = renderHook(() => useWantToPlayGamesList());
+    const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    await result.current.removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog', {
+    await result.current.removeFromGameList(1, 'Sonic the Hedgehog', {
       t_successMessage: i18n.t('Removed {{gameTitle}}!'),
     });
 
@@ -151,10 +151,10 @@ describe('Hook: useWantToPlayGamesList', () => {
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
     vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
 
-    const { result } = renderHook(() => useWantToPlayGamesList());
+    const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    await result.current.removeFromWantToPlayGamesList(1, 'Sonic the Hedgehog');
+    await result.current.removeFromGameList(1, 'Sonic the Hedgehog');
     await userEvent.click(await screen.findByRole('button', { name: /undo/i }));
 
     // ASSERT
