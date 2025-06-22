@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
+import { useAddOrRemoveFromUserGameList } from '@/common/hooks/useAddOrRemoveFromUserGameList';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { useWantToPlayGamesList } from '@/common/hooks/useWantToPlayGamesList';
 
 interface UseGameBacklogStateProps {
   game: App.Platform.Data.Game;
@@ -11,12 +11,14 @@ interface UseGameBacklogStateProps {
 
   shouldShowToasts?: boolean;
   shouldUpdateOptimistically?: boolean;
+  userGameListType?: App.Community.Enums.UserGameListType;
 }
 
 export function useGameBacklogState({
   game,
   isInitiallyInBacklog,
   shouldUpdateOptimistically = true,
+  userGameListType = 'play',
 }: UseGameBacklogStateProps) {
   const { auth } = usePageProps();
 
@@ -32,8 +34,7 @@ export function useGameBacklogState({
   const [isInBacklogMaybeOptimistic, setIsInBacklogMaybeOptimistic] =
     useState(isInitiallyInBacklog);
 
-  const { addToWantToPlayGamesList, removeFromWantToPlayGamesList, isPending } =
-    useWantToPlayGamesList();
+  const { addToGameList, removeFromGameList, isPending } = useAddOrRemoveFromUserGameList();
 
   // Keep state in sync with prop changes.
   useEffect(() => {
@@ -56,16 +57,25 @@ export function useGameBacklogState({
         setIsInBacklogMaybeOptimistic(newBacklogState);
       }
 
-      const mutationOptions: Parameters<typeof removeFromWantToPlayGamesList>[2] = {
+      const mutationOptions: Parameters<typeof removeFromGameList>[2] = {
+        userGameListType,
         shouldEnableToast: shouldShowToasts,
         shouldInvalidateCachedQueries: !shouldUpdateOptimistically,
       };
 
       if (shouldShowToasts) {
+        const gameTitle = game.title;
+        const addMessage =
+          userGameListType === 'play'
+            ? t('Added {{gameTitle}} to playlist!', { gameTitle })
+            : t('Added {{gameTitle}}!', { gameTitle });
+        const removeMessage =
+          userGameListType === 'play'
+            ? t('Removed {{gameTitle}} from playlist!', { gameTitle })
+            : t('Removed {{gameTitle}}!', { gameTitle });
+
         // Add the success message when toasts are enabled.
-        mutationOptions.t_successMessage = newBacklogState
-          ? t('Added {{gameTitle}} to playlist!', { gameTitle: game.title })
-          : t('Removed {{gameTitle}} from playlist!', { gameTitle: game.title });
+        mutationOptions.t_successMessage = newBacklogState ? addMessage : removeMessage;
 
         // Add the undo callback only when removing from backlog and toasts are enabled.
         if (!newBacklogState) {
@@ -75,9 +85,9 @@ export function useGameBacklogState({
 
       try {
         if (newBacklogState) {
-          await addToWantToPlayGamesList(game.id, game.title, mutationOptions);
+          await addToGameList(game.id, game.title, mutationOptions);
         } else {
-          await removeFromWantToPlayGamesList(game.id, game.title, mutationOptions);
+          await removeFromGameList(game.id, game.title, mutationOptions);
         }
 
         // If we aren't updating optimistically, then update after successful mutation.
@@ -92,14 +102,15 @@ export function useGameBacklogState({
       }
     },
     [
-      addToWantToPlayGamesList,
+      addToGameList,
       auth?.user,
       game.id,
       game.title,
       isInBacklogMaybeOptimistic,
-      removeFromWantToPlayGamesList,
+      removeFromGameList,
       shouldUpdateOptimistically,
       t,
+      userGameListType,
     ],
   );
 

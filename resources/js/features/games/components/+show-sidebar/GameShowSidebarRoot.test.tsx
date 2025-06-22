@@ -1,11 +1,12 @@
 import { faker } from '@faker-js/faker';
 
-import { render } from '@/test';
+import { render, screen } from '@/test';
 import {
   createAchievementSet,
   createGame,
   createGameAchievementSet,
   createGameSet,
+  createSeriesHub,
   createSystem,
 } from '@/test/factories';
 
@@ -41,5 +42,44 @@ describe('Component: GameShowSidebarRoot', () => {
 
     // ASSERT
     expect(container).toBeTruthy();
+  });
+
+  it('given the game has a series hub, renders the series hub component', () => {
+    // ARRANGE
+    const game = createGame();
+    const seriesHub = createSeriesHub();
+
+    render(<GameShowSidebarRoot />, {
+      pageProps: {
+        game,
+        seriesHub, // !!
+        can: {},
+        hubs: [],
+        playerAchievementChartBuckets: [],
+        topAchievers: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('heading', { name: /series/i }));
+  });
+
+  it('given the game does not have a series hub, does not render the series hub component', () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<GameShowSidebarRoot />, {
+      pageProps: {
+        game,
+        seriesHub: null, // !!
+        can: {},
+        hubs: [],
+        playerAchievementChartBuckets: [],
+        topAchievers: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('heading', { name: /series/i })).not.toBeInTheDocument();
   });
 });

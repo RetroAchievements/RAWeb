@@ -13,7 +13,9 @@ import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
 import { cn } from '@/common/utils/cn';
 
 import type { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
+import { getNonCanonicalTitles } from '../../utils/getNonCanonicalTitles';
 import { GameMetadataRow } from './GameMetadataRow';
+import { GameOtherNamesRow } from './GameOtherNamesRow';
 import { GameReleaseDatesRow } from './GameReleaseDatesRow';
 
 interface GameMetadataProps {
@@ -80,6 +82,7 @@ export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game, 
       !publisherRowElements.every((el) => el.label.includes('Hack -')));
 
   const gameReleasesWithDates = game.releases?.filter((r) => r.releasedAt);
+  const allNonCanonicalTitles = getNonCanonicalTitles(game.releases);
 
   return (
     <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
@@ -105,6 +108,10 @@ export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game, 
 
           {gameReleasesWithDates?.length ? (
             <GameReleaseDatesRow releases={gameReleasesWithDates} />
+          ) : null}
+
+          {allNonCanonicalTitles?.length ? (
+            <GameOtherNamesRow nonCanonicalTitles={allNonCanonicalTitles} />
           ) : null}
 
           <GameMetadataRow

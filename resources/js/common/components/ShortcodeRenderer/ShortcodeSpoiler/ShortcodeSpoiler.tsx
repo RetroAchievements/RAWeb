@@ -1,5 +1,3 @@
-import { AnimatePresence } from 'motion/react';
-import * as m from 'motion/react-m';
 import { type FC, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronDown } from 'react-icons/lu';
@@ -22,7 +20,7 @@ interface ShortcodeSpoilerProps {
 export const ShortcodeSpoiler: FC<ShortcodeSpoilerProps> = ({ children }) => {
   const { t } = useTranslation();
 
-  const { contentHeight, contentRef, isOpen, setIsOpen } = useAnimatedCollapse();
+  const { isOpen, setIsOpen } = useAnimatedCollapse();
 
   return (
     <BaseCollapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -42,26 +40,20 @@ export const ShortcodeSpoiler: FC<ShortcodeSpoilerProps> = ({ children }) => {
         </BaseButton>
       </BaseCollapsibleTrigger>
 
-      <AnimatePresence initial={false}>
-        {isOpen ? (
-          <BaseCollapsibleContent forceMount asChild>
-            <m.div
-              initial={{ height: 0 }}
-              animate={{ height: contentHeight }}
-              exit={{ height: 0 }}
-              transition={{
-                duration: 0.3,
-                ease: [0.4, 0, 0.2, 1], // Custom easing curve for natural motion.
-              }}
-              className="overflow-hidden"
-            >
-              <div ref={contentRef} className="rounded-b-lg rounded-tr-lg bg-embed px-3 py-2">
-                {stripLeadingWhitespaceFromChildren(children)}
-              </div>
-            </m.div>
-          </BaseCollapsibleContent>
-        ) : null}
-      </AnimatePresence>
+      <BaseCollapsibleContent forceMount>
+        <div
+          className={cn(
+            'grid transition-[grid-template-rows] duration-300 ease-in-out',
+            isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="rounded-b-lg rounded-tr-lg bg-embed px-3 py-2">
+              {stripLeadingWhitespaceFromChildren(children)}
+            </div>
+          </div>
+        </div>
+      </BaseCollapsibleContent>
     </BaseCollapsible>
   );
 };
