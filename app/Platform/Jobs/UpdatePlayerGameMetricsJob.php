@@ -76,18 +76,31 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
             return;
         }
 
-        // Skip processing if player has never unlocked any achievements.
-        if ($playerGame->achievements_unlocked === 0 && $playerGame->all_achievements_unlocked === 0) {
-            // Only update playtime if the player has some recorded.
-            if ($playerGame->playtime_total > 0) {
+        $isBatched = $this->batchId !== null;
+
+        // We might be able to skip a significant amount of processing if this is part of a
+        // batch job and the player has never unlocked any achievements. To confirm, we need to
+        // check for actual unlocks, not just the denormalized counts, because unofficial
+        // achievements don't count towards achievements_unlocked until they're promoted.
+        if ($isBatched && $playerGame->achievements_unlocked === 0 && $playerGame->all_achievements_unlocked === 0) {
+            // Double-check if the player has ANY unlocks for this game (including unofficial).
+            // If they do have any unlocks, we'll run a full metrics update.
+            $hasAnyUnlocks = $playerGame->user->playerAchievements()
+                ->whereHas('achievement', function ($query) {
+                    $query->where('GameID', $this->gameId);
+                })
+                ->exists();
+
+            // If they don't have any unlocks, we'll run a lightweight job just to calculate
+            // the player's playtime, and we'll skip processing all the heavy stuff.
+            if (!$hasAnyUnlocks) {
+                // Always update playtime for players with no achievements.
                 dispatch(new UpdatePlayerGamePlaytimeJob($this->userId, $this->gameId))
                     ->onQueue('player-game-metrics-batch');
+
+                return;
             }
-
-            return;
         }
-
-        $isBatched = $this->batchId !== null;
 
         app()->make(UpdatePlayerGameMetricsAction::class)
             ->execute($playerGame, silent: $isBatched);
