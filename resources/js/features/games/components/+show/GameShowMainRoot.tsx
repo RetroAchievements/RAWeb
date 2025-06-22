@@ -8,6 +8,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { GameAchievementSetsContainer } from '../GameAchievementSetsContainer';
 import { GameCommentList } from '../GameCommentList';
+import { GameHeaderSlotContent } from '../GameHeaderSlotContent';
 
 export const GameShowMainRoot: FC = () => {
   const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
@@ -24,7 +25,9 @@ export const GameShowMainRoot: FC = () => {
         systemIconUrl={game.system.iconUrl}
         systemLabel={game.system.name}
         title={game.title}
-      />
+      >
+        <GameHeaderSlotContent />
+      </PlayableHeader>
 
       <div className="mt-2 hidden sm:block">
         <PlayableMainMedia
