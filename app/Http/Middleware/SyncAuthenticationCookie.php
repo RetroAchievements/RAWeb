@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Synchronizes an 'authenticated' cookie with Laravel's session authentication state.
+ * Synchronizes an 'retroachievements_authenticated' cookie with Laravel's session authentication state.
  *
  * This middleware facilitates Cloudflare edge caching for unauthenticated users by providing
  * a lightweight cookie that Cloudflare can check for presence/absence. If the cookie is
@@ -22,9 +22,9 @@ use Symfony\Component\HttpFoundation\Response;
  * - We need a simple boolean indicator that Cloudflare rules can check which is readable before render-time.
  *
  * How it works:
- * - Authenticated users get an 'authenticated=1' cookie.
- * - Unauthenticated users have no 'authenticated' cookie.
- * - Cloudflare caches pages when 'authenticated' cookie is absent.
+ * - Authenticated users get an 'retroachievements_authenticated=1' cookie.
+ * - Unauthenticated users have no 'retroachievements_authenticated' cookie.
+ * - Cloudflare caches pages when 'retroachievements_authenticated' cookie is absent.
  */
 class SyncAuthenticationCookie
 {
@@ -36,7 +36,7 @@ class SyncAuthenticationCookie
             // User is authenticated, so set the 'authenticated' cookie.
             $response->withCookie(
                 cookie(
-                    'authenticated',
+                    'retroachievements_authenticated',
                     '1',
                     config('session.lifetime'),
                     config('session.path'),
@@ -49,9 +49,9 @@ class SyncAuthenticationCookie
             );
         } else {
             // User is not authenticated, so remove the 'authenticated' cookie if it exists.
-            if ($request->hasCookie('authenticated')) {
+            if ($request->hasCookie('retroachievements_authenticated')) {
                 $response->withCookie(
-                    cookie()->forget('authenticated', config('session.path'), config('session.domain'))
+                    cookie()->forget('retroachievements_authenticated', config('session.path'), config('session.domain'))
                 );
             }
         }
