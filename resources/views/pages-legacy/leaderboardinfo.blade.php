@@ -4,6 +4,7 @@ use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Leaderboard;
 use App\Models\User;
+use App\Platform\Actions\GetRankedLeaderboardEntriesAction;
 use App\Platform\Enums\ValueFormat;
 use App\Platform\Services\TriggerDecoderService;
 use Illuminate\Support\Facades\Blade;
@@ -28,9 +29,9 @@ if (!$leaderboard) {
 }
 
 $userModel = Auth::user();
-$lbData = GetLeaderboardData($leaderboard, $userModel, $count, $offset);
+$lbEntries = (new GetRankedLeaderboardEntriesAction())->execute($leaderboard, $offset, $count);
 
-$numEntries = is_countable($lbData['Entries']) ? count($lbData['Entries']) : 0;
+$numEntries = count($lbEntries);
 $totalEntries = $leaderboard->entries()->count();
 $lbTitle = $leaderboard->title;
 $lbDescription = $leaderboard->description;
@@ -123,7 +124,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
 
             echo "<li>Manage Entries</li>";
             echo "<div>";
-            if (!empty($lbData['Entries'])) {
+            if (!empty($lbEntries)) {
                 echo "<tr><td>";
                 echo "<form method='post' action='/request/leaderboard/remove-entry.php' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard entry?\")'>";
                 echo csrf_field();
@@ -131,15 +132,17 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
                 echo "Remove Entry:";
                 echo "<select name='user'>";
                 echo "<option selected>-</option>";
-                foreach ($lbData['Entries'] as $nextLBEntry) {
+                foreach ($lbEntries as $nextLBEntry) {
                     // Display all entries for devs, display only own entry for jr. devs
                     // TODO use a policy
-                    if (($user == $nextLBEntry['User'] && $permissions == Permissions::JuniorDeveloper) || $permissions >= Permissions::Developer) {
-                        $nextUser = $nextLBEntry['User'];
-                        $nextScore = $nextLBEntry['Score'];
-                        $nextScoreFormatted = ValueFormat::format($nextScore, $lbFormat);
-                        echo "<option value='$nextUser'>$nextUser ($nextScoreFormatted)</option>";
+                    if ($permissions === Permissions::JuniorDeveloper && !$nextLBEntry->user->is($userModel)) {
+                        continue;
                     }
+
+                    $nextUser = $nextLBEntry->user->display_name;
+                    $nextScore = $nextLBEntry->score;
+                    $nextScoreFormatted = ValueFormat::format($nextScore, $lbFormat);
+                    echo "<option value='$nextUser'>$nextUser ($nextScoreFormatted)</option>";
                 }
                 echo "</select>";
                 echo "</br>";
@@ -204,30 +207,19 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
         echo "<table class='table-highlight'><tbody>";
         echo "<tr class='do-not-highlight'><th>Rank</th><th>User</th><th class='text-right'>Result</th><th class='text-right'>Date Submitted</th></tr>";
 
-        $numActualEntries = 0;
         $localUserFound = false;
         $resultsDrawn = 0;
         $nextRank = 1;
 
-        foreach ($lbData['Entries'] as $nextEntry) {
-            $nextUser = $nextEntry['User'];
-            $nextScore = $nextEntry['Score'];
-            $nextRank = $nextEntry['Rank'];
+        foreach ($lbEntries as $nextEntry) {
+            $nextUser = $nextEntry->user->display_name;
+            $nextScore = $nextEntry->score;
+            $nextRank = $nextEntry->rank;
             $nextScoreFormatted = ValueFormat::format($nextScore, $lbFormat);
-            $nextSubmitAt = $nextEntry['DateSubmitted'];
+            $nextSubmitAt = $nextEntry->updated_at->unix();
             $nextSubmitAtNice = getNiceDate($nextSubmitAt);
 
-            $isLocal = $nextUser === $userModel?->display_name;
-            $lastEntry = ($resultsDrawn + 1 == $numEntries);
-            $userAppendedInResults = ($numEntries > $count);
-
-            if ($lastEntry && $isLocal && $userAppendedInResults) {
-                // This is the local, outside-rank user at the end of the table
-                echo "<tr class='last'><td colspan='4' class='small'>&nbsp;</td></tr>"; // Dirty!
-            } else {
-                $numActualEntries++;
-            }
-
+            $isLocal = $nextEntry->user->is($userModel);
             if ($isLocal) {
                 $localUserFound = true;
                 echo "<tr style='outline: thin solid'>";
@@ -253,6 +245,35 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
             $resultsDrawn++;
         }
 
+        if (!$localUserFound && isset($user)) {
+            $userEntry = $leaderboard->entries(includeUnrankedUsers: true)
+                ->where('user_id', '=', $userModel->id)
+                ->first();
+            if ($userEntry) {
+                $userRank = $leaderboard->getRank($userEntry->score);
+                if (!$userModel->isRanked()) {
+                    $userRank = "($userRank)";
+                }
+
+                $userScoreFormatted = ValueFormat::format($userEntry->score, $lbFormat);
+                $userSubmitAtNice = getNiceDate($userEntry->updated_at->unix());
+
+                // This is the local, outside-rank user at the end of the table
+                echo "<tr class='last'><td colspan='4' class='small'>&nbsp;</td></tr>"; // Dirty!
+                
+                echo "<tr style='outline: thin solid'>";
+                echo "<td class='lb_rank'><b>$userRank</b></td>";
+                echo "<td class='lb_user'>";
+                echo userAvatar($userModel);
+                echo "</td>";
+                echo "<td class='lb_result text-right'><b>$userScoreFormatted</b></td>";
+                echo "<td class='lb_date text-right smalldate'><b>$userSubmitAtNice</b></td>";
+                echo "</tr>";
+
+                $localUserFound = true;
+            }
+        }
+
         echo "</tbody></table><br>";
 
         if (!$localUserFound && isset($user)) {
@@ -265,7 +286,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
             echo "<a class='btn btn-link' href='/leaderboardinfo.php?i=$lbID&amp;o=$prevOffset&amp;c=$count&amp;f=$friendsOnly'>&lt; Previous $count</a> - ";
         }
 
-        if ($numActualEntries == $count) {
+        if ($totalEntries > $count) {
             // Max number fetched, i.e. there are more. Can goto next 20.
             $nextOffset = $offset + $count;
             echo "<a class='btn btn-link' href='/leaderboardinfo.php?i=$lbID&amp;o=$nextOffset&amp;c=$count&amp;f=$friendsOnly'>Next $count &gt;</a>";
