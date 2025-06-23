@@ -35,49 +35,6 @@ jobs:
               - 'tailwind.config.json'
               - 'lang/**/*.json'
 
-  php-setup:
-    needs: changes
-    runs-on: ubuntu-22.04
-    name: PHP Setup
-    outputs:
-      cache-key: ${{ steps.cache-key.outputs.value }}
-    steps:
-      - name: Checkout code
-        if: ${{ needs.changes.outputs.php == 'true' }}
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup PHP
-        if: ${{ needs.changes.outputs.php == 'true' }}
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.2
-          extensions: mbstring, :psr
-          tools: composer:v2
-          coverage: none
-
-      - name: Generate a cache key
-        if: ${{ needs.changes.outputs.php == 'true' }}
-        id: cache-key
-        run: echo "value=${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}" >> $GITHUB_OUTPUT
-
-      - name: Cache composer packages
-        if: ${{ needs.changes.outputs.php == 'true' }}
-        id: composer-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.composer/cache
-            vendor
-          key: ${{ steps.cache-key.outputs.value }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-            
-      - name: Install
-        if: ${{ needs.changes.outputs.php == 'true' && steps.composer-cache.outputs.cache-hit != 'true' }}
-        run: composer install --prefer-dist
-
   node-setup:
     needs: changes
     runs-on: ubuntu-22.04
@@ -102,7 +59,7 @@ jobs:
           node-version: '20'
 
   php-checks:
-    needs: [changes, php-setup]
+    needs: changes
     runs-on: ubuntu-22.04
     name: PHP Checks
     strategy:
@@ -116,9 +73,11 @@ jobs:
           - check: test
             command: composer paratest -- --processes=$(nproc)
     steps:
-      - name: Check PHP changes
+      - name: Skip if no PHP changes
         if: ${{ needs.changes.outputs.php != 'true' }}
-        run: echo "No PHP changes; skipping checks" && exit 0
+        run: |
+          echo "No PHP changes detected - skipping ${{ matrix.check }}"
+          exit 0
 
       - name: Checkout code
         if: ${{ needs.changes.outputs.php == 'true' }}
@@ -135,16 +94,9 @@ jobs:
           coverage: none
           ini-values: memory_limit=1G
 
-      - name: Load composer packages
+      - name: Install composer packages
         if: ${{ needs.changes.outputs.php == 'true' }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.composer/cache
-            vendor
-          key: ${{ needs.php-setup.outputs.cache-key }}
-          restore-keys: |
-            ${{ runner.os }}-php-
+        run: composer install --prefer-dist
 
       - name: Restore PHPStan result cache
         if: ${{ needs.changes.outputs.php == 'true' && matrix.check == 'analyse' }}
@@ -179,9 +131,11 @@ jobs:
           - check: lint
             command: pnpm lint
     steps:
-      - name: Check Node changes
+      - name: Skip if no Node changes
         if: ${{ needs.changes.outputs.node != 'true' }}
-        run: echo "No Node changes; skipping checks" && exit 0
+        run: |
+          echo "No Node changes detected - skipping ${{ matrix.check }}"
+          exit 0
 
       - name: Checkout code
         if: ${{ needs.changes.outputs.node == 'true' }}
@@ -214,31 +168,41 @@ jobs:
     needs: [changes, node-setup]
     runs-on: ubuntu-22.04
     name: Node.js Checks (test)
-    if: ${{ needs.changes.outputs.node == 'true' }}
     strategy:
       matrix:
         shardIndex: [1, 2, 3, 4, 5]
         shardTotal: [5]
     steps:
+      - name: Skip if no Node changes
+        if: ${{ needs.changes.outputs.node != 'true' }}
+        run: |
+          echo "No Node changes detected - skipping tests (shard ${{ matrix.shardIndex }})"
+          exit 0
+
       - name: Checkout code
+        if: ${{ needs.changes.outputs.node == 'true' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
       - name: Install pnpm
+        if: ${{ needs.changes.outputs.node == 'true' }}
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
       - name: Use Node 20
+        if: ${{ needs.changes.outputs.node == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
+        if: ${{ needs.changes.outputs.node == 'true' }}
         run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Run tests with sharding
+        if: ${{ needs.changes.outputs.node == 'true' }}
         run: pnpm test:run --coverage --coverage.thresholds=false --reporter=blob --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         env:
           VITE_BUILD_PATH: dist
@@ -246,7 +210,7 @@ jobs:
           LARAVEL_BYPASS_ENV_CHECK: 1
 
       - name: Upload blob report
-        if: ${{ !cancelled() }}
+        if: ${{ needs.changes.outputs.node == 'true' && !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: blob-report-${{ matrix.shardIndex }}

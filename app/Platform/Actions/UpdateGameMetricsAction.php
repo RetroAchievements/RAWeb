@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Game;
+use App\Platform\Enums\AchievementType;
 use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Jobs\UpdateGamePlayerGamesJob;
 use Illuminate\Support\Facades\Log;
@@ -27,7 +28,16 @@ class UpdateGameMetricsAction
             $achievementSetVersionHashPayload = $game->achievements()->published()
                 ->orderBy('ID')
                 ->get($versionHashFields)
-                ->map(fn ($achievement) => implode('-', $achievement->only($versionHashFields)))
+                ->map(function ($achievement) use ($versionHashFields) {
+                    // Exclude missable type from hash calculation, but include progression and win_condition.
+                    // progression and win_condition affect beaten stats. missable is a convenience helper.
+                    $fieldsForHash = $achievement->only($versionHashFields);
+                    if ($fieldsForHash['type'] === AchievementType::Missable) {
+                        $fieldsForHash['type'] = null;
+                    }
+
+                    return implode('-', $fieldsForHash);
+                })
                 ->implode('-');
             $game->achievement_set_version_hash = hash('sha256', $achievementSetVersionHashPayload);
 

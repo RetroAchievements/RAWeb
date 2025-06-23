@@ -6,7 +6,10 @@ import { route } from 'ziggy-js';
 import { GameCreateForumTopicButton } from '@/common/components/GameCreateForumTopicButton';
 import { PlayableOfficialForumTopicButton } from '@/common/components/PlayableOfficialForumTopicButton';
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
+import { PlayableSidebarButtonsSection } from '@/common/components/PlayableSidebarButtonsSection';
 import { usePageProps } from '@/common/hooks/usePageProps';
+
+import { SidebarDevelopmentSection } from './SidebarDevelopmentSection';
 
 interface GameSidebarFullWidthButtonsProps {
   game: App.Platform.Data.Game;
@@ -22,6 +25,9 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
   const canShowExtras = !!auth?.user;
   const canShowManagement = can.manageGames;
 
+  const userRoles = auth?.user.roles ?? [];
+  const canShowDevelopment = userRoles.includes('developer'); // TODO || userRoles.includes('developer-junior')
+
   if (!canShowEssentialResources && !canShowExtras && !canShowManagement) {
     return null;
   }
@@ -29,11 +35,7 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
   return (
     <div className="flex flex-col gap-4">
       {canShowEssentialResources ? (
-        <div className="flex flex-col gap-1">
-          <p className="text-xs text-neutral-300 light:text-neutral-800">
-            {t('Essential Resources')}
-          </p>
-
+        <PlayableSidebarButtonsSection headingLabel={t('Essential Resources')}>
           {numCompatibleHashes > 0 ? (
             <PlayableSidebarButton
               className="border-l-4 border-l-link"
@@ -47,13 +49,11 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
           ) : null}
 
           <PlayableOfficialForumTopicButton game={game} />
-        </div>
+        </PlayableSidebarButtonsSection>
       ) : null}
 
       {canShowExtras ? (
-        <div className="flex flex-col gap-1">
-          <p className="text-xs text-neutral-300 light:text-neutral-800">{t('Extras')}</p>
-
+        <PlayableSidebarButtonsSection headingLabel={t('Extras')}>
           <PlayableSidebarButton
             href={route('game.suggestions.similar', { game: game.id })}
             isInertiaLink={true}
@@ -86,13 +86,11 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
               {t('Guide')}
             </PlayableSidebarButton>
           ) : null}
-        </div>
+        </PlayableSidebarButtonsSection>
       ) : null}
 
       {canShowManagement ? (
-        <div className="flex flex-col gap-1">
-          <p className="text-xs text-neutral-300 light:text-neutral-800">{t('Manage')}</p>
-
+        <PlayableSidebarButtonsSection headingLabel={t('Management')}>
           <PlayableSidebarButton href={`/manage/games/${game.id}`} IconComponent={LuWrench}>
             {t('Game Details')}
           </PlayableSidebarButton>
@@ -100,7 +98,13 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
           {!game?.forumTopicId && can.createGameForumTopic ? (
             <GameCreateForumTopicButton game={game} />
           ) : null}
-        </div>
+        </PlayableSidebarButtonsSection>
+      ) : null}
+
+      {canShowDevelopment ? (
+        <PlayableSidebarButtonsSection headingLabel={t('Development')}>
+          <SidebarDevelopmentSection />
+        </PlayableSidebarButtonsSection>
       ) : null}
     </div>
   );

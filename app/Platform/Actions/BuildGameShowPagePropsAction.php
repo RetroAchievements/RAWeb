@@ -6,11 +6,13 @@ namespace App\Platform\Actions;
 
 use App\Community\Data\CommentData;
 use App\Community\Enums\ArticleType;
+use App\Community\Enums\UserGameListType;
 use App\Data\UserPermissionsData;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Models\UserGameListEntry;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
 use App\Platform\Data\GameShowPagePropsData;
@@ -24,6 +26,7 @@ class BuildGameShowPagePropsAction
         protected BuildFollowedPlayerCompletionAction $buildFollowedPlayerCompletionAction,
         protected BuildGameAchievementDistributionAction $buildGameAchievementDistributionAction,
         protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
+        protected BuildSeriesHubDataAction $buildSeriesHubDataAction,
     ) {
     }
 
@@ -89,6 +92,8 @@ class BuildGameShowPagePropsAction
             ->values()
             ->all();
 
+        $initialUserGameListState = $this->getInitialUserGameListState($game, $user);
+
         return new GameShowPagePropsData(
             can: UserPermissionsData::fromUser($user, game: $game)->include(
                 'createGameComments',
@@ -141,6 +146,8 @@ class BuildGameShowPagePropsAction
             ))->values()->all(),
 
             hubs: $relatedHubs,
+            isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
+            isOnWantToPlayList: $initialUserGameListState['isOnWantToPlayList'],
             isSubscribedToComments: $user ? isUserSubscribedToArticleComments(ArticleType::Game, $game->id, $user->id) : false,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $game),
             playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($game, $user),
@@ -154,6 +161,31 @@ class BuildGameShowPagePropsAction
             playerGameProgressionAwards: $user
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($game->id, $user))
                 : null,
+            seriesHub: $this->buildSeriesHubDataAction->execute($game),
         );
+    }
+
+    /**
+     * TODO also support set requests
+     */
+    private function getInitialUserGameListState(Game $game, ?User $user): array
+    {
+        if (!$user) {
+            return [
+                'isOnWantToDevList' => false,
+                'isOnWantToPlayList' => false,
+            ];
+        }
+
+        $results = UserGameListEntry::where('user_id', $user->id)
+            ->where('GameID', $game->id)
+            ->get(['type'])
+            ->pluck('type')
+            ->toArray();
+
+        return [
+            'isOnWantToDevList' => in_array(UserGameListType::Develop, $results),
+            'isOnWantToPlayList' => in_array(UserGameListType::Play, $results),
+        ];
     }
 }
