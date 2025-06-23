@@ -28,8 +28,23 @@ if (!$leaderboard) {
     abort(404);
 }
 
-$userModel = Auth::user();
 $lbEntries = (new GetRankedLeaderboardEntriesAction())->execute($leaderboard, $offset, $count);
+$userEntry = null;
+$userModel = Auth::user();
+if ($userModel) {
+    $foundUserEntry = false;
+    foreach ($lbEntries as $entry) {
+        if ($entry->user->is($userModel)) {
+            $foundUserEntry = true;
+            break;
+        }
+    }
+    if (!$foundUserEntry) {
+        $userEntry = $leaderboard->entries(includeUnrankedUsers: true)
+            ->where('user_id', '=', $userModel->id)
+            ->first();
+    }
+}
 
 $numEntries = count($lbEntries);
 $totalEntries = $leaderboard->entries()->count();
@@ -144,6 +159,10 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
                     $nextScoreFormatted = ValueFormat::format($nextScore, $lbFormat);
                     echo "<option value='$nextUser'>$nextUser ($nextScoreFormatted)</option>";
                 }
+                if ($userEntry) { // extra entry for current user means they're not in the above list
+                    $userScoreFormatted = ValueFormat::format($userEntry->score, $lbFormat);
+                    echo "<option value='{$userModel->display_name}'>{$userModel->display_name} ($userScoreFormatted)</option>";
+                }
                 echo "</select>";
                 echo "</br>";
                 echo "Reason:";
@@ -245,33 +264,28 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
             $resultsDrawn++;
         }
 
-        if (!$localUserFound && isset($user)) {
-            $userEntry = $leaderboard->entries(includeUnrankedUsers: true)
-                ->where('user_id', '=', $userModel->id)
-                ->first();
-            if ($userEntry) {
-                $userRank = $leaderboard->getRank($userEntry->score);
-                if (!$userModel->isRanked()) {
-                    $userRank = "($userRank)";
-                }
-
-                $userScoreFormatted = ValueFormat::format($userEntry->score, $lbFormat);
-                $userSubmitAtNice = getNiceDate($userEntry->updated_at->unix());
-
-                // This is the local, outside-rank user at the end of the table
-                echo "<tr class='last'><td colspan='4' class='small'>&nbsp;</td></tr>"; // Dirty!
-                
-                echo "<tr style='outline: thin solid'>";
-                echo "<td class='lb_rank'><b>$userRank</b></td>";
-                echo "<td class='lb_user'>";
-                echo userAvatar($userModel);
-                echo "</td>";
-                echo "<td class='lb_result text-right'><b>$userScoreFormatted</b></td>";
-                echo "<td class='lb_date text-right smalldate'><b>$userSubmitAtNice</b></td>";
-                echo "</tr>";
-
-                $localUserFound = true;
+        if ($userEntry) { // extra entry for current user means they're not in the above list
+            $userRank = $leaderboard->getRank($userEntry->score);
+            if (!$userModel->isRanked()) {
+                $userRank = "($userRank)";
             }
+
+            $userScoreFormatted = ValueFormat::format($userEntry->score, $lbFormat);
+            $userSubmitAtNice = getNiceDate($userEntry->updated_at->unix());
+
+            // This is the local, outside-rank user at the end of the table
+            echo "<tr class='last'><td colspan='4' class='small'>&nbsp;</td></tr>"; // Dirty!
+
+            echo "<tr style='outline: thin solid'>";
+            echo "<td class='lb_rank'><b>$userRank</b></td>";
+            echo "<td class='lb_user'>";
+            echo userAvatar($userModel);
+            echo "</td>";
+            echo "<td class='lb_result text-right'><b>$userScoreFormatted</b></td>";
+            echo "<td class='lb_date text-right smalldate'><b>$userSubmitAtNice</b></td>";
+            echo "</tr>";
+
+            $localUserFound = true;
         }
 
         echo "</tbody></table><br>";
