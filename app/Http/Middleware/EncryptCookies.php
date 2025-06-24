@@ -29,5 +29,6 @@ class EncryptCookies extends Middleware
         'prefers_hidden_user_profile_stats',
         'prefers_seeing_saved_hidden_rows_when_reordering',
         'progression_status_widths_preference',
+        'retroachievements_authenticated',
     ];
 }
