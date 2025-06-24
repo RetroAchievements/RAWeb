@@ -62,7 +62,9 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
                 ->value('achievement_set_version_hash');
 
             if ($currentHash !== $this->expectedVersionHash) {
-                // Achievement set has changed, skip this outdated job.
+                // Achievement set has changed, cancel this batch.
+                $this->batch()?->cancel();
+
                 return;
             }
         }

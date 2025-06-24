@@ -26,16 +26,16 @@ abstract class BaseApiAction
 
     protected function buildResponse(array $result): JsonResponse
     {
-        if (array_key_exists('Status', $result)) {
-            $status = $result['Status'];
-            if ($status === 401) {
-                return response()->json($result, $status)->header('WWW-Authenticate', 'Bearer');
-            }
+        $status = $result['Status'] ?? 200;
+        $response = response()->json($result, $status);
 
-            return response()->json($result, $status);
+        $response->header('Content-Length', (string) strlen($response->getContent()));
+
+        if ($status === 401) {
+            $response->header('WWW-Authenticate', 'Bearer');
         }
 
-        return response()->json($result);
+        return $response;
     }
 
     protected function missingParameters(): array
@@ -75,6 +75,16 @@ abstract class BaseApiAction
             'Status' => 404,
             'Code' => 'not_found',
             'Error' => 'Unknown game.',
+        ];
+    }
+
+    protected function achievementNotFound(): array
+    {
+        return [
+            'Success' => false,
+            'Status' => 404,
+            'Code' => 'not_found',
+            'Error' => 'Unknown achievement.',
         ];
     }
 }
