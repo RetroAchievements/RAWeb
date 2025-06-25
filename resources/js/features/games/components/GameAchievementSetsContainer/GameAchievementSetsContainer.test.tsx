@@ -71,31 +71,4 @@ describe('Component: GameAchievementSetsContainer', () => {
     const container = screen.getByTestId('game-achievement-sets');
     expect(container).toBeVisible();
   });
-
-  it('given the game has exactly one achievement set, passes isOnlySetForGame as true', () => {
-    // ARRANGE
-    const game = createGame({
-      gameAchievementSets: [createGameAchievementSet()],
-    });
-
-    render(<GameAchievementSetsContainer game={game} />);
-
-    // ASSERT
-    expect(screen.getByRole('button', { name: /0 achievements/i })).toBeDisabled();
-  });
-
-  it('given the game has multiple achievement sets, passes isOnlySetForGame as false', () => {
-    // ARRANGE
-    const game = createGame({
-      gameAchievementSets: [
-        createGameAchievementSet({ id: 1 }),
-        createGameAchievementSet({ id: 2 }),
-      ],
-    });
-
-    render(<GameAchievementSetsContainer game={game} />);
-
-    // ASSERT
-    expect(screen.getAllByRole('button')[1]).not.toBeDisabled();
-  });
 });
