@@ -7,6 +7,7 @@ use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\UpdatePlayerGameMetricsAction;
 use App\Platform\Actions\UpdatePlayerMetricsAction;
+use App\Platform\Services\PlayerGameActivityService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -61,7 +62,9 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
                 ->value('achievement_set_version_hash');
 
             if ($currentHash !== $this->expectedVersionHash) {
-                // Achievement set has changed, skip this outdated job.
+                // Achievement set has changed, cancel this batch.
+                $this->batch()?->cancel();
+
                 return;
             }
         }
@@ -77,6 +80,37 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
         }
 
         $isBatched = $this->batchId !== null;
+
+        // We might be able to skip a significant amount of processing if this is part of a
+        // batch job and the player has never unlocked any achievements. To confirm, we need to
+        // check for actual unlocks, not just the denormalized counts, because unofficial
+        // achievements don't count towards achievements_unlocked until they're promoted.
+        if ($isBatched && $playerGame->achievements_unlocked === 0 && $playerGame->all_achievements_unlocked === 0) {
+            // Double-check if the player has ANY unlocks for this game (including unofficial).
+            // If they do have any unlocks, we'll run a full metrics update.
+            $hasAnyUnlocks = $playerGame->user->playerAchievements()
+                ->whereHas('achievement', function ($query) {
+                    $query->where('GameID', $this->gameId);
+                })
+                ->exists();
+
+            // If they don't have any unlocks, we'll just update their playtime inline
+            // and skip processing all the heavy stuff.
+            if (!$hasAnyUnlocks) {
+                // Update playtime inline to avoid dispatching another job
+                $activityService = new PlayerGameActivityService();
+                $activityService->initialize($playerGame->user, $playerGame->game);
+                $summary = $activityService->summarize();
+
+                // Only save if playtime actually changed.
+                if ($playerGame->playtime_total !== $summary['totalPlaytime']) {
+                    $playerGame->playtime_total = $summary['totalPlaytime'];
+                    $playerGame->save();
+                }
+
+                return;
+            }
+        }
 
         app()->make(UpdatePlayerGameMetricsAction::class)
             ->execute($playerGame, silent: $isBatched);

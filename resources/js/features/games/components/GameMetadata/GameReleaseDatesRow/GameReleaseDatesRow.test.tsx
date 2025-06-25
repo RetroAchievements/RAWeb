@@ -1,3 +1,4 @@
+import { BaseTable, BaseTableBody } from '@/common/components/+vendor/BaseTable';
 import { render, screen } from '@/test';
 import { createGameRelease } from '@/test/factories';
 
@@ -6,7 +7,13 @@ import { GameReleaseDatesRow } from './GameReleaseDatesRow';
 describe('Component: GameReleaseDatesRow', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<GameReleaseDatesRow releases={[]} />);
+    const { container } = render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameReleaseDatesRow releases={[]} />
+        </BaseTableBody>
+      </BaseTable>,
+    );
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -14,13 +21,21 @@ describe('Component: GameReleaseDatesRow', () => {
 
   it('given a single worldwide release, does not show the region code', () => {
     // ARRANGE
-    const release = createGameRelease({
-      region: 'worldwide',
-      releasedAt: '2023-01-15T00:00:00Z',
-      releasedAtGranularity: 'day',
-    });
+    const releases = [
+      createGameRelease({
+        region: 'worldwide',
+        releasedAt: '2023-01-15T00:00:00Z',
+        releasedAtGranularity: 'day',
+      }),
+    ];
 
-    render(<GameReleaseDatesRow releases={[release]} />);
+    render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameReleaseDatesRow releases={releases} />
+        </BaseTableBody>
+      </BaseTable>,
+    );
 
     // ASSERT
     expect(screen.getByText(/jan 15, 2023/i)).toBeVisible();
@@ -44,7 +59,13 @@ describe('Component: GameReleaseDatesRow', () => {
       }),
     ];
 
-    render(<GameReleaseDatesRow releases={releases} />);
+    render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameReleaseDatesRow releases={releases} />
+        </BaseTableBody>
+      </BaseTable>,
+    );
 
     // ASSERT
     expect(screen.getByText(/na/i)).toBeVisible();
@@ -76,7 +97,13 @@ describe('Component: GameReleaseDatesRow', () => {
       }),
     ];
 
-    render(<GameReleaseDatesRow releases={releases} />);
+    render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameReleaseDatesRow releases={releases} />
+        </BaseTableBody>
+      </BaseTable>,
+    );
 
     // ASSERT
     const wwElements = screen.getAllByText(/ww/i);
@@ -108,7 +135,13 @@ describe('Component: GameReleaseDatesRow', () => {
       }),
     ];
 
-    render(<GameReleaseDatesRow releases={releases} />);
+    render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameReleaseDatesRow releases={releases} />
+        </BaseTableBody>
+      </BaseTable>,
+    );
 
     // ASSERT
     // ... should only show the January release ...
@@ -141,7 +174,13 @@ describe('Component: GameReleaseDatesRow', () => {
       }),
     ];
 
-    render(<GameReleaseDatesRow releases={releases} />);
+    render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameReleaseDatesRow releases={releases} />
+        </BaseTableBody>
+      </BaseTable>,
+    );
 
     // ASSERT
     const allTextContent = screen.getByRole('cell', { name: /na.*jp.*eu/i });
@@ -167,7 +206,13 @@ describe('Component: GameReleaseDatesRow', () => {
       }),
     ];
 
-    render(<GameReleaseDatesRow releases={releases} />);
+    render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameReleaseDatesRow releases={releases} />
+        </BaseTableBody>
+      </BaseTable>,
+    );
 
     // ASSERT
     // ... both should show as January, with JP first due to month granularity normalization ...
@@ -180,13 +225,21 @@ describe('Component: GameReleaseDatesRow', () => {
 
   it('given releases with year granularity, displays only the year', () => {
     // ARRANGE
-    const release = createGameRelease({
-      region: 'jp',
-      releasedAt: '2023-06-15T00:00:00Z',
-      releasedAtGranularity: 'year',
-    });
+    const releases = [
+      createGameRelease({
+        region: 'jp',
+        releasedAt: '2023-06-15T00:00:00Z',
+        releasedAtGranularity: 'year',
+      }),
+    ];
 
-    render(<GameReleaseDatesRow releases={[release]} />);
+    render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameReleaseDatesRow releases={releases} />
+        </BaseTableBody>
+      </BaseTable>,
+    );
 
     // ASSERT
     expect(screen.getByText(/2023/)).toBeVisible();
@@ -218,7 +271,13 @@ describe('Component: GameReleaseDatesRow', () => {
       }),
     ];
 
-    render(<GameReleaseDatesRow releases={releases} />);
+    render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameReleaseDatesRow releases={releases} />
+        </BaseTableBody>
+      </BaseTable>,
+    );
 
     // ASSERT
     const cells = screen.getAllByRole('cell');
@@ -250,7 +309,13 @@ describe('Component: GameReleaseDatesRow', () => {
       }),
     ];
 
-    render(<GameReleaseDatesRow releases={releases} />);
+    render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameReleaseDatesRow releases={releases} />
+        </BaseTableBody>
+      </BaseTable>,
+    );
 
     // ASSERT
     expect(screen.getByText(/jan 1, 2023/i)).toBeVisible();
@@ -282,7 +347,13 @@ describe('Component: GameReleaseDatesRow', () => {
       }),
     ];
 
-    render(<GameReleaseDatesRow releases={releases} />);
+    render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameReleaseDatesRow releases={releases} />
+        </BaseTableBody>
+      </BaseTable>,
+    );
 
     // ASSERT
     const cells = screen.getAllByRole('cell');
