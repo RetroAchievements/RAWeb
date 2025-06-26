@@ -36,7 +36,7 @@ class HandleInertiaRequests extends Middleware
         $response = parent::handle($request, $next);
 
         /**
-         * We want to prevent browsers from caching Intertia's 409 version mismatch responses.
+         * We want to prevent browsers from caching Inertia's 409 version mismatch responses.
          *
          * When Inertia detects that the client's asset version doesn't match the server's
          * (after a deployment), it returns a 409 status code with an X-Inertia-Location header.
