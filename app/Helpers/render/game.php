@@ -312,15 +312,17 @@ function generateGameMetaDescription(
     int $gamePoints = 0,
     bool $isEventGame = false,
 ): string {
+    $decodedGameTitle = html_entity_decode(strip_tags($gameTitle), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
     if ($isEventGame) {
-        return "$gameTitle: An event at RetroAchievements. Check out the page for more details on this unique challenge.";
+        return "$decodedGameTitle: An event at RetroAchievements. Check out the page for more details on this unique challenge.";
     } elseif ($numAchievements === 0) {
-        return "No achievements have been created yet for $gameTitle. Join RetroAchievements to request achievements for $gameTitle and earn achievements on many other classic games.";
+        return "No achievements have been created yet for $decodedGameTitle. Join RetroAchievements to request achievements for $decodedGameTitle and earn achievements on many other classic games.";
     }
 
     $localizedPoints = localized_number($gamePoints);
 
-    return "There are $numAchievements achievements worth $localizedPoints points. $gameTitle for $consoleName - explore and compete on this classic game at RetroAchievements.";
+    return "There are $numAchievements achievements worth $localizedPoints points. $decodedGameTitle for $consoleName - explore and compete on this classic game at RetroAchievements.";
 }
 
 function generateEmptyBucketsWithBounds(int $numAchievements): array
