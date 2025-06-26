@@ -9,6 +9,7 @@ import {
 } from '@/common/components/+vendor/BaseTooltip';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 import { TooltipCreditRow } from '../TooltipCreditRow';
@@ -19,36 +20,27 @@ interface AchievementAuthorsDisplayProps {
 }
 
 export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({ authors }) => {
+  const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
+
+  const totalAchievements = game.achievementsPublished ?? 0;
+
   const containerClassNames = cn(
     'flex items-center rounded-md bg-neutral-800/70 py-1 pr-2',
     'light:bg-white light:border light:border-amber-300',
   );
 
-  // 4-6 authors - show avatar images and name labels for top 2, stack for the rest
-  if (authors.length >= 4 && authors.length <= 6) {
-    return (
-      <div className={containerClassNames}>
-        <TooltippedTrophyIcon authors={authors} />
+  // Calculate each author's contribution percentage.
+  const authorsWithPercentage = authors.map((author) => ({
+    ...author,
+    percentage: totalAchievements > 0 ? (author.count / totalAchievements) * 100 : 0,
+  }));
 
-        <div className="flex gap-2">
-          <UserAvatar size={20} imgClassName="select-none rounded-full bg-embed" {...authors[0]} />
-          <span className="text-neutral-700">{'•'}</span>
-          <UserAvatar size={20} imgClassName="select-none rounded-full bg-embed" {...authors[1]} />
-          <span className="text-neutral-700">{'•'}</span>
+  // Separate authors who contributed at least 33% from the rest.
+  const prominentAuthors = authorsWithPercentage.filter((author) => author.percentage >= 33);
+  const otherAuthors = authorsWithPercentage.filter((author) => author.percentage < 33);
 
-          <UserAvatarStack
-            users={[...authors.slice(2, authors.length)]}
-            maxVisible={999}
-            size={20}
-            isOverlappingAvatars={false}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // 7 or more authors, show a stack for all authors with the top 8 visible
-  if (authors.length >= 7) {
+  // If no prominent authors (all have < 33%), show them all in a stack.
+  if (prominentAuthors.length === 0) {
     return (
       <div className={containerClassNames}>
         <TooltippedTrophyIcon authors={authors} />
@@ -57,21 +49,30 @@ export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({ 
     );
   }
 
-  // 1-3 authors, show avatar images and name labels for all
+  // If we have prominent authors, show them with labels and stack the rest.
   return (
     <div className={containerClassNames}>
       <TooltippedTrophyIcon authors={authors} />
 
       <div className="flex gap-2">
-        {authors.map((author, authorIndex) => (
+        {prominentAuthors.map((author, authorIndex) => (
           <Fragment key={`ach-set-author-${author.displayName}`}>
             <UserAvatar size={20} imgClassName="select-none rounded-full bg-embed" {...author} />
 
-            {authorIndex !== authors.length - 1 ? (
+            {authorIndex !== prominentAuthors.length - 1 || otherAuthors.length > 0 ? (
               <span className="text-neutral-700">{'•'}</span>
             ) : null}
           </Fragment>
         ))}
+
+        {otherAuthors.length > 0 ? (
+          <UserAvatarStack
+            users={otherAuthors}
+            maxVisible={999}
+            size={20}
+            isOverlappingAvatars={false}
+          />
+        ) : null}
       </div>
     </div>
   );
