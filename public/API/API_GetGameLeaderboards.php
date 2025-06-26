@@ -79,8 +79,8 @@ foreach ($leaderboards as $leaderboard) {
         'Description' => $leaderboard->Description,
         'Format' => $leaderboard->Format,
         'TopEntry' => $topEntry,
-        'Author' => $leaderboard->developer->display_name,
-        'AuthorULID' => $leaderboard->developer->ulid,
+        'Author' => $leaderboard->developer?->display_name,
+        'AuthorULID' => $leaderboard->developer?->ulid,
     ];
 }
 
