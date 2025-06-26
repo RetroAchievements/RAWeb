@@ -44,12 +44,7 @@ class GetHashLibraryAction extends BaseApiAction
                 // replace empty array with empty object so json_encode sends {} to client
                 $hashes = new stdClass();
             } else {
-                return [
-                    'Success' => false,
-                    'Status' => 404,
-                    'Code' => 'not_found',
-                    'Error' => 'Unknown console.',
-                ];
+                return $this->resourceNotFound('console');
             }
         }
 
