@@ -29,8 +29,8 @@ export const ArtworkCreditsDisplay: FC<ArtworkCreditsDisplayProps> = ({
   return (
     <div
       className={cn(
-        'flex items-center rounded-md bg-purple-900/20 py-1 pr-2 text-purple-400',
-        'light:border light:border-purple-200 light:bg-white light:text-purple-600',
+        'flex items-center rounded-md bg-neutral-800/70 py-1 pr-2 text-neutral-400',
+        'light:border light:border-neutral-200 light:bg-white light:text-neutral-600',
       )}
     >
       <ArtCreditIcon
@@ -41,7 +41,7 @@ export const ArtworkCreditsDisplay: FC<ArtworkCreditsDisplayProps> = ({
       <UserAvatarStack
         users={artCreditUsers}
         maxVisible={5}
-        size={24}
+        size={20}
         isOverlappingAvatars={false}
       />
     </div>

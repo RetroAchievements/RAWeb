@@ -20,7 +20,7 @@ interface AchievementAuthorsDisplayProps {
 
 export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({ authors }) => {
   const containerClassNames = cn(
-    'flex items-center rounded-md bg-amber-900/20 py-1 pr-2',
+    'flex items-center rounded-md bg-neutral-800/70 py-1 pr-2',
     'light:bg-white light:border light:border-amber-300',
   );
 
@@ -31,15 +31,15 @@ export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({ 
         <TooltippedTrophyIcon authors={authors} />
 
         <div className="flex gap-2">
-          <UserAvatar size={24} imgClassName="select-none rounded-full bg-embed" {...authors[0]} />
+          <UserAvatar size={20} imgClassName="select-none rounded-full bg-embed" {...authors[0]} />
           <span className="text-neutral-700">{'•'}</span>
-          <UserAvatar size={24} imgClassName="select-none rounded-full bg-embed" {...authors[1]} />
+          <UserAvatar size={20} imgClassName="select-none rounded-full bg-embed" {...authors[1]} />
           <span className="text-neutral-700">{'•'}</span>
 
           <UserAvatarStack
             users={[...authors.slice(2, authors.length)]}
             maxVisible={999}
-            size={24}
+            size={20}
             isOverlappingAvatars={false}
           />
         </div>
@@ -52,7 +52,7 @@ export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({ 
     return (
       <div className={containerClassNames}>
         <TooltippedTrophyIcon authors={authors} />
-        <UserAvatarStack users={authors} maxVisible={999} size={24} isOverlappingAvatars={false} />
+        <UserAvatarStack users={authors} maxVisible={999} size={20} isOverlappingAvatars={false} />
       </div>
     );
   }
@@ -65,7 +65,7 @@ export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({ 
       <div className="flex gap-2">
         {authors.map((author, authorIndex) => (
           <Fragment key={`ach-set-author-${author.displayName}`}>
-            <UserAvatar size={24} imgClassName="select-none rounded-full bg-embed" {...author} />
+            <UserAvatar size={20} imgClassName="select-none rounded-full bg-embed" {...author} />
 
             {authorIndex !== authors.length - 1 ? (
               <span className="text-neutral-700">{'•'}</span>
@@ -86,7 +86,7 @@ const TooltippedTrophyIcon: FC<TooltippedTrophyIconProps> = ({ authors }) => {
 
   return (
     <BaseTooltip>
-      <BaseTooltipTrigger className="flex items-center gap-1.5 px-2 py-[5px]">
+      <BaseTooltipTrigger className="flex items-center gap-1.5 px-2 py-[2.25px]">
         <FaTrophy className="h-full text-yellow-500" />
         <span className="hidden pr-1 md:inline lg:hidden xl:inline">
           {t('{{val, number}} authors', { val: authors.length, count: authors.length })}

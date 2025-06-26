@@ -41,8 +41,8 @@ export const CodeCreditsDisplay: FC<CodeCreditsDisplayProps> = ({
   return (
     <div
       className={cn(
-        'flex items-center rounded-md bg-green-900/20 py-1 pr-2 text-green-400',
-        'light:border light:border-green-200 light:bg-white light:text-green-600',
+        'flex items-center rounded-md bg-neutral-800/70 py-1 pr-2 text-neutral-400',
+        'light:border light:border-neutral-200 light:bg-white light:text-neutral-600',
       )}
     >
       <CodeCreditIcon activeMaintainers={maintainerCredits} logicCredits={filteredLogicCredits} />

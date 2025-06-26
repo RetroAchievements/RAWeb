@@ -31,8 +31,8 @@ export const DesignCreditsDisplay: FC<DesignCreditsDisplayProps> = ({
   return (
     <div
       className={cn(
-        'flex items-center gap-2 rounded-md bg-sky-900/20 px-2 py-1 text-sky-400',
-        'light:border light:border-sky-200 light:bg-white light:text-sky-600',
+        'flex items-center gap-2 rounded-md bg-neutral-800/70 px-2 py-1 text-neutral-400',
+        'light:border light:border-neutral-200 light:bg-white light:text-neutral-600',
       )}
     >
       <DesignCreditIcon
