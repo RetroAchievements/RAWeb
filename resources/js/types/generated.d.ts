@@ -505,6 +505,16 @@ declare namespace App.Platform.Data {
     updatedAt: string | null;
     achievements: Array<App.Platform.Data.Achievement>;
   };
+  export type AggregateAchievementSetCredits = {
+    achievementsAuthors: Array<App.Platform.Data.UserCredits>;
+    achievementsMaintainers: Array<App.Platform.Data.UserCredits>;
+    achievementsArtwork: Array<App.Platform.Data.UserCredits>;
+    achievementsDesign: Array<App.Platform.Data.UserCredits>;
+    achievementSetArtwork: Array<App.Platform.Data.UserCredits>;
+    achievementsLogic: Array<App.Platform.Data.UserCredits>;
+    achievementsTesting: Array<App.Platform.Data.UserCredits>;
+    achievementsWriting: Array<App.Platform.Data.UserCredits>;
+  };
   export type AwardEarner = {
     user: App.Data.User;
     dateEarned: string;
@@ -690,6 +700,7 @@ declare namespace App.Platform.Data {
     hasMatureContent?: boolean;
   };
   export type GameShowPageProps = {
+    aggregateCredits: App.Platform.Data.AggregateAchievementSetCredits | null;
     game: App.Platform.Data.Game;
     can: App.Data.UserPermissions;
     hubs: Array<App.Platform.Data.GameSet>;
@@ -909,6 +920,13 @@ declare namespace App.Platform.Data {
       | App.Platform.Data.Achievement
       | App.Platform.Data.Leaderboard
       | App.Platform.Data.Game;
+  };
+  export type UserCredits = {
+    displayName: string;
+    avatarUrl: string;
+    count: number;
+    dateCredited: string | null;
+    deletedAt?: string | null;
   };
 }
 declare namespace App.Platform.Enums {

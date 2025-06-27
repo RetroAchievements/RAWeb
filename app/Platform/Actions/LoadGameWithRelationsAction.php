@@ -25,6 +25,7 @@ class LoadGameWithRelationsAction
         ];
 
         $game->loadMissing([
+            // TODO only load core set(s) up front
             'gameAchievementSets' => function ($query) use ($excludeSetTypes) {
                 $query->whereNotIn('type', $excludeSetTypes);
             },
@@ -48,7 +49,10 @@ class LoadGameWithRelationsAction
                 $query->where('Flags', $flag->value);
             },
 
+            'achievementSet.achievements.authorshipCredits.user',
             'achievementSet.achievements.developer',
+            'achievementSet.achievements.activeMaintainer.user',
+            'achievementSet.achievementSetAuthors.user',
         ]);
 
         return $game;

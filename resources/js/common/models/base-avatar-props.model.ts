@@ -3,7 +3,7 @@
  * If possible, use one of these sane defaults.
  * When adding another one, try to ensure it corresponds to a Tailwind size-* class.
  */
-export type AvatarSize = 8 | 16 | 24 | 28 | 32 | 36 | 40 | 48 | 64 | 72 | 96 | 128;
+export type AvatarSize = 8 | 16 | 20 | 24 | 28 | 32 | 36 | 40 | 48 | 64 | 72 | 96 | 128;
 
 export interface BaseAvatarProps {
   hasTooltip?: boolean;
