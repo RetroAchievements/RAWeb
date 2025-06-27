@@ -42,7 +42,7 @@ export const GlobalStatistics: FC = () => {
           </StatBox>
 
           <StatBox
-            t_label={t('Games Mastered')}
+            t_label={t('Sets Mastered')}
             href="/recentMastery.php?t=1&m=1"
             anchorClassName={buildTrackingClassNames('Click Statistic Games Mastered')}
           >
