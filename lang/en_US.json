@@ -141,7 +141,7 @@
     "Game Details": "Game Details",
     "Games": "Games",
     "Games Beaten": "Games Beaten",
-    "Games Mastered": "Games Mastered",
+    "Sets Mastered": "Sets Mastered",
     "Getting involved in a QA sub-team.": "Getting involved in a QA sub-team.",
     "Getting involved with RANews.": "Getting involved with RANews.",
     "Global Beaten Games Ranking": "Global Beaten Games Ranking",
@@ -998,5 +998,16 @@
     "region_na": "North America",
     "region_ww": "Worldwide",
     "Series": "Series",
-    "({{val, number}} with achievements)": "({{val, number}} with achievements)"
+    "({{val, number}} with achievements)": "({{val, number}} with achievements)",
+    "Credits": "Credits",
+    "{{val, number}} authors_one": "{{val, number}} author",
+    "{{val, number}} authors_other": "{{val, number}} authors",
+    "Achievement Authors": "Achievement Authors",
+    "Game Badge Artwork": "Game Badge Artwork",
+    "Achievement Artwork": "Achievement Artwork",
+    "Achievement Maintainers": "Achievement Maintainers",
+    "Code Contributors": "Code Contributors",
+    "Achievement Design/Ideas": "Achievement Design/Ideas",
+    "Playtesters": "Playtesters",
+    "Writing Contributions": "Writing Contributions"
 }

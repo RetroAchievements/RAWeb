@@ -59,7 +59,7 @@ describe('Component: GlobalStatistics', () => {
     );
   });
 
-  it('displays the correct count of games mastered and has the right href on that element', () => {
+  it('displays the correct count of sets mastered and has the right href on that element', () => {
     // ARRANGE
     render(<GlobalStatistics />, {
       pageProps: createHomePageProps({
@@ -68,12 +68,12 @@ describe('Component: GlobalStatistics', () => {
     });
 
     // ASSERT
-    const gamesMasteredEl = screen.getByLabelText('Games Mastered');
+    const gamesMasteredEl = screen.getByLabelText('Sets Mastered');
 
     expect(gamesMasteredEl).toBeVisible();
     expect(gamesMasteredEl).toHaveTextContent('318,450');
 
-    expect(screen.getByRole('link', { name: 'Games Mastered' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Sets Mastered' })).toHaveAttribute(
       'href',
       '/recentMastery.php?t=1&m=1',
     );
