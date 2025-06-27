@@ -293,16 +293,65 @@ class BuildGameShowPagePropsAction
             ->values()
             ->all();
 
+        // Get the sorted author credits to use for filtering.
+        $sortedAuthors = $sortByCountDesc($achievementsAuthors, true);
+
+        // Filter logic credits to exclude authors - matching the client-side logic.
+        $authorUserIds = $achievementsAuthors->keys()->toArray();
+        $filteredLogicCredits = $achievementsLogicCredits->except($authorUserIds);
+
+        // Deduplicate artwork credits (achievement + badge artwork) and exclude authors.
+        $deduplicatedArtworkCredits = $this->deduplicateCredits([
+            $achievementSetArtworkCredits,
+            $achievementsArtworkCredits,
+        ])->except($authorUserIds);
+
+        // Deduplicate design credits (design + testing + writing) and exclude authors.
+        $deduplicatedDesignCredits = $this->deduplicateCredits([
+            $achievementsDesignCredits,
+            $achievementsTestingCredits,
+            $achievementsWritingCredits,
+        ])->except($authorUserIds);
+
         return new AggregateAchievementSetCreditsData(
-            achievementsAuthors: $sortByCountDesc($achievementsAuthors, true), // Include trashed users for original authors.
+            achievementsAuthors: $sortedAuthors, // Include trashed users for original authors.
             achievementsMaintainers: $sortByCountDesc($achievementsMaintainers),
-            achievementsArtwork: $sortByCountDesc($achievementsArtworkCredits),
-            achievementsDesign: $sortByCountDesc($achievementsDesignCredits),
+            achievementsArtwork: $sortByCountDesc($deduplicatedArtworkCredits),
+            achievementsDesign: $sortByCountDesc($deduplicatedDesignCredits),
             achievementSetArtwork: $sortByCountDesc($achievementSetArtworkCredits),
-            achievementsLogic: $sortByCountDesc($achievementsLogicCredits),
+            achievementsLogic: $sortByCountDesc($filteredLogicCredits),
             achievementsTesting: $sortByCountDesc($achievementsTestingCredits),
             achievementsWriting: $sortByCountDesc($achievementsWritingCredits),
         );
+    }
+
+    /**
+     * Deduplicate credits across multiple collections by merging users and summing their counts.
+     *
+     * @return Collection<int, array{user: User, count: int, created_at: ?string}>
+     */
+    private function deduplicateCredits(array $creditCollections): Collection
+    {
+        $mergedCredits = collect();
+
+        // Merge all collections.
+        foreach ($creditCollections as $collection) {
+            $mergedCredits = $mergedCredits->merge($collection);
+        }
+
+        // Group by user ID and aggregate counts.
+        $deduplicatedCredits = collect();
+        foreach ($mergedCredits->groupBy('user.id') as $userId => $userCredits) {
+            $totalCount = $userCredits->sum('count');
+            $mostRecent = $userCredits->sortByDesc('created_at')->first();
+            $deduplicatedCredits->put($userId, [
+                'user' => $mostRecent['user'],
+                'count' => $totalCount,
+                'created_at' => $mostRecent['created_at'] ?? null,
+            ]);
+        }
+
+        return $deduplicatedCredits;
     }
 
     /**
