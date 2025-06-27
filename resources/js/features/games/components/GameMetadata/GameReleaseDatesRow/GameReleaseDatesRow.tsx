@@ -3,7 +3,7 @@ import utc from 'dayjs/plugin/utc';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { BaseTableCell, BaseTableRow } from '@/common/components/+vendor/BaseTable';
+import { BaseTableCell, BaseTableHead, BaseTableRow } from '@/common/components/+vendor/BaseTable';
 import {
   BaseTooltip,
   BaseTooltipContent,
@@ -21,16 +21,18 @@ export const GameReleaseDatesRow: FC<GameReleaseDatesRowProps> = ({ releases }) 
   const { t } = useTranslation();
 
   // First, deduplicate by region, keeping only the earliest release per region.
+  // FIXME move this to the server to improve hydration performance
   const dedupedReleases = deduplicateReleasesByRegion(releases);
 
   // Then, sort by date.
+  // FIXME move this to the server to improve hydration performance
   const sortedReleases = sortReleasesByDate(dedupedReleases);
 
   return (
     <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
-      <BaseTableCell className="text-right align-top">
+      <BaseTableHead scope="row" className="h-auto text-right align-top text-text">
         {t('metaRelease', { count: sortedReleases.length })}
-      </BaseTableCell>
+      </BaseTableHead>
 
       <BaseTableCell>
         <span className="flex flex-col">
@@ -68,6 +70,9 @@ export const GameReleaseDatesRow: FC<GameReleaseDatesRowProps> = ({ releases }) 
   );
 };
 
+/**
+ * @deprecated move this to the server to improve hydration performance
+ */
 function deduplicateReleasesByRegion(
   releases: App.Platform.Data.GameRelease[],
 ): App.Platform.Data.GameRelease[] {
@@ -94,6 +99,9 @@ function deduplicateReleasesByRegion(
   return Array.from(regionMap.values());
 }
 
+/**
+ * @deprecated move this to the server to improve hydration performance
+ */
 function isEarlierRelease(
   a: App.Platform.Data.GameRelease,
   b: App.Platform.Data.GameRelease,
@@ -107,6 +115,9 @@ function isEarlierRelease(
   return normalizedDateA.isBefore(normalizedDateB);
 }
 
+/**
+ * @deprecated move this to the server to improve hydration performance
+ */
 function sortReleasesByDate(
   releases: App.Platform.Data.GameRelease[],
 ): App.Platform.Data.GameRelease[] {
