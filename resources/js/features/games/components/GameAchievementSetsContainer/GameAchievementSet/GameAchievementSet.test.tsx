@@ -15,7 +15,6 @@ describe('Component: GameAchievementSet', () => {
         achievements={[]}
         currentSort="normal"
         gameAchievementSet={createGameAchievementSet()}
-        isInitiallyOpened={false}
         isOnlySetForGame={false}
       />,
     );
@@ -31,7 +30,6 @@ describe('Component: GameAchievementSet', () => {
         achievements={[]}
         currentSort="normal"
         gameAchievementSet={createGameAchievementSet()}
-        isInitiallyOpened={true}
         isOnlySetForGame={false}
       />,
     );
@@ -60,36 +58,12 @@ describe('Component: GameAchievementSet', () => {
         achievements={achievements}
         currentSort="normal"
         gameAchievementSet={gameAchievementSet}
-        isInitiallyOpened={true}
         isOnlySetForGame={false}
       />,
     );
 
     // ASSERT
     expect(screen.getAllByRole('listitem').length).toBeGreaterThanOrEqual(50);
-  });
-
-  it('given the collapsible is not initially opened, does not show achievements', () => {
-    // ARRANGE
-    const achievement = createAchievement({ title: 'Hidden Achievement' });
-    const gameAchievementSet = createGameAchievementSet({
-      achievementSet: createAchievementSet({
-        achievements: [achievement],
-      }),
-    });
-
-    render(
-      <GameAchievementSet
-        achievements={[achievement]}
-        currentSort="normal"
-        gameAchievementSet={gameAchievementSet}
-        isInitiallyOpened={false}
-        isOnlySetForGame={false}
-      />,
-    );
-
-    // ASSERT
-    expect(screen.queryByText('Hidden Achievement')).not.toBeVisible();
   });
 
   it('given the collapsible is initially opened, shows achievements', () => {
@@ -106,7 +80,6 @@ describe('Component: GameAchievementSet', () => {
         achievements={[achievement]}
         currentSort="normal"
         gameAchievementSet={gameAchievementSet}
-        isInitiallyOpened={true}
         isOnlySetForGame={false}
       />,
     );
@@ -133,7 +106,6 @@ describe('Component: GameAchievementSet', () => {
         achievements={achievements}
         currentSort="normal"
         gameAchievementSet={gameAchievementSet}
-        isInitiallyOpened={true}
         isOnlySetForGame={false}
       />,
     );
@@ -144,7 +116,6 @@ describe('Component: GameAchievementSet', () => {
         achievements={achievements}
         currentSort="-normal"
         gameAchievementSet={gameAchievementSet}
-        isInitiallyOpened={true}
         isOnlySetForGame={false}
       />,
     );
@@ -152,21 +123,5 @@ describe('Component: GameAchievementSet', () => {
     // ASSERT
     const items = screen.getAllByRole('listitem');
     expect(items.length).toBeGreaterThanOrEqual(2);
-  });
-
-  it('given it is the only set for the game, disables the collapsible', () => {
-    // ARRANGE
-    render(
-      <GameAchievementSet
-        achievements={[createAchievement()]}
-        currentSort="normal"
-        gameAchievementSet={createGameAchievementSet()}
-        isInitiallyOpened={false}
-        isOnlySetForGame={true}
-      />,
-    );
-
-    // ASSERT
-    expect(screen.getByRole('button')).toBeDisabled();
   });
 });
