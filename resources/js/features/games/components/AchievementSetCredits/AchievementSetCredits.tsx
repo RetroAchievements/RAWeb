@@ -14,33 +14,12 @@ export const AchievementSetCredits: FC = () => {
     return null;
   }
 
-  const artCreditUsers = [
-    ...aggregateCredits.achievementSetArtwork,
-    ...aggregateCredits.achievementsArtwork,
-  ].filter(
-    (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
-  );
-
-  const logicCreditUsers = aggregateCredits.achievementsLogic.filter(
-    (logicUser) =>
-      !aggregateCredits.achievementsAuthors.some(
-        (author) => author.displayName === logicUser.displayName,
-      ),
-  );
-  const codingCreditUsers = [
-    ...aggregateCredits.achievementsMaintainers,
-    ...logicCreditUsers,
-  ].filter(
-    (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
-  );
-
-  const designCreditUsers = [
-    ...aggregateCredits.achievementsDesign,
-    ...aggregateCredits.achievementsTesting,
-    ...aggregateCredits.achievementsWriting,
-  ].filter(
-    (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
-  );
+  // All deduplication is now handled server-side.
+  const hasArtworkCredits = aggregateCredits.achievementsArtwork.length > 0;
+  const hasCodeCredits =
+    aggregateCredits.achievementsLogic.length > 0 ||
+    aggregateCredits.achievementsMaintainers.length > 0;
+  const hasDesignCredits = aggregateCredits.achievementsDesign.length > 0;
 
   return (
     <div
@@ -51,22 +30,21 @@ export const AchievementSetCredits: FC = () => {
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 xl:gap-4">
           <AchievementAuthorsDisplay authors={aggregateCredits.achievementsAuthors} />
 
-          {artCreditUsers.length ? (
+          {hasArtworkCredits ? (
             <ArtworkCreditsDisplay
               achievementArtworkCredits={aggregateCredits.achievementsArtwork}
               badgeArtworkCredits={aggregateCredits.achievementSetArtwork}
             />
           ) : null}
 
-          {codingCreditUsers.length ? (
+          {hasCodeCredits ? (
             <CodeCreditsDisplay
-              authorCredits={aggregateCredits.achievementsAuthors}
               logicCredits={aggregateCredits.achievementsLogic}
               maintainerCredits={aggregateCredits.achievementsMaintainers}
             />
           ) : null}
 
-          {designCreditUsers.length ? (
+          {hasDesignCredits ? (
             <DesignCreditsDisplay
               designCredits={aggregateCredits.achievementsDesign}
               testingCredits={aggregateCredits.achievementsTesting}

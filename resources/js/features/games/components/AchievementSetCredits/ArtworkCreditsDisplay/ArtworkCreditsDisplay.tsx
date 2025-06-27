@@ -22,10 +22,6 @@ export const ArtworkCreditsDisplay: FC<ArtworkCreditsDisplayProps> = ({
   achievementArtworkCredits,
   badgeArtworkCredits,
 }) => {
-  const artCreditUsers = [...badgeArtworkCredits, ...achievementArtworkCredits].filter(
-    (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
-  );
-
   return (
     <div
       className={cn(
@@ -39,7 +35,7 @@ export const ArtworkCreditsDisplay: FC<ArtworkCreditsDisplayProps> = ({
       />
 
       <UserAvatarStack
-        users={artCreditUsers}
+        users={achievementArtworkCredits}
         maxVisible={5}
         size={20}
         isOverlappingAvatars={false}

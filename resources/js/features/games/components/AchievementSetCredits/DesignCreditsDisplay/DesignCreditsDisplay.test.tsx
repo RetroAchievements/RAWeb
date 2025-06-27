@@ -119,28 +119,6 @@ describe('Component: DesignCreditsDisplay', () => {
     expect(screen.getAllByText(/writing contributions/i)[0]).toBeVisible();
   });
 
-  it('given the same user appears in multiple credit types, only shows them once in the avatar stack', () => {
-    // ARRANGE
-    const sharedUserData = { displayName: 'Alice', count: 5 };
-    const sharedUser = createUserCredits(sharedUserData);
-    const designCredits = [sharedUser, createUserCredits({ displayName: 'Bob', count: 3 })];
-    const testingCredits = [createUserCredits(sharedUserData)];
-    const writingCredits = [createUserCredits({ displayName: 'Charlie', count: 10 })];
-
-    render(
-      <DesignCreditsDisplay
-        designCredits={designCredits}
-        testingCredits={testingCredits}
-        writingCredits={writingCredits}
-      />,
-    );
-
-    // ASSERT
-    // ... 3 unique users (Alice, Bob, Charlie) ...
-    const avatarImages = screen.getAllByRole('img');
-    expect(avatarImages).toHaveLength(3);
-  });
-
   it('given no credits of a certain type, does not show that section in the tooltip', async () => {
     // ARRANGE
     const designCredits = [createUserCredits({ displayName: 'Alice', count: 5 })];
