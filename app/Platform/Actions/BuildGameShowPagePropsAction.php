@@ -13,11 +13,15 @@ use App\Models\Game;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameListEntry;
+use App\Platform\Data\AggregateAchievementSetCreditsData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
 use App\Platform\Data\GameShowPagePropsData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
+use App\Platform\Data\UserCreditsData;
+use App\Platform\Enums\AchievementAuthorTask;
+use App\Platform\Enums\AchievementSetAuthorTask;
 use Illuminate\Support\Collection;
 
 class BuildGameShowPagePropsAction
@@ -145,6 +149,7 @@ class BuildGameShowPagePropsAction
                 'pointsWeighted',
             ))->values()->all(),
 
+            aggregateCredits: $this->buildAggregateCredits($game),
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
             isOnWantToPlayList: $initialUserGameListState['isOnWantToPlayList'],
@@ -162,6 +167,141 @@ class BuildGameShowPagePropsAction
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($game->id, $user))
                 : null,
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
+        );
+    }
+
+    private function buildAggregateCredits(Game $game): AggregateAchievementSetCreditsData
+    {
+        // Initialize credit counts by task and user.
+        $achievementsAuthors = collect();
+        $achievementsMaintainers = collect();
+        $achievementSetArtworkCredits = collect();
+        $achievementsArtworkCredits = collect();
+        $achievementsDesignCredits = collect();
+        $achievementsLogicCredits = collect();
+        $achievementsTestingCredits = collect();
+        $achievementsWritingCredits = collect();
+
+        // Process achievement set authors. Right now, we only support badge artwork as a task.
+        foreach ($game->gameAchievementSets as $gameAchievementSet) {
+            $achievementSet = $gameAchievementSet->achievementSet;
+
+            // Get only the most recent artwork author for this achievement set.
+            $mostRecentArtworkAuthor = $achievementSet->achievementSetAuthors
+                ->filter(fn ($author) => $author->task === AchievementSetAuthorTask::Artwork)
+                ->sortByDesc('created_at')
+                ->first();
+
+            if ($mostRecentArtworkAuthor) {
+                $userId = $mostRecentArtworkAuthor->user_id;
+                $existing = $achievementSetArtworkCredits->get($userId);
+
+                $achievementSetArtworkCredits->put($userId, [
+                    'user' => $mostRecentArtworkAuthor->user,
+                    'count' => ($existing['count'] ?? 0) + 1,
+                    'created_at' => $mostRecentArtworkAuthor->created_at,
+                ]);
+            }
+        }
+
+        // Process achievement authors and maintainers.
+        foreach ($game->gameAchievementSets as $gameAchievementSet) {
+            $achievementSet = $gameAchievementSet->achievementSet;
+
+            foreach ($achievementSet->achievements as $achievement) {
+                // Count original achievement authors.
+                if ($achievement->developer) {
+                    $userId = $achievement->developer->id;
+                    $achievementsAuthors->put($userId, [
+                        'user' => $achievement->developer,
+                        'count' => ($achievementsAuthors->get($userId)['count'] ?? 0) + 1,
+                    ]);
+                }
+
+                // Count active maintainers.
+                if ($achievement->activeMaintainer && $achievement->activeMaintainer->user) {
+                    $userId = $achievement->activeMaintainer->user_id;
+                    $existing = $achievementsMaintainers->get($userId);
+
+                    $achievementsMaintainers->put($userId, [
+                        'user' => $achievement->activeMaintainer->user,
+                        'count' => ($existing['count'] ?? 0) + 1,
+                        'created_at' => $achievement->activeMaintainer->effective_from,
+                    ]);
+                }
+            }
+        }
+
+        // Process achievement authorship credits. We have numerous tasks at this level.
+        foreach ($game->gameAchievementSets as $gameAchievementSet) {
+            $achievementSet = $gameAchievementSet->achievementSet;
+
+            foreach ($achievementSet->achievements as $achievement) {
+                foreach ($achievement->authorshipCredits as $credit) {
+                    $userId = $credit->user_id;
+                    $user = $credit->user;
+
+                    switch ($credit->task) {
+                        case AchievementAuthorTask::Artwork->value:
+                            $achievementsArtworkCredits->put($userId, [
+                                'user' => $user,
+                                'count' => ($achievementsArtworkCredits->get($userId)['count'] ?? 0) + 1,
+                            ]);
+                            break;
+
+                        case AchievementAuthorTask::Design->value:
+                            $achievementsDesignCredits->put($userId, [
+                                'user' => $user,
+                                'count' => ($achievementsDesignCredits->get($userId)['count'] ?? 0) + 1,
+                            ]);
+                            break;
+
+                        case AchievementAuthorTask::Logic->value:
+                            $achievementsLogicCredits->put($userId, [
+                                'user' => $user,
+                                'count' => ($achievementsLogicCredits->get($userId)['count'] ?? 0) + 1,
+                            ]);
+                            break;
+
+                        case AchievementAuthorTask::Testing->value:
+                            $achievementsTestingCredits->put($userId, [
+                                'user' => $user,
+                                'count' => ($achievementsTestingCredits->get($userId)['count'] ?? 0) + 1,
+                            ]);
+                            break;
+
+                        case AchievementAuthorTask::Writing->value:
+                            $achievementsWritingCredits->put($userId, [
+                                'user' => $user,
+                                'count' => ($achievementsWritingCredits->get($userId)['count'] ?? 0) + 1,
+                            ]);
+                            break;
+                    }
+                }
+            }
+        }
+
+        // Convert to UserCreditsData arrays sorted by count descending.
+        $sortByCountDesc = fn ($credits, $includeTrash = false) => $credits
+            ->filter(fn ($item) => $includeTrash || !$item['user']->trashed())
+            ->sortByDesc('count')
+            ->map(fn ($item) => UserCreditsData::fromUserWithCount(
+                $item['user'],
+                $item['count'],
+                isset($item['created_at']) ? $item['created_at'] : null
+            )->include('deletedAt'))
+            ->values()
+            ->all();
+
+        return new AggregateAchievementSetCreditsData(
+            achievementsAuthors: $sortByCountDesc($achievementsAuthors, true), // Include trashed users for original authors.
+            achievementsMaintainers: $sortByCountDesc($achievementsMaintainers),
+            achievementsArtwork: $sortByCountDesc($achievementsArtworkCredits),
+            achievementsDesign: $sortByCountDesc($achievementsDesignCredits),
+            achievementSetArtwork: $sortByCountDesc($achievementSetArtworkCredits),
+            achievementsLogic: $sortByCountDesc($achievementsLogicCredits),
+            achievementsTesting: $sortByCountDesc($achievementsTestingCredits),
+            achievementsWriting: $sortByCountDesc($achievementsWritingCredits),
         );
     }
 
