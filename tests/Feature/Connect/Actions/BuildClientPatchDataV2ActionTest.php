@@ -12,6 +12,7 @@ use App\Models\GameAchievementSet;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
 use App\Models\UserGameAchievementSetPreference;
@@ -19,6 +20,7 @@ use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
 use Tests\TestCase;
@@ -717,6 +719,61 @@ class BuildClientPatchDataV2ActionTest extends TestCase
             'compatibility' => GameHashCompatibility::Untested,
             'compatibility_tester_id' => $user->id, // !!
         ]);
+
+        // Act
+        $result = (new BuildClientPatchDataV2Action())->execute(gameHash: $gameHash, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+        $this->assertEquals($game->title, $result['Title']);
+        $this->assertCount(1, $result['Sets']);
+
+        // ... it should include the actual achievements, not a warning ...
+        $this->assertCount(2, $result['Sets'][0]['Achievements']);
+    }
+
+    public function testItHandlesIncompatibleGameHashButUserIsQA(): void
+    {
+        // Arrange
+        $game = $this->createGameWithAchievements($this->system, 'Test Game', publishedCount: 2);
+        $this->upsertGameCoreSetAction->execute($game);
+
+        $this->seed(RolesTableSeeder::class);
+        $user = User::factory()->create();
+        $user->assignRole(Role::QUALITY_ASSURANCE);
+        $user->save();
+        $gameHash = GameHash::factory()->create([
+            'game_id' => $game->id,
+            'compatibility' => GameHashCompatibility::Untested,
+        ]);
+
+        // Act
+        $result = (new BuildClientPatchDataV2Action())->execute(gameHash: $gameHash, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+        $this->assertEquals($game->title, $result['Title']);
+        $this->assertCount(1, $result['Sets']);
+
+        // ... it should include the actual achievements, not a warning ...
+        $this->assertCount(2, $result['Sets'][0]['Achievements']);
+    }
+
+    public function testItHandlesIncompatibleGameHashButUserIsSetAuthor(): void
+    {
+        // Arrange
+        $game = $this->createGameWithAchievements($this->system, 'Test Game', publishedCount: 2);
+        $this->upsertGameCoreSetAction->execute($game);
+
+        $user = User::factory()->create();
+        $gameHash = GameHash::factory()->create([
+            'game_id' => $game->id,
+            'compatibility' => GameHashCompatibility::Untested,
+        ]);
+
+        $achievement = $game->achievements->first();
+        $achievement->user_id = $user->id;
+        $achievement->save();
 
         // Act
         $result = (new BuildClientPatchDataV2Action())->execute(gameHash: $gameHash, user: $user);
