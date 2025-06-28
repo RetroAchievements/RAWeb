@@ -1,7 +1,12 @@
+import {
+  currentAchievementSortAtom,
+  isMissableOnlyFilterEnabledAtom,
+} from '@/features/games/state/games.atoms';
 import { render, screen } from '@/test';
 import {
   createAchievement,
   createAchievementSet,
+  createGame,
   createGameAchievementSet,
 } from '@/test/factories';
 
@@ -13,10 +18,18 @@ describe('Component: GameAchievementSet', () => {
     const { container } = render(
       <GameAchievementSet
         achievements={[]}
-        currentSort="normal"
         gameAchievementSet={createGameAchievementSet()}
         isOnlySetForGame={false}
       />,
+      {
+        jotaiAtoms: [
+          [currentAchievementSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game: createGame(),
+        },
+      },
     );
 
     // ASSERT
@@ -28,10 +41,18 @@ describe('Component: GameAchievementSet', () => {
     render(
       <GameAchievementSet
         achievements={[]}
-        currentSort="normal"
         gameAchievementSet={createGameAchievementSet()}
         isOnlySetForGame={false}
       />,
+      {
+        jotaiAtoms: [
+          [currentAchievementSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game: createGame(),
+        },
+      },
     );
 
     // ASSERT
@@ -56,10 +77,18 @@ describe('Component: GameAchievementSet', () => {
     render(
       <GameAchievementSet
         achievements={achievements}
-        currentSort="normal"
         gameAchievementSet={gameAchievementSet}
         isOnlySetForGame={false}
       />,
+      {
+        jotaiAtoms: [
+          [currentAchievementSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game: createGame(),
+        },
+      },
     );
 
     // ASSERT
@@ -78,10 +107,18 @@ describe('Component: GameAchievementSet', () => {
     render(
       <GameAchievementSet
         achievements={[achievement]}
-        currentSort="normal"
         gameAchievementSet={gameAchievementSet}
         isOnlySetForGame={false}
       />,
+      {
+        jotaiAtoms: [
+          [currentAchievementSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game: createGame(),
+        },
+      },
     );
 
     // ASSERT
@@ -104,17 +141,24 @@ describe('Component: GameAchievementSet', () => {
     const { rerender } = render(
       <GameAchievementSet
         achievements={achievements}
-        currentSort="normal"
         gameAchievementSet={gameAchievementSet}
         isOnlySetForGame={false}
       />,
+      {
+        jotaiAtoms: [
+          [currentAchievementSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game: createGame(),
+        },
+      },
     );
 
     // ACT
     rerender(
       <GameAchievementSet
         achievements={achievements}
-        currentSort="-normal"
         gameAchievementSet={gameAchievementSet}
         isOnlySetForGame={false}
       />,
@@ -123,5 +167,120 @@ describe('Component: GameAchievementSet', () => {
     // ASSERT
     const items = screen.getAllByRole('listitem');
     expect(items.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('given no missable achievements, does not filter by missable even when the filter is enabled', () => {
+    /**
+     * This can happen if some achievements are set to missable, the user
+     * persists the filter, and then a dev changes their type to not be
+     * missable anymore.
+     */
+
+    // ARRANGE
+    const achievements = [
+      createAchievement({ title: 'Normal Achievement 1', type: null }), // !! not missable
+      createAchievement({ title: 'Normal Achievement 2', type: null }), // !! not missable
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+      }),
+    });
+
+    render(
+      <GameAchievementSet
+        achievements={achievements}
+        gameAchievementSet={gameAchievementSet}
+        isOnlySetForGame={false}
+      />,
+      {
+        jotaiAtoms: [
+          [currentAchievementSortAtom, 'normal'],
+          [isMissableOnlyFilterEnabledAtom, true], // !!
+        ],
+        pageProps: {
+          game: createGame(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... all achievements should be visible since there are no missable achievements ...
+    expect(screen.getByText('Normal Achievement 1')).toBeVisible();
+    expect(screen.getByText('Normal Achievement 2')).toBeVisible();
+  });
+
+  it('given missable achievements exist but the filter is disabled, shows all achievements', () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ title: 'Normal Achievement', type: null }), // !! not missable
+      createAchievement({ title: 'Missable Achievement', type: 'missable' }), // !! missable
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+      }),
+    });
+
+    render(
+      <GameAchievementSet
+        achievements={achievements}
+        gameAchievementSet={gameAchievementSet}
+        isOnlySetForGame={false}
+      />,
+      {
+        jotaiAtoms: [
+          [currentAchievementSortAtom, 'normal'],
+          [isMissableOnlyFilterEnabledAtom, false], // !!
+        ],
+        pageProps: {
+          game: createGame(),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByText('Normal Achievement')).toBeVisible();
+    expect(screen.getByText('Missable Achievement')).toBeVisible();
+  });
+
+  it('given missable achievements exist and filter is enabled, shows only missable achievements', () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ title: 'Normal Achievement', type: null }), // !! not missable
+      createAchievement({ title: 'Missable Achievement 1', type: 'missable' }), // !! missable
+      createAchievement({ title: 'Missable Achievement 2', type: 'missable' }), // !! missable
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+      }),
+    });
+
+    render(
+      <GameAchievementSet
+        achievements={achievements}
+        gameAchievementSet={gameAchievementSet}
+        isOnlySetForGame={false}
+      />,
+      {
+        jotaiAtoms: [
+          [currentAchievementSortAtom, 'normal'],
+          [isMissableOnlyFilterEnabledAtom, true], // !!
+        ],
+        pageProps: {
+          game: createGame(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only missable achievements should be visible ...
+    expect(screen.queryByText('Normal Achievement')).not.toBeInTheDocument();
+    expect(screen.getByText('Missable Achievement 1')).toBeVisible();
+    expect(screen.getByText('Missable Achievement 2')).toBeVisible();
   });
 });

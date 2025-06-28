@@ -52,7 +52,10 @@ export const AchievementSortButton: FC<AchievementSortButtonProps> = ({
   return (
     <BaseDropdownMenu>
       <BaseDropdownMenuTrigger asChild>
-        <BaseButton size="sm" className="gap-1">
+        <BaseButton
+          size="sm"
+          className="gap-1 transition-none lg:active:translate-y-0 lg:active:scale-100"
+        >
           {value.startsWith('-') ? (
             <LuArrowDown data-testid="sort-descending-icon" className="size-4" />
           ) : (

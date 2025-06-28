@@ -22,7 +22,7 @@ interface AchievementAuthorsDisplayProps {
 export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({ authors }) => {
   const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
-  const totalAchievements = game.achievementsPublished ?? 0;
+  const totalAchievements = game.achievementsPublished!;
 
   const containerClassNames = cn(
     'flex items-center rounded-md bg-neutral-800/70 py-1 pr-2',

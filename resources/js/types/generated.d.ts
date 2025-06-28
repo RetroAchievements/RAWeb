@@ -704,6 +704,8 @@ declare namespace App.Platform.Data {
     game: App.Platform.Data.Game;
     can: App.Data.UserPermissions;
     hubs: Array<App.Platform.Data.GameSet>;
+    isLockedOnlyFilterEnabled: boolean;
+    isMissableOnlyFilterEnabled: boolean;
     isOnWantToDevList: boolean;
     isOnWantToPlayList: boolean;
     isSubscribedToComments: boolean;
