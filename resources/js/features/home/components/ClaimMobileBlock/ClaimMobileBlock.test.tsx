@@ -2,7 +2,12 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 
 import { render, screen } from '@/test';
-import { createAchievementSetClaimGroup, createGame, createSystem, createUser } from '@/test/factories';
+import {
+  createAchievementSetClaimGroup,
+  createGame,
+  createSystem,
+  createUser,
+} from '@/test/factories';
 
 import { ClaimMobileBlock } from './ClaimMobileBlock';
 
