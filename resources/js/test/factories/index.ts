@@ -4,6 +4,7 @@ export * from './createAchievementSet';
 export * from './createAchievementSetClaim';
 export * from './createAchievementSetClaimGroup';
 export * from './createActivePlayer';
+export * from './createAggregateAchievementSetCredits';
 export * from './createAwardEarner';
 export * from './createComment';
 export * from './createDownloadsPageProps';

@@ -1,5 +1,9 @@
 import { render, screen } from '@/test';
-import { createAchievementSetClaim, createUserCredits } from '@/test/factories';
+import {
+  createAchievementSetClaim,
+  createAggregateAchievementSetCredits,
+  createUserCredits,
+} from '@/test/factories';
 
 import { AchievementSetCredits } from './AchievementSetCredits';
 
@@ -23,19 +27,11 @@ vi.mock('./DesignCreditsDisplay', () => ({
 describe('Component: AchievementSetCredits', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const aggregateCredits = {
-      achievementsAuthors: [],
-      achievementSetArtwork: [],
-      achievementsArtwork: [],
-      achievementsLogic: [],
-      achievementsMaintainers: [],
-      achievementsDesign: [],
-      achievementsTesting: [],
-      achievementsWriting: [],
-    };
-
     const { container } = render(<AchievementSetCredits />, {
-      pageProps: { achievementSetClaims: [], aggregateCredits },
+      pageProps: {
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+      },
     });
 
     // ASSERT
@@ -44,19 +40,11 @@ describe('Component: AchievementSetCredits', () => {
 
   it('given there are no credits and no claims, displays nothing', () => {
     // ARRANGE
-    const aggregateCredits = {
-      achievementsAuthors: [],
-      achievementSetArtwork: [],
-      achievementsArtwork: [],
-      achievementsLogic: [],
-      achievementsMaintainers: [],
-      achievementsDesign: [],
-      achievementsTesting: [],
-      achievementsWriting: [],
-    };
-
     render(<AchievementSetCredits />, {
-      pageProps: { achievementSetClaims: [], aggregateCredits },
+      pageProps: {
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+      },
     });
 
     // ASSERT
@@ -66,16 +54,10 @@ describe('Component: AchievementSetCredits', () => {
 
   it('given artwork credits exist, shows the artwork credits display', () => {
     // ARRANGE
-    const aggregateCredits = {
-      achievementsAuthors: [],
+    const aggregateCredits = createAggregateAchievementSetCredits({
       achievementSetArtwork: [createUserCredits({ displayName: 'Alice' })],
       achievementsArtwork: [createUserCredits({ displayName: 'Bob' })],
-      achievementsLogic: [],
-      achievementsMaintainers: [],
-      achievementsDesign: [],
-      achievementsTesting: [],
-      achievementsWriting: [],
-    };
+    });
 
     render(<AchievementSetCredits />, {
       pageProps: { achievementSetClaims: [], aggregateCredits },
@@ -87,16 +69,10 @@ describe('Component: AchievementSetCredits', () => {
 
   it('given coding credits exist, shows the code credits display', () => {
     // ARRANGE
-    const aggregateCredits = {
-      achievementsAuthors: [],
-      achievementSetArtwork: [],
-      achievementsArtwork: [],
+    const aggregateCredits = createAggregateAchievementSetCredits({
       achievementsLogic: [createUserCredits({ displayName: 'Charlie' })],
       achievementsMaintainers: [createUserCredits({ displayName: 'David' })],
-      achievementsDesign: [],
-      achievementsTesting: [],
-      achievementsWriting: [],
-    };
+    });
 
     render(<AchievementSetCredits />, {
       pageProps: { achievementSetClaims: [], aggregateCredits },
@@ -108,16 +84,11 @@ describe('Component: AchievementSetCredits', () => {
 
   it('given design credits exist, shows the design credits display', () => {
     // ARRANGE
-    const aggregateCredits = {
-      achievementsAuthors: [],
-      achievementSetArtwork: [],
-      achievementsArtwork: [],
-      achievementsLogic: [],
-      achievementsMaintainers: [],
+    const aggregateCredits = createAggregateAchievementSetCredits({
       achievementsDesign: [createUserCredits({ displayName: 'Eve' })],
       achievementsTesting: [createUserCredits({ displayName: 'Frank' })],
       achievementsWriting: [createUserCredits({ displayName: 'Grace' })],
-    };
+    });
 
     render(<AchievementSetCredits />, {
       pageProps: { achievementSetClaims: [], aggregateCredits },
@@ -130,16 +101,10 @@ describe('Component: AchievementSetCredits', () => {
   it('given duplicate users in artwork credits, deduplicates them before deciding to show the component', () => {
     // ARRANGE
     const sharedUser = createUserCredits({ displayName: 'Alice' });
-    const aggregateCredits = {
-      achievementsAuthors: [],
+    const aggregateCredits = createAggregateAchievementSetCredits({
       achievementSetArtwork: [sharedUser],
       achievementsArtwork: [sharedUser], // !! same user in both arrays
-      achievementsLogic: [],
-      achievementsMaintainers: [],
-      achievementsDesign: [],
-      achievementsTesting: [],
-      achievementsWriting: [],
-    };
+    });
 
     render(<AchievementSetCredits />, {
       pageProps: { achievementSetClaims: [], aggregateCredits },
@@ -153,16 +118,11 @@ describe('Component: AchievementSetCredits', () => {
   it('given all logic users are already authors, does not show the code credits display', () => {
     // ARRANGE
     const author = createUserCredits({ displayName: 'Alice' });
-    const aggregateCredits = {
+    const aggregateCredits = createAggregateAchievementSetCredits({
       achievementsAuthors: [author],
-      achievementSetArtwork: [],
-      achievementsArtwork: [],
       achievementsLogic: [author], // !! same user is both author and logic credit
       achievementsMaintainers: [], // !! no maintainers
-      achievementsDesign: [],
-      achievementsTesting: [],
-      achievementsWriting: [],
-    };
+    });
 
     render(<AchievementSetCredits />, {
       pageProps: { achievementSetClaims: [], aggregateCredits },
@@ -175,19 +135,11 @@ describe('Component: AchievementSetCredits', () => {
 
   it('given active claims, shows claimants', () => {
     // ARRANGE
-    const aggregateCredits = {
-      achievementsAuthors: [],
-      achievementSetArtwork: [],
-      achievementsArtwork: [],
-      achievementsLogic: [],
-      achievementsMaintainers: [],
-      achievementsDesign: [],
-      achievementsTesting: [],
-      achievementsWriting: [],
-    };
-
     render(<AchievementSetCredits />, {
-      pageProps: { achievementSetClaims: [createAchievementSetClaim()], aggregateCredits },
+      pageProps: {
+        achievementSetClaims: [createAchievementSetClaim()],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+      },
     });
 
     // ASSERT
@@ -196,7 +148,7 @@ describe('Component: AchievementSetCredits', () => {
 
   it('given all credit types have users, shows all displays', () => {
     // ARRANGE
-    const aggregateCredits = {
+    const aggregateCredits = createAggregateAchievementSetCredits({
       achievementsAuthors: [createUserCredits({ displayName: 'Author1' })],
       achievementSetArtwork: [createUserCredits({ displayName: 'Artist1' })],
       achievementsArtwork: [],
@@ -205,7 +157,7 @@ describe('Component: AchievementSetCredits', () => {
       achievementsDesign: [createUserCredits({ displayName: 'Designer1' })],
       achievementsTesting: [],
       achievementsWriting: [],
-    };
+    });
 
     render(<AchievementSetCredits />, {
       pageProps: { achievementSetClaims: [], aggregateCredits },

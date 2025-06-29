@@ -12,6 +12,10 @@ export const AchievementSetCredits: FC = () => {
   const { achievementSetClaims, aggregateCredits } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
+  if (!achievementSetClaims?.length && !aggregateCredits) {
+    return null;
+  }
+
   const artCreditUsers = [
     ...aggregateCredits.achievementSetArtwork,
     ...aggregateCredits.achievementsArtwork,
