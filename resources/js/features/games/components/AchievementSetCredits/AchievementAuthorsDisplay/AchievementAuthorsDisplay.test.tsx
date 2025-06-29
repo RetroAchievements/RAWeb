@@ -145,4 +145,31 @@ describe('Component: AchievementAuthorsDisplay', () => {
     // ASSERT
     expect(screen.getByText(/3 authors/i)).toBeVisible();
   });
+
+  it('given achievementsPublished is 0 (edge case, this should not happen), renders without crashing', () => {
+    // ARRANGE
+    const authors = [
+      createUserCredits({ displayName: 'Alice', count: 5 }),
+      createUserCredits({ displayName: 'Bob', count: 3 }),
+      createUserCredits({ displayName: 'Charlie', count: 2 }),
+    ];
+
+    const { container } = render(<AchievementAuthorsDisplay authors={authors} />, {
+      pageProps: {
+        game: createGame({ achievementsPublished: 0 }), // !!
+      },
+    });
+
+    // ASSERT
+    expect(container).toBeTruthy();
+
+    // ... should show 3 avatar images in the stack ...
+    const avatarImages = screen.getAllByRole('img');
+    expect(avatarImages).toHaveLength(3);
+
+    // ... no authors should have labels (all are in the stack) ...
+    expect(screen.queryByText(/alice/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/bob/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/charlie/i)).not.toBeInTheDocument();
+  });
 });
