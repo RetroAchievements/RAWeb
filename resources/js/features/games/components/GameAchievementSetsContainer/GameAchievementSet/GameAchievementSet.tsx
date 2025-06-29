@@ -41,7 +41,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
         >
           <div
             className={cn(
-              'flex w-full flex-col gap-2 rounded bg-embed px-2 pb-1 pt-2',
+              'flex w-full flex-col gap-2 rounded bg-embed px-2 py-2',
               'light:border light:border-embed-highlight light:bg-neutral-50',
             )}
           >

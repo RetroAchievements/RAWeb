@@ -10,9 +10,11 @@ use App\Community\Enums\UserGameListType;
 use App\Data\UserPermissionsData;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameListEntry;
+use App\Platform\Data\AchievementSetClaimData;
 use App\Platform\Data\AggregateAchievementSetCreditsData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
@@ -97,8 +99,11 @@ class BuildGameShowPagePropsAction
             ->all();
 
         $initialUserGameListState = $this->getInitialUserGameListState($game, $user);
+        $achievementSetClaims = $this->buildAchievementSetClaims($game, $user);
 
         return new GameShowPagePropsData(
+            achievementSetClaims: $achievementSetClaims,
+
             can: UserPermissionsData::fromUser($user, game: $game)->include(
                 'createGameComments',
                 'createGameForumTopic',
@@ -327,5 +332,21 @@ class BuildGameShowPagePropsAction
             'isOnWantToDevList' => in_array(UserGameListType::Develop, $results),
             'isOnWantToPlayList' => in_array(UserGameListType::Play, $results),
         ];
+    }
+
+    /**
+     * @return Collection<int, AchievementSetClaimData>
+     */
+    private function buildAchievementSetClaims(Game $game, ?User $user): Collection
+    {
+        // Build the include array based on current user permissions.
+        $claimIncludes = ['user', 'finishedAt'];
+        if ($user && ($user->hasRole(Role::MODERATOR) || $user->hasRole(Role::ADMINISTRATOR))) {
+            $claimIncludes[] = 'userLastPlayedAt';
+        }
+
+        return $game->achievementSetClaims
+            ->map(fn ($claim) => AchievementSetClaimData::fromAchievementSetClaim($claim)->include(...$claimIncludes))
+            ->values();
     }
 }

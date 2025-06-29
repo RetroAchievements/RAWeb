@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Data;
 
 use App\Community\Data\TrendingGameData;
-use App\Data\AchievementSetClaimData;
+use App\Data\AchievementSetClaimGroupData;
 use App\Data\CurrentlyOnlineData;
 use App\Data\ForumTopicData;
 use App\Data\NewsData;
@@ -22,9 +22,9 @@ class HomePagePropsData extends Data
 {
     /**
      * @param Collection<int, NewsData> $recentNews
-     * @param Collection<int, AchievementSetClaimData> $completedClaims
+     * @param Collection<int, AchievementSetClaimGroupData> $completedClaims
      * @param Collection<int, TrendingGameData> $trendingGames
-     * @param Collection<int, AchievementSetClaimData> $newClaims
+     * @param Collection<int, AchievementSetClaimGroupData> $newClaims
      * @param Collection<int, ForumTopicData> $recentForumPosts
      */
     public function __construct(

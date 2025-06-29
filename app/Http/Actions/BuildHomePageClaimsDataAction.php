@@ -6,7 +6,7 @@ namespace App\Http\Actions;
 
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
-use App\Data\AchievementSetClaimData;
+use App\Data\AchievementSetClaimGroupData;
 use App\Models\AchievementSetClaim;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
@@ -17,7 +17,7 @@ class BuildHomePageClaimsDataAction
      * Get the most recent achievement claims for the home page, grouped by game.
      * $status corresponds to `ClaimStatus`.
      *
-     * @return Collection<int, AchievementSetClaimData>
+     * @return Collection<int, AchievementSetClaimGroupData>
      */
     public function execute(int $status, int $count): Collection
     {
@@ -53,7 +53,7 @@ class BuildHomePageClaimsDataAction
      * We want to merge collaborative claims into a single row, grouped by game.
      *
      * @param EloquentCollection<int, AchievementSetClaim> $claims
-     * @return Collection<int, AchievementSetClaimData>
+     * @return Collection<int, AchievementSetClaimGroupData>
      */
     private function transformClaimsForDisplay(EloquentCollection $claims, int $count): Collection
     {
@@ -69,7 +69,7 @@ class BuildHomePageClaimsDataAction
                 ];
             })
             ->take($count)
-            ->map(fn ($group) => AchievementSetClaimData::fromAchievementSetClaim(
+            ->map(fn ($group) => AchievementSetClaimGroupData::fromAchievementSetClaim(
                     $group['claim'],
                     $group['users']
                 )

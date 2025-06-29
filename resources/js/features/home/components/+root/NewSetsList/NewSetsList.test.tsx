@@ -1,5 +1,5 @@
 import { render, screen } from '@/test';
-import { createAchievementSetClaim, createHomePageProps } from '@/test/factories';
+import { createAchievementSetClaimGroup, createHomePageProps } from '@/test/factories';
 
 import { NewSetsList } from './NewSetsList';
 
@@ -46,12 +46,12 @@ describe('Component: NewSetsList', () => {
     render<App.Http.Data.HomePageProps>(<NewSetsList />, {
       pageProps: createHomePageProps({
         completedClaims: [
-          createAchievementSetClaim(),
-          createAchievementSetClaim(),
-          createAchievementSetClaim(),
-          createAchievementSetClaim(),
-          createAchievementSetClaim(),
-          createAchievementSetClaim(),
+          createAchievementSetClaimGroup(),
+          createAchievementSetClaimGroup(),
+          createAchievementSetClaimGroup(),
+          createAchievementSetClaimGroup(),
+          createAchievementSetClaimGroup(),
+          createAchievementSetClaimGroup(),
         ],
       }),
     });

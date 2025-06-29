@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 
 import { render, screen } from '@/test';
-import { createAchievementSetClaim, createGame, createSystem, createUser } from '@/test/factories';
+import { createAchievementSetClaimGroup, createGame, createSystem, createUser } from '@/test/factories';
 
 import { ClaimMobileBlock } from './ClaimMobileBlock';
 
@@ -12,7 +12,7 @@ describe('Component: ClaimMobileBlock', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <ClaimMobileBlock claim={createAchievementSetClaim()} variant="completed" />,
+      <ClaimMobileBlock claim={createAchievementSetClaimGroup()} variant="completed" />,
     );
 
     // ASSERT
@@ -22,7 +22,7 @@ describe('Component: ClaimMobileBlock', () => {
   it('displays the game title', () => {
     // ARRANGE
     const game = createGame({ title: 'Sonic the Hedgehog' });
-    const claim = createAchievementSetClaim({ game });
+    const claim = createAchievementSetClaimGroup({ game });
 
     render(<ClaimMobileBlock claim={claim} variant="completed" />);
 
@@ -34,7 +34,7 @@ describe('Component: ClaimMobileBlock', () => {
     // ARRANGE
     const system = createSystem({ name: 'NES/Famicom' });
     const game = createGame({ system });
-    const claim = createAchievementSetClaim({ game });
+    const claim = createAchievementSetClaimGroup({ game });
 
     render(<ClaimMobileBlock claim={claim} variant="completed" />);
 
@@ -46,7 +46,7 @@ describe('Component: ClaimMobileBlock', () => {
   it('given there is no system associated with the game model, still renders successfully', () => {
     // ARRANGE
     const game = createGame({ system: undefined });
-    const claim = createAchievementSetClaim({ game });
+    const claim = createAchievementSetClaimGroup({ game });
 
     render(<ClaimMobileBlock claim={claim} variant="completed" />);
 
@@ -57,7 +57,7 @@ describe('Component: ClaimMobileBlock', () => {
   it('displays the developer display name', () => {
     // ARRANGE
     const user = createUser({ displayName: 'Scott' });
-    const claim = createAchievementSetClaim({ users: [user] });
+    const claim = createAchievementSetClaimGroup({ users: [user] });
 
     render(<ClaimMobileBlock claim={claim} variant="completed" />);
 
@@ -73,7 +73,7 @@ describe('Component: ClaimMobileBlock', () => {
 
     const created = dayjs.utc().subtract(1, 'week').toISOString();
     const finished = dayjs.utc().subtract(1, 'hour').toISOString();
-    const claim = createAchievementSetClaim({ created, finished, users: [user] });
+    const claim = createAchievementSetClaimGroup({ created, finished, users: [user] });
 
     render(<ClaimMobileBlock claim={claim} variant="completed" />);
 
@@ -90,7 +90,7 @@ describe('Component: ClaimMobileBlock', () => {
 
     const created = dayjs.utc().subtract(1, 'week').toISOString();
     const finished = dayjs.utc().subtract(1, 'hour').toISOString();
-    const claim = createAchievementSetClaim({ created, finished, users: [user] });
+    const claim = createAchievementSetClaimGroup({ created, finished, users: [user] });
 
     render(<ClaimMobileBlock claim={claim} variant="new" />);
 

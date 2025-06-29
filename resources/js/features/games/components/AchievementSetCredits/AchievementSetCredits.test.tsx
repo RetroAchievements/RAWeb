@@ -1,11 +1,14 @@
 import { render, screen } from '@/test';
-import { createUserCredits } from '@/test/factories';
+import { createAchievementSetClaim, createUserCredits } from '@/test/factories';
 
 import { AchievementSetCredits } from './AchievementSetCredits';
 
 // Shallow render the children.
 vi.mock('./AchievementAuthorsDisplay', () => ({
   AchievementAuthorsDisplay: vi.fn(() => <div data-testid="achievement-authors-display" />),
+}));
+vi.mock('./ClaimantsDisplay', () => ({
+  ClaimantsDisplay: vi.fn(() => <div data-testid="claimants-display" />),
 }));
 vi.mock('./ArtworkCreditsDisplay', () => ({
   ArtworkCreditsDisplay: vi.fn(() => <div data-testid="artwork-credits-display" />),
@@ -20,23 +23,26 @@ vi.mock('./DesignCreditsDisplay', () => ({
 describe('Component: AchievementSetCredits', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<AchievementSetCredits />);
+    const aggregateCredits = {
+      achievementsAuthors: [],
+      achievementSetArtwork: [],
+      achievementsArtwork: [],
+      achievementsLogic: [],
+      achievementsMaintainers: [],
+      achievementsDesign: [],
+      achievementsTesting: [],
+      achievementsWriting: [],
+    };
+
+    const { container } = render(<AchievementSetCredits />, {
+      pageProps: { achievementSetClaims: [], aggregateCredits },
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
   });
 
-  it('given no aggregate credits, returns null', () => {
-    // ARRANGE
-    render(<AchievementSetCredits />, {
-      pageProps: { aggregateCredits: null },
-    });
-
-    // ASSERT
-    expect(screen.queryByTestId('set-credits')).not.toBeInTheDocument();
-  });
-
-  it('given aggregate credits exist, always shows the achievement authors display', () => {
+  it('given there are no credits and no claims, displays nothing', () => {
     // ARRANGE
     const aggregateCredits = {
       achievementsAuthors: [],
@@ -49,11 +55,13 @@ describe('Component: AchievementSetCredits', () => {
       achievementsWriting: [],
     };
 
-    render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
+    render(<AchievementSetCredits />, {
+      pageProps: { achievementSetClaims: [], aggregateCredits },
+    });
 
     // ASSERT
-    expect(screen.getByTestId('set-credits')).toBeVisible();
-    expect(screen.getByTestId('achievement-authors-display')).toBeVisible();
+    expect(screen.queryByTestId('set-credits')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('achievement-authors-display')).not.toBeInTheDocument();
   });
 
   it('given artwork credits exist, shows the artwork credits display', () => {
@@ -69,7 +77,9 @@ describe('Component: AchievementSetCredits', () => {
       achievementsWriting: [],
     };
 
-    render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
+    render(<AchievementSetCredits />, {
+      pageProps: { achievementSetClaims: [], aggregateCredits },
+    });
 
     // ASSERT
     expect(screen.getByTestId('artwork-credits-display')).toBeVisible();
@@ -88,7 +98,9 @@ describe('Component: AchievementSetCredits', () => {
       achievementsWriting: [],
     };
 
-    render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
+    render(<AchievementSetCredits />, {
+      pageProps: { achievementSetClaims: [], aggregateCredits },
+    });
 
     // ASSERT
     expect(screen.getByTestId('code-credits-display')).toBeVisible();
@@ -107,7 +119,9 @@ describe('Component: AchievementSetCredits', () => {
       achievementsWriting: [createUserCredits({ displayName: 'Grace' })],
     };
 
-    render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
+    render(<AchievementSetCredits />, {
+      pageProps: { achievementSetClaims: [], aggregateCredits },
+    });
 
     // ASSERT
     expect(screen.getByTestId('design-credits-display')).toBeVisible();
@@ -127,7 +141,9 @@ describe('Component: AchievementSetCredits', () => {
       achievementsWriting: [],
     };
 
-    render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
+    render(<AchievementSetCredits />, {
+      pageProps: { achievementSetClaims: [], aggregateCredits },
+    });
 
     // ASSERT
     // ... component should still show because there's at least one unique user ...
@@ -148,14 +164,16 @@ describe('Component: AchievementSetCredits', () => {
       achievementsWriting: [],
     };
 
-    render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
+    render(<AchievementSetCredits />, {
+      pageProps: { achievementSetClaims: [], aggregateCredits },
+    });
 
     // ASSERT
     // ... code credits should not show because filtered logic credits is empty and no maintainers ...
     expect(screen.queryByTestId('code-credits-display')).not.toBeInTheDocument();
   });
 
-  it('given only empty credit arrays, only shows the authors display', () => {
+  it('given active claims, shows claimants', () => {
     // ARRANGE
     const aggregateCredits = {
       achievementsAuthors: [],
@@ -168,13 +186,12 @@ describe('Component: AchievementSetCredits', () => {
       achievementsWriting: [],
     };
 
-    render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
+    render(<AchievementSetCredits />, {
+      pageProps: { achievementSetClaims: [createAchievementSetClaim()], aggregateCredits },
+    });
 
     // ASSERT
-    expect(screen.getByTestId('achievement-authors-display')).toBeVisible();
-    expect(screen.queryByTestId('artwork-credits-display')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('code-credits-display')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('design-credits-display')).not.toBeInTheDocument();
+    expect(screen.getByTestId('claimants-display')).toBeVisible();
   });
 
   it('given all credit types have users, shows all displays', () => {
@@ -190,7 +207,9 @@ describe('Component: AchievementSetCredits', () => {
       achievementsWriting: [],
     };
 
-    render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
+    render(<AchievementSetCredits />, {
+      pageProps: { achievementSetClaims: [], aggregateCredits },
+    });
 
     // ASSERT
     expect(screen.getByTestId('achievement-authors-display')).toBeVisible();
