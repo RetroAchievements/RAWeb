@@ -97,6 +97,21 @@ class AchievementSetClaim extends BaseModel
         return $this->attributes['Status'] ?? null;
     }
 
+    public function getUserLastPlayedAtAttribute(): ?\Carbon\Carbon
+    {
+        if (!$this->user_id || !$this->game_id) {
+            return null;
+        }
+
+        $playerSession = PlayerSession::query()
+            ->where('game_id', $this->game_id)
+            ->where('user_id', $this->user_id)
+            ->orderByDesc('updated_at')
+            ->first(['updated_at']);
+
+        return $playerSession?->updated_at;
+    }
+
     // == mutators
 
     // == relations
