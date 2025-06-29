@@ -341,7 +341,7 @@ class BuildGameShowPagePropsAction
     {
         // Build the include array based on current user permissions.
         $claimIncludes = ['user', 'finishedAt'];
-        if ($user && ($user->hasRole(Role::MODERATOR) || $user->hasRole(Role::ADMINISTRATOR))) {
+        if ($user && $user->hasAnyRole([Role::DEV_COMPLIANCE, Role::MODERATOR, Role::ADMINISTRATOR])) {
             $claimIncludes[] = 'userLastPlayedAt';
         }
 
