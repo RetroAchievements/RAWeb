@@ -118,4 +118,56 @@ describe('Component: GameShowMainRoot', () => {
     expect(imageUrls).toContain('ingame.jpg');
     expect(imageUrls).toContain('title.jpg');
   });
+
+  it('given the game page has a content warning, displays the content warning dialog', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+    });
+
+    render(<GameShowMainRoot />, {
+      pageProps: {
+        game,
+        can: {},
+        hasMatureContent: true, // !!
+        hubs: [],
+        recentVisibleComments: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('alertdialog', { name: /content warning/i })).toBeVisible();
+  });
+
+  it('given the game does not have a content warning, does not display the content warning dialog', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+    });
+
+    render(<GameShowMainRoot />, {
+      pageProps: {
+        game,
+        can: {},
+        hasMatureContent: false, // !!
+        hubs: [],
+        recentVisibleComments: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('alertdialog', { name: /content warning/i })).not.toBeInTheDocument();
+  });
 });
