@@ -23,8 +23,8 @@ class GameShowPagePropsData extends Data
         public ?AggregateAchievementSetCreditsData $aggregateCredits,
         public GameData $game,
         public UserPermissionsData $can,
-        /** @var GameSetData[] */
         public bool $hasMatureContent,
+        /** @var GameSetData[] */
         public array $hubs,
         public bool $isOnWantToDevList,
         public bool $isOnWantToPlayList,
