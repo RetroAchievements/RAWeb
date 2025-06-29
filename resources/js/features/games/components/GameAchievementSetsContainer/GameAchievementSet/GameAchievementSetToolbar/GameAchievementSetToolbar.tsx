@@ -17,9 +17,6 @@ import {
   isMissableOnlyFilterEnabledAtom,
 } from '@/features/games/state/games.atoms';
 
-// TODO light mode
-// TODO mobile
-
 interface GameAchievementSetToolbarProps {
   lockedAchievementsCount: number;
   missableAchievementsCount: number;
@@ -59,7 +56,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
   };
 
   return (
-    <div className="-mt-1.5 flex w-full items-center justify-between rounded bg-embed px-2 py-1.5">
+    <div className="-mt-1.5 flex w-full flex-col items-center justify-between gap-2 rounded bg-embed px-2 py-1.5 sm:flex-row">
       <AchievementSortButton
         value={currentAchievementSort}
         onChange={(newValue) => setCurrentAchievementSort(newValue)}
@@ -75,13 +72,18 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
           'type',
           '-type',
         ]}
+        buttonClassName="w-full sm:w-auto"
       />
 
-      <div className="flex gap-2">
+      <div className="flex w-full gap-2 sm:w-auto">
         {lockedAchievementsCount ? (
           <BaseToggle
             size="sm"
-            className="flex h-[30px] items-center gap-1 !text-[13px] lg:active:translate-y-[1px] lg:active:scale-[0.98]"
+            className={cn([
+              'flex h-[30px] items-center gap-1 whitespace-nowrap !text-[13px] lg:active:translate-y-[1px] lg:active:scale-[0.98]',
+              'light:bg-white light:hover:bg-neutral-50 light:hover:text-neutral-700',
+              'data-[state=on]:light:border-neutral-700 data-[state=on]:light:bg-neutral-50 data-[state=on]:light:text-neutral-900',
+            ])}
             variant="outline"
             pressed={isLockedOnlyFilterEnabled}
             onPressedChange={handleToggleLockedOnlyFilter}
@@ -94,7 +96,11 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
         {missableAchievementsCount ? (
           <BaseToggle
             size="sm"
-            className="group flex h-[30px] items-center gap-0.5 !text-[13px] lg:active:translate-y-[1px] lg:active:scale-[0.98]"
+            className={cn([
+              'group flex h-[30px] w-full items-center gap-1 !text-[13px] sm:w-auto lg:active:translate-y-[1px] lg:active:scale-[0.98]',
+              'light:bg-white light:hover:bg-neutral-50 light:hover:text-neutral-700',
+              'data-[state=on]:light:border-neutral-700 data-[state=on]:light:bg-neutral-50 data-[state=on]:light:text-neutral-900',
+            ])}
             variant="outline"
             pressed={isMissableOnlyFilterEnabled}
             onPressedChange={handleToggleMissableOnlyFilter}
