@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
-import { createMessageThread, createPaginatedData } from '@/test/factories';
+import { createMessageThread, createPaginatedData, createUser } from '@/test/factories';
 
 import { MessagesIndexRoot } from './MessagesIndexRoot';
 
@@ -82,7 +82,7 @@ describe('Component: MessagesIndexRoot', () => {
         paginatedMessageThreads: createPaginatedData([]),
         unreadMessageCount: 0,
         selectableInboxDisplayNames: ['Scott'],
-        senderUserDisplayName: 'Scott',
+        senderUser: createUser({ displayName: 'Scott' }),
       },
     });
 
@@ -156,7 +156,7 @@ describe('Component: MessagesIndexRoot', () => {
             },
           },
         ),
-        senderUserDisplayName: 'Scott',
+        senderUser: createUser({ displayName: 'Scott' }),
         unreadMessageCount: 0,
         selectableInboxDisplayNames: [],
       },
@@ -192,7 +192,7 @@ describe('Component: MessagesIndexRoot', () => {
             },
           },
         ),
-        senderUserDisplayName: 'RAdmin',
+        senderUser: createUser({ displayName: 'RAdmin' }),
         unreadMessageCount: 0,
         selectableInboxDisplayNames: [],
       },
