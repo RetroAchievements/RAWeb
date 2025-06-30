@@ -76,10 +76,8 @@ class BuildGameShowPagePropsAction
             ->filter(
                 fn ($game) => !str_contains($game->title, '[Subset')
             )
-            ->sortBy([
-                ['achievements_published', 'desc'], // Prioritize games with achievements.
-                ['sort_title', 'asc'], // Then sort alphabetically by sort_title.
-            ]);
+            ->sortBy('sort_title')
+            ->sortByDesc(fn ($game) => $game->achievements_published > 0);
 
         /**
          * If the user doesn't have permission to view a related hub,
