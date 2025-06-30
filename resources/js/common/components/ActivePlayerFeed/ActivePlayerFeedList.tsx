@@ -23,7 +23,7 @@ export const ActivePlayerFeedList: FC<ActivePlayerFeedListProps> = ({ onLoadMore
             <GameAvatar {...player.game} showLabel={false} />
           </div>
 
-          <div className="flex flex-col">
+          <div className="ml-1 flex flex-col">
             <GameAvatar {...player.game} showImage={false} />
 
             <p className="line-clamp-1 text-2xs" style={{ wordBreak: 'break-word' }}>
