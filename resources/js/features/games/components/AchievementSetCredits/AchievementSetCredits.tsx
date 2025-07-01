@@ -4,13 +4,15 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { AchievementAuthorsDisplay } from './AchievementAuthorsDisplay';
 import { ArtworkCreditsDisplay } from './ArtworkCreditsDisplay';
+import { ClaimantsDisplay } from './ClaimantsDisplay';
 import { CodeCreditsDisplay } from './CodeCreditsDisplay';
 import { DesignCreditsDisplay } from './DesignCreditsDisplay';
 
 export const AchievementSetCredits: FC = () => {
-  const { aggregateCredits } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { achievementSetClaims, aggregateCredits } =
+    usePageProps<App.Platform.Data.GameShowPageProps>();
 
-  if (!aggregateCredits) {
+  if (!achievementSetClaims?.length && !aggregateCredits) {
     return null;
   }
 
@@ -42,14 +44,30 @@ export const AchievementSetCredits: FC = () => {
     (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
   );
 
+  if (
+    !aggregateCredits.achievementsAuthors.length &&
+    !artCreditUsers.length &&
+    !codingCreditUsers.length &&
+    !designCreditUsers.length &&
+    !achievementSetClaims.length
+  ) {
+    return null;
+  }
+
   return (
     <div
       data-testid="set-credits"
       className="hidden items-center justify-between text-neutral-300 light:text-neutral-700 sm:flex"
     >
-      <div className="flex w-full items-center rounded py-1 lg:flex-col lg:items-start lg:gap-2 xl:flex-row xl:items-center xl:gap-0">
+      <div className="flex w-full items-center rounded lg:flex-col lg:items-start lg:gap-2 xl:flex-row xl:items-center xl:gap-0">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 xl:gap-4">
-          <AchievementAuthorsDisplay authors={aggregateCredits.achievementsAuthors} />
+          {aggregateCredits.achievementsAuthors.length ? (
+            <AchievementAuthorsDisplay authors={aggregateCredits.achievementsAuthors} />
+          ) : null}
+
+          {achievementSetClaims.length ? (
+            <ClaimantsDisplay achievementSetClaims={achievementSetClaims} />
+          ) : null}
 
           {artCreditUsers.length ? (
             <ArtworkCreditsDisplay

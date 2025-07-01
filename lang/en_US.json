@@ -1009,5 +1009,9 @@
     "Code Contributors": "Code Contributors",
     "Achievement Design/Ideas": "Achievement Design/Ideas",
     "Playtesters": "Playtesters",
-    "Writing Contributions": "Writing Contributions"
+    "Writing Contributions": "Writing Contributions",
+    "Claimed by": "Claimed by",
+    "Active Claims": "Active Claims",
+    "Last Played": "Last Played",
+    "Expires {{date}}": "Expires {{date}}"
 }
