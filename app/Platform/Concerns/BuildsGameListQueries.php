@@ -329,15 +329,13 @@ trait BuildsGameListQueries
      *
      * 1. If released_at_granularity is set to "year", the release date is normalized
      *    to the last day of that year (eg: "1985-12-31").
-     * 2. If released_at_granularity is set to "month", the release date is normalized
-     *    to the first day of that month, but with an adjusted granularity order
-     *    to ensure it sorts after all day-specific dates in that month.
+     * 2. If released_at_granularity is set to "month", the release date is appended
+     *    with "-32" to ensure it sorts after all day-specific dates in that month.
      * 3. If no granularity is set, or the granularity is "day", the release date is used as-is.
      *
-     * This approach ensures that games with less precise release dates are sorted logically
-     * while maintaining the correct order relative to their peers. For dates with the same
-     * normalized value, we use granularity_order as a secondary sort to ensure more specific
-     * dates (day) come before less specific dates (month, year).
+     * This ensures that more specific dates always sort before less specific dates.
+     * For example, "November 11, 1994" will sort before "November 1994", and
+     * "December 28, 1991" will sort before "1991".
      *
      * @param Builder<Game> $query
      */
@@ -346,19 +344,6 @@ trait BuildsGameListQueries
         // We're extra careful here to use functions supported by both MariaDB
         // and SQLite. This is preferable to altering the query specifically for
         // SQLite, because if we do so then we can't actually trust any test results.
-
-        // For proper sorting, we normalize dates and use a granularity order:
-        // - Year dates become last day of year (Dec 31).
-        // - Month dates become first day of month (1st).
-        // - Day dates remain as-is.
-        //
-        // The granularity_order ensures that when dates are equal:
-        // - Day-specific dates sort first (order = 1)
-        // - Month-specific dates sort second (order = 2)
-        // - Year-specific dates sort last (order = 3)
-        //
-        // This means a game released on "May 29, 1998" will sort before
-        // a game released in "May 1998" (which normalizes to May 1, 1998).
         $query
             ->selectRaw(<<<SQL
                 GameData.*,
@@ -366,22 +351,21 @@ trait BuildsGameListQueries
                     WHEN GameData.released_at_granularity = 'year' THEN
                         DATE(CONCAT(SUBSTR(GameData.released_at, 1, 4), '-12-31'))
                     WHEN GameData.released_at_granularity = 'month' THEN
-                        DATE(CONCAT(SUBSTR(GameData.released_at, 1, 7), '-01'))
+                        -- Append '-32' to push month dates after all possible days.
+                        CONCAT(SUBSTR(GameData.released_at, 1, 7), '-32')
                     ELSE
                         COALESCE(GameData.released_at, '9999-12-31')
                 END AS normalized_released_at,
                 CASE GameData.released_at_granularity
-                    WHEN 'day' THEN 1
+                    WHEN 'year' THEN 1
                     WHEN 'month' THEN 2
-                    WHEN 'year' THEN 3
+                    WHEN 'day' THEN 3
                     ELSE 4
                 END AS granularity_order
             SQL)
             ->orderByRaw('released_at IS NULL') // Ensure NULL release dates always sort to the end, regardless of sort direction.
             ->orderBy('normalized_released_at', $sortDirection)
-            // When dates are equal, use the opposite direction for granularity to ensure
-            // more specific dates come first when sorting ascending, and last when descending.
-            ->orderBy('granularity_order', $sortDirection === 'asc' ? 'asc' : 'desc');
+            ->orderBy('granularity_order', $sortDirection);
     }
 
     /**
