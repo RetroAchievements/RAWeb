@@ -10,6 +10,7 @@ use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\PlayerGame;
+use App\Models\PlayerProgressReset;
 use App\Models\User;
 use App\Platform\Actions\ComputeAchievementsSetPublishedAtAction;
 use App\Platform\Enums\AchievementFlag;
@@ -61,7 +62,18 @@ class PlayerGameActivityService
             $gameIds[] = $game->id;
         }
 
-        $playerSessions = $user->playerSessions()->with('gameHash')->whereIn('game_id', $gameIds)->orderBy('created_at')->get();
+        // Get the most recent reset for this user and game.
+        // If the player has a recent for the game, we only want to include
+        // sessions from after the most recent reset.
+        $lastReset = PlayerProgressReset::forUserAndGame($user, $game)->first();
+        $playerSessionsQuery = $user->playerSessions()
+            ->with('gameHash')
+            ->whereIn('game_id', $gameIds);
+        if ($lastReset) {
+            $playerSessionsQuery->where('created_at', '>=', $lastReset->created_at);
+        }
+
+        $playerSessions = $playerSessionsQuery->orderBy('created_at')->get();
 
         foreach ($playerSessions as $playerSession) {
             $session = [
