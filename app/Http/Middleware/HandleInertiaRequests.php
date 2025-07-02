@@ -8,7 +8,6 @@ use Closure;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Symfony\Component\HttpFoundation\Response;
-use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -108,10 +107,12 @@ class HandleInertiaRequests extends Middleware
             ],
 
             'ziggy' => fn () => [
-                ...(new Ziggy())->toArray(),
+                'defaults' => [],
                 'device' => (new GetUserDeviceKindAction())->execute(),
                 'location' => $request->url(),
+                'port' => $request->getPort(),
                 'query' => $request->query(),
+                'url' => $request->getSchemeAndHttpHost(),
             ],
         ]);
     }
