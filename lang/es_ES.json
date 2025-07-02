@@ -141,7 +141,7 @@
     "Game Details": "Detalles del juego",
     "Games": "Juegos",
     "Games Beaten": "Juegos superados",
-    "Games Mastered": "Juegos dominados",
+    "Sets Mastered": "Sets dominados",
     "Getting involved in a QA sub-team.": "Colaborar en un equipo dentro del control de calidad.",
     "Getting involved with RANews.": "Colaborar con RANews.",
     "Global Beaten Games Ranking": "Clasificación global de juegos superados",
@@ -930,6 +930,15 @@
     "region_ww": "Mundialmente",
     "Series": "Series",
     "({{val, number}} with achievements)": "({{val, number}} con logros)",
+    "Credits": "Créditos",
+    "Achievement Authors": "Autores de los logros",
+    "Game Badge Artwork": "Arte de la insignia del juego",
+    "Achievement Artwork": "Arte del logro",
+    "Achievement Maintainers": "Encargados de los logros",
+    "Code Contributors": "Colaboradores de código",
+    "Achievement Design/Ideas": "Diseño/ideas de los logros",
+    "Playtesters": "Probadores",
+    "Writing Contributions": "Colaboraciones de redacción",
     "supportedGameFilesCountLabel_one": "Actualmente <1>{{count, number}}</1> registro de hash de archivo soportado registrado para este juego.",
     "supportedGameFilesCountLabel_other": "Actualmente hay registrados <1>{{count, number}}</1> hashes de archivos soportados registrados para este juego.",
     "userCount_one": "Hay <1>{{userCount, number}}</1> usuario en línea.",
@@ -997,5 +1006,7 @@
     "metaSetting_other": "Ajustes",
     "metaSetting_one": "Ajuste",
     "{{val, number}} results_one": "{{val, number}} resultado",
-    "{{val, number}} results_other": "{{val, number}} resultados"
+    "{{val, number}} results_other": "{{val, number}} resultados",
+    "{{val, number}} authors_one": "{{val, number}} autor",
+    "{{val, number}} authors_other": "{{val, number}} autores"
 }
