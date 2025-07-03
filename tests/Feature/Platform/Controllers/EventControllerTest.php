@@ -43,8 +43,8 @@ class EventControllerTest extends TestCase
         $response->assertInertia(fn ($page) => $page
             ->has('event.id')
             ->where('event.legacyGame.title', 'Event 001')
-            ->where('playerGame', null)
-            ->where('playerGameProgressionAwards', null)
+            ->missing('playerGame')
+            ->missing('playerGameProgressionAwards')
             ->etc()
         );
     }
