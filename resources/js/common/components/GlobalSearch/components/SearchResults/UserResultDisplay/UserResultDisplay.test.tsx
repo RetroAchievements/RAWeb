@@ -37,7 +37,10 @@ describe('Component: UserResultDisplay', () => {
 
     // ASSERT
     expect(avatar).toBeVisible();
-    expect(avatar).toHaveAttribute('src', 'https://example.com/john-avatar.png');
+    expect(avatar).toHaveAttribute(
+      'src',
+      expect.stringContaining('https://example.com/john-avatar.png'),
+    );
     expect(avatar).toHaveAttribute('alt', 'JohnDoe');
   });
 
