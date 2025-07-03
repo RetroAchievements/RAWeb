@@ -11,6 +11,16 @@ import { GameCommentList } from '../GameCommentList';
 import { GameHeaderSlotContent } from '../GameHeaderSlotContent';
 
 export const GameShowMainRoot: FC = () => {
+  const props = usePageProps();
+
+  // Calculate the size of props in KB
+  const propsString = JSON.stringify(props);
+  const propsSizeInBytes = new Blob([propsString]).size;
+  const propsSizeInKB = (propsSizeInBytes / 1024).toFixed(2);
+
+  console.log(`Props size: ${propsSizeInKB} KB`);
+  console.log(props);
+
   const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   if (!game.badgeUrl || !game.system?.iconUrl) {
