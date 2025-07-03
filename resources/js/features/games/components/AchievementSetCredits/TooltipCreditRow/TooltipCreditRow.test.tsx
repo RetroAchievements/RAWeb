@@ -23,7 +23,7 @@ describe('Component: TooltipCreditRow', () => {
     // ASSERT
     const avatar = screen.getByRole('img');
     expect(avatar).toBeVisible();
-    expect(avatar).toHaveAttribute('src', credit.avatarUrl);
+    expect(avatar).toHaveAttribute('src', expect.stringContaining(credit.avatarUrl));
 
     expect(screen.getByText(/scott/i)).toBeVisible();
   });

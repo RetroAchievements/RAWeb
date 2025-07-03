@@ -6,6 +6,7 @@ import { BaseSelectAsync } from '@/common/components/+vendor/BaseSelectAsync';
 import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useUserSearchQuery } from '@/common/hooks/useUserSearchQuery';
+import { buildUserAvatarUrl } from '@/common/utils/buildUserAvatarUrl';
 
 import { PopulatedPlayerCompletions } from './PopulatedPlayerCompletions';
 import { useSelectAutoWidth } from './useSelectAutoWidth';
@@ -80,13 +81,13 @@ export const PlayableCompareProgress: FC<PlayableCompareProgressProps> = ({
             getOptionValue={(user) => user.displayName}
             getDisplayValue={(user) => (
               <div className="flex items-center gap-2">
-                <img className="size-6 rounded-sm" src={user.avatarUrl} />
+                <img className="size-6 rounded-sm" src={buildUserAvatarUrl(user.avatarUrl)} />
                 <span className="font-medium">{user.displayName}</span>
               </div>
             )}
             renderOption={(user) => (
               <div className="flex items-center gap-2">
-                <img className="size-6 rounded-sm" src={user.avatarUrl} />
+                <img className="size-6 rounded-sm" src={buildUserAvatarUrl(user.avatarUrl)} />
                 <span className="font-medium">{user.displayName}</span>
               </div>
             )}

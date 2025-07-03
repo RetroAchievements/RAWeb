@@ -11,6 +11,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useUserSearchQuery } from '@/common/hooks/useUserSearchQuery';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
+import { buildUserAvatarUrl } from '@/common/utils/buildUserAvatarUrl';
 import { EventAchievementSection } from '@/features/events/components/EventAchievementSetContainer/EventAchievementSet/EventAchievementSection';
 
 const UserAchievementChecklist: AppPage = () => {
@@ -51,13 +52,13 @@ const UserAchievementChecklist: AppPage = () => {
               getOptionValue={(user) => user.displayName}
               getDisplayValue={(user) => (
                 <div className="flex items-center gap-2">
-                  <img className="size-6 rounded-sm" src={user.avatarUrl} />
+                  <img className="size-6 rounded-sm" src={buildUserAvatarUrl(user.avatarUrl)} />
                   <span className="font-medium">{user.displayName}</span>
                 </div>
               )}
               renderOption={(user) => (
                 <div className="flex items-center gap-2">
-                  <img className="size-6 rounded-sm" src={user.avatarUrl} />
+                  <img className="size-6 rounded-sm" src={buildUserAvatarUrl(user.avatarUrl)} />
                   <span className="font-medium">{user.displayName}</span>
                 </div>
               )}
