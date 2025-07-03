@@ -92,7 +92,24 @@ class BuildGameShowPagePropsAction
 
                 return $user->can('view', $hub);
             })
-            ->map(fn ($hub) => GameSetData::from($hub)->include('isEventHub'))
+            ->map(function ($hub) {
+                $data = GameSetData::from($hub)->include('isEventHub');
+
+                // Always remove updatedAt.
+                $data = $data->except('updatedAt');
+
+                // Remove isEventHub if it isn't true.
+                if (!$hub->is_event_hub) {
+                    $data = $data->except('isEventHub');
+                }
+
+                // Remove fields from hubs that don't have "Series" or "Meta|" in the title.
+                if (!str_contains($hub->title, 'Series') && !str_contains($hub->title, 'Meta|')) {
+                    $data = $data->except('badgeUrl', 'gameCount', 'linkCount', 'type');
+                }
+
+                return $data;
+            })
             ->values()
             ->all();
 
