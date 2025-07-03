@@ -228,7 +228,7 @@ class HomeControllerTest extends TestCase
         // Assert
         $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page
-            ->where('achievementOfTheWeek', null)
+            ->missing('achievementOfTheWeek')
         );
     }
 
@@ -422,7 +422,7 @@ class HomeControllerTest extends TestCase
             ->where('currentlyOnline.logEntries', array_fill(0, 48, 0))
             ->where('currentlyOnline.numCurrentPlayers', 0)
             ->where('currentlyOnline.allTimeHighPlayers', 0)
-            ->where('currentlyOnline.allTimeHighDate', null)
+            ->missing('currentlyOnline.allTimeHighDate')
         );
     }
 
@@ -649,8 +649,8 @@ class HomeControllerTest extends TestCase
             ->where('recentForumPosts.0.id', $topic->id)
             ->where('recentForumPosts.0.title', $topic->title)
 
-            ->where('recentForumPosts.0.commentCount24h', null)
-            ->where('recentForumPosts.0.commentCount7d', null)
+            ->missing('recentForumPosts.0.commentCount24h')
+            ->missing('recentForumPosts.0.commentCount7d')
 
             ->where('recentForumPosts.0.latestComment.id', $comment->id)
             ->where('recentForumPosts.0.latestComment.body', 'This is a test forum post with enough content to test truncation This is a test forum post with enou...')

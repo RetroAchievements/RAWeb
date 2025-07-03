@@ -48,8 +48,8 @@ class ReportAchievementIssueControllerTest extends TestCase
                 ->has('title')
                 ->has('badgeUnlockedUrl')
                 ->has('badgeLockedUrl')
-                ->has('unlockedAt')
-                ->has('unlockedHardcoreAt')
+                ->missing('unlockedAt')
+                ->missing('unlockedHardcoreAt')
                 ->has('game', fn (Assert $game) => $game
                     ->has('id')
                     ->has('title')

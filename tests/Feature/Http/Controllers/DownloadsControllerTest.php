@@ -49,7 +49,7 @@ class DownloadsControllerTest extends TestCase
             ->has('allSystems')
             ->has('topSystemIds')
             ->has('popularEmulatorsBySystem')
-            ->has('userDetectedPlatformId')
+            ->missing('userDetectedPlatformId')
             ->has('can')
         );
     }
