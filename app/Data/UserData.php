@@ -71,7 +71,7 @@ class UserData extends Data
         return new self(
             // == eager fields
             displayName: $user->display_name,
-            avatarUrl: "{$user->username}" . ".png",
+            avatarUrl: "{$user->username}.png",
 
             // == lazy fields
             apiKey: Lazy::create(fn () => $user->APIKey),
