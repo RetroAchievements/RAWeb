@@ -3,6 +3,7 @@ import { route } from 'ziggy-js';
 
 import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 import type { BaseAvatarProps } from '@/common/models';
+import { buildUserAvatarUrl } from '@/common/utils/buildUserAvatarUrl';
 import { cn } from '@/common/utils/cn';
 
 type UserAvatarProps = BaseAvatarProps &
@@ -40,7 +41,11 @@ export const UserAvatar: FC<UserAvatarProps> = ({
           decoding="async"
           width={size}
           height={size}
-          src={avatarUrl ?? 'https://media.retroachievements.org/UserPic/Server.png'}
+          src={
+            avatarUrl
+              ? buildUserAvatarUrl(avatarUrl)
+              : 'https://media.retroachievements.org/UserPic/Server.png'
+          }
           alt={displayName ?? 'Deleted User'}
           className={cn('rounded-sm', imgClassName)}
         />

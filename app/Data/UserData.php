@@ -60,7 +60,7 @@ class UserData extends Data
     {
         return new self(
             displayName: $topic['AuthorDisplayName'] ?? $topic['Author'],
-            avatarUrl: media_asset('UserPic/' . $topic['Author'] . '.png'),
+            avatarUrl: $topic['Author'] . '.png',
             id: Lazy::create(fn () => (int) $topic['author_id']),
             username: Lazy::create(fn () => $topic['Author']),
         );
@@ -71,7 +71,7 @@ class UserData extends Data
         return new self(
             // == eager fields
             displayName: $user->display_name,
-            avatarUrl: $user->avatar_url,
+            avatarUrl: "{$user->username}" . ".png",
 
             // == lazy fields
             apiKey: Lazy::create(fn () => $user->APIKey),

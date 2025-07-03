@@ -40,6 +40,7 @@ declare global {
   var getStringByteCount: typeof GetStringByteCount;
   var handleLeaderboardTabClick: typeof HandleLeaderboardTabClick;
   var initializeTextareaCounter: typeof InitializeTextareaCounter;
+  var mediaUrl: string;
   var modalComponent: typeof ModalComponent;
   var setCookie: typeof SetCookie;
   var showStatusFailure: (message: string) => void;

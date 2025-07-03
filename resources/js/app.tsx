@@ -12,6 +12,7 @@ import { Ziggy } from './ziggy';
 
 // @ts-expect-error -- we're injecting this on purpose
 globalThis.Ziggy = Ziggy;
+globalThis.mediaUrl = import.meta.env.VITE_MEDIA_URL;
 
 const appName = import.meta.env.APP_NAME || 'RetroAchievements';
 
