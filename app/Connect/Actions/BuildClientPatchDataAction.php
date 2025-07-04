@@ -10,6 +10,7 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameHash;
 use App\Models\PlayerGame;
+use App\Models\Role;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\VirtualGameIdService;
@@ -50,10 +51,24 @@ class BuildClientPatchDataAction
         }
 
         // If the hash is not marked as compatible, and the current user is not flagged to
-        // be testing the hash, return a dummy set that will inform the user.
-        if ($gameHash->compatibility !== GameHashCompatibility::Compatible
-                && $gameHash->compatibility_tester_id !== $user?->id) {
-            return $this->buildIncompatiblePatchData($game ?? $gameHash->game, $gameHash->compatibility, $user);
+        // be testing the hash, a QA member, or the set author, return a dummy set that will
+        // inform the user.
+        if ($gameHash->compatibility !== GameHashCompatibility::Compatible) {
+            $game ??= $gameHash->game;
+
+            $canSeeIncompatibleSet = false;
+            if ($user) {
+                if ($user->id === $gameHash->compatibility_tester_id
+                    || $user->hasRole(Role::QUALITY_ASSURANCE)) {
+                    $canSeeIncompatibleSet = true;
+                } else {
+                    $canSeeIncompatibleSet = $game->achievements()->where('user_id', $user->id)->exists();
+                }
+            }
+
+            if (!$canSeeIncompatibleSet) {
+                return $this->buildIncompatiblePatchData($game, $gameHash->compatibility, $user);
+            }
         }
 
         // Use the game from the hash for legacy clients.
