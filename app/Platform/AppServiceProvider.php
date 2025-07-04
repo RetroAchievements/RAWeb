@@ -24,6 +24,7 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
+use App\Platform\Commands\BackfillGameRecentPlayers;
 use App\Platform\Commands\BackfillPlaytimeTotal;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
@@ -81,6 +82,7 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 // Games
+                BackfillGameRecentPlayers::class,
                 TrimGameMetadata::class,
                 UpdateGameAchievementsMetrics::class,
                 UpdateGameBeatenMetrics::class,
