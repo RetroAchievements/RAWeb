@@ -156,8 +156,8 @@ class AppServiceProvider extends ServiceProvider
             $schedule = $this->app->make(Schedule::class);
 
             $schedule->command(UpdateSearchIndexForQueuedEntities::class)->twiceDaily(1, 13); // 1AM and 1PM UTC
-            $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
             $schedule->command(PruneGameRecentPlayers::class)->daily();
+            $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
 
             if (app()->environment() === 'production') {
                 $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
