@@ -25,6 +25,7 @@ interface PlayerGameProgressBarProps {
   playerGame: App.Platform.Data.PlayerGame | null;
 
   ariaLabel?: TranslatedString;
+  className?: string;
 
   /**
    * When undefined, defaults to game.show.
@@ -57,6 +58,7 @@ interface PlayerGameProgressBarProps {
 
 export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
   ariaLabel,
+  className,
   game,
   href,
   playerGame,
@@ -116,6 +118,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
           'group',
           achievementsUnlocked === 0 ? '!cursor-auto' : '',
           !highestAward && isTooltipEnabled ? 'py-2' : '', // increase the hover surface area
+          className,
         )}
         style={{ minWidth: width, maxWidth: width }}
       >

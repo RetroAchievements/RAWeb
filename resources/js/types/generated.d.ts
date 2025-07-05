@@ -677,6 +677,18 @@ declare namespace App.Platform.Data {
     persistedViewPreferences: Record<string, any> | null;
     defaultDesktopPageSize: number;
   };
+  export type GameRecentPlayer = {
+    isActive: boolean;
+    user: App.Data.User;
+    richPresence: string;
+    richPresenceUpdatedAt: string;
+    achievementsUnlocked: number;
+    achievementsUnlockedSoftcore: number;
+    achievementsUnlockedHardcore: number;
+    points: number;
+    pointsHardcore: number;
+    highestAward?: App.Platform.Data.PlayerBadge | null;
+  };
   export type GameRelease = {
     id: number;
     releasedAt: string | null;
@@ -713,6 +725,7 @@ declare namespace App.Platform.Data {
     numCompatibleHashes: number;
     numMasters: number;
     numOpenTickets: number;
+    recentPlayers: Array<App.Platform.Data.GameRecentPlayer>;
     recentVisibleComments: Array<App.Community.Data.Comment>;
     similarGames: Array<App.Platform.Data.Game>;
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;

@@ -33,6 +33,7 @@ describe('Component: GameShowMainRoot', () => {
         game,
         can: {},
         hubs: [createGameSet()],
+        recentPlayers: [],
         recentVisibleComments: [],
       },
     });
@@ -55,6 +56,7 @@ describe('Component: GameShowMainRoot', () => {
         game,
         can: {},
         hubs: [],
+        recentPlayers: [],
         recentVisibleComments: [],
       },
     });
@@ -84,6 +86,7 @@ describe('Component: GameShowMainRoot', () => {
         game,
         can: {},
         hubs: [],
+        recentPlayers: [],
         recentVisibleComments: [],
       },
     });
@@ -108,6 +111,7 @@ describe('Component: GameShowMainRoot', () => {
         game,
         can: {},
         hubs: [],
+        recentPlayers: [],
         recentVisibleComments: [],
       },
     });

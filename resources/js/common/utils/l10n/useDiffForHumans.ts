@@ -6,10 +6,19 @@ import { mapDayjsLocaleToIntlLocale } from '@/common/utils/l10n/mapDayjsLocaleTo
 export function useDiffForHumans() {
   const { t } = useTranslation();
 
-  const diffForHumans = (date: string, from?: string) => {
+  const diffForHumans = (date: string, from?: string, style?: Intl.RelativeTimeFormatStyle) => {
     const diffInSeconds = dayjs(from).diff(dayjs(date), 'second');
     const isPast = diffInSeconds > 0;
     const seconds = Math.abs(diffInSeconds);
+
+    const formatter = new Intl.RelativeTimeFormat(mapDayjsLocaleToIntlLocale(dayjs.locale()), {
+      numeric: 'always',
+      style: style ?? 'long',
+    });
+
+    if (style === 'narrow' && seconds < 60) {
+      return formatter.format(isPast ? -seconds : seconds, 'second');
+    }
 
     // Very recent times are handled manually.
     if (seconds === 0) {
@@ -21,11 +30,6 @@ export function useDiffForHumans() {
     if (seconds < 60) {
       return isPast ? t('less than a minute ago') : t('in less than a minute');
     }
-
-    // Use Intl.RelativeTimeFormat for everything else.
-    const formatter = new Intl.RelativeTimeFormat(mapDayjsLocaleToIntlLocale(dayjs.locale()), {
-      numeric: 'always',
-    });
 
     // Convert seconds to appropriate unit and get formatted string.
     switch (true) {
