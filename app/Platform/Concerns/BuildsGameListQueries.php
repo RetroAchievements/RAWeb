@@ -328,14 +328,14 @@ trait BuildsGameListQueries
      * The sorting logic works as follows:
      *
      * 1. If released_at_granularity is set to "year", the release date is normalized
-     *    to the first day of that year (eg: "1985-01-01").
-     * 2. If released_at_granularity is set to "month", the release date is normalized
-     *    to the first day of that month (eg: "1985-05-01").
+     *    to the last day of that year (eg: "1985-12-31").
+     * 2. If released_at_granularity is set to "month", the release date is appended
+     *    with "-32" to ensure it sorts after all day-specific dates in that month.
      * 3. If no granularity is set, or the granularity is "day", the release date is used as-is.
      *
-     * This ensures that games with less precise release dates are sorted logically while
-     * maintaining the correct order relative to their peers. Games are then ordered by their
-     * normalized release date, either ascending or descending.
+     * This ensures that more specific dates always sort before less specific dates.
+     * For example, "November 11, 1994" will sort before "November 1994", and
+     * "December 28, 1991" will sort before "1991".
      *
      * @param Builder<Game> $query
      */
@@ -349,9 +349,10 @@ trait BuildsGameListQueries
                 GameData.*,
                 CASE
                     WHEN GameData.released_at_granularity = 'year' THEN
-                        DATE(CONCAT(SUBSTR(GameData.released_at, 1, 4), '-01-01'))
+                        DATE(CONCAT(SUBSTR(GameData.released_at, 1, 4), '-12-31'))
                     WHEN GameData.released_at_granularity = 'month' THEN
-                        DATE(CONCAT(SUBSTR(GameData.released_at, 1, 7), '-01'))
+                        -- Append '-32' to push month dates after all possible days.
+                        CONCAT(SUBSTR(GameData.released_at, 1, 7), '-32')
                     ELSE
                         COALESCE(GameData.released_at, '9999-12-31')
                 END AS normalized_released_at,
@@ -362,8 +363,7 @@ trait BuildsGameListQueries
                     ELSE 4
                 END AS granularity_order
             SQL)
-            // Ensure NULL release dates always sort to the end, regardless of sort direction.
-            ->orderByRaw('released_at IS NULL')
+            ->orderByRaw('released_at IS NULL') // Ensure NULL release dates always sort to the end, regardless of sort direction.
             ->orderBy('normalized_released_at', $sortDirection)
             ->orderBy('granularity_order', $sortDirection);
     }

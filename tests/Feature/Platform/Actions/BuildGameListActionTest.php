@@ -372,8 +372,8 @@ class BuildGameListActionTest extends TestCase
         // Assert
         $this->assertEquals($result->items[0]->game->title, "Final Fantasy [Subset - Solo Class]");             // 1987-12-18, day
         $this->assertEquals($result->items[1]->game->title, "A-Mazing Tater | Puzzle Boy II");                  // 1991-08-02, day
-        $this->assertEquals($result->items[2]->game->title, "Dragon Quest III | Dragon Warrior III");           // 1992-10-15, month
-        $this->assertEquals($result->items[3]->game->title, "Double Moon Densetsu");                            // 1992-10-14, day
+        $this->assertEquals($result->items[2]->game->title, "Double Moon Densetsu");                            // 1992-10-14, day
+        $this->assertEquals($result->items[3]->game->title, "Dragon Quest III | Dragon Warrior III");           // 1992-10-15, month
         $this->assertEquals($result->items[4]->game->title, "~Hack~ Twitch Plays Pokemon: Anniversary Red");    // 2015-01-01, year
         $this->assertEquals($result->items[5]->game->title, "Cycle Race: Road Man");                            // null
     }
