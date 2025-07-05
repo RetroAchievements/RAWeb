@@ -4,13 +4,12 @@ use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\EventAchievement;
 use App\Models\Game;
+use App\Models\GameRecentPlayer;
 use App\Models\PlayerGame;
-use App\Models\PlayerSession;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\GameTopAchieversService;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 
 function getGameRankAndScore(int $gameID, User $user): array
 {
@@ -382,22 +381,14 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
 {
     $retval = [];
 
-    // determine the most recent session for each user who has played the game
-    $subquery = PlayerSession::where('game_id', $gameID)
-        ->groupBy('user_id')
-        ->select([DB::raw('MAX(rich_presence_updated_at) as rich_presence_updated_at'), 'user_id']);
-
-    // and use that information to get the recent session data for each user
-    $sessions = PlayerSession::where('game_id', $gameID)
-        ->join(DB::raw('(' . $subquery->toSql() . ') as subq'), function ($join) use ($subquery) {
-            $join->on('player_sessions.user_id', '=', 'subq.user_id')
-                 ->on('player_sessions.rich_presence_updated_at', '=', 'subq.rich_presence_updated_at')
-                 ->addBinding($subquery->getBindings());
+    $sessions = GameRecentPlayer::with(['user' => function ($query) {
+            $query->where('Permissions', '>=', Permissions::Unregistered);
+        }])
+        ->where('game_id', $gameID)
+        ->whereHas('user', function ($query) {
+            $query->where('Permissions', '>=', Permissions::Unregistered);
         })
-        ->join('UserAccounts', 'UserAccounts.ID', '=', 'player_sessions.user_id')
-        ->where('UserAccounts.Permissions', '>=', Permissions::Unregistered)
-        ->orderBy('rich_presence_updated_at', 'DESC')
-        ->select(['player_sessions.user_id', 'display_name', 'player_sessions.rich_presence', 'player_sessions.rich_presence_updated_at']);
+        ->orderBy('rich_presence_updated_at', 'DESC');
 
     if ($maximum_results) {
         $sessions = $sessions->limit($maximum_results);
@@ -406,7 +397,7 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
     foreach ($sessions->get() as $session) {
         $retval[] = [
             'UserID' => $session->user_id,
-            'User' => $session->display_name,
+            'User' => $session->user->display_name,
             'Date' => $session->rich_presence_updated_at->__toString(),
             'Activity' => $session->rich_presence,
             'NumAwarded' => 0,
