@@ -32,6 +32,7 @@ use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
 use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ProcessExpiringClaims;
+use App\Platform\Commands\PruneGameRecentPlayers;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\SyncAchievementAuthors;
 use App\Platform\Commands\SyncAchievements;
@@ -83,6 +84,7 @@ class AppServiceProvider extends ServiceProvider
             $this->commands([
                 // Games
                 BackfillGameRecentPlayers::class,
+                PruneGameRecentPlayers::class,
                 TrimGameMetadata::class,
                 UpdateGameAchievementsMetrics::class,
                 UpdateGameBeatenMetrics::class,
@@ -155,6 +157,7 @@ class AppServiceProvider extends ServiceProvider
 
             $schedule->command(UpdateSearchIndexForQueuedEntities::class)->twiceDaily(1, 13); // 1AM and 1PM UTC
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
+            $schedule->command(PruneGameRecentPlayers::class)->daily();
 
             if (app()->environment() === 'production') {
                 $schedule->command(UpdateAwardsStaticData::class)->everyMinute();

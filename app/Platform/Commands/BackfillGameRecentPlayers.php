@@ -40,25 +40,34 @@ class BackfillGameRecentPlayers extends Command
 
             foreach ($games as $game) {
                 $batchJobs[] = function () use ($game) {
-                    // Use a single query with window function to get the most recent session per user.
+                    // Get the 20 most recent players for this game.
                     $query = <<<SQL
                         INSERT INTO game_recent_players (game_id, user_id, rich_presence, rich_presence_updated_at)
                         SELECT 
-                            ps.game_id,
-                            ps.user_id,
-                            ps.rich_presence,
-                            ps.rich_presence_updated_at
+                            game_id,
+                            user_id,
+                            rich_presence,
+                            rich_presence_updated_at
                         FROM (
                             SELECT 
-                                game_id,
-                                user_id,
-                                rich_presence,
-                                rich_presence_updated_at,
-                                ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY rich_presence_updated_at DESC) as rn
-                            FROM player_sessions
-                            WHERE game_id = ?
-                        ) ps
-                        WHERE ps.rn = 1
+                                ps.game_id,
+                                ps.user_id,
+                                ps.rich_presence,
+                                ps.rich_presence_updated_at,
+                                ROW_NUMBER() OVER (ORDER BY ps.rich_presence_updated_at DESC) as recent_rank
+                            FROM (
+                                SELECT 
+                                    game_id,
+                                    user_id,
+                                    rich_presence,
+                                    rich_presence_updated_at,
+                                    ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY rich_presence_updated_at DESC) as rn
+                                FROM player_sessions
+                                WHERE game_id = ?
+                            ) ps
+                            WHERE ps.rn = 1
+                        ) ranked
+                        WHERE recent_rank <= 20
                         ON DUPLICATE KEY UPDATE
                             rich_presence = VALUES(rich_presence),
                             rich_presence_updated_at = VALUES(rich_presence_updated_at)
