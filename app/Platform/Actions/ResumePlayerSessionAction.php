@@ -7,6 +7,7 @@ namespace App\Platform\Actions;
 use App\Connect\Actions\ResolveAchievementSetsAction;
 use App\Models\Game;
 use App\Models\GameHash;
+use App\Models\GameRecentPlayer;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
@@ -91,6 +92,18 @@ class ResumePlayerSessionAction
                 $user->RichPresenceMsg = utf8_sanitize($presence);
                 $user->RichPresenceMsgDate = Carbon::now();
                 $user->saveQuietly();
+
+                // Update the player's game_recent_players table entry.
+                GameRecentPlayer::upsert(
+                    [
+                        'game_id' => $game->id,
+                        'user_id' => $user->id,
+                        'rich_presence' => $presence,
+                        'rich_presence_updated_at' => $timestamp,
+                    ],
+                    ['game_id', 'user_id'],
+                    ['rich_presence', 'rich_presence_updated_at']
+                );
             }
             $playerSession->rich_presence_updated_at = $timestamp > $playerSession->rich_presence_updated_at ? $timestamp : $playerSession->rich_presence_updated_at;
 
@@ -138,6 +151,18 @@ class ResumePlayerSessionAction
         ]);
 
         $user->playerSessions()->save($playerSession);
+
+        // Update the player's game_recent_players table entry.
+        GameRecentPlayer::upsert(
+            [
+                'game_id' => $game->id,
+                'user_id' => $user->id,
+                'rich_presence' => $presence,
+                'rich_presence_updated_at' => $timestamp,
+            ],
+            ['game_id', 'user_id'],
+            ['rich_presence', 'rich_presence_updated_at']
+        );
 
         PlayerSessionStarted::dispatch($user, $game, $presence);
 

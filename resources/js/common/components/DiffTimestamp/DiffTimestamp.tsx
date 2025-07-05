@@ -17,11 +17,13 @@ interface DiffTimestampProps {
   asAbsoluteDate?: boolean;
   className?: string;
   enableTooltip?: boolean;
+  style?: Intl.RelativeTimeFormatStyle;
 }
 
 export const DiffTimestamp: FC<DiffTimestampProps> = ({
   at,
   className,
+  style,
   asAbsoluteDate = false,
   enableTooltip = true,
 }) => {
@@ -38,7 +40,7 @@ export const DiffTimestamp: FC<DiffTimestampProps> = ({
   if (!enableTooltip) {
     return (
       <span className={className} suppressHydrationWarning={true}>
-        {diffForHumans(at, renderedAt)}
+        {diffForHumans(at, renderedAt, style)}
       </span>
     );
   }
@@ -47,7 +49,7 @@ export const DiffTimestamp: FC<DiffTimestampProps> = ({
     <BaseTooltip>
       <BaseTooltipTrigger className="cursor-default">
         <span className={className} suppressHydrationWarning={true}>
-          {diffForHumans(at, renderedAt)}
+          {diffForHumans(at, renderedAt, style)}
         </span>
       </BaseTooltipTrigger>
 
