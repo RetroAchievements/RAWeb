@@ -7,14 +7,14 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useGameBacklogState } from '@/features/game-list/components/GameListItems/useGameBacklogState';
 
 export const GameHeaderSlotContent: FC = () => {
-  const { game, isOnWantToPlayList: isInitiallyOnWantToPlayList } =
+  const { backingGame, isOnWantToPlayList: isInitiallyOnWantToPlayList } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
 
   const { toggleBacklog: toggleWantToPlay, isInBacklogMaybeOptimistic: isOnWantToPlayList } =
     useGameBacklogState({
-      game,
+      game: backingGame,
       isInitiallyInBacklog: isInitiallyOnWantToPlayList,
       userGameListType: 'play',
     });

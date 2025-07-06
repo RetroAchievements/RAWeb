@@ -16,7 +16,7 @@ interface GameSidebarFullWidthButtonsProps {
 }
 
 export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> = ({ game }) => {
-  const { auth, can, numCompatibleHashes, numOpenTickets } =
+  const { auth, backingGame, can, numCompatibleHashes, numOpenTickets } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
@@ -72,7 +72,10 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
               </PlayableSidebarButton>
 
               <PlayableSidebarButton
-                href={route('game.tickets', { game: game.id, 'filter[achievement]': 'core' })}
+                href={route('game.tickets', {
+                  game: backingGame.id,
+                  'filter[achievement]': 'core',
+                })}
                 IconComponent={LuTickets}
                 count={numOpenTickets}
               >

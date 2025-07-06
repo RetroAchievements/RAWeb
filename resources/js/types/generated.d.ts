@@ -701,8 +701,9 @@ declare namespace App.Platform.Data {
   };
   export type GameShowPageProps = {
     aggregateCredits: App.Platform.Data.AggregateAchievementSetCredits | null;
-    game: App.Platform.Data.Game;
+    backingGame: App.Platform.Data.Game;
     can: App.Data.UserPermissions;
+    game: App.Platform.Data.Game;
     hubs: Array<App.Platform.Data.GameSet>;
     isLockedOnlyFilterEnabled: boolean;
     isMissableOnlyFilterEnabled: boolean;
@@ -720,7 +721,9 @@ declare namespace App.Platform.Data {
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
+    selectableGameAchievementSets: Array<App.Platform.Data.GameAchievementSet>;
     seriesHub: App.Platform.Data.SeriesHub | null;
+    targetAchievementSetId: number | null;
   };
   export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;

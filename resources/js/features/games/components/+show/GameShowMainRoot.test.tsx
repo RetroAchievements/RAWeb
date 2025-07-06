@@ -31,6 +31,7 @@ describe('Component: GameShowMainRoot', () => {
     const { container } = render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         can: {},
         hubs: [createGameSet()],
         recentVisibleComments: [],
@@ -53,6 +54,7 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         can: {},
         hubs: [],
         recentVisibleComments: [],
@@ -82,6 +84,7 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         can: {},
         hubs: [],
         recentVisibleComments: [],
@@ -106,6 +109,7 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         can: {},
         hubs: [],
         recentVisibleComments: [],

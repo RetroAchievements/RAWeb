@@ -29,7 +29,7 @@ describe('Component: GameAchievementSetToolbar', () => {
 
     const { container } = render(
       <GameAchievementSetToolbar lockedAchievementsCount={5} missableAchievementsCount={3} />,
-      { pageProps: { game: mockGame } },
+      { pageProps: { backingGame: mockGame } },
     );
 
     // ASSERT
@@ -48,7 +48,7 @@ describe('Component: GameAchievementSetToolbar', () => {
 
     render(
       <GameAchievementSetToolbar lockedAchievementsCount={5} missableAchievementsCount={0} />,
-      { pageProps: { game: mockGame } },
+      { pageProps: { backingGame: mockGame } },
     );
 
     // ASSERT
@@ -67,7 +67,7 @@ describe('Component: GameAchievementSetToolbar', () => {
 
     render(
       <GameAchievementSetToolbar lockedAchievementsCount={0} missableAchievementsCount={3} />,
-      { pageProps: { game: mockGame } },
+      { pageProps: { backingGame: mockGame } },
     );
 
     // ASSERT
@@ -86,7 +86,7 @@ describe('Component: GameAchievementSetToolbar', () => {
 
     render(
       <GameAchievementSetToolbar lockedAchievementsCount={0} missableAchievementsCount={7} />,
-      { pageProps: { game: mockGame } },
+      { pageProps: { backingGame: mockGame } },
     );
 
     // ASSERT
@@ -106,7 +106,7 @@ describe('Component: GameAchievementSetToolbar', () => {
 
     render(
       <GameAchievementSetToolbar lockedAchievementsCount={5} missableAchievementsCount={0} />,
-      { pageProps: { game: mockGame } },
+      { pageProps: { backingGame: mockGame } },
     );
 
     // ASSERT
@@ -127,7 +127,7 @@ describe('Component: GameAchievementSetToolbar', () => {
 
     render(
       <GameAchievementSetToolbar lockedAchievementsCount={5} missableAchievementsCount={3} />,
-      { pageProps: { game: mockGame }, jotaiAtoms: initialAtomValues },
+      { pageProps: { backingGame: mockGame }, jotaiAtoms: initialAtomValues },
     );
 
     // ACT
@@ -151,7 +151,7 @@ describe('Component: GameAchievementSetToolbar', () => {
 
     render(
       <GameAchievementSetToolbar lockedAchievementsCount={5} missableAchievementsCount={3} />,
-      { pageProps: { game: mockGame }, jotaiAtoms: initialAtomValues },
+      { pageProps: { backingGame: mockGame }, jotaiAtoms: initialAtomValues },
     );
 
     // ACT
@@ -175,7 +175,7 @@ describe('Component: GameAchievementSetToolbar', () => {
 
     render(
       <GameAchievementSetToolbar lockedAchievementsCount={5} missableAchievementsCount={3} />,
-      { pageProps: { game: mockGame }, jotaiAtoms: initialAtomValues },
+      { pageProps: { backingGame: mockGame }, jotaiAtoms: initialAtomValues },
     );
 
     // ACT
@@ -199,7 +199,7 @@ describe('Component: GameAchievementSetToolbar', () => {
 
     render(
       <GameAchievementSetToolbar lockedAchievementsCount={5} missableAchievementsCount={3} />,
-      { pageProps: { game: mockGame }, jotaiAtoms: initialAtomValues },
+      { pageProps: { backingGame: mockGame }, jotaiAtoms: initialAtomValues },
     );
 
     // ACT
@@ -221,7 +221,7 @@ describe('Component: GameAchievementSetToolbar', () => {
 
     render(
       <GameAchievementSetToolbar lockedAchievementsCount={10} missableAchievementsCount={5} />,
-      { pageProps: { game: mockGame } },
+      { pageProps: { backingGame: mockGame } },
     );
 
     // ASSERT

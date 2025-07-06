@@ -14,6 +14,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Platform\Data\AggregateAchievementSetCreditsData;
+use App\Platform\Data\GameAchievementSetData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
 use App\Platform\Data\GameShowPagePropsData;
@@ -32,15 +33,43 @@ class BuildGameShowPagePropsAction
         protected BuildGameAchievementDistributionAction $buildGameAchievementDistributionAction,
         protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
         protected BuildSeriesHubDataAction $buildSeriesHubDataAction,
+        protected ResolveBackingGameForAchievementSetAction $resolveBackingGameForAchievementSetAction,
     ) {
     }
 
-    public function execute(Game $game, ?User $user): GameShowPagePropsData
+    public function execute(Game $game, ?User $user, ?int $targetAchievementSetId = null): GameShowPagePropsData
     {
-        [$numMasters, $topAchievers] = $this->loadGameTopAchieversAction->execute($game);
+        // The backing game is the legacy game that backs the target achievement set.
+        // For core sets, this will be $game->id. For subsets, it'll be a different ID.
+        $backingGameId = null;
+
+        if ($targetAchievementSetId !== null) {
+            $backingGameId = $this->resolveBackingGameForAchievementSetAction->execute($targetAchievementSetId);
+        }
+
+        // If we have a backing game ID different from the current game, load it.
+        // Otherwise, use the current game as the backing game.
+        $backingGame = null;
+        if ($backingGameId && $backingGameId !== $game->id) {
+            $backingGame = Game::find($backingGameId);
+
+            // Load the visible comments relationship for the backing game.
+            $backingGame->load(['visibleComments' => function ($query) {
+                $query->latest('Submitted')
+                    ->limit(20)
+                    ->with(['user' => function ($userQuery) {
+                        $userQuery->withTrashed();
+                    }]);
+            }]);
+        } else {
+            // Use the current game as the backing game.
+            $backingGame = $game;
+        }
+
+        [$numMasters, $topAchievers] = $this->loadGameTopAchieversAction->execute($backingGame);
 
         $playerGame = $user
-            ? $user->playerGames()->whereGameId($game->id)->first()
+            ? $user->playerGames()->whereGameId($backingGame->id)->first()
             : null;
 
         // Attach PlayerAchievement records directly to the achievements collection.
@@ -97,7 +126,7 @@ class BuildGameShowPagePropsAction
             ->values()
             ->all();
 
-        $initialUserGameListState = $this->getInitialUserGameListState($game, $user);
+        $initialUserGameListState = $this->getInitialUserGameListState($backingGame, $user);
 
         // Check cookies for filter states.
         $isLockedOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_unlocked_achievements_games', $game->id);
@@ -155,25 +184,45 @@ class BuildGameShowPagePropsAction
             ))->values()->all(),
 
             aggregateCredits: $this->buildAggregateCredits($game),
+            backingGame: GameData::fromGame($backingGame)->include('achievementsPublished'),
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
             isOnWantToPlayList: $initialUserGameListState['isOnWantToPlayList'],
-            isSubscribedToComments: $user ? isUserSubscribedToArticleComments(ArticleType::Game, $game->id, $user->id) : false,
+            isSubscribedToComments: $user ? isUserSubscribedToArticleComments(ArticleType::Game, $backingGame->id, $user->id) : false,
             isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
-            followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $game),
-            playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($game, $user),
-            numComments: $game->visibleComments($user)->count(),
+            followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
+            playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($backingGame, $user),
+            numComments: $backingGame->visibleComments($user)->count(),
             numCompatibleHashes: $game->hashes->where('compatibility', GameHashCompatibility::Compatible)->count(),
             numMasters: $numMasters,
-            numOpenTickets: Ticket::forGame($game)->unresolved()->count(),
-            recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($game->visibleComments))),
+            numOpenTickets: Ticket::forGame($backingGame)->unresolved()->count(),
+            recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),
             topAchievers: $topAchievers,
             playerGame: $playerGame ? PlayerGameData::fromPlayerGame($playerGame) : null,
             playerGameProgressionAwards: $user
-                ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($game->id, $user))
+                ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($backingGame->id, $user))
                 : null,
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
+            targetAchievementSetId: $targetAchievementSetId,
+
+            selectableGameAchievementSets: $game->getAttribute('selectableGameAchievementSets')
+                ->map(function ($gas) {
+                    $gas->achievementSet->setRelation('achievements', collect());
+
+                    return GameAchievementSetData::from($gas)->include(
+                        'type',
+                        'title',
+                        'achievementSet.id',
+                        'achievementSet.imageAssetPathUrl',
+                        'achievementSet.achievementsPublished',
+                        'achievementSet.pointsTotal',
+                        'achievementSet.pointsWeighted',
+                        'achievementSet.achievements', // this will always be empty
+                    );
+                })
+                ->values()
+                ->all(),
         );
     }
 

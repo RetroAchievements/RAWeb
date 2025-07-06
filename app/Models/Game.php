@@ -778,6 +778,21 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
+     * @return HasMany<GameAchievementSet>
+     */
+    public function selectableGameAchievementSets(): HasMany
+    {
+        return $this->gameAchievementSets()
+            ->whereNotIn('type', [
+                AchievementSetType::WillBeBonus,
+                AchievementSetType::WillBeSpecialty,
+                AchievementSetType::WillBeExclusive,
+            ])
+            ->orderBy('order_column')
+            ->with('achievementSet');
+    }
+
+    /**
      * @return BelongsToMany<GameSet>
      */
     public function gameSets(): BelongsToMany

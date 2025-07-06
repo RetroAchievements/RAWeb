@@ -37,6 +37,7 @@ describe('Component: GameHeaderSlotContent', () => {
     const pageProps = {
       game,
       auth: null,
+      backingGame: game,
       isOnWantToPlayList: false,
       isOnWantToDevList: false,
       ziggy: createZiggyProps(),
@@ -54,6 +55,7 @@ describe('Component: GameHeaderSlotContent', () => {
     const pageProps = {
       game,
       auth: null,
+      backingGame: game,
       isOnWantToPlayList: false,
       isOnWantToDevList: false,
       ziggy: createZiggyProps(),
@@ -71,6 +73,7 @@ describe('Component: GameHeaderSlotContent', () => {
     const pageProps = {
       game,
       auth: null,
+      backingGame: game,
       isOnWantToPlayList: false,
       isOnWantToDevList: false,
       ziggy: createZiggyProps(),
@@ -91,6 +94,7 @@ describe('Component: GameHeaderSlotContent', () => {
     const pageProps = {
       game,
       auth: null,
+      backingGame: game,
       isOnWantToPlayList: true,
       isOnWantToDevList: false,
       ziggy: createZiggyProps(),
@@ -110,6 +114,7 @@ describe('Component: GameHeaderSlotContent', () => {
     const pageProps = {
       game,
       auth: null,
+      backingGame: game,
       isOnWantToPlayList: false,
       isOnWantToDevList: false,
       ziggy: createZiggyProps(),
@@ -139,6 +144,7 @@ describe('Component: GameHeaderSlotContent', () => {
     const pageProps = {
       game,
       auth: { user },
+      backingGame: game,
       isOnWantToPlayList: false,
       isOnWantToDevList: false,
       ziggy: createZiggyProps(),
@@ -174,6 +180,7 @@ describe('Component: GameHeaderSlotContent', () => {
     const pageProps = {
       game,
       auth: { user },
+      backingGame: game,
       isOnWantToPlayList: true,
       isOnWantToDevList: false,
       ziggy: createZiggyProps(),

@@ -21,8 +21,9 @@ class GameShowPagePropsData extends Data
      */
     public function __construct(
         public ?AggregateAchievementSetCreditsData $aggregateCredits,
-        public GameData $game,
+        public GameData $backingGame,
         public UserPermissionsData $can,
+        public GameData $game,
         /** @var GameSetData[] */
         public array $hubs,
         public bool $isLockedOnlyFilterEnabled,
@@ -42,7 +43,10 @@ class GameShowPagePropsData extends Data
         public Collection $topAchievers,
         public ?PlayerGameData $playerGame,
         public ?PlayerGameProgressionAwardsData $playerGameProgressionAwards,
+        /** @var GameAchievementSetData[] */
+        public array $selectableGameAchievementSets,
         public ?SeriesHubData $seriesHub,
+        public ?int $targetAchievementSetId,
     ) {
     }
 }

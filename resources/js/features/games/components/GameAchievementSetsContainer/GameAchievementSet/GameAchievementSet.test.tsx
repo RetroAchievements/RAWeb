@@ -15,6 +15,8 @@ import { GameAchievementSet } from './GameAchievementSet';
 describe('Component: GameAchievementSet', () => {
   it('renders without crashing', () => {
     // ARRANGE
+    const game = createGame();
+
     const { container } = render(
       <GameAchievementSet
         achievements={[]}
@@ -27,7 +29,8 @@ describe('Component: GameAchievementSet', () => {
           //
         ],
         pageProps: {
-          game: createGame(),
+          game,
+          backingGame: game,
         },
       },
     );
@@ -38,6 +41,8 @@ describe('Component: GameAchievementSet', () => {
 
   it('given an empty achievements array, renders an empty achievement list', () => {
     // ARRANGE
+    const game = createGame();
+
     render(
       <GameAchievementSet
         achievements={[]}
@@ -50,7 +55,8 @@ describe('Component: GameAchievementSet', () => {
           //
         ],
         pageProps: {
-          game: createGame(),
+          game,
+          backingGame: game,
         },
       },
     );
@@ -61,6 +67,8 @@ describe('Component: GameAchievementSet', () => {
 
   it('given an achievement list longer than 50 items, renders all items', () => {
     // ARRANGE
+    const game = createGame();
+
     const achievements = Array.from({ length: 51 }, (_, i) =>
       createAchievement({
         id: i + 1,
@@ -86,7 +94,8 @@ describe('Component: GameAchievementSet', () => {
           //
         ],
         pageProps: {
-          game: createGame(),
+          game,
+          backingGame: game,
         },
       },
     );
@@ -97,6 +106,7 @@ describe('Component: GameAchievementSet', () => {
 
   it('given the collapsible is initially opened, shows achievements', () => {
     // ARRANGE
+    const game = createGame();
     const achievement = createAchievement({ title: 'Visible Achievement' });
     const gameAchievementSet = createGameAchievementSet({
       achievementSet: createAchievementSet({
@@ -116,7 +126,8 @@ describe('Component: GameAchievementSet', () => {
           //
         ],
         pageProps: {
-          game: createGame(),
+          game,
+          backingGame: game,
         },
       },
     );
@@ -127,6 +138,7 @@ describe('Component: GameAchievementSet', () => {
 
   it('given the current sort changes, re-renders the achievement list', () => {
     // ARRANGE
+    const game = createGame();
     const achievements = [
       createAchievement({ title: 'B Achievement' }),
       createAchievement({ title: 'A Achievement' }),
@@ -150,7 +162,8 @@ describe('Component: GameAchievementSet', () => {
           //
         ],
         pageProps: {
-          game: createGame(),
+          game,
+          backingGame: game,
         },
       },
     );
@@ -177,6 +190,7 @@ describe('Component: GameAchievementSet', () => {
      */
 
     // ARRANGE
+    const game = createGame();
     const achievements = [
       createAchievement({ title: 'Normal Achievement 1', type: null }), // !! not missable
       createAchievement({ title: 'Normal Achievement 2', type: null }), // !! not missable
@@ -200,7 +214,8 @@ describe('Component: GameAchievementSet', () => {
           [isMissableOnlyFilterEnabledAtom, true], // !!
         ],
         pageProps: {
-          game: createGame(),
+          game,
+          backingGame: game,
         },
       },
     );
@@ -213,6 +228,7 @@ describe('Component: GameAchievementSet', () => {
 
   it('given missable achievements exist but the filter is disabled, shows all achievements', () => {
     // ARRANGE
+    const game = createGame();
     const achievements = [
       createAchievement({ title: 'Normal Achievement', type: null }), // !! not missable
       createAchievement({ title: 'Missable Achievement', type: 'missable' }), // !! missable
@@ -236,7 +252,8 @@ describe('Component: GameAchievementSet', () => {
           [isMissableOnlyFilterEnabledAtom, false], // !!
         ],
         pageProps: {
-          game: createGame(),
+          game,
+          backingGame: game,
         },
       },
     );
@@ -248,6 +265,7 @@ describe('Component: GameAchievementSet', () => {
 
   it('given missable achievements exist and filter is enabled, shows only missable achievements', () => {
     // ARRANGE
+    const game = createGame();
     const achievements = [
       createAchievement({ title: 'Normal Achievement', type: null }), // !! not missable
       createAchievement({ title: 'Missable Achievement 1', type: 'missable' }), // !! missable
@@ -272,7 +290,8 @@ describe('Component: GameAchievementSet', () => {
           [isMissableOnlyFilterEnabledAtom, true], // !!
         ],
         pageProps: {
-          game: createGame(),
+          game,
+          backingGame: game,
         },
       },
     );
