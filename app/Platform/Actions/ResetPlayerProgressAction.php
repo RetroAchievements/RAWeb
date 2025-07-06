@@ -5,8 +5,10 @@ namespace App\Platform\Actions;
 use App\Community\Enums\AwardType;
 use App\Models\Achievement;
 use App\Models\AchievementMaintainerUnlock;
+use App\Models\PlayerProgressReset;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\PlayerProgressResetType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Jobs\UpdateAchievementMetricsJob;
@@ -132,6 +134,13 @@ class ResetPlayerProgressAction
                 }
             }
             $playerAchievement->delete();
+
+            // Track the achievement reset.
+            PlayerProgressReset::create([
+                'user_id' => $user->id,
+                'type' => PlayerProgressResetType::Achievement,
+                'type_id' => $achievementID,
+            ]);
         } elseif ($gameID !== null) {
             $achievementIds = Achievement::where('GameID', $gameID)->pluck('ID');
 
@@ -144,7 +153,16 @@ class ResetPlayerProgressAction
             $user->playerAchievements()
                 ->whereIn('achievement_id', $achievementIds)
                 ->delete();
+
+            // Track the game reset.
+            PlayerProgressReset::create([
+                'user_id' => $user->id,
+                'type' => PlayerProgressResetType::Game,
+                'type_id' => $gameID,
+            ]);
         } else {
+            // If we fall into this block, it's because a user's account is being deleted.
+
             // Delete all maintainer unlock records related to these player_achievement entities.
             AchievementMaintainerUnlock::query()
                 ->whereIn('player_achievement_id', function ($query) use ($user) {
@@ -152,8 +170,8 @@ class ResetPlayerProgressAction
                 })
                 ->delete();
 
-            // fulfill deletion request
             $user->playerGames()->forceDelete();
+            $user->playerSessions()->delete();
             $user->playerBadges()->delete();
             $user->playerAchievements()->delete();
 
