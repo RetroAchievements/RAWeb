@@ -113,48 +113,6 @@ describe('Component: AchievementSetCredits', () => {
     expect(screen.getByTestId('design-credits-display')).toBeVisible();
   });
 
-  it('given duplicate users in artwork credits, deduplicates them before deciding to show the component', () => {
-    // ARRANGE
-    const sharedUser = createUserCredits({ displayName: 'Alice' });
-    const aggregateCredits = {
-      achievementsAuthors: [],
-      achievementSetArtwork: [sharedUser],
-      achievementsArtwork: [sharedUser], // !! same user in both arrays
-      achievementsLogic: [],
-      achievementsMaintainers: [],
-      achievementsDesign: [],
-      achievementsTesting: [],
-      achievementsWriting: [],
-    };
-
-    render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
-
-    // ASSERT
-    // ... component should still show because there's at least one unique user ...
-    expect(screen.getByTestId('artwork-credits-display')).toBeVisible();
-  });
-
-  it('given all logic users are already authors, does not show the code credits display', () => {
-    // ARRANGE
-    const author = createUserCredits({ displayName: 'Alice' });
-    const aggregateCredits = {
-      achievementsAuthors: [author],
-      achievementSetArtwork: [],
-      achievementsArtwork: [],
-      achievementsLogic: [author], // !! same user is both author and logic credit
-      achievementsMaintainers: [], // !! no maintainers
-      achievementsDesign: [],
-      achievementsTesting: [],
-      achievementsWriting: [],
-    };
-
-    render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
-
-    // ASSERT
-    // ... code credits should not show because filtered logic credits is empty and no maintainers ...
-    expect(screen.queryByTestId('code-credits-display')).not.toBeInTheDocument();
-  });
-
   it('given only empty credit arrays, only shows the authors display', () => {
     // ARRANGE
     const aggregateCredits = {
@@ -181,8 +139,8 @@ describe('Component: AchievementSetCredits', () => {
     // ARRANGE
     const aggregateCredits = {
       achievementsAuthors: [createUserCredits({ displayName: 'Author1' })],
-      achievementSetArtwork: [createUserCredits({ displayName: 'Artist1' })],
-      achievementsArtwork: [],
+      achievementSetArtwork: [],
+      achievementsArtwork: [createUserCredits({ displayName: 'Artist1' })],
       achievementsLogic: [createUserCredits({ displayName: 'Logic1' })],
       achievementsMaintainers: [],
       achievementsDesign: [createUserCredits({ displayName: 'Designer1' })],

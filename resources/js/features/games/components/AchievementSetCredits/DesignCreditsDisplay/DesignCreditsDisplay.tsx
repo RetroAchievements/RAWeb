@@ -24,10 +24,6 @@ export const DesignCreditsDisplay: FC<DesignCreditsDisplayProps> = ({
   testingCredits,
   writingCredits,
 }) => {
-  const designCreditUsers = [...designCredits, ...testingCredits, ...writingCredits].filter(
-    (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
-  );
-
   return (
     <div
       className={cn(
@@ -42,7 +38,7 @@ export const DesignCreditsDisplay: FC<DesignCreditsDisplayProps> = ({
       />
 
       <UserAvatarStack
-        users={designCreditUsers}
+        users={designCredits}
         maxVisible={8}
         size={24}
         isOverlappingAvatars={false}

@@ -18,7 +18,7 @@ describe('Component: AchievementAuthorsDisplay', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given authors with >= 33%, shows them individually with labels', () => {
+  it('given authors with >= 30%, shows them individually with labels', () => {
     // ARRANGE
     const authors = [
       createUserCredits({ displayName: 'Alice', count: 40 }), // !! 40%
@@ -41,15 +41,15 @@ describe('Component: AchievementAuthorsDisplay', () => {
     const separators = screen.getAllByText('•');
     expect(separators).toHaveLength(2);
 
-    // ... Alice and Bob have labels because they have >= 33% contribution ...
+    // ... Alice and Bob have labels because they have >= 30% contribution ...
     expect(screen.getByText(/alice/i)).toBeVisible();
     expect(screen.getByText(/bob/i)).toBeVisible();
 
-    // ... Charlie is in the stack without a label (< 33% contribution) ...
+    // ... Charlie is in the stack without a label (< 30% contribution) ...
     expect(screen.queryByText(/charlie/i)).not.toBeInTheDocument();
   });
 
-  it('given one author with >= 33% and others with < 33%, shows prominent author individually and stacks the rest', () => {
+  it('given one author with >= 30% and others with < 30%, shows prominent author individually and stacks the rest', () => {
     // ARRANGE
     const authors = [
       createUserCredits({ displayName: 'Alice', count: 50 }), // !! 50%
@@ -77,7 +77,7 @@ describe('Component: AchievementAuthorsDisplay', () => {
     expect(screen.getByText(/alice/i)).toBeVisible();
   });
 
-  it('given all authors with < 33%, shows all avatars in a single stack', () => {
+  it('given all authors with < 30%, shows all avatars in a single stack', () => {
     // ARRANGE
     const authors = [
       createUserCredits({ displayName: 'Alice', count: 20 }), // !! 20%
