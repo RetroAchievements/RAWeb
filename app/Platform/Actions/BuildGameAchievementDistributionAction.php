@@ -20,7 +20,7 @@ class BuildGameAchievementDistributionAction
      */
     public function execute(Game $game, ?User $user): Collection
     {
-        $numDistinctPlayers = $game->players_total;
+        $numDistinctPlayers = $game->players_total ?? 0;
         $numAchievements = $game->achievements_published;
 
         $softcoreUnlocks = getAchievementDistribution(
