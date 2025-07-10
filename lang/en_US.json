@@ -1010,5 +1010,14 @@
     "Achievement Design/Ideas": "Achievement Design/Ideas",
     "Playtesters": "Playtesters",
     "Writing Contributions": "Writing Contributions",
-    "game_wantToPlayToggle": "Want to Play"
+    "game_wantToPlayToggle": "Want to Play",
+    "Progression Achievements": "Progression Achievements",
+    "Win Condition Achievements": "Win Condition Achievements",
+    "(Need ALL)": "(Need ALL)",
+    "(Need ANY)": "(Need ANY)",
+    "How to earn beaten credit:": "How to earn beaten credit:",
+    "Unlock <1>ALL</1> progression achievements and <2>ANY</2> win condition achievement.": "Unlock <1>ALL</1> progression achievements and <2>ANY</2> win condition achievement.",
+    "Unlock <1>ALL</1> progression achievements.": "Unlock <1>ALL</1> progression achievements.",
+    "Unlock <1>ANY</1> win condition achievement.": "Unlock <1>ANY</1> win condition achievement.",
+    "Beaten Game Credit": "Beaten Game Credit"
 }

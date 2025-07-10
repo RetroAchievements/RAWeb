@@ -8,6 +8,7 @@ import { cn } from '@/common/utils/cn';
 import { sortAchievements } from '@/common/utils/sortAchievements';
 
 import { AchievementSetCredits } from '../../AchievementSetCredits';
+import { BeatenCreditDialog } from '../../BeatenCreditDialog';
 import { GameAchievementSetHeader } from './GameAchievementSetHeader';
 
 interface GameAchievementSetProps {
@@ -60,6 +61,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                 <AchievementsListItem
                   key={`ach-${achievement.id}`}
                   achievement={achievement}
+                  beatenDialogContent={<BeatenCreditDialog />}
                   index={index}
                   isLargeList={isLargeList}
                   playersTotal={gameAchievementSet.achievementSet.playersTotal}
