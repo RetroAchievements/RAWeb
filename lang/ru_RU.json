@@ -914,7 +914,7 @@
     "Search for games, hubs, users, events, and achievements": "Поиск игр, хабов, пользователей, событий и достижений",
     "Type at least 3 characters to begin": "Введите минимум 3 символа, чтобы начать",
     "No results found.": "Результатов не найдено.",
-    "Last seen {{lastSeenDate}}": "Последний раз видели {{lastSeenDate}}",
+    "Last seen {{lastSeenDate}}": "Последний раз онлайн {{lastSeenDate}}",
     "Browse": "Просмотр",
     "Search": "Поиск",
     "Events": "События",
