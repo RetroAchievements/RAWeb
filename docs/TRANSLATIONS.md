@@ -93,3 +93,39 @@ Some translation strings contain special elements that must be handled carefully
 - Take advantage of Crowdin's automated quality checks.
 
 Thank you for helping make RetroAchievements accessible to more people around the world! Your contributions help build a stronger, more inclusive community.
+
+## Developer Guide: Adding a New Language
+
+When a language reaches sufficient translation coverage and approval on Crowdin, developers can enable it in the user interface by following these steps:
+
+### 1. Register the Language
+
+Add the new language to the `LANGUAGES` constant in _crowdin-download.ts_:
+
+```ts
+const LANGUAGES = {
+  // ...
+  vi_VN: 'vi-VN',
+} as const;
+```
+
+### 2. Configure Date Localization
+
+Update both _loadDayjsLocale.ts_ and _loadDayjsLocale.test.ts_ to support the new language. Map the locale file name to Day.js's locale code (see [available locale codes](https://github.com/iamkun/dayjs/tree/dev/src/locale)):
+
+```ts
+case 'vi_VN':
+  await import('dayjs/locale/vi.js');
+  dayjs.locale('vi');
+  break;
+```
+
+### 3. Enable Language Selection
+
+Add the language option to _LocaleSectionCard.tsx_ to make it available in the user interface:
+
+```tsx
+<BaseSelectItem value="vi_VN">{'Tiếng Việt (Việt Nam)'}</BaseSelectItem>
+```
+
+After completing these steps, the new language will be available for users to select in their profile settings.
