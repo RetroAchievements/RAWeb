@@ -49,6 +49,8 @@ class Hubs extends ManageRelatedRecords
 
         return $table
             ->checkIfRecordIsSelectableUsing(fn (GameSet $record): bool => $user->can('update', $record))
+            ->defaultSort('title')
+            ->defaultPaginationPageOption(50)
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
