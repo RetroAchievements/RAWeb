@@ -41,6 +41,7 @@ const LANGUAGES = {
   fr_FR: 'fr',
   pl_PL: 'pl',
   ru_RU: 'ru',
+  sv_SE: 'sv-SE',
   pt_BR: 'pt-BR',
   vi_VN: 'vi-VN',
 } as const;
