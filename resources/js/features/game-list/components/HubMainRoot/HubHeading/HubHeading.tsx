@@ -33,7 +33,12 @@ export const HubHeading: FC = () => {
 
       <h1 className="text-h3 flex w-full flex-col justify-between gap-2 self-end sm:mt-2.5 sm:!text-[2.0em] md:flex-row md:items-center">
         <div className="flex items-center gap-2">
-          <img aria-hidden={true} src="/assets/images/system/hubs.png" className="size-6" />
+          <img
+            aria-hidden={true}
+            src="/assets/images/system/hubs.png"
+            alt={t('Hubs')}
+            className="size-6"
+          />
           {cleanHubTitle(hub.title!)}
         </div>
 

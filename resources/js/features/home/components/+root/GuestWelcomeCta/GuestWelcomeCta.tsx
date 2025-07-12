@@ -35,6 +35,7 @@ export const GuestWelcomeCta: FC = () => {
                 i18nKey="We provide <1>the emulators</1>, you just need <2>the games</2>. From Atari 2600 to PlayStation 2, and everything in between."
                 components={{
                   1: (
+                    // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
                     <a
                       href={route('download.index')}
                       className={buildTrackingClassNames('Click Guest Download Link')}

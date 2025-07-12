@@ -60,6 +60,7 @@ export const HashesMainRoot: FC = memo(() => {
               i18nKey="Details on how the hash is generated for each system can be found <1>here</1>."
               components={{
                 1: (
+                  // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
                   <a
                     href="https://docs.retroachievements.org/developer-docs/game-identification.html"
                     target="_blank"
@@ -91,6 +92,7 @@ export const HashesMainRoot: FC = memo(() => {
               i18nKey="Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester."
               components={{
                 1: (
+                  // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
                   <a
                     href="https://docs.retroachievements.org/guidelines/content/player-compatibility-testing.html"
                     target="_blank"

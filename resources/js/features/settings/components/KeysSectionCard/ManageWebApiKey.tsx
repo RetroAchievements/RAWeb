@@ -93,6 +93,7 @@ export const ManageWebApiKey: FC = () => {
                 i18nKey="The RetroAchievements API documentation can be found <1>here</1>."
                 components={{
                   1: (
+                    // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
                     <a
                       href="https://api-docs.retroachievements.org"
                       target="_blank"

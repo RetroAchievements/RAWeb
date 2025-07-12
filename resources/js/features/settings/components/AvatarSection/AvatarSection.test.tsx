@@ -113,7 +113,7 @@ describe('Component: AvatarSection', () => {
 
     render(
       <div>
-        <img data-testid="old-avatar" className="userpic" src={oldSrc} />
+        <img data-testid="old-avatar" className="userpic" src={oldSrc} alt="img" />
         <AvatarSection />
       </div>,
       { pageProps: { auth: { user: createAuthenticatedUser() }, can: { updateAvatar: true } } },

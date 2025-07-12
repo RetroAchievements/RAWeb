@@ -55,6 +55,7 @@ export const TemplateKindAlert: FC<TemplateKindAlertProps> = ({ templateKind }) 
                   i18nKey="When in doubt, <1>consult the docs.</1>"
                   components={{
                     1: (
+                      // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
                       <a
                         href="https://docs.retroachievements.org/guidelines/content/unwelcome-concepts.html"
                         target="_blank"

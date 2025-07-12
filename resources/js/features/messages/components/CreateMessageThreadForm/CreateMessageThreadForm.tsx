@@ -68,13 +68,21 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
                       getOptionValue={(user) => user.displayName}
                       getDisplayValue={(user) => (
                         <div className="flex items-center gap-2">
-                          <img className="size-6 rounded-sm" src={user.avatarUrl} />
+                          <img
+                            className="size-6 rounded-sm"
+                            src={user.avatarUrl}
+                            alt={user.displayName}
+                          />
                           <span className="font-medium">{user.displayName}</span>
                         </div>
                       )}
                       renderOption={(user) => (
                         <div className="flex items-center gap-2">
-                          <img className="size-6 rounded-sm" src={user.avatarUrl} />
+                          <img
+                            className="size-6 rounded-sm"
+                            src={user.avatarUrl}
+                            alt={user.displayName}
+                          />
                           <span className="font-medium">{user.displayName}</span>
                         </div>
                       )}

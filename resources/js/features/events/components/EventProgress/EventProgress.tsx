@@ -79,6 +79,7 @@ export const EventProgress: FC<EventProgressProps> = ({ event, playerGame }) => 
                 i18nKey="<1>You must</1> <2>sign in</2> <3>before you can participate in this event.</3>"
                 components={{
                   1: <span />,
+                  // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
                   2: <a className="inline" href={route('login')} />,
                   3: <span />,
                 }}

@@ -32,7 +32,13 @@ export const UserCurrentGame: FC = () => {
       )}
     >
       <div className="relative">
-        <img src={userCurrentGame.badgeUrl} width={20} height={20} className="rounded-sm" />
+        <img
+          src={userCurrentGame.badgeUrl}
+          alt={userCurrentGame.title}
+          width={20}
+          height={20}
+          className="rounded-sm"
+        />
 
         {treatmentKind === 'active' ? (
           <div className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-green-500" />

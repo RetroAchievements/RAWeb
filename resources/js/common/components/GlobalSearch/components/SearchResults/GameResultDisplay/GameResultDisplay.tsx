@@ -25,7 +25,7 @@ export const GameResultDisplay: FC<GameResultDisplayProps> = ({ game }) => {
 
         <div className="flex items-center gap-4 text-xs text-neutral-500">
           <div className="flex items-center gap-1 text-neutral-400 light:text-neutral-600">
-            <img src={game.system?.iconUrl} width={16} height={16} />
+            <img src={game.system?.iconUrl} alt={game.title} width={16} height={16} />
             <span>{game.system?.nameShort}</span>
           </div>
 
