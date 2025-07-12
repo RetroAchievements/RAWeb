@@ -34,6 +34,11 @@ Sentry.init({
   replaysOnErrorSampleRate: 1.0,
 });
 
+window.addEventListener('vite:preloadError', () => {
+  // Refresh the page if the user is using stuff from an old deploy.
+  window.location.reload();
+});
+
 createInertiaApp({
   title: (title) => (title && title !== appName ? `${title} · ${appName}` : appName),
 
