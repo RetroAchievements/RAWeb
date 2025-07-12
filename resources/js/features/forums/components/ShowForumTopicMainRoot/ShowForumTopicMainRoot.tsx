@@ -11,6 +11,7 @@ import { SignInMessage } from '@/common/components/SignInMessage';
 import { SubscribeToggleButton } from '@/common/components/SubscribeToggleButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useShortcodeBodyPreview } from '@/common/hooks/useShortcodeBodyPreview';
+import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
 import { ForumPostCard } from '../ForumPostCard';
@@ -93,9 +94,20 @@ export const ShowForumTopicMainRoot: FC = () => {
         ) : null}
 
         {forumTopic.lockedAt ? (
-          <div className="flex select-none items-center justify-center gap-1.5 bg-embed p-2 text-center text-neutral-300 transition light:text-neutral-900">
-            <LuLock className="size-4" />
-            <p>{t('This topic is locked.')}</p>
+          <div
+            className={cn(
+              'my-4 flex select-none flex-col items-center justify-center gap-2 rounded-md border bg-embed p-4 text-center sm:flex-row sm:gap-1.5',
+              'border-neutral-800 text-neutral-300 light:border-neutral-300 light:text-neutral-900',
+            )}
+          >
+            <LuLock className="size-5" />
+            <p className="flex flex-col gap-1 font-medium sm:flex-row">
+              {t('This topic is locked.')}
+
+              {can.createForumTopicComments ? (
+                <span className="italic">{t('As staff, you can still reply.')}</span>
+              ) : null}
+            </p>
           </div>
         ) : null}
 
