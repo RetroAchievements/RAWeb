@@ -514,6 +514,7 @@ declare namespace App.Platform.Data {
     achievementsLogic: Array<App.Platform.Data.UserCredits>;
     achievementsTesting: Array<App.Platform.Data.UserCredits>;
     achievementsWriting: Array<App.Platform.Data.UserCredits>;
+    hashCompatibilityTesting: Array<App.Platform.Data.UserCredits>;
   };
   export type AwardEarner = {
     user: App.Data.User;

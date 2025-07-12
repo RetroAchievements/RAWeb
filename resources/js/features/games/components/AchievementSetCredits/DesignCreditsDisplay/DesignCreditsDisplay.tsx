@@ -15,16 +15,23 @@ import { TooltipCreditsSection } from '../TooltipCreditsSection';
 
 interface DesignCreditsDisplayProps {
   designCredits: App.Platform.Data.UserCredits[];
+  hashCompatibilityTestingCredits: App.Platform.Data.UserCredits[];
   testingCredits: App.Platform.Data.UserCredits[];
   writingCredits: App.Platform.Data.UserCredits[];
 }
 
 export const DesignCreditsDisplay: FC<DesignCreditsDisplayProps> = ({
   designCredits,
+  hashCompatibilityTestingCredits,
   testingCredits,
   writingCredits,
 }) => {
-  const designCreditUsers = [...designCredits, ...testingCredits, ...writingCredits].filter(
+  const designCreditUsers = [
+    ...designCredits,
+    ...hashCompatibilityTestingCredits,
+    ...testingCredits,
+    ...writingCredits,
+  ].filter(
     (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
   );
 
@@ -37,6 +44,7 @@ export const DesignCreditsDisplay: FC<DesignCreditsDisplayProps> = ({
     >
       <DesignCreditIcon
         designCredits={designCredits}
+        hashCompatibilityTestingCredits={hashCompatibilityTestingCredits}
         testingCredits={testingCredits}
         writingCredits={writingCredits}
       />
@@ -53,12 +61,14 @@ export const DesignCreditsDisplay: FC<DesignCreditsDisplayProps> = ({
 
 interface DesignCreditIconProps {
   designCredits: App.Platform.Data.UserCredits[];
+  hashCompatibilityTestingCredits: App.Platform.Data.UserCredits[];
   testingCredits: App.Platform.Data.UserCredits[];
   writingCredits: App.Platform.Data.UserCredits[];
 }
 
 const DesignCreditIcon: FC<DesignCreditIconProps> = ({
   designCredits,
+  hashCompatibilityTestingCredits,
   testingCredits,
   writingCredits,
 }) => {
@@ -92,6 +102,18 @@ const DesignCreditIcon: FC<DesignCreditIconProps> = ({
                  * right now these are attached to achievements... it should probably be set credit
                  */
                 <TooltipCreditRow key={`testing-credit-${credit.displayName}`} credit={credit} />
+              ))}
+            </TooltipCreditsSection>
+          ) : null}
+
+          {hashCompatibilityTestingCredits.length ? (
+            <TooltipCreditsSection headingLabel={t('Hash Compatibility Testing')}>
+              {hashCompatibilityTestingCredits.map((credit) => (
+                <TooltipCreditRow
+                  key={`hash-compatibility-credit-${credit.displayName}`}
+                  credit={credit}
+                  showCreditDate={true}
+                />
               ))}
             </TooltipCreditsSection>
           ) : null}
