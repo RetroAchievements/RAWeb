@@ -47,6 +47,7 @@ describe('Component: AchievementSetCredits', () => {
       achievementsDesign: [],
       achievementsTesting: [],
       achievementsWriting: [],
+      hashCompatibilityTesting: [],
     };
 
     render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
@@ -67,6 +68,7 @@ describe('Component: AchievementSetCredits', () => {
       achievementsDesign: [],
       achievementsTesting: [],
       achievementsWriting: [],
+      hashCompatibilityTesting: [],
     };
 
     render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
@@ -86,6 +88,7 @@ describe('Component: AchievementSetCredits', () => {
       achievementsDesign: [],
       achievementsTesting: [],
       achievementsWriting: [],
+      hashCompatibilityTesting: [],
     };
 
     render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
@@ -105,6 +108,7 @@ describe('Component: AchievementSetCredits', () => {
       achievementsDesign: [createUserCredits({ displayName: 'Eve' })],
       achievementsTesting: [createUserCredits({ displayName: 'Frank' })],
       achievementsWriting: [createUserCredits({ displayName: 'Grace' })],
+      hashCompatibilityTesting: [],
     };
 
     render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
@@ -125,6 +129,7 @@ describe('Component: AchievementSetCredits', () => {
       achievementsDesign: [],
       achievementsTesting: [],
       achievementsWriting: [],
+      hashCompatibilityTesting: [],
     };
 
     render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
@@ -146,6 +151,7 @@ describe('Component: AchievementSetCredits', () => {
       achievementsDesign: [],
       achievementsTesting: [],
       achievementsWriting: [],
+      hashCompatibilityTesting: [],
     };
 
     render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
@@ -166,6 +172,7 @@ describe('Component: AchievementSetCredits', () => {
       achievementsDesign: [],
       achievementsTesting: [],
       achievementsWriting: [],
+      hashCompatibilityTesting: [],
     };
 
     render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
@@ -188,6 +195,7 @@ describe('Component: AchievementSetCredits', () => {
       achievementsDesign: [createUserCredits({ displayName: 'Designer1' })],
       achievementsTesting: [],
       achievementsWriting: [],
+      hashCompatibilityTesting: [],
     };
 
     render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
@@ -196,6 +204,26 @@ describe('Component: AchievementSetCredits', () => {
     expect(screen.getByTestId('achievement-authors-display')).toBeVisible();
     expect(screen.getByTestId('artwork-credits-display')).toBeVisible();
     expect(screen.getByTestId('code-credits-display')).toBeVisible();
+    expect(screen.getByTestId('design-credits-display')).toBeVisible();
+  });
+
+  it('given hash compatibility testing credits exist, shows the design credits display', () => {
+    // ARRANGE
+    const aggregateCredits = {
+      achievementsAuthors: [],
+      achievementSetArtwork: [],
+      achievementsArtwork: [],
+      achievementsLogic: [],
+      achievementsMaintainers: [],
+      achievementsDesign: [],
+      achievementsTesting: [],
+      achievementsWriting: [],
+      hashCompatibilityTesting: [createUserCredits({ displayName: 'HashTester1' })], // !!
+    };
+
+    render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
+
+    // ASSERT
     expect(screen.getByTestId('design-credits-display')).toBeVisible();
   });
 });

@@ -181,6 +181,7 @@ class BuildGameShowPagePropsAction
         $achievementsLogicCredits = collect();
         $achievementsTestingCredits = collect();
         $achievementsWritingCredits = collect();
+        $hashCompatibilityTestingCredits = collect();
 
         // Process achievement set authors. Right now, we only support badge artwork as a task.
         foreach ($game->gameAchievementSets as $gameAchievementSet) {
@@ -200,6 +201,24 @@ class BuildGameShowPagePropsAction
                     'user' => $mostRecentArtworkAuthor->user,
                     'count' => ($existing['count'] ?? 0) + 1,
                     'created_at' => $mostRecentArtworkAuthor->created_at,
+                ]);
+            }
+        }
+
+        // Process hash compatibility testing credits.
+        // Credit is given to users who successfully tested hash compatibility.
+        $compatibleHashes = $game->hashes()
+            ->where('compatibility', GameHashCompatibility::Compatible)
+            ->whereNotNull('compatibility_tester_id')
+            ->whereColumn('compatibility_tester_id', '!=', 'user_id')
+            ->with('compatibilityTester')
+            ->get();
+        foreach ($compatibleHashes as $hash) {
+            if ($hash->compatibilityTester) {
+                $hashCompatibilityTestingCredits->put($hash->compatibilityTester->id, [
+                    'user' => $hash->compatibilityTester,
+                    'count' => 0,
+                    'created_at' => $hash->updated_at,
                 ]);
             }
         }
@@ -302,6 +321,7 @@ class BuildGameShowPagePropsAction
             achievementsLogic: $sortByCountDesc($achievementsLogicCredits),
             achievementsTesting: $sortByCountDesc($achievementsTestingCredits),
             achievementsWriting: $sortByCountDesc($achievementsWritingCredits),
+            hashCompatibilityTesting: $sortByCountDesc($hashCompatibilityTestingCredits),
         );
     }
 

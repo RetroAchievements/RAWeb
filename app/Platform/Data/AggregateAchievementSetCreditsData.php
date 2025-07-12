@@ -19,6 +19,7 @@ class AggregateAchievementSetCreditsData extends Data
      * @param UserCreditsData[] $achievementsLogic
      * @param UserCreditsData[] $achievementsTesting
      * @param UserCreditsData[] $achievementsWriting
+     * @param UserCreditsData[] $hashCompatibilityTesting
      */
     public function __construct(
         public array $achievementsAuthors,
@@ -29,6 +30,7 @@ class AggregateAchievementSetCreditsData extends Data
         public array $achievementsLogic,
         public array $achievementsTesting,
         public array $achievementsWriting,
+        public array $hashCompatibilityTesting,
     ) {
     }
 }

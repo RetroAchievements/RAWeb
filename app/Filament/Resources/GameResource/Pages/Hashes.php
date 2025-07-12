@@ -120,6 +120,7 @@ class Hashes extends ManageRelatedRecords
 
                                         Forms\Components\Select::make('compatibility_tester_id')
                                             ->label('Compatibility Tester')
+                                            ->helperText("If you're marking this hash as compatible based on a compatibility test, leave the tester assigned so they receive credit.")
                                             ->searchable()
                                             ->getSearchResultsUsing(function (string $search): array {
                                                 return User::where('display_name', 'like', "%{$search}%")
