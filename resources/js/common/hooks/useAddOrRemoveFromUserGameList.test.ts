@@ -11,9 +11,15 @@ import { useAddOrRemoveFromUserGameList } from './useAddOrRemoveFromUserGameList
 window.HTMLElement.prototype.setPointerCapture = vi.fn();
 
 describe('Hook: useAddOrRemoveFromUserGameList', () => {
+  beforeEach(() => {
+    // Clear all timers before each test.
+    vi.clearAllTimers();
+  });
+
   afterEach(() => {
     // Clean up all active toasts after each test to prevent timers from running after teardown.
     toast.dismiss();
+    vi.clearAllTimers();
   });
 
   it('renders without crashing', () => {
