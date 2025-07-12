@@ -17,7 +17,7 @@ export const KeysSectionCard: FC = () => {
   }
 
   return (
-    <SectionStandardCard t_headingLabel={t('Keys')}>
+    <SectionStandardCard t_headingLabel={t('Authentication')}>
       <div className="flex flex-col gap-8">
         <ManageWebApiKey />
         <ManageConnectApiKey />
