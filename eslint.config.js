@@ -128,7 +128,12 @@ export default tseslint.config(
       'import/first': 'error',
       'import/newline-after-import': 'error',
       'import/no-duplicates': 'error',
-      'import/no-unresolved': 'error',
+      'import/no-unresolved': [
+        'error',
+        {
+          ignore: ['^.*/vendor/.*'], // CI can't see these files.
+        },
+      ],
       'simple-import-sort/exports': 'error',
       'simple-import-sort/imports': 'error',
 
