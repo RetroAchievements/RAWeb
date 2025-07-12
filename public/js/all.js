@@ -136,7 +136,7 @@ function showStatusFailure(message) {
  * @param {string} contentName
  * @returns {void}
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used by several pages
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function toggleExpander(buttonName, contentName) {
   const buttonEl = document.getElementById(buttonName);
   const contentEl = document.getElementById(contentName);

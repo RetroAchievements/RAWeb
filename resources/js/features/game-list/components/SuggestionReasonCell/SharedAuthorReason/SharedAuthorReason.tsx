@@ -32,6 +32,7 @@ export const SharedAuthorReason: FC<SharedAuthorReasonProps> = ({ relatedAuthor,
         i18nKey={relatedGame ? 'By <1>same developer</1> as' : 'By <1>same developer</1>'}
         components={{
           1: (
+            // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
             <a
               href={route('user.show', { user: relatedAuthor.displayName })}
               {...cardTooltipPropsWithoutRef}

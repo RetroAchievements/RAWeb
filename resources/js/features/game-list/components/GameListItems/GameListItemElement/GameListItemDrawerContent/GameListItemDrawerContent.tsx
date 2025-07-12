@@ -198,7 +198,7 @@ const DrawerListItem: FC<DrawerListItemProps> = ({
   hasBottomBorder = true,
 }) => {
   return (
-    <li role="listitem" aria-label={t_label}>
+    <li aria-label={t_label}>
       <div className="flex w-full justify-between">
         <div className="flex items-center gap-2 text-neutral-200 light:text-neutral-950">
           <Icon className="h-4 w-4" aria-hidden="true" />
@@ -208,9 +208,7 @@ const DrawerListItem: FC<DrawerListItemProps> = ({
         {children}
       </div>
 
-      {hasBottomBorder ? (
-        <hr role="separator" className="mt-3 border-neutral-800 light:border-neutral-300" />
-      ) : null}
+      {hasBottomBorder ? <hr className="mt-3 border-neutral-800 light:border-neutral-300" /> : null}
     </li>
   );
 };

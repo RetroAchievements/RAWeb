@@ -93,7 +93,7 @@ export const AllSystemsDialog: FC = () => {
                 )}
                 onClick={() => handleSystemSelect(system.id)}
               >
-                <img src={system.iconUrl} width={30} height={30} />
+                <img src={system.iconUrl} alt={system.name} width={30} height={30} />
                 {system.name.length >= 22 ? system.nameShort : system.name}
               </button>
             ))}

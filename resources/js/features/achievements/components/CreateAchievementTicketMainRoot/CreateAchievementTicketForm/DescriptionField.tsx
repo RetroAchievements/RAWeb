@@ -75,6 +75,7 @@ export const DescriptionField: FC = () => {
                   i18nKey="Please do not open tickets for network issues. See <1>here</1> for instructions on how to request a manual unlock."
                   components={{
                     1: (
+                      // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
                       <a href="https://docs.retroachievements.org/general/faq.html#how-do-i-request-a-manual-unlock" />
                     ),
                   }}

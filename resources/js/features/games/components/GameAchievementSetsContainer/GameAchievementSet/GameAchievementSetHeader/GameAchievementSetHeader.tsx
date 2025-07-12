@@ -27,7 +27,13 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
   return (
     <div className="flex items-center justify-between text-neutral-300 light:text-neutral-700">
       <div className="flex items-center gap-3">
-        <img src={imageAssetPathUrl} width={52} height={52} className="rounded-sm" />
+        <img
+          src={imageAssetPathUrl}
+          alt={gameAchievementSet.title ?? 'Base Set'} // intentionally untranslated
+          width={52}
+          height={52}
+          className="rounded-sm"
+        />
 
         <div className="flex flex-col items-start gap-0">
           {/* Intentionally left untranslated. It would be weird if this title were translated and subset titles weren't. */}

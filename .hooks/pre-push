@@ -62,8 +62,8 @@ fi
 if [ "$is_node_changed" = true ]; then
     printf "\n🔍 Node.js changes detected. Running Node.js checks...\n"
     
-    printf "\n⏳ pnpm lint:eslint\n"
-    pnpm lint:eslint
+    printf "\n⏳ pnpm lint\n"
+    pnpm lint
     
     printf "\n⏳ pnpm tsc\n"
     pnpm tsc

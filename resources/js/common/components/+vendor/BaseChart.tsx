@@ -72,7 +72,6 @@ const BaseChartContainer = React.forwardRef<
 BaseChartContainer.displayName = 'BaseChartContainer';
 
 const BaseChartStyle = ({ id, config }: { id: string; config: BaseChartConfig }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- vendor code
   const colorConfig = Object.entries(config).filter(([_, config]) => config.theme || config.color);
 
   if (!colorConfig.length) {

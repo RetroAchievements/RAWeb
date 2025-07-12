@@ -111,7 +111,9 @@ describe('Component: MessagesShowRoot', () => {
 
     // ACT
     await userEvent.type(screen.getByRole('textbox'), 'hello world');
-    await screen.getByRole('button', { name: /preview/i }).click();
+
+    const previewButton = screen.getByRole('button', { name: /preview/i });
+    await userEvent.click(previewButton);
 
     // ASSERT
     expect(screen.getAllByText(/hello world/i).length).toEqual(2); // textarea and preview div

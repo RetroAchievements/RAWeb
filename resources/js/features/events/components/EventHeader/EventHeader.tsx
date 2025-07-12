@@ -26,7 +26,11 @@ export const EventHeader: FC<EventHeaderProps> = ({ event }) => {
   return (
     <div className="flex flex-col gap-3" data-testid="playable-header">
       <div className="flex gap-4 sm:gap-6">
-        <img src={event.legacyGame.badgeUrl} className="size-16 rounded-sm sm:size-24" />
+        <img
+          src={event.legacyGame.badgeUrl}
+          alt={event.legacyGame.title}
+          className="size-16 rounded-sm sm:size-24"
+        />
 
         <div className="-mt-1 flex flex-col gap-4 sm:-mt-1.5">
           <div className="flex flex-col gap-1 sm:gap-0.5">

@@ -10,7 +10,7 @@ export function initializeTextareaCounter() {
     const textareaEl = document.getElementById(textareaId ?? 'no-id-found') as HTMLInputElement;
 
     if (textareaEl) {
-      const max = Number(textareaEl.getAttribute('maxlength')) ?? 0;
+      const max = Number(textareaEl.getAttribute('maxlength')) || 0;
 
       if (max) {
         const updateCount = () => {

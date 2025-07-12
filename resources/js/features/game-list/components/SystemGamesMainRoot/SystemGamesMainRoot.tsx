@@ -69,7 +69,7 @@ export const SystemGamesMainRoot: FC = memo(() => {
       <DataTablePaginationScrollTarget>
         <div className="mb-3 flex w-full items-center">
           <h1 className="text-h3 w-full sm:!text-[2.0em]">
-            <img src={system.iconUrl} className="-mt-1" />{' '}
+            <img src={system.iconUrl} alt={system.name} className="-mt-1" />{' '}
             {t('All {{systemName}} Games', { systemName: system.name })}
           </h1>
         </div>

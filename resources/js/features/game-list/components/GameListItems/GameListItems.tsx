@@ -1,3 +1,6 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions -- this is redundant */
+/* eslint-disable jsx-a11y/click-events-have-key-events -- this is redundant */
+
 import type { ColumnFiltersState, PaginationState, SortingState } from '@tanstack/react-table';
 import { type FC, useEffect, useState } from 'react';
 import { Fragment } from 'react';
