@@ -16,6 +16,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
   deletedAt,
   displayName,
   imgClassName,
+  isGone,
   labelClassName,
   wrapperClassName,
   hasTooltip = true,
@@ -25,7 +26,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
 }) => {
   const { cardTooltipProps } = useCardTooltip({ dynamicType: 'user', dynamicId: displayName });
 
-  const canLinkToUser = displayName && !deletedAt;
+  const canLinkToUser = displayName && !deletedAt && !isGone;
   const Wrapper = canLinkToUser ? 'a' : 'span';
 
   return (
@@ -47,7 +48,9 @@ export const UserAvatar: FC<UserAvatarProps> = ({
       ) : null}
 
       {displayName && showLabel ? (
-        <span className={cn(deletedAt ? 'line-through' : null, labelClassName)}>{displayName}</span>
+        <span className={cn(deletedAt || isGone ? 'line-through' : null, labelClassName)}>
+          {displayName}
+        </span>
       ) : null}
     </Wrapper>
   );

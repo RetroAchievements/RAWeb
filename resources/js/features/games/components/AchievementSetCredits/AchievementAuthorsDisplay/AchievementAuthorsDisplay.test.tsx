@@ -1,3 +1,5 @@
+/* eslint-disable testing-library/no-node-access -- used to verify styling */
+
 import userEvent from '@testing-library/user-event';
 
 import { render, screen, waitFor } from '@/test';
@@ -144,5 +146,59 @@ describe('Component: AchievementAuthorsDisplay', () => {
 
     // ASSERT
     expect(screen.getByText(/3 authors/i)).toBeVisible();
+  });
+
+  it('given a prominent author with isGone true, applies gray text styling to their label', () => {
+    // ARRANGE
+    const authors = [
+      createUserCredits({ displayName: 'DeletedUser', count: 50, isGone: true }), // !! isGone = true
+      createUserCredits({ displayName: 'ActiveUser', count: 50, isGone: false }), // !! isGone = false
+    ];
+
+    render(<AchievementAuthorsDisplay authors={authors} />, {
+      pageProps: {
+        game: createGame({ achievementsPublished: 100 }),
+      },
+    });
+
+    // ASSERT
+    const deletedUserElement = screen.getByText(/deleteduser/i);
+    expect(deletedUserElement).toBeVisible();
+    expect(deletedUserElement).toHaveClass('text-neutral-500');
+
+    const activeUserElement = screen.getByText(/activeuser/i);
+    expect(activeUserElement).toBeVisible();
+    expect(activeUserElement).not.toHaveClass('text-neutral-500');
+  });
+
+  it('given authors with isGone in tooltip, shows strikethrough styling', async () => {
+    // ARRANGE
+    const authors = [
+      createUserCredits({ displayName: 'Alice', count: 50, isGone: true }), // !! isGone = true
+      createUserCredits({ displayName: 'Bob', count: 50, isGone: false }), // !! isGone = false
+    ];
+
+    render(<AchievementAuthorsDisplay authors={authors} />, {
+      pageProps: {
+        game: createGame({ achievementsPublished: 100 }),
+      },
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByRole('button'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/achievement authors/i)[0]).toBeVisible();
+    });
+
+    const aliceElements = screen.getAllByText('Alice');
+    const tooltipAlice = aliceElements.find((el) => el.closest('[role="tooltip"]'));
+    expect(tooltipAlice).toHaveClass('text-neutral-500', 'line-through');
+
+    const bobElements = screen.getAllByText('Bob');
+    const tooltipBob = bobElements.find((el) => el.closest('[role="tooltip"]'));
+    expect(tooltipBob).not.toHaveClass('text-neutral-500');
+    expect(tooltipBob).not.toHaveClass('line-through');
   });
 });

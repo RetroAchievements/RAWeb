@@ -139,4 +139,35 @@ describe('Component: TooltipCreditRow', () => {
     expect(screen.getByText(/0/i)).toBeVisible();
     expect(screen.getByLabelText(/achievements/i)).toBeVisible();
   });
+
+  it('given isGone is true, applies strikethrough and gray text styling to display name', () => {
+    // ARRANGE
+    const credit = createUserCredits({
+      displayName: 'Deleted User',
+      isGone: true, // !!
+    });
+
+    render(<TooltipCreditRow credit={credit} />);
+
+    // ASSERT
+    const displayNameElement = screen.getByText(/deleted user/i);
+    expect(displayNameElement).toBeVisible();
+    expect(displayNameElement).toHaveClass('text-neutral-500', 'line-through');
+  });
+
+  it('given isGone is false, does not apply strikethrough or gray text styling to display name', () => {
+    // ARRANGE
+    const credit = createUserCredits({
+      displayName: 'Active User',
+      isGone: false, // !!
+    });
+
+    render(<TooltipCreditRow credit={credit} />);
+
+    // ASSERT
+    const displayNameElement = screen.getByText(/active user/i);
+    expect(displayNameElement).toBeVisible();
+    expect(displayNameElement).not.toHaveClass('text-neutral-500');
+    expect(displayNameElement).not.toHaveClass('line-through');
+  });
 });

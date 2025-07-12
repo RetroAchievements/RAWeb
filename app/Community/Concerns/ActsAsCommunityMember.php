@@ -179,6 +179,11 @@ trait ActsAsCommunityMember
         return !$this->isUnranked();
     }
 
+    public function isDeleted(): bool
+    {
+        return !empty($this->Deleted);
+    }
+
     public function isBanned(): bool
     {
         return !empty($this->banned_at);
@@ -187,6 +192,11 @@ trait ActsAsCommunityMember
     public function isNotBanned(): bool
     {
         return !$this->isBanned();
+    }
+
+    public function isGone(): bool
+    {
+        return $this->isBanned() || $this->isDeleted();
     }
 
     public function isMuted(): bool
@@ -212,6 +222,16 @@ trait ActsAsCommunityMember
     public function getIsBannedAttribute(): bool
     {
         return $this->isBanned();
+    }
+
+    public function getIsDeletedAttribute(): bool
+    {
+        return $this->isDeleted();
+    }
+
+    public function getIsGoneAttribute(): bool
+    {
+        return $this->isGone();
     }
 
     /**

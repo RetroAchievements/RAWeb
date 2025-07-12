@@ -19,7 +19,7 @@ class UserCreditsData extends Data
         public string $avatarUrl,
         public int $count,
         public ?Carbon $dateCredited = null,
-        public Lazy|Carbon|null $deletedAt = null,
+        public Lazy|bool $isGone = false,
     ) {
     }
 
@@ -35,7 +35,7 @@ class UserCreditsData extends Data
             avatarUrl: $userData->avatarUrl,
             count: $count,
             dateCredited: $dateCredited,
-            deletedAt: Lazy::create(fn () => $user->Deleted),
+            isGone: Lazy::create(fn () => $user->is_gone),
         );
     }
 }
