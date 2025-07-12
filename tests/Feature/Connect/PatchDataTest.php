@@ -11,13 +11,16 @@ use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\VirtualGameIdService;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Tests\Feature\Concerns\TestsEmulatorUserAgent;
 use Tests\TestCase;
 
@@ -573,14 +576,17 @@ class PatchDataTest extends TestCase
             'RichPresencePatch' => 'Display:\nTest',
         ]);
 
+        /** @var User $author */
+        $author = User::factory()->create(['appToken' => Str::random(16)]);
+
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
+        $achievement1 = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '23456', 'DisplayOrder' => 3, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '34567', 'DisplayOrder' => 2]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '34567', 'DisplayOrder' => 2, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'BadgeName' => '45678', 'DisplayOrder' => 5]);
+        $achievement4 = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'BadgeName' => '45678', 'DisplayOrder' => 5, 'user_id' => $author->id]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
 
@@ -848,6 +854,111 @@ class PatchDataTest extends TestCase
                             title: 'Unsupported Game Version',
                             description: 'This version of the game has not been tested to see if it works with the defined achievements. See the Supported Game Files page for this game to find a compatible version.',
                         ),
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        // user is member of QA team (user2 is still assigned as the tester)
+        $this->seed(RolesTableSeeder::class);
+        $this->user->assignRole(Role::QUALITY_ASSURANCE);
+        $this->user->save();
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', ['m' => $gameHash->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID,
+                    'Title' => $game->Title,
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ParentID' => 1,
+                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'Achievements' => [
+                        $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                        $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                        $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                        $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', ['g' => $game->id + VirtualGameIdService::UntestedIdBase]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID,
+                    'Title' => $game->Title,
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ParentID' => 1,
+                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'Achievements' => [
+                        $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                        $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                        $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                        $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        // achievement author also gets the full achievement list
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', [
+                'u' => $author->User,
+                't' => $author->appToken,
+                'm' => $gameHash->md5,
+            ], credentials: false))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID,
+                    'Title' => $game->Title,
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ParentID' => 1,
+                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'Achievements' => [
+                        $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                        $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                        $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                        $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ]);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('patch', [
+                'u' => $author->User,
+                't' => $author->appToken,
+                'g' => $game->id + VirtualGameIdService::UntestedIdBase,
+            ], credentials: false))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID,
+                    'Title' => $game->Title,
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ParentID' => 1,
+                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'Achievements' => [
+                        $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                        $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                        $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                        $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
                     ],
                     'Leaderboards' => [],
                 ],
