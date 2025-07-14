@@ -9,15 +9,40 @@ interface DataTableSystemFilterProps<TData> {
   filterableSystemOptions: App.Platform.Data.System[];
   table: Table<TData>;
 
+  defaultOptionLabel?: TranslatedString;
+  includeDefaultOption?: boolean;
+  isSingleSelect?: boolean;
   variant?: 'base' | 'drawer';
 }
 
 export function DataTableSystemFilter<TData>({
   table,
   variant,
+  defaultOptionLabel,
   filterableSystemOptions = [],
+  includeDefaultOption = false,
+  isSingleSelect = false,
 }: DataTableSystemFilterProps<TData>) {
   const { t } = useTranslation();
+
+  const systemOptions = filterableSystemOptions
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((system) => ({
+      t_label: system.name as TranslatedString,
+      selectedLabel: system.nameShort,
+      value: String(system.id),
+    }));
+
+  const options =
+    includeDefaultOption && defaultOptionLabel
+      ? [
+          {
+            t_label: defaultOptionLabel,
+            value: 'supported',
+          },
+          ...systemOptions,
+        ]
+      : systemOptions;
 
   return (
     <DataTableFacetedFilter
@@ -25,13 +50,8 @@ export function DataTableSystemFilter<TData>({
       column={table.getColumn('system')}
       t_title={t('System')}
       variant={variant}
-      options={filterableSystemOptions
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((system) => ({
-          t_label: system.name as TranslatedString,
-          selectedLabel: system.nameShort,
-          value: String(system.id),
-        }))}
+      isSingleSelect={isSingleSelect}
+      options={options}
     />
   );
 }

@@ -198,7 +198,7 @@ function FacetedFilterContent<TData, TValue>({
   options,
   selectedValues,
   t_title,
-  variant = 'base',
+  variant,
 }: FacetedFilterContentProps<TData, TValue>) {
   const { t } = useTranslation();
 
@@ -228,15 +228,26 @@ function FacetedFilterContent<TData, TValue>({
 
   return (
     <BaseCommand
+      data-testid="command-container"
       className={cn(
         variant === 'drawer' && !isSingleSelect
           ? 'h-[168px] rounded-md border border-neutral-800 light:border-neutral-200'
+          : '',
+
+        variant === 'drawer' && isSingleSelect
+          ? 'rounded-md border border-neutral-800 light:border-neutral-200'
           : '',
       )}
     >
       {isSearchable && variant !== 'drawer' ? <BaseCommandInput placeholder={t_title} /> : null}
 
-      <BaseCommandList className={baseCommandListClassName}>
+      <BaseCommandList
+        data-testid="command-list"
+        className={cn(
+          baseCommandListClassName,
+          variant === 'drawer' && isSingleSelect ? 'max-h-[200px]' : undefined,
+        )}
+      >
         <BaseCommandEmpty>
           <span className="text-muted">{t('No options found.')}</span>
         </BaseCommandEmpty>

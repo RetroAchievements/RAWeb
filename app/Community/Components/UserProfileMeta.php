@@ -342,7 +342,9 @@ class UserProfileMeta extends Component
         $setsRequestedStat = [
             'label' => 'Achievement sets requested',
             'value' => $setsRequestedValue,
-            'href' => $setRequests['used'] !== 0 ? "/setRequestList.php?u={$user->display_name}" : null,
+            'href' => $setRequests['used'] !== 0
+                ? route('game.request.user', ['user' => $user->display_name])
+                : null,
             'isMuted' => $setRequests['used'] === 0,
         ];
 

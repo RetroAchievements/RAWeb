@@ -35,8 +35,7 @@ export function useGameListPaginatedQuery({
   apiRouteName = 'api.game.index',
 }: UseGameListPaginatedQueryProps) {
   return useQuery<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps -- tableApiRouteName is not part of the key
-    queryKey: ['data', pagination, sorting, columnFilters],
+    queryKey: ['data', apiRouteName, pagination, sorting, columnFilters, apiRouteParams],
 
     queryFn: async () => {
       const response = await axios.get<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>(

@@ -18,6 +18,9 @@ interface UseSsrQueryClientHydrationProps<TData = unknown> {
   paginatedData: App.Data.PaginatedData<TData>;
   pagination: PaginationState;
   sorting: SortingState;
+
+  apiRouteName?: string;
+  apiRouteParams?: Record<string, unknown>;
 }
 
 export function usePreloadedTableDataQueryClient<TData = unknown>({
@@ -25,6 +28,8 @@ export function usePreloadedTableDataQueryClient<TData = unknown>({
   paginatedData,
   pagination,
   sorting,
+  apiRouteName = 'api.game.index',
+  apiRouteParams = {},
 }: UseSsrQueryClientHydrationProps<TData>) {
   const { ziggy } = usePageProps();
 
@@ -38,15 +43,21 @@ export function usePreloadedTableDataQueryClient<TData = unknown>({
   useMemo(() => {
     if (ziggy.device === 'desktop') {
       // These values come from `useGameListState()`.
-      queryClient.setQueryData(['data', pagination, sorting, columnFilters], paginatedData);
+      queryClient.setQueryData(
+        ['data', apiRouteName, pagination, sorting, columnFilters, apiRouteParams],
+        paginatedData,
+      );
     }
 
     if (ziggy.device === 'mobile') {
       // These values come from `useGameListState()`.
-      queryClient.setQueryData(['infinite-data', pagination, sorting, columnFilters], {
-        pages: [paginatedData],
-        pageParams: [1],
-      });
+      queryClient.setQueryData(
+        ['infinite-data', apiRouteName, pagination, sorting, columnFilters, apiRouteParams],
+        {
+          pages: [paginatedData],
+          pageParams: [1],
+        },
+      );
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps -- needed for ssr

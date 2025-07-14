@@ -23,6 +23,7 @@ class EncryptCookies extends Middleware
         'datatable_view_preference_hub_games',
         'datatable_view_preference_playlist',
         'datatable_view_preference_suggest',
+        'datatable_view_preference_setrequest_games',
         'datatable_view_preference_system_games',
         'hide_unlocked_achievements_games',
         'prefers_hidden_user_completed_sets',

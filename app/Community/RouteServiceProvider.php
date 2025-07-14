@@ -23,6 +23,7 @@ use App\Community\Controllers\Api\SubscriptionApiController;
 use App\Community\Controllers\Api\UserCommentApiController;
 use App\Community\Controllers\Api\UserGameListApiController;
 use App\Community\Controllers\Api\UserModerationCommentApiController;
+use App\Community\Controllers\Api\UserSetRequestListApiController;
 use App\Community\Controllers\ForumTopicCommentController;
 use App\Community\Controllers\ForumTopicController;
 use App\Community\Controllers\GameClaimsCommentController;
@@ -36,6 +37,7 @@ use App\Community\Controllers\UserCommentController;
 use App\Community\Controllers\UserForumTopicCommentController;
 use App\Community\Controllers\UserGameListController;
 use App\Community\Controllers\UserModerationCommentController;
+use App\Community\Controllers\UserSetRequestListController;
 use App\Community\Controllers\UserSettingsController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -106,6 +108,10 @@ class RouteServiceProvider extends ServiceProvider
                         Route::post('messages', [MessageApiController::class, 'store'])->name('api.message.store');
                         Route::delete('messages/{messageThread}', [MessageThreadApiController::class, 'destroy'])->name('api.message-thread.destroy');
 
+                        Route::get('set-request', [UserSetRequestListApiController::class, 'index'])->name('api.set-request.index');
+                        Route::get('set-request/random', [UserSetRequestListApiController::class, 'random'])->name('api.set-request.random');
+                        Route::get('set-request/user/{user}', [UserSetRequestListApiController::class, 'userRequests'])->name('api.set-request.user');
+
                         Route::post('subscription/{subjectType}/{subjectId}', [SubscriptionApiController::class, 'store'])->name('api.subscription.store');
                         Route::delete('subscription/{subjectType}/{subjectId}', [SubscriptionApiController::class, 'destroy'])->name('api.subscription.destroy');
 
@@ -138,6 +144,9 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('game/{game}/modification-comments', [GameModificationsCommentController::class, 'index'])->name('game.modification-comment.index');
                     Route::get('game/{game}/claims/comments', [GameClaimsCommentController::class, 'index'])->name('game.claims.comment.index');
                     Route::get('game/{game}/hashes/comments', [GameHashesCommentController::class, 'index'])->name('game.hashes.comment.index');
+
+                    Route::get('games/requests', [UserSetRequestListController::class, 'index'])->name('game.request.index');
+                    Route::get('games/requests/{user}', [UserSetRequestListController::class, 'userRequests'])->name('game.request.user');
 
                     Route::get('leaderboard/{leaderboard}/comments', [LeaderboardCommentController::class, 'index'])->name('leaderboard.comment.index');
 

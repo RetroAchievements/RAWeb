@@ -1,6 +1,12 @@
 import { AwardType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
-import { createGame, createPlayerBadge, createPlayerGame, createSystem } from '@/test/factories';
+import {
+  createGame,
+  createGameClaimant,
+  createPlayerBadge,
+  createPlayerGame,
+  createSystem,
+} from '@/test/factories';
 
 import { ChipOfInterest } from './ChipOfInterest';
 
@@ -327,5 +333,57 @@ describe('Component: ChipOfInterest', () => {
 
     // ASSERT
     expect(screen.queryByText(/mastered indicator/i)).not.toBeInTheDocument();
+  });
+
+  it('given the field is numRequests, shows the number of set requests', () => {
+    // ARRANGE
+    const game = createGame({ numRequests: 42, claimants: [] });
+
+    render(<ChipOfInterest game={game} fieldId="numRequests" />);
+
+    // ASSERT
+    expect(screen.getByText(/42/i)).toBeVisible();
+    expect(screen.queryByText(/claimed/i)).not.toBeInTheDocument();
+  });
+
+  it('given the field is numRequests and the number is undefined, falls back to zero', () => {
+    // ARRANGE
+    const game = createGame({
+      numRequests: undefined, // !!
+      claimants: [],
+    });
+
+    render(<ChipOfInterest game={game} fieldId="numRequests" />);
+
+    // ASSERT
+    expect(screen.getByText(/0/i)).toBeVisible();
+  });
+
+  it('given the field is numRequests and the game has claimants, shows both the request count and claimed chip', () => {
+    // ARRANGE
+    const game = createGame({
+      numRequests: 123,
+      claimants: [createGameClaimant(), createGameClaimant()], // !!
+    });
+
+    render(<ChipOfInterest game={game} fieldId="numRequests" />);
+
+    // ASSERT
+    expect(screen.getByText(/123/i)).toBeVisible();
+    expect(screen.getByText(/claimed/i)).toBeVisible();
+  });
+
+  it('given the field is numRequests and the game has empty claimants array, does not show claimed chip', () => {
+    // ARRANGE
+    const game = createGame({
+      numRequests: 55,
+      claimants: [], // !!
+    });
+
+    render(<ChipOfInterest game={game} fieldId="numRequests" />);
+
+    // ASSERT
+    expect(screen.getByText(/55/i)).toBeVisible();
+    expect(screen.queryByText(/claimed/i)).not.toBeInTheDocument();
   });
 });

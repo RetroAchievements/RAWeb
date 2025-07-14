@@ -19,15 +19,21 @@ export function useDataTablePrefetchResetFilters<TData>(
   tableApiRouteName: RouteName,
   tableApiRouteParams?: Record<string, unknown>,
 ) {
-  const { pagination, sorting } = table.getState();
-
   const queryClient = useQueryClient();
+
+  const { pagination, sorting } = table.getState();
 
   const prefetchResetFilters = () => {
     queryClient.prefetchQuery({
-      // eslint-disable-next-line @tanstack/query/exhaustive-deps -- tableApiRouteName is not part of the key
-      queryKey: ['data', pagination, sorting, defaultColumnFilters],
-      staleTime: 1 * 60 * 1000, // 1 minute
+      queryKey: [
+        'data',
+        tableApiRouteName,
+        pagination,
+        sorting,
+        defaultColumnFilters,
+        tableApiRouteParams,
+      ],
+
       queryFn: async () => {
         const response = await axios.get<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>(
           route(tableApiRouteName, {
@@ -40,6 +46,8 @@ export function useDataTablePrefetchResetFilters<TData>(
 
         return response.data;
       },
+
+      staleTime: 1 * 60 * 1000, // 1 minute
     });
   };
 

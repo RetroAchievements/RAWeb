@@ -3,9 +3,9 @@ import { useAtomValue } from 'jotai';
 import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
+import { UserBreadcrumbs } from '@/common/components/UserBreadcrumbs';
+import { UserHeading } from '@/common/components/UserHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import type { TranslatedString } from '@/types/i18next';
 
 import { useGameListState } from '../../hooks/useGameListState';
 import { usePreloadedTableDataQueryClient } from '../../hooks/usePreloadedTableDataQueryClient';
@@ -14,16 +14,17 @@ import { isCurrentlyPersistingViewAtom } from '../../state/game-list.atoms';
 import { DataTablePaginationScrollTarget } from '../DataTablePaginationScrollTarget';
 import { GamesDataTableContainer } from '../GamesDataTableContainer';
 import { useColumnDefinitions } from './useColumnDefinitions';
-import { useSystemGamesDefaultColumnState } from './useSystemGamesDefaultColumnState';
+import { useRequestedGamesDefaultColumnState } from './useRequestedGamesDefaultColumnState';
+import { UserRequestStatistics } from './UserRequestStatistics/UserRequestStatistics';
 
-export const SystemGamesMainRoot: FC = memo(() => {
-  const { can, defaultDesktopPageSize, system, paginatedGameListEntries } =
-    usePageProps<App.Platform.Data.SystemGameListPageProps>();
+export const RequestedGamesMainRoot: FC = memo(() => {
+  const { paginatedGameListEntries, targetUser, userRequestInfo } =
+    usePageProps<App.Platform.Data.GameListPageProps>();
 
   const { t } = useTranslation();
 
   const { defaultColumnFilters, defaultColumnSort, defaultColumnVisibility } =
-    useSystemGamesDefaultColumnState();
+    useRequestedGamesDefaultColumnState({ targetUser });
 
   const {
     columnFilters,
@@ -40,15 +41,15 @@ export const SystemGamesMainRoot: FC = memo(() => {
     defaultColumnVisibility,
   });
 
-  const columnDefinitions = useColumnDefinitions({ canSeeOpenTicketsColumn: !!can.develop });
+  const columnDefinitions = useColumnDefinitions();
 
   const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
     columnFilters,
     pagination,
     sorting,
-    apiRouteName: 'api.system.game.index',
-    apiRouteParams: { systemId: system.id },
     paginatedData: paginatedGameListEntries,
+    apiRouteName: targetUser ? 'api.set-request.user' : 'api.set-request.index',
+    apiRouteParams: targetUser ? { user: targetUser.displayName } : {},
   });
 
   const isCurrentlyPersistingView = useAtomValue(isCurrentlyPersistingViewAtom);
@@ -60,22 +61,32 @@ export const SystemGamesMainRoot: FC = memo(() => {
     defaultColumnSort,
     pagination,
     sorting,
-    defaultPageSize: defaultDesktopPageSize,
+    defaultPageSize: 50,
     isUserPersistenceEnabled: isCurrentlyPersistingView,
   });
 
   return (
     <div>
-      <GameBreadcrumbs t_currentPageLabel={system.name as TranslatedString} />
-
       <DataTablePaginationScrollTarget>
-        <div className="mb-3 flex w-full items-center">
-          <h1 className="text-h3 w-full sm:!text-[2.0em]">
-            <img src={system.iconUrl} className="-mt-1" />{' '}
-            {t('All {{systemName}} Games', { systemName: system.name })}
-          </h1>
+        <div className="mb-3 flex w-full">
+          {targetUser ? (
+            <div className="flex w-full flex-col">
+              <UserBreadcrumbs user={targetUser} t_currentPageLabel={t('Set Requests')} />
+              <UserHeading user={targetUser} wrapperClassName="!mb-1">
+                {t('Set Requests')}
+              </UserHeading>
+            </div>
+          ) : (
+            <h1 className="text-h3 w-full sm:!text-[2.0em]">{t('Most Requested Sets')}</h1>
+          )}
         </div>
       </DataTablePaginationScrollTarget>
+
+      {targetUser && userRequestInfo ? (
+        <div className="mb-4">
+          <UserRequestStatistics targetUser={targetUser} userRequestInfo={userRequestInfo} />
+        </div>
+      ) : null}
 
       <HydrationBoundary state={dehydrate(queryClientWithInitialData)}>
         <GamesDataTableContainer
@@ -93,9 +104,9 @@ export const SystemGamesMainRoot: FC = memo(() => {
           defaultColumnFilters={defaultColumnFilters}
           columnDefinitions={columnDefinitions}
           // API configuration
-          apiRouteName="api.system.game.index"
-          apiRouteParams={{ systemId: system.id }}
-          randomGameApiRouteName="api.system.game.random"
+          apiRouteName={targetUser ? 'api.set-request.user' : 'api.set-request.index'}
+          apiRouteParams={targetUser ? { user: targetUser.displayName } : {}}
+          randomGameApiRouteName="api.set-request.random"
         />
       </HydrationBoundary>
     </div>

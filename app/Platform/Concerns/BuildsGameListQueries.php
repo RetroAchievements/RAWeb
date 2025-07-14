@@ -14,6 +14,7 @@ use App\Models\Leaderboard;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Models\UserGameListEntry;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\GameListProgressFilterValue;
 use App\Platform\Enums\GameListSetTypeFilterValue;
@@ -60,6 +61,16 @@ trait BuildsGameListQueries
                     ->where('LeaderboardDef.DisplayOrder', '>=', 0),
             ]);
 
+        // Only attempt to fetch the "Requests" column counts if we're on
+        // the Most Requested Sets datatable. Otherwise, skip it.
+        if ($listType === GameListType::SetRequests) {
+            $query->addSelect([
+                'num_requests' => UserGameListEntry::selectRaw('COUNT(*)')
+                    ->whereColumn('SetRequest.GameID', 'GameData.ID')
+                    ->where('SetRequest.type', UserGameListType::AchievementSetRequest),
+            ]);
+        }
+
         // Only attempt to fetch the "Open Tickets" column counts if the user
         // is a dev. Otherwise, skip it.
         if ($user?->can('develop')) {
@@ -81,6 +92,23 @@ trait BuildsGameListQueries
                     ->all();
 
                 $query->whereIn('GameData.ConsoleID', $validSystemIds);
+                break;
+
+            case GameListType::SetRequests:
+                // Only show games with at least 1 request and 0 achievements published.
+                // We also don't care if the system is active or not.
+                $validSystemIds = System::gameSystems()
+                    ->pluck('ID')
+                    ->all();
+
+                $query->whereIn('GameData.ConsoleID', $validSystemIds)
+                    ->where('GameData.achievements_published', 0)
+                    ->whereExists(function ($subquery) {
+                        $subquery->select(DB::raw(1))
+                            ->from('SetRequest')
+                            ->whereColumn('SetRequest.GameID', 'GameData.ID')
+                            ->where('SetRequest.type', UserGameListType::AchievementSetRequest);
+                    });
                 break;
 
             case GameListType::Hub:
@@ -145,9 +173,10 @@ trait BuildsGameListQueries
              * only show games matching a specific list of system IDs
              */
             if ($filterKey === 'system') {
-                $query->whereHas('system', function (Builder $query) use ($filterValues) {
-                    $query->whereIn('ID', $filterValues);
-                });
+                $systemIds = in_array('supported', $filterValues)
+                    ? System::active()->gameSystems()->pluck('ID')->all()
+                    : $filterValues;
+                $query->whereIn('GameData.ConsoleID', $systemIds);
                 continue;
             }
 
@@ -185,6 +214,45 @@ trait BuildsGameListQueries
              */
             if ($filterKey === 'achievementsPublished') {
                 $this->applyAchievementsPublishedFilter($query, $filterValues);
+                continue;
+            }
+
+            /*
+             * only show games based on whether they have active claims
+             */
+            if ($filterKey === 'hasActiveOrInReviewClaims') {
+                if (!empty($filterValues) && $filterValues[0] !== 'any') {
+                    if ($filterValues[0] === 'claimed') {
+                        $query->whereExists(function ($subquery) {
+                            $subquery->select(DB::raw(1))
+                                ->from('SetClaim')
+                                ->whereColumn('SetClaim.game_id', 'GameData.ID')
+                                ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview]);
+                        });
+                    } elseif ($filterValues[0] === 'unclaimed') {
+                        $query->whereNotExists(function ($subquery) {
+                            $subquery->select(DB::raw(1))
+                                ->from('SetClaim')
+                                ->whereColumn('SetClaim.game_id', 'GameData.ID')
+                                ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview]);
+                        });
+                    }
+                }
+                continue;
+            }
+
+            /*
+             * only show games requested by a specific user
+             */
+            if ($filterKey === 'user' && !empty($filterValues[0])) {
+                $query->whereExists(function ($subquery) use ($filterValues) {
+                    $subquery->select(DB::raw(1))
+                        ->from('SetRequest')
+                        ->join('UserAccounts', 'UserAccounts.ID', '=', 'SetRequest.user_id')
+                        ->whereColumn('SetRequest.GameID', 'GameData.ID')
+                        ->where('SetRequest.type', UserGameListType::AchievementSetRequest)
+                        ->where('UserAccounts.display_name', $filterValues[0]);
+                });
                 continue;
             }
         }
@@ -296,6 +364,13 @@ trait BuildsGameListQueries
                     if ($user?->can('develop')) {
                         $query->orderBy('num_unresolved_tickets', $sortDirection);
                     }
+                    break;
+
+                /*
+                 * the game's count of set requests
+                 */
+                case GameListSortField::NumRequests->value:
+                    $query->orderBy('num_requests', $sortDirection);
                     break;
 
                 /*

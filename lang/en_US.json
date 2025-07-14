@@ -1010,5 +1010,18 @@
     "Achievement Design/Ideas": "Achievement Design/Ideas",
     "Playtesters": "Playtesters",
     "Writing Contributions": "Writing Contributions",
-    "game_wantToPlayToggle": "Want to Play"
+    "game_wantToPlayToggle": "Want to Play",
+    "numRequests_one": "{{val, number}} request",
+    "numRequests_other": "{{val, number}} requests",
+    "anyGame": "Any",
+    "Unclaimed": "Unclaimed",
+    "Only supported systems": "Only supported systems",
+    "Supported": "Supported",
+    "Most Requested Sets": "Most Requested Sets",
+    "Your Set Requests": "Your Set Requests",
+    "{{user}}'s Set Requests": "{{user}}'s Set Requests",
+    "{{used, number}} of {{total, number}} requests made": "{{used, number}} of {{total, number}} requests made",
+    "{{points, number}} points until you earn another request": "{{points, number}} points until you earn another request",
+    "Set Requests": "Set Requests",
+    "Requests": "Requests"
 }
