@@ -34,6 +34,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
 
   const lockedAchievements = achievements.filter((a) => !a.unlockedAt);
   const missableAchievements = achievements.filter((a) => a.type === 'missable');
+  const unlockedAchievements = achievements.filter((a) => !!a.unlockedAt);
 
   const sortedAchievements = useMemo(
     () => sortAchievements(achievements, currentAchievementSort),
@@ -43,15 +44,17 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   const filteredAndSortedAchievements = useMemo(
     () =>
       filterAchievements(sortedAchievements, {
-        showLockedOnly: !!lockedAchievements.length && isLockedOnlyFilterEnabled,
+        showLockedOnly:
+          !!lockedAchievements.length && !!unlockedAchievements.length && isLockedOnlyFilterEnabled,
         showMissableOnly: !!missableAchievements.length && isMissableOnlyFilterEnabled,
       }),
     [
       isLockedOnlyFilterEnabled,
       isMissableOnlyFilterEnabled,
-      lockedAchievements,
-      missableAchievements,
+      lockedAchievements.length,
+      missableAchievements.length,
       sortedAchievements,
+      unlockedAchievements.length,
     ],
   );
 
@@ -79,20 +82,18 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
       <GameAchievementSetToolbar
         lockedAchievementsCount={lockedAchievements.length}
         missableAchievementsCount={missableAchievements.length}
+        unlockedAchievementsCount={unlockedAchievements.length}
       />
 
       <div className="relative">
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="popLayout" initial={false}>
           <motion.ul
             key={`${currentAchievementSort}-${isLockedOnlyFilterEnabled}-${isMissableOnlyFilterEnabled}`}
             className="flex flex-col gap-2.5"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{
-              duration: 0.08,
-              delay: 0.01, // Tiny delay to let previous items finish exiting.
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
           >
             {filteredAndSortedAchievements.map((achievement, index) => (
               <AchievementsListItem

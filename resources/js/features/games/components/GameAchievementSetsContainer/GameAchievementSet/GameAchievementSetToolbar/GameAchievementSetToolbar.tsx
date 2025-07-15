@@ -20,11 +20,13 @@ import {
 interface GameAchievementSetToolbarProps {
   lockedAchievementsCount: number;
   missableAchievementsCount: number;
+  unlockedAchievementsCount: number;
 }
 
 export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
   lockedAchievementsCount,
   missableAchievementsCount,
+  unlockedAchievementsCount,
 }) => {
   const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
@@ -76,23 +78,6 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
       />
 
       <div className="flex w-full gap-2 sm:w-auto">
-        {lockedAchievementsCount ? (
-          <BaseToggle
-            size="sm"
-            className={cn([
-              'flex h-[30px] items-center gap-1 whitespace-nowrap !text-[13px] lg:active:translate-y-[1px] lg:active:scale-[0.98]',
-              'light:bg-white light:hover:bg-neutral-50 light:hover:text-neutral-700',
-              'data-[state=on]:light:border-neutral-700 data-[state=on]:light:bg-neutral-50 data-[state=on]:light:text-neutral-900',
-            ])}
-            variant="outline"
-            pressed={isLockedOnlyFilterEnabled}
-            onPressedChange={handleToggleLockedOnlyFilter}
-          >
-            <LuEyeOff className="-mt-0.5" />
-            <span>{t('Locked Only')}</span>
-          </BaseToggle>
-        ) : null}
-
         {missableAchievementsCount ? (
           <BaseToggle
             size="sm"
@@ -117,6 +102,23 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
             >
               {formatNumber(missableAchievementsCount)}
             </BaseChip>
+          </BaseToggle>
+        ) : null}
+
+        {lockedAchievementsCount && unlockedAchievementsCount ? (
+          <BaseToggle
+            size="sm"
+            className={cn([
+              'flex h-[30px] items-center gap-1 whitespace-nowrap !text-[13px] lg:active:translate-y-[1px] lg:active:scale-[0.98]',
+              'light:bg-white light:hover:bg-neutral-50 light:hover:text-neutral-700',
+              'data-[state=on]:light:border-neutral-700 data-[state=on]:light:bg-neutral-50 data-[state=on]:light:text-neutral-900',
+            ])}
+            variant="outline"
+            pressed={isLockedOnlyFilterEnabled}
+            onPressedChange={handleToggleLockedOnlyFilter}
+          >
+            <LuEyeOff className="-mt-0.5" />
+            <span>{t('Locked Only')}</span>
           </BaseToggle>
         ) : null}
       </div>

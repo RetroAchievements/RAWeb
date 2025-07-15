@@ -28,7 +28,11 @@ describe('Component: GameAchievementSetToolbar', () => {
     });
 
     const { container } = render(
-      <GameAchievementSetToolbar lockedAchievementsCount={5} missableAchievementsCount={3} />,
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={0}
+      />,
       { pageProps: { game: mockGame } },
     );
 
@@ -36,7 +40,7 @@ describe('Component: GameAchievementSetToolbar', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given there are locked achievements, shows the locked only toggle', () => {
+  it('given there are locked achievements and unlocked achievements, shows the locked only toggle', () => {
     // ARRANGE
     const mockGame = createGame({ id: 123 });
     const mockToggleGameId = vi.fn();
@@ -47,12 +51,39 @@ describe('Component: GameAchievementSetToolbar', () => {
     });
 
     render(
-      <GameAchievementSetToolbar lockedAchievementsCount={5} missableAchievementsCount={0} />,
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={0}
+        unlockedAchievementsCount={1} // !!
+      />,
       { pageProps: { game: mockGame } },
     );
 
     // ASSERT
     expect(screen.getByText(/locked only/i)).toBeVisible();
+  });
+
+  it('given there are locked achievements and no unlocked achievements, shows the locked only toggle', () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={0}
+        unlockedAchievementsCount={0} // !!
+      />,
+      { pageProps: { game: mockGame } },
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/locked only/i)).not.toBeInTheDocument();
   });
 
   it('given there are no locked achievements, does not show the locked only toggle', () => {
@@ -66,7 +97,11 @@ describe('Component: GameAchievementSetToolbar', () => {
     });
 
     render(
-      <GameAchievementSetToolbar lockedAchievementsCount={0} missableAchievementsCount={3} />,
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={0}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={0}
+      />,
       { pageProps: { game: mockGame } },
     );
 
@@ -85,7 +120,11 @@ describe('Component: GameAchievementSetToolbar', () => {
     });
 
     render(
-      <GameAchievementSetToolbar lockedAchievementsCount={0} missableAchievementsCount={7} />,
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={0}
+        missableAchievementsCount={7}
+        unlockedAchievementsCount={0}
+      />,
       { pageProps: { game: mockGame } },
     );
 
@@ -105,7 +144,11 @@ describe('Component: GameAchievementSetToolbar', () => {
     });
 
     render(
-      <GameAchievementSetToolbar lockedAchievementsCount={5} missableAchievementsCount={0} />,
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={0}
+        unlockedAchievementsCount={0}
+      />,
       { pageProps: { game: mockGame } },
     );
 
@@ -126,7 +169,11 @@ describe('Component: GameAchievementSetToolbar', () => {
     const initialAtomValues: [any, any][] = [[isLockedOnlyFilterEnabledAtom, false]];
 
     render(
-      <GameAchievementSetToolbar lockedAchievementsCount={5} missableAchievementsCount={3} />,
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
       { pageProps: { game: mockGame }, jotaiAtoms: initialAtomValues },
     );
 
@@ -150,7 +197,11 @@ describe('Component: GameAchievementSetToolbar', () => {
     const initialAtomValues: [any, any][] = [[isLockedOnlyFilterEnabledAtom, true]];
 
     render(
-      <GameAchievementSetToolbar lockedAchievementsCount={5} missableAchievementsCount={3} />,
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
       { pageProps: { game: mockGame }, jotaiAtoms: initialAtomValues },
     );
 
@@ -174,7 +225,11 @@ describe('Component: GameAchievementSetToolbar', () => {
     const initialAtomValues: [any, any][] = [[isMissableOnlyFilterEnabledAtom, false]];
 
     render(
-      <GameAchievementSetToolbar lockedAchievementsCount={5} missableAchievementsCount={3} />,
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
       { pageProps: { game: mockGame }, jotaiAtoms: initialAtomValues },
     );
 
@@ -198,7 +253,11 @@ describe('Component: GameAchievementSetToolbar', () => {
     const initialAtomValues: [any, any][] = [[isMissableOnlyFilterEnabledAtom, true]];
 
     render(
-      <GameAchievementSetToolbar lockedAchievementsCount={5} missableAchievementsCount={3} />,
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={0}
+      />,
       { pageProps: { game: mockGame }, jotaiAtoms: initialAtomValues },
     );
 
@@ -220,7 +279,11 @@ describe('Component: GameAchievementSetToolbar', () => {
     });
 
     render(
-      <GameAchievementSetToolbar lockedAchievementsCount={10} missableAchievementsCount={5} />,
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={10}
+        missableAchievementsCount={5}
+        unlockedAchievementsCount={1}
+      />,
       { pageProps: { game: mockGame } },
     );
 

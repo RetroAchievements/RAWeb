@@ -1,5 +1,6 @@
 import {
   currentAchievementSortAtom,
+  isLockedOnlyFilterEnabledAtom,
   isMissableOnlyFilterEnabledAtom,
 } from '@/features/games/state/games.atoms';
 import { render, screen } from '@/test';
@@ -244,6 +245,44 @@ describe('Component: GameAchievementSet', () => {
     // ASSERT
     expect(screen.getByText('Normal Achievement')).toBeVisible();
     expect(screen.getByText('Missable Achievement')).toBeVisible();
+  });
+
+  it('given locked achievements exist, the user has unlocked achievements, and the locked only filter is enabled, shows only locked achievements', () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ title: 'Locked Achievement', unlockedAt: undefined }),
+      createAchievement({ title: 'Unlocked Achievement 1', unlockedAt: new Date().toISOString() }),
+      createAchievement({ title: 'Unlocked Achievement 2', unlockedAt: new Date().toISOString() }),
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+      }),
+    });
+
+    render(
+      <GameAchievementSet
+        achievements={achievements}
+        gameAchievementSet={gameAchievementSet}
+        isOnlySetForGame={false}
+      />,
+      {
+        jotaiAtoms: [
+          [currentAchievementSortAtom, 'normal'],
+          [isLockedOnlyFilterEnabledAtom, true], // !!
+        ],
+        pageProps: {
+          game: createGame(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only locked achievements should be visible ...
+    expect(screen.queryByText('Unlocked Achievement 1')).not.toBeInTheDocument();
+    expect(screen.queryByText('Unlocked Achievement 2')).not.toBeInTheDocument();
+    expect(screen.getByText('Locked Achievement')).toBeVisible();
   });
 
   it('given missable achievements exist and filter is enabled, shows only missable achievements', () => {
