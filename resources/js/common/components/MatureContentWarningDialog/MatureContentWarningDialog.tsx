@@ -36,7 +36,7 @@ export const MatureContentWarningDialog: FC<MatureContentWarningDialogProps> = (
 
     // Check if the URL has the "mature_content_accepted" parameter.
     // Use `ziggy.query`, otherwise this will throw a hydration error.
-    if (ziggy.query['mature_content_accepted'] === '1') {
+    if (ziggy?.query['mature_content_accepted'] === '1') {
       return false;
     }
 
