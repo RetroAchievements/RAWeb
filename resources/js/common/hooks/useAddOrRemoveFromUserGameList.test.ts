@@ -1,5 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
+// eslint-disable-next-line no-restricted-imports -- this is fine in a test
+import { toast } from 'sonner';
 
 import i18n from '@/i18n-client';
 import { renderHook, screen, waitFor } from '@/test';
@@ -9,6 +11,11 @@ import { useAddOrRemoveFromUserGameList } from './useAddOrRemoveFromUserGameList
 window.HTMLElement.prototype.setPointerCapture = vi.fn();
 
 describe('Hook: useAddOrRemoveFromUserGameList', () => {
+  afterEach(() => {
+    // Clean up all active toasts after each test to prevent timers from running after teardown.
+    toast.dismiss();
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const { result } = renderHook(() => useAddOrRemoveFromUserGameList());

@@ -17,7 +17,7 @@ describe('Component: RecentGameAwards', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given there is no recent game mastered, does not show the mastered award', () => {
+  it('given there is no recent set mastered, does not show the mastered award', () => {
     // ARRANGE
     render(<RecentGameAwards />, {
       pageProps: createHomePageProps({
@@ -26,7 +26,7 @@ describe('Component: RecentGameAwards', () => {
     });
 
     // ASSERT
-    expect(screen.queryByText(/most recent game mastered/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/most recent set mastered/i)).not.toBeInTheDocument();
   });
 
   it('given there is no recent game beaten, does not show the beaten award', () => {
@@ -70,7 +70,7 @@ describe('Component: RecentGameAwards', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/most recent game mastered/i)).toBeVisible();
+    expect(screen.getByText(/most recent set mastered/i)).toBeVisible();
     expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
     expect(screen.getByText(/scott/i)).toBeVisible();
   });
