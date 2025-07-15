@@ -1,6 +1,6 @@
 import { type FC, memo } from 'react';
 
-import { BaseTableCell, BaseTableRow } from '@/common/components/+vendor/BaseTable';
+import { BaseTableCell, BaseTableHead, BaseTableRow } from '@/common/components/+vendor/BaseTable';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -38,7 +38,10 @@ export const GameMetadataRow: FC<GameMetadataRowProps> = memo(({ rowHeading, ele
 
   return (
     <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
-      <BaseTableCell className="text-right align-top">{rowHeading}</BaseTableCell>
+      <BaseTableHead scope="row" className="h-auto text-right align-top text-text">
+        {rowHeading}
+      </BaseTableHead>
+
       <BaseTableCell>
         {parts.map((part, index) => {
           if (part.type === 'element') {
