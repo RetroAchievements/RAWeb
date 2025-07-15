@@ -53,7 +53,6 @@ export const GameAchievementSetsContainer: FC<GameAchievementSetsContainerProps>
           achievements={gameAchievementSet.achievementSet.achievements}
           currentSort={currentSort}
           gameAchievementSet={gameAchievementSet}
-          isInitiallyOpened={true}
           isOnlySetForGame={game.gameAchievementSets?.length === 1}
         />
       ))}

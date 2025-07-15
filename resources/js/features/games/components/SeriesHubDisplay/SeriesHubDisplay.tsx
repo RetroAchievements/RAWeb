@@ -20,6 +20,12 @@ interface SeriesHubDisplayProps {
 export const SeriesHubDisplay: FC<SeriesHubDisplayProps> = ({ seriesHub }) => {
   const { t } = useTranslation();
 
+  const hubHref = route('hub.show', {
+    gameSet: seriesHub.hub.id,
+    sort: '-playersTotal',
+    'filter[subsets]': 'only-games',
+  });
+
   return (
     <div data-testid="series-hub">
       <h2 className="mb-0 border-0 text-lg font-semibold">{t('Series')}</h2>
@@ -27,22 +33,16 @@ export const SeriesHubDisplay: FC<SeriesHubDisplayProps> = ({ seriesHub }) => {
       <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
         <div className="flex flex-col gap-3 rounded-lg bg-[rgba(50,50,50,0.3)] p-2">
           <div className="flex items-center gap-3">
-            <img
-              src={seriesHub.hub.badgeUrl!}
-              alt={seriesHub.hub.title!}
-              className="size-12 rounded-sm"
-            />
+            <a href={hubHref}>
+              <img
+                src={seriesHub.hub.badgeUrl!}
+                alt={seriesHub.hub.title!}
+                className="size-12 rounded-sm"
+              />
+            </a>
 
             <div className="flex-1">
-              <a
-                href={route('hub.show', {
-                  gameSet: seriesHub.hub.id,
-                  sort: '-playersTotal',
-                  'filter[subsets]': 'only-games',
-                })}
-              >
-                {cleanHubTitle(seriesHub.hub.title!, true)}
-              </a>
+              <a href={hubHref}>{cleanHubTitle(seriesHub.hub.title!, true)}</a>
 
               <div className="flex items-center gap-1.5 text-xs">
                 <FaGamepad className="size-4 text-neutral-400" />

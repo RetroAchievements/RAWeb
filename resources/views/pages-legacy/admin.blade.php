@@ -71,6 +71,39 @@ $staticData = StaticData::first();
 ?>
 <x-app-layout pageTitle="Admin Tools">
 <script src="/vendor/jquery.datetimepicker.full.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const copyUnlocksForm = document.getElementById('copy-unlocks-form');
+    if (copyUnlocksForm) {
+        copyUnlocksForm.addEventListener('submit', function(e) {
+            const requiredInput = document.getElementById('required_achievement_id');
+            const awardInput = document.getElementById('copy_unlock_achievement_id');
+            
+            if (!requiredInput || !awardInput) {
+                console.error('Could not find input elements');
+                return;
+            }
+            
+            const requiredIds = requiredInput.value.trim();
+            const awardIds = awardInput.value.trim();
+            
+            if (!requiredIds || !awardIds) {
+                alert('Please enter both required and unlock achievement IDs.');
+                e.preventDefault();
+                return;
+            }
+            
+            const message = `Are you sure you want to copy unlocks?\nDOUBLE CHECK THESE IDs!\n\nFrom achievement IDs: ${requiredIds}\nTo achievement IDs: ${awardIds}`;
+            
+            if (!confirm(message)) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+</script>
+
 <link rel="stylesheet" href="/vendor/jquery.datetimepicker.min.css">
 <?php if ($message): ?>
     <div class="w-full mb-6">
@@ -122,7 +155,7 @@ $staticData = StaticData::first();
 
     <section class="mb-4">
         <h4>Copy Unlocks</h4>
-        <form method="post" action="request/admin.php">
+        <form method="post" action="request/admin.php" id="copy-unlocks-form">
             @csrf()
             <input type="hidden" name="action" value="copy-unlocks">
             <table class="mb-1">
@@ -134,7 +167,7 @@ $staticData = StaticData::first();
                 <tr>
                     <td class="whitespace-nowrap">
                         <label for="required_achievement_id" style="cursor:help"
-                               title="CSV of achievements the player must have previously unlocked">Required achievement IDs</label>
+                               title="CSV of achievements the player must have previously unlocked">From achievement IDs</label>
                     </td>
                     <td>
                         <input id="required_achievement_id" name="s">
@@ -142,11 +175,11 @@ $staticData = StaticData::first();
                 </tr>
                 <tr>
                     <td class="whitespace-nowrap">
-                        <label for="award_achievement_id" style="cursor:help"
-                               title="CSV of achievements that should be unlocked if the user has all of the required achievements unlocked">Unlock achievement IDs</label>
+                        <label for="copy_unlock_achievement_id" style="cursor:help"
+                               title="CSV of achievements that should be unlocked if the user has all of the required achievements unlocked">To achievement IDs</label>
                     </td>
                     <td>
-                        <input id="award_achievement_id" name="a">
+                        <input id="copy_unlock_achievement_id" name="a">
                     </td>
                 </tr>
                 </tbody>

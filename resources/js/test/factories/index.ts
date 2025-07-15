@@ -53,4 +53,5 @@ export * from './createSystem';
 export * from './createTicket';
 export * from './createTrendingGame';
 export * from './createUser';
+export * from './createUserCredits';
 export * from './createZiggyProps';
