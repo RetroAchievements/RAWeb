@@ -18,6 +18,7 @@
  */
 
 use App\Models\Leaderboard;
+use App\Platform\Actions\GetRankedLeaderboardEntriesAction;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -39,22 +40,22 @@ if (!$leaderboard) {
     return response()->json([], 404);
 }
 
-$fetchedLeaderboardData = GetLeaderboardData($leaderboard, null, $count, $offset);
+$entries = (new GetRankedLeaderboardEntriesAction())->execute($leaderboard, $offset, $count);
 
 $results = [];
-foreach ($fetchedLeaderboardData['Entries'] as $entry) {
+foreach ($entries as $entry) {
     $results[] = [
-        'User' => $entry['User'],
-        'ULID' => $entry['ULID'],
-        'DateSubmitted' => date('c', $entry['DateSubmitted']),
-        'Score' => $entry['Score'],
-        'FormattedScore' => ValueFormat::format($entry['Score'], $leaderboard->Format),
-        'Rank' => $entry['Rank'],
+        'User' => $entry->user->display_name,
+        'ULID' => $entry->user->ulid,
+        'DateSubmitted' => $entry->updated_at->toIso8601String(),
+        'Score' => $entry->score,
+        'FormattedScore' => ValueFormat::format($entry->score, $leaderboard->Format),
+        'Rank' => $entry->rank,
     ];
 }
 
 return response()->json([
-    'Count' => count($fetchedLeaderboardData['Entries']),
-    'Total' => $fetchedLeaderboardData['TotalEntries'],
+    'Count' => count($results),
+    'Total' => $leaderboard->entries()->count(),
     'Results' => $results,
 ]);
