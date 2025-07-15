@@ -24,13 +24,24 @@ interface MatureContentWarningDialogProps {
 export const MatureContentWarningDialog: FC<MatureContentWarningDialogProps> = ({
   noHref = route('home'),
 }) => {
-  const { auth } = usePageProps();
+  const { auth, ziggy } = usePageProps();
 
   const { t } = useTranslation();
 
-  const [isOpen, setIsOpen] = useState(
-    auth?.user.preferences?.shouldAlwaysBypassContentWarnings ? false : true,
-  );
+  const [isOpen, setIsOpen] = useState(() => {
+    // Check if the user has the permanent preference to bypass warnings.
+    if (auth?.user.preferences?.shouldAlwaysBypassContentWarnings) {
+      return false;
+    }
+
+    // Check if the URL has the "mature_content_accepted" parameter.
+    // Use `ziggy.query`, otherwise this will throw a hydration error.
+    if (ziggy.query['mature_content_accepted'] === '1') {
+      return false;
+    }
+
+    return true;
+  });
 
   const mutation = useSuppressMatureContentWarningMutation();
 
@@ -40,6 +51,11 @@ export const MatureContentWarningDialog: FC<MatureContentWarningDialogProps> = (
   };
 
   const handleYesClick = () => {
+    // Add the "mature_content_accepted" parameter to the current URL.
+    const url = new URL(window.location.href);
+    url.searchParams.set('mature_content_accepted', '1');
+    window.history.replaceState({}, '', url.href);
+
     setIsOpen(false);
   };
 
@@ -56,6 +72,7 @@ export const MatureContentWarningDialog: FC<MatureContentWarningDialogProps> = (
 
       <BaseAlertDialog open={isOpen} onOpenChange={setIsOpen}>
         <BaseAlertDialogContent
+          className="max-w-xl"
           shouldBlurBackdrop={true}
           onEscapeKeyDown={(event) => {
             event.preventDefault(); // don't allow closing with the escape key
@@ -65,23 +82,23 @@ export const MatureContentWarningDialog: FC<MatureContentWarningDialogProps> = (
             <BaseAlertDialogTitle>{t('Mature Content Warning')}</BaseAlertDialogTitle>
 
             <BaseAlertDialogDescription className="flex flex-col gap-4">
-              <span>
-                {t('This page may contain content that is not appropriate for all ages.')}
-              </span>
-              <span>{t('Are you sure you want to view this page?')}</span>
+              <span>{t('This content is intended for mature audiences.')}</span>
+              <span>{t('Do you want to continue?')}</span>
             </BaseAlertDialogDescription>
           </BaseAlertDialogHeader>
 
-          <BaseAlertDialogFooter className="mt-2 flex flex-col gap-5 sm:flex-row sm:gap-1">
-            <BaseAlertDialogAction onClick={handlePermanentYesClick}>
-              {t("Yes, and don't ask again")}
-            </BaseAlertDialogAction>
-
-            <BaseAlertDialogAction onClick={handleYesClick}>
-              {t("Yes, I'm an adult")}
-            </BaseAlertDialogAction>
-
+          <BaseAlertDialogFooter className="mt-2 flex flex-col gap-4 sm:gap-4 lg:flex-row">
             <BaseButton onClick={handleNoClick}>{t('No')}</BaseButton>
+
+            <div className="flex gap-2">
+              <BaseAlertDialogAction onClick={handlePermanentYesClick} className="w-full">
+                {t('Always allow mature content')}
+              </BaseAlertDialogAction>
+
+              <BaseAlertDialogAction onClick={handleYesClick} className="w-full">
+                {t('Continue to this page')}
+              </BaseAlertDialogAction>
+            </div>
           </BaseAlertDialogFooter>
         </BaseAlertDialogContent>
       </BaseAlertDialog>

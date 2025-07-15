@@ -2,6 +2,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 
+import type { ZiggyProps } from '@/common/models';
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
 
@@ -21,6 +22,7 @@ describe('Component: ContentWarningDialog', () => {
             preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
           }),
         },
+        ziggy: { query: {} } as ZiggyProps,
       },
     });
 
@@ -40,6 +42,7 @@ describe('Component: ContentWarningDialog', () => {
             },
           }),
         },
+        ziggy: { query: {} } as ZiggyProps,
       },
     });
 
@@ -47,7 +50,7 @@ describe('Component: ContentWarningDialog', () => {
     expect(screen.getByRole('alertdialog')).toBeVisible();
 
     expect(screen.getByText(/content warning/i)).toBeVisible();
-    expect(screen.getByText(/are you sure you want to view this page/i)).toBeVisible();
+    expect(screen.getByText(/do you want to continue/i)).toBeVisible();
   });
 
   it('given the user has opted to bypass content warnings, does not show the dialog', () => {
@@ -69,9 +72,30 @@ describe('Component: ContentWarningDialog', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
-  it('given the user clicks "Yes, I\'m an adult", closes the dialog without making any API calls', async () => {
+  it('given the URL has the "mature_content_accepted" parameter, does not show the dialog', () => {
+    // ARRANGE
+    render(<MatureContentWarningDialog />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({
+            preferences: {
+              prefersAbsoluteDates: false,
+              shouldAlwaysBypassContentWarnings: false,
+            },
+          }),
+        },
+        ziggy: { query: { mature_content_accepted: '1' } } as unknown as ZiggyProps, // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+
+  it('given the user clicks "Continue to this page", closes the dialog without making any API calls and adds a special URL parameter', async () => {
     // ARRANGE
     const patchSpy = vi.spyOn(axios, 'patch');
+    const replaceStateSpy = vi.spyOn(window.history, 'replaceState');
 
     render(<MatureContentWarningDialog />, {
       pageProps: {
@@ -80,18 +104,23 @@ describe('Component: ContentWarningDialog', () => {
             preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
           }),
         },
+        ziggy: { query: {} } as ZiggyProps,
       },
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /yes, i'm an adult/i }));
+    await userEvent.click(screen.getByRole('button', { name: /continue to this page/i }));
 
     // ASSERT
     expect(patchSpy).not.toHaveBeenCalled();
     expect(screen.queryByText(/content warning/i)).not.toBeInTheDocument();
+
+    expect(replaceStateSpy).toHaveBeenCalled();
+    const calledUrl = replaceStateSpy.mock.calls[0][2];
+    expect(calledUrl).toContain('mature_content_accepted=1');
   });
 
-  it('given the user clicks "Yes, and don\'t ask again", makes an API call and closes the dialog', async () => {
+  it('given the user clicks "Always allow mature content", makes an API call and closes the dialog', async () => {
     // ARRANGE
     const patchSpy = vi.spyOn(axios, 'patch').mockResolvedValueOnce({});
 
@@ -102,11 +131,12 @@ describe('Component: ContentWarningDialog', () => {
             preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
           }),
         },
+        ziggy: { query: {} } as ZiggyProps,
       },
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /yes, and don't ask again/i }));
+    await userEvent.click(screen.getByRole('button', { name: /always allow mature content/i }));
 
     // ASSERT
     await waitFor(() => {
@@ -135,6 +165,7 @@ describe('Component: ContentWarningDialog', () => {
             preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
           }),
         },
+        ziggy: { query: {} } as ZiggyProps,
       },
     });
 
@@ -160,6 +191,7 @@ describe('Component: ContentWarningDialog', () => {
             preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
           }),
         },
+        ziggy: { query: {} } as ZiggyProps,
       },
     });
 
@@ -179,6 +211,7 @@ describe('Component: ContentWarningDialog', () => {
             preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
           }),
         },
+        ziggy: { query: {} } as ZiggyProps,
       },
     });
 
