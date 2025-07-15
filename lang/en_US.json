@@ -191,7 +191,7 @@
     "More pages": "More pages",
     "Most of the website is still untranslated. If you'd like to help with translations, you can learn more about how to contribute <1>here</1>.": "Most of the website is still untranslated. If you'd like to help with translations, you can learn more about how to contribute <1>here</1>.",
     "Most recent game beaten": "Most recent game beaten",
-    "Most recent game mastered": "Most recent game mastered",
+    "Most recent set mastered": "Most recent set mastered",
     "Must be at least 8 characters.": "Must be at least 8 characters.",
     "New": "New",
     "New Email Address": "New Email Address",
@@ -1010,5 +1010,6 @@
     "Writing Contributions": "Writing Contributions",
     "Always allow mature content": "Always allow mature content",
     "Continue to this page": "Continue to this page",
-    "Mature Content": "Mature Content"
+    "Mature Content": "Mature Content",
+    "game_wantToPlayToggle": "Want to Play"
 }
