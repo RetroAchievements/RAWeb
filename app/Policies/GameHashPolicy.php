@@ -64,4 +64,20 @@ class GameHashPolicy
             Role::DEVELOPER,
         ]);
     }
+
+    public function loadIncompatibleSet(User $user, GameHash $gameHash): bool
+    {
+        // Compatibility testers can always access the set they're testing.
+        if ($user->is($gameHash->compatibilityTester)) {
+            return true;
+        }
+
+        // QA members can always access all incompatible content.
+        if ($user->hasRole(Role::QUALITY_ASSURANCE)) {
+            return true;
+        }
+
+        // Achievement authors can always access their own work.
+        return $gameHash->game->achievements()->where('user_id', $user->id)->exists();
+    }
 }

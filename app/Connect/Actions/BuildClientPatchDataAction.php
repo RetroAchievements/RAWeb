@@ -56,16 +56,7 @@ class BuildClientPatchDataAction
         if ($gameHash->compatibility !== GameHashCompatibility::Compatible) {
             $game ??= $gameHash->game;
 
-            $canSeeIncompatibleSet = false;
-            if ($user) {
-                if ($user->id === $gameHash->compatibility_tester_id
-                    || $user->hasRole(Role::QUALITY_ASSURANCE)) {
-                    $canSeeIncompatibleSet = true;
-                } else {
-                    $canSeeIncompatibleSet = $game->achievements()->where('user_id', $user->id)->exists();
-                }
-            }
-
+            $canSeeIncompatibleSet = $user && $user->can('loadIncompatibleSet', $gameHash);
             if (!$canSeeIncompatibleSet) {
                 return $this->buildIncompatiblePatchData($game, $gameHash->compatibility, $user);
             }
