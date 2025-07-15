@@ -46,7 +46,7 @@ class GetAchievementUnlocksAction extends BaseAuthenticatedApiAction
             ->with('game')
             ->first();
         if (!$achievement) {
-            return $this->achievementNotFound();
+            return $this->resourceNotFound('achievement');
         }
 
         $playerAchievements = $achievement->playerAchievements()
