@@ -20,6 +20,7 @@ class GameShowPagePropsData extends Data
      * @param Collection<int, GameTopAchieverData> $topAchievers
      */
     public function __construct(
+        public ?AggregateAchievementSetCreditsData $aggregateCredits,
         public GameData $game,
         public UserPermissionsData $can,
         /** @var GameSetData[] */
