@@ -77,7 +77,8 @@ class BuildGameShowPagePropsAction
             ->filter(
                 fn ($game) => !str_contains($game->title, '[Subset')
             )
-            ->sortBy('sort_title');
+            ->sortBy('sort_title')
+            ->sortByDesc(fn ($game) => $game->achievements_published > 0);
 
         /**
          * If the user doesn't have permission to view a related hub,
