@@ -25,6 +25,8 @@ class GameShowPagePropsData extends Data
         public UserPermissionsData $can,
         /** @var GameSetData[] */
         public array $hubs,
+        public bool $isLockedOnlyFilterEnabled,
+        public bool $isMissableOnlyFilterEnabled,
         public bool $isOnWantToDevList,
         public bool $isOnWantToPlayList,
         public bool $isSubscribedToComments,
