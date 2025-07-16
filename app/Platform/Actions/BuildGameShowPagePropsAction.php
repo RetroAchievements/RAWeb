@@ -32,6 +32,7 @@ class BuildGameShowPagePropsAction
         protected BuildGameAchievementDistributionAction $buildGameAchievementDistributionAction,
         protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
         protected BuildSeriesHubDataAction $buildSeriesHubDataAction,
+        protected ProcessGameReleasesForViewAction $processGameReleasesForViewAction,
     ) {
     }
 
@@ -99,6 +100,11 @@ class BuildGameShowPagePropsAction
             ->all();
 
         $initialUserGameListState = $this->getInitialUserGameListState($game, $user);
+
+        // Deduplicate releases by region and sort them by date.
+        // Then, override the releases in the game object for proper display.
+        $processedReleases = $this->processGameReleasesForViewAction->execute($game);
+        $game->setRelation('releases', collect($processedReleases));
 
         // Check cookies for filter states.
         $isLockedOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_unlocked_achievements_games', $game->id);
