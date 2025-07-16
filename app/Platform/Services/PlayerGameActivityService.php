@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Platform\Actions\ComputeAchievementsSetPublishedAtAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\PlayerProgressResetType;
 use App\Platform\Enums\UnlockMode;
 use Carbon\Carbon;
 
@@ -62,10 +63,27 @@ class PlayerGameActivityService
             $gameIds[] = $game->id;
         }
 
-        // Get the most recent reset for this user and game.
-        // If the player has a recent for the game, we only want to include
-        // sessions from after the most recent reset.
-        $lastReset = PlayerProgressReset::forUserAndGame($user, $game)->first();
+        // Get the most recent reset for this user and game(s).
+        // If the player has a recent reset for any of the games, we only
+        // want to include sessions from after the most recent reset.
+        // When `$withSubsets` is true, we need to check all gameIds.
+        $lastReset = null;
+        if ($withSubsets && count($gameIds) > 1) {
+            // If we're dealing with subsets, check for resets on any of the games.
+            $lastReset = PlayerProgressReset::where('user_id', $user->id)
+                ->where(function ($q) use ($gameIds) {
+                    $q->where(function ($subQuery) use ($gameIds) {
+                        $subQuery->where('type', PlayerProgressResetType::Game)
+                            ->whereIn('type_id', $gameIds);
+                    })
+                    ->orWhere('type', PlayerProgressResetType::Account);
+                })
+                ->orderByDesc('created_at')
+                ->first();
+        } else {
+            $lastReset = PlayerProgressReset::forUserAndGame($user, $game)->first();
+        }
+
         $playerSessionsQuery = $user->playerSessions()
             ->with('gameHash')
             ->whereIn('game_id', $gameIds);

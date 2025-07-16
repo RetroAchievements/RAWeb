@@ -104,7 +104,8 @@ class PlayerProgressReset extends BaseModel
                 $q->where(function ($subQuery) use ($game) {
                     $subQuery->where('type', PlayerProgressResetType::Game)
                         ->where('type_id', $game->id);
-                });
+                })
+                ->orWhere('type', PlayerProgressResetType::Account);
             })
             ->orderByDesc('created_at');
     }
