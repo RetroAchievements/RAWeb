@@ -88,7 +88,8 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
    * Otherwise, if there's nothing left for them to unlock, showing those
    * details is largely redundant.
    */
-  const canShowDetailedProgress = achievementsUnlocked !== achievementsPublished;
+  const canShowDetailedProgress =
+    variant === 'event' || achievementsUnlocked !== achievementsPublished;
 
   const isEventGame = getIsEventGame(game);
 

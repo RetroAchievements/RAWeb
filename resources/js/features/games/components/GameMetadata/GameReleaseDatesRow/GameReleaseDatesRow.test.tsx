@@ -192,9 +192,7 @@ describe('Component: GameReleaseDatesRow', () => {
     );
 
     // ASSERT
-    const cells = screen.getAllByRole('cell');
-    const contentCell = cells[1];
-
+    const contentCell = screen.getByRole('cell');
     expect(contentCell.textContent).toMatch(/JP.*Jan 1, 2023.*NA.*Jun 15, 2023.*EU.*Dec 1, 2023/i);
   });
 });

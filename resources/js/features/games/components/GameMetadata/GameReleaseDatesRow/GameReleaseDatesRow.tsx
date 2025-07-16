@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { BaseTableCell, BaseTableRow } from '@/common/components/+vendor/BaseTable';
+import { BaseTableCell, BaseTableHead, BaseTableRow } from '@/common/components/+vendor/BaseTable';
 import {
   BaseTooltip,
   BaseTooltipContent,
@@ -18,9 +18,9 @@ export const GameReleaseDatesRow: FC<GameReleaseDatesRowProps> = ({ releases }) 
 
   return (
     <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
-      <BaseTableCell className="text-right align-top">
+      <BaseTableHead scope="row" className="h-auto text-right align-top text-text">
         {t('metaRelease', { count: releases.length })}
-      </BaseTableCell>
+      </BaseTableHead>
 
       <BaseTableCell>
         <span className="flex flex-col">
