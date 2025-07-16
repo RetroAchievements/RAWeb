@@ -216,8 +216,7 @@ describe('Component: GameReleaseDatesRow', () => {
 
     // ASSERT
     // ... both should show as January, with JP first due to month granularity normalization ...
-    const cells = screen.getAllByRole('cell');
-    const contentCell = cells[1]; // Second cell contains the releases.
+    const contentCell = screen.getByRole('cell');
 
     // ... JP should appear before NA because month granularity normalizes to start of month ...
     expect(contentCell.textContent).toMatch(/JP.*January 2023.*NA.*Jan 15, 2023/i);
@@ -280,9 +279,7 @@ describe('Component: GameReleaseDatesRow', () => {
     );
 
     // ASSERT
-    const cells = screen.getAllByRole('cell');
-    const contentCell = cells[1];
-
+    const contentCell = screen.getByRole('cell');
     expect(contentCell.textContent).toMatch(/JP.*Jan 1, 2023.*EU.*January 2023.*NA.*2023/i);
   });
 
@@ -356,9 +353,7 @@ describe('Component: GameReleaseDatesRow', () => {
     );
 
     // ASSERT
-    const cells = screen.getAllByRole('cell');
-    const contentCell = cells[1];
-
+    const contentCell = screen.getByRole('cell');
     expect(contentCell.textContent).toMatch(/JP.*Jan 1, 2023.*(?:NA|EU).*2023.*(?:NA|EU).*2023/i);
   });
 });
