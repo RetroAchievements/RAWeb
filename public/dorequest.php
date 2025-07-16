@@ -9,6 +9,7 @@ use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\GetCodeNotesAction;
 use App\Connect\Actions\GetFriendListAction;
 use App\Connect\Actions\GetHashLibraryAction;
+use App\Connect\Actions\GetLeaderboardEntriesAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\ResolveRootGameFromGameAndGameHashAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
@@ -39,6 +40,7 @@ $handler = match ($requestType) {
     'codenotes2' => new GetCodeNotesAction(),
     'getfriendlist' => new GetFriendListAction(),
     'hashlibrary' => new GetHashLibraryAction(),
+    'lbinfo' => new GetLeaderboardEntriesAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
     'submitgametitle' => new SubmitGameTitleAction(),
     default => null,
@@ -520,15 +522,6 @@ switch ($requestType) {
         $response['ExistingIDs'] = $alreadyAwardedIds;
         $response['SuccessfulIDs'] = $newAwardedIds;
 
-        break;
-
-    case "lbinfo":
-        $lbID = (int) request()->input('i', 0);
-        // Note: Nearby entry behavior has no effect if $username is null
-        // TBD: friendsOnly
-        $leaderboard = Leaderboard::find($lbID);
-        $response['LeaderboardData'] = $leaderboard ?
-            GetLeaderboardData($leaderboard, User::whereName($username)->first(), $count, $offset, nearby: true) : [];
         break;
 
     case "achievementsets":
