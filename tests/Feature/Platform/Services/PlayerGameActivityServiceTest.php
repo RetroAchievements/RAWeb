@@ -296,7 +296,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertEquals($unlocker->id, $event['unlocker']->id);
     }
 
-    public function testItExcludesSessionsBeforeGameReset(): void
+    public function testItShowsSessionsBeforeGameResetWithoutAchievements(): void
     {
         // Arrange
         /** @var User $user */
@@ -341,13 +341,14 @@ class PlayerGameActivityServiceTest extends TestCase
         $summary = $activity->summarize();
 
         // Assert
-        // ... should only include the session after reset (15 minutes) ...
-        $this->assertEquals(1, count($activity->sessions));
-        $this->assertEquals($sessionAfterReset->id, $activity->sessions[0]['playerSession']->id);
-        $this->assertEquals(15 * 60, $summary['totalPlaytime']); // !! 15 minutes in seconds
+        // ... should include both sessions (empty sessions before the reset are still shown) ...
+        $this->assertEquals(2, count($activity->sessions));
+        $this->assertEquals($sessionBeforeReset->id, $activity->sessions[0]['playerSession']->id);
+        $this->assertEquals($sessionAfterReset->id, $activity->sessions[1]['playerSession']->id);
+        $this->assertEquals(45 * 60, $summary['totalPlaytime']); // !! 30 + 15 minutes in seconds
     }
 
-    public function testItExcludesSessionsBeforeAccountReset(): void
+    public function testItShowsSessionsBeforeAccountResetWithoutAchievements(): void
     {
         // Arrange
         /** @var User $user */
@@ -392,13 +393,14 @@ class PlayerGameActivityServiceTest extends TestCase
         $summary = $activity->summarize();
 
         // Assert
-        // ... should only include the session after reset (15 minutes) ...
-        $this->assertEquals(1, count($activity->sessions));
-        $this->assertEquals($sessionAfterReset->id, $activity->sessions[0]['playerSession']->id);
-        $this->assertEquals(15 * 60, $summary['totalPlaytime']); // !! 15 minutes in seconds
+        // ... should include both sessions (empty sessions before the reset are still shown) ...
+        $this->assertEquals(2, count($activity->sessions));
+        $this->assertEquals($sessionBeforeReset->id, $activity->sessions[0]['playerSession']->id);
+        $this->assertEquals($sessionAfterReset->id, $activity->sessions[1]['playerSession']->id);
+        $this->assertEquals(45 * 60, $summary['totalPlaytime']); // !! 30 + 15 minutes in seconds
     }
 
-    public function testItExcludesSessionsBeforeSubsetGameReset(): void
+    public function testItShowsSessionsBeforeSubsetGameResetWithoutAchievements(): void
     {
         // Arrange
         /** @var User $user */
@@ -476,17 +478,101 @@ class PlayerGameActivityServiceTest extends TestCase
         $summary = $activity->summarize();
 
         // Assert
-        // ... should only include sessions after the subset game reset ...
-        $this->assertEquals(2, count($activity->sessions));
+        // ... should include all sessions (empty sessions before the reset are still shown) ...
+        $this->assertEquals(4, count($activity->sessions));
 
-        // ... verify we only have the sessions after reset ...
+        // ... verify we have all sessions ...
         $sessionIds = collect($activity->sessions)->pluck('playerSession.id')->toArray();
         $this->assertContains($mainSessionAfterReset->id, $sessionIds);
         $this->assertContains($subsetSessionAfterReset->id, $sessionIds);
-        $this->assertNotContains($mainSessionBeforeReset->id, $sessionIds);
-        $this->assertNotContains($subsetSessionBeforeReset->id, $sessionIds);
+        $this->assertContains($mainSessionBeforeReset->id, $sessionIds);
+        $this->assertContains($subsetSessionBeforeReset->id, $sessionIds);
 
-        // ... total time should be 15 + 5 = 20 minutes ...
-        $this->assertEquals(20 * 60, $summary['totalPlaytime']); // !! 20 minutes in seconds
+        // ... total time should be 20 + 10 + 15 + 5 = 50 minutes ...
+        $this->assertEquals(50 * 60, $summary['totalPlaytime']); // !! 50 minutes in seconds
+    }
+
+    public function testItFiltersAchievementsButNotSessionsAfterReset(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        /** @var Game $game */
+        $game = $this->seedGame(achievements: 5, withHash: false);
+
+        $now = Carbon::now()->startOfSecond();
+
+        // ... create a session with achievements before reset - 100 minutes ago ...
+        $timeBeforeReset = $now->clone()->subMinutes(100);
+        Carbon::setTestNow($timeBeforeReset);
+
+        /** @var PlayerSession $sessionBeforeReset */
+        $sessionBeforeReset = (new ResumePlayerSessionAction())->execute($user, $game);
+        $sessionBeforeReset->duration = 30;
+        $sessionBeforeReset->save();
+
+        // ... unlock 2 achievements before reset ...
+        $ach1 = $game->achievements()->first();
+        $ach2 = $game->achievements()->skip(1)->first();
+        $this->addHardcoreUnlock($user, $ach1, $timeBeforeReset->clone()->addMinutes(5));
+        $this->addHardcoreUnlock($user, $ach2, $timeBeforeReset->clone()->addMinutes(10));
+
+        // ... update session duration to match the last achievement time ...
+        $sessionBeforeReset->refresh();
+        $sessionBeforeReset->duration = 10; // 10 minutes to last achievement
+        $sessionBeforeReset->save();
+
+        // ... create the reset record - 50 minutes ago ...
+        $resetTime = $now->clone()->subMinutes(50);
+        Carbon::setTestNow($resetTime);
+        PlayerProgressReset::create([
+            'user_id' => $user->id,
+            'type' => PlayerProgressResetType::Game,
+            'type_id' => $game->id,
+        ]);
+
+        // ... create session with achievements after reset - 20 minutes ago ...
+        $timeAfterReset = $now->clone()->subMinutes(20);
+        Carbon::setTestNow($timeAfterReset);
+
+        /** @var PlayerSession $sessionAfterReset */
+        $sessionAfterReset = (new ResumePlayerSessionAction())->execute($user, $game);
+        $sessionAfterReset->duration = 15;
+        $sessionAfterReset->save();
+
+        // ... unlock 1 achievement after reset ...
+        $ach3 = $game->achievements()->skip(2)->first();
+        $this->addHardcoreUnlock($user, $ach3, $timeAfterReset->clone()->addMinutes(5));
+
+        // ... update session duration to match the achievement time ...
+        $sessionAfterReset->refresh();
+        $sessionAfterReset->duration = 5; // 5 minutes to achievement
+        $sessionAfterReset->save();
+
+        // Act
+        Carbon::setTestNow($now);
+        $activity = new PlayerGameActivityService();
+        $activity->initialize($user, $game);
+
+        // Assert
+        // ... should have both sessions ...
+        $this->assertEquals(2, count($activity->sessions)); // !! both sessions are shown
+
+        // ... first session should exist but have no unlock events (only rich presence) ...
+        $firstSession = $activity->sessions[0];
+        $this->assertEquals($sessionBeforeReset->id, $firstSession['playerSession']->id);
+        $this->assertEquals(1, count($firstSession['events'])); // !! only rich presence event
+        $this->assertRichPresenceEvent($firstSession['events'][0], $sessionBeforeReset->rich_presence, $timeBeforeReset->clone()->addMinutes(10));
+
+        // ... second session should have the achievement unlocked after reset ...
+        $secondSession = $activity->sessions[1];
+        $this->assertEquals($sessionAfterReset->id, $secondSession['playerSession']->id);
+        $this->assertEquals(2, count($secondSession['events'])); // !! unlock + rich presence
+        $this->assertUnlockEvent($secondSession['events'][0], $ach3->id, $timeAfterReset->clone()->addMinutes(5), true);
+        $this->assertRichPresenceEvent($secondSession['events'][1], $sessionAfterReset->rich_presence, $timeAfterReset->clone()->addMinutes(5));
+
+        // ... achievements unlocked count should only include post-reset achievements ...
+        $this->assertEquals(1, $activity->achievementsUnlocked); // !! only 1 achievement counted (after reset)
     }
 }
