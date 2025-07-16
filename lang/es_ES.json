@@ -854,7 +854,7 @@
     "These game file hashes require a patch to be compatible.": "Se necesita aplicar un parche a estos hashes para que sean compatibles.",
     "These game file hashes are recognized, but it is unknown whether or not they are compatible.": "Estos hashes están registrados, pero no se ha determinado su compatibilidad.",
     "These game file hashes are known to be incompatible.": "Está confirmado que estos hashes no son compatibles con el juego.",
-    "Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester.": "¿Tienes una traducción o un hack de calidad de vida que te gustaría ver soportado? Haz clic <1>aquí</1> para aprender a ser voluntario como probador de compatibilidad.",
+    "Have a translation or quality-of-life hack you'd like to see supported? Click <1>here</1> to learn how to volunteer as a compatibility tester.": "¿Tienes una traducción o mejora que debería ser compatible? Haz clic <1>aquí</1> para saber cómo participar como tester.",
     "Are you sure you want to unlock this topic?": "¿Seguro que quieres desbloquear este tema?",
     "Are you sure you want to lock this topic?": "¿Seguro que quieres bloquear este tema?",
     "Lock": "Bloquear",
