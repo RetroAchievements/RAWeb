@@ -92,7 +92,7 @@ describe('Component: ContentWarningDialog', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
-  it('given the user clicks "Continue to this page", closes the dialog without making any API calls and adds a special URL parameter', async () => {
+  it('given the user clicks "Yes", closes the dialog without making any API calls and adds a special URL parameter', async () => {
     // ARRANGE
     const patchSpy = vi.spyOn(axios, 'patch');
     const replaceStateSpy = vi.spyOn(window.history, 'replaceState');
@@ -109,7 +109,7 @@ describe('Component: ContentWarningDialog', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /continue to this page/i }));
+    await userEvent.click(screen.getByRole('button', { name: /yes/i }));
 
     // ASSERT
     expect(patchSpy).not.toHaveBeenCalled();

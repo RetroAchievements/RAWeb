@@ -96,7 +96,7 @@ export const MatureContentWarningDialog: FC<MatureContentWarningDialogProps> = (
               </BaseAlertDialogAction>
 
               <BaseAlertDialogAction onClick={handleYesClick} className="w-full">
-                {t('Continue to this page')}
+                {t("Yes, I'm an adult")}
               </BaseAlertDialogAction>
             </div>
           </BaseAlertDialogFooter>
