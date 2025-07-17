@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCalendar, LuWrench } from 'react-icons/lu';
@@ -76,7 +77,7 @@ const LastPlayedIcon: FC<LastPlayedIconProps> = ({ achievementSetClaims }) => {
                   displayName: claim.user!.displayName,
                 }}
               >
-                {diffForHumans(claim.userLastPlayedAt!)}
+                {diffForHumans(claim.userLastPlayedAt!, { maxUnit: 'day' })}
               </TooltipCreditRow>
             ))}
           </TooltipCreditsSection>
@@ -113,7 +114,9 @@ const ClaimsIcon: FC<ClaimsIconProps> = ({ achievementSetClaims }) => {
                   displayName: claim.user!.displayName,
                 }}
               >
-                {t('Expires {{date}}', { date: formatDate(claim.finishedAt!, 'l') })}
+                {dayjs(claim.finishedAt!).isAfter(dayjs())
+                  ? t('Expires {{date}}', { date: formatDate(claim.finishedAt!, 'l') })
+                  : t('Expired {{date}}', { date: formatDate(claim.finishedAt!, 'l') })}
               </TooltipCreditRow>
             ))}
           </TooltipCreditsSection>

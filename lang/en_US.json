@@ -1014,6 +1014,7 @@
     "Active Claims": "Active Claims",
     "Last Played": "Last Played",
     "Expires {{date}}": "Expires {{date}}",
+    "Expired {{date}}": "Expired {{date}}",
     "Locked Only": "Locked Only",
     "Missable Only": "Missable Only",
     "game_wantToPlayToggle": "Want to Play"

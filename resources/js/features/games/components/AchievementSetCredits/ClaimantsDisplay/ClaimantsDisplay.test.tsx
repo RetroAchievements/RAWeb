@@ -33,11 +33,11 @@ describe('Component: ClaimantsDisplay', () => {
     const achievementSetClaims = [
       createAchievementSetClaim({
         user: createUser({ displayName: 'Alice' }),
-        finishedAt: '2025-12-31T23:59:59Z',
+        finishedAt: '2025-12-31T23:59:59Z', // !! future date shows "Expires"
       }),
       createAchievementSetClaim({
         user: createUser({ displayName: 'Bob' }),
-        finishedAt: '2025-06-30T23:59:59Z',
+        finishedAt: '2025-06-30T23:59:59Z', // !! future date shows "Expires"
       }),
     ];
 
@@ -53,6 +53,28 @@ describe('Component: ClaimantsDisplay', () => {
     expect(screen.getAllByText('Alice')[0]).toBeVisible();
     expect(screen.getAllByText('Bob')[0]).toBeVisible();
     expect(screen.getAllByText(/expires/i)[0]).toBeVisible();
+  });
+
+  it('shows "Expired" for past claim dates', async () => {
+    // ARRANGE
+    const achievementSetClaims = [
+      createAchievementSetClaim({
+        user: createUser({ displayName: 'Alice' }),
+        finishedAt: '2020-01-01T00:00:00Z', // !!
+      }),
+    ];
+
+    render(<ClaimantsDisplay achievementSetClaims={achievementSetClaims} />);
+
+    // ACT
+    await userEvent.hover(screen.getAllByRole('button')[0]);
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/active claims/i)[0]).toBeVisible();
+    });
+    expect(screen.getAllByText('Alice')[0]).toBeVisible();
+    expect(screen.getAllByText(/expired/i)[0]).toBeVisible();
   });
 
   it('given claims with userLastPlayedAt, shows the calendar icon', () => {
