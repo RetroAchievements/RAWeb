@@ -15,7 +15,7 @@ class GetLeaderboardEntriesAction extends BaseApiAction
     protected int $leaderboardId;
     protected int $offset;
     protected int $count;
-    protected ?User $nearUser;
+    protected ?User $nearUser = null;
 
     public function execute(int $leaderboardId, ?User $nearUser = null, int $offset = 0, int $count = 10): array
     {
