@@ -87,15 +87,18 @@ export const MatureContentWarningDialog: FC<MatureContentWarningDialogProps> = (
             </BaseAlertDialogDescription>
           </BaseAlertDialogHeader>
 
-          <BaseAlertDialogFooter className="mt-2 flex flex-col gap-4 sm:gap-4 lg:flex-row">
-            <BaseButton onClick={handleNoClick}>{t('No')}</BaseButton>
+          <BaseAlertDialogFooter className="mt-2 flex flex-col gap-4 sm:w-full sm:items-center sm:justify-between sm:gap-0 lg:flex-row">
+            <BaseAlertDialogAction
+              onClick={handlePermanentYesClick}
+              className="w-full border-none p-0 sm:w-auto"
+            >
+              {t('Always allow mature content')}
+            </BaseAlertDialogAction>
 
-            <div className="flex gap-2">
-              <BaseAlertDialogAction onClick={handlePermanentYesClick} className="w-full">
-                {t('Always allow mature content')}
-              </BaseAlertDialogAction>
+            <div className="flex justify-center gap-2">
+              <BaseButton onClick={handleNoClick}>{t('No')}</BaseButton>
 
-              <BaseAlertDialogAction onClick={handleYesClick} className="w-full">
+              <BaseAlertDialogAction onClick={handleYesClick}>
                 {t("Yes, I'm an adult")}
               </BaseAlertDialogAction>
             </div>
