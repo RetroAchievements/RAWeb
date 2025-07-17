@@ -90,7 +90,7 @@ class ResumePlayerSessionAction
 
                 // TODO deprecated, read from last player_sessions entry where needed
                 $user->RichPresenceMsg = utf8_sanitize($presence);
-                $user->RichPresenceMsgDate = Carbon::now();
+                $user->RichPresenceMsgDate = $timestamp;
                 $user->saveQuietly();
 
                 // Update the player's game_recent_players table entry.
