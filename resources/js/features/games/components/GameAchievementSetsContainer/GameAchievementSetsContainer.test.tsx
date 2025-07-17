@@ -32,7 +32,7 @@ describe('Component: GameAchievementSetsContainer', () => {
       gameAchievementSets: [createGameAchievementSet()],
     });
 
-    render(<GameAchievementSetsContainer game={game} />);
+    render(<GameAchievementSetsContainer game={game} />, { pageProps: { game } });
 
     // ASSERT
     expect(screen.getByRole('button', { name: /display order/i })).toBeVisible();
@@ -47,7 +47,7 @@ describe('Component: GameAchievementSetsContainer', () => {
       ],
     });
 
-    render(<GameAchievementSetsContainer game={game} />);
+    render(<GameAchievementSetsContainer game={game} />, { pageProps: { game } });
 
     // ASSERT
     expect(screen.getByTestId('game-achievement-sets')).toBeVisible();
@@ -60,7 +60,7 @@ describe('Component: GameAchievementSetsContainer', () => {
       gameAchievementSets: [createGameAchievementSet()],
     });
 
-    render(<GameAchievementSetsContainer game={game} />);
+    render(<GameAchievementSetsContainer game={game} />, { pageProps: { game } });
 
     // ACT
     const sortButton = screen.getByRole('button', { name: /display order/i });

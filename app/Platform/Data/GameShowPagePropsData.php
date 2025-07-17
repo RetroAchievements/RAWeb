@@ -26,6 +26,8 @@ class GameShowPagePropsData extends Data
         public bool $hasMatureContent,
         /** @var GameSetData[] */
         public array $hubs,
+        public bool $isLockedOnlyFilterEnabled,
+        public bool $isMissableOnlyFilterEnabled,
         public bool $isOnWantToDevList,
         public bool $isOnWantToPlayList,
         public bool $isSubscribedToComments,
