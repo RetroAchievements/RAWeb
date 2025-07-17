@@ -68,23 +68,18 @@ abstract class BaseApiAction
         ];
     }
 
-    protected function gameNotFound(): array
+    protected function resourceNotFound(string $resourceType): array
     {
         return [
             'Success' => false,
             'Status' => 404,
             'Code' => 'not_found',
-            'Error' => 'Unknown game.',
+            'Error' => "Unknown $resourceType.",
         ];
     }
 
-    protected function achievementNotFound(): array
+    protected function gameNotFound(): array
     {
-        return [
-            'Success' => false,
-            'Status' => 404,
-            'Code' => 'not_found',
-            'Error' => 'Unknown achievement.',
-        ];
+        return $this->resourceNotFound('game');
     }
 }

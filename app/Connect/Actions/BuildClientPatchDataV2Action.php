@@ -33,11 +33,16 @@ class BuildClientPatchDataV2Action
             return $this->buildPatchData($game, null, $user, $flag);
         }
 
-        if (
-            $gameHash->compatibility !== GameHashCompatibility::Compatible
-            && (!$user || $gameHash->compatibility_tester_id !== $user->id)
-        ) {
-            return $this->buildIncompatiblePatchData($game ?? $gameHash->game, $gameHash->compatibility, $user);
+        // If the hash is not marked as compatible, and the current user is not flagged to
+        // be testing the hash, a QA member, or the set author, return a dummy set that will
+        // inform the user.
+        if ($gameHash->compatibility !== GameHashCompatibility::Compatible) {
+            $game ??= $gameHash->game;
+
+            $canSeeIncompatibleSet = $user && $user->can('loadIncompatibleSet', $gameHash);
+            if (!$canSeeIncompatibleSet) {
+                return $this->buildIncompatiblePatchData($game, $gameHash->compatibility, $user);
+            }
         }
 
         $actualLoadedGame = (new ResolveRootGameFromGameAndGameHashAction())->execute($gameHash, $game, $user);
