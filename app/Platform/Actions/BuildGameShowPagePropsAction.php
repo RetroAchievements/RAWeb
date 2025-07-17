@@ -363,7 +363,7 @@ class BuildGameShowPagePropsAction
             ->map(fn ($claim) => AchievementSetClaimData::fromAchievementSetClaim($claim)->include(...$claimIncludes))
             ->values();
     }
-    
+
     private function getIsGameIdInCookie(string $cookieName, int $gameId): bool
     {
         $cookieValue = Cookie::get($cookieName);
