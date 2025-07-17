@@ -381,12 +381,10 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
 {
     $retval = [];
 
-    $sessions = GameRecentPlayer::with(['user' => function ($query) {
-            $query->where('Permissions', '>=', Permissions::Unregistered);
-        }])
+    $sessions = GameRecentPlayer::with('user')
         ->where('game_id', $gameID)
         ->whereHas('user', function ($query) {
-            $query->where('Permissions', '>=', Permissions::Unregistered);
+            $query->whereNotNull('email_verified_at');
         })
         ->orderBy('rich_presence_updated_at', 'DESC');
 
