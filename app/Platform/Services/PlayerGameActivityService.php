@@ -154,10 +154,6 @@ class PlayerGameActivityService
                 'Achievements.type',
             ]);
 
-        if ($this->lastResetCreatedAt) {
-            $playerAchievementsQuery->where('player_achievements.unlocked_at', '>=', $this->lastResetCreatedAt);
-        }
-
         $playerAchievements = $playerAchievementsQuery->get();
 
         // Pre-load all unlockers to avoid N+1 queries.
