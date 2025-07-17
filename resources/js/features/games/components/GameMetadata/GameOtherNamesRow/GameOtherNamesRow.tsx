@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { BaseTableCell, BaseTableRow } from '@/common/components/+vendor/BaseTable';
+import { BaseTableCell, BaseTableHead, BaseTableRow } from '@/common/components/+vendor/BaseTable';
 import {
   BaseTooltip,
   BaseTooltipContent,
@@ -24,9 +24,12 @@ export const GameOtherNamesRow: FC<GameOtherNamesRowProps> = ({ nonCanonicalTitl
 
   return (
     <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
-      <BaseTableCell className="whitespace-nowrap text-right align-top">
+      <BaseTableHead
+        scope="row"
+        className="h-auto whitespace-nowrap text-right align-top text-text"
+      >
         {t('metaOtherName', { count: nonCanonicalTitles.length })}
-      </BaseTableCell>
+      </BaseTableHead>
 
       <BaseTableCell>
         <div className="flex flex-col">

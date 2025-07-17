@@ -25,6 +25,7 @@ use App\Platform\Data\UserCreditsData;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cookie;
 
 class BuildGameShowPagePropsAction
 {
@@ -33,6 +34,7 @@ class BuildGameShowPagePropsAction
         protected BuildGameAchievementDistributionAction $buildGameAchievementDistributionAction,
         protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
         protected BuildSeriesHubDataAction $buildSeriesHubDataAction,
+        protected ProcessGameReleasesForViewAction $processGameReleasesForViewAction,
     ) {
     }
 
@@ -78,7 +80,8 @@ class BuildGameShowPagePropsAction
             ->filter(
                 fn ($game) => !str_contains($game->title, '[Subset')
             )
-            ->sortBy('sort_title');
+            ->sortBy('sort_title')
+            ->sortByDesc(fn ($game) => $game->achievements_published > 0);
 
         /**
          * If the user doesn't have permission to view a related hub,
@@ -100,6 +103,15 @@ class BuildGameShowPagePropsAction
 
         $initialUserGameListState = $this->getInitialUserGameListState($game, $user);
         $achievementSetClaims = $this->buildAchievementSetClaims($game, $user);
+
+        // Deduplicate releases by region and sort them by date.
+        // Then, override the releases in the game object for proper display.
+        $processedReleases = $this->processGameReleasesForViewAction->execute($game);
+        $game->setRelation('releases', collect($processedReleases));
+
+        // Check cookies for filter states.
+        $isLockedOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_unlocked_achievements_games', $game->id);
+        $isMissableOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_nonmissable_achievements_games', $game->id);
 
         return new GameShowPagePropsData(
             achievementSetClaims: $achievementSetClaims,
@@ -159,6 +171,8 @@ class BuildGameShowPagePropsAction
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
             isOnWantToPlayList: $initialUserGameListState['isOnWantToPlayList'],
             isSubscribedToComments: $user ? isUserSubscribedToArticleComments(ArticleType::Game, $game->id, $user->id) : false,
+            isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
+            isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $game),
             playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($game, $user),
             numComments: $game->visibleComments($user)->count(),
@@ -348,5 +362,17 @@ class BuildGameShowPagePropsAction
         return $game->achievementSetClaims
             ->map(fn ($claim) => AchievementSetClaimData::fromAchievementSetClaim($claim)->include(...$claimIncludes))
             ->values();
+    }
+    
+    private function getIsGameIdInCookie(string $cookieName, int $gameId): bool
+    {
+        $cookieValue = Cookie::get($cookieName);
+        if (!$cookieValue) {
+            return false;
+        }
+
+        $gameIds = array_filter(array_map('intval', explode(',', $cookieValue)));
+
+        return in_array($gameId, $gameIds);
     }
 }
