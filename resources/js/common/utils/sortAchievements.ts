@@ -13,6 +13,9 @@ export function sortAchievements(
   sortOrder: AchievementSortOrder,
   eventAchievements?: App.Platform.Data.EventAchievement[],
 ): App.Platform.Data.Achievement[] {
+  // Create a copy to avoid mutating the original array.
+  const sortedAchievements = [...achievements];
+
   const getIsAchievementUnlocked = (achievement: App.Platform.Data.Achievement): boolean => {
     return !!achievement.unlockedAt || !!achievement.unlockedHardcoreAt;
   };
@@ -38,7 +41,7 @@ export function sortAchievements(
     case '-normal': {
       const multiplier = sortOrder === 'normal' ? 1 : -1;
 
-      return achievements.sort((a, b) => {
+      return sortedAchievements.sort((a, b) => {
         // For 'normal' sort, the unlocked status is affected by direction.
         const unlockedResult = compareUnlockStatus(a, b);
         if (unlockedResult !== 0) {
@@ -63,7 +66,7 @@ export function sortAchievements(
     case '-displayOrder': {
       const multiplier = sortOrder === 'displayOrder' ? 1 : -1;
 
-      return achievements.sort((a, b) => {
+      return sortedAchievements.sort((a, b) => {
         // First, sort by orderColumn if it exists.
         const orderDiff = (a.orderColumn as number) - (b.orderColumn as number);
         if (orderDiff !== 0) {
@@ -82,7 +85,7 @@ export function sortAchievements(
     case '-points': {
       const multiplier = sortOrder === 'points' ? 1 : -1;
 
-      return achievements.sort((a, b) => {
+      return sortedAchievements.sort((a, b) => {
         // First, prioritize unlocked achievements.
         const unlockedResult = compareUnlockStatus(a, b);
         if (unlockedResult !== 0) {
@@ -113,7 +116,7 @@ export function sortAchievements(
     case '-title': {
       const multiplier = sortOrder === 'title' ? 1 : -1;
 
-      return achievements.sort((a, b) => {
+      return sortedAchievements.sort((a, b) => {
         // First, prioritize unlocked achievements.
         const unlockedResult = compareUnlockStatus(a, b);
         if (unlockedResult !== 0) {
@@ -133,7 +136,7 @@ export function sortAchievements(
     case '-type': {
       const multiplier = sortOrder === 'type' ? 1 : -1;
 
-      return achievements.sort((a, b) => {
+      return sortedAchievements.sort((a, b) => {
         // First, prioritize unlocked achievements.
         const unlockedResult = compareUnlockStatus(a, b);
         if (unlockedResult !== 0) {
@@ -176,7 +179,7 @@ export function sortAchievements(
     case '-wonBy': {
       const multiplier = sortOrder === 'wonBy' ? -1 : 1;
 
-      return achievements.sort((a, b) => {
+      return sortedAchievements.sort((a, b) => {
         // First, prioritize unlocked achievements.
         const unlockedResult = compareUnlockStatus(a, b);
         if (unlockedResult !== 0) {
@@ -195,7 +198,7 @@ export function sortAchievements(
     }
 
     case 'active':
-      return achievements.sort((a, b) => {
+      return sortedAchievements.sort((a, b) => {
         // Sort by status priority (active -> expired -> upcoming -> evergreen).
         const aStatus = getEventAchievementTimeStatus(a, eventAchievements);
         const bStatus = getEventAchievementTimeStatus(b, eventAchievements);
@@ -215,6 +218,6 @@ export function sortAchievements(
       });
 
     default:
-      return achievements;
+      return sortedAchievements;
   }
 }

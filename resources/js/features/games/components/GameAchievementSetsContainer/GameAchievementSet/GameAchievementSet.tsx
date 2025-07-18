@@ -20,13 +20,11 @@ import { GameAchievementSetToolbar } from './GameAchievementSetToolbar';
 interface GameAchievementSetProps {
   achievements: App.Platform.Data.Achievement[];
   gameAchievementSet: App.Platform.Data.GameAchievementSet;
-  isOnlySetForGame: boolean;
 }
 
 export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   achievements,
   gameAchievementSet,
-  isOnlySetForGame,
 }) => {
   const currentAchievementSort = useAtomValue(currentAchievementSortAtom);
   const isLockedOnlyFilterEnabled = useAtomValue(isLockedOnlyFilterEnabledAtom);
@@ -69,11 +67,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
         )}
       >
         <div className="flex items-center justify-between">
-          <GameAchievementSetHeader
-            gameAchievementSet={gameAchievementSet}
-            isOnlySetForGame={isOnlySetForGame}
-            isOpen={true}
-          />
+          <GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />
         </div>
 
         <AchievementSetCredits />
