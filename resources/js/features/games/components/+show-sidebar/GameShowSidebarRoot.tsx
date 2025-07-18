@@ -12,6 +12,7 @@ import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
 import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
 import { GameMetadata } from '../GameMetadata';
 import { GameSidebarFullWidthButtons } from '../GameSidebarFullWidthButtons';
+import { MatureContentIndicator } from '../MatureContentIndicator';
 import { SeriesHubDisplay } from '../SeriesHubDisplay';
 import { SimilarGamesList } from '../SimilarGamesList';
 
@@ -19,6 +20,7 @@ export const GameShowSidebarRoot: FC = () => {
   const {
     followedPlayerCompletions,
     game,
+    hasMatureContent,
     hubs,
     numMasters,
     playerAchievementChartBuckets,
@@ -39,6 +41,9 @@ export const GameShowSidebarRoot: FC = () => {
   return (
     <div data-testid="sidebar" className="flex flex-col gap-6">
       <PlayableBoxArtImage src={game.imageBoxArtUrl} />
+
+      {hasMatureContent ? <MatureContentIndicator /> : null}
+
       <GameMetadata allMetaRowElements={allMetaRowElements} game={game} hubs={hubs} />
       <GameSidebarFullWidthButtons game={game} />
 

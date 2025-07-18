@@ -703,7 +703,10 @@ declare namespace App.Platform.Data {
     aggregateCredits: App.Platform.Data.AggregateAchievementSetCredits | null;
     game: App.Platform.Data.Game;
     can: App.Data.UserPermissions;
+    hasMatureContent: boolean;
     hubs: Array<App.Platform.Data.GameSet>;
+    isLockedOnlyFilterEnabled: boolean;
+    isMissableOnlyFilterEnabled: boolean;
     isOnWantToDevList: boolean;
     isOnWantToPlayList: boolean;
     isSubscribedToComments: boolean;
