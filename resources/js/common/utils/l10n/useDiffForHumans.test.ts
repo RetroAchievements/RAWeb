@@ -38,6 +38,64 @@ describe('Hook: useDiffForHumans', () => {
     expect(diff).toEqual('just now');
   });
 
+  describe('Narrow style', () => {
+    it('given narrow style and less than 60 seconds ago, formats with second units', () => {
+      // ARRANGE
+      vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
+      const now = dayjs.utc();
+      const thirtySecondsAgo = now.subtract(30, 'seconds');
+
+      const { result } = renderHook(() => useDiffForHumans());
+
+      // ACT
+      const diff = result.current.diffForHumans(
+        thirtySecondsAgo.toISOString(),
+        undefined,
+        'narrow',
+      );
+
+      // ASSERT
+      expect(diff).toEqual('30s ago');
+    });
+
+    it('given narrow style and less than 60 seconds from now, formats with second units', () => {
+      // ARRANGE
+      vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
+      const now = dayjs.utc();
+      const fortyFiveSecondsFromNow = now.add(45, 'seconds');
+
+      const { result } = renderHook(() => useDiffForHumans());
+
+      // ACT
+      const diff = result.current.diffForHumans(
+        fortyFiveSecondsFromNow.toISOString(),
+        undefined,
+        'narrow',
+      );
+
+      // ASSERT
+      expect(diff).toEqual('in 45s');
+    });
+
+    it('given narrow style and exactly 60 seconds, uses minute formatting', () => {
+      // ARRANGE
+      vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
+      const now = dayjs.utc();
+      const oneMinuteAgo = now.subtract(60, 'seconds');
+
+      const { result } = renderHook(() => useDiffForHumans());
+
+      // ACT
+      const diff = result.current.diffForHumans(oneMinuteAgo.toISOString(), undefined, 'narrow');
+
+      // ASSERT
+      expect(diff).toEqual('1m ago');
+    });
+  });
+
   describe('Past', () => {
     it('given less than 10 seconds ago, formats correctly', () => {
       // ARRANGE

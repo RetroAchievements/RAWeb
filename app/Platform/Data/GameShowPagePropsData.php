@@ -16,6 +16,7 @@ class GameShowPagePropsData extends Data
     /**
      * @param Collection<int, FollowedPlayerCompletionData> $followedPlayerCompletions
      * @param Collection<int, PlayerAchievementChartBucketData> $playerAchievementChartBuckets
+     * @param Collection<int, GameRecentPlayerData> $recentPlayers
      * @param Collection<int, CommentData> $recentVisibleComments
      * @param Collection<int, GameTopAchieverData> $topAchievers
      */
@@ -36,6 +37,7 @@ class GameShowPagePropsData extends Data
         public int $numCompatibleHashes,
         public int $numMasters,
         public int $numOpenTickets,
+        public Collection $recentPlayers,
         public Collection $recentVisibleComments,
         /** @var GameData[] */
         public array $similarGames,
