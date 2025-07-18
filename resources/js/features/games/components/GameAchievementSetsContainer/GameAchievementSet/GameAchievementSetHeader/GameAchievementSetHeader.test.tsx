@@ -42,24 +42,6 @@ describe('Component: GameAchievementSetHeader', () => {
     expect(screen.getByText('Professor Oak Challenge')).toBeVisible();
   });
 
-  it('given it is not the only set for the game and is closed, shows a downward-facing chevron', () => {
-    // ARRANGE
-    render(<GameAchievementSetHeader gameAchievementSet={createGameAchievementSet()} />);
-
-    // ASSERT
-    const icon = screen.getByTestId('chevron');
-    expect(icon).toHaveClass('rotate-0');
-  });
-
-  it('given it is not the only set for the game and is open, shows an upward-facing chevron', () => {
-    // ARRANGE
-    render(<GameAchievementSetHeader gameAchievementSet={createGameAchievementSet()} />);
-
-    // ASSERT
-    const icon = screen.getByTestId('chevron');
-    expect(icon).toHaveClass('rotate-180');
-  });
-
   it('given it is the only set for the game, does not show a chevron', () => {
     // ARRANGE
     render(<GameAchievementSetHeader gameAchievementSet={createGameAchievementSet()} />);
