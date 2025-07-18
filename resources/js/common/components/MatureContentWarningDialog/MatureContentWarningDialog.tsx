@@ -90,7 +90,7 @@ export const MatureContentWarningDialog: FC<MatureContentWarningDialogProps> = (
           <BaseAlertDialogFooter className="mt-2 flex flex-col gap-4 sm:w-full sm:items-center sm:justify-between sm:gap-0 lg:flex-row">
             <BaseAlertDialogAction
               onClick={handlePermanentYesClick}
-              className="w-full border-none p-0 sm:w-auto"
+              className="w-full border-none p-2 sm:-ml-2 sm:w-auto"
             >
               {t('Always allow mature content')}
             </BaseAlertDialogAction>
