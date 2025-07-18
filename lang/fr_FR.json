@@ -939,6 +939,8 @@
     "Achievement Design/Ideas": "Concept/Idées du Succès",
     "Playtesters": "Testeurs du jeu",
     "Writing Contributions": "Contributions à l'écriture",
+    "Locked Only": "Locked Only",
+    "Missable Only": "Missable Only",
     "game_wantToPlayToggle": "Veux Jouer",
     "supportedGameFilesCountLabel_one": "Il y a actuellement <1>{{count, number}}</1> empreinte de fichier de jeu pris en charge enregistrée pour ce jeu.",
     "supportedGameFilesCountLabel_other": "Il y a actuellement <1>{{count, number}}</1> empreintes de fichiers de jeu pris en charge enregistrées pour ce jeu.",

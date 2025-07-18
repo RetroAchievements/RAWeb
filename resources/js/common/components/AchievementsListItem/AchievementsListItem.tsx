@@ -1,5 +1,5 @@
 import * as motion from 'motion/react-m';
-import { type FC } from 'react';
+import type { FC, ReactNode } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
@@ -19,6 +19,8 @@ interface AchievementsListItemProps {
   isLargeList: boolean;
   playersTotal: number | null;
 
+  beatenDialogContent?: ReactNode;
+
   /**
    * Wherever possible, map stuff onto `achievement`.
    * The less smart this component is, the easier it'll be to maintain long-term.
@@ -29,9 +31,10 @@ interface AchievementsListItemProps {
 
 export const AchievementsListItem: FC<AchievementsListItemProps> = ({
   achievement,
+  beatenDialogContent,
+  eventAchievement,
   index,
   isLargeList,
-  eventAchievement,
   playersTotal,
 }) => {
   const { t } = useTranslation();
@@ -100,7 +103,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
             {type ? (
               <div className="-mt-1.5 flex items-center gap-x-1 md:hidden">
                 <div className="-mt-1.5">
-                  <AchievementTypeIndicator type={type} />
+                  <AchievementTypeIndicator dialogContent={beatenDialogContent} type={type} />
                 </div>
               </div>
             ) : null}
@@ -126,7 +129,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
             {/* Meta chips (Desktop) */}
             {type ? (
               <div className="hidden items-center justify-end gap-x-1 md:flex">
-                <AchievementTypeIndicator type={type} />
+                <AchievementTypeIndicator dialogContent={beatenDialogContent} type={type} />
               </div>
             ) : null}
 
