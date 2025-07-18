@@ -1013,5 +1013,7 @@
     "Recent Players": "Recent Players",
     "Player": "Player",
     "Last Seen": "Last Seen",
+    "Locked Only": "Locked Only",
+    "Missable Only": "Missable Only",
     "game_wantToPlayToggle": "Want to Play"
 }

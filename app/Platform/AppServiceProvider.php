@@ -34,6 +34,7 @@ use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\PruneGameRecentPlayers;
 use App\Platform\Commands\ResetPlayerAchievement;
+use App\Platform\Commands\RevertManualUnlocks;
 use App\Platform\Commands\SyncAchievementAuthors;
 use App\Platform\Commands\SyncAchievements;
 use App\Platform\Commands\SyncAchievementSetImageAssetPaths;
@@ -107,6 +108,7 @@ class AppServiceProvider extends ServiceProvider
                 BackfillPlaytimeTotal::class,
                 CrawlPlayerWeightedPoints::class,
                 ResetPlayerAchievement::class,
+                RevertManualUnlocks::class,
                 UnlockPlayerAchievement::class,
                 UpdatePlayerEstimatedTimes::class,
                 UpdatePlayerGameMetrics::class,
