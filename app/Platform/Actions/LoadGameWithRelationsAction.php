@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Enums\ClaimStatus;
 use App\Models\Game;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
@@ -25,6 +26,10 @@ class LoadGameWithRelationsAction
         ];
 
         $game->loadMissing([
+            'achievementSetClaims' => function ($query) {
+                $query->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])
+                    ->with('user');
+            },
             // TODO only load core set(s) up front
             'gameAchievementSets' => function ($query) use ($excludeSetTypes) {
                 $query->whereNotIn('type', $excludeSetTypes);

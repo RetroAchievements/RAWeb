@@ -12,16 +12,20 @@ import {
   BaseDropdownMenuTrigger,
 } from '@/common/components/+vendor/BaseDropdownMenu';
 import type { AchievementSortOrder } from '@/common/models';
+import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
 interface AchievementSortButtonProps {
   availableSortOrders: AchievementSortOrder[];
   onChange: (newValue: AchievementSortOrder) => void;
   value: AchievementSortOrder;
+
+  buttonClassName?: string;
 }
 
 export const AchievementSortButton: FC<AchievementSortButtonProps> = ({
   availableSortOrders,
+  buttonClassName,
   onChange,
   value,
 }) => {
@@ -52,7 +56,13 @@ export const AchievementSortButton: FC<AchievementSortButtonProps> = ({
   return (
     <BaseDropdownMenu>
       <BaseDropdownMenuTrigger asChild>
-        <BaseButton size="sm" className="gap-1">
+        <BaseButton
+          size="sm"
+          className={cn(
+            'gap-1 transition-none lg:active:translate-y-0 lg:active:scale-100',
+            buttonClassName,
+          )}
+        >
           {value.startsWith('-') ? (
             <LuArrowDown data-testid="sort-descending-icon" className="size-4" />
           ) : (

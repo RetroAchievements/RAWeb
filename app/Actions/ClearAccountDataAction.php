@@ -36,6 +36,7 @@ class ClearAccountDataAction
         $user->gameListEntries()->delete();
         $user->playerBadges()->delete();
         $user->playerStats()->delete();
+        $user->playerSessions()->delete();
 
         // Find leaderboards where this user currently has the top entry.
         // We'll need to reset those denormalized top entries.
