@@ -25,6 +25,7 @@ class GameShowPagePropsData extends Data
         public AggregateAchievementSetCreditsData $aggregateCredits,
         public GameData $game,
         public UserPermissionsData $can,
+        public bool $hasMatureContent,
         /** @var GameSetData[] */
         public array $hubs,
         public bool $isLockedOnlyFilterEnabled,

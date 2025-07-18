@@ -5,8 +5,10 @@ namespace App\Platform\Actions;
 use App\Community\Enums\AwardType;
 use App\Models\Achievement;
 use App\Models\AchievementMaintainerUnlock;
+use App\Models\PlayerProgressReset;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\PlayerProgressResetType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Jobs\UpdateAchievementMetricsJob;
@@ -132,6 +134,29 @@ class ResetPlayerProgressAction
                 }
             }
             $playerAchievement->delete();
+
+            // Check if this was the player's last achievement for the game.
+            // If it is, we'll create a game reset record.
+            // If it's not, we'll create an achievement reset record.
+            $remainingAchievements = $user->playerAchievements()
+                ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
+                ->where('Achievements.GameID', $achievement->game_id)
+                ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
+                ->count();
+
+            if ($remainingAchievements === 0) {
+                PlayerProgressReset::create([
+                    'user_id' => $user->id,
+                    'type' => PlayerProgressResetType::Game,
+                    'type_id' => $achievement->game_id,
+                ]);
+            } else {
+                PlayerProgressReset::create([
+                    'user_id' => $user->id,
+                    'type' => PlayerProgressResetType::Achievement,
+                    'type_id' => $achievementID,
+                ]);
+            }
         } elseif ($gameID !== null) {
             $achievementIds = Achievement::where('GameID', $gameID)->pluck('ID');
 
@@ -144,7 +169,16 @@ class ResetPlayerProgressAction
             $user->playerAchievements()
                 ->whereIn('achievement_id', $achievementIds)
                 ->delete();
+
+            // Track the game reset.
+            PlayerProgressReset::create([
+                'user_id' => $user->id,
+                'type' => PlayerProgressResetType::Game,
+                'type_id' => $gameID,
+            ]);
         } else {
+            // If we fall into this block, it's because a user's account is being deleted.
+
             // Delete all maintainer unlock records related to these player_achievement entities.
             AchievementMaintainerUnlock::query()
                 ->whereIn('player_achievement_id', function ($query) use ($user) {
@@ -152,10 +186,10 @@ class ResetPlayerProgressAction
                 })
                 ->delete();
 
-            // fulfill deletion request
             $user->playerGames()->forceDelete();
             $user->playerBadges()->delete();
             $user->playerAchievements()->delete();
+            $user->leaderboardEntries()->delete();
 
             $user->RAPoints = 0;
             $user->RASoftcorePoints = null;
@@ -163,6 +197,12 @@ class ResetPlayerProgressAction
             $user->ContribCount = 0;
             $user->ContribYield = 0;
             $user->saveQuietly();
+
+            PlayerProgressReset::create([
+                'user_id' => $user->id,
+                'type' => PlayerProgressResetType::Account,
+                'type_id' => null,
+            ]);
         }
 
         // For game-wide or full resets, we need to do full recalculation of affected dev stats.
