@@ -72,7 +72,13 @@ export const GameRecentPlayersTable: FC = () => {
             </BaseTableCell>
 
             <BaseTableCell>
-              <span className="line-clamp-1" title={recentPlayer.richPresence}>
+              <span
+                className={cn(
+                  'line-clamp-1',
+                  recentPlayer.richPresence.length >= 70 ? 'text-2xs' : null,
+                )}
+                title={recentPlayer.richPresence}
+              >
                 <RichPresenceMessage gameTitle={game.title} message={recentPlayer.richPresence} />
               </span>
             </BaseTableCell>

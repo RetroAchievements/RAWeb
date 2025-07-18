@@ -1,4 +1,4 @@
-import { render, screen } from '@/test';
+import { render, screen, within } from '@/test';
 import { createGame, createGameRecentPlayer, createUser } from '@/test/factories';
 
 import { GameRecentPlayersTable } from './GameRecentPlayersTable';
@@ -52,8 +52,9 @@ describe('Component: GameRecentPlayersTable', () => {
     });
 
     // ASSERT
-    const timestampElement = screen.getByRole('table').querySelector('.text-green-500');
-    expect(timestampElement).toBeVisible();
+    const table = screen.getByRole('table');
+    const timestampElement = within(table).getByText(/\d+[hms]?\s+ago/i);
+    expect(timestampElement).toHaveClass('text-green-500'); // !! active player timestamp in green
   });
 
   it('given a player is not active, shows their timestamp in neutral color', () => {
@@ -71,8 +72,9 @@ describe('Component: GameRecentPlayersTable', () => {
     });
 
     // ASSERT
-    const timestampElement = screen.getByRole('table').querySelector('.text-neutral-500');
-    expect(timestampElement).toBeVisible();
+    const table = screen.getByRole('table');
+    const timestampElement = within(table).getByText(/\d+[hms]?\s+ago/i);
+    expect(timestampElement).toHaveClass('text-neutral-500'); // !! inactive player timestamp in neutral color
   });
 
   it("given a player has a rich presence message, displays the player's rich presence with tooltip", () => {
