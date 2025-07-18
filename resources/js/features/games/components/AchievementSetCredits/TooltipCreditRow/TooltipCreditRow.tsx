@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FaTrophy } from 'react-icons/fa';
 
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
+import { buildUserAvatarUrl } from '@/common/utils/buildUserAvatarUrl';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 
 interface TooltipCreditRowProps {
@@ -24,7 +25,7 @@ export const TooltipCreditRow: FC<TooltipCreditRowProps> = ({
   return (
     <p className="flex w-full justify-between gap-1">
       <span className="flex items-center gap-1">
-        <img src={credit.avatarUrl} className="size-4 rounded-full" />
+        <img src={buildUserAvatarUrl(credit.avatarUrl)} className="size-4 rounded-full" />
         <span>{credit.displayName}</span>
       </span>
 

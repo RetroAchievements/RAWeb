@@ -110,7 +110,7 @@ class HomeControllerTest extends TestCase
             ->where('mostRecentGameMastered.game.system.iconUrl', $system->iconUrl)
 
             ->where('mostRecentGameMastered.user.displayName', $player->username)
-            ->where('mostRecentGameMastered.user.avatarUrl', $player->avatarUrl)
+            ->where('mostRecentGameMastered.user.avatarUrl', $player->username . '.png')
         );
     }
 
@@ -141,7 +141,7 @@ class HomeControllerTest extends TestCase
             ->where('mostRecentGameBeaten.game.system.iconUrl', $system->iconUrl)
 
             ->where('mostRecentGameBeaten.user.displayName', $player->username)
-            ->where('mostRecentGameBeaten.user.avatarUrl', $player->avatarUrl)
+            ->where('mostRecentGameBeaten.user.avatarUrl', $player->username . '.png')
         );
     }
 
@@ -300,7 +300,7 @@ class HomeControllerTest extends TestCase
             ->where('completedClaims.0.game.system.name', $system->name)
 
             ->where('completedClaims.0.users.0.displayName', $user->display_name)
-            ->where('completedClaims.0.users.0.avatarUrl', $user->avatar_url)
+            ->where('completedClaims.0.users.0.avatarUrl', $user->username . '.png')
         );
     }
 
@@ -352,7 +352,7 @@ class HomeControllerTest extends TestCase
             ->where('completedClaims.0.game.system.name', $system->name)
 
             ->where('completedClaims.0.users.0.displayName', $user->display_name)
-            ->where('completedClaims.0.users.0.avatarUrl', $user->avatar_url)
+            ->where('completedClaims.0.users.0.avatarUrl', $user->username . '.png')
         );
     }
 
@@ -405,9 +405,9 @@ class HomeControllerTest extends TestCase
             ->has('completedClaims.0.users', 2)
 
             ->where('completedClaims.0.users.0.displayName', $userOne->display_name)
-            ->where('completedClaims.0.users.0.avatarUrl', $userOne->avatar_url)
+            ->where('completedClaims.0.users.0.avatarUrl', $userOne->username . '.png')
             ->where('completedClaims.0.users.1.displayName', $userTwo->display_name)
-            ->where('completedClaims.0.users.1.avatarUrl', $userTwo->avatar_url)
+            ->where('completedClaims.0.users.1.avatarUrl', $userTwo->username . '.png')
         );
     }
 
@@ -500,7 +500,7 @@ class HomeControllerTest extends TestCase
             ->where('newClaims.0.game.system.name', $system->name)
 
             ->where('newClaims.0.users.0.displayName', $user->display_name)
-            ->where('newClaims.0.users.0.avatarUrl', $user->avatar_url)
+            ->where('newClaims.0.users.0.avatarUrl', $user->username . '.png')
         );
     }
 
@@ -552,7 +552,7 @@ class HomeControllerTest extends TestCase
             ->where('newClaims.0.game.system.name', $system->name)
 
             ->where('newClaims.0.users.0.displayName', $user->display_name)
-            ->where('newClaims.0.users.0.avatarUrl', $user->avatar_url)
+            ->where('newClaims.0.users.0.avatarUrl', $user->username . '.png')
         );
     }
 
@@ -605,9 +605,9 @@ class HomeControllerTest extends TestCase
             ->has('newClaims.0.users', 2)
 
             ->where('newClaims.0.users.0.displayName', $userOne->display_name)
-            ->where('newClaims.0.users.0.avatarUrl', $userOne->avatar_url)
+            ->where('newClaims.0.users.0.avatarUrl', $userOne->username . '.png')
             ->where('newClaims.0.users.1.displayName', $userTwo->display_name)
-            ->where('newClaims.0.users.1.avatarUrl', $userTwo->avatar_url)
+            ->where('newClaims.0.users.1.avatarUrl', $userTwo->username . '.png')
         );
     }
 

@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { type FC, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { buildUserAvatarUrl } from '@/common/utils/buildUserAvatarUrl';
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 
 interface UserResultDisplayProps {
@@ -16,7 +17,11 @@ export const UserResultDisplay: FC<UserResultDisplayProps> = ({ user }) => {
   return (
     <div className="flex w-full items-center gap-3">
       <div className="relative">
-        <img src={user.avatarUrl} alt={user.displayName} className="size-10 rounded" />
+        <img
+          src={buildUserAvatarUrl(user.avatarUrl)}
+          alt={user.displayName}
+          className="size-10 rounded"
+        />
 
         {isActive ? (
           <div

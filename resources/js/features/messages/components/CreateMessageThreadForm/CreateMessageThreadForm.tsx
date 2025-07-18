@@ -15,6 +15,7 @@ import { BaseSelectAsync } from '@/common/components/+vendor/BaseSelectAsync';
 import { ShortcodePanel } from '@/common/components/ShortcodePanel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useUserSearchQuery } from '@/common/hooks/useUserSearchQuery';
+import { buildUserAvatarUrl } from '@/common/utils/buildUserAvatarUrl';
 import { getStringByteCount } from '@/common/utils/getStringByteCount';
 
 import { TemplateKindAlert } from '../TemplateKindAlert';
@@ -68,13 +69,19 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
                       getOptionValue={(user) => user.displayName}
                       getDisplayValue={(user) => (
                         <div className="flex items-center gap-2">
-                          <img className="size-6 rounded-sm" src={user.avatarUrl} />
+                          <img
+                            className="size-6 rounded-sm"
+                            src={buildUserAvatarUrl(user.avatarUrl)}
+                          />
                           <span className="font-medium">{user.displayName}</span>
                         </div>
                       )}
                       renderOption={(user) => (
                         <div className="flex items-center gap-2">
-                          <img className="size-6 rounded-sm" src={user.avatarUrl} />
+                          <img
+                            className="size-6 rounded-sm"
+                            src={buildUserAvatarUrl(user.avatarUrl)}
+                          />
                           <span className="font-medium">{user.displayName}</span>
                         </div>
                       )}
