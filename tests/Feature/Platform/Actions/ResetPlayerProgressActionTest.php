@@ -6,11 +6,13 @@ namespace Tests\Feature\Platform\Actions;
 
 use App\Models\Achievement;
 use App\Models\PlayerBadge;
+use App\Models\PlayerProgressReset;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\ResetPlayerProgressAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\PlayerProgressResetType;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
@@ -494,5 +496,103 @@ class ResetPlayerProgressActionTest extends TestCase
         $author2->refresh();
         // $this->assertEquals(0, $author2->ContribCount);
         // $this->assertEquals(0, $author2->ContribYield);
+    }
+
+    public function testAccountResetCreatesAccountResetRecord(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+        $game = $this->seedGame(withHash: false);
+        $achievements = Achievement::factory()->published()->count(2)->create(['GameID' => $game->ID]);
+
+        $this->addHardcoreUnlock($user, $achievements->get(0));
+        $this->addHardcoreUnlock($user, $achievements->get(1));
+
+        (new ResetPlayerProgressAction())->execute($user);
+
+        $accountReset = PlayerProgressReset::where('user_id', $user->id)
+            ->where('type', PlayerProgressResetType::Account)
+            ->first();
+
+        $this->assertNotNull($accountReset);
+        $this->assertEquals(PlayerProgressResetType::Account, $accountReset->type);
+        $this->assertNull($accountReset->type_id);
+
+        $resetForGame = PlayerProgressReset::forUserAndGame($user, $game)->first();
+        $this->assertNotNull($resetForGame);
+        $this->assertEquals(PlayerProgressResetType::Account, $resetForGame->type);
+    }
+
+    public function testResetLastAchievementCreatesGameReset(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+        $game = $this->seedGame(withHash: false);
+        $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
+
+        // ... give the user all 3 achievements ...
+        $this->addHardcoreUnlock($user, $achievements->get(0));
+        $this->addHardcoreUnlock($user, $achievements->get(1));
+        $this->addHardcoreUnlock($user, $achievements->get(2));
+
+        // ... verify the user has 3 achievements for this game ...
+        $playerAchievementCount = $user->playerAchievements()
+            ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
+            ->where('Achievements.GameID', $game->ID)
+            ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
+            ->count();
+        $this->assertEquals(3, $playerAchievementCount);
+
+        // ... reset the first achievement ...
+        (new ResetPlayerProgressAction())->execute($user, $achievements->get(0)->ID);
+        $lastReset = PlayerProgressReset::where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->first();
+
+        $this->assertNotNull($lastReset);
+        $this->assertEquals(PlayerProgressResetType::Achievement, $lastReset->type); // !! Not the last achievement, so it isn't a game reset
+        $this->assertEquals($achievements->get(0)->ID, $lastReset->type_id);
+
+        // ... verify the user now has 2 achievements left ...
+        $playerAchievementCount = $user->playerAchievements()
+            ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
+            ->where('Achievements.GameID', $game->ID)
+            ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
+            ->count();
+        $this->assertEquals(2, $playerAchievementCount);
+
+        // ... reset the second achievement ...
+        (new ResetPlayerProgressAction())->execute($user, $achievements->get(1)->ID);
+
+        $resets = PlayerProgressReset::where('user_id', $user->id)
+            ->where('type', PlayerProgressResetType::Achievement)
+            ->where('type_id', $achievements->get(1)->ID)
+            ->get();
+        $this->assertCount(1, $resets);
+        $lastReset = $resets->first();
+
+        $this->assertNotNull($lastReset);
+        $this->assertEquals(PlayerProgressResetType::Achievement, $lastReset->type); // !! Still not the last achievement, so it's not a game reset
+        $this->assertEquals($achievements->get(1)->ID, $lastReset->type_id);
+
+        // ... verify the user now has 1 achievement left ...
+        $playerAchievementCount = $user->playerAchievements()
+            ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
+            ->where('Achievements.GameID', $game->ID)
+            ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
+            ->count();
+        $this->assertEquals(1, $playerAchievementCount);
+
+        // ... reset the third (last) achievement. should have 0 left, this should create a game reset ...
+        (new ResetPlayerProgressAction())->execute($user, $achievements->get(2)->ID);
+
+        $gameReset = PlayerProgressReset::where('user_id', $user->id)
+            ->where('type', PlayerProgressResetType::Game)
+            ->where('type_id', $game->ID)
+            ->first();
+
+        $this->assertNotNull($gameReset);
+        $this->assertEquals(PlayerProgressResetType::Game, $gameReset->type); // !!
+        $this->assertEquals($game->ID, $gameReset->type_id);
     }
 }

@@ -16,6 +16,7 @@ use App\Console\Commands\LogUsersOnlineCount;
 use App\Console\Commands\MakeJsComponent;
 use App\Console\Commands\SyncUsers;
 use App\Console\Commands\SystemAlert;
+use App\Http\InertiaResponseFactory;
 use App\Models\Role;
 use App\Models\User;
 use Exception;
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Inertia\ResponseFactory;
 use Laravel\Pulse\Facades\Pulse;
 use Livewire\Livewire;
 
@@ -36,6 +38,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Override Inertia's ResponseFactory to use our custom factory that strips nulls.
+        // This can eliminate unnecessary props and speed up hydration.
+        $this->app->singleton(ResponseFactory::class, InertiaResponseFactory::class);
     }
 
     /**
