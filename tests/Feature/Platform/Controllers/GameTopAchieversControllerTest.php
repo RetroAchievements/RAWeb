@@ -142,12 +142,12 @@ class GameTopAchieversControllerTest extends TestCase
             ->where('paginatedUsers.items.3.rank', 4)
             ->where('paginatedUsers.items.3.user.displayName', $user3->display_name)
             ->where('paginatedUsers.items.3.score', $game->points_total - 6)
-            ->where('paginatedUsers.items.3.badge', null)
+            ->missing('paginatedUsers.items.3.badge')
 
             ->where('paginatedUsers.items.4.rank', 4)
             ->where('paginatedUsers.items.4.user.displayName', $user8->display_name)
             ->where('paginatedUsers.items.4.score', $game->points_total - 6)
-            ->where('paginatedUsers.items.4.badge', null)
+            ->missing('paginatedUsers.items.4.badge')
 
             ->where('paginatedUsers.items.5.rank', 6)
             ->where('paginatedUsers.items.5.user.displayName', $user2->display_name)

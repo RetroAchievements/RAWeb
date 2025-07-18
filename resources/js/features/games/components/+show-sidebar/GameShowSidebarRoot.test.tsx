@@ -82,4 +82,42 @@ describe('Component: GameShowSidebarRoot', () => {
     // ASSERT
     expect(screen.queryByRole('heading', { name: /series/i })).not.toBeInTheDocument();
   });
+
+  it('given the game is flagged for having mature content, shows an indicator', () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<GameShowSidebarRoot />, {
+      pageProps: {
+        game,
+        can: {},
+        hasMatureContent: true, // !!
+        hubs: [],
+        playerAchievementChartBuckets: [],
+        topAchievers: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/mature content/i)).toBeVisible();
+  });
+
+  it('given the game is not flagged for having mature content, does not show an indicator', () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<GameShowSidebarRoot />, {
+      pageProps: {
+        game,
+        can: {},
+        hasMatureContent: false, // !!
+        hubs: [],
+        playerAchievementChartBuckets: [],
+        topAchievers: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/mature content/i)).not.toBeInTheDocument();
+  });
 });
