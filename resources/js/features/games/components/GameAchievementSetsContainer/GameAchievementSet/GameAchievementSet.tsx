@@ -14,6 +14,7 @@ import {
 import { filterAchievements } from '@/features/games/utils/filterAchievements';
 
 import { AchievementSetCredits } from '../../AchievementSetCredits';
+import { BeatenCreditDialog } from '../../BeatenCreditDialog';
 import { GameAchievementSetHeader } from './GameAchievementSetHeader';
 import { GameAchievementSetToolbar } from './GameAchievementSetToolbar';
 
@@ -99,6 +100,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
               <AchievementsListItem
                 key={`ach-${achievement.id}`}
                 achievement={achievement}
+                beatenDialogContent={<BeatenCreditDialog />}
                 index={index}
                 isLargeList={isLargeList}
                 playersTotal={gameAchievementSet.achievementSet.playersTotal}
