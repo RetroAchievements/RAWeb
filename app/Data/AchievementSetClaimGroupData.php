@@ -10,8 +10,8 @@ use Carbon\Carbon;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript('AchievementSetClaim')]
-class AchievementSetClaimData extends Data
+#[TypeScript('AchievementSetClaimGroup')]
+class AchievementSetClaimGroupData extends Data
 {
     public function __construct(
         public int $id,
