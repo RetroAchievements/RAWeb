@@ -62,7 +62,7 @@ describe('Component: DiffTimestamp', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/1 month ago/i)).toBeVisible();
+    expect(screen.getAllByText(/1 month ago/i)[0]).toBeVisible();
   });
 
   it('displays a formatted timestamp on hover', async () => {

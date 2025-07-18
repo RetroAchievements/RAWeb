@@ -1,5 +1,5 @@
 import { render, screen } from '@/test';
-import { createAchievementSetClaim, createHomePageProps } from '@/test/factories';
+import { createAchievementSetClaimGroup, createHomePageProps } from '@/test/factories';
 
 import { SetsInProgressList } from './SetsInProgressList';
 
@@ -46,11 +46,11 @@ describe('Component: SetsInProgressList', () => {
     render<App.Http.Data.HomePageProps>(<SetsInProgressList />, {
       pageProps: createHomePageProps({
         newClaims: [
-          createAchievementSetClaim(),
-          createAchievementSetClaim(),
-          createAchievementSetClaim(),
-          createAchievementSetClaim(),
-          createAchievementSetClaim(),
+          createAchievementSetClaimGroup(),
+          createAchievementSetClaimGroup(),
+          createAchievementSetClaimGroup(),
+          createAchievementSetClaimGroup(),
+          createAchievementSetClaimGroup(),
         ],
       }),
     });
