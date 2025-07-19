@@ -11,5 +11,6 @@ export const createAggregateAchievementSetCredits =
       achievementsMaintainers: [],
       achievementsTesting: [],
       achievementsWriting: [],
+      hashCompatibilityTesting: [],
     };
   });

@@ -57,6 +57,12 @@ describe('Component: AchievementSetCredits', () => {
     const aggregateCredits = createAggregateAchievementSetCredits({
       achievementSetArtwork: [createUserCredits({ displayName: 'Alice' })],
       achievementsArtwork: [createUserCredits({ displayName: 'Bob' })],
+      achievementsLogic: [],
+      achievementsMaintainers: [],
+      achievementsDesign: [],
+      achievementsTesting: [],
+      achievementsWriting: [],
+      hashCompatibilityTesting: [],
     });
 
     render(<AchievementSetCredits />, {
@@ -72,6 +78,10 @@ describe('Component: AchievementSetCredits', () => {
     const aggregateCredits = createAggregateAchievementSetCredits({
       achievementsLogic: [createUserCredits({ displayName: 'Charlie' })],
       achievementsMaintainers: [createUserCredits({ displayName: 'David' })],
+      achievementsDesign: [],
+      achievementsTesting: [],
+      achievementsWriting: [],
+      hashCompatibilityTesting: [],
     });
 
     render(<AchievementSetCredits />, {
@@ -88,6 +98,7 @@ describe('Component: AchievementSetCredits', () => {
       achievementsDesign: [createUserCredits({ displayName: 'Eve' })],
       achievementsTesting: [createUserCredits({ displayName: 'Frank' })],
       achievementsWriting: [createUserCredits({ displayName: 'Grace' })],
+      hashCompatibilityTesting: [],
     });
 
     render(<AchievementSetCredits />, {
@@ -104,6 +115,12 @@ describe('Component: AchievementSetCredits', () => {
     const aggregateCredits = createAggregateAchievementSetCredits({
       achievementSetArtwork: [sharedUser],
       achievementsArtwork: [sharedUser], // !! same user in both arrays
+      achievementsLogic: [],
+      achievementsMaintainers: [],
+      achievementsDesign: [],
+      achievementsTesting: [],
+      achievementsWriting: [],
+      hashCompatibilityTesting: [],
     });
 
     render(<AchievementSetCredits />, {
@@ -122,6 +139,10 @@ describe('Component: AchievementSetCredits', () => {
       achievementsAuthors: [author],
       achievementsLogic: [author], // !! same user is both author and logic credit
       achievementsMaintainers: [], // !! no maintainers
+      achievementsDesign: [],
+      achievementsTesting: [],
+      achievementsWriting: [],
+      hashCompatibilityTesting: [],
     });
 
     render(<AchievementSetCredits />, {
@@ -135,10 +156,22 @@ describe('Component: AchievementSetCredits', () => {
 
   it('given active claims, shows claimants', () => {
     // ARRANGE
+    const aggregateCredits = {
+      achievementsAuthors: [],
+      achievementSetArtwork: [],
+      achievementsArtwork: [],
+      achievementsLogic: [],
+      achievementsMaintainers: [],
+      achievementsDesign: [],
+      achievementsTesting: [],
+      achievementsWriting: [],
+      hashCompatibilityTesting: [],
+    };
+
     render(<AchievementSetCredits />, {
       pageProps: {
+        aggregateCredits,
         achievementSetClaims: [createAchievementSetClaim()],
-        aggregateCredits: createAggregateAchievementSetCredits(),
       },
     });
 
@@ -157,6 +190,7 @@ describe('Component: AchievementSetCredits', () => {
       achievementsDesign: [createUserCredits({ displayName: 'Designer1' })],
       achievementsTesting: [],
       achievementsWriting: [],
+      hashCompatibilityTesting: [],
     });
 
     render(<AchievementSetCredits />, {
@@ -167,6 +201,26 @@ describe('Component: AchievementSetCredits', () => {
     expect(screen.getByTestId('achievement-authors-display')).toBeVisible();
     expect(screen.getByTestId('artwork-credits-display')).toBeVisible();
     expect(screen.getByTestId('code-credits-display')).toBeVisible();
+    expect(screen.getByTestId('design-credits-display')).toBeVisible();
+  });
+
+  it('given hash compatibility testing credits exist, shows the design credits display', () => {
+    // ARRANGE
+    const aggregateCredits = {
+      achievementsAuthors: [],
+      achievementSetArtwork: [],
+      achievementsArtwork: [],
+      achievementsLogic: [],
+      achievementsMaintainers: [],
+      achievementsDesign: [],
+      achievementsTesting: [],
+      achievementsWriting: [],
+      hashCompatibilityTesting: [createUserCredits({ displayName: 'HashTester1' })], // !!
+    };
+
+    render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
+
+    // ASSERT
     expect(screen.getByTestId('design-credits-display')).toBeVisible();
   });
 });
