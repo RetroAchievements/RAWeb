@@ -24,6 +24,7 @@ export const NewUserCta: FC = () => {
           i18nKey="We're excited to have you here! We know you might have some questions about hardcore mode, RetroPoints (white points), subsets, or which emulators to use. Don't worry, we've got you covered! Check out our <1>comprehensive FAQ</1> to get started. Happy gaming!"
           components={{
             1: (
+              // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
               <a
                 href="https://docs.retroachievements.org/general/faq.html"
                 target="_blank"
