@@ -100,7 +100,7 @@ const PlayerCompletionList: FC<PlayerCompletionListProps> = ({ completions, game
     <ul className="zebra-list">
       {completions.map((completion) => (
         <li
-          className="flex w-full items-center justify-between gap-2 p-2"
+          className="flex w-full items-center justify-between gap-2 p-2 first:rounded-t-lg last:rounded-b-lg"
           key={`completion-${completion.user.displayName}`}
         >
           <span className="lg:w-[130px] xl:w-[176px]">

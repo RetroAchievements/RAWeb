@@ -41,13 +41,17 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
 
           <span className="text-xs text-text">
             <Trans
-              i18nKey="{{achievementsCount, number}} achievements worth {{pointsCount, number}} <1>({{retroPointsCount, number}})</1> points"
+              i18nKey="<1>{{achievementsCount, number}}</1> achievements worth <2>{{pointsCount, number}}</2> <3>({{retroPointsCount, number}})</3> points"
               values={{
                 achievementsCount: achievements.length,
                 pointsCount: totalPoints,
                 retroPointsCount: totalPointsWeighted,
               }}
-              components={{ 1: <WeightedPointsContainer /> }}
+              components={{
+                1: <span className="font-bold" />,
+                2: <span className="font-bold" />,
+                3: <WeightedPointsContainer />,
+              }}
             />
           </span>
         </div>
