@@ -939,6 +939,8 @@
     "Achievement Design/Ideas": "Achievement Design/Ideas",
     "Playtesters": "Playtesters",
     "Writing Contributions": "Writing Contributions",
+    "Locked Only": "Locked Only",
+    "Missable Only": "Missable Only",
     "game_wantToPlayToggle": "Want to Play",
     "supportedGameFilesCountLabel_one": "There is currently <1>{{count, number}}</1> supported game file hash registered for this game.",
     "supportedGameFilesCountLabel_other": "There are currently <1>{{count, number}}</1> supported game file hashes registered for this game.",
