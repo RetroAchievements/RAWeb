@@ -169,8 +169,8 @@ describe('Hook: useCurrentSuperFilterLabel', () => {
       system: ['all'], // !!
     });
 
-    const { result } = renderHook(
-      () => useCurrentSuperFilterLabel(mockTable, 'api.set-request.index'),
+    const { result } = renderHook(() =>
+      useCurrentSuperFilterLabel(mockTable, 'api.set-request.index'),
     );
 
     // ASSERT
@@ -191,10 +191,6 @@ describe('Hook: useCurrentSuperFilterLabel', () => {
     // ASSERT
     expect(result.current).toEqual('All Games, 1 System');
   });
-
-
-
-  
 
   it('given an empty system filter array, returns "All Systems"', () => {
     // ARRANGE
