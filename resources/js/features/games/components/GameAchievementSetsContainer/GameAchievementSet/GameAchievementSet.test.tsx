@@ -17,11 +17,7 @@ describe('Component: GameAchievementSet', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <GameAchievementSet
-        achievements={[]}
-        gameAchievementSet={createGameAchievementSet()}
-        isOnlySetForGame={false}
-      />,
+      <GameAchievementSet achievements={[]} gameAchievementSet={createGameAchievementSet()} />,
       {
         jotaiAtoms: [
           [currentAchievementSortAtom, 'normal'],
@@ -40,11 +36,7 @@ describe('Component: GameAchievementSet', () => {
   it('given an empty achievements array, renders an empty achievement list', () => {
     // ARRANGE
     render(
-      <GameAchievementSet
-        achievements={[]}
-        gameAchievementSet={createGameAchievementSet()}
-        isOnlySetForGame={false}
-      />,
+      <GameAchievementSet achievements={[]} gameAchievementSet={createGameAchievementSet()} />,
       {
         jotaiAtoms: [
           [currentAchievementSortAtom, 'normal'],
@@ -76,11 +68,7 @@ describe('Component: GameAchievementSet', () => {
     });
 
     render(
-      <GameAchievementSet
-        achievements={achievements}
-        gameAchievementSet={gameAchievementSet}
-        isOnlySetForGame={false}
-      />,
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
           [currentAchievementSortAtom, 'normal'],
@@ -106,11 +94,7 @@ describe('Component: GameAchievementSet', () => {
     });
 
     render(
-      <GameAchievementSet
-        achievements={[achievement]}
-        gameAchievementSet={gameAchievementSet}
-        isOnlySetForGame={false}
-      />,
+      <GameAchievementSet achievements={[achievement]} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
           [currentAchievementSortAtom, 'normal'],
@@ -140,11 +124,7 @@ describe('Component: GameAchievementSet', () => {
     });
 
     const { rerender } = render(
-      <GameAchievementSet
-        achievements={achievements}
-        gameAchievementSet={gameAchievementSet}
-        isOnlySetForGame={false}
-      />,
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
           [currentAchievementSortAtom, 'normal'],
@@ -158,11 +138,7 @@ describe('Component: GameAchievementSet', () => {
 
     // ACT
     rerender(
-      <GameAchievementSet
-        achievements={achievements}
-        gameAchievementSet={gameAchievementSet}
-        isOnlySetForGame={false}
-      />,
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
     );
 
     // ASSERT
@@ -190,11 +166,7 @@ describe('Component: GameAchievementSet', () => {
     });
 
     render(
-      <GameAchievementSet
-        achievements={achievements}
-        gameAchievementSet={gameAchievementSet}
-        isOnlySetForGame={false}
-      />,
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
           [currentAchievementSortAtom, 'normal'],
@@ -226,11 +198,7 @@ describe('Component: GameAchievementSet', () => {
     });
 
     render(
-      <GameAchievementSet
-        achievements={achievements}
-        gameAchievementSet={gameAchievementSet}
-        isOnlySetForGame={false}
-      />,
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
           [currentAchievementSortAtom, 'normal'],
@@ -262,11 +230,7 @@ describe('Component: GameAchievementSet', () => {
     });
 
     render(
-      <GameAchievementSet
-        achievements={achievements}
-        gameAchievementSet={gameAchievementSet}
-        isOnlySetForGame={false}
-      />,
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
           [currentAchievementSortAtom, 'normal'],
@@ -300,11 +264,7 @@ describe('Component: GameAchievementSet', () => {
     });
 
     render(
-      <GameAchievementSet
-        achievements={achievements}
-        gameAchievementSet={gameAchievementSet}
-        isOnlySetForGame={false}
-      />,
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
           [currentAchievementSortAtom, 'normal'],
