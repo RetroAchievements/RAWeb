@@ -45,6 +45,7 @@ export const ReportToDeveloperComplianceListItem: FC<ReportToDeveloperCompliance
               i18nKey="The achievement contains an <1>unwelcome concept</1>."
               components={{
                 1: (
+                  // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
                   <a
                     href="https://docs.retroachievements.org/guidelines/content/unwelcome-concepts.html"
                     target="_blank"
@@ -105,6 +106,7 @@ export const ReportToDeveloperComplianceListItem: FC<ReportToDeveloperCompliance
             i18nKey="The achievement contains an <1>unwelcome concept</1>."
             components={{
               1: (
+                // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
                 <a
                   href="https://docs.retroachievements.org/guidelines/content/unwelcome-concepts.html"
                   target="_blank"

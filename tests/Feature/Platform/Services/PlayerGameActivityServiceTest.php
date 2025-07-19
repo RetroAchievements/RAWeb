@@ -6,12 +6,16 @@ namespace Tests\Feature\Platform\Services;
 
 use App\Enums\PlayerGameActivityEventType;
 use App\Enums\PlayerGameActivitySessionType;
-use App\Models\Achievement;
+use App\Models\AchievementSet;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
+use App\Models\PlayerProgressReset;
 use App\Models\PlayerSession;
 use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Actions\UnlockPlayerAchievementAction;
+use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\PlayerProgressResetType;
 use App\Platform\Services\PlayerGameActivityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -290,5 +294,201 @@ class PlayerGameActivityServiceTest extends TestCase
     {
         $this->assertUnlockEvent($event, $achievementId, $time, $hardcore);
         $this->assertEquals($unlocker->id, $event['unlocker']->id);
+    }
+
+    public function testItShowsSessionsBeforeGameResetWithoutAchievements(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        /** @var Game $game */
+        $game = $this->seedGame(withHash: false);
+
+        $now = Carbon::now()->startOfSecond();
+
+        // ... create the first session (before reset) - 100 minutes ago ...
+        $timeBeforeReset = $now->clone()->subMinutes(100);
+        Carbon::setTestNow($timeBeforeReset);
+
+        /** @var PlayerSession $sessionBeforeReset */
+        $sessionBeforeReset = (new ResumePlayerSessionAction())->execute($user, $game);
+        $sessionBeforeReset->duration = 30;
+        $sessionBeforeReset->save();
+
+        // ... create the reset record - 50 minutes ago ...
+        $resetTime = $now->clone()->subMinutes(50);
+        Carbon::setTestNow($resetTime);
+        PlayerProgressReset::create([
+            'user_id' => $user->id,
+            'type' => PlayerProgressResetType::Game,
+            'type_id' => $game->id,
+        ]);
+
+        // ... create second session (after reset) - 20 minutes ago ...
+        $timeAfterReset = $now->clone()->subMinutes(20);
+        Carbon::setTestNow($timeAfterReset);
+
+        /** @var PlayerSession $sessionAfterReset */
+        $sessionAfterReset = (new ResumePlayerSessionAction())->execute($user, $game);
+        $sessionAfterReset->duration = 15;
+        $sessionAfterReset->save();
+
+        // Act
+        Carbon::setTestNow($now);
+        $activity = new PlayerGameActivityService();
+        $activity->initialize($user, $game);
+        $summary = $activity->summarize();
+
+        // Assert
+        // ... should include both sessions (empty sessions before the reset are still shown) ...
+        $this->assertEquals(2, count($activity->sessions));
+        $this->assertEquals($sessionBeforeReset->id, $activity->sessions[0]['playerSession']->id);
+        $this->assertEquals($sessionAfterReset->id, $activity->sessions[1]['playerSession']->id);
+        $this->assertEquals(45 * 60, $summary['totalPlaytime']); // !! 30 + 15 minutes in seconds
+    }
+
+    public function testItShowsSessionsBeforeAccountResetWithoutAchievements(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        /** @var Game $game */
+        $game = $this->seedGame(withHash: false);
+
+        $now = Carbon::now()->startOfSecond();
+
+        // ... create the first session (before reset) - 100 minutes ago ...
+        $timeBeforeReset = $now->clone()->subMinutes(100);
+        Carbon::setTestNow($timeBeforeReset);
+
+        /** @var PlayerSession $sessionBeforeReset */
+        $sessionBeforeReset = (new ResumePlayerSessionAction())->execute($user, $game);
+        $sessionBeforeReset->duration = 30;
+        $sessionBeforeReset->save();
+
+        // ... create the account reset record - 50 minutes ago ...
+        $resetTime = $now->clone()->subMinutes(50);
+        Carbon::setTestNow($resetTime);
+        PlayerProgressReset::create([
+            'user_id' => $user->id,
+            'type' => PlayerProgressResetType::Account,
+            'type_id' => null,
+        ]);
+
+        // ... create second session (after reset) - 20 minutes ago ...
+        $timeAfterReset = $now->clone()->subMinutes(20);
+        Carbon::setTestNow($timeAfterReset);
+
+        /** @var PlayerSession $sessionAfterReset */
+        $sessionAfterReset = (new ResumePlayerSessionAction())->execute($user, $game);
+        $sessionAfterReset->duration = 15;
+        $sessionAfterReset->save();
+
+        // Act
+        Carbon::setTestNow($now);
+        $activity = new PlayerGameActivityService();
+        $activity->initialize($user, $game);
+        $summary = $activity->summarize();
+
+        // Assert
+        // ... should include both sessions (empty sessions before the reset are still shown) ...
+        $this->assertEquals(2, count($activity->sessions));
+        $this->assertEquals($sessionBeforeReset->id, $activity->sessions[0]['playerSession']->id);
+        $this->assertEquals($sessionAfterReset->id, $activity->sessions[1]['playerSession']->id);
+        $this->assertEquals(45 * 60, $summary['totalPlaytime']); // !! 30 + 15 minutes in seconds
+    }
+
+    public function testItShowsSessionsBeforeSubsetGameResetWithoutAchievements(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        // ... create a main game and subset game ...
+        /** @var Game $mainGame */
+        $mainGame = $this->seedGame(withHash: false);
+        /** @var Game $subsetGame */
+        $subsetGame = $this->seedGame(withHash: false);
+
+        // ... create achievement sets and link them ...
+        $mainSet = AchievementSet::factory()->create();
+        $subsetSet = AchievementSet::factory()->create();
+
+        GameAchievementSet::create([
+            'game_id' => $mainGame->id,
+            'achievement_set_id' => $mainSet->id,
+            'type' => AchievementSetType::Core,
+        ]);
+        GameAchievementSet::create([
+            'game_id' => $subsetGame->id,
+            'achievement_set_id' => $subsetSet->id,
+            'type' => AchievementSetType::Core,
+        ]);
+        GameAchievementSet::create([
+            'game_id' => $mainGame->id,
+            'achievement_set_id' => $subsetSet->id, // !! linking subset to root game
+            'type' => AchievementSetType::Bonus,
+        ]);
+
+        $now = Carbon::now()->startOfSecond();
+
+        // ... create sessions on both games before reset ...
+        $timeBeforeReset = $now->clone()->subMinutes(100);
+        Carbon::setTestNow($timeBeforeReset);
+
+        /** @var PlayerSession $mainSessionBeforeReset */
+        $mainSessionBeforeReset = (new ResumePlayerSessionAction())->execute($user, $mainGame);
+        $mainSessionBeforeReset->duration = 20;
+        $mainSessionBeforeReset->save();
+
+        /** @var PlayerSession $subsetSessionBeforeReset */
+        $subsetSessionBeforeReset = (new ResumePlayerSessionAction())->execute($user, $subsetGame);
+        $subsetSessionBeforeReset->duration = 10;
+        $subsetSessionBeforeReset->save();
+
+        // ... reset the subset game - 50 minutes ago ...
+        $resetTime = $now->clone()->subMinutes(50);
+        Carbon::setTestNow($resetTime);
+        PlayerProgressReset::create([
+            'user_id' => $user->id,
+            'type' => PlayerProgressResetType::Game,
+            'type_id' => $subsetGame->id,
+        ]);
+
+        // ... create sessions after reset ...
+        $timeAfterReset = $now->clone()->subMinutes(20);
+        Carbon::setTestNow($timeAfterReset);
+
+        /** @var PlayerSession $mainSessionAfterReset */
+        $mainSessionAfterReset = (new ResumePlayerSessionAction())->execute($user, $mainGame);
+        $mainSessionAfterReset->duration = 15;
+        $mainSessionAfterReset->save();
+
+        /** @var PlayerSession $subsetSessionAfterReset */
+        $subsetSessionAfterReset = (new ResumePlayerSessionAction())->execute($user, $subsetGame);
+        $subsetSessionAfterReset->duration = 5;
+        $subsetSessionAfterReset->save();
+
+        // Act
+        Carbon::setTestNow($now);
+        $activity = new PlayerGameActivityService();
+        $activity->initialize($user, $mainGame, withSubsets: true);
+        $summary = $activity->summarize();
+
+        // Assert
+        // ... should include all sessions (empty sessions before the reset are still shown) ...
+        $this->assertEquals(4, count($activity->sessions));
+
+        // ... verify we have all sessions ...
+        $sessionIds = collect($activity->sessions)->pluck('playerSession.id')->toArray();
+        $this->assertContains($mainSessionAfterReset->id, $sessionIds);
+        $this->assertContains($subsetSessionAfterReset->id, $sessionIds);
+        $this->assertContains($mainSessionBeforeReset->id, $sessionIds);
+        $this->assertContains($subsetSessionBeforeReset->id, $sessionIds);
+
+        // ... total time should be 20 + 10 + 15 + 5 = 50 minutes ...
+        $this->assertEquals(50 * 60, $summary['totalPlaytime']); // !! 50 minutes in seconds
     }
 }

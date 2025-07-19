@@ -939,6 +939,8 @@
     "Achievement Design/Ideas": "Дизайн/идеи достижений",
     "Playtesters": "Тестировщик",
     "Writing Contributions": "Письменный вклад",
+    "Locked Only": "Locked Only",
+    "Missable Only": "Missable Only",
     "game_wantToPlayToggle": "Хочу Сыграть",
     "supportedGameFilesCountLabel_one": "На данный момент известен <1>{{count, number}}</1> поддерживаемый хэш ROM файлов для этой игры.",
     "supportedGameFilesCountLabel_few": "На данный момент известны <1>{{count, number}}</1> поддерживаемых хэша ROM файлов для этой игры.",
