@@ -1,6 +1,6 @@
-/* eslint-disable no-restricted-imports -- base components can import from @radix-ui */
+/* eslint-disable no-restricted-imports -- base components can import from radix-ui */
 
-import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
+import { Collapsible as CollapsiblePrimitive } from 'radix-ui';
 
 const BaseCollapsible = CollapsiblePrimitive.Root;
 

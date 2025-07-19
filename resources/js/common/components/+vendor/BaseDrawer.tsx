@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-imports -- base components can import from @radix-ui */
+/* eslint-disable no-restricted-imports -- base components can import from vaul */
 
 import * as React from 'react';
 import { RxCross2 } from 'react-icons/rx';

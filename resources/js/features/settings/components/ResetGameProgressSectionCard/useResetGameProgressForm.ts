@@ -24,6 +24,10 @@ export function useResetGameProgressForm() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(resetGameProgressFormSchema),
+    defaultValues: {
+      gameId: '',
+      achievementId: '',
+    },
   });
 
   // When the user selects a game, instantly choose the "all won achievements"
