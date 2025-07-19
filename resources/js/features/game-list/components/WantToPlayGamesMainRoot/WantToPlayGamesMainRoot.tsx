@@ -45,6 +45,7 @@ export const WantToPlayGamesMainRoot: FC = memo(() => {
     columnFilters,
     pagination,
     sorting,
+    apiRouteName: 'api.user-game-list.index',
     paginatedData: paginatedGameListEntries,
   });
 

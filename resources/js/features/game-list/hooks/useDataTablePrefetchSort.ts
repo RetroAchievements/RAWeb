@@ -16,11 +16,11 @@ import { buildGameListQuerySortParam } from '../utils/buildGameListQuerySortPara
 export function useDataTablePrefetchSort<TData>(
   table: Table<TData>,
   tableApiRouteName: RouteName,
-  tableApiRouteParams?: Record<string, unknown>,
+  tableApiRouteParams: Record<string, unknown> = {},
 ) {
-  const { columnFilters, pagination } = table.getState();
-
   const queryClient = useQueryClient();
+
+  const { columnFilters, pagination } = table.getState();
 
   /**
    * Note that we go out of our way to always set pageIndex to 0.
@@ -29,12 +29,13 @@ export function useDataTablePrefetchSort<TData>(
 
   const prefetchSort = (columnId = '', direction: 'asc' | 'desc') => {
     queryClient.prefetchQuery({
-      // eslint-disable-next-line @tanstack/query/exhaustive-deps -- tableApiRouteName is not part of the key
       queryKey: [
         'data',
-        { ...pagination, pageIndex: 0 },
-        [{ id: columnId, desc: direction === 'desc' }],
+        tableApiRouteName,
+        { ...pagination, pageIndex: 0 }, // pagination
+        [{ id: columnId, desc: direction === 'desc' }], // sorting
         columnFilters,
+        tableApiRouteParams,
       ],
       staleTime: 1 * 60 * 1000, // 1 minute
       queryFn: async () => {

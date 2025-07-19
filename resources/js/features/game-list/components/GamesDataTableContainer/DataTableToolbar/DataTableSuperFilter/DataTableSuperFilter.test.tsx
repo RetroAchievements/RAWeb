@@ -2,6 +2,7 @@ import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import userEvent from '@testing-library/user-event';
 import type { FC } from 'react';
+import type { RouteName } from 'ziggy-js';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { buildAchievementsPublishedColumnDef } from '@/features/game-list/utils/column-definitions/buildAchievementsPublishedColumnDef';
@@ -433,6 +434,95 @@ describe('Component: DataTableSuperFilter', () => {
       await waitFor(() => {
         expect(screen.getByRole('combobox', { name: /progress/i })).toBeVisible();
       });
+    });
+  });
+
+  describe('Set Request Route Specific Behavior', () => {
+    const TestHarnessWithRoute: FC<TestHarnessProps & { tableApiRouteName?: RouteName }> = ({
+      tableApiRouteName,
+      columnFilters = [],
+      hasResults = false,
+      onColumnFiltersChange = () => {},
+      onSortingChange = () => {},
+      sorting = [],
+    }) => {
+      const table = useReactTable({
+        onColumnFiltersChange: onColumnFiltersChange as any,
+        onSortingChange: onSortingChange as any,
+        columns: [
+          buildTitleColumnDef({ t_label: i18n.t('Title') }),
+          buildSystemColumnDef({ t_label: i18n.t('System') }),
+          buildAchievementsPublishedColumnDef({ t_label: i18n.t('Achievements') }),
+        ],
+        data: [],
+        rowCount: 0,
+        getCoreRowModel: getCoreRowModel(),
+        state: {
+          columnFilters,
+          sorting,
+        },
+      });
+
+      return (
+        <DataTableSuperFilter
+          table={table}
+          hasResults={hasResults}
+          tableApiRouteName={tableApiRouteName}
+        />
+      );
+    };
+
+    it('given we are on the set-request route, hides game type and set type filters but shows the claimed filter', async () => {
+      // ARRANGE
+      render(<TestHarnessWithRoute tableApiRouteName="api.set-request.index" />, {
+        pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },
+      });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /all games/i }));
+
+      // ASSERT
+      expect(screen.queryByRole('combobox', { name: /game type/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('combobox', { name: /set type/i })).not.toBeInTheDocument();
+
+      expect(screen.getByRole('combobox', { name: /claimed/i })).toBeVisible();
+
+      expect(screen.queryByRole('combobox', { name: /has achievements/i })).not.toBeInTheDocument();
+    });
+
+    it('given we are not on set-request route, shows game type and set type filters but not the claimed filter', async () => {
+      // ARRANGE
+      render(<TestHarnessWithRoute tableApiRouteName="api.game.index" />, {
+        pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },
+      });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /all games/i }));
+
+      // ASSERT
+      expect(screen.getByRole('combobox', { name: /game type/i })).toBeVisible();
+      expect(screen.getByRole('combobox', { name: /set type/i })).toBeVisible();
+
+      expect(screen.queryByRole('combobox', { name: /claimed/i })).not.toBeInTheDocument();
+
+      expect(screen.getByRole('combobox', { name: /has achievements/i })).toBeVisible();
+    });
+
+    it('given we are on the set-request route and user is authenticated, does not show the progress filter', async () => {
+      // ARRANGE
+      render(<TestHarnessWithRoute tableApiRouteName="api.set-request.index" />, {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          ziggy: createZiggyProps({ device: 'mobile' }),
+        },
+      });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /all games/i }));
+
+      // ASSERT
+      // ... we are auth'd and it still doesn't appear ...
+      expect(screen.queryByRole('combobox', { name: /progress/i })).not.toBeInTheDocument();
     });
   });
 });

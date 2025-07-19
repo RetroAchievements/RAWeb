@@ -61,10 +61,11 @@ export default function DataTableMobileToolbar<TData>({
         </BaseChip>
 
         <DataTableSuperFilter
-          hasResults={totalGames !== 0}
           table={table}
+          hasResults={totalGames !== 0}
           randomGameApiRouteName={randomGameApiRouteName}
           randomGameApiRouteParams={tableApiRouteParams}
+          tableApiRouteName={tableApiRouteName}
         />
       </div>
 

@@ -9,16 +9,17 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 #[TypeScript]
 enum GameListSortField: string
 {
-    case Title = 'title';
-    case System = 'system';
     case AchievementsPublished = 'achievementsPublished';
     case HasActiveOrInReviewClaims = 'hasActiveOrInReviewClaims';
-    case PointsTotal = 'pointsTotal';
-    case RetroRatio = 'retroRatio';
     case LastUpdated = 'lastUpdated';
-    case ReleasedAt = 'releasedAt';
-    case PlayersTotal = 'playersTotal';
-    case NumVisibleLeaderboards = 'numVisibleLeaderboards';
+    case NumRequests = 'numRequests';
     case NumUnresolvedTickets = 'numUnresolvedTickets';
+    case NumVisibleLeaderboards = 'numVisibleLeaderboards';
+    case PlayersTotal = 'playersTotal';
+    case PointsTotal = 'pointsTotal';
     case Progress = 'progress';
+    case ReleasedAt = 'releasedAt';
+    case RetroRatio = 'retroRatio';
+    case System = 'system';
+    case Title = 'title';
 }

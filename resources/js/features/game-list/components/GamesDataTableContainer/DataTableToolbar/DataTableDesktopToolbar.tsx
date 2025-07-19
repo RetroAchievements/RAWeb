@@ -14,6 +14,7 @@ import { DataTableColumnsToggle } from '../../DataTableColumnsToggle';
 import { DataTableResetFiltersButton } from '../../DataTableResetFiltersButton';
 import { DataTableSearchInput } from '../../DataTableSearchInput';
 import { DataTableAchievementsPublishedFilter } from './DataTableAchievementsPublishedFilter';
+import { DataTableClaimedFilter } from './DataTableClaimedFilter';
 import { DataTableProgressFilter } from './DataTableProgressFilter';
 import { DataTableSystemFilter } from './DataTableSystemFilter';
 import { GameTypeFilter } from './GameTypeFilter';
@@ -60,8 +61,15 @@ export function DataTableDesktopToolbar<TData>({
           {doesColumnExist(allColumns, 'system') && filterableSystemOptions?.length > 1 ? (
             <DataTableSystemFilter
               table={table}
+              defaultOptionLabel={t('Only supported systems')}
               filterableSystemOptions={filterableSystemOptions}
+              includeDefaultOption={tableApiRouteName.includes('api.set-request')}
+              isSingleSelect={tableApiRouteName.includes('api.set-request')}
             />
+          ) : null}
+
+          {tableApiRouteName.includes('api.set-request') ? (
+            <DataTableClaimedFilter table={table} />
           ) : null}
 
           <SetTypeFilter table={table} />

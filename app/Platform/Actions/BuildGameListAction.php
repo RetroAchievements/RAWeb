@@ -239,6 +239,7 @@ class BuildGameListAction
                     'claimants',
                     'hasActiveOrInReviewClaims',
                     'lastUpdated',
+                    'numRequests',
                     'numVisibleLeaderboards',
                     'playersTotal',
                     'pointsTotal',

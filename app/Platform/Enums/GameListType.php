@@ -10,6 +10,7 @@ enum GameListType
     case DeveloperSets;
     case GameSpecificSuggestions;
     case Hub;
+    case SetRequests;
     case System;
     case UserDevelop;
     case UserPlay;

@@ -31,6 +31,7 @@ import { useSortConfigs } from '../../../../hooks/useSortConfigs';
 import type { SortConfigKind } from '../../../../models';
 import { DataTableSystemFilter } from '../DataTableSystemFilter';
 import { RandomGameButton } from '../RandomGameButton';
+import { MobileClaimedFilterSelect } from './MobileClaimedFilterSelect';
 import { MobileGameTypeFilterSelect } from './MobileGameTypeFilterSelect';
 import { MobileHasAchievementsFilterSelect } from './MobileHasAchievementsFilterSelect';
 import { MobileProgressFilterSelect } from './MobileProgressFilterSelect';
@@ -43,6 +44,7 @@ interface DataTableSuperFilterProps<TData> {
   hasResults?: boolean;
   randomGameApiRouteName?: RouteName;
   randomGameApiRouteParams?: Record<string, unknown>;
+  tableApiRouteName?: RouteName;
 }
 
 export function DataTableSuperFilter<TData>({
@@ -50,6 +52,7 @@ export function DataTableSuperFilter<TData>({
   randomGameApiRouteParams,
   hasResults = false,
   randomGameApiRouteName = 'api.game.random',
+  tableApiRouteName = 'api.game.index',
 }: DataTableSuperFilterProps<TData>) {
   const { auth, filterableSystemOptions } = usePageProps<{
     filterableSystemOptions: App.Platform.Data.System[];
@@ -57,10 +60,9 @@ export function DataTableSuperFilter<TData>({
 
   const { t } = useTranslation();
 
-  const currentSuperFilterLabel = useCurrentSuperFilterLabel(table);
+  const currentSuperFilterLabel = useCurrentSuperFilterLabel(table, tableApiRouteName);
 
   const { buildSortOptionLabel } = useBuildSortLabel();
-
   const { sortConfigs } = useSortConfigs();
 
   const allColumns = table.getAllColumns();
@@ -103,22 +105,35 @@ export function DataTableSuperFilter<TData>({
           </BaseDrawerHeader>
 
           <div className="flex flex-col gap-4 p-4">
-            <div className="grid grid-cols-2 gap-2">
-              <MobileGameTypeFilterSelect table={table} />
-              <MobileSetTypeFilterSelect table={table} />
-            </div>
+            {!tableApiRouteName.includes('api.set-request') ? (
+              <div className="grid grid-cols-2 gap-2">
+                <MobileGameTypeFilterSelect table={table} />
+                <MobileSetTypeFilterSelect table={table} />
+              </div>
+            ) : null}
 
             {doesColumnExist(allColumns, 'system') && filterableSystemOptions?.length > 1 ? (
               <DataTableSystemFilter
-                filterableSystemOptions={filterableSystemOptions}
                 table={table}
+                defaultOptionLabel={t('Only supported systems')}
+                filterableSystemOptions={filterableSystemOptions}
+                includeDefaultOption={tableApiRouteName.includes('api.set-request')}
+                isSingleSelect={tableApiRouteName.includes('api.set-request')}
                 variant="drawer"
               />
             ) : null}
 
-            <MobileHasAchievementsFilterSelect table={table} />
+            {tableApiRouteName.includes('api.set-request') ? (
+              <MobileClaimedFilterSelect table={table} />
+            ) : null}
 
-            {auth?.user ? <MobileProgressFilterSelect table={table} /> : null}
+            {!tableApiRouteName.includes('api.set-request') ? (
+              <MobileHasAchievementsFilterSelect table={table} />
+            ) : null}
+
+            {auth?.user && !tableApiRouteName.includes('api.set-request') ? (
+              <MobileProgressFilterSelect table={table} />
+            ) : null}
 
             {/* If the sort order field isn't on the bottom of the drawer, the select content gets cut off the screen. */}
             <div className="flex flex-col gap-2">
