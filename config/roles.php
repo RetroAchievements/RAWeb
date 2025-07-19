@@ -34,6 +34,18 @@ $adminAssignable = [
     Role::WRITER,
 ];
 
+$modAssignable = [
+    Role::DEV_COMPLIANCE,
+    Role::QUALITY_ASSURANCE,
+    Role::DEVELOPER,
+    Role::DEVELOPER_JUNIOR,
+    Role::ARTIST,
+    Role::WRITER,
+    Role::GAME_EDITOR,
+    Role::PLAY_TESTER,
+    Role::CHEAT_INVESTIGATOR,
+];
+
 /*
  * Note: permissions are not assigned to roles in database for now - check AuthServiceProvider
  */
@@ -124,6 +136,7 @@ return [
     [
         'name' => Role::MODERATOR,
         'display' => 2,
+        'assign' => $modAssignable,
         'staff' => true,
         'legacy_role' => Permissions::Moderator,
     ],

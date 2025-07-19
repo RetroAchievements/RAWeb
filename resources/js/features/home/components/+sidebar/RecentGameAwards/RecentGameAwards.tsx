@@ -19,7 +19,7 @@ export const RecentGameAwards: FC = () => {
       {mostRecentGameMastered ? (
         <div className="flex flex-col gap-1">
           <GameAwardHeadline>
-            <p className="text-text">{t('Most recent game mastered')}</p>
+            <p className="text-text">{t('Most recent set mastered')}</p>
             <p>
               <DiffTimestamp at={mostRecentGameMastered.awardedAt} />
             </p>
