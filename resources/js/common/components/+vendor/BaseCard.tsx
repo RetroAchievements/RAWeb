@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/heading-has-content -- it will be passed in by consumers */
+
 import * as React from 'react';
 
 import { cn } from '@/common/utils/cn';
