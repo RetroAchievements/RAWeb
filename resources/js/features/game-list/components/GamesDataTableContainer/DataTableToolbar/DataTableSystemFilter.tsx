@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { TranslatedString } from '@/types/i18next';
 
-import { DataTableFacetedFilter } from '../../DataTableFacetedFilter';
+import { DataTableFacetedFilter, type FacetedFilterOption } from '../../DataTableFacetedFilter';
 
 interface DataTableSystemFilterProps<TData> {
   filterableSystemOptions: App.Platform.Data.System[];
@@ -33,26 +33,27 @@ export function DataTableSystemFilter<TData>({
       value: String(system.id),
     }));
 
-  const options =
-    includeDefaultOption && defaultOptionLabel
-      ? [
-          {
-            t_label: defaultOptionLabel,
-            value: 'supported',
-          },
+  const defaultOptions: FacetedFilterOption[] = [];
 
-          ...(isSingleSelect
-            ? [
-                {
-                  t_label: t('All systems'),
-                  value: 'all',
-                },
-              ]
-            : []),
+  if (includeDefaultOption && defaultOptionLabel) {
+    // Add the primary default option (eg: "All supported systems").
+    defaultOptions.push({
+      t_label: defaultOptionLabel,
+      value: 'supported',
+    });
 
-          ...systemOptions,
-        ]
-      : systemOptions;
+    // In single-select mode, add an "All systems" option.
+    // The default option is probably a filtered set of systems.
+    if (isSingleSelect) {
+      defaultOptions.push({
+        t_label: t('All systems'),
+        value: 'all',
+      });
+    }
+  }
+
+  // Combine the default options with sorted system options.
+  const options = defaultOptions.length > 0 ? [...defaultOptions, ...systemOptions] : systemOptions;
 
   return (
     <DataTableFacetedFilter

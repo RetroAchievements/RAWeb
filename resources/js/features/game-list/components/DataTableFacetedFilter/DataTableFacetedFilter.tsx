@@ -30,7 +30,7 @@ import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames'
 import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
-interface FacetedFilterOption<TValue = string> {
+export interface FacetedFilterOption<TValue = string> {
   t_label: TranslatedString;
 
   icon?: React.ComponentType<{ className?: string }>;
