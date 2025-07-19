@@ -66,7 +66,7 @@ export const AchievementSetCredits: FC = () => {
             <AchievementAuthorsDisplay authors={aggregateCredits.achievementsAuthors} />
           ) : null}
 
-          {achievementSetClaims.length ? (
+          {achievementSetClaims?.length ? (
             <ClaimantsDisplay achievementSetClaims={achievementSetClaims} />
           ) : null}
 
