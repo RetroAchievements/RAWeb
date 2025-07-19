@@ -18,35 +18,23 @@ export const ManageConnectApiKey: FC = () => {
   });
 
   const handleResetApiKeyClick = () => {
-    if (
-      !confirm(
-        t(
-          'Are you sure you want to reset your Connect API key? This will log you out of all emulators.',
-        ),
-      )
-    ) {
+    if (!confirm(t('Are you sure you want to sign out of all emulators?'))) {
       return;
     }
 
     toastMessage.promise(mutation.mutateAsync(), {
-      loading: t('Resetting...'),
-      success: t('Your Connect API key has been reset.'),
+      loading: t('Signing out...'),
+      success: t('You have been signed out of all emulators.'),
       error: t('Something went wrong.'),
     });
   };
 
   return (
     <div className="@container">
-      <div className="flex flex-col @lg:grid @lg:grid-cols-4">
-        <p className="w-48 text-menu-link">{t('Connect API Key')}</p>
+      <div className="flex flex-col @lg:grid @lg:grid-cols-4 @lg:items-center">
+        <p className="w-48 text-menu-link">{t('Emulator Sessions')}</p>
 
         <div className="col-span-3 flex flex-col gap-2">
-          <p>
-            {t(
-              'Your Connect API key is used by emulators to keep you logged in. Resetting the key will log you out of all emulators.',
-            )}
-          </p>
-
           <BaseButton
             className="flex w-full gap-2 @lg:max-w-fit"
             size="sm"
@@ -54,7 +42,7 @@ export const ManageConnectApiKey: FC = () => {
             onClick={handleResetApiKeyClick}
           >
             <LuCircleAlert className="h-4 w-4" />
-            {t('Reset Connect API Key')}
+            {t('Sign Out of All Emulators')}
           </BaseButton>
         </div>
       </div>
