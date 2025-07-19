@@ -177,7 +177,7 @@ trait BuildsGameListQueries
                 if (in_array('all', $filterValues)) {
                     continue;
                 }
-                
+
                 $systemIds = in_array('supported', $filterValues)
                     ? System::active()->gameSystems()->pluck('ID')->all()
                     : $filterValues;
