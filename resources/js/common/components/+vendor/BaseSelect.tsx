@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-imports -- base components can import from radix-ui */
 
-import * as SelectPrimitive from '@radix-ui/react-select';
+import { Select as SelectPrimitive } from 'radix-ui';
 import * as React from 'react';
 import type { IconType } from 'react-icons/lib';
 import { LuCheck, LuChevronDown } from 'react-icons/lu';

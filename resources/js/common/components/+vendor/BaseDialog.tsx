@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-imports -- base components can import from radix-ui */
+/* eslint-disable no-restricted-imports -- base components can import from @radix-ui */
 
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import * as React from 'react';
