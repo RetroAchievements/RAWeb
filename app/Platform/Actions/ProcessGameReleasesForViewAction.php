@@ -8,6 +8,7 @@ use App\Models\Game;
 use App\Models\GameRelease;
 use App\Platform\Enums\ReleasedAtGranularity;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class ProcessGameReleasesForViewAction
 {
@@ -19,30 +20,64 @@ class ProcessGameReleasesForViewAction
     {
         $releases = $game->releases;
 
-        // First, deduplicate by region, keeping only the earliest release per region.
+        $regionDeduplicated = $this->deduplicateByRegion($releases);
+
+        // We need to preserve releases with unique titles even if they were filtered out
+        // during region deduplication. This ensures alternative game names appear in
+        // the "Other Names" UI component.
+        $withUniqueTitles = $this->preserveUniqueTitles($regionDeduplicated, $releases);
+
+        return $this->sortReleases($withUniqueTitles);
+    }
+
+    /**
+     * @param Collection<int, GameRelease> $releases
+     */
+    private function deduplicateByRegion(Collection $releases): array
+    {
         $regionMap = [];
 
         foreach ($releases as $release) {
-            // Normalize the region for comparison.
-            $normalizedRegion = !$release->region || $release->region->value === 'other' || $release->region->value === 'worldwide'
-                ? 'worldwide'
-                : $release->region->value;
-
+            $normalizedRegion = $this->normalizeRegion($release);
             $existing = $regionMap[$normalizedRegion] ?? null;
 
-            // If there's no existing release for this region, or this release is earlier, use it.
-            if (
-                !$existing
-                || ($release->released_at && (!$existing->released_at || $this->isEarlierRelease($release, $existing)))
-            ) {
+            if ($this->shouldReplaceExisting($release, $existing)) {
                 $regionMap[$normalizedRegion] = $release;
             }
         }
 
-        $dedupedReleases = array_values($regionMap);
+        return array_values($regionMap);
+    }
 
-        // Sort by date.
-        usort($dedupedReleases, function ($a, $b) {
+    /**
+     * @param Collection<int, GameRelease> $allReleases
+     */
+    private function preserveUniqueTitles(array $regionDeduplicated, Collection $allReleases): array
+    {
+        // Use a hash set for O(1) lookup performance.
+        $titleSet = [];
+        foreach ($regionDeduplicated as $release) {
+            $titleSet[$this->normalizeTitle($release->title)] = true;
+        }
+
+        $result = $regionDeduplicated;
+
+        foreach ($allReleases as $release) {
+            $normalizedTitle = $this->normalizeTitle($release->title);
+
+            if (!isset($titleSet[$normalizedTitle])) {
+                $result[] = $release;
+                $titleSet[$normalizedTitle] = true;
+            }
+        }
+
+        return $result;
+    }
+
+    private function sortReleases(array $releases): array
+    {
+        usort($releases, function ($a, $b) {
+            // Null dates go to the end so dated releases appear first.
             if (!$a->released_at && !$b->released_at) {
                 return 0;
             }
@@ -53,26 +88,68 @@ class ProcessGameReleasesForViewAction
                 return -1;
             }
 
-            // First, normalize dates based on granularity.
-            $normalizedDateA = $this->normalizeDate($a->released_at, $a->released_at_granularity);
-            $normalizedDateB = $this->normalizeDate($b->released_at, $b->released_at_granularity);
-
-            // Then, compare normalized dates.
-            $dateDiff = $normalizedDateA->timestamp - $normalizedDateB->timestamp;
-
-            if ($dateDiff !== 0) {
-                return $dateDiff;
+            $dateComparison = $this->compareDates($a, $b);
+            if ($dateComparison !== 0) {
+                return $dateComparison;
             }
 
-            // If the dates are equal, sort by granularity (more specific dates first).
-            $granularityOrder = ['day' => 3, 'month' => 2, 'year' => 1];
-            $granularityA = $a->released_at_granularity ? $granularityOrder[$a->released_at_granularity->value] : 0;
-            $granularityB = $b->released_at_granularity ? $granularityOrder[$b->released_at_granularity->value] : 0;
-
-            return $granularityB - $granularityA;
+            // When dates are equal, prefer more specific dates (day > month > year).
+            return $this->compareGranularity($a->released_at_granularity, $b->released_at_granularity);
         });
 
-        return $dedupedReleases;
+        return $releases;
+    }
+
+    private function normalizeRegion(GameRelease $release): string
+    {
+        // Treat null, 'other', and 'worldwide' as the same region to avoid
+        // duplicate worldwide releases in the UI.
+        if (!$release->region || $release->region->value === 'other' || $release->region->value === 'worldwide') {
+            return 'worldwide';
+        }
+
+        return $release->region->value;
+    }
+
+    private function normalizeTitle(string $title): string
+    {
+        return strtolower(trim($title));
+    }
+
+    private function shouldReplaceExisting(GameRelease $new, ?GameRelease $existing): bool
+    {
+        if (!$existing) {
+            return true;
+        }
+
+        // Prefer releases with dates over those without.
+        if ($new->released_at && !$existing->released_at) {
+            return true;
+        }
+
+        // When both have dates, keep the earlier one.
+        if ($new->released_at && $existing->released_at) {
+            return $this->isEarlierRelease($new, $existing);
+        }
+
+        return false;
+    }
+
+    private function compareDates(GameRelease $a, GameRelease $b): int
+    {
+        $normalizedDateA = $this->normalizeDate($a->released_at, $a->released_at_granularity);
+        $normalizedDateB = $this->normalizeDate($b->released_at, $b->released_at_granularity);
+
+        return $normalizedDateA->timestamp - $normalizedDateB->timestamp;
+    }
+
+    private function compareGranularity(?ReleasedAtGranularity $a, ?ReleasedAtGranularity $b): int
+    {
+        $granularityOrder = ['day' => 3, 'month' => 2, 'year' => 1];
+        $orderA = $a ? $granularityOrder[$a->value] : 0;
+        $orderB = $b ? $granularityOrder[$b->value] : 0;
+
+        return $orderB - $orderA;
     }
 
     private function isEarlierRelease(GameRelease $a, GameRelease $b): bool
