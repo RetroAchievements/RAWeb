@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-imports -- base components can import from @radix-ui */
+/* eslint-disable no-restricted-imports -- base components can import from radix-ui */
 
 import * as SelectPrimitive from '@radix-ui/react-select';
 import * as React from 'react';
