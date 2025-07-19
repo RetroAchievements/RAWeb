@@ -22,7 +22,7 @@ interface AchievementAuthorsDisplayProps {
 export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({ authors }) => {
   const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
-  const totalAchievements = game.achievementsPublished ?? 0;
+  const totalAchievements = game.achievementsPublished!;
 
   const containerClassNames = cn(
     'flex items-center rounded-md bg-neutral-800/70 py-1 pr-2',
@@ -57,7 +57,12 @@ export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({ 
       <div className="flex gap-2">
         {prominentAuthors.map((author, authorIndex) => (
           <Fragment key={`ach-set-author-${author.displayName}`}>
-            <UserAvatar size={20} imgClassName="select-none rounded-full bg-embed" {...author} />
+            <UserAvatar
+              size={20}
+              imgClassName="select-none rounded-full bg-embed"
+              labelClassName={cn(author.isGone ? 'text-neutral-500' : null)}
+              {...author}
+            />
 
             {authorIndex !== prominentAuthors.length - 1 || otherAuthors.length > 0 ? (
               <span className="text-neutral-700">{'•'}</span>

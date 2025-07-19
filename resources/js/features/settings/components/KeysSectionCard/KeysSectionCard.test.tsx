@@ -201,7 +201,7 @@ describe('Component: KeysSectionCard', () => {
     expect(screen.getByText('BBBBBB...CCCCCC')).toBeVisible();
   });
 
-  it('given the user presses the reset Connect API key button, sends a DELETE call to the server', async () => {
+  it('given the user presses the sign out of all emulators button, sends a DELETE call to the server', async () => {
     // ARRANGE
     vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
     const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
@@ -214,13 +214,13 @@ describe('Component: KeysSectionCard', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /reset connect api key/i }));
+    await userEvent.click(screen.getByRole('button', { name: /sign out of all emulators/i }));
 
     // ASSERT
     expect(deleteSpy).toHaveBeenCalledWith(route('api.settings.keys.connect.destroy'));
   });
 
-  it('given the user does not confirm they want to reset their Connect API key, does not send a DELETE call to the server', async () => {
+  it('given the user does not confirm they want to sign out of all emulators, does not send a DELETE call to the server', async () => {
     // ARRANGE
     vi.spyOn(window, 'confirm').mockImplementationOnce(() => false);
     const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
@@ -233,7 +233,7 @@ describe('Component: KeysSectionCard', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /reset connect api key/i }));
+    await userEvent.click(screen.getByRole('button', { name: /sign out of all emulators/i }));
 
     // ASSERT
     expect(deleteSpy).not.toHaveBeenCalled();

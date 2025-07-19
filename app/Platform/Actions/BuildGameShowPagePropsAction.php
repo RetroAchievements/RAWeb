@@ -10,9 +10,11 @@ use App\Community\Enums\UserGameListType;
 use App\Data\UserPermissionsData;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameListEntry;
+use App\Platform\Data\AchievementSetClaimData;
 use App\Platform\Data\AggregateAchievementSetCreditsData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
@@ -23,6 +25,7 @@ use App\Platform\Data\UserCreditsData;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cookie;
 
 class BuildGameShowPagePropsAction
 {
@@ -31,6 +34,7 @@ class BuildGameShowPagePropsAction
         protected BuildGameAchievementDistributionAction $buildGameAchievementDistributionAction,
         protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
         protected BuildSeriesHubDataAction $buildSeriesHubDataAction,
+        protected ProcessGameReleasesForViewAction $processGameReleasesForViewAction,
     ) {
     }
 
@@ -76,7 +80,8 @@ class BuildGameShowPagePropsAction
             ->filter(
                 fn ($game) => !str_contains($game->title, '[Subset')
             )
-            ->sortBy('sort_title');
+            ->sortBy('sort_title')
+            ->sortByDesc(fn ($game) => $game->achievements_published > 0);
 
         /**
          * If the user doesn't have permission to view a related hub,
@@ -92,13 +97,42 @@ class BuildGameShowPagePropsAction
 
                 return $user->can('view', $hub);
             })
-            ->map(fn ($hub) => GameSetData::from($hub)->include('isEventHub'))
+            ->map(function ($hub) {
+                $data = GameSetData::from($hub)->include('isEventHub');
+
+                // Always remove updatedAt.
+                $data = $data->except('updatedAt');
+
+                // Remove isEventHub if it isn't true.
+                if (!$hub->is_event_hub) {
+                    $data = $data->except('isEventHub');
+                }
+
+                // Remove fields from hubs that don't have "Series" or "Meta|" in the title.
+                if (!str_contains($hub->title, 'Series') && !str_contains($hub->title, 'Meta|')) {
+                    $data = $data->except('badgeUrl', 'gameCount', 'linkCount', 'type');
+                }
+
+                return $data;
+            })
             ->values()
             ->all();
 
         $initialUserGameListState = $this->getInitialUserGameListState($game, $user);
+        $achievementSetClaims = $this->buildAchievementSetClaims($game, $user);
+
+        // Deduplicate releases by region and sort them by date.
+        // Then, override the releases in the game object for proper display.
+        $processedReleases = $this->processGameReleasesForViewAction->execute($game);
+        $game->setRelation('releases', collect($processedReleases));
+
+        // Check cookies for filter states.
+        $isLockedOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_unlocked_achievements_games', $game->id);
+        $isMissableOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_nonmissable_achievements_games', $game->id);
 
         return new GameShowPagePropsData(
+            achievementSetClaims: $achievementSetClaims,
+
             can: UserPermissionsData::fromUser($user, game: $game)->include(
                 'createGameComments',
                 'createGameForumTopic',
@@ -150,10 +184,13 @@ class BuildGameShowPagePropsAction
             ))->values()->all(),
 
             aggregateCredits: $this->buildAggregateCredits($game),
+            hasMatureContent: $game->hasMatureContent,
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
             isOnWantToPlayList: $initialUserGameListState['isOnWantToPlayList'],
             isSubscribedToComments: $user ? isUserSubscribedToArticleComments(ArticleType::Game, $game->id, $user->id) : false,
+            isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
+            isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $game),
             playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($game, $user),
             numComments: $game->visibleComments($user)->count(),
@@ -308,7 +345,7 @@ class BuildGameShowPagePropsAction
                 $item['user'],
                 $item['count'],
                 isset($item['created_at']) ? $item['created_at'] : null
-            )->include('deletedAt'))
+            )->include('isGone'))
             ->values()
             ->all();
 
@@ -347,5 +384,33 @@ class BuildGameShowPagePropsAction
             'isOnWantToDevList' => in_array(UserGameListType::Develop, $results),
             'isOnWantToPlayList' => in_array(UserGameListType::Play, $results),
         ];
+    }
+
+    /**
+     * @return Collection<int, AchievementSetClaimData>
+     */
+    private function buildAchievementSetClaims(Game $game, ?User $user): Collection
+    {
+        // Build the include array based on current user permissions.
+        $claimIncludes = ['user', 'finishedAt'];
+        if ($user && $user->hasAnyRole([Role::DEV_COMPLIANCE, Role::MODERATOR, Role::ADMINISTRATOR])) {
+            $claimIncludes[] = 'userLastPlayedAt';
+        }
+
+        return $game->achievementSetClaims
+            ->map(fn ($claim) => AchievementSetClaimData::fromAchievementSetClaim($claim)->include(...$claimIncludes))
+            ->values();
+    }
+
+    private function getIsGameIdInCookie(string $cookieName, int $gameId): bool
+    {
+        $cookieValue = Cookie::get($cookieName);
+        if (!$cookieValue) {
+            return false;
+        }
+
+        $gameIds = array_filter(array_map('intval', explode(',', $cookieValue)));
+
+        return in_array($gameId, $gameIds);
     }
 }
