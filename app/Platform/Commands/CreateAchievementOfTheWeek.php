@@ -24,9 +24,9 @@ class CreateAchievementOfTheWeek extends Command
 
         $count = count($achievementIds);
         if ($count === 0) {
-            $this->info("Initialized game " . $event->id);
+            $this->info("Initialized event " . $event->id);
         } else {
-            $this->info("Initialized game " . $event->id . " with $count achievements");
+            $this->info("Initialized event " . $event->id . " with $count achievements");
         }
     }
 }

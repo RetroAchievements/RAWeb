@@ -152,6 +152,14 @@ class AchievementSet extends BaseModel
     }
 
     /**
+     * @return HasMany<AchievementSetAuthor>
+     */
+    public function achievementSetAuthors(): HasMany
+    {
+        return $this->hasMany(AchievementSetAuthor::class, 'achievement_set_id', 'id');
+    }
+
+    /**
      * @return BelongsToMany<Game>
      */
     public function games(): BelongsToMany

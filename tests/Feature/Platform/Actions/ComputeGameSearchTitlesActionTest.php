@@ -15,7 +15,11 @@ class ComputeGameSearchTitlesActionTest extends TestCase
     public function testItGeneratesCorrectSearchVariations(string $gameTitle, array $expectedVariations): void
     {
         // Act
-        $searchTitles = (new ComputeGameSearchTitlesAction())->execute($gameTitle);
+        $searchTitles = (new ComputeGameSearchTitlesAction())->execute(
+            $gameTitle,
+            'Nintendo 64',
+            'N64'
+        );
 
         // Assert
         foreach ($expectedVariations as $expectedVariation) {
@@ -29,7 +33,12 @@ class ComputeGameSearchTitlesActionTest extends TestCase
     public function testItIncludesAlternativeTitles(string $gameTitle, array $altTitles, array $expectedVariations): void
     {
         // Act
-        $searchTitles = (new ComputeGameSearchTitlesAction())->execute($gameTitle, $altTitles);
+        $searchTitles = (new ComputeGameSearchTitlesAction())->execute(
+            $gameTitle,
+            'Nintendo 64',
+            'N64',
+            $altTitles
+        );
 
         // Assert
         foreach ($expectedVariations as $expectedVariation) {
@@ -44,7 +53,12 @@ class ComputeGameSearchTitlesActionTest extends TestCase
         $altTitles = ['Final Fantasy 7', 'Final Fantasy VII'];
 
         // Act
-        $searchTitles = (new ComputeGameSearchTitlesAction())->execute($gameTitle, $altTitles);
+        $searchTitles = (new ComputeGameSearchTitlesAction())->execute(
+            $gameTitle,
+            'PlayStation',
+            'PS1',
+            $altTitles
+        );
 
         // Assert
         $uniqueTitles = array_unique($searchTitles);

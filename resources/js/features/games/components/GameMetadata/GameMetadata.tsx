@@ -11,10 +11,12 @@ import {
 } from '@/common/components/+vendor/BaseTable';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
 import { cn } from '@/common/utils/cn';
-import { formatGameReleasedAt } from '@/common/utils/formatGameReleasedAt';
 
 import type { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
+import { getNonCanonicalTitles } from '../../utils/getNonCanonicalTitles';
 import { GameMetadataRow } from './GameMetadataRow';
+import { GameOtherNamesRow } from './GameOtherNamesRow';
+import { GameReleaseDatesRow } from './GameReleaseDatesRow';
 
 interface GameMetadataProps {
   allMetaRowElements: ReturnType<typeof useAllMetaRowElements>;
@@ -79,6 +81,9 @@ export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game, 
     (hackOfRowElements.length === 0 ||
       !publisherRowElements.every((el) => el.label.includes('Hack -')));
 
+  const gameReleasesWithDates = game.releases?.filter((r) => r.releasedAt);
+  const allNonCanonicalTitles = getNonCanonicalTitles(game.releases);
+
   return (
     <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
       <BaseTable className="overflow-hidden rounded-lg text-2xs">
@@ -101,18 +106,12 @@ export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game, 
             elements={genreRowElements}
           />
 
-          {game.releasedAt ? (
-            <GameMetadataRow
-              rowHeading={t('Released')}
-              elements={[
-                {
-                  label: formatGameReleasedAt(
-                    game.releasedAt,
-                    game.releasedAtGranularity,
-                  ) as string,
-                },
-              ]}
-            />
+          {gameReleasesWithDates?.length ? (
+            <GameReleaseDatesRow releases={gameReleasesWithDates} />
+          ) : null}
+
+          {allNonCanonicalTitles?.length ? (
+            <GameOtherNamesRow nonCanonicalTitles={allNonCanonicalTitles} />
           ) : null}
 
           <GameMetadataRow

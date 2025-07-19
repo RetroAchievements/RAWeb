@@ -24,13 +24,17 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
+use App\Platform\Commands\BackfillGameRecentPlayers;
 use App\Platform\Commands\BackfillPlaytimeTotal;
+use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
 use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
+use App\Platform\Commands\ProcessExpiringClaims;
+use App\Platform\Commands\PruneGameRecentPlayers;
 use App\Platform\Commands\ResetPlayerAchievement;
-use App\Platform\Commands\SendClaimExpirationWarningEmails;
+use App\Platform\Commands\RevertManualUnlocks;
 use App\Platform\Commands\SyncAchievementAuthors;
 use App\Platform\Commands\SyncAchievements;
 use App\Platform\Commands\SyncAchievementSetImageAssetPaths;
@@ -80,6 +84,8 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 // Games
+                BackfillGameRecentPlayers::class,
+                PruneGameRecentPlayers::class,
                 TrimGameMetadata::class,
                 UpdateGameAchievementsMetrics::class,
                 UpdateGameBeatenMetrics::class,
@@ -100,7 +106,9 @@ class AppServiceProvider extends ServiceProvider
 
                 // Players
                 BackfillPlaytimeTotal::class,
+                CrawlPlayerWeightedPoints::class,
                 ResetPlayerAchievement::class,
+                RevertManualUnlocks::class,
                 UnlockPlayerAchievement::class,
                 UpdatePlayerEstimatedTimes::class,
                 UpdatePlayerGameMetrics::class,
@@ -119,7 +127,7 @@ class AppServiceProvider extends ServiceProvider
                 UpdateSearchIndexForQueuedEntities::class,
 
                 // Developer
-                SendClaimExpirationWarningEmails::class,
+                ProcessExpiringClaims::class,
                 UpdateDeveloperContributionYield::class,
 
                 // Events
@@ -149,12 +157,18 @@ class AppServiceProvider extends ServiceProvider
             /** @var Schedule $schedule */
             $schedule = $this->app->make(Schedule::class);
 
-            $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
-            $schedule->command(BackfillPlaytimeTotal::class)->everyFifteenMinutes();
-            $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
-            $schedule->command(SendClaimExpirationWarningEmails::class)->hourly();
-            $schedule->command(UpdateSearchIndexForQueuedEntities::class)->twiceDaily(1, 13); // 1AM and 1PM
+            $schedule->command(UpdateSearchIndexForQueuedEntities::class)->twiceDaily(1, 13); // 1AM and 1PM UTC
+            $schedule->command(PruneGameRecentPlayers::class)->daily();
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
+
+            if (app()->environment() === 'production') {
+                $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
+                $schedule->command(CrawlPlayerWeightedPoints::class)->everyFiveMinutes();
+                $schedule->command(BackfillPlaytimeTotal::class)->everyTenMinutes();
+                $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
+                $schedule->command(ProcessExpiringClaims::class)->hourly();
+                $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
+            }
         });
 
         $this->loadMigrationsFrom([database_path('migrations/platform')]);

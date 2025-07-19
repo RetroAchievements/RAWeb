@@ -9,18 +9,23 @@ import { PlayableTopPlayers } from '@/common/components/PlayableTopPlayers';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
+import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
 import { GameMetadata } from '../GameMetadata';
 import { GameSidebarFullWidthButtons } from '../GameSidebarFullWidthButtons';
+import { MatureContentIndicator } from '../MatureContentIndicator';
+import { SeriesHubDisplay } from '../SeriesHubDisplay';
 import { SimilarGamesList } from '../SimilarGamesList';
 
 export const GameShowSidebarRoot: FC = () => {
   const {
     followedPlayerCompletions,
     game,
+    hasMatureContent,
     hubs,
+    numMasters,
     playerAchievementChartBuckets,
     playerGame,
-    numMasters,
+    seriesHub,
     similarGames,
     topAchievers,
   } = usePageProps<App.Platform.Data.GameShowPageProps>();
@@ -36,18 +41,20 @@ export const GameShowSidebarRoot: FC = () => {
   return (
     <div data-testid="sidebar" className="flex flex-col gap-6">
       <PlayableBoxArtImage src={game.imageBoxArtUrl} />
+
+      {hasMatureContent ? <MatureContentIndicator /> : null}
+
       <GameMetadata allMetaRowElements={allMetaRowElements} game={game} hubs={hubs} />
       <GameSidebarFullWidthButtons game={game} />
 
-      <BaseSeparator className="mb-8" />
+      <BaseSeparator className="mb-4" />
+
+      {seriesHub ? <SeriesHubDisplay seriesHub={seriesHub} /> : null}
 
       <SimilarGamesList similarGames={similarGames} />
       <PlayableHubsList
         hubs={hubs}
-        excludeHubIds={[
-          ...allMetaRowElements.allUsedHubIds,
-          ...hubs.filter((h) => h.isEventHub).map((h) => h.id), // event hubs are handled in the metadata component
-        ]}
+        excludeHubIds={getSidebarExcludedHubIds(hubs, seriesHub, allMetaRowElements.allUsedHubIds)}
       />
       <PlayableCompareProgress
         followedPlayerCompletions={followedPlayerCompletions}

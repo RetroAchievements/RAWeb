@@ -10,7 +10,7 @@ import {
   selectedSystemIdAtom,
 } from '@/features/downloads/state/downloads.atoms';
 
-import { SelectableChip } from '../../SelectableChip';
+import { SelectableChip } from '../../../../../common/components/SelectableChip';
 
 interface BrowseRemainingSystemsProps {
   visibleSystemIds: number[];

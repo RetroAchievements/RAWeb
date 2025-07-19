@@ -1,5 +1,6 @@
 @use('App\Models\Achievement')
 @use('App\Models\Comment')
+@use('App\Models\Event')
 @use('App\Models\ForumTopicComment')
 @use('App\Models\Game')
 @use('App\Models\GameSet')
@@ -17,7 +18,8 @@
     $commentSearch = request()->query('comment_search');
     $gameSetSearch = request()->query('game_set_search');
     $forumCommentSearch = request()->query('forum_comment_search');
-    
+    $eventSearch = request()->query('event_search');
+
     // Search using the terms (default or provided).
     $games = !empty($gameSearch)
         ? Game::search($gameSearch)->get()
@@ -41,6 +43,10 @@
         
     $forumComments = !empty($forumCommentSearch) 
         ? ForumTopicComment::search($forumCommentSearch)->take(20)->get() 
+        : collect();
+
+    $events = !empty($eventSearch)
+        ? Event::search($eventSearch)->take(10)->get()
         : collect();
 @endphp
 
@@ -118,6 +124,18 @@
                     class="rounded border px-2 py-1 w-full"
                 >
             </div>
+
+            <div>
+                <label for="forum_comment_search" class="block text-sm mb-1">Event Search</label>
+                <input 
+                    type="text" 
+                    id="event_search"
+                    name="event_search" 
+                    value="{{ $eventSearch }}" 
+                    placeholder="Search events"
+                    class="rounded border px-2 py-1 w-full"
+                >
+            </div>
             
             <div class="flex items-end">
                 <button 
@@ -181,6 +199,15 @@
                     @dump($forumComments->toArray())
                 @else
                     <p class="text-gray-500">{{ $forumCommentSearch ? 'No forum comment results found' : 'Enter a search term to find forum comments' }}</p>
+                @endif
+            </div>
+
+            <div>
+                <h2 class="text-lg font-bold mb-2">Events ({{ $events->count() }})</h2>
+                @if ($events->isNotEmpty())
+                    @dump($events->toArray())
+                @else
+                    <p class="text-gray-500">{{ $events ? 'No event results found' : 'Enter a search term to find events' }}</p>
                 @endif
             </div>
         </div>

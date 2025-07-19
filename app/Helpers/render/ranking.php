@@ -250,7 +250,7 @@ function getGlobalRankingData(
     }
 
     return legacyDbFetchAll("
-        SELECT User,
+        SELECT User, DisplayName,
             COALESCE(MAX(AchievementCount), 0) AS AchievementCount,
             COALESCE(MAX(Points), 0) AS Points,
             COALESCE(MAX(RetroPoints), 0) AS RetroPoints,
@@ -260,6 +260,7 @@ function getGlobalRankingData(
         (
             (
                 SELECT ua.User AS User,
+                    ua.display_name AS DisplayName,
                     ua.ID as user_id,
                     SUM($achCount) AS AchievementCount,
                     SUM($achPoints) as Points,
@@ -277,6 +278,7 @@ function getGlobalRankingData(
             UNION
             (
                 SELECT ua.User AS User,
+                    ua.display_name AS DisplayName,
                     ua.ID AS user_id,
                     NULL AS AchievementCount,
                     NULL AS Points,

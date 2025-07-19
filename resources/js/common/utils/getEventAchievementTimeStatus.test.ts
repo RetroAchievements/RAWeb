@@ -40,12 +40,16 @@ describe('Util: getStatus', () => {
 
   it('given an achievement that has expired, returns expired status', () => {
     // ARRANGE
+    const activeFrom = dayjs().subtract(2, 'second').toISOString();
+    const expiryDate = dayjs().subtract(1, 'second').toISOString();
+
     const achievement = createAchievement({ id: 1 });
     const eventAchievements: App.Platform.Data.EventAchievement[] = [
       createEventAchievement({
         achievement,
-        activeFrom: dayjs().subtract(2, 'second').toISOString(),
-        activeThrough: dayjs().subtract(1, 'second').toISOString(),
+        activeFrom,
+        activeThrough: expiryDate,
+        activeUntil: expiryDate,
       }),
     ];
 

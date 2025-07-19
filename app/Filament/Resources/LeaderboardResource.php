@@ -23,6 +23,7 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class LeaderboardResource extends Resource
 {
@@ -114,6 +115,9 @@ class LeaderboardResource extends Resource
 
     public static function form(Form $form): Form
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $form
             ->schema([
                 Forms\Components\Section::make('Primary Details')
@@ -123,15 +127,18 @@ class LeaderboardResource extends Resource
                         Forms\Components\TextInput::make('Title')
                             ->required()
                             ->minLength(2)
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->disabled(!$user->can('updateField', [$form->model, 'Title'])),
 
                         Forms\Components\TextInput::make('Description')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->disabled(!$user->can('updateField', [$form->model, 'Description'])),
 
                         Forms\Components\TextInput::make('DisplayOrder')
                             ->numeric()
                             ->helperText("If set to less than 0, the leaderboard will be invisible to regular players.")
-                            ->required(),
+                            ->required()
+                            ->disabled(!$user->can('updateField', [$form->model, 'DisplayOrder'])),
                     ]),
 
                 Forms\Components\Section::make('Rules')
@@ -144,12 +151,14 @@ class LeaderboardResource extends Resource
                                     ->mapWithKeys(fn ($format) => [$format => ValueFormat::toString($format)])
                                     ->toArray()
                             )
-                            ->required(),
+                            ->required()
+                            ->disabled(!$user->can('updateField', [$form->model, 'Format'])),
 
                         Forms\Components\Toggle::make('LowerIsBetter')
                             ->label('Lower Is Better')
                             ->inline(false)
-                            ->helperText('Useful for speedrun leaderboards and similar scenarios.'),
+                            ->helperText('Useful for speedrun leaderboards and similar scenarios.')
+                            ->disabled(!$user->can('updateField', [$form->model, 'LowerIsBetter'])),
                     ]),
             ]);
     }

@@ -34,7 +34,11 @@ class UserCompletionProgressTest extends TestCase
     {
         $this->get($this->apiUrl('GetUserCompletionProgress', ['u' => 'nonExistant']))
             ->assertSuccessful()
-            ->assertJson([]);
+            ->assertJson([
+                'Count' => 0,
+                'Total' => 0,
+                'Results' => [],
+            ]);
     }
 
     public function testGetUserCompletionProgress(): void

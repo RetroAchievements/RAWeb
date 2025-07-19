@@ -7,6 +7,7 @@ namespace App\Filament\Resources\HubResource\RelationManagers;
 use App\Filament\Actions\ParseIdsFromCsvAction;
 use App\Filament\Resources\HubResource;
 use App\Models\GameSet;
+use App\Models\User;
 use App\Platform\Actions\AttachGameLinksToGameSetAction;
 use App\Platform\Actions\DetachGameLinksFromGameSetAction;
 use App\Platform\Enums\GameSetType;
@@ -16,6 +17,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class ParentHubsRelationManager extends RelationManager
 {
@@ -32,6 +34,12 @@ class ParentHubsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
+        /** @var User $user */
+        $user = Auth::user();
+
+        /** @var GameSet $gameSet */
+        $gameSet = $this->getOwnerRecord();
+
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
@@ -69,6 +77,7 @@ class ParentHubsRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\Action::make('add')
                     ->label('Add related hubs')
+                    ->visible(fn (): bool => $user->can('update', $gameSet))
                     ->form([
                         Forms\Components\TextInput::make('hub_ids_csv')
                             ->label('Hub IDs (CSV)')
@@ -136,6 +145,11 @@ class ParentHubsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\Action::make('remove')
+                    ->visible(function ($record) use ($user, $gameSet) {
+                        // You need to be able to update both hubs to
+                        // unlink them from each other.
+                        return $user->can('update', $gameSet) && $user->can('update', $record);
+                    })
                     ->tooltip('Remove')
                     ->icon('heroicon-o-trash')
                     ->iconButton()
@@ -158,6 +172,7 @@ class ParentHubsRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\BulkAction::make('remove')
+                    ->visible(fn (): bool => $user->can('update', $gameSet))
                     ->label('Remove selected')
                     ->modalHeading('Remove selected related hub links from hub')
                     ->modalDescription('Are you sure you would like to do this?')

@@ -20,6 +20,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
@@ -31,6 +32,20 @@ class AchievementSetsRelationManager extends RelationManager
     protected static string $relationship = 'achievementSets';
 
     protected static ?string $title = 'Sets';
+
+    protected static ?string $icon = 'heroicon-o-rectangle-stack';
+
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        return !$ownerRecord->is_subset_game;
+    }
+
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        $count = $ownerRecord->gameAchievementSets->count();
+
+        return $count > 0 ? "{$count}" : null;
+    }
 
     public function form(Form $form): Form
     {

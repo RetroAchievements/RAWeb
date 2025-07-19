@@ -16,6 +16,7 @@ use App\Console\Commands\LogUsersOnlineCount;
 use App\Console\Commands\MakeJsComponent;
 use App\Console\Commands\SyncUsers;
 use App\Console\Commands\SystemAlert;
+use App\Http\InertiaResponseFactory;
 use App\Models\Role;
 use App\Models\User;
 use Exception;
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Inertia\ResponseFactory;
 use Laravel\Pulse\Facades\Pulse;
 use Livewire\Livewire;
 
@@ -36,6 +38,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Override Inertia's ResponseFactory to use our custom factory that strips nulls.
+        // This can eliminate unnecessary props and speed up hydration.
+        $this->app->singleton(ResponseFactory::class, InertiaResponseFactory::class);
     }
 
     /**
@@ -76,11 +81,13 @@ class AppServiceProvider extends ServiceProvider
 
             $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
 
-            $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
-            $schedule->command(DeleteOverdueUserAccounts::class)->daily();
+            if (app()->environment() === 'production') {
+                $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
+                $schedule->command(DeleteOverdueUserAccounts::class)->daily();
 
-            $schedule->command(CacheMostPopularEmulators::class)->weeklyOn(4, '8:00'); // Thursdays, ~3:00AM US Eastern
-            $schedule->command(CacheMostPopularSystems::class)->weeklyOn(4, '8:30'); // Thursdays, ~3:30AM US Eastern
+                $schedule->command(CacheMostPopularEmulators::class)->weeklyOn(4, '8:00'); // Thursdays, ~3:00AM US Eastern
+                $schedule->command(CacheMostPopularSystems::class)->weeklyOn(4, '8:30'); // Thursdays, ~3:30AM US Eastern
+            }
         });
 
         Blade::if('hasfeature', function ($feature) {

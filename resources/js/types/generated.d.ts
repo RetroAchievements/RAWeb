@@ -209,7 +209,7 @@ declare namespace App.Community.Enums {
   export type TicketType = 1 | 2;
 }
 declare namespace App.Data {
-  export type AchievementSetClaim = {
+  export type AchievementSetClaimGroup = {
     id: number;
     users: Array<App.Data.User>;
     game: App.Platform.Data.Game;
@@ -335,8 +335,10 @@ declare namespace App.Data {
     emailAddress?: string | null;
     id?: number;
     isEmailVerified?: boolean;
+    isGone?: boolean;
     isMuted?: boolean;
     isNew?: boolean;
+    lastActivityAt?: string | null;
     legacyPermissions?: number | null;
     locale?: string | null;
     motto?: string;
@@ -385,6 +387,7 @@ declare namespace App.Enums {
     | 'reconstructed'
     | 'manual-unlock'
     | 'ticket-created';
+  export type UserOS = 'Android' | 'iOS' | 'Linux' | 'macOS' | 'Windows';
   export type UserPreference =
     | 0
     | 1
@@ -427,11 +430,11 @@ declare namespace App.Http.Data {
     mostRecentGameMastered: App.Data.StaticGameAward | null;
     mostRecentGameBeaten: App.Data.StaticGameAward | null;
     recentNews: Array<App.Data.News>;
-    completedClaims: Array<App.Data.AchievementSetClaim>;
+    completedClaims: Array<App.Data.AchievementSetClaimGroup>;
     currentlyOnline: App.Data.CurrentlyOnline;
     activePlayers: App.Data.PaginatedData<TItems>;
     trendingGames: Array<App.Community.Data.TrendingGame>;
-    newClaims: Array<App.Data.AchievementSetClaim>;
+    newClaims: Array<App.Data.AchievementSetClaimGroup>;
     recentForumPosts: Array<App.Data.ForumTopic>;
     persistedActivePlayersSearch: string | null;
     userCurrentGame: App.Platform.Data.Game | null;
@@ -475,6 +478,7 @@ declare namespace App.Platform.Data {
     title: string;
     createdAt?: string;
     description?: string;
+    decorator?: string | null;
     developer?: App.Data.User;
     flags?: App.Platform.Enums.AchievementFlag;
     game?: App.Platform.Data.Game;
@@ -489,6 +493,17 @@ declare namespace App.Platform.Data {
     unlocksHardcoreTotal?: number;
     unlocksTotal?: number;
   };
+  export type AchievementSetClaim = {
+    id: number;
+    user?: App.Data.User;
+    game?: App.Platform.Data.Game;
+    claimType?: number;
+    setType?: number;
+    status?: number;
+    createdAt?: string;
+    finishedAt?: string;
+    userLastPlayedAt?: string | null;
+  };
   export type AchievementSet = {
     id: number;
     playersTotal: number;
@@ -501,6 +516,20 @@ declare namespace App.Platform.Data {
     createdAt: string | null;
     updatedAt: string | null;
     achievements: Array<App.Platform.Data.Achievement>;
+  };
+  export type AggregateAchievementSetCredits = {
+    achievementsAuthors: Array<App.Platform.Data.UserCredits>;
+    achievementsMaintainers: Array<App.Platform.Data.UserCredits>;
+    achievementsArtwork: Array<App.Platform.Data.UserCredits>;
+    achievementsDesign: Array<App.Platform.Data.UserCredits>;
+    achievementSetArtwork: Array<App.Platform.Data.UserCredits>;
+    achievementsLogic: Array<App.Platform.Data.UserCredits>;
+    achievementsTesting: Array<App.Platform.Data.UserCredits>;
+    achievementsWriting: Array<App.Platform.Data.UserCredits>;
+  };
+  export type AwardEarner = {
+    user: App.Data.User;
+    dateEarned: string;
   };
   export type CreateAchievementTicketPageProps = {
     achievement: App.Platform.Data.Achievement;
@@ -555,6 +584,11 @@ declare namespace App.Platform.Data {
     badgeUrl: string;
     earnedAt: string | null;
     badgeCount?: number;
+  };
+  export type EventAwardEarnersPageProps<TItems = App.Platform.Data.AwardEarner> = {
+    event: App.Platform.Data.Event;
+    eventAward: App.Platform.Data.EventAward;
+    paginatedUsers: App.Data.PaginatedData<TItems>;
   };
   export type Event = {
     id: number;
@@ -620,6 +654,7 @@ declare namespace App.Platform.Data {
     isSubsetGame?: boolean;
     claimants?: Array<App.Platform.Data.GameClaimant>;
     gameAchievementSets?: Array<App.Platform.Data.GameAchievementSet>;
+    releases?: Array<App.Platform.Data.GameRelease>;
   };
   export type GameHash = {
     id: number;
@@ -654,6 +689,14 @@ declare namespace App.Platform.Data {
     persistedViewPreferences: Record<string, any> | null;
     defaultDesktopPageSize: number;
   };
+  export type GameRelease = {
+    id: number;
+    releasedAt: string | null;
+    releasedAtGranularity: App.Platform.Enums.ReleasedAtGranularity | null;
+    title: string;
+    region: App.Platform.Enums.GameReleaseRegion | null;
+    isCanonicalGameTitle: boolean;
+  };
   export type GameSet = {
     id: number;
     type: App.Platform.Enums.GameSetType;
@@ -669,9 +712,16 @@ declare namespace App.Platform.Data {
     hasMatureContent?: boolean;
   };
   export type GameShowPageProps = {
+    achievementSetClaims: Array<App.Platform.Data.AchievementSetClaim>;
+    aggregateCredits: App.Platform.Data.AggregateAchievementSetCredits;
     game: App.Platform.Data.Game;
     can: App.Data.UserPermissions;
+    hasMatureContent: boolean;
     hubs: Array<App.Platform.Data.GameSet>;
+    isLockedOnlyFilterEnabled: boolean;
+    isMissableOnlyFilterEnabled: boolean;
+    isOnWantToDevList: boolean;
+    isOnWantToPlayList: boolean;
     isSubscribedToComments: boolean;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
@@ -684,6 +734,7 @@ declare namespace App.Platform.Data {
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
+    seriesHub: App.Platform.Data.SeriesHub | null;
   };
   export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -853,6 +904,13 @@ declare namespace App.Platform.Data {
     extra: string | null;
     can: App.Data.UserPermissions;
   };
+  export type SeriesHub = {
+    hub: App.Platform.Data.GameSet;
+    totalGameCount: number;
+    gamesWithAchievementsCount: number;
+    achievementsPublished: number;
+    pointsTotal: number;
+  };
   export type System = {
     id: number;
     name: string;
@@ -878,6 +936,13 @@ declare namespace App.Platform.Data {
       | App.Platform.Data.Achievement
       | App.Platform.Data.Leaderboard
       | App.Platform.Data.Game;
+  };
+  export type UserCredits = {
+    displayName: string;
+    avatarUrl: string;
+    count: number;
+    dateCredited: string | null;
+    isGone?: boolean;
   };
 }
 declare namespace App.Platform.Enums {
@@ -923,7 +988,7 @@ declare namespace App.Platform.Enums {
     | 'as'
     | 'au'
     | 'br'
-    | 'cn'
+    | 'ch'
     | 'eu'
     | 'jp'
     | 'kr'
@@ -931,6 +996,7 @@ declare namespace App.Platform.Enums {
     | 'na'
     | 'worldwide'
     | 'other';
+  export type GameSetRolePermission = 'view' | 'update';
   export type GameSetType = 'hub' | 'similar-games';
   export type GameSuggestionReason =
     | 'common-players'

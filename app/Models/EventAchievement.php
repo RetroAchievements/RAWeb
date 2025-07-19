@@ -28,6 +28,7 @@ class EventAchievement extends BaseModel
     protected $fillable = [
         'achievement_id',
         'source_achievement_id',
+        'decorator',
         'active_from',
         'active_until',
         'active_through',
@@ -58,6 +59,7 @@ class EventAchievement extends BaseModel
         return LogOptions::defaults()
             ->logOnly([
                 'source_achievement_id',
+                'decorator',
                 'active_from',
                 'active_until',
             ])

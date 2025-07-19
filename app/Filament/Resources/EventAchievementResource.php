@@ -36,18 +36,26 @@ class EventAchievementResource extends Resource
                 Infolists\Components\Section::make()
                     ->schema([
                         Infolists\Components\TextEntry::make('source_achievement_id')
+                            ->columnSpan(2)
                             ->label('Source Achievement')
                             ->formatStateUsing(function (int $state): string {
                                 $achievement = Achievement::find($state);
 
                                 return "[{$achievement->id}] {$achievement->title}";
                             }),
+
                         Infolists\Components\TextEntry::make('active_from')
                             ->label('Active From')
                             ->date(),
+
                         Infolists\Components\TextEntry::make('active_through')
                             ->label('Active Through')
                             ->date(),
+
+                        Infolists\Components\TextEntry::make('decorator')
+                            ->columnSpan(2)
+                            ->label('Decorator'),
+
                         Infolists\Components\TextEntry::make('achievement.Points')
                             ->label('Points'),
                     ])
@@ -88,6 +96,7 @@ class EventAchievementResource extends Resource
                                 Infolists\Components\TextEntry::make('canonical_url')
                                     ->label('Canonical URL')
                                     ->url(fn (EventAchievement $record): string => $record->sourceAchievement->getCanonicalUrlAttribute()),
+
                                 Infolists\Components\TextEntry::make('permalink')
                                     ->url(fn (EventAchievement $record): string => $record->sourceAchievement->getPermalinkAttribute()),
                             ]),
@@ -103,6 +112,7 @@ class EventAchievementResource extends Resource
                                 Infolists\Components\ImageEntry::make('badge_url')
                                     ->label('Badge')
                                     ->size(config('media.icon.lg.width')),
+
                                 Infolists\Components\ImageEntry::make('badge_locked_url')
                                     ->label('Badge (locked)')
                                     ->size(config('media.icon.lg.width')),
@@ -157,11 +167,23 @@ class EventAchievementResource extends Resource
                             ->native(false)
                             ->date(),
 
+                        Forms\Components\TextInput::make('decorator')
+                            ->helperText('Short text blurb to describe how the achievement fits into the event (i.e. "Week 1" or "Scott\'s Choice")')
+                            ->columnSpan(2)
+                            ->maxLength(40),
+
                         Forms\Components\Group::make()
                             ->relationship('achievement')
                             ->schema([
                                 Forms\Components\Select::make('Points')
-                                    ->options([1 => '1', 2 => '2', 3 => '3', 4 => '4', 5 => '5'])
+                                    ->options([
+                                        1 => '1',
+                                        2 => '2',
+                                        3 => '3',
+                                        4 => '4',
+                                        5 => '5',
+                                        10 => '10',
+                                    ])
                                     ->default(1)
                                     ->required(),
                             ]),

@@ -6,17 +6,26 @@ namespace App\Platform\Actions;
 
 use App\Community\Data\CommentData;
 use App\Community\Enums\ArticleType;
+use App\Community\Enums\UserGameListType;
 use App\Data\UserPermissionsData;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Models\UserGameListEntry;
+use App\Platform\Data\AchievementSetClaimData;
+use App\Platform\Data\AggregateAchievementSetCreditsData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
 use App\Platform\Data\GameShowPagePropsData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
+use App\Platform\Data\UserCreditsData;
+use App\Platform\Enums\AchievementAuthorTask;
+use App\Platform\Enums\AchievementSetAuthorTask;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cookie;
 
 class BuildGameShowPagePropsAction
 {
@@ -24,6 +33,8 @@ class BuildGameShowPagePropsAction
         protected BuildFollowedPlayerCompletionAction $buildFollowedPlayerCompletionAction,
         protected BuildGameAchievementDistributionAction $buildGameAchievementDistributionAction,
         protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
+        protected BuildSeriesHubDataAction $buildSeriesHubDataAction,
+        protected ProcessGameReleasesForViewAction $processGameReleasesForViewAction,
     ) {
     }
 
@@ -69,9 +80,59 @@ class BuildGameShowPagePropsAction
             ->filter(
                 fn ($game) => !str_contains($game->title, '[Subset')
             )
-            ->sortBy('sort_title');
+            ->sortBy('sort_title')
+            ->sortByDesc(fn ($game) => $game->achievements_published > 0);
+
+        /**
+         * If the user doesn't have permission to view a related hub,
+         * we should filter it out of the list.
+         * @see GameSetPolicy.php
+         */
+        $relatedHubs = $game->hubs
+            ->filter(function ($hub) use ($user) {
+                // If the user is a guest, only show hubs without view restrictions.
+                if (!$user) {
+                    return !$hub->has_view_role_requirement;
+                }
+
+                return $user->can('view', $hub);
+            })
+            ->map(function ($hub) {
+                $data = GameSetData::from($hub)->include('isEventHub');
+
+                // Always remove updatedAt.
+                $data = $data->except('updatedAt');
+
+                // Remove isEventHub if it isn't true.
+                if (!$hub->is_event_hub) {
+                    $data = $data->except('isEventHub');
+                }
+
+                // Remove fields from hubs that don't have "Series" or "Meta|" in the title.
+                if (!str_contains($hub->title, 'Series') && !str_contains($hub->title, 'Meta|')) {
+                    $data = $data->except('badgeUrl', 'gameCount', 'linkCount', 'type');
+                }
+
+                return $data;
+            })
+            ->values()
+            ->all();
+
+        $initialUserGameListState = $this->getInitialUserGameListState($game, $user);
+        $achievementSetClaims = $this->buildAchievementSetClaims($game, $user);
+
+        // Deduplicate releases by region and sort them by date.
+        // Then, override the releases in the game object for proper display.
+        $processedReleases = $this->processGameReleasesForViewAction->execute($game);
+        $game->setRelation('releases', collect($processedReleases));
+
+        // Check cookies for filter states.
+        $isLockedOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_unlocked_achievements_games', $game->id);
+        $isMissableOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_nonmissable_achievements_games', $game->id);
 
         return new GameShowPagePropsData(
+            achievementSetClaims: $achievementSetClaims,
+
             can: UserPermissionsData::fromUser($user, game: $game)->include(
                 'createGameComments',
                 'createGameForumTopic',
@@ -106,6 +167,7 @@ class BuildGameShowPagePropsAction
                 'publisher',
                 'releasedAt',
                 'releasedAtGranularity',
+                'releases',
                 'system.active',
                 'system.iconUrl',
                 'system.nameShort',
@@ -121,8 +183,14 @@ class BuildGameShowPagePropsAction
                 'pointsWeighted',
             ))->values()->all(),
 
-            hubs: $game->hubs()->with('children')->get()->map(fn ($hub) => GameSetData::from($hub)->include('isEventHub'))->all(),
+            aggregateCredits: $this->buildAggregateCredits($game),
+            hasMatureContent: $game->hasMatureContent,
+            hubs: $relatedHubs,
+            isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
+            isOnWantToPlayList: $initialUserGameListState['isOnWantToPlayList'],
             isSubscribedToComments: $user ? isUserSubscribedToArticleComments(ArticleType::Game, $game->id, $user->id) : false,
+            isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
+            isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $game),
             playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($game, $user),
             numComments: $game->visibleComments($user)->count(),
@@ -135,6 +203,194 @@ class BuildGameShowPagePropsAction
             playerGameProgressionAwards: $user
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($game->id, $user))
                 : null,
+            seriesHub: $this->buildSeriesHubDataAction->execute($game),
         );
+    }
+
+    private function buildAggregateCredits(Game $game): AggregateAchievementSetCreditsData
+    {
+        // Initialize credit counts by task and user.
+        $achievementsAuthors = collect();
+        $achievementsMaintainers = collect();
+        $achievementSetArtworkCredits = collect();
+        $achievementsArtworkCredits = collect();
+        $achievementsDesignCredits = collect();
+        $achievementsLogicCredits = collect();
+        $achievementsTestingCredits = collect();
+        $achievementsWritingCredits = collect();
+
+        // Process achievement set authors. Right now, we only support badge artwork as a task.
+        foreach ($game->gameAchievementSets as $gameAchievementSet) {
+            $achievementSet = $gameAchievementSet->achievementSet;
+
+            // Get only the most recent artwork author for this achievement set.
+            $mostRecentArtworkAuthor = $achievementSet->achievementSetAuthors
+                ->filter(fn ($author) => $author->task === AchievementSetAuthorTask::Artwork)
+                ->sortByDesc('created_at')
+                ->first();
+
+            if ($mostRecentArtworkAuthor) {
+                $userId = $mostRecentArtworkAuthor->user_id;
+                $existing = $achievementSetArtworkCredits->get($userId);
+
+                $achievementSetArtworkCredits->put($userId, [
+                    'user' => $mostRecentArtworkAuthor->user,
+                    'count' => ($existing['count'] ?? 0) + 1,
+                    'created_at' => $mostRecentArtworkAuthor->created_at,
+                ]);
+            }
+        }
+
+        // Process achievement authors and maintainers.
+        foreach ($game->gameAchievementSets as $gameAchievementSet) {
+            $achievementSet = $gameAchievementSet->achievementSet;
+
+            foreach ($achievementSet->achievements as $achievement) {
+                // Count original achievement authors.
+                if ($achievement->developer) {
+                    $userId = $achievement->developer->id;
+                    $achievementsAuthors->put($userId, [
+                        'user' => $achievement->developer,
+                        'count' => ($achievementsAuthors->get($userId)['count'] ?? 0) + 1,
+                    ]);
+                }
+
+                // Count active maintainers.
+                if ($achievement->activeMaintainer && $achievement->activeMaintainer->user) {
+                    $userId = $achievement->activeMaintainer->user_id;
+                    $existing = $achievementsMaintainers->get($userId);
+
+                    $achievementsMaintainers->put($userId, [
+                        'user' => $achievement->activeMaintainer->user,
+                        'count' => ($existing['count'] ?? 0) + 1,
+                        'created_at' => $achievement->activeMaintainer->effective_from,
+                    ]);
+                }
+            }
+        }
+
+        // Process achievement authorship credits. We have numerous tasks at this level.
+        foreach ($game->gameAchievementSets as $gameAchievementSet) {
+            $achievementSet = $gameAchievementSet->achievementSet;
+
+            foreach ($achievementSet->achievements as $achievement) {
+                foreach ($achievement->authorshipCredits as $credit) {
+                    $userId = $credit->user_id;
+                    $user = $credit->user;
+
+                    switch ($credit->task) {
+                        case AchievementAuthorTask::Artwork->value:
+                            $achievementsArtworkCredits->put($userId, [
+                                'user' => $user,
+                                'count' => ($achievementsArtworkCredits->get($userId)['count'] ?? 0) + 1,
+                            ]);
+                            break;
+
+                        case AchievementAuthorTask::Design->value:
+                            $achievementsDesignCredits->put($userId, [
+                                'user' => $user,
+                                'count' => ($achievementsDesignCredits->get($userId)['count'] ?? 0) + 1,
+                            ]);
+                            break;
+
+                        case AchievementAuthorTask::Logic->value:
+                            $achievementsLogicCredits->put($userId, [
+                                'user' => $user,
+                                'count' => ($achievementsLogicCredits->get($userId)['count'] ?? 0) + 1,
+                            ]);
+                            break;
+
+                        case AchievementAuthorTask::Testing->value:
+                            $achievementsTestingCredits->put($userId, [
+                                'user' => $user,
+                                'count' => ($achievementsTestingCredits->get($userId)['count'] ?? 0) + 1,
+                            ]);
+                            break;
+
+                        case AchievementAuthorTask::Writing->value:
+                            $achievementsWritingCredits->put($userId, [
+                                'user' => $user,
+                                'count' => ($achievementsWritingCredits->get($userId)['count'] ?? 0) + 1,
+                            ]);
+                            break;
+                    }
+                }
+            }
+        }
+
+        // Convert to UserCreditsData arrays sorted by count descending.
+        $sortByCountDesc = fn ($credits, $includeTrash = false) => $credits
+            ->filter(fn ($item) => $includeTrash || !$item['user']->trashed())
+            ->sortByDesc('count')
+            ->map(fn ($item) => UserCreditsData::fromUserWithCount(
+                $item['user'],
+                $item['count'],
+                isset($item['created_at']) ? $item['created_at'] : null
+            )->include('isGone'))
+            ->values()
+            ->all();
+
+        return new AggregateAchievementSetCreditsData(
+            achievementsAuthors: $sortByCountDesc($achievementsAuthors, true), // Include trashed users for original authors.
+            achievementsMaintainers: $sortByCountDesc($achievementsMaintainers),
+            achievementsArtwork: $sortByCountDesc($achievementsArtworkCredits),
+            achievementsDesign: $sortByCountDesc($achievementsDesignCredits),
+            achievementSetArtwork: $sortByCountDesc($achievementSetArtworkCredits),
+            achievementsLogic: $sortByCountDesc($achievementsLogicCredits),
+            achievementsTesting: $sortByCountDesc($achievementsTestingCredits),
+            achievementsWriting: $sortByCountDesc($achievementsWritingCredits),
+        );
+    }
+
+    /**
+     * TODO also support set requests
+     */
+    private function getInitialUserGameListState(Game $game, ?User $user): array
+    {
+        if (!$user) {
+            return [
+                'isOnWantToDevList' => false,
+                'isOnWantToPlayList' => false,
+            ];
+        }
+
+        $results = UserGameListEntry::where('user_id', $user->id)
+            ->where('GameID', $game->id)
+            ->get(['type'])
+            ->pluck('type')
+            ->toArray();
+
+        return [
+            'isOnWantToDevList' => in_array(UserGameListType::Develop, $results),
+            'isOnWantToPlayList' => in_array(UserGameListType::Play, $results),
+        ];
+    }
+
+    /**
+     * @return Collection<int, AchievementSetClaimData>
+     */
+    private function buildAchievementSetClaims(Game $game, ?User $user): Collection
+    {
+        // Build the include array based on current user permissions.
+        $claimIncludes = ['user', 'finishedAt'];
+        if ($user && $user->hasAnyRole([Role::DEV_COMPLIANCE, Role::MODERATOR, Role::ADMINISTRATOR])) {
+            $claimIncludes[] = 'userLastPlayedAt';
+        }
+
+        return $game->achievementSetClaims
+            ->map(fn ($claim) => AchievementSetClaimData::fromAchievementSetClaim($claim)->include(...$claimIncludes))
+            ->values();
+    }
+
+    private function getIsGameIdInCookie(string $cookieName, int $gameId): bool
+    {
+        $cookieValue = Cookie::get($cookieName);
+        if (!$cookieValue) {
+            return false;
+        }
+
+        $gameIds = array_filter(array_map('intval', explode(',', $cookieValue)));
+
+        return in_array($gameId, $gameIds);
     }
 }

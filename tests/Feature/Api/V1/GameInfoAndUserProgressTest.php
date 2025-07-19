@@ -357,7 +357,7 @@ class GameInfoAndUserProgressTest extends TestCase
                 'UserCompletion' => '0.00%',
                 'UserCompletionHardcore' => '0.00%',
             ])
-            ->assertSee('"Achievements":{},', false);
+            ->assertSee('"Achievements":{}', false);
     }
 
     public function testGetGameInfoAndUserProgressWithHighestAwardMetadata(): void

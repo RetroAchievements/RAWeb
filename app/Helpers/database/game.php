@@ -86,7 +86,6 @@ function getGameMetadata(
     $metricsColumns = '';
     if ($metrics) {
         $metricsColumns = 'ach.unlocks_total AS NumAwarded, ach.unlocks_hardcore_total AS NumAwardedHardcore,';
-        $gameDataOut['ParentGameID'] = Game::find($gameID)->parentGameId;
     }
 
     $query = "

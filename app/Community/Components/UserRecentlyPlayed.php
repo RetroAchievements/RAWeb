@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Community\Components;
 
 use App\Community\Enums\AwardType;
+use App\Models\System;
+use App\Platform\Actions\GetAwardTimeTakenAction;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
@@ -15,6 +17,7 @@ class UserRecentlyPlayed extends Component
     public array $recentAchievementEntities = [];
     public array $recentAwardedEntities = [];
     public string $targetUsername = '';
+    public int $targetUserId = 0;
     public array $userAwards = [];
 
     public function __construct(
@@ -23,6 +26,7 @@ class UserRecentlyPlayed extends Component
         array $recentAchievementEntities = [],
         array $recentAwardedEntities = [],
         string $targetUsername = '',
+        int $targetUserId = 0,
         array $userAwards = [],
     ) {
         $this->recentlyPlayedCount = $recentlyPlayedCount;
@@ -30,6 +34,7 @@ class UserRecentlyPlayed extends Component
         $this->recentAchievementEntities = $recentAchievementEntities;
         $this->recentAwardedEntities = $recentAwardedEntities;
         $this->targetUsername = $targetUsername;
+        $this->targetUserId = $targetUserId;
         $this->userAwards = $userAwards;
     }
 
@@ -175,7 +180,7 @@ class UserRecentlyPlayed extends Component
         array $recentAwardedEntities = [],
         array $userAwards = [],
     ): array {
-        return collect($rawRecentlyPlayedEntities)
+        $entities = collect($rawRecentlyPlayedEntities)
             ->take($recentlyPlayedCount)
             ->map(fn ($recentlyPlayedEntity) => $this->processRecentlyPlayedEntity(
                 $recentlyPlayedEntity,
@@ -184,17 +189,50 @@ class UserRecentlyPlayed extends Component
                 $userAwards,
             ))
             ->all();
+
+        // merge in award time taken
+        $awardGames = [];
+        foreach ($entities as $entity) {
+            $highestAwardKind = $entity['HighestAwardKind'];
+            if ($highestAwardKind) {
+                if (!array_key_exists($highestAwardKind, $awardGames)) {
+                    $awardGames[$highestAwardKind] = [];
+                }
+                $awardGames[$highestAwardKind][] = $entity['GameID'];
+            }
+        }
+        foreach ($awardGames as $kind => $gameIds) {
+            $times = (new GetAwardTimeTakenAction())
+                ->execute($this->targetUserId, $gameIds, $kind);
+
+            foreach ($entities as &$entity) {
+                if ($entity['HighestAwardKind'] === $kind) {
+                    $entity['HighestAwardTimeTaken'] = $times[$entity['GameID']] ?? null;
+                }
+            }
+        }
+
+        // merge in console names
+        $consoles = [];
+        foreach ($entities as &$entity) {
+            if (!in_array($entity['ConsoleID'], $consoles)) {
+                $consoles[] = $entity['ConsoleID'];
+            }
+        }
+        $systems = System::whereIn('id', $consoles)->get();
+        foreach ($entities as &$entity) {
+            $system = $systems->where('id', $entity['ConsoleID'])->first();
+            $entity['ConsoleName'] = $system->name;
+            $entity['ConsoleNameShort'] = $system->name_short;
+        }
+
+        return $entities;
     }
 
     private function processAwards(array $userAwards = [], int $targetGameId = 0): array
     {
         $highestAwardDate = null;
         $highestAwardKind = null;
-
-        // If the user has no awards, bail.
-        if (empty($userAwards)) {
-            return [$highestAwardDate, $highestAwardKind];
-        }
 
         foreach ($userAwards as $userAward) {
             // Process only the awards related to the target game ID.

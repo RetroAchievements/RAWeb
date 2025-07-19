@@ -16,7 +16,9 @@ use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\AttachPlayerGameAction;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Jobs\UpdateGameAchievementsMetricsJob;
 use App\Platform\Jobs\UpdateGameMetricsJob;
+use App\Platform\Jobs\UpdateGamePlayerCountJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Carbon\Carbon;
 use Exception;
@@ -850,7 +852,11 @@ class ConvertGame
                 $winners->where('unlocked_hardcore_at', '<', $activeThrough);
             }
 
+            $winnerIds = [];
             foreach ($winners->get() as $winner) {
+                $userMainId = $this->findUserMain($winner->user_id);
+                $winnerIds[] = $userMainId;
+
                 if ($winner->Untracked || $winner->unranked_at) {
                     $existingUnlock = PlayerAchievement::where('achievement_id', $achievement->id)
                         ->where('user_id', $winner->user_id);
@@ -861,7 +867,7 @@ class ConvertGame
 
                 $playerAchievement = PlayerAchievement::updateOrCreate([
                     'achievement_id' => $achievement->id,
-                    'user_id' => $this->findUserMain($winner->user_id),
+                    'user_id' => $userMainId,
                 ], [
                     'unlocked_at' => $winner->unlocked_hardcore_at,
                     'unlocked_hardcore_at' => $winner->unlocked_hardcore_at,
@@ -876,8 +882,9 @@ class ConvertGame
             // delete unlocks on the event achievement if the user hasn't unlocked the source achievement.
             // this could affect users who have reset the achievement, but they'll get to keep the badge.
             PlayerAchievement::where('achievement_id', $achievement->id)
-                ->whereNotIn('user_id', $winners->pluck('user_id')->toArray())
+                ->whereNotIn('user_id', $winnerIds)
                 ->delete();
+
         } else {
             $achievement->Points = 1;
             $achievement->save();
@@ -930,7 +937,8 @@ class ConvertGame
         $gameId = $event->legacyGame->id;
 
         // update metrics and sync to game_achievement_set
-        dispatch(new UpdateGameMetricsJob($gameId))->onQueue('game-metrics');
+        dispatch(new UpdateGamePlayerCountJob($gameId))->onQueue('game-player-count');
+        dispatch(new UpdateGameAchievementsMetricsJob($gameId))->onQueue('achievement-metrics');
 
         $playerGames = PlayerGame::where('game_id', $gameId)->get();
         foreach ($playerGames as $playerGame) {

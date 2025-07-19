@@ -52,7 +52,7 @@ describe('Component: AchievementsListItem', () => {
 
   it('given an achievement with a game (probably an event achievement), displays the game title', async () => {
     // ARRANGE
-    const gameTitle = 'Super Adventure Game';
+    const gameTitle = 'SuperAdventureGame';
     const achievement = createAchievement({
       game: createGame({ title: gameTitle }),
     });
@@ -68,7 +68,7 @@ describe('Component: AchievementsListItem', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByText(/super/i)).toBeVisible();
+      expect(screen.getByText(/superadventuregame/i)).toBeVisible();
     });
   });
 
@@ -173,6 +173,31 @@ describe('Component: AchievementsListItem', () => {
     // ASSERT
     await waitFor(() => {
       expect(screen.getAllByLabelText(/progression/i)[0]).toBeVisible();
+    });
+  });
+
+  it('given an achievement has a decorator, displays the decorator', async () => {
+    // ARRANGE
+    const title = 'Master Collector';
+    const description = 'Find all hidden gems in the game';
+    const achievement = createAchievement({
+      title,
+      description,
+      decorator: 'Decorator',
+    });
+
+    render(
+      <AchievementsListItem
+        achievement={achievement}
+        index={0}
+        isLargeList={false}
+        playersTotal={100}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/decorator/i)).toBeVisible();
     });
   });
 });

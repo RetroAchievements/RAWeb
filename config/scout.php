@@ -2,6 +2,7 @@
 
 use App\Models\Achievement;
 use App\Models\Comment;
+use App\Models\Event;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
 use App\Models\GameSet;
@@ -154,7 +155,7 @@ return [
                     'exactness',
                     'sort',
                 ],
-                'searchableAttributes' => ['title', 'description', 'id'],
+                'searchableAttributes' => ['title', 'id'],
                 'sortableAttributes' => [
                     'id',
                     'title',
@@ -174,6 +175,21 @@ return [
                 ],
                 'searchableAttributes' => ['body'],
                 'sortableAttributes' => ['created_at'],
+            ],
+
+            Event::class => [
+                'filterableAttributes' => ['title', 'players_total'],
+                'rankingRules' => [
+                    'words',
+                    'typo',
+                    'attribute',
+                    'unlocks_total:desc',
+                    'proximity',
+                    'exactness',
+                    'sort',
+                ],
+                'searchableAttributes' => ['title', 'id'],
+                'sortableAttributes' => ['id', 'title', 'players_total'],
             ],
 
             ForumTopicComment::class => [
@@ -238,6 +254,15 @@ return [
 
             GameSet::class => [
                 'filterableAttributes' => ['id', 'games_count', 'title'],
+                'rankingRules' => [
+                    'exactness',
+                    'words',
+                    'typo',
+                    'attribute',
+                    'proximity',
+                    'games_count:desc',
+                    'sort',
+                ],
                 'searchableAttributes' => ['title', 'id'],
                 'sortableAttributes' => ['id', 'games_count', 'title'],
             ],

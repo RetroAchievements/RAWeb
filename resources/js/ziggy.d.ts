@@ -134,6 +134,13 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "event.award-earners.index": [
+        {
+            "name": "event",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "game2.show": [
         {
             "name": "game",
@@ -713,12 +720,12 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "api.search.index": [],
     "api.user.forum-permissions.update": [],
     "api.user.delete-request.store": [],
     "api.user.delete-request.destroy": [],
     "api.user.avatar.store": [],
-    "api.user.avatar.destroy": [],
-    "api.search.index": []
+    "api.user.avatar.destroy": []
 }
 }
 export {};

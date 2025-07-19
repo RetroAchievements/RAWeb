@@ -44,7 +44,11 @@ class Hubs extends ManageRelatedRecords
 
     public function table(Table $table): Table
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $table
+            ->checkIfRecordIsSelectableUsing(fn (GameSet $record): bool => $user->can('update', $record))
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
@@ -110,6 +114,11 @@ class Hubs extends ManageRelatedRecords
                                     ->get()
                                     ->mapWithKeys(fn ($hub) => [$hub->id => "[{$hub->id}] {$hub->title}"]);
                             })
+                            ->disableOptionWhen(function (string $value) use ($user): bool {
+                                $hub = GameSet::find($value);
+
+                                return !$user->can('update', $hub);
+                            })
                             ->hidden(fn (Forms\Get $get): bool => filled($get('hub_ids_csv')))
                             ->disabled(fn (Forms\Get $get): bool => filled($get('hub_ids_csv')))
                             ->live()
@@ -117,7 +126,7 @@ class Hubs extends ManageRelatedRecords
                     ])
                     ->modalHeading('Add hubs to game')
                     ->modalAutofocus(false)
-                    ->action(function (array $data): void {
+                    ->action(function (array $data) use ($user): void {
                         /** @var Game $game */
                         $game = $this->getOwnerRecord();
 
@@ -127,8 +136,16 @@ class Hubs extends ManageRelatedRecords
                                 ->whereIn('id', $data['hub_ids'])
                                 ->get();
 
+                            // We still need to check these as a security measure
+                            // because Livewire doesn't actually stop the user from
+                            // directly manipulating the form value via browser devtools.
+                            $unauthorizedHubs = [];
                             foreach ($gameSets as $gameSet) {
-                                $gameSet->games()->attach([$game->id]);
+                                if ($user->can('update', $gameSet)) {
+                                    $gameSet->games()->attach([$game->id]);
+                                } else {
+                                    $unauthorizedHubs[] = $gameSet->title;
+                                }
                             }
 
                             return;
@@ -144,14 +161,28 @@ class Hubs extends ManageRelatedRecords
                                 ->whereNotIn('id', $this->getOwnerRecord()->hubs->pluck('id'))
                                 ->get();
 
+                            $unauthorizedHubs = [];
                             foreach ($gameSets as $gameSet) {
-                                $gameSet->games()->attach([$game->id]);
+                                if ($user->can('update', $gameSet)) {
+                                    $gameSet->games()->attach([$game->id]);
+                                } else {
+                                    $unauthorizedHubs[] = $gameSet->title;
+                                }
+                            }
+
+                            if (!empty($unauthorizedHubs)) {
+                                Notification::make()
+                                    ->warning()
+                                    ->title('Some hubs were not added')
+                                    ->body('You do not have permission to update: ' . implode(', ', $unauthorizedHubs))
+                                    ->send();
                             }
                         }
                     }),
             ])
             ->actions([
                 Tables\Actions\Action::make('remove')
+                    ->visible(fn ($record): bool => $user->can('update', $record))
                     ->tooltip('Remove')
                     ->icon('heroicon-o-trash')
                     ->iconButton()

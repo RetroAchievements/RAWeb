@@ -58,6 +58,7 @@ $playerProgressionService = new PlayerProgressionService();
 $userJoinedGamesAndAwards = $playerProgressionService->filterAndJoinGames(
     $userCompletedGamesList,
     $userAwards,
+    $userPageID,
 );
 
 $excludedConsoles = ["Hubs", "Events"];
@@ -154,6 +155,7 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
             :recentAchievementEntities="$userMassData['RecentAchievements'] ?? []"
             :recentAwardedEntities="$userMassData['Awarded'] ?? []"
             :targetUsername="$userPage ?? ''"
+            :targetUserId="$userPageModel->id"
             :userAwards="$userAwards"
         />
     <?php

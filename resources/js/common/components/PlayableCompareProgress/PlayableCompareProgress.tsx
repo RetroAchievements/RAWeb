@@ -4,8 +4,8 @@ import { route } from 'ziggy-js';
 
 import { BaseSelectAsync } from '@/common/components/+vendor/BaseSelectAsync';
 import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
-import { useSearchQuery } from '@/common/hooks/queries/useSearchQuery';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useUserSearchQuery } from '@/common/hooks/useUserSearchQuery';
 
 import { PopulatedPlayerCompletions } from './PopulatedPlayerCompletions';
 import { useSelectAutoWidth } from './useSelectAutoWidth';
@@ -25,7 +25,7 @@ export const PlayableCompareProgress: FC<PlayableCompareProgressProps> = ({
 
   const { t } = useTranslation();
 
-  const query = useSearchQuery();
+  const query = useUserSearchQuery();
 
   const { autoWidth, autoWidthContainerRef } = useSelectAutoWidth();
 

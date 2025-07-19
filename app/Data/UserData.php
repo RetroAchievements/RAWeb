@@ -23,14 +23,17 @@ class UserData extends Data
         public Lazy|string|null $apiKey = null,
         public Lazy|Carbon|null $createdAt = null,
         public Lazy|string|null $deleteRequested = null,
+        /** @deprecated use $isGone instead - it hides the delete date from page props */
         public Lazy|Carbon|null $deletedAt = null,
         /** @var RoleData[] */
         public Lazy|array|null $displayableRoles = null,
         public Lazy|string|null $emailAddress = null,
         public Lazy|int $id = 0,
         public Lazy|bool $isEmailVerified = false,
+        public Lazy|bool $isGone = false,
         public Lazy|bool $isMuted = false,
         public Lazy|bool $isNew = false,
+        public Lazy|Carbon|null $lastActivityAt = null,
         public Lazy|int|null $legacyPermissions = null,
         public Lazy|string|null $locale = null,
         public Lazy|string $motto = '',
@@ -82,8 +85,10 @@ class UserData extends Data
             mutedUntil: Lazy::create(fn () => $user->muted_until),
             id: Lazy::create(fn () => $user->id),
             isEmailVerified: Lazy::create(fn () => $user->isEmailVerified()),
+            isGone: Lazy::create(fn () => $user->is_gone),
             isMuted: Lazy::create(fn () => $user->isMuted()),
             isNew: Lazy::create(fn () => $user->isNew()),
+            lastActivityAt: Lazy::create(fn () => $user->LastLogin),
             legacyPermissions: Lazy::create(fn () => (int) $user->getAttribute('Permissions')),
             locale: Lazy::create(fn () => $user->locale === 'en' ? 'en_US' : $user->locale), // TODO remove conditional after renaming "en" to "en_US"
             motto: Lazy::create(fn () => $user->Motto),

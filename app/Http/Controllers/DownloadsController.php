@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Data\UserPermissionsData;
+use App\Http\Actions\DetectUserOSAction;
 use App\Http\Controller;
 use App\Http\Data\DownloadsPagePropsData;
 use App\Models\DownloadsPopularityMetric;
@@ -18,7 +19,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
-use Jenssegers\Agent\Agent;
 
 class DownloadsController extends Controller
 {
@@ -58,7 +58,7 @@ class DownloadsController extends Controller
             $systemsData,
             topSystemIds: $this->getTopSystemIds(),
             popularEmulatorsBySystem: $this->getPopularEmulatorsBySystem($allSystems),
-            userDetectedPlatformId: $this->detectUserPlatform($allPlatforms),
+            userDetectedPlatformId: $this->detectUserPlatformId($allPlatforms),
             userSelectedSystemId: (int) $request->input('system', null),
             can: UserPermissionsData::fromUser($request->user())->include('manageEmulators'),
         );
@@ -69,25 +69,17 @@ class DownloadsController extends Controller
     /**
      * @param Collection<int, Platform> $allPlatforms
      */
-    private function detectUserPlatform(Collection $allPlatforms): ?int
+    private function detectUserPlatformId(Collection $allPlatforms): ?int
     {
-        $agent = new Agent();
+        $userOS = (new DetectUserOSAction())->execute();
 
-        $platformId = null;
-
-        if ($agent->is('Windows') || $agent->is('Windows NT')) {
-            $platformId = $allPlatforms->where('name', 'Windows')->first()->id;
-        } elseif ($agent->is('OS X') && !$agent->isMobile()) {
-            $platformId = $allPlatforms->where('name', 'macOS')->first()->id;
-        } elseif ($agent->is('AndroidOS')) {
-            $platformId = $allPlatforms->where('name', 'Android')->first()->id;
-        } elseif ($agent->is('Debian') || $agent->is('Ubuntu') || $agent->is('OpenBSD') || $agent->is('Linux')) {
-            $platformId = $allPlatforms->where('name', 'Linux')->first()->id;
-        } elseif ($agent->is('iOS')) {
-            $platformId = $allPlatforms->where('name', 'iOS')->first()->id;
+        if ($userOS === null) {
+            return null;
         }
 
-        return $platformId;
+        $platform = $allPlatforms->where('name', $userOS->value)->first();
+
+        return $platform?->id;
     }
 
     /**

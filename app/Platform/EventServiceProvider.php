@@ -24,9 +24,9 @@ use App\Platform\Events\PlayerGameCompleted;
 use App\Platform\Events\PlayerGameMetricsUpdated;
 use App\Platform\Events\PlayerGameRemoved;
 use App\Platform\Events\PlayerMetricsUpdated;
-use App\Platform\Events\PlayerPointsStatsUpdated;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Events\PlayerSessionHeartbeat;
+use App\Platform\Listeners\DispatchIncrementDeveloperContributionYieldJob;
 use App\Platform\Listeners\DispatchUpdateAchievementMetricsJob;
 use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
 use App\Platform\Listeners\DispatchUpdateGameBeatenMetricsJob;
@@ -83,14 +83,14 @@ class EventServiceProvider extends ServiceProvider
         PlayerAchievementLocked::class => [
             DispatchUpdateAchievementMetricsJob::class,
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
-            DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
+            DispatchIncrementDeveloperContributionYieldJob::class, // dispatches IncrementDeveloperContributionYield
         ],
         PlayerAchievementUnlocked::class => [
             // dispatches PlayerGameAttached
             // NOTE ResumePlayerSessionAction is executed synchronously during PlayerAchievementUnlockAction
             DispatchUpdateAchievementMetricsJob::class,
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
-            DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
+            DispatchIncrementDeveloperContributionYieldJob::class, // dispatches IncrementDeveloperContributionYield
         ],
         PlayerBadgeAwarded::class => [
             // TODO Notify player
@@ -119,7 +119,7 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdatePlayerMetricsJob::class, // dispatches PlayerMetricsUpdated
         ],
         PlayerMetricsUpdated::class => [
-            DispatchUpdatePlayerPointsStatsJob::class, // dispatches PlayerPointsStatsUpdated
+            DispatchUpdatePlayerPointsStatsJob::class,
         ],
         PlayerSessionHeartbeat::class => [
             ResumePlayerSession::class, // dispatches PlayerGameAttached for new entries
@@ -128,15 +128,12 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateGameMetricsForGamesPlayedByUserJob::class,
             // TODO Notify player
             DispatchUpdatePlayerBeatenGamesStatsJob::class, // dispatches PlayerBeatenGamesStatsUpdated
-            DispatchUpdatePlayerPointsStatsJob::class, // dispatches PlayerPointsStatsUpdated
+            DispatchUpdatePlayerPointsStatsJob::class,
             RecalculateLeaderboardTopEntriesForUser::class,
         ],
         PlayerBeatenGamesStatsUpdated::class => [
         ],
-        PlayerPointsStatsUpdated::class => [
-        ],
         UserDeleted::class => [
-            RecalculateLeaderboardTopEntriesForUser::class,
             ResetPlayerProgress::class, // dispatches PlayerGameMetricsUpdated
         ],
     ];

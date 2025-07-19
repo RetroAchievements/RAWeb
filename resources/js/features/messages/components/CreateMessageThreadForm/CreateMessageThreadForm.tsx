@@ -13,8 +13,8 @@ import {
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { BaseSelectAsync } from '@/common/components/+vendor/BaseSelectAsync';
 import { ShortcodePanel } from '@/common/components/ShortcodePanel';
-import { useSearchQuery } from '@/common/hooks/queries/useSearchQuery';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useUserSearchQuery } from '@/common/hooks/useUserSearchQuery';
 import { getStringByteCount } from '@/common/utils/getStringByteCount';
 
 import { TemplateKindAlert } from '../TemplateKindAlert';
@@ -40,7 +40,7 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
   );
   const [body] = form.watch(['body']);
 
-  const query = useSearchQuery({ initialSearchTerm: toUser?.displayName ?? '' });
+  const query = useUserSearchQuery({ initialSearchTerm: toUser?.displayName ?? '' });
 
   return (
     <BaseFormProvider {...form}>

@@ -7,7 +7,7 @@ interface AppLayoutBaseProps {
 
 const AppLayoutBase: FC<AppLayoutBaseProps> = ({ children, withSidebar }) => {
   return (
-    <div className="container">
+    <div className="container lg:max-w-none xl:max-w-screen-xl">
       <main className={withSidebar ? 'with-sidebar' : undefined} data-scroll-target>
         {children}
       </main>

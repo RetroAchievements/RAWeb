@@ -75,7 +75,14 @@ describe('Component: CreateMessageThreadForm', () => {
 
     vi.spyOn(axios, 'get').mockImplementation((url) => {
       if (url.includes('api.search.index')) {
-        return Promise.resolve({ data: { users: [mockUser] } });
+        return Promise.resolve({
+          data: {
+            results: { users: [mockUser] },
+            query: mockUser.displayName,
+            scopes: ['users'],
+            scopeRelevance: { users: 1 },
+          },
+        });
       }
 
       return Promise.reject(new Error('Not mocked'));
@@ -139,7 +146,14 @@ describe('Component: CreateMessageThreadForm', () => {
 
     vi.spyOn(axios, 'get').mockImplementation((url) => {
       if (url.includes('api.search.index')) {
-        return Promise.resolve({ data: { users: [mockUser] } });
+        return Promise.resolve({
+          data: {
+            results: { users: [mockUser] },
+            query: mockUser.displayName,
+            scopes: ['users'],
+            scopeRelevance: { users: 1 },
+          },
+        });
       }
 
       return Promise.reject(new Error('Not mocked'));
@@ -192,7 +206,14 @@ describe('Component: CreateMessageThreadForm', () => {
 
     vi.spyOn(axios, 'get').mockImplementation((url) => {
       if (url.includes('api.search.index')) {
-        return Promise.resolve({ data: { users: [mockUser] } });
+        return Promise.resolve({
+          data: {
+            results: { users: [mockUser] },
+            query: mockUser.displayName,
+            scopes: ['users'],
+            scopeRelevance: { users: 1 },
+          },
+        });
       }
 
       return Promise.reject(new Error('Not mocked'));
@@ -306,7 +327,14 @@ describe('Component: CreateMessageThreadForm', () => {
 
     vi.spyOn(axios, 'get').mockImplementation((url) => {
       if (url.includes('api.search.index')) {
-        return Promise.resolve({ data: { users: [mockUser] } });
+        return Promise.resolve({
+          data: {
+            results: { users: [mockUser] },
+            query: mockUser.displayName,
+            scopes: ['users'],
+            scopeRelevance: { users: 1 },
+          },
+        });
       }
 
       return Promise.reject(new Error('Not mocked'));

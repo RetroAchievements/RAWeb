@@ -41,6 +41,7 @@ class EventData extends Data
                 )->include(
                     'achievement',
                     'sourceAchievement',
+                    'decorator',
                     'activeFrom',
                     'activeThrough',
                     'activeUntil',

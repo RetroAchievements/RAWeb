@@ -5,8 +5,10 @@ namespace App\Platform\Actions;
 use App\Community\Enums\AwardType;
 use App\Models\Achievement;
 use App\Models\AchievementMaintainerUnlock;
+use App\Models\PlayerProgressReset;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\PlayerProgressResetType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Jobs\UpdateAchievementMetricsJob;
@@ -83,11 +85,40 @@ class ResetPlayerProgressAction
                 return;
             }
 
+            $achievement = $playerAchievement->achievement;
+
+            // Handle decrement for developer contribution credit before player_achievement deletion.
+            if ($achievement->is_published) {
+                // Check if there's a maintainer unlock record.
+                $maintainerUnlock = AchievementMaintainerUnlock::query()
+                    ->where('player_achievement_id', $playerAchievement->id)
+                    ->first();
+
+                if ($maintainerUnlock) {
+                    // Credit was given to the maintainer.
+                    $developer = User::find($maintainerUnlock->maintainer_id);
+                } else {
+                    // Credit was given to the original author.
+                    $developer = $achievement->developer;
+                }
+
+                if ($developer && $developer->id !== $user->id && !$developer->trashed()) {
+                    // Perform a quick incremental decrement.
+                    // For resets, we don't need to worry about the
+                    // isHardcore flag since we're removing the unlock entirely.
+                    (new IncrementDeveloperContributionYieldAction())->execute(
+                        $developer,
+                        $achievement,
+                        $playerAchievement,
+                        isUnlock: false
+                    );
+                }
+            }
+
             // Delete any maintainer unlock records related to this player_achievement entity.
             AchievementMaintainerUnlock::where('player_achievement_id', $playerAchievement->id)->delete();
 
-            $achievement = $playerAchievement->achievement;
-            if ($achievement->isPublished) {
+            if ($achievement->is_published) {
                 // resetting a published achievement removes the completion/mastery badge.
                 // RevalidateAchievementSetBadgeEligibilityAction will be called indirectly
                 // from the UpdatePlayerGameMetricsJob, but it does not revoke badges unless
@@ -103,6 +134,29 @@ class ResetPlayerProgressAction
                 }
             }
             $playerAchievement->delete();
+
+            // Check if this was the player's last achievement for the game.
+            // If it is, we'll create a game reset record.
+            // If it's not, we'll create an achievement reset record.
+            $remainingAchievements = $user->playerAchievements()
+                ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
+                ->where('Achievements.GameID', $achievement->game_id)
+                ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
+                ->count();
+
+            if ($remainingAchievements === 0) {
+                PlayerProgressReset::create([
+                    'user_id' => $user->id,
+                    'type' => PlayerProgressResetType::Game,
+                    'type_id' => $achievement->game_id,
+                ]);
+            } else {
+                PlayerProgressReset::create([
+                    'user_id' => $user->id,
+                    'type' => PlayerProgressResetType::Achievement,
+                    'type_id' => $achievementID,
+                ]);
+            }
         } elseif ($gameID !== null) {
             $achievementIds = Achievement::where('GameID', $gameID)->pluck('ID');
 
@@ -115,7 +169,16 @@ class ResetPlayerProgressAction
             $user->playerAchievements()
                 ->whereIn('achievement_id', $achievementIds)
                 ->delete();
+
+            // Track the game reset.
+            PlayerProgressReset::create([
+                'user_id' => $user->id,
+                'type' => PlayerProgressResetType::Game,
+                'type_id' => $gameID,
+            ]);
         } else {
+            // If we fall into this block, it's because a user's account is being deleted.
+
             // Delete all maintainer unlock records related to these player_achievement entities.
             AchievementMaintainerUnlock::query()
                 ->whereIn('player_achievement_id', function ($query) use ($user) {
@@ -123,10 +186,10 @@ class ResetPlayerProgressAction
                 })
                 ->delete();
 
-            // fulfill deletion request
             $user->playerGames()->forceDelete();
             $user->playerBadges()->delete();
             $user->playerAchievements()->delete();
+            $user->leaderboardEntries()->delete();
 
             $user->RAPoints = 0;
             $user->RASoftcorePoints = null;
@@ -134,16 +197,26 @@ class ResetPlayerProgressAction
             $user->ContribCount = 0;
             $user->ContribYield = 0;
             $user->saveQuietly();
+
+            PlayerProgressReset::create([
+                'user_id' => $user->id,
+                'type' => PlayerProgressResetType::Account,
+                'type_id' => null,
+            ]);
         }
 
-        $authors = User::query()
-            ->where(function ($query) use ($authorUsernames) {
-                $query->whereIn('User', $authorUsernames->unique())
-                    ->orWhereIn('display_name', $authorUsernames->unique());
-            })
-            ->get('ID');
-        foreach ($authors as $author) {
-            dispatch(new UpdateDeveloperContributionYieldJob($author->id));
+        // For game-wide or full resets, we need to do full recalculation of affected dev stats.
+        // For single achievement resets, we've already handled it incrementally above.
+        if ($achievementID === null) {
+            $authors = User::query()
+                ->where(function ($query) use ($authorUsernames) {
+                    $query->whereIn('User', $authorUsernames->unique())
+                        ->orWhereIn('display_name', $authorUsernames->unique());
+                })
+                ->get('ID');
+            foreach ($authors as $author) {
+                dispatch(new UpdateDeveloperContributionYieldJob($author->id));
+            }
         }
 
         $isFullReset = $achievementID === null && $gameID === null;

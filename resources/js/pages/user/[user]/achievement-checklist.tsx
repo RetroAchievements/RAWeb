@@ -7,8 +7,8 @@ import { AchievementsListItem } from '@/common/components/AchievementsListItem';
 import { EmptyState } from '@/common/components/EmptyState';
 import { UserBreadcrumbs } from '@/common/components/UserBreadcrumbs';
 import { UserHeading } from '@/common/components/UserHeading';
-import { useSearchQuery } from '@/common/hooks/queries/useSearchQuery';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useUserSearchQuery } from '@/common/hooks/useUserSearchQuery';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { EventAchievementSection } from '@/features/events/components/EventAchievementSetContainer/EventAchievementSet/EventAchievementSection';
@@ -18,7 +18,7 @@ const UserAchievementChecklist: AppPage = () => {
 
   const { t } = useTranslation();
 
-  const query = useSearchQuery({ initialSearchTerm: player.displayName });
+  const query = useUserSearchQuery({ initialSearchTerm: player.displayName });
 
   const handleUserChange = (newUser: string) => {
     router.visit(

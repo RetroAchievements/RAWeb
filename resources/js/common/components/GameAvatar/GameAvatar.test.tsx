@@ -204,4 +204,28 @@ describe('Component: GameAvatar', () => {
     const wrapperEl = screen.getByRole('link');
     expect(wrapperEl).toHaveAttribute('href', 'https://google.com');
   });
+
+  it('given showSystemChip is true, renders the system chip', () => {
+    // ARRANGE
+    const system = createSystem({ id: 1, nameShort: 'PS1' });
+    const game = createGame({ system, title: 'Final Fantasy VII' });
+
+    render(<GameAvatar {...game} showSystemChip={true} />);
+
+    // ASSERT
+    expect(screen.getByText(/final fantasy vii/i)).toBeVisible();
+    expect(screen.getByText(/ps1/i)).toBeVisible();
+  });
+
+  it('given showLabel is false but showSystemChip is true, renders only the system chip', () => {
+    // ARRANGE
+    const system = createSystem({ id: 1, nameShort: 'NES' });
+    const game = createGame({ system, title: 'Super Mario Bros.' });
+
+    render(<GameAvatar {...game} showLabel={false} showSystemChip={true} />);
+
+    // ASSERT
+    expect(screen.queryByText(/super mario bros/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/nes/i)).toBeVisible();
+  });
 });

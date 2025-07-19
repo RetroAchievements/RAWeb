@@ -6,6 +6,7 @@ namespace Tests\Feature\Actions;
 
 use App\Actions\ProcessPlausibleUrlAction;
 use App\Models\Achievement;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\System;
@@ -278,6 +279,46 @@ class ProcessPlausibleUrlActionTest extends TestCase
         $this->assertEquals('/thing/_PARAM_', $result['redactedUrl']);
         $this->assertEquals([
             'id' => 1,
+            'isAuthenticated' => true,
+            'scheme' => 'dark',
+            'theme' => 'default',
+        ], $result['props']);
+    }
+
+    public function testItCorrectlyHandlesEventUrls(): void
+    {
+        // Arrange
+        $game = Game::factory()->create(['ID' => 100, 'Title' => 'Achievement of the Week 2025']);
+        Event::factory()->create(['id' => 1, 'legacy_game_id' => $game->ID]);
+
+        // Act
+        $result = $this->action->execute('event/1-achievement-of-the-week-2025', [], $this->defaultProps);
+
+        // Assert
+        $this->assertEquals('/event/_PARAM_', $result['redactedUrl']);
+        $this->assertEquals([
+            'id' => 1,
+            'title' => 'Achievement of the Week 2025',
+            'isAuthenticated' => true,
+            'scheme' => 'dark',
+            'theme' => 'default',
+        ], $result['props']);
+    }
+
+    public function testItCorrectlyHandlesSelfHealingEventUrls(): void
+    {
+        // Arrange
+        $game = Game::factory()->create(['ID' => 100, 'Title' => 'Some Cool Event']);
+        Event::factory()->create(['id' => 2, 'legacy_game_id' => $game->ID]);
+
+        // Act
+        $result = $this->action->execute('event/2-some-cool-event', [], $this->defaultProps);
+
+        // Assert
+        $this->assertEquals('/event/_PARAM_', $result['redactedUrl']);
+        $this->assertEquals([
+            'id' => 2,
+            'title' => 'Some Cool Event',
             'isAuthenticated' => true,
             'scheme' => 'dark',
             'theme' => 'default',

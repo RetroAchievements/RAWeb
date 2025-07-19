@@ -10,6 +10,7 @@ use App\Filament\Resources\SystemResource;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\System;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -18,6 +19,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class GamesRelationManager extends RelationManager
 {
@@ -34,6 +36,12 @@ class GamesRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
+        /** @var User $user */
+        $user = Auth::user();
+
+        /** @var GameSet $gameSet */
+        $gameSet = $this->getOwnerRecord();
+
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->with('system'))
             ->defaultSort('sort_title')
@@ -108,6 +116,7 @@ class GamesRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\Action::make('add')
                     ->label('Add games')
+                    ->visible(fn (): bool => $user->can('update', $gameSet))
                     ->form([
                         Forms\Components\TextInput::make('game_ids_csv')
                             ->label('Game IDs (CSV)')
@@ -145,9 +154,10 @@ class GamesRelationManager extends RelationManager
                             ->helperText('... or search and select games to add.'),
                     ])
                     ->modalHeading('Add games to hub')
-                    ->action(function (array $data): void {
-                        /** @var GameSet $gameSet */
-                        $gameSet = $this->getOwnerRecord();
+                    ->action(function (array $data) use ($gameSet, $user): void {
+                        if (!$user->can('update', $gameSet)) {
+                            return;
+                        }
 
                         // Handle select field input.
                         if (!empty($data['game_ids'])) {
@@ -176,14 +186,16 @@ class GamesRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\Action::make('remove')
                     ->tooltip('Remove')
+                    ->visible(fn (): bool => $user->can('update', $gameSet))
                     ->icon('heroicon-o-trash')
                     ->iconButton()
                     ->requiresConfirmation()
                     ->color('danger')
                     ->modalHeading('Remove game from hub')
-                    ->action(function (Game $game): void {
-                        /** @var GameSet $gameSet */
-                        $gameSet = $this->getOwnerRecord();
+                    ->action(function (Game $game) use ($gameSet, $user): void {
+                        if (!$user->can('update', $gameSet)) {
+                            return;
+                        }
 
                         $gameSet->games()->detach([$game->id]);
 
@@ -204,6 +216,7 @@ class GamesRelationManager extends RelationManager
             ->bulkActions([
                 Tables\Actions\BulkAction::make('remove')
                     ->label('Remove selected')
+                    ->visible(fn (): bool => $user->can('update', $gameSet))
                     ->modalHeading('Remove selected games from hub')
                     ->modalDescription('Are you sure you would like to do this?')
                     ->requiresConfirmation()

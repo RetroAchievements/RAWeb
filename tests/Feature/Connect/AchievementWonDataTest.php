@@ -70,6 +70,7 @@ class AchievementWonDataTest extends TestCase
 
         // first achievement - 5 most recent
         $this->get($this->apiUrl('achievementwondata', ['a' => $achievement1->ID, 'c' => 5]))
+            ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Offset' => 0,
@@ -92,6 +93,7 @@ class AchievementWonDataTest extends TestCase
 
         // first achievement - offset and ask for more than available
         $this->get($this->apiUrl('achievementwondata', ['a' => $achievement1->ID, 'o' => 12, 'c' => 6]))
+            ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Offset' => 12,
@@ -111,6 +113,7 @@ class AchievementWonDataTest extends TestCase
 
         // other achievement - different earn rate/winners
         $this->get($this->apiUrl('achievementwondata', ['a' => $achievement2->ID, 'o' => 3, 'c' => 4]))
+            ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Offset' => 3,
@@ -132,6 +135,7 @@ class AchievementWonDataTest extends TestCase
 
         // third achievement - no unlocks
         $this->get($this->apiUrl('achievementwondata', ['a' => $achievement3->ID]))
+            ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Offset' => 0,
@@ -148,18 +152,12 @@ class AchievementWonDataTest extends TestCase
 
         // non-existent achievement
         $this->get($this->apiUrl('achievementwondata', ['a' => 999999]))
+            ->assertStatus(404)
             ->assertExactJson([
-                'Success' => true,
-                'Offset' => 0,
-                'Count' => 10,
-                'FriendsOnly' => false,
-                'AchievementID' => 999999,
-                'Response' => [
-                    'NumEarned' => 0,
-                    'GameID' => 0,
-                    'TotalPlayers' => 0,
-                    'RecentWinner' => [],
-                ],
+                'Success' => false,
+                'Status' => 404,
+                'Code' => 'not_found',
+                'Error' => 'Unknown achievement.',
             ]);
 
         // second achievement - friends only
@@ -177,6 +175,7 @@ class AchievementWonDataTest extends TestCase
         ]);
 
         $this->get($this->apiUrl('achievementwondata', ['a' => $achievement2->ID, 'f' => 1]))
+            ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Offset' => 0,

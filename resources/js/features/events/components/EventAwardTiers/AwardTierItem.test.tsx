@@ -146,4 +146,62 @@ describe('Component: AwardTierItem', () => {
     // ASSERT
     expect(screen.queryByTestId('award-tier-label')).not.toBeInTheDocument();
   });
+
+  it('given an earn count, shows a link to earners', () => {
+    // ARRANGE
+    const event = createRaEvent();
+    const eventAward = createEventAward({ badgeCount: 10, label: 'Bronze' });
+
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
+
+    // ASSERT
+    const linkEl = screen.getByRole('link', { name: /bronze/i });
+    expect(linkEl).toBeVisible();
+  });
+
+  it('given no earn count, does not show a link to earners', () => {
+    // ARRANGE
+    const event = createRaEvent();
+    const eventAward = createEventAward({ badgeCount: 0, label: 'Bronze' });
+
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
+
+    // ASSERT
+    const linkEl = screen.queryByRole('link', { name: /bronze/i });
+    expect(linkEl).not.toBeInTheDocument();
+  });
+
+  it('given a tierIndex greater than 0, displays a link', () => {
+    // ARRANGE
+    const event = createRaEvent({ id: 123 });
+    const eventAward = createEventAward({
+      badgeCount: 10,
+      label: 'Gold',
+      eventId: 123,
+      tierIndex: 2,
+    });
+
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
+
+    // ASSERT
+    const linkEl = screen.getByRole('link', { name: /gold/i });
+    expect(linkEl).toBeVisible();
+    expect(linkEl).toHaveAttribute('href', expect.stringContaining('event.award-earners.index'));
+  });
+
+  it('given an earned award with no earners, does not apply hover styles to checkmark', () => {
+    // ARRANGE
+    const event = createRaEvent();
+    const eventAward = createEventAward({
+      earnedAt: '2023-01-01',
+      badgeCount: 0,
+    });
+
+    render(<AwardTierItem event={event} eventAward={eventAward} hasVirtualTier={false} />);
+
+    // ASSERT
+    const checkmark = screen.getByTestId('award-earned-checkmark');
+    expect(checkmark).toBeVisible();
+    expect(checkmark).not.toHaveClass('group-hover:text-link-hover');
+  });
 });

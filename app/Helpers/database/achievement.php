@@ -87,7 +87,8 @@ function getAchievementsList(
             INNER JOIN GameData AS gd ON gd.ID = ach.GameID
             INNER JOIN Console AS c ON c.ID = gd.ConsoleID
             WHERE gd.ConsoleID != " . System::Events . "
-            AND ach.Flags = :achievementFlag ";
+            AND ach.Flags = :achievementFlag
+            AND ach.deleted_at IS NULL ";
 
     if ($developer) {
         $bindings['developerId'] = $developer->id;

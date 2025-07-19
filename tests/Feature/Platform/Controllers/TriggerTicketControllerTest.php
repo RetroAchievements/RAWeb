@@ -387,10 +387,10 @@ class TriggerTicketControllerTest extends TestCase
 
         // Assert
         $response->assertInertia(fn (Assert $page) => $page
-            ->where('selectedEmulator', null)
-            ->where('selectedGameHashId', null)
-            ->where('emulatorVersion', null)
-            ->where('emulatorCore', null)
+            ->missing('selectedEmulator')
+            ->missing('selectedGameHashId')
+            ->missing('emulatorVersion')
+            ->missing('emulatorCore')
         );
     }
 

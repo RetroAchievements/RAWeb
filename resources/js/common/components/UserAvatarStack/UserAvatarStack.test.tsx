@@ -115,4 +115,54 @@ describe('Component: UserAvatarStack', () => {
       expect(screen.getAllByText(/Jamiras, Scott e TheMysticalOne/i)[0]).toBeVisible();
     });
   });
+
+  it('given isOverlappingAvatars is true (default), applies overlapping styles', () => {
+    // ARRANGE
+    const users = [createUser(), createUser(), createUser()];
+
+    render(<UserAvatarStack users={users} />);
+
+    // ASSERT
+    const avatarList = screen.getByRole('list');
+    expect(avatarList).toHaveClass('-space-x-2');
+
+    const avatars = screen.getAllByRole('img');
+    for (const avatar of avatars) {
+      expect(avatar).toHaveClass('ring-2', 'ring-neutral-800', 'light:ring-neutral-300');
+    }
+  });
+
+  it('given isOverlappingAvatars is false, does not apply overlapping styles', () => {
+    // ARRANGE
+    const users = [createUser(), createUser(), createUser()];
+
+    render(<UserAvatarStack users={users} isOverlappingAvatars={false} />);
+
+    // ASSERT
+    const avatarList = screen.getByRole('list');
+    expect(avatarList).not.toHaveClass('-space-x-2');
+
+    const avatars = screen.getAllByRole('img');
+    for (const avatar of avatars) {
+      expect(avatar).not.toHaveClass('ring-2');
+    }
+  });
+
+  it('given isOverlappingAvatars is false and there is an overflow indicator, the overflow indicator does not have ring styles', () => {
+    // ARRANGE
+    const users = [
+      createUser(),
+      createUser(),
+      createUser(),
+      createUser(),
+      createUser(),
+      createUser(), // !! 6th user triggers overflow.
+    ];
+
+    render(<UserAvatarStack users={users} maxVisible={5} isOverlappingAvatars={false} />);
+
+    // ASSERT
+    const overflowIndicator = screen.getByTestId('overflow-indicator');
+    expect(overflowIndicator).not.toHaveClass('ring-2');
+  });
 });

@@ -14,16 +14,24 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class GameShowPagePropsData extends Data
 {
     /**
-     * @param Collection<int, FollowedPlayerCompletionData> $followedPlayerCompletions
-     * @param Collection<int, PlayerAchievementChartBucketData> $playerAchievementChartBuckets
+     * @param Collection<int, AchievementSetClaimData> $achievementSetClaims
      * @param Collection<int, CommentData> $recentVisibleComments
+     * @param Collection<int, FollowedPlayerCompletionData> $followedPlayerCompletions
      * @param Collection<int, GameTopAchieverData> $topAchievers
+     * @param Collection<int, PlayerAchievementChartBucketData> $playerAchievementChartBuckets
      */
     public function __construct(
+        public Collection $achievementSetClaims,
+        public AggregateAchievementSetCreditsData $aggregateCredits,
         public GameData $game,
         public UserPermissionsData $can,
+        public bool $hasMatureContent,
         /** @var GameSetData[] */
         public array $hubs,
+        public bool $isLockedOnlyFilterEnabled,
+        public bool $isMissableOnlyFilterEnabled,
+        public bool $isOnWantToDevList,
+        public bool $isOnWantToPlayList,
         public bool $isSubscribedToComments,
         public Collection $followedPlayerCompletions,
         public Collection $playerAchievementChartBuckets,
@@ -37,6 +45,7 @@ class GameShowPagePropsData extends Data
         public Collection $topAchievers,
         public ?PlayerGameData $playerGame,
         public ?PlayerGameProgressionAwardsData $playerGameProgressionAwards,
+        public ?SeriesHubData $seriesHub,
     ) {
     }
 }

@@ -283,7 +283,7 @@ $unlockMode = match ($sort % 10) {
 
             // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day
             if ($type == 0) {
-                echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" . localized_number($dataPoint['AchievementCount']) . "</a></td>";
+                echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=" . $dataPoint['DisplayName'] . "'>" . localized_number($dataPoint['AchievementCount']) . "</a></td>";
             } else {
                 echo "<td class='text-right'>" . localized_number($dataPoint['AchievementCount'] ?? 0) . "</td>";
             }
@@ -345,7 +345,7 @@ $unlockMode = match ($sort % 10) {
 
                 // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day
                 if ($type == 0) {
-                    echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['AchievementCount'] . "</a></td>";
+                    echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=" . $userData[0]['DisplayName'] . "'>" . $userData[0]['AchievementCount'] . "</a></td>";
                 } else {
                     echo "<td class='text-right'>" . localized_number($userData[0]['AchievementCount']) . "</a></td>";
                 }

@@ -44,6 +44,8 @@ class GameData extends Data
         public Lazy|array $claimants,
         /** @var Lazy|array<GameAchievementSetData> */
         public Lazy|array $gameAchievementSets,
+        /** @var Lazy|array<GameReleaseData> */
+        public Lazy|array $releases,
     ) {
     }
 
@@ -84,6 +86,10 @@ class GameData extends Data
 
             gameAchievementSets: Lazy::create(fn () => $game->gameAchievementSets->map(
                 fn ($gameAchievementSet) => GameAchievementSetData::from($gameAchievementSet)
+            )->all()),
+
+            releases: Lazy::create(fn () => $game->releases->map(
+                fn ($release) => GameReleaseData::from($release)
             )->all())
         );
     }

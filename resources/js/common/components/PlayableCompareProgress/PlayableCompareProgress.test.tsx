@@ -150,10 +150,16 @@ describe('Component: CompareProgress', () => {
     const game = createGame({ id: 123 });
     const searchResult = createUser({ displayName: 'CompareUser' });
 
-    // Use the same pattern as in CreateMessageThreadForm test
     vi.spyOn(axios, 'get').mockImplementation((url) => {
       if (url.includes('api.search.index')) {
-        return Promise.resolve({ data: { users: [searchResult] } });
+        return Promise.resolve({
+          data: {
+            results: { users: [searchResult] },
+            query: 'CompareUser',
+            scopes: ['users'],
+            scopeRelevance: { users: 1 },
+          },
+        });
       }
 
       return Promise.reject(new Error('Not mocked'));

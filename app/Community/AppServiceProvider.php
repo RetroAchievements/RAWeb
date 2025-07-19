@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Commands\ConvertGameShortcodesToHubs;
+use App\Community\Commands\DeleteOldUserActivities;
 use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\MigrateTicketCommentMetadata;
 use App\Community\Commands\SyncComments;
@@ -39,6 +40,7 @@ use App\Models\UserActivity;
 use App\Models\UserComment;
 use App\Models\UserGameListEntry;
 use App\Models\UserRelation;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -51,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ConvertGameShortcodesToHubs::class,
+                DeleteOldUserActivities::class,
 
                 MigrateTicketCommentMetadata::class,
 
@@ -64,6 +67,13 @@ class AppServiceProvider extends ServiceProvider
                 GenerateAnnualRecap::class,
             ]);
         }
+
+        $this->app->booted(function () {
+            /** @var Schedule $schedule */
+            $schedule = $this->app->make(Schedule::class);
+
+            $schedule->command(DeleteOldUserActivities::class)->daily();
+        });
 
         $this->loadMigrationsFrom([database_path('migrations/community')]);
 

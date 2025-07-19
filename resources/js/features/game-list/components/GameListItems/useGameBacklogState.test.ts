@@ -1,15 +1,15 @@
 import type { Mock } from 'vitest';
 
+import { useAddOrRemoveFromUserGameList } from '@/common/hooks/useAddOrRemoveFromUserGameList';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { useWantToPlayGamesList } from '@/common/hooks/useWantToPlayGamesList';
 import { createAuthenticatedUser } from '@/common/models';
 import { act, renderHook, waitFor } from '@/test';
 import { createGame } from '@/test/factories';
 
 import { useGameBacklogState } from './useGameBacklogState';
 
-vi.mock('@/common/hooks/useWantToPlayGamesList', () => ({
-  useWantToPlayGamesList: vi.fn(),
+vi.mock('@/common/hooks/useAddOrRemoveFromUserGameList', () => ({
+  useAddOrRemoveFromUserGameList: vi.fn(),
 }));
 
 vi.mock('@/common/hooks/usePageProps', () => ({
@@ -22,9 +22,9 @@ describe('Hook: useGameBacklogState', () => {
       auth: { user: createAuthenticatedUser({ id: 1 }) },
     });
 
-    (useWantToPlayGamesList as Mock).mockReturnValue({
-      addToWantToPlayGamesList: vi.fn(),
-      removeFromWantToPlayGamesList: vi.fn(),
+    (useAddOrRemoveFromUserGameList as Mock).mockReturnValue({
+      addToGameList: vi.fn(),
+      removeFromGameList: vi.fn(),
       isPending: false,
     });
   });
@@ -36,11 +36,11 @@ describe('Hook: useGameBacklogState', () => {
   it('given an API call fails while optimistic updates are enabled, reverts the optimistic update', async () => {
     // ARRANGE
     const mockError = new Error('API Error');
-    const addToWantToPlayGamesList = vi.fn().mockRejectedValue(mockError);
+    const addToGameList = vi.fn().mockRejectedValue(mockError);
 
-    (useWantToPlayGamesList as Mock).mockReturnValue({
-      addToWantToPlayGamesList,
-      removeFromWantToPlayGamesList: vi.fn(),
+    (useAddOrRemoveFromUserGameList as Mock).mockReturnValue({
+      addToGameList,
+      removeFromGameList: vi.fn(),
       isPending: false,
     });
 
@@ -60,7 +60,7 @@ describe('Hook: useGameBacklogState', () => {
 
     // ASSERT
     // ... verify the state was initially updated optimistically ...
-    expect(addToWantToPlayGamesList).toHaveBeenCalled();
+    expect(addToGameList).toHaveBeenCalled();
 
     // ... verify the state was reverted after the error ...
     await waitFor(() => {
@@ -71,11 +71,11 @@ describe('Hook: useGameBacklogState', () => {
   it('given an API call fails when optimistic updates are not enabled, does not revert state', async () => {
     // ARRANGE
     const mockError = new Error('API Error');
-    const addToWantToPlayGamesList = vi.fn().mockRejectedValue(mockError);
+    const addToGameList = vi.fn().mockRejectedValue(mockError);
 
-    (useWantToPlayGamesList as Mock).mockReturnValue({
-      addToWantToPlayGamesList,
-      removeFromWantToPlayGamesList: vi.fn(),
+    (useAddOrRemoveFromUserGameList as Mock).mockReturnValue({
+      addToGameList,
+      removeFromGameList: vi.fn(),
       isPending: false,
     });
 
@@ -95,7 +95,7 @@ describe('Hook: useGameBacklogState', () => {
 
     // ASSERT
     // ... verify the API was called ...
-    expect(addToWantToPlayGamesList).toHaveBeenCalled();
+    expect(addToGameList).toHaveBeenCalled();
 
     // ... verify the state remained unchanged since we're not using optimistic updates ...
     expect(result.current.isInBacklogMaybeOptimistic).toBe(false);

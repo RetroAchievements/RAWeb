@@ -11,12 +11,14 @@ import {
   BaseBreadcrumbSeparator,
 } from '@/common/components/+vendor/BaseBreadcrumb';
 import { InertiaLink } from '@/common/components/InertiaLink';
+import type { TranslatedString } from '@/types/i18next';
 
 interface EventBreadcrumbsProps {
   event: App.Platform.Data.Event;
+  t_currentPageLabel?: TranslatedString;
 }
 
-export const EventBreadcrumbs: FC<EventBreadcrumbsProps> = ({ event }) => {
+export const EventBreadcrumbs: FC<EventBreadcrumbsProps> = ({ event, t_currentPageLabel }) => {
   const { t } = useTranslation();
 
   const CommunityEventsHubId = 4;
@@ -37,8 +39,26 @@ export const EventBreadcrumbs: FC<EventBreadcrumbsProps> = ({ event }) => {
           <BaseBreadcrumbSeparator />
 
           <BaseBreadcrumbItem aria-label={event.legacyGame?.title}>
-            <BaseBreadcrumbPage>{event.legacyGame?.title}</BaseBreadcrumbPage>
+            {t_currentPageLabel ? (
+              <BaseBreadcrumbLink href={route('event.show', { event: event.id })}>
+                <span>{event.legacyGame?.title}</span>
+              </BaseBreadcrumbLink>
+            ) : (
+              <BaseBreadcrumbPage>
+                <BaseBreadcrumbPage>{event.legacyGame?.title}</BaseBreadcrumbPage>
+              </BaseBreadcrumbPage>
+            )}
           </BaseBreadcrumbItem>
+
+          {t_currentPageLabel ? (
+            <>
+              <BaseBreadcrumbSeparator />
+
+              <BaseBreadcrumbItem aria-label={t_currentPageLabel}>
+                <BaseBreadcrumbPage>{t_currentPageLabel}</BaseBreadcrumbPage>
+              </BaseBreadcrumbItem>
+            </>
+          ) : null}
         </BaseBreadcrumbList>
       </BaseBreadcrumb>
     </div>

@@ -158,61 +158,6 @@ function getAchievementUnlocksData(
         });
 }
 
-function getRecentUnlocksPlayersData(
-    int $achID,
-    int $offset,
-    int $count,
-    ?string $user = null,
-    bool $friendsOnly = false
-): array {
-    $retVal = [
-        'NumEarned' => 0,
-        'GameID' => 0,
-        'TotalPlayers' => 0,
-        'RecentWinner' => [],
-    ];
-
-    $achievement = Achievement::find($achID);
-    if (!$achievement) {
-        return $retVal;
-    }
-
-    $game = Game::find($achievement->GameID);
-    if (!$game) {
-        return $retVal;
-    }
-    $retVal['GameID'] = $game->ID;
-
-    $retVal['NumEarned'] = $achievement->unlocks_total;
-    $retVal['TotalPlayers'] = $game->players_total;
-
-    $extraWhere = "";
-    if ($friendsOnly && isset($user) && $user) {
-        $friendSubquery = GetFriendsSubquery($user, false);
-        $extraWhere = " AND u.User IN ( $friendSubquery ) ";
-    }
-
-    // Get recent winners, and their most recent activity:
-    $query = "SELECT u.User, u.display_name AS DisplayName, u.RAPoints, " . unixTimestampStatement('pa.unlocked_at', 'DateAwarded') . "
-              FROM player_achievements AS pa
-              LEFT JOIN UserAccounts AS u ON u.ID = pa.user_id
-              WHERE pa.achievement_id = $achID $extraWhere
-              ORDER BY pa.unlocked_at DESC
-              LIMIT $offset, $count";
-
-    foreach (legacyDbFetchAll($query) as $db_entry) {
-        $db_entry['AvatarUrl'] = media_asset('UserPic/' . $db_entry['User'] . '.png');
-        $db_entry['User'] = $db_entry['DisplayName'];
-        unset($db_entry['DisplayName']);
-
-        $db_entry['RAPoints'] = (int) $db_entry['RAPoints'];
-        $db_entry['DateAwarded'] = (int) $db_entry['DateAwarded'];
-        $retVal['RecentWinner'][] = $db_entry;
-    }
-
-    return $retVal;
-}
-
 /**
  * Gets the number of softcore and hardcore awards for an achievement since a given time.
  */

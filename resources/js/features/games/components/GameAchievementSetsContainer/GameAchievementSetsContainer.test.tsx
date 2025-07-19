@@ -32,7 +32,7 @@ describe('Component: GameAchievementSetsContainer', () => {
       gameAchievementSets: [createGameAchievementSet()],
     });
 
-    render(<GameAchievementSetsContainer game={game} />);
+    render(<GameAchievementSetsContainer game={game} />, { pageProps: { game } });
 
     // ASSERT
     expect(screen.getByRole('button', { name: /display order/i })).toBeVisible();
@@ -47,7 +47,7 @@ describe('Component: GameAchievementSetsContainer', () => {
       ],
     });
 
-    render(<GameAchievementSetsContainer game={game} />);
+    render(<GameAchievementSetsContainer game={game} />, { pageProps: { game } });
 
     // ASSERT
     expect(screen.getByTestId('game-achievement-sets')).toBeVisible();
@@ -60,7 +60,7 @@ describe('Component: GameAchievementSetsContainer', () => {
       gameAchievementSets: [createGameAchievementSet()],
     });
 
-    render(<GameAchievementSetsContainer game={game} />);
+    render(<GameAchievementSetsContainer game={game} />, { pageProps: { game } });
 
     // ACT
     const sortButton = screen.getByRole('button', { name: /display order/i });
@@ -70,32 +70,5 @@ describe('Component: GameAchievementSetsContainer', () => {
     // ASSERT
     const container = screen.getByTestId('game-achievement-sets');
     expect(container).toBeVisible();
-  });
-
-  it('given the game has exactly one achievement set, passes isOnlySetForGame as true', () => {
-    // ARRANGE
-    const game = createGame({
-      gameAchievementSets: [createGameAchievementSet()],
-    });
-
-    render(<GameAchievementSetsContainer game={game} />);
-
-    // ASSERT
-    expect(screen.getByRole('button', { name: /0 achievements/i })).toBeDisabled();
-  });
-
-  it('given the game has multiple achievement sets, passes isOnlySetForGame as false', () => {
-    // ARRANGE
-    const game = createGame({
-      gameAchievementSets: [
-        createGameAchievementSet({ id: 1 }),
-        createGameAchievementSet({ id: 2 }),
-      ],
-    });
-
-    render(<GameAchievementSetsContainer game={game} />);
-
-    // ASSERT
-    expect(screen.getAllByRole('button')[1]).not.toBeDisabled();
   });
 });

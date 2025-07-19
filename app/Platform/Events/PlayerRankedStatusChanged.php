@@ -18,7 +18,6 @@ class PlayerRankedStatusChanged
 
     public function __construct(
         public User $user,
-        public bool $ranked,
     ) {
     }
 

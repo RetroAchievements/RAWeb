@@ -51,6 +51,7 @@ class BuildEventShowPagePropsAction
             event: EventData::fromEvent($event)->include(
                 'eventAchievements.achievement.createdAt',
                 'eventAchievements.achievement.description',
+                'eventAchievements.achievement.decorator',
                 'eventAchievements.achievement.orderColumn',
                 'eventAchievements.achievement.points',
                 'eventAchievements.achievement.unlockedAt',

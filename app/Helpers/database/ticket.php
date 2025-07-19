@@ -181,7 +181,7 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
         'ReportNotes' => $note,
     ]);
 
-    expireUserTicketCounts($maintainer->username);
+    expireUserTicketCounts($maintainer);
 
     sendInitialTicketEmailToAssignee($newTicket, $achievement->game, $achievement);
 
@@ -219,10 +219,8 @@ function getTicket(int $ticketID): ?array
     return legacyDbFetch($query);
 }
 
-function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reason = null): bool
+function updateTicket(User $userModel, int $ticketID, int $ticketVal, ?string $reason = null): bool
 {
-    $userModel = User::whereName($user)->first();
-
     // get the ticket data before updating so we know what the previous state was
     $ticketData = getTicket($ticketID);
 
@@ -290,20 +288,20 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
         ]);
     }
 
-    expireUserTicketCounts($ticketData['AchievementAuthor']);
+    expireUserTicketCounts(User::whereName($ticketData['AchievementAuthor'])->first());
 
-    $reporterData = [];
-    if (!getAccountDetails($userReporter, $reporterData)) {
+    $reporter = User::whereName($userReporter)->first();
+    if (!$reporter) {
         return true;
     }
 
-    expireUserTicketCounts($userReporter);
+    expireUserTicketCounts($reporter);
 
-    $email = $reporterData['EmailAddress'];
+    $email = $reporter->EmailAddress;
 
     $emailTitle = "Ticket status changed";
 
-    $msg = "Hello $userReporter!<br>" .
+    $msg = "Hello {$reporter->display_name}!<br>" .
         "<br>" .
         "$achTitle - $gameTitle ($consoleName)<br>" .
         "<br>" .
@@ -358,11 +356,12 @@ function countOpenTicketsByDev(User $dev): array
     return $retVal;
 }
 
-// TODO use $user->id
-function expireUserTicketCounts(string $username): void
+function expireUserTicketCounts(?User $user): void
 {
-    $cacheKey = CacheKey::buildUserRequestTicketsCacheKey($username);
-    Cache::forget($cacheKey);
+    if ($user) {
+        $cacheKey = CacheKey::buildUserRequestTicketsCacheKey($user->User);
+        Cache::forget($cacheKey);
+    }
 }
 
 function countOpenTicketsByAchievement(int $achievementID): int

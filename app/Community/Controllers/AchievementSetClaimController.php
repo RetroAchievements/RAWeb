@@ -11,6 +11,7 @@ use App\Community\Requests\UpdateGameClaimRequest;
 use App\Http\Controller;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -50,11 +51,15 @@ class AchievementSetClaimController extends Controller
     ): RedirectResponse {
         $this->authorize('manage', [AchievementSetClaim::class]);
 
-        $claim = $action->execute($game);
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
 
-        if (!$claim) {
+        $claim = $game->achievementSetClaims()->active()->where('user_id', $currentUser->id)->first();
+        if ($claim === null) {
             return back()->with('error', 'You do not have a claim on this game.');
         }
+
+        $action->execute($claim, $currentUser);
 
         return back()->with('success', $this->resourceActionSuccessMessage('claim', 'drop'));
     }

@@ -40,6 +40,9 @@
     <link rel="dns-prefetch" href="{{ config('filesystems.disks.media.url') }}">
     <link rel="preconnect" href="{{ config('filesystems.disks.static.url') }}">
     <link rel="dns-prefetch" href="{{ config('filesystems.disks.static.url') }}">
+    @auth
+        <meta name="user-locale" content="{{ auth()->user()->locale ?? 'en_US' }}">
+    @endauth
 
     {{-- TODO replace with ESM imports, Alpine, tailwind --}}
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css">
@@ -49,6 +52,9 @@
     @if (!empty($page))
         @inertiaHead
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"], config('vite.build_path'))
+    @else
+        {{-- Load global search standalone for non-Inertia pages --}}
+        @vite(['resources/js/global-search-standalone.tsx'], config('vite.build_path'))
     @endif
 
     <livewire:styles />

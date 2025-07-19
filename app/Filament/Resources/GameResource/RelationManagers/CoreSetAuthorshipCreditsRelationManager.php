@@ -24,7 +24,16 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
 {
     protected static string $relationship = 'coreSetAuthorshipCredits';
 
-    protected static ?string $title = 'Credits';
+    protected static ?string $title = 'Set Credits';
+
+    protected static ?string $icon = 'fas-users';
+
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        $count = $ownerRecord->coreSetAuthorshipCredits->count();
+
+        return $count > 0 ? "{$count}" : null;
+    }
 
     public function form(Form $form): Form
     {

@@ -4,9 +4,12 @@ use App\Actions\FindUserByIdentifierAction;
 use App\Community\Enums\ActivityType;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\BuildClientPatchDataV2Action;
+use App\Connect\Actions\GetAchievementUnlocksAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\GetCodeNotesAction;
+use App\Connect\Actions\GetFriendListAction;
 use App\Connect\Actions\GetHashLibraryAction;
+use App\Connect\Actions\GetLeaderboardEntriesAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\ResolveRootGameFromGameAndGameHashAction;
 use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
@@ -33,8 +36,11 @@ use Illuminate\Support\Carbon;
 
 $requestType = request()->input('r');
 $handler = match ($requestType) {
+    'achievementwondata' => new GetAchievementUnlocksAction(),
     'codenotes2' => new GetCodeNotesAction(),
+    'getfriendlist' => new GetFriendListAction(),
     'hashlibrary' => new GetHashLibraryAction(),
+    'lbinfo' => new GetLeaderboardEntriesAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
     'submitgametitle' => new SubmitGameTitleAction(),
     default => null,
@@ -112,10 +118,8 @@ $credentialsOK = match ($requestType) {
     /*
      * Registration required and user=local
      */
-    "achievementwondata",
     "awardachievement",
     "awardachievements",
-    "getfriendlist",
     "patch",
     "ping",
     "postactivity",
@@ -338,15 +342,6 @@ switch ($requestType) {
         }
         break;
 
-    case "achievementwondata":
-        $friendsOnly = (bool) request()->input('f', 0);
-        $response['Offset'] = $offset;
-        $response['Count'] = $count;
-        $response['FriendsOnly'] = $friendsOnly;
-        $response['AchievementID'] = $achievementID;
-        $response['Response'] = getRecentUnlocksPlayersData($achievementID, $offset, $count, $username, $friendsOnly);
-        break;
-
     case "awardachievement":
         $achIDToAward = (int) request()->input('a', 0);
         $hardcore = (bool) request()->input('h', 0);
@@ -527,19 +522,6 @@ switch ($requestType) {
         $response['ExistingIDs'] = $alreadyAwardedIds;
         $response['SuccessfulIDs'] = $newAwardedIds;
 
-        break;
-
-    case "getfriendlist":
-        $response['Friends'] = GetFriendList($user);
-        break;
-
-    case "lbinfo":
-        $lbID = (int) request()->input('i', 0);
-        // Note: Nearby entry behavior has no effect if $username is null
-        // TBD: friendsOnly
-        $leaderboard = Leaderboard::find($lbID);
-        $response['LeaderboardData'] = $leaderboard ?
-            GetLeaderboardData($leaderboard, User::whereName($username)->first(), $count, $offset, nearby: true) : [];
         break;
 
     case "achievementsets":
@@ -840,13 +822,31 @@ switch ($requestType) {
 
 $response['Success'] = (bool) $response['Success'];
 
+// Convert the response to a JSON string in order to calculate the exact Content-Length.
+// Cloudflare is manipulating the headers of dorequest.php responses, and some clients
+// are unable to gracefully handle this (ie: RetroArch 1.20.0 and below). By adding
+// explicit Content-Type, Content-Length, and Cache-Control headers, we inform Cloudflare
+// that these responses are immutable and should be passed straight through.
+$jsonContent = json_encode($response);
+$contentLength = (string) strlen($jsonContent);
+
 if (array_key_exists('Status', $response)) {
     $status = $response['Status'];
     if ($status === 401) {
-        return response()->json($response, $status)->header('WWW-Authenticate', 'Bearer');
+        return response($jsonContent, $status)
+            ->header('Content-Type', 'application/json')
+            ->header('Content-Length', $contentLength)
+            ->header('Cache-Control', 'no-transform, private, must-revalidate')
+            ->header('WWW-Authenticate', 'Bearer');
     }
 
-    return response()->json($response, $status);
+    return response($jsonContent, $status)
+        ->header('Content-Type', 'application/json')
+        ->header('Content-Length', $contentLength)
+        ->header('Cache-Control', 'no-transform, private, must-revalidate');
 }
 
-return response()->json($response);
+return response($jsonContent)
+    ->header('Content-Type', 'application/json')
+    ->header('Content-Length', $contentLength)
+    ->header('Cache-Control', 'no-transform, private, must-revalidate');

@@ -166,4 +166,18 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     expect(screen.queryByText(/extras/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/manage/i)).not.toBeInTheDocument();
   });
+
+  it('given the user is a developer, shows the development section', () => {
+    // ARRANGE
+    render(<GameSidebarFullWidthButtons game={createGame({ forumTopicId: undefined })} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        game: createGame(),
+        can: { manageGames: true, createGameForumTopic: false },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/development/i)).toBeVisible();
+  });
 });

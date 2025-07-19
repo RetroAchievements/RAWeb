@@ -11,7 +11,7 @@ import { UserAvatar } from '../UserAvatar';
 interface UserAvatarStackProps {
   users: App.Data.User[];
 
-  size?: AvatarSize;
+  isOverlappingAvatars?: boolean;
 
   /**
    * Maximum number of avatars to display. If there are more than this many
@@ -21,9 +21,16 @@ interface UserAvatarStackProps {
    * 5 avatars. If we have 6 users, we'll show 4 avatars and a "+2" label.
    */
   maxVisible?: number;
+
+  size?: AvatarSize;
 }
 
-export const UserAvatarStack: FC<UserAvatarStackProps> = ({ users, maxVisible = 5, size = 32 }) => {
+export const UserAvatarStack: FC<UserAvatarStackProps> = ({
+  users,
+  isOverlappingAvatars = true,
+  maxVisible = 5,
+  size = 32,
+}) => {
   const { auth } = usePageProps();
 
   const id = useId();
@@ -46,14 +53,17 @@ export const UserAvatarStack: FC<UserAvatarStackProps> = ({ users, maxVisible = 
   const formattedCount = numberFormatter.format(remainingCount);
 
   return (
-    <div className="flex -space-x-2.5" role="list">
+    <div className={cn('flex flex-wrap', isOverlappingAvatars ? '-space-x-2' : null)} role="list">
       {visibleUsers.map((user) => (
         <UserAvatar
           key={`user-avatar-stack-${id}-${user.displayName}`}
           {...user}
           size={size}
           showLabel={false}
-          imgClassName="rounded-full ring-2 ring-neutral-800 light:ring-neutral-300"
+          imgClassName={cn(
+            'select-none rounded-full bg-embed',
+            isOverlappingAvatars ? 'ring-2 ring-neutral-800 light:ring-neutral-300' : null,
+          )}
         />
       ))}
 
@@ -64,10 +74,12 @@ export const UserAvatarStack: FC<UserAvatarStackProps> = ({ users, maxVisible = 
               data-testid="overflow-indicator"
               className={cn(
                 'flex items-center justify-center rounded-full text-[10px]',
-                'font-mono tracking-tight ring-2',
+                'font-mono tracking-tight',
 
-                'bg-neutral-800 text-neutral-300 ring-neutral-700',
-                'light:bg-neutral-200 light:text-neutral-700 light:ring-neutral-300',
+                'bg-neutral-800 text-neutral-300',
+                'light:bg-neutral-200 light:text-neutral-700',
+
+                isOverlappingAvatars ? 'ring-2 ring-neutral-700 light:ring-neutral-300' : null,
 
                 // TODO reusable avatar size helper
                 size === 24 ? 'size-6' : null,

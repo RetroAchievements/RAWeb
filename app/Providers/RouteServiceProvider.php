@@ -94,6 +94,12 @@ class RouteServiceProvider extends ServiceProvider
             // Route::resource('users', UserController::class)->only('index')->names(['index' => 'user.index']);
             Route::get('u/{hashId}', [UserController::class, 'permalink'])->name('user.permalink');
 
+            Route::group([
+                'prefix' => 'internal-api',
+            ], function () {
+                Route::get('search', [SearchApiController::class, 'index'])->name('api.search.index');
+            });
+
             /*
              * protected routes, need an authenticated user with a verified email address
              * permissions are checked in controllers individually by authorizing abilities in the respective controller actions
@@ -111,8 +117,6 @@ class RouteServiceProvider extends ServiceProvider
 
                 Route::post('avatar', [UserController::class, 'uploadAvatar'])->name('api.user.avatar.store');
                 Route::delete('avatar', [UserController::class, 'deleteAvatar'])->name('api.user.avatar.destroy');
-
-                Route::get('search', [SearchApiController::class, 'index'])->name('api.search.index');
             });
         });
     }
