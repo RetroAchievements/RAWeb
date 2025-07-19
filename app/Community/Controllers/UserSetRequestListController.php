@@ -74,6 +74,12 @@ class UserSetRequestListController extends Controller
             page: $request->getPage(),
         );
 
+        // When viewing a specific user's requests, override unfilteredTotal
+        // to show their total requests, not the system-wide total.
+        if ($targetUser && $userRequestInfo) {
+            $paginatedData->unfilteredTotal = $userRequestInfo->used;
+        }
+
         // If we're targeting a specific user, only show systems they've requested games for.
         if ($targetUser) {
             $systemIds = UserGameListEntry::where('user_id', $targetUser->id)

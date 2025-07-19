@@ -39,8 +39,14 @@ export function useCurrentSuperFilterLabel<TData>(
 
     const systemsCount = systemFilterValue?.length ?? 0;
     if (systemsCount > 0) {
-      // Check if we're on the Most Requested Sets page and "supported" is selected.
+      // Check if we're on the Most Requested Sets page and "all" or "supported" are selected.
       if (
+        tableApiRouteName?.includes('api.set-request') &&
+        systemFilterValue?.length === 1 &&
+        systemFilterValue[0] === 'all'
+      ) {
+        filterLabel += `, ${t('All Systems')}`;
+      } else if (
         tableApiRouteName?.includes('api.set-request') &&
         systemFilterValue?.length === 1 &&
         systemFilterValue[0] === 'supported'

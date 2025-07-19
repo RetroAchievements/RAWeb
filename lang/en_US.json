@@ -1023,5 +1023,6 @@
     "{{used, number}} of {{total, number}} requests made": "{{used, number}} of {{total, number}} requests made",
     "{{points, number}} points until you earn another request": "{{points, number}} points until you earn another request",
     "Set Requests": "Set Requests",
-    "Requests": "Requests"
+    "Requests": "Requests",
+    "All systems": "All systems"
 }

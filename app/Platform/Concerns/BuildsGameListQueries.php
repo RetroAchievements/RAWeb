@@ -173,6 +173,11 @@ trait BuildsGameListQueries
              * only show games matching a specific list of system IDs
              */
             if ($filterKey === 'system') {
+                // Skip system filtering entirely if "all" is explicitly selected.
+                if (in_array('all', $filterValues)) {
+                    continue;
+                }
+                
                 $systemIds = in_array('supported', $filterValues)
                     ? System::active()->gameSystems()->pluck('ID')->all()
                     : $filterValues;

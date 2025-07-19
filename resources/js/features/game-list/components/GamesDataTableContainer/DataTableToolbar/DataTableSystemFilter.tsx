@@ -40,6 +40,16 @@ export function DataTableSystemFilter<TData>({
             t_label: defaultOptionLabel,
             value: 'supported',
           },
+
+          ...(isSingleSelect
+            ? [
+                {
+                  t_label: t('All systems'),
+                  value: 'all',
+                },
+              ]
+            : []),
+
           ...systemOptions,
         ]
       : systemOptions;

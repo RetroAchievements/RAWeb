@@ -162,6 +162,21 @@ describe('Hook: useCurrentSuperFilterLabel', () => {
     expect(result.current).toEqual('All Games, Supported');
   });
 
+  it('given we are on the set-request page with "all" system filter selected, returns "All Games, All Systems"', () => {
+    // ARRANGE
+    const mockTable = createMockTable({
+      achievementsPublished: undefined,
+      system: ['all'], // !!
+    });
+
+    const { result } = renderHook(
+      () => useCurrentSuperFilterLabel(mockTable, 'api.set-request.index'),
+    );
+
+    // ASSERT
+    expect(result.current).toEqual('All Games, All Systems');
+  });
+
   it('given we are not on the set-request page with "supported" system filter, treats it as normal system', () => {
     // ARRANGE
     const mockTable = createMockTable({
@@ -176,6 +191,10 @@ describe('Hook: useCurrentSuperFilterLabel', () => {
     // ASSERT
     expect(result.current).toEqual('All Games, 1 System');
   });
+
+
+
+  
 
   it('given an empty system filter array, returns "All Systems"', () => {
     // ARRANGE
