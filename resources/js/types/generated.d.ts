@@ -335,6 +335,7 @@ declare namespace App.Data {
     emailAddress?: string | null;
     id?: number;
     isEmailVerified?: boolean;
+    isGone?: boolean;
     isMuted?: boolean;
     isNew?: boolean;
     lastActivityAt?: string | null;
@@ -941,7 +942,7 @@ declare namespace App.Platform.Data {
     avatarUrl: string;
     count: number;
     dateCredited: string | null;
-    deletedAt?: string | null;
+    isGone?: boolean;
   };
 }
 declare namespace App.Platform.Enums {

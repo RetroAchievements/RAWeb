@@ -326,7 +326,7 @@ class BuildGameShowPagePropsAction
                 $item['user'],
                 $item['count'],
                 isset($item['created_at']) ? $item['created_at'] : null
-            )->include('deletedAt'))
+            )->include('isGone'))
             ->values()
             ->all();
 
