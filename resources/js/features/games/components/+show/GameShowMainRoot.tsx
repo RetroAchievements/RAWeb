@@ -10,6 +10,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { GameAchievementSetsContainer } from '../GameAchievementSetsContainer';
 import { GameCommentList } from '../GameCommentList';
 import { GameHeaderSlotContent } from '../GameHeaderSlotContent';
+import { GameRecentPlayers } from '../GameRecentPlayers';
 
 export const GameShowMainRoot: FC = () => {
   const { game, hasMatureContent } = usePageProps<App.Platform.Data.GameShowPageProps>();
@@ -48,6 +49,7 @@ export const GameShowMainRoot: FC = () => {
 
       <div className="flex flex-col gap-6">
         <GameAchievementSetsContainer game={game} />
+        <GameRecentPlayers />
         <GameCommentList />
       </div>
     </div>

@@ -34,6 +34,7 @@ class BuildGameShowPagePropsAction
         protected BuildGameAchievementDistributionAction $buildGameAchievementDistributionAction,
         protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
         protected BuildSeriesHubDataAction $buildSeriesHubDataAction,
+        protected LoadGameRecentPlayersAction $loadGameRecentPlayersAction,
         protected ProcessGameReleasesForViewAction $processGameReleasesForViewAction,
     ) {
     }
@@ -197,6 +198,7 @@ class BuildGameShowPagePropsAction
             numCompatibleHashes: $game->hashes->where('compatibility', GameHashCompatibility::Compatible)->count(),
             numMasters: $numMasters,
             numOpenTickets: Ticket::forGame($game)->unresolved()->count(),
+            recentPlayers: $this->loadGameRecentPlayersAction->execute($game),
             recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($game->visibleComments))),
             topAchievers: $topAchievers,
             playerGame: $playerGame ? PlayerGameData::fromPlayerGame($playerGame) : null,
