@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/anchor-has-content -- handled automatically by the Trans component */
+
 import { Trans, useTranslation } from 'react-i18next';
 
 import { LegalNotice } from '@/common/components/LegalNotice';

@@ -10,9 +10,11 @@ use App\Community\Enums\UserGameListType;
 use App\Data\UserPermissionsData;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameListEntry;
+use App\Platform\Data\AchievementSetClaimData;
 use App\Platform\Data\AggregateAchievementSetCreditsData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
@@ -117,6 +119,7 @@ class BuildGameShowPagePropsAction
             ->all();
 
         $initialUserGameListState = $this->getInitialUserGameListState($game, $user);
+        $achievementSetClaims = $this->buildAchievementSetClaims($game, $user);
 
         // Deduplicate releases by region and sort them by date.
         // Then, override the releases in the game object for proper display.
@@ -128,6 +131,8 @@ class BuildGameShowPagePropsAction
         $isMissableOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_nonmissable_achievements_games', $game->id);
 
         return new GameShowPagePropsData(
+            achievementSetClaims: $achievementSetClaims,
+
             can: UserPermissionsData::fromUser($user, game: $game)->include(
                 'createGameComments',
                 'createGameForumTopic',
@@ -179,6 +184,7 @@ class BuildGameShowPagePropsAction
             ))->values()->all(),
 
             aggregateCredits: $this->buildAggregateCredits($game),
+            hasMatureContent: $game->hasMatureContent,
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
             isOnWantToPlayList: $initialUserGameListState['isOnWantToPlayList'],
@@ -212,6 +218,7 @@ class BuildGameShowPagePropsAction
         $achievementsLogicCredits = collect();
         $achievementsTestingCredits = collect();
         $achievementsWritingCredits = collect();
+        $hashCompatibilityTestingCredits = collect();
 
         // Process achievement set authors. Right now, we only support badge artwork as a task.
         foreach ($game->gameAchievementSets as $gameAchievementSet) {
@@ -231,6 +238,24 @@ class BuildGameShowPagePropsAction
                     'user' => $mostRecentArtworkAuthor->user,
                     'count' => ($existing['count'] ?? 0) + 1,
                     'created_at' => $mostRecentArtworkAuthor->created_at,
+                ]);
+            }
+        }
+
+        // Process hash compatibility testing credits.
+        // Credit is given to users who successfully tested hash compatibility.
+        $compatibleHashes = $game->hashes()
+            ->where('compatibility', GameHashCompatibility::Compatible)
+            ->whereNotNull('compatibility_tester_id')
+            ->whereColumn('compatibility_tester_id', '!=', 'user_id')
+            ->with('compatibilityTester')
+            ->get();
+        foreach ($compatibleHashes as $hash) {
+            if ($hash->compatibilityTester) {
+                $hashCompatibilityTestingCredits->put($hash->compatibilityTester->id, [
+                    'user' => $hash->compatibilityTester,
+                    'count' => 0,
+                    'created_at' => $hash->updated_at,
                 ]);
             }
         }
@@ -320,7 +345,7 @@ class BuildGameShowPagePropsAction
                 $item['user'],
                 $item['count'],
                 isset($item['created_at']) ? $item['created_at'] : null
-            )->include('deletedAt'))
+            )->include('isGone'))
             ->values()
             ->all();
 
@@ -333,6 +358,7 @@ class BuildGameShowPagePropsAction
             achievementsLogic: $sortByCountDesc($achievementsLogicCredits),
             achievementsTesting: $sortByCountDesc($achievementsTestingCredits),
             achievementsWriting: $sortByCountDesc($achievementsWritingCredits),
+            hashCompatibilityTesting: $sortByCountDesc($hashCompatibilityTestingCredits),
         );
     }
 
@@ -358,6 +384,22 @@ class BuildGameShowPagePropsAction
             'isOnWantToDevList' => in_array(UserGameListType::Develop, $results),
             'isOnWantToPlayList' => in_array(UserGameListType::Play, $results),
         ];
+    }
+
+    /**
+     * @return Collection<int, AchievementSetClaimData>
+     */
+    private function buildAchievementSetClaims(Game $game, ?User $user): Collection
+    {
+        // Build the include array based on current user permissions.
+        $claimIncludes = ['user', 'finishedAt'];
+        if ($user && $user->hasAnyRole([Role::DEV_COMPLIANCE, Role::MODERATOR, Role::ADMINISTRATOR])) {
+            $claimIncludes[] = 'userLastPlayedAt';
+        }
+
+        return $game->achievementSetClaims
+            ->map(fn ($claim) => AchievementSetClaimData::fromAchievementSetClaim($claim)->include(...$claimIncludes))
+            ->values();
     }
 
     private function getIsGameIdInCookie(string $cookieName, int $gameId): bool
