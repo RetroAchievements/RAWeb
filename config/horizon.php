@@ -187,7 +187,27 @@ return [
     |
     */
 
+    /**
+     * QUEUE SUPERVISOR ARCHITECTURE
+     * 
+     * This configuration was optimized in July 2025 to handle Sunday traffic
+     * spikes and prevent queue starvation. The architecture isolates high-volume
+     * and slow queues to prevent them from monopolizing shared workers.
+     * 
+     * Total Workers: 25 (11+8+1+3+2)
+     * - supervisor-1: General queues (fast, medium volume)
+     * - supervisor-2: Batch processing (slower, larger timeout)
+     * - supervisor-3: Search indexing (very fast, isolated)
+     * - supervisor-4: Player sessions (very high volume, fast - 49M jobs/month)
+     * - supervisor-5: Game player count (very slow - 351ms avg)
+     */
+
     'defaults' => [
+        /**
+         * Primary supervisor for general application queues.
+         * Handles most day-to-day queue processing with auto-scaling.
+         * Volume: ~200k jobs/day across 9 queue types.
+         */
         'supervisor-1' => [
             'connection' => 'redis',
             'queue' => [
@@ -195,17 +215,15 @@ return [
                 'default',
                 'developer-metrics',
                 'game-metrics',
-                'game-player-count',
                 'player-achievements',
                 'player-beaten-games-stats',
                 'player-game-metrics',
                 'player-metrics',
                 'player-points-stats',
-                'player-sessions',
             ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'size',
-            'maxProcesses' => 15,
+            'maxProcesses' => 11, // Optimized for high-volume queues with auto-scaling
             'balanceMaxShift' => 1,
             'balanceCooldown' => 3,
             'maxTime' => 0,
@@ -215,6 +233,12 @@ return [
             'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value
             'nice' => 0,
         ],
+
+        /**
+         * Batch processing supervisor for heavy computational jobs.
+         * Uses time-based scaling strategy with longer timeouts.
+         * Volume: ~1k jobs/day but they're CPU-intensive operations.
+         */
         'supervisor-2' => [
             'connection' => 'redis',
             'queue' => [
@@ -233,13 +257,58 @@ return [
             'timeout' => 600, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value
             'nice' => 0,
         ],
+
+        /**
+         * Search indexing supervisor (Laravel Scout / Meilisearch).
+         * This is isolated to prevent search reindexing from affecting other queues.
+         * Volume: ~400k jobs/day but very lightweight operations. High I/O.
+         */
         'supervisor-3' => [
             'connection' => 'redis',
             'queue' => [
                 'scout',
             ],
             'balance' => 'simple',
-            'processes' => 2, // Fixed at exactly 2 processes.
+            'processes' => 1, // Pinned at 1 - search indexing is not time-critical.
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 128,
+            'tries' => 1,
+            'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value.
+            'nice' => 0,
+        ],
+
+        /**
+         * Player sessions supervisor (real-time gaming activity & playtime tracking).
+         * Isolated due to _extremely_ high volume (49M jobs/month).
+         */
+        'supervisor-4' => [
+            'connection' => 'redis',
+            'queue' => [
+                'player-sessions',
+            ],
+            'balance' => 'simple',
+            'processes' => 3, // Pinned at 3 - 38ms avg job time
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 128,
+            'tries' => 1,
+            'timeout' => 300,
+            'nice' => 0,
+        ],
+        
+        /**
+         * Game player count supervisor - handles slow database aggregation calculations.
+         * Isolated due to slow processing time (351ms avg per job).
+         * Prevents blocking faster queues during calculation-heavy operations.
+         */
+        'supervisor-5' => [
+            'connection' => 'redis',
+            'queue' => [
+                'game-player-count',
+            ],
+            'balance' => 'simple',
+            'processes' => 2, // Pinned at 2 - limited due to slow job execution time
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,
