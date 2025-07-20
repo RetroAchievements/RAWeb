@@ -384,7 +384,7 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
     $sessions = GameRecentPlayer::with('user')
         ->where('game_id', $gameID)
         ->whereHas('user', function ($query) {
-            $query->whereNotNull('banned_at');
+            $query->whereNull('banned_at');
         })
         ->orderBy('rich_presence_updated_at', 'DESC');
 
