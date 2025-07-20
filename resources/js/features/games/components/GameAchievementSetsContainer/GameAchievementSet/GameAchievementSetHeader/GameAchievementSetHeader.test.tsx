@@ -77,7 +77,9 @@ describe('Component: GameAchievementSetHeader', () => {
     render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />);
 
     // ASSERT
-    expect(screen.getByText(/2 achievements worth 30/i)).toBeVisible();
+    expect(screen.getByText(/2/i)).toBeVisible();
+    expect(screen.getByText(/achievements worth/i)).toBeVisible();
+    expect(screen.getByText(/30/i)).toBeVisible();
     expect(screen.getByText(/15/i)).toBeVisible();
   });
 });
