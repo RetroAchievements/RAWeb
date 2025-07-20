@@ -1,20 +1,14 @@
 import { type FC, useMemo } from 'react';
 import { Trans } from 'react-i18next';
-import { LuChevronDown } from 'react-icons/lu';
 
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
-import { cn } from '@/common/utils/cn';
 
 interface GameAchievementSetHeaderProps {
   gameAchievementSet: App.Platform.Data.GameAchievementSet;
-  isOnlySetForGame: boolean;
-  isOpen: boolean;
 }
 
 export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
   gameAchievementSet,
-  isOnlySetForGame,
-  isOpen,
 }) => {
   const { achievementSet, title } = gameAchievementSet;
   const { achievements, imageAssetPathUrl } = achievementSet;
@@ -56,16 +50,6 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
           </span>
         </div>
       </div>
-
-      {!isOnlySetForGame ? (
-        <LuChevronDown
-          data-testid="chevron"
-          className={cn(
-            'size-5 transition-transform duration-300',
-            isOpen ? 'rotate-180' : 'rotate-0',
-          )}
-        />
-      ) : null}
     </div>
   );
 };
