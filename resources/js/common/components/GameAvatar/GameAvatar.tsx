@@ -118,6 +118,7 @@ type GlowingImageProps = Pick<ComponentPropsWithoutRef<'img'>, 'src' | 'alt' | '
 const GlowingImage: FC<GlowingImageProps> = ({ src, ...rest }) => {
   return (
     <div className="glowing-image-root" style={{ '--img-url': `url(${src})` } as CSSProperties}>
+      {/* eslint-disable-next-line jsx-a11y/alt-text -- it will be passed in by consumers */}
       <img src={src} className="glowing-image" loading="eager" decoding="sync" {...rest} />
     </div>
   );

@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 
 import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
+import { MatureContentWarningDialog } from '@/common/components/MatureContentWarningDialog';
 import { PlayableHeader } from '@/common/components/PlayableHeader';
 import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
 import { PlayableMobileMediaCarousel } from '@/common/components/PlayableMobileMediaCarousel';
@@ -12,7 +13,7 @@ import { GameHeaderSlotContent } from '../GameHeaderSlotContent';
 import { GameRecentPlayers } from '../GameRecentPlayers';
 
 export const GameShowMainRoot: FC = () => {
-  const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { game, hasMatureContent } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   if (!game.badgeUrl || !game.system?.iconUrl) {
     return null;
@@ -20,6 +21,8 @@ export const GameShowMainRoot: FC = () => {
 
   return (
     <div data-testid="game-show" className="flex flex-col gap-3">
+      {hasMatureContent ? <MatureContentWarningDialog /> : null}
+
       <GameBreadcrumbs game={game} system={game.system} />
       <PlayableHeader
         badgeUrl={game.badgeUrl}

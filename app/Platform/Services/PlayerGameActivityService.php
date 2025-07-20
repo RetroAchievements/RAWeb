@@ -10,10 +10,12 @@ use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\PlayerGame;
+use App\Models\PlayerProgressReset;
 use App\Models\User;
 use App\Platform\Actions\ComputeAchievementsSetPublishedAtAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\PlayerProgressResetType;
 use App\Platform\Enums\UnlockMode;
 use Carbon\Carbon;
 
@@ -22,6 +24,7 @@ class PlayerGameActivityService
     public array $sessions = [];
     public int $achievementsUnlocked = 0;
     private int $sessionAdjustment = 0;
+    private ?Carbon $lastResetCreatedAt = null;
 
     public function initialize(User $user, Game $game, bool $withSubsets = false): void
     {
@@ -61,7 +64,33 @@ class PlayerGameActivityService
             $gameIds[] = $game->id;
         }
 
-        $playerSessions = $user->playerSessions()->with('gameHash')->whereIn('game_id', $gameIds)->orderBy('created_at')->get();
+        // Get the most recent reset for this user and game(s).
+        // If the player has a recent reset for any of the games, we only
+        // want to include sessions from after the most recent reset.
+        // When `$withSubsets` is true, we need to check all gameIds.
+        if ($withSubsets && count($gameIds) > 1) {
+            // If we're dealing with subsets, check for resets on any of the games.
+            $lastResetRecord = PlayerProgressReset::where('user_id', $user->id)
+                ->where(function ($q) use ($gameIds) {
+                    $q->where(function ($subQuery) use ($gameIds) {
+                        $subQuery->where('type', PlayerProgressResetType::Game)
+                            ->whereIn('type_id', $gameIds);
+                    })
+                    ->orWhere('type', PlayerProgressResetType::Account);
+                })
+                ->orderByDesc('created_at')
+                ->first();
+            $this->lastResetCreatedAt = $lastResetRecord?->created_at;
+        } else {
+            $lastResetRecord = PlayerProgressReset::forUserAndGame($user, $game)->first();
+            $this->lastResetCreatedAt = $lastResetRecord?->created_at;
+        }
+
+        $playerSessionsQuery = $user->playerSessions()
+            ->with('gameHash')
+            ->whereIn('game_id', $gameIds);
+
+        $playerSessions = $playerSessionsQuery->orderBy('created_at')->get();
 
         foreach ($playerSessions as $playerSession) {
             $session = [
@@ -111,7 +140,7 @@ class PlayerGameActivityService
             }
         }
 
-        $playerAchievements = $user->playerAchievements()
+        $playerAchievementsQuery = $user->playerAchievements()
             ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
             ->whereIn('Achievements.ID', $achievementIds)
             ->orderBy('player_achievements.unlocked_at')
@@ -123,8 +152,9 @@ class PlayerGameActivityService
                 'Achievements.Points',
                 'Achievements.BadgeName',
                 'Achievements.type',
-            ])
-            ->get();
+            ]);
+
+        $playerAchievements = $playerAchievementsQuery->get();
 
         // Pre-load all unlockers to avoid N+1 queries.
         $unlockerIds = $playerAchievements->pluck('unlocker_id')->filter()->unique();
@@ -499,8 +529,14 @@ class PlayerGameActivityService
         $achievementsPublishedAt = $achievementSet->achievements_first_published_at;
 
         if ($achievementsPublishedAt) {
-            $metrics['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($achievementsPublishedAt, $metrics['lastUnlockTimeSoftcore'], UnlockMode::Softcore);
-            $metrics['achievementPlaytimeHardcore'] = $this->calculatePlaytime($achievementsPublishedAt, $metrics['lastUnlockTimeHardcore'], UnlockMode::Hardcore);
+            // Use the reset date as the start time if it's more recent than achievements published date.
+            $startTime = $achievementsPublishedAt;
+            if ($this->lastResetCreatedAt && $this->lastResetCreatedAt->gt($achievementsPublishedAt)) {
+                $startTime = $this->lastResetCreatedAt;
+            }
+
+            $metrics['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($startTime, $metrics['lastUnlockTimeSoftcore'], UnlockMode::Softcore);
+            $metrics['achievementPlaytimeHardcore'] = $this->calculatePlaytime($startTime, $metrics['lastUnlockTimeHardcore'], UnlockMode::Hardcore);
         } else {
             // don't count any playtime if achievements haven't been published yet
             $metrics['achievementPlaytimeSoftcore'] = 0;

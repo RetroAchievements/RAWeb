@@ -14,19 +14,18 @@ import {
 import { filterAchievements } from '@/features/games/utils/filterAchievements';
 
 import { AchievementSetCredits } from '../../AchievementSetCredits';
+import { BeatenCreditDialog } from '../../BeatenCreditDialog';
 import { GameAchievementSetHeader } from './GameAchievementSetHeader';
 import { GameAchievementSetToolbar } from './GameAchievementSetToolbar';
 
 interface GameAchievementSetProps {
   achievements: App.Platform.Data.Achievement[];
   gameAchievementSet: App.Platform.Data.GameAchievementSet;
-  isOnlySetForGame: boolean;
 }
 
 export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   achievements,
   gameAchievementSet,
-  isOnlySetForGame,
 }) => {
   const currentAchievementSort = useAtomValue(currentAchievementSortAtom);
   const isLockedOnlyFilterEnabled = useAtomValue(isLockedOnlyFilterEnabledAtom);
@@ -64,16 +63,12 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
     <div className="flex flex-col gap-2.5">
       <div
         className={cn(
-          'flex w-full flex-col gap-2 rounded bg-embed px-2 pb-1 pt-2',
+          'flex w-full flex-col gap-2 rounded bg-embed p-2',
           'light:border light:border-embed-highlight light:bg-neutral-50',
         )}
       >
         <div className="flex items-center justify-between">
-          <GameAchievementSetHeader
-            gameAchievementSet={gameAchievementSet}
-            isOnlySetForGame={isOnlySetForGame}
-            isOpen={true}
-          />
+          <GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />
         </div>
 
         <AchievementSetCredits />
@@ -99,6 +94,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
               <AchievementsListItem
                 key={`ach-${achievement.id}`}
                 achievement={achievement}
+                beatenDialogContent={<BeatenCreditDialog />}
                 index={index}
                 isLargeList={isLargeList}
                 playersTotal={gameAchievementSet.achievementSet.playersTotal}

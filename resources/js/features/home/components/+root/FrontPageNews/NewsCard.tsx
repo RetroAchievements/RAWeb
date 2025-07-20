@@ -129,7 +129,7 @@ const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
 
   return (
     <div className="overflow-hidden rounded">
-      {/* Only img tags can detect if the image is invalid/broken (via onError). */}
+      {/* eslint-disable-next-line jsx-a11y/alt-text -- only img tags can detect if the image is invalid/broken (via onError) */}
       <img
         data-testid="hidden-image"
         className="sr-only"
@@ -160,6 +160,7 @@ const NewsCardImage: FC<NewsCardImageProps> = ({ src }) => {
         >
           <img
             src="/assets/images/ra-icon.webp"
+            alt="RetroAchievements"
             className="w-20 select-none"
             aria-hidden={true}
             data-testid="fallback-image"
