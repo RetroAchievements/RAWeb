@@ -1,7 +1,5 @@
 <?php
 
-use App\Community\Enums\ClaimStatus;
-use App\Community\Enums\RequestStatus;
 use App\Community\Enums\UserGameListType;
 use App\Models\User;
 use App\Models\UserGameListEntry;
@@ -81,115 +79,6 @@ function getSetRequestorsList(int $gameId, bool $getEmailInfo = false): array
     });
 
     return $processedValues->toArray();
-}
-
-/**
- * Gets a list of the most requested sets without core achievements.
- */
-function getMostRequestedSetsList(array|int|null $console, int $offset, int $count, int $requestStatus = RequestStatus::Any): array
-{
-    $retVal = [];
-
-    $query = "
-        SELECT
-            COUNT(DISTINCT(sr.user_id)) AS Requests,
-            sr.GameID as GameID,
-            gd.Title as GameTitle,
-            gd.ImageIcon as GameIcon,
-            c.name as ConsoleName,
-            GROUP_CONCAT(DISTINCT(IF(sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . "), ua.User, NULL))) AS Claims
-        FROM
-            SetRequest sr
-        LEFT JOIN
-            SetClaim sc ON (sr.GameID = sc.game_id AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . "))
-        LEFT JOIN
-            GameData gd ON (sr.GameID = gd.ID)
-        LEFT JOIN
-            Console c ON (gd.ConsoleID = c.ID)
-        LEFT JOIN
-            UserAccounts ua ON (sc.user_id = ua.ID)
-        WHERE
-            sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3')
-            AND sr.type='" . UserGameListType::AchievementSetRequest->value . "'";
-
-    if (is_array($console)) {
-        $query .= ' AND c.ID IN (' . implode(',', $console) . ') ';
-    } elseif (!empty($console)) {
-        sanitize_sql_inputs($console);
-        $query .= " AND c.ID = $console ";
-    }
-
-    if ($requestStatus === RequestStatus::Claimed) {
-        $query .= " AND sc.ID IS NOT NULL ";
-    } elseif ($requestStatus === RequestStatus::Unclaimed) {
-        $query .= " AND sc.ID IS NULL ";
-    }
-
-    $query .= "
-            GROUP BY
-                sr.GameID
-            ORDER BY
-                Requests DESC, gd.Title
-            LIMIT
-                $offset, $count";
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $nextData;
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    return $retVal;
-}
-
-/**
- * Gets the number of set-less games with at least one set request.
- */
-function getGamesWithRequests(array|int|null $console, int $requestStatus = RequestStatus::Any): int
-{
-    $query = "
-        SELECT
-            COUNT(DISTINCT sr.GameID) AS Games,
-            sr.GameID as GameID,
-            c.name as ConsoleName
-        FROM
-            SetRequest sr
-        LEFT JOIN
-            GameData gd ON (sr.GameID = gd.ID)
-        LEFT JOIN
-            Console c ON (gd.ConsoleID = c.ID) ";
-
-    if ($requestStatus !== RequestStatus::Any) {
-        $query .= "LEFT OUTER JOIN SetClaim sc ON (sr.GameID = sc.game_id AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")) ";
-    }
-
-    $query .= "WHERE sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3')
-               AND sr.type='" . UserGameListType::AchievementSetRequest->value . "'";
-
-    if (is_array($console)) {
-        $query .= ' AND c.ID IN (' . implode(',', $console) . ') ';
-    } elseif (!empty($console)) {
-        sanitize_sql_inputs($console);
-        $query .= " AND c.ID = $console ";
-    }
-
-    if ($requestStatus === RequestStatus::Claimed) {
-        $query .= " AND sc.ID IS NOT NULL ";
-    } elseif ($requestStatus === RequestStatus::Unclaimed) {
-        $query .= " AND sc.ID IS NULL ";
-    }
-
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        return 0;
-    }
-
-    return (int) mysqli_fetch_assoc($dbResult)['Games'];
 }
 
 function getUserGameListsContaining(User $user, int $gameId): array
