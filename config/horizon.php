@@ -189,11 +189,11 @@ return [
 
     /**
      * QUEUE SUPERVISOR ARCHITECTURE
-     * 
+     *
      * This configuration was optimized in July 2025 to handle Sunday traffic
      * spikes and prevent queue starvation. The architecture isolates high-volume
      * and slow queues to prevent them from monopolizing shared workers.
-     * 
+     *
      * Total Workers: 25 (11+8+1+3+2)
      * - supervisor-1: General queues (fast, medium volume)
      * - supervisor-2: Batch processing (slower, larger timeout)
@@ -201,7 +201,6 @@ return [
      * - supervisor-4: Player sessions (very high volume, fast - 49M jobs/month)
      * - supervisor-5: Game player count (very slow - 351ms avg)
      */
-
     'defaults' => [
         /**
          * Primary supervisor for general application queues.
@@ -296,7 +295,7 @@ return [
             'timeout' => 300,
             'nice' => 0,
         ],
-        
+
         /**
          * Game player count supervisor - handles slow database aggregation calculations.
          * Isolated due to slow processing time (351ms avg per job).
