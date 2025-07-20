@@ -3,9 +3,11 @@
 namespace App\Community\Controllers\Api;
 
 use App\Actions\GetUserDeviceKindAction;
+use App\Community\Enums\UserGameListType;
 use App\Http\Controller;
 use App\Models\Game;
 use App\Models\User;
+use App\Models\UserGameListEntry;
 use App\Platform\Actions\BuildGameListAction;
 use App\Platform\Actions\GetRandomGameAction;
 use App\Platform\Enums\GameListSortField;
@@ -63,6 +65,24 @@ class UserSetRequestListApiController extends Controller
             sort: $request->getSort(...$sortParams),
             user: $request->user(),
         );
+
+        // When viewing a specific user's requests, we need to override the unfilteredTotal
+        // based on the current achievementsPublished filter setting.
+        if ($targetUser) {
+            $userRequestInfo = getUserRequestsInformation($targetUser);
+            $currentAchievementsFilter = $filters['achievementsPublished'][0] ?? 'none';
+
+            if ($currentAchievementsFilter === 'none') {
+                // For "Active requests", unfilteredTotal is the count of active requests
+                $paginatedData->unfilteredTotal = $userRequestInfo['used'];
+            } else {
+                // For "All requests", unfilteredTotal is the total count of all requests.
+                $paginatedData->unfilteredTotal = UserGameListEntry::query()
+                    ->where('user_id', $targetUser->id)
+                    ->where('type', UserGameListType::AchievementSetRequest)
+                    ->count();
+            }
+        }
 
         return response()->json($paginatedData);
     }

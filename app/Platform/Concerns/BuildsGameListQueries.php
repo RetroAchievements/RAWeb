@@ -95,14 +95,13 @@ trait BuildsGameListQueries
                 break;
 
             case GameListType::SetRequests:
-                // Only show games with at least 1 request and 0 achievements published.
+                // Only show games with at least 1 request.
                 // We also don't care if the system is active or not.
                 $validSystemIds = System::gameSystems()
                     ->pluck('ID')
                     ->all();
 
                 $query->whereIn('GameData.ConsoleID', $validSystemIds)
-                    ->where('GameData.achievements_published', 0)
                     ->whereExists(function ($subquery) {
                         $subquery->select(DB::raw(1))
                             ->from('SetRequest')

@@ -524,5 +524,19 @@ describe('Component: DataTableSuperFilter', () => {
       // ... we are auth'd and it still doesn't appear ...
       expect(screen.queryByRole('combobox', { name: /progress/i })).not.toBeInTheDocument();
     });
+
+    it('given we are on the user-specific set-request route, shows the requests status filter', async () => {
+      // ARRANGE
+      render(<TestHarnessWithRoute tableApiRouteName="api.set-request.user" />, {
+        pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },
+      });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /all games/i }));
+
+      // ASSERT
+      expect(screen.getByRole('combobox', { name: /requests/i })).toBeVisible();
+      expect(screen.queryByRole('combobox', { name: /has achievements/i })).not.toBeInTheDocument();
+    });
   });
 });

@@ -1043,5 +1043,7 @@
     "Yes, I'm an adult": "Yes, I'm an adult",
     "Mature Content": "Mature Content",
     "Locked Only": "Locked Only",
-    "Missable Only": "Missable Only"
+    "Missable Only": "Missable Only",
+    "filterRequests_active": "Active",
+    "filterRequests_all": "All"
 }

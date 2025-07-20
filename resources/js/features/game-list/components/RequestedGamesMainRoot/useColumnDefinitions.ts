@@ -2,6 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { buildAchievementsPublishedColumnDef } from '../../utils/column-definitions/buildAchievementsPublishedColumnDef';
 import { buildHasActiveOrInReviewClaimsColumnDef } from '../../utils/column-definitions/buildHasActiveOrInReviewClaimsColumnDef';
 import { buildNumRequestsColumnDef } from '../../utils/column-definitions/buildNumRequestsColumnDef';
 import { buildReleasedAtColumnDef } from '../../utils/column-definitions/buildReleasedAtColumnDef';
@@ -9,7 +10,9 @@ import { buildRowActionsColumnDef } from '../../utils/column-definitions/buildRo
 import { buildSystemColumnDef } from '../../utils/column-definitions/buildSystemColumnDef';
 import { buildTitleColumnDef } from '../../utils/column-definitions/buildTitleColumnDef';
 
-export function useColumnDefinitions(): ColumnDef<App.Platform.Data.GameListEntry>[] {
+export function useColumnDefinitions(
+  targetUser?: App.Data.User | null,
+): ColumnDef<App.Platform.Data.GameListEntry>[] {
   const { t } = useTranslation();
 
   const columnDefinitions = useMemo(() => {
@@ -21,6 +24,14 @@ export function useColumnDefinitions(): ColumnDef<App.Platform.Data.GameListEntr
         strings: { t_unknown: t('unknown') },
       }),
       buildNumRequestsColumnDef({ t_label: t('Requests') }),
+    ];
+
+    // Only show the achievements column for user-specific views.
+    if (targetUser) {
+      columns.push(buildAchievementsPublishedColumnDef({ t_label: t('Achievements') }));
+    }
+
+    columns.push(
       buildHasActiveOrInReviewClaimsColumnDef({
         t_label: t('Claimed'),
         strings: {
@@ -29,10 +40,10 @@ export function useColumnDefinitions(): ColumnDef<App.Platform.Data.GameListEntr
         },
       }),
       buildRowActionsColumnDef({ shouldAnimateBacklogIconOnChange: true }),
-    ];
+    );
 
     return columns;
-  }, [t]);
+  }, [t, targetUser]);
 
   return columnDefinitions;
 }

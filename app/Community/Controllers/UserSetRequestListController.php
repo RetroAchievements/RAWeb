@@ -74,31 +74,42 @@ class UserSetRequestListController extends Controller
             page: $request->getPage(),
         );
 
-        // When viewing a specific user's requests, override unfilteredTotal
-        // to show their total requests, not the system-wide total.
+        // When viewing a specific user's requests, we need to override the unfilteredTotal
+        // based on the current achievementsPublished filter setting.
         if ($targetUser && $userRequestInfo) {
-            $paginatedData->unfilteredTotal = $userRequestInfo->used;
+            $currentAchievementsFilter = $filters['achievementsPublished'][0] ?? 'none';
+
+            if ($currentAchievementsFilter === 'none') {
+                // For "Active requests", unfilteredTotal is the count of active requests.
+                $paginatedData->unfilteredTotal = $userRequestInfo->used;
+            } else {
+                // For "All requests", unfilteredTotal is the total count of all requests.
+                $paginatedData->unfilteredTotal = UserGameListEntry::query()
+                    ->where('user_id', $targetUser->id)
+                    ->where('type', UserGameListType::AchievementSetRequest)
+                    ->count();
+            }
         }
 
         // If we're targeting a specific user, only show systems they've requested games for.
         if ($targetUser) {
-            $systemIds = UserGameListEntry::where('user_id', $targetUser->id)
+            $systemIds = UserGameListEntry::query()
+                ->where('user_id', $targetUser->id)
                 ->where('type', UserGameListType::AchievementSetRequest)
-                ->whereHas('game', function ($query) {
-                    $query->where('achievements_published', 0);
-                })
                 ->join('GameData', 'SetRequest.GameID', '=', 'GameData.ID')
                 ->distinct()
                 ->pluck('GameData.ConsoleID');
 
-            $filterableSystemOptions = System::gameSystems()
+            $filterableSystemOptions = System::query()
+                ->gameSystems()
                 ->whereIn('ID', $systemIds)
                 ->get()
                 ->map(fn ($system) => SystemData::fromSystem($system)->include('nameShort'))
                 ->values()
                 ->all();
         } else {
-            $filterableSystemOptions = System::gameSystems()
+            $filterableSystemOptions = System::query()
+                ->gameSystems()
                 ->get()
                 ->map(fn ($system) => SystemData::fromSystem($system)->include('nameShort'))
                 ->values()

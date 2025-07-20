@@ -35,6 +35,7 @@ import { MobileClaimedFilterSelect } from './MobileClaimedFilterSelect';
 import { MobileGameTypeFilterSelect } from './MobileGameTypeFilterSelect';
 import { MobileHasAchievementsFilterSelect } from './MobileHasAchievementsFilterSelect';
 import { MobileProgressFilterSelect } from './MobileProgressFilterSelect';
+import { MobileRequestsStatusFilterSelect } from './MobileRequestsStatusFilterSelect';
 import { MobileSetTypeFilterSelect } from './MobileSetTypeFilterSelect';
 import { useCurrentSuperFilterLabel } from './useCurrentSuperFilterLabel';
 
@@ -125,6 +126,10 @@ export function DataTableSuperFilter<TData>({
 
             {tableApiRouteName.includes('api.set-request') ? (
               <MobileClaimedFilterSelect table={table} />
+            ) : null}
+
+            {tableApiRouteName === 'api.set-request.user' ? (
+              <MobileRequestsStatusFilterSelect table={table} />
             ) : null}
 
             {!tableApiRouteName.includes('api.set-request') ? (

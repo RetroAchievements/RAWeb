@@ -16,6 +16,7 @@ import { DataTableSearchInput } from '../../DataTableSearchInput';
 import { DataTableAchievementsPublishedFilter } from './DataTableAchievementsPublishedFilter';
 import { DataTableClaimedFilter } from './DataTableClaimedFilter';
 import { DataTableProgressFilter } from './DataTableProgressFilter';
+import { DataTableRequestsStatusFilter } from './DataTableRequestsStatusFilter';
 import { DataTableSystemFilter } from './DataTableSystemFilter';
 import { GameTypeFilter } from './GameTypeFilter';
 import { RandomGameButton } from './RandomGameButton';
@@ -72,10 +73,16 @@ export function DataTableDesktopToolbar<TData>({
             <DataTableClaimedFilter table={table} />
           ) : null}
 
+          {doesColumnExist(allColumns, 'achievementsPublished') &&
+          tableApiRouteName === 'api.set-request.user' ? (
+            <DataTableRequestsStatusFilter table={table} />
+          ) : null}
+
           <SetTypeFilter table={table} />
           <GameTypeFilter table={table} />
 
-          {doesColumnExist(allColumns, 'achievementsPublished') ? (
+          {doesColumnExist(allColumns, 'achievementsPublished') &&
+          !tableApiRouteName.includes('api.set-request') ? (
             <DataTableAchievementsPublishedFilter table={table} />
           ) : null}
 

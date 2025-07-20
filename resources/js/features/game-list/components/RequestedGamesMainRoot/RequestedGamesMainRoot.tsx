@@ -41,7 +41,7 @@ export const RequestedGamesMainRoot: FC = memo(() => {
     defaultColumnVisibility,
   });
 
-  const columnDefinitions = useColumnDefinitions();
+  const columnDefinitions = useColumnDefinitions(targetUser);
 
   const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
     columnFilters,
