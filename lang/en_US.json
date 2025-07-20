@@ -916,7 +916,7 @@
     "Base Set": "Base Set",
     "There aren't any achievements for this game yet.": "There aren't any achievements for this game yet.",
     "Subset {{subsetNumber, number}}": "Subset {{subsetNumber, number}}",
-    "{{achievementsCount, number}} achievements worth {{pointsCount, number}} <1>({{retroPointsCount, number}})</1> points": "{{achievementsCount, number}} achievements worth {{pointsCount, number}} <1>({{retroPointsCount, number}})</1> points",
+    "<1>{{achievementsCount, number}}</1> achievements worth <2>{{pointsCount, number}}</2> <3>({{retroPointsCount, number}})</3> points": "<1>{{achievementsCount, number}}</1> achievements worth <2>{{pointsCount, number}}</2> <3>({{retroPointsCount, number}})</3> points",
     "Points (least)": "Points (least)",
     "Points (most)": "Points (most)",
     "Title (Z - A)": "Title (Z - A)",
