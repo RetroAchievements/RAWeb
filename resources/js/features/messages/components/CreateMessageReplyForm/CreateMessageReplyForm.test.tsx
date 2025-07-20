@@ -230,4 +230,32 @@ describe('Component: CreateMessageReplyForm', () => {
     // ASSERT
     expect(screen.getByText(/12/i)).toBeVisible();
   });
+
+  it('given the user presses Cmd+Enter while focused in the form, submits the form', async () => {
+    // ARRANGE
+    const messageThread = createMessageThread();
+    const paginatedMessages = createPaginatedData([], { lastPage: 5 });
+    const mockOnPreview = vi.fn();
+
+    vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: {} });
+
+    render(<CreateMessageReplyForm onPreview={mockOnPreview} />, {
+      pageProps: {
+        messageThread,
+        paginatedMessages,
+        auth: { user: createAuthenticatedUser() },
+      },
+    });
+
+    // ACT
+    const textArea = screen.getByPlaceholderText(/enter your message here/i);
+    await userEvent.type(textArea, 'test message');
+    await userEvent.keyboard('{Meta>}{Enter}{/Meta}');
+
+    // ASSERT
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalled();
+    });
+  });
 });

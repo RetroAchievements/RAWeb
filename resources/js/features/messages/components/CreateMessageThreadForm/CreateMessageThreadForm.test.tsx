@@ -391,4 +391,72 @@ describe('Component: CreateMessageThreadForm', () => {
     // ASSERT
     expect(screen.getByText(/important/i)).toBeVisible();
   });
+
+  it('given the user presses Cmd+Enter while focused in the form, submits the form', async () => {
+    // ARRANGE
+    const mockUser = createUser({
+      id: 1,
+      displayName: faker.internet.username().slice(0, 20),
+      avatarUrl: faker.image.avatar(),
+    });
+
+    vi.spyOn(axios, 'get').mockImplementation((url) => {
+      if (url.includes('api.search.index')) {
+        return Promise.resolve({
+          data: {
+            results: { users: [mockUser] },
+            query: mockUser.displayName,
+            scopes: ['users'],
+            scopeRelevance: { users: 1 },
+          },
+        });
+      }
+
+      return Promise.reject(new Error('Not mocked'));
+    });
+
+    const mockThreadId = faker.number.int();
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValue({ data: { threadId: mockThreadId } });
+
+    const routerSpy = vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
+
+    render(<CreateMessageThreadForm onPreview={() => {}} />, {
+      pageProps: {
+        message: null,
+        subject: null,
+        templateKind: null,
+        auth: { user: createAuthenticatedUser() },
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('combobox'));
+    await userEvent.type(screen.getByPlaceholderText(/type a username/i), mockUser.displayName);
+    await waitFor(() => {
+      expect(screen.getByText(mockUser.displayName)).toBeVisible();
+    });
+    await userEvent.click(screen.getByText(mockUser.displayName));
+
+    await userEvent.type(
+      screen.getByPlaceholderText(/enter your message's subject/i),
+      'this is my subject',
+    );
+    const textArea = screen.getByPlaceholderText(/don't ask for links/i);
+    await userEvent.type(textArea, 'this is my message content');
+    await userEvent.keyboard('{Meta>}{Enter}{/Meta}'); // !! Cmd+Enter while focused in form
+
+    // ASSERT
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledWith(
+        route('api.message.store'),
+        expect.objectContaining({
+          recipient: mockUser.displayName,
+          title: 'this is my subject',
+          body: 'this is my message content',
+        }),
+      );
+    });
+
+    expect(routerSpy).toHaveBeenCalledOnce();
+  });
 });

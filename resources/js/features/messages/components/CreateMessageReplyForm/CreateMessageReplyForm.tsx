@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { BaseAutosizeTextarea } from '@/common/components/+vendor/BaseAutosizeTextarea';
@@ -13,6 +14,7 @@ import {
 } from '@/common/components/+vendor/BaseForm';
 import { ShortcodePanel } from '@/common/components/ShortcodePanel';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useSubmitOnMetaEnter } from '@/common/hooks/useSubmitOnMetaEnter';
 import { getStringByteCount } from '@/common/utils/getStringByteCount';
 
 import { useCreateMessageReplyForm } from './useCreateMessageReplyForm';
@@ -30,9 +32,16 @@ export const CreateMessageReplyForm: FC<CreateMessageReplyFormProps> = ({ onPrev
   const { form, mutation, onSubmit } = useCreateMessageReplyForm();
   const [body] = form.watch(['body']);
 
+  const formRef = useRef<HTMLFormElement>(null);
+  useSubmitOnMetaEnter({
+    formRef,
+    onSubmit: () => form.handleSubmit(onSubmit)(),
+    isEnabled: form.formState.isValid && !mutation.isPending,
+  });
+
   return (
     <BaseFormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3">
           <ShortcodePanel />
 
