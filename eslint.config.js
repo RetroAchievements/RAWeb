@@ -185,6 +185,7 @@ export default tseslint.config(
           patterns: [
             '@testing-library/react', // Import from @/test instead.
             '@radix-ui/*', // Use our wrapped Base* components.
+            'radix-ui', // Use our wrapped Base* components.
             'sonner', // Use toastMessage instead.
             'vaul', // Use our wrapped BaseDrawer component.
           ],
