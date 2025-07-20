@@ -229,13 +229,11 @@ describe('Component: GameRecentPlayersList', () => {
     });
 
     // ASSERT
-    expect(richPresenceElement).toHaveAttribute('role', 'button'); // !! button role for screen readers
     expect(richPresenceElement).toHaveAttribute('aria-expanded', 'false'); // !! indicates collapsed state
     expect(richPresenceElement).toHaveAttribute(
       'aria-label',
       'Toggle rich presence details for TestUser',
     ); // !! descriptive label
-    expect(richPresenceElement).toHaveAttribute('tabIndex', '0'); // !! keyboard focusable
   });
 
   it('given a rich presence message is expanded, aria-expanded attribute updates', async () => {

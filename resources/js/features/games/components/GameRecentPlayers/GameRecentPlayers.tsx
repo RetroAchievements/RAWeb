@@ -11,7 +11,7 @@ export const GameRecentPlayers: FC = () => {
 
   const { t } = useTranslation();
 
-  if (!recentPlayers.length) {
+  if (!recentPlayers?.length) {
     return null;
   }
 

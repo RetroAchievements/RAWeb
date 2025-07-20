@@ -68,27 +68,20 @@ export const GameRecentPlayersList: FC = () => {
               </div>
             </div>
 
-            <p
+            <button
+              type="button"
               className={cn(
-                'cursor-pointer text-2xs',
+                'cursor-pointer text-left text-2xs',
                 'rounded focus:outline-none focus:ring-1 focus:ring-text focus:ring-offset-0',
 
                 !isExpanded ? 'truncate' : null,
               )}
               onClick={() => toggleExpanded(playerKey)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  toggleExpanded(playerKey);
-                }
-              }}
-              tabIndex={0}
-              role="button"
               aria-expanded={isExpanded}
               aria-label={`Toggle rich presence details for ${recentPlayer.user.displayName}`}
             >
               <RichPresenceMessage gameTitle={game.title} message={recentPlayer.richPresence} />
-            </p>
+            </button>
           </li>
         );
       })}

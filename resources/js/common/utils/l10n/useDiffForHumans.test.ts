@@ -49,11 +49,9 @@ describe('Hook: useDiffForHumans', () => {
       const { result } = renderHook(() => useDiffForHumans());
 
       // ACT
-      const diff = result.current.diffForHumans(
-        thirtySecondsAgo.toISOString(),
-        undefined,
-        'narrow',
-      );
+      const diff = result.current.diffForHumans(thirtySecondsAgo.toISOString(), {
+        style: 'narrow',
+      });
 
       // ASSERT
       expect(diff).toEqual('30s ago');
@@ -69,11 +67,9 @@ describe('Hook: useDiffForHumans', () => {
       const { result } = renderHook(() => useDiffForHumans());
 
       // ACT
-      const diff = result.current.diffForHumans(
-        fortyFiveSecondsFromNow.toISOString(),
-        undefined,
-        'narrow',
-      );
+      const diff = result.current.diffForHumans(fortyFiveSecondsFromNow.toISOString(), {
+        style: 'narrow',
+      });
 
       // ASSERT
       expect(diff).toEqual('in 45s');
@@ -89,7 +85,7 @@ describe('Hook: useDiffForHumans', () => {
       const { result } = renderHook(() => useDiffForHumans());
 
       // ACT
-      const diff = result.current.diffForHumans(oneMinuteAgo.toISOString(), undefined, 'narrow');
+      const diff = result.current.diffForHumans(oneMinuteAgo.toISOString(), { style: 'narrow' });
 
       // ASSERT
       expect(diff).toEqual('1m ago');
