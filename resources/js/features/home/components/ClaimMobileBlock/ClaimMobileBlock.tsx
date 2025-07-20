@@ -10,7 +10,7 @@ import type { AvatarSize } from '@/common/models';
 import { ClaimSetType } from '@/common/utils/generatedAppConstants';
 
 interface ClaimMobileBlockProps {
-  claim: App.Data.AchievementSetClaim;
+  claim: App.Data.AchievementSetClaimGroup;
   variant: 'completed' | 'new';
 }
 

@@ -1,7 +1,7 @@
-/* eslint-disable no-restricted-imports -- base components can import from @radix-ui */
+/* eslint-disable no-restricted-imports -- base components can import from radix-ui */
 
-import type * as LabelPrimitive from '@radix-ui/react-label';
-import { Slot } from '@radix-ui/react-slot';
+import type { Label as LabelPrimitive } from 'radix-ui';
+import { Slot } from 'radix-ui';
 import * as React from 'react';
 import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
 import { Controller, FormProvider, useFormContext } from 'react-hook-form';
@@ -99,13 +99,13 @@ const BaseFormLabel = React.forwardRef<
 BaseFormLabel.displayName = 'BaseFormLabel';
 
 const BaseFormControl = React.forwardRef<
-  React.ElementRef<typeof Slot>,
-  React.ComponentPropsWithoutRef<typeof Slot>
+  React.ElementRef<typeof Slot.Root>,
+  React.ComponentPropsWithoutRef<typeof Slot.Root>
 >(({ ...props }, ref) => {
   const { error, formItemId, formDescriptionId, formMessageId } = useBaseFormField();
 
   return (
-    <Slot
+    <Slot.Root
       ref={ref}
       id={formItemId}
       aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}

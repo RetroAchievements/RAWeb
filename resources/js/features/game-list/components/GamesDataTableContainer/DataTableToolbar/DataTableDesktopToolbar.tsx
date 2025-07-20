@@ -14,7 +14,9 @@ import { DataTableColumnsToggle } from '../../DataTableColumnsToggle';
 import { DataTableResetFiltersButton } from '../../DataTableResetFiltersButton';
 import { DataTableSearchInput } from '../../DataTableSearchInput';
 import { DataTableAchievementsPublishedFilter } from './DataTableAchievementsPublishedFilter';
+import { DataTableClaimedFilter } from './DataTableClaimedFilter';
 import { DataTableProgressFilter } from './DataTableProgressFilter';
+import { DataTableRequestsStatusFilter } from './DataTableRequestsStatusFilter';
 import { DataTableSystemFilter } from './DataTableSystemFilter';
 import { GameTypeFilter } from './GameTypeFilter';
 import { RandomGameButton } from './RandomGameButton';
@@ -60,14 +62,27 @@ export function DataTableDesktopToolbar<TData>({
           {doesColumnExist(allColumns, 'system') && filterableSystemOptions?.length > 1 ? (
             <DataTableSystemFilter
               table={table}
+              defaultOptionLabel={t('Only supported systems')}
               filterableSystemOptions={filterableSystemOptions}
+              includeDefaultOption={tableApiRouteName.includes('api.set-request')}
+              isSingleSelect={tableApiRouteName.includes('api.set-request')}
             />
+          ) : null}
+
+          {tableApiRouteName.includes('api.set-request') ? (
+            <DataTableClaimedFilter table={table} />
+          ) : null}
+
+          {doesColumnExist(allColumns, 'achievementsPublished') &&
+          tableApiRouteName === 'api.set-request.user' ? (
+            <DataTableRequestsStatusFilter table={table} />
           ) : null}
 
           <SetTypeFilter table={table} />
           <GameTypeFilter table={table} />
 
-          {doesColumnExist(allColumns, 'achievementsPublished') ? (
+          {doesColumnExist(allColumns, 'achievementsPublished') &&
+          !tableApiRouteName.includes('api.set-request') ? (
             <DataTableAchievementsPublishedFilter table={table} />
           ) : null}
 

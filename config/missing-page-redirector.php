@@ -79,6 +79,10 @@ return [
         '/linkedhashes.php' => '/game/{g}/hashes',
         '/popularGames.php' => '/games/popular',
         '/random.php' => '/game/random',
+        '/setRequestList.php' => [
+            'u' => '/games/requests/{u}',
+            '' => '/games/requests',
+        ],
         '/game/{game}/masters' => '/game/{game}/top-achievers',
         '/game/{game}/suggest' => '/game/{game}/suggestions',
         '/games/suggest' => '/games/suggestions',

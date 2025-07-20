@@ -14,6 +14,7 @@ use App\Models\Leaderboard;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Models\UserGameListEntry;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\GameListProgressFilterValue;
 use App\Platform\Enums\GameListSetTypeFilterValue;
@@ -60,6 +61,16 @@ trait BuildsGameListQueries
                     ->where('LeaderboardDef.DisplayOrder', '>=', 0),
             ]);
 
+        // Only attempt to fetch the "Requests" column counts if we're on
+        // the Most Requested Sets datatable. Otherwise, skip it.
+        if ($listType === GameListType::SetRequests) {
+            $query->addSelect([
+                'num_requests' => UserGameListEntry::selectRaw('COUNT(*)')
+                    ->whereColumn('SetRequest.GameID', 'GameData.ID')
+                    ->where('SetRequest.type', UserGameListType::AchievementSetRequest),
+            ]);
+        }
+
         // Only attempt to fetch the "Open Tickets" column counts if the user
         // is a dev. Otherwise, skip it.
         if ($user?->can('develop')) {
@@ -81,6 +92,22 @@ trait BuildsGameListQueries
                     ->all();
 
                 $query->whereIn('GameData.ConsoleID', $validSystemIds);
+                break;
+
+            case GameListType::SetRequests:
+                // Only show games with at least 1 request.
+                // We also don't care if the system is active or not.
+                $validSystemIds = System::gameSystems()
+                    ->pluck('ID')
+                    ->all();
+
+                $query->whereIn('GameData.ConsoleID', $validSystemIds)
+                    ->whereExists(function ($subquery) {
+                        $subquery->select(DB::raw(1))
+                            ->from('SetRequest')
+                            ->whereColumn('SetRequest.GameID', 'GameData.ID')
+                            ->where('SetRequest.type', UserGameListType::AchievementSetRequest);
+                    });
                 break;
 
             case GameListType::Hub:
@@ -145,9 +172,15 @@ trait BuildsGameListQueries
              * only show games matching a specific list of system IDs
              */
             if ($filterKey === 'system') {
-                $query->whereHas('system', function (Builder $query) use ($filterValues) {
-                    $query->whereIn('ID', $filterValues);
-                });
+                // Skip system filtering entirely if "all" is explicitly selected.
+                if (in_array('all', $filterValues)) {
+                    continue;
+                }
+
+                $systemIds = in_array('supported', $filterValues)
+                    ? System::active()->gameSystems()->pluck('ID')->all()
+                    : $filterValues;
+                $query->whereIn('GameData.ConsoleID', $systemIds);
                 continue;
             }
 
@@ -185,6 +218,45 @@ trait BuildsGameListQueries
              */
             if ($filterKey === 'achievementsPublished') {
                 $this->applyAchievementsPublishedFilter($query, $filterValues);
+                continue;
+            }
+
+            /*
+             * only show games based on whether they have active claims
+             */
+            if ($filterKey === 'hasActiveOrInReviewClaims') {
+                if (!empty($filterValues) && $filterValues[0] !== 'any') {
+                    if ($filterValues[0] === 'claimed') {
+                        $query->whereExists(function ($subquery) {
+                            $subquery->select(DB::raw(1))
+                                ->from('SetClaim')
+                                ->whereColumn('SetClaim.game_id', 'GameData.ID')
+                                ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview]);
+                        });
+                    } elseif ($filterValues[0] === 'unclaimed') {
+                        $query->whereNotExists(function ($subquery) {
+                            $subquery->select(DB::raw(1))
+                                ->from('SetClaim')
+                                ->whereColumn('SetClaim.game_id', 'GameData.ID')
+                                ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview]);
+                        });
+                    }
+                }
+                continue;
+            }
+
+            /*
+             * only show games requested by a specific user
+             */
+            if ($filterKey === 'user' && !empty($filterValues[0])) {
+                $query->whereExists(function ($subquery) use ($filterValues) {
+                    $subquery->select(DB::raw(1))
+                        ->from('SetRequest')
+                        ->join('UserAccounts', 'UserAccounts.ID', '=', 'SetRequest.user_id')
+                        ->whereColumn('SetRequest.GameID', 'GameData.ID')
+                        ->where('SetRequest.type', UserGameListType::AchievementSetRequest)
+                        ->where('UserAccounts.display_name', $filterValues[0]);
+                });
                 continue;
             }
         }
@@ -299,6 +371,13 @@ trait BuildsGameListQueries
                     break;
 
                 /*
+                 * the game's count of set requests
+                 */
+                case GameListSortField::NumRequests->value:
+                    $query->orderBy('num_requests', $sortDirection);
+                    break;
+
+                /*
                  * the user's progress, ordered by # of achievements earned, on the game
                  */
                 case GameListSortField::Progress->value:
@@ -328,14 +407,14 @@ trait BuildsGameListQueries
      * The sorting logic works as follows:
      *
      * 1. If released_at_granularity is set to "year", the release date is normalized
-     *    to the first day of that year (eg: "1985-01-01").
-     * 2. If released_at_granularity is set to "month", the release date is normalized
-     *    to the first day of that month (eg: "1985-05-01").
+     *    to the last day of that year (eg: "1985-12-31").
+     * 2. If released_at_granularity is set to "month", the release date is appended
+     *    with "-32" to ensure it sorts after all day-specific dates in that month.
      * 3. If no granularity is set, or the granularity is "day", the release date is used as-is.
      *
-     * This ensures that games with less precise release dates are sorted logically while
-     * maintaining the correct order relative to their peers. Games are then ordered by their
-     * normalized release date, either ascending or descending.
+     * This ensures that more specific dates always sort before less specific dates.
+     * For example, "November 11, 1994" will sort before "November 1994", and
+     * "December 28, 1991" will sort before "1991".
      *
      * @param Builder<Game> $query
      */
@@ -349,9 +428,10 @@ trait BuildsGameListQueries
                 GameData.*,
                 CASE
                     WHEN GameData.released_at_granularity = 'year' THEN
-                        DATE(CONCAT(SUBSTR(GameData.released_at, 1, 4), '-01-01'))
+                        DATE(CONCAT(SUBSTR(GameData.released_at, 1, 4), '-12-31'))
                     WHEN GameData.released_at_granularity = 'month' THEN
-                        DATE(CONCAT(SUBSTR(GameData.released_at, 1, 7), '-01'))
+                        -- Append '-32' to push month dates after all possible days.
+                        CONCAT(SUBSTR(GameData.released_at, 1, 7), '-32')
                     ELSE
                         COALESCE(GameData.released_at, '9999-12-31')
                 END AS normalized_released_at,
@@ -362,8 +442,7 @@ trait BuildsGameListQueries
                     ELSE 4
                 END AS granularity_order
             SQL)
-            // Ensure NULL release dates always sort to the end, regardless of sort direction.
-            ->orderByRaw('released_at IS NULL')
+            ->orderByRaw('released_at IS NULL') // Ensure NULL release dates always sort to the end, regardless of sort direction.
             ->orderBy('normalized_released_at', $sortDirection)
             ->orderBy('granularity_order', $sortDirection);
     }

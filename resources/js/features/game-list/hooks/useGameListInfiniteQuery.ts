@@ -34,8 +34,7 @@ export function useGameListInfiniteQuery({
   apiRouteName = 'api.game.index',
 }: UseGameListInfiniteQueryProps) {
   return useInfiniteQuery<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps -- tableApiRouteName is not part of the key
-    queryKey: ['infinite-data', pagination, sorting, columnFilters],
+    queryKey: ['infinite-data', apiRouteName, pagination, sorting, columnFilters, apiRouteParams],
 
     queryFn: async ({ pageParam }) => {
       const response = await axios.get<App.Data.PaginatedData<App.Platform.Data.GameListEntry>>(

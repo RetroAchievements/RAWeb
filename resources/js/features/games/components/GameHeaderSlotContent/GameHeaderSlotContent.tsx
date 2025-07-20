@@ -28,7 +28,7 @@ export const GameHeaderSlotContent: FC = () => {
         aria-pressed={isOnWantToPlayList}
       >
         {isOnWantToPlayList ? <LuCheck className="size-4" /> : <LuPlus className="size-4" />}
-        {t('Want to Play')}
+        {t('game_wantToPlayToggle')}
       </BaseButton>
     </div>
   );

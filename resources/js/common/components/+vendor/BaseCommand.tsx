@@ -1,7 +1,7 @@
-/* eslint-disable no-restricted-imports -- base components can import from @radix-ui */
+/* eslint-disable no-restricted-imports -- base components can import from radix-ui */
 
-import type { DialogProps } from '@radix-ui/react-dialog';
 import { Command as CommandPrimitive } from 'cmdk';
+import type { Dialog as DialogPrimitive } from 'radix-ui';
 import * as React from 'react';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 
@@ -24,7 +24,7 @@ const BaseCommand = React.forwardRef<
 ));
 BaseCommand.displayName = CommandPrimitive.displayName;
 
-type BaseCommandDialogProps = DialogProps;
+type BaseCommandDialogProps = React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root>;
 
 const BaseCommandDialog = ({ children, ...props }: BaseCommandDialogProps) => {
   return (

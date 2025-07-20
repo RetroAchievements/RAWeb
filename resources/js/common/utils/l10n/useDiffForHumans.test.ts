@@ -38,6 +38,60 @@ describe('Hook: useDiffForHumans', () => {
     expect(diff).toEqual('just now');
   });
 
+  describe('Narrow style', () => {
+    it('given narrow style and less than 60 seconds ago, formats with second units', () => {
+      // ARRANGE
+      vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
+      const now = dayjs.utc();
+      const thirtySecondsAgo = now.subtract(30, 'seconds');
+
+      const { result } = renderHook(() => useDiffForHumans());
+
+      // ACT
+      const diff = result.current.diffForHumans(thirtySecondsAgo.toISOString(), {
+        style: 'narrow',
+      });
+
+      // ASSERT
+      expect(diff).toEqual('30s ago');
+    });
+
+    it('given narrow style and less than 60 seconds from now, formats with second units', () => {
+      // ARRANGE
+      vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
+      const now = dayjs.utc();
+      const fortyFiveSecondsFromNow = now.add(45, 'seconds');
+
+      const { result } = renderHook(() => useDiffForHumans());
+
+      // ACT
+      const diff = result.current.diffForHumans(fortyFiveSecondsFromNow.toISOString(), {
+        style: 'narrow',
+      });
+
+      // ASSERT
+      expect(diff).toEqual('in 45s');
+    });
+
+    it('given narrow style and exactly 60 seconds, uses minute formatting', () => {
+      // ARRANGE
+      vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
+      const now = dayjs.utc();
+      const oneMinuteAgo = now.subtract(60, 'seconds');
+
+      const { result } = renderHook(() => useDiffForHumans());
+
+      // ACT
+      const diff = result.current.diffForHumans(oneMinuteAgo.toISOString(), { style: 'narrow' });
+
+      // ASSERT
+      expect(diff).toEqual('1m ago');
+    });
+  });
+
   describe('Past', () => {
     it('given less than 10 seconds ago, formats correctly', () => {
       // ARRANGE
@@ -295,5 +349,101 @@ describe('Hook: useDiffForHumans', () => {
       // ASSERT
       expect(diff).toEqual('in 6 years');
     });
+  });
+
+  it('given 2 weeks ago with a maxUnit: day option, formats as days', () => {
+    // ARRANGE
+    vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
+    const now = dayjs.utc();
+    const twoWeeksAgo = now.subtract(2, 'weeks');
+
+    const { result } = renderHook(() => useDiffForHumans());
+
+    // ACT
+    const diff = result.current.diffForHumans(twoWeeksAgo.toISOString(), { maxUnit: 'day' });
+
+    // ASSERT
+    expect(diff).toEqual('14 days ago');
+  });
+
+  it('given 3 months ago with a maxUnit: day option, formats as days', () => {
+    // ARRANGE
+    vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
+    const now = dayjs.utc();
+    const threeMonthsAgo = now.subtract(3, 'months');
+
+    const { result } = renderHook(() => useDiffForHumans());
+
+    // ACT
+    const diff = result.current.diffForHumans(threeMonthsAgo.toISOString(), { maxUnit: 'day' });
+
+    // ASSERT
+    expect(diff).toMatch(/\d+ days ago/); // !! many days, not months
+  });
+
+  it('given 2 months ago with a maxUnit: week option, formats as weeks', () => {
+    // ARRANGE
+    vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
+    const now = dayjs.utc();
+    const twoMonthsAgo = now.subtract(2, 'months');
+
+    const { result } = renderHook(() => useDiffForHumans());
+
+    // ACT
+    const diff = result.current.diffForHumans(twoMonthsAgo.toISOString(), { maxUnit: 'week' });
+
+    // ASSERT
+    expect(diff).toMatch(/\d+ weeks ago/); // !! weeks, not months
+  });
+
+  it('given 2 years ago with a maxUnit: month option, formats as months', () => {
+    // ARRANGE
+    vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
+    const now = dayjs.utc();
+    const twoYearsAgo = now.subtract(2, 'years');
+
+    const { result } = renderHook(() => useDiffForHumans());
+
+    // ACT
+    const diff = result.current.diffForHumans(twoYearsAgo.toISOString(), { maxUnit: 'month' });
+
+    // ASSERT
+    expect(diff).toContain('months ago');
+  });
+
+  it('given a few days ago with a maxUnit: day option, behaves normally', () => {
+    // ARRANGE
+    vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
+    const now = dayjs.utc();
+    const threeDaysAgo = now.subtract(3, 'days');
+
+    const { result } = renderHook(() => useDiffForHumans());
+
+    // ACT
+    const diff = result.current.diffForHumans(threeDaysAgo.toISOString(), { maxUnit: 'day' });
+
+    // ASSERT
+    expect(diff).toEqual('3 days ago'); // !! maxUnit doesn't affect smaller units
+  });
+
+  it('works with future dates and maxUnit', () => {
+    // ARRANGE
+    vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
+    const now = dayjs.utc();
+    const twoWeeksFromNow = now.add(2, 'weeks');
+
+    const { result } = renderHook(() => useDiffForHumans());
+
+    // ACT
+    const diff = result.current.diffForHumans(twoWeeksFromNow.toISOString(), { maxUnit: 'day' });
+
+    // ASSERT
+    expect(diff).toEqual('in 14 days');
   });
 });

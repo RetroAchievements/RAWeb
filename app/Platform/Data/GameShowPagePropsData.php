@@ -16,14 +16,20 @@ class GameShowPagePropsData extends Data
     /**
      * @param Collection<int, FollowedPlayerCompletionData> $followedPlayerCompletions
      * @param Collection<int, PlayerAchievementChartBucketData> $playerAchievementChartBuckets
+     * @param Collection<int, GameRecentPlayerData> $recentPlayers
+     * @param Collection<int, AchievementSetClaimData> $achievementSetClaims
      * @param Collection<int, CommentData> $recentVisibleComments
+     * @param Collection<int, FollowedPlayerCompletionData> $followedPlayerCompletions
      * @param Collection<int, GameTopAchieverData> $topAchievers
+     * @param Collection<int, PlayerAchievementChartBucketData> $playerAchievementChartBuckets
      */
     public function __construct(
-        public ?AggregateAchievementSetCreditsData $aggregateCredits,
+        public AggregateAchievementSetCreditsData $aggregateCredits,
         public GameData $backingGame,
         public UserPermissionsData $can,
         public GameData $game,
+        public Collection $achievementSetClaims,
+        public bool $hasMatureContent,
         /** @var GameSetData[] */
         public array $hubs,
         public bool $isLockedOnlyFilterEnabled,
@@ -37,6 +43,7 @@ class GameShowPagePropsData extends Data
         public int $numCompatibleHashes,
         public int $numMasters,
         public int $numOpenTickets,
+        public Collection $recentPlayers,
         public Collection $recentVisibleComments,
         /** @var GameData[] */
         public array $similarGames,

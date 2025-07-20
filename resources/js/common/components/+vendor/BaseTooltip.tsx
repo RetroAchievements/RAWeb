@@ -1,6 +1,6 @@
-/* eslint-disable no-restricted-imports -- base components can import from @radix-ui */
+/* eslint-disable no-restricted-imports -- base components can import from radix-ui */
 
-import * as TooltipPrimitive from '@radix-ui/react-tooltip';
+import { Tooltip as TooltipPrimitive } from 'radix-ui';
 import * as React from 'react';
 
 import { cn } from '@/common/utils/cn';

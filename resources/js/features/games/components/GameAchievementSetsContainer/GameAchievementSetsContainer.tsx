@@ -36,7 +36,6 @@ export const GameAchievementSetsContainer: FC<GameAchievementSetsContainerProps>
           key={`gas-${gameAchievementSet.id}`}
           achievements={gameAchievementSet.achievementSet.achievements}
           gameAchievementSet={gameAchievementSet}
-          isOnlySetForGame={setsToShow.length === 1}
         />
       ))}
     </div>

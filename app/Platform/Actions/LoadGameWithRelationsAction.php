@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Enums\ClaimStatus;
 use App\Models\Game;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
@@ -21,6 +22,10 @@ class LoadGameWithRelationsAction
     public function execute(Game $game, AchievementFlag $flag, ?int $targetAchievementSetId = null): Game
     {
         $game->loadMissing([
+            'achievementSetClaims' => function ($query) {
+                $query->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])
+                    ->with('user');
+            },
             'gameAchievementSets' => function ($query) use ($targetAchievementSetId) {
                 if ($targetAchievementSetId !== null) {
                     // If a specific achievement set is requested, only load that one.
