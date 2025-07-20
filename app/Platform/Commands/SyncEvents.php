@@ -849,7 +849,7 @@ class ConvertGame
                 $winners->where('unlocked_hardcore_at', '>=', $activeFrom);
             }
             if ($activeThrough) {
-                $winners->where('unlocked_hardcore_at', '<', $activeThrough);
+                $winners->where('unlocked_hardcore_at', '<', $activeThrough->clone()->addDays(1));
             }
 
             $winnerIds = [];
