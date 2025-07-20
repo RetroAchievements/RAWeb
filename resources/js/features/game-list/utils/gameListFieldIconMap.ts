@@ -1,4 +1,4 @@
-import { FaCalendarDay, FaTicketAlt } from 'react-icons/fa';
+import { FaCalendarDay, FaHandPaper, FaTicketAlt } from 'react-icons/fa';
 import { ImTrophy } from 'react-icons/im';
 import { IoLogoGameControllerA } from 'react-icons/io';
 import type { IconType } from 'react-icons/lib';
@@ -29,6 +29,7 @@ export const gameListFieldIconMap = createIconMap({
   achievementsPublished: ImTrophy,
   hasActiveOrInReviewClaims: LuWrench,
   lastUpdated: LuCalendarPlus,
+  numRequests: FaHandPaper,
   numUnresolvedTickets: FaTicketAlt,
   numVisibleLeaderboards: MdOutlineLeaderboard,
   playersTotal: LuUser,

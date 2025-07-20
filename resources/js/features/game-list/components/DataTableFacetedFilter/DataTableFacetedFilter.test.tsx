@@ -471,4 +471,51 @@ describe('Component: DataTableFacetedFilter', () => {
     expect(screen.getAllByTestId('filter-selected-label')).toHaveLength(1);
     expect(screen.getByTestId('filter-selected-label')).toHaveTextContent('Option 1');
   });
+
+  it('given drawer variant with single select mode, applies proper styling to the command container', () => {
+    // ARRANGE
+    render(
+      <DataTableFacetedFilter
+        options={mockOptions}
+        column={mockColumn}
+        t_title={'Test Filter' as TranslatedString}
+        variant="drawer" // !!
+        isSingleSelect={true} // !!
+      />,
+    );
+
+    // ASSERT
+    // ... the BaseCommand component should have rounded borders when drawer + single select ...
+    const commandContainer = screen.getByTestId('command-container');
+    expect(commandContainer).toHaveClass('rounded-md');
+    expect(commandContainer).toHaveClass('border');
+    expect(commandContainer).toHaveClass('border-neutral-800');
+    expect(commandContainer).toHaveClass('light:border-neutral-200');
+
+    // ... the BaseCommandList should have max-height when drawer + single select ...
+    const commandList = screen.getByTestId('command-list');
+    expect(commandList).toHaveClass('max-h-[200px]');
+  });
+
+  it('given drawer variant with multi-select mode, applies proper styling to the command container', () => {
+    // ARRANGE
+    render(
+      <DataTableFacetedFilter
+        options={mockOptions}
+        column={mockColumn}
+        t_title={'Test Filter' as TranslatedString}
+        variant="drawer" // !!
+        isSingleSelect={false} // !!
+      />,
+    );
+
+    // ASSERT
+    // ... the BaseCommand component should have fixed height and borders when drawer + multi-select ...
+    const commandContainer = screen.getByTestId('command-container');
+    expect(commandContainer).toHaveClass('h-[168px]');
+    expect(commandContainer).toHaveClass('rounded-md');
+    expect(commandContainer).toHaveClass('border');
+    expect(commandContainer).toHaveClass('border-neutral-800');
+    expect(commandContainer).toHaveClass('light:border-neutral-200');
+  });
 });
