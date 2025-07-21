@@ -49,4 +49,30 @@ describe('Component: AchievementTypeIndicator', () => {
       expect(screen.getByRole('tooltip', { name: /missable/i })).toBeVisible();
     });
   });
+
+  it('can mount the beaten game credit dialog for progression types', async () => {
+    // ARRANGE
+    render(<AchievementTypeIndicator type="progression" dialogContent={<p>content</p>} />);
+
+    // ACT
+    await userEvent.click(screen.getByLabelText(/progression/i));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/content/i)).toBeVisible();
+    });
+  });
+
+  it('can mount the beaten game credit dialog for win_condition types', async () => {
+    // ARRANGE
+    render(<AchievementTypeIndicator type="win_condition" dialogContent={<p>content</p>} />);
+
+    // ACT
+    await userEvent.click(screen.getByLabelText(/win condition/i));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/content/i)).toBeVisible();
+    });
+  });
 });

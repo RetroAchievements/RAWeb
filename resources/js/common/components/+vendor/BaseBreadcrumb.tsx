@@ -1,6 +1,6 @@
-/* eslint-disable no-restricted-imports -- base components can import from @radix-ui */
+/* eslint-disable no-restricted-imports -- base components can import from radix-ui */
 
-import { Slot } from '@radix-ui/react-slot';
+import { Slot } from 'radix-ui';
 import {
   type ComponentProps,
   type ComponentPropsWithoutRef,
@@ -47,7 +47,7 @@ const BaseBreadcrumbLink = forwardRef<
     asChild?: boolean;
   }
 >(({ asChild, className, ...props }, ref) => {
-  const Comp = asChild ? Slot : 'a';
+  const Comp = asChild ? Slot.Root : 'a';
 
   return (
     <Comp
