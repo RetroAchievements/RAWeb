@@ -1,7 +1,7 @@
-/* eslint-disable no-restricted-imports -- base components can import from @radix-ui */
+/* eslint-disable no-restricted-imports -- base components can import from radix-ui */
 
-import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { Slot } from 'radix-ui';
 import { type ButtonHTMLAttributes, forwardRef, useMemo } from 'react';
 
 import { cn } from '@/common/utils/cn';
@@ -56,7 +56,7 @@ export interface BaseButtonProps
 
 const BaseButton = forwardRef<HTMLButtonElement, BaseButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button';
+    const Comp = asChild ? Slot.Root : 'button';
 
     const computedClassName = useMemo(
       () => cn(baseButtonVariants({ variant, size, className })),

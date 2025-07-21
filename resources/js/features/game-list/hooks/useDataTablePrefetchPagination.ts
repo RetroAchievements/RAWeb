@@ -18,18 +18,19 @@ export function useDataTablePrefetchPagination<TData>(
   tableApiRouteName: RouteName,
   tableApiRouteParams?: Record<string, unknown>,
 ) {
-  const { columnFilters, sorting } = table.getState();
-
   const queryClient = useQueryClient();
+
+  const { columnFilters, sorting } = table.getState();
 
   const prefetchPagination = (params: { newPageIndex: number; newPageSize: number }) => {
     queryClient.prefetchQuery({
-      // eslint-disable-next-line @tanstack/query/exhaustive-deps -- tableApiRouteName is not part of the key
       queryKey: [
         'data',
-        { pageIndex: params.newPageIndex, pageSize: params.newPageSize },
+        tableApiRouteName,
+        { pageIndex: params.newPageIndex, pageSize: params.newPageSize }, // pagination
         sorting,
         columnFilters,
+        tableApiRouteParams,
       ],
 
       queryFn: async () => {

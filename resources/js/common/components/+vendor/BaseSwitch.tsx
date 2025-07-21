@@ -1,6 +1,6 @@
-/* eslint-disable no-restricted-imports -- base components can import from @radix-ui */
+/* eslint-disable no-restricted-imports -- base components can import from radix-ui */
 
-import * as SwitchPrimitives from '@radix-ui/react-switch';
+import { Switch as SwitchPrimitives } from 'radix-ui';
 import * as React from 'react';
 
 import { cn } from '@/common/utils/cn';

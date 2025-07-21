@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Data;
 
 use App\Data\PaginatedData;
+use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\LiteralTypeScriptType;
@@ -24,6 +25,8 @@ class GameListPagePropsData extends Data
         #[LiteralTypeScriptType('Record<string, any> | null')]
         public ?array $persistedViewPreferences = null,
         public int $defaultDesktopPageSize = 25,
+        public ?UserData $targetUser = null,
+        public ?UserSetRequestInfoData $userRequestInfo = null,
     ) {
     }
 }

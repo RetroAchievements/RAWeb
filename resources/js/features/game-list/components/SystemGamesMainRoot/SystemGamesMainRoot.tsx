@@ -46,6 +46,8 @@ export const SystemGamesMainRoot: FC = memo(() => {
     columnFilters,
     pagination,
     sorting,
+    apiRouteName: 'api.system.game.index',
+    apiRouteParams: { systemId: system.id },
     paginatedData: paginatedGameListEntries,
   });
 
