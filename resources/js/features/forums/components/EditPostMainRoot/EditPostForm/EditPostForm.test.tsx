@@ -163,4 +163,30 @@ describe('Component: EditPostForm', () => {
     // ASSERT
     expect(screen.getByText(/5.*60,000/)).toBeVisible();
   });
+
+  it('given the user presses Cmd+Enter while focused in the form, submits the form', async () => {
+    // ARRANGE
+    const comment = createForumTopicComment({ id: 123, body: 'Initial text' });
+    const patchSpy = vi.spyOn(axios, 'patch').mockResolvedValueOnce({ data: {} });
+
+    render(<EditPostForm onPreview={vi.fn()} />, {
+      pageProps: {
+        forumTopicComment: comment,
+      },
+    });
+
+    // ACT
+    const textArea = screen.getByPlaceholderText(/don't ask for links/i);
+    await userEvent.clear(textArea);
+    await userEvent.type(textArea, 'Updated text');
+    await userEvent.keyboard('{Meta>}{Enter}{/Meta}');
+
+    // ASSERT
+    await waitFor(() => {
+      expect(patchSpy).toHaveBeenCalledWith(
+        route('api.forum-topic-comment.update', { comment: comment.id }),
+        { body: 'Updated text' },
+      );
+    });
+  });
 });

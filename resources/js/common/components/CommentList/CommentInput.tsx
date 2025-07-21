@@ -1,8 +1,9 @@
-import { type FC } from 'react';
+import { type FC, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import TextareaAutosize from 'react-textarea-autosize';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useSubmitOnMetaEnter } from '@/common/hooks/useSubmitOnMetaEnter';
 
 import { BaseButton } from '../+vendor/BaseButton';
 import {
@@ -32,6 +33,13 @@ export const CommentInput: FC = () => {
     onSubmitSuccess,
   });
 
+  const formRef = useRef<HTMLFormElement>(null);
+  useSubmitOnMetaEnter({
+    formRef,
+    onSubmit: () => form.handleSubmit(onSubmit)(),
+    isEnabled: form.formState.isValid && !mutation.isPending,
+  });
+
   if (!auth?.user || !canComment) {
     return null;
   }
@@ -43,7 +51,7 @@ export const CommentInput: FC = () => {
       </div>
 
       <BaseFormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+        <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)} className="w-full">
           <div className="flex flex-col">
             <BaseFormField
               control={form.control}
