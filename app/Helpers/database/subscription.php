@@ -169,6 +169,7 @@ function getSubscribersOfArticle(
         INNER JOIN UserAccounts as _ua ON _ua.ID = _c.user_id
         WHERE _c.ArticleType = :articleType
               AND _c.ArticleID = :articleID
+              AND _c.deleted_at IS NULL
               $websitePrefsFilter
         $authorQry
     ";
