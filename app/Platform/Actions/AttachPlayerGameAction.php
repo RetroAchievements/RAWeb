@@ -8,7 +8,6 @@ use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Events\PlayerGameAttached;
-use Exception;
 
 class AttachPlayerGameAction
 {
@@ -16,20 +15,22 @@ class AttachPlayerGameAction
     {
         // upsert game attachment without running into unique constraints
 
-        $playerGame = $user->playerGame($game);
-        if ($playerGame) {
-            return $playerGame;
-        }
+        $playerGame = PlayerGame::firstOrCreate(
+            [
+                'user_id' => $user->id,
+                'game_id' => $game->id,
+            ],
+            [
+                // Default values for new records.
+                'last_played_at' => null,
+            ]
+        );
 
-        try {
-            $user->games()->attach($game);
-
-            // let everyone know that this user started this game for first time
+        // Only dispatch event if this was newly created.
+        if ($playerGame->wasRecentlyCreated) {
             PlayerGameAttached::dispatch($user, $game);
-        } catch (Exception) {
-            // prevent race conditions where the game might've been attached by another job
         }
 
-        return $user->playerGame($game);
+        return $playerGame;
     }
 }
