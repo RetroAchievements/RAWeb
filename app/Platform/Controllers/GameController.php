@@ -96,20 +96,22 @@ class GameController extends Controller
         // Get the target achievement set ID from query parameter.
         $targetAchievementSetId = $request->query('set') ? (int) $request->query('set') : null;
 
-        // If a target achievement set is requested, validate it actually belongs to this game.
+        // Load the target achievement set if requested.
+        $targetAchievementSet = null;
         if ($targetAchievementSetId !== null) {
-            $validSetExists = $game->gameAchievementSets()
+            $targetAchievementSet = $game->gameAchievementSets()
                 ->where('achievement_set_id', $targetAchievementSetId)
-                ->exists();
+                ->with('achievementSet')
+                ->first();
 
-            if (!$validSetExists) {
+            if (!$targetAchievementSet) {
                 // Invalid set ID for this game. Redirect to the game without the set parameter.
                 return redirect()->route('game.show', ['game' => $game]);
             }
         }
 
-        $game = $loadGameWithRelationsAction->execute($game, AchievementFlag::OfficialCore, $targetAchievementSetId);
-        $props = $buildGameShowPagePropsAction->execute($game, $user, $targetAchievementSetId);
+        $game = $loadGameWithRelationsAction->execute($game, AchievementFlag::OfficialCore, $targetAchievementSet);
+        $props = $buildGameShowPagePropsAction->execute($game, $user, $targetAchievementSet);
 
         return Inertia::render('game/[game]', $props);
     }

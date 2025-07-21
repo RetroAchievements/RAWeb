@@ -10,6 +10,7 @@ use App\Community\Enums\UserGameListType;
 use App\Data\UserPermissionsData;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
@@ -25,6 +26,7 @@ use App\Platform\Data\PlayerGameProgressionAwardsData;
 use App\Platform\Data\UserCreditsData;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementSetAuthorTask;
+use App\Platform\Enums\AchievementSetType;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 
@@ -41,14 +43,16 @@ class BuildGameShowPagePropsAction
     ) {
     }
 
-    public function execute(Game $game, ?User $user, ?int $targetAchievementSetId = null): GameShowPagePropsData
+    public function execute(Game $game, ?User $user, ?GameAchievementSet $targetAchievementSet = null): GameShowPagePropsData
     {
         // The backing game is the legacy game that backs the target achievement set.
         // For core sets, this will be $game->id. For subsets, it'll be a different ID.
         $backingGameId = null;
 
-        if ($targetAchievementSetId !== null) {
-            $backingGameId = $this->resolveBackingGameForAchievementSetAction->execute($targetAchievementSetId);
+        if ($targetAchievementSet !== null) {
+            $backingGameId = $this->resolveBackingGameForAchievementSetAction->execute(
+                $targetAchievementSet->achievement_set_id
+            );
         }
 
         // If we have a backing game ID different from the current game, load it.
@@ -215,7 +219,6 @@ class BuildGameShowPagePropsAction
             ))->values()->all(),
 
             aggregateCredits: $this->buildAggregateCredits($game),
-
             backingGame: GameData::fromGame($backingGame)->include('achievementsPublished'),
             hasMatureContent: $backingGame->hasMatureContent,
             hubs: $relatedHubs,
@@ -227,7 +230,7 @@ class BuildGameShowPagePropsAction
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
             playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($backingGame, $user),
             numComments: $backingGame->visibleComments($user)->count(),
-            numCompatibleHashes: $game->hashes->where('compatibility', GameHashCompatibility::Compatible)->count(),
+            numCompatibleHashes: $this->getCompatibleHashesCount($game, $backingGame, $targetAchievementSet),
             numMasters: $numMasters,
             numOpenTickets: Ticket::forGame($backingGame)->unresolved()->count(),
             recentPlayers: $this->loadGameRecentPlayersAction->execute($game),
@@ -238,7 +241,7 @@ class BuildGameShowPagePropsAction
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($backingGame->id, $user))
                 : null,
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
-            targetAchievementSetId: $targetAchievementSetId,
+            targetAchievementSetId: $targetAchievementSet?->achievement_set_id,
 
             selectableGameAchievementSets: $game->getAttribute('selectableGameAchievementSets')
                 ->map(function ($gas) {
@@ -465,5 +468,24 @@ class BuildGameShowPagePropsAction
         $gameIds = array_filter(array_map('intval', explode(',', $cookieValue)));
 
         return in_array($gameId, $gameIds);
+    }
+
+    private function getCompatibleHashesCount(Game $game, Game $backingGame, ?GameAchievementSet $targetAchievementSet): int
+    {
+        // Use the backing game's hashes for Specialty and Exclusive set types.
+        if ($targetAchievementSet !== null) {
+            $setType = $targetAchievementSet->type;
+            if (in_array($setType, [
+                AchievementSetType::Specialty,
+                AchievementSetType::WillBeSpecialty,
+                AchievementSetType::Exclusive,
+                AchievementSetType::WillBeExclusive,
+            ])) {
+                return $backingGame->hashes->where('compatibility', GameHashCompatibility::Compatible)->count();
+            }
+        }
+
+        // Otherwise use the main game's hashes.
+        return $game->hashes->where('compatibility', GameHashCompatibility::Compatible)->count();
     }
 }

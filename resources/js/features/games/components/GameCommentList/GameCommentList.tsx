@@ -9,7 +9,7 @@ import { SubscribeToggleButton } from '@/common/components/SubscribeToggleButton
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 export const GameCommentList: FC = () => {
-  const { can, game, isSubscribedToComments, numComments, recentVisibleComments } =
+  const { backingGame, can, isSubscribedToComments, numComments, recentVisibleComments } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
@@ -36,7 +36,7 @@ export const GameCommentList: FC = () => {
                 components={{
                   1: (
                     <InertiaLink
-                      href={route('game.comment.index', { game: game.id })}
+                      href={route('game.comment.index', { game: backingGame.id })}
                       prefetch="desktop-hover-only"
                     />
                   ),
@@ -48,7 +48,7 @@ export const GameCommentList: FC = () => {
 
         <SubscribeToggleButton
           hasExistingSubscription={isSubscribedToComments}
-          subjectId={game.id}
+          subjectId={backingGame.id}
           subjectType="GameWall"
         />
       </div>
@@ -56,7 +56,7 @@ export const GameCommentList: FC = () => {
       <CommentList
         comments={recentVisibleComments}
         canComment={!!can.createGameComments}
-        commentableId={game.id}
+        commentableId={backingGame.id}
         commentableType="Game"
         onDeleteSuccess={reloadComments}
         onSubmitSuccess={reloadComments}

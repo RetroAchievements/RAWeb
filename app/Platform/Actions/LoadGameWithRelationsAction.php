@@ -6,6 +6,7 @@ namespace App\Platform\Actions;
 
 use App\Community\Enums\ClaimStatus;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 
@@ -16,20 +17,20 @@ class LoadGameWithRelationsAction
      *
      * @param Game $game the game to load relations for
      * @param AchievementFlag $flag the achievement flag to filter by
-     * @param int|null $targetAchievementSetId if provided, only load this specific achievement set
+     * @param GameAchievementSet|null $targetAchievementSet if provided, only load this specific achievement set
      * @return Game the game with properly loaded relations
      */
-    public function execute(Game $game, AchievementFlag $flag, ?int $targetAchievementSetId = null): Game
+    public function execute(Game $game, AchievementFlag $flag, ?GameAchievementSet $targetAchievementSet = null): Game
     {
         $game->loadMissing([
             'achievementSetClaims' => function ($query) {
                 $query->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])
                     ->with('user');
             },
-            'gameAchievementSets' => function ($query) use ($targetAchievementSetId) {
-                if ($targetAchievementSetId !== null) {
+            'gameAchievementSets' => function ($query) use ($targetAchievementSet) {
+                if ($targetAchievementSet !== null) {
                     // If a specific achievement set is requested, only load that one.
-                    $query->where('achievement_set_id', $targetAchievementSetId);
+                    $query->where('achievement_set_id', $targetAchievementSet->achievement_set_id);
                 } else {
                     // Otherwise, only load core sets.
                     // We won't rule out the possibility a game has multiple core sets,
