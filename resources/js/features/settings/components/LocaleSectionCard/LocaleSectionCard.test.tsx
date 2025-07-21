@@ -20,6 +20,7 @@ describe('Component: LocaleSectionCard', () => {
 
   afterEach(() => {
     (window as any).location = originalLocation;
+    vi.clearAllTimers();
   });
 
   it('renders without crashing', () => {

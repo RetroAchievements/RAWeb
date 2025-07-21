@@ -219,7 +219,12 @@ class BuildGameShowPagePropsAction
             ))->values()->all(),
 
             aggregateCredits: $this->buildAggregateCredits($game),
-            backingGame: GameData::fromGame($backingGame)->include('achievementsPublished'),
+
+            backingGame: GameData::fromGame($backingGame)->include(
+                'achievementsPublished',
+                'forumTopicId'
+            ),
+
             hasMatureContent: $backingGame->hasMatureContent,
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],

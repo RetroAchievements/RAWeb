@@ -49,6 +49,25 @@ describe('Component: GameHeaderSlotContent', () => {
     expect(container).toBeTruthy();
   });
 
+  it('given the game and backing game are not the same, displays the subset indicator', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+    const backingGame = createGame({ id: 2 });
+    const pageProps = {
+      backingGame,
+      game,
+      auth: null,
+      isOnWantToPlayList: false,
+      isOnWantToDevList: false,
+      ziggy: createZiggyProps(),
+    };
+
+    render(<GameHeaderSlotContent />, { pageProps });
+
+    // ASSERT
+    expect(screen.getByText(/subset/i)).toBeVisible();
+  });
+
   it('given the user is not authenticated, still shows the Want to Play button', () => {
     // ARRANGE
     const game = createGame();

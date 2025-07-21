@@ -28,6 +28,8 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
   const userRoles = auth?.user.roles ?? [];
   const canShowDevelopment = userRoles.includes('developer'); // TODO || userRoles.includes('developer-junior')
 
+  const showSubsetIndicator = backingGame.id !== game.id;
+
   if (!canShowEssentialResources && !canShowExtras && !canShowManagement) {
     return null;
   }
@@ -48,7 +50,7 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
             </PlayableSidebarButton>
           ) : null}
 
-          <PlayableOfficialForumTopicButton game={game} />
+          <PlayableOfficialForumTopicButton backingGame={backingGame} game={game} />
         </PlayableSidebarButtonsSection>
       ) : null}
 
@@ -67,6 +69,7 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
               <PlayableSidebarButton
                 href={`/codenotes.php?g=${game.id}`}
                 IconComponent={LuFileCode}
+                showSubsetIndicator={showSubsetIndicator}
               >
                 {t('Memory')}
               </PlayableSidebarButton>
@@ -78,6 +81,7 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
                 })}
                 IconComponent={LuTickets}
                 count={numOpenTickets}
+                showSubsetIndicator={showSubsetIndicator}
               >
                 {t('Tickets')}
               </PlayableSidebarButton>

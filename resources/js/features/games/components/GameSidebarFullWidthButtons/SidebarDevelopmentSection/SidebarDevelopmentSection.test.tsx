@@ -32,9 +32,11 @@ describe('Component: SidebarDevelopmentSection', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const backingGame = createGame();
+    const game = createGame();
+    const backingGame = game;
     const pageProps = {
       backingGame,
+      game,
       isOnWantToDevList: false,
       ziggy: createZiggyProps(),
     };
@@ -47,9 +49,11 @@ describe('Component: SidebarDevelopmentSection', () => {
 
   it('given the game is not on the want to develop list, sets aria-pressed to false', () => {
     // ARRANGE
-    const backingGame = createGame();
+    const game = createGame();
+    const backingGame = game;
     const pageProps = {
       backingGame,
+      game,
       isOnWantToDevList: false,
       ziggy: createZiggyProps(),
     };
@@ -64,9 +68,11 @@ describe('Component: SidebarDevelopmentSection', () => {
 
   it('given the game is on the want to develop list, sets aria-pressed to true', () => {
     // ARRANGE
-    const backingGame = createGame();
+    const game = createGame();
+    const backingGame = game;
     const pageProps = {
       backingGame,
+      game,
       isOnWantToDevList: true,
       ziggy: createZiggyProps(),
     };
@@ -81,11 +87,13 @@ describe('Component: SidebarDevelopmentSection', () => {
 
   it('given the user clicks the button when the game is not in the list, adds it to the develop list', async () => {
     // ARRANGE
-    const backingGame = createGame({ id: 123, title: 'Super Mario World' });
+    const game = createGame({ id: 123, title: 'Super Mario World' });
+    const backingGame = game;
     const user = createAuthenticatedUser();
     const pageProps = {
       auth: { user },
       backingGame,
+      game,
       isOnWantToDevList: false,
       ziggy: createZiggyProps(),
     };
@@ -115,11 +123,13 @@ describe('Component: SidebarDevelopmentSection', () => {
 
   it('given the user clicks the button when the game is in the list, removes it from the develop list', async () => {
     // ARRANGE
-    const backingGame = createGame({ id: 456, title: 'Donkey Kong Country' });
+    const game = createGame({ id: 456, title: 'Donkey Kong Country' });
+    const backingGame = game;
     const user = createAuthenticatedUser();
     const pageProps = {
       auth: { user },
       backingGame,
+      game,
       isOnWantToDevList: true,
       ziggy: createZiggyProps(),
     };
@@ -149,15 +159,17 @@ describe('Component: SidebarDevelopmentSection', () => {
 
   it('given the game already has achievements published, changes the button label to mention revisions instead', () => {
     // ARRANGE
-    const backingGame = createGame({
+    const game = createGame({
       id: 123,
       title: 'Super Mario World',
       achievementsPublished: 80,
     });
+    const backingGame = game;
     const user = createAuthenticatedUser();
     const pageProps = {
       auth: { user },
       backingGame,
+      game,
       isOnWantToDevList: false,
       ziggy: createZiggyProps(),
     };
@@ -167,5 +179,22 @@ describe('Component: SidebarDevelopmentSection', () => {
     // ASSERT
     expect(screen.queryByRole('button', { name: /want to develop/i })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /want to revise/i })).toBeVisible();
+  });
+
+  it('given the game and backing game are different, displays the subset indicator', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+    const backingGame = createGame({ id: 2 });
+    const pageProps = {
+      backingGame,
+      game,
+      isOnWantToDevList: false,
+      ziggy: createZiggyProps(),
+    };
+
+    render(<SidebarDevelopmentSection />, { pageProps });
+
+    // ASSERT
+    expect(screen.getByRole('img', { name: /subset/i })).toBeVisible();
   });
 });
