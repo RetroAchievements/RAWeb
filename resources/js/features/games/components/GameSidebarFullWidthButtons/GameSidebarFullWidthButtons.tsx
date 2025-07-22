@@ -41,7 +41,7 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
           {numCompatibleHashes > 0 ? (
             <PlayableSidebarButton
               className="border-l-4 border-l-link"
-              href={route('game.hashes.index', { game: game.id })}
+              href={route('game.hashes.index', { game: backingGame.id })}
               isInertiaLink={true}
               IconComponent={LuFileText}
               count={numCompatibleHashes}
@@ -69,7 +69,6 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
               <PlayableSidebarButton
                 href={`/codenotes.php?g=${game.id}`}
                 IconComponent={LuFileCode}
-                showSubsetIndicator={showSubsetIndicator}
               >
                 {t('Memory')}
               </PlayableSidebarButton>

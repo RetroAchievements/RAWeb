@@ -48,7 +48,7 @@ export const PlayableOfficialForumTopicButton: FC<PlayableOfficialForumTopicButt
           prefetch="desktop-hover-only"
         >
           <LuMessageSquare className="size-4 brightness-125" />
-          {t('Set Forum Topic')}
+          {t('Subset Forum Topic')}
         </InertiaLink>
       ) : null}
     </div>

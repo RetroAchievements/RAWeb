@@ -100,6 +100,8 @@ const ButtonContent: FC<ButtonContentProps> = ({
     <>
       <span className="flex items-center gap-2">
         <span className="flex items-center gap-0.5">
+          <IconComponent className="size-4" />
+
           {showSubsetIndicator ? (
             <>
               <LuLayers
@@ -111,8 +113,6 @@ const ButtonContent: FC<ButtonContentProps> = ({
               <span className="sr-only">{t('Subset')}</span>
             </>
           ) : null}
-
-          <IconComponent className="size-4" />
         </span>
 
         <span className="flex items-center gap-1">{children}</span>
