@@ -40,6 +40,7 @@ export const AchievementSetCredits: FC = () => {
     ...aggregateCredits.achievementsDesign,
     ...aggregateCredits.achievementsTesting,
     ...aggregateCredits.achievementsWriting,
+    ...aggregateCredits.hashCompatibilityTesting,
   ].filter(
     (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
   );
@@ -65,7 +66,7 @@ export const AchievementSetCredits: FC = () => {
             <AchievementAuthorsDisplay authors={aggregateCredits.achievementsAuthors} />
           ) : null}
 
-          {achievementSetClaims.length ? (
+          {achievementSetClaims?.length ? (
             <ClaimantsDisplay achievementSetClaims={achievementSetClaims} />
           ) : null}
 
@@ -87,6 +88,7 @@ export const AchievementSetCredits: FC = () => {
           {designCreditUsers.length ? (
             <DesignCreditsDisplay
               designCredits={aggregateCredits.achievementsDesign}
+              hashCompatibilityTestingCredits={aggregateCredits.hashCompatibilityTesting}
               testingCredits={aggregateCredits.achievementsTesting}
               writingCredits={aggregateCredits.achievementsWriting}
             />

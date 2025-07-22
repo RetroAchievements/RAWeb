@@ -41,10 +41,13 @@ export const HubMainRoot: FC = memo(() => {
 
   const columnDefinitions = useColumnDefinitions({ canSeeOpenTicketsColumn: !!can.develop });
 
+  const apiRouteParams = { gameSet: hub.id };
   const { queryClientWithInitialData } = usePreloadedTableDataQueryClient({
+    apiRouteParams,
     columnFilters,
     pagination,
     sorting,
+    apiRouteName: 'api.hub.game.index',
     paginatedData: paginatedGameListEntries,
   });
 
@@ -90,7 +93,7 @@ export const HubMainRoot: FC = memo(() => {
               columnDefinitions={columnDefinitions}
               // API configuration
               apiRouteName="api.hub.game.index"
-              apiRouteParams={{ gameSet: hub.id }}
+              apiRouteParams={apiRouteParams}
               randomGameApiRouteName="api.hub.game.random"
             />
           ) : null}

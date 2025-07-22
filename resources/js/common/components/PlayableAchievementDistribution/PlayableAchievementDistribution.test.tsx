@@ -1,5 +1,3 @@
-/* eslint-disable testing-library/no-container */
-
 import { createElement } from 'react';
 
 import { render, screen } from '@/test';

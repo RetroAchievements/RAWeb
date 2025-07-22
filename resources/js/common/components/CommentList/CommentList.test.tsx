@@ -284,4 +284,29 @@ describe('Component: CommentList', () => {
     expect(screen.queryByText('Server')).not.toBeInTheDocument();
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
+
+  it('given the user presses Cmd+Enter while focused in the comment form, submits the comment', async () => {
+    // ARRANGE
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
+
+    render(
+      <CommentList canComment={true} commentableId={1} commentableType="Game" comments={[]} />,
+      {
+        pageProps: { auth: { user: createAuthenticatedUser() } },
+      },
+    );
+
+    // ACT
+    const textArea = screen.getByRole('textbox', { name: /comment/i });
+    await userEvent.type(textArea, 'this is my comment');
+    await userEvent.keyboard('{Meta>}{Enter}{/Meta}');
+
+    // ASSERT
+    expect(postSpy).toHaveBeenCalledOnce();
+    expect(postSpy).toHaveBeenCalledWith(['api.game.comment.store', { game: 1 }], {
+      body: 'this is my comment',
+      commentableId: 1,
+      commentableType: 1,
+    });
+  });
 });

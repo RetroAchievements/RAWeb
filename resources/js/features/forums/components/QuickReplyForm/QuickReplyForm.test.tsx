@@ -99,4 +99,33 @@ describe('Component: QuickReplyForm', () => {
     // ASSERT
     expect(screen.getByRole('button', { name: /preview/i })).toBeDisabled();
   });
+
+  it('given the user presses Cmd+Enter while focused in the form, submits the form', async () => {
+    // ARRANGE
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: { commentId: 123 } });
+    const mockAssign = vi.fn();
+    Object.defineProperty(window, 'location', { value: { assign: mockAssign }, writable: true });
+
+    const topic = createForumTopic();
+
+    render(<QuickReplyForm onPreview={() => {}} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        forumTopic: topic,
+      },
+    });
+
+    // ACT
+    const textArea = screen.getByPlaceholderText(/don't ask for links/i);
+    await userEvent.type(textArea, 'My message');
+    await userEvent.keyboard('{Meta>}{Enter}{/Meta}');
+
+    // ASSERT
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledWith(
+        route('api.forum-topic-comment.create', { topic: topic.id }),
+        { body: 'My message' },
+      );
+    });
+  });
 });

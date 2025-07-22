@@ -27,7 +27,7 @@ export const TooltipCreditRow: FC<TooltipCreditRowProps> = ({
   return (
     <p className="flex w-full justify-between gap-2">
       <span className="flex items-center gap-1">
-        <img src={credit.avatarUrl} className="size-4 rounded-full" />
+        <img src={credit.avatarUrl} alt={credit.displayName} className="size-4 rounded-full" />
         <span className={cn(credit.isGone ? 'text-neutral-500 line-through' : null)}>
           {credit.displayName}
         </span>

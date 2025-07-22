@@ -44,6 +44,8 @@ export const AllGamesMainRoot: FC = memo(() => {
     columnFilters,
     pagination,
     sorting,
+    apiRouteName: 'api.game.index',
+    apiRouteParams: {},
     paginatedData: paginatedGameListEntries,
   });
 
