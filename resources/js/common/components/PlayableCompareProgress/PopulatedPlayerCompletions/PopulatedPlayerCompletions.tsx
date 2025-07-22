@@ -106,10 +106,11 @@ const PlayerCompletionList: FC<PlayerCompletionListProps> = ({ completions, game
           <span className="lg:w-[130px] xl:w-[176px]">
             <UserAvatar {...completion.user} size={24} labelClassName="truncate" />
           </span>
+
           <PlayerGameProgressBar
             playerGame={completion.playerGame}
             game={game}
-            variant="event"
+            variant="minimal"
             width={108}
             href={route('game.compare-unlocks', {
               game: game.id,

@@ -68,6 +68,7 @@ export const GameRecentPlayersTable: FC = () => {
                   points: recentPlayer.points,
                   pointsHardcore: recentPlayer.pointsHardcore,
                 }}
+                variant="minimal"
               />
             </BaseTableCell>
 
