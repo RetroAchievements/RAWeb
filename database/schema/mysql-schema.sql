@@ -20,10 +20,12 @@ CREATE TABLE `Achievements` (
   `Flags` tinyint(3) unsigned NOT NULL DEFAULT 5,
   `type` varchar(255) DEFAULT NULL,
   `user_id` bigint(20) unsigned DEFAULT NULL,
+  `trigger_id` bigint(20) unsigned DEFAULT NULL,
   `unlocks_total` int(10) unsigned DEFAULT NULL,
   `unlocks_hardcore_total` int(10) unsigned DEFAULT NULL,
   `unlock_percentage` decimal(10,9) DEFAULT NULL,
   `unlock_hardcore_percentage` decimal(10,9) DEFAULT NULL,
+  `visible_user_comments_total` int(10) unsigned NOT NULL DEFAULT 0,
   `DateCreated` timestamp NULL DEFAULT NULL,
   `DateModified` timestamp NULL DEFAULT current_timestamp(),
   `VotesPos` smallint(5) unsigned NOT NULL DEFAULT 0,
@@ -41,7 +43,10 @@ CREATE TABLE `Achievements` (
   KEY `achievements_user_id_foreign` (`user_id`),
   KEY `achievements_type_index` (`type`),
   KEY `achievements_game_id_published_index` (`GameID`,`Flags`),
+  KEY `achievements_gameid_datemodified_deleted_at_index` (`GameID`,`DateModified`,`deleted_at`),
+  KEY `achievements_trigger_id_index` (`trigger_id`),
   CONSTRAINT `achievements_game_id_foreign` FOREIGN KEY (`GameID`) REFERENCES `GameData` (`ID`) ON DELETE CASCADE,
+  CONSTRAINT `achievements_trigger_id_foreign` FOREIGN KEY (`trigger_id`) REFERENCES `triggers` (`id`) ON DELETE SET NULL,
   CONSTRAINT `achievements_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -62,7 +67,7 @@ CREATE TABLE `Comment` (
   PRIMARY KEY (`ID`),
   KEY `comment_articleid_index` (`ArticleID`),
   KEY `comments_commentable_index` (`commentable_type`,`commentable_id`),
-  KEY `comment_user_id_foreign` (`user_id`),
+  KEY `comment_user_id_submitted_index` (`user_id`,`Submitted`),
   CONSTRAINT `comment_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -98,84 +103,6 @@ CREATE TABLE `EmailConfirmations` (
   CONSTRAINT `emailconfirmations_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `Forum`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Forum` (
-  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `forumable_model` varchar(255) DEFAULT NULL,
-  `forumable_id` bigint(20) unsigned DEFAULT NULL,
-  `CategoryID` bigint(20) unsigned DEFAULT NULL,
-  `Title` varchar(50) NOT NULL,
-  `Description` varchar(250) NOT NULL,
-  `LatestCommentID` bigint(20) unsigned DEFAULT NULL,
-  `DisplayOrder` int(11) NOT NULL DEFAULT 0,
-  `Created` timestamp NULL DEFAULT current_timestamp(),
-  `Updated` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`ID`),
-  UNIQUE KEY `forums_forumable_unique` (`forumable_model`,`forumable_id`),
-  KEY `forums_forum_category_id_index` (`CategoryID`),
-  CONSTRAINT `forums_forum_category_id_foreign` FOREIGN KEY (`CategoryID`) REFERENCES `ForumCategory` (`ID`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `ForumCategory`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ForumCategory` (
-  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `Name` varchar(250) NOT NULL,
-  `Description` varchar(250) NOT NULL,
-  `DisplayOrder` int(10) unsigned NOT NULL DEFAULT 0,
-  `Created` timestamp NULL DEFAULT current_timestamp(),
-  `Updated` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `ForumTopic`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ForumTopic` (
-  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `ForumID` bigint(20) unsigned DEFAULT NULL,
-  `Title` varchar(255) NOT NULL,
-  `author_id` bigint(20) unsigned DEFAULT NULL,
-  `pinned_at` timestamp NULL DEFAULT NULL,
-  `locked_at` timestamp NULL DEFAULT NULL,
-  `DateCreated` timestamp NOT NULL DEFAULT current_timestamp(),
-  `LatestCommentID` bigint(20) unsigned DEFAULT NULL,
-  `RequiredPermissions` smallint(6) NOT NULL DEFAULT 0,
-  `Updated` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `forum_topics_forum_id_index` (`ForumID`),
-  KEY `forum_topics_created_at_index` (`DateCreated`),
-  KEY `forumtopic_author_id_foreign` (`author_id`),
-  CONSTRAINT `forumtopic_author_id_foreign` FOREIGN KEY (`author_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `ForumTopicComment`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ForumTopicComment` (
-  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `ForumTopicID` bigint(20) unsigned DEFAULT NULL,
-  `Payload` text NOT NULL,
-  `author_id` bigint(20) unsigned DEFAULT NULL,
-  `authorized_at` timestamp NULL DEFAULT NULL,
-  `DateCreated` timestamp NULL DEFAULT NULL,
-  `DateModified` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `Authorised` tinyint(3) unsigned DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `forum_topic_comments_forum_topic_id_index` (`ForumTopicID`),
-  KEY `forum_topic_comments_created_at_index` (`DateCreated`),
-  KEY `forum_topic_comments_author_id_created_at_index` (`author_id`,`DateCreated`) USING BTREE,
-  KEY `forumtopiccomment_forumtopicid_authorised_datecreated_index` (`ForumTopicID`,`Authorised`,`DateCreated`),
-  CONSTRAINT `forumtopiccomment_author_id_foreign` FOREIGN KEY (`author_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Friends`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -194,24 +121,13 @@ CREATE TABLE `Friends` (
   CONSTRAINT `user_relations_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `GameAlternatives`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `GameAlternatives` (
-  `gameID` int(10) unsigned DEFAULT NULL,
-  `gameIDAlt` int(10) unsigned DEFAULT NULL,
-  `Created` timestamp NULL DEFAULT current_timestamp(),
-  `Updated` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  KEY `gamealternatives_gameid_index` (`gameID`),
-  KEY `gamealternatives_gameidalt_index` (`gameIDAlt`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `GameData`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `GameData` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `Title` varchar(80) DEFAULT NULL,
+  `sort_title` varchar(255) DEFAULT NULL,
   `ConsoleID` int(10) unsigned DEFAULT NULL,
   `ForumTopicID` bigint(20) unsigned DEFAULT NULL,
   `Flags` int(11) DEFAULT NULL,
@@ -222,14 +138,16 @@ CREATE TABLE `GameData` (
   `Publisher` varchar(50) DEFAULT NULL,
   `Developer` varchar(50) DEFAULT NULL,
   `Genre` varchar(50) DEFAULT NULL,
-  `Released` varchar(50) DEFAULT NULL,
   `released_at` timestamp NULL DEFAULT NULL,
   `released_at_granularity` varchar(255) DEFAULT NULL,
-  `releases` text DEFAULT NULL,
-  `IsFinal` tinyint(3) unsigned NOT NULL DEFAULT 0,
+  `trigger_id` bigint(20) unsigned DEFAULT NULL,
   `RichPresencePatch` text DEFAULT NULL,
   `players_total` int(10) unsigned DEFAULT NULL,
   `players_hardcore` int(10) unsigned DEFAULT NULL,
+  `times_beaten` int(11) NOT NULL DEFAULT 0,
+  `times_beaten_hardcore` int(11) NOT NULL DEFAULT 0,
+  `median_time_to_beat` int(11) DEFAULT NULL,
+  `median_time_to_beat_hardcore` int(11) DEFAULT NULL,
   `achievement_set_version_hash` varchar(255) DEFAULT NULL,
   `achievements_published` int(10) unsigned DEFAULT NULL,
   `achievements_unpublished` int(10) unsigned DEFAULT NULL,
@@ -247,7 +165,10 @@ CREATE TABLE `GameData` (
   KEY `games_players_total_index` (`players_total`),
   KEY `games_players_hardcore_index` (`players_hardcore`),
   KEY `gamedata_forumtopicid_foreign` (`ForumTopicID`),
-  CONSTRAINT `gamedata_forumtopicid_foreign` FOREIGN KEY (`ForumTopicID`) REFERENCES `ForumTopic` (`ID`) ON DELETE SET NULL,
+  KEY `gamedata_sort_title_index` (`sort_title`),
+  KEY `gamedata_trigger_id_index` (`trigger_id`),
+  CONSTRAINT `gamedata_forumtopicid_foreign` FOREIGN KEY (`ForumTopicID`) REFERENCES `forum_topics` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `gamedata_trigger_id_foreign` FOREIGN KEY (`trigger_id`) REFERENCES `triggers` (`id`) ON DELETE SET NULL,
   CONSTRAINT `games_systems_id_foreign` FOREIGN KEY (`ConsoleID`) REFERENCES `Console` (`ID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -264,56 +185,20 @@ CREATE TABLE `LeaderboardDef` (
   `LowerIsBetter` tinyint(1) NOT NULL DEFAULT 0,
   `DisplayOrder` int(11) NOT NULL DEFAULT 0,
   `author_id` bigint(20) unsigned DEFAULT NULL,
+  `trigger_id` bigint(20) unsigned DEFAULT NULL,
+  `top_entry_id` bigint(20) unsigned DEFAULT NULL,
   `Created` timestamp NULL DEFAULT current_timestamp(),
   `Updated` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`ID`),
   KEY `leaderboards_game_id_index` (`GameID`),
   KEY `leaderboarddef_author_id_foreign` (`author_id`),
+  KEY `leaderboarddef_trigger_id_index` (`trigger_id`),
+  KEY `leaderboarddef_top_entry_id_foreign` (`top_entry_id`),
   CONSTRAINT `leaderboarddef_author_id_foreign` FOREIGN KEY (`author_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL,
+  CONSTRAINT `leaderboarddef_top_entry_id_foreign` FOREIGN KEY (`top_entry_id`) REFERENCES `leaderboard_entries` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `leaderboarddef_trigger_id_foreign` FOREIGN KEY (`trigger_id`) REFERENCES `triggers` (`id`) ON DELETE SET NULL,
   CONSTRAINT `leaderboards_game_id_foreign` FOREIGN KEY (`GameID`) REFERENCES `GameData` (`ID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `News`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `News` (
-  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `Timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  `Title` varchar(255) DEFAULT NULL,
-  `lead` text DEFAULT NULL,
-  `Payload` text NOT NULL,
-  `user_id` bigint(20) unsigned DEFAULT NULL,
-  `Link` varchar(255) DEFAULT NULL,
-  `Image` varchar(255) DEFAULT NULL,
-  `Updated` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `publish_at` timestamp NULL DEFAULT NULL,
-  `unpublish_at` timestamp NULL DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `news_user_id_foreign` (`user_id`),
-  CONSTRAINT `news_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `Rating`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Rating` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `ratable_model` varchar(255) DEFAULT NULL,
-  `ratable_id` bigint(20) unsigned DEFAULT NULL,
-  `user_id` bigint(20) unsigned DEFAULT NULL,
-  `User` varchar(255) NOT NULL,
-  `RatingObjectType` smallint(6) NOT NULL,
-  `RatingID` smallint(6) NOT NULL,
-  `RatingValue` smallint(6) NOT NULL,
-  `Created` timestamp NULL DEFAULT current_timestamp(),
-  `Updated` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ratings_user_rating_unique` (`User`,`RatingObjectType`,`RatingID`),
-  KEY `ratings_ratable_index` (`ratable_model`,`ratable_id`),
-  KEY `ratings_user_id_foreign` (`user_id`),
-  CONSTRAINT `ratings_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `SetClaim`;
@@ -351,6 +236,7 @@ CREATE TABLE `SetRequest` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_game_list_entry_user_id_game_id_type_unique` (`user_id`,`GameID`,`type`),
   KEY `user_game_list_entry_game_id_foreign` (`GameID`),
+  KEY `setrequest_gameid_type_index` (`GameID`,`type`),
   CONSTRAINT `user_game_list_entry_game_id_foreign` FOREIGN KEY (`GameID`) REFERENCES `GameData` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `user_game_list_entry_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
@@ -424,9 +310,11 @@ CREATE TABLE `Ticket` (
   `ticketable_id` bigint(20) unsigned DEFAULT NULL,
   `ticketable_author_id` bigint(20) unsigned DEFAULT NULL,
   `AchievementID` bigint(20) unsigned DEFAULT NULL,
+  `game_hash_id` bigint(20) unsigned DEFAULT NULL,
+  `emulator_id` int(10) unsigned DEFAULT NULL,
+  `emulator_version` varchar(32) DEFAULT NULL,
+  `emulator_core` varchar(96) DEFAULT NULL,
   `reporter_id` bigint(20) unsigned DEFAULT NULL,
-  `game_hash_set_id` bigint(20) unsigned DEFAULT NULL,
-  `player_session_id` bigint(20) unsigned DEFAULT NULL,
   `ReportType` tinyint(3) unsigned NOT NULL,
   `Hardcore` tinyint(1) DEFAULT NULL,
   `ReportNotes` text NOT NULL,
@@ -440,17 +328,18 @@ CREATE TABLE `Ticket` (
   UNIQUE KEY `tickets_ticketable_reporter_id_index` (`ticketable_model`,`ticketable_id`,`reporter_id`),
   KEY `tickets_created_at_index` (`ReportedAt`),
   KEY `tickets_ticketable_index` (`ticketable_model`,`ticketable_id`),
-  KEY `tickets_game_hash_set_id_foreign` (`game_hash_set_id`),
-  KEY `tickets_player_session_id_foreign` (`player_session_id`),
   KEY `tickets_achievement_id_reporter_id_index` (`AchievementID`,`reporter_id`),
   KEY `ticket_reporter_id_foreign` (`reporter_id`),
   KEY `ticket_resolver_id_foreign` (`resolver_id`),
   KEY `ticket_ticketable_author_id_foreign` (`ticketable_author_id`),
+  KEY `ticket_achievementid_reportstate_deleted_at_index` (`AchievementID`,`ReportState`,`deleted_at`),
+  KEY `tickets_game_hash_id_foreign` (`game_hash_id`),
+  KEY `tickets_emulator_id_foreign` (`emulator_id`),
   CONSTRAINT `ticket_reporter_id_foreign` FOREIGN KEY (`reporter_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL,
   CONSTRAINT `ticket_resolver_id_foreign` FOREIGN KEY (`resolver_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL,
   CONSTRAINT `ticket_ticketable_author_id_foreign` FOREIGN KEY (`ticketable_author_id`) REFERENCES `UserAccounts` (`ID`),
-  CONSTRAINT `tickets_game_hash_set_id_foreign` FOREIGN KEY (`game_hash_set_id`) REFERENCES `game_hash_sets` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `tickets_player_session_id_foreign` FOREIGN KEY (`player_session_id`) REFERENCES `player_sessions` (`id`) ON DELETE SET NULL
+  CONSTRAINT `tickets_emulator_id_foreign` FOREIGN KEY (`emulator_id`) REFERENCES `emulators` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `tickets_game_hash_id_foreign` FOREIGN KEY (`game_hash_id`) REFERENCES `game_hashes` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `UserAccounts`;
@@ -458,8 +347,10 @@ DROP TABLE IF EXISTS `UserAccounts`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `UserAccounts` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `ulid` char(26) DEFAULT NULL,
   `User` varchar(32) NOT NULL,
   `display_name` varchar(255) DEFAULT NULL,
+  `visible_role_id` bigint(20) unsigned DEFAULT NULL,
   `Password` varchar(255) DEFAULT NULL,
   `two_factor_secret` text DEFAULT NULL,
   `two_factor_recovery_codes` text DEFAULT NULL,
@@ -514,6 +405,8 @@ CREATE TABLE `UserAccounts` (
   `Deleted` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `users_username_unique` (`User`),
+  UNIQUE KEY `useraccounts_display_name_unique` (`display_name`),
+  UNIQUE KEY `useraccounts_ulid_unique` (`ulid`),
   KEY `users_username_untracked_index` (`User`,`Untracked`),
   KEY `users_points_weighted_untracked_index` (`TrueRAPoints`,`Untracked`),
   KEY `users_untracked_points_index` (`Untracked`,`RAPoints`),
@@ -525,27 +418,10 @@ CREATE TABLE `UserAccounts` (
   KEY `users_points_softcore_unranked_at_index` (`RASoftcorePoints`,`unranked_at`),
   KEY `users_points_weighted_unranked_at_index` (`TrueRAPoints`,`unranked_at`),
   KEY `users_apikey_index` (`APIKey`) USING BTREE,
-  KEY `users_apptoken_index` (`appToken`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `Votes`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Votes` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `votable_model` varchar(255) DEFAULT NULL,
-  `votable_id` bigint(20) unsigned DEFAULT NULL,
-  `user_id` bigint(20) unsigned DEFAULT NULL,
-  `User` varchar(50) NOT NULL,
-  `AchievementID` int(10) unsigned NOT NULL,
-  `Vote` tinyint(4) NOT NULL,
-  `Created` timestamp NULL DEFAULT current_timestamp(),
-  `Updated` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `votes_user_achievement_id_unique` (`User`,`AchievementID`),
-  KEY `votes_votable_index` (`votable_model`,`votable_id`),
-  KEY `votes_user_id_foreign` (`user_id`),
-  CONSTRAINT `votes_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
+  KEY `users_apptoken_index` (`appToken`) USING BTREE,
+  KEY `useraccounts_lastlogin_deleted_index` (`LastLogin`,`Deleted`),
+  KEY `useraccounts_visible_role_id_index` (`visible_role_id`),
+  CONSTRAINT `useraccounts_visible_role_id_foreign` FOREIGN KEY (`visible_role_id`) REFERENCES `auth_roles` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `achievement_authors`;
@@ -560,10 +436,46 @@ CREATE TABLE `achievement_authors` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `achievement_authors_achievement_id_user_id_unique` (`achievement_id`,`user_id`),
+  UNIQUE KEY `achievement_authors_achievement_id_user_id_task_unique` (`achievement_id`,`user_id`,`task`),
   KEY `achievement_authors_user_id_foreign` (`user_id`),
   CONSTRAINT `achievement_authors_achievement_id_foreign` FOREIGN KEY (`achievement_id`) REFERENCES `Achievements` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `achievement_authors_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `achievement_maintainer_unlocks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `achievement_maintainer_unlocks` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `player_achievement_id` bigint(20) unsigned NOT NULL,
+  `maintainer_id` bigint(20) unsigned NOT NULL,
+  `achievement_id` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `achievement_maintainer_unlocks_player_achievement_id_foreign` (`player_achievement_id`),
+  KEY `achievement_maintainer_unlocks_maintainer_id_foreign` (`maintainer_id`),
+  KEY `achievement_maintainer_unlocks_achievement_id_foreign` (`achievement_id`),
+  CONSTRAINT `achievement_maintainer_unlocks_achievement_id_foreign` FOREIGN KEY (`achievement_id`) REFERENCES `Achievements` (`ID`) ON DELETE CASCADE,
+  CONSTRAINT `achievement_maintainer_unlocks_maintainer_id_foreign` FOREIGN KEY (`maintainer_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE,
+  CONSTRAINT `achievement_maintainer_unlocks_player_achievement_id_foreign` FOREIGN KEY (`player_achievement_id`) REFERENCES `player_achievements` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `achievement_maintainers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `achievement_maintainers` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `achievement_id` bigint(20) unsigned NOT NULL,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `effective_from` timestamp NOT NULL DEFAULT current_timestamp(),
+  `effective_until` timestamp NULL DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `achievement_maintainers_achievement_id_foreign` (`achievement_id`),
+  KEY `achievement_maintainers_user_id_foreign` (`user_id`),
+  CONSTRAINT `achievement_maintainers_achievement_id_foreign` FOREIGN KEY (`achievement_id`) REFERENCES `Achievements` (`ID`) ON DELETE CASCADE,
+  CONSTRAINT `achievement_maintainers_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `achievement_set_achievements`;
@@ -601,14 +513,13 @@ CREATE TABLE `achievement_set_authors` (
   CONSTRAINT `achievement_set_authors_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `achievement_set_game_hashes`;
+DROP TABLE IF EXISTS `achievement_set_incompatible_game_hashes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `achievement_set_game_hashes` (
+CREATE TABLE `achievement_set_incompatible_game_hashes` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `achievement_set_id` bigint(20) unsigned NOT NULL,
   `game_hash_id` bigint(20) unsigned NOT NULL,
-  `compatible` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -647,21 +558,24 @@ DROP TABLE IF EXISTS `achievement_sets`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `achievement_sets` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` bigint(20) unsigned DEFAULT NULL,
   `players_total` int(10) unsigned DEFAULT NULL,
   `players_hardcore` int(10) unsigned DEFAULT NULL,
+  `achievements_first_published_at` datetime DEFAULT NULL,
   `achievements_published` int(10) unsigned DEFAULT NULL,
   `achievements_unpublished` int(10) unsigned DEFAULT NULL,
   `points_total` int(10) unsigned DEFAULT NULL,
   `points_weighted` int(10) unsigned DEFAULT NULL,
+  `times_completed` int(11) NOT NULL DEFAULT 0,
+  `times_completed_hardcore` int(11) NOT NULL DEFAULT 0,
+  `median_time_to_complete` int(11) DEFAULT NULL,
+  `median_time_to_complete_hardcore` int(11) DEFAULT NULL,
+  `image_asset_path` varchar(50) NOT NULL DEFAULT '/Images/000001.png',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `achievement_sets_user_id_index` (`user_id`),
   KEY `achievement_sets_players_total_index` (`players_total`),
-  KEY `achievement_sets_players_hardcore_index` (`players_hardcore`),
-  CONSTRAINT `achievement_sets_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL
+  KEY `achievement_sets_players_hardcore_index` (`players_hardcore`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `audit_log`;
@@ -748,6 +662,53 @@ CREATE TABLE `auth_roles` (
   UNIQUE KEY `auth_roles_name_guard_name_unique` (`name`,`guard_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `downloads_popularity_metrics`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `downloads_popularity_metrics` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `key` varchar(255) NOT NULL,
+  `ordered_ids` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`ordered_ids`)),
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `downloads_popularity_metrics_key_unique` (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `emulator_downloads`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `emulator_downloads` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `emulator_id` int(10) unsigned NOT NULL,
+  `platform_id` bigint(20) unsigned NOT NULL,
+  `label` varchar(255) DEFAULT NULL,
+  `url` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `emulator_downloads_emulator_id_platform_id_unique` (`emulator_id`,`platform_id`),
+  KEY `emulator_downloads_platform_id_foreign` (`platform_id`),
+  CONSTRAINT `emulator_downloads_emulator_id_foreign` FOREIGN KEY (`emulator_id`) REFERENCES `emulators` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `emulator_downloads_platform_id_foreign` FOREIGN KEY (`platform_id`) REFERENCES `platforms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `emulator_platforms`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `emulator_platforms` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `emulator_id` int(10) unsigned NOT NULL,
+  `platform_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `emulator_platforms_emulator_id_platform_id_unique` (`emulator_id`,`platform_id`),
+  KEY `emulator_platforms_platform_id_foreign` (`platform_id`),
+  CONSTRAINT `emulator_platforms_emulator_id_foreign` FOREIGN KEY (`emulator_id`) REFERENCES `emulators` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `emulator_platforms_platform_id_foreign` FOREIGN KEY (`platform_id`) REFERENCES `platforms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `emulator_releases`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -766,24 +727,179 @@ CREATE TABLE `emulator_releases` (
   CONSTRAINT `emulator_releases_emulator_id_foreign` FOREIGN KEY (`emulator_id`) REFERENCES `emulators` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `emulator_user_agents`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `emulator_user_agents` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `emulator_id` int(10) unsigned NOT NULL,
+  `client` varchar(80) NOT NULL,
+  `minimum_allowed_version` varchar(32) DEFAULT NULL,
+  `minimum_hardcore_version` varchar(32) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `emulator_user_agents_emulator_id_foreign` (`emulator_id`),
+  KEY `emulator_user_agents_client_index` (`client`),
+  CONSTRAINT `emulator_user_agents_emulator_id_foreign` FOREIGN KEY (`emulator_id`) REFERENCES `emulators` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `emulators`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `emulators` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `integration_id` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `handle` varchar(255) DEFAULT NULL,
+  `original_name` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
-  `link` text DEFAULT NULL,
-  `game_hash_column` text DEFAULT NULL,
+  `website_url` varchar(255) DEFAULT NULL,
+  `documentation_url` varchar(255) DEFAULT NULL,
+  `download_url` varchar(255) DEFAULT NULL,
+  `download_x64_url` varchar(255) DEFAULT NULL,
+  `source_url` varchar(255) DEFAULT NULL,
   `order_column` int(10) unsigned DEFAULT NULL,
   `active` tinyint(1) NOT NULL DEFAULT 0,
+  `can_debug_triggers` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `event_achievements`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `event_achievements` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `achievement_id` bigint(20) unsigned NOT NULL,
+  `source_achievement_id` bigint(20) unsigned DEFAULT NULL,
+  `active_from` date DEFAULT NULL,
+  `active_until` date DEFAULT NULL,
+  `decorator` varchar(40) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `emulators_integration_id_unique` (`integration_id`)
+  KEY `event_achievements_achievement_id_foreign` (`achievement_id`),
+  KEY `event_achievements_source_achievement_id_index` (`source_achievement_id`),
+  KEY `event_achievements_active_from_index` (`active_from`),
+  KEY `event_achievements_active_until_index` (`active_until`),
+  CONSTRAINT `event_achievements_achievement_id_foreign` FOREIGN KEY (`achievement_id`) REFERENCES `Achievements` (`ID`) ON DELETE CASCADE,
+  CONSTRAINT `event_achievements_source_achievement_id_foreign` FOREIGN KEY (`source_achievement_id`) REFERENCES `Achievements` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `event_awards`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `event_awards` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `event_id` bigint(20) unsigned NOT NULL,
+  `tier_index` int(11) NOT NULL,
+  `label` varchar(40) NOT NULL,
+  `points_required` int(11) NOT NULL,
+  `image_asset_path` varchar(50) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `event_awards_event_id_tier_index_unique` (`event_id`,`tier_index`),
+  CONSTRAINT `event_awards_event_id_foreign` FOREIGN KEY (`event_id`) REFERENCES `events` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `events`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `events` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `legacy_game_id` bigint(20) unsigned NOT NULL,
+  `image_asset_path` varchar(50) NOT NULL DEFAULT '/Images/000001.png',
+  `active_from` date DEFAULT NULL,
+  `active_until` date DEFAULT NULL,
+  `gives_site_award` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `events_legacy_game_id_foreign` (`legacy_game_id`),
+  CONSTRAINT `events_legacy_game_id_foreign` FOREIGN KEY (`legacy_game_id`) REFERENCES `GameData` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `forum_categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `forum_categories` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(250) NOT NULL,
+  `description` varchar(250) NOT NULL,
+  `order_column` int(10) unsigned NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `forum_topic_comments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `forum_topic_comments` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `forum_topic_id` bigint(20) unsigned DEFAULT NULL,
+  `body` text NOT NULL,
+  `author_id` bigint(20) unsigned DEFAULT NULL,
+  `authorized_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_authorized` tinyint(3) unsigned DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `forum_topic_comments_forum_topic_id_index` (`forum_topic_id`),
+  KEY `forum_topic_comments_created_at_index` (`created_at`),
+  KEY `forum_topic_comments_author_id_created_at_index` (`author_id`,`created_at`),
+  CONSTRAINT `forum_topic_comments_author_id_foreign` FOREIGN KEY (`author_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL,
+  CONSTRAINT `forum_topic_comments_forum_topic_id_foreign` FOREIGN KEY (`forum_topic_id`) REFERENCES `forum_topics` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `forum_topics`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `forum_topics` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `forum_id` bigint(20) unsigned DEFAULT NULL,
+  `title` varchar(255) NOT NULL,
+  `body` text DEFAULT NULL,
+  `author_id` bigint(20) unsigned DEFAULT NULL,
+  `pinned_at` timestamp NULL DEFAULT NULL,
+  `locked_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `latest_comment_id` bigint(20) unsigned DEFAULT NULL,
+  `required_permissions` smallint(6) NOT NULL DEFAULT 0,
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `forum_topics_created_at_index` (`created_at`),
+  KEY `idx_permissions_deleted_latest` (`required_permissions`,`deleted_at`,`latest_comment_id`),
+  KEY `forum_topics_forum_id_index` (`forum_id`),
+  KEY `forum_topics_author_id_foreign` (`author_id`),
+  CONSTRAINT `forum_topics_author_id_foreign` FOREIGN KEY (`author_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL,
+  CONSTRAINT `forum_topics_forum_id_foreign` FOREIGN KEY (`forum_id`) REFERENCES `forums` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `forums`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `forums` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `forumable_model` varchar(255) DEFAULT NULL,
+  `forumable_id` bigint(20) unsigned DEFAULT NULL,
+  `forum_category_id` bigint(20) unsigned DEFAULT NULL,
+  `title` varchar(50) NOT NULL,
+  `description` varchar(250) NOT NULL,
+  `latest_comment_id` bigint(20) unsigned DEFAULT NULL,
+  `order_column` int(11) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `forums_forumable_unique` (`forumable_model`,`forumable_id`),
+  KEY `forums_forum_category_id_index` (`forum_category_id`),
+  CONSTRAINT `forums_forum_category_id_foreign` FOREIGN KEY (`forum_category_id`) REFERENCES `forum_categories` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `game_achievement_sets`;
@@ -853,6 +969,7 @@ CREATE TABLE `game_hashes` (
   `file_sha1` varchar(40) DEFAULT NULL,
   `file_name_md5` varchar(32) DEFAULT NULL,
   `compatibility` varchar(255) DEFAULT NULL,
+  `compatibility_tester_id` bigint(20) unsigned DEFAULT NULL,
   `game_id` bigint(20) unsigned NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `user_id` bigint(20) unsigned DEFAULT NULL,
@@ -876,9 +993,48 @@ CREATE TABLE `game_hashes` (
   UNIQUE KEY `game_hashes_md5_unique` (`md5`),
   KEY `game_hashes_user_id_foreign` (`user_id`),
   KEY `game_hashes_game_id_foreign` (`game_id`),
+  KEY `game_hashes_compatibility_tester_id_foreign` (`compatibility_tester_id`),
+  CONSTRAINT `game_hashes_compatibility_tester_id_foreign` FOREIGN KEY (`compatibility_tester_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL,
   CONSTRAINT `game_hashes_game_id_foreign` FOREIGN KEY (`game_id`) REFERENCES `GameData` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `game_hashes_system_id_foreign` FOREIGN KEY (`system_id`) REFERENCES `Console` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `game_hashes_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `game_recent_players`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `game_recent_players` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `game_id` bigint(20) unsigned NOT NULL,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `rich_presence` text DEFAULT NULL,
+  `rich_presence_updated_at` timestamp NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `game_recent_players_game_id_user_id_unique` (`game_id`,`user_id`),
+  KEY `idx_game_updated` (`game_id`,`rich_presence_updated_at`),
+  KEY `game_recent_players_user_id_foreign` (`user_id`),
+  CONSTRAINT `game_recent_players_game_id_foreign` FOREIGN KEY (`game_id`) REFERENCES `GameData` (`ID`) ON DELETE CASCADE,
+  CONSTRAINT `game_recent_players_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `game_releases`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `game_releases` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `game_id` bigint(20) unsigned NOT NULL,
+  `released_at` timestamp NULL DEFAULT NULL,
+  `released_at_granularity` varchar(255) DEFAULT NULL,
+  `title` varchar(80) NOT NULL,
+  `region` varchar(20) DEFAULT NULL,
+  `is_canonical_game_title` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `game_releases_title_index` (`title`),
+  KEY `game_releases_game_id_foreign` (`game_id`),
+  CONSTRAINT `game_releases_game_id_foreign` FOREIGN KEY (`game_id`) REFERENCES `GameData` (`ID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `game_set_games`;
@@ -892,10 +1048,45 @@ CREATE TABLE `game_set_games` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `game_set_games_game_set_id_foreign` (`game_set_id`),
+  UNIQUE KEY `game_set_games_game_set_id_game_id_unique` (`game_set_id`,`game_id`),
   KEY `game_set_games_game_id_foreign` (`game_id`),
   CONSTRAINT `game_set_games_game_id_foreign` FOREIGN KEY (`game_id`) REFERENCES `GameData` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `game_set_games_game_set_id_foreign` FOREIGN KEY (`game_set_id`) REFERENCES `game_sets` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `game_set_links`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `game_set_links` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `parent_game_set_id` bigint(20) unsigned NOT NULL,
+  `child_game_set_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `game_set_links_parent_game_set_id_child_game_set_id_unique` (`parent_game_set_id`,`child_game_set_id`),
+  KEY `game_set_links_parent_game_set_id_index` (`parent_game_set_id`),
+  KEY `game_set_links_child_game_set_id_index` (`child_game_set_id`),
+  CONSTRAINT `game_set_links_child_game_set_id_foreign` FOREIGN KEY (`child_game_set_id`) REFERENCES `game_sets` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `game_set_links_parent_game_set_id_foreign` FOREIGN KEY (`parent_game_set_id`) REFERENCES `game_sets` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `game_set_roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `game_set_roles` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `game_set_id` bigint(20) unsigned NOT NULL,
+  `role_id` bigint(20) unsigned NOT NULL,
+  `permission` enum('view','update') NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `game_set_roles_game_set_id_role_id_permission_unique` (`game_set_id`,`role_id`,`permission`),
+  KEY `game_set_roles_game_set_id_permission_index` (`game_set_id`,`permission`),
+  KEY `game_set_roles_role_id_foreign` (`role_id`),
+  CONSTRAINT `game_set_roles_game_set_id_foreign` FOREIGN KEY (`game_set_id`) REFERENCES `game_sets` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `game_set_roles_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `auth_roles` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `game_sets`;
@@ -903,14 +1094,24 @@ DROP TABLE IF EXISTS `game_sets`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `game_sets` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `type` varchar(255) NOT NULL,
+  `title` varchar(80) DEFAULT NULL,
+  `image_asset_path` varchar(50) DEFAULT '/Images/000001.png',
   `user_id` bigint(20) unsigned DEFAULT NULL,
   `definition` text DEFAULT NULL,
-  `legacy_game_id` bigint(20) unsigned DEFAULT NULL,
+  `has_mature_content` tinyint(1) NOT NULL DEFAULT 0,
+  `game_id` bigint(20) unsigned DEFAULT NULL,
+  `forum_topic_id` bigint(20) unsigned DEFAULT NULL,
+  `internal_notes` text DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `game_sets_user_id_index` (`user_id`),
+  KEY `game_sets_game_id_foreign` (`game_id`),
+  KEY `game_sets_forum_topic_id_index` (`forum_topic_id`),
+  CONSTRAINT `game_sets_forum_topic_id_foreign` FOREIGN KEY (`forum_topic_id`) REFERENCES `forum_topics` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `game_sets_game_id_foreign` FOREIGN KEY (`game_id`) REFERENCES `GameData` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `game_sets_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -948,6 +1149,7 @@ CREATE TABLE `leaderboard_entries` (
   KEY `leaderboard_entries_user_id_foreign` (`user_id`),
   KEY `leaderboard_entries_trigger_id_foreign` (`trigger_id`),
   KEY `leaderboard_entries_player_session_id_foreign` (`player_session_id`),
+  KEY `idx_recent_entries` (`deleted_at`,`updated_at`,`leaderboard_id`),
   CONSTRAINT `leaderboard_entries_player_session_id_foreign` FOREIGN KEY (`player_session_id`) REFERENCES `player_sessions` (`id`) ON DELETE SET NULL,
   CONSTRAINT `leaderboard_entries_trigger_id_foreign` FOREIGN KEY (`trigger_id`) REFERENCES `triggers` (`id`) ON DELETE SET NULL,
   CONSTRAINT `leaderboard_entries_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
@@ -1040,6 +1242,7 @@ CREATE TABLE `messages` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `thread_id` bigint(20) unsigned NOT NULL,
   `author_id` bigint(20) unsigned NOT NULL,
+  `sent_by_id` bigint(20) unsigned DEFAULT NULL,
   `Title` text NOT NULL,
   `body` text NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -1048,7 +1251,9 @@ CREATE TABLE `messages` (
   KEY `messages_unread_index` (`Unread`),
   KEY `messages_thread_id_foreign` (`thread_id`),
   KEY `messages_author_id_foreign` (`author_id`),
+  KEY `messages_sent_by_id_foreign` (`sent_by_id`),
   CONSTRAINT `messages_author_id_foreign` FOREIGN KEY (`author_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE,
+  CONSTRAINT `messages_sent_by_id_foreign` FOREIGN KEY (`sent_by_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL,
   CONSTRAINT `messages_thread_id_foreign` FOREIGN KEY (`thread_id`) REFERENCES `message_threads` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1060,6 +1265,29 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) NOT NULL,
   `batch` int(11) NOT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `news`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `news` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `title` varchar(255) DEFAULT NULL,
+  `lead` text DEFAULT NULL,
+  `body` text NOT NULL,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `link` varchar(255) DEFAULT NULL,
+  `image_asset_path` varchar(255) DEFAULT NULL,
+  `category` varchar(50) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `publish_at` timestamp NULL DEFAULT NULL,
+  `unpublish_at` timestamp NULL DEFAULT NULL,
+  `pinned_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `news_user_id_foreign` (`user_id`),
+  CONSTRAINT `news_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `notifications`;
@@ -1179,6 +1407,19 @@ CREATE TABLE `personal_access_tokens` (
   KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `platforms`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `platforms` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `execution_environment` varchar(255) DEFAULT NULL,
+  `order_column` int(11) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `player_achievement_sets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -1186,36 +1427,21 @@ CREATE TABLE `player_achievement_sets` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) unsigned NOT NULL,
   `achievement_set_id` bigint(20) unsigned NOT NULL,
-  `achievements_total` int(10) unsigned DEFAULT NULL,
   `achievements_unlocked` int(10) unsigned DEFAULT NULL,
   `achievements_unlocked_hardcore` int(10) unsigned DEFAULT NULL,
-  `achievements_beat` int(10) unsigned DEFAULT NULL,
-  `achievements_beat_unlocked` int(10) unsigned DEFAULT NULL,
-  `achievements_beat_unlocked_hardcore` int(10) unsigned DEFAULT NULL,
-  `beaten_percentage` decimal(10,9) unsigned DEFAULT NULL,
-  `beaten_percentage_hardcore` decimal(10,9) unsigned DEFAULT NULL,
+  `achievements_unlocked_softcore` int(10) unsigned DEFAULT NULL,
   `completion_percentage` decimal(10,9) unsigned DEFAULT NULL,
   `completion_percentage_hardcore` decimal(10,9) unsigned DEFAULT NULL,
-  `last_played_at` timestamp NULL DEFAULT NULL,
-  `playtime_total` bigint(20) unsigned DEFAULT NULL,
-  `time_taken` bigint(20) unsigned DEFAULT NULL,
-  `time_taken_hardcore` bigint(20) unsigned DEFAULT NULL,
-  `beaten_dates` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`beaten_dates`)),
-  `beaten_dates_hardcore` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`beaten_dates_hardcore`)),
+  `time_taken` int(11) DEFAULT NULL,
+  `time_taken_hardcore` int(11) DEFAULT NULL,
   `completion_dates` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`completion_dates`)),
   `completion_dates_hardcore` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`completion_dates_hardcore`)),
-  `beaten_at` timestamp NULL DEFAULT NULL,
-  `beaten_hardcore_at` timestamp NULL DEFAULT NULL,
   `completed_at` timestamp NULL DEFAULT NULL,
   `completed_hardcore_at` timestamp NULL DEFAULT NULL,
   `last_unlock_at` timestamp NULL DEFAULT NULL,
   `last_unlock_hardcore_at` timestamp NULL DEFAULT NULL,
-  `first_unlock_at` timestamp NULL DEFAULT NULL,
-  `first_unlock_hardcore_at` timestamp NULL DEFAULT NULL,
-  `points_total` int(10) unsigned DEFAULT NULL,
   `points` int(10) unsigned DEFAULT NULL,
   `points_hardcore` int(10) unsigned DEFAULT NULL,
-  `points_weighted_total` int(10) unsigned DEFAULT NULL,
   `points_weighted` int(10) unsigned DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -1261,23 +1487,24 @@ CREATE TABLE `player_games` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) unsigned NOT NULL,
   `game_id` bigint(20) unsigned NOT NULL,
-  `game_hash_id` bigint(20) unsigned DEFAULT NULL,
-  `achievement_set_version_hash` varchar(255) DEFAULT NULL,
   `achievements_total` int(10) unsigned DEFAULT NULL,
   `achievements_unlocked` int(10) unsigned DEFAULT NULL,
   `achievements_unlocked_hardcore` int(10) unsigned DEFAULT NULL,
   `achievements_unlocked_softcore` int(10) unsigned DEFAULT NULL,
-  `achievements_beat` int(10) unsigned DEFAULT NULL,
-  `achievements_beat_unlocked` int(10) unsigned DEFAULT NULL,
-  `achievements_beat_unlocked_hardcore` int(10) unsigned DEFAULT NULL,
-  `beaten_percentage` decimal(10,9) unsigned DEFAULT NULL,
-  `beaten_percentage_hardcore` decimal(10,9) unsigned DEFAULT NULL,
+  `all_achievements_total` int(11) DEFAULT NULL,
+  `all_achievements_unlocked` int(11) DEFAULT NULL,
+  `all_achievements_unlocked_hardcore` int(11) DEFAULT NULL,
+  `all_points_total` int(11) DEFAULT NULL,
+  `all_points` int(11) DEFAULT NULL,
+  `all_points_hardcore` int(11) DEFAULT NULL,
+  `all_points_weighted` int(11) DEFAULT NULL,
   `completion_percentage` decimal(10,9) unsigned DEFAULT NULL,
   `completion_percentage_hardcore` decimal(10,9) unsigned DEFAULT NULL,
   `last_played_at` timestamp NULL DEFAULT NULL,
-  `playtime_total` bigint(20) unsigned DEFAULT NULL,
+  `playtime_total` int(11) DEFAULT NULL,
+  `time_to_beat` int(11) DEFAULT NULL,
+  `time_to_beat_hardcore` int(11) DEFAULT NULL,
   `time_taken` bigint(20) unsigned DEFAULT NULL,
-  `time_taken_hardcore` bigint(20) unsigned DEFAULT NULL,
   `beaten_dates` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`beaten_dates`)),
   `beaten_dates_hardcore` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`beaten_dates_hardcore`)),
   `completion_dates` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`completion_dates`)),
@@ -1289,11 +1516,9 @@ CREATE TABLE `player_games` (
   `last_unlock_at` timestamp NULL DEFAULT NULL,
   `last_unlock_hardcore_at` timestamp NULL DEFAULT NULL,
   `first_unlock_at` timestamp NULL DEFAULT NULL,
-  `first_unlock_hardcore_at` timestamp NULL DEFAULT NULL,
   `points_total` int(10) unsigned DEFAULT NULL,
   `points` int(10) unsigned DEFAULT NULL,
   `points_hardcore` int(10) unsigned DEFAULT NULL,
-  `points_weighted_total` int(10) unsigned DEFAULT NULL,
   `points_weighted` int(10) unsigned DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -1301,15 +1526,32 @@ CREATE TABLE `player_games` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `player_games_user_id_game_id_unique` (`user_id`,`game_id`),
   KEY `player_games_created_at_index` (`created_at`),
-  KEY `player_games_game_hash_id_foreign` (`game_hash_id`),
-  KEY `player_games_game_id_achievement_set_version_hash_index` (`game_id`,`achievement_set_version_hash`),
   KEY `player_games_game_id_user_id_index` (`game_id`,`user_id`),
   KEY `player_games_game_id_achievements_unlocked_index` (`game_id`,`achievements_unlocked`),
   KEY `player_games_game_id_achievements_unlocked_hardcore_index` (`game_id`,`achievements_unlocked_hardcore`),
   KEY `player_games_game_id_achievements_unlocked_softcore_index` (`game_id`,`achievements_unlocked_softcore`),
-  CONSTRAINT `player_games_game_hash_id_foreign` FOREIGN KEY (`game_hash_id`) REFERENCES `game_hashes` (`id`) ON DELETE SET NULL,
+  KEY `player_games_suggestions_index` (`user_id`,`achievements_unlocked`,`achievements_total`,`game_id`),
   CONSTRAINT `player_games_game_id_foreign` FOREIGN KEY (`game_id`) REFERENCES `GameData` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `player_games_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `player_progress_resets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `player_progress_resets` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `initiated_by_user_id` bigint(20) unsigned DEFAULT NULL,
+  `type` varchar(20) NOT NULL,
+  `type_id` bigint(20) unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `player_progress_resets_user_id_type_created_at_index` (`user_id`,`type`,`created_at`),
+  KEY `player_progress_resets_user_id_type_type_id_created_at_index` (`user_id`,`type`,`type_id`,`created_at`),
+  KEY `player_progress_resets_initiated_by_user_id_foreign` (`initiated_by_user_id`),
+  CONSTRAINT `player_progress_resets_initiated_by_user_id_foreign` FOREIGN KEY (`initiated_by_user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL,
+  CONSTRAINT `player_progress_resets_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `player_sessions`;
@@ -1362,6 +1604,59 @@ CREATE TABLE `player_stats` (
   CONSTRAINT `player_stats_last_game_id_foreign` FOREIGN KEY (`last_game_id`) REFERENCES `GameData` (`ID`) ON DELETE SET NULL,
   CONSTRAINT `player_stats_system_id_foreign` FOREIGN KEY (`system_id`) REFERENCES `Console` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `player_stats_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `pulse_aggregates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `pulse_aggregates` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `bucket` int(10) unsigned NOT NULL,
+  `period` mediumint(8) unsigned NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `key` mediumtext NOT NULL,
+  `key_hash` binary(16) GENERATED ALWAYS AS (unhex(md5(`key`))) VIRTUAL,
+  `aggregate` varchar(255) NOT NULL,
+  `value` decimal(20,2) NOT NULL,
+  `count` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `pulse_aggregates_bucket_period_type_aggregate_key_hash_unique` (`bucket`,`period`,`type`,`aggregate`,`key_hash`),
+  KEY `pulse_aggregates_period_bucket_index` (`period`,`bucket`),
+  KEY `pulse_aggregates_type_index` (`type`),
+  KEY `pulse_aggregates_period_type_aggregate_bucket_index` (`period`,`type`,`aggregate`,`bucket`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `pulse_entries`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `pulse_entries` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `timestamp` int(10) unsigned NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `key` mediumtext NOT NULL,
+  `key_hash` binary(16) GENERATED ALWAYS AS (unhex(md5(`key`))) VIRTUAL,
+  `value` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pulse_entries_timestamp_index` (`timestamp`),
+  KEY `pulse_entries_type_index` (`type`),
+  KEY `pulse_entries_key_hash_index` (`key_hash`),
+  KEY `pulse_entries_timestamp_type_key_hash_value_index` (`timestamp`,`type`,`key_hash`,`value`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `pulse_values`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `pulse_values` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `timestamp` int(10) unsigned NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `key` mediumtext NOT NULL,
+  `key_hash` binary(16) GENERATED ALWAYS AS (unhex(md5(`key`))) VIRTUAL,
+  `value` mediumtext NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `pulse_values_type_key_hash_unique` (`type`,`key_hash`),
+  KEY `pulse_values_timestamp_index` (`timestamp`),
+  KEY `pulse_values_type_index` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `queue_failed_jobs`;
@@ -1507,10 +1802,6 @@ CREATE TABLE `triggers` (
   `version` int(10) unsigned DEFAULT NULL,
   `parent_id` bigint(20) unsigned DEFAULT NULL,
   `conditions` text DEFAULT NULL,
-  `type` text DEFAULT NULL,
-  `stat` varchar(255) DEFAULT NULL,
-  `stat_goal` varchar(255) DEFAULT NULL,
-  `stat_format` varchar(50) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
@@ -1518,7 +1809,20 @@ CREATE TABLE `triggers` (
   UNIQUE KEY `triggers_triggerable_type_triggerable_id_version_unique` (`triggerable_type`,`triggerable_id`,`version`),
   KEY `triggers_triggerable_type_triggerable_id_index` (`triggerable_type`,`triggerable_id`),
   KEY `triggers_user_id_foreign` (`user_id`),
+  KEY `triggers_parent_id_index` (`parent_id`),
+  CONSTRAINT `triggers_parent_id_foreign` FOREIGN KEY (`parent_id`) REFERENCES `triggers` (`id`) ON DELETE SET NULL,
   CONSTRAINT `triggers_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `unranked_users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `unranked_users` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `unranked_users_user_id_index` (`user_id`),
+  CONSTRAINT `unranked_users_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `user_activities`;
@@ -1565,6 +1869,23 @@ CREATE TABLE `user_connections` (
   CONSTRAINT `user_connections_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `user_game_achievement_set_preferences`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_game_achievement_set_preferences` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `game_achievement_set_id` bigint(20) unsigned NOT NULL,
+  `opted_in` tinyint(1) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_user_gasp` (`user_id`,`game_achievement_set_id`),
+  KEY `fk_user_gasp_game_ach_set_id` (`game_achievement_set_id`),
+  CONSTRAINT `fk_user_gasp_game_ach_set_id` FOREIGN KEY (`game_achievement_set_id`) REFERENCES `game_achievement_sets` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_user_gasp_user_id` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `user_usernames`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -1572,11 +1893,13 @@ CREATE TABLE `user_usernames` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) unsigned DEFAULT NULL,
   `username` varchar(255) NOT NULL,
+  `approved_at` timestamp NULL DEFAULT NULL,
+  `denied_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `user_usernames_user_id_username_unique` (`user_id`,`username`),
   KEY `user_usernames_username_index` (`username`),
+  KEY `user_usernames_user_id_foreign` (`user_id`),
   CONSTRAINT `user_usernames_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `UserAccounts` (`ID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1687,8 +2010,69 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (97,'2024_05_21_000
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (98,'2024_05_21_000000_update_setclaim_table',14);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (99,'2024_05_21_000000_update_siteawards_table',14);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (100,'2024_06_08_000000_drop_websockets_statistics_entries_table',14);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (102,'2024_06_18_000000_update_gamedata_table',15);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (101,'2024_06_18_000000_update_gamedata_table',15);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (102,'2024_05_25_000001_update_player_games_table',16);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (103,'2024_07_03_000000_update_codenotes_table',16);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (105,'2024_07_27_000000_update_forumtopiccomment_table',17);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (106,'2024_05_25_000001_update_player_games_table',18);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (107,'2024_08_07_000000_update_emailconfirmations_table',19);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (104,'2024_08_24_000000_add_forum_indexes',17);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (105,'2024_06_23_000000_update_useraccounts_table',18);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (106,'2024_08_10_000000_create_game_set_links_table',18);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (107,'2023_06_07_000001_create_pulse_tables',19);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (108,'2024_09_08_000000_update_emulators_table',19);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (109,'2024_09_11_000000_add_datatable_indexes',19);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (110,'2024_09_12_000000_update_gamedata_table',20);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (111,'2024_09_27_000000_create_user_game_achievement_set_preferences_table',20);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (112,'2024_10_12_000000_update_achievement_set_game_hashes_table',21);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (113,'2024_10_21_000000_create_event_achievements_table',22);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (114,'2024_11_02_000000_update_useraccounts_table',22);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (115,'2024_11_15_000000_create_emulator_user_agents_table',23);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (116,'2024_09_07_000000_update_achievement_authors_table',24);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (117,'2024_12_15_000000_update_gamedata_table',25);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (118,'2024_12_14_000000_update_game_sets_table',26);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (119,'2024_12_17_000000_drop_votes_and_rating_tables',26);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (120,'2024_12_17_000001_update_news_table',26);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (121,'2024_12_16_000000_update_forumcategory_table',27);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (122,'2024_12_16_000001_update_forum_table',27);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (123,'2024_12_16_000002_update_forumtopic_table',27);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (124,'2024_12_16_000003_update_forumtopiccomment_table',27);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (125,'2024_12_18_000000_update_game_sets_tables',27);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (126,'2024_12_22_000000_update_game_sets_table',27);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (127,'2024_12_25_000000_update_leaderboard_entries_table',27);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (128,'2025_01_06_000000_create_events_table',28);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (129,'2024_12_24_000000_update_player_games_table',29);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (130,'2025_01_07_000000_denormalize_triggerables',30);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (131,'2025_01_07_000001_update_triggers_table',30);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (132,'2025_01_10_000000_create_event_awards_table',30);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (133,'2025_01_18_000000_update_news_table',30);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (134,'2025_01_20_000000_update_useraccounts_table',30);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (135,'2025_01_25_000000_update_player_games_table',31);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (136,'2025_01_29_000001_update_comments_table',31);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (137,'2025_01_17_000000_update_user_usernames_table',32);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (138,'2025_01_26_000000_update_useraccounts_table',32);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (139,'2025_01_29_000000_update_event_awards_table',32);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (140,'2025_03_07_000000_update_ticket_table',33);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (141,'2025_03_12_000000_update_events_table',33);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (142,'2025_03_16_000000_create_emulator_tables',34);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (143,'2025_04_03_000000_update_emulators_table',35);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (144,'2025_04_08_000000_update_emulator_tables',35);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (145,'2025_04_14_000000_update_achievement_sets_table',35);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (146,'2025_04_19_000000_drop_gamealternatives_table',36);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (147,'2025_04_19_000000_update_game_hashes_table',36);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (148,'2025_04_22_000000_create_achievement_maintainers_table',37);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (149,'2025_04_23_000000_update_messages_table',37);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (150,'2025_04_27_000000_create_achievement_maintainer_unlocks_table',37);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (151,'2025_05_02_000000_create_downloads_popularity_metrics_table',38);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (152,'2025_05_05_000000_update_player_achievement_sets',39);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (153,'2025_05_05_000001_update_achievement_sets',39);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (154,'2025_05_05_000002_update_player_games',39);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (155,'2025_05_05_000003_update_gamedata',39);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (156,'2025_05_11_000000_update_leaderboarddef_table',40);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (157,'2025_05_18_000000_update_events_table',40);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (158,'2025_05_19_000000_create_game_releases_table',40);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (159,'2025_05_31_000000_create_unranked_users_table',41);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (160,'2025_05_25_000000_create_game_set_roles_table',42);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (161,'2025_06_07_000000_update_event_achievements_table',42);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (162,'2025_06_14_000000_update_gamedata_table',43);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (163,'2025_06_27_000000_update_achievements_table',44);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (164,'2025_06_29_000000_create_player_progress_resets_table',45);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (166,'2025_07_04_000000_create_game_recent_players_table',46);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (167,'2025_07_13_000000_update_setrequests_table',47);
