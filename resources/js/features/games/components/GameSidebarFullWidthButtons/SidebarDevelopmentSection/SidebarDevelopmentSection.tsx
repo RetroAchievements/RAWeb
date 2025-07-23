@@ -7,14 +7,17 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useGameBacklogState } from '@/features/game-list/components/GameListItems/useGameBacklogState';
 
 export const SidebarDevelopmentSection: FC = () => {
-  const { game, isOnWantToDevList: isInitiallyOnWantToDevList } =
-    usePageProps<App.Platform.Data.GameShowPageProps>();
+  const {
+    backingGame,
+    game,
+    isOnWantToDevList: isInitiallyOnWantToDevList,
+  } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
 
   const { toggleBacklog: toggleWantToDevelop, isInBacklogMaybeOptimistic: isOnWantToDevList } =
     useGameBacklogState({
-      game,
+      game: backingGame,
       isInitiallyInBacklog: isInitiallyOnWantToDevList,
       userGameListType: 'develop',
     });
@@ -24,11 +27,12 @@ export const SidebarDevelopmentSection: FC = () => {
   return (
     // TODO hide this to jr devs when more buttons are added to this section
     <PlayableSidebarButton
+      aria-pressed={isOnWantToDevList}
       IconComponent={isOnWantToDevList ? LuCheck : LuPlus}
       onClick={() => toggleWantToDevelop()}
-      aria-pressed={isOnWantToDevList}
+      showSubsetIndicator={game.id !== backingGame.id}
     >
-      {game.achievementsPublished ? t('Want to Revise') : t('Want to Develop')}
+      {backingGame.achievementsPublished ? t('Want to Revise') : t('Want to Develop')}
     </PlayableSidebarButton>
   );
 };

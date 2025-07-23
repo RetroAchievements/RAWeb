@@ -24,10 +24,11 @@ class GameShowPagePropsData extends Data
      * @param Collection<int, PlayerAchievementChartBucketData> $playerAchievementChartBuckets
      */
     public function __construct(
-        public Collection $achievementSetClaims,
         public AggregateAchievementSetCreditsData $aggregateCredits,
-        public GameData $game,
+        public GameData $backingGame,
         public UserPermissionsData $can,
+        public GameData $game,
+        public Collection $achievementSetClaims,
         public bool $hasMatureContent,
         /** @var GameSetData[] */
         public array $hubs,
@@ -49,7 +50,10 @@ class GameShowPagePropsData extends Data
         public Collection $topAchievers,
         public ?PlayerGameData $playerGame,
         public ?PlayerGameProgressionAwardsData $playerGameProgressionAwards,
+        /** @var GameAchievementSetData[] */
+        public array $selectableGameAchievementSets,
         public ?SeriesHubData $seriesHub,
+        public ?int $targetAchievementSetId,
     ) {
     }
 }

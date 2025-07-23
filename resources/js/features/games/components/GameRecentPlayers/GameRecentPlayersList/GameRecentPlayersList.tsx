@@ -64,6 +64,7 @@ export const GameRecentPlayersList: FC = () => {
                     pointsHardcore: recentPlayer.pointsHardcore,
                   }}
                   className="!py-0"
+                  variant="minimal"
                 />
               </div>
             </div>
