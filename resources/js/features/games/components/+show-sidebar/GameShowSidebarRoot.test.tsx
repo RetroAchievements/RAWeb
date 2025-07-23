@@ -33,6 +33,7 @@ describe('Component: GameShowSidebarRoot', () => {
     const { container } = render(<GameShowSidebarRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         can: {},
         hubs: [createGameSet()],
         playerAchievementChartBuckets: [],
@@ -52,6 +53,7 @@ describe('Component: GameShowSidebarRoot', () => {
     render(<GameShowSidebarRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         seriesHub, // !!
         can: {},
         hubs: [],
@@ -71,6 +73,7 @@ describe('Component: GameShowSidebarRoot', () => {
     render(<GameShowSidebarRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         seriesHub: null, // !!
         can: {},
         hubs: [],
@@ -90,6 +93,7 @@ describe('Component: GameShowSidebarRoot', () => {
     render(<GameShowSidebarRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         can: {},
         hasMatureContent: true, // !!
         hubs: [],
@@ -109,6 +113,7 @@ describe('Component: GameShowSidebarRoot', () => {
     render(<GameShowSidebarRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         can: {},
         hasMatureContent: false, // !!
         hubs: [],

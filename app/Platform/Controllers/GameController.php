@@ -87,14 +87,31 @@ class GameController extends Controller
         Game $game,
         LoadGameWithRelationsAction $loadGameWithRelationsAction,
         BuildGameShowPagePropsAction $buildGameShowPagePropsAction
-    ): InertiaResponse {
+    ): InertiaResponse|RedirectResponse {
         $this->authorize('view', $game);
 
         /** @var ?User $user */
         $user = $request->user();
 
-        $game = $loadGameWithRelationsAction->execute($game, AchievementFlag::OfficialCore);
-        $props = $buildGameShowPagePropsAction->execute($game, $user);
+        // Get the target achievement set ID from query parameter.
+        $targetAchievementSetId = $request->query('set') ? (int) $request->query('set') : null;
+
+        // Load the target achievement set if requested.
+        $targetAchievementSet = null;
+        if ($targetAchievementSetId !== null) {
+            $targetAchievementSet = $game->gameAchievementSets()
+                ->where('achievement_set_id', $targetAchievementSetId)
+                ->with('achievementSet')
+                ->first();
+
+            if (!$targetAchievementSet) {
+                // Invalid set ID for this game. Redirect to the game without the set parameter.
+                return redirect()->route('game.show', ['game' => $game]);
+            }
+        }
+
+        $game = $loadGameWithRelationsAction->execute($game, AchievementFlag::OfficialCore, $targetAchievementSet);
+        $props = $buildGameShowPagePropsAction->execute($game, $user, $targetAchievementSet);
 
         return Inertia::render('game/[game]', $props);
     }

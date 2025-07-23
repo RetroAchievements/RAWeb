@@ -1048,5 +1048,7 @@
     "Locked Only": "Locked Only",
     "Missable Only": "Missable Only",
     "filterRequests_active": "Active",
-    "filterRequests_all": "All"
+    "filterRequests_all": "All",
+    "Game Forum Topic": "Game Forum Topic",
+    "Subset Forum Topic": "Subset Forum Topic"
 }

@@ -728,10 +728,11 @@ declare namespace App.Platform.Data {
     hasMatureContent?: boolean;
   };
   export type GameShowPageProps = {
-    achievementSetClaims: Array<App.Platform.Data.AchievementSetClaim>;
     aggregateCredits: App.Platform.Data.AggregateAchievementSetCredits;
-    game: App.Platform.Data.Game;
+    backingGame: App.Platform.Data.Game;
     can: App.Data.UserPermissions;
+    game: App.Platform.Data.Game;
+    achievementSetClaims: Array<App.Platform.Data.AchievementSetClaim>;
     hasMatureContent: boolean;
     hubs: Array<App.Platform.Data.GameSet>;
     isLockedOnlyFilterEnabled: boolean;
@@ -751,7 +752,9 @@ declare namespace App.Platform.Data {
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
+    selectableGameAchievementSets: Array<App.Platform.Data.GameAchievementSet>;
     seriesHub: App.Platform.Data.SeriesHub | null;
+    targetAchievementSetId: number | null;
   };
   export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -1039,6 +1042,7 @@ declare namespace App.Platform.Enums {
     | 'embedded'
     | 'web';
   export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
+  export type PlayerProgressResetType = 'account' | 'achievement' | 'achievement_set' | 'game';
   export type TicketableType = 'achievement' | 'leaderboard' | 'rich-presence';
   export type UnlockMode = 0 | 1;
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';

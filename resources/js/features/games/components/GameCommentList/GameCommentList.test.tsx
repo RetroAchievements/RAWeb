@@ -11,10 +11,12 @@ import { GameCommentList } from './GameCommentList';
 describe('Component: GameCommentList', () => {
   it('renders without crashing', () => {
     // ARRANGE
+    const game = createGame();
     const { container } = render(<GameCommentList />, {
       pageProps: {
+        game,
+        backingGame: game,
         can: { createGameComments: false },
-        game: createGame(),
         isSubscribedToComments: false,
         numComments: 5,
         recentVisibleComments: [],
@@ -32,10 +34,12 @@ describe('Component: GameCommentList', () => {
       createComment({ payload: 'Second comment' }),
     ];
 
+    const game = createGame();
     render(<GameCommentList />, {
       pageProps: {
         can: { createGameComments: false },
-        game: createGame(),
+        game,
+        backingGame: game,
         isSubscribedToComments: false,
         numComments: comments.length,
         recentVisibleComments: comments,
@@ -56,6 +60,7 @@ describe('Component: GameCommentList', () => {
       pageProps: {
         can: { createGameComments: false },
         game,
+        backingGame: game,
         isSubscribedToComments: false,
         numComments: 25,
         recentVisibleComments: comments,
@@ -72,10 +77,12 @@ describe('Component: GameCommentList', () => {
 
   it('given there are fewer than 21 comments, does not show the view all link', () => {
     // ARRANGE
+    const game = createGame();
     render(<GameCommentList />, {
       pageProps: {
         can: { createGameComments: false },
-        game: createGame(),
+        game,
+        backingGame: game,
         isSubscribedToComments: false,
         numComments: 20,
         recentVisibleComments: [createComment()],
@@ -89,11 +96,13 @@ describe('Component: GameCommentList', () => {
 
   it('given the user has permission to comment, allows them to add comments', () => {
     // ARRANGE
+    const game = createGame();
     render(<GameCommentList />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         can: { createGameComments: true },
-        game: createGame(),
+        game,
+        backingGame: game,
         isSubscribedToComments: false,
         numComments: 5,
         recentVisibleComments: [createComment()],
@@ -106,11 +115,13 @@ describe('Component: GameCommentList', () => {
 
   it('given the user does not have permission to comment, does not show the comment form', () => {
     // ARRANGE
+    const game = createGame();
     render(<GameCommentList />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         can: { createGameComments: false },
-        game: createGame(),
+        game,
+        backingGame: game,
         isSubscribedToComments: false,
         numComments: 5,
         recentVisibleComments: [createComment()],
@@ -127,11 +138,13 @@ describe('Component: GameCommentList', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     const reloadSpy = vi.spyOn(router, 'reload').mockImplementation(vi.fn());
 
+    const game = createGame();
     render(<GameCommentList />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         can: { createGameComments: true },
-        game: createGame(),
+        game,
+        backingGame: game,
         isSubscribedToComments: false,
         numComments: 5,
         recentVisibleComments: [createComment({ canDelete: true })],
@@ -150,11 +163,13 @@ describe('Component: GameCommentList', () => {
     vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
     const reloadSpy = vi.spyOn(router, 'reload').mockImplementation(vi.fn());
 
+    const game = createGame();
     render(<GameCommentList />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         can: { createGameComments: true },
-        game: createGame(),
+        game,
+        backingGame: game,
         isSubscribedToComments: false,
         numComments: 5,
         recentVisibleComments: [],

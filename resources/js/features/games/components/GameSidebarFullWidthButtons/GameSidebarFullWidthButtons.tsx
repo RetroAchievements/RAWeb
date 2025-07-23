@@ -16,7 +16,7 @@ interface GameSidebarFullWidthButtonsProps {
 }
 
 export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> = ({ game }) => {
-  const { auth, can, numCompatibleHashes, numOpenTickets } =
+  const { auth, backingGame, can, numCompatibleHashes, numOpenTickets } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
@@ -27,6 +27,8 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
 
   const userRoles = auth?.user.roles ?? [];
   const canShowDevelopment = userRoles.includes('developer'); // TODO || userRoles.includes('developer-junior')
+
+  const showSubsetIndicator = backingGame.id !== game.id;
 
   if (!canShowEssentialResources && !canShowExtras && !canShowManagement) {
     return null;
@@ -39,7 +41,7 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
           {numCompatibleHashes > 0 ? (
             <PlayableSidebarButton
               className="border-l-4 border-l-link"
-              href={route('game.hashes.index', { game: game.id })}
+              href={route('game.hashes.index', { game: backingGame.id })}
               isInertiaLink={true}
               IconComponent={LuFileText}
               count={numCompatibleHashes}
@@ -48,7 +50,7 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
             </PlayableSidebarButton>
           ) : null}
 
-          <PlayableOfficialForumTopicButton game={game} />
+          <PlayableOfficialForumTopicButton backingGame={backingGame} game={game} />
         </PlayableSidebarButtonsSection>
       ) : null}
 
@@ -72,9 +74,13 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
               </PlayableSidebarButton>
 
               <PlayableSidebarButton
-                href={route('game.tickets', { game: game.id, 'filter[achievement]': 'core' })}
+                href={route('game.tickets', {
+                  game: backingGame.id,
+                  'filter[achievement]': 'core',
+                })}
                 IconComponent={LuTickets}
                 count={numOpenTickets}
+                showSubsetIndicator={showSubsetIndicator}
               >
                 {t('Tickets')}
               </PlayableSidebarButton>

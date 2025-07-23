@@ -19,7 +19,8 @@ describe('Component: LocaleSectionCard', () => {
   });
 
   afterEach(() => {
-    window.location = originalLocation;
+    (window as any).location = originalLocation;
+    vi.clearAllTimers();
   });
 
   it('renders without crashing', () => {
@@ -103,7 +104,7 @@ describe('Component: LocaleSectionCard', () => {
   it('given the user submits the form, refreshes the page', async () => {
     // ARRANGE
     delete (window as any).location;
-    window.location = {
+    (window as any).location = {
       ...originalLocation,
       reload: vi.fn(),
     };
@@ -121,8 +122,11 @@ describe('Component: LocaleSectionCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /update/i }));
 
     // ASSERT
-    await waitFor(() => {
-      expect(window.location.reload).toHaveBeenCalledOnce();
-    });
+    await waitFor(
+      () => {
+        expect(window.location.reload).toHaveBeenCalledOnce();
+      },
+      { timeout: 2000 },
+    ); // wait longer than the setTimeout delay.
   });
 });
