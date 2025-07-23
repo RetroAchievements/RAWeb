@@ -8,9 +8,12 @@ import { InertiaLink } from '@/common/components/InertiaLink';
 
 interface PlayableOfficialForumTopicButtonProps {
   game: App.Platform.Data.Game;
+
+  backingGame?: App.Platform.Data.Game;
 }
 
 export const PlayableOfficialForumTopicButton: FC<PlayableOfficialForumTopicButtonProps> = ({
+  backingGame,
   game,
 }) => {
   const { t } = useTranslation();
@@ -19,16 +22,35 @@ export const PlayableOfficialForumTopicButton: FC<PlayableOfficialForumTopicButt
     return null;
   }
 
+  const shouldShowGameAndSetTopicLinks = backingGame && backingGame.id !== game.id;
+
   return (
-    <InertiaLink
-      href={route('forum-topic.show', { topic: game.forumTopicId as number })}
-      className={baseButtonVariants({
-        className: 'items-center !justify-start gap-2 border-l-4 border-l-link',
-      })}
-      prefetch="desktop-hover-only"
-    >
-      <LuMessageSquare className="size-4 brightness-125" />
-      <span>{t('Official Forum Topic')}</span>
-    </InertiaLink>
+    <div className="flex flex-col gap-1">
+      <InertiaLink
+        href={route('forum-topic.show', { topic: game.forumTopicId as number })}
+        className={baseButtonVariants({
+          className: 'flex w-full items-center !justify-start gap-2 border-l-4 border-l-link',
+        })}
+        prefetch="desktop-hover-only"
+      >
+        <LuMessageSquare className="size-4 brightness-125" />
+        <span>
+          {shouldShowGameAndSetTopicLinks ? t('Game Forum Topic') : t('Official Forum Topic')}
+        </span>
+      </InertiaLink>
+
+      {shouldShowGameAndSetTopicLinks ? (
+        <InertiaLink
+          href={route('forum-topic.show', { topic: backingGame.forumTopicId as number })}
+          className={baseButtonVariants({
+            className: 'flex w-full items-center !justify-start gap-2 border-l-4 border-l-link',
+          })}
+          prefetch="desktop-hover-only"
+        >
+          <LuMessageSquare className="size-4 brightness-125" />
+          {t('Subset Forum Topic')}
+        </InertiaLink>
+      ) : null}
+    </div>
   );
 };

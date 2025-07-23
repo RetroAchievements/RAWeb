@@ -6,15 +6,20 @@ import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useGameBacklogState } from '@/features/game-list/components/GameListItems/useGameBacklogState';
 
+import { SubsetButtonChip } from '../SubsetButtonChip';
+
 export const GameHeaderSlotContent: FC = () => {
-  const { game, isOnWantToPlayList: isInitiallyOnWantToPlayList } =
-    usePageProps<App.Platform.Data.GameShowPageProps>();
+  const {
+    backingGame,
+    game,
+    isOnWantToPlayList: isInitiallyOnWantToPlayList,
+  } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
 
   const { toggleBacklog: toggleWantToPlay, isInBacklogMaybeOptimistic: isOnWantToPlayList } =
     useGameBacklogState({
-      game,
+      game: backingGame,
       isInitiallyInBacklog: isInitiallyOnWantToPlayList,
       userGameListType: 'play',
     });
@@ -23,12 +28,16 @@ export const GameHeaderSlotContent: FC = () => {
     <div className="flex items-center gap-2">
       <BaseButton
         onClick={() => toggleWantToPlay()}
-        className="flex items-center gap-1 rounded-full !py-0 !text-xs"
+        className="flex items-center gap-1.5 rounded-full !py-0 !text-xs"
         size="sm"
         aria-pressed={isOnWantToPlayList}
       >
-        {isOnWantToPlayList ? <LuCheck className="size-4" /> : <LuPlus className="size-4" />}
-        {t('game_wantToPlayToggle')}
+        <div className="flex items-center gap-1">
+          {isOnWantToPlayList ? <LuCheck className="size-4" /> : <LuPlus className="size-4" />}
+          {t('game_wantToPlayToggle')}
+        </div>
+
+        {game.id !== backingGame.id ? <SubsetButtonChip className="-mr-1" /> : null}
       </BaseButton>
     </div>
   );

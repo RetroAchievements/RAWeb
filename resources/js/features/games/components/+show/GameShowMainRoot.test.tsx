@@ -31,6 +31,7 @@ describe('Component: GameShowMainRoot', () => {
     const { container } = render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         can: {},
         hubs: [createGameSet()],
         recentPlayers: [],
@@ -54,6 +55,7 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         can: {},
         hubs: [],
         recentPlayers: [],
@@ -84,6 +86,7 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         can: {},
         hubs: [],
         recentPlayers: [],
@@ -109,6 +112,7 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         can: {},
         hubs: [],
         recentPlayers: [],
@@ -138,6 +142,7 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         can: {},
         hasMatureContent: true, // !!
         hubs: [],
@@ -164,6 +169,7 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        backingGame: game,
         can: {},
         hasMatureContent: false, // !!
         hubs: [],
@@ -173,5 +179,34 @@ describe('Component: GameShowMainRoot', () => {
 
     // ASSERT
     expect(screen.queryByRole('alertdialog', { name: /content warning/i })).not.toBeInTheDocument();
+  });
+
+  it('given the game has no achievement sets, still renders the game page', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      gameAchievementSets: undefined, // !!
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+      title: 'Test Game',
+    });
+
+    render(<GameShowMainRoot />, {
+      pageProps: {
+        game,
+        backingGame: game,
+        can: {},
+        hubs: [],
+        recentPlayers: [],
+        recentVisibleComments: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('heading', { name: 'Test Game' })).toBeVisible();
   });
 });
