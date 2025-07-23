@@ -23,7 +23,11 @@ export const GameShowMainRoot: FC = () => {
     <div data-testid="game-show" className="flex flex-col gap-3">
       {hasMatureContent ? <MatureContentWarningDialog /> : null}
 
-      <GameBreadcrumbs game={game} system={game.system} />
+      <GameBreadcrumbs
+        game={game}
+        gameAchievementSet={game.gameAchievementSets?.[0]}
+        system={game.system}
+      />
       <PlayableHeader
         badgeUrl={game.badgeUrl}
         systemIconUrl={game.system.iconUrl}
