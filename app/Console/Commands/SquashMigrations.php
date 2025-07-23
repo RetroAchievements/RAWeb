@@ -23,7 +23,6 @@ use Illuminate\Support\Facades\File;
 class SquashMigrations extends Command
 {
     protected $signature = 'ra:db:squash-migrations';
-
     protected $description = 'Safely squash all migrations into schema dumps';
 
     public function handle(): void
@@ -116,8 +115,6 @@ class SquashMigrations extends Command
     {
         $patterns = [
             'database/migrations/[0-9][0-9][0-9][0-9]_*.php',
-            'database/migrations/community/[0-9][0-9][0-9][0-9]_*.php',
-            'database/migrations/platform/[0-9][0-9][0-9][0-9]_*.php',
         ];
 
         foreach ($patterns as $pattern) {
