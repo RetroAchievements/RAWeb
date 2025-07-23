@@ -57,7 +57,7 @@ class LoadGameRecentPlayersAction
                 $recentPlayer,
                 $playerGame,
                 $highestAward
-            );
+            )->include('highestAward');
         });
     }
 
