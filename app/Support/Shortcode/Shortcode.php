@@ -480,21 +480,7 @@ final class Shortcode
 
     private function embedEvent(int $id): string
     {
-        $data = Cache::store('array')->rememberForever('event:' . $id . ':event-data', function () use ($id) {
-            $event = Event::find($id);
-
-            if (!$event) {
-                return [];
-            }
-
-            return [
-                'ID' => $event->legacyGame->id,
-                'EventID' => $event->id,
-                'Title' => $event->legacyGame->title,
-                'ConsoleName' => "Events",
-                'ImageIcon' => $event->image_asset_path,
-            ];
-        });
+        $data = Cache::store('array')->rememberForever('event:' . $id . ':event-data', fn () => $this->getEventData($id));
 
         if (empty($data)) {
             return '';
@@ -590,6 +576,23 @@ final class Shortcode
     private function embedVideo(string $videoUrl): string
     {
         return '<div class="embed-responsive embed-responsive-16by9"><iframe class="embed-responsive-item" src="' . $videoUrl . '" allowfullscreen></iframe></div>';
+    }
+
+    private function getEventData(int $id): array
+    {
+        $event = Event::find($id);
+
+        if (!$event) {
+            return [];
+        }
+
+        return [
+            'ID' => $event->legacyGame->id,
+            'EventID' => $event->id,
+            'Title' => $event->legacyGame->title,
+            'ConsoleName' => "Events",
+            'ImageIcon' => $event->image_asset_path,
+        ];
     }
 
     /**
