@@ -1,10 +1,15 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Services\SubscriptionService;
 use App\Enums\Permissions;
+use App\Enums\UserPreference;
 use App\Mail\CommunityActivityMail;
 use App\Mail\ValidateUserEmailMail;
+use App\Models\Achievement;
 use App\Models\Comment;
+use App\Models\Game;
 use App\Models\User;
 use Aws\CommandPool;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
@@ -170,20 +175,42 @@ function informAllSubscribersAboutActivity(
     $urlTarget = null;
     $articleTitle = '';
 
+    $subscriptionService = new SubscriptionService();
+
     switch ($articleType) {
         case ArticleType::Game:
-            $gameData = getGameData($articleID);
-            $subscribers = getSubscribersOfGameWall($articleID);
-            $articleTitle = $gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')';
-            $urlTarget = "game/$articleID";
+            $game = Game::with('system')->find($articleID);
+            if (!$game)
+                return;
+
+            $articleTitle = "{$game->Title} ({$game->system->Name})";
+            $urlTarget = "game/{$game->ID}";
+
+            $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::GameWall, $game->ID)
+                ->filter(fn($s) => isset($s->user->EmailAddress) && BitSet($s->user->websitePrefs, UserPreference::EmailOn_AchievementComment))
+                ->map(fn($s) => [
+                    'User' => $s->user->User,
+                    'display_name' => $s->user->display_name,
+                    'EmailAddress' => $s->user->EmailAddress,
+                ]);
             break;
 
         case ArticleType::Achievement:
-            $achievementData = GetAchievementData($articleID);
-            $subscribers = getSubscribersOfAchievement($articleID, $achievementData['GameID'], $achievementData['Author']);
-            $subjectAuthor = $achievementData['Author'];
-            $articleTitle = $achievementData['Title'] . ' (' . $achievementData['GameTitle'] . ')';
-            $urlTarget = "achievement/$articleID";
+            $achievement = Achievement::with(['game','developer'])->find($articleID);
+            if (!$achievement)
+                return;
+
+            $articleTitle = "{$achievement->Title} ({$achievement->game->Title})";
+            $urlTarget = "achievement/{$achievement->ID}";
+            $subjectAuthor = $achievement->developer?->User;
+
+            $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::Achievement, $achievement->ID)
+                ->filter(fn($s) => isset($s->user->EmailAddress) && BitSet($s->user->websitePrefs, UserPreference::EmailOn_AchievementComment))
+                ->map(fn($s) => [
+                    'User' => $s->user->User,
+                    'display_name' => $s->user->display_name,
+                    'EmailAddress' => $s->user->EmailAddress,
+                ]);
             break;
 
         case ArticleType::User:  // User wall

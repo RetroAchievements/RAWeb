@@ -627,7 +627,7 @@ if ($isFullyFeaturedGame) {
                     name="updateachievementssub"
                     subjectType="{{ SubscriptionSubjectType::GameAchievements }}"
                     subjectId="{{ $gameID }}"
-                    isSubscribed="{{ isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID) }}"
+                    isSubscribed="{{ isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userModel) }}"
                     resource="Achievement Comments"
                 />
 
@@ -635,7 +635,7 @@ if ($isFullyFeaturedGame) {
                     name="updateticketssub"
                     subjectType="{{ SubscriptionSubjectType::GameTickets }}"
                     subjectId="{{ $gameID }}"
-                    isSubscribed="{{ isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID) }}"
+                    isSubscribed="{{ isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userModel) }}"
                     resource="Tickets"
                 />
 

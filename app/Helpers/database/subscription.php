@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Services\SubscriptionService;
 use App\Enums\UserPreference;
 use App\Models\Comment;
 use App\Models\Subscription;
@@ -13,32 +14,19 @@ use Illuminate\Support\Facades\DB;
  *
  * @param bool $state whether the user is to be subscribed (true) or unsubscribed (false)
  */
-function updateSubscription(string $subjectType, int $subjectId, int $userId, bool $state): bool
+function updateSubscription(SubscriptionSubjectType $subjectType, int $subjectId, User $user, bool $state): bool
 {
-    Subscription::updateOrCreate(
-        [
-            'subject_type' => $subjectType,
-            'subject_id' => $subjectId,
-            'user_id' => $userId,
-        ],
-        [
-            'state' => $state,
-        ]
-    );
-
-    return true;
+    $service = new SubscriptionService();
+    $service->updateSubscription($user, $subjectType, $subjectId, $state);
 }
 
 /**
- * Checks whether a given user is subscribed to a subject explicitly.
+ * Checks whether a given user is subscribed to a subject.
  */
-function isUserSubscribedTo(string $subjectType, int $topicID, int $userID): bool
+function isUserSubscribedTo(SubscriptionSubjectType $subjectType, int $subjectId, User $user): bool
 {
-    return Subscription::where('subject_type', $subjectType)
-        ->where('subject_id', $topicID)
-        ->where('user_id', $userID)
-        ->where('state', 1)
-        ->exists();
+    $service = new SubscriptionService();
+    return $service->isSubscribed($user, $subjectType, $subjectId);
 }
 
 /**
