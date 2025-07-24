@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Community\Services;
 
-use App\Actions\ClearAccountDataAction;
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionService;
@@ -15,8 +14,6 @@ use App\Models\Subscription;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class SubscriptionServiceTest extends TestCase
@@ -29,7 +26,7 @@ class SubscriptionServiceTest extends TestCase
             'subject_type' => $subjectType,
             'subject_id' => $subjectId,
             'user_id' => $user->id,
-        ],[
+        ], [
             'state' => $state,
         ]);
     }
@@ -42,7 +39,7 @@ class SubscriptionServiceTest extends TestCase
         $this->updateSubscription($user, SubscriptionSubjectType::GameWall, 3, true);
 
         $service = new SubscriptionService();
-        
+
         $this->assertTrue($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
@@ -58,7 +55,7 @@ class SubscriptionServiceTest extends TestCase
         $this->updateSubscription($user, SubscriptionSubjectType::GameWall, 3, false);
 
         $service = new SubscriptionService();
-        
+
         $this->assertFalse($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
@@ -71,7 +68,7 @@ class SubscriptionServiceTest extends TestCase
         $user = User::factory()->create();
 
         $service = new SubscriptionService();
-        
+
         $this->assertFalse($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
@@ -91,14 +88,14 @@ class SubscriptionServiceTest extends TestCase
         ]);
 
         $service = new SubscriptionService();
-        
+
         $this->assertTrue($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
         $this->assertEquals(1, $subscribers->count());
         $this->assertEquals($user->id, $subscribers->first()->id);
     }
-        
+
     public function testImplicitlySubscribedWithExplicitSubscription(): void
     {
         /** @var User $user */
@@ -113,7 +110,7 @@ class SubscriptionServiceTest extends TestCase
         $this->updateSubscription($user, SubscriptionSubjectType::GameWall, 3, true);
 
         $service = new SubscriptionService();
-        
+
         $this->assertTrue($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
@@ -135,7 +132,7 @@ class SubscriptionServiceTest extends TestCase
         $this->updateSubscription($user, SubscriptionSubjectType::GameWall, 3, false);
 
         $service = new SubscriptionService();
-        
+
         $this->assertFalse($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);

@@ -3,7 +3,6 @@
 namespace App\Community\Controllers\Api;
 
 use App\Community\Data\StoreCommentData;
-use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Requests\StoreCommentRequest;
 use App\Http\Controller;
 use App\Models\User;

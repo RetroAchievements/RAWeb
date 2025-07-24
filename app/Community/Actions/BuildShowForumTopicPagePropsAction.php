@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Services\SubscriptionService;
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Services\SubscriptionService;
 use App\Data\ForumTopicCommentData;
 use App\Data\ForumTopicData;
 use App\Data\PaginatedData;

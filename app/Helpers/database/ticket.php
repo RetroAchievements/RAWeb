@@ -123,7 +123,7 @@ function sendInitialTicketEmailsToSubscribers(Ticket $ticket, Game $game, Achiev
 {
     $subscriptionService = new SubscriptionService();
     $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::GameTickets, $game->id)
-        ->filter(fn($s) => isset($s->EmailAddress) && BitSet($s->websitePrefs, UserPreference::EmailOn_TicketActivity));
+        ->filter(fn ($s) => isset($s->EmailAddress) && BitSet($s->websitePrefs, UserPreference::EmailOn_TicketActivity));
 
     $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $game->id, 1 << UserPreference::EmailOn_TicketActivity);
     foreach ($subscribers as $sub) {

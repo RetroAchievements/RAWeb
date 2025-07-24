@@ -3,7 +3,6 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionService;
-use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Mail\CommunityActivityMail;
 use App\Mail\ValidateUserEmailMail;
@@ -182,8 +181,9 @@ function informAllSubscribersAboutActivity(
     switch ($articleType) {
         case ArticleType::Game:
             $game = Game::with('system')->find($articleID);
-            if (!$game)
+            if (!$game) {
                 return;
+            }
 
             $articleTitle = "{$game->Title} ({$game->system->Name})";
             $urlTarget = route('game.show', $game);
@@ -193,9 +193,10 @@ function informAllSubscribersAboutActivity(
             break;
 
         case ArticleType::Achievement:
-            $achievement = Achievement::with(['game','developer'])->find($articleID);
-            if (!$achievement)
+            $achievement = Achievement::with(['game', 'developer'])->find($articleID);
+            if (!$achievement) {
                 return;
+            }
 
             $articleTitle = "{$achievement->Title} ({$achievement->game->Title})";
             $urlTarget = route('achievement.show', $achievement);
@@ -207,8 +208,9 @@ function informAllSubscribersAboutActivity(
 
         case ArticleType::User:  // User wall
             $wallUser = User::find($articleID);
-            if (!$wallUser)
+            if (!$wallUser) {
                 return;
+            }
 
             $articleTitle = $wallUser->display_name;
             $urlTarget = route('user.show', $wallUser);
@@ -228,8 +230,9 @@ function informAllSubscribersAboutActivity(
 
         case ArticleType::AchievementTicket:  // Ticket
             $ticket = Ticket::with(['achievement.game', 'reporter'])->find($articleID);
-            if (!$ticket)
+            if (!$ticket) {
                 return;
+            }
 
             $articleTitle = "{$ticket->achievement->Title} ({$ticket->achievement->game->Title})";
             $urlTarget = route('ticket.show', ['ticket' => $ticket->ID]);
@@ -268,9 +271,9 @@ function informAllSubscribersAboutActivity(
 
     foreach ($subscribers as $subscriber) {
         if (isset($subscriber->EmailAddress) && BitSet($subscriber->websitePrefs, $articleEmailPreference)) {
-            $isThirdParty = 
-                ($activityAuthor === null || !$activityAuthor->is($subscriber)) &&
-                ($subjectAuthor === null || !$subjectAuthor->is($subscriber));
+            $isThirdParty =
+                ($activityAuthor === null || !$activityAuthor->is($subscriber))
+                && ($subjectAuthor === null || !$subjectAuthor->is($subscriber));
 
             sendActivityEmail(
                 $subscriber,

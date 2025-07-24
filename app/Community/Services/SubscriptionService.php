@@ -65,14 +65,14 @@ class SubscriptionService
             'subject_type' => $subjectType,
             'subject_id' => $subjectId,
             'user_id' => $user->id,
-        ],[
+        ], [
             'state' => $isSubscribed,
         ]);
     }
 
     private function getImplicitSubscriptionsQuery(SubscriptionSubjectType $subjectType, ?int $subjectId, ?int $forUserId = null, ?array $ignoreUserIds = null): Builder
     {
-        return match($subjectType) {
+        return match ($subjectType) {
             SubscriptionSubjectType::Achievement => $this->getImplicitAchievementCommentSubscriptionQuery($subjectId, $forUserId, $ignoreUserIds),
             SubscriptionSubjectType::AchievementTicket => $this->getImplicitTicketSubscriptionQuery($subjectId, $forUserId, $ignoreUserIds),
             SubscriptionSubjectType::ForumTopic => $this->getImplicitForumTopicSubscriptionQuery($subjectId, $forUserId, $ignoreUserIds),
@@ -92,15 +92,17 @@ class SubscriptionService
     {
         $query = Comment::where('ArticleType', $articleType)
             ->where('user_id', '!=', Comment::SYSTEM_USER_ID);
-      
-        if ($articleId !== null)
-            $query->where('ArticleId', $articleId);
 
-        if ($forUserId !== null)
+        if ($articleId !== null) {
+            $query->where('ArticleId', $articleId);
+        }
+
+        if ($forUserId !== null) {
             $query->where('user_id', $forUserId);
-        elseif ($ignoreUserIds !== null)
+        } elseif ($ignoreUserIds !== null) {
             $query->whereNotIn('user_id', $ignoreUserIds);
-        
+        }
+
         $query->select(['user_id', DB::raw('ArticleId as subject_id')])->distinct();
 
         return $query;
@@ -120,10 +122,11 @@ class SubscriptionService
                     ->where('subject_id', $achievement->GameID)
                     ->select(['user_id', 'subject_id']);
 
-                if ($forUserId !== null)
+                if ($forUserId !== null) {
                     $query2->where('user_id', $forUserId);
-                elseif ($ignoreUserIds !== null)
+                } elseif ($ignoreUserIds !== null) {
                     $query2->whereNotIn('user_id', $ignoreUserIds);
+                }
 
                 $query->union($query2);
             }
@@ -146,25 +149,27 @@ class SubscriptionService
                     ->where('subject_id', $ticket->achievement->GameID)
                     ->select(['user_id', 'subject_id']);
 
-                if ($forUserId !== null)
+                if ($forUserId !== null) {
                     $query2->where('user_id', $forUserId);
-                elseif ($ignoreUserIds !== null)
+                } elseif ($ignoreUserIds !== null) {
                     $query2->whereNotIn('user_id', $ignoreUserIds);
+                }
 
                 $query->union($query2);
 
                 // reporter should also be implicitly subscribed
                 $includeReporter = false;
-                if ($forUserId !== null)
+                if ($forUserId !== null) {
                     $includeReporter = $ticket->reporter_id === $forUserId;
-                else
-                    $includeReporter = !$ignoreUserIds || !in_array($ticket->reporter_id, $ignoreUserIds);
+                } else {
+                $includeReporter = !$ignoreUserIds || !in_array($ticket->reporter_id, $ignoreUserIds);
+                }
 
                 if ($includeReporter) {
                     $query3 = Ticket::query()
                         ->select([
                             DB::raw('reporter_id as user_id'),
-                            DB::raw('ID as subject_id')
+                            DB::raw('ID as subject_id'),
                         ])
                         ->where('ID', $ticket->ID);
 
@@ -180,17 +185,19 @@ class SubscriptionService
     {
         $query = ForumTopicComment::query();
 
-        if ($forumTopicId !== null)
+        if ($forumTopicId !== null) {
             $query->where('forum_topic_id', $forumTopicId);
+        }
 
-        if ($forUserId !== null)
+        if ($forUserId !== null) {
             $query->where('author_id', $forUserId);
-        elseif ($ignoreUserIds !== null)
+        } elseif ($ignoreUserIds !== null) {
             $query->whereNotIn('author_id', $ignoreUserIds);
+        }
 
         $query->select([
             DB::raw('author_id as user_id'),
-            DB::raw('forum_topic_id as subject_id')
+            DB::raw('forum_topic_id as subject_id'),
         ])->distinct();
 
         return $query;
