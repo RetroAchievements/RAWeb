@@ -15,6 +15,7 @@ enum SubscriptionSubjectType: string
     case Achievement = "Achievement";
     case GameTickets = "GameTickets";
     case GameAchievements = "GameAchievements";
+    case AchievementTicket = "AchievementTicket";
 
     public static function fromArticleType(int $articleType): ?SubscriptionSubjectType
     {
@@ -22,6 +23,7 @@ enum SubscriptionSubjectType: string
             ArticleType::Game => SubscriptionSubjectType::GameWall,
             ArticleType::Achievement => SubscriptionSubjectType::Achievement,
             ArticleType::User => SubscriptionSubjectType::UserWall,
+            ArticleType::AchievementTicket => SubscriptionSubjectType::AchievementTicket,
             default => null,
         };
     }

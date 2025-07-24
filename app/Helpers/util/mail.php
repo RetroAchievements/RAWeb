@@ -10,6 +10,7 @@ use App\Mail\ValidateUserEmailMail;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
+use App\Models\Ticket;
 use App\Models\User;
 use Aws\CommandPool;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
@@ -184,7 +185,7 @@ function informAllSubscribersAboutActivity(
                 return;
 
             $articleTitle = "{$game->Title} ({$game->system->Name})";
-            $urlTarget = "game/{$game->ID}";
+            $urlTarget = route('game.show', $game);
 
             $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::GameWall, $game->ID)
                 ->filter(fn($s) => isset($s->user->EmailAddress) && BitSet($s->user->websitePrefs, UserPreference::EmailOn_AchievementComment))
@@ -201,7 +202,7 @@ function informAllSubscribersAboutActivity(
                 return;
 
             $articleTitle = "{$achievement->Title} ({$achievement->game->Title})";
-            $urlTarget = "achievement/{$achievement->ID}";
+            $urlTarget = route('achievement.show', $achievement);
             $subjectAuthor = $achievement->developer?->User;
 
             $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::Achievement, $achievement->ID)
@@ -219,7 +220,7 @@ function informAllSubscribersAboutActivity(
                 return;
 
             $articleTitle = $wallUser->display_name;
-            $urlTarget = "user/" . $wallUser->display_name;
+            $urlTarget = route('user.show', $wallUser);
             $subjectAuthor = $wallUser->User;
 
             $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::UserWall, $wallUser->ID)
@@ -240,11 +241,21 @@ function informAllSubscribersAboutActivity(
             break;
 
         case ArticleType::AchievementTicket:  // Ticket
-            $ticketData = getTicket($articleID);
-            $subscribers = getSubscribersOfTicket($articleID, $ticketData['ReportedBy'], $ticketData['GameID']);
-            $subjectAuthor = $ticketData['ReportedBy'];
-            $articleTitle = $ticketData['AchievementTitle'] . ' (' . $ticketData['GameTitle'] . ')';
-            $urlTarget = route('ticket.show', ['ticket' => $articleID]);
+            $ticket = Ticket::with(['achievement.game', 'reporter'])->find($articleID);
+            if (!$ticket)
+                return;
+
+            $articleTitle = "{$ticket->achievement->Title} ({$ticket->achievement->game->Title})";
+            $urlTarget = route('ticket.show', ['ticket' => $ticket->ID]);
+            $subjectAuthor = $ticket->reporter->User;
+
+            $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::AchievementTicket, $ticket->ID)
+                ->filter(fn($s) => isset($s->user->EmailAddress) && BitSet($s->user->websitePrefs, UserPreference::EmailOn_TicketActivity))
+                ->map(fn($s) => [
+                    'User' => $s->user->User,
+                    'display_name' => $s->user->display_name,
+                    'EmailAddress' => $s->user->EmailAddress,
+                ]);
             break;
 
         default:
