@@ -10,10 +10,44 @@ use App\Models\Comment;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class SubscriptionService
 {
+    /**
+     * @return Collection<int, Subscription>
+     */
+    public function getSubscribers(SubscriptionSubjectType $subjectType, int $subjectId): Collection
+    {
+        // get explicit subscriptions (including explicitly unsubscribed so we don't fetch their implicit subscription)
+        $subscribers = Subscription::query()
+            ->where('subject_type', $subjectType)
+            ->where('subject_id', $subjectId)
+            ->get();
+
+        $implicitSubscriptionsQuery = $this->getImplicitSubscriptionsQuery($subjectType, $subjectId)
+            ->whereNotIn('user_id', $subscribers->pluck('user_id'));
+
+        // only keep explicitly subscribed
+        $subscribers = $subscribers->filter(fn ($s) => $s->state === true);
+
+        // merge in implicit subscriptions
+        foreach ($implicitSubscriptionsQuery->get() as $implicitSubscription) {
+            $subscription = new Subscription([
+                'subject_type' => $subjectType,
+                'subject_id' => $subjectId,
+                'user_id' => $implicitSubscription->user_id,
+                'state' => true,
+            ]);
+            $subscribers->add($subscription);
+        }
+
+        $subscribers->loadMissing('user');
+
+        return $subscribers;
+    }
+
     // Get a single Subscription object for a user tied to a specific article.
     // Returns a new object if an explicit subscription is not found so the caller
     // can update the state and commit if desired.

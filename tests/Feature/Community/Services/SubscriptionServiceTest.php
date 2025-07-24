@@ -57,6 +57,10 @@ class SubscriptionServiceTest extends TestCase
         $this->assertEquals($user->id, $subscription->user_id);
         $this->assertEquals(true, $subscription->state);
         $this->assertTrue($subscription->exists);
+
+        $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
+        $this->assertEquals(1, $subscriptions->count());
+        $this->assertEquals($user->id, $subscriptions->first()->user_id);
     }
 
     public function testExplicitlyUnsubscribed(): void
@@ -75,6 +79,28 @@ class SubscriptionServiceTest extends TestCase
         $this->assertEquals($user->id, $subscription->user_id);
         $this->assertEquals(false, $subscription->state);
         $this->assertTrue($subscription->exists);
+
+        $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
+        $this->assertEquals(0, $subscriptions->count());
+    }
+
+    public function testImplicitlyNotSubscribed(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        $service = new SubscriptionService();
+        
+        $subscription = $service->getSubscription($user, SubscriptionSubjectType::GameWall, 3);
+        $this->assertNotNull($subscription);
+        $this->assertEquals(SubscriptionSubjectType::GameWall, $subscription->subject_type);
+        $this->assertEquals(3, $subscription->subject_id);
+        $this->assertEquals($user->id, $subscription->user_id);
+        $this->assertEquals(false, $subscription->state);
+        $this->assertFalse($subscription->exists);
+
+        $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
+        $this->assertEquals(0, $subscriptions->count());
     }
 
     public function testImplicitlySubscribed(): void
@@ -98,5 +124,64 @@ class SubscriptionServiceTest extends TestCase
         $this->assertEquals($user->id, $subscription->user_id);
         $this->assertEquals(true, $subscription->state);
         $this->assertFalse($subscription->exists);
+
+        $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
+        $this->assertEquals(1, $subscriptions->count());
+        $this->assertEquals($user->id, $subscriptions->first()->user_id);
+    }
+        
+    public function testImplicitlySubscribedWithExplicitSubscription(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        Comment::create([
+            'ArticleType' => ArticleType::Game,
+            'ArticleID' => 3,
+            'user_id' => $user->id,
+            'Payload' => 'Test',
+        ]);
+        $this->subscribeToGameWall($user, 3);
+
+        $service = new SubscriptionService();
+        
+        $subscription = $service->getSubscription($user, SubscriptionSubjectType::GameWall, 3);
+        $this->assertNotNull($subscription);
+        $this->assertEquals(SubscriptionSubjectType::GameWall, $subscription->subject_type);
+        $this->assertEquals(3, $subscription->subject_id);
+        $this->assertEquals($user->id, $subscription->user_id);
+        $this->assertEquals(true, $subscription->state);
+        $this->assertTrue($subscription->exists);
+
+        $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
+        $this->assertEquals(1, $subscriptions->count());
+        $this->assertEquals($user->id, $subscriptions->first()->user_id);
+    }
+        
+    public function testImplicitlySubscribedWithExplicitUnsubscription(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        Comment::create([
+            'ArticleType' => ArticleType::Game,
+            'ArticleID' => 3,
+            'user_id' => $user->id,
+            'Payload' => 'Test',
+        ]);
+        $this->unsubscribeToGameWall($user, 3);
+
+        $service = new SubscriptionService();
+        
+        $subscription = $service->getSubscription($user, SubscriptionSubjectType::GameWall, 3);
+        $this->assertNotNull($subscription);
+        $this->assertEquals(SubscriptionSubjectType::GameWall, $subscription->subject_type);
+        $this->assertEquals(3, $subscription->subject_id);
+        $this->assertEquals($user->id, $subscription->user_id);
+        $this->assertEquals(false, $subscription->state);
+        $this->assertTrue($subscription->exists);
+
+        $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
+        $this->assertEquals(0, $subscriptions->count());
     }
 }
