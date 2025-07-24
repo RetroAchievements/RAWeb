@@ -17,13 +17,17 @@ export function useColumnDefinitions(
 
   const columnDefinitions = useMemo(() => {
     const columns: ColumnDef<App.Platform.Data.GameListEntry>[] = [
-      buildTitleColumnDef({ t_label: t('Title') }),
-      buildSystemColumnDef({ t_label: t('System') }),
+      buildTitleColumnDef({ t_label: t('Title'), tableApiRouteName: 'api.set-request.index' }),
+      buildSystemColumnDef({ t_label: t('System'), tableApiRouteName: 'api.set-request.index' }),
       buildReleasedAtColumnDef({
         t_label: t('Release Date'),
         strings: { t_unknown: t('unknown') },
+        tableApiRouteName: 'api.set-request.index',
       }),
-      buildNumRequestsColumnDef({ t_label: t('Requests') }),
+      buildNumRequestsColumnDef({
+        t_label: t('Requests'),
+        tableApiRouteName: 'api.set-request.index',
+      }),
     ];
 
     // Only show the achievements column for user-specific views.
@@ -38,6 +42,7 @@ export function useColumnDefinitions(
           t_no: t('No'),
           t_yes: t('Yes'),
         },
+        tableApiRouteName: 'api.set-request.index',
       }),
       buildRowActionsColumnDef({ shouldAnimateBacklogIconOnChange: true }),
     );
