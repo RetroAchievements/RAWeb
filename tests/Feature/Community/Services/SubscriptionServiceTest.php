@@ -50,13 +50,7 @@ class SubscriptionServiceTest extends TestCase
 
         $service = new SubscriptionService();
         
-        $subscription = $service->getSubscription($user, SubscriptionSubjectType::GameWall, 3);
-        $this->assertNotNull($subscription);
-        $this->assertEquals(SubscriptionSubjectType::GameWall, $subscription->subject_type);
-        $this->assertEquals(3, $subscription->subject_id);
-        $this->assertEquals($user->id, $subscription->user_id);
-        $this->assertEquals(true, $subscription->state);
-        $this->assertTrue($subscription->exists);
+        $this->assertTrue($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
         $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
         $this->assertEquals(1, $subscriptions->count());
@@ -72,13 +66,7 @@ class SubscriptionServiceTest extends TestCase
 
         $service = new SubscriptionService();
         
-        $subscription = $service->getSubscription($user, SubscriptionSubjectType::GameWall, 3);
-        $this->assertNotNull($subscription);
-        $this->assertEquals(SubscriptionSubjectType::GameWall, $subscription->subject_type);
-        $this->assertEquals(3, $subscription->subject_id);
-        $this->assertEquals($user->id, $subscription->user_id);
-        $this->assertEquals(false, $subscription->state);
-        $this->assertTrue($subscription->exists);
+        $this->assertFalse($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
         $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
         $this->assertEquals(0, $subscriptions->count());
@@ -91,13 +79,7 @@ class SubscriptionServiceTest extends TestCase
 
         $service = new SubscriptionService();
         
-        $subscription = $service->getSubscription($user, SubscriptionSubjectType::GameWall, 3);
-        $this->assertNotNull($subscription);
-        $this->assertEquals(SubscriptionSubjectType::GameWall, $subscription->subject_type);
-        $this->assertEquals(3, $subscription->subject_id);
-        $this->assertEquals($user->id, $subscription->user_id);
-        $this->assertEquals(false, $subscription->state);
-        $this->assertFalse($subscription->exists);
+        $this->assertFalse($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
         $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
         $this->assertEquals(0, $subscriptions->count());
@@ -117,13 +99,7 @@ class SubscriptionServiceTest extends TestCase
 
         $service = new SubscriptionService();
         
-        $subscription = $service->getSubscription($user, SubscriptionSubjectType::GameWall, 3);
-        $this->assertNotNull($subscription);
-        $this->assertEquals(SubscriptionSubjectType::GameWall, $subscription->subject_type);
-        $this->assertEquals(3, $subscription->subject_id);
-        $this->assertEquals($user->id, $subscription->user_id);
-        $this->assertEquals(true, $subscription->state);
-        $this->assertFalse($subscription->exists);
+        $this->assertTrue($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
         $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
         $this->assertEquals(1, $subscriptions->count());
@@ -145,13 +121,7 @@ class SubscriptionServiceTest extends TestCase
 
         $service = new SubscriptionService();
         
-        $subscription = $service->getSubscription($user, SubscriptionSubjectType::GameWall, 3);
-        $this->assertNotNull($subscription);
-        $this->assertEquals(SubscriptionSubjectType::GameWall, $subscription->subject_type);
-        $this->assertEquals(3, $subscription->subject_id);
-        $this->assertEquals($user->id, $subscription->user_id);
-        $this->assertEquals(true, $subscription->state);
-        $this->assertTrue($subscription->exists);
+        $this->assertTrue($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
         $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
         $this->assertEquals(1, $subscriptions->count());
@@ -173,13 +143,7 @@ class SubscriptionServiceTest extends TestCase
 
         $service = new SubscriptionService();
         
-        $subscription = $service->getSubscription($user, SubscriptionSubjectType::GameWall, 3);
-        $this->assertNotNull($subscription);
-        $this->assertEquals(SubscriptionSubjectType::GameWall, $subscription->subject_type);
-        $this->assertEquals(3, $subscription->subject_id);
-        $this->assertEquals($user->id, $subscription->user_id);
-        $this->assertEquals(false, $subscription->state);
-        $this->assertTrue($subscription->exists);
+        $this->assertFalse($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
         $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
         $this->assertEquals(0, $subscriptions->count());

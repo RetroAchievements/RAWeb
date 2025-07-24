@@ -48,11 +48,7 @@ class SubscriptionService
         return $subscribers;
     }
 
-    // Get a single Subscription object for a user tied to a specific article.
-    // Returns a new object if an explicit subscription is not found so the caller
-    // can update the state and commit if desired.
-    // NOTE: on commit of Subscription, getSubscriptionCounts needs to be expired.
-    public function getSubscription(User $user, SubscriptionSubjectType $subjectType, int $subjectId): Subscription
+    public function isSubscribed(User $user, SubscriptionSubjectType $subjectType, int $subjectId): bool
     {
         $subscription = Subscription::query()
             ->where('subject_type', $subjectType)
@@ -60,19 +56,24 @@ class SubscriptionService
             ->where('user_id', $user->id)
             ->first();
 
-        if (!$subscription) {
-            $implicitlySubscribed = $this->getImplicitSubscriptionsQuery($subjectType, $subjectId)
-                ->where('user_id', $user->id)->exists() ? 1 : 0; 
-
-            $subscription = new Subscription([
-                'subject_type' => $subjectType,
-                'subject_id' => $subjectId,
-                'user_id' => $user->id,
-                'state' => $implicitlySubscribed,
-            ]);
+        if ($subscription) {
+            return $subscription->state;
         }
 
-        return $subscription;
+        return $this->getImplicitSubscriptionsQuery($subjectType, $subjectId)
+            ->where('user_id', $user->id)
+            ->exists();
+    }
+
+    public function updateSubscription(User $user, SubscriptionSubjectType $subjectType, int $subjectId, bool $isSubscribed): void
+    {
+        Subscription::updateOrCreate([
+            'subject_type' => $subjectType,
+            'subject_id' => $subjectId,
+            'user_id' => $user->id,
+        ],[
+            'state' => $isSubscribed,
+        ]);
     }
 
     private function getImplicitSubscriptionsQuery(SubscriptionSubjectType $subjectType, ?int $subjectId): Builder
