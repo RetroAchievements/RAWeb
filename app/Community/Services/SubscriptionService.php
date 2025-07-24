@@ -8,6 +8,7 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Achievement;
 use App\Models\Comment;
+use App\Models\ForumTopicComment;
 use App\Models\Subscription;
 use App\Models\Ticket;
 use App\Models\User;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 class SubscriptionService
 {
     /**
-     * @return Collection<int, Subscription>
+     * @return Collection<int, User>
      */
     public function getSubscribers(SubscriptionSubjectType $subjectType, int $subjectId): Collection
     {
@@ -29,30 +30,17 @@ class SubscriptionService
             ->get();
         $explicitSubcriberIds = $subscribers->pluck('user_id')->toArray();
 
-        $implicitSubscriptionsQuery = $this->getImplicitSubscriptionsQuery($subjectType, $subjectId, $explicitSubcriberIds);
+        $implicitSubscriptionsQuery = $this->getImplicitSubscriptionsQuery($subjectType, $subjectId, ignoreUserIds: $explicitSubcriberIds);
 
         // only keep explicitly subscribed
-        $subscribers = $subscribers->filter(fn ($s) => $s->state === true);
+        $subscriberIds = $subscribers->filter(fn ($s) => $s->state === true)->pluck('user_id');
 
         // merge in implicit subscriptions
         foreach ($implicitSubscriptionsQuery->get() as $implicitSubscription) {
-            // prevent duplicate entries potentially caused by multiple subqueries in the implicit query
-            if ($subscribers->contains('user_id', $implicitSubscription->user_id)) {
-                continue;
-            }
-
-            $subscription = new Subscription([
-                'subject_type' => $subjectType,
-                'subject_id' => $subjectId,
-                'user_id' => $implicitSubscription->user_id,
-                'state' => true,
-            ]);
-            $subscribers->add($subscription);
+            $subscriberIds[] = $implicitSubscription->user_id;
         }
 
-        $subscribers->loadMissing('user');
-
-        return $subscribers;
+        return User::whereIn('ID', $subscriberIds)->get();
     }
 
     public function isSubscribed(User $user, SubscriptionSubjectType $subjectType, int $subjectId): bool
@@ -67,14 +55,13 @@ class SubscriptionService
             return $subscription->state;
         }
 
-        return $this->getImplicitSubscriptionsQuery($subjectType, $subjectId)
-            ->where('user_id', $user->id)
+        return $this->getImplicitSubscriptionsQuery($subjectType, $subjectId, forUserId: $user->id)
             ->exists();
     }
 
-    public function updateSubscription(User $user, SubscriptionSubjectType $subjectType, int $subjectId, bool $isSubscribed): void
+    public function updateSubscription(User $user, SubscriptionSubjectType $subjectType, int $subjectId, bool $isSubscribed): Subscription
     {
-        Subscription::updateOrCreate([
+        return Subscription::updateOrCreate([
             'subject_type' => $subjectType,
             'subject_id' => $subjectId,
             'user_id' => $user->id,
@@ -83,15 +70,16 @@ class SubscriptionService
         ]);
     }
 
-    private function getImplicitSubscriptionsQuery(SubscriptionSubjectType $subjectType, ?int $subjectId, ?array $ignoreUserIds = null): Builder
+    private function getImplicitSubscriptionsQuery(SubscriptionSubjectType $subjectType, ?int $subjectId, ?int $forUserId = null, ?array $ignoreUserIds = null): Builder
     {
         return match($subjectType) {
-            SubscriptionSubjectType::Achievement => $this->getImplicitAchievementCommentSubscriptionQuery($subjectId, $ignoreUserIds),
-            SubscriptionSubjectType::AchievementTicket => $this->getImplicitTicketSubscriptionQuery($subjectId, $ignoreUserIds),
+            SubscriptionSubjectType::Achievement => $this->getImplicitAchievementCommentSubscriptionQuery($subjectId, $forUserId, $ignoreUserIds),
+            SubscriptionSubjectType::AchievementTicket => $this->getImplicitTicketSubscriptionQuery($subjectId, $forUserId, $ignoreUserIds),
+            SubscriptionSubjectType::ForumTopic => $this->getImplicitForumTopicSubscriptionQuery($subjectId, $forUserId, $ignoreUserIds),
             SubscriptionSubjectType::GameAchievements => $this->getNoImplicitSubscriptionQuery(),
             SubscriptionSubjectType::GameTickets => $this->getNoImplicitSubscriptionQuery(),
-            SubscriptionSubjectType::GameWall => $this->getImplicitCommentSubscriptionQuery(ArticleType::Game, $subjectId, $ignoreUserIds),
-            SubscriptionSubjectType::UserWall => $this->getImplicitCommentSubscriptionQuery(ArticleType::User, $subjectId, $ignoreUserIds),
+            SubscriptionSubjectType::GameWall => $this->getImplicitCommentSubscriptionQuery(ArticleType::Game, $subjectId, $forUserId, $ignoreUserIds),
+            SubscriptionSubjectType::UserWall => $this->getImplicitCommentSubscriptionQuery(ArticleType::User, $subjectId, $forUserId, $ignoreUserIds),
         };
     }
 
@@ -100,7 +88,7 @@ class SubscriptionService
         return Subscription::whereRaw('1 = 0');
     }
 
-    private function getImplicitCommentSubscriptionQuery(int $articleType, ?int $articleId, ?array $ignoreUserIds): Builder
+    private function getImplicitCommentSubscriptionQuery(int $articleType, ?int $articleId, ?int $forUserId, ?array $ignoreUserIds): Builder
     {
         $query = Comment::where('ArticleType', $articleType)
             ->where('user_id', '!=', Comment::SYSTEM_USER_ID);
@@ -108,18 +96,20 @@ class SubscriptionService
         if ($articleId !== null)
             $query->where('ArticleId', $articleId);
 
-        if ($ignoreUserIds !== null)
+        if ($forUserId !== null)
+            $query->where('user_id', $forUserId);
+        elseif ($ignoreUserIds !== null)
             $query->whereNotIn('user_id', $ignoreUserIds);
         
-        $query->select(['user_id', 'ArticleId as subject_id'])->distinct();
+        $query->select(['user_id', DB::raw('ArticleId as subject_id')])->distinct();
 
         return $query;
     }
 
-    private function getImplicitAchievementCommentSubscriptionQuery(?int $articleId, ?array $ignoreUserIds): Builder
+    private function getImplicitAchievementCommentSubscriptionQuery(?int $articleId, ?int $forUserId, ?array $ignoreUserIds): Builder
     {
         // find any users who have commented on the achievement
-        $query = $this->getImplicitCommentSubscriptionQuery(ArticleType::Achievement, $articleId, $ignoreUserIds);
+        $query = $this->getImplicitCommentSubscriptionQuery(ArticleType::Achievement, $articleId, $forUserId, $ignoreUserIds);
 
         if ($articleId !== null) {
             // find any users subscribed to GameAchievements for the game owning the achievement
@@ -130,7 +120,9 @@ class SubscriptionService
                     ->where('subject_id', $achievement->GameID)
                     ->select(['user_id', 'subject_id']);
 
-                if ($ignoreUserIds)
+                if ($forUserId !== null)
+                    $query2->where('user_id', $forUserId);
+                elseif ($ignoreUserIds !== null)
                     $query2->whereNotIn('user_id', $ignoreUserIds);
 
                 $query->union($query2);
@@ -140,10 +132,10 @@ class SubscriptionService
         return $query;
     }
 
-    private function getImplicitTicketSubscriptionQuery(?int $articleId, ?array $ignoreUserIds): Builder
+    private function getImplicitTicketSubscriptionQuery(?int $articleId, ?int $forUserId, ?array $ignoreUserIds): Builder
     {
         // find any users who have commented on the ticket
-        $query = $this->getImplicitCommentSubscriptionQuery(ArticleType::AchievementTicket, $articleId, $ignoreUserIds);
+        $query = $this->getImplicitCommentSubscriptionQuery(ArticleType::AchievementTicket, $articleId, $forUserId, $ignoreUserIds);
 
         if ($articleId !== null) {
             // find any users subscribed to GameTickets for the game owning the ticketed achievement
@@ -154,21 +146,52 @@ class SubscriptionService
                     ->where('subject_id', $ticket->achievement->GameID)
                     ->select(['user_id', 'subject_id']);
 
-                if ($ignoreUserIds)
+                if ($forUserId !== null)
+                    $query2->where('user_id', $forUserId);
+                elseif ($ignoreUserIds !== null)
                     $query2->whereNotIn('user_id', $ignoreUserIds);
 
                 $query->union($query2);
 
                 // reporter should also be implicitly subscribed
-                if (!$ignoreUserIds || !in_array($ticket->reporter_id, $ignoreUserIds)) {
+                $includeReporter = false;
+                if ($forUserId !== null)
+                    $includeReporter = $ticket->reporter_id === $forUserId;
+                else
+                    $includeReporter = !$ignoreUserIds || !in_array($ticket->reporter_id, $ignoreUserIds);
+
+                if ($includeReporter) {
                     $query3 = Ticket::query()
-                        ->select([DB::raw('reporter_id as user_id'), DB::raw('ID as subject_id')])
+                        ->select([
+                            DB::raw('reporter_id as user_id'),
+                            DB::raw('ID as subject_id')
+                        ])
                         ->where('ID', $ticket->ID);
 
                     $query->union($query3);
                 }
             }
         }
+
+        return $query;
+    }
+
+    private function getImplicitForumTopicSubscriptionQuery(?int $forumTopicId, ?int $forUserId, ?array $ignoreUserIds): Builder
+    {
+        $query = ForumTopicComment::query();
+
+        if ($forumTopicId !== null)
+            $query->where('forum_topic_id', $forumTopicId);
+
+        if ($forUserId !== null)
+            $query->where('author_id', $forUserId);
+        elseif ($ignoreUserIds !== null)
+            $query->whereNotIn('author_id', $ignoreUserIds);
+
+        $query->select([
+            DB::raw('author_id as user_id'),
+            DB::raw('forum_topic_id as subject_id')
+        ])->distinct();
 
         return $query;
     }

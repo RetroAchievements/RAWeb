@@ -9,6 +9,8 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionService;
 use App\Models\Comment;
+use App\Models\ForumTopic;
+use App\Models\ForumTopicComment;
 use App\Models\Subscription;
 use App\Models\Ticket;
 use App\Models\User;
@@ -43,9 +45,9 @@ class SubscriptionServiceTest extends TestCase
         
         $this->assertTrue($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
-        $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
-        $this->assertEquals(1, $subscriptions->count());
-        $this->assertEquals($user->id, $subscriptions->first()->user_id);
+        $subscribers = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
+        $this->assertEquals(1, $subscribers->count());
+        $this->assertEquals($user->id, $subscribers->first()->id);
     }
 
     public function testExplicitlyUnsubscribed(): void
@@ -59,8 +61,8 @@ class SubscriptionServiceTest extends TestCase
         
         $this->assertFalse($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
-        $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
-        $this->assertEquals(0, $subscriptions->count());
+        $subscribers = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
+        $this->assertEquals(0, $subscribers->count());
     }
 
     public function testImplicitlyNotSubscribed(): void
@@ -72,8 +74,8 @@ class SubscriptionServiceTest extends TestCase
         
         $this->assertFalse($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
-        $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
-        $this->assertEquals(0, $subscriptions->count());
+        $subscribers = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
+        $this->assertEquals(0, $subscribers->count());
     }
 
     public function testImplicitlySubscribed(): void
@@ -92,9 +94,9 @@ class SubscriptionServiceTest extends TestCase
         
         $this->assertTrue($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
-        $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
-        $this->assertEquals(1, $subscriptions->count());
-        $this->assertEquals($user->id, $subscriptions->first()->user_id);
+        $subscribers = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
+        $this->assertEquals(1, $subscribers->count());
+        $this->assertEquals($user->id, $subscribers->first()->id);
     }
         
     public function testImplicitlySubscribedWithExplicitSubscription(): void
@@ -114,11 +116,11 @@ class SubscriptionServiceTest extends TestCase
         
         $this->assertTrue($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
-        $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
-        $this->assertEquals(1, $subscriptions->count());
-        $this->assertEquals($user->id, $subscriptions->first()->user_id);
+        $subscribers = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
+        $this->assertEquals(1, $subscribers->count());
+        $this->assertEquals($user->id, $subscribers->first()->id);
     }
-        
+
     public function testImplicitlySubscribedWithExplicitUnsubscription(): void
     {
         /** @var User $user */
@@ -136,8 +138,8 @@ class SubscriptionServiceTest extends TestCase
         
         $this->assertFalse($service->isSubscribed($user, SubscriptionSubjectType::GameWall, 3));
 
-        $subscriptions = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
-        $this->assertEquals(0, $subscriptions->count());
+        $subscribers = $service->getSubscribers(SubscriptionSubjectType::GameWall, 3);
+        $this->assertEquals(0, $subscribers->count());
     }
 
     public function testAchievementSubcriptionIncludesGameAchievementsSubscribers(): void
@@ -203,9 +205,9 @@ class SubscriptionServiceTest extends TestCase
         $this->assertTrue($service->isSubscribed($user5, SubscriptionSubjectType::Achievement, $achievement->ID));
         $this->assertFalse($service->isSubscribed($user6, SubscriptionSubjectType::Achievement, $achievement->ID));
 
-        $subscriptions = $service->getSubscribers(SubscriptionSubjectType::Achievement, $achievement->ID);
-        $subscribedUsers = $subscriptions->pluck('user_id')->toArray();
-        $this->assertEqualsCanonicalizing([1, 2, 4, 5], $subscribedUsers);
+        $subscribers = $service->getSubscribers(SubscriptionSubjectType::Achievement, $achievement->ID);
+        $subscribedUserIds = $subscribers->pluck('id')->toArray();
+        $this->assertEqualsCanonicalizing([1, 2, 4, 5], $subscribedUserIds);
     }
 
     public function testTicketSubcriptionIncludesGameTicketsSubscribers(): void
@@ -278,8 +280,26 @@ class SubscriptionServiceTest extends TestCase
         $this->assertFalse($service->isSubscribed($user6, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
         $this->assertTrue($service->isSubscribed($user7, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
 
-        $subscriptions = $service->getSubscribers(SubscriptionSubjectType::AchievementTicket, $ticket->ID);
-        $subscribedUsers = $subscriptions->pluck('user_id')->toArray();
-        $this->assertEqualsCanonicalizing([1, 2, 4, 5, 7], $subscribedUsers);
+        $subscribers = $service->getSubscribers(SubscriptionSubjectType::AchievementTicket, $ticket->ID);
+        $subscribedUserIds = $subscribers->pluck('id')->toArray();
+        $this->assertEqualsCanonicalizing([1, 2, 4, 5, 7], $subscribedUserIds);
+    }
+
+    public function testImplicitlySubscribedForumTopic(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        /** @var ForumTopic $topic */
+        $topic = ForumTopic::factory()->create();
+        ForumTopicComment::factory()->create(['forum_topic_id' => $topic->id]);
+
+        $service = new SubscriptionService();
+
+        $this->assertTrue($service->isSubscribed($user, SubscriptionSubjectType::ForumTopic, $topic->id));
+
+        $subscribers = $service->getSubscribers(SubscriptionSubjectType::ForumTopic, $topic->id);
+        $this->assertEquals(1, $subscribers->count());
+        $this->assertEquals($user->id, $subscribers->first()->id);
     }
 }
