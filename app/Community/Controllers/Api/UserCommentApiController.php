@@ -26,16 +26,6 @@ class UserCommentApiController extends Controller
         /** @var User $me */
         $me = Auth::user();
 
-        // Automatically subscribe the user to the user wall if they've never previously
-        // been subscribed to it and then later unsubscribed.
-        $doesSubscriptionExist = $me->subscriptions()
-            ->whereSubjectType(SubscriptionSubjectType::UserWall)
-            ->whereSubjectId($user->id)
-            ->exists();
-        if (!$doesSubscriptionExist) {
-            updateSubscription(SubscriptionSubjectType::UserWall, $user->id, $me->id, true);
-        }
-
         addArticleComment($me->username, $data->commentableType, $data->commentableId, $data->body);
 
         return response()->json(['success' => true]);

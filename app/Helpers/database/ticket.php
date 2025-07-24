@@ -3,6 +3,8 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketState;
+use App\Community\Enums\TicketType;
+use App\Community\Services\SubscriptionService;
 use App\Enums\UserPreference;
 use App\Mail\TicketCreatedMail;
 use App\Mail\TicketStatusUpdatedMail;
@@ -119,16 +121,16 @@ function sendInitialTicketEmailToAssignee(Ticket $ticket, Game $game, Achievemen
 
 function sendInitialTicketEmailsToSubscribers(Ticket $ticket, Game $game, Achievement $achievement): void
 {
+    $subscriptionService = new SubscriptionService();
+    $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::GameTickets, $game->id)
+        ->filter(fn($s) => isset($s->EmailAddress) && BitSet($s->websitePrefs, UserPreference::EmailOn_TicketActivity));
+
     $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $game->id, 1 << UserPreference::EmailOn_TicketActivity);
     foreach ($subscribers as $sub) {
-        if ($sub['User'] !== $achievement->developer->User && $sub['User'] != $ticket->reporter->username) {
-            // Find the user model for the subscriber.
-            $subscriberUser = User::whereName($sub['User'])->first();
-            if ($subscriberUser) {
-                Mail::to($sub['EmailAddress'])->queue(
-                    new TicketCreatedMail($subscriberUser, $ticket, $game, $achievement, isMaintainer: false)
-                );
-            }
+        if (!$sub->is($achievement->developer) && !$sub->is($ticket->reporter)) {
+            Mail::to($sub->EmailAddress)->queue(
+                new TicketCreatedMail($sub, $ticket, $game, $achievement, isMaintainer: false)
+            );
         }
     }
 }

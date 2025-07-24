@@ -7,6 +7,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
+use App\Community\Services\SubscriptionService;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Models\EventAchievement;
@@ -621,13 +622,14 @@ if ($isFullyFeaturedGame) {
                 echo "</div>";
                 // right column
                 echo "<div class='grow'>";
+                $subscriptionService = new SubscriptionService();
                 ?>
 
                 <x-update-subscription-button
                     name="updateachievementssub"
                     subjectType="{{ SubscriptionSubjectType::GameAchievements }}"
                     subjectId="{{ $gameID }}"
-                    isSubscribed="{{ isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userModel) }}"
+                    isSubscribed="{{ $subscriptionService->isSubscribed($userModel, SubscriptionSubjectType::GameAchievements, $gameID) }}"
                     resource="Achievement Comments"
                 />
 
@@ -635,7 +637,7 @@ if ($isFullyFeaturedGame) {
                     name="updateticketssub"
                     subjectType="{{ SubscriptionSubjectType::GameTickets }}"
                     subjectId="{{ $gameID }}"
-                    isSubscribed="{{ isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userModel) }}"
+                    isSubscribed="{{ $subscriptionService->isSubscribed($userModel, SubscriptionSubjectType::GameTickets, $gameID) }}"
                     resource="Tickets"
                 />
 
